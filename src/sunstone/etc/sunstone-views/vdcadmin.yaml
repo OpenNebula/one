@@ -439,3 +439,5 @@ tabs:
         panel_tabs:
             users: true
         actions:
+            Template.chmod: true
+            Template.delete: true

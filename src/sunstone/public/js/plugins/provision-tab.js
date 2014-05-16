@@ -51,11 +51,13 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '<br>'+
     '</div>'+
   '</div>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-9 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
-        '<dd style="width: 50%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
+        '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
+        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_templates_selector">'+ tr("VDC") +'</a></dd>'+
+        '<dd style="width: 34%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
       '</dl>'+
       '<br>'+
       '<div class="tabs-content">'+
@@ -72,6 +74,20 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
             '</tbody>'+
           '</table>'+
         '</div>'+
+        '<div class="content" id="provision_vdc_templates_selector">'+
+          '<table id="provision_vdc_templates_table">'+
+            '<thead class="hidden">'+
+              '<tr>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+                '<th>'+tr("Saved")+'</th>'+
+                '<th>'+tr("Shared")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody class="hidden">'+
+            '</tbody>'+
+          '</table>'+
+        '</div>'+
         '<div class="content" id="provision_saved_templates_selector">'+
           '<table id="provision_saved_templates_table">'+
             '<thead class="hidden">'+
@@ -79,6 +95,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
                 '<th>'+tr("ID")+'</th>'+
                 '<th>'+tr("Name")+'</th>'+
                 '<th>'+tr("Saved")+'</th>'+
+                '<th>'+tr("Shared")+'</th>'+
               '</tr>'+
             '</thead>'+
             '<tbody class="hidden">'+
@@ -113,6 +130,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
                 '<br>'+
               '</div>'+
             '</div>'+
+            '<br>'+
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
                 '<table id="provision_instance_types_table">'+
@@ -148,6 +166,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
                 '<br>'+
               '</div>'+
             '</div>'+
+            '<br>'+
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
                 '<table id="provision_networks_table">'+
@@ -1499,7 +1518,7 @@ function show_provision_template_list(timeout) {
   update_provision_templates_datatable(provision_templates_datatable, timeout);
 }
 
-function update_provision_templates_datatable(datatable) {
+function update_provision_templates_datatable(datatable, timeout) {
   datatable.html('<div class="text-center">'+
     '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
       '<i class="fa fa-cloud fa-stack-2x"></i>'+
@@ -1511,28 +1530,30 @@ function update_provision_templates_datatable(datatable) {
     '</span>'+
     '</div>');
 
-  OpenNebula.Template.list({
-    timeout: true,
-    success: function (request, item_list){
-      datatable.fnClearTable(true);
-      if (item_list.length == 0) {
-        datatable.html('<div class="text-center">'+
-          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-            '<i class="fa fa-cloud fa-stack-2x"></i>'+
-            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-          '</span>'+
-          '<br>'+
-          '<br>'+
-          '<span style="font-size: 18px; color: #999">'+
-            tr("There are no templates available")+
-          '</span>'+
-          '</div>');
-      } else {
-        datatable.fnAddData(item_list);
-      }
-    },
-    error: onError
-  });
+  setTimeout( function(){
+    OpenNebula.Template.list({
+      timeout: true,
+      success: function (request, item_list){
+        datatable.fnClearTable(true);
+        if (item_list.length == 0) {
+          datatable.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no templates available")+
+            '</span>'+
+            '</div>');
+        } else {
+          datatable.fnAddData(item_list);
+        }
+      },
+      error: onError
+    });
+  }, timeout);
 }
 
 function update_provision_instance_types_datatable(datatable) {
@@ -2238,6 +2259,76 @@ $(document).ready(function(){
     update_provision_templates_datatable(provision_system_templates_datatable);
     provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
 
+    provision_vdc_templates_datatable = $('#provision_vdc_templates_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "VMTEMPLATE.ID" },
+          { "mDataProp": "VMTEMPLATE.NAME" },
+          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
+          { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no templates available. Please contact your cloud administrator")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_vdc_templates_table").html('<ul id="provision_vdc_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.VMTEMPLATE;
+        $("#provision_vdc_templates_ul").append('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+              '<li class="provision-title" title="'+data.NAME+'">'+
+                data.NAME+
+              '</li>'+
+              '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
+                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
+                  ((data.TEMPLATE.MEMORY > 1000) ?
+                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
+                '</span>'+
+                '</span>'+
+              '</li>'+
+              '<li class="provision-description">'+
+                (data.TEMPLATE.DESCRIPTION || '...')+
+              '</li>'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.REGTIME)+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
+              '</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    update_provision_templates_datatable(provision_vdc_templates_datatable);
+    provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
+    provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
+
     provision_saved_templates_datatable = $('#provision_saved_templates_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
@@ -2248,7 +2339,8 @@ $(document).ready(function(){
       "aoColumns": [
           { "mDataProp": "VMTEMPLATE.ID" },
           { "mDataProp": "VMTEMPLATE.NAME" },
-          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
+          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
+          { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
       ],
       "fnPreDrawCallback": function (oSettings) {
         // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
@@ -2305,21 +2397,26 @@ $(document).ready(function(){
 
     update_provision_templates_datatable(provision_saved_templates_datatable);
     provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
+    provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
 
     $('#provision_create_template_search').on('keyup',function(){
       provision_system_templates_datatable.fnFilter( $(this).val() );
       provision_saved_templates_datatable.fnFilter( $(this).val() );
+      provision_vdc_templates_datatable.fnFilter( $(this).val() );
     })
 
     $('#provision_create_template_search').on('change',function(){
       provision_system_templates_datatable.fnFilter( $(this).val() );
       provision_saved_templates_datatable.fnFilter( $(this).val() );
+      provision_vdc_templates_datatable.fnFilter( $(this).val() );
     })
 
     $("#provision_create_template_refresh_button").click(function(){
       OpenNebula.Helper.clear_cache("VMTEMPLATE");
       update_provision_templates_datatable(provision_system_templates_datatable);
       update_provision_templates_datatable(provision_saved_templates_datatable);
+      update_provision_templates_datatable(provision_vdc_templates_datatable);
+
     });
 
     provision_instance_types_datatable = $('#provision_instance_types_table').dataTable({
@@ -2571,6 +2668,22 @@ $(document).ready(function(){
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
         //var state = get_provision_image_state(data);
+        var actions_html = "";
+        if (Config.isTabActionEnabled("provision-tab", "Template.chmod")) {
+          if (data.UID == config['user_id']) {
+
+            if (data.PERMISSIONS.GROUP_U == "1") {
+              actions_html += '<a class="provision_confirm_unshare_template_button left" data-tooltip title="'+ tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
+              actions_html += '<span style="font-size:12px; color: #777">' + tr("SHARED") + '</span>';
+            } else {
+              actions_html += '<a class="provision_confirm_chmod_template_button left" data-tooltip title="'+ tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
+            }
+          }
+        }
+
+        if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
+          actions_html += '<a class="provision_confirm_delete_template_button" data-tooltip title="'+ tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+        }
 
         $("#provision_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
@@ -2596,8 +2709,8 @@ $(document).ready(function(){
                 '<i class="fa fa-fw fa-user"/>&emsp;'+
                 data.UNAME+
               '</li>'+
-              '<li class="provision-title" style="padding-top:0px">'+
-                '<a class="provision_confirm_delete_template_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>'+
+              '<li class="provision-title" style="padding-top:15px">'+
+                actions_html+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -2632,7 +2745,7 @@ $(document).ready(function(){
     });
 
     $("#provision_list_templates").on("click", "#provision_templates_list_filter_button", function(){
-      insertSelectOptions("#provision_list_templates_filter", $("#provision_list_templates"), "User", -2, false,
+      insertSelectOptions("#provision_list_templates_filter", $("#provision_list_templates"), "User", config['user_id'], false,
           '<option value="-2">'+tr("<< all >>")+'</option>');
 
       $("#provision_list_templates_filter ").on("change", ".resource_list_select", function(){
@@ -2649,51 +2762,162 @@ $(document).ready(function(){
       $("#provision_list_templates_filter", $("#provision_list_templates")).fadeIn();
     });
 
-    $("#provision_list_templates").on("click", ".provision_confirm_delete_template_button", function(){
-      var context = $(this).parents(".provision-pricing-table");
-      var template_id = context.attr("opennebula_id");
-      var image_id = context.attr("saved_to_image_id");
-      var template_name = $(".provision-title", context).text();
+    if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
+      $("#provision_list_templates").on("click", ".provision_confirm_delete_template_button", function(){
+        var context = $(this).parents(".provision-pricing-table");
+        var template_id = context.attr("opennebula_id");
+        var image_id = context.attr("saved_to_image_id");
+        var template_name = $(".provision-title", context).text();
 
-      $("#provision_confirm_delete_template_div").html(
-        '<div data-alert class="alert-box secondary radius">'+
-          '<div class="row">'+
-          '<div class="large-9 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
-              tr("Handle with care! This action will inmediately destroy the template")+
-              ' "' + template_name + '" ' +
-              tr("and the image associated.") +
-            '</span>'+
-          '</div>'+
-          '<div class="large-3 columns">'+
-            '<a href"#" id="provision_delete_template_button" class="alert button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+tr("Delete")+'</a>'+
-          '</div>'+
-          '</div>'+
-          '<a href="#" class="close">&times;</a>'+
-        '</div>');
-    });
+        $("#provision_confirm_delete_template_div").html(
+          '<div data-alert class="alert-box secondary radius">'+
+            '<div class="row">'+
+            '<div class="large-9 columns">'+
+              '<span style="font-size: 14px; line-height: 20px">'+
+                tr("Handle with care! This action will inmediately destroy the template")+
+                ' "' + template_name + '" ' +
+                tr("and the image associated.") +
+              '</span>'+
+            '</div>'+
+            '<div class="large-3 columns">'+
+              '<a href"#" id="provision_delete_template_button" class="alert button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+tr("Delete")+'</a>'+
+            '</div>'+
+            '</div>'+
+            '<a href="#" class="close">&times;</a>'+
+          '</div>');
+      });
 
-    $("#provision_confirm_delete_template_div").on("click", "#provision_delete_template_button", function(){
-      var template_id = $(this).attr("template_id");
-      var image_id = $(this).attr("image_id");
+      $("#provision_confirm_delete_template_div").on("click", "#provision_delete_template_button", function(){
+        var template_id = $(this).attr("template_id");
+        var image_id = $(this).attr("image_id");
 
-      OpenNebula.Image.del({
-        timeout: true,
-        data : {
-          id : image_id
-        },
-        success: function (){
-          Sunstone.runAction('Provision.Template.delete', template_id);
-        },
-        error: function (request,error_json, container) {
-          if (error_json.error.http_status=="404") {
+        OpenNebula.Image.del({
+          timeout: true,
+          data : {
+            id : image_id
+          },
+          success: function (){
             Sunstone.runAction('Provision.Template.delete', template_id);
-          } else {
-            onError(request, error_json, container);
+          },
+          error: function (request,error_json, container) {
+            if (error_json.error.http_status=="404") {
+              Sunstone.runAction('Provision.Template.delete', template_id);
+            } else {
+              onError(request, error_json, container);
+            }
           }
-        }
-      })
-    });
+        })
+      });
+    }
+
+
+    if (Config.isTabActionEnabled("provision-tab", "Template.chmod")) {
+      $("#provision_list_templates").on("click", ".provision_confirm_chmod_template_button", function(){
+        var context = $(this).parents(".provision-pricing-table");
+        var template_id = context.attr("opennebula_id");
+        var image_id = context.attr("saved_to_image_id");
+        var template_name = $(".provision-title", context).text();
+
+        $("#provision_confirm_delete_template_div").html(
+          '<div data-alert class="alert-box secondary radius">'+
+            '<div class="row">'+
+            '<div class="large-8 columns">'+
+              '<span style="font-size: 14px; line-height: 20px">'+
+                tr("The template")+
+                ' "' + template_name + '" ' +
+                tr("and the image associated will be shared and all the users will be able to instantiate new VMs using this template.") +
+              '</span>'+
+            '</div>'+
+            '<div class="large-4 columns">'+
+              '<a href"#" id="provision_chmod_template_button" class="success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+tr("Share template")+'</a>'+
+            '</div>'+
+            '</div>'+
+            '<a href="#" class="close">&times;</a>'+
+          '</div>');
+      });
+
+      $("#provision_confirm_delete_template_div").on("click", "#provision_chmod_template_button", function(){
+        var template_id = $(this).attr("template_id");
+        var image_id = $(this).attr("image_id");
+
+        OpenNebula.Template.chmod({
+          timeout: true,
+          data : {
+            id : template_id,
+            extra_param: {'group_u': 1}
+          },
+          success: function (){
+            OpenNebula.Helper.clear_cache("VMTEMPLATE");
+            show_provision_template_list(1000);
+
+            OpenNebula.Image.chmod({
+              timeout: true,
+              data : {
+                id : image_id,
+                extra_param: {'group_u': 1}
+              },
+              success: function (){
+              },
+              error: onError
+            })
+          },
+          error: onError
+        })
+      });
+
+      $("#provision_list_templates").on("click", ".provision_confirm_unshare_template_button", function(){
+        var context = $(this).parents(".provision-pricing-table");
+        var template_id = context.attr("opennebula_id");
+        var image_id = context.attr("saved_to_image_id");
+        var template_name = $(".provision-title", context).first().text();
+
+        $("#provision_confirm_delete_template_div").html(
+          '<div data-alert class="alert-box secondary radius">'+
+            '<div class="row">'+
+            '<div class="large-8 columns">'+
+              '<span style="font-size: 14px; line-height: 20px">'+
+                tr("The template")+
+                ' "' + template_name + '" ' +
+                tr("and the image associated will be unshared and the users will not be able to instantiate new VMs using this template.") +
+              '</span>'+
+            '</div>'+
+            '<div class="large-4 columns">'+
+              '<a href"#" id="provision_unshare_template_button" class="success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+tr("Unshare template")+'</a>'+
+            '</div>'+
+            '</div>'+
+            '<a href="#" class="close">&times;</a>'+
+          '</div>');
+      });
+
+      $("#provision_confirm_delete_template_div").on("click", "#provision_unshare_template_button", function(){
+        var template_id = $(this).attr("template_id");
+        var image_id = $(this).attr("image_id");
+
+        OpenNebula.Template.chmod({
+          timeout: true,
+          data : {
+            id : template_id,
+            extra_param: {'group_u': 0}
+          },
+          success: function (){
+            OpenNebula.Helper.clear_cache("VMTEMPLATE");
+            show_provision_template_list(1000);
+
+            OpenNebula.Image.chmod({
+              timeout: true,
+              data : {
+                id : image_id,
+                extra_param: {'group_u': 0}
+              },
+              success: function (){
+              },
+              error: onError
+            })
+          },
+          error: onError
+        })
+      });
+    }
 
     //
     // List VMs
@@ -2804,7 +3028,7 @@ $(document).ready(function(){
     });
 
     $("#provision_list_vms").on("click", "#provision_vms_list_filter_button", function(){
-      insertSelectOptions("#provision_list_vms_filter", $("#provision_list_vms"), "User", -2, false,
+      insertSelectOptions("#provision_list_vms_filter", $("#provision_list_vms"), "User", config['user_id'], false,
           '<option value="-2">'+tr("<< all >>")+'</option>');
 
       $("#provision_list_vms_filter ").on("change", ".resource_list_select", function(){
