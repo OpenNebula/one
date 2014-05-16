@@ -3922,6 +3922,7 @@ function fillTemplatePopUp(template, dialog){
     var capacity_section = $('#capacityTab', dialog);
     autoFillInputs(template, capacity_section);
     $("#DESCRIPTION", capacity_section).val(template["DESCRIPTION"]);
+    delete template["DESCRIPTION"];
 
 
     //
