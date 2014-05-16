@@ -35,6 +35,10 @@ module OpenNebula
                     :type => :integer,
                     :required => true
                 },
+                'vm_template_contents' => {
+                    :type => :string,
+                    :required => false
+                },
                 'parents' => {
                     :type => :array,
                     :items => {
