@@ -486,11 +486,29 @@ fieldset {
     margin-top: 1px;
 }
 
+.provision-bullet-item {
+
+  .progress {
+    background-color: #fff;
+  }
+
+  .progress-text {
+      margin-top: 4px;
+  }
+}
+
 .meter {
     background: #cdebf5 !important;
     box-shadow: 0px 1px #dfdfdf;
 }
 
+.quota_table {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  clear: both;
+  max-width: none !important;
+  width: 100%;
+}
 
 #provision_user_info_quotas_div, #dashboard-tab {
   .progress {
@@ -794,9 +812,19 @@ div.dataTables_scrollFoot table {
 
 .provision-search-input {
   width: 200px !important;
-  height:40px !important;
+  height:35px !important;
   border-radius: 3px;
   border-color: #efefef;
+  margin: 5px 0 0px 0 !important;
+}
+
+#provision_list_vms_filter select, #provision_list_templates_filter select {
+  width: auto !important;
+  height:35px !important;
+  border-radius: 3px;
+  border-color: #efefef;
+  float: right !important;
+  margin: 5px 10px 0px 0px;
 }
 
 .accordion {

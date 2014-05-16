@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
-    <script src="vendor/4.0/jquery-1.11.0.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jquery-2.1.1.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="vendor/4.0/jquery-migrate-1.2.1.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="vendor/4.0/jgrowl/jquery.jgrowl.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="vendor/4.0/datatables/jquery.dataTables.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
@@ -56,6 +56,7 @@
         },
         'view' : view,
         'available_views' : available_views,
+        'user_id' : '<%= session[:user_id] %>',
         'display_name' : '<%= session[:display_name] %>',
         'zone_name' : '<%= session[:zone_name] %>',
         'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>')

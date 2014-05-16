@@ -1429,6 +1429,7 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
                     src/sunstone/etc/sunstone-views/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/vdcadmin46.yaml \
                      src/sunstone/etc/sunstone-views/vdcadmin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
@@ -1566,7 +1567,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
   src/sunstone/public/bower_components/foundation/js/foundation.min.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/4.0/jquery-1.11.0.min.js \
+                        src/sunstone/public/vendor/4.0/jquery-2.1.1.min.js \
                         src/sunstone/public/vendor/4.0/jquery-1.11.0.min.map \
                         src/sunstone/public/vendor/4.0/jquery-migrate-1.2.1.js"
 
