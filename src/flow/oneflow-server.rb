@@ -408,6 +408,7 @@ post '/service_template/:id/action' do
     action = JSON.parse(request.body.read)['action']
 
     opts   = action['params']
+    opts   = {} if opts.nil?
 
     rc = case action['perform']
     when 'instantiate'
