@@ -1569,7 +1569,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
   src/sunstone/public/bower_components/foundation/js/foundation.min.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/4.0/jquery-1.11.0.min.js \
+                        src/sunstone/public/vendor/4.0/jquery-2.1.1.min.js \
                         src/sunstone/public/vendor/4.0/jquery-1.11.0.min.map \
                         src/sunstone/public/vendor/4.0/jquery-migrate-1.2.1.js"
 
