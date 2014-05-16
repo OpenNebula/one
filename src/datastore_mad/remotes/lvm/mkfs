@@ -74,11 +74,14 @@ set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 LV_NAME="lv-one-${ID}"
 LVM_SOURCE="$DST_HOST:$VG_NAME.$LV_NAME"
 DEV="/dev/$VG_NAME/$LV_NAME"
+MKFS_COMMAND=$(mkfs_command "$DEV" "$FSTYPE")
 
 REGISTER_CMD=$(cat <<EOF
     set -e
     $SUDO $LVCREATE -L${SIZE}M ${VG_NAME} -n ${LV_NAME}
-    $SUDO $(mkfs_command "$DEV" "$FSTYPE")
+    if [ -n "$MKFS_COMMAND" ]; then
+        $SUDO $MKFS_COMMAND
+    fi
 EOF
 )
 
