@@ -171,7 +171,7 @@ module OpenNebula
         def allocate(template_json)
             template = JSON.parse(template_json)
 
-            validate(template)
+            ServiceTemplate.validate(template)
 
             super(template.to_json, template['name'])
         end
@@ -186,7 +186,7 @@ module OpenNebula
         def update(template_json)
             template = JSON.parse(template_json)
 
-            validator(template)
+            ServiceTemplate.validate(template)
 
             super(template.to_json)
         end
