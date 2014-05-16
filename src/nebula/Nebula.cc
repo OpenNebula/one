@@ -563,16 +563,14 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_INDIVIDUAL_MONITORING", do_poll);
 
-        if (do_poll)
-        {
-            poll_period = monitor_period * 2.5;
-        }
+        poll_period = monitor_period * 2.5;
 
         vmm = new VirtualMachineManager(
             vmpool,
             hpool,
             timer_period,
             poll_period,
+            do_poll,
             vm_limit,
             vmm_mads);
     }
