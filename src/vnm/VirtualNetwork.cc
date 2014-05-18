@@ -621,23 +621,132 @@ int VirtualNetwork::remove_leases(VirtualNetworkTemplate * leases_template,
 int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
                                 string&                  error_msg)
 {
-    vector<const Attribute *> vector_leases;
+    vector<const Attribute *> vleases;
+    const VectorAttribute *   lease = 0;
 
-    leases_template->get("LEASES", vector_leases);
-    //TODO
-    return 0;
-    //return leases->hold_leases(vector_leases, error_msg);
+    if (leases_template->get("LEASES", vleases) <= 0)
+    {
+        error_msg = "Empty lease description.";
+        return -1;
+    }
+
+   lease = dynamic_cast<const VectorAttribute *>(vleases[0]);
+
+    if ( lease == 0 )
+    {
+        error_msg = "Empty lease description.";
+        return -1;
+    }
+
+    int rc = -1;
+
+    unsigned int ar_id;
+
+    string  ip  = lease->vector_value("IP");
+    string  mac = lease->vector_value("MAC");
+
+    if (ip.empty() && mac.empty())
+    {
+        error_msg = "Missing MAC or IP.";
+        return -1;
+    }
+
+    if (lease->vector_value("AR_ID", ar_id) != 0) //No AR__ID hold fist address
+    {
+        if (!mac.empty())
+        {
+            rc = ar_pool.hold_by_mac(mac);
+        }
+        else if (!ip.empty())
+        {
+            rc = ar_pool.hold_by_ip(ip);
+        }
+    }
+    else
+    {
+        if (!mac.empty())
+        {
+            rc = ar_pool.hold_by_mac(ar_id, mac);
+        }
+        else if (!ip.empty())
+        {
+            rc = ar_pool.hold_by_ip(ar_id, ip);
+        }
+    }
+
+    if (rc!=0)
+    {
+        error_msg = "Address is not part of the address range or in use.";
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
-                                  string&                  error_msg)
+                                string&                  error_msg)
 {
+
+    vector<const Attribute *> vleases;
+    const VectorAttribute *   lease = 0;
+
+    if (leases_template->get("LEASES", vleases) <= 0)
+    {
+        error_msg = "Empty lease description.";
+        return -1;
+    }
+
+   lease = dynamic_cast<const VectorAttribute *>(vleases[0]);
+
+    if ( lease == 0 )
+    {
+        error_msg = "Empty lease description.";
+        return -1;
+    }
+
+    int rc;
+
+    unsigned int ar_id;
+
+    string  ip  = lease->vector_value("IP");
+    string  mac = lease->vector_value("MAC");
+
+    if (lease->vector_value("AR_ID", ar_id) != 0)
+    {
+        error_msg = "Missing address range ID (AR_ID).";
+        return -1;
+    }
+
+    if (!mac.empty())
+    {
+        rc = ar_pool.hold_by_mac(ar_id, mac);
+    }
+    else if (!ip.empty())
+    {
+        rc = ar_pool.hold_by_ip(ar_id, ip);
+    }
+    else
+    {
+        error_msg = "Missing MAC or IP.";
+        return -1;
+    }
+
+    if (rc!=0)
+    {
+        error_msg = "Address is not part of the address range or in use.";
+    }
+
+    return rc;
+
+
+
     vector<const Attribute *> vector_leases;
 
     leases_template->get("LEASES", vector_leases);
+
+
 
     //TODO
     return 0;

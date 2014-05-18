@@ -236,3 +236,73 @@ void AddressRangePool::get_attribute(const char * name, string& value,
         value = it->second->get_attribute(name);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        return -1;
+    }
+
+    return it->second->hold_by_ip(ip_s);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::hold_by_ip(const string& ip_s)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->hold_by_ip(ip_s) == 0)
+        {
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        return -1;
+    }
+
+    return it->second->hold_by_mac(mac_s);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::hold_by_mac(const string& mac_s)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->hold_by_mac(mac_s) == 0)
+        {
+            return 0;
+        }
+    }
+
+    return -1;
+}

@@ -265,11 +265,15 @@ void AddressRange::to_xml(ostringstream &oss) const
 
             if (it->second & PoolObjectSQL::VM)
             {
-                lease.replace("VM", it->second & 0x00000000FFFFFFFFLL);
+                int vmid = it->second & 0x00000000FFFFFFFFLL;
+
+                lease.replace("VM", vmid);
             }
             else if (it->second & PoolObjectSQL::NET)
             {
-                lease.replace("VNET", it->second & 0x00000000FFFFFFFFLL);
+                int vnid = it->second & 0x00000000FFFFFFFFLL;
+
+                lease.replace("VNET", vnid);
             }
 
             lease.to_xml(oss);
@@ -606,8 +610,9 @@ int AddressRange::attr_to_allocated(const string& allocated_s)
 void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
     unsigned int addr_index)
 {
+    long long lobid = obid & 0x00000000FFFFFFFFLL;
 
-    allocated.insert(make_pair(addr_index,ot|obid));
+    allocated.insert(make_pair(addr_index,ot|lobid));
 
     used_addr++;
 
@@ -791,6 +796,69 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     }
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::hold_by_ip(const string& ip_s)
+{
+    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    {
+        return -1;
+    }
+
+    unsigned int ip_i;
+
+    if (ip_to_i(ip_s, ip_i) == -1)
+    {
+        return -1;
+    }
+
+    if (ip_i < ip)
+    {
+        return -1;
+    }
+
+    unsigned int index = ip_i - ip;
+
+    if (allocated.count(index) != 0 || index >= size )
+    {
+        return -1;
+    }
+
+    allocate_addr(PoolObjectSQL::VM, -1, index);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::hold_by_mac(const string& mac_s)
+{
+    unsigned int mac_i[2];
+
+    if (mac_to_i(mac_s, mac_i) == -1)
+    {
+        return -1;
+    }
+
+    if ((mac_i[1] != mac[1]) || (mac_i[0] < mac[0]))
+    {
+        return -1;
+    }
+
+    unsigned int index = mac_i[0] - mac[0];
+
+    if ((allocated.count(index) != 0) || (index >= size))
+    {
+        return -1;
+    }
+
+    allocate_addr(PoolObjectSQL::VM, -1, index);
+
+    return 0;
 }
 
 /* ************************************************************************** */

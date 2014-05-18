@@ -113,9 +113,11 @@ public:
     /**
      *  Returns an unused address, which becomes used and fills a NIC attribute
      *  with the configuration parameters from the address range.
-     *
-     *  @param nic the VM NIC attribute
-     *  @return 0 if success
+     *    @param ot the type of the object allocating the address
+     *    @param obid the id of the object
+     *    @param nic the VM NIC attribute
+     *    @param inherit attributes to be added to the NIC attribute
+     *    @return 0 if success
      */
     int allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
         VectorAttribute * nic, const vector<string> &inherit);
@@ -123,9 +125,12 @@ public:
     /**
      *  Returns the specific address by mac if is not allocated. The NIC attr
      *  is filled with the configuration parameters from the address range.
-     *
-     *  @param nic the VM NIC attribute
-     *  @return 0 if success
+     *    @param mac the mac address
+     *    @param ot the type of the object allocating the address
+     *    @param obid the id of the object
+     *    @param nic the VM NIC attribute
+     *    @param inherit attributes to be added to the NIC attribute
+     *    @return 0 if success
      */
     int allocate_by_mac(const string& mac, PoolObjectSQL::ObjectType ot,
         int obid, VectorAttribute * nic, const vector<string> &inherit);
@@ -133,12 +138,26 @@ public:
     /**
      *  Returns the specific address by ip if is not allocated. The NIC attr
      *  is filled with the configuration parameters from the address range.
-     *
-     *  @param nic the VM NIC attribute
-     *  @return 0 if success
+     *    @param ot the type of the object allocating the address
+     *    @param obid the id of the object
+     *    @param nic the VM NIC attribute
+     *    @param inherit attributes to be added to the NIC attribute
+     *    @return 0 if success
      */
     int allocate_by_ip(const string& ip, PoolObjectSQL::ObjectType ot,
         int obid, VectorAttribute * nic, const vector<string> &inherit);
+
+    /**
+     *  Sets the given ip on hold, the address is associated to a VM of id -1.
+     *    @param ip the ip to hold
+     */
+    int hold_by_ip(const string& ip);
+
+    /**
+     *  Sets the given mac on hold, the address is associated to a VM of id -1.
+     *    @param mac the mac to hold
+     */
+    int hold_by_mac(const string& mac);
 
     /**
      *  Frees a previous allocated address, referenced by its MAC address

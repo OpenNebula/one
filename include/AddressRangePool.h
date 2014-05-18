@@ -98,6 +98,36 @@ public:
         VectorAttribute * nic, const vector<string> &inherit);
 
     /**
+     *  Holds an address from the specified address range.
+     *    @param arid of the address range
+     *    @param ip the ip to hold
+     *    @return 0 on success
+     */
+    int hold_by_ip(unsigned int arid, const string& ip);
+
+    /**
+     *  Holds an address from the first address range containing the MAC
+     *    @param mac the mac to hold
+     *    @return 0 on success
+     */
+    int hold_by_ip(const string& ip);
+
+    /**
+     *  Holds an address from the specified address range.
+     *    @param arid of the address range
+     *    @param mac the mac to hold
+     *    @return 0 on success
+     */
+    int hold_by_mac(unsigned int arid, const string& mac);
+
+    /**
+     *  Holds an address from the first address range containing the MAC
+     *    @param mac the mac to hold
+     *    @return 0 on success
+     */
+    int hold_by_mac(const string& mac);
+
+    /**
      *  Frees the given address by MAC
      *    @param arid the ID of the address range
      *    @param ot the type of the object requesting the address (VM or NET)
