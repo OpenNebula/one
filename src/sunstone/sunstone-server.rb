@@ -231,7 +231,7 @@ helpers do
     end
 
     def cloud_view_instance_types
-        $conf[:instance_types] || {}
+        $conf[:instance_types] || []
     end
 end
 
