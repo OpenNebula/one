@@ -624,11 +624,13 @@ void AddressRange::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
 int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     unsigned int addr_index)
 {
+    long long lobid = obid & 0x00000000FFFFFFFFLL;
+
     map<unsigned int, long long>::iterator it;
 
     it = allocated.find(addr_index);
 
-    if (it != allocated.end() && it->second == (ot|obid))
+    if (it != allocated.end() && it->second == (ot|lobid))
     {
         allocated.erase(it);
         allocated_to_attr();
@@ -790,7 +792,35 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = mac_i[0] - mac[0];
 
-    if ((mac_i[0] >= mac[0]) && (index < size))
+    if ((0 <= index) && (index < size))
+    {
+        return free_addr(ot, obid, index);
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
+    const string& ip_s)
+{
+    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    {
+        return -1;
+    }
+
+    unsigned int ip_i;
+
+    if (ip_to_i(ip_s, ip_i) == -1)
+    {
+        return -1;
+    }
+
+    unsigned int index = ip_i - ip;
+
+    if ((0 <= index ) && (index < size))
     {
         return free_addr(ot, obid, index);
     }

@@ -222,6 +222,59 @@ void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRangePool::free_addr_by_ip(unsigned int arid,
+    PoolObjectSQL::ObjectType ot, int obid, const string& ip)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(arid);
+
+    if (it!=ar_pool.end())
+    {
+        if ( it->second->free_addr_by_ip(ot, obid, ip) == 0 )
+        {
+            used_addr--;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRangePool::free_addr(PoolObjectSQL::ObjectType ot, int obid,
+    const string& mac_s)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->free_addr(ot, obid, mac_s) == 0)
+        {
+            used_addr--;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
+    const string& ip_s)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if (it->second->free_addr_by_ip(ot, obid, ip_s) == 0)
+        {
+            used_addr--;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRangePool::get_attribute(const char * name, string& value,
     int ar_id) const
 {
@@ -251,7 +304,14 @@ int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
         return -1;
     }
 
-    return it->second->hold_by_ip(ip_s);
+    int rc = it->second->hold_by_ip(ip_s);
+
+    if (rc == 0)
+    {
+        used_addr++;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -260,16 +320,18 @@ int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
 int AddressRangePool::hold_by_ip(const string& ip_s)
 {
     map<unsigned int, AddressRange *>::iterator it;
+    int rc = -1;
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        if (it->second->hold_by_ip(ip_s) == 0)
+        if (it->second->hold_by_ip(ip_s) == 0) //At least one AR hold the IP
         {
-            return 0;
+            used_addr++;
+            rc = 0;
         }
     }
 
-    return -1;
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -286,7 +348,14 @@ int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
         return -1;
     }
 
-    return it->second->hold_by_mac(mac_s);
+    int rc = it->second->hold_by_mac(mac_s);
+
+    if (rc == 0)
+    {
+        used_addr++;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -295,14 +364,16 @@ int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
 int AddressRangePool::hold_by_mac(const string& mac_s)
 {
     map<unsigned int, AddressRange *>::iterator it;
+    int rc = -1;
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        if (it->second->hold_by_mac(mac_s) == 0)
+        if (it->second->hold_by_mac(mac_s) == 0) //At least one AR hold the IP
         {
-            return 0;
+            used_addr++;
+            rc = 0;
         }
     }
 
-    return -1;
+    return rc;
 }

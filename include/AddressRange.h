@@ -169,6 +169,15 @@ public:
     int free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
 
     /**
+     *  Frees a previous allocated address, referenced by its IP address
+     *  @param ot the object type of the owner of the address
+     *  @param obid the id of the owner of the address
+     *  @param ip the IP address in string form
+     *  @return 0 if the address was freed
+     */
+    int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
+
+    /**
      *  Return the id for this address range
      */
     unsigned int ar_id() const

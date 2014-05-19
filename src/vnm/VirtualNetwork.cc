@@ -651,7 +651,7 @@ int VirtualNetwork::hold_leases(VirtualNetworkTemplate * leases_template,
         return -1;
     }
 
-    if (lease->vector_value("AR_ID", ar_id) != 0) //No AR__ID hold fist address
+    if (lease->vector_value("AR_ID", ar_id) != 0) //No AR_ID hold all addresses
     {
         if (!mac.empty())
         {
@@ -706,51 +706,42 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
         return -1;
     }
 
-    int rc;
-
     unsigned int ar_id;
 
     string  ip  = lease->vector_value("IP");
     string  mac = lease->vector_value("MAC");
 
-    if (lease->vector_value("AR_ID", ar_id) != 0)
-    {
-        error_msg = "Missing address range ID (AR_ID).";
-        return -1;
-    }
 
-    if (!mac.empty())
-    {
-        rc = ar_pool.hold_by_mac(ar_id, mac);
-    }
-    else if (!ip.empty())
-    {
-        rc = ar_pool.hold_by_ip(ar_id, ip);
-    }
-    else
+    if (ip.empty() && mac.empty())
     {
         error_msg = "Missing MAC or IP.";
         return -1;
     }
 
-    if (rc!=0)
+    if (lease->vector_value("AR_ID", ar_id) != 0) //No AR_ID free all addresses
     {
-        error_msg = "Address is not part of the address range or in use.";
+        if (!mac.empty())
+        {
+            ar_pool.free_addr(PoolObjectSQL::VM, -1, mac);
+        }
+        else if (!ip.empty())
+        {
+            ar_pool.free_addr_by_ip(PoolObjectSQL::VM, -1, ip);
+        }
+    }
+    else
+    {
+        if (!mac.empty())
+        {
+            ar_pool.free_addr(ar_id, PoolObjectSQL::VM, -1, mac);
+        }
+        else if (!ip.empty())
+        {
+            ar_pool.free_addr_by_ip(ar_id, PoolObjectSQL::VM, -1, ip);
+        }
     }
 
-    return rc;
-
-
-
-    vector<const Attribute *> vector_leases;
-
-    leases_template->get("LEASES", vector_leases);
-
-
-
-    //TODO
     return 0;
-    //return leases->free_leases(vector_leases, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

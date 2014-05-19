@@ -128,7 +128,7 @@ public:
     int hold_by_mac(const string& mac);
 
     /**
-     *  Frees the given address by MAC
+     *  Frees the given address by MAC on the given address range
      *    @param arid the ID of the address range
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
@@ -136,6 +136,36 @@ public:
      */
     void free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot, int obid,
         const string& mac);
+
+    /**
+     *  Frees the given address by IP on the given address range
+     *    @param arid the ID of the address range
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param ip the specific IP address requested
+     */
+    void free_addr_by_ip(unsigned int arid, PoolObjectSQL::ObjectType ot,
+        int obid, const string& ip);
+
+    /**
+     *  Frees the given address by MAC from all address ranges containing
+     *  the MAC
+     *    @param arid the ID of the address range
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param mac the specific MAC address requested
+     */
+    void free_addr(PoolObjectSQL::ObjectType ot, int obid, const string& mac);
+
+    /**
+     *  Frees the given address by IP from all address ranges containing
+     *  the IP
+     *    @param arid the ID of the address range
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param ip the specific IP address requested
+     */
+    void free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
 
     /**
      *  Return the number of used addresses
