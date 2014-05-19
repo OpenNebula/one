@@ -1462,7 +1462,6 @@ function show_provision_group_info_callback(request, response) {
     $("#provision_info_vdc_group_acct", context),
     {   fixed_group: info.ID,
         init_group_by: "user" });
->>>>>>> feature-2854
 }
 
 function show_provision_create_vm() {
