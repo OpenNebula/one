@@ -26,14 +26,6 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description => "ID of the address range"
     }
 
-    MAC = {
-        :name => "mac",
-        :short => "-m mac",
-        :large => "--mac mac",
-        :format => String,
-        :description => "MAC address"
-    }
-
     def self.rname
         "VNET"
     end

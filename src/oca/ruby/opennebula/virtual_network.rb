@@ -136,30 +136,19 @@ module OpenNebula
         end
 
         # Holds a virtual network address
-        # @param ip [String] IP to hold
+        # @param ip [String] address to hold, if contains ":" a MAC address is assumed
         # @param ar_id [Integer] The address range to hold the lease. If not set
         #        the lease will be held from all possible address ranges
         def hold(ip, ar_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template =  "LEASES = [ IP = #{ip}"
-            lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
-            lease_template << "]"
+            if ip.include?':'
+                addr_name = "MAC"
+            else
+                addr_name = "IP"
+            end
 
-            rc = @client.call(VN_METHODS[:hold], @pe_id, lease_template)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-        # Holds a virtual network address by its MAC
-        # @param mac [String] MAC to hold
-        # @param ar_id [Integer] The address range to hold the lease. If not set
-        #        the lease will be held from all possible address ranges
-        def hold_by_mac(mac, ar_id=-1)
-            return Error.new('ID not defined') if !@pe_id
-
-            lease_template =  "LEASES = [ MAC = #{mac}"
+            lease_template =  "LEASES = [ #{addr_name} = #{ip}"
             lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
             lease_template << "]"
 
@@ -170,30 +159,19 @@ module OpenNebula
         end
 
         # Releases an address on hold
-        # @param ip [String] IP to release
+        # @param ip [String] IP to release, if contains ":" a MAC address is assumed
         # @param ar_id [Integer] The address range to release the lease. If not
         #        set the lease will be freed from all possible address ranges
         def release(ip, ar_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template =  "LEASES = [ IP = #{ip}"
-            lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
-            lease_template << "]"
+            if ip.include?':'
+                addr_name = "MAC"
+            else
+                addr_name = "IP"
+            end
 
-            rc = @client.call(VN_METHODS[:release], @pe_id, lease_template)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
-        end
-
-        # Releases an addres on hold by its MAC
-        # @param mac [String] MAC to release
-        # @param ar_id [Integer] The address range to release the lease. If not
-        #        set the lease will be freed from all possible address ranges
-        def release_by_mac(mac, ar_id=-1)
-            return Error.new('ID not defined') if !@pe_id
-
-            lease_template =  "LEASES = [ MAC = #{mac}"
+            lease_template =  "LEASES = [ #{addr_name} = #{ip}"
             lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
             lease_template << "]"
 

@@ -129,16 +129,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :hold, hold_desc, :vnetid, :ip,
-        :options=>STD_OPTIONS + [OneVNetHelper::MAC, OneVNetHelper::AR] do
+        :options=>STD_OPTIONS + [OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease on hold") do |vn|
             ar  = options[:ar_id] || -1
-            mac = options[:mac] || ""
 
-            if mac.empty?
-                vn.hold(args[1], ar)
-            else
-                vn.hold_by_mac(mac, ar)
-            end
+            vn.hold(args[1], ar)
         end
     end
 
@@ -147,16 +142,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :release, release_desc, :vnetid, :ip,
-        :options=>STD_OPTIONS + [OneVNetHelper::MAC, OneVNetHelper::AR] do
+        :options=>STD_OPTIONS + [OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease released") do |vn|
             ar  = options[:ar_id] || -1
-            mac = options[:mac] || ""
 
-            if mac.empty?
-                vn.release(args[1], ar)
-            else
-                vn.release_by_mac(mac, ar)
-            end
+            vn.release(args[1], ar)
         end
     end
 
