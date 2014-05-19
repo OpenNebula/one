@@ -20,8 +20,6 @@
 #include "VirtualNetworkTemplate.h"
 
 #include "NebulaLog.h"
-#include "RangedLeases.h"
-#include "FixedLeases.h"
 
 #include "AuthManager.h"
 #include "ClusterPool.h"
