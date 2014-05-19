@@ -2235,23 +2235,35 @@ $(document).ready(function(){
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
+        var logo;
+
+        if (data.TEMPLATE.LOGO) {
+          logo = '<a class="th radius" href="#">'+
+              '<img src="'+data.TEMPLATE.LOGO+'">'+
+            '</a>';
+        } else {
+          logo = '<span style="font-size: 40px">'+
+            '<i class="fa fa-fw fa-file-text-o"/>'+
+          '</span>';
+        }
+
         $("#provision_system_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li class="provision-bullet-item">'+
-                '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
+                logo +
+              '</li>'+
+              '<li class="provision-bullet-item">'+
                 '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                     ((data.TEMPLATE.MEMORY||'-')+'MB'))+
                 '</span>'+
-                '</span>'+
               '</li>'+
-              '<li class="provision-description">'+
+              '<li class="provision-description" style="padding-top:0px">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
@@ -2299,23 +2311,35 @@ $(document).ready(function(){
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
+        var logo;
+
+        if (data.TEMPLATE.LOGO) {
+          logo = '<a class="th radius" href="#">'+
+              '<img src="'+data.TEMPLATE.LOGO+'">'+
+            '</a>';
+        } else {
+          logo = '<span style="font-size: 40px">'+
+            '<i class="fa fa-fw fa-file-text-o"/>'+
+          '</span>';
+        }
+
         $("#provision_vdc_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li class="provision-bullet-item">'+
-                '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
+                logo +
+              '</li>'+
+              '<li class="provision-bullet-item">'+
                 '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                     ((data.TEMPLATE.MEMORY||'-')+'MB'))+
                 '</span>'+
-                '</span>'+
               '</li>'+
-              '<li class="provision-description">'+
+              '<li class="provision-description" style="padding-top:0px">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
               '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
@@ -2369,23 +2393,36 @@ $(document).ready(function(){
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VMTEMPLATE;
+
+        var logo;
+
+        if (data.TEMPLATE.LOGO) {
+          logo = '<a class="th radius" href="#">'+
+              '<img src="'+data.TEMPLATE.LOGO+'">'+
+            '</a>';
+        } else {
+          logo = '<span style="font-size: 40px">'+
+            '<i class="fa fa-fw fa-file-text-o"/>'+
+          '</span>';
+        }
+
         $("#provision_saved_templates_ul").append('<li>'+
             '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li class="provision-bullet-item">'+
-                '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
+                logo +
+              '</li>'+
+              '<li class="provision-bullet-item">'+
                 '<span style="vertical-align: middle; font-size:14px">'+
                   'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                     ((data.TEMPLATE.MEMORY||'-')+'MB'))+
                 '</span>'+
-                '</span>'+
               '</li>'+
-              '<li class="provision-description">'+
+              '<li class="provision-description" style="padding-top:0px">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
               '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
