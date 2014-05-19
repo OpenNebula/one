@@ -52,7 +52,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '</div>'+
   '</div>'+
   '<br>'+
-  '<div class="row">'+
+  '<div class="row provision_select_template">'+
     '<div class="large-9 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
         '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
@@ -168,6 +168,10 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
             '</div>'+
             '<br>'+
             '<div class="row">'+
+              '<div class="provision_selected_networks large-10 large-centered columns">'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
                 '<table id="provision_networks_table">'+
                   '<thead class="hidden">'+
@@ -206,7 +210,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '<div class="large-7 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
       '</div>'+
-      '<button href="#" class="button large radius large-12 small-12" type="submit" style="height: 59px">'+tr("Create")+'</button>'+
+      '<button href="#" class="button large success radius large-12 small-12" type="submit" style="height: 59px">'+tr("Create")+'</button>'+
     '</div>'+
   '</div>'+
   '<br>'+
@@ -1186,6 +1190,7 @@ var povision_actions = {
       show_provision_vm_list(0);
       var context = $("#provision_create_vm");
       $("#vm_name", context).val('');
+      $(".provision_selected_networks").html("");
       $(".provision-pricing-table", context).removeClass("selected");
       $(".alert-box-error", context).hide();
       $('a[href="#provision_system_templates_selector"]', context).click();
@@ -2526,7 +2531,7 @@ $(document).ready(function(){
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VNET;
         $("#provision_networks_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="'+data.ID+'" opennebula_name="'+data.NAME+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
@@ -2568,16 +2573,42 @@ $(document).ready(function(){
     });
 
     tab.on("click", "#provision_create_vm .provision-pricing-table.more-than-one" , function(){
-      if ($(this).hasClass("selected")) {
-        $(this).removeClass("selected");
-      } else {
-        $(this).addClass("selected");
-      }
+      $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" opennebula_id="'+$(this).attr("opennebula_id")+'">'+
+          tr("Network") + ": " + $(this).attr("opennebula_name")+
+          '<a href="#" class="close">&times;</a>'+
+        '</div>')
     })
 
     tab.on("click", "#provision_create_vm .provision-pricing-table.only-one" , function(){
       $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
       $(this).addClass("selected");
+    })
+
+    tab.on("click", ".provision_select_template .provision-pricing-table.only-one" , function(){
+      var template_id = $(this).attr("opennebula_id");
+
+      OpenNebula.Template.show({
+        data : {
+            id: template_id
+        },
+        success: function(request,template_json){
+          var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+          var nics = []
+          if ($.isArray(template_nic))
+              nics = template_nic
+          else if (!$.isEmptyObject(template_nic))
+              nics = [template_nic]
+
+          $(".provision_selected_networks").html("");
+
+          $.each(nics, function(index, nic){
+            $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
+                tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
+                '<a href="#" class="close">&times;</a>'+
+              '</div>')
+          })
+        }
+      })
     })
 
     $("#provision_create_vm").submit(function(){
@@ -2587,10 +2618,16 @@ $(document).ready(function(){
       var template_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
 
       var nics = [];
-      $("#provision_networks_ul .selected", context).each(function(){
-        nics.push({
-          'network_id': $(this).attr("opennebula_id")
-        });
+      $(".provision_selected_networks .alert-box", context).each(function(){
+        var nic;
+        if ($(this).attr("template_nic")) {
+          nic = JSON.parse($(this).attr("template_nic"))
+        } else {
+          nic = {
+            'network_id': $(this).attr("opennebula_id")
+          }
+        }
+        nics.push(nic);
       });
 
       var instance_type = $("#provision_instance_types_ul .selected", context);
