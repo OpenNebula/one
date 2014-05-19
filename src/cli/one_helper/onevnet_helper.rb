@@ -18,18 +18,28 @@ require 'one_helper'
 require 'one_helper/onevm_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
+    AR = {
+        :name => "ar_id",
+        :short => "-a ar_id",
+        :large => "--address_range ar_id",
+        :format => Integer,
+        :description => "ID of the address range"
+    }
+
+    MAC = {
+        :name => "mac",
+        :short => "-m mac",
+        :large => "--mac mac",
+        :format => String,
+        :description => "MAC address"
+    }
+
     def self.rname
         "VNET"
     end
 
     def self.conf_file
         "onevnet.yaml"
-    end
-
-    def self.type_to_str(id)
-        id = id.to_i
-        type_str = VirtualNetwork::VN_TYPES[id]
-        return VirtualNetwork::SHORT_VN_TYPES[type_str]
     end
 
     def format_pool(options)
@@ -57,10 +67,6 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
             column :CLUSTER, "Name of the Cluster", :left, :size=>10 do |d|
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
-            end
-
-            column :TYPE, "Type of Virtual Network", :size=>6 do |d|
-                OneVNetHelper.type_to_str(d["TYPE"])
             end
 
             column :SIZE, "Size of the Virtual Network", :size=>5 do |d|

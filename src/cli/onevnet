@@ -47,6 +47,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     CREATE_OPTIONS = [OneClusterHelper::CLUSTER]
+    STD_OPTIONS = CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
     ########################################################################
     # Formatters for arguments
@@ -127,9 +128,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Holds a Virtual Network lease, marking it as used
     EOT
 
-    command :hold, hold_desc, :vnetid, :ip do
+    command :hold, hold_desc, :vnetid, :ip,
+        :options=>STD_OPTIONS + [OneVNetHelper::MAC, OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease on hold") do |vn|
-            vn.hold(args[1])
+            ar  = options[:ar_id] || -1
+            mac = options[:mac] || ""
+
+            if mac.empty?
+                vn.hold(args[1], ar)
+            else
+                vn.hold_by_mac(mac, ar)
+            end
         end
     end
 
@@ -137,9 +146,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Releases a Virtual Network lease on hold
     EOT
 
-    command :release, release_desc, :vnetid, :ip do
+    command :release, release_desc, :vnetid, :ip,
+        :options=>STD_OPTIONS + [OneVNetHelper::MAC, OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease released") do |vn|
-            vn.release(args[1])
+            ar  = options[:ar_id] || -1
+            mac = options[:mac] || ""
+
+            if mac.empty?
+                vn.release(args[1], ar)
+            else
+                vn.release_by_mac(mac, ar)
+            end
         end
     end
 
