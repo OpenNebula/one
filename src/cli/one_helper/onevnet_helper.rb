@@ -135,6 +135,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false)
 
+        if !vn.to_hash['VNET']['AR_POOL']['AR'].nil?
+            arlist = [vn.to_hash['VNET']['AR_POOL']['AR']].flatten
+        end
+
         CLIHelper::ShowTable.new(nil, self) do
             column :AR, "", :size=>3 do |d|
                     d["AR_ID"]
@@ -164,21 +168,27 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["GLOBAL_PREFIX"]||"-"
             end
 
-        end.show([vn.to_hash['VNET']['AR_POOL']['AR']].flatten, {})
+        end.show(arlist, {})
 
         puts
         CLIHelper.print_header(str_h1 % ["LEASES"], false)
 
-        leases = Array.new
-        [vn.to_hash['VNET']['AR_POOL']['AR']].flatten.each do |ar|
-            id    = ar['AR_ID']
-            if ar['LEASES'] && !ar['LEASES']['LEASE'].nil?
-                lease = [ar['LEASES']['LEASE']].flatten
-                lease.each do |l|
-                    l['AR_ID'] = id
+        if !vn.to_hash['VNET']['AR_POOL']['AR'].nil?
+            lease_list = [vn.to_hash['VNET']['AR_POOL']['AR']].flatten
+            leases     = Array.new
+
+            lease_list.each do |ar|
+                id = ar['AR_ID']
+                if ar['LEASES'] && !ar['LEASES']['LEASE'].nil?
+                    lease = [ar['LEASES']['LEASE']].flatten
+                    lease.each do |l|
+                        l['AR_ID'] = id
+                    end
+                    leases << lease
                 end
-                leases << lease
             end
+
+            leases.flatten!
         end
 
         CLIHelper::ShowTable.new(nil, self) do
@@ -205,6 +215,6 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             column :IP6_GLOBAL, "", :size=>31 do |d|
                     d["IP6_GLOBAL"]||"-"
             end
-        end.show(leases.flatten, {})
+        end.show(leases, {})
     end
 end
