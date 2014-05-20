@@ -548,7 +548,7 @@ function updateMarketInfo(request,app){
           $('.check_item',this).trigger('click');
       } else {
           var context = $(this).parents(".tab");
-          popDialogLoading($("#markeplace-tab"));
+          popDialogLoading($("#marketplace-tab"));
           Sunstone.runAction("Marketplace.show",id);
           $(".resource-id", context).html(id);
           $('.top_button, .list_button', context).attr('disabled', false);
