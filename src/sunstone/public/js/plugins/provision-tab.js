@@ -2238,11 +2238,11 @@ $(document).ready(function(){
         var logo;
 
         if (data.TEMPLATE.LOGO) {
-          logo = '<a class="th radius" href="#">'+
-              '<img src="'+data.TEMPLATE.LOGO+'">'+
-            '</a>';
+          logo = '<span class="provision-logo" href="#">'+
+              '<img  src="'+data.TEMPLATE.LOGO+'">'+
+            '</span>';
         } else {
-          logo = '<span style="font-size: 40px">'+
+          logo = '<span style="color: #bfbfbf; font-size: 87px;">'+
             '<i class="fa fa-fw fa-file-text-o"/>'+
           '</span>';
         }
@@ -2252,7 +2252,7 @@ $(document).ready(function(){
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
-              '<li class="provision-bullet-item">'+
+              '<li style="height: 120px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
               '<li class="provision-bullet-item">'+
@@ -2314,11 +2314,11 @@ $(document).ready(function(){
         var logo;
 
         if (data.TEMPLATE.LOGO) {
-          logo = '<a class="th radius" href="#">'+
-              '<img src="'+data.TEMPLATE.LOGO+'">'+
-            '</a>';
+          logo = '<span class="provision-logo" href="#">'+
+              '<img  src="'+data.TEMPLATE.LOGO+'">'+
+            '</span>';
         } else {
-          logo = '<span style="font-size: 40px">'+
+          logo = '<span style="color: #bfbfbf; font-size: 87px;">'+
             '<i class="fa fa-fw fa-file-text-o"/>'+
           '</span>';
         }
@@ -2328,7 +2328,7 @@ $(document).ready(function(){
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
-              '<li class="provision-bullet-item">'+
+              '<li style="height: 120px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
               '<li class="provision-bullet-item">'+
@@ -2397,11 +2397,11 @@ $(document).ready(function(){
         var logo;
 
         if (data.TEMPLATE.LOGO) {
-          logo = '<a class="th radius" href="#">'+
-              '<img src="'+data.TEMPLATE.LOGO+'">'+
-            '</a>';
+          logo = '<span class="provision-logo" href="#">'+
+              '<img  src="'+data.TEMPLATE.LOGO+'">'+
+            '</span>';
         } else {
-          logo = '<span style="font-size: 40px">'+
+          logo = '<span style="color: #bfbfbf; font-size: 87px;">'+
             '<i class="fa fa-fw fa-file-text-o"/>'+
           '</span>';
         }
@@ -2411,7 +2411,7 @@ $(document).ready(function(){
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
-              '<li class="provision-bullet-item">'+
+              '<li style="height: 120px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
               '<li class="provision-bullet-item">'+

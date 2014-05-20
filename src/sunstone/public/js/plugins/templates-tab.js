@@ -593,19 +593,45 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html = '<div class="row vm_param">'+
-        '<div id="template_name_form"  class="large-12 columns">'+
-          '<label  for="NAME">'+tr("Name")+'\
-            <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
-          </label>'+
-          '<input type="text" id="NAME" name="name"/>'+
+        '<div class="large-8 columns">'+
+          '<div class="row collapse">'+
+            '<div id="template_name_form"  class="large-12 columns">'+
+              '<label  for="NAME">'+tr("Name")+'\
+                <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
+              </label>'+
+              '<input type="text" id="NAME" name="name"/>'+
+            '</div>'+
+            '<div class="large-12 columns">'+
+              '<label  for="DESCRIPTION">'+tr("Description")+'\
+                <span class="tip">'+tr("Description of the template")+'</span>\
+              </label>'+
+              '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 100px;"/>'+
+            '</div>'+
+          '</div>'+
         '</div>'+
-    '</div>'+
-    '<div class="row">'+
-        '<div class="large-12 columns">'+
-          '<label  for="DESCRIPTION">'+tr("Description")+'\
-            <span class="tip">'+tr("Description of the template")+'</span>\
-          </label>'+
-          '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>'+
+        '<div class="large-4 columns">'+
+          '<div class="row collapse">'+
+            '<div class="large-12 columns">'+
+              '<label  for="LOGO">'+tr("Logo")+'\
+                <span class="tip">'+tr("Logo for the template.")+'</span>\
+              </label>'+
+              '<select id="LOGO" name="LOGO">'+
+                  '<option value="">'+tr("")+'</option>'+
+                  '<option value="images/logos/arch.png">'+tr("Arch Linux")+'</option>'+
+                  '<option value="images/logos/centos.png">'+tr("CentOS")+'</option>'+
+                  '<option value="images/logos/debian.png">'+tr("Debian")+'</option>'+
+                  '<option value="images/logos/fedora.png">'+tr("Fedora")+'</option>'+
+                  '<option value="images/logos/linux.png">'+tr("Linux")+'</option>'+
+                  '<option value="images/logos/redhat.png">'+tr("Redhat")+'</option>'+
+                  '<option value="images/logos/ubuntu.png">'+tr("Ubuntu")+'</option>'+
+                  '<option value="images/logos/windowsxp.png">'+tr("Windows XP/2003")+'</option>'+
+                  '<option value="images/logos/windows8.png">'+tr("Windows 8")+'</option>'+
+              '</select>'+
+            '</div>'+
+            '<div id="template_create_logo" class="large-12 columns" style="margin-bottom: 15px">'+
+            '</div>'+
+            '<br>'+
+          '</div>'+
         '</div>'+
     '</div>'+
     '<div class="vm_param">'+
@@ -686,6 +712,13 @@ function setup_capacity_tab_content(capacity_section) {
     $('#advanced_capacity',capacity_section).click(function(){
         $('.advanced',capacity_section).toggle();
         return false;
+    });
+
+    capacity_section.on("change", "#LOGO", function(){
+      $("#template_create_logo",capacity_section).show();
+      $("#template_create_logo",capacity_section).html('<a  class="th radius" href="#">'+
+          '<img src="' + $(this).val() + '">'+
+        '</a>');
     });
 
     // Define the cpu slider
@@ -3640,6 +3673,7 @@ function initialize_create_template_dialog(dialog) {
 
         addSectionJSON(vm_json,$('#capacityTab',dialog));
         vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
+        vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
 
         //
         // OS
@@ -3923,7 +3957,6 @@ function fillTemplatePopUp(template, dialog){
     autoFillInputs(template, capacity_section);
     $("#DESCRIPTION", capacity_section).val(template["DESCRIPTION"]);
     delete template["DESCRIPTION"];
-
 
     //
     // DISKS
