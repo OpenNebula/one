@@ -79,10 +79,6 @@ module OpenNebulaJSON
             super(params['owner_id'].to_i,params['group_id'].to_i)
         end
 
-        def chmod_octet(params=Hash.new)
-            super(params['octet'])
-        end
-
         def chmod(params=Hash.new)
             if params['octet']
                 super.chmod_octet(params['octet'])
