@@ -2616,36 +2616,44 @@ $(document).ready(function(){
         '</div>')
     })
 
-    tab.on("click", "#provision_create_vm .provision-pricing-table.only-one" , function(){
-      $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
-      $(this).addClass("selected");
+    tab.on("click", ".provision_select_template .provision-pricing-table.only-one" , function(){
+      if ($(this).hasClass("selected")){
+        $(".provision_selected_networks").html("");
+      } else {
+        var template_id = $(this).attr("opennebula_id");
+
+        OpenNebula.Template.show({
+          data : {
+              id: template_id
+          },
+          success: function(request,template_json){
+            var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+            var nics = []
+            if ($.isArray(template_nic))
+                nics = template_nic
+            else if (!$.isEmptyObject(template_nic))
+                nics = [template_nic]
+
+            $(".provision_selected_networks").html("");
+
+            $.each(nics, function(index, nic){
+              $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
+                  tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
+                  '<a href="#" class="close">&times;</a>'+
+                '</div>')
+            })
+          }
+        })
+      }
     })
 
-    tab.on("click", ".provision_select_template .provision-pricing-table.only-one" , function(){
-      var template_id = $(this).attr("opennebula_id");
-
-      OpenNebula.Template.show({
-        data : {
-            id: template_id
-        },
-        success: function(request,template_json){
-          var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-          var nics = []
-          if ($.isArray(template_nic))
-              nics = template_nic
-          else if (!$.isEmptyObject(template_nic))
-              nics = [template_nic]
-
-          $(".provision_selected_networks").html("");
-
-          $.each(nics, function(index, nic){
-            $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
-                tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
-                '<a href="#" class="close">&times;</a>'+
-              '</div>')
-          })
-        }
-      })
+    tab.on("click", "#provision_create_vm .provision-pricing-table.only-one" , function(){
+      if ($(this).hasClass("selected")){
+        $(this).removeClass("selected");
+      } else {
+        $(".provision-pricing-table", $(this).parents(".large-block-grid-3,.large-block-grid-2")).removeClass("selected")
+        $(this).addClass("selected");
+      }
     })
 
     $("#provision_create_vm").submit(function(){
