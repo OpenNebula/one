@@ -56,7 +56,7 @@ module OpenNebulaJSON
                  when "unpublish"     then self.unpublish
                  when "update"        then self.update(action_hash['params'])
                  when "chown"         then self.chown(action_hash['params'])
-                 when "chmod"         then self.chmod(action_hash['params'])
+                 when "chmod"         then self.chmod_json(action_hash['params'])
                  when "chtype"        then self.chtype(action_hash['params'])
                  when "clone"         then self.clone(action_hash['params'])
                  when "rename"        then self.rename(action_hash['params'])
@@ -79,11 +79,11 @@ module OpenNebulaJSON
             super(params['owner_id'].to_i,params['group_id'].to_i)
         end
 
-        def chmod(params=Hash.new)
+        def chmod_json(params=Hash.new)
             if params['octet']
-                super.chmod_octet(params['octet'])
+                self.chmod_octet(params['octet'])
             else
-                super((params['owner_u']||-1),
+                self.chmod((params['owner_u']||-1),
                     (params['owner_m']||-1),
                     (params['owner_a']||-1),
                     (params['group_u']||-1),
