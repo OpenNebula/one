@@ -76,6 +76,15 @@ Config = {
 
     "tableOrder": function(){
         return config['user_config']["table_order"];
+    },
+
+    "provision": {
+      "dashboard": {
+        "isEnabled": function(widget) {
+          var enabled = config['view']['tabs']['provision-tab']['dashboard'][widget];
+          return enabled;
+        }
+      }
     }
 }
 

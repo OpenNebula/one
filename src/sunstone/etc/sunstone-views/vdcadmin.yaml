@@ -441,3 +441,9 @@ tabs:
         actions:
             Template.chmod: true
             Template.delete: true
+        dashboard:
+            quotas: false
+            vms: false
+            vdcquotas: true
+            vdcvms: true
+            users:  true

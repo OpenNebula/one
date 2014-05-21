@@ -14,6 +14,136 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var provision_quotas_dashboard =
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        '<i class="fa fa-fw fa-align-left"/>&emsp;'+
+        tr("Quotas")+
+      '</h2>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_dashboard_rvms_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_dashboard_cpu_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_dashboard_memory_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_dashboard_rvms_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_dashboard_cpu_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_dashboard_memory_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("RUNNING VMS")+'</span>'+
+            '<br>'+
+            '<span id="provision_dashboard_rvms_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("CPU")+'</span>'+
+            '<br>'+
+            '<span id="provision_dashboard_cpu_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("MEMORY")+'</span>'+
+            '<br>'+
+            '<span id="provision_dashboard_memory_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+        '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>';
+
+var provision_vms_dashboard =
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        '<i class="fa fa-fw fa-th"/>&emsp;'+
+        tr("Virtual Machines")+
+      '</h2>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row" id="provision_vms_dashboard">'+
+    '<div class="large-10 large-centered columns">'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span  id="provision_dashboard_total" style="font-size:90px">'+20+'</span>'+
+            '<br>'+
+            '<span>'+tr("TOTAL")+'</span>'+
+          '</div>'+
+          '<div class="large-8 columns">'+
+            '<div class="row">'+
+              '<div class="large-3 columns text-center running-color">'+
+                '<span id="provision_dashboard_running" style="font-size:40px">'+13+'</span>'+
+                '<br>'+
+                '<span>'+tr("RUNNING")+'</span>'+
+              '</div>'+
+              '<div class="large-3 columns text-center deploying-color">'+
+                '<span id="provision_dashboard_deploying"  style="font-size:40px">'+2+'</span>'+
+                '<br>'+
+                '<span>'+tr("DEPLOYING")+'</span>'+
+              '</div>'+
+              '<div class="large-3 columns text-center off-color">'+
+                '<span  id="#provision_dashboard_off" style="font-size:40px">'+1+'</span>'+
+                '<br>'+
+                '<span>'+tr("OFF")+'</span>'+
+              '</div>'+
+              '<div class="large-3 columns text-center error-color">'+
+                '<span  id="provision_dashboard_error" style="font-size:40px">'+0+'</span>'+
+                '<br>'+
+                '<span>'+tr("ERROR")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-11 large-centered columns text-center">'+
+                '<a href"#" class="large large-12 button radius provision_create_vm_button"">'+tr('Create Virtual Machine')+'</a>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>';
+
+var provision_dashboard = '<div id="provision_dashboard" class="section_content">'+
+//  '<div class="text-center" style="font-size: 40px;">'+
+//    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+//      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+//      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+//    '</span>'+
+//    '<br>'+
+//    '<br>'+
+//    '<span style="font-size: 18px; color: #999">'+
+//    '</span>'+
+//  '</div>'
+'</div>';
+
 var provision_create_vm = '<form id="provision_create_vm" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -1002,7 +1132,8 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
 '</div>';
 
 
-var provision_content = provision_user_info +
+var provision_content = provision_dashboard +
+  provision_user_info +
   provision_create_vm +
   provision_info_vm +
   provision_list_vms +
@@ -1014,7 +1145,7 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_content += provision_info_vdc_user;
 }
 
-var provision_header = '<img src="images/one_small_logo.png" style="height:40px; vertical-align:top">'+
+var provision_header = '<a href="#" class="provision_image_header" ><img src="images/one_small_logo.png" style="height:40px; vertical-align:top"></a>'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
    '<ul class="inline-list text-center" style="font-size:12px">'+
     '<li class="left" >'+
@@ -1348,6 +1479,108 @@ var povision_actions = {
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
+function show_provision_dashboard() {
+  $(".section_content").hide();
+  $("#provision_dashboard").fadeIn();
+
+  if (Config.provision.dashboard.isEnabled("quotas")) {
+    $("#provision_dashboard").append(provision_quotas_dashboard);
+
+
+    OpenNebula.User.show({
+      data : {
+          id: "-1"
+      },
+      success: function(request,user_json){
+        var user = user_json.USER;
+
+        var vms;
+        var memory;
+        var cpu;
+
+        if (!$.isEmptyObject(user.VM_QUOTA)){
+            var default_user_quotas = Quotas.default_quotas(user.DEFAULT_USER_QUOTAS);
+
+            var vms = quotaBar(
+                user.VM_QUOTA.VM.VMS_USED,
+                user.VM_QUOTA.VM.VMS,
+                default_user_quotas.VM_QUOTA.VM.VMS,
+                true);
+
+            $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
+            $("#provision_dashboard_rvms_str").html(vms["str"]);
+            $("#provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
+
+            var memory = quotaBarMB(
+                user.VM_QUOTA.VM.MEMORY_USED,
+                user.VM_QUOTA.VM.MEMORY,
+                default_user_quotas.VM_QUOTA.VM.MEMORY,
+                true);
+
+            $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
+            $("#provision_dashboard_memory_str").html(memory["str"]);
+            $("#provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
+
+            var cpu = quotaBarFloat(
+                user.VM_QUOTA.VM.CPU_USED,
+                user.VM_QUOTA.VM.CPU,
+                default_user_quotas.VM_QUOTA.VM.CPU,
+                true);
+
+            $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
+            $("#provision_dashboard_cpu_str").html(cpu["str"]);
+            $("#provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
+        }
+      }
+    })
+  }
+
+  if (Config.provision.dashboard.isEnabled("vms")) {
+    $("#provision_dashboard").append(provision_vms_dashboard);
+
+    var total = 0;
+    var running = 0;
+    var off = 0;
+    var error = 0;
+    var deploying = 0;
+
+    OpenNebula.VM.list({
+      timeout: true,
+      success: function (request, item_list){
+        $.each(item_list, function(index, vm){
+          if (vm.VM.UID == config["user_id"]) {
+            var state = get_provision_vm_state(vm.VM);
+
+            total = total + 1;
+
+            switch (state.color) {
+              case "deploying":
+                deploying = deploying + 1;
+                break;
+              case "error":
+                error = error + 1;
+                break;
+              case "running":
+                running = running + 1;
+                break;
+              case "powering_off":
+                off = off + 1;
+                break;
+            }
+          }
+        })
+
+        var context = $("#provision_vms_dashboard");
+        $("#provision_dashboard_total", context).html(total);
+        $("#provision_dashboard_running", context).html(running);
+        $("#provision_dashboard_off", context).html(off);
+        $("#provision_dashboard_error", context).html(error);
+        $("#provision_dashboard_deploying", context).html(deploying);
+      },
+      error: onError
+    });
+  }
+}
 
 function show_provision_user_info() {
   Sunstone.runAction("Provision.User.show", "-1");
@@ -1471,7 +1704,18 @@ function show_provision_group_info_callback(request, response) {
 
 function show_provision_create_vm() {
   update_provision_templates_datatable(provision_system_templates_datatable);
+  provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
+
+  update_provision_templates_datatable(provision_vdc_templates_datatable);
+  provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
+  provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
+
   update_provision_templates_datatable(provision_saved_templates_datatable);
+  provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
+  provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
+
+  update_provision_instance_types_datatable(provision_instance_types_datatable);
+
   update_provision_networks_datatable(provision_networks_datatable);
 
   $(".provision_create_user_button").hide();
@@ -1521,6 +1765,7 @@ function show_provision_template_list(timeout) {
   $("#provision_confirm_delete_template_div").empty();
 
   update_provision_templates_datatable(provision_templates_datatable, timeout);
+  provision_templates_datatable.fnFilter("^(?!-$)", 2, true, false);
 }
 
 function update_provision_templates_datatable(datatable, timeout) {
@@ -2065,6 +2310,16 @@ $(document).ready(function(){
         return false;
     });
 
+    $(".provision_image_header").on("click", function(){
+      show_provision_dashboard();
+    })
+
+    //
+    // Dashboard
+    //
+
+    show_provision_dashboard();
+
     //
     // User Info
     //
@@ -2273,8 +2528,6 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_templates_datatable(provision_system_templates_datatable);
-    provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
 
     provision_vdc_templates_datatable = $('#provision_vdc_templates_table').dataTable({
       "iDisplayLength": 6,
@@ -2354,9 +2607,6 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_templates_datatable(provision_vdc_templates_datatable);
-    provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-    provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
 
     provision_saved_templates_datatable = $('#provision_saved_templates_table').dataTable({
       "iDisplayLength": 6,
@@ -2437,9 +2687,6 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_templates_datatable(provision_saved_templates_datatable);
-    provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-    provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
 
     $('#provision_create_template_search').on('keyup',function(){
       provision_system_templates_datatable.fnFilter( $(this).val() );
@@ -2520,7 +2767,6 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_instance_types_datatable(provision_instance_types_datatable);
 
     $('#provision_create_instance_types_search').on('keyup',function(){
       provision_instance_types_datatable.fnFilter( $(this).val() );
@@ -2594,7 +2840,6 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_networks_datatable(provision_networks_datatable);
 
     $('#provision_create_networks_search').on('keyup',function(){
       provision_networks_datatable.fnFilter( $(this).val() );
@@ -2800,9 +3045,6 @@ $(document).ready(function(){
         return nRow;
       }
     });
-
-    update_provision_templates_datatable(provision_templates_datatable);
-    provision_templates_datatable.fnFilter("^(?!-$)", 2, true, false);
 
     $('#provision_list_templates_search').keyup(function(){
       provision_templates_datatable.fnFilter( $(this).val() );
@@ -3085,8 +3327,6 @@ $(document).ready(function(){
       }
     });
 
-    update_provision_vms_datatable(provision_vms_datatable);
-
     $('#provision_list_vms_search').keyup(function(){
       provision_vms_datatable.fnFilter( $(this).val() );
     })
@@ -3239,8 +3479,6 @@ $(document).ready(function(){
         return nRow;
       }
     });
-
-    update_provision_users_datatable(provision_users_datatable);
 
     $('#provision_list_users_search').keyup(function(){
       provision_users_datatable.fnFilter( $(this).val() );
@@ -3874,112 +4112,11 @@ $(document).ready(function(){
         }
     });
 
-
-    //$("#provision_info_vm").on("click", "#provision_shutdownhard_confirm_button", function(){
-    //  $("#provision_confirm_action").html(
-    //    '<div data-alert class="alert-box secondary radius">'+
-    //      '<div class="row">'+
-    //      '<div class="large-9 columns">'+
-    //        '<span style="font-size: 14px; line-height: 20px">'+
-    //          tr("Be careful, this action will inmediately destroy your Virtual Machine")+
-    //          '<br>'+
-    //          tr("All the information will be lost!")+
-    //        '</span>'+
-    //      '</div>'+
-    //      '<div class="large-3 columns">'+
-    //        '<a href"#" id="provision_shutdownhard_button" class="alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete")+'</a>'+
-    //      '</div>'+
-    //      '</div>'+
-    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
-    //    '</div>');
-    //});
-
-
-//
-    //$("#provision_info_vm").on("click", "#provision_poweroff_confirm_button", function(){
-    //  $("#provision_confirm_action").html(
-    //    '<div data-alert class="alert-box secondary radius">'+
-    //      '<div class="row">'+
-    //      '<div class="large-11 columns">'+
-    //        '<span style="font-size: 14px; line-height: 20px">'+
-    //          tr("This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later")+
-    //          '<br>'+
-    //          '<br>'+
-    //          tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command form the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button a physical computer).")+
-    //        '</span>'+
-    //      '</div>'+
-    //      '</div>'+
-    //      '<br>'+
-    //      '<div class="row">'+
-    //      '<div class="large-12 columns">'+
-    //        '<a href"#" id="provision_poweroff_button" class="button radius right" style="margin-right: 15px">'+tr("Power off")+'</a>'+
-    //          '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" id="provision_poweroff_hard_radio">'+
-    //            '<label for="provision_poweroff_hard_radio">'+
-    //              '<i class="fa fa-fw fa-bolt"/>'+tr("Power off the machine")+
-    //            '</label>'+
-    //          '<input type="radio" name="provision_poweroff_radio" value="poweroff" id="provision_poweroff_radio" checked>'+
-    //            '<label for="provision_poweroff_radio">'+
-    //              '<i class="fa fa-fw fa-power-off"/>'+tr("Send the power off signal")+
-    //            '</label>'+
-    //      '</div>'+
-    //      '</div>'+
-    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
-    //    '</div>');
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_reboot_confirm_button", function(){
-    //  $("#provision_confirm_action").html(
-    //    '<div data-alert class="alert-box secondary radius">'+
-    //      '<div class="row">'+
-    //      '<div class="large-11 columns">'+
-    //        '<span style="font-size: 14px; line-height: 20px">'+
-    //          tr("This action will reboot this Virtual Machine.")+
-    //          '<br>'+
-    //          '<br>'+
-    //          tr("You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't effect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer).")+
-    //        '</span>'+
-    //      '</div>'+
-    //      '</div>'+
-    //      '<br>'+
-    //      '<div class="row">'+
-    //      '<div class="large-12 columns">'+
-    //        '<a href"#" id="provision_reboot_button" class="button radius right" style="margin-right: 15px">'+tr("Reboot")+'</a>'+
-    //          '<input type="radio" name="provision_reboot_radio" value="reboot_hard" id="provision_reboot_hard_radio">'+
-    //          '<label for="provision_reboot_hard_radio">'+
-    //            '<i class="fa fa-fw fa-bolt"/>'+tr("Reboot the machine")+
-    //          '</label>'+
-    //          '<input type="radio" name="provision_reboot_radio" value="reboot" id="provision_reboot_radio" checked>'+
-    //          '<label for="provision_reboot_radio">'+
-    //            '<i class="fa fa-fw fa-power-off"/>'+tr("Send the reboot signal")+
-    //          '</label>'+
-    //      '</div>'+
-    //      '</div>'+
-    //      '<a href="#" class="close" style="top: 20px">&times;</a>'+
-    //    '</div>');
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_snapshot_create_button", function(){
-    //  var context = $("#provision_info_vm");
-//
-    //  var vm_id = context.attr("vm_id");
-    //  var image_name = $('#provision_snapshot_name', context).val();
-//
-    //  var obj = {
-    //    disk_id : "0",
-    //    image_name : image_name,
-    //    type: "",
-    //    clonetemplate: true,
-    //    hot: true
-    //  };
-//
-    //  Sunstone.runAction('Provision.saveas', vm_id, obj);
-    //});
-//
     $("#provision_info_vdc_user").on("click", "#provision_delete_button", function(){
       var user_id = $("#provision_info_vdc_user").attr("user_id");
       Sunstone.runAction('Provision.VDCUser.delete', user_id);
     });
-//
+
     $("#provision_info_vdc_user").on("click", "#provision_update_quota_button", function(){
       var user_id = $("#provision_info_vdc_user").attr("user_id");
       Sunstone.runAction("Provision.User.set_quota", [user_id], {
@@ -3990,34 +4127,5 @@ $(document).ready(function(){
           "CPU": $("#provision_cpu_quota_vdc_info_input").val()||0}
         });
     });
-//
-    //$("#provision_info_vm").on("click", "#provision_poweroff_button", function(){
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  var poweroff_action = $('input[name=provision_poweroff_radio]:checked').val()
-    //  Sunstone.runAction('Provision.' + poweroff_action, vm_id);
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_reboot_button", function(){
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  var reboot_action = $('input[name=provision_reboot_radio]:checked').val()
-    //  Sunstone.runAction('Provision.' + reboot_action, vm_id);
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_poweron_button", function(){
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  Sunstone.runAction('Provision.resume', vm_id);
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_vnc_button", function(){
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  Sunstone.runAction('Provision.startvnc', vm_id);
-    //});
-//
-    //$("#provision_info_vm").on("click", "#provision_refresh_info", function(){
-    //  $(".section_content").hide();
-    //  $("#provision_info_vm").fadeIn();
-    //  var vm_id = $("#provision_info_vm").attr("vm_id");
-    //  Sunstone.runAction('Provision.show', vm_id);
-    //});
   }
 });

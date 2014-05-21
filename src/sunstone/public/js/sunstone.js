@@ -3479,33 +3479,33 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
  * Helpers for quotas
  */
 
-function quotaBar(usage, limit, default_limit){
+function quotaBar(usage, limit, default_limit, not_html){
     var int_usage = parseInt(usage, 10);
     var int_limit = quotaIntLimit(limit, default_limit);
-    return quotaBarHtml(int_usage, int_limit);
+    return quotaBarHtml(int_usage, int_limit, null, not_html);
 }
 
-function quotaBarMB(usage, limit, default_limit){
+function quotaBarMB(usage, limit, default_limit, not_html){
     var int_usage = parseInt(usage, 10);
     var int_limit = quotaIntLimit(limit, default_limit);
 
     info_str = humanize_size(int_usage * 1024)+' / '
             +((int_limit > 0) ? humanize_size(int_limit * 1024) : '-')
 
-    return quotaBarHtml(int_usage, int_limit, info_str);
+    return quotaBarHtml(int_usage, int_limit, info_str, not_html);
 }
 
-function quotaBarFloat(usage, limit, default_limit){
+function quotaBarFloat(usage, limit, default_limit, not_html){
     var float_usage = parseFloat(usage, 10);
     var float_limit = quotaFloatLimit(limit, default_limit);
-    return quotaBarHtml(float_usage, float_limit);
+    return quotaBarHtml(float_usage, float_limit, null, not_html);
 }
 
-function quotaBarHtml(usage, limit, info_str){
+function quotaBarHtml(usage, limit, info_str, not_html){
     percentage = 0;
 
     if (limit > 0){
-        percentage = (usage / limit) * 100;
+        percentage = Math.floor((usage / limit) * 100);
 
         if (percentage > 100){
             percentage = 100;
@@ -3514,10 +3514,17 @@ function quotaBarHtml(usage, limit, info_str){
 
     info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
 
-    html = '<div class="progress-container"><div class="progress secondary round"><span class="meter" style="width: '
-        +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
+    if (not_html) {
+        return {
+            "percentage": percentage,
+            "str": info_str
+        }
+    } else {
+        html = '<div class="progress-container"><div class="progress secondary round"><span class="meter" style="width: '
+            +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
 
-    return html;
+        return html;
+    }
 }
 
 function usageBarHtml(usage, limit, info_str, color){
