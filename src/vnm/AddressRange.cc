@@ -107,7 +107,7 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
     {
         if (mac_to_i(value, mac) == -1)
         {
-            error_msg = "Wrong format for MAC_START attribute";
+            error_msg = "Wrong format for MAC attribute";
             return -1;
         };
     }
@@ -131,7 +131,7 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 
             if (value.empty() || ip_to_i(value, ip) == -1)
             {
-                error_msg = "Wrong or empty IP_START attribute";
+                error_msg = "Wrong or empty IP attribute";
                 return -1;
             }
 
