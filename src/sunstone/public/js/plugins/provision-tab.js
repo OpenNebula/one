@@ -847,7 +847,7 @@ var provision_list_templates = '<div id="provision_list_templates" class="hidden
   '</div>'+
 '</div>';
 
-var provision_list_vms = '<div id="provision_list_vms" class="section_content">'+
+var provision_list_vms = '<div id="provision_list_vms" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader text-right">'+
