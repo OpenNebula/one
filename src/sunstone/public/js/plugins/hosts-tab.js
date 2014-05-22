@@ -536,45 +536,76 @@ function updateHostsView (request,host_list){
 
     updateView(host_list_array,dataTable_hosts);
 
+    var ratio_allocated_cpu = 0;
     if (max_cpu > 0) {
-        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
-        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+        ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
+        info_str = allocated_cpu + ' / ' + max_cpu ;
     } else {
         info_str = "";
     }
 
-    $("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
+    //$("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
 
+    $("#dashboard_host_allocated_cpu").html(quotaDashboard(
+      "dashboard_host_allocated_cpu",
+      tr("ALLOCATED CPU"),
+      "30px",
+      "12px",
+      {"percentage": ratio_allocated_cpu, "str": info_str })
+    );
 
+    var ratio_real_cpu = 0;
     if (max_cpu > 0) {
-        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
-        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+        ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
+        info_str = real_cpu + ' / ' + max_cpu;
     } else {
         info_str = "";
     }
 
-    $("#dash_host_real_cpu").html(usageBarHtml(real_cpu, max_cpu, info_str, true));
+    //$("#dash_host_real_cpu").html(usageBarHtml(real_cpu, max_cpu, info_str, true));
 
+    $("#dashboard_host_real_cpu").html(quotaDashboard(
+      "dashboard_host_real_cpu",
+      tr("REAL CPU"),
+      "30px",
+      "12px",
+      {"percentage": ratio_real_cpu, "str": info_str })
+    );
 
+    var ratio_allocated_mem = 0;
     if (max_mem > 0) {
-        var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
-        info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+        ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
+        info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem);
     } else {
         info_str = humanize_size(allocated_mem) + ' / -';
     }
 
-    $("#dash_host_allocated_mem").html(usageBarHtml(allocated_mem, max_mem, info_str, true));
+    //$("#dash_host_allocated_mem").html(usageBarHtml(allocated_mem, max_mem, info_str, true));
 
+    $("#dashboard_host_allocated_mem").html(quotaDashboard(
+      "dashboard_host_allocated_mem",
+      tr("ALLOCATED MEMORY"),
+      "30px",
+      "12px",
+      {"percentage": ratio_allocated_mem, "str": info_str })
+    );
 
     if (max_mem > 0) {
         var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
-        info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+        info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem);
     } else {
         info_str = humanize_size(real_mem) + ' / -';
     }
 
-    $("#dash_host_real_mem").html(usageBarHtml(real_mem, max_mem, info_str, true));
+    //$("#dash_host_real_mem").html(usageBarHtml(real_mem, max_mem, info_str, true));
 
+    $("#dashboard_host_real_mem").html(quotaDashboard(
+      "dashboard_host_real_mem",
+      tr("REAL MEMORY"),
+      "30px",
+      "12px",
+      {"percentage": ratio_real_mem, "str": info_str })
+    );
 
     $(".total_hosts").text(host_list.length);
     $(".on_hosts").text(on_hosts);
