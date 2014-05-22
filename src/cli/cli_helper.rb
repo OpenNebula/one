@@ -368,7 +368,7 @@ module CLIHelper
                         exit(-1)
                     end
                 else
-                    STDERR.puts "Expresion '#{s}' incorrect"
+                    STDERR.puts "Expression '#{s}' incorrect"
                     exit(-1)
                 end
             end
