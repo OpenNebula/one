@@ -572,6 +572,12 @@ function userElementArray(user_json){
             user.VM_QUOTA.VM.CPU_USED,
             user.VM_QUOTA.VM.CPU,
             default_user_quotas.VM_QUOTA.VM.CPU);
+    } else {
+
+        var vms = quotaBar(0, 0, null);
+        var memory = quotaBarMB(0, 0, null);
+        var cpu = quotaBarFloat(0, 0, null);
+
     }
 
 
@@ -692,7 +698,8 @@ function updateUserInfo(request,user){
 
     var quotas_html;
     if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
-      quotas_html = '<div class="large-6 columns">' + vms_quota + '</div>';
+      quotas_html = '<div class="quotas">';
+      quotas_html += '<div class="large-6 columns">' + vms_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
@@ -701,6 +708,7 @@ function updateUserInfo(request,user){
       quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
       quotas_html += '<br><br>';
       quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
+      quotas_html += '</div>';
     } else {
       quotas_html = '<div class="row">\
               <div class="large-12 columns">\

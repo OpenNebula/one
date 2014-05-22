@@ -568,7 +568,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
     '</div>'+
     '<div class="content" id="provision_info_quotas">'+
       '<div class="row">'+
-        '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns">'+
+        '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns quotas">'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -775,7 +775,7 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
       '</div>'+
       '<br>'+
       '<div class="row">'+
-        '<div class="large-10 columns large-centered" id="provision_vdc_quotas_div">'+
+        '<div class="large-10 columns large-centered quotas" id="provision_vdc_quotas_div">'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -915,9 +915,55 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div  id="provision_info_vdc_quotas" class="large-9 large-centered columns">'+
+    '<div class="large-9 large-centered columns">'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_vdc_user_rvms_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_vdc_user_cpu_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_vdc_user_memory_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_vdc_user_rvms_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_vdc_user_cpu_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_vdc_user_memory_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("RUNNING VMS")+'</span>'+
+            '<br>'+
+            '<span id="provision_vdc_user_rvms_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("CPU")+'</span>'+
+            '<br>'+
+            '<span id="provision_vdc_user_cpu_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("MEMORY")+'</span>'+
+            '<br>'+
+            '<span id="provision_vdc_user_memory_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+        '</div>'+
     '</div>'+
   '</div>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader text-right">'+
@@ -1483,6 +1529,8 @@ function show_provision_dashboard() {
   $(".section_content").hide();
   $("#provision_dashboard").fadeIn();
 
+  $("#provision_dashboard").html("");
+
   if (Config.provision.dashboard.isEnabled("quotas")) {
     $("#provision_dashboard").append(provision_quotas_dashboard);
 
@@ -1493,10 +1541,6 @@ function show_provision_dashboard() {
       },
       success: function(request,user_json){
         var user = user_json.USER;
-
-        var vms;
-        var memory;
-        var cpu;
 
         if (!$.isEmptyObject(user.VM_QUOTA)){
             var default_user_quotas = Quotas.default_quotas(user.DEFAULT_USER_QUOTAS);
@@ -2249,32 +2293,63 @@ function update_provision_vdc_user_info(data) {
   context.attr("quotas", JSON.stringify(data.VM_QUOTA));
   $("#provision_info_vdc_user_name", context).html('<i class="fa fa-fw fa-user"/>&emsp;'+data.NAME);
 
-  var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
-  var vms_quota = Quotas.vms(data, default_user_quotas);
-  var cpu_quota = Quotas.cpu(data, default_user_quotas);
-  var memory_quota = Quotas.memory(data, default_user_quotas);
+  if (!$.isEmptyObject(data.VM_QUOTA)){
+      var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
 
-  var quotas_html;
-  if (vms_quota || cpu_quota || memory_quota) {
-    quotas_html = '<div class="large-4 columns">' + vms_quota + '</div>';
-    quotas_html += '<div class="large-4 columns">' + cpu_quota + '</div>';
-    quotas_html += '<div class="large-4 columns">' + memory_quota + '</div>';
-  } else {
-    quotas_html = '<div class="row">'+
-      '<div class="large-8 large-centered columns">'+
-        '<div class="text-center">'+
-          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-            '<i class="fa fa-cloud fa-stack-2x"></i>'+
-            '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
-          '</span>'+
-          '<br>'+
-          '<p style="font-size: 18px; color: #999">'+
-            tr("There are no quotas defined")+
-          '</p>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
+      var vms = quotaBar(
+          data.VM_QUOTA.VM.VMS_USED,
+          data.VM_QUOTA.VM.VMS,
+          default_user_quotas.VM_QUOTA.VM.VMS,
+          true);
+
+      $("#provision_vdc_user_rvms_percentage").html(vms["percentage"]);
+      $("#provision_vdc_user_rvms_str").html(vms["str"]);
+      $("#provision_vdc_user_rvms_meter").css("width", vms["percentage"]+"%");
+
+      var memory = quotaBarMB(
+          data.VM_QUOTA.VM.MEMORY_USED,
+          data.VM_QUOTA.VM.MEMORY,
+          default_user_quotas.VM_QUOTA.VM.MEMORY,
+          true);
+
+      $("#provision_vdc_user_memory_percentage").html(memory["percentage"]);
+      $("#provision_vdc_user_memory_str").html(memory["str"]);
+      $("#provision_vdc_user_memory_meter").css("width", memory["percentage"]+"%");
+
+      var cpu = quotaBarFloat(
+          data.VM_QUOTA.VM.CPU_USED,
+          data.VM_QUOTA.VM.CPU,
+          default_user_quotas.VM_QUOTA.VM.CPU,
+          true);
+
+      $("#provision_vdc_user_cpu_percentage").html(cpu["percentage"]);
+      $("#provision_vdc_user_cpu_str").html(cpu["str"]);
+      $("#provision_vdc_user_cpu_meter").css("width", cpu["percentage"]+"%");
   }
+
+  // TODO if no quotas set placeholder
+
+  //var quotas_html;
+  //if (vms_quota || cpu_quota || memory_quota) {
+  //  quotas_html = '<div class="large-4 columns">' + vms_quota + '</div>';
+  //  quotas_html += '<div class="large-4 columns">' + cpu_quota + '</div>';
+  //  quotas_html += '<div class="large-4 columns">' + memory_quota + '</div>';
+  //} else {
+  //  quotas_html = '<div class="row">'+
+  //    '<div class="large-8 large-centered columns">'+
+  //      '<div class="text-center">'+
+  //        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+  //          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+  //          '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
+  //        '</span>'+
+  //        '<br>'+
+  //        '<p style="font-size: 18px; color: #999">'+
+  //          tr("There are no quotas defined")+
+  //        '</p>'+
+  //      '</div>'+
+  //    '</div>'+
+  //  '</div>';
+  //}
 
   accountingGraphs(
     $("#provision_info_vdc_user_acct", context),
@@ -2283,7 +2358,7 @@ function update_provision_vdc_user_info(data) {
 
   $("#acct_placeholder", context).hide();
 
-  $("#provision_info_vdc_quotas").html(quotas_html);
+  //$("#provision_info_vdc_quotas").html(quotas_html);
 }
 
 $(document).ready(function(){
@@ -3421,49 +3496,92 @@ $(document).ready(function(){
             var quota = q.QUOTAS;
 
             if (!$.isEmptyObject(quota.VM_QUOTA)){
-                quotas_html = "";
-                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px; margin-top: 5px">'+tr("Running VMs")+'</li>';
-                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
-                quotas_html += quotaBar(
+                quotas = quotaBarFloat(
                     quota.VM_QUOTA.VM.VMS_USED,
                     quota.VM_QUOTA.VM.VMS,
-                    default_user_quotas.VM_QUOTA.VM.VMS);
-                quotas_html += '</li>';
+                    default_user_quotas.VM_QUOTA.VM.VMS,
+                    true);
 
-                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("CPU")+'</li>';
-                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 10px">';
-                quotas_html += quotaBarFloat(
+                quotas_html = "";
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-top:5px; margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                  tr("Running VMs")+
+                  '<span class="right">'+quotas.str+"</span>"+
+                '</li>'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                  '<div class="progress small radius">'+
+                  '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
+                  '</div>'+
+                '</li>';
+
+                quotas = quotaBarFloat(
                     quota.VM_QUOTA.VM.CPU_USED,
                     quota.VM_QUOTA.VM.CPU,
-                    default_user_quotas.VM_QUOTA.VM.CPU);
-                quotas_html += '</li>';
+                    default_user_quotas.VM_QUOTA.VM.CPU,
+                    true);
 
-                quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
-                quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
-                quotas_html += quotaBarMB(
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                  tr("CPU")+
+                  '<span class="right">'+quotas.str+"</span>"+
+                '</li>'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                  '<div class="progress small radius">'+
+                  '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
+                  '</div>'+
+                '</li>';
+
+                quotas = quotaBarMB(
                     quota.VM_QUOTA.VM.MEMORY_USED,
                     quota.VM_QUOTA.VM.MEMORY,
-                    default_user_quotas.VM_QUOTA.VM.MEMORY);
-                quotas_html += '</li>';
-            }
-        }
+                    default_user_quotas.VM_QUOTA.VM.MEMORY,
+                    true);
 
-        if (quotas_html == undefined) {
-          quotas_html = "";
-          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px; margin-top: 5px">'+tr("Running VMs")+'</li>';
-          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
-          quotas_html += quotaBar(0,0,null);
-          quotas_html += '</li>';
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                  tr("Memory")+
+                  '<span class="right">'+quotas.str+"</span>"+
+                '</li>'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                  '<div class="progress small radius">'+
+                  '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
+                  '</div>'+
+                '</li>';
+            } else {
+                quotas = quotaBarFloat(0, 0, null, true);
 
-          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("CPU")+'</li>';
-          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 10px">';
-          quotas_html += quotaBarFloat(0,0,null);
-          quotas_html += '</li>';
+                quotas_html = "";
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-top:5px; margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                  tr("Running VMs")+
+                  '<span class="right">'+quotas.str+"</span>"+
+                '</li>'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                  '<div class="progress small radius">'+
+                  '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
+                  '</div>'+
+                '</li>';
 
-          quotas_html += '<li class="provision-description text-left" style="padding-top: 0px; padding-bottom: 0px;margin-left:15px">'+tr("Memory")+'</li>';
-          quotas_html += '<li class="provision-bullet-item text-left" style="padding: 10px 25px 15px 25px; margin-bottom: 5px">';
-          quotas_html += quotaBarMB(0,0,null);
-          quotas_html += '</li>';
+                quotas = quotaBarFloat(0, 0, null, true);
+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                  tr("CPU")+
+                  '<span class="right">'+quotas.str+"</span>"+
+                '</li>'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                  '<div class="progress small radius">'+
+                  '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
+                  '</div>'+
+                '</li>';
+
+                quotas = quotaBarMB(0, 0, null, true);
+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                  tr("Memory")+
+                  '<span class="right">'+quotas.str+"</span>"+
+                '</li>'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                  '<div class="progress small radius">'+
+                  '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
+                  '</div>'+
+                '</li>';
+              }
         }
 
 

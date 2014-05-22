@@ -3520,8 +3520,8 @@ function quotaBarHtml(usage, limit, info_str, not_html){
             "str": info_str
         }
     } else {
-        html = '<div class="progress-container"><div class="progress secondary round"><span class="meter" style="width: '
-            +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
+        html = '<span class="progress-text right" style="font-size: 12px">'+info_str+'</span><br><div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '
+            +percentage+'%"></div>';
 
         return html;
     }
@@ -3588,6 +3588,28 @@ function quotaFloatLimit(limit, default_limit){
     }
 
     return f_limit
+}
+
+function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota){
+    return '<div class="row">'+
+          '<div class="large-12 columns text-center" style="margin-bottom: 5px">'+
+            '<span id="'+html_tag+'_percentage" style="font-size:'+font_large_size+';">'+quota.percentage+'</span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-12 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="'+html_tag+'_meter" class="meter" style="width: '+quota.percentage+'%"></span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-12 columns text-center">'+
+            '<span>'+legend+'</span>'+
+            '<br>'+
+            '<span id="'+html_tag+'_str" style="color: #999; font-size: '+font_small_size+';">'+quota.str+'</span>'+
+          '</div>'+
+        '</div>';
 }
 
 var activeTab;
