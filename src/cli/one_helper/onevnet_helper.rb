@@ -26,6 +26,46 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description => "ID of the address range"
     }
 
+    AR_MAC = {
+        :name => "mac",
+        :short => "-m mac",
+        :large => "--address_range_mac mac",
+        :format => String,
+        :description => "First MAC address in : notation"
+    }
+
+    AR_IP = {
+        :name => "ip",
+        :short => "-i ip",
+        :large => "--address_range_ip ip",
+        :format => String,
+        :description => "First IP address in . notation"
+    }
+
+    AR_SIZE = {
+        :name => "size",
+        :short => "-s size",
+        :large => "--address_range_size size",
+        :format => String,
+        :description => "Number of addresses in the range"
+    }
+
+    AR_IP6_GLOBAL = {
+        :name => "ip6_global",
+        :short => "-g ip6_pref",
+        :large => "--address_range_ip6g ip6_pref",
+        :format => String,
+        :description => "IP6 global prefix"
+    }
+
+    AR_IP6_ULA = {
+        :name => "ip6_ula",
+        :short => "-u ip6_pref",
+        :large => "--address_range_ip6u ip6_pref",
+        :format => String,
+        :description => "IP6 ula prefix"
+    }
+
     def self.rname
         "VNET"
     end
@@ -165,7 +205,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :IP6_GLOBAL_PREFIX, "", :right, :size=>22 do |d|
-                    d["GLOBAL_PREFIX"]||"-"
+                    d["IP6_GLOBAL"]||"-"
             end
 
         end.show(arlist, {})

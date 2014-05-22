@@ -58,39 +58,42 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualNetworkAddLeases : public RequestManagerVirtualNetwork
+class VirtualNetworkAddAddressRange: public RequestManagerVirtualNetwork
 {
 public:
-    VirtualNetworkAddLeases():
-        RequestManagerVirtualNetwork("VirtualNetworkAddLeases",
-                                     "Adds leases to a virtual network"){};
-    ~VirtualNetworkAddLeases(){};
+    VirtualNetworkAddAddressRange():
+        RequestManagerVirtualNetwork("VirtualNetworkAddAddressRange",
+                                     "Adds address ranges to a virtual network"){};
+    ~VirtualNetworkAddAddressRange(){};
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
                       string& error_str)
     {
-        return vn->add_leases(tmpl, error_str);
+        return vn->add_ar(tmpl, error_str);
     }
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualNetworkRemoveLeases : public RequestManagerVirtualNetwork
+class VirtualNetworkRmAddressRange : public Request
 {
 public:
-    VirtualNetworkRemoveLeases():
-        RequestManagerVirtualNetwork("VirtualNetworkRemoveLeases",
-                                     "Removes leases from a virtual network"){};
-    ~VirtualNetworkRemoveLeases(){};
-
-    int leases_action(VirtualNetwork * vn,
-                      VirtualNetworkTemplate * tmpl,
-                      string& error_str) 
+    VirtualNetworkRmAddressRange():Request("VirtualNetworkRmAddressRange",
+      "A:sii", "Removes an address range from a virtual network")
     {
-        return vn->remove_leases(tmpl, error_str);
-    }
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::MANAGE;
+    };
+
+    ~VirtualNetworkRmAddressRange(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

@@ -586,31 +586,31 @@ int VirtualNetwork::nic_attribute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::add_leases(VirtualNetworkTemplate * leases_template,
-                               string&                  error_msg)
+int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 {
-    vector<const Attribute *> vector_leases;
+    vector<Attribute *> tmp_ars;
+    vector<Attribute *> ars;
 
-    leases_template->get("LEASES", vector_leases);
+    vector<Attribute *>::iterator it;
 
-    //TODO
-    return 0;
-    //return leases->add_leases(vector_leases, error_msg);
+    ars_tmpl->get("AR", tmp_ars);
+
+    for (it=tmp_ars.begin(); it!=tmp_ars.end(); it++)
+    {
+        VectorAttribute * var = static_cast<VectorAttribute *>(*it);
+
+        ars.push_back(var->clone());
+    }
+
+    return ar_pool.from_vattr(ars, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::remove_leases(VirtualNetworkTemplate * leases_template,
-                                  string&                  error_msg)
+int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
 {
-    vector<const Attribute *> vector_leases;
-
-    leases_template->get("LEASES", vector_leases);
-
-    //TODO
-    return 0;
-    //return leases->remove_leases(vector_leases, error_msg);
+    return ar_pool.rm_ar(ar_id, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

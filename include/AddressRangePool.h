@@ -55,6 +55,14 @@ public:
     int from_xml_node(const xmlNodePtr node);
 
     /**
+     *  Removes an address range from the pool if it does not contain any used
+     *  leases
+     *    @param arid of the address range to be removed
+     *    @return 0 on success, -1 if not exists or has used addresses
+     */
+    int rm_ar(unsigned int ar_id, string& error_msg);
+
+    /**
      *  Generate a XML representation of the Address Range Pool
      *    @param sstream where the ARPool is written
      *    @param extended true to include lease information
@@ -175,6 +183,12 @@ public:
         return used_addr;
     }
 
+    /**
+     *  Gets an attribute from the Address Range
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *    @param ar_id to get the attribute from
+     */
     void get_attribute(const char * name, string& value, int ar_id) const;
 
 private:

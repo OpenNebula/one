@@ -114,6 +114,65 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        error_msg = "Address Range does not exist";
+        return -1;
+    }
+
+    if (it->second->get_used_addr() > 0)
+    {
+        error_msg = "Address Range has leases in use";
+        return -1;
+    }
+
+    AddressRange * ar_ptr = it->second;
+
+    ar_pool.erase(it);
+
+    delete ar_ptr;
+
+    vector<Attribute*> ars;
+    vector<Attribute*>::iterator it_ar;
+    Attribute * the_ar = 0;
+
+    unsigned int ar_id_templ;
+
+    ar_template.get("AR", ars);
+
+    for (it_ar=ars.begin(); it_ar!=ars.end(); it_ar++)
+    {
+        VectorAttribute *ar = static_cast<VectorAttribute *>(*it_ar);
+
+        if (ar == 0)
+        {
+            continue;
+        }
+
+        if ((ar->vector_value("AR_ID",ar_id_templ)==0) && (ar_id_templ==ar_id))
+        {
+            the_ar = ar;
+            break;
+        }
+    }
+
+    if (the_ar != 0)
+    {
+        delete ar_template.remove(the_ar);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& AddressRangePool::to_xml(string& sstream, bool extended) const
 {
     if (extended)

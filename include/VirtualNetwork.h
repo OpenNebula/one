@@ -57,25 +57,20 @@ public:
     }
 
     /**
-     * Adds Leases to the virtual network (Only implemented for FIXED networks)
-     *  @param leases template in the form LEASES = [IP=XX, MAC=XX].
-     *         MAC is optional. The template can only contain one LEASE
-     *         definition.
+     * Add an address range to the virtual network
+     *  @param ars_tmpl template in the form AR = [TYPE=...,IP=...,SIZE=...].
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int add_leases(VirtualNetworkTemplate * leases, string& error_msg);
+    int add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg);
 
     /**
-     * Removes Leases from the virtual network; if they are not used.(Only
-     * implemented for FIXED networks)
-     *  @param leases template in the form LEASES = [IP=XX].
-     *         The template can only contain one LEASE definition.
-     *  @param error_msg If the action fails, this message contains
-     *         the reason.
+     * Removes an address range from the VNET
+     *  @param ar_id of the address range
+     *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
-    int remove_leases(VirtualNetworkTemplate* leases, string& error_msg);
+    int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
      * Holds a Lease, marking it as used

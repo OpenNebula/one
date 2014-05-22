@@ -68,10 +68,10 @@ void RequestManagerVirtualNetwork::
 
     if ( rc < 0 )
     {
-        failure_response(INTERNAL, 
+        failure_response(INTERNAL,
                 request_error("Error modifying network leases",error_str),
                 att);
-        
+
         vn->unlock();
         return;
     }
@@ -79,7 +79,52 @@ void RequestManagerVirtualNetwork::
     pool->update(vn);
 
     vn->unlock();
- 
+
     success_response(id, att);
 }
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkRmAddressRange::
+    request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
+{
+    int    id = xmlrpc_c::value_int(paramList.getInt(1));
+    int ar_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    VirtualNetwork * vn;
+
+    string error_str;
+    int    rc;
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
+
+    if ( vn == 0 )
+    {
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
+        return;
+    }
+
+    if ( vn->rm_ar(ar_id, error_str) < 0 )
+    {
+        failure_response(INTERNAL,
+                request_error("Error removing address range",error_str),
+                att);
+
+        vn->unlock();
+
+        return;
+    }
+
+    pool->update(vn);
+
+    vn->unlock();
+
+    success_response(id, att);
+}

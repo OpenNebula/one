@@ -28,8 +28,8 @@ module OpenNebula
             :info       => "vn.info",
             :allocate   => "vn.allocate",
             :delete     => "vn.delete",
-            :addleases  => "vn.addleases",
-            :rmleases   => "vn.rmleases",
+            :add_ar     => "vn.add_ar",
+            :rm_ar      => "vn.rm_ar",
             :chown      => "vn.chown",
             :chmod      => "vn.chmod",
             :update     => "vn.update",
@@ -110,26 +110,20 @@ module OpenNebula
         end
 
         # Adds a lease to the VirtualNetwork
-        def addleases(ip, mac = nil)
+        def add_ar(ar_template)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template = "LEASES = [ IP = #{ip}"
-            lease_template << ", MAC = #{mac}" if mac
-            lease_template << " ]"
-
-            rc = @client.call(VN_METHODS[:addleases], @pe_id, lease_template)
+            rc = @client.call(VN_METHODS[:add_ar], @pe_id, ar_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
 
         # Removes a lease from the VirtualNetwork
-        def rmleases(ip)
+        def rm_ar(ar_id)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template = "LEASES = [ IP = #{ip} ]"
-
-            rc = @client.call(VN_METHODS[:rmleases], @pe_id, lease_template)
+            rc = @client.call(VN_METHODS[:rm_ar], @pe_id, ar_id.to_i)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
