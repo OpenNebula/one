@@ -74,6 +74,41 @@ int AddressRangePool::from_vattr(vector<Attribute *> ars, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRangePool::update_ar(vector<Attribute *> ars)
+{
+    vector<Attribute *>::iterator               it;
+    map<unsigned int, AddressRange *>::iterator ar_it;
+
+    unsigned int arid;
+
+    for (it = ars.begin(); it != ars.end(); it++)
+    {
+        VectorAttribute * va = static_cast<VectorAttribute *>(*it);
+
+        if (va == 0)
+        {
+            continue;
+        }
+
+        if (va->vector_value("AR_ID", arid) != 0)
+        {
+            continue;
+        }
+
+        ar_it = ar_pool.find(arid);
+
+        if (ar_it == ar_pool.end())
+        {
+            continue;
+        }
+
+        ar_it->second->update_attributes(va);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRangePool::from_xml_node(const xmlNodePtr node)
 {
     int rc = ar_template.from_xml_node(node);

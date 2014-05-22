@@ -73,6 +73,13 @@ public:
     int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
+     * Update an address range to the virtual network
+     *  @param ars_tmpl template in the form AR = [AR_ID=...]. The address range
+     *  is specified by the AR_ID attribute.
+     */
+    void update_ar(VirtualNetworkTemplate * ars_tmpl);
+
+    /**
      * Holds a Lease, marking it as used
      *  @param leases template in the form LEASES = [IP=XX].
      *          The template can only contain one LEASE definition.

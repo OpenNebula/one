@@ -63,6 +63,13 @@ public:
     int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
+     *  Updates the given address ranges
+     *    @param ars vector of address ranges as VectorAttributes obtined from
+     *    template in the form AR = [...]
+     */
+    void update_ar(vector<Attribute *> ars);
+
+    /**
      *  Generate a XML representation of the Address Range Pool
      *    @param sstream where the ARPool is written
      *    @param extended true to include lease information

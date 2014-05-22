@@ -251,6 +251,25 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    update_ar_desc = <<-EOT.unindent
+        Update Address Range variables. SIZE, IP, MAC and TYPE cannot be updated
+    EOT
+
+    command :updatear, update_ar_desc, :vnetid, :ar_id, [:file, nil] do
+        helper.perform_action(args[0],options,"modified") do |obj|
+
+            str = OpenNebulaHelper.update_template(args[0], obj, args[2],
+                "AR_POOL/AR[AR_ID=#{args[1]}]")
+
+            str[-1]=''
+            str.gsub!(/AR_ID="\d+"\n/,'')
+            str.gsub!(/^\s*(#|$)/,'')
+            str.gsub!(/\n/,',')
+
+            obj.update_ar("AR = [AR_ID=#{args[1]},#{str}]")
+        end
+    end
+
     rename_desc = <<-EOT.unindent
         Renames the Virtual Network
     EOT

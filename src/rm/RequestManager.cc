@@ -278,6 +278,7 @@ void RequestManager::register_xml_methods()
     // VirtualNetwork Methods
     xmlrpc_c::methodPtr vn_add_ar(new VirtualNetworkAddAddressRange());
     xmlrpc_c::methodPtr vn_rm_ar(new VirtualNetworkRmAddressRange());
+    xmlrpc_c::methodPtr vn_update_ar(new VirtualNetworkUpdateAddressRange());
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
 
@@ -487,6 +488,7 @@ void RequestManager::register_xml_methods()
     /* Network related methods*/
     RequestManagerRegistry.addMethod("one.vn.add_ar", vn_add_ar);
     RequestManagerRegistry.addMethod("one.vn.rm_ar", vn_rm_ar);
+    RequestManagerRegistry.addMethod("one.vn.update_ar", vn_update_ar);
     RequestManagerRegistry.addMethod("one.vn.hold", vn_hold);
     RequestManagerRegistry.addMethod("one.vn.release", vn_release);
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);

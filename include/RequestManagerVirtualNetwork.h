@@ -99,6 +99,29 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkUpdateAddressRange: public RequestManagerVirtualNetwork
+{
+public:
+    VirtualNetworkUpdateAddressRange():
+        RequestManagerVirtualNetwork("VirtualNetworkUpdateAddressRange",
+          "Updates address ranges to a virtual network"){};
+    ~VirtualNetworkUpdateAddressRange(){};
+
+    int leases_action(VirtualNetwork * vn,
+                      VirtualNetworkTemplate * tmpl,
+                      string& error_str)
+    {
+        error_str.clear();
+
+        vn->update_ar(tmpl);
+
+        return 0;
+    };
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualNetworkHold : public RequestManagerVirtualNetwork
 {
 public:

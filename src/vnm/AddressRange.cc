@@ -178,6 +178,42 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRange::update_attributes(VectorAttribute *vup)
+{
+    /* Remove non-update attributes */
+
+    vup->remove("TYPE");
+
+    vup->remove("SIZE");
+
+    vup->remove("MAC");
+
+    vup->remove("IP");
+
+    /* Remove internal attributes */
+
+    vup->remove("AR_ID");
+
+    vup->remove("ALLOCATED");
+
+    vup->remove("USED_LEASES");
+
+    vup->remove("LEASES");
+
+    /* Copy the rest attributes to the address range */
+
+    const map<string,string> new_attrs = vup->value();
+    map <string,string>::const_iterator it;
+
+    for (it = new_attrs.begin(); it != new_attrs.end(); it++)
+    {
+        attr->replace(it->first, it->second);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::from_vattr_db(VectorAttribute *vattr)
 {
     string value;

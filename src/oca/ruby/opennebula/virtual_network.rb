@@ -23,13 +23,13 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         VN_METHODS = {
             :info       => "vn.info",
             :allocate   => "vn.allocate",
             :delete     => "vn.delete",
             :add_ar     => "vn.add_ar",
             :rm_ar      => "vn.rm_ar",
+            :update_ar  => "vn.update_ar",
             :chown      => "vn.chown",
             :chmod      => "vn.chmod",
             :update     => "vn.update",
@@ -109,7 +109,7 @@ module OpenNebula
             super(VN_METHODS[:delete])
         end
 
-        # Adds a lease to the VirtualNetwork
+        # Adds Address Ranges to the VirtualNetwork
         def add_ar(ar_template)
             return Error.new('ID not defined') if !@pe_id
 
@@ -119,11 +119,21 @@ module OpenNebula
             return rc
         end
 
-        # Removes a lease from the VirtualNetwork
+        # Removes an Address Range from the VirtualNetwork
         def rm_ar(ar_id)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VN_METHODS[:rm_ar], @pe_id, ar_id.to_i)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Updates Address Ranges from the VirtualNetwork
+        def update_ar(ar_template)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VN_METHODS[:update_ar], @pe_id, ar_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

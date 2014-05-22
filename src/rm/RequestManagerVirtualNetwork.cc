@@ -96,7 +96,6 @@ void VirtualNetworkRmAddressRange::
     VirtualNetwork * vn;
 
     string error_str;
-    int    rc;
 
     if ( basic_authorization(id, att) == false )
     {

@@ -203,6 +203,14 @@ public:
         return attr->vector_value(name);
     }
 
+    /**
+     *  Updates the Address Range with the attributes provided. The following
+     *  CANNOT be updated: TYPE, SIZE, IP, MAC (plus the internal AR_ID and
+     *  ALLOCATED)
+     *    @param vup the new vector attributes for the address range
+     */
+    void update_attributes(VectorAttribute *vup);
+
 private:
     /* ---------------------------------------------------------------------- */
     /* String to binary conversion functions for different address types      */

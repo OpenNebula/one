@@ -608,6 +608,18 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl)
+{
+    vector<Attribute *> tmp_ars;
+
+    ars_tmpl->get("AR", tmp_ars);
+
+    ar_pool.update_ar(tmp_ars);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
 {
     return ar_pool.rm_ar(ar_id, error_msg);
