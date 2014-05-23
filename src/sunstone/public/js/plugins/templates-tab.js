@@ -3284,6 +3284,7 @@ function setup_context_tab_content(context_section) {
 
 
         $('#FILES_DS', context_section).val(req_string.join(" "));
+        $('#FILES_DS', context_section).val(htmlDecode(context["FILES_DS"]))
     };
 }
 
@@ -4282,7 +4283,7 @@ function fillTemplatePopUp(template, dialog){
                 $("input#INIT_SCRIPTS").val(htmlDecode(value));
             }
             else if ("FILES_DS" == key){
-                $('#FILES_DS', context_section).val(htmlDecode(context["FILES_DS"]))
+                $('#FILES_DS', context_section).val(escapeDoubleQuotes(htmlDecode(context["FILES_DS"])))
                 var files = [];
                 while (match = file_ds_regexp.exec(value)) {
                     files.push(match[1])
