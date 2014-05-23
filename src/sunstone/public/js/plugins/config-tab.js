@@ -43,8 +43,12 @@ Config = {
     },
 
     "isTabPanelEnabled": function(tab_name, panel_tab_name){
-      var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
-      return enabled;
+      if (config['view']['tabs'][tab_name]) {
+        var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
+        return enabled;
+      } else {
+        return false;
+      }
     },
 
     "tabTableColumns": function(tab_name){
@@ -81,8 +85,12 @@ Config = {
     "provision": {
       "dashboard": {
         "isEnabled": function(widget) {
-          var enabled = config['view']['tabs']['provision-tab']['dashboard'][widget];
-          return enabled;
+          if (config['view']['tabs']['provision-tab']){
+            var enabled = config['view']['tabs']['provision-tab']['dashboard'][widget];
+            return enabled;
+          } else {
+            return false;
+          }
         }
       }
     }
