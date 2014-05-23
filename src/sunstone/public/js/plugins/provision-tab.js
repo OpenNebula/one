@@ -18,7 +18,6 @@ var provision_quotas_dashboard =
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<i class="fa fa-fw fa-align-left"/>&emsp;'+
         tr("Quotas")+
       '</h2>'+
       '<br>'+
@@ -80,14 +79,13 @@ var provision_vms_dashboard =
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<i class="fa fa-fw fa-th"/>&emsp;'+
         tr("Virtual Machines")+
       '</h2>'+
       '<br>'+
     '</div>'+
   '</div>'+
   '<div class="row" id="provision_vms_dashboard">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
         '<div class="row">'+
           '<div class="large-4 columns text-center">'+
             '<span  id="provision_dashboard_total" style="font-size:90px">'+20+'</span>'+
@@ -146,9 +144,8 @@ var provision_dashboard = '<div id="provision_dashboard" class="section_content"
 
 var provision_create_vm = '<form id="provision_create_vm" class="hidden section_content">'+
   '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
+    '<div class="large-10 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<i class="fa fa-fw fa-cloud"/>&emsp;'+
         tr("Create Virtual Machine")+
       '</h2>'+
       '<br>'+
@@ -170,7 +167,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
           tr("Select Template")+
         '</span>'+
         '<a href"#" id="provision_create_template_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
@@ -183,11 +179,11 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '</div>'+
   '<br>'+
   '<div class="row provision_select_template">'+
-    '<div class="large-9 large-centered columns">'+
+    '<div class="large-10 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
-        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_templates_selector">'+ tr("VDC") +'</a></dd>'+
-        '<dd style="width: 34%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
+        '<dd class="active" style="width: 33%;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
+        '<dd style="width: 33%;"><a href="#provision_vdc_templates_selector">'+ tr("VDC") +'</a></dd>'+
+        '<dd style="width: 34%;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
       '</dl>'+
       '<br>'+
       '<div class="tabs-content">'+
@@ -235,6 +231,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
       '</div>'+
     '</div>'+
   '</div>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<dl class="accordion" data-accordion>'+
@@ -249,7 +246,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
               '<div class="large-12 large-centered columns">'+
                 '<h3 class="subheader text-right">'+
                   '<span class="left">'+
-                    '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                     tr("Change Capacity")+
                   '</span>'+
                   '<a href"#" id="provision_create_instance_types_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
@@ -262,7 +258,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
             '</div>'+
             '<br>'+
             '<div class="row">'+
-              '<div class="large-11 large-centered columns">'+
+              '<div class="large-12 large-centered columns">'+
                 '<table id="provision_instance_types_table">'+
                   '<thead class="hidden">'+
                     '<tr>'+
@@ -285,7 +281,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
               '<div class="large-12 large-centered columns">'+
                 '<h3 class="subheader text-right">'+
                   '<span class="left">'+
-                    '<i class="fa fa-fw fa-globe"/>&emsp;'+
                     tr("Select Network")+
                   '</span>'+
                   '<a href"#" id="provision_create_networks_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
@@ -302,7 +297,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
               '</div>'+
             '</div>'+
             '<div class="row">'+
-              '<div class="large-11 large-centered columns">'+
+              '<div class="large-12 large-centered columns">'+
                 '<table id="provision_networks_table">'+
                   '<thead class="hidden">'+
                     '<tr>'+
@@ -713,16 +708,39 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
 var provision_list_users = '<div id="provision_list_users">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader text-right">'+
-        '<span class="left">'+
-          '<i class="fa fa-fw fa-users"/>&emsp;'+
+      '<h2 class="subheader">'+
           tr("Users")+
-        '</span>'+
-        '<a href"#" id="provision_users_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top right">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_users_search"/>'+
       '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li>'+
+          '<a href"#" class="provision_create_user_button">'+
+            '<i class="fa fa-fw fa-lg fa-plus-square"/>'+tr("Create")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_users_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
+            '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_users_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list">'+
+        '<li>'+
+          '<input type="search" class="provision-search-input right" style="display: none;" placeholder="Search" id="provision_list_users_search"/>'+
+        '</li>'+
+      '</ul>'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
@@ -730,7 +748,7 @@ var provision_list_users = '<div id="provision_list_users">'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
       '<table id="provision_users_table">'+
         '<thead class="hidden">'+
           '<tr>'+
@@ -802,34 +820,52 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
 var provision_list_templates = '<div id="provision_list_templates" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader text-right">'+
-        '<span class="left">'+
-          '<i class="fa fa-fw fa-save"/>&emsp;'+
+      '<h2 class="subheader">'+
+        '<span>'+
           tr("Saved Templates")+
         '</span>'+
-        '<a href"#" id="provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
-        '<span id="provision_list_templates_filter" style="display: none"/></span>'+
-        '<a href"#" id="provision_templates_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-filter"/>'+
-        '</a>'+
-        '<span>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_templates_search" style="display: none"/>'+
-        '</span>'+
-        '<a href"#" id="provision_templates_list_search_button" data-tooltip title="'+ tr("Search")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-search"/>'+
-        '</a>'+
       '</h2>'+
     '</div>'+
   '</div>'+
-  '<br>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li>'+
+          '<a href"#" id="provision_templates_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
+            '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_templates_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+            '<i class="fa fa-fw fa-lg fa-filter"/>'+tr("Filter")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list">'+
+        '<li>'+
+          '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_templates_search" style="display: none"/>'+
+        '</li>'+
+        '<li>'+
+          '<span id="provision_list_templates_filter" style="display: none"></span>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns" id="provision_confirm_delete_template_div">'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
       '<table id="provision_templates_table">'+
         '<thead class="hidden">'+
           '<tr>'+
@@ -850,30 +886,54 @@ var provision_list_templates = '<div id="provision_list_templates" class="hidden
 var provision_list_vms = '<div id="provision_list_vms" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader text-right">'+
-        '<span class="left">'+
-          '<i class="fa fa-fw fa-th"/>&emsp;'+
+      '<h2 class="subheader">'+
+        '<span class="">'+
           tr("Virtual Machines")+
         '</span>'+
-        '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
-        '<span id="provision_list_vms_filter" style="display: none"/></span>'+
-        '<a href"#" id="provision_vms_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-filter"/>'+
-        '</a>'+
-        '<span>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_vms_search" style="display: none"/>'+
-        '</span>'+
-        '<a href"#" id="provision_vms_list_search_button" data-tooltip title="'+ tr("Search")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-search"/>'+
-        '</a>'+
       '</h2>'+
     '</div>'+
   '</div>'+
-  '<br>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li>'+
+          '<a href"#" class="provision_create_vm_button">'+
+            '<i class="fa fa-fw fa-lg fa-plus-square"/>'+tr("Create")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_vms_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
+            '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_vms_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+            '<i class="fa fa-fw fa-lg fa-filter"/>'+tr("Filter")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list">'+
+        '<li>'+
+          '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_vms_search" style="display: none"/>'+
+        '</li>'+
+        '<li>'+
+          '<span id="provision_list_vms_filter" style="display: none"></span>'+
+          '<span>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
       '<table id="provision_vms_table">'+
         '<thead class="hidden">'+
           '<tr>'+
@@ -893,21 +953,47 @@ var provision_list_vms = '<div id="provision_list_vms" class="hidden section_con
 var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section_content hidden">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader text-right">'+
-        '<span id="provision_info_vdc_user_name" class="left">'+
+      '<h2 class="subheader">'+
+        '<span id="provision_info_vdc_user_name">'+
         '</span>'+
-        '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
       '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li class="right">'+
+          '<a href"#" id="provision_vdc_user_delete_confirm_button" data-tooltip title="Delete the User" class="tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+tr("Delete")+
+          '</a>'+
+        '</li>'+
+        '<li class="">'+
+          '<a href"#" id="provision_vdc_user_quota_confirm_button" data-tooltip title="Update the User Quotas" class="tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-align-left"/>'+tr("Update Quotas")+
+          '</a>'+
+        '</li>'+
+        '<li class="">'+
+          '<a href"#" id="provision_vdc_user_password_confirm_button" data-tooltip title="Change the password of the User" class="tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-lock"/>'+tr("Password")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns" id="provision_vdc_user_confirm_action">'+
     '</div>'+
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-align-left"/>&emsp;'+
           tr("Quotas")+
         '</span>'+
       '</h3>'+
@@ -915,7 +1001,7 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-9 large-centered columns">'+
+    '<div class="large-10 large-centered columns">'+
         '<div class="row">'+
           '<div class="large-4 columns text-center">'+
             '<span id="provision_vdc_user_rvms_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
@@ -965,10 +1051,9 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-cloud"/>&emsp;'+
           tr("Resources")+
         '</span>'+
       '</h3>'+
@@ -977,7 +1062,7 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-9 large-centered columns">'+
+    '<div class="large-10 large-centered columns">'+
       '<div class="large-6 columns">'+
         '<a href"#" class="show_vdc_user_vms_button button radius large-12 small-12"><i class="fa fa-fw fa-th"/>&emsp;'+tr("Go to User VMs")+'</a>'+
       '</div>'+
@@ -987,53 +1072,11 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
     '</div>'+
   '</div>'+
   '<br>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader text-right">'+
-        '<span class="left">'+
-          '<i class="fa fa-fw fa-cogs"/>&emsp;'+
-          tr("Actions")+
-        '</span>'+
-      '</h3>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-9 large-centered columns">'+
-      '<h2 class="subheader">'+
-        '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
-          '<div class="row">'+
-            '<div class="large-11 large-centered columns" id="provision_vdc_user_confirm_action">'+
-            '</div>'+
-          '</div>'+
-          '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
-            '<li class="right">'+
-              '<a href"#" id="provision_vdc_user_delete_confirm_button" data-tooltip title="Delete the User" class="has-tip tip-top right">'+
-                '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
-              '</a>'+
-            '</li>'+
-            '<li class="">'+
-              '<a href"#" id="provision_vdc_user_quota_confirm_button" data-tooltip title="Update the User Quotas" class="has-tip tip-top">'+
-                '<i class="fa fa-fw fa-2x fa-align-left"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Quotas")+'</span>'+
-              '</a>'+
-            '</li>'+
-            '<li class="">'+
-              '<a href"#" id="provision_vdc_user_password_confirm_button" data-tooltip title="Change the password of the User" class="has-tip tip-top">'+
-                '<i class="fa fa-fw fa-2x fa-lock"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Password")+'</span>'+
-              '</a>'+
-            '</li>'+
-          '</ul>'+
-        '</span>'+
-      '</h2>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-bar-chart-o"/>&emsp;'+
           tr("Accounting")+
         '</span>'+
       '</h3>'+
@@ -1041,7 +1084,7 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div  id="provision_info_vdc_user_acct" class="large-9 large-centered columns">'+
+    '<div  id="provision_info_vdc_user_acct" class="large-10 large-centered columns">'+
     '</div>'+
   '</div>'+
   '<br>'+
@@ -1050,30 +1093,88 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
 var provision_info_vm =  '<div id="provision_info_vm" class="section_content hidden">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader text-right">'+
-        '<span id="provision_info_vm_name" class="left">'+
+      '<h2 class="subheader">'+
+        '<span id="provision_info_vm_name">'+
         '</span>'+
-        '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'" class="has-tip tip-top">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
       '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li>'+
+          '<a href"#" id="provision_vnc_button" data-tooltip title="Open a VNC console in a new window" class="tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-desktop"/>'+tr("Console")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="tip-top" style="color: #999">'+
+            '<i class="fa fa-fw fa-lg fa-desktop"/>'+tr("Console")+
+          '</span>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-save"/>'+tr("Save VM")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<span id="provision_snapshot_button_disabled" data-tooltip title="You have to power-off the virtual machine first" class="tip-top" style="color: #999">'+
+            '<i class="fa fa-fw fa-lg fa-save"/>'+tr("Save VM")+
+          '</span>'+
+        '</li>'+
+        '<li class="right">'+
+          '<a href"#" id="provision_delete_confirm_button" data-tooltip title="Delete" class="tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+tr("Delete")+
+          '</a>'+
+          '</li>'+
+        '<li class="right">'+
+        '<a href"#" id="provision_shutdownhard_confirm_button" data-tooltip title="Delete" class="tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+tr("Delete")+
+          '</a>'+
+        '</li>'+
+        '<li class="right">'+
+          '<a href"#" id="provision_poweroff_confirm_button" data-tooltip title="Power off" class="tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-power-off"/>'+tr("Power off")+
+          '</a>'+
+        '</li>'+
+        '<li class="right">'+
+          '<a href"#" id="provision_poweron_button" data-tooltip title="Power on" class="tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-play"/>'+tr("Power on")+
+          '</a>'+
+        '</li>'+
+        '<li class="right">'+
+          '<a href"#" id="provision_reboot_confirm_button" data-tooltip title="Reboot" class="tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-repeat"/>'+tr("Reboot")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
     '</div>'+
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div  id="provision_info_vm_state" class="large-10 large-centered columns">'+
+    '<div class="large-10 large-centered columns" id="provision_confirm_action">'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div  id="provision_info_vm_state" class="large-11 large-centered columns">'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div  id="provision_info_vm_state_hr" class="large-10 large-centered columns">'+
+    '<div  id="provision_info_vm_state_hr" class="large-11 large-centered columns">'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div id="provision_info_vm_resume" class="large-10 large-centered columns">'+
+    '<div id="provision_info_vm_resume" class="large-11 large-centered columns">'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-11 large-centered columns">'+
   '<div class="row">'+
       '<div class="large-6 medium-6  columns">'+
         '<div class="row text-center">'+
@@ -1114,67 +1215,6 @@ var provision_info_vm =  '<div id="provision_info_vm" class="section_content hid
   '</div>'+
   '<br>'+
   '<br>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
-      '<h2 class="subheader">'+
-        '<span class="right" style="padding: 5px;border: 1px solid #efefef; background: #f7f7f7; border-radius: 5px; color:#777 !important; width: 100%; box-shadow: 0px 1px #dfdfdf">'+
-          '<div class="row">'+
-            '<div class="large-11 large-centered columns" id="provision_confirm_action">'+
-            '</div>'+
-          '</div>'+
-          '<ul class="inline-list text-center" style="font-size:12px; margin-bottom:0px; padding: 5px 10px">'+
-          '<li>'+
-          '<a href"#" id="provision_vnc_button" data-tooltip title="Open a VNC console in a new window" class="has-tip tip-top">'+
-            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Console")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '<li>'+
-          '<span id="provision_vnc_button_disabled" data-tooltip title="You have to boot the Virtual Machine first" class="has-tip tip-top" style="color: #999">'+
-            '<i class="fa fa-fw fa-2x fa-desktop"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Console")+'</span>'+
-          '</span>'+
-          '</li>'+
-          '<li>'+
-          '<a href"#" id="provision_snapshot_button" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="has-tip tip-top">'+
-            '<i class="fa fa-fw fa-2x fa-save"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '<li>'+
-          '<span id="provision_snapshot_button_disabled" data-tooltip title="You have to power-off the virtual machine first" class="has-tip tip-top" style="margin-left:15px; margin-right:15px; color: #999">'+
-            '<i class="fa fa-fw fa-2x fa-save"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Save VM")+'</span>'+
-          '</span>'+
-          '</li>'+
-          '<li class="right">'+
-          '<a href"#" id="provision_delete_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right">'+
-            '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '<li class="right">'+
-          '<a href"#" id="provision_shutdownhard_confirm_button" data-tooltip title="Delete" class="has-tip tip-top right">'+
-            '<i class="fa fa-fw fa-2x fa-trash-o"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Delete")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '<li class="right">'+
-          '<a href"#" id="provision_poweroff_confirm_button" data-tooltip title="Power off" class="has-tip tip-top right">'+
-            '<i class="fa fa-fw fa-2x fa-power-off"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Power off")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '<li class="right">'+
-          '<a href"#" id="provision_poweron_button" data-tooltip title="Power on" class="has-tip tip-top right">'+
-            '<i class="fa fa-fw fa-2x fa-play"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Power on")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '<li class="right">'+
-          '<a href"#" id="provision_reboot_confirm_button" data-tooltip title="Reboot" class="has-tip tip-top right">'+
-            '<i class="fa fa-fw fa-2x fa-repeat"/><span style="font-size: 12px; vertical-align: middle"><br>'+tr("Reboot")+'</span>'+
-          '</a>'+
-          '</li>'+
-          '</ul>'+
-        '</span>'+
-      '</h2>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
 '</div>';
 
 
@@ -1193,17 +1233,7 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
 
 var provision_header = '<a href="#" class="provision_image_header" ><img src="images/one_small_logo.png" style="height:40px; vertical-align:top"></a>'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
-   '<ul class="inline-list text-center" style="font-size:12px">'+
-    '<li class="left" >'+
-        '<a href"#" class="medium button radius provision_create_vm_button" style=" margin-left: 10px;margin-right: 10px;">'+tr('Create VM')+'</a>';
-
-
-if (Config.isTabPanelEnabled("provision-tab", "users")) {
-  provision_header +=
-        '<a href"#" class="medium button radius provision_create_user_button" style="display:none; margin-left: 10px;margin-right: 10px;">'+tr('Add User')+'</a>';
-}
-
-provision_header +=  '</li>';
+   '<ul class="inline-list text-center" style="font-size:12px">';
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_header +=
@@ -1219,6 +1249,9 @@ provision_header +=  '<li>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
+    '</li>'+
+    '<li>'+
+      '<a href"#" class="medium off-color" id="provision_services_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-code-fork fa-rotate-90"/><br>'+tr("Flows")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
@@ -2291,7 +2324,7 @@ function update_provision_vdc_user_info(data) {
 
   context.attr("user_id", data.ID);
   context.attr("quotas", JSON.stringify(data.VM_QUOTA));
-  $("#provision_info_vdc_user_name", context).html('<i class="fa fa-fw fa-user"/>&emsp;'+data.NAME);
+  $("#provision_info_vdc_user_name", context).html(data.NAME);
 
   if (!$.isEmptyObject(data.VM_QUOTA)){
       var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
@@ -2670,11 +2703,6 @@ $(document).ready(function(){
               '<li class="provision-description" style="padding-top:0px">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.REGTIME)+
-                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
-              '</li>'+
             '</ul>'+
           '</li>');
 
@@ -2749,11 +2777,6 @@ $(document).ready(function(){
               '</li>'+
               '<li class="provision-description" style="padding-top:0px">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
-              '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.REGTIME)+
-                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
               '</li>'+
             '</ul>'+
           '</li>');
@@ -3092,26 +3115,26 @@ $(document).ready(function(){
               '<li class="provision-title text-left" title="'+data.NAME+'">'+
                 data.NAME +
               '</li>'+
-              '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 0px">'+
+              '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 5px">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
-              '<li class="provision-description text-right" style="padding-top:5px; margin-right: 5px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.REGTIME)+
-                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
-              '</li>'+
-              '<li class="provision-bullet-item text-left">'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 5px">'+
                 '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
                   'x'+(data.TEMPLATE.CPU||'-')+' - '+
                   ((data.TEMPLATE.MEMORY > 1000) ?
                     (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                     ((data.TEMPLATE.MEMORY||'-')+'MB'))+
               '</li>'+
-              '<li class="provision-bullet-item text-left">'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 5px">'+
                 '<i class="fa fa-fw fa-user"/>&emsp;'+
                 data.UNAME+
               '</li>'+
-              '<li class="provision-title" style="padding-top:15px">'+
+              '<li class="provision-description text-right" style="padding-top:5px; margin-right: 5px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.REGTIME)+
+                " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
+              '</li>'+
+              '<li class="provision-title" style="padding-top:10px">'+
                 actions_html+
               '</li>'+
             '</ul>'+
@@ -3363,33 +3386,33 @@ $(document).ready(function(){
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" style="padding-bottom: 5px">'+
                 '<a class="provision_info_vm_button" style="color:#555" href="#">'+ data.NAME + '</a>'+
+                '<a class="provision_info_vm_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; padding-bottom:10px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                _format_date(data.STIME)+
-              '</li>'+
-              '<li class="provision-bullet-item text-left">'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
                 '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                 'x'+data.TEMPLATE.CPU+' - '+
                 ((data.TEMPLATE.MEMORY > 1000) ?
                   (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
                   (data.TEMPLATE.MEMORY+'MB'))+
               '</li>'+
-              '<li class="provision-bullet-item text-left">'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
                 get_provision_disk_image(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left">'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
                 get_provision_ips(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left">'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
                 '<i class="fa fa-fw fa-user"/>&emsp;'+
                 data.UNAME+
               '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:14px; color: #999; margin-top:15px; padding-bottom:10px">'+
-                '<a class="provision_info_vm_button" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
                 '<span class="'+ state.color +'-color left">'+
                   '<i class="fa fa-fw fa-square"/>&emsp;'+
                   state.str+
+                '</span>'+
+                '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
+                  '<i class="fa fa-fw fa-clock-o"/>'+
+                  _format_date(data.STIME)+
                 '</span>'+
               '</li>'+
               //'<li class="provision-bullet-item" style="padding: 0px">'+
@@ -3503,11 +3526,11 @@ $(document).ready(function(){
                     true);
 
                 quotas_html = "";
-                quotas_html += '<li class="provision-bullet-item text-left" style="margin-top:5px; margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-top:5px; margin-left: 10px; margin-right: 10px; font-size: 12px">'+
                   tr("Running VMs")+
                   '<span class="right">'+quotas.str+"</span>"+
                 '</li>'+
-                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px">'+
                   '<div class="progress small radius">'+
                   '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
                   '</div>'+
@@ -3519,11 +3542,11 @@ $(document).ready(function(){
                     default_user_quotas.VM_QUOTA.VM.CPU,
                     true);
 
-                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 10px; margin-right: 10px; font-size: 12px">'+
                   tr("CPU")+
                   '<span class="right">'+quotas.str+"</span>"+
                 '</li>'+
-                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px">'+
                   '<div class="progress small radius">'+
                   '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
                   '</div>'+
@@ -3535,11 +3558,11 @@ $(document).ready(function(){
                     default_user_quotas.VM_QUOTA.VM.MEMORY,
                     true);
 
-                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 10px; margin-right: 10px; font-size: 12px">'+
                   tr("Memory")+
                   '<span class="right">'+quotas.str+"</span>"+
                 '</li>'+
-                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px">'+
                   '<div class="progress small radius">'+
                   '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
                   '</div>'+
@@ -3548,11 +3571,11 @@ $(document).ready(function(){
                 quotas = quotaBarFloat(0, 0, null, true);
 
                 quotas_html = "";
-                quotas_html += '<li class="provision-bullet-item text-left" style="margin-top:5px; margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-top:5px; margin-left: 10px; margin-right: 10px; font-size: 12px">'+
                   tr("Running VMs")+
                   '<span class="right">'+quotas.str+"</span>"+
                 '</li>'+
-                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px">'+
                   '<div class="progress small radius">'+
                   '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
                   '</div>'+
@@ -3560,11 +3583,11 @@ $(document).ready(function(){
 
                 quotas = quotaBarFloat(0, 0, null, true);
 
-                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 10px; margin-right: 10px; font-size: 12px">'+
                   tr("CPU")+
                   '<span class="right">'+quotas.str+"</span>"+
                 '</li>'+
-                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px">'+
                   '<div class="progress small radius">'+
                   '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
                   '</div>'+
@@ -3572,11 +3595,11 @@ $(document).ready(function(){
 
                 quotas = quotaBarMB(0, 0, null, true);
 
-                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 5px; margin-right: 5px; font-size: 12px">'+
+                quotas_html += '<li class="provision-bullet-item text-left" style="margin-left: 10px; margin-right: 10px; font-size: 12px">'+
                   tr("Memory")+
                   '<span class="right">'+quotas.str+"</span>"+
                 '</li>'+
-                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 5px; margin-right: 5px">'+
+                '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px">'+
                   '<div class="progress small radius">'+
                   '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
                   '</div>'+
@@ -3587,7 +3610,7 @@ $(document).ready(function(){
 
         $("#provision_users_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" style="padding-bottom: 5px">'+
+              '<li class="provision-title text-left" style="padding-bottom: 10px">'+
                 '<a class="provision_info_user_button" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/>'+ data.NAME + '</a>'+
               '</li>'+
                 quotas_html +
@@ -3596,6 +3619,10 @@ $(document).ready(function(){
 
         return nRow;
       }
+    });
+
+    $("#provision_list_users").on("click", "#provision_users_list_search_button", function(){
+      $("#provision_list_users_search", $("#provision_list_users")).fadeIn();
     });
 
     $('#provision_list_users_search').keyup(function(){
