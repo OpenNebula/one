@@ -24,3 +24,7 @@
 # VMotion configuration attributes
 :datacenter: "ha-datacenter"
 :vcenter:
+
+# true to instruct ESX to create vswp files with disk reservation
+# for memory, false for the vice versa
+:reserve_memory_in_disk: true

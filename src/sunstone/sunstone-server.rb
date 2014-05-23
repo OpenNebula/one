@@ -231,7 +231,7 @@ helpers do
     end
 
     def cloud_view_instance_types
-        $conf[:instance_types] || {}
+        $conf[:instance_types] || []
     end
 end
 
@@ -374,7 +374,7 @@ get '/vm/:id/log' do
 end
 
 ##############################################################################
-# Accounting & Monitoring
+# Monitoring
 ##############################################################################
 
 get '/:resource/monitor' do
@@ -398,6 +398,15 @@ get '/:resource/:id/monitor' do
         params[:resource],
         params[:monitor_resources])
 end
+
+##############################################################################
+# Accounting
+##############################################################################
+
+get '/vm/accounting' do
+    @SunstoneServer.get_vm_accounting(params)
+end
+
 
 ##############################################################################
 # Marketplace

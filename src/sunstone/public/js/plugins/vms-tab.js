@@ -1308,15 +1308,31 @@ function updateVMachinesView(request, vmachine_list){
     if(total_allocated_cpu != 0){
         usage = parseInt(100 * total_real_cpu / total_allocated_cpu);
     }
-    var info_str = usage+'%';
-    $("#dash_vm_real_cpu").html(usageBarHtml(usage, 100, info_str, true));
+    //var info_str = usage+'%';
+    //$("#dash_vm_real_cpu").html(usageBarHtml(usage, 100, info_str, true));
+
+    $("#dashboard_cpu_usage").html(quotaDashboard(
+      "dashboard_cpu_usage",
+      tr("REAL CPU USAGE"),
+      "40px",
+      "14px",
+      {"percentage": usage, "str": (total_real_cpu + " / " + total_allocated_cpu/100)})
+    );
 
     usage = 0;
     if(total_allocated_mem != 0){
         usage = parseInt(100 * total_real_mem / 1024 / total_allocated_mem);
     }
-    info_str = usage+'%';
-    $("#dash_vm_real_mem").html(usageBarHtml(usage, 100, info_str, true));
+    //info_str = usage+'%';
+    //$("#dash_vm_real_mem").html(usageBarHtml(usage, 100, info_str, true));
+
+    $("#dashboard_memory_usage").html(quotaDashboard(
+      "dashboard_memory_usage",
+      tr("REAL MEMORY USAGE"),
+      "40px",
+      "14px",
+      {"percentage": usage, "str": (humanize_size(Math.floor((total_real_mem))) + " / " + humanize_size(total_allocated_mem * 1024)) })
+    );
 
     $(".total_vms").text(vmachine_list.length);
     $(".active_vms").text(active_vms);

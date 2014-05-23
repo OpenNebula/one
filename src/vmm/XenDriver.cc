@@ -524,7 +524,7 @@ int XenDriver::deployment_description(
                     }
                     else
                     {
-                        file << ",vnclisten=" << listen << endl;
+                        file << ",vnclisten=" << listen;
                     }
                 }
 

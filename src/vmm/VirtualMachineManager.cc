@@ -34,6 +34,7 @@ VirtualMachineManager::VirtualMachineManager(
     HostPool *                      _hpool,
     time_t                          _timer_period,
     time_t                          _poll_period,
+    bool                            _do_vm_poll,
     int                             _vm_limit,
     vector<const Attribute*>&       _mads):
         MadManager(_mads),
@@ -41,6 +42,7 @@ VirtualMachineManager::VirtualMachineManager(
         hpool(_hpool),
         timer_period(_timer_period),
         poll_period(_poll_period),
+        do_vm_poll(_do_vm_poll),
         vm_limit(_vm_limit)
 {
     am.addListener(this);
@@ -63,15 +65,7 @@ extern "C" void * vmm_action_loop(void *arg)
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager started.");
 
-    if ( vmm->poll_period == 0 )
-    {
-        vmm->am.loop(0,0);
-    }
-    else
-    {
-        NebulaLog::log("VMM",Log::INFO,"VM monitoring is enabled.");
-        vmm->am.loop(vmm->timer_period,0);
-    }
+    vmm->am.loop(vmm->timer_period, 0);
 
     NebulaLog::log("VMM",Log::INFO,"Virtual Machine Manager stopped.");
 
@@ -1507,8 +1501,8 @@ void VirtualMachineManager::timer_action()
     vmpool->clean_expired_monitoring();
 
     // Skip monitoring the first poll_period to allow the Host monitoring to
-    // gather the VM info
-    if ( timer_start + poll_period > thetime )
+    // gather the VM info (or if it is disabled)
+    if ( timer_start + poll_period > thetime || !do_vm_poll)
     {
         return;
     }

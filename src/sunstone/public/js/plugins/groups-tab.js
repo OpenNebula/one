@@ -491,6 +491,12 @@ function groupElementArray(group_json){
             group.VM_QUOTA.VM.CPU_USED,
             group.VM_QUOTA.VM.CPU,
             default_group_quotas.VM_QUOTA.VM.CPU);
+    } else {
+
+        var vms = quotaBar(0,0,null);
+        var memory = quotaBarMB(0,0,null);
+        var cpu = quotaBarFloat(0,0,null);
+
     }
 
     return [
@@ -653,7 +659,8 @@ function updateGroupInfo(request,group){
 
     var quotas_html;
     if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
-      quotas_html = '<div class="large-6 columns">' + vms_quota + '</div>';
+      quotas_html = '<div class="quotas">';
+      quotas_html += '<div class="large-6 columns">' + vms_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
@@ -662,6 +669,8 @@ function updateGroupInfo(request,group){
       quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
       quotas_html += '<br><br>';
       quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
+      quotas_html += '</div>';
+
     } else {
       quotas_html = '<div class="row">\
               <div class="large-12 columns">\
@@ -703,9 +712,16 @@ function updateGroupInfo(request,group){
         </div>'
     };
 
+    var accounting_tab = {
+        title: tr("Accounting"),
+        icon: "fa-bar-chart-o",
+        content: '<div id="group_accounting"></div>'
+    };
+
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_accouning_tab",accounting_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){
@@ -715,6 +731,11 @@ function updateGroupInfo(request,group){
 
         return false;
     });
+
+    accountingGraphs(
+        $("#group_accounting","#group_info_panel"),
+        {   fixed_group: info.ID,
+            init_group_by: "user" });
 }
 
 function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group) {

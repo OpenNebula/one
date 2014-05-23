@@ -338,6 +338,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1 \
                $SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1/images \
                $SUNSTONE_LOCATION/public/images \
+               $SUNSTONE_LOCATION/public/images/logos \
                $SUNSTONE_LOCATION/views"
 
 ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
@@ -520,6 +521,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1
     SUNSTONE_PUBLIC_NEW_VENDOR_JDPICKER_IMAGES:$SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1/images
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+    SUNSTONE_PUBLIC_LOGOS_FILES:$SUNSTONE_LOCATION/public/images/logos
     SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
     SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
     SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/de
@@ -1429,6 +1431,7 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
                     src/sunstone/etc/sunstone-views/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/vdcadmin46.yaml \
                      src/sunstone/etc/sunstone-views/vdcadmin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
@@ -1497,6 +1500,7 @@ src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.resize.min.js \
 src/sunstone/public/vendor/flot/jquery.flot.stack.min.js \
+src/sunstone/public/vendor/flot/jquery.flot.tooltip.min.js \
 src/sunstone/public/vendor/flot/LICENSE.txt \
 src/sunstone/public/vendor/flot/NOTICE"
 
@@ -1565,7 +1569,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
   src/sunstone/public/bower_components/foundation/js/foundation.min.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/4.0/jquery-1.11.0.min.js \
+                        src/sunstone/public/vendor/4.0/jquery-2.1.1.min.js \
                         src/sunstone/public/vendor/4.0/jquery-1.11.0.min.map \
                         src/sunstone/public/vendor/4.0/jquery-migrate-1.2.1.js"
 
@@ -1624,6 +1628,17 @@ SUNSTONE_PUBLIC_IMAGES_FILES="src/sunstone/public/images/ajax-loader.gif \
                         src/sunstone/public/images/sort_both.png \
                         src/sunstone/public/images/sort_desc.png \
                         src/sunstone/public/images/sort_desc_disabled.png\
+"
+
+SUNSTONE_PUBLIC_LOGOS_FILES="src/sunstone/public/images/logos/arch.png \
+                        src/sunstone/public/images/logos/centos.png \
+                        src/sunstone/public/images/logos/debian.png \
+                        src/sunstone/public/images/logos/fedora.png \
+                        src/sunstone/public/images/logos/linux.png \
+                        src/sunstone/public/images/logos/redhat.png \
+                        src/sunstone/public/images/logos/ubuntu.png \
+                        src/sunstone/public/images/logos/windowsxp.png \
+                        src/sunstone/public/images/logos/windows8.png \
 "
 
 SUNSTONE_PUBLIC_LOCALE_CA="\

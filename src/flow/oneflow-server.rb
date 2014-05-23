@@ -408,6 +408,7 @@ post '/service_template/:id/action' do
     action = JSON.parse(request.body.read)['action']
 
     opts   = action['params']
+    opts   = {} if opts.nil?
 
     rc = case action['perform']
     when 'instantiate'
@@ -416,8 +417,29 @@ post '/service_template/:id/action' do
             error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
         end
 
+        merge_template = opts['merge_template']
+
+        if !merge_template.nil?
+            begin
+                template = JSON.parse(merge_template)
+                orig_template = JSON.parse(service_template.template)
+
+                instantiate_template = orig_template.merge(template)
+
+                ServiceTemplate.validate(instantiate_template)
+
+                instantiate_template = instantiate_template.to_json
+
+            rescue Validator::ParseException, JSON::ParserError
+                error 400, $!.message
+            end
+        else
+            instantiate_template = service_template.template
+        end
+
+
         service = OpenNebula::Service.new(OpenNebula::Service.build_xml, @client)
-        rc = service.allocate(service_template.template)
+        rc = service.allocate(instantiate_template)
         if OpenNebula.is_error?(rc)
             error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
         end

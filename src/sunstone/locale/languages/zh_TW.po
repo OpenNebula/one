@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-04-16 17:35+0200\n"
-"PO-Revision-Date: 2014-04-16 15:36+0000\n"
-"Last-Translator: dmolina <dmolina@opennebula.org>\n"
+"PO-Revision-Date: 2014-05-18 07:20+0000\n"
+"Last-Translator: Hsi En Yu <yun@narlabs.org.tw>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/one/language/zh_TW/)\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -165,7 +165,7 @@ msgstr "文件"
 #: ../public/js/plugins/groups-tab.js:83 ../public/js/plugins/zones-tab.js:218
 #: ../public/js/plugins/zones-tab.js:224
 msgid "Zones"
-msgstr ""
+msgstr "主機聚落"
 
 #: ../public/js/plugins/acls-tab.js:111
 msgid "Resource subset"
@@ -377,7 +377,7 @@ msgstr "資源ID / 群組"
 
 #: ../public/js/plugins/acls-tab.js:277 ../public/js/plugins/zones-tab.js:225
 msgid "Zone"
-msgstr ""
+msgstr "主機聚落"
 
 #: ../public/js/plugins/acls-tab.js:278
 msgid "ACL String"
@@ -684,7 +684,7 @@ msgstr "你已選擇下列資料存放區:"
 #: ../public/js/plugins/templates-tab.js:470
 #: ../public/js/plugins/vnets-tab.js:315 ../public/js/plugins/zones-tab.js:207
 msgid "Update"
-msgstr "更新"
+msgstr "修改"
 
 #: ../public/js/plugins/clusters-tab.js:439
 msgid "Cluster name missing!"
@@ -696,7 +696,7 @@ msgstr "您僅能選取一個欲修改的主機叢集"
 
 #: ../public/js/plugins/clusters-tab.js:899
 msgid "Cluster created"
-msgstr ""
+msgstr "主機叢集已建立"
 
 #: ../public/js/plugins/clusters-tab.js:1106
 msgid "Cluster information"
@@ -806,7 +806,7 @@ msgstr "VNC 安全 websockets"
 #: ../public/js/plugins/dashboard-tab.js:390
 #: ../public/js/plugins/provision-tab.js:925
 msgid "There are no quotas defined"
-msgstr ""
+msgstr "沒有配額限制"
 
 #: ../public/js/plugins/config-tab.js:184
 #: ../public/js/plugins/dashboard-tab.js:245
@@ -839,12 +839,12 @@ msgstr "確認密碼"
 #: ../public/js/plugins/oneflow-templates.js:965
 #: ../public/js/plugins/users-tab.js:113 ../public/js/plugins/users-tab.js:132
 msgid "Change"
-msgstr "修改"
+msgstr "變更"
 
 #: ../public/js/plugins/config-tab.js:267
 #: ../public/js/plugins/users-tab.js:786
 msgid "Change password"
-msgstr "修改密碼"
+msgstr "變更密碼"
 
 #: ../public/js/plugins/config-tab.js:283
 #: ../public/js/plugins/provision-tab.js:1437
@@ -945,7 +945,7 @@ msgstr "上線"
 #: ../public/js/plugins/provision-tab.js:1250
 #: ../public/js/plugins/vms-tab.js:1139
 msgid "OFF"
-msgstr "停用"
+msgstr "關機"
 
 #: ../public/js/plugins/dashboard-tab.js:98
 #: ../public/js/plugins/hosts-tab.js:348 ../public/js/plugins/hosts-tab.js:460
@@ -993,7 +993,7 @@ msgstr "記憶體"
 #: ../public/js/plugins/vms-tab.js:1224 ../public/js/plugins/vms-tab.js:1236
 #: ../public/js/plugins/vms-tab.js:1475
 msgid "ACTIVE"
-msgstr "線上"
+msgstr "開機"
 
 #: ../public/js/plugins/dashboard-tab.js:172
 #: ../public/js/plugins/oneflow-services.js:72
@@ -1024,11 +1024,11 @@ msgstr "記憶體"
 
 #: ../public/js/plugins/dashboard-tab.js:203
 msgid "User Quotas"
-msgstr ""
+msgstr "用戶配額"
 
 #: ../public/js/plugins/dashboard-tab.js:224
 msgid "Group Quotas"
-msgstr ""
+msgstr "群組配額"
 
 #: ../public/js/plugins/dashboard-tab.js:299
 #: ../public/js/plugins/dashboard-tab.js:303
@@ -1238,11 +1238,11 @@ msgstr "Volume Group 名稱"
 #: ../public/js/plugins/datastores-tab.js:166
 #: ../public/js/plugins/datastores-tab.js:689
 msgid "Limit"
-msgstr ""
+msgstr "限制"
 
 #: ../public/js/plugins/datastores-tab.js:167
 msgid "Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk."
-msgstr ""
+msgstr "選擇性的容量限制，單位為MB。若設定此值，OpenNebula將以此值作為使用容量上限，而不會用完所有的磁碟空間。"
 
 #: ../public/js/plugins/datastores-tab.js:173
 msgid "Gluster Host"
@@ -1262,11 +1262,11 @@ msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:185
 msgid "Pool Name"
-msgstr ""
+msgstr "Pool名稱"
 
 #: ../public/js/plugins/datastores-tab.js:186
 msgid "The OpenNebula Ceph pool name. Defaults to \"one\" (this pool must exist before using the drivers)."
-msgstr ""
+msgstr "OpenNebula所使用的Ceph pool名稱。預設為 \"one\" (此pool必須事先存在)"
 
 #: ../public/js/plugins/datastores-tab.js:191
 msgid "Ceph Host"
@@ -1278,7 +1278,7 @@ msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:197
 msgid "Ceph Secret"
-msgstr ""
+msgstr "Ceph秘鑰"
 
 #: ../public/js/plugins/datastores-tab.js:198
 msgid "A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled)."
@@ -1356,7 +1356,7 @@ msgstr "目的裝置名稱"
 
 #: ../public/js/plugins/datastores-tab.js:301
 msgid "Datastore created"
-msgstr ""
+msgstr "資料存放區已建立"
 
 #: ../public/js/plugins/datastores-tab.js:471
 #: ../public/js/plugins/hosts-tab.js:297 ../public/js/plugins/vnets-tab.js:537
@@ -1438,15 +1438,15 @@ msgstr "供其他使用者參閱的檔案描述"
 
 #: ../public/js/plugins/files-tab.js:55
 msgid "Type of the file."
-msgstr ""
+msgstr "檔案種類"
 
 #: ../public/js/plugins/files-tab.js:56
 msgid " KERNEL & RAMDISK files can be used in the OS Booting section of the Template wizard."
-msgstr ""
+msgstr "KERNEL及RAMDISK可用在範本精靈的OS Booting頁面"
 
 #: ../public/js/plugins/files-tab.js:57
 msgid " CONTEXT files can be included in the context CD-ROM, from the Context/Files section of the Template wizard."
-msgstr ""
+msgstr "CONTEXT檔案會列在範本精靈的Context/檔案 頁面，可供選擇加入context光碟中。"
 
 #: ../public/js/plugins/files-tab.js:61
 #: ../public/js/plugins/templates-tab.js:1981
@@ -1488,7 +1488,7 @@ msgstr ""
 
 #: ../public/js/plugins/files-tab.js:148
 msgid "File created"
-msgstr ""
+msgstr "檔案已建立"
 
 #: ../public/js/plugins/files-tab.js:287
 msgid "File renamed correctly"
@@ -1560,11 +1560,11 @@ msgstr "建立群組"
 
 #: ../public/js/plugins/groups-tab.js:44
 msgid "Update Group"
-msgstr ""
+msgstr "修改群組"
 
 #: ../public/js/plugins/groups-tab.js:58
 msgid "Resources"
-msgstr ""
+msgstr "資源"
 
 #: ../public/js/plugins/groups-tab.js:59 ../public/js/plugins/vnets-tab.js:287
 #: ../public/js/sunstone.js:3280
@@ -1578,27 +1578,27 @@ msgstr "權限"
 
 #: ../public/js/plugins/groups-tab.js:69
 msgid "Allow users in this group to use the following Sunstone views"
-msgstr ""
+msgstr "允許此群組內的用戶使用下列之檢視角度"
 
 #: ../public/js/plugins/groups-tab.js:70
 msgid "Views available to the group users. The default is set in sunstone-views.yaml"
-msgstr ""
+msgstr "群組用戶可使用的檢視角度。sunstone-view.yaml設定檔內可設定檢視角度的預設值"
 
 #: ../public/js/plugins/groups-tab.js:100
 msgid "Create an administrator user"
-msgstr ""
+msgstr "建立一個管理者用戶"
 
 #: ../public/js/plugins/groups-tab.js:101
 msgid "You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one."
-msgstr ""
+msgstr "你可以立即建立一個管理者用戶，它將屬於此新群組，而同時也會加入Administrator次要群組"
 
 #: ../public/js/plugins/groups-tab.js:113
 msgid "Allow users in this group to create the following resources"
-msgstr ""
+msgstr "允許此群組內的用戶擁有建立下列資源的權限"
 
 #: ../public/js/plugins/groups-tab.js:114
 msgid "This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users."
-msgstr ""
+msgstr "這將會建立新的ACL規則，定義此群組內的用戶可以創建哪些虛擬化資源。你可以為群組管理者設定不同的規則，同時也可以決定群組管理者是否能自行建立新的群組用戶"
 
 #: ../public/js/plugins/groups-tab.js:123
 #: ../public/js/plugins/groups-tab.js:426
@@ -1629,12 +1629,12 @@ msgstr "套用所有變更"
 
 #: ../public/js/plugins/groups-tab.js:196
 msgid "Group created"
-msgstr ""
+msgstr "群組已建立"
 
 #: ../public/js/plugins/groups-tab.js:668
 #: ../public/js/plugins/users-tab.js:707
 msgid "No quotas defined"
-msgstr ""
+msgstr "沒有配額限制"
 
 #: ../public/js/plugins/groups-tab.js:681
 msgid "Providers"
@@ -1642,7 +1642,7 @@ msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:689
 msgid "Zone ID"
-msgstr ""
+msgstr "主機聚落ID"
 
 #: ../public/js/plugins/groups-tab.js:825
 msgid "Assign physical resources"
@@ -1654,7 +1654,7 @@ msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:833
 msgid "Select clusters"
-msgstr ""
+msgstr "指定主機叢集"
 
 #: ../public/js/plugins/groups-tab.js:834
 #: ../public/js/plugins/oneflow-templates.js:94
@@ -1751,7 +1751,7 @@ msgstr "自訂虛擬網路中介組件"
 
 #: ../public/js/plugins/hosts-tab.js:126
 msgid "Host created"
-msgstr ""
+msgstr "主機已建立"
 
 #: ../public/js/plugins/hosts-tab.js:204 ../public/js/plugins/hosts-tab.js:211
 msgid "Total"
@@ -1986,7 +1986,7 @@ msgstr "移除被選擇的項目"
 
 #: ../public/js/plugins/images-tab.js:252
 msgid "Image created"
-msgstr ""
+msgstr "磁碟影像檔已建立"
 
 #: ../public/js/plugins/images-tab.js:426
 msgid "Image renamed correctly"
@@ -2064,31 +2064,31 @@ msgstr "基礎設施"
 
 #: ../public/js/plugins/marketplace-tab.js:52
 msgid "The appliance is not ready"
-msgstr ""
+msgstr "此應用設備目前無法使用"
 
 #: ../public/js/plugins/marketplace-tab.js:68
 msgid "The following images will be created in OpenNebula."
-msgstr ""
+msgstr "下列磁碟影像檔將會被建立"
 
 #: ../public/js/plugins/marketplace-tab.js:69
 msgid "If you want to edit parameters of the image you can do it later in the images tab"
-msgstr ""
+msgstr "若你想修改磁碟影像檔的各種參數，在匯入完成後，你可以在磁碟影像檔的頁面中作修改"
 
 #: ../public/js/plugins/marketplace-tab.js:77
 msgid "Select the datastore for the images"
-msgstr ""
+msgstr "選擇此磁碟影像檔所屬的資料存放區"
 
 #: ../public/js/plugins/marketplace-tab.js:100
 msgid "Image Name"
-msgstr ""
+msgstr "磁碟影像檔名稱"
 
 #: ../public/js/plugins/marketplace-tab.js:120
 msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks"
-msgstr ""
+msgstr "下列範本將會被建立，此範本將以上列磁碟影像檔作為預設磁碟"
 
 #: ../public/js/plugins/marketplace-tab.js:121
 msgid "If you want to edit parameters of the template you can do it later in the templates tab"
-msgstr ""
+msgstr "若你想修改範本的設定，在匯入完成後，你可以在範本的頁面中作修改"
 
 #: ../public/js/plugins/marketplace-tab.js:131
 #: ../public/js/plugins/provision-tab.js:2170
@@ -2103,11 +2103,11 @@ msgstr "無法連線至伺服器:請確認伺服器運行狀態或網路連線�
 
 #: ../public/js/plugins/marketplace-tab.js:206
 msgid "Template created successfully"
-msgstr ""
+msgstr "範本建立成功"
 
 #: ../public/js/plugins/marketplace-tab.js:276
 msgid "Image created successfully"
-msgstr ""
+msgstr "磁碟影像檔建立成功"
 
 #: ../public/js/plugins/marketplace-tab.js:335
 #: ../public/js/plugins/marketplace-tab.js:350
@@ -2116,7 +2116,7 @@ msgstr "匯入"
 
 #: ../public/js/plugins/marketplace-tab.js:343
 msgid "Import Appliance"
-msgstr ""
+msgstr "匯入應用設備"
 
 #: ../public/js/plugins/marketplace-tab.js:358
 msgid "Marketplace"
@@ -2128,7 +2128,7 @@ msgstr "OpenNebula Marketplace"
 
 #: ../public/js/plugins/marketplace-tab.js:362
 msgid "Appliance"
-msgstr "虛擬應用設備"
+msgstr "應用設備"
 
 #: ../public/js/plugins/marketplace-tab.js:370
 #: ../public/js/plugins/marketplace-tab.js:452
@@ -2159,7 +2159,7 @@ msgstr "標記"
 
 #: ../public/js/plugins/marketplace-tab.js:392
 msgid "Appliance information"
-msgstr "虛擬應用設備資訊"
+msgstr "應用設備資訊"
 
 #: ../public/js/plugins/marketplace-tab.js:422
 msgid "No Images defined"
@@ -2179,15 +2179,15 @@ msgstr "下載"
 
 #: ../public/js/plugins/marketplace-tab.js:467
 msgid "Catalog"
-msgstr ""
+msgstr "分類"
 
 #: ../public/js/plugins/marketplace-tab.js:496
 msgid "Short Description"
-msgstr ""
+msgstr "簡介"
 
 #: ../public/js/plugins/marketplace-tab.js:517
 msgid "OpenNebula Template"
-msgstr ""
+msgstr "OpenNebula範本"
 
 #: ../public/js/plugins/oneflow-services.js:73
 #: ../public/js/plugins/oneflow-services.js:95
@@ -2835,7 +2835,7 @@ msgstr "動態性原則"
 
 #: ../public/js/plugins/oneflow-templates.js:328
 msgid "Service Template created"
-msgstr ""
+msgstr "服務範本已建立"
 
 #: ../public/js/plugins/oneflow-templates.js:358
 msgid "ServiceTemplate updated correctly"
@@ -2891,11 +2891,11 @@ msgstr "建立虛擬機器"
 
 #: ../public/js/plugins/provision-tab.js:29
 msgid "Virtual Machine Name"
-msgstr ""
+msgstr "虛擬機器名稱"
 
 #: ../public/js/plugins/provision-tab.js:44
 msgid "Select Template"
-msgstr ""
+msgstr "選擇範本"
 
 #: ../public/js/plugins/provision-tab.js:46
 #: ../public/js/plugins/provision-tab.js:108
@@ -2905,26 +2905,26 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:473
 #: ../public/js/plugins/provision-tab.js:509
 msgid "Refresh"
-msgstr ""
+msgstr "重新整理"
 
 #: ../public/js/plugins/provision-tab.js:58
 #: ../public/js/plugins/provision-tab.js:68
 #: ../public/js/plugins/provision-tab.js:81
 #: ../public/js/plugins/provision-tab.js:448
 msgid "Saved"
-msgstr ""
+msgstr "自存"
 
 #: ../public/js/plugins/provision-tab.js:97
 msgid "Customize"
-msgstr ""
+msgstr "自訂"
 
 #: ../public/js/plugins/provision-tab.js:106
 msgid "Change Capacity"
-msgstr ""
+msgstr "變更計算資源"
 
 #: ../public/js/plugins/provision-tab.js:141
 msgid "Select Network"
-msgstr ""
+msgstr "選擇虛擬網路"
 
 #: ../public/js/plugins/provision-tab.js:178
 msgid "or"
@@ -2932,20 +2932,20 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:215
 msgid "SSH Key"
-msgstr ""
+msgstr "SSH金鑰"
 
 #: ../public/js/plugins/provision-tab.js:217
 msgid "Settings"
-msgstr ""
+msgstr "設定值"
 
 #: ../public/js/plugins/provision-tab.js:235
 msgid "Add a public SSH key to your account!"
-msgstr ""
+msgstr "立即新增一個SSH公鑰!"
 
 #: ../public/js/plugins/provision-tab.js:237
 #: ../public/js/plugins/provision-tab.js:242
 msgid "You will be able to access your Virtual Machines withouth password"
-msgstr ""
+msgstr "不需要密碼就可以存取你的虛擬機器"
 
 #: ../public/js/plugins/provision-tab.js:240
 msgid "Update your public SSH key!"
@@ -2954,7 +2954,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:255
 #: ../public/js/plugins/provision-tab.js:267
 msgid "Add SSH Key"
-msgstr ""
+msgstr "新增SSH金鑰"
 
 #: ../public/js/plugins/provision-tab.js:256
 #: ../public/js/plugins/provision-tab.js:268
@@ -2967,11 +2967,11 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:305
 msgid "Change Language"
-msgstr ""
+msgstr "變更語系"
 
 #: ../public/js/plugins/provision-tab.js:318
 msgid "Update Language"
-msgstr ""
+msgstr "修改語系"
 
 #: ../public/js/plugins/provision-tab.js:338
 msgid "Someone might have been eavesdropping?"
@@ -2987,15 +2987,15 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:386
 msgid "Are you an administrator?"
-msgstr ""
+msgstr "您是管理者?"
 
 #: ../public/js/plugins/provision-tab.js:397
 msgid "Change view"
-msgstr ""
+msgstr "變更檢視角度"
 
 #: ../public/js/plugins/provision-tab.js:409
 msgid "Update view"
-msgstr ""
+msgstr "修改檢視角度"
 
 #: ../public/js/plugins/provision-tab.js:428
 msgid "Saved Templates"
@@ -3004,48 +3004,48 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:582
 #: ../public/js/plugins/provision-tab.js:587
 msgid "Console"
-msgstr ""
+msgstr "操作介面"
 
 #: ../public/js/plugins/provision-tab.js:592
 #: ../public/js/plugins/provision-tab.js:597
 msgid "Save VM"
-msgstr ""
+msgstr "儲存VM"
 
 #: ../public/js/plugins/provision-tab.js:612
 #: ../public/js/plugins/provision-tab.js:2237
 msgid "Power off"
-msgstr ""
+msgstr "關機"
 
 #: ../public/js/plugins/provision-tab.js:617
 msgid "Power on"
-msgstr ""
+msgstr "開機"
 
 #: ../public/js/plugins/provision-tab.js:659
 msgid "Log out"
-msgstr ""
+msgstr "登出"
 
 #: ../public/js/plugins/provision-tab.js:741
 msgid "saved successfully"
-msgstr ""
+msgstr "儲存成功"
 
 #: ../public/js/plugins/provision-tab.js:999
 #: ../public/js/plugins/provision-tab.js:1575
 msgid "There are no templates available"
-msgstr ""
+msgstr "沒有範本可以使用"
 
 #: ../public/js/plugins/provision-tab.js:1021
 msgid "There are no instance types available"
-msgstr ""
+msgstr "沒有機器類型可以使用"
 
 #: ../public/js/plugins/provision-tab.js:1054
 #: ../public/js/plugins/provision-tab.js:1793
 msgid "There are no networks available. Please contact your cloud administrator"
-msgstr ""
+msgstr "沒有虛擬網路可以使用。請聯絡管理員"
 
 #: ../public/js/plugins/provision-tab.js:1091
 #: ../public/js/plugins/provision-tab.js:2073
 msgid "Looks like you don't have any Virtual Machine. Click the button below to get started"
-msgstr ""
+msgstr "您似乎沒有任何虛擬機器。請點選下方按鈕開始使用"
 
 #: ../public/js/plugins/provision-tab.js:1119
 #: ../public/js/plugins/vms-tab.js:1218
@@ -3054,7 +3054,7 @@ msgstr "HOLD"
 
 #: ../public/js/plugins/provision-tab.js:1131
 msgid "LCM_INIT"
-msgstr ""
+msgstr "初始化"
 
 #: ../public/js/plugins/provision-tab.js:1135
 msgid "PROLOG"
@@ -3071,7 +3071,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:1145
 #: ../public/js/plugins/vms-tab.js:34
 msgid "MIGRATE"
-msgstr ""
+msgstr "遷移"
 
 #: ../public/js/plugins/provision-tab.js:1149
 #: ../public/js/plugins/vms-tab.js:32
@@ -3080,7 +3080,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1151
 msgid "SAVING IMAGE"
-msgstr ""
+msgstr "磁碟影像檔儲存中"
 
 #: ../public/js/plugins/provision-tab.js:1153
 msgid "FAILURE"
@@ -3105,7 +3105,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1162
 msgid "POWERING OFF"
-msgstr ""
+msgstr "關機中"
 
 #: ../public/js/plugins/provision-tab.js:1164
 #: ../public/js/plugins/provision-tab.js:1166
@@ -3131,7 +3131,7 @@ msgstr "SUSPENDED"
 #: ../public/js/plugins/vms-tab.js:1206 ../public/js/plugins/vms-tab.js:1229
 #: ../public/js/plugins/vms-tab.js:1475
 msgid "POWEROFF"
-msgstr "POWEROFF"
+msgstr "關機"
 
 #: ../public/js/plugins/provision-tab.js:1242
 #: ../public/js/plugins/provision-tab.js:1245
@@ -3168,7 +3168,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1638
 msgid "There are no templates available. Please contact your cloud administrator"
-msgstr ""
+msgstr "沒有範本可以使用。請聯絡管理員"
 
 #: ../public/js/plugins/provision-tab.js:1671
 #: ../public/js/plugins/provision-tab.js:1969
@@ -3177,7 +3177,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1720
 msgid "There are no instance_types available. Please contact your cloud administrator"
-msgstr ""
+msgstr "沒有機器類型可以使用。請聯絡管理員"
 
 #: ../public/js/plugins/provision-tab.js:1875
 msgid "You must select at least a template configuration"
@@ -3185,7 +3185,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1933
 msgid "There are no saved templates available"
-msgstr ""
+msgstr "沒有自存範本可以使用"
 
 #: ../public/js/plugins/provision-tab.js:1935
 msgid "Create a template by saving a running Virtual Machine"
@@ -3193,11 +3193,11 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:2011
 msgid "Handle with care! This action will inmediately destroy the template"
-msgstr ""
+msgstr "請謹慎處理，這個操作將會直接刪除範本"
 
 #: ../public/js/plugins/provision-tab.js:2013
 msgid "and the image associated."
-msgstr ""
+msgstr "以及相關的磁碟影像檔"
 
 #: ../public/js/plugins/provision-tab.js:2161
 msgid "This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!"
@@ -3214,16 +3214,16 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:2189
 #: ../public/js/plugins/provision-tab.js:2208
 msgid "Be careful, this action will inmediately destroy your Virtual Machine"
-msgstr ""
+msgstr "請小心，這個操作將會直接銷毀虛擬機器"
 
 #: ../public/js/plugins/provision-tab.js:2191
 #: ../public/js/plugins/provision-tab.js:2210
 msgid "All the information will be lost!"
-msgstr ""
+msgstr "所有的資訊將會被清除!"
 
 #: ../public/js/plugins/provision-tab.js:2227
 msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
-msgstr ""
+msgstr "這個操作將會關閉虛擬機器。虛擬機器將會保持在關機狀態，並可隨時開機。"
 
 #: ../public/js/plugins/provision-tab.js:2230
 msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command form the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button a physical computer)."
@@ -3231,15 +3231,15 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:2240
 msgid "Power off the machine"
-msgstr ""
+msgstr "強迫中斷電源關機"
 
 #: ../public/js/plugins/provision-tab.js:2244
 msgid "Send the power off signal"
-msgstr ""
+msgstr "傳送正常關機訊號"
 
 #: ../public/js/plugins/provision-tab.js:2258
 msgid "This action will reboot this Virtual Machine."
-msgstr ""
+msgstr "這個操作會將虛擬機器重新開機"
 
 #: ../public/js/plugins/provision-tab.js:2261
 msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't effect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
@@ -3247,11 +3247,11 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:2271
 msgid "Reboot the machine"
-msgstr ""
+msgstr "強迫重新開機"
 
 #: ../public/js/plugins/provision-tab.js:2275
 msgid "Send the reboot signal"
-msgstr ""
+msgstr "傳送正常重開機訊號"
 
 #: ../public/js/plugins/templates-tab.js:20
 msgid "Create VM Template"
@@ -3287,7 +3287,7 @@ msgstr "若未填寫此欄位，預設值為範本名稱。你可以使用萬用
 #: ../public/js/plugins/templates-tab.js:115
 #: ../public/js/plugins/vms-tab.js:68
 msgid "Number of instances"
-msgstr ""
+msgstr "機器數量"
 
 #: ../public/js/plugins/templates-tab.js:88
 #: ../public/js/plugins/templates-tab.js:116
@@ -3343,7 +3343,7 @@ msgstr "你已選擇下列磁碟影像檔:"
 
 #: ../public/js/plugins/templates-tab.js:231
 msgid "Template created"
-msgstr ""
+msgstr "範本已建立"
 
 #: ../public/js/plugins/templates-tab.js:308
 msgid "Template renamed correctly"
@@ -3373,7 +3373,7 @@ msgstr "用來描述此VM功能的名稱"
 
 #: ../public/js/plugins/templates-tab.js:610
 msgid "Description of the template"
-msgstr ""
+msgstr "此範本的描述"
 
 #: ../public/js/plugins/templates-tab.js:621
 msgid "Amount of RAM required for the VM, in Megabytes."
@@ -3505,7 +3505,7 @@ msgstr "VMWare: 不支援"
 #: ../public/js/plugins/templates-tab.js:966
 #: ../public/js/plugins/templates-tab.js:1096
 msgid "Device Prefix"
-msgstr ""
+msgstr "裝置名稱字首"
 
 #: ../public/js/plugins/templates-tab.js:967
 #: ../public/js/plugins/templates-tab.js:1097
@@ -3689,7 +3689,7 @@ msgstr "丟棄ICMP封包"
 
 #: ../public/js/plugins/templates-tab.js:1910
 msgid "General"
-msgstr ""
+msgstr "一般"
 
 #: ../public/js/plugins/templates-tab.js:1938
 #: ../public/js/plugins/vnets-tab.js:301 ../public/js/sunstone.js:3294
@@ -3714,11 +3714,11 @@ msgstr "虛擬化CPU架構"
 
 #: ../public/js/plugins/templates-tab.js:1999
 msgid "Machine type"
-msgstr ""
+msgstr "機器種類"
 
 #: ../public/js/plugins/templates-tab.js:2000
 msgid "libvirt machine type, only for KVM"
-msgstr ""
+msgstr "libvirt機器種類，僅適用於KVM"
 
 #: ../public/js/plugins/templates-tab.js:2005
 msgid "Guest OS"
@@ -3858,7 +3858,7 @@ msgstr "APIC"
 
 #: ../public/js/plugins/templates-tab.js:2305
 msgid "Enables the advanced programmable IRQ management."
-msgstr ""
+msgstr "啟用進階可程式化中斷管理"
 
 #: ../public/js/plugins/templates-tab.js:2314
 msgid "HYPERV"
@@ -3866,7 +3866,7 @@ msgstr "HYPER-V"
 
 #: ../public/js/plugins/templates-tab.js:2315
 msgid "Add support in the VM for hyper-v features (HYPERV)"
-msgstr ""
+msgstr "在此VM啟用hyper-V延伸功能 (HYPERV)"
 
 #: ../public/js/plugins/templates-tab.js:2326
 msgid "Localtime"
@@ -4104,11 +4104,11 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2759
 msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
-msgstr ""
+msgstr "此欄位可設定在部署VM時的資料存放區選取原則"
 
 #: ../public/js/plugins/templates-tab.js:2776
 msgid "RAW data"
-msgstr ""
+msgstr "RAW data"
 
 #: ../public/js/plugins/templates-tab.js:2783
 msgid "kvm"
@@ -4124,11 +4124,11 @@ msgstr "vmware"
 
 #: ../public/js/plugins/templates-tab.js:2789
 msgid "DATA"
-msgstr ""
+msgstr "資料(DATA)"
 
 #: ../public/js/plugins/templates-tab.js:2790
 msgid "Raw data to be passed directly to the hypervisor"
-msgstr ""
+msgstr "直接傳遞給Hypervisor的Raw data"
 
 #: ../public/js/plugins/templates-tab.js:2799
 msgid "DATA_VMX"
@@ -4140,7 +4140,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2807
 msgid "Custom Tags"
-msgstr ""
+msgstr "自訂標記"
 
 #: ../public/js/plugins/templates-tab.js:2887
 msgid "DISK"
@@ -4266,7 +4266,7 @@ msgstr "編輯"
 
 #: ../public/js/plugins/users-tab.js:279
 msgid "User created"
-msgstr ""
+msgstr "用戶已建立"
 
 #: ../public/js/plugins/users-tab.js:455
 msgid "Auth"
@@ -4286,11 +4286,11 @@ msgstr "所有被選取的使用者將會加入一個次要群組。請選擇新
 
 #: ../public/js/plugins/users-tab.js:481
 msgid "Remove from group"
-msgstr "移出群組"
+msgstr "退出群組"
 
 #: ../public/js/plugins/users-tab.js:484
 msgid "This will remove the user from a secondary group. Select the group"
-msgstr ""
+msgstr "所有被選取的用戶將會退出次要群組，請選擇要退出的群組"
 
 #: ../public/js/plugins/users-tab.js:505
 msgid "Historical usages"
@@ -4346,23 +4346,23 @@ msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:180
 msgid "Deploy Virtual Machine"
-msgstr ""
+msgstr "指定部署虛擬機器"
 
 #: ../public/js/plugins/vms-tab.js:187 ../public/js/plugins/vms-tab.js:321
 msgid "Select a Host"
-msgstr ""
+msgstr "選擇一個主機"
 
 #: ../public/js/plugins/vms-tab.js:223 ../public/js/plugins/vms-tab.js:353
 msgid "HOST_ID"
-msgstr ""
+msgstr "主機ID"
 
 #: ../public/js/plugins/vms-tab.js:230 ../public/js/plugins/vms-tab.js:365
 msgid "Please select a Host from the list"
-msgstr ""
+msgstr "請選擇一個主機"
 
 #: ../public/js/plugins/vms-tab.js:231 ../public/js/plugins/vms-tab.js:366
 msgid "You selected the following Host:"
-msgstr ""
+msgstr "你已選擇下列主機:"
 
 #: ../public/js/plugins/vms-tab.js:244 ../public/js/plugins/vms-tab.js:380
 #: ../public/js/plugins/vms-tab.js:2554
@@ -4376,19 +4376,19 @@ msgstr "若勾選此項目，將會檢查實體主機能否承載此計算資源
 
 #: ../public/js/plugins/vms-tab.js:251
 msgid "Select a datastore"
-msgstr ""
+msgstr "選擇一個資料存放區"
 
 #: ../public/js/plugins/vms-tab.js:281
 msgid "DATASTORE_ID"
-msgstr ""
+msgstr "資料存放區ID"
 
 #: ../public/js/plugins/vms-tab.js:293
 msgid "Please select a datastore from the list"
-msgstr ""
+msgstr "請選擇一個資料存放區"
 
 #: ../public/js/plugins/vms-tab.js:294
 msgid "You selected the following datastore:"
-msgstr ""
+msgstr "你已選擇下列資料存放區:"
 
 #: ../public/js/plugins/vms-tab.js:301 ../public/js/plugins/vms-tab.js:976
 msgid "Deploy"
@@ -4396,7 +4396,7 @@ msgstr "指定部署"
 
 #: ../public/js/plugins/vms-tab.js:311
 msgid "Migrate Virtual Machine"
-msgstr ""
+msgstr "遷移虛擬機器"
 
 #: ../public/js/plugins/vms-tab.js:388 ../public/js/plugins/vms-tab.js:983
 #: ../public/js/plugins/vms-tab.js:991
@@ -4535,7 +4535,7 @@ msgstr "訊息"
 
 #: ../public/js/plugins/vms-tab.js:1675
 msgid "Add action"
-msgstr ""
+msgstr "新增操作"
 
 #: ../public/js/plugins/vms-tab.js:1699
 msgid "shutdown"
@@ -4607,7 +4607,7 @@ msgstr "拍攝快照(snapshot-create)"
 
 #: ../public/js/plugins/vms-tab.js:1807
 msgid "No actions to show"
-msgstr ""
+msgstr "目前沒有任何操作"
 
 #: ../public/js/plugins/vms-tab.js:1863
 msgid "Date Time Picker"
@@ -4801,7 +4801,7 @@ msgstr "未選取任何範本"
 
 #: ../public/js/plugins/vms-tab.js:3159 ../public/js/plugins/vms-tab.js:3256
 msgid "You have not selected a host"
-msgstr ""
+msgstr "未選取任何主機"
 
 #: ../public/js/plugins/vms-tab.js:3209
 msgid "is currently running on Host"
@@ -4921,7 +4921,7 @@ msgstr "選擇一個虛擬網路"
 
 #: ../public/js/plugins/vnets-tab.js:338
 msgid "Virtual Network created"
-msgstr ""
+msgstr "虛擬網路已建立"
 
 #: ../public/js/plugins/vnets-tab.js:570
 msgid "Virtual network information"
@@ -4993,15 +4993,15 @@ msgstr "虛擬化資源"
 
 #: ../public/js/plugins/zones-tab.js:23 ../public/js/plugins/zones-tab.js:380
 msgid "Create zone"
-msgstr ""
+msgstr "建立主機聚落"
 
 #: ../public/js/plugins/zones-tab.js:57
 msgid "Create Zone"
-msgstr ""
+msgstr "建立主機聚落"
 
 #: ../public/js/plugins/zones-tab.js:63
 msgid "Zone Name"
-msgstr ""
+msgstr "主機聚落名稱"
 
 #: ../public/js/plugins/zones-tab.js:69 ../public/js/plugins/zones-tab.js:233
 msgid "Endpoint"
@@ -5009,15 +5009,15 @@ msgstr ""
 
 #: ../public/js/plugins/zones-tab.js:161
 msgid "Zone updated correctly"
-msgstr ""
+msgstr "主機聚落修改成功"
 
 #: ../public/js/plugins/zones-tab.js:181
 msgid "Zone renamed correctly"
-msgstr ""
+msgstr "主機聚落名稱修改成功"
 
 #: ../public/js/plugins/zones-tab.js:243
 msgid "Zone information"
-msgstr ""
+msgstr "主機聚落資訊"
 
 #: ../public/js/sunstone.js:876 ../public/js/sunstone.js:896
 msgid "Confirmation of action"
@@ -5062,7 +5062,7 @@ msgstr "請選擇"
 
 #: ../public/js/sunstone.js:2192
 msgid "Volatile disks"
-msgstr ""
+msgstr "揮發性磁碟"
 
 #: ../public/js/sunstone.js:2448
 msgid "Please select an element"

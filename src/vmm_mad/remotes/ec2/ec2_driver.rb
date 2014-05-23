@@ -222,6 +222,10 @@ class EC2Driver
             'secret_access_key' => @region['secret_access_key'],
             'region'            => @region['region_name'])
 
+        if (proxy_uri = public_cloud_ec2_conf['proxy_uri'])
+            AWS.config(:proxy_uri => proxy_uri)
+        end
+
         @ec2 = AWS.ec2
     end
 

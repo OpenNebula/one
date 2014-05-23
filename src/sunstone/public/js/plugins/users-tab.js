@@ -572,6 +572,12 @@ function userElementArray(user_json){
             user.VM_QUOTA.VM.CPU_USED,
             user.VM_QUOTA.VM.CPU,
             default_user_quotas.VM_QUOTA.VM.CPU);
+    } else {
+
+        var vms = quotaBar(0, 0, null);
+        var memory = quotaBarMB(0, 0, null);
+        var cpu = quotaBarFloat(0, 0, null);
+
     }
 
 
@@ -692,7 +698,8 @@ function updateUserInfo(request,user){
 
     var quotas_html;
     if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
-      quotas_html = '<div class="large-6 columns">' + vms_quota + '</div>';
+      quotas_html = '<div class="quotas">';
+      quotas_html += '<div class="large-6 columns">' + vms_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
       quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
@@ -701,6 +708,7 @@ function updateUserInfo(request,user){
       quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
       quotas_html += '<br><br>';
       quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
+      quotas_html += '</div>';
     } else {
       quotas_html = '<div class="row">\
               <div class="large-12 columns">\
@@ -715,10 +723,23 @@ function updateUserInfo(request,user){
         content : quotas_html
     };
 
+    var accounting_tab = {
+        title: tr("Accounting"),
+        icon: "fa-bar-chart-o",
+        content: '<div id="user_accounting"></div>'
+    };
+
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
+    Sunstone.updateInfoPanelTab("user_info_panel","user_accouning_tab",accounting_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
+
+    accountingGraphs(
+        $("#user_accounting","#user_info_panel"),
+        {   fixed_user: info.ID,
+            init_group_by: "vm" });
+
 };
 
 // Used also from groups-tabs.js
@@ -882,6 +903,7 @@ $(document).ready(function(){
       //if we are not oneadmin, our tab will not even be in the DOM.
       dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
             "bSortClasses": false,
+            "bAutoWidth": false,
             "bDeferRender": true,
             "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check",5,6,7] },

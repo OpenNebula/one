@@ -268,9 +268,7 @@ EOT
             end
         end
 
-        if db_version[:is_slave]
-            log_error("^ User errors need to be fixed in the master OpenNebula")
-        else
+        if !db_version[:is_slave]
             @db.transaction do
                 users_fix.each do |id, user|
                     @db[:user_pool].where(:oid => id).update(
@@ -278,6 +276,8 @@ EOT
                         :gid => user[:gid])
                 end
             end
+        elsif !users_fix.empty?
+            log_error("^ User errors need to be fixed in the master OpenNebula")
         end
 
         log_time()
@@ -297,11 +297,14 @@ EOT
                 users_new_elem = doc.create_element("USERS")
                 doc.root.add_child(users_new_elem)
 
+                error_found = false
+
                 group[gid].each do |id|
                     id_elem = users_elem.at_xpath("ID[.=#{id}]")
 
                     if id_elem.nil?
                         log_error("User #{id} is missing from Group #{gid} users id list")
+                        error_found = true
                     else
                         id_elem.remove
                     end
@@ -311,15 +314,16 @@ EOT
 
                 users_elem.xpath("ID").each do |id_elem|
                     log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
+                    error_found = true
                 end
 
                 row[:body] = doc.to_s
 
-                if db_version[:is_slave]
-                    log_error("^ Group errors need to be fixed in the master OpenNebula")
-                else
+                if !db_version[:is_slave]
                     # commit
                     @db[:group_pool_new].insert(row)
+                elsif error_found
+                    log_error("^ Group errors need to be fixed in the master OpenNebula")
                 end
             end
         end

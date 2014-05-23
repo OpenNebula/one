@@ -20,7 +20,9 @@ require 'stringio'
 
 
 module OpenNebula
-    attr_accessor   :pool_page_size
+    def self.pool_page_size
+        @@pool_page_size
+    end
 
     if OpenNebula::OX
         class OxStreamParser < XMLRPC::XMLParser::AbstractStreamParser
@@ -68,12 +70,12 @@ module OpenNebula
 
     if size=ENV['ONE_POOL_PAGE_SIZE']
         if size.strip.match(/^\d+$/) && size.to_i >= 2
-            @pool_page_size = size.to_i
+            @@pool_page_size = size.to_i
         else
-            @pool_page_size = nil
+            @@pool_page_size = nil
         end
     else
-        @pool_page_size = DEFAULT_POOL_PAGE_SIZE
+        @@pool_page_size = DEFAULT_POOL_PAGE_SIZE
     end
 
 

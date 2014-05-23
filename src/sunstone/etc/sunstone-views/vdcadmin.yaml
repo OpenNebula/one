@@ -1,43 +1,41 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
 enabled_tabs:
-    dashboard-tab: true
-    system-tab: true
-    users-tab: true
+    dashboard-tab: false
+    system-tab: false
+    users-tab: false
     groups-tab: false
     acls-tab: false
-    vresources-tab: true
-    vms-tab: true
-    templates-tab: true
-    images-tab: true
+    vresources-tab: false
+    vms-tab: false
+    templates-tab: false
+    images-tab: false
     files-tab: false
-    infra-tab: true
+    infra-tab: false
     clusters-tab: false
     hosts-tab: false
-    datastores-tab: true
-    vnets-tab: true
+    datastores-tab: false
+    vnets-tab: false
     marketplace-tab: false
     oneflow-dashboard: false
     oneflow-services: false
     oneflow-templates: false
-autorefresh: true
+    provision-tab: true
+autorefresh: false
 tabs:
     dashboard-tab:
         panel_tabs:
         actions:
-            Dashboard.refresh: false
-            Sunstone.toggle_top: false
         widgets_three_per_row:
-            - users
-            - network
-            - storage
+            #- users
         widgets_two_per_row:
-            - user_quotas
-            - group_quotas
+#            - user_quotas
+#            - group_quotas
+            #- network
+            #- storage
             #- hosts
             #- vms
         widgets_one_per_row:
-            - vms
-        widgets_one_footer:
+#            - vms
     system-tab:
         panel_tabs:
         actions:
@@ -49,8 +47,8 @@ tabs:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Name
-            #- 3         # Group
-            #- 4         # Auth driver
+            - 3         # Group
+            - 4         # Auth driver
             - 5         # VMs
             - 6         # Memory
             - 7         # CPU
@@ -60,10 +58,10 @@ tabs:
             User.create_dialog: true
             User.update_password: true
             User.quotas_dialog: true
-            User.chgrp: false
-            User.addgroup: false
-            User.delgroup: false
-            User.chauth: false
+            User.chgrp: true
+            User.addgroup: true
+            User.delgroup: true
+            User.chauth: true
             User.delete: true
     groups-tab:
         panel_tabs:
@@ -105,7 +103,7 @@ tabs:
             vm_capacity_tab: true
             vm_hotplugging_tab: true
             vm_network_tab: true
-            vm_snapshot_tab: false
+            vm_snapshot_tab: true
             vm_placement_tab: false
             vm_actions_tab: true
             vm_template_tab: false
@@ -114,51 +112,51 @@ tabs:
             - 0       # Checkbox
             - 1       # ID
             - 2       # Owner
-            #- 3       # Group
+            - 3       # Group
             - 4       # Name
             - 5       # Status
             #- 6       # Used CPU
             #- 7       # Used Memory
-            #- 8       # Host
+            - 8       # Host
             - 9       # IPs
             #- 10      # Start Time
             - 11      # VNC
         actions:
             VM.refresh: true
             VM.create_dialog: false
-            VM.easy_provision: false
-            VM.chown: true
+            VM.easy_provision: true
+            VM.chown: false
             VM.chgrp: false
             VM.chmod: true
             VM.deploy: false
             VM.migrate: false
             VM.migrate_live: false
-            VM.hold: false
-            VM.release: false
-            VM.suspend: false
+            VM.hold: true
+            VM.release: true
+            VM.suspend: true
             VM.resume: true
-            VM.stop: false
+            VM.stop: true
             VM.recover: false
             VM.boot: true
             VM.reboot: true
             VM.reboot_hard: true
             VM.poweroff: true
             VM.poweroff_hard: true
-            VM.undeploy: false
-            VM.undeploy_hard: false
+            VM.undeploy: true
+            VM.undeploy_hard: true
             VM.shutdown: true
             VM.shutdown_hard: true
             VM.delete: true
-            VM.delete_recreate: false
+            VM.delete_recreate: true
             VM.resize: false
-            VM.attachdisk: false
-            VM.detachdisk: false
+            VM.attachdisk: true
+            VM.detachdisk: true
             VM.saveas: true
             VM.attachnic: false
             VM.detachnic: false
-            VM.snapshot_create: false
-            VM.snapshot_revert: false
-            VM.snapshot_delete: false
+            VM.snapshot_create: true
+            VM.snapshot_revert: true
+            VM.snapshot_delete: true
             VM.resched: false
             VM.unresched: false
     templates-tab:
@@ -169,19 +167,19 @@ tabs:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Owner
-            #- 3         # Group
+            - 3         # Group
             - 4         # Name
             - 5         # Registration time
         actions:
             Template.refresh: true
             Template.create_dialog: false
-            Template.easy_provision: false
-            Template.update_dialog: false
-            Template.instantiate_vms: false
-            Template.chown: true
+            Template.easy_provision: true
+            Template.update_dialog: true
+            Template.instantiate_vms: true
+            Template.chown: false
             Template.chgrp: false
             Template.chmod: true
-            Template.clone_dialog: false
+            Template.clone_dialog: true
             Template.delete: true
         template_creation_tabs:
             general: true
@@ -192,7 +190,7 @@ tabs:
             input_output: true
             context: true
             scheduling: false
-            other: true
+            other: false
     images-tab:
         panel_tabs:
             image_info_panel: true
@@ -200,11 +198,11 @@ tabs:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Owner
-            #- 3         # Group
+            - 3         # Group
             - 4         # Name
             - 5         # Datastore
             #- 6         # Size
-            #- 7        # Type
+            - 7        # Type
             #- 8         # Registration time
             #- 9        # Persistent
             - 10        # Status
@@ -213,13 +211,13 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: false
-            Image.chown: true
+            Image.chown: false
             Image.chgrp: false
-            Image.chmod: true
-            Image.enable: true
-            Image.disable: true
-            Image.persistent: false
-            Image.nonpersistent: false
+            Image.chmod: false
+            Image.enable: false
+            Image.disable: false
+            Image.persistent: true
+            Image.nonpersistent: true
             Image.clone_dialog: false
             Image.delete: true
     files-tab:
@@ -299,38 +297,37 @@ tabs:
             datastore_info_tab: false
             datastore_image_tab: true
         table_columns:
-            #- 0         # Checkbox
+            - 0         # Checkbox
             - 1         # ID
-            #- 2         # Owner
-            #- 3         # Group
+            - 2         # Owner
+            - 3         # Group
             - 4         # Name
             - 5         # Capacity
-            #- 6         # Cluster
+            - 6         # Cluster
             #- 7         # Basepath
             #- 8         # TM
             #- 9         # DS
             #- 10        # Type
-
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
             Datastore.addtocluster: false
             Datastore.chown: false
             Datastore.chgrp: false
-            Datastore.chmod: false
+            Datastore.chmod: true
             Datastore.delete: false
     vnets-tab:
         panel_tabs:
             vnet_info_tab: false
             vnet_leases_tab: true
         table_columns:
-            #- 0         # Checkbox
+            - 0         # Checkbox
             - 1         # ID
-            #- 2         # Owner
-            #- 3         # Group
+            - 2         # Owner
+            - 3         # Group
             - 4         # Name
-            #- 5         # Cluster
-            #- 6         # Type
+            - 5         # Cluster
+            - 6         # Type
             #- 7         # Bridge
             - 8         # Leases
         actions:
@@ -339,7 +336,7 @@ tabs:
             Network.addtocluster: false
             Network.chown: false
             Network.chgrp: false
-            Network.chmod: false
+            Network.chmod: true
             Network.delete: false
             Network.addleases: false
             Network.hold_lease: false
@@ -438,3 +435,15 @@ tabs:
             ServiceTemplate.chgrp: false
             ServiceTemplate.chmod: true
             ServiceTemplate.delete: true
+    provision-tab:
+        panel_tabs:
+            users: true
+        actions:
+            Template.chmod: true
+            Template.delete: true
+        dashboard:
+            quotas: false
+            vms: false
+            vdcquotas: true
+            vdcvms: true
+            users:  true

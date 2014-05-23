@@ -82,6 +82,7 @@ var widgets = {
         <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-hdd-o"></i> '+tr("Hosts")+'</legend>\
         <div class="row  totals-info">\
           <div class="small-3 large-3 columns centered">\
+            <br>\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
                 <span class="total_hosts subheader"/><br>\
@@ -102,54 +103,20 @@ var widgets = {
           <div class="small-9 large-9 columns">\
             <div class="row">\
               <div class="small-6 large-6 columns">\
-                <div class="row graph_legend text-center">\
-                  <div class="small-6 large-6 columns">\
-                    <h4 class="subheader"><small>'+tr("CPU")+'</small></h4>\
-                  </div>\
+                <div id="dashboard_host_allocated_cpu" style="padding: 0px 40px">\
                 </div>\
-                <div class="row">\
-                  <h4 class="subheader">\
-                    <small class="subheader small-4 large-4 columns right">'+tr("Allocated")+
-                    '</small>\
-                  </h4>\
-                  <div class="small-8 large-8 columns" id="dash_host_allocated_cpu" >\
-                  </div>\
-                </div>\
-                <div class="row">\
-                  <h4 class="subheader">\
-                    <small class="subheader small-4 large-4 columns right">'+tr("Real")+
-                    '</small>\
-                  </h4>\
-                  <div class="small-8 large-8 columns" id="dash_host_real_cpu" >\
-                  </div>\
+                <br>\
+                <div id="dashboard_host_real_cpu" style="padding: 0px 40px">\
                 </div>\
               </div>\
               <div class="small-6 large-6 columns">\
-                <div class="row graph_legend text-center">\
-                  <div class="small-6 large-6 columns">\
-                    <h4 class="subheader"><small>'+tr("MEMORY")+'</small></h4>\
-                  </div>\
+                <div id="dashboard_host_allocated_mem" style="padding: 0px 40px">\
                 </div>\
-                <div class="row">\
-                  <h4 class="subheader">\
-                    <small class="subheader small-4 large-4 columns right">'+tr("Allocated")+
-                    '</small>\
-                  </h4>\
-                  <div class="small-8 large-8 columns" id="dash_host_allocated_mem" >\
-                  </div>\
-                </div>\
-                <div class="row">\
-                  <h4 class="subheader">\
-                    <small class="subheader small-4 large-4 columns right">'+tr("Real")+
-                    '</small>\
-                  </h4>\
-                  <div class="small-8 large-8 columns" id="dash_host_real_mem" >\
-                  </div>\
+                <br>\
+                <div id="dashboard_host_real_mem" style="padding: 0px 40px">\
                 </div>\
               </div>\
             </div>\
-          </div>\
-          <div class="small-1 large-1 columns">\
           </div>\
         </div>\
       </fieldset>',
@@ -176,24 +143,9 @@ var widgets = {
           </div>\
           <div class="small-9 large-9 columns">\
             <div class="row graph_legend text-center">\
-              <div class="small-6 large-6 columns">\
-                <h4 class="subheader"><small>'+tr("REAL CAPACITY USAGE")+'</small></h4>\
+              <div class="small-6 large-6 columns" id="dashboard_cpu_usage" style="padding: 20px 40px">\
               </div>\
-            </div>\
-            <div class="row">\
-              <h4 class="subheader">\
-                <small class="subheader small-2 large-2 columns right">'+tr("CPU")+
-                '</small>\
-              </h4>\
-              <div class="small-10 large-10 columns" id="dash_vm_real_cpu" >\
-              </div>\
-            </div>\
-            <div class="row">\
-              <h4 class="subheader">\
-                <small class="subheader small-2 large-2 columns right">'+tr("Memory")+
-                '</small>\
-              </h4>\
-              <div class="small-10 large-10 columns" id="dash_vm_real_mem" >\
+              <div class="small-6 large-6 columns" id="dashboard_memory_usage" style="padding: 20px 40px">\
               </div>\
             </div>\
           </div>\

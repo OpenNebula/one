@@ -238,6 +238,14 @@ module OpenNebula
 
             @body['last_vmname'] ||= 0
 
+            extra_template = @body['vm_template_contents']
+
+            extra_template = "" if extra_template.nil?
+
+            extra_template <<
+                "\nSERVICE_ID = #{@service.id()}" <<
+                "\nROLE_NAME = \"#{@body['name']}\""
+
             n_nodes.times { |i|
                 vm_name = @@vm_name_template.
                     gsub("$SERVICE_ID",    @service.id().to_s).
@@ -253,9 +261,6 @@ module OpenNebula
                     "#{template_id}, with name #{vm_name}", @service.id()
 
                 template = OpenNebula::Template.new_with_id(template_id, @service.client)
-
-                extra_template = "SERVICE_ID = #{@service.id()}\n"\
-                    "ROLE_NAME = \"#{@body['name']}\""
 
                 vm_id = template.instantiate(vm_name, false, extra_template)
 
