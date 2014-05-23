@@ -204,8 +204,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP"]||"-"
             end
 
-            column :IP6_GLOBAL_PREFIX, "", :right, :size=>22 do |d|
-                    d["IP6_GLOBAL"]||"-"
+            column :GLOBAL_PREFIX, "", :right, :size=>22 do |d|
+                    d["GLOBAL_PREFIX"]||"-"
             end
 
         end.show(arlist, {})

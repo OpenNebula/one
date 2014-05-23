@@ -180,35 +180,60 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 
 void AddressRange::update_attributes(VectorAttribute *vup)
 {
-    /* Remove non-update attributes */
+    /* --------------- Copy non-update attributes ----------------- */
 
-    vup->remove("TYPE");
+    vup->replace("TYPE", attr->vector_value("TYPE"));
 
-    vup->remove("SIZE");
+    vup->replace("MAC", attr->vector_value("MAC"));
 
-    vup->remove("MAC");
+    if (type & 0x00000002)
+    {
+        vup->replace("IP", attr->vector_value("IP"));
+    }
 
-    vup->remove("IP");
+    /* ----------------- Remove internal attributes ----------------- */
 
-    /* Remove internal attributes */
+    vup->replace("AR_ID", attr->vector_value("AR_ID"));
 
-    vup->remove("AR_ID");
-
-    vup->remove("ALLOCATED");
+    vup->replace("ALLOCATED", attr->vector_value("ALLOCATED"));
 
     vup->remove("USED_LEASES");
 
     vup->remove("LEASES");
 
-    /* Copy the rest attributes to the address range */
+    /* ----------------- update known attributes ----------------- */
 
-    const map<string,string> new_attrs = vup->value();
-    map <string,string>::const_iterator it;
+    unsigned int new_size;
 
-    for (it = new_attrs.begin(); it != new_attrs.end(); it++)
+    if (vup->vector_value("SIZE", new_size) == 0)
     {
-        attr->replace(it->first, it->second);
+        map<unsigned int, long long> itup;
+
+        if (allocated.upper_bound(new_size-1) == allocated.end())
+        {
+            size = new_size;
+        }
     }
+
+    vup->replace("SIZE", size);
+
+    string value = vup->vector_value("GLOBAL_PREFIX");
+
+    if (prefix6_to_i(value, global6) != 0 )
+    {
+        vup->replace("GLOBAL_PREFIX", attr->vector_value("GLOBAL_PREFIX"));
+    }
+
+    value = vup->vector_value("ULA_PREFIX");
+
+    if (prefix6_to_i(value, ula6) != 0 )
+    {
+        vup->replace("ULA_PREFIX", attr->vector_value("ULA_PREFIX"));
+    }
+
+    /* Replace with the new attributes */
+
+    attr->replace(vup->value());
 }
 
 /* -------------------------------------------------------------------------- */

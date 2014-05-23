@@ -257,9 +257,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :updatear, update_ar_desc, :vnetid, :ar_id, [:file, nil] do
         helper.perform_action(args[0],options,"modified") do |obj|
+            rc = obj.info
 
-            str = OpenNebulaHelper.update_template(args[0], obj, args[2],
-                "AR_POOL/AR[AR_ID=#{args[1]}]")
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            obj.delete_element("AR_POOL/AR/LEASES")
+            obj.delete_element("AR_POOL/AR/USED_LEASES")
+
+            str = OpenNebulaHelper.update_template_helper(false, args[0], obj,
+                args[2], "AR_POOL/AR[AR_ID=#{args[1]}]", false)
 
             str[-1]=''
             str.gsub!(/AR_ID="\d+"\n/,'')
