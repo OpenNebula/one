@@ -159,7 +159,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '</div>'+
   '<div class="row">'+
     '<div class="large-5 large-centered columns">'+
-      '<hr>'+
       '<br>'+
     '</div>'+
   '</div>'+
@@ -169,9 +168,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
         '<span class="left">'+
           tr("Select Template")+
         '</span>'+
-        '<a href"#" id="provision_create_template_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-          '<i class="fa fa-fw fa-refresh"/>'+
-        '</a>'+
         '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_template_search"/>'+
       '</h3>'+
       '<br>'+
@@ -248,9 +244,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
                   '<span class="left">'+
                     tr("Change Capacity")+
                   '</span>'+
-                  '<a href"#" id="provision_create_instance_types_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-                    '<i class="fa fa-fw fa-refresh"/>'+
-                  '</a>'+
                   '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_instance_types_search"/>'+
                 '</h3>'+
                 '<br>'+
@@ -273,7 +266,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
             '</div>'+
             '<div class="row">'+
               '<div class="large-5 large-centered columns">'+
-                '<hr>'+
                 '<br>'+
               '</div>'+
             '</div>'+
@@ -283,9 +275,6 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
                   '<span class="left">'+
                     tr("Select Network")+
                   '</span>'+
-                  '<a href"#" id="provision_create_networks_refresh_button" data-tooltip title="'+ tr("Refresh")+'" class="has-tip right">'+
-                    '<i class="fa fa-fw fa-refresh"/>'+
-                  '</a>'+
                   '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_networks_search"/>'+
                 '</h3>'+
                 '<br>'+
@@ -344,9 +333,8 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
 
 var provision_create_user = '<form id="provision_create_user" class="hidden section_content">'+
   '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
+    '<div class="large-10 large-centered columns">'+
       '<h2 class="subheader">'+
-        '<i class="fa fa-fw fa-user"/>&emsp;'+
         tr("Create User")+
       '</h2>'+
       '<br>'+
@@ -374,7 +362,6 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
     '<div class="large-10 large-centered columns">'+
       '<h3 class="subheader text-right">'+
         '<span class="left">'+
-          '<i class="fa fa-fw fa-align-left"/>&emsp;'+
           tr("Define Quotas")+
         '</span>'+
       '</h3>'+
@@ -491,10 +478,10 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
-        '<dd style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
-        '<dd style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
-        '<dd style="width: 25%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        '<dd class="active" style="width: 25%;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
+        '<dd style="width: 25%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
+        '<dd style="width: 25%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+        '<dd style="width: 25%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
@@ -505,7 +492,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '<div class="row">'+
           '<div class="large-8 large-centered columns">'+
             '<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
               '</span>'+
@@ -571,7 +558,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
       '<div class="row">'+
         '<div class="large-8 large-centered columns">'+
           '<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
               '<i class="fa fa-cloud fa-stack-2x"></i>'+
               '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
             '</span>'+
@@ -615,7 +602,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '<div class="row">'+
           '<div class="large-12 large-centered columns">'+
             '<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
               '</span>'+
@@ -663,7 +650,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '<div class="row">'+
           '<div class="large-8 large-centered columns">'+
             '<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
                 '<i class="fa fa-cloud fa-stack-2x"></i>'+
                 '<i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>'+
               '</span>'+
@@ -705,7 +692,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '</div>'+
 '</div>';
 
-var provision_list_users = '<div id="provision_list_users">'+
+var provision_list_users = '<div id="provision_list_users" class="hidden section_content">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
@@ -766,46 +753,13 @@ var provision_list_users = '<div id="provision_list_users">'+
 
 
 var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section_content">'+
-  '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
-      '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_users"><i class="fa fa-fw fa-lg fa-users"/>&emsp;'+ tr("VDC Users") +'</a></dd>'+
-        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("VDC Quotas") +'</a></dd>'+
-        '<dd style="width: 33%;box-shadow: 0px 1px #dfdfdf;"><a href="#provision_vdc_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("VDC Accounting") +'</a></dd>'+
-      '</dl>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="tabs-content">'+
-    '<div class="content active" id="provision_vdc_users">'+
-      provision_list_users+
-    '</div>'+
-    '<div class="content" id="provision_vdc_quotas">'+
       '<div class="row">'+
         '<div class="large-11 large-centered columns">'+
-          '<h2 class="subheader text-right">'+
+          '<h3 class="subheader text-right">'+
             '<span class="left">'+
-              '<i class="fa fa-fw fa-align-left"/>&emsp;'+
-              tr("VDC Quotas")+
-            '</span>'+
-          '</h2>'+
-        '</div>'+
-      '</div>'+
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-10 columns large-centered quotas" id="provision_vdc_quotas_div">'+
-        '</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="content" id="provision_vdc_acct">'+
-      '<div class="row">'+
-        '<div class="large-11 large-centered columns">'+
-          '<h2 class="subheader text-right">'+
-            '<span class="left">'+
-              '<i class="fa fa-fw fa-bar-chart-o"/>&emsp;'+
               tr("VDC Accounting")+
             '</span>'+
-          '</h2>'+
+          '</h3>'+
         '</div>'+
       '</div>'+
       '<br>'+
@@ -813,8 +767,21 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '<div  id="provision_info_vdc_group_acct" class="large-10 large-centered columns">'+
         '</div>'+
       '</div>'+
-    '</div>'+
-  '</div>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-11 large-centered columns">'+
+          '<h3 class="subheader text-right">'+
+            '<span class="left">'+
+              tr("VDC Quotas")+
+            '</span>'+
+          '</h3>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-11 columns large-centered quotas" id="provision_vdc_quotas_div">'+
+        '</div>'+
+      '</div>'+
 '</div>';
 
 var provision_list_templates = '<div id="provision_list_templates" class="hidden section_content">'+
@@ -1227,6 +1194,7 @@ var provision_content = provision_dashboard +
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_content += provision_manage_vdc;
+  provision_content += provision_list_users;
   provision_content += provision_create_user;
   provision_content += provision_info_vdc_user;
 }
@@ -1238,7 +1206,10 @@ var provision_header = '<a href="#" class="provision_image_header" ><img src="im
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_header +=
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Manage VDC")+'</a>'+
+      '<a href"#" class="medium off-color" id="provision_vdc_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-bar-chart-o"/><br>'+tr("VDC Info")+'</a>'+
+    '</li>'+
+    '<li>'+
+      '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Users")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>';
@@ -1664,9 +1635,6 @@ function show_provision_user_info() {
   $(".section_content").hide();
   $("#provision_user_info").fadeIn();
   $("dd.active a", $("#provision_user_info")).trigger("click");
-
-  $(".provision_create_user_button").hide();
-  $(".provision_create_vm_button").show();
 }
 
 
@@ -1777,6 +1745,8 @@ function show_provision_group_info_callback(request, response) {
     $("#provision_info_vdc_group_acct", context),
     {   fixed_group: info.ID,
         init_group_by: "user" });
+
+  $("#acct_placeholder", context).hide();
 }
 
 function show_provision_create_vm() {
@@ -1795,9 +1765,6 @@ function show_provision_create_vm() {
 
   update_provision_networks_datatable(provision_networks_datatable);
 
-  $(".provision_create_user_button").hide();
-  $(".provision_create_vm_button").hide();
-
   $(".section_content").hide();
   $("#provision_create_vm").fadeIn();
 }
@@ -1805,39 +1772,32 @@ function show_provision_create_vm() {
 function show_provision_create_user() {
   $(".section_content").hide();
   $("#provision_create_user").fadeIn();
-
-  $(".provision_create_user_button").hide();
-  $(".provision_create_vm_button").hide();
 }
 
 function show_provision_vm_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_vms").fadeIn();
 
-  $(".provision_create_user_button").hide();
-  $(".provision_create_vm_button").show();
-
   update_provision_vms_datatable(provision_vms_datatable, timeout);
 }
 
 function show_provision_user_list(timeout) {
   $(".section_content").hide();
-  $("#provision_manage_vdc").fadeIn();
-
-  $(".provision_create_user_button").show();
-  $(".provision_create_vm_button").hide();
-
-  $("a[href='#provision_vdc_users'").click();
+  $("#provision_list_users").fadeIn();
 
   update_provision_users_datatable(provision_users_datatable, timeout);
+}
+
+function show_provision_vdc_info() {
+  $(".section_content").hide();
+  $("#provision_manage_vdc").fadeIn();
+
+  Sunstone.runAction('Provision.Group.show', "-1");
 }
 
 function show_provision_template_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_templates").fadeIn();
-
-  $(".provision_create_user_button").hide();
-  $(".provision_create_vm_button").show();
 
   $("#provision_confirm_delete_template_div").empty();
 
@@ -3647,7 +3607,15 @@ $(document).ready(function(){
       show_provision_create_user();
     });
 
-    Sunstone.runAction('Provision.Group.show', "-1");
+    //
+    // VDC Info
+    //
+
+
+    $("#provision_vdc_info_button").on("click", function(){
+      OpenNebula.Helper.clear_cache("GROUP");
+      show_provision_vdc_info();
+    });
 
     //
     // Create User
