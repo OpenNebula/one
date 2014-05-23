@@ -132,13 +132,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 ar << ", SIZE = " << options[:size]
             else
                 STDERR.puts "Address range needs to specify size (-s size)"
-                return -1
+                exit -1
             end
 
             ar << ", IP = " << options[:ip] if options[:ip]
             ar << ", MAC = " << options[:mac] if options[:mac]
-            ar << ", IP6_GLOBAL = " << options[:ip6_global] if options[:ip6_global]
-            ar << ", IP6_ULA = " << options[:ip6_ula] if options[:ip6_ula]
+            ar << ", GLOBAL_PREFIX = " << options[:ip6_global] if options[:ip6_global]
+            ar << ", ULA_PREFIX = " << options[:ip6_ula] if options[:ip6_ula]
 
             ar << "]"
 

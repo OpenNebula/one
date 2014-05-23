@@ -116,6 +116,8 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
     {
         case ETHER:
         case IP6:
+            vattr->remove("IP");
+
             if (do_mac)
             {
                 srand(time(0));
@@ -185,6 +187,8 @@ void AddressRange::update_attributes(VectorAttribute *vup)
     vup->replace("TYPE", attr->vector_value("TYPE"));
 
     vup->replace("MAC", attr->vector_value("MAC"));
+
+    vup->remove("IP");
 
     if (type & 0x00000002)
     {

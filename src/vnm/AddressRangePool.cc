@@ -135,7 +135,7 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 
         ar_pool.insert(make_pair(ar->ar_id(), ar));
 
-        if (ar->ar_id() > next_ar)
+        if (ar->ar_id() >= next_ar)
         {
             next_ar = ar->ar_id() + 1;
         }
