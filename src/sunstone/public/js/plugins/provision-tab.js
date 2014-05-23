@@ -75,6 +75,67 @@ var provision_quotas_dashboard =
   '<br>'+
   '<br>';
 
+var provision_vdc_quotas_dashboard =
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        tr("VDC Quotas")+
+      '</h2>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-10 large-centered columns">'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_dashboard_vdc_rvms_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_dashboard_vdc_cpu_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span id="provision_dashboard_vdc_memory_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_dashboard_vdc_rvms_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_dashboard_vdc_cpu_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="provision_dashboard_vdc_memory_meter" class="meter"></span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("RUNNING VMS")+'</span>'+
+            '<br>'+
+            '<span id="provision_dashboard_vdc_rvms_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("CPU")+'</span>'+
+            '<br>'+
+            '<span id="provision_dashboard_vdc_cpu_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+          '<div class="large-4 columns text-center">'+
+            '<span>'+tr("MEMORY")+'</span>'+
+            '<br>'+
+            '<span id="provision_dashboard_vdc_memory_str" style="color: #999; font-size: 14px;"></span>'+
+          '</div>'+
+        '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>';
+
 var provision_vms_dashboard =
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -88,38 +149,238 @@ var provision_vms_dashboard =
     '<div class="large-11 large-centered columns">'+
         '<div class="row">'+
           '<div class="large-4 columns text-center">'+
-            '<span  id="provision_dashboard_total" style="font-size:90px">'+20+'</span>'+
             '<br>'+
-            '<span>'+tr("TOTAL")+'</span>'+
-          '</div>'+
-          '<div class="large-8 columns">'+
             '<div class="row">'+
-              '<div class="large-3 columns text-center running-color">'+
-                '<span id="provision_dashboard_running" style="font-size:40px">'+13+'</span>'+
+              '<div class="large-12 columns">'+
+                '<span  id="provision_dashboard_total" style="font-size:90px">'+20+'</span>'+
                 '<br>'+
-                '<span>'+tr("RUNNING")+'</span>'+
-              '</div>'+
-              '<div class="large-3 columns text-center deploying-color">'+
-                '<span id="provision_dashboard_deploying"  style="font-size:40px">'+2+'</span>'+
-                '<br>'+
-                '<span>'+tr("DEPLOYING")+'</span>'+
-              '</div>'+
-              '<div class="large-3 columns text-center off-color">'+
-                '<span  id="#provision_dashboard_off" style="font-size:40px">'+1+'</span>'+
-                '<br>'+
-                '<span>'+tr("OFF")+'</span>'+
-              '</div>'+
-              '<div class="large-3 columns text-center error-color">'+
-                '<span  id="provision_dashboard_error" style="font-size:40px">'+0+'</span>'+
-                '<br>'+
-                '<span>'+tr("ERROR")+'</span>'+
+                '<span>'+tr("TOTAL")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<br>'+
             '<div class="row">'+
-              '<div class="large-11 large-centered columns text-center">'+
-                '<a href"#" class="large large-12 button radius provision_create_vm_button"">'+tr('Create Virtual Machine')+'</a>'+
+              '<div class="large-12 columns">'+
+                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr('Create Virtual Machine')+'</a>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr('Show Virtual Machines')+'</a>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-2 columns">'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center">'+
+                '<span id="provision_dashboard_running" style="font-size:40px">'+13+'</span>'+
+                '<br>'+
+                '<span >'+tr("RUNNING")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center ">'+
+                '<span id="provision_dashboard_deploying"  style="font-size:40px">'+2+'</span>'+
+                '<br>'+
+                '<span >'+tr("DEPLOYING")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center">'+
+                '<span  id="provision_dashboard_off" style="font-size:40px">'+1+'</span>'+
+                '<br>'+
+                '<span >'+tr("OFF")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center ">'+
+                '<span  id="provision_dashboard_error" style="font-size:40px">'+0+'</span>'+
+                '<br>'+
+                '<span >'+tr("ERROR")+'</span>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-6 columns" id="dashboard_vm_accounting">'+
+            '<input style="display:none;" value="vm" id="acct_group_by"/>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend">'+
+                '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend">'+
+                '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>';
+
+
+var provision_vdc_vms_dashboard =
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        tr("VDC Virtual Machines")+
+      '</h2>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row" id="provision_vdc_vms_dashboard">'+
+    '<div class="large-11 large-centered columns">'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<span  id="provision_dashboard_vdc_total" style="font-size:90px">'+20+'</span>'+
+                '<br>'+
+                '<span>'+tr("TOTAL")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr('Create Virtual Machine')+'</a>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr('Show Virtual Machines')+'</a>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-2 columns">'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center">'+
+                '<span id="provision_dashboard_vdc_running" style="font-size:40px">'+13+'</span>'+
+                '<br>'+
+                '<span >'+tr("RUNNING")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center ">'+
+                '<span id="provision_dashboard_vdc_deploying"  style="font-size:40px">'+2+'</span>'+
+                '<br>'+
+                '<span >'+tr("DEPLOYING")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center">'+
+                '<span  id="provision_dashboard_vdc_off" style="font-size:40px">'+1+'</span>'+
+                '<br>'+
+                '<span >'+tr("OFF")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns text-center ">'+
+                '<span  id="provision_dashboard_vdc_error" style="font-size:40px">'+0+'</span>'+
+                '<br>'+
+                '<span >'+tr("ERROR")+'</span>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-6 columns" id="dashboard_vdc_vm_accounting">'+
+            '<input style="display:none;" value="vm" id="acct_group_by"/>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend">'+
+                '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend">'+
+                '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>';
+
+
+var provision_users_dashboard =
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        tr("Users")+
+      '</h2>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row" id="provision_users_dashboard">'+
+    '<div class="large-11 large-centered columns">'+
+        '<div class="row">'+
+          '<div class="large-4 columns text-center">'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<span  id="provision_dashboard_users_total" style="font-size:90px">'+20+'</span>'+
+                '<br>'+
+                '<span>'+tr("TOTAL")+'</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<a href"#" class="medium button radius provision_create_user_button"">'+tr('Add User')+'</a>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<a href"#" class="medium button radius secondary provision_users_list_button"">'+tr('Show Users')+'</a>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-8 columns" id="dashboard_vdc_user_accounting">'+
+            '<input style="display:none;" value="user" id="acct_group_by"/>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend">'+
+                '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend">'+
+                '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -1209,14 +1470,14 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
       '<a href"#" class="medium off-color" id="provision_vdc_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-bar-chart-o"/><br>'+tr("VDC Info")+'</a>'+
     '</li>'+
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_users_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Users")+'</a>'+
+      '<a href"#" class="medium off-color provision_users_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Users")+'</a>'+
     '</li>'+
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>';
 }
 
 provision_header +=  '<li>'+
-      '<a href"#" class="medium off-color" id="provision_vms_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
+      '<a href"#" class="medium off-color provision_vms_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
@@ -1583,18 +1844,90 @@ function show_provision_dashboard() {
     })
   }
 
+  if (Config.provision.dashboard.isEnabled("vdcquotas")) {
+    $("#provision_dashboard").append(provision_vdc_quotas_dashboard);
+
+
+    OpenNebula.Group.show({
+      data : {
+          id: "-1"
+      },
+      success: function(request,group_json){
+        var group = group_json.GROUP;
+
+        if (!$.isEmptyObject(group.VM_QUOTA)){
+            var default_group_quotas = Quotas.default_quotas(group.DEFAULT_GROUP_QUOTAS);
+
+            var vms = quotaBar(
+                group.VM_QUOTA.VM.VMS_USED,
+                group.VM_QUOTA.VM.VMS,
+                default_group_quotas.VM_QUOTA.VM.VMS,
+                true);
+
+            $("#provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
+            $("#provision_dashboard_vdc_rvms_str").html(vms["str"]);
+            $("#provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
+
+            var memory = quotaBarMB(
+                group.VM_QUOTA.VM.MEMORY_USED,
+                group.VM_QUOTA.VM.MEMORY,
+                default_group_quotas.VM_QUOTA.VM.MEMORY,
+                true);
+
+            $("#provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
+            $("#provision_dashboard_vdc_memory_str").html(memory["str"]);
+            $("#provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
+
+            var cpu = quotaBarFloat(
+                group.VM_QUOTA.VM.CPU_USED,
+                group.VM_QUOTA.VM.CPU,
+                default_group_quotas.VM_QUOTA.VM.CPU,
+                true);
+
+            $("#provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
+            $("#provision_dashboard_vdc_cpu_str").html(cpu["str"]);
+            $("#provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
+        }
+      }
+    })
+  }
+
   if (Config.provision.dashboard.isEnabled("vms")) {
     $("#provision_dashboard").append(provision_vms_dashboard);
 
-    var total = 0;
-    var running = 0;
-    var off = 0;
-    var error = 0;
-    var deploying = 0;
+    var start_time = Date.parse("2014/05/16"+' UTC');
+    // ms to s
+    start_time = start_time / 1000;
+
+    var end_time = Date.parse("2014/05/23"+' UTC');
+    // ms to s
+    end_time = end_time / 1000;
+
+    var options = {
+      "start_time": start_time,
+      "end_time": end_time,
+      "userfilter": config["user_id"]
+    }
+
+    var no_table = true;
+
+    OpenNebula.VM.accounting({
+        success: function(req, response){
+            fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
+        },
+        error: onError,
+        data: options
+    });
 
     OpenNebula.VM.list({
       timeout: true,
       success: function (request, item_list){
+        var total = 0;
+        var running = 0;
+        var off = 0;
+        var error = 0;
+        var deploying = 0;
+
         $.each(item_list, function(index, vm){
           if (vm.VM.UID == config["user_id"]) {
             var state = get_provision_vm_state(vm.VM);
@@ -1628,7 +1961,119 @@ function show_provision_dashboard() {
       error: onError
     });
   }
+
+  if (Config.provision.dashboard.isEnabled("vdcvms")) {
+    $("#provision_dashboard").append(provision_vdc_vms_dashboard);
+
+    var start_time = Date.parse("2014/05/16"+' UTC');
+    // ms to s
+    start_time = start_time / 1000;
+
+    var end_time = Date.parse("2014/05/23"+' UTC');
+    // ms to s
+    end_time = end_time / 1000;
+
+    var options = {
+      "start_time": start_time,
+      "end_time": end_time
+    }
+
+    var no_table = true;
+
+    OpenNebula.VM.accounting({
+        success: function(req, response){
+            fillAccounting($("#dashboard_vdc_vm_accounting"), req, response, no_table);
+        },
+        error: onError,
+        data: options
+    });
+
+
+    OpenNebula.VM.list({
+      timeout: true,
+      success: function (request, item_list){
+        var total = 0;
+        var running = 0;
+        var off = 0;
+        var error = 0;
+        var deploying = 0;
+
+        $.each(item_list, function(index, vm){
+            var state = get_provision_vm_state(vm.VM);
+
+            total = total + 1;
+
+            switch (state.color) {
+              case "deploying":
+                deploying = deploying + 1;
+                break;
+              case "error":
+                error = error + 1;
+                break;
+              case "running":
+                running = running + 1;
+                break;
+              case "powering_off":
+                off = off + 1;
+                break;
+              default:
+                break;
+            }
+        })
+
+        var context = $("#provision_vdc_vms_dashboard");
+        $("#provision_dashboard_vdc_total", context).html(total);
+        $("#provision_dashboard_vdc_running", context).html(running);
+        $("#provision_dashboard_vdc_off", context).html(off);
+        $("#provision_dashboard_vdc_error", context).html(error);
+        $("#provision_dashboard_vdc_deploying", context).html(deploying);
+      },
+      error: onError
+    });
+  }
+
+
+  if (Config.provision.dashboard.isEnabled("users")) {
+    $("#provision_dashboard").append(provision_users_dashboard);
+
+    var start_time = Date.parse("2014/05/16"+' UTC');
+    // ms to s
+    start_time = start_time / 1000;
+
+    var end_time = Date.parse("2014/05/23"+' UTC');
+    // ms to s
+    end_time = end_time / 1000;
+
+    var options = {
+      "start_time": start_time,
+      "end_time": end_time,
+      "group": config["user_gid"]
+    }
+
+    var no_table = true;
+
+    OpenNebula.VM.accounting({
+        success: function(req, response){
+            fillAccounting($("#dashboard_vdc_user_accounting"), req, response, no_table);
+        },
+        error: onError,
+        data: options
+    });
+
+    OpenNebula.User.list({
+      timeout: true,
+      success: function (request, item_list){
+        var total = item_list.length || 0;
+
+        var context = $("#provision_users_dashboard");
+        $("#provision_dashboard_users_total", context).html(total);
+      },
+      error: onError
+    });
+  }
+
 }
+
 
 function show_provision_user_info() {
   Sunstone.runAction("Provision.User.show", "-1");
@@ -2049,7 +2494,7 @@ function get_provision_vm_state(data) {
     case tr("STOPPED"):
     case tr("SUSPENDED"):
     case tr("POWEROFF"):
-      state_color = 'off';
+      state_color = 'powering_off';
       state_str = tr("OFF");
 
       break;
@@ -3393,7 +3838,7 @@ $(document).ready(function(){
       provision_vms_datatable.fnFilter( $(this).val() );
     })
 
-    $("#provision_vms_list_button").on("click", function(){
+    $(".provision_vms_list_button").on("click", function(){
       OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
     });
@@ -3593,7 +4038,7 @@ $(document).ready(function(){
       provision_users_datatable.fnFilter( $(this).val() );
     })
 
-    $("#provision_users_list_button").on("click", function(){
+    $(".provision_users_list_button").on("click", function(){
       OpenNebula.Helper.clear_cache("USER");
       show_provision_user_list(0);
     });

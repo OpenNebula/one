@@ -4212,7 +4212,7 @@ function accountingGraphs(div, opt){
     });
 }
 
-function fillAccounting(div, req, response) {
+function fillAccounting(div, req, response, no_table) {
     var options = req.request.data[0];
 
     //--------------------------------------------------------------------------
@@ -4474,121 +4474,123 @@ function fillAccounting(div, req, response) {
     // Init dataTables
     //--------------------------------------------------------------------------
 
-    $("#acct_cpu_datatable",div).dataTable().fnClearTable();
-    $("#acct_cpu_datatable",div).dataTable().fnDestroy();
+    if (!no_table){
+        $("#acct_cpu_datatable",div).dataTable().fnClearTable();
+        $("#acct_cpu_datatable",div).dataTable().fnDestroy();
 
-    $("#acct_cpu_datatable thead",div).remove();
-    $("#acct_cpu_datatable",div).width("100%");
-
-
-    $("#acct_mem_datatable",div).dataTable().fnClearTable();
-    $("#acct_mem_datatable",div).dataTable().fnDestroy();
-
-    $("#acct_mem_datatable thead",div).remove();
-    $("#acct_mem_datatable",div).width("100%");
+        $("#acct_cpu_datatable thead",div).remove();
+        $("#acct_cpu_datatable",div).width("100%");
 
 
-    cpu_plot_data = cpu_plot.getData();
-    mem_plot_data = mem_plot.getData();
+        $("#acct_mem_datatable",div).dataTable().fnClearTable();
+        $("#acct_mem_datatable",div).dataTable().fnDestroy();
 
-    var thead =
-    '<thead>\
-      <tr>\
-        <th>'+tr("Date UTC")+'</th>\
-        <th>'+tr("Total")+'</th>';
-
-    $.each(cpu_plot_data, function(i, serie){
-        thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
-            ' border-left: 10px solid white; border-right: 5px solid white;'+
-            ' white-space: nowrap">'+
-            group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
-    });
-
-    thead += '</tr></thead>';
-
-    $("#acct_cpu_datatable",div).append(thead);
-
-    thead =
-    '<thead>\
-      <tr>\
-        <th>'+tr("Date UTC")+'</th>\
-        <th>'+tr("Total")+'</th>';
-
-    $.each(mem_plot_data, function(i, serie){
-        thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
-            ' border-left: 10px solid white; border-right: 5px solid white;'+
-            ' white-space: nowrap">'+
-            group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
-    });
-
-    thead += '</tr></thead>';
-
-    $("#acct_mem_datatable",div).append(thead);
+        $("#acct_mem_datatable thead",div).remove();
+        $("#acct_mem_datatable",div).width("100%");
 
 
-    var cpu_dataTable_data = [];
-    var mem_dataTable_data = [];
+        cpu_plot_data = cpu_plot.getData();
+        mem_plot_data = mem_plot.getData();
 
-    for (var i = 0; i<times.length-1; i++){
-        var t = times[i];
+        var thead =
+        '<thead>\
+          <tr>\
+            <th>'+tr("Date UTC")+'</th>\
+            <th>'+tr("Total")+'</th>';
 
-        var cpu_row = [];
-        var mem_row = [];
-
-        var time_st = time_UTC(t);
-
-        cpu_row.push(time_st);
-        mem_row.push(time_st);
-
-        cpu_row.push(0);
-        mem_row.push(0);
-
-        var cpu_total = 0;
-        var mem_total = 0;
-
-        $.each(series, function(key, val){
-            var v = val.data_points[t];
-
-            if(v != undefined){
-                var cpu_v = (v.CPU_HOURS * 100).toFixed() / 100;
-                var mem_v = (v.MEM_HOURS * 100).toFixed() / 100;
-
-                cpu_total += cpu_v;
-                mem_total += mem_v;
-
-                cpu_row.push(cpu_v);
-                mem_row.push(mem_v);
-            } else {
-                cpu_row.push(0);
-                mem_row.push(0);
-            }
+        $.each(cpu_plot_data, function(i, serie){
+            thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+                ' border-left: 10px solid white; border-right: 5px solid white;'+
+                ' white-space: nowrap">'+
+                group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
         });
 
-        cpu_row[1] = cpu_total;
-        mem_row[1] = mem_total;
+        thead += '</tr></thead>';
 
-        cpu_dataTable_data.push(cpu_row);
-        mem_dataTable_data.push(mem_row);
+        $("#acct_cpu_datatable",div).append(thead);
+
+        thead =
+        '<thead>\
+          <tr>\
+            <th>'+tr("Date UTC")+'</th>\
+            <th>'+tr("Total")+'</th>';
+
+        $.each(mem_plot_data, function(i, serie){
+            thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+                ' border-left: 10px solid white; border-right: 5px solid white;'+
+                ' white-space: nowrap">'+
+                group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
+        });
+
+        thead += '</tr></thead>';
+
+        $("#acct_mem_datatable",div).append(thead);
+
+
+        var cpu_dataTable_data = [];
+        var mem_dataTable_data = [];
+
+        for (var i = 0; i<times.length-1; i++){
+            var t = times[i];
+
+            var cpu_row = [];
+            var mem_row = [];
+
+            var time_st = time_UTC(t);
+
+            cpu_row.push(time_st);
+            mem_row.push(time_st);
+
+            cpu_row.push(0);
+            mem_row.push(0);
+
+            var cpu_total = 0;
+            var mem_total = 0;
+
+            $.each(series, function(key, val){
+                var v = val.data_points[t];
+
+                if(v != undefined){
+                    var cpu_v = (v.CPU_HOURS * 100).toFixed() / 100;
+                    var mem_v = (v.MEM_HOURS * 100).toFixed() / 100;
+
+                    cpu_total += cpu_v;
+                    mem_total += mem_v;
+
+                    cpu_row.push(cpu_v);
+                    mem_row.push(mem_v);
+                } else {
+                    cpu_row.push(0);
+                    mem_row.push(0);
+                }
+            });
+
+            cpu_row[1] = cpu_total;
+            mem_row[1] = mem_total;
+
+            cpu_dataTable_data.push(cpu_row);
+            mem_dataTable_data.push(mem_row);
+        }
+
+        var acct_cpu_dataTable = $("#acct_cpu_datatable",div).dataTable({
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ['_all'] },
+            ]
+        });
+
+        var acct_mem_dataTable = $("#acct_mem_datatable",div).dataTable({
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ['_all'] },
+            ]
+        });
+
+        acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
+        acct_mem_dataTable.fnAddData(mem_dataTable_data);
     }
-
-    var acct_cpu_dataTable = $("#acct_cpu_datatable",div).dataTable({
-        "bSortClasses" : false,
-        "bDeferRender": true,
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ['_all'] },
-        ]
-    });
-
-    var acct_mem_dataTable = $("#acct_mem_datatable",div).dataTable({
-        "bSortClasses" : false,
-        "bDeferRender": true,
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ['_all'] },
-        ]
-    });
-
-    acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
-    acct_mem_dataTable.fnAddData(mem_dataTable_data);
 
     $("#acct_placeholder", div).hide();
     $("#acct_content", div).show();
