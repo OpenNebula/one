@@ -165,6 +165,15 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
         return -1;
     }
 
+    /* ------------------------- VNET Attributes ---------------------------- */
+
+    bool b_vlan;
+
+    if ((vattr->vector_value("VLAN", b_vlan) == 0) && b_vlan)
+    {
+        vattr->replace("VLAN", "YES");
+    }
+
     /* ------------------------ AR Internal Data ---------------------------- */
 
     vattr->replace("AR_ID", id);
