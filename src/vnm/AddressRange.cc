@@ -591,7 +591,7 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 
     if (!vlan.empty())
     {
-        nic->replace("VLAN", bridge);
+        nic->replace("VLAN", vlan);
     }
 
     if (!phydev.empty())
