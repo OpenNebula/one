@@ -161,13 +161,13 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr('Create Virtual Machine')+'</a>'+
+                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr('Show Virtual Machines')+'</a>'+
+                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr("Show Virtual Machines")+'</a>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -257,13 +257,13 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr('Create Virtual Machine')+'</a>'+
+                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr('Show Virtual Machines')+'</a>'+
+                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr("Show Virtual Machines")+'</a>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -353,13 +353,13 @@ var provision_users_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius provision_create_user_button"">'+tr('Add User')+'</a>'+
+                '<a href"#" class="medium button radius provision_create_user_button"">'+tr("Add User")+'</a>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius secondary provision_users_list_button"">'+tr('Show Users')+'</a>'+
+                '<a href"#" class="medium button radius secondary provision_users_list_button"">'+tr("Show Users")+'</a>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -573,7 +573,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
         '<hr>'+
       '</div>'+
       '<div class="large-2 small-2 text-center columns">'+
-        '<p style="color: #999">'+ tr('or') + '</p>'+
+        '<p style="color: #999">'+ tr("or") + '</p>'+
       '</div>'+
       '<div class="large-5 small-5 columns">'+
         '<hr>'+
@@ -1178,6 +1178,74 @@ var provision_list_vms = '<div id="provision_list_vms" class="hidden section_con
   '</div>'+
 '</div>';
 
+
+var provision_list_flows = '<div id="provision_list_flows" class="hidden section_content">'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<h2 class="subheader">'+
+        '<span class="">'+
+          tr("Flows")+
+        '</span>'+
+      '</h2>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li>'+
+          '<a href"#" class="provision_create_flow_button">'+
+            '<i class="fa fa-fw fa-lg fa-plus-square"/>'+tr("Create")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_flows_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
+            '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_flows_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+            '<i class="fa fa-fw fa-lg fa-filter"/>'+tr("Filter")+
+          '</a>'+
+        '</li>'+
+        '<li>'+
+          '<a href"#" id="provision_flows_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<ul class="inline-list">'+
+        '<li>'+
+          '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_flows_search" style="display: none"/>'+
+        '</li>'+
+        '<li>'+
+          '<span id="provision_list_flows_filter" style="display: none"></span>'+
+          '<span>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns">'+
+      '<table id="provision_flows_table">'+
+        '<thead class="hidden">'+
+          '<tr>'+
+            '<th>'+tr("ID")+'</th>'+
+            '<th>'+tr("Name")+'</th>'+
+            '<th>'+tr("User ID")+'</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody class="hidden">'+
+        '</tbody>'+
+      '</table>'+
+      '<br>'+
+    '</div>'+
+  '</div>'+
+'</div>';
+
 var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section_content hidden">'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -1460,6 +1528,10 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_content += provision_info_vdc_user;
 }
 
+if (Config.isTabPanelEnabled("provision-tab", "flows")) {
+  provision_content += provision_list_flows;
+}
+
 var provision_header = '<a href="#" class="provision_image_header" ><img src="images/one_small_logo.png" style="height:40px; vertical-align:top"></a>'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
    '<ul class="inline-list text-center" style="font-size:12px">';
@@ -1481,10 +1553,17 @@ provision_header +=  '<li>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color" id="provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
-    '</li>'+
+    '</li>';
+
+
+if (Config.isTabPanelEnabled("provision-tab", "flows")) {
+  provision_header +=
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_services_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-code-fork fa-rotate-90"/><br>'+tr("Flows")+'</a>'+
-    '</li>'+
+      '<a href"#" class="medium off-color provision_flows_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-code-fork fa-rotate-90"/><br>'+tr("Flows")+'</a>'+
+    '</li>';
+}
+
+  provision_header +=
     '<li style="border-left: 1px solid #efefef; height: 40px"><br>'+
     '</li>'+
     '<li>'+
@@ -2235,6 +2314,13 @@ function show_provision_vm_list(timeout) {
   update_provision_vms_datatable(provision_vms_datatable, timeout);
 }
 
+function show_provision_flow_list(timeout) {
+  $(".section_content").hide();
+  $("#provision_list_flows").fadeIn();
+
+  update_provision_flows_datatable(provision_flows_datatable, timeout);
+}
+
 function show_provision_user_list(timeout) {
   $(".section_content").hide();
   $("#provision_list_users").fadeIn();
@@ -2419,6 +2505,15 @@ function update_provision_vms_datatable(datatable, timeout) {
             '<span style="font-size: 18px; color: #999">'+
               tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
             '</span>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-6 large-centered columns">'+
+                '<a href"#" class="medium large-12 button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
             '</div>');
         } else {
           datatable.fnAddData(item_list);
@@ -2428,6 +2523,54 @@ function update_provision_vms_datatable(datatable, timeout) {
     })
   }, timeout );
 }
+
+function update_provision_flows_datatable(datatable, timeout) {
+  datatable.html('<div class="text-center">'+
+    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'+
+    '<br>'+
+    '<br>'+
+    '<span style="font-size: 18px; color: #999">'+
+    '</span>'+
+    '</div>');
+
+  setTimeout( function(){
+    OpenNebula.Service.list({
+      timeout: true,
+      success: function (request, item_list){
+        datatable.fnClearTable(true);
+        if (item_list.length == 0) {
+          datatable.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("Looks like you don't have any Flow. Click the button below to get started")+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-6 large-centered columns">'+
+                '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+tr("Create a new Flow")+'</a>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '</div>');
+        } else {
+          datatable.fnAddData(item_list);
+        }
+      },
+      error: onError
+    })
+  }, timeout );
+}
+
 // @params
 //    data: and VM object
 //      Example: data.ID
@@ -3877,6 +4020,131 @@ $(document).ready(function(){
       })
 
       $("#provision_list_vms_filter", $("#provision_list_vms")).fadeIn();
+    });
+
+
+    //
+    // List Flows
+    //
+
+    provision_flows_datatable = $('#provision_flows_table').dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aaSorting"  : [[0, "desc"]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "DOCUMENT.ID" },
+          { "mDataProp": "DOCUMENT.NAME" },
+          { "mDataProp": "DOCUMENT.UID" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("Looks like you don't have any Flow. Click the button below to get started")+
+            '</span>'+
+            '</div>');
+        } else {
+          $("#provision_flows_table").html('<ul id="provision_flows_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.DOCUMENT;
+        //var state = get_provision_flow_state(data);
+
+        $("#provision_flows_ul").append('<li>'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title text-left" style="padding-bottom: 5px">'+
+                '<a class="provision_info_flow_button" style="color:#555" href="#">'+ data.NAME + '</a>'+
+                '<a class="provision_info_flow_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
+              '</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+              //  'x'+data.TEMPLATE.CPU+' - '+
+              //  ((data.TEMPLATE.MEMORY > 1000) ?
+              //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+              //    (data.TEMPLATE.MEMORY+'MB'))+
+              //'</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+              //  get_provision_disk_image(data) +
+              //'</li>'+
+              //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+              //  get_provision_ips(data) +
+              //'</li>'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+                '<i class="fa fa-fw fa-user"/>&emsp;'+
+                data.UNAME+
+              '</li>'+
+              //'<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
+              //  '<span class="'+ state.color +'-color left">'+
+              //    '<i class="fa fa-fw fa-square"/>&emsp;'+
+              //    state.str+
+              //  '</span>'+
+              //  '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
+              //    '<i class="fa fa-fw fa-clock-o"/>'+
+              //    _format_date(data.STIME)+
+              //  '</span>'+
+              //'</li>'+
+              //'<li class="provision-bullet-item" style="padding: 0px">'+
+              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
+              //'</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    $('#provision_list_flows_search').keyup(function(){
+      provision_flows_datatable.fnFilter( $(this).val() );
+    })
+
+    $('#provision_list_flows_search').change(function(){
+      provision_flows_datatable.fnFilter( $(this).val() );
+    })
+
+    $(".provision_flows_list_button").on("click", function(){
+      OpenNebula.Helper.clear_cache("SERVICE");
+      show_provision_flow_list(0);
+    });
+
+    $("#provision_list_flows").on("click", "#provision_flows_list_refresh_button", function(){
+      OpenNebula.Helper.clear_cache("SERVICE");
+      show_provision_flow_list(0);
+    });
+
+    $("#provision_list_flows").on("click", "#provision_flows_list_search_button", function(){
+      $("#provision_list_flows_search", $("#provision_list_flows")).fadeIn();
+    });
+
+    $("#provision_list_flows").on("click", "#provision_flows_list_filter_button", function(){
+      insertSelectOptions("#provision_list_flows_filter", $("#provision_list_flows"), "User", config['user_id'], false,
+          '<option value="-2">'+tr("<< all >>")+'</option>');
+
+      $("#provision_list_flows_filter ").on("change", ".resource_list_select", function(){
+        var filter;
+        if ($(this).val() == "-2"){
+          filter = "";
+        } else {
+          filter = $(this).val();
+        }
+
+        provision_flows_datatable.fnFilter( filter, 2 );
+      })
+
+      $("#provision_list_flows_filter", $("#provision_list_flows")).fadeIn();
     });
 
     //
