@@ -1895,13 +1895,14 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("vms")) {
     $("#provision_dashboard").append(provision_vms_dashboard);
 
-    var start_time = Date.parse("2014/05/16"+' UTC');
+    var start_time = new Date().getTime() / 1000;
     // ms to s
-    start_time = start_time / 1000;
 
-    var end_time = Date.parse("2014/05/23"+' UTC');
-    // ms to s
-    end_time = end_time / 1000;
+    // 604800 = 7 days = 7*24*60*60
+    start_time = start_time - 604800;
+
+    // today
+    var end_time = -1;
 
     var options = {
       "start_time": start_time,
@@ -1947,6 +1948,9 @@ function show_provision_dashboard() {
               case "powering_off":
                 off = off + 1;
                 break;
+              case "off":
+                off = off + 1;
+                break;
             }
           }
         })
@@ -1965,13 +1969,14 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("vdcvms")) {
     $("#provision_dashboard").append(provision_vdc_vms_dashboard);
 
-    var start_time = Date.parse("2014/05/16"+' UTC');
+    var start_time = new Date().getTime() / 1000;
     // ms to s
-    start_time = start_time / 1000;
 
-    var end_time = Date.parse("2014/05/23"+' UTC');
-    // ms to s
-    end_time = end_time / 1000;
+    // 604800 = 7 days = 7*24*60*60
+    start_time = start_time - 604800;
+
+    // today
+    var end_time = -1;
 
     var options = {
       "start_time": start_time,
@@ -2016,6 +2021,9 @@ function show_provision_dashboard() {
               case "powering_off":
                 off = off + 1;
                 break;
+              case "off":
+                off = off + 1;
+                break;
               default:
                 break;
             }
@@ -2036,13 +2044,14 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("users")) {
     $("#provision_dashboard").append(provision_users_dashboard);
 
-    var start_time = Date.parse("2014/05/16"+' UTC');
+    var start_time = new Date().getTime() / 1000;
     // ms to s
-    start_time = start_time / 1000;
 
-    var end_time = Date.parse("2014/05/23"+' UTC');
-    // ms to s
-    end_time = end_time / 1000;
+    // 604800 = 7 days = 7*24*60*60
+    start_time = start_time - 604800;
+
+    // today
+    var end_time = -1;
 
     var options = {
       "start_time": start_time,
@@ -2494,7 +2503,7 @@ function get_provision_vm_state(data) {
     case tr("STOPPED"):
     case tr("SUSPENDED"):
     case tr("POWEROFF"):
-      state_color = 'powering_off';
+      state_color = 'off';
       state_str = tr("OFF");
 
       break;
