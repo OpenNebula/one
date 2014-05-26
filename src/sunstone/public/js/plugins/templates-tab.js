@@ -3317,7 +3317,6 @@ function setup_context_tab_content(context_section) {
 
 
         $('#FILES_DS', context_section).val(req_string.join(" "));
-        $('#FILES_DS', context_section).val(htmlDecode(context["FILES_DS"]))
     };
 }
 
