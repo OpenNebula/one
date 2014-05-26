@@ -107,45 +107,54 @@ function create_group_tmpl(dialog_name){
       </div>\
     </div>\
     <div id="resource_creation" class="content">\
-        <div class="row">\
-          <div class="large-12 columns">\
-            <p class="subheader">'
-              +tr("Allow users in this group to create the following resources")+
-              '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</span>\
-            </p>\
-          </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <label>\
+            <input type="checkbox" id="share_vms" name="share_vms" value="YES" />\
+            '+tr("Allow users to view the VMs of other users in the same group")+'\
+            <span class="tip">'+tr("An ACL Rule will be created to give users in this group access to all the VMs in the same group.")+'</span>\
+          </label>\
         </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-            <table class="dataTable" style="table-layout:fixed">\
-              <thead><tr>\
-                <th/>\
-                <th>'+tr("VMs")+'</th>\
-                <th>'+tr("VNets")+'</th>\
-                <th>'+tr("Images")+'</th>\
-                <th>'+tr("Templates")+'</th>\
-                <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
-              </tr></thead>\
-              <tbody>\
-                <tr>\
-                  <th>'+tr("Users")+'</th>\
-                  <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
-                  <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
-                  <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
-                  <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-                  <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
-                  <td/>\
-                </tr>\
-                <tr>\
-                  <th>'+tr("Admins")+'</th>\
-                  <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-                  <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
-                </tr>\
-              </tbody>\
-            </table>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <p class="subheader">'
+            +tr("Allow users in this group to create the following resources")+
+            '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</span>\
+          </p>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <table class="dataTable" style="table-layout:fixed">\
+            <thead><tr>\
+              <th/>\
+              <th>'+tr("VMs")+'</th>\
+              <th>'+tr("VNets")+'</th>\
+              <th>'+tr("Images")+'</th>\
+              <th>'+tr("Templates")+'</th>\
+              <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
+            </tr></thead>\
+            <tbody>\
+              <tr>\
+                <th>'+tr("Users")+'</th>\
+                <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
+                <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
+                <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
+                <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+                <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+                <td/>\
+              </tr>\
+              <tr>\
+                <th>'+tr("Admins")+'</th>\
+                <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
+                <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
+                <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
+                <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
+                <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
+              </tr>\
+            </tbody>\
+          </table>\
         </div>\
       </div>\
     </div>\
@@ -1128,6 +1137,10 @@ function setupCreateGroupDialog(){
         });
 
         group_json['group']['resources'] = resources;
+
+        if ( $('#share_vms', this).prop('checked') ){
+            group_json['group']['shared_resources'] = "VM";
+        }
 
         if (user_json){
             resources = "";

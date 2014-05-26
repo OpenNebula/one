@@ -123,6 +123,20 @@ module OpenNebula
                 return OpenNebula::Error.new(error_msg)
             end
 
+            # Set group ACLs to share resources
+            if group_hash[:shared_resources]
+                acls = Array.new
+                acls << "@#{self.id} #{group_hash[:shared_resources]}/@#{self.id} USE"
+
+                rc, msg = create_group_acls(acls)
+
+                if OpenNebula.is_error?(rc)
+                    self.delete
+                    error_msg =  "Error creating group ACL's: #{rc.message}"
+                    return OpenNebula::Error.new(error_msg)
+                end
+            end
+
             # Create associated group admin if needed
             rc = create_admin_user(group_hash)
 
