@@ -1711,7 +1711,7 @@ provision_header +=  '<li>'+
 if (Config.isTabPanelEnabled("provision-tab", "flows")) {
   provision_header +=
     '<li>'+
-      '<a href"#" class="medium off-color provision_flows_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-code-fork fa-rotate-90"/><br>'+tr("Flows")+'</a>'+
+      '<a href"#" class="medium off-color provision_flows_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-cubes"/><br>'+tr("Flows")+'</a>'+
     '</li>';
 }
 
@@ -2796,7 +2796,7 @@ function get_provision_flow_start_time(data) {
 }
 
 // @params
-//    data: and VM object
+//    data: and BODY object of the Document representing the Service
 //      Example: data.ID
 // @returns and object containing the following properties
 //    color: css class for this state.
@@ -4570,10 +4570,19 @@ $(document).ready(function(){
 
         $("#provision_vms_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" style="padding-bottom: 5px">'+
+              '<li class="provision-title text-left" style="padding-bottom: 0px">'+
                 '<a class="provision_info_vm_button" style="color:#555" href="#">'+ data.NAME + '</a>'+
                 '<a class="provision_info_vm_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
               '</li>'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-bottom:10px;">'+
+                '<span class="'+ state.color +'-color left">'+
+                  '<i class="fa fa-fw fa-square"/>&emsp;'+
+                  state.str+
+                '</span>'+
+              '</li>'+
+              //'<li class="provision-bullet-item" style="padding: 0px">'+
+              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
+              //'</li>'+
               '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
                 '<i class="fa fa-fw fa-laptop"/>&emsp;'+
                 'x'+data.TEMPLATE.CPU+' - '+
@@ -4587,23 +4596,16 @@ $(document).ready(function(){
               '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
                 get_provision_ips(data) +
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
-                '<i class="fa fa-fw fa-user"/>&emsp;'+
-                data.UNAME+
-              '</li>'+
               '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
-                '<span class="'+ state.color +'-color left">'+
-                  '<i class="fa fa-fw fa-square"/>&emsp;'+
-                  state.str+
+                '<span class="left">'+
+                  '<i class="fa fa-fw fa-user"/>&emsp;'+
+                  data.UNAME+
                 '</span>'+
                 '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
                   '<i class="fa fa-fw fa-clock-o"/>'+
                   _format_date(data.STIME)+
                 '</span>'+
               '</li>'+
-              //'<li class="provision-bullet-item" style="padding: 0px">'+
-              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
-              //'</li>'+
             '</ul>'+
           '</li>');
 
@@ -4704,11 +4706,45 @@ $(document).ready(function(){
         var state = get_provision_flow_state(body);
         var start_time = get_provision_flow_start_time(body);
 
+        var roles_li = "";
+        if (body.roles) {
+          $.each(body.roles, function(index, role) {
+            var role_state = get_provision_flow_state(role);
+            var rvms = {
+              str : role.nodes.length + " / " + role.cardinality ,
+              percentage : Math.floor(role.nodes.length / role.cardinality)*100
+            }
+
+            roles_li +=
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px;">'+
+                '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                role.name+
+              '</li>'+
+              '<li class="provision-bullet-item text-left" style="margin-left: 20px; margin-right: 20px; font-size: 11px">'+
+                '<span class="'+ state.color +'-color">'+
+                  state.str+
+                '</span>'+
+                '<span class="right">'+rvms.str+" VMs</span>"+
+              '</li>'+
+              '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 20px; margin-right: 20px">'+
+                '<div class="progress small radius">'+
+                '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
+                '</div>'+
+              '</li>';
+          });
+        }
+
         $("#provision_flows_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" style="padding-bottom: 5px">'+
+              '<li class="provision-title text-left" style="padding-bottom: 0px">'+
                 '<a class="provision_info_flow_button" style="color:#555" href="#">'+ data.NAME + '</a>'+
                 '<a class="provision_info_flow_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
+              '</li>'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-bottom:10px; padding-bottom:10px">'+
+                '<span class="'+ state.color +'-color left">'+
+                  '<i class="fa fa-fw fa-square"/>&emsp;'+
+                  state.str+
+                '</span>'+
               '</li>'+
               //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
               //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
@@ -4723,14 +4759,15 @@ $(document).ready(function(){
               //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
               //  get_provision_ips(data) +
               //'</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
-                '<i class="fa fa-fw fa-user"/>&emsp;'+
-                data.UNAME+
-              '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
-                '<span class="'+ state.color +'-color left">'+
-                  '<i class="fa fa-fw fa-square"/>&emsp;'+
-                  state.str+
+              //'<li class="provision-bullet-item text-left" style="margin-bottom: 5px; margin-left: 10px">'+
+              //  '<i class="fa fa-fw fa-user"/>&emsp;'+
+              //  data.UNAME+
+              //'</li>'+
+              roles_li +
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:10px; padding-bottom:10px">'+
+                '<span class="left">'+
+                  '<i class="fa fa-fw fa-user"/>&emsp;'+
+                  data.UNAME+
                 '</span>'+
                 '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
                   '<i class="fa fa-fw fa-clock-o"/>'+
