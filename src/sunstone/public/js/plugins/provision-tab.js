@@ -2571,6 +2571,84 @@ function update_provision_flows_datatable(datatable, timeout) {
   }, timeout );
 }
 
+
+function get_provision_flow_start_time(data) {
+  if (data.log) {
+    return data.log[0].timestamp
+  }
+}
+
+// @params
+//    data: and VM object
+//      Example: data.ID
+// @returns and object containing the following properties
+//    color: css class for this state.
+//      color + '-color' font color class
+//      color + '-bg' background class
+//    str: user friendly state string
+function get_provision_flow_state(data) {
+  var state = OpenNebula.Service.state(data.state);
+  var state_color;
+  var state_str;
+
+  switch (state) {
+    case tr("PENDING"):
+      state_color = 'deploying';
+      state_str = tr("PENDING");
+      break;
+      break;
+    case tr("DEPLOYING"):
+      state_color = 'deploying';
+      state_str = tr("DEPLOYING");
+      break;
+    case tr("UNDEPLOYING"):
+      state_color = 'powering_off';
+      state_str = tr("UNDEPLOYING");
+      break;
+    case tr("FAILED_UNDEPLOYING"):
+      state_color = 'error';
+      state_str = tr("FAILED UNDEPLOYING");
+      break;
+    case tr("FAILED_DEPLOYING"):
+      state_color = 'error';
+      state_str = tr("FAILED DEPLOYING");
+      break;
+    case tr("FAILED_SCALING"):
+      state_color = 'error';
+      state_str = tr("FAILED SCALING");
+      break;
+    case tr("WARNING"):
+      state_color = 'error';
+      state_str = tr("WARNING");
+      break;
+    case tr("RUNNING"):
+      state_color = 'running';
+      state_str = tr("RUNNING");
+      break;
+    case tr("SCALING"):
+      state_color = 'deploying';
+      state_str = tr("SCALING");
+      break;
+    case tr("COOLDOWN"):
+      state_color = 'off';
+      state_str = tr("COOLDOWN");
+      break;
+    case tr("DONE"):
+      state_color = 'off';
+      state_str = tr("DONE");
+      break;
+    default:
+      state_color = 'powering_off';
+      state_str = tr("UNKNOWN");
+      break;
+  }
+
+  return {
+    color: state_color,
+    str: state_str
+  }
+}
+
 // @params
 //    data: and VM object
 //      Example: data.ID
@@ -3162,7 +3240,7 @@ $(document).ready(function(){
               '<img  src="'+data.TEMPLATE.LOGO+'">'+
             '</span>';
         } else {
-          logo = '<span style="color: #bfbfbf; font-size: 87px;">'+
+          logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
             '<i class="fa fa-fw fa-file-text-o"/>'+
           '</span>';
         }
@@ -3172,7 +3250,7 @@ $(document).ready(function(){
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
-              '<li style="height: 120px" class="provision-bullet-item">'+
+              '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
               '<li class="provision-bullet-item">'+
@@ -3236,7 +3314,7 @@ $(document).ready(function(){
               '<img  src="'+data.TEMPLATE.LOGO+'">'+
             '</span>';
         } else {
-          logo = '<span style="color: #bfbfbf; font-size: 87px;">'+
+          logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
             '<i class="fa fa-fw fa-file-text-o"/>'+
           '</span>';
         }
@@ -3246,7 +3324,7 @@ $(document).ready(function(){
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
-              '<li style="height: 120px" class="provision-bullet-item">'+
+              '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
               '<li class="provision-bullet-item">'+
@@ -3311,7 +3389,7 @@ $(document).ready(function(){
               '<img  src="'+data.TEMPLATE.LOGO+'">'+
             '</span>';
         } else {
-          logo = '<span style="color: #bfbfbf; font-size: 87px;">'+
+          logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
             '<i class="fa fa-fw fa-file-text-o"/>'+
           '</span>';
         }
@@ -3321,7 +3399,7 @@ $(document).ready(function(){
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
-              '<li style="height: 120px" class="provision-bullet-item">'+
+              '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
               '<li class="provision-bullet-item">'+
@@ -4062,7 +4140,8 @@ $(document).ready(function(){
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.DOCUMENT;
-        //var state = get_provision_flow_state(data);
+        var body = data.TEMPLATE.BODY;
+        var state = get_provision_flow_state(body);
 
         $("#provision_flows_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
@@ -4087,16 +4166,16 @@ $(document).ready(function(){
                 '<i class="fa fa-fw fa-user"/>&emsp;'+
                 data.UNAME+
               '</li>'+
-              //'<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
-              //  '<span class="'+ state.color +'-color left">'+
-              //    '<i class="fa fa-fw fa-square"/>&emsp;'+
-              //    state.str+
-              //  '</span>'+
-              //  '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
-              //    '<i class="fa fa-fw fa-clock-o"/>'+
-              //    _format_date(data.STIME)+
-              //  '</span>'+
-              //'</li>'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
+                '<span class="'+ state.color +'-color left">'+
+                  '<i class="fa fa-fw fa-square"/>&emsp;'+
+                  state.str+
+                '</span>'+
+                '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
+                  '<i class="fa fa-fw fa-clock-o"/>'+
+                  _format_date(get_provision_flow_start_time(body))+
+                '</span>'+
+              '</li>'+
               //'<li class="provision-bullet-item" style="padding: 0px">'+
               //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
               //'</li>'+
