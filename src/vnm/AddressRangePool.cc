@@ -74,6 +74,18 @@ int AddressRangePool::from_vattr(vector<Attribute *> ars, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+AddressRange * AddressRangePool::allocate_ar()
+{
+    AddressRange * ar = new AddressRange(next_ar);
+
+    ar_pool.insert(make_pair(next_ar++, ar));
+
+    return ar;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRangePool::update_ar(vector<Attribute *> ars)
 {
     vector<Attribute *>::iterator               it;
@@ -175,6 +187,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 
     vector<Attribute*> ars;
     vector<Attribute*>::iterator it_ar;
+
     Attribute * the_ar = 0;
 
     unsigned int ar_id_templ;
@@ -369,6 +382,19 @@ void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        used_addr = used_addr - it->second->free_addr_by_owner(ot, oid);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRangePool::get_attribute(const char * name, string& value,
     int ar_id) const
 {
@@ -470,4 +496,24 @@ int AddressRangePool::hold_by_mac(const string& mac_s)
     }
 
     return rc;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
+    AddressRange *rar)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if ((it->second->get_free_addr() >= rsize) &&
+            (it->second->reserve_addr(pvid, vid, rsize, rar) == 0))
+        {
+            used_addr += rsize;
+            return 0;
+        }
+    }
+
+    return -1;
 }

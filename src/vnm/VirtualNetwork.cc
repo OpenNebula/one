@@ -766,3 +766,21 @@ void VirtualNetwork::get_template_attribute(const char * name, string& value, in
         PoolObjectSQL::get_template_attribute(name, value);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
+    unsigned int rsize, string& error_str)
+{
+    AddressRange *rar = rvnet->allocate_ar();
+
+    if (ar_pool.reserve_addr(oid, rvnet->get_oid(), rsize, rar) != 0)
+    {
+        error_str = "Not enough free addresses in an address range";
+
+        return -1;
+    }
+
+    return 0;
+}

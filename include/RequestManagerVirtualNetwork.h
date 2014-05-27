@@ -49,6 +49,7 @@ protected:
 
     virtual int leases_action(VirtualNetwork * vn,
                               VirtualNetworkTemplate * tmpl,
+                              RequestAttributes& att,
                               string& error_str) = 0;
     /* -------------------------------------------------------------------- */
 
@@ -68,6 +69,7 @@ public:
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
         return vn->add_ar(tmpl, error_str);
@@ -109,6 +111,7 @@ public:
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
         error_str.clear();
@@ -132,6 +135,7 @@ public:
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
         return vn->hold_leases(tmpl, error_str);
@@ -151,12 +155,34 @@ public:
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
         return vn->free_leases(tmpl, error_str);
     }
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkReserve: public Request
+{
+public:
+    VirtualNetworkReserve():Request("VirtualNetworkReserve", "A:sis",
+      "Reserve network addresses")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::USE;
+    };
+
+    ~VirtualNetworkReserve(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

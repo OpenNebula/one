@@ -66,6 +66,22 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description => "IP6 ula prefix"
     }
 
+    R_NAME = {
+        :name => "rname",
+        :short => "-n reservation name",
+        :large => "--name reservation name",
+        :format => String,
+        :description => "Name of the address reservation"
+    }
+
+    R_SIZE = {
+        :name => "rsize",
+        :short => "-s reservation size",
+        :large => "--size reservation size",
+        :format => String,
+        :description => "Number of addresses to reserve"
+    }
+
     def self.rname
         "VNET"
     end
@@ -240,7 +256,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 if d['VM']
                     "VM : #{d['VM']}"
                 elsif d['VNET']
-                    "NET: #{d['VM']}"
+                    "NET: #{d['VNET']}"
                 end
             end
 

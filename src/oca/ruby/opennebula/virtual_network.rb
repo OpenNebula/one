@@ -35,7 +35,8 @@ module OpenNebula
             :update     => "vn.update",
             :hold       => "vn.hold",
             :release    => "vn.release",
-            :rename     => "vn.rename"
+            :rename     => "vn.rename",
+            :reserve    => "vn.reserve"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -180,6 +181,21 @@ module OpenNebula
             lease_template << "]"
 
             rc = @client.call(VN_METHODS[:release], @pe_id, lease_template)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Reserve a set of addresses from this virtual network
+        # @param name [String] of the reservation
+        # @param rsize[String] number of addresses to reserve
+        def reserve(rname, rsize)
+            return Error.new('ID not defined') if !@pe_id
+
+            rtmpl =  "NAME = #{rname}\n"
+            rtmpl << "SIZE = #{rsize}\n"
+
+            rc = @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

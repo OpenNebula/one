@@ -56,6 +56,10 @@ public:
         return new VirtualNetworkTemplate;
     }
 
+    // *************************************************************************
+    // Address Range management interface
+    // *************************************************************************
+
     /**
      * Add an address range to the virtual network
      *  @param ars_tmpl template in the form AR = [TYPE=...,IP=...,SIZE=...].
@@ -73,11 +77,24 @@ public:
     int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
+     *  Allocates a new (and empty) address range to the AR pool
+     *    @return pointer to the ar added to the AR pool
+     */
+    AddressRange * allocate_ar()
+    {
+        return ar_pool.allocate_ar();
+    }
+
+    /**
      * Update an address range to the virtual network
      *  @param ars_tmpl template in the form AR = [AR_ID=...]. The address range
      *  is specified by the AR_ID attribute.
      */
     void update_ar(VirtualNetworkTemplate * ars_tmpl);
+
+    // *************************************************************************
+    // Address hold/release interface
+    // *************************************************************************
 
     /**
      * Holds a Lease, marking it as used
@@ -97,6 +114,10 @@ public:
      *  @return 0 on success
      */
     int free_leases(VirtualNetworkTemplate* leases, string& error_msg);
+
+    // *************************************************************************
+    // Address allocation funtions
+    // *************************************************************************
 
     /**
      *    Gets a new address lease for a specific VM
@@ -144,12 +165,50 @@ public:
      *    @param arid of the address range where the address was leased from
      *    @param vid the ID of the VM
      *    @param mac MAC address identifying the lease
-     *    @return 0 if success
      */
     void free_addr(unsigned int arid, int vid, const string& mac)
     {
         ar_pool.free_addr(arid, PoolObjectSQL::VM, vid, mac);
     }
+
+    /**
+     *  Release all previously given address leases to the given object
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     */
+    void free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
+    {
+        ar_pool.free_addr_by_owner(ot, obid);
+    }
+
+    /**
+     * Modifies the given nic attribute adding the following attributes:
+     *  * IP:  leased from network
+     *  * MAC: leased from network
+     *  * BRIDGE: for this virtual network
+     *  @param nic attribute for the VM template
+     *  @param vid of the VM getting the lease
+     *  @param inherit_attrs Attributes to be inherited from the vnet template
+     *      into the nic
+     *  @return 0 on success
+     */
+    int nic_attribute(
+            VectorAttribute *       nic,
+            int                     vid,
+            const vector<string>&   inherit_attrs);
+
+    // *************************************************************************
+    // Network Reservation functions
+    // *************************************************************************
+
+    int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize, string& error_str);
+
+
+
+
+    // *************************************************************************
+    // Formatting & Helper functions
+    // *************************************************************************
 
     /**
      *    Gets used leases
@@ -186,22 +245,6 @@ public:
     string& to_xml_extended(string& xml) const;
 
     /**
-     * Modifies the given nic attribute adding the following attributes:
-     *  * IP:  leased from network
-     *  * MAC: leased from network
-     *  * BRIDGE: for this virtual network
-     *  @param nic attribute for the VM template
-     *  @param vid of the VM getting the lease
-     *  @param inherit_attrs Attributes to be inherited from the vnet template
-     *      into the nic
-     *  @return 0 on success
-     */
-    int nic_attribute(
-            VectorAttribute *       nic,
-            int                     vid,
-            const vector<string>&   inherit_attrs);
-
-    /**
      *  Replace the template of the virtual network it also updates the BRIDGE,
      *  PHY_DEV, VLAN_ID and VLAN attributes.
      *    @param tmpl string representation of the template
@@ -218,6 +261,15 @@ public:
      *    @param ar_id of the address attribute.
      */
     void get_template_attribute(const char * name, string& value, int ar_id) const;
+
+    /**
+     *    @return A copy of the VNET Template
+     */
+    VirtualNetworkTemplate * clone_template() const
+    {
+        return new VirtualNetworkTemplate(
+                *(static_cast<VirtualNetworkTemplate *>(obj_template)));
+    };
 
 private:
 

@@ -38,6 +38,40 @@ public:
 
     virtual ~AddressRange(){};
 
+    // *************************************************************************
+    // Address Range types
+    // *************************************************************************
+
+    /**
+     *  Type of Addresses defined by this address range
+     */
+    enum AddressType
+    {
+        NONE  = 0x00000000, /** Undefined Address Type */
+        ETHER = 0x00000001, /** MAC address type */
+        IP4   = 0x00000003, /** IP version 4 address */
+        IP6   = 0x00000005, /** IP version 6 address */
+        IP4_6 = 0x00000007  /** IP dual stack version 4 & 6 addresses */
+    };
+
+    /**
+     *  Return the string representation of an AddressType
+     *    @param ob the type
+     *    @return the string
+     */
+    static string type_to_str(AddressType ob);
+
+    /**
+     *  Return the string representation of an AddressType
+     *    @param ob the type
+     *    @return the string
+     */
+    static AddressType str_to_type(string& str_type);
+
+    // *************************************************************************
+    // Address Range initialization functions
+    // *************************************************************************
+
     /**
      *  Init an Address Range based on a vector attribute the following
      *  attributes will be parsed (* are optional):
@@ -84,31 +118,9 @@ public:
      */
     void to_xml(ostringstream &oss) const;
 
-    /**
-     *  Type of Addresses defined by this address range
-     */
-    enum AddressType
-    {
-        NONE  = 0x00000000, /** Undefined Address Type */
-        ETHER = 0x00000001, /** MAC address type */
-        IP4   = 0x00000003, /** IP version 4 address */
-        IP6   = 0x00000005, /** IP version 6 address */
-        IP4_6 = 0x00000007  /** IP dual stack version 4 & 6 addresses */
-    };
-
-    /**
-     *  Return the string representation of an AddressType
-     *    @param ob the type
-     *    @return the string
-     */
-    static string type_to_str(AddressType ob);
-
-    /**
-     *  Return the string representation of an AddressType
-     *    @param ob the type
-     *    @return the string
-     */
-    static AddressType str_to_type(string& str_type);
+    // *************************************************************************
+    // Address allocation functions
+    // *************************************************************************
 
     /**
      *  Returns an unused address, which becomes used and fills a NIC attribute
@@ -178,6 +190,38 @@ public:
     int free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
 
     /**
+     *  Frees all previous allocated address to the given object
+     *  @param ot the object type of the owner of the address
+     *  @param obid the id of the owner of the address
+     *  @return the number of addresses freed
+     */
+    int free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid);
+
+    // *************************************************************************
+    // Address Reservation
+    // *************************************************************************
+
+    /**
+     *  Reserve a given number of addresses from this address range
+     *    @param pvid the id of the parent VNET
+     *    @param vid the id of the VNET making the reservation
+     *    @param size number of addresses to reserve
+     *    @param rar a new address range to place the reservation
+     *    @return 0 on success
+     */
+    int reserve_addr(int pvid, int vid, unsigned int rsize, AddressRange *rar);
+
+    /*
+    void reserve_addr_by_ip();
+
+    void reserve_addr_by_mac();
+    */
+
+    // *************************************************************************
+    // Helpers
+    // *************************************************************************
+
+    /**
      *  Return the id for this address range
      */
     unsigned int ar_id() const
@@ -191,6 +235,14 @@ public:
     unsigned int get_used_addr() const
     {
         return used_addr;
+    }
+
+    /**
+     *  Return the number of free addresses
+     */
+    unsigned int get_free_addr() const
+    {
+        return size - used_addr;
     }
 
     /**

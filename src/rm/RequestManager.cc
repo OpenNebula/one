@@ -281,6 +281,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vn_update_ar(new VirtualNetworkUpdateAddressRange());
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
+    xmlrpc_c::methodPtr vn_reserve(new VirtualNetworkReserve());
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
@@ -486,6 +487,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.groupquota.update", group_set_default_quota);
 
     /* Network related methods*/
+    RequestManagerRegistry.addMethod("one.vn.reserve", vn_reserve);
     RequestManagerRegistry.addMethod("one.vn.add_ar", vn_add_ar);
     RequestManagerRegistry.addMethod("one.vn.rm_ar", vn_rm_ar);
     RequestManagerRegistry.addMethod("one.vn.update_ar", vn_update_ar);

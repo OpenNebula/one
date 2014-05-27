@@ -182,6 +182,33 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    reserve_desc = <<-EOT.unindent
+        Reserve addresses from the Virtual Network
+    EOT
+
+    command :reserve, reserve_desc, :vnetid,
+        :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::R_NAME,
+            OneVNetHelper::R_SIZE] do
+        helper.perform_action(args[0],options,"reservation made") do |vn|
+            ar    = options[:ar_id] || -1
+            rsize = options[:rsize] || -1
+            rname = options[:rname] || -1
+
+            if rsize == -1
+                STDERR.puts "Specify a size (-s size) for the reservation"
+                exit -1
+            end
+
+            if rname == -1
+                STDERR.puts "Specify a name (-n name) for the reservation"
+                exit -1
+            end
+
+            vn.reserve(rname, rsize)
+        end
+    end
+
+
     chgrp_desc = <<-EOT.unindent
         Changes the Virtual Network group
     EOT

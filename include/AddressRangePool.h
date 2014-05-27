@@ -37,6 +37,10 @@ public:
 
     virtual ~AddressRangePool();
 
+    // *************************************************************************
+    // Inititalization functions
+    // *************************************************************************
+
     /**
      *  Builds the address range set from an array of VectorAttributes. This
      *  function is used to create address ranges.
@@ -54,6 +58,10 @@ public:
      */
     int from_xml_node(const xmlNodePtr node);
 
+    // *************************************************************************
+    // Address Range management interface
+    // *************************************************************************
+
     /**
      *  Removes an address range from the pool if it does not contain any used
      *  leases
@@ -70,12 +78,14 @@ public:
     void update_ar(vector<Attribute *> ars);
 
     /**
-     *  Generate a XML representation of the Address Range Pool
-     *    @param sstream where the ARPool is written
-     *    @param extended true to include lease information
-     *    @return the string with the XML
+     *  Allocates a new address range in the pool.
+     *    @return the new address range added to the pool
      */
-    string& to_xml(string& sstream, bool extended) const;
+    AddressRange * allocate_ar();
+
+    // *************************************************************************
+    // Address allocation interface
+    // *************************************************************************
 
     /**
      *  Allocates an address in a suitable address range from the pool
@@ -183,6 +193,33 @@ public:
     void free_addr_by_ip(PoolObjectSQL::ObjectType ot, int id, const string& ip);
 
     /**
+     *  Frees all the addressed owned by the given object
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     */
+    void free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid);
+
+    // *************************************************************************
+    // Address reservation
+    // *************************************************************************
+
+    /**
+     *  Reserve a given number of addresses from the first address range with
+     *  enough free addresses to allocate the reservation
+     *    @param pvid the id of the parent VNET
+     *    @param vid the id of the VNET making the reservation
+     *    @param size number of addresses to reserve
+     *    @param rar a new address range to place the reservation
+     *    @return 0 on success
+     */
+    int reserve_addr(int pvid, int vid, unsigned int rsize, AddressRange *rar);
+
+
+    // *************************************************************************
+    // Helpers & Formatting
+    // *************************************************************************
+
+    /**
      *  Return the number of used addresses
      */
     unsigned int get_used_addr() const
@@ -197,6 +234,14 @@ public:
      *    @param ar_id to get the attribute from
      */
     void get_attribute(const char * name, string& value, int ar_id) const;
+
+    /**
+     *  Generate a XML representation of the Address Range Pool
+     *    @param sstream where the ARPool is written
+     *    @param extended true to include lease information
+     *    @return the string with the XML
+     */
+    string& to_xml(string& sstream, bool extended) const;
 
 private:
     /**

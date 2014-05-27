@@ -178,6 +178,16 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 
     vattr->replace("AR_ID", id);
 
+    vattr->remove("ALLOCATED");
+
+    vattr->remove("USED_LEASES");
+
+    vattr->remove("LEASES");
+
+    vattr->remove("PARENT_NETWORK_AR_ID");
+
+    vattr->remove("PARENT_NETWORK");
+
     if (do_mac) //Need to add MAC to the attribute
     {
         set_mac(0, attr);
@@ -213,6 +223,10 @@ void AddressRange::update_attributes(VectorAttribute *vup)
     vup->remove("USED_LEASES");
 
     vup->remove("LEASES");
+
+    vup->remove("PARENT_NETWORK_AR_ID");
+
+    vup->remove("PARENT_NETWORK");
 
     /* ----------------- update known attributes ----------------- */
 
@@ -905,6 +919,38 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
+{
+    map<unsigned int, long long>::iterator it = allocated.begin();
+
+    long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
+
+    int freed = 0;
+
+    while (it != allocated.end())
+    {
+        if (it->second == obj_pack)
+        {
+            map<unsigned int, long long>::iterator prev_it = it++;
+
+            allocated.erase(prev_it);
+
+            used_addr--;
+
+            freed++;
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    return freed;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::hold_by_ip(const string& ip_s)
 {
     if (!(type & 0x00000002))//Not of type IP4 or IP4_6
@@ -961,6 +1007,63 @@ int AddressRange::hold_by_mac(const string& mac_s)
     }
 
     allocate_addr(PoolObjectSQL::VM, -1, index);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
+    AddressRange *rar)
+{
+    bool isset = false;
+    unsigned int first_index;
+    int pnet;
+
+    if (rsize > (size - used_addr))
+    {
+        return -1; //reservation dosen't fit
+    }
+
+    if ((attr->vector_value("PARENT_NETWORK_ID", pnet) == 0 ) && (pnet > -1))
+    {
+        return -1; //This address range is already a reservation
+    }
+
+    for ( unsigned int i=0; i<rsize; next = (next+1)%size )
+    {
+        if ( allocated.count(next) == 0 )
+        {
+            allocate_addr(PoolObjectSQL::NET, vid, next);
+
+            if (!isset)
+            {
+                first_index = next;
+                isset       = true;
+            }
+
+            i++;
+        }
+    }
+
+    VectorAttribute * new_ar = attr->clone();
+    string            errmsg;
+
+    set_mac(first_index, new_ar);
+
+    if (type & 0x00000002 )
+    {
+        set_ip(first_index, new_ar);
+    }
+
+    new_ar->replace("SIZE",rsize);
+
+    rar->from_vattr(new_ar, errmsg);
+
+    new_ar->replace("PARENT_NETWORK_ID", pvid);
+
+    new_ar->replace("PARENT_NETWORK_AR_ID",id);
 
     return 0;
 }

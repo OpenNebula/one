@@ -24,7 +24,7 @@ using namespace std;
 
 string RequestManagerVirtualNetwork::leases_error (const string& error)
 {
-    return request_error("Error modifying network leases",error);
+    return request_error("Error modifying network leases", error);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -64,7 +64,7 @@ void RequestManagerVirtualNetwork::
         return;
     }
 
-    rc = leases_action(vn,&tmpl,error_str);
+    rc = leases_action(vn, &tmpl, att, error_str);
 
     if ( rc < 0 )
     {
@@ -126,4 +126,146 @@ void VirtualNetworkRmAddressRange::
     vn->unlock();
 
     success_response(id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkReserve::request_execute(
+    xmlrpc_c::paramList const& paramList, RequestAttributes& att)
+{
+    int    id       = xmlrpc_c::value_int    (paramList.getInt(1));
+    string str_tmpl = xmlrpc_c::value_string (paramList.getString(2));
+
+    VirtualNetworkTemplate tmpl;
+    VirtualNetwork *       vn;
+
+    string error_str;
+    int    rc;
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    // ----------------- Process the Reservation Template  -------------------
+
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+            request_error("Error in reservation request", error_str), att);
+
+        return;
+    }
+
+    int size;
+
+    if ( !tmpl.get("SIZE", size) || size <= 0 )
+    {
+        failure_response(ACTION, request_error("Error in reservation request",
+                "Reservation SIZE must be a greater than 0"), att);
+
+        return;
+    }
+
+    string name;
+
+    tmpl.get("NAME", name);
+
+    if (name.empty())
+    {
+        failure_response(ACTION, request_error("Error in reservation request",
+            "NAME for reservation has to be set"), att);
+
+        return;
+    }
+
+    // --------------- Create a new VNET to place the reservation -------------
+
+    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
+
+    if ( vn == 0 )
+    {
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
+        return;
+    }
+
+    VirtualNetworkTemplate * vtmpl = vn->clone_template();
+
+    vtmpl->replace("NAME", name);
+
+    int rid;
+    int cluster_id = vn->get_cluster_id();
+
+    rc = (static_cast<VirtualNetworkPool *>(pool))->allocate(att.uid, att.gid,
+        att.uname, att.gname, att.umask, vtmpl, &rid, cluster_id,
+        vn->get_cluster_name(), error_str);
+
+    if (rc < 0)
+    {
+        failure_response(INTERNAL,
+            request_error("Cannot allocate reservation VNET", error_str), att);
+
+        vn->unlock();
+
+        return;
+    }
+
+    VirtualNetwork * rvn = static_cast<VirtualNetwork *>(pool->get(rid,true));
+
+    if (rvn == 0)
+    {
+        failure_response(INTERNAL,
+            request_error("Cannot allocate reservation VNET",""), att);
+
+        vn->unlock();
+
+        return;
+    }
+
+    // -------------- Make address reservation and set it ----------------------
+
+    if (vn->reserve_addr(rvn, size, error_str) != 0 )
+    {
+        failure_response(ACTION, request_error(error_str,""), att);
+
+        pool->drop(rvn, error_str);
+
+        rvn->unlock();
+
+        vn->unlock();
+
+        return;
+    }
+
+    pool->update(rvn);
+
+    pool->update(vn);
+
+    rvn->unlock();
+
+    vn->unlock();
+
+    // -------------- Add the reservation to the cluster ----------------------
+
+    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    {
+        Nebula& nd  = Nebula::instance();
+
+        ClusterPool * clpool = nd.get_clpool();
+        Cluster * cluster    = clpool->get(cluster_id, true);
+
+        if ( cluster != 0 )
+        {
+            cluster->add_vnet(rid, error_str);
+
+            clpool->update(cluster);
+
+            cluster->unlock();
+        }
+    }
+
+    success_response(rid, att);
 }
