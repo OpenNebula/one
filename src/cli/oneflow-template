@@ -315,7 +315,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         params = Hash.new
 
         if(args[1])
-            params['merge_template'] = File.read(args[1])
+            params['merge_template'] = JSON.parse(File.read(args[1]))
         end
 
         json_str = Service.build_json_action('instantiate', params)

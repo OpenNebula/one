@@ -421,10 +421,9 @@ post '/service_template/:id/action' do
 
         if !merge_template.nil?
             begin
-                template = JSON.parse(merge_template)
                 orig_template = JSON.parse(service_template.template)
 
-                instantiate_template = orig_template.merge(template)
+                instantiate_template = orig_template.merge(merge_template)
 
                 ServiceTemplate.validate(instantiate_template)
 
