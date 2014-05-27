@@ -785,7 +785,9 @@ div.dataTables_scrollFoot table {
   margin: 5px 0 0px 0 !important;
 }
 
-#provision_list_vms_filter select, #provision_list_templates_filter select {
+#provision_list_vms_filter select,
+#provision_list_templates_filter select,
+#provision_list_flows_filter select  {
   width: 200px !important;
   height:35px !important;
   border-radius: 3px;
@@ -817,6 +819,7 @@ hr {
   padding: 10px;
   background: #f7f7f7;
   border-radius: 3px;
+  height: 80px;
 }
 
 .provision_action_icons {
