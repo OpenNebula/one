@@ -31,7 +31,6 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     int  rc;
     int  vid;
-    int  umask;
 
     ostringstream sid;
 
@@ -41,12 +40,10 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     VirtualMachinePool* vmpool  = nd.get_vmpool();
     VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
-    UserPool *          upool   = nd.get_upool();
 
     VirtualMachineTemplate * tmpl;
     VirtualMachineTemplate   uattrs;
     VMTemplate *             rtmpl;
-    User *                   user;
 
     string error_str;
     string aname;
@@ -59,25 +56,6 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
         str_uattrs = xmlrpc_c::value_string(paramList.getString(4));
     }
-
-    /* ---------------------------------------------------------------------- */
-    /* Get user's umask                                                       */
-    /* ---------------------------------------------------------------------- */
-
-    user = upool->get(att.uid, true);
-
-    if ( user == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER), att.uid),
-                att);
-
-        return;
-    }
-
-    umask = user->get_umask();
-
-    user->unlock();
 
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
@@ -212,7 +190,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     Template tmpl_back(*tmpl);
 
-    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+    rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             tmpl, &vid, error_str, on_hold);
 
     if ( rc < 0 )

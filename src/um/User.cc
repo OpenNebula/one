@@ -413,5 +413,21 @@ int User::get_umask() const
     return (umask & 0777);
 }
 
+int User::get_default_umask()
+{
+    string umask_st;
+    int umask;
+
+    istringstream iss;
+
+    Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
+
+    iss.str(umask_st);
+
+    iss >> oct >> umask;
+
+    return (umask & 0777);
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
