@@ -214,6 +214,11 @@ public:
      */
     int reserve_addr(int pvid, int vid, unsigned int rsize, AddressRange *rar);
 
+    /**
+     *  Get the parent vnets of the Address Ranges in this AR POOL
+     *    @param parent_vnets vector with the vnet ids of the parent vnets
+     */
+    unsigned int get_parents(vector<int>& parent_nets);
 
     // *************************************************************************
     // Helpers & Formatting

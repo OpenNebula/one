@@ -204,12 +204,9 @@ public:
     int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize, string& error_str);
 
 
-
-
     // *************************************************************************
     // Formatting & Helper functions
     // *************************************************************************
-
     /**
      *    Gets used leases
      *    @return number of network leases in used
@@ -217,6 +214,16 @@ public:
     unsigned int get_used()
     {
         return ar_pool.get_used_addr();
+    };
+
+    /**
+     *  Returns the parent networks used to create this VNET (if any)
+     *    @param parents vector of parents networks if any
+     *    @return the number of parents
+     */
+    unsigned int get_parents(vector<int>& parents)
+    {
+        return ar_pool.get_parents(parents);
     };
 
     /**

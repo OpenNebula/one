@@ -945,6 +945,8 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
         }
     }
 
+    allocated_to_attr();
+
     return freed;
 }
 

@@ -256,6 +256,16 @@ public:
     }
 
     /**
+     *  Returns the int value of an Address Range Attribute
+     *    @param name of the attribute
+     *    @return the value of the attribute if found, empty otherwise
+     */
+    int get_attribute(const char *name, int& value) const
+    {
+        return attr->vector_value(name, value);
+    }
+
+    /**
      *  Updates the Address Range with the attributes provided. The following
      *  CANNOT be updated: TYPE, SIZE, IP, MAC (plus the internal AR_ID and
      *  ALLOCATED)

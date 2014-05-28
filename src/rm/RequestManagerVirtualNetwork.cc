@@ -182,12 +182,31 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    // --------------- Check/update quotas on the target VNET -----------------
+
+    ostringstream qtmpl_s;
+    Template      qtmpl;
+
+    for (int i=0; i< size ; i++)
+    {
+        qtmpl_s << "NIC = [ NETWORK_ID = " << id << "]" << endl;
+    }
+
+    qtmpl.parse_str_or_xml(qtmpl_s.str(), error_str);
+
+    if (quota_authorization(&qtmpl, Quotas::NETWORK, att) == false)
+    {
+        return;
+    }
+
     // --------------- Create a new VNET to place the reservation -------------
 
     vn = static_cast<VirtualNetwork *>(pool->get(id,true));
 
     if ( vn == 0 )
     {
+        quota_rollback(&qtmpl, Quotas::NETWORK, att);
+
         failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
         return;
     }
@@ -205,6 +224,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (rc < 0)
     {
+        quota_rollback(&qtmpl, Quotas::NETWORK, att);
+
         failure_response(INTERNAL,
             request_error("Cannot allocate reservation VNET", error_str), att);
 
@@ -217,6 +238,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (rvn == 0)
     {
+        quota_rollback(&qtmpl, Quotas::NETWORK, att);
+
         failure_response(INTERNAL,
             request_error("Cannot allocate reservation VNET",""), att);
 
@@ -229,6 +252,8 @@ void VirtualNetworkReserve::request_execute(
 
     if (vn->reserve_addr(rvn, size, error_str) != 0 )
     {
+        quota_rollback(&qtmpl, Quotas::NETWORK, att);
+
         failure_response(ACTION, request_error(error_str,""), att);
 
         pool->drop(rvn, error_str);

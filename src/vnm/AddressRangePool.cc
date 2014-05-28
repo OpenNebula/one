@@ -517,3 +517,24 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
 
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+unsigned int AddressRangePool::get_parents(vector<int>& parent_nets)
+{
+    int vid;
+    int num_parents = 0;
+
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        if ((it->second->get_attribute("PARENT_NETWORK_ID", vid) == 0) &&
+            (vid >= 0))
+        {
+            parent_nets.push_back(vid);
+            num_parents++;
+        }
+    }
+}

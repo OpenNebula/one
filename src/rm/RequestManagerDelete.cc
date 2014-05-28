@@ -323,6 +323,8 @@ int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
+    vector<int> parents;
+
     VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
 
     if ( vnet->get_used() > 0 )
@@ -334,5 +336,23 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
         return -1;
     }
 
-    return RequestManagerDelete::drop(oid, object, error_msg);
+    vnet->get_parents(parents);
+
+    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+
+    for (vector<int>::iterator it = parents.begin(); it < parents.end(); it++)
+    {
+        vnet = static_cast<VirtualNetwork *>(pool->get(*it, true));
+
+        if (vnet == 0)
+        {
+            continue;
+        }
+
+        vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
+
+        vnet->unlock();
+    }
+
+    return rc;
 }
