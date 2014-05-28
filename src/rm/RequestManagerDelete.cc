@@ -351,6 +351,8 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
 
         vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
 
+        pool->update(vnet);
+
         vnet->unlock();
     }
 
