@@ -64,7 +64,7 @@ module OpenNebula
             "CONTEXT"   => "CX"
         }
 
-        DISK_TYPES=%w{FILE CD_ROM BLOCK RBD}
+        DISK_TYPES=%w{FILE CD_ROM BLOCK RBD SHEEPDOG}
 
         # Creates an Image description with just its identifier
         # this method should be used to create plain Image objects.

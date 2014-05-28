@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+# POSTMIGRATE SOURCE DST remote_system_dir vmid dsid template
+#  - SOURCE is the host where the VM is running
+#  - DST is the host where the VM is to be migrated
+#  - remote_system_dir is the path for the VM home in the system datastore
+#  - vmid is the id of the VM
+#  - dsid is the target datastore
+#  - template is the template of the VM in XML and base64 encoded
+
+# To access the vm_template you can use the xpath.rb utility. Check the
+# datastore drivers for an example.
+
+exit 0

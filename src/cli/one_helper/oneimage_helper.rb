@@ -102,14 +102,14 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         {
             :name => "disk_type",
             :large => "--disk_type disk_type",
-            :description => "Type of the image (BLOCK, CDROM, RBD or FILE)",
+            :description => "Type of the image (BLOCK, CDROM, RBD, SHEEPDOG or FILE)",
             :format => String,
             :proc => lambda do |o, options|
                 type=o.strip.upcase
-                if %w{BLOCK CDROM FILE RBD}.include? type
+                if %w{BLOCK CDROM FILE RBD SHEEPDOG}.include? type
                     [0, type]
                 else
-                    [-1, "Disk type must be BLOCK, CDROM, RBD or FILE"]
+                    [-1, "Disk type must be BLOCK, CDROM, RBD, SHEEPDOG or FILE"]
                 end
             end
         },

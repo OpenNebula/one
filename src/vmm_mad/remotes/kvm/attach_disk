@@ -74,6 +74,14 @@ rbd)
     SOURCE="rbd"
     SOURCE_ARGS="name='$IMG_SRC'"
     DEVICE="disk"
+    ;;
+sheepdog)
+    TYPE_SOURCE="protocol"
+    TYPE_XML="network"
+    SOURCE="sheepdog"
+    SOURCE_ARGS="name='$IMG_SRC'"
+    DEVICE="disk"
+
 
     for host in $CEPH_HOST ; do
         BCK_IFS=$IFS
