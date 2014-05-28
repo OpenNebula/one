@@ -1019,7 +1019,6 @@ int AddressRange::hold_by_mac(const string& mac_s)
 int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
     AddressRange *rar)
 {
-    bool isset = false;
     unsigned int first_index;
     int pnet;
 
@@ -1033,20 +1032,45 @@ int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
         return -1; //This address range is already a reservation
     }
 
-    for ( unsigned int i=0; i<rsize; next = (next+1)%size )
-    {
-        if ( allocated.count(next) == 0 )
-        {
-            allocate_addr(PoolObjectSQL::NET, vid, next);
+    // --------------- Look for a continuos range of addresses -----------------
 
-            if (!isset)
+    bool valid = true;
+
+    for (unsigned int i=0; i<size; i++)
+    {
+        if ( allocated.count(i) != 0 )
+        {
+            continue;
+        }
+
+        valid = true;
+
+        for (unsigned int j=0; j<rsize; j++, i++)
+        {
+            if ( allocated.count(i) != 0 )
             {
-                first_index = next;
-                isset       = true;
+                valid = false;
+                break;
+            }
+        }
+
+        if (valid == true)
+        {
+            i -= rsize;
+            first_index = i;
+
+            for (unsigned int j=0; j<rsize; j++, i++)
+            {
+                allocate_addr(PoolObjectSQL::NET, vid, i);
             }
 
-            i++;
+            break;
         }
+    }
+
+    if (valid == false)
+    {
+        return -1; //This address range has not a continuos range big enough
     }
 
     VectorAttribute * new_ar = attr->clone();
