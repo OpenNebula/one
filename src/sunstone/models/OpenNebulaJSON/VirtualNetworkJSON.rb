@@ -52,6 +52,7 @@ module OpenNebulaJSON
                  when "hold"      then self.hold(action_hash['params'])
                  when "release"   then self.release(action_hash['params'])
                  when "rename"    then self.rename(action_hash['params'])
+                 when "rm_ar"     then self.rm_ar(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -89,6 +90,10 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def rm_ar(params=Hash.new)
+            super(params['ar_id'])
         end
     end
 end

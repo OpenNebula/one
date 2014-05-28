@@ -437,6 +437,15 @@ var vnet_actions = {
         error: onError
     },
 
+    "Network.rm_ar" : {
+        type: "single",
+        call: OpenNebula.Network.rm_ar,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
+    },
+
     "Network.chown" : {
         type: "multiple",
         call: OpenNebula.Network.chown,
@@ -808,7 +817,7 @@ function printLeases(vn_info){
         var id = ar.AR_ID;
 
         html +=
-        '<div class="content" id="vnetconf-'+id+'">\
+        '<div class="content" id="vnetconf-'+id+'" ar_id="'+id+'">\
           <div class="large-6 columns">\
             <table class="dataTable extended_table">\
               <thead>\
@@ -828,6 +837,9 @@ function printLeases(vn_info){
         html +=
               '</tbody>\
             </table>\
+            <div class="large-12 columns text-center">\
+              <button class="button small radius" id="rm_ar_button">'+tr("Remove Address Range")+'</button>\
+            </div>\
           </div>\
         </div>';
 
@@ -1375,6 +1387,19 @@ function setupLeasesOps(){
         Sunstone.runAction('Network.release',id,obj);
         //Set spinner
         $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
+        return false;
+    });
+  }
+
+  if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
+    $('button#rm_ar_button').live("click",function(){
+        // TODO: confirm?
+        var id = $(this).parents('form').attr('vnid');
+        var ar_id = $(this).parents('.content').attr('ar_id');
+
+        var obj = {ar_id: ar_id};
+        Sunstone.runAction('Network.rm_ar',id,obj);
+
         return false;
     });
   }
