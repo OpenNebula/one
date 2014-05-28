@@ -67,13 +67,18 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
 
 SRC="${XPATH_ELEMENTS[j++]}"
 PERSISTENT="${XPATH_ELEMENTS[j++]}"
+TYPE="${XPATH_ELEMENTS[j++]}"
 
 # Exit if persistent
 [ -n "$PERSISTENT" ] && exit 0
+
+# Exit if CDROM / read-only
+[ "x$TYPE" = "xSHEEPDOG_CDROM" ] && exit 0
 
 # non persistent, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 SHEEPDOG_SRC="${SRC}-${VM_ID}-${DISK_ID}"
