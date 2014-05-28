@@ -78,6 +78,7 @@ SHEEPDOG_SNAP="${VM_ID}-${DISK_ID}"
 log "Dumping $SHEEPDOG_DST to $DST"
 
 DUMP_CMD=$(cat <<EOF
+set -e
 $QEMU_IMG snapshot -c $SHEEPDOG_SNAP sheepdog:$SHEEPDOG_SRC
 $QEMU_IMG create -b sheepdog:$SRC_PATH:$SHEEPDOG_SNAP sheepdog:$SHEEPDOG_DST 
 $DOG vdi delete -s $SHEEPDOG_SNAP $SRC_PATH
