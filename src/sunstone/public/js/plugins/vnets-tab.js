@@ -624,9 +624,9 @@ function vNetworkElementArray(vn_json){
         network.GNAME,
         network.NAME,
         network.CLUSTER.length ? network.CLUSTER : "-",
-        parseInt(network.TYPE) ? "FIXED" : "RANGED",
+        "--",
         network.BRIDGE,
-        network.TOTAL_LEASES ];
+        network.USED_LEASES ];
 }
 
 //Callback to update a vnet element after an action on it
@@ -738,7 +738,6 @@ function updateVNetworkInfo(request,vn){
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
     var html ='<form id="leases_form" vnid="'+vn_info.ID+'"><div class="row">';
-    html +='';
 
     html += '<div class="large-6 columns"><table id="vn_leases_info_table" class="dataTable extended_table">\
              <thead>\
@@ -751,52 +750,81 @@ function printLeases(vn_info){
               <td></td>\
               <td></td>\
              </tr>\
-              <tr>\
-                <td colspan="2" class="key_td">'+tr("IPv6 Global prefix")+'</td>\
-                <td class="value_td">'+ (typeof(vn_info.GLOBAL_PREFIX) == "object" ? "--": vn_info.GLOBAL_PREFIX) +'</td>\
-                <td></td>\
-                <td></td>\
-              </tr>\
-              <tr>\
-                <td colspan="2" class="key_td">'+tr("IPv6 Site prefix")+'</td>\
-                <td class="value_td">'+ (typeof(vn_info.SITE_PREFIX) == "object" ? "--": vn_info.SITE_PREFIX) +'</td>\
-                <td></td>\
-                <td></td>\
-              </tr>\
             </tbody></table></div>';
+
+    // TODO: Add other well known attributes, like DNS, GATEWAY...
+    html += '</div>';
+
+    var ar_list = vn_info.AR_POOL.AR;
+
+    if (!ar_list) //empty
+    {
+        // TODO: message there are no address ranges
+        html += '</form>';
+        return html;
+    }
+    else if (ar_list.constructor != Array) //>1 lease
+    {
+        ar_list = [ar_list];
+    };
+
+    var ar;
+
+    for (var i=0; i<ar_list.length; i++){
+        ar = ar_list[i];
+
+        html += printAR(ar);
+    }
+
+    html += '</form>';
+
+    return html;
+}
+
+function printAR(ar){
+
+    var html = '';
+    html += '<div class="row">';
 
     html += '<div class="large-6 columns"><table id="vn_leases_table" class="dataTable extended_table">\
       <thead>\
-        <tr><th colspan="7">'+tr("Leases information")+'</th></tr>\
+        <tr><th colspan="7">'+tr("Address Range information")+'</th></tr>\
       </thead>\
       <tbody>';
 
-    if (vn_info.TYPE == "0"){
-        html += '<tr>\
-                   <td colspan="3" class="key_td">'+tr("IP Start")+'</td>\
-                   <td colspan="4" class="value_td">'+vn_info.RANGE.IP_START+'</td>\
-                 </tr>\
-                 <tr>\
-                   <td colspan="3" class="key_td">'+tr("IP End")+'</td>\
-                   <td colspan="4" class="value_td">'+vn_info.RANGE.IP_END+'</td>\
-                 </tr>';
+    function ar_attr(val, txt){
+        if(val){
+            return '<tr>\
+                       <td colspan="3" class="key_td">'+txt+'</td>\
+                       <td colspan="4" class="value_td">'+val+'</td>\
+                     </tr>'
+        }
 
-        if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
-            html +=
-            '<tr>\
-              <td colspan="4" class="value_td"><input type="text" id="panel_hold_lease"/></td>\
-              <td colspan="3"><button class="button small secondary radius" id="panel_hold_lease_button">'+tr("Hold IP")+'</button></td>\
-            </tr>';
-          }
-    } else {
-      if (Config.isTabActionEnabled("vnets-tab", "Network.addleases")) {
-        html +=
-        '<tr>\
-          <td colspan="4" class="value_td"><input type="text" id="panel_add_lease"/></td>\
-          <td colspan="3"><button id="panel_add_lease_button" class="button small secondary radius">'+tr("Add IP")+'</button></td>\
-        </tr>';
-      }
-    };
+        return '';
+    }
+
+    html += ar_attr(ar.AR_ID, "ID");
+
+    // TODO: translate ar.TYPE values?
+    html += ar_attr(ar.TYPE, tr("Type"));
+    html += ar_attr(ar.MAC, tr("MAC"));
+    html += ar_attr(ar.IP, tr("IP"));
+    html += ar_attr(ar.GLOBAL_PREFIX, tr("Global prefix"));
+    html += ar_attr(ar.ULA_PREFIX, tr("ULA prefix"));
+    html += ar_attr(ar.SIZE, tr("Size"));
+    html += ar_attr(ar.USED_LEASES, tr("Used leases"));
+
+    // TODO: add, remove AR
+
+    if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
+        html += '<tr>\
+                   <td colspan="4" class="value_td"><input type="text" id="panel_hold_lease"/></td>\
+                   <td colspan="3"><button class="button small secondary radius" id="panel_hold_lease_button">'+tr("Hold IP")+'</button></td>\
+                 </tr>';
+    }
+
+    // TODO: extra ar config attributes
+
 
     html +='</tbody>\
       </table></div></div>\
@@ -805,23 +833,25 @@ function printLeases(vn_info){
         <tr>\
         <th></th>\
         <th></th>\
-        <th></th>\
         <th>'+tr("IP")+'</th>\
         <th>'+tr("MAC")+'</th>\
-        <th>'+tr("IPv6 Site")+'</th>\
+        <th>'+tr("IPv6 Link")+'</th>\
+        <th>'+tr("IPv6 ULA")+'</th>\
         <th>'+tr("IPv6 Global")+'</th>\
         </tr>\
       </thead>\
-      <tbody></div>';
+      <tbody>';
 
-    var leases = vn_info.LEASES.LEASE;
+    var leases = ar.LEASES.LEASE;
 
     if (!leases) //empty
     {
         html+='<tr id="no_leases_tr"><td colspan="7" class="key_td">\
                    '+tr("No leases to show")+'\
                    </td></tr>';
-        html += '</tbody></table></div></form>';
+
+        html += '</tbody></table></div>';
+
         return html;
     }
     else if (leases.constructor != Array) //>1 lease
@@ -830,74 +860,41 @@ function printLeases(vn_info){
     };
 
     var lease;
-    var state=null;
 
     for (var i=0; i<leases.length; i++){
         lease = leases[i];
 
-        if (lease.USED != "0" && lease.VID == "-1") { //hold
-            state = 2;
-        } else { //free
-            state = parseInt(lease.USED,10);
-        };
+
+        // TODO: LEASE.VNET
+
 
         html+='<tr ip="'+lease.IP+'">';
 
         html += '<td class="key_td">';
-        switch (state){
-        case 0: //free
-            html += '<span type="text" class="success radius label"></span> '
-            break;
-        case 1: //used
-            html += '<span type="text" class="radius label "></span> '
-            break;
-        case 2: //hold
-            html += '<span type="text" class="alert radius label"></span> '
-            break;
-        };
-        html += '</td>'
 
-        switch (state){
-        case 0:
-            html += '<td>';
-            if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
-              html += '<a class="hold_lease" href="#"><i class="fa fa-pause"/></a>';
-            }
-            html += '</td>'
-            html += '<td>'
-            if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
-              html += '<a class="delete_lease" href="#"><i class="fa fa-trash-o"/></a>';
-            }
-            break;
-        case 1:
-            html += '<td colspan="2">' + tr("VM:") + lease.VID+''
-            break;
-        case 2:
+        if (lease.VM == "-1") { //hold
+            html += '<span type="text" class="alert radius label"></span></td>';
+
             html += '<td>';
             if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
               html += '<a class="release_lease" href="#"><i class="fa fa-play"/></a>';
             }
-            html += '</td>'
-            html += '<td>'
-            if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
-              html += '<a class="delete_lease" href="#"><i class="fa fa-trash-o"/></a>';
-            }
-            break;
-        };
-        html += '</td>'
+            html += '</td>';
+        } else { //used
+            html += '<span type="text" class="radius label "></span></td>\
+                    <td>' + tr("VM:") + lease.VM+'</td>';
+        }
 
-        html += '<td>'+ lease.IP + '</td>';
-
-        html += '<td class="value_td">\
-                 '+lease.MAC+'</td>';
-
-        html += '<td class="value_td">'+ (lease.IP6_SITE ? lease.IP6_SITE : "--") +'</td>';
+        html += '<td class="value_td">'+ (lease.IP ? lease.IP : "--") +'</td>';
+        html += '<td class="value_td">'+ (lease.MAC ? lease.MAC : "--") +'</td>';
+        html += '<td class="value_td">'+ (lease.IP6_LINK ? lease.IP6_LINK : "--") +'</td>';
+        html += '<td class="value_td">'+ (lease.IP6_ULA ? lease.IP6_ULA : "--") +'</td>';
         html += '<td class="value_td">'+ (lease.IP6_GLOBAL ? lease.IP6_GLOBAL : "--") +'</td>';
 
         html += '</tr>';
     };
 
-    html += '</tbody></table></form>';
+    html += '</tbody></table>';
 
     return html;
 }
