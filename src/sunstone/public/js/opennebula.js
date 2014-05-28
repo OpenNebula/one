@@ -767,20 +767,6 @@ var OpenNebula = {
         "unpublish": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.Network.resource,"unpublish");
         },
-        "addleases" : function(params){
-            var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Network.resource,
-                                            "addleases",
-                                            action_obj);
-        },
-        "rmleases" : function(params){
-            var action_obj = params.data.extra_param;
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Network.resource,
-                                            "rmleases",
-                                            action_obj);
-        },
         "hold" : function(params){
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
@@ -795,11 +781,25 @@ var OpenNebula = {
                                             "release",
                                             action_obj);
         },
+        "add_ar" : function(params){
+            var action_obj = {"ar_template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "add_ar",
+                                            action_obj);
+        },
         "rm_ar" : function(params){
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.Network.resource,
                                             "rm_ar",
+                                            action_obj);
+        },
+        "update_ar": function(params){
+            var action_obj = {"ar_template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Network.resource,
+                                            "update_ar",
                                             action_obj);
         },
         "update": function(params){

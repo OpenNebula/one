@@ -341,10 +341,11 @@ tabs:
             Network.chgrp: true
             Network.chmod: true
             Network.delete: true
-            Network.addleases: true
             Network.hold_lease: true
-            Network.remove_lease: true
             Network.release_lease: true
+            Network.add_ar: true
+            Network.remove_ar: true
+            Network.update_ar: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true

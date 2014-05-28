@@ -42,8 +42,6 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "addleases" then self.addleases(action_hash['params'])
-                 when "rmleases"  then self.rmleases(action_hash['params'])
                  when "publish"   then self.publish
                  when "unpublish" then self.unpublish
                  when "update"    then self.update(action_hash['params'])
@@ -53,19 +51,13 @@ module OpenNebulaJSON
                  when "release"   then self.release(action_hash['params'])
                  when "rename"    then self.rename(action_hash['params'])
                  when "rm_ar"     then self.rm_ar(action_hash['params'])
+                 when "add_ar"    then self.add_ar(action_hash['params'])
+                 when "update_ar" then self.update_ar(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
                      OpenNebula::Error.new(error_msg)
             end
-        end
-
-        def addleases(params=Hash.new)
-            super(params['ip'],params['mac'])
-        end
-
-        def rmleases(params=Hash.new)
-            super(params['ip'])
         end
 
         def update(params=Hash.new)
@@ -94,6 +86,14 @@ module OpenNebulaJSON
 
         def rm_ar(params=Hash.new)
             super(params['ar_id'])
+        end
+
+        def add_ar(params=Hash.new)
+            super(params['ar_template_raw'])
+        end
+
+        def update_ar(params=Hash.new)
+            super(params['ar_template_raw'])
         end
     end
 end

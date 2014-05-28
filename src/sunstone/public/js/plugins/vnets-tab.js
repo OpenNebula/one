@@ -401,24 +401,6 @@ var vnet_actions = {
         error: onError
     },
 
-    "Network.addleases" : {
-        type: "single",
-        call: OpenNebula.Network.addleases,
-        callback: function(req) {
-          Sunstone.runAction("Network.show",req.request.data[0][0]);
-        },
-        error: onError
-    },
-
-    "Network.rmleases" : {
-        type: "single",
-        call: OpenNebula.Network.rmleases,
-        callback: function(req) {
-          Sunstone.runAction("Network.show",req.request.data[0][0]);
-        },
-        error: onError
-    },
-
     "Network.hold" : {
         type: "single",
         call: OpenNebula.Network.hold,
@@ -437,9 +419,27 @@ var vnet_actions = {
         error: onError
     },
 
+    "Network.add_ar" : {
+        type: "single",
+        call: OpenNebula.Network.add_ar,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
+    },
+
     "Network.rm_ar" : {
         type: "single",
         call: OpenNebula.Network.rm_ar,
+        callback: function(req) {
+          Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
+    },
+
+    "Network.update_ar" : {
+        type: "single",
+        call: OpenNebula.Network.update_ar,
         callback: function(req) {
           Sunstone.runAction("Network.show",req.request.data[0][0]);
         },
@@ -836,11 +836,17 @@ function printLeases(vn_info){
 
         html +=
               '</tbody>\
-            </table>\
-            <div class="large-12 columns text-center">\
+            </table>';
+
+        if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
+            html +=
+            '<div class="large-12 columns text-center">\
               <button class="button small radius" id="rm_ar_button">'+tr("Remove Address Range")+'</button>\
-            </div>\
-          </div>\
+            </div>';
+        }
+
+        html +=
+          '</div>\
         </div>';
 
         // TODO: extra ar config attributes
@@ -1327,19 +1333,6 @@ function popUpCreateVnetDialog() {
 // Listeners to the add, hold, release, delete leases operations in the
 // extended information panel.
 function setupLeasesOps(){
-  if (Config.isTabActionEnabled("vnets-tab", "Network.addleases")) {
-    $('button#panel_add_lease_button').live("click",function(){
-        var lease = $('input#panel_add_lease').val();
-        //var mac = $(this).previous().val();
-        var id = $(this).parents('form').attr('vnid');
-        if (lease.length){
-            var obj = {ip: lease};
-            Sunstone.runAction('Network.addleases',id,obj);
-        }
-        return false;
-    });
-  }
-
   if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
     //ranged networks hold lease
     $('button#panel_hold_lease_button').live("click",function(){
@@ -1365,20 +1358,6 @@ function setupLeasesOps(){
     });
   }
 
-  if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
-    $('form#leases_form a.delete_lease').live("click",function(){
-        var lease = $(this).parents('tr').attr('ip');
-        var id = $(this).parents('form').attr('vnid');
-        var obj = { ip: lease};
-        Sunstone.runAction('Network.rmleases',id,obj);
-        //Set spinner
-        $(this).parents('tr').html('<td class="key_td">'+spinner+'</td><td class="value_td"></td>');
-        return false;
-    });
-  }
-
-
-
   if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
     $('a.release_lease').live("click",function(){
         var lease = $(this).parents('tr').attr('ip');
@@ -1391,7 +1370,7 @@ function setupLeasesOps(){
     });
   }
 
-  if (Config.isTabActionEnabled("vnets-tab", "Network.remove_lease")) {
+  if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
     $('button#rm_ar_button').live("click",function(){
         // TODO: confirm?
         var id = $(this).parents('form').attr('vnid');
