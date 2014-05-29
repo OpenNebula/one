@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AddressRangePool.h"
+#include "AddressRange.h"
 
 using namespace std;
 
@@ -76,11 +77,25 @@ int AddressRangePool::from_vattr(vector<Attribute *> ars, string& error_msg)
 
 AddressRange * AddressRangePool::allocate_ar()
 {
-    AddressRange * ar = new AddressRange(next_ar);
+    return new AddressRange(next_ar++);
+}
 
-    ar_pool.insert(make_pair(next_ar++, ar));
+/* -------------------------------------------------------------------------- */
 
-    return ar;
+int AddressRangePool::add_ar(AddressRange * ar)
+{
+    pair<map<unsigned int, AddressRange *>::iterator, bool> rc;
+
+    rc = ar_pool.insert(make_pair(ar->ar_id(), ar));
+
+    if (rc.second == false)
+    {
+        return -1;
+    }
+
+    ar_template.set(ar->attr);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -497,6 +512,7 @@ int AddressRangePool::hold_by_mac(const string& mac_s)
 
     return rc;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -521,6 +537,31 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
+    unsigned int ar_id, AddressRange *rar)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        return -1;
+    }
+
+    if ((it->second->get_free_addr() >= rsize) &&
+        (it->second->reserve_addr(pvid, vid, rsize, rar) == 0))
+    {
+        used_addr += rsize;
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 unsigned int AddressRangePool::get_parents(vector<int>& parent_nets)
 {
     int vid;
@@ -537,4 +578,6 @@ unsigned int AddressRangePool::get_parents(vector<int>& parent_nets)
             num_parents++;
         }
     }
+
+    return num_parents;
 }

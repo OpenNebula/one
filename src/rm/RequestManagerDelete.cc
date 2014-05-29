@@ -340,9 +340,11 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
 
     int rc = RequestManagerDelete::drop(oid, object, error_msg);
 
+    VirtualNetworkPool *vnpool = static_cast<VirtualNetworkPool *>(pool);
+
     for (vector<int>::iterator it = parents.begin(); it < parents.end(); it++)
     {
-        vnet = static_cast<VirtualNetwork *>(pool->get(*it, true));
+        vnet = vnpool->get(*it, true);
 
         if (vnet == 0)
         {

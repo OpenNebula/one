@@ -18,6 +18,7 @@
 #include "VirtualNetwork.h"
 #include "VirtualNetworkPool.h"
 #include "VirtualNetworkTemplate.h"
+#include "AddressRange.h"
 
 #include "NebulaLog.h"
 
@@ -778,6 +779,51 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
     if (ar_pool.reserve_addr(oid, rvnet->get_oid(), rsize, rar) != 0)
     {
         error_str = "Not enough free addresses in an address range";
+
+        delete rar;
+
+        return -1;
+    }
+
+    if (rvnet->add_ar(rar) != 0)
+    {
+        error_str = "Could not add the address range to the netwok";
+
+        delete rar;
+
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
+    unsigned int rsize, unsigned int ar_id, string& error_str)
+{
+    AddressRange *rar = rvnet->allocate_ar();
+
+    if (ar_pool.reserve_addr(oid, rvnet->get_oid(), rsize, ar_id, rar) != 0)
+    {
+        ostringstream oss;
+
+        oss << "Not enough free addresses in address range " << ar_id
+            << ", or it does not exist";
+
+        error_str = oss.str();
+
+        delete rar;
+
+        return -1;
+    }
+
+    if (rvnet->add_ar(rar) != 0)
+    {
+        error_str = "Could not add the address range to the netwok";
+
+        delete rar;
 
         return -1;
     }

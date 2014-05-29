@@ -77,12 +77,23 @@ public:
     int rm_ar(unsigned int ar_id, string& error_msg);
 
     /**
-     *  Allocates a new (and empty) address range to the AR pool
-     *    @return pointer to the ar added to the AR pool
+     *  Allocates a new (and empty) address range. It is not added to the
+     *  ar_pool
+     *    @return pointer to the new address range
      */
     AddressRange * allocate_ar()
     {
         return ar_pool.allocate_ar();
+    }
+
+    /**
+     *  Adds a previously allocated address range to the AR pool
+     *    @param rar pointer to the address range
+     *    @return 0 on success
+     */
+    int add_ar(AddressRange * rar)
+    {
+        return ar_pool.add_ar(rar);
     }
 
     /**
@@ -203,6 +214,8 @@ public:
 
     int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize, string& error_str);
 
+    int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize,
+        unsigned int ar_id, string& error_str);
 
     // *************************************************************************
     // Formatting & Helper functions

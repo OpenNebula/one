@@ -24,9 +24,10 @@
 #include <libxml/parser.h>
 
 #include "Template.h"
-#include "AddressRange.h"
+#include "PoolObjectSQL.h"
 
 class VectorAttribute;
+class AddressRange;
 
 using namespace std;
 
@@ -78,10 +79,19 @@ public:
     void update_ar(vector<Attribute *> ars);
 
     /**
-     *  Allocates a new address range in the pool.
-     *    @return the new address range added to the pool
+     *  Allocates a new *empty* address range. It is not added to the pool as it
+     *  needs to be initialized. Only the AR_ID is set.
+     *    @return the new address range.
      */
     AddressRange * allocate_ar();
+
+    /**
+     *  Adds a new address range to the pool. It should be allocated by the
+     *  allocate_ar() function.
+     *    @param ar the new address range;
+     *    @return 0 on success
+     */
+    int add_ar(AddressRange * ar);
 
     // *************************************************************************
     // Address allocation interface
@@ -213,6 +223,18 @@ public:
      *    @return 0 on success
      */
     int reserve_addr(int pvid, int vid, unsigned int rsize, AddressRange *rar);
+
+    /**
+     *  Reserve a given number of addresses from the given address range
+     *    @param pvid the id of the parent VNET
+     *    @param vid the id of the VNET making the reservation
+     *    @param rsize number of addresses to reserve
+     *    @param ar_id the address range to reserve the addresses from
+     *    @param rar a new address range to place the reservation
+     *    @return 0 on success
+     */
+    int reserve_addr(int pvid, int vid, unsigned int rsize, unsigned int ar_id,
+        AddressRange *rar);
 
     /**
      *  Get the parent vnets of the Address Ranges in this AR POOL

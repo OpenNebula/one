@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "PoolObjectSQL.h"
+#include "AddressRangePool.h"
 
 using namespace std;
 
@@ -272,6 +273,12 @@ public:
      *    @param vup the new vector attributes for the address range
      */
     void update_attributes(VectorAttribute *vup);
+
+    /*
+     *  add_ar from AddressRangePool needs to access the internal representation
+     *  of the AR to include it in the ARPool template.
+     */
+    friend int AddressRangePool::add_ar(AddressRange * ar);
 
 private:
     /* ---------------------------------------------------------------------- */

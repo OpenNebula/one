@@ -182,6 +182,17 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    int  ar_id;
+    bool with_ar_id = tmpl.get("AR_ID", ar_id);
+
+    if ( with_ar_id && (ar_id < 0))
+    {
+        failure_response(ACTION, request_error("Error in reservation request",
+            "AR_ID must be equal or greater than 0"), att);
+
+        return;
+    }
+
     // --------------- Check/update quotas on the target VNET -----------------
 
     ostringstream qtmpl_s;
@@ -250,7 +261,16 @@ void VirtualNetworkReserve::request_execute(
 
     // -------------- Make address reservation and set it ----------------------
 
-    if (vn->reserve_addr(rvn, size, error_str) != 0 )
+    if (with_ar_id)
+    {
+        rc = vn->reserve_addr(rvn, size, ar_id, error_str);
+    }
+    else
+    {
+        rc = vn->reserve_addr(rvn, size, error_str);
+    }
+
+    if (rc != 0 )
     {
         quota_rollback(&qtmpl, Quotas::NETWORK, att);
 
