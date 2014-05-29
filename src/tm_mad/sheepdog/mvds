@@ -69,7 +69,7 @@ PERSISTENT="${XPATH_ELEMENTS[j++]}"
 
 # non persistent, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 SHEEPDOG_DST="${SHEEPDOG_SRC}-${VM_ID}-${DISK_ID}"
-SHEEPDOG_SNAP="${VM_ID}-${DISK_ID}"
+SHEEPDOG_SNAP="snap_${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
@@ -80,8 +80,8 @@ log "Dumping $SHEEPDOG_DST to $DST"
 DUMP_CMD=$(cat <<EOF
 set -e
 $QEMU_IMG snapshot -c $SHEEPDOG_SNAP sheepdog:$SHEEPDOG_SRC
-$QEMU_IMG create -b sheepdog:$SRC_PATH:$SHEEPDOG_SNAP sheepdog:$SHEEPDOG_DST 
-$DOG vdi delete -s $SHEEPDOG_SNAP $SRC_PATH
+$QEMU_IMG create -b sheepdog:$SHEEPDOG_SRC:$SHEEPDOG_SNAP sheepdog:$SHEEPDOG_DST 
+$DOG vdi delete -s $SHEEPDOG_SNAP $SHEEPDOG_SRC
 EOF
 )
 
