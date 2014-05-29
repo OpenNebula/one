@@ -90,7 +90,7 @@ void AddressRangePool::update_ar(vector<Attribute *> ars)
 
     for (it = ars.begin(); it != ars.end(); it++)
     {
-        VectorAttribute * va = static_cast<VectorAttribute *>(*it);
+        VectorAttribute * va = dynamic_cast<VectorAttribute *>(*it);
 
         if (va == 0)
         {
@@ -191,7 +191,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 
     for (it_ar=ars.begin(); it_ar!=ars.end(); it_ar++)
     {
-        VectorAttribute *ar = static_cast<VectorAttribute *>(*it_ar);
+        VectorAttribute *ar = dynamic_cast<VectorAttribute *>(*it_ar);
 
         if (ar == 0)
         {

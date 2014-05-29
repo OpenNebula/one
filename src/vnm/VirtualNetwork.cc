@@ -591,7 +591,7 @@ int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
 {
     for (vector<Attribute *>::iterator it=var.begin(); it!=var.end(); it++)
     {
-        VectorAttribute * oar = static_cast<VectorAttribute *>(*it);
+        VectorAttribute * oar = dynamic_cast<VectorAttribute *>(*it);
 
         if (oar == 0)
         {
@@ -617,9 +617,25 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 {
     vector<Attribute *> var;
 
-    if (ars_tmpl->get("AR", var) > 0)
+    if (ars_tmpl->get("AR", var) <= 0)
     {
-        return add_var(var, error_msg);
+        return 0;
+    }
+
+    const VectorAttribute * ar = dynamic_cast<const VectorAttribute *>(var[0]);
+
+    if (ar == 0)
+    {
+        error_msg = "Wrong AR definition";
+        return -1;
+    }
+
+    VectorAttribute * nar = ar->clone();
+
+    if (ar_pool.from_vattr(nar, error_msg) != 0)
+    {
+        delete nar;
+        return -1;
     }
 
     return 0;
