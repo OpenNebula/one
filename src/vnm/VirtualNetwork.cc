@@ -865,3 +865,71 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::reserve_addr_by_ip(VirtualNetwork *rvnet,
+    unsigned int rsize, unsigned int ar_id, const string& ip, string& error_str)
+{
+    AddressRange *rar = rvnet->allocate_ar();
+
+    if (ar_pool.reserve_addr_by_ip(oid,rvnet->get_oid(),rsize,ar_id,ip,rar)!=0)
+    {
+        ostringstream oss;
+
+        oss << "Not enough free addresses in address range " << ar_id
+            << ", or it does not exist";
+
+        error_str = oss.str();
+
+        delete rar;
+
+        return -1;
+    }
+
+    if (rvnet->add_ar(rar) != 0)
+    {
+        error_str = "Could not add the address range to the netwok";
+
+        delete rar;
+
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::reserve_addr_by_mac(VirtualNetwork *rvnet,
+    unsigned int rsize, unsigned int ar_id, const string& mac, string& error_str)
+{
+    AddressRange *rar = rvnet->allocate_ar();
+
+    if (ar_pool.reserve_addr_by_mac(oid,rvnet->get_oid(),rsize,ar_id,mac,rar)!=0)
+    {
+        ostringstream oss;
+
+        oss << "Not enough free addresses in address range " << ar_id
+            << ", or it does not exist";
+
+        error_str = oss.str();
+
+        delete rar;
+
+        return -1;
+    }
+
+    if (rvnet->add_ar(rar) != 0)
+    {
+        error_str = "Could not add the address range to the netwok";
+
+        delete rar;
+
+        return -1;
+    }
+
+    return 0;
+}

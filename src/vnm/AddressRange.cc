@@ -1094,6 +1094,118 @@ int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr_by_index(int pvid, int vid, unsigned int rsize,
+    unsigned int sindex, AddressRange *rar)
+{
+    int pnet;
+
+    if ((attr->vector_value("PARENT_NETWORK_ID", pnet) == 0 ) && (pnet > -1))
+    {
+        return -1; //This address range is already a reservation
+    }
+
+    /* ----------------- Allocate the new AR from sindex -------------------- */
+
+    for (unsigned int j=sindex; j< (sindex+rsize) ; j++)
+    {
+        if (allocated.count(j) != 0)
+        {
+            return -1;
+        }
+    }
+
+    for (unsigned int j=sindex; j< (sindex+rsize); j++)
+    {
+        allocate_addr(PoolObjectSQL::NET, vid, j);
+    }
+
+    /* ------------------------- Initialize the new AR ---------------------- */
+
+    VectorAttribute * new_ar = attr->clone();
+    string            errmsg;
+
+    set_mac(sindex, new_ar);
+
+    if (type & 0x00000002 )
+    {
+        set_ip(sindex, new_ar);
+    }
+
+    new_ar->replace("SIZE",rsize);
+
+    rar->from_vattr(new_ar, errmsg);
+
+    new_ar->replace("PARENT_NETWORK_ID", pvid);
+
+    new_ar->replace("PARENT_NETWORK_AR_ID",id);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
+    const string& ip_s, AddressRange *rar)
+{
+    if (!(type & 0x00000002))//Not of type IP4 or IP4_6
+    {
+        return -1;
+    }
+
+    unsigned int ip_i;
+
+    if (ip_to_i(ip_s, ip_i) == -1)
+    {
+        return -1;
+    }
+
+    if (ip_i < ip)
+    {
+        return -1;
+    }
+
+    unsigned int sindex = ip_i - ip;
+
+    if (sindex >= size )
+    {
+        return -1;
+    }
+
+    return reserve_addr_by_index(pvid, vid, rsize, sindex, rar);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
+    const string& mac_s, AddressRange *rar)
+{
+    unsigned int mac_i[2];
+
+    if (mac_to_i(mac_s, mac_i) == -1)
+    {
+        return -1;
+    }
+
+    if ((mac_i[1] != mac[1]) || (mac_i[0] < mac[0]))
+    {
+        return -1;
+    }
+
+    unsigned int sindex = mac_i[0] - mac[0];
+
+    if (sindex >= size)
+    {
+        return -1;
+    }
+
+    return reserve_addr_by_index(pvid, vid, rsize, sindex, rar);
+}
+
 /* ************************************************************************** */
 /* ************************************************************************** */
 

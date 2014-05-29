@@ -220,10 +220,50 @@ public:
     // Network Reservation functions
     // *************************************************************************
 
-    int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize, string& error_str);
+    /**
+     *  Reserve an address range for this network and add it to the given vnet
+     *    @param rvnet the VNET to store the reserved AR
+     *    @param rsize number of addresses to reserve
+     *    @param error_str error message
+     *    @return 0 on success
+     */
+    int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize,
+        string& error_str);
 
+    /**
+     *  Reserve an address range for this network and add it to the given vnet
+     *    @param rvnet the VNET to store the reserved AR
+     *    @param rsize number of addresses to reserve
+     *    @param ar_id id of the address range to obtain the addresses
+     *    @param error_str error message
+     *    @return 0 on success
+     */
     int reserve_addr(VirtualNetwork *rvnet, unsigned int rsize,
         unsigned int ar_id, string& error_str);
+
+    /**
+     *  Reserve an address range for this network and add it to the given vnet
+     *    @param rvnet the VNET to store the reserved AR
+     *    @param rsize number of addresses to reserve
+     *    @param ar_id id of the address range to obtain the addresses
+     *    @param error_str error message
+     *    @param ip the first ip in the reservations
+     *    @return 0 on success
+     */
+    int reserve_addr_by_ip(VirtualNetwork *rvnet, unsigned int rsize,
+        unsigned int ar_id, const string& ip, string& error_str);
+
+    /**
+     *  Reserve an address range for this network and add it to the given vnet
+     *    @param rvnet the VNET to store the reserved AR
+     *    @param rsize number of addresses to reserve
+     *    @param ar_id id of the address range to obtain the addresses
+     *    @param mac the first mac in the reservations
+     *    @param error_str error message
+     *    @return 0 on success
+     */
+    int reserve_addr_by_mac(VirtualNetwork *rvnet, unsigned int rsize,
+        unsigned int ar_id, const string& mac, string& error_str);
 
     // *************************************************************************
     // Formatting & Helper functions

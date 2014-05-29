@@ -542,6 +542,54 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int AddressRangePool::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
+    unsigned int ar_id, const string& ip, AddressRange *rar)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        return -1;
+    }
+
+    if (it->second->reserve_addr_by_ip(pvid, vid, rsize, ip, rar) == 0)
+    {
+        used_addr += rsize;
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
+    unsigned int ar_id, const string& mac, AddressRange *rar)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(ar_id);
+
+    if (it == ar_pool.end())
+    {
+        return -1;
+    }
+
+    if (it->second->reserve_addr_by_mac(pvid, vid, rsize, mac, rar) == 0)
+    {
+        used_addr += rsize;
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 unsigned int AddressRangePool::get_parents(vector<int>& parent_nets)
 {
     int vid;

@@ -188,10 +188,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :reserve, reserve_desc, :vnetid,
         :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::R_NAME,
-            OneVNetHelper::R_SIZE] do
+            OneVNetHelper::R_SIZE, OneVNetHelper::AR_MAC, OneVNetHelper::AR_IP] do
         helper.perform_action(args[0],options,"reservation made") do |vn|
             rsize = options[:rsize] || -1
             rname = options[:rname] || -1
+
+            addr = nil
+            addr = options[:mac] if options[:mac]
+            addr = options[:ip] if options[:ip]
 
             if rsize == -1
                 STDERR.puts "Specify a size (-s size) for the reservation"
@@ -203,7 +207,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
-            vn.reserve(rname, rsize, options[:ar_id])
+            vn.reserve(rname, rsize, options[:ar_id], addr)
         end
     end
 

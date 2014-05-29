@@ -189,13 +189,26 @@ module OpenNebula
         # Reserve a set of addresses from this virtual network
         # @param name [String] of the reservation
         # @param rsize[String] number of addresses to reserve
-        # @param ar_id[String] the ar_id to make the reservation
-        def reserve(rname, rsize, ar_id)
+        # @param ar_id[String] the ar_id to make the reservation. If set to nil
+        #        any address range will be used
+        # @param addr [String] the first address in the reservation. If set to
+        #        nil the first free address will be used
+        def reserve(rname, rsize, ar_id, addr)
             return Error.new('ID not defined') if !@pe_id
 
             rtmpl =  "NAME = #{rname}\n"
             rtmpl << "SIZE = #{rsize}\n"
             rtmpl << "AR_ID= #{ar_id}\n" if !ar_id.nil?
+
+            if !addr.nil?
+                if addr.include?':'
+                    addr_name = "MAC"
+                else
+                    addr_name = "IP"
+                end
+
+                rtmpl << "#{addr_name} = #{addr}\n"
+            end
 
             rc = @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
             rc = nil if !OpenNebula.is_error?(rc)

@@ -193,6 +193,20 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    string ip, mac;
+
+    tmpl.get("IP", ip);
+
+    tmpl.get("MAC", mac);
+
+    if (!with_ar_id && (!ip.empty()||!mac.empty()))
+    {
+        failure_response(ACTION, request_error("Error in reservation request",
+            "AR_ID must be specified for IP/MAC based reservations"), att);
+
+        return;
+    }
+
     // --------------- Check/update quotas on the target VNET -----------------
 
     ostringstream qtmpl_s;
@@ -263,7 +277,18 @@ void VirtualNetworkReserve::request_execute(
 
     if (with_ar_id)
     {
-        rc = vn->reserve_addr(rvn, size, ar_id, error_str);
+        if (!ip.empty())
+        {
+            rc = vn->reserve_addr_by_ip(rvn, size, ar_id, ip, error_str);
+        }
+        else if (!mac.empty())
+        {
+            rc = vn->reserve_addr_by_mac(rvn, size, ar_id, mac, error_str);
+        }
+        else
+        {
+            rc = vn->reserve_addr(rvn, size, ar_id, error_str);
+        }
     }
     else
     {
