@@ -68,17 +68,17 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+		    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE ) 
 
 SRC="${XPATH_ELEMENTS[j++]}"
 PERSISTENT="${XPATH_ELEMENTS[j++]}"
-TYPE="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
 
 # Exit if persistent
-[ -n "$PERSISTENT" ] && exit 0
+[ -n "$PERSISTENT" ] && log "Disk $DISK_ID is persistent - not deleting" && exit 0
 
-# Exit if CDROM / read-only
-[ "x$TYPE" = "xSHEEPDOG_CDROM" ] && exit 0
+# Exit if not cloned
+[ "x$CLONE" = "xNO" ] && log "Disk $DISK_ID was not cloned - not deleting " && exit 0
 
 # non persistent, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 SHEEPDOG_SRC="${SRC}-${VM_ID}-${DISK_ID}"
