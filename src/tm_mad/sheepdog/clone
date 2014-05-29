@@ -38,16 +38,15 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 
 DST_HOST=`arg_host $DST`
+SRC_PATH=`arg_path $SRC`
 
 #-------------------------------------------------------------------------------
 # Compute the destination image name
 #-------------------------------------------------------------------------------
 
-SRC_PATH=`arg_path $SRC`
-
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 SHEEPDOG_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
-SHEEPDOG_SNAP="snap_${VM_ID}-${DISK_ID}"
+SHEEPDOG_SNAP="$( basename $0 )_${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -60,7 +59,7 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 #-------------------------------------------------------------------------------
 
 CLONE_CMD=$(cat <<EOF
-    set -e
+set -e
 
 $QEMU_IMG snapshot -c $SHEEPDOG_SNAP sheepdog:$SRC_PATH
 $QEMU_IMG create -b sheepdog:$SRC_PATH:$SHEEPDOG_SNAP sheepdog:$SHEEPDOG_DST

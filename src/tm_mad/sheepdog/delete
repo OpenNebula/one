@@ -94,7 +94,7 @@ log "Deleting $DST_PATH"
 # drivers, is executed in the worker node and not in the SHEEPDOG frontend.
 
 DELETE_CMD=$(cat <<EOF
-    set -e
+set -e
 
 $DOG vdi delete $SHEEPDOG_SRC
 
