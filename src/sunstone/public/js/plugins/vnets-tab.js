@@ -721,8 +721,17 @@ function printLeases(vn_info){
                 <td></td>\
               </tr>\
             </tbody>\
-          </table>\
-        </div>\
+          </table>';
+
+    if (Config.isTabActionEnabled("vnets-tab", "Network.add_ar")) {
+        html +=
+        '<div class="large-12 columns text-center">\
+          <button class="button success small radius" id="add_ar_button">'+tr("Add another Address Range")+'</button>\
+        </div>';
+    }
+
+    html +=
+        '</div>\
       </div>';
 
     // TODO: Add other well known attributes, like DNS, GATEWAY...
@@ -776,8 +785,6 @@ function printLeases(vn_info){
         </div>';
 
         // TODO: extra ar config attributes
-
-        // TODO: add AR
     }
 
     html += '</div>\
@@ -981,7 +988,8 @@ function setupCreateVNetDialog() {
         }
 
         var description = $('#DESCRIPTION',dialog).val();
-        var network_json = {"name" : name, "description" : description};
+        if (network_addr.length)
+            var network_json = {"name" : name, "description" : description};
 
         var network_mode = $('select#network_mode',dialog).val();
         var bridge = $('#bridge',dialog).val();
@@ -1301,7 +1309,68 @@ function setupLeasesOps(){
         return false;
     });
   }
+
+  if (Config.isTabActionEnabled("vnets-tab", "Network.add_ar")) {
+    $('button#add_ar_button').live("click",function(){
+        var id = $(this).parents('form').attr('vnid');
+
+        popUpAddAR(id);
+
+        return false;
+    });
+  }
 }
+
+function popUpAddAR(id){
+    $('#vnet_id',$add_ar_dialog).text(id);
+    $add_ar_dialog.foundation().foundation('reveal', 'open');
+}
+
+function setupAddARDialog(){
+    dialogs_context.append('<div id="add_ar_dialog"></div>');
+    $add_ar_dialog = $('#add_ar_dialog',dialogs_context);
+    var dialog = $add_ar_dialog;
+
+    dialog.html('<div class="row">\
+      <div class="large-12 columns">\
+        <h3 class="subheader" id="">'+tr("Add a new Address Range")+'</h3>\
+      </div>\
+    </div>\
+        <div class="reveal-body">\
+    <form id="add_ar_form" action="">\
+          <div class="row ">\
+              <div class="large-6 columns">\
+                  <label for="vnet_id">'+tr("Virtual Network ID")+':</label>\
+                  <label style="border-style: inset; background-color: lightgrey" type="text" name="vnet_id" id="vnet_id" disabled/>\
+              </div>\
+          </div>' +
+          generate_ar_tab_content("add_ar") +
+          '<div class="reveal-footer">\
+          <div class="form_buttons">\
+              <button class="button radius right success" id="submit_ar_button" type="submit" value="Network.add_ar">'+tr("Add")+'</button>\
+          </div>\
+          </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form></div>')
+
+    //  TODO: max-height?
+
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    setupTips(dialog);
+
+    setup_ar_tab_content(dialog, "add_ar")
+
+    $('#add_ar_form',dialog).submit(function(){
+        var vnet_id = $('#vnet_id', this).text();
+        var data = retrieve_ar_tab_data(this);
+
+        var obj = {AR: data}
+        Sunstone.runAction('Network.add_ar', vnet_id, obj);
+
+        $add_ar_dialog.foundation('reveal', 'close')
+        return false;
+    });
+};
 
 //The DOM is ready and the ready() from sunstone.js
 //has been executed at this point.
@@ -1332,6 +1401,8 @@ $(document).ready(function(){
 
       setupCreateVNetDialog();
       setupLeasesOps();
+
+      setupAddARDialog();
 
       initCheckAllBoxes(dataTable_vNetworks);
       tableCheckboxesListener(dataTable_vNetworks);

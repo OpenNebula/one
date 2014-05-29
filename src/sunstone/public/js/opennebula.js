@@ -782,7 +782,7 @@ var OpenNebula = {
                                             action_obj);
         },
         "add_ar" : function(params){
-            var action_obj = {"ar_template_raw" : params.data.extra_param };
+            var action_obj = {"ar_template" : params.data.extra_param };
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.Network.resource,
                                             "add_ar",
