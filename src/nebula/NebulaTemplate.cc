@@ -29,7 +29,7 @@ int NebulaTemplate::load_configuration()
     string      aname;
     Attribute * attr;
 
-    map<string, Attribute *>::iterator  iter, j;
+    map<string, Attribute *>::iterator  iter, j, prev;
 
     set_conf_default();
 
@@ -59,7 +59,10 @@ int NebulaTemplate::load_configuration()
         else
         {
             delete iter->second;
-            conf_default.erase(iter++);
+
+            prev = iter++;
+
+            conf_default.erase(prev);
         }
     }
 

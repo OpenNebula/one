@@ -43,13 +43,13 @@ public:
     // *************************************************************************
 
     /**
-     *  Builds the address range set from an array of VectorAttributes. This
-     *  function is used to create address ranges.
+     *  Builds the address range from a VectorAttribute. This function is used
+     *  to create address ranges.
      *    @param ars the vector of address ranges
      *    @param error_msg describing the error
      *    @return 0 on success
      */
-    int from_vattr(vector<Attribute *> ars, string& error_msg);
+    int from_vattr(VectorAttribute * ar, string& error_msg);
 
     /**
      *  Builds the address range set from its XML representation. This function

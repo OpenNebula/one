@@ -61,12 +61,20 @@ public:
     // *************************************************************************
 
     /**
-     * Add an address range to the virtual network
+     * Add a set of address ranges to the virtual network
      *  @param ars_tmpl template in the form AR = [TYPE=...,IP=...,SIZE=...].
      *  @param error_msg If the action fails, this message contains the reason.
      *  @return 0 on success
      */
     int add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg);
+
+    /**
+     * Adds a set of address ranges
+     *  @param var a vector of address ranges
+     *  @param error_msg If the action fails, this message contains the reason.
+     *  @return 0 on success
+     */
+    int add_var(vector<Attribute *> &var, string& error_msg);
 
     /**
      * Removes an address range from the VNET

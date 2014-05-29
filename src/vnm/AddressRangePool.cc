@@ -35,39 +35,19 @@ AddressRangePool::~AddressRangePool()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::from_vattr(vector<Attribute *> ars, string& error_msg)
+int AddressRangePool::from_vattr(VectorAttribute* va, string& error_msg)
 {
-    vector<Attribute *>::iterator it;
+    AddressRange * ar = new AddressRange(next_ar);
 
-    /* -------------------- Init the AR pool ---------------------------- */
-
-    for (it = ars.begin(); it != ars.end(); it++)
+    if (ar->from_vattr(va, error_msg) != 0)
     {
-        VectorAttribute * va = static_cast<VectorAttribute *>(*it);
-
-        if (va == 0)
-        {
-            error_msg = "Wrong AR format";
-            return -1;
-        }
-
-        AddressRange * ar = new AddressRange(next_ar);
-
-        if (ar->from_vattr(va, error_msg) != 0)
-        {
-            delete ar;
-            return -1;
-        }
-
-        ar_pool.insert(make_pair(next_ar++, ar));
+        delete ar;
+        return -1;
     }
 
-    /* ---------------------- Template ---------------------------------- */
+    ar_pool.insert(make_pair(next_ar++, ar));
 
-    for (it = ars.begin(); it != ars.end(); it++)
-    {
-        ar_template.set(*it);
-    }
+    ar_template.set(va);
 
     return 0;
 }

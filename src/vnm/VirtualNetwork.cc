@@ -167,7 +167,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     remove_template_attribute("AR", ars);
 
-    if (ar_pool.from_vattr(ars, error_str) != 0)
+    if (add_var(ars, error_str) != 0)
     {
         goto error_ar;
     }
@@ -587,23 +587,42 @@ int VirtualNetwork::nic_attribute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
+int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
 {
-    vector<Attribute *> tmp_ars;
-    vector<Attribute *> ars;
-
-    vector<Attribute *>::iterator it;
-
-    ars_tmpl->get("AR", tmp_ars);
-
-    for (it=tmp_ars.begin(); it!=tmp_ars.end(); it++)
+    for (vector<Attribute *>::iterator it=var.begin(); it!=var.end(); it++)
     {
-        VectorAttribute * var = static_cast<VectorAttribute *>(*it);
+        VectorAttribute * oar = static_cast<VectorAttribute *>(*it);
 
-        ars.push_back(var->clone());
+        if (oar == 0)
+        {
+            error_msg = "Invalid format for address range";
+            return -1;
+        }
+
+        VectorAttribute * ar = oar->clone();
+
+        if (ar_pool.from_vattr(ar, error_msg) != 0)
+        {
+            delete ar;
+            return -1;
+        }
     }
 
-    return ar_pool.from_vattr(ars, error_msg);
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
+{
+    vector<Attribute *> var;
+
+    if (ars_tmpl->get("AR", var) > 0)
+    {
+        return add_var(var, error_msg);
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

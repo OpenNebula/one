@@ -265,7 +265,7 @@ private:
             int                 cluster_id,
             const string&       cluster_name);
 
-    virtual ~Datastore(){};
+    virtual ~Datastore();
 
     // *************************************************************************
     // DataBase implementation (Private)
