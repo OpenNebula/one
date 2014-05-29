@@ -1261,7 +1261,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     $("#update_service_template_submit", dialog).show();
     $("#create_service_template_reset", dialog).hide();
 
-    var service_template = response[ServiceTemplate.resource]
+    var service_template = response[OpenNebula.ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
     $("#service_name", dialog).val(htmlDecode(service_template.NAME));
 

@@ -152,9 +152,9 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span  id="provision_dashboard_total" style="font-size:90px">'+20+'</span>'+
+                '<span  id="provision_dashboard_total" style="font-size:80px">'+20+'</span>'+
                 '<br>'+
-                '<span>'+tr("TOTAL")+'</span>'+
+                '<span style="color: #999;">'+tr("TOTAL")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -176,7 +176,7 @@ var provision_vms_dashboard =
               '<div class="large-12 columns text-center">'+
                 '<span id="provision_dashboard_running" style="font-size:40px">'+13+'</span>'+
                 '<br>'+
-                '<span >'+tr("RUNNING")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("RUNNING")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -184,7 +184,7 @@ var provision_vms_dashboard =
               '<div class="large-12 columns text-center ">'+
                 '<span id="provision_dashboard_deploying"  style="font-size:40px">'+2+'</span>'+
                 '<br>'+
-                '<span >'+tr("DEPLOYING")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("DEPLOYING")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -192,7 +192,7 @@ var provision_vms_dashboard =
               '<div class="large-12 columns text-center">'+
                 '<span  id="provision_dashboard_off" style="font-size:40px">'+1+'</span>'+
                 '<br>'+
-                '<span >'+tr("OFF")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("OFF")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -200,7 +200,7 @@ var provision_vms_dashboard =
               '<div class="large-12 columns text-center ">'+
                 '<span  id="provision_dashboard_error" style="font-size:40px">'+0+'</span>'+
                 '<br>'+
-                '<span >'+tr("ERROR")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("ERROR")+'</span>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -248,9 +248,9 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span  id="provision_dashboard_vdc_total" style="font-size:90px">'+20+'</span>'+
+                '<span  id="provision_dashboard_vdc_total" style="font-size:80px">'+20+'</span>'+
                 '<br>'+
-                '<span>'+tr("TOTAL")+'</span>'+
+                '<span style="color: #999;">'+tr("TOTAL")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -272,7 +272,7 @@ var provision_vdc_vms_dashboard =
               '<div class="large-12 columns text-center">'+
                 '<span id="provision_dashboard_vdc_running" style="font-size:40px">'+13+'</span>'+
                 '<br>'+
-                '<span >'+tr("RUNNING")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("RUNNING")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -280,7 +280,7 @@ var provision_vdc_vms_dashboard =
               '<div class="large-12 columns text-center ">'+
                 '<span id="provision_dashboard_vdc_deploying"  style="font-size:40px">'+2+'</span>'+
                 '<br>'+
-                '<span >'+tr("DEPLOYING")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("DEPLOYING")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -288,7 +288,7 @@ var provision_vdc_vms_dashboard =
               '<div class="large-12 columns text-center">'+
                 '<span  id="provision_dashboard_vdc_off" style="font-size:40px">'+1+'</span>'+
                 '<br>'+
-                '<span >'+tr("OFF")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("OFF")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -296,7 +296,7 @@ var provision_vdc_vms_dashboard =
               '<div class="large-12 columns text-center ">'+
                 '<span  id="provision_dashboard_vdc_error" style="font-size:40px">'+0+'</span>'+
                 '<br>'+
-                '<span >'+tr("ERROR")+'</span>'+
+                '<span  style="color: #999; font-size: 14px">'+tr("ERROR")+'</span>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -344,9 +344,9 @@ var provision_users_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span  id="provision_dashboard_users_total" style="font-size:90px">'+20+'</span>'+
+                '<span  id="provision_dashboard_users_total" style="font-size:80px">'+20+'</span>'+
                 '<br>'+
-                '<span>'+tr("TOTAL")+'</span>'+
+                '<span style="color: #999;">'+tr("TOTAL")+'</span>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -534,32 +534,14 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
               '<div class="large-12 large-centered columns">'+
                 '<h3 class="subheader text-right">'+
                   '<span class="left">'+
-                    tr("Select Network")+
+                    tr("Network Interfaces")+
                   '</span>'+
-                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_networks_search"/>'+
                 '</h3>'+
                 '<br>'+
               '</div>'+
             '</div>'+
             '<br>'+
-            '<div class="row">'+
-              '<div class="provision_selected_networks large-10 large-centered columns">'+
-              '</div>'+
-            '</div>'+
-            '<div class="row">'+
-              '<div class="large-12 large-centered columns">'+
-                '<table id="provision_networks_table">'+
-                  '<thead class="hidden">'+
-                    '<tr>'+
-                      '<th>'+tr("ID")+'</th>'+
-                      '<th>'+tr("Name")+'</th>'+
-                    '</tr>'+
-                  '</thead>'+
-                  '<tbody class="hidden">'+
-                  '</tbody>'+
-                '</table>'+
-                '<br>'+
-              '</div>'+
+            '<div class="provision_network_selector">'+
             '</div>'+
           '</div>'+
         '</dd>'+
@@ -640,98 +622,10 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
     '</div>'+
   '</div>'+
   '<br>'+
-//  '<div class="row">'+
-//    '<div class="large-10 large-centered columns">'+
-//      '<dl class="accordion" data-accordion>'+
-//        '<dd>'+
-//          '<a href="#provision_create_extra_accordion" class="text-center accordion-a">'+
-//            '<i class="fa fa-edit"></i>&emsp;'+
-//            tr("Customize")+
-//          '</a>'+
-//          '<div id="provision_create_extra_accordion" class="content" style="padding: 0.9375rem 0px;">'+
-//            '<br>'+
-//            '<div class="row">'+
-//              '<div class="large-12 large-centered columns">'+
-//                '<h3 class="subheader text-right">'+
-//                  '<span class="left">'+
-//                    tr("Change Capacity")+
-//                  '</span>'+
-//                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_instance_types_search"/>'+
-//                '</h3>'+
-//                '<br>'+
-//              '</div>'+
-//            '</div>'+
-//            '<br>'+
-//            '<div class="row">'+
-//              '<div class="large-12 large-centered columns">'+
-//                '<table id="provision_instance_types_table">'+
-//                  '<thead class="hidden">'+
-//                    '<tr>'+
-//                      '<th>'+tr("Name")+'</th>'+
-//                    '</tr>'+
-//                  '</thead>'+
-//                  '<tbody class="hidden">'+
-//                  '</tbody>'+
-//                '</table>'+
-//                '<br>'+
-//              '</div>'+
-//            '</div>'+
-//            '<div class="row">'+
-//              '<div class="large-5 large-centered columns">'+
-//                '<br>'+
-//              '</div>'+
-//            '</div>'+
-//            '<div class="row">'+
-//              '<div class="large-12 large-centered columns">'+
-//                '<h3 class="subheader text-right">'+
-//                  '<span class="left">'+
-//                    tr("Select Network")+
-//                  '</span>'+
-//                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_networks_search"/>'+
-//                '</h3>'+
-//                '<br>'+
-//              '</div>'+
-//            '</div>'+
-//            '<br>'+
-//            '<div class="row">'+
-//              '<div class="provision_selected_networks large-10 large-centered columns">'+
-//              '</div>'+
-//            '</div>'+
-//            '<div class="row">'+
-//              '<div class="large-12 large-centered columns">'+
-//                '<table id="provision_networks_table">'+
-//                  '<thead class="hidden">'+
-//                    '<tr>'+
-//                      '<th>'+tr("ID")+'</th>'+
-//                      '<th>'+tr("Name")+'</th>'+
-//                    '</tr>'+
-//                  '</thead>'+
-//                  '<tbody class="hidden">'+
-//                  '</tbody>'+
-//                '</table>'+
-//                '<br>'+
-//              '</div>'+
-//            '</div>'+
-//          '</div>'+
-//        '</dd>'+
-//      '</dl>'+
-//    '</div>'+
-//  '</div>'+
-//  '<br>'+
-//  '<div class="row">'+
-//    '<div class="large-6 small-6 large-centered columns">'+
-//      '<div class="large-5 columns">'+
-//        '<hr>'+
-//      '</div>'+
-//      '<div class="large-2 small-2 text-center columns">'+
-//        '<p style="color: #999">'+ tr("or") + '</p>'+
-//      '</div>'+
-//      '<div class="large-5 small-5 columns">'+
-//        '<hr>'+
-//      '</div>'+
-//    '</div>'+
-//  '</div>'+
-//  '<br>'+
+  '<div id="provision_customize_flow_template" style="display: none">'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
   '<div class="row">'+
     '<div class="large-7 columns large-centered">'+
       '<div data-alert class="alert-box alert-box-error radius text-center hidden">'+
@@ -2037,6 +1931,163 @@ var povision_actions = {
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
+var provision_nic_accordion_id = 0;
+var provision_nic_accordion_dd_id = 0;
+
+function generate_provision_network_table(context, nic){
+  var nic_span;
+
+  if (nic) {
+    nic_span = '<span class="selected_network" template_nic=\''+JSON.stringify(nic)+'\'>'+
+        tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
+      '</span>';
+  } else {
+    nic_span =
+      '<span class="selected_network">'+
+        tr("Click here to choose a Network for this interface")+
+      '</span>';
+  }
+
+  var dd_context = $('<dd>'+
+    '<a href="#provision_accordion_dd_'+provision_nic_accordion_dd_id+'">'+
+      nic_span +
+      '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">'+
+        '<i class="fa fa-times fa-lg"/>'+
+      '</span>'+
+      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
+        '<i class="fa fa-pencil fa-lg"/>'+
+      '</span>'+
+    '</a>'+
+    '<div id="provision_accordion_dd_'+provision_nic_accordion_dd_id+'" class="content">'+
+      '<div class="row">'+
+        '<div class="large-12 large-centered columns">'+
+          '<h3 class="subheader text-right">'+
+            '<span class="left">'+
+              tr("Select Network")+
+            '</span>'+
+            '<input type="search" class="provision-search-input right" placeholder="Search"/>'+
+          '</h3>'+
+          '<br>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-12 large-centered columns">'+
+          '<table class="provision_networks_table">'+
+            '<thead class="hidden">'+
+              '<tr>'+
+                '<th>'+tr("ID")+'</th>'+
+                '<th>'+tr("Name")+'</th>'+
+              '</tr>'+
+            '</thead>'+
+            '<tbody class="hidden">'+
+            '</tbody>'+
+          '</table>'+
+          '<br>'+
+        '</div>'+
+      '</div>'+
+      '</div>'+
+    '</dd>').appendTo(context);
+
+  provision_nic_accordion_dd_id += 1;
+
+  var provision_networks_datatable = $('.provision_networks_table', dd_context).dataTable({
+    "iDisplayLength": 6,
+    "sDom" : '<"H">t<"F"lp>',
+    "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+    "aoColumnDefs": [
+        { "bVisible": false, "aTargets": ["all"]}
+    ],
+    "aoColumns": [
+        { "mDataProp": "VNET.ID" },
+        { "mDataProp": "VNET.NAME" }
+    ],
+    "fnPreDrawCallback": function (oSettings) {
+      // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+      if (this.$('tr', {"filter": "applied"} ).length == 0) {
+        this.html('<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+            tr("There are no networks available. Please contact your cloud administrator")+
+          '</span>'+
+          '</div>');
+      } else {
+        $(".provision_networks_table", dd_context).html(
+          '<ul class="provision_networks_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
+          '</ul>');
+      }
+
+      return true;
+    },
+    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      var data = aData.VNET;
+      $(".provision_networks_ul", dd_context).append(
+        '<li>'+
+          '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="'+data.ID+'" opennebula_name="'+data.NAME+'">'+
+            '<li class="provision-title" title="'+data.NAME+'">'+
+              data.NAME+
+            '</li>'+
+            '<li class="provision-bullet-item">'+
+              '<i class="fa fa-fw fa-globe" style="font-size:40px;"/>'+
+            '</li>'+
+            '<li class="provision-description">'+
+              (data.TEMPLATE.DESCRIPTION || '...')+
+            '</li>'+
+          '</ul>'+
+        '</li>');
+
+      return nRow;
+    }
+  });
+
+
+  $('.provision-search-input', dd_context).on('keyup',function(){
+    provision_networks_datatable.fnFilter( $(this).val() );
+  })
+
+  $('.provision-search-input', dd_context).on('change',function(){
+    provision_networks_datatable.fnFilter( $(this).val() );
+  })
+
+  dd_context.on("click", ".provision-pricing-table.more-than-one" , function(){
+    $(".selected_network", dd_context).html(tr("Network") + ": " + $(this).attr("opennebula_name"));
+    $(".selected_network", dd_context).attr("opennebula_id", $(this).attr("opennebula_id"))
+
+    $('a', dd_context).first().trigger("click");
+  })
+
+  dd_context.on("click", ".provision_remove_nic" , function(){
+    dd_context.remove();
+    return false;
+  });
+
+  $('a', dd_context).first().trigger("click");
+
+  update_provision_networks_datatable(provision_networks_datatable);
+}
+
+function generate_provision_network_accordion(context){
+  context.html(
+    '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
+    '</dl>'+
+    '<a class="button large-12 medium provision_add_network_interface" style="background: #888; color: #fff; font-weight: bold">'+
+      tr("Add another Network Interface")+
+    '</a>')
+
+  provision_nic_accordion_id += 1;
+
+  $(".provision_add_network_interface", context).on("click", function(){
+    generate_provision_network_table($(".accordion", context));
+  })
+
+  $(document).foundation();
+}
+
 function show_provision_dashboard() {
   $(".section_content").hide();
   $("#provision_dashboard").fadeIn();
@@ -2463,8 +2514,6 @@ function show_provision_create_vm() {
   provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
 
   update_provision_instance_types_datatable(provision_instance_types_datatable);
-
-  update_provision_networks_datatable(provision_networks_datatable);
 
   $(".section_content").hide();
   $("#provision_create_vm").fadeIn();
@@ -3730,90 +3779,9 @@ $(document).ready(function(){
       update_provision_instance_types_datatable(provision_instance_types_datatable);
     });
 
-    provision_networks_datatable = $('#provision_networks_table').dataTable({
-      "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"lp>',
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aoColumnDefs": [
-          { "bVisible": false, "aTargets": ["all"]}
-      ],
-      "aoColumns": [
-          { "mDataProp": "VNET.ID" },
-          { "mDataProp": "VNET.NAME" }
-      ],
-      "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no networks available. Please contact your cloud administrator")+
-            '</span>'+
-            '</div>');
-        } else {
-          $("#provision_networks_table").html('<ul id="provision_networks_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
-      },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.VNET;
-        $("#provision_networks_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="'+data.ID+'" opennebula_name="'+data.NAME+'">'+
-              '<li class="provision-title" title="'+data.NAME+'">'+
-                data.NAME+
-              '</li>'+
-              '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-globe" style="font-size:40px;"/>'+'</li>'+
-              //'<li class="provision-bullet-item">'+
-              //  '<span style="font-size: 40px">'+
-              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              //  '<span style="vertical-align: middle; font-size:14px">'+
-              //    'x'+data.TEMPLATE.CPU+' - '+
-              //    ((data.TEMPLATE.MEMORY > 1000) ?
-              //      (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-              //      (data.TEMPLATE.MEMORY+'MB'))+
-              //  '</span>'+
-              //  '</span>'+
-              //'</li>'+
-              '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
-              '</li>'+
-            '</ul>'+
-          '</li>');
-
-        return nRow;
-      }
-    });
-
-
-    $('#provision_create_networks_search').on('keyup',function(){
-      provision_networks_datatable.fnFilter( $(this).val() );
-    })
-
-    $('#provision_create_networks_search').on('change',function(){
-      provision_networks_datatable.fnFilter( $(this).val() );
-    })
-
-    $("#provision_create_networks_refresh_button").click(function(){
-      OpenNebula.Helper.clear_cache("VNET");
-      update_provision_networks_datatable(provision_networks_datatable);
-    });
-
-    tab.on("click", "#provision_create_vm .provision-pricing-table.more-than-one" , function(){
-      $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" opennebula_id="'+$(this).attr("opennebula_id")+'">'+
-          tr("Network") + ": " + $(this).attr("opennebula_name")+
-          '<a href="#" class="close">&times;</a>'+
-        '</div>')
-    })
-
-    tab.on("click", ".provision_select_template .provision-pricing-table.only-one" , function(){
+    tab.on("click", "#provision_create_vm .provision_select_template .provision-pricing-table.only-one" , function(){
       if ($(this).hasClass("selected")){
-        $(".provision_selected_networks").html("");
+        $(".provision_network_selector", $("#provision_create_vm")).html("");
       } else {
         var template_id = $(this).attr("opennebula_id");
 
@@ -3829,13 +3797,10 @@ $(document).ready(function(){
             else if (!$.isEmptyObject(template_nic))
                 nics = [template_nic]
 
-            $(".provision_selected_networks").html("");
+            generate_provision_network_accordion($(".provision_network_selector", $("#provision_create_vm")));
 
             $.each(nics, function(index, nic){
-              $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
-                  tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
-                  '<a href="#" class="close">&times;</a>'+
-                '</div>')
+                generate_provision_network_table($("#provision_create_vm .provision_nic_accordion"), nic);
             })
           }
         })
@@ -3858,7 +3823,7 @@ $(document).ready(function(){
       var template_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
 
       var nics = [];
-      $(".provision_selected_networks .alert-box", context).each(function(){
+      $(".selected_network", context).each(function(){
         var nic;
         if ($(this).attr("template_nic")) {
           nic = JSON.parse($(this).attr("template_nic"))
@@ -3911,6 +3876,7 @@ $(document).ready(function(){
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
       "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aaSorting"  : [[1, "asc"]],
       "aoColumnDefs": [
           { "bVisible": false, "aTargets": ["all"]}
       ],
@@ -3940,36 +3906,44 @@ $(document).ready(function(){
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.DOCUMENT;
+        var body = data.TEMPLATE.BODY;
         var logo;
 
-        if (data.TEMPLATE.LOGO) {
+        var roles_li = "";
+        if (body.roles) {
+          $.each(body.roles, function(index, role) {
+            var role_state = get_provision_flow_state(role);
+
+            roles_li +=
+              '<li class="provision-bullet-item text-left" style="margin-left: 10px;margin-right: 10px;">'+
+                '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                role.name+
+                '<span class="right">'+role.cardinality+" VMs</span>"+
+              '</li>';
+          });
+        }
+
+        if (body.LOGO) {
           logo = '<span class="provision-logo" href="#">'+
-              '<img  src="'+data.TEMPLATE.LOGO+'">'+
+              '<img  src="'+body.LOGO+'">'+
             '</span>';
         } else {
           logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
-            '<i class="fa fa-fw fa-file-text-o"/>'+
+            '<i class="fa fa-fw fa-cubes"/>'+
           '</span>';
         }
 
         $("#provision_flow_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
-              //'<li class="provision-bullet-item">'+
-              //  '<span style="vertical-align: middle; font-size:14px">'+
-              //    'x'+(data.TEMPLATE.CPU||'-')+' - '+
-              //    ((data.TEMPLATE.MEMORY > 1000) ?
-              //      (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-              //      ((data.TEMPLATE.MEMORY||'-')+'MB'))+
-              //  '</span>'+
-              //'</li>'+
+              roles_li +
               '<li class="provision-description" style="padding-top:0px">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
+                (data.TEMPLATE.DESCRIPTION || '')+
               '</li>'+
             '</ul>'+
           '</li>');
@@ -3992,189 +3966,213 @@ $(document).ready(function(){
 
     });
 
-    //provision_instance_types_datatable = $('#provision_instance_types_table').dataTable({
-    //  "iDisplayLength": 6,
-    //  "sDom" : '<"H">t<"F"lp>',
-    //  "bSort" : false,
-    //  "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-    //  "aoColumnDefs": [
-    //      { "bVisible": false, "aTargets": ["all"]}
-    //  ],
-    //  "aoColumns": [
-    //      { "mDataProp": "name" }
-    //  ],
-    //  "fnPreDrawCallback": function (oSettings) {
-    //    // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-    //    if (this.$('tr', {"filter": "applied"} ).length == 0) {
-    //      this.html('<div class="text-center">'+
-    //        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-    //          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-    //          '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-    //        '</span>'+
-    //        '<br>'+
-    //        '<br>'+
-    //        '<span style="font-size: 18px; color: #999">'+
-    //          tr("There are no instance_types available. Please contact your cloud administrator")+
-    //        '</span>'+
-    //        '</div>');
-    //    } else {
-    //      $("#provision_instance_types_table").html('<ul id="provision_instance_types_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-    //    }
-//
-    //    return true;
-    //  },
-    //  "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-    //    var data = aData;
-    //    $("#provision_instance_types_ul").append('<li>'+
-    //        '<ul class="provision-pricing-table hoverable only-one" data=\''+JSON.stringify(data)+'\'>'+
-    //          '<li class="provision-title" title="'+data.name+'">'+
-    //            data.name+
-    //          '</li>'+
-    //          '<li class="provision-bullet-item">'+
-    //            '<span style="font-size: 40px">'+
-    //            '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-    //            '<span style="vertical-align: middle; font-size:14px">'+
-    //              'x'+data.cpu+' - '+
-    //              ((data.memory > 1000) ?
-    //                (Math.floor(data.memory/1024)+'GB') :
-    //                (data.memory+'MB'))+
-    //            '</span>'+
-    //            '</span>'+
-    //          '</li>'+
-    //          '<li class="provision-description">'+
-    //            (data.description || '')+
-    //          '</li>'+
-    //        '</ul>'+
-    //      '</li>');
-//
-    //    return nRow;
-    //  }
-    //});
-//
-//
-    //$('#provision_create_instance_types_search').on('keyup',function(){
-    //  provision_instance_types_datatable.fnFilter( $(this).val() );
-    //})
-//
-    //$('#provision_create_instance_types_search').on('change',function(){
-    //  provision_instance_types_datatable.fnFilter( $(this).val() );
-    //})
-//
-    //$("#provision_create_instance_types_refresh_button").click(function(){
-    //  update_provision_instance_types_datatable(provision_instance_types_datatable);
-    //});
+    tab.on("click", ".provision_select_flow_template .provision-pricing-table.only-one" , function(){
+      if ($(this).hasClass("selected")){
+        $("#provision_customize_flow_template").hide();
+      } else {
+        $("#provision_customize_flow_template").show();
 
-    //provision_networks_datatable = $('#provision_networks_table').dataTable({
-    //  "iDisplayLength": 6,
-    //  "sDom" : '<"H">t<"F"lp>',
-    //  "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-    //  "aoColumnDefs": [
-    //      { "bVisible": false, "aTargets": ["all"]}
-    //  ],
-    //  "aoColumns": [
-    //      { "mDataProp": "VNET.ID" },
-    //      { "mDataProp": "VNET.NAME" }
-    //  ],
-    //  "fnPreDrawCallback": function (oSettings) {
-    //    // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-    //    if (this.$('tr', {"filter": "applied"} ).length == 0) {
-    //      this.html('<div class="text-center">'+
-    //        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-    //          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-    //          '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-    //        '</span>'+
-    //        '<br>'+
-    //        '<br>'+
-    //        '<span style="font-size: 18px; color: #999">'+
-    //          tr("There are no networks available. Please contact your cloud administrator")+
-    //        '</span>'+
-    //        '</div>');
-    //    } else {
-    //      $("#provision_networks_table").html('<ul id="provision_networks_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-    //    }
-//
-    //    return true;
-    //  },
-    //  "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-    //    var data = aData.VNET;
-    //    $("#provision_networks_ul").append('<li>'+
-    //        '<ul class="provision-pricing-table hoverable more-than-one" opennebula_id="'+data.ID+'" opennebula_name="'+data.NAME+'">'+
-    //          '<li class="provision-title" title="'+data.NAME+'">'+
-    //            data.NAME+
-    //          '</li>'+
-    //          '<li class="provision-bullet-item">'+'<i class="fa fa-fw fa-globe" style="font-size:40px;"/>'+'</li>'+
-    //          //'<li class="provision-bullet-item">'+
-    //          //  '<span style="font-size: 40px">'+
-    //          //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-    //          //  '<span style="vertical-align: middle; font-size:14px">'+
-    //          //    'x'+data.TEMPLATE.CPU+' - '+
-    //          //    ((data.TEMPLATE.MEMORY > 1000) ?
-    //          //      (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-    //          //      (data.TEMPLATE.MEMORY+'MB'))+
-    //          //  '</span>'+
-    //          //  '</span>'+
-    //          //'</li>'+
-    //          '<li class="provision-description">'+
-    //            (data.TEMPLATE.DESCRIPTION || '...')+
-    //          '</li>'+
-    //        '</ul>'+
-    //      '</li>');
-//
-    //    return nRow;
-    //  }
-    //});
-//
-//
-    //$('#provision_create_networks_search').on('keyup',function(){
-    //  provision_networks_datatable.fnFilter( $(this).val() );
-    //})
-//
-    //$('#provision_create_networks_search').on('change',function(){
-    //  provision_networks_datatable.fnFilter( $(this).val() );
-    //})
-//
-    //$("#provision_create_networks_refresh_button").click(function(){
-    //  OpenNebula.Helper.clear_cache("VNET");
-    //  update_provision_networks_datatable(provision_networks_datatable);
-    //});
+        $("#provision_customize_flow_template").html("");
 
-    //tab.on("click", "#provision_create_vm .provision-pricing-table.more-than-one" , function(){
-    //  $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" opennebula_id="'+$(this).attr("opennebula_id")+'">'+
-    //      tr("Network") + ": " + $(this).attr("opennebula_name")+
-    //      '<a href="#" class="close">&times;</a>'+
-    //    '</div>')
-    //})
+        var data = JSON.parse($(this).attr("data"));
+        $.each(data.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+          var context = $('<div id="provision_create_flow_role_'+index+'">'+
+            '<div class="row">'+
+              '<div class="large-10 large-centered columns">'+
+                '<h2 class="subheader">'+
+                  '<i class="fa fa-cube"></i>&emsp;'+
+                  role.name+
+                '</h2>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-10 large-centered columns">'+
+                '<div class="row text-center">'+
+                  '<div class="large-4 columns">'+
+                    '<span  id="provision_dashboard_total" style="color: #777; font-size:60px">'+4+'</span>'+
+                    '<br>'+
+                    '<span style="color: #999;">'+tr("VMs")+'</span>'+
+                  '</div>'+
+                  '<div class="large-4 columns">'+
+                    '<span  id="provision_dashboard_total" style="color: #777; font-size:60px">'+2+'</span>'+
+                    '<br>'+
+                    '<span style="color: #999;">'+tr("CPU / VM")+'</span>'+
+                  '</div>'+
+                  '<div class="large-4 columns">'+
+                    '<span  id="provision_dashboard_total" style="color: #777; font-size:60px">'+"4 GB"+'</span>'+
+                    '<br>'+
+                    '<span style="color: #999;">'+tr("MEMORY / VM")+'</span>'+
+                  '</div>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-9 large-centered columns">'+
+                '<dl class="accordion" data-accordion>'+
+                  '<dd>'+
+                    '<a href="#provision_flow_customize_accordion_'+index+'" class="text-center accordion-a">'+
+                      '<i class="fa fa-edit"></i>&emsp;'+
+                      tr("Customize") + " " + role.name +
+                    '</a>'+
+                    '<div id="provision_flow_customize_accordion_'+index+'" class="content" style="padding: 0.9375rem 0px;">'+
+                      '<br>'+
+                      '<div class="row">'+
+                        '<div class="large-12 large-centered columns">'+
+                          '<h3 class="subheader text-right">'+
+                            '<span class="left">'+
+                              tr("Change Capacity")+
+                            '</span>'+
+                            '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_instance_types_search"/>'+
+                          '</h3>'+
+                          '<br>'+
+                        '</div>'+
+                      '</div>'+
+                      '<br>'+
+                      '<div class="row">'+
+                        '<div class="large-12 large-centered columns">'+
+                          '<table id="provision_instance_types_table_'+index+'">'+
+                            '<thead class="hidden">'+
+                              '<tr>'+
+                                '<th>'+tr("Name")+'</th>'+
+                              '</tr>'+
+                            '</thead>'+
+                            '<tbody class="hidden">'+
+                            '</tbody>'+
+                          '</table>'+
+                          '<br>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row">'+
+                        '<div class="large-12 large-centered columns">'+
+                          '<h3 class="subheader text-right">'+
+                            '<span class="left">'+
+                              tr("Network Interfaces")+
+                            '</span>'+
+                          '</h3>'+
+                          '<br>'+
+                        '</div>'+
+                      '</div>'+
+                      '<br>'+
+                      '<div class="provision_network_selector">'+
+                      '</div>'+
+                    '</div>'+
+                  '</dd>'+
+                '</dl>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<br>'+
+          '<br>'+
+          '<br>').appendTo($("#provision_customize_flow_template"))
 
-    //tab.on("click", ".provision_select_template .provision-pricing-table.only-one" , function(){
-    //  if ($(this).hasClass("selected")){
-    //    $(".provision_selected_networks").html("");
-    //  } else {
-    //    var template_id = $(this).attr("opennebula_id");
-//
-    //    OpenNebula.Template.show({
-    //      data : {
-    //          id: template_id
-    //      },
-    //      success: function(request,template_json){
-    //        var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-    //        var nics = []
-    //        if ($.isArray(template_nic))
-    //            nics = template_nic
-    //        else if (!$.isEmptyObject(template_nic))
-    //            nics = [template_nic]
-//
-    //        $(".provision_selected_networks").html("");
-//
-    //        $.each(nics, function(index, nic){
-    //          $(".provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
-    //              tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
-    //              '<a href="#" class="close">&times;</a>'+
-    //            '</div>')
-    //        })
-    //      }
-    //    })
-    //  }
-    //})
+          generate_provision_network_accordion($(".provision_network_selector", context))
+
+          var provision_instance_types_datatable = $('#provision_instance_types_table_'+index).dataTable({
+            "iDisplayLength": 6,
+            "sDom" : '<"H">t<"F"lp>',
+            "bSort" : false,
+            "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": ["all"]}
+            ],
+            "aoColumns": [
+                { "mDataProp": "name" }
+            ],
+            "fnPreDrawCallback": function (oSettings) {
+              // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+              if (this.$('tr', {"filter": "applied"} ).length == 0) {
+                this.html('<div class="text-center">'+
+                  '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+                  '</span>'+
+                  '<br>'+
+                  '<br>'+
+                  '<span style="font-size: 18px; color: #999">'+
+                    tr("There are no instance_types available. Please contact your cloud administrator")+
+                  '</span>'+
+                  '</div>');
+              } else {
+                $("#provision_instance_types_table_"+index).html('<ul id="provision_instance_types_ul_'+index+'" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+              }
+
+              return true;
+            },
+            "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+              var data = aData;
+              $("#provision_instance_types_ul_"+index).append('<li>'+
+                  '<ul class="provision-pricing-table hoverable only-one" data=\''+JSON.stringify(data)+'\'>'+
+                    '<li class="provision-title" title="'+data.name+'">'+
+                      data.name+
+                    '</li>'+
+                    '<li class="provision-bullet-item">'+
+                      '<span style="font-size: 40px">'+
+                      '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                      '<span style="vertical-align: middle; font-size:14px">'+
+                        'x'+data.cpu+' - '+
+                        ((data.memory > 1000) ?
+                          (Math.floor(data.memory/1024)+'GB') :
+                          (data.memory+'MB'))+
+                      '</span>'+
+                      '</span>'+
+                    '</li>'+
+                    '<li class="provision-description">'+
+                      (data.description || '')+
+                    '</li>'+
+                  '</ul>'+
+                '</li>');
+
+              return nRow;
+            }
+          });
+
+
+          $('#provision_create_instance_types_search_'+index).on('keyup',function(){
+            provision_instance_types_datatable.fnFilter( $(this).val() );
+          })
+
+          $('#provision_create_instance_types_search_'+index).on('change',function(){
+            provision_instance_types_datatable.fnFilter( $(this).val() );
+          })
+
+          update_provision_instance_types_datatable(provision_instance_types_datatable);
+
+          var template_id = role.vm_template;
+          var role_html_id = "#provision_create_flow_role_"+index;
+
+          OpenNebula.Template.show({
+            data : {
+                id: template_id
+            },
+            success: function(request,template_json){
+              var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+              var nics = []
+              if ($.isArray(template_nic))
+                  nics = template_nic
+              else if (!$.isEmptyObject(template_nic))
+                  nics = [template_nic]
+
+              $(role_html_id+" .provision_selected_networks").html("");
+
+              $.each(nics, function(index, nic){
+                generate_provision_network_table($(role_html_id + " .provision_nic_accordion"), nic);
+                //$(role_html_id+" .provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
+                //    tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
+                //    '<a href="#" class="close">&times;</a>'+
+                //  '</div>')
+              })
+            }
+          })
+
+
+        })
+
+        $(document).foundation();
+      }
+    })
 
     tab.on("click", "#provision_create_flow .provision-pricing-table.only-one" , function(){
       if ($(this).hasClass("selected")){
