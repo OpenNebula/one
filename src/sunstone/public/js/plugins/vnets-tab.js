@@ -987,9 +987,11 @@ function setupCreateVNetDialog() {
             return false;
         }
 
+        var network_json = {"name" : name};
+
         var description = $('#DESCRIPTION',dialog).val();
-        if (network_addr.length)
-            var network_json = {"name" : name, "description" : description};
+        if (description.length)
+            network_json['description'] = description;
 
         var network_mode = $('select#network_mode',dialog).val();
         var bridge = $('#bridge',dialog).val();
