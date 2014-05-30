@@ -28,9 +28,18 @@ var create_vn_tmpl =
       </dl>\
   </div>\
 </div>\
-      <div class="tabs-content">\
-        <div class="content active" id="vnet_wizard">\
-           <form id="create_vn_form_easy" action="" class="creation">\
+<div class="tabs-content">\
+  <div class="content active" id="vnet_wizard">\
+    <form id="create_vn_form_easy" action="" class="creation">\
+      <div>\
+        <dl id="vnet_create_tabs" class="tabs right-info-tabs text-center" data-tab>\
+          <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
+          <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Configuration")+'</a></dd>\
+          <dd><a href="#vnetCreateARTab"><i class="fa fa-align-justify"></i><br>'+tr("Addresses")+'</a></dd>\
+          <dd><a href="#vnetCreateContextTab"><i class="fa fa-ellipsis-h"></i><br>'+tr("Other")+'</a></dd>\
+        </dl>\
+        <div id="vnet_create_tabs_content" class="tabs-content">\
+          <div class="content active" id="vnetCreateGeneralTab">\
             <div class="row">\
               <div class="large-12 columns">\
                 <label for="name" >' + tr("Name") + ':</label>\
@@ -44,6 +53,28 @@ var create_vn_tmpl =
               </div>\
             </div>\
             <br>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_address">'+tr("N. Address")+':</label>\
+                  <input type="text" name="net_address" id="net_address" />\
+              </div>\
+              <div class="large-6 columns">\
+                  <label for="net_mask">'+tr("N. Mask")+':</label>\
+                  <input type="text" name="net_mask" id="net_mask" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_dns">'+tr("DNS")+':</label>\
+                  <input type="text" name="net_dns" id="net_dns" />\
+              </div>\
+              <div class="large-6 columns">\
+                  <label for="net_gateway">'+tr("Gateway")+':</label>\
+                  <input type="text" name="net_gateway" id="net_gateway" />\
+              </div>\
+            </div>\
+          </div>\
+          <div class="content active" id="vnetCreateBridgeTab">\
             <div class="row">\
               <div class="large-6 columns">\
                   <label for="bridge">'+tr("Bridge")+':</label>\
@@ -85,113 +116,94 @@ var create_vn_tmpl =
                 </div>\
               </div>\
             </div>\
-            <br>\
-            <div class="row">\
-              <div class="large-6 columns">\
-                  <label for="net_address">'+tr("N. Address")+':</label>\
-                  <input type="text" name="net_address" id="net_address" />\
-              </div>\
-              <div class="large-6 columns">\
-                  <label for="net_mask">'+tr("N. Mask")+':</label>\
-                  <input type="text" name="net_mask" id="net_mask" />\
-              </div>\
-            </div>\
-            <div class="row">\
-              <div class="large-6 columns">\
-                  <label for="net_dns">'+tr("DNS")+':</label>\
-                  <input type="text" name="net_dns" id="net_dns" />\
-              </div>\
-              <div class="large-6 columns">\
-                  <label for="net_gateway">'+tr("Gateway")+':</label>\
-                  <input type="text" name="net_gateway" id="net_gateway" />\
-              </div>\
-            </div>\
-            <br>\
+          </div>\
+          <div class="content" id="vnetCreateARTab">\
             <div class="row">\
               <div class="large-12 columns">\
-                <fieldset>\
-                  <legend>' + tr("Address Ranges") + '</legend>\
-                  <div class="row">\
-                    <dl class="tabs vertical" id="vnet_wizard_ar_tabs" data-tab>\
-                      <dt class="text-center">\
-                        <button type="button" class="button tiny radius" id="vnet_wizard_ar_btn">\
-                          <span class="fa fa-plus"></span> '+tr("Add another Address Range")+'\
-                        </button>\
-                      </dt>\
-                    </dl>\
-                    <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content">\
+                <div class="row">\
+                  <dl class="tabs vertical" id="vnet_wizard_ar_tabs" data-tab>\
+                    <dt class="text-center">\
+                      <button type="button" class="button tiny radius" id="vnet_wizard_ar_btn">\
+                        <span class="fa fa-plus"></span> '+tr("Add another Address Range")+'\
+                      </button>\
+                    </dt>\
+                  </dl>\
+                  <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content">\
+                  </div>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+          <div class="content" id="vnetCreateContextTab">\
+            <div class="row">\
+              <div class="large-12 columns">\
+                <span>' + tr("Custom attributes") + '</span>\
+                <br>\
+                <br>\
+                <div class="row">\
+                  <div class="large-6 columns">\
+                    <div class="row">\
+                      <div class="large-12 columns">\
+                        <label for="custom_var_vnet_name">'+tr("Name")+':</label>\
+                        <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
+                      </div>\
+                    </div>\
+                    <div class="row">\
+                      <div class="large-12 columns">\
+                        <label for="custom_var_vnet_value">'+tr("Value")+':</label>\
+                        <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
+                      </div>\
+                    </div>\
+                    <div class="row">\
+                      <div class="large-12 columns">\
+                        <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_vnet_button" value="add_custom_vnet_var">'+tr("Add")+'\</button>\
+                        <button class="add_remove_button secondary button small radius" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">'+tr("Remove selected")+'</button>\
+                      </div>\
                     </div>\
                   </div>\
-                </fieldset>\
-              </div>\
-            </div>\
-            <br>\
-            <div class="row">\
-              <div class="large-12 columns">\
-                <fieldset>\
-                  <legend>' + tr("Custom attributes") + '</legend>\
-                   <div class="row">\
-                    <div class="large-6 columns">\
-                      <div class="row">\
-                        <div class="large-12 columns">\
-                          <label for="custom_var_vnet_name">'+tr("Name")+':</label>\
-                          <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
-                        </div>\
-                      </div>\
-                      <div class="row">\
-                        <div class="large-12 columns">\
-                          <label for="custom_var_vnet_value">'+tr("Value")+':</label>\
-                          <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
-                        </div>\
-                      </div>\
-                      <div class="row">\
-                        <div class="large-12 columns">\
-                          <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_vnet_button" value="add_custom_vnet_var">'+tr("Add")+'\</button>\
-                          <button class="add_remove_button secondary button small radius" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">'+tr("Remove selected")+'</button>\
-                        </div>\
+                  <div class="large-6 columns">\
+                    <div class="row">\
+                      <div class="large-12 columns">\
+                        <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:10em !important; width:100%" multiple>\
+                          <!-- insert leases -->\
+                        </select>\
                       </div>\
                     </div>\
-                    <div class="large-6 columns">\
-                      <div class="row">\
-                        <div class="large-12 columns">\
-                          <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:10em !important; width:100%" multiple>\
-                            <!-- insert leases -->\
-                          </select>\
-                        </div>\
-                      </div>\
-                    </div>\
-                   </div>\
-                </fieldset>\
+                  </div>\
+                </div>\
               </div>\
             </div>\
-        <div class="form_buttons">\
-          <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
-             '+tr("Create")+'\
-          </button>\
-          <button id="wizard_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+          </div>\
         </div>\
-        </form>\
       </div>\
-      <div id="vnet_advanced" class="content">\
-        <form id="create_vn_form_manual" action="">\
-          <div class="row">\
-            <div class="columns large-12">\
-              <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
-            </div>\
-          </div>\
-          <div class="row">\
-            <div class="columns large-12">\
-              <textarea id="template" rows="15" style="width:100%; height:300px;"></textarea>\
-            </div>\
-          </div>\
-            <div class="form_buttons">\
-              <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
-              <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
-            </div>\
-        </form>\
+      <div class="form_buttons">\
+        <button class="button success radius right" id="create_vn_submit_easy" value="vn/create">\
+           '+tr("Create")+'\
+        </button>\
+        <button id="wizard_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
       </div>\
-    </div>\
-  <a class="close-reveal-modal">&#215;</a>';
+    </form>\
+  </div>\
+  <div id="vnet_advanced" class="content">\
+    <form id="create_vn_form_manual" action="">\
+      <div class="row">\
+        <div class="columns large-12">\
+          <h4><small>'+tr("Write the Virtual Network template here")+'</small></h4>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="columns large-12">\
+          <textarea id="template" rows="15" style="width:100%; height:300px;"></textarea>\
+        </div>\
+      </div>\
+        <div class="form_buttons">\
+          <button class="button success right radius" id="create_vn_submit_manual" value="vn/create">'+tr("Create")+'</button>\
+          <button id="advanced_vnet_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
+        </div>\
+    </form>\
+  </div>\
+</div>\
+<a class="close-reveal-modal">&#215;</a>';
 
 var update_vnet_tmpl =
    '<form action="javascript:alert(\'js error!\');">\
