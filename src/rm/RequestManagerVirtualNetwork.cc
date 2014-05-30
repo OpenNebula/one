@@ -137,6 +137,7 @@ void VirtualNetworkReserve::request_execute(
     int    id       = xmlrpc_c::value_int    (paramList.getInt(1));
     string str_tmpl = xmlrpc_c::value_string (paramList.getString(2));
 
+    VirtualNetworkPool *   vnpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate tmpl;
     VirtualNetwork *       vn;
     VirtualNetwork *       rvn;
@@ -239,7 +240,7 @@ void VirtualNetworkReserve::request_execute(
 
     // --------------- Get the VNET to make the reservation -------------
 
-    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
+    vn = vnpool->get(id,true);
 
     if ( vn == 0 )
     {
@@ -259,9 +260,8 @@ void VirtualNetworkReserve::request_execute(
 
         cluster_id = vn->get_cluster_id();
 
-        rc = (static_cast<VirtualNetworkPool *>(pool))->allocate(att.uid, att.gid,
-            att.uname, att.gname, att.umask, id, vtmpl, &rid, cluster_id,
-            vn->get_cluster_name(), error_str);
+        rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+                id, vtmpl, &rid, cluster_id, vn->get_cluster_name(), error_str);
 
         if (rc < 0)
         {
@@ -276,7 +276,7 @@ void VirtualNetworkReserve::request_execute(
         }
     }
 
-    rvn = static_cast<VirtualNetwork *>(pool->get(rid,true));
+    rvn = vnpool->get(rid,true);
 
     if (rvn == 0)
     {
@@ -291,11 +291,14 @@ void VirtualNetworkReserve::request_execute(
 
     if (on_exisiting && rvn->get_parent() != id)
     {
+        ostringstream oss;
+
+        oss << "New reservations for virtual network " << rid << " have to be "
+            << "from network " << rvn->get_parent();
+
         quota_rollback(&qtmpl, Quotas::NETWORK, att);
 
-        failure_response(INTERNAL,
-            request_error("Cannot put reservations from different networks on "
-                "the same VNET",""), att);
+        failure_response(INTERNAL, request_error(oss.str(),""), att);
 
         rvn->unlock();
 

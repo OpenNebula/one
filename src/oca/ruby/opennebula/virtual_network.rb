@@ -199,7 +199,7 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             rtmpl =  "SIZE       = #{rsize}\n"
-            rtmpl << "NAME       = #{rname}\n" if !name.nil?
+            rtmpl << "NAME       = #{rname}\n" if !rname.nil?
             rtmpl << "AR_ID      = #{ar_id}\n" if !ar_id.nil?
             rtmpl << "NETWORK_ID = #{vnet}\n"  if !vnet.nil?
 

@@ -205,7 +205,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
-            if rname == -1
+            if rname == -1 && args[1].nil?
                 STDERR.puts "Specify a name (-n name) for the reservation"
                 exit -1
             end
