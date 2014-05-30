@@ -194,10 +194,11 @@ public:
      *  Release all previously given address leases to the given object
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
+     *    @return the number of addresses freed
      */
-    void free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
+    int free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
     {
-        ar_pool.free_addr_by_owner(ot, obid);
+        return ar_pool.free_addr_by_owner(ot, obid);
     }
 
     /**

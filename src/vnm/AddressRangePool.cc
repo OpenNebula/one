@@ -377,14 +377,17 @@ void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
+int AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
 {
     map<unsigned int, AddressRange *>::iterator it;
+    unsigned int used_addr_ini = used_addr;
 
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
-        used_addr = used_addr - it->second->free_addr_by_owner(ot, oid);
+        used_addr -= it->second->free_addr_by_owner(ot, oid);
     }
+
+    return used_addr_ini - used_addr;
 }
 
 /* -------------------------------------------------------------------------- */
