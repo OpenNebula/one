@@ -41,13 +41,13 @@ var create_vn_tmpl =
         <div id="vnet_create_tabs_content" class="tabs-content">\
           <div class="content active" id="vnetCreateGeneralTab">\
             <div class="row">\
-              <div class="large-12 columns">\
+              <div class="large-6 columns">\
                 <label for="name" >' + tr("Name") + ':</label>\
                 <input type="text" name="name" id="name"/>\
               </div>\
             </div>\
             <div class="row">\
-              <div class="large-12 columns">\
+              <div class="large-6 columns">\
                 <label for="DESCRIPTION" >' + tr("Description") + ':</label>\
                 <textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>\
               </div>\
@@ -74,7 +74,7 @@ var create_vn_tmpl =
               </div>\
             </div>\
           </div>\
-          <div class="content active" id="vnetCreateBridgeTab">\
+          <div class="content" id="vnetCreateBridgeTab">\
             <div class="row">\
               <div class="large-6 columns">\
                   <label for="bridge">'+tr("Bridge")+':</label>\
@@ -920,9 +920,11 @@ function setupCreateVNetDialog() {
         return false;
     });
 
-    $("#vnet_wizard_ar_btn").bind("click", function(){
+    $("#vnet_wizard_ar_btn", dialog).bind("click", function(){
         add_ar_tab(number_of_ar, dialog);
         number_of_ar++;
+
+        return false;
     });
 
     $('#network_mode',dialog).change(function(){
@@ -1087,12 +1089,13 @@ GATEWAY6    IPv6 router for this network
 CONTEXT_FORCE_IPV4  When a vnet is IPv6 the IPv4 is not configured unless this attribute is set
 */
 
-        network_json["AR"] = [];
-
         $('.ar_tab',dialog).each(function(){
             hash = retrieve_ar_tab_data(this);
 
             if (!$.isEmptyObject(hash)) {
+                if(!network_json["AR"])
+                    network_json["AR"] = [];
+
                 network_json["AR"].push(hash);
             }
         });
@@ -1139,6 +1142,10 @@ CONTEXT_FORCE_IPV4  When a vnet is IPv6 the IPv4 is not configured unless this a
 
 function popUpCreateVnetDialog() {
     $create_vn_dialog.foundation().foundation('reveal', 'open');
+
+    // Add first AR
+    $("#vnet_wizard_ar_btn", $create_vn_dialog).trigger("click");
+
     $("input#name",$create_vn_dialog).focus();
 }
 
@@ -1233,7 +1240,6 @@ function retrieve_ar_tab_data(ar_section){
     var data  = {};
 
     var ar_type = $('input[name$="ar_type"]:checked',ar_section).val();
-    data["TYPE"] = ar_type;
 
     var fields = [];
 
@@ -1260,6 +1266,10 @@ function retrieve_ar_tab_data(ar_section){
         }
 
     });
+
+    if (!$.isEmptyObject(data)) {
+        data["TYPE"] = ar_type;
+    }
 
     // TODO MANDATORY INPUTS
     /*
