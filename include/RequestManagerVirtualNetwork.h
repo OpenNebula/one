@@ -64,7 +64,11 @@ class VirtualNetworkAddAddressRange: public RequestManagerVirtualNetwork
 public:
     VirtualNetworkAddAddressRange():
         RequestManagerVirtualNetwork("VirtualNetworkAddAddressRange",
-                                     "Adds address ranges to a virtual network"){};
+                                     "Adds address ranges to a virtual network")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
     ~VirtualNetworkAddAddressRange(){};
 
     int leases_action(VirtualNetwork * vn,
@@ -89,7 +93,7 @@ public:
         pool        = nd.get_vnpool();
 
         auth_object = PoolObjectSQL::NET;
-        auth_op     = AuthRequest::MANAGE;
+        auth_op     = AuthRequest::ADMIN;
     };
 
     ~VirtualNetworkRmAddressRange(){};
@@ -106,7 +110,11 @@ class VirtualNetworkUpdateAddressRange: public RequestManagerVirtualNetwork
 public:
     VirtualNetworkUpdateAddressRange():
         RequestManagerVirtualNetwork("VirtualNetworkUpdateAddressRange",
-          "Updates address ranges to a virtual network"){};
+          "Updates address ranges to a virtual network")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
     ~VirtualNetworkUpdateAddressRange(){};
 
     int leases_action(VirtualNetwork * vn,
