@@ -550,7 +550,7 @@ function vnElements(){
 function vNetworkElementArray(vn_json){
     var network = vn_json.VNET;
 
-    addresses_vnets = addresses_vnets + parseInt(network.TOTAL_LEASES);
+    addresses_vnets = addresses_vnets + parseInt(network.USED_LEASES);
 
     return [
         '<input class="check_item" type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
