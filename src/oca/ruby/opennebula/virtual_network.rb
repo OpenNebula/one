@@ -193,12 +193,15 @@ module OpenNebula
         #        any address range will be used
         # @param addr [String] the first address in the reservation. If set to
         #        nil the first free address will be used
-        def reserve(rname, rsize, ar_id, addr)
+        # @param vnet [String] ID of the VNET to add the reservation to. If not
+        #        set a new VNET will be created.
+        def reserve(rname, rsize, ar_id, addr, vnet)
             return Error.new('ID not defined') if !@pe_id
 
-            rtmpl =  "NAME = #{rname}\n"
-            rtmpl << "SIZE = #{rsize}\n"
-            rtmpl << "AR_ID= #{ar_id}\n" if !ar_id.nil?
+            rtmpl =  "SIZE       = #{rsize}\n"
+            rtmpl << "NAME       = #{rname}\n" if !name.nil?
+            rtmpl << "AR_ID      = #{ar_id}\n" if !ar_id.nil?
+            rtmpl << "NETWORK_ID = #{vnet}\n"  if !vnet.nil?
 
             if !addr.nil?
                 if addr.include?':'

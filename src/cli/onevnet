@@ -183,10 +183,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     reserve_desc = <<-EOT.unindent
-        Reserve addresses from the Virtual Network
+        Reserve addresses from the Virtual Network. A new virtual network will
+        be created to hold the reservation. Optionally the reservation can be
+        put on an exisiting VNET, as long as it contains a valid reservation
+        from the same VNET
     EOT
 
-    command :reserve, reserve_desc, :vnetid,
+    command :reserve, reserve_desc, :vnetid, [:vnetid, nil],
         :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::R_NAME,
             OneVNetHelper::R_SIZE, OneVNetHelper::AR_MAC, OneVNetHelper::AR_IP] do
         helper.perform_action(args[0],options,"reservation made") do |vn|
@@ -207,7 +210,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
-            vn.reserve(rname, rsize, options[:ar_id], addr)
+            vn.reserve(rname, rsize, options[:ar_id], addr, args[1])
         end
     end
 

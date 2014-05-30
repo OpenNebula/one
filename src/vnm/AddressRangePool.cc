@@ -499,7 +499,7 @@ int AddressRangePool::hold_by_mac(const string& mac_s)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
+int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
     AddressRange *rar)
 {
     map<unsigned int, AddressRange *>::iterator it;
@@ -507,7 +507,7 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
     for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if ((it->second->get_free_addr() >= rsize) &&
-            (it->second->reserve_addr(pvid, vid, rsize, rar) == 0))
+            (it->second->reserve_addr(vid, rsize, rar) == 0))
         {
             used_addr += rsize;
             return 0;
@@ -520,7 +520,7 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
+int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
     unsigned int ar_id, AddressRange *rar)
 {
     map<unsigned int, AddressRange *>::iterator it;
@@ -533,7 +533,7 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
     }
 
     if ((it->second->get_free_addr() >= rsize) &&
-        (it->second->reserve_addr(pvid, vid, rsize, rar) == 0))
+        (it->second->reserve_addr(vid, rsize, rar) == 0))
     {
         used_addr += rsize;
         return 0;
@@ -545,7 +545,7 @@ int AddressRangePool::reserve_addr(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
+int AddressRangePool::reserve_addr_by_ip(int vid, unsigned int rsize,
     unsigned int ar_id, const string& ip, AddressRange *rar)
 {
     map<unsigned int, AddressRange *>::iterator it;
@@ -557,7 +557,7 @@ int AddressRangePool::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
         return -1;
     }
 
-    if (it->second->reserve_addr_by_ip(pvid, vid, rsize, ip, rar) == 0)
+    if (it->second->reserve_addr_by_ip(vid, rsize, ip, rar) == 0)
     {
         used_addr += rsize;
         return 0;
@@ -569,7 +569,7 @@ int AddressRangePool::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
+int AddressRangePool::reserve_addr_by_mac(int vid, unsigned int rsize,
     unsigned int ar_id, const string& mac, AddressRange *rar)
 {
     map<unsigned int, AddressRange *>::iterator it;
@@ -581,7 +581,7 @@ int AddressRangePool::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
         return -1;
     }
 
-    if (it->second->reserve_addr_by_mac(pvid, vid, rsize, mac, rar) == 0)
+    if (it->second->reserve_addr_by_mac(vid, rsize, mac, rar) == 0)
     {
         used_addr += rsize;
         return 0;
@@ -592,23 +592,3 @@ int AddressRangePool::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-unsigned int AddressRangePool::get_parents(vector<int>& parent_nets)
-{
-    int vid;
-    int num_parents = 0;
-
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
-    {
-        if ((it->second->get_attribute("PARENT_NETWORK_ID", vid) == 0) &&
-            (vid >= 0))
-        {
-            parent_nets.push_back(vid);
-            num_parents++;
-        }
-    }
-
-    return num_parents;
-}

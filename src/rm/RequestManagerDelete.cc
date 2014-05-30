@@ -323,8 +323,6 @@ int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    vector<int> parents;
-
     VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
 
     if ( vnet->get_used() > 0 )
@@ -336,22 +334,19 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
         return -1;
     }
 
-    vnet->get_parents(parents);
-
-    int uid = vnet->get_uid();
-    int gid = vnet->get_gid();
+    int pvid = vnet->get_parent();
+    int uid  = vnet->get_uid();
+    int gid  = vnet->get_gid();
 
     int rc  = RequestManagerDelete::drop(oid, object, error_msg);
 
-    VirtualNetworkPool *vnpool = static_cast<VirtualNetworkPool *>(pool);
-
-    for (vector<int>::iterator it = parents.begin(); it < parents.end(); it++)
+    if (pvid != -1)
     {
-        vnet = vnpool->get(*it, true);
+        vnet = (static_cast<VirtualNetworkPool *>(pool))->get(pvid, true);
 
         if (vnet == 0)
         {
-            continue;
+            return rc;
         }
 
         int freed = vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
@@ -367,7 +362,7 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
 
             for (int i= 0 ; i < freed ; i++)
             {
-                oss << " NIC = [ NETWORK_ID = " << *it << " ]" << endl;
+                oss << " NIC = [ NETWORK_ID = " << pvid << " ]" << endl;
             }
 
             tmpl.parse_str_or_xml(oss.str(), error_msg);

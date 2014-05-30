@@ -38,12 +38,14 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                const string&            _uname,
                                const string&            _gname,
                                int                      _umask,
+                               int                      _pvid,
                                int                      _cluster_id,
                                const string&            _cluster_name,
                                VirtualNetworkTemplate * _vn_template):
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
             Clusterable(_cluster_id, _cluster_name),
-            bridge("")
+            bridge(""),
+            parent_vid(_pvid)
 {
     if (_vn_template != 0)
     {
@@ -413,6 +415,15 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
             "<BRIDGE>"    << bridge    << "</BRIDGE>"    <<
             "<VLAN>"      << vlan      << "</VLAN>";
 
+    if (parent_vid != -1)
+    {
+        os << "<PARENT_NETWORK_ID>" << parent_vid << "</PARENT_NETWORK_ID>";
+    }
+    else
+    {
+        os << "<PARENT_NETWORK_ID/>";
+    }
+
     if (!phydev.empty())
     {
         os << "<PHYDEV>" << phydev << "</PHYDEV>";
@@ -472,6 +483,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
 
     xpath(phydev, "/VNET/PHYDEV", "");
     xpath(vlan_id,"/VNET/VLAN_ID","");
+    xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
 
     // Virtual Network template
     ObjectXML::get_nodes("/VNET/TEMPLATE", content);
@@ -811,7 +823,7 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
 {
     AddressRange *rar = rvnet->allocate_ar();
 
-    if (ar_pool.reserve_addr(oid, rvnet->get_oid(), rsize, rar) != 0)
+    if (ar_pool.reserve_addr(rvnet->get_oid(), rsize, rar) != 0)
     {
         error_str = "Not enough free addresses in an address range";
 
@@ -840,7 +852,7 @@ int VirtualNetwork::reserve_addr(VirtualNetwork *rvnet,
 {
     AddressRange *rar = rvnet->allocate_ar();
 
-    if (ar_pool.reserve_addr(oid, rvnet->get_oid(), rsize, ar_id, rar) != 0)
+    if (ar_pool.reserve_addr(rvnet->get_oid(), rsize, ar_id, rar) != 0)
     {
         ostringstream oss;
 
@@ -874,7 +886,7 @@ int VirtualNetwork::reserve_addr_by_ip(VirtualNetwork *rvnet,
 {
     AddressRange *rar = rvnet->allocate_ar();
 
-    if (ar_pool.reserve_addr_by_ip(oid,rvnet->get_oid(),rsize,ar_id,ip,rar)!=0)
+    if (ar_pool.reserve_addr_by_ip(rvnet->get_oid(),rsize,ar_id,ip,rar)!=0)
     {
         ostringstream oss;
 
@@ -908,7 +920,7 @@ int VirtualNetwork::reserve_addr_by_mac(VirtualNetwork *rvnet,
 {
     AddressRange *rar = rvnet->allocate_ar();
 
-    if (ar_pool.reserve_addr_by_mac(oid,rvnet->get_oid(),rsize,ar_id,mac,rar)!=0)
+    if (ar_pool.reserve_addr_by_mac(rvnet->get_oid(),rsize,ar_id,mac,rar)!=0)
     {
         ostringstream oss;
 

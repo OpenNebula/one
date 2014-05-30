@@ -280,7 +280,7 @@ int VirtualNetworkAllocate::pool_allocate(
     VirtualNetworkPool * vpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate * vtmpl=static_cast<VirtualNetworkTemplate *>(tmpl);
 
-    return vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+    return vpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,-1,
             vtmpl, &id, cluster_id, cluster_name, error_str);
 }
 

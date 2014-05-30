@@ -279,13 +279,12 @@ public:
     };
 
     /**
-     *  Returns the parent networks used to create this VNET (if any)
-     *    @param parents vector of parents networks if any
-     *    @return the number of parents
+     *  Returns the parent network used to create this VNET (if any)
+     *    @return the parent vnet id or -1 this vnet has no parent
      */
-    unsigned int get_parents(vector<int>& parents)
+    int get_parent()
     {
-        return ar_pool.get_parents(parents);
+        return parent_vid;
     };
 
     /**
@@ -376,6 +375,11 @@ private:
     int     vlan;
 
     /**
+     *  Parent VNET ID if any
+     */
+    int     parent_vid;
+
+    /**
      *  The Address Range Pool
      */
     AddressRangePool ar_pool;
@@ -430,6 +434,7 @@ private:
                    const string&            _uname,
                    const string&            _gname,
                    int                      _umask,
+                   int                      _parent_vid,
                    int                      _cluster_id,
                    const string&            _cluster_name,
                    VirtualNetworkTemplate * _vn_template = 0);

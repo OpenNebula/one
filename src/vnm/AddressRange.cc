@@ -1016,20 +1016,13 @@ int AddressRange::hold_by_mac(const string& mac_s)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
-    AddressRange *rar)
+int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 {
     unsigned int first_index;
-    int pnet;
 
     if (rsize > (size - used_addr))
     {
         return -1; //reservation dosen't fit
-    }
-
-    if ((attr->vector_value("PARENT_NETWORK_ID", pnet) == 0 ) && (pnet > -1))
-    {
-        return -1; //This address range is already a reservation
     }
 
     // --------------- Look for a continuos range of addresses -----------------
@@ -1087,8 +1080,6 @@ int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
 
     rar->from_vattr(new_ar, errmsg);
 
-    new_ar->replace("PARENT_NETWORK_ID", pvid);
-
     new_ar->replace("PARENT_NETWORK_AR_ID",id);
 
     return 0;
@@ -1097,16 +1088,9 @@ int AddressRange::reserve_addr(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::reserve_addr_by_index(int pvid, int vid, unsigned int rsize,
+int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     unsigned int sindex, AddressRange *rar)
 {
-    int pnet;
-
-    if ((attr->vector_value("PARENT_NETWORK_ID", pnet) == 0 ) && (pnet > -1))
-    {
-        return -1; //This address range is already a reservation
-    }
-
     /* ----------------- Allocate the new AR from sindex -------------------- */
 
     for (unsigned int j=sindex; j< (sindex+rsize) ; j++)
@@ -1138,8 +1122,6 @@ int AddressRange::reserve_addr_by_index(int pvid, int vid, unsigned int rsize,
 
     rar->from_vattr(new_ar, errmsg);
 
-    new_ar->replace("PARENT_NETWORK_ID", pvid);
-
     new_ar->replace("PARENT_NETWORK_AR_ID",id);
 
     return 0;
@@ -1148,7 +1130,7 @@ int AddressRange::reserve_addr_by_index(int pvid, int vid, unsigned int rsize,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
+int AddressRange::reserve_addr_by_ip(int vid, unsigned int rsize,
     const string& ip_s, AddressRange *rar)
 {
     if (!(type & 0x00000002))//Not of type IP4 or IP4_6
@@ -1175,13 +1157,13 @@ int AddressRange::reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
         return -1;
     }
 
-    return reserve_addr_by_index(pvid, vid, rsize, sindex, rar);
+    return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
+int AddressRange::reserve_addr_by_mac(int vid, unsigned int rsize,
     const string& mac_s, AddressRange *rar)
 {
     unsigned int mac_i[2];
@@ -1203,7 +1185,7 @@ int AddressRange::reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
         return -1;
     }
 
-    return reserve_addr_by_index(pvid, vid, rsize, sindex, rar);
+    return reserve_addr_by_index(vid, rsize, sindex, rar);
 }
 
 /* ************************************************************************** */

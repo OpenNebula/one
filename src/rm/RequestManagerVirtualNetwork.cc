@@ -139,9 +139,11 @@ void VirtualNetworkReserve::request_execute(
 
     VirtualNetworkTemplate tmpl;
     VirtualNetwork *       vn;
+    VirtualNetwork *       rvn;
 
     string error_str;
     int    rc;
+    int    cluster_id;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -170,11 +172,22 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    int  rid;
+    bool on_exisiting = tmpl.get("NETWORK_ID", rid);
+
+    if ( on_exisiting && (rid < 0))
+    {
+        failure_response(ACTION, request_error("Error in reservation request",
+            "NETWORK_ID must be equal or greater than 0"), att);
+
+        return;
+    }
+
     string name;
 
     tmpl.get("NAME", name);
 
-    if (name.empty())
+    if (name.empty() && !on_exisiting)
     {
         failure_response(ACTION, request_error("Error in reservation request",
             "NAME for reservation has to be set"), att);
@@ -224,7 +237,7 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
-    // --------------- Create a new VNET to place the reservation -------------
+    // --------------- Get the VNET to make the reservation -------------
 
     vn = static_cast<VirtualNetwork *>(pool->get(id,true));
 
@@ -236,37 +249,55 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
-    VirtualNetworkTemplate * vtmpl = vn->clone_template();
+    // -------------- Get/create a network to place the reservation ------------
 
-    vtmpl->replace("NAME", name);
+    if (!on_exisiting) //Create a new VNET
+    {
+        VirtualNetworkTemplate * vtmpl = vn->clone_template();
 
-    int rid;
-    int cluster_id = vn->get_cluster_id();
+        vtmpl->replace("NAME", name);
 
-    rc = (static_cast<VirtualNetworkPool *>(pool))->allocate(att.uid, att.gid,
-        att.uname, att.gname, att.umask, vtmpl, &rid, cluster_id,
-        vn->get_cluster_name(), error_str);
+        cluster_id = vn->get_cluster_id();
 
-    if (rc < 0)
+        rc = (static_cast<VirtualNetworkPool *>(pool))->allocate(att.uid, att.gid,
+            att.uname, att.gname, att.umask, id, vtmpl, &rid, cluster_id,
+            vn->get_cluster_name(), error_str);
+
+        if (rc < 0)
+        {
+            quota_rollback(&qtmpl, Quotas::NETWORK, att);
+
+            failure_response(INTERNAL,
+                request_error("Cannot create a reservation VNET",error_str),att);
+
+            vn->unlock();
+
+            return;
+        }
+    }
+
+    rvn = static_cast<VirtualNetwork *>(pool->get(rid,true));
+
+    if (rvn == 0)
     {
         quota_rollback(&qtmpl, Quotas::NETWORK, att);
 
-        failure_response(INTERNAL,
-            request_error("Cannot allocate reservation VNET", error_str), att);
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),att);
 
         vn->unlock();
 
         return;
     }
 
-    VirtualNetwork * rvn = static_cast<VirtualNetwork *>(pool->get(rid,true));
-
-    if (rvn == 0)
+    if (on_exisiting && rvn->get_parent() != id)
     {
         quota_rollback(&qtmpl, Quotas::NETWORK, att);
 
         failure_response(INTERNAL,
-            request_error("Cannot allocate reservation VNET",""), att);
+            request_error("Cannot put reservations from different networks on "
+                "the same VNET",""), att);
+
+        rvn->unlock();
 
         vn->unlock();
 
@@ -301,7 +332,10 @@ void VirtualNetworkReserve::request_execute(
 
         failure_response(ACTION, request_error(error_str,""), att);
 
-        pool->drop(rvn, error_str);
+        if (!on_exisiting)
+        {
+            pool->drop(rvn, error_str);
+        }
 
         rvn->unlock();
 
@@ -320,7 +354,7 @@ void VirtualNetworkReserve::request_execute(
 
     // -------------- Add the reservation to the cluster ----------------------
 
-    if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
+    if ((cluster_id != ClusterPool::NONE_CLUSTER_ID) && (!on_exisiting))
     {
         Nebula& nd  = Nebula::instance();
 

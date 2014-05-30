@@ -217,29 +217,26 @@ public:
     /**
      *  Reserve a given number of addresses from the first address range with
      *  enough free addresses to allocate the reservation
-     *    @param pvid the id of the parent VNET
      *    @param vid the id of the VNET making the reservation
      *    @param size number of addresses to reserve
      *    @param rar a new address range to place the reservation
      *    @return 0 on success
      */
-    int reserve_addr(int pvid, int vid, unsigned int rsize, AddressRange *rar);
+    int reserve_addr(int vid, unsigned int rsize, AddressRange *rar);
 
     /**
      *  Reserve a given number of addresses from the given address range
-     *    @param pvid the id of the parent VNET
      *    @param vid the id of the VNET making the reservation
      *    @param rsize number of addresses to reserve
      *    @param ar_id the address range to reserve the addresses from
      *    @param rar a new address range to place the reservation
      *    @return 0 on success
      */
-    int reserve_addr(int pvid, int vid, unsigned int rsize, unsigned int ar_id,
+    int reserve_addr(int vid, unsigned int rsize, unsigned int ar_id,
         AddressRange *rar);
 
     /**
      *  Reserve a number of addresses from an address range from a given ip
-     *    @param pvid the id of the parent VNET
      *    @param vid the id of the VNET making the reservation
      *    @param rsize number of addresses to reserve
      *    @param ar_id the address range to reserve the addresses from
@@ -247,12 +244,11 @@ public:
      *    @param rar a new address range to place the reservation
      *    @return 0 on success
      */
-    int reserve_addr_by_ip(int pvid, int vid, unsigned int rsize,
-        unsigned int ar_id, const string& ip, AddressRange *rar);
+    int reserve_addr_by_ip(int vid, unsigned int rsize, unsigned int ar_id,
+        const string& ip, AddressRange *rar);
 
     /**
      *  Reserve a number of addresses from an address range from a given ip
-     *    @param pvid the id of the parent VNET
      *    @param vid the id of the VNET making the reservation
      *    @param rsize number of addresses to reserve
      *    @param ar_id the address range to reserve the addresses from
@@ -260,14 +256,8 @@ public:
      *    @param rar a new address range to place the reservation
      *    @return 0 on success
      */
-    int reserve_addr_by_mac(int pvid, int vid, unsigned int rsize,
-        unsigned int ar_id, const string& mac, AddressRange *rar);
-
-    /**
-     *  Get the parent vnets of the Address Ranges in this AR POOL
-     *    @param parent_vnets vector with the vnet ids of the parent vnets
-     */
-    unsigned int get_parents(vector<int>& parent_nets);
+    int reserve_addr_by_mac(int vid, unsigned int rsize, unsigned int ar_id,
+        const string& mac, AddressRange *rar);
 
     // *************************************************************************
     // Helpers & Formatting
