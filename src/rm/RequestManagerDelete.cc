@@ -338,7 +338,10 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
 
     vnet->get_parents(parents);
 
-    int rc = RequestManagerDelete::drop(oid, object, error_msg);
+    int uid = vnet->get_uid();
+    int gid = vnet->get_gid();
+
+    int rc  = RequestManagerDelete::drop(oid, object, error_msg);
 
     VirtualNetworkPool *vnpool = static_cast<VirtualNetworkPool *>(pool);
 
@@ -351,11 +354,26 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
             continue;
         }
 
-        vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
+        int freed = vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
+
 
         pool->update(vnet);
-
         vnet->unlock();
+
+        if (freed > 0)
+        {
+            ostringstream oss;
+            Template      tmpl;
+
+            for (int i= 0 ; i < freed ; i++)
+            {
+                oss << " NIC = [ NETWORK_ID = " << *it << " ]" << endl;
+            }
+
+            tmpl.parse_str_or_xml(oss.str(), error_msg);
+
+            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+        }
     }
 
     return rc;
