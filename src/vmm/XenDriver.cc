@@ -698,7 +698,7 @@ int XenDriver::deployment_description(
 
         if ( localtime )
         {
-            file << "localtime = 'yes'" << endl;
+            file << "localtime = '1'" << endl;
         }
 
         attrs.clear();
