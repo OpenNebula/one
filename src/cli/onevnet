@@ -156,6 +156,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    free_desc = <<-EOT.unindent
+        Frees a reserved address range from the Virtual Network
+    EOT
+
+    command :free, free_desc, :vnetid, :ar_id do
+        helper.perform_action(args[0],options,"address range freed") do |vn|
+            vn.free(args[1])
+        end
+    end
+
     hold_desc = <<-EOT.unindent
         Holds a Virtual Network lease, marking it as used
     EOT

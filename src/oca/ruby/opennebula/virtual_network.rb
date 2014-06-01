@@ -36,7 +36,8 @@ module OpenNebula
             :hold       => "vn.hold",
             :release    => "vn.release",
             :rename     => "vn.rename",
-            :reserve    => "vn.reserve"
+            :reserve    => "vn.reserve",
+            :free_ar    => "vn.free_ar"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -214,6 +215,16 @@ module OpenNebula
             end
 
             rc = @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Removes an Address Range from the VirtualNetwork
+        def free(ar_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VN_METHODS[:free_ar], @pe_id, ar_id.to_i)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc

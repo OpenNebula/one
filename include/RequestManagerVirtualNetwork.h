@@ -86,8 +86,11 @@ public:
 class VirtualNetworkRmAddressRange : public Request
 {
 public:
-    VirtualNetworkRmAddressRange():Request("VirtualNetworkRmAddressRange",
-      "A:sii", "Removes an address range from a virtual network")
+    VirtualNetworkRmAddressRange(
+      const string& name = "VirtualNetworkRmAddressRange",
+      const string& sign = "A:sii",
+      const string& help = "Removes an address range from a virtual network")
+        : Request(name, sign, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
@@ -96,10 +99,37 @@ public:
         auth_op     = AuthRequest::ADMIN;
     };
 
-    ~VirtualNetworkRmAddressRange(){};
+    virtual ~VirtualNetworkRmAddressRange(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkFreeAddressRange : public VirtualNetworkRmAddressRange
+{
+public:
+    VirtualNetworkFreeAddressRange():VirtualNetworkRmAddressRange(
+      "VirtualNetworkFreeAddressRange",
+      "A:sii",
+      "Frees a reserved address range from a virtual network")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::MANAGE;
+    };
+
+    ~VirtualNetworkFreeAddressRange(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att)
+    {
+        VirtualNetworkRmAddressRange::request_execute(_paramList, att);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
