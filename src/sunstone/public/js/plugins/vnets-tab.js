@@ -141,39 +141,9 @@ var create_vn_tmpl =
                 <span>' + tr("Custom attributes") + '</span>\
                 <br>\
                 <br>\
-                <div class="row">\
-                  <div class="large-6 columns">\
-                    <div class="row">\
-                      <div class="large-12 columns">\
-                        <label for="custom_var_vnet_name">'+tr("Name")+':</label>\
-                        <input type="text" id="custom_var_vnet_name" name="custom_var_vnet_name" />\
-                      </div>\
-                    </div>\
-                    <div class="row">\
-                      <div class="large-12 columns">\
-                        <label for="custom_var_vnet_value">'+tr("Value")+':</label>\
-                        <input type="text" id="custom_var_vnet_value" name="custom_var_vnet_value" />\
-                      </div>\
-                    </div>\
-                    <div class="row">\
-                      <div class="large-12 columns">\
-                        <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_vnet_button" value="add_custom_vnet_var">'+tr("Add")+'\</button>\
-                        <button class="add_remove_button secondary button small radius" id="remove_custom_var_vnet_button" value="remove_custom_vnet_var">'+tr("Remove selected")+'</button>\
-                      </div>\
-                    </div>\
-                  </div>\
-                  <div class="large-6 columns">\
-                    <div class="row">\
-                      <div class="large-12 columns">\
-                        <select id="custom_var_vnet_box" name="custom_var_vnet_box" style="height:10em !important; width:100%" multiple>\
-                          <!-- insert leases -->\
-                        </select>\
-                      </div>\
-                    </div>\
-                  </div>\
-                </div>\
               </div>\
-            </div>\
+            </div>'+
+            customTagsHtml()+'\
           </div>\
         </div>\
       </div>\
@@ -1029,7 +999,7 @@ function setupCreateVNetDialog() {
     var number_of_ar = 0;
 
     // close icon: removing the tab on click
-    $(dialog).on("click", "i.remove-tab", function() {
+    $("#vnetCreateARTab", dialog).on("click", "i.remove-tab", function() {
         var target = $(this).parent().attr("href");
         var dd = $(this).closest('dd');
         var dl = $(this).closest('dl');
@@ -1093,29 +1063,7 @@ function setupCreateVNetDialog() {
     //Initialize shown options
     $('#network_mode',dialog).trigger("change");
 
-    $('#add_custom_var_vnet_button', dialog).click(
-        function(){
-            var name = $('#custom_var_vnet_name',$create_vn_dialog).val();
-            var value = $('#custom_var_vnet_value',$create_vn_dialog).val();
-            if (!name.length || !value.length) {
-                notifyError("Custom attribute name and value must be filled in");
-                return false;
-            }
-            option= '<option value=\''+value+'\' name=\''+name+'\'>'+
-                name+'='+value+
-                '</option>';
-            $('select#custom_var_vnet_box',$create_vn_dialog).append(option);
-            return false;
-        }
-    );
-
-    $('#remove_custom_var_vnet_button', dialog).click(
-        function(){
-            $('select#custom_var_vnet_box :selected',$create_vn_dialog).remove();
-            return false;
-        }
-    );
-
+    setupCustomTags($("#vnetCreateContextTab", dialog));
 
     //Handle submission of the easy mode
     $('#create_vn_submit_easy',dialog).click(function(){
@@ -1226,11 +1174,7 @@ CONTEXT_FORCE_IPV4  When a vnet is IPv6 the IPv4 is not configured unless this a
         });
 
         //Time to add custom attributes
-        $('#custom_var_vnet_box option',$create_vn_dialog).each(function(){
-            var attr_name = $(this).attr('name');
-            var attr_value = $(this).val();
-            network_json[attr_name] = attr_value;
-        });
+        retrieveCustomTags($('#vnetCreateContextTab', $create_vn_dialog), network_json);
 
         //Create the VNetwork.
 
@@ -1329,6 +1273,19 @@ function generate_ar_tab_content(str_ar_tab_id){
         <label for="'+str_ar_tab_id+'_ula_prefix">'+tr("ULA prefix")+':</label>\
         <input type="text" name="ULA_PREFIX" id="'+str_ar_tab_id+'_ula_prefix"/>\
       </div>\
+    </div>\
+    <div class="row">\
+      <hr>\
+      <div class="large-12 columns">\
+        <span>' + tr("Custom attributes") + '</span>\
+        <br>\
+        <br>\
+      </div>\
+    </div>\
+    <div class="row" id="'+str_ar_tab_id+'_custom_tags">\
+      <div class="12 columns">'+
+        customTagsHtml()+
+      '</div>\
     </div>';
 
     return html;
@@ -1357,6 +1314,8 @@ function setup_ar_tab_content(ar_section, str_ar_tab_id) {
 
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).attr('checked', true);
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).change();
+
+    setupCustomTags($('#'+str_ar_tab_id+'_custom_tags',ar_section));
 
     setupTips(ar_section);
 }
@@ -1395,6 +1354,8 @@ function retrieve_ar_tab_data(ar_section){
     if (!$.isEmptyObject(data)) {
         data["TYPE"] = ar_type;
     }
+
+    retrieveCustomTags(ar_section, data);
 
     // TODO MANDATORY INPUTS
     /*

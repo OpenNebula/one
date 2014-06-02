@@ -4593,3 +4593,75 @@ function fillAccounting(div, req, response) {
     $("#acct_placeholder", div).hide();
     $("#acct_content", div).show();
 }
+
+function customTagsHtml(){
+    return '<div class="row">\
+      <div class="large-4 columns">\
+        <input type="text" id="KEY" name="key" />\
+      </div>\
+      <div class="large-6 columns">\
+        <input type="text" id="VALUE" name="value" />\
+      </div>\
+      <div class="large-2 columns">\
+        <button type="button" class="button secondary small radius" id="add_custom">'+tr("Add")+'</button>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="custom_tags" class="dataTable policies_table">\
+          <thead>\
+            <tr>\
+              <th>'+tr("KEY")+'</th>\
+              <th>'+tr("VALUE")+'</th>\
+              <th></th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbodyinput">\
+            <tr>\
+            </tr>\
+            <tr>\
+            </tr>\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>';
+}
+
+// div is the container div of customTagsHtml(), eg
+// setupCustomTags($("#vnetCreateContextTab", dialog));
+function setupCustomTags(div){
+    $('#add_custom', div).click(function() {
+        var table = $('#custom_tags', div)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = $('input#KEY', div).val()
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = $('input#VALUE', div).val()
+        cell2.appendChild(element2);
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    });
+
+    div.on("click", "i.remove-tab", function() {
+        $(this).closest("tr").remove()
+    });
+}
+
+function retrieveCustomTags(div, hash){
+    $('#custom_tags tr', div).each(function(){
+        if ($('#KEY', $(this)).val()) {
+            hash[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val();
+        }
+    });
+}
