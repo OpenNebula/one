@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 var addresses_vnets = 0;
+var last_selected_row_ar;
 
 var create_vn_tmpl =
 '<div class="row">'+
@@ -513,6 +514,10 @@ var vnet_info_panel = {
         title: tr("Virtual network information"),
         content: ""
     },
+    "vnet_ar_list_tab" : {
+        title: tr("Address Range management"),
+        content: ""
+    },
     "vnet_leases_tab" : {
         title: tr("Lease management"),
         content: ""
@@ -660,6 +665,12 @@ function updateVNetworkInfo(request,vn){
         content: info_tab_content
     };
 
+    var ar_tab = {
+        title : tr("Addresses"),
+        icon: "fa-align-justify",
+        content: ar_list_tab_content(vn_info)
+    };
+
     var leases_tab = {
         title: tr("Leases"),
         icon: "fa-list-ul",
@@ -668,9 +679,42 @@ function updateVNetworkInfo(request,vn){
 
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_ar_list_tab",ar_tab);
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
     Sunstone.popUpInfoPanel("vnet_info_panel", "vnets-tab");
+
+
+    var ar_list_dataTable = $("#ar_list_datatable",$("#vnet_info_panel")).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
+        "aoColumnDefs": [
+//            { "bSortable": false, "aTargets": [3,4] },
+        ]
+    });
+
+    $('tbody tr',ar_list_dataTable).die("click");
+    $('tbody tr',ar_list_dataTable).live("click",function(e){
+        var aData = ar_list_dataTable.fnGetData(this);
+        if (!aData) return true;
+        var id = aData[0];
+        if (!id) return true;
+
+        if(last_selected_row_ar) {
+            last_selected_row_ar.children().each(function(){
+                $(this).removeClass('markrowchecked');
+            });
+        }
+
+        last_selected_row_ar = $(this);
+        $(this).children().each(function(){
+            $(this).addClass('markrowchecked');
+        });
+
+        $("#ar_show_info", $("#vnet_info_panel")).html(ar_show_info(vn_info, id));
+
+        return false;
+    });
 
     var leases_dataTable = $("#leases_datatable",$("#vnet_info_panel")).dataTable({
         "bSortClasses" : false,
@@ -684,10 +728,7 @@ function updateVNetworkInfo(request,vn){
     setPermissionsTable(vn_info,'');
 }
 
-// Prints the lis of leases depending on the Vnet TYPE
-// It adds the "add lease", "hold lease" fields, and each lease comes with
-// hold, release buttons etc. Listeners in setupLeasesOps()
-function printLeases(vn_info){
+function ar_list_tab_content(vn_info){
 
     var ar_list = vn_info.AR_POOL.AR;
 
@@ -702,51 +743,123 @@ function printLeases(vn_info){
     };
 
     var html =
-    '<form id="leases_form" vnid="'+vn_info.ID+'">\
-      <div class="row collapse">';
+    '<form id="ar_list_form" vnid="'+vn_info.ID+'">';
 
-    html += 
-    '<dl class="tabs vertical" data-tab>\
-      <dd class="active"><a href="#vnetconf-global">'+tr("Global configuration")+'</a></dd>';
+    if (Config.isTabActionEnabled("vnets-tab", "Network.add_ar")) {
+        html +=
+        '<div class="row collapse">\
+          <div class="large-4 columns">\
+            <button class="button success small radius" id="add_ar_button">'+'\
+              <span class="fa fa-plus"></span> '+tr("Add another Address Range")+'\
+            </button>\
+          </div>\
+        </div>';
+    }
+
+    html +=
+    '<div class="row collapse">\
+      <div class="large-12 columns" style="overflow:auto">\
+        <table id="ar_list_datatable" class="datatable twelve">\
+          <thead>\
+            <tr>\
+              <th>'+tr("Address Range")+'</th>\
+              <th>'+tr("Type")+'</th>\
+              <th>'+tr("Start")+'</th>\
+              <th>'+tr("IPv6 Prefix")+'</th>\
+              <th>'+tr("Leases")+'</th>\
+            </tr>\
+          </thead>\
+          <tbody>';
 
     for (var i=0; i<ar_list.length; i++){
         var ar = ar_list[i];
         var id = ar.AR_ID;
 
-        html += '<dd><a href="#vnetconf-'+id+'">'+tr("Adress Range")+' '+id+'</a></dd>';
+        html += '<tr ar="'+id+'">';
+
+        html += '<td  style="white-space: nowrap" class="value_td">'+ id +'</td>';
+        html += '<td  style="white-space: nowrap" class="value_td">'+ (ar.TYPE ? ar.TYPE : "--") +'</td>';
+
+        if(ar.TYPE == "IP4" || ar.TYPE == "IP4_6"){
+            html += '<td  style="white-space: nowrap" class="value_td">'+ (ar.IP ? ar.IP : "--") +'</td>';
+        } else {
+            html += '<td  style="white-space: nowrap" class="value_td">'+ (ar.MAC ? ar.MAC : "--") +'</td>';
+        }
+
+        var prefix = "";
+
+        if(ar.GLOBAL_PREFIX && ar.ULA_PREFIX){
+            prefix += ar.GLOBAL_PREFIX + "<br>" + ar.ULA_PREFIX;
+        } else if (ar.GLOBAL_PREFIX){
+            prefix += ar.GLOBAL_PREFIX;
+        } else if (ar.ULA_PREFIX){
+            prefix += ar.ULA_PREFIX;
+        } else {
+            prefix = "--";
+        }
+
+        html += '<td  style="white-space: nowrap" class="value_td">'+ prefix +'</td>';
+
+        html += '<td  style="white-space: nowrap" class="value_td">'+ ar.USED_LEASES +"/"+ ar.SIZE +'</td>';
+
+
+        html += '</tr>';
     }
 
-    html +=
-    '</dl>\
-    <div class="tabs-content vertical">\
-      <div class="content active" id="vnetconf-global">\
-        <div class="large-6 columns">\
-          <table id="vn_leases_info_table" class="dataTable extended_table">\
-            <thead>\
-              <tr><th colspan="5">'+tr("Network global configuration")+'</th></tr>\
-            </thead>\
-            <tbody>\
-              <tr>\
-                <td  colspan="2" class="key_td">'+tr("Network mask")+'</td>\
-                <td class="value_td">'+( vn_info.TEMPLATE.NETWORK_MASK ? vn_info.TEMPLATE.NETWORK_MASK : "--" )+'</td>\
-                <td></td>\
-                <td></td>\
-              </tr>\
-            </tbody>\
-          </table>';
+    html += '</tbody></table></div></div>';
 
-    if (Config.isTabActionEnabled("vnets-tab", "Network.add_ar")) {
+    html +=
+    '<div id="ar_show_info">';
+
+    if(ar_list.length > 0){
         html +=
-        '<div class="large-12 columns text-center">\
-          <button class="button success small radius" id="add_ar_button">'+tr("Add another Address Range")+'</button>\
-        </div>';
+      '<div class="text-center">\
+        <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+          <i class="fa fa-cloud fa-stack-2x"></i>\
+          <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>\
+        </span>\
+        <br>\
+        <br>\
+        <span style="font-size: 18px; color: #999">'+
+          tr("Select an Address Range to see more information")+
+        '</span>\
+      </div>';
     }
 
-    html +=
-        '</div>\
-      </div>';
+    html += 
+      '</div>\
+    </form>';
 
-    // TODO: Add other well known attributes, like DNS, GATEWAY...
+    return html;
+}
+
+function ar_show_info(vn_info, ar_id){
+
+    var ar_list = vn_info.AR_POOL.AR;
+
+    if (!ar_list) //empty
+    {
+        ar_list = [];
+    }
+    else if (ar_list.constructor != Array) //>1 lease
+    {
+        ar_list = [ar_list];
+    };
+
+    var found = false;
+    var ar;
+
+    for (var i=0; i<ar_list.length; i++){
+        if (ar_id == ar_list[i].AR_ID){
+            ar = ar_list[i];
+            found = true;
+            break;
+        }
+    }
+
+    if(!found){
+        return "";
+    }
 
     function ar_attr(val, txt){
         if(val){
@@ -759,54 +872,67 @@ function printLeases(vn_info){
         return '';
     }
 
-    for (var i=0; i<ar_list.length; i++){
-        var ar = ar_list[i];
-        var id = ar.AR_ID;
+    var html = "";
 
+    html +=
+    '<div class="row collapse">\
+      <div class="large-6 columns">\
+        <table class="dataTable extended_table">\
+          <thead>\
+            <tr><th colspan="5">'+tr("Address Range")+' '+ar_id+'</th></tr>\
+          </thead>\
+          <tbody>';
+
+    // TODO: translate ar.TYPE values?
+    html += ar_attr(ar.TYPE, tr("Type"));
+    html += ar_attr(ar.MAC, tr("MAC"));
+    html += ar_attr(ar.IP, tr("IP"));
+    html += ar_attr(ar.GLOBAL_PREFIX, tr("Global prefix"));
+    html += ar_attr(ar.ULA_PREFIX, tr("ULA prefix"));
+    html += ar_attr(ar.SIZE, tr("Size"));
+    html += ar_attr(ar.USED_LEASES, tr("Used leases"));
+
+    html +=
+          '</tbody>\
+        </table>';
+
+    if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
         html +=
-        '<div class="content" id="vnetconf-'+id+'" ar_id="'+id+'">\
-          <div class="large-6 columns">\
-            <table class="dataTable extended_table">\
-              <thead>\
-                <tr><th colspan="5">'+tr("Address Range")+' '+id+'</th></tr>\
-              </thead>\
-              <tbody>';
-
-        // TODO: translate ar.TYPE values?
-        html += ar_attr(ar.TYPE, tr("Type"));
-        html += ar_attr(ar.MAC, tr("MAC"));
-        html += ar_attr(ar.IP, tr("IP"));
-        html += ar_attr(ar.GLOBAL_PREFIX, tr("Global prefix"));
-        html += ar_attr(ar.ULA_PREFIX, tr("ULA prefix"));
-        html += ar_attr(ar.SIZE, tr("Size"));
-        html += ar_attr(ar.USED_LEASES, tr("Used leases"));
-
-        html +=
-              '</tbody>\
-            </table>';
-
-        if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
-            html +=
-            '<div class="large-12 columns text-center">\
-              <button class="button small radius" id="rm_ar_button">'+tr("Remove Address Range")+'</button>\
-            </div>';
-        }
-
-        html +=
-          '</div>\
+        '<div class="large-12 columns text-center">\
+          <button class="button small radius" id="rm_ar_button" ar_id="'+ar_id+'">'+tr("Remove Address Range")+'</button>\
         </div>';
-
-        // TODO: extra ar config attributes
     }
 
-    html += '</div>\
+    // TODO: extra ar config attributes
+
+    html +=
+      '</div>\
     </div>';
 
+    return html;
+}
+
+// Prints the lis of leases depending on the Vnet TYPE
+// It adds the "add lease", "hold lease" fields, and each lease comes with
+// hold, release buttons etc. Listeners in setupLeasesOps()
+function printLeases(vn_info){
+    var ar_list = vn_info.AR_POOL.AR;
+
+    if (!ar_list) //empty
+    {
+        ar_list = [];
+    }
+    else if (ar_list.constructor != Array) //>1 lease
+    {
+        ar_list = [ar_list];
+    };
+
+    var html =
+    '<form id="leases_form" vnid="'+vn_info.ID+'">';
 
     if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
         html +=
-        '<br/>\
-        <div class="row collapse">\
+        '<div class="row collapse">\
           <div class="large-4 columns">\
             <input type="text" id="panel_hold_lease"/>\
           </div>\
@@ -817,21 +943,22 @@ function printLeases(vn_info){
     }
 
     html +=
-    '<div class="large-12 columns" style="overflow:auto">\
-      <table id="leases_datatable" class="datatable twelve">\
-        <thead>\
-          <tr>\
-            <th></th>\
-            <th></th>\
-            <th>'+tr("IP")+'</th>\
-            <th>'+tr("MAC")+'</th>\
-            <th>'+tr("IPv6 Link")+'</th>\
-            <th>'+tr("IPv6 ULA")+'</th>\
-            <th>'+tr("IPv6 Global")+'</th>\
-            <th>'+tr("Address Range")+'</th>\
-          </tr>\
-        </thead>\
-        <tbody>';
+    '<div class="row collapse">\
+      <div class="large-12 columns" style="overflow:auto">\
+        <table id="leases_datatable" class="datatable twelve">\
+          <thead>\
+            <tr>\
+              <th></th>\
+              <th></th>\
+              <th>'+tr("IP")+'</th>\
+              <th>'+tr("MAC")+'</th>\
+              <th>'+tr("IPv6 Link")+'</th>\
+              <th>'+tr("IPv6 ULA")+'</th>\
+              <th>'+tr("IPv6 Global")+'</th>\
+              <th>'+tr("Address Range")+'</th>\
+            </tr>\
+          </thead>\
+          <tbody>';
 
     for (var i=0; i<ar_list.length; i++){
         var ar = ar_list[i];
@@ -885,9 +1012,7 @@ function printLeases(vn_info){
         }
     }
 
-    html += '</tbody></table></div>';
-
-    html += '</form>';
+    html += '</tbody></table></div></div></form>';
 
     return html;
 }
@@ -1325,7 +1450,7 @@ function setupLeasesOps(){
     $('button#rm_ar_button').live("click",function(){
         // TODO: confirm?
         var id = $(this).parents('form').attr('vnid');
-        var ar_id = $(this).parents('.content').attr('ar_id');
+        var ar_id = $(this).attr('ar_id');
 
         var obj = {ar_id: ar_id};
         Sunstone.runAction('Network.rm_ar',id,obj);
