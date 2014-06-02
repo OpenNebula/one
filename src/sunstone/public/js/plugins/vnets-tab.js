@@ -770,8 +770,7 @@ function ar_list_tab_content(vn_info){
 
         html += '<td  style="white-space: nowrap" class="value_td">'+ prefix +'</td>';
 
-        html += '<td  style="white-space: nowrap" class="value_td">'+ ar.USED_LEASES +"/"+ ar.SIZE +'</td>';
-
+        html += '<td  style="white-space: nowrap" class="value_td">'+ quotaBarHtml(ar.USED_LEASES, ar.SIZE) +'</td>';
 
         html += '</tr>';
     }
