@@ -391,16 +391,6 @@ var provision_users_dashboard =
   '<br>';
 
 var provision_dashboard = '<div id="provision_dashboard" class="section_content">'+
-//  '<div class="text-center" style="font-size: 40px;">'+
-//    '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-//      '<i class="fa fa-cloud fa-stack-2x"></i>'+
-//      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-//    '</span>'+
-//    '<br>'+
-//    '<br>'+
-//    '<span style="font-size: 18px; color: #999">'+
-//    '</span>'+
-//  '</div>'
 '</div>';
 
 var provision_create_vm = '<form id="provision_create_vm" class="hidden section_content">'+
@@ -419,129 +409,83 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-5 large-centered columns">'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader text-right">'+
-        '<span class="left">'+
-          tr("Select Template")+
-        '</span>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_template_search"/>'+
-      '</h3>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
-  '<div class="row provision_select_template">'+
-    '<div class="large-10 large-centered columns">'+
-      '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 33%;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
-        '<dd style="width: 33%;"><a href="#provision_vdc_templates_selector">'+ tr("VDC") +'</a></dd>'+
-        '<dd style="width: 34%;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
-      '</dl>'+
-      '<br>'+
-      '<div class="tabs-content">'+
-        '<div class="content active" id="provision_system_templates_selector">'+
-          '<table id="provision_system_templates_table">'+
-            '<thead class="hidden">'+
-              '<tr>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Saved")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody class="hidden">'+
-            '</tbody>'+
-          '</table>'+
-        '</div>'+
-        '<div class="content" id="provision_vdc_templates_selector">'+
-          '<table id="provision_vdc_templates_table">'+
-            '<thead class="hidden">'+
-              '<tr>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Saved")+'</th>'+
-                '<th>'+tr("Shared")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody class="hidden">'+
-            '</tbody>'+
-          '</table>'+
-        '</div>'+
-        '<div class="content" id="provision_saved_templates_selector">'+
-          '<table id="provision_saved_templates_table">'+
-            '<thead class="hidden">'+
-              '<tr>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Saved")+'</th>'+
-                '<th>'+tr("Shared")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody class="hidden">'+
-            '</tbody>'+
-          '</table>'+
-        '</div>'+
-      '</div>'+
-    '</div>'+
-  '</div>'+
-  '<br>'+
-  '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
-      '<dl class="accordion" data-accordion>'+
-        '<dd>'+
-          '<a href="#provision_create_extra_accordion" class="text-center accordion-a">'+
-            '<i class="fa fa-edit"></i>&emsp;'+
-            tr("Customize")+
+      '<dl class="accordion provision_accordion_template" data-accordion="provision_accordion_template">'+
+        '<dd style="border-bottom: 1px solid #efefef;" class="active">'+
+          '<a href="#provision_dd_template" style="background: #fff; font-size: 24px">'+
+            '<span class="select_template" style="color:#555">'+
+              tr("Select a Template")+
+            '</span>'+
+            '<span class="selected_template" style="display:none; color:#555">'+
+              '<span class="provision-logo selected_template_logo" style="line-height: 80px">'+
+              '</span>'+
+              '<span class="selected_template_name">'+
+              '</span>'+
+              '<span class="has-tip right" style="cursor: pointer; margin-right:10px; line-height: 80px">'+
+                '<i class="fa fa-pencil"/>'+
+              '</span>'+
+            '</span>'+
           '</a>'+
-          '<div id="provision_create_extra_accordion" class="content" style="padding: 0.9375rem 0px;">'+
-            '<br>'+
-            '<div class="row">'+
+          '<div id="provision_dd_template" class="active content">'+
+            '<div class="row provision_select_template">'+
               '<div class="large-12 large-centered columns">'+
-                '<h3 class="subheader text-right">'+
-                  '<span class="left">'+
-                    tr("Change Capacity")+
-                  '</span>'+
-                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_instance_types_search"/>'+
-                '</h3>'+
-                '<br>'+
+                '<dl class="tabs text-center" data-tab style="width: 100%">'+
+                  '<dd class="active" style="width: 33%;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
+                  '<dd style="width: 33%;"><a href="#provision_vdc_templates_selector">'+ tr("VDC") +'</a></dd>'+
+                  '<dd style="width: 34%;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
+                '</dl>'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<h3 class="subheader text-right">'+
+                      '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_template_search"/>'+
+                    '</h3>'+
+                    '<br>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="tabs-content">'+
+                  '<div class="content active" id="provision_system_templates_selector">'+
+                    '<table id="provision_system_templates_table">'+
+                      '<thead class="hidden">'+
+                        '<tr>'+
+                          '<th>'+tr("ID")+'</th>'+
+                          '<th>'+tr("Name")+'</th>'+
+                          '<th>'+tr("Saved")+'</th>'+
+                        '</tr>'+
+                      '</thead>'+
+                      '<tbody class="hidden">'+
+                      '</tbody>'+
+                    '</table>'+
+                  '</div>'+
+                  '<div class="content" id="provision_vdc_templates_selector">'+
+                    '<table id="provision_vdc_templates_table">'+
+                      '<thead class="hidden">'+
+                        '<tr>'+
+                          '<th>'+tr("ID")+'</th>'+
+                          '<th>'+tr("Name")+'</th>'+
+                          '<th>'+tr("Saved")+'</th>'+
+                          '<th>'+tr("Shared")+'</th>'+
+                        '</tr>'+
+                      '</thead>'+
+                      '<tbody class="hidden">'+
+                      '</tbody>'+
+                    '</table>'+
+                  '</div>'+
+                  '<div class="content" id="provision_saved_templates_selector">'+
+                    '<table id="provision_saved_templates_table">'+
+                      '<thead class="hidden">'+
+                        '<tr>'+
+                          '<th>'+tr("ID")+'</th>'+
+                          '<th>'+tr("Name")+'</th>'+
+                          '<th>'+tr("Saved")+'</th>'+
+                          '<th>'+tr("Shared")+'</th>'+
+                        '</tr>'+
+                      '</thead>'+
+                      '<tbody class="hidden">'+
+                      '</tbody>'+
+                    '</table>'+
+                  '</div>'+
+                '</div>'+
               '</div>'+
-            '</div>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-12 large-centered columns">'+
-                '<table id="provision_instance_types_table">'+
-                  '<thead class="hidden">'+
-                    '<tr>'+
-                      '<th>'+tr("Name")+'</th>'+
-                    '</tr>'+
-                  '</thead>'+
-                  '<tbody class="hidden">'+
-                  '</tbody>'+
-                '</table>'+
-                '<br>'+
-              '</div>'+
-            '</div>'+
-            '<div class="row">'+
-              '<div class="large-5 large-centered columns">'+
-                '<br>'+
-              '</div>'+
-            '</div>'+
-            '<div class="row">'+
-              '<div class="large-12 large-centered columns">'+
-                '<h3 class="subheader text-right">'+
-                  '<span class="left">'+
-                    tr("Network Interfaces")+
-                  '</span>'+
-                '</h3>'+
-                '<br>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<div class="provision_network_selector">'+
             '</div>'+
           '</div>'+
         '</dd>'+
@@ -549,19 +493,19 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '</div>'+
   '</div>'+
   '<br>'+
+  '<br>'+
   '<div class="row">'+
-    '<div class="large-6 small-6 large-centered columns">'+
-      '<div class="large-5 columns">'+
-        '<hr>'+
-      '</div>'+
-      '<div class="large-2 small-2 text-center columns">'+
-        '<p style="color: #999">'+ tr("or") + '</p>'+
-      '</div>'+
-      '<div class="large-5 small-5 columns">'+
-        '<hr>'+
-      '</div>'+
+    '<div class="large-10 large-centered columns">'+
+        '<div class="provision_capacity_selector">'+
+        '</div>'+
+        '<br>'+
+        '<br>'+
+        '<div class="provision_network_selector">'+
+        '</div>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<br>'+
   '<br>'+
   '<div class="row">'+
     '<div class="large-7 columns large-centered">'+
@@ -591,36 +535,53 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
     '</div>'+
   '</div>'+
   '<div class="row">'+
-    '<div class="large-5 large-centered columns">'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-      '<h3 class="subheader text-right">'+
-        '<span class="left">'+
-          tr("Select Template")+
-        '</span>'+
-        '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_flow_template_search"/>'+
-      '</h3>'+
-      '<br>'+
+      '<dl class="accordion provision_accordion_flow_template" data-accordion="provision_accordion_flow_template">'+
+        '<dd style="border-bottom: 1px solid #efefef;" class="active">'+
+          '<a href="#provision_dd_flow_template" style="background: #fff; font-size: 24px">'+
+            '<span class="select_template" style="color:#555">'+
+              tr("Select a Template")+
+            '</span>'+
+            '<span class="selected_template" style="display:none; color:#555">'+
+              '<span class="provision-logo selected_template_logo" style="color:#555"">'+
+              '</span>'+
+              '<span class="selected_template_name" style="color:#555">'+
+              '</span>'+
+              '<span class="has-tip right" style="cursor: pointer; margin-right:10px;">'+
+                '<i class="fa fa-pencil"/>'+
+              '</span>'+
+            '</span>'+
+          '</a>'+
+          '<div id="provision_dd_flow_template" class="provision_select_flow_template active content">'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader text-right">'+
+                  '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_flow_template_search"/>'+
+                '</h3>'+
+                '<br>'+
+              '</div>'+
+            '</div>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<table id="provision_flow_templates_table">'+
+                  '<thead class="hidden">'+
+                    '<tr>'+
+                      '<th>'+tr("ID")+'</th>'+
+                      '<th>'+tr("Name")+'</th>'+
+                    '</tr>'+
+                  '</thead>'+
+                  '<tbody class="hidden">'+
+                  '</tbody>'+
+                '</table>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</dd>'+
+      '</dl>'+
     '</div>'+
   '</div>'+
   '<br>'+
-  '<div class="row provision_select_flow_template">'+
-    '<div class="large-10 large-centered columns">'+
-      '<table id="provision_flow_templates_table">'+
-        '<thead class="hidden">'+
-          '<tr>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody class="hidden">'+
-        '</tbody>'+
-      '</table>'+
-    '</div>'+
-  '</div>'+
+  '<br>'+
   '<br>'+
   '<div id="provision_customize_flow_template" style="display: none">'+
   '</div>'+
@@ -1931,6 +1892,187 @@ var povision_actions = {
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
+var provision_instance_type_accordion_id = 0;
+
+function generate_provision_instance_type_accordion(context, capacity) {
+  var memory_value;
+  var memory_unit;
+
+  if (capacity.MEMORY > 1000){
+    memory_value = Math.floor(capacity.MEMORY/1024);
+    memory_unit = "GB";
+  } else {
+    memory_value = capacity.MEMORY;
+    memory_unit = "MB";
+  }
+
+  context.html(
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 large-centered columns">'+
+        '<h3 class="subheader text-right">'+
+          '<span class="left">'+
+            '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
+            tr("Capacity")+
+          '</span>'+
+        '</h3>'+
+        '<br>'+
+      '</div>'+
+    '</div>'+
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 large-centered columns">'+
+        '<div class="row text-center">'+
+          '<div class="large-6 columns">'+
+            '<span class="cpu_value" style="color: #777; font-size:60px">'+capacity.CPU+'</span>'+
+            '<br>'+
+            '<span style="color: #999;">'+tr("CPU")+'</span>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<span class="memory_value" style="color: #777; font-size:60px">'+memory_value+'</span>'+
+            ' '+
+            '<span class="memory_unit" style="color: #777; font-size:30px">'+memory_unit+'</span>'+
+            '<br>'+
+            '<span style="color: #999;">'+tr("MEMORY")+'</span>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<br>'+
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 large-centered columns">'+
+        '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
+          '<dd>'+
+            '<a href="#provision_instance_type_dd_'+provision_instance_type_accordion_id+'" class="button large-12 medium radius" style="color: #555;">'+
+              tr("Change Capacity")+
+            '</a>'+
+            '<div id="provision_instance_type_dd_'+provision_instance_type_accordion_id+'" class="content">'+
+              '<div class="row">'+
+                '<div class="large-12 large-centered columns">'+
+                  '<h3 class="subheader text-right">'+
+                    '<input type="search" class="provision-search-input right" placeholder="Search"/>'+
+                  '</h3>'+
+                  '<br>'+
+                '</div>'+
+              '</div>'+
+              '<div class="row">'+
+                '<div class="large-12 large-centered columns">'+
+                  '<table class="provision_instance_types_table">'+
+                    '<thead class="hidden">'+
+                      '<tr>'+
+                        '<th>'+tr("Name")+'</th>'+
+                      '</tr>'+
+                    '</thead>'+
+                    '<tbody class="hidden">'+
+                    '</tbody>'+
+                  '</table>'+
+                  '<br>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</dd>'+
+        '</dl>'+
+      '</div>'+
+    '</div>'+
+    '<br>');
+
+  provision_instance_type_accordion_id += 1;
+
+  var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
+    "iDisplayLength": 6,
+    "sDom" : '<"H">t<"F"lp>',
+    "bSort" : false,
+    "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+    "aoColumnDefs": [
+        { "bVisible": false, "aTargets": ["all"]}
+    ],
+    "aoColumns": [
+        { "mDataProp": "name" }
+    ],
+    "fnPreDrawCallback": function (oSettings) {
+      // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+      if (this.$('tr', {"filter": "applied"} ).length == 0) {
+        this.html('<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+            tr("There are no instance_types available. Please contact your cloud administrator")+
+          '</span>'+
+          '</div>');
+      } else {
+        $(".provision_instance_types_table", context).html(
+          '<ul class="provision_instance_types_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
+          '</ul>');
+      }
+
+      return true;
+    },
+    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      var data = aData;
+
+      $(".provision_instance_types_ul", context).append('<li>'+
+          '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'" data=\''+JSON.stringify(data)+'\'>'+
+            '<li class="provision-title" title="'+data.name+'">'+
+              data.name+
+            '</li>'+
+            '<li class="provision-bullet-item">'+
+              '<span style="font-size: 40px">'+
+              '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+              '<span style="vertical-align: middle; font-size:14px">'+
+                'x'+data.cpu+' - '+
+                ((data.memory > 1000) ?
+                  (Math.floor(data.memory/1024)+'GB') :
+                  (data.memory+'MB'))+
+              '</span>'+
+              '</span>'+
+            '</li>'+
+            '<li class="provision-description">'+
+              (data.description || '')+
+            '</li>'+
+          '</ul>'+
+        '</li>');
+
+      return nRow;
+    }
+  });
+
+
+  $('.provision-search-input', context).on('keyup',function(){
+    provision_instance_types_datatable.fnFilter( $(this).val() );
+  })
+
+  $('.provision-search-input', context).on('change',function(){
+    provision_instance_types_datatable.fnFilter( $(this).val() );
+  })
+
+  context.on("click", ".provision-pricing-table.only-one" , function(){
+    $(".cpu_value", context).html($(this).attr("cpu"));
+
+    var memory_value;
+    var memory_unit;
+
+    if ($(this).attr("memory") > 1000){
+      memory_value = Math.floor($(this).attr("memory")/1024);
+      memory_unit = "GB";
+    } else {
+      memory_value = $(this).attr("memory");
+      memory_unit = "MB";
+    }
+
+    $(".memory_value", context).html(memory_value);
+    $(".memory_unit", context).html(memory_unit);
+
+    $('.accordion a', context).first().trigger("click");
+  })
+
+  update_provision_instance_types_datatable(provision_instance_types_datatable);
+}
+
 var provision_nic_accordion_id = 0;
 var provision_nic_accordion_dd_id = 0;
 
@@ -1939,38 +2081,35 @@ function generate_provision_network_table(context, nic){
 
   if (nic) {
     nic_span = '<span class="selected_network" template_nic=\''+JSON.stringify(nic)+'\'>'+
-        tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
+        '<span style="color: #999; font-size: 14px">' + tr("INTERFACE") + "</span>&emsp;&emsp;" +
+        '<span style="color: #777;">' + (nic.NETWORK||nic.NETWORK_ID) + "</span>" +
       '</span>';
   } else {
     nic_span =
-      '<span class="selected_network">'+
-        tr("Click here to choose a Network for this interface")+
+      '<span class="selected_network" style="color:#555">'+
+        tr("Select a Network for this interface")+
       '</span>';
   }
 
-  var dd_context = $('<dd>'+
-    '<a href="#provision_accordion_dd_'+provision_nic_accordion_dd_id+'">'+
+  var dd_context = $('<dd style="border-bottom: 1px solid #efefef;">'+
+    '<a href="#provision_accordion_dd_'+provision_nic_accordion_dd_id+'" style="background: #fff; font-size: 24px">'+
       nic_span +
       '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">'+
-        '<i class="fa fa-times fa-lg"/>'+
+        '<i class="fa fa-times"/>'+
       '</span>'+
       '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
-        '<i class="fa fa-pencil fa-lg"/>'+
+        '<i class="fa fa-pencil"/>'+
       '</span>'+
     '</a>'+
     '<div id="provision_accordion_dd_'+provision_nic_accordion_dd_id+'" class="content">'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<h3 class="subheader text-right">'+
-            '<span class="left">'+
-              tr("Select Network")+
-            '</span>'+
             '<input type="search" class="provision-search-input right" placeholder="Search"/>'+
           '</h3>'+
           '<br>'+
         '</div>'+
       '</div>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<table class="provision_networks_table">'+
@@ -2055,7 +2194,10 @@ function generate_provision_network_table(context, nic){
   })
 
   dd_context.on("click", ".provision-pricing-table.more-than-one" , function(){
-    $(".selected_network", dd_context).html(tr("Network") + ": " + $(this).attr("opennebula_name"));
+    $(".selected_network", dd_context).html(
+        '<span style="color: #999; font-size: 14px">' + tr("INTERFACE") + "</span>&emsp;&emsp;" +
+        '<span style="color: #777;">' + $(this).attr("opennebula_name") + "</span>");
+
     $(".selected_network", dd_context).attr("opennebula_id", $(this).attr("opennebula_id"))
 
     $('a', dd_context).first().trigger("click");
@@ -2066,18 +2208,39 @@ function generate_provision_network_table(context, nic){
     return false;
   });
 
-  $('a', dd_context).first().trigger("click");
+  if (!nic) {
+    $('a', dd_context).trigger("click");
+  }
 
   update_provision_networks_datatable(provision_networks_datatable);
 }
 
 function generate_provision_network_accordion(context){
   context.html(
-    '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
-    '</dl>'+
-    '<a class="button large-12 medium provision_add_network_interface" style="background: #888; color: #fff; font-weight: bold">'+
-      tr("Add another Network Interface")+
-    '</a>')
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 columns">'+
+        '<h3 class="subheader text-right">'+
+          '<span class="left">'+
+            '<i class="fa fa-globe fa-lg"></i>&emsp;'+
+            tr("Network")+
+          '</span>'+
+        '</h3>'+
+        '<br>'+
+      '</div>'+
+    '</div>'+
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 large-centered columns">'+
+        '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
+        '</dl>'+
+        '<br>'+
+        '<a class="button large-12 medium radius secondary provision_add_network_interface" style="padding: 1rem; color: #555">'+
+          tr("Add another Network Interface")+
+        '</a>'+
+      '</div>'+
+    '</div>'+
+    '<br>')
 
   provision_nic_accordion_id += 1;
 
@@ -2338,7 +2501,6 @@ function show_provision_dashboard() {
     });
   }
 
-
   if (Config.provision.dashboard.isEnabled("users")) {
     $("#provision_dashboard").append(provision_users_dashboard);
 
@@ -2513,7 +2675,13 @@ function show_provision_create_vm() {
   provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
   provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
 
-  update_provision_instance_types_datatable(provision_instance_types_datatable);
+  $(".provision_accordion_template .selected_template").hide();
+  $(".provision_accordion_template .select_template").show();
+
+  $("#provision_create_vm .provision_capacity_selector").html("");
+  $("#provision_create_vm .provision_network_selector").html("");
+
+  $("#provision_create_vm dd:not(.active) a[href='#provision_dd_template']").trigger("click")
 
   $(".section_content").hide();
   $("#provision_create_vm").fadeIn();
@@ -2521,6 +2689,14 @@ function show_provision_create_vm() {
 
 function show_provision_create_flow() {
   update_provision_flow_templates_datatable(provision_flow_templates_datatable);
+
+  $("#provision_customize_flow_template").hide();
+  $("#provision_customize_flow_template").html("");
+
+  $(".provision_accordion_flow_template .selected_template").hide();
+  $(".provision_accordion_flow_template .select_template").show();
+
+  $("#provision_create_flow dd:not(.active) a[href='#provision_dd_flow_template']").trigger("click")
 
   $(".section_content").hide();
   $("#provision_create_flow").fadeIn();
@@ -3512,22 +3688,14 @@ $(document).ready(function(){
         }
 
         $("#provision_system_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
-                  ((data.TEMPLATE.MEMORY > 1000) ?
-                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
-                '</span>'+
-              '</li>'+
-              '<li class="provision-description" style="padding-top:0px">'+
+              '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
@@ -3586,22 +3754,14 @@ $(document).ready(function(){
         }
 
         $("#provision_vdc_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
-                  ((data.TEMPLATE.MEMORY > 1000) ?
-                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
-                '</span>'+
-              '</li>'+
-              '<li class="provision-description" style="padding-top:0px">'+
+              '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
@@ -3661,22 +3821,14 @@ $(document).ready(function(){
         }
 
         $("#provision_saved_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
               '<li style="height: 85px" class="provision-bullet-item">'+
                 logo +
               '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
-                  ((data.TEMPLATE.MEMORY > 1000) ?
-                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
-                '</span>'+
-              '</li>'+
-              '<li class="provision-description" style="padding-top:0px">'+
+              '<li class="provision-description">'+
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
@@ -3707,102 +3859,41 @@ $(document).ready(function(){
 
     });
 
-    provision_instance_types_datatable = $('#provision_instance_types_table').dataTable({
-      "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"lp>',
-      "bSort" : false,
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aoColumnDefs": [
-          { "bVisible": false, "aTargets": ["all"]}
-      ],
-      "aoColumns": [
-          { "mDataProp": "name" }
-      ],
-      "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no instance_types available. Please contact your cloud administrator")+
-            '</span>'+
-            '</div>');
-        } else {
-          $("#provision_instance_types_table").html('<ul id="provision_instance_types_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
-      },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData;
-        $("#provision_instance_types_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" data=\''+JSON.stringify(data)+'\'>'+
-              '<li class="provision-title" title="'+data.name+'">'+
-                data.name+
-              '</li>'+
-              '<li class="provision-bullet-item">'+
-                '<span style="font-size: 40px">'+
-                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-                '<span style="vertical-align: middle; font-size:14px">'+
-                  'x'+data.cpu+' - '+
-                  ((data.memory > 1000) ?
-                    (Math.floor(data.memory/1024)+'GB') :
-                    (data.memory+'MB'))+
-                '</span>'+
-                '</span>'+
-              '</li>'+
-              '<li class="provision-description">'+
-                (data.description || '')+
-              '</li>'+
-            '</ul>'+
-          '</li>');
-
-        return nRow;
-      }
-    });
-
-
-    $('#provision_create_instance_types_search').on('keyup',function(){
-      provision_instance_types_datatable.fnFilter( $(this).val() );
-    })
-
-    $('#provision_create_instance_types_search').on('change',function(){
-      provision_instance_types_datatable.fnFilter( $(this).val() );
-    })
-
-    $("#provision_create_instance_types_refresh_button").click(function(){
-      update_provision_instance_types_datatable(provision_instance_types_datatable);
-    });
-
     tab.on("click", "#provision_create_vm .provision_select_template .provision-pricing-table.only-one" , function(){
       if ($(this).hasClass("selected")){
         $(".provision_network_selector", $("#provision_create_vm")).html("");
+        $(".provision_capacity_selector", $("#provision_create_vm")).html("");
+
+        $(".provision_accordion_template .selected_template").hide();
+        $(".provision_accordion_template .select_template").show();
       } else {
         var template_id = $(this).attr("opennebula_id");
+        var template_json = JSON.parse($(this).attr("data"));
 
-        OpenNebula.Template.show({
-          data : {
-              id: template_id
-          },
-          success: function(request,template_json){
-            var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-            var nics = []
-            if ($.isArray(template_nic))
-                nics = template_nic
-            else if (!$.isEmptyObject(template_nic))
-                nics = [template_nic]
+        var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+        var nics = []
+        if ($.isArray(template_nic))
+            nics = template_nic
+        else if (!$.isEmptyObject(template_nic))
+            nics = [template_nic]
 
-            generate_provision_network_accordion($(".provision_network_selector", $("#provision_create_vm")));
+        $(".provision_accordion_template .selected_template").show();
+        $(".provision_accordion_template .select_template").hide();
+        $(".provision_accordion_template .selected_template_name").html(template_json.VMTEMPLATE.NAME)
+        $(".provision_accordion_template .selected_template_logo").html('<img  src="'+template_json.VMTEMPLATE.TEMPLATE.LOGO+'">');
+        $(".provision_accordion_template a").first().trigger("click");
 
-            $.each(nics, function(index, nic){
-                generate_provision_network_table($("#provision_create_vm .provision_nic_accordion"), nic);
-            })
-          }
+        generate_provision_instance_type_accordion(
+          $(".provision_capacity_selector", $("#provision_create_vm")),
+          template_json.VMTEMPLATE.TEMPLATE);
+
+        generate_provision_network_accordion(
+          $(".provision_network_selector", $("#provision_create_vm")));
+
+        $.each(nics, function(index, nic){
+            generate_provision_network_table(
+              $("#provision_create_vm .provision_nic_accordion"),
+              nic);
         })
       }
     })
@@ -3835,7 +3926,7 @@ $(document).ready(function(){
         nics.push(nic);
       });
 
-      var instance_type = $("#provision_instance_types_ul .selected", context);
+      var instance_type = $(".provision_instance_types_ul .selected", context);
 
       if (!template_id) {
         $(".alert-box-error", context).fadeIn().html(tr("You must select at least a template configuration"));
@@ -3863,7 +3954,7 @@ $(document).ready(function(){
       return false;
     })
 
-    $(".provision_create_vm_button").on("click", function(){
+    $(document).on("click", ".provision_create_vm_button", function(){
       show_provision_create_vm();
     });
 
@@ -3969,176 +4060,45 @@ $(document).ready(function(){
     tab.on("click", ".provision_select_flow_template .provision-pricing-table.only-one" , function(){
       if ($(this).hasClass("selected")){
         $("#provision_customize_flow_template").hide();
+        $("#provision_customize_flow_template").html("");
+
+        $(".provision_accordion_flow_template .selected_template").hide();
+        $(".provision_accordion_flow_template .select_template").show();
       } else {
         $("#provision_customize_flow_template").show();
-
         $("#provision_customize_flow_template").html("");
 
         var data = JSON.parse($(this).attr("data"));
+
+        $(".provision_accordion_flow_template .selected_template").show();
+        $(".provision_accordion_flow_template .select_template").hide();
+        $(".provision_accordion_flow_template .selected_template_name").html(data.DOCUMENT.TEMPLATE.BODY.name)
+        $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/>&emsp;');
+        $(".provision_accordion_flow_template a").first().trigger("click");
+
         $.each(data.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var context = $('<div id="provision_create_flow_role_'+index+'">'+
             '<div class="row">'+
               '<div class="large-10 large-centered columns">'+
                 '<h2 class="subheader">'+
-                  '<i class="fa fa-cube"></i>&emsp;'+
+                  '<i class="fa fa-cube fa-lg"></i>&emsp;'+
                   role.name+
                 '</h2>'+
                 '<br>'+
               '</div>'+
             '</div>'+
             '<div class="row">'+
-              '<div class="large-10 large-centered columns">'+
-                '<div class="row text-center">'+
-                  '<div class="large-4 columns">'+
-                    '<span  id="provision_dashboard_total" style="color: #777; font-size:60px">'+4+'</span>'+
-                    '<br>'+
-                    '<span style="color: #999;">'+tr("VMs")+'</span>'+
-                  '</div>'+
-                  '<div class="large-4 columns">'+
-                    '<span  id="provision_dashboard_total" style="color: #777; font-size:60px">'+2+'</span>'+
-                    '<br>'+
-                    '<span style="color: #999;">'+tr("CPU / VM")+'</span>'+
-                  '</div>'+
-                  '<div class="large-4 columns">'+
-                    '<span  id="provision_dashboard_total" style="color: #777; font-size:60px">'+"4 GB"+'</span>'+
-                    '<br>'+
-                    '<span style="color: #999;">'+tr("MEMORY / VM")+'</span>'+
-                  '</div>'+
-                '</div>'+
+              '<div class="provision_capacity_selector large-9 large-centered columns">'+
               '</div>'+
             '</div>'+
-            '<br>'+
-            '<br>'+
             '<div class="row">'+
-              '<div class="large-9 large-centered columns">'+
-                '<dl class="accordion" data-accordion>'+
-                  '<dd>'+
-                    '<a href="#provision_flow_customize_accordion_'+index+'" class="text-center accordion-a">'+
-                      '<i class="fa fa-edit"></i>&emsp;'+
-                      tr("Customize") + " " + role.name +
-                    '</a>'+
-                    '<div id="provision_flow_customize_accordion_'+index+'" class="content" style="padding: 0.9375rem 0px;">'+
-                      '<br>'+
-                      '<div class="row">'+
-                        '<div class="large-12 large-centered columns">'+
-                          '<h3 class="subheader text-right">'+
-                            '<span class="left">'+
-                              tr("Change Capacity")+
-                            '</span>'+
-                            '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_instance_types_search"/>'+
-                          '</h3>'+
-                          '<br>'+
-                        '</div>'+
-                      '</div>'+
-                      '<br>'+
-                      '<div class="row">'+
-                        '<div class="large-12 large-centered columns">'+
-                          '<table id="provision_instance_types_table_'+index+'">'+
-                            '<thead class="hidden">'+
-                              '<tr>'+
-                                '<th>'+tr("Name")+'</th>'+
-                              '</tr>'+
-                            '</thead>'+
-                            '<tbody class="hidden">'+
-                            '</tbody>'+
-                          '</table>'+
-                          '<br>'+
-                        '</div>'+
-                      '</div>'+
-                      '<div class="row">'+
-                        '<div class="large-12 large-centered columns">'+
-                          '<h3 class="subheader text-right">'+
-                            '<span class="left">'+
-                              tr("Network Interfaces")+
-                            '</span>'+
-                          '</h3>'+
-                          '<br>'+
-                        '</div>'+
-                      '</div>'+
-                      '<br>'+
-                      '<div class="provision_network_selector">'+
-                      '</div>'+
-                    '</div>'+
-                  '</dd>'+
-                '</dl>'+
+              '<div class="provision_network_selector large-9 large-centered columns">'+
               '</div>'+
             '</div>'+
           '</div>'+
           '<br>'+
           '<br>'+
           '<br>').appendTo($("#provision_customize_flow_template"))
-
-          generate_provision_network_accordion($(".provision_network_selector", context))
-
-          var provision_instance_types_datatable = $('#provision_instance_types_table_'+index).dataTable({
-            "iDisplayLength": 6,
-            "sDom" : '<"H">t<"F"lp>',
-            "bSort" : false,
-            "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-            "aoColumnDefs": [
-                { "bVisible": false, "aTargets": ["all"]}
-            ],
-            "aoColumns": [
-                { "mDataProp": "name" }
-            ],
-            "fnPreDrawCallback": function (oSettings) {
-              // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-              if (this.$('tr', {"filter": "applied"} ).length == 0) {
-                this.html('<div class="text-center">'+
-                  '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                    '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-                  '</span>'+
-                  '<br>'+
-                  '<br>'+
-                  '<span style="font-size: 18px; color: #999">'+
-                    tr("There are no instance_types available. Please contact your cloud administrator")+
-                  '</span>'+
-                  '</div>');
-              } else {
-                $("#provision_instance_types_table_"+index).html('<ul id="provision_instance_types_ul_'+index+'" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-              }
-
-              return true;
-            },
-            "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-              var data = aData;
-              $("#provision_instance_types_ul_"+index).append('<li>'+
-                  '<ul class="provision-pricing-table hoverable only-one" data=\''+JSON.stringify(data)+'\'>'+
-                    '<li class="provision-title" title="'+data.name+'">'+
-                      data.name+
-                    '</li>'+
-                    '<li class="provision-bullet-item">'+
-                      '<span style="font-size: 40px">'+
-                      '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-                      '<span style="vertical-align: middle; font-size:14px">'+
-                        'x'+data.cpu+' - '+
-                        ((data.memory > 1000) ?
-                          (Math.floor(data.memory/1024)+'GB') :
-                          (data.memory+'MB'))+
-                      '</span>'+
-                      '</span>'+
-                    '</li>'+
-                    '<li class="provision-description">'+
-                      (data.description || '')+
-                    '</li>'+
-                  '</ul>'+
-                '</li>');
-
-              return nRow;
-            }
-          });
-
-
-          $('#provision_create_instance_types_search_'+index).on('keyup',function(){
-            provision_instance_types_datatable.fnFilter( $(this).val() );
-          })
-
-          $('#provision_create_instance_types_search_'+index).on('change',function(){
-            provision_instance_types_datatable.fnFilter( $(this).val() );
-          })
-
-          update_provision_instance_types_datatable(provision_instance_types_datatable);
 
           var template_id = role.vm_template;
           var role_html_id = "#provision_create_flow_role_"+index;
@@ -4155,14 +4115,14 @@ $(document).ready(function(){
               else if (!$.isEmptyObject(template_nic))
                   nics = [template_nic]
 
-              $(role_html_id+" .provision_selected_networks").html("");
+              generate_provision_instance_type_accordion(
+                $(".provision_capacity_selector", context),
+                template_json.VMTEMPLATE.TEMPLATE);
+
+              generate_provision_network_accordion($(".provision_network_selector", context))
 
               $.each(nics, function(index, nic){
-                generate_provision_network_table($(role_html_id + " .provision_nic_accordion"), nic);
-                //$(role_html_id+" .provision_selected_networks").append('<div data-alert class="alert-box radius" style="font-weight: bold" template_nic=\''+JSON.stringify(nic)+'\'>'+
-                //    tr("Network") + ": " + (nic.NETWORK||nic.NETWORK_ID)+
-                //    '<a href="#" class="close">&times;</a>'+
-                //  '</div>')
+                generate_provision_network_table($(".provision_nic_accordion", context), nic);
               })
             }
           })
