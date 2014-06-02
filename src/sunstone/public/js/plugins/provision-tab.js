@@ -1892,6 +1892,65 @@ var povision_actions = {
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
+
+function generate_cardinality_selector(context, role_template) {
+  console.log(role_template)
+  context.html(
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 large-centered columns">'+
+        '<h3 class="subheader text-right">'+
+          '<span class="left">'+
+            '<i class="fa fa-th fa-lg"></i>&emsp;'+
+            tr("Cardinality")+
+          '</span>'+
+        '</h3>'+
+        '<br>'+
+      '</div>'+
+    '</div>'+
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 columns">'+
+        '<div class="row">'+
+          '<div class="large-6 text-center columns">'+
+            '<span class="cardinality_value" style="color: #777; font-size:60px">'+role_template.cardinality+'</span>'+
+            '<br>'+
+            '<span style="color: #999;">'+tr("VMs")+'</span>'+
+          '</div>'+
+          '<div class="large-6 columns text-center">'+
+            '<span class="" style="color: #999;">'+tr("Change cardinality")+'</span>'+
+            '<br>'+
+            '<div class="cardinality_slider">'+
+            '</div>'+
+            '<br>'+
+            '<span class="left" style="color: #999;">'+(role_template.min_vms||1)+'</span>'+
+            '<span class="right" style="color: #999;">'+(role_template.max_vms||100)+'</span>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>');
+
+    var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
+        handles: 1,
+        connect: "lower",
+        range: [(role_template.min_vms||1),(role_template.max_vms||100)],
+        step: 1,
+        start: role_template.cardinality,
+        value: role_template.cardinality,
+        slide: function(type) {
+            if ( type != "move"){
+              if ($(this).val()) {
+                $(".cardinality_value", context).html($(this).val());
+              }
+            }
+        }
+    });
+
+    provision_cardinality_slider.val(role_template.cardinality)
+
+    provision_cardinality_slider.addClass("noUiSlider");
+}
+
 var provision_instance_type_accordion_id = 0;
 
 function generate_provision_instance_type_accordion(context, capacity) {
@@ -2069,6 +2128,8 @@ function generate_provision_instance_type_accordion(context, capacity) {
 
     $('.accordion a', context).first().trigger("click");
   })
+
+  $(document).foundation();
 
   update_provision_instance_types_datatable(provision_instance_types_datatable);
 }
@@ -3880,7 +3941,12 @@ $(document).ready(function(){
         $(".provision_accordion_template .selected_template").show();
         $(".provision_accordion_template .select_template").hide();
         $(".provision_accordion_template .selected_template_name").html(template_json.VMTEMPLATE.NAME)
-        $(".provision_accordion_template .selected_template_logo").html('<img  src="'+template_json.VMTEMPLATE.TEMPLATE.LOGO+'">');
+        if (template_json.VMTEMPLATE.TEMPLATE.LOGO) {
+          $(".provision_accordion_template .selected_template_logo").html('<img  src="'+template_json.VMTEMPLATE.TEMPLATE.LOGO+'">');
+        } else {
+          $(".provision_accordion_template .selected_template_logo").html('<i class="fa fa-file-text-o fa-lg"/>&emsp;');
+        }
+
         $(".provision_accordion_template a").first().trigger("click");
 
         generate_provision_instance_type_accordion(
@@ -4077,7 +4143,7 @@ $(document).ready(function(){
         $(".provision_accordion_flow_template a").first().trigger("click");
 
         $.each(data.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
-          var context = $('<div id="provision_create_flow_role_'+index+'">'+
+          var context = $('<div id="provision_create_flow_role_'+index+'" class="provision_create_flow_role" data=\''+JSON.stringify(role)+'\'>'+
             '<div class="row">'+
               '<div class="large-10 large-centered columns">'+
                 '<h2 class="subheader">'+
@@ -4088,11 +4154,12 @@ $(document).ready(function(){
               '</div>'+
             '</div>'+
             '<div class="row">'+
-              '<div class="provision_capacity_selector large-9 large-centered columns">'+
+              '<div class="provision_cardinality_selector large-9 large-centered columns">'+
               '</div>'+
             '</div>'+
+            '<br>'+
             '<div class="row">'+
-              '<div class="provision_network_selector large-9 large-centered columns">'+
+              '<div class="provision_capacity_selector large-9 large-centered columns">'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -4102,6 +4169,10 @@ $(document).ready(function(){
 
           var template_id = role.vm_template;
           var role_html_id = "#provision_create_flow_role_"+index;
+
+          generate_cardinality_selector(
+            $(".provision_cardinality_selector", context),
+            role);
 
           OpenNebula.Template.show({
             data : {
@@ -4119,11 +4190,12 @@ $(document).ready(function(){
                 $(".provision_capacity_selector", context),
                 template_json.VMTEMPLATE.TEMPLATE);
 
-              generate_provision_network_accordion($(".provision_network_selector", context))
 
-              $.each(nics, function(index, nic){
-                generate_provision_network_table($(".provision_nic_accordion", context), nic);
-              })
+              //generate_provision_network_accordion($(".provision_network_selector", context))
+//
+              //$.each(nics, function(index, nic){
+              //  generate_provision_network_table($(".provision_nic_accordion", context), nic);
+              //})
             }
           })
 
@@ -4169,9 +4241,16 @@ $(document).ready(function(){
         return false;
       }
 
+      var roles = [];
+      $(".provision_create_flow_role", context).each(function(){
+        var role_template = JSON.parse($(this).attr("data"));
+        roles.push($.extend(role_template, {"cardinality": $(".cardinality_value", $(this)).text()}));
+      })
+
       var extra_info = {
         'merge_template': {
-          "name" : flow_name
+          "name" : flow_name,
+          "roles" : roles
         }
       }
 
@@ -4669,8 +4748,8 @@ $(document).ready(function(){
           $.each(body.roles, function(index, role) {
             var role_state = get_provision_flow_state(role);
             var rvms = {
-              str : role.nodes.length + " / " + role.cardinality ,
-              percentage : Math.floor(role.nodes.length / role.cardinality)*100
+              str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
+              percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
             }
 
             roles_li +=
