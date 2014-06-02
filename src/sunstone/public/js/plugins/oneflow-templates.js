@@ -712,13 +712,13 @@ function updateServiceTemplateInfo(request,elem){
 
                 if(last_selected_row_template_role) {
                     last_selected_row_template_role.children().each(function(){
-                        $(this).removeClass('markrowselected');
+                        $(this).removeClass('markrowchecked');
                     });
                 }
 
                 last_selected_row_template_role = $(this);
                 $(this).children().each(function(){
-                    $(this).addClass('markrowselected');
+                    $(this).addClass('markrowchecked');
                 });
             });
         });
