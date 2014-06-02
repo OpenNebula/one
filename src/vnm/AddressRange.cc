@@ -220,13 +220,11 @@ void AddressRange::update_attributes(VectorAttribute *vup)
 
     vup->replace("ALLOCATED", attr->vector_value("ALLOCATED"));
 
+    vup->replace("PARENT_NETWORK_AR_ID", attr->vector_value("PARENT_NETWORK_AR_ID"));
+
     vup->remove("USED_LEASES");
 
     vup->remove("LEASES");
-
-    vup->remove("PARENT_NETWORK_AR_ID");
-
-    vup->remove("PARENT_NETWORK");
 
     /* ----------------- update known attributes ----------------- */
 
@@ -949,6 +947,51 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
 
     return freed;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
+    const string& mac_s, unsigned int rsize)
+{
+    int freed = 0;
+
+    unsigned int mac_i[2];
+
+    mac_to_i(mac_s, mac_i);
+
+    unsigned int index = mac_i[0] - mac[0];
+
+    if ((0 <= index) && (index < size))
+    {
+        map<unsigned int, long long>::iterator it = allocated.find(index);
+
+        long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
+
+        for (unsigned int i=0; i<rsize; i++)
+        {
+            if (it != allocated.end() && it->second == obj_pack)
+            {
+                map<unsigned int, long long>::iterator prev_it = it++;
+
+                allocated.erase(prev_it);
+
+                used_addr--;
+
+                freed++;
+            }
+            else
+            {
+                it++;
+            }
+        }
+
+        allocated_to_attr();
+    }
+
+    return freed;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

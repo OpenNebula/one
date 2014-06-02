@@ -393,19 +393,66 @@ int AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRangePool::free_addr_by_range(unsigned int arid,
+    PoolObjectSQL::ObjectType ot, int obid, const string& mac, unsigned int rsize)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    it = ar_pool.find(arid);
+
+    if (it!=ar_pool.end())
+    {
+        used_addr -= it->second->free_addr_by_range(ot, obid, mac, rsize);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRangePool::get_attribute(const char * name, string& value,
     int ar_id) const
 {
-    map<unsigned int, AddressRange *>::const_iterator it;
+    map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
 
     value.clear();
-
-    it = ar_pool.find(ar_id);
 
     if (it!=ar_pool.end())
     {
         value = it->second->get_attribute(name);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::get_attribute(const char * name, int& value,
+    int ar_id) const
+{
+    map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
+
+    int rc = -1;
+
+    if (it!=ar_pool.end())
+    {
+        rc = it->second->get_attribute(name, value);
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int AddressRangePool::get_ar_parent(int ar_id) const
+{
+    int rc;
+
+    if (get_attribute("PARENT_NETWORK_AR_ID", rc, ar_id) != 0)
+    {
+        rc = -1;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

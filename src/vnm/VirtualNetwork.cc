@@ -805,7 +805,8 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::get_template_attribute(const char * name, string& value, int ar_id) const
+void VirtualNetwork::get_template_attribute(const char * name,
+    string& value, int ar_id) const
 {
     ar_pool.get_attribute(name, value, ar_id);
 
@@ -813,6 +814,25 @@ void VirtualNetwork::get_template_attribute(const char * name, string& value, in
     {
         PoolObjectSQL::get_template_attribute(name, value);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::get_template_attribute(const char * name, int& value,
+    int ar_id) const
+{
+    int rc = ar_pool.get_attribute(name, value, ar_id);
+
+    if (rc != 0)
+    {
+        if (PoolObjectSQL::get_template_attribute(name, value) == false)
+        {
+            rc = -1;
+        }
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

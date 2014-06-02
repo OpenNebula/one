@@ -202,6 +202,18 @@ public:
     }
 
     /**
+     *  Release a previously leased address range
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @return the number of addresses freed
+     */
+    void free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
+            int obid, const string& mac, unsigned int rsize)
+    {
+        ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
+    }
+
+    /**
      * Modifies the given nic attribute adding the following attributes:
      *  * IP:  leased from network
      *  * MAC: leased from network
@@ -282,9 +294,19 @@ public:
      *  Returns the parent network used to create this VNET (if any)
      *    @return the parent vnet id or -1 this vnet has no parent
      */
-    int get_parent()
+    int get_parent() const
     {
         return parent_vid;
+    };
+
+    /**
+     *  Returns the parent address range used to create this AR (if any)
+     *    @param ar_id the id of the AR
+     *    @return the parent AR id or -1 this vnet has no parent
+     */
+    int get_ar_parent(int ar_id) const
+    {
+        return ar_pool.get_ar_parent(ar_id);
     };
 
     /**
@@ -329,6 +351,12 @@ public:
      *    @param ar_id of the address attribute.
      */
     void get_template_attribute(const char * name, string& value, int ar_id) const;
+
+    /**
+     *  int version of get_template_attribute
+     *    @return 0 on success
+     */
+    int get_template_attribute(const char * name, int& value, int ar_id) const;
 
     /**
      *    @return A copy of the VNET Template

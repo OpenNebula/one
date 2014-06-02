@@ -185,7 +185,6 @@ public:
     /**
      *  Frees the given address by MAC from all address ranges containing
      *  the MAC
-     *    @param arid the ID of the address range
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
      *    @param mac the specific MAC address requested
@@ -195,7 +194,6 @@ public:
     /**
      *  Frees the given address by IP from all address ranges containing
      *  the IP
-     *    @param arid the ID of the address range
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address
      *    @param ip the specific IP address requested
@@ -209,6 +207,17 @@ public:
      *    @return the number of addresses freed
      */
     int free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid);
+
+    /**
+     *  Frees the given address range
+     *    @param arid the ID of the address range
+     *    @param ot the type of the object requesting the address (VM or NET)
+     *    @param obid the id of the object requesting the address
+     *    @param mac the first MAC address in the range
+     *    @param rsize size of the address range
+     */
+    void free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
+            int obid, const string& mac, unsigned int rsize);
 
     // *************************************************************************
     // Address reservation
@@ -272,12 +281,28 @@ public:
     }
 
     /**
+     *  Return the parent id of an address range
+     *    @param ar_id of the address range
+     *    @return the parent ar id, -1 if none
+     */
+    int get_ar_parent(int ar_id) const;
+
+    /**
      *  Gets an attribute from the Address Range
      *    @param name of the attribute
      *    @param value of the attribute
      *    @param ar_id to get the attribute from
      */
     void get_attribute(const char * name, string& value, int ar_id) const;
+
+    /**
+     *  Gets an attribute from the Address Range, int version
+     *    @param name of the attribute
+     *    @param value of the attribute
+     *    @param ar_id to get the attribute from
+     *    @return 0 on success
+     */
+    int get_attribute(const char * name, int& value, int ar_id) const;
 
     /**
      *  Generate a XML representation of the Address Range Pool
