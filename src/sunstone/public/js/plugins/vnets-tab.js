@@ -1480,27 +1480,23 @@ function setupAddARDialog(){
     $add_ar_dialog = $('#add_ar_dialog',dialogs_context);
     var dialog = $add_ar_dialog;
 
-    dialog.html('<div class="row">\
-      <div class="large-12 columns">\
-        <h3 class="subheader" id="">'+tr("Add a new Address Range")+'</h3>\
-      </div>\
-    </div>\
-        <div class="reveal-body">\
-    <form id="add_ar_form" action="">\
-          <div class="row ">\
-              <div class="large-6 columns">\
-                  <label for="vnet_id">'+tr("Virtual Network ID")+':</label>\
-                  <label style="border-style: inset; background-color: lightgrey" type="text" name="vnet_id" id="vnet_id" disabled/>\
-              </div>\
-          </div>' +
-          generate_ar_tab_content("add_ar") +
-          '<div class="reveal-footer">\
+    dialog.html(
+    '<div class="reveal-body">\
+      <form id="add_ar_form" action="">\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <h3 class="subheader" id="">'+tr("New Address Range for Virtual Network")+' <span id="vnet_id"/></h3>\
+          </div>\
+        </div>'+
+        generate_ar_tab_content("add_ar") +
+        '<div class="reveal-footer">\
           <div class="form_buttons">\
-              <button class="button radius right success" id="submit_ar_button" type="submit" value="Network.add_ar">'+tr("Add")+'</button>\
+            <button class="button radius right success" id="submit_ar_button" type="submit" value="Network.add_ar">'+tr("Add")+'</button>\
           </div>\
-          </div>\
-      <a class="close-reveal-modal">&#215;</a>\
-    </form></div>')
+        </div>\
+        <a class="close-reveal-modal">&#215;</a>\
+      </form>\
+    </div>')
 
     //  TODO: max-height?
 
