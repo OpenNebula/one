@@ -274,6 +274,14 @@ public:
     }
 
     /**
+     *  Return the total number of addresses
+     */
+    unsigned int get_size() const
+    {
+        return size;
+    }
+
+    /**
      *  Returns the string value of an Address Range Attribute
      *    @param name of the attribute
      *    @return the value of the attribute if found, empty otherwise

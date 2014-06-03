@@ -49,12 +49,12 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         return 0;
     }
 
-    if ( auth_object == PoolObjectSQL::VM )
+    if (auth_object == PoolObjectSQL::VM)
     {
         tmpl  = (static_cast<VirtualMachine*>(object))->clone_template();
         qtype = Quotas::VIRTUALMACHINE;
     }
-    else
+    else if (auth_object == PoolObjectSQL::IMAGE)
     {
         Image * img = static_cast<Image *>(object);
         tmpl        = new Template;
@@ -63,6 +63,38 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         tmpl->add("SIZE", img->get_size());
 
         qtype = Quotas::DATASTORE;
+    }
+    else if (auth_object == PoolObjectSQL::NET)
+    {
+        VirtualNetwork * vn = static_cast<VirtualNetwork *>(object);
+        unsigned int  total = vn->get_size();
+
+        ostringstream oss;
+        string  tmp_error;
+
+        int parent = vn->get_parent();
+
+        if (parent == -1)
+        {
+            return object;
+        }
+
+        tmpl = new Template;
+
+        for (unsigned int i= 0 ; i < total ; i++)
+        {
+            oss << " NIC = [ NETWORK_ID = " << parent << " ]" << endl;
+        }
+
+        tmpl->parse_str_or_xml(oss.str(), error_str);
+
+        qtype = Quotas::NETWORK;
+    }
+    else
+    {
+        object->unlock();
+
+        return 0;
     }
 
     if ( new_uid == -1 )
@@ -257,7 +289,8 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     // --------------- Update the object and check quotas ----------------------
 
     if ( auth_object == PoolObjectSQL::VM ||
-         auth_object == PoolObjectSQL::IMAGE )
+         auth_object == PoolObjectSQL::IMAGE ||
+         auth_object == PoolObjectSQL::NET)
     {
         object = get_and_quota(oid, noid, ngid, att);
     }

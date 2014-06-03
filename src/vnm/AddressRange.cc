@@ -966,6 +966,11 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
     {
         map<unsigned int, long long>::iterator it = allocated.find(index);
 
+        if (it == allocated.end())
+        {
+            return freed;
+        }
+
         long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
 
         for (unsigned int i=0; i<rsize; i++)

@@ -393,17 +393,23 @@ int AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRangePool::free_addr_by_range(unsigned int arid,
+int AddressRangePool::free_addr_by_range(unsigned int arid,
     PoolObjectSQL::ObjectType ot, int obid, const string& mac, unsigned int rsize)
 {
     map<unsigned int, AddressRange *>::iterator it;
+
+    unsigned int freed = 0;
 
     it = ar_pool.find(arid);
 
     if (it!=ar_pool.end())
     {
-        used_addr -= it->second->free_addr_by_range(ot, obid, mac, rsize);
+        freed = it->second->free_addr_by_range(ot, obid, mac, rsize);
+
+        used_addr -= freed;
     }
+
+    return freed;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -455,6 +461,22 @@ int AddressRangePool::get_ar_parent(int ar_id) const
     return rc;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+unsigned int AddressRangePool::get_size() const
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    unsigned int total = 0;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        total += it->second->get_size();
+    }
+
+    return total;
+}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

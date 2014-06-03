@@ -207,10 +207,10 @@ public:
      *    @param obid the id of the object requesting the address
      *    @return the number of addresses freed
      */
-    void free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
+    int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
             int obid, const string& mac, unsigned int rsize)
     {
-        ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
+        return ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
     }
 
     /**
@@ -290,6 +290,14 @@ public:
         return ar_pool.get_used_addr();
     };
 
+    /**
+     *    Gets total number of addresses
+     *    @return the number of addresses
+     */
+    unsigned int get_size()
+    {
+        return ar_pool.get_size();
+    };
     /**
      *  Returns the parent network used to create this VNET (if any)
      *    @return the parent vnet id or -1 this vnet has no parent

@@ -97,10 +97,18 @@ void VirtualNetworkRmAddressRange::
 
     string error_str;
 
-    if ( basic_authorization(id, att) == false )
+    // -------------------------------------------------------------------------
+    // Authorize the operation VNET:MANAGE
+    // -------------------------------------------------------------------------
+
+    if (basic_authorization(id, att) == false)
     {
         return;
     }
+
+    // -------------------------------------------------------------------------
+    // Get VNET and data for reservations
+    // -------------------------------------------------------------------------
 
     vn = static_cast<VirtualNetwork *>(pool->get(id,true));
 
@@ -116,7 +124,11 @@ void VirtualNetworkRmAddressRange::
     int parent    = vn->get_parent();
     int parent_ar = vn->get_ar_parent(ar_id);
 
-    int rc = vn->get_template_attribute("SIZE", rsize, ar_id);
+    int uid = vn->get_uid();
+    int gid = vn->get_gid();
+
+    int rc  = vn->get_template_attribute("SIZE", rsize, ar_id);
+
     vn->get_template_attribute("MAC" , mac  , ar_id);
 
     if ( vn->rm_ar(ar_id, error_str) < 0 )
@@ -134,21 +146,39 @@ void VirtualNetworkRmAddressRange::
 
     vn->unlock();
 
+    // -------------------------------------------------------------------------
+    // Free addresses in parent VNET for reservations
+    // -------------------------------------------------------------------------
+
     if (parent != -1 && parent_ar != -1 && !mac.empty() && rc == 0)
     {
-        vn = static_cast<VirtualNetwork *>(pool->get(parent,true));
+        vn = static_cast<VirtualNetwork *>(pool->get(parent, true));
 
         if ( vn != 0 )
         {
-            vn->free_addr_by_range((unsigned int) parent_ar, PoolObjectSQL::NET,
-                    id, mac, rsize);
+            int freed = vn->free_addr_by_range((unsigned int) parent_ar,
+                PoolObjectSQL::NET, id, mac, rsize);
 
             pool->update(vn);
 
             vn->unlock();
+
+            if (freed > 0)
+            {
+                ostringstream oss;
+                Template      tmpl;
+
+                for (int i= 0 ; i < freed ; i++)
+                {
+                    oss << " NIC = [ NETWORK_ID = " << parent << " ]" << endl;
+                }
+
+                tmpl.parse_str_or_xml(oss.str(), error_str);
+
+                Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+            }
         }
     }
-
 
     success_response(id, att);
 }
@@ -164,27 +194,23 @@ void VirtualNetworkReserve::request_execute(
 
     VirtualNetworkPool *   vnpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate tmpl;
-    VirtualNetwork *       vn;
-    VirtualNetwork *       rvn;
+
+    VirtualNetwork * vn  = 0;
+    VirtualNetwork * rvn = 0;
 
     string error_str;
     int    rc;
     int    cluster_id;
 
-    if ( basic_authorization(id, att) == false )
-    {
-        return;
-    }
-
-    // ----------------- Process the Reservation Template  -------------------
-
+    // -------------------------------------------------------------------------
+    // Process the Reservation Template
+    // -------------------------------------------------------------------------
     rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
         failure_response(ACTION,
             request_error("Error in reservation request", error_str), att);
-
         return;
     }
 
@@ -194,7 +220,6 @@ void VirtualNetworkReserve::request_execute(
     {
         failure_response(ACTION, request_error("Error in reservation request",
                 "Reservation SIZE must be a greater than 0"), att);
-
         return;
     }
 
@@ -205,7 +230,6 @@ void VirtualNetworkReserve::request_execute(
     {
         failure_response(ACTION, request_error("Error in reservation request",
             "NETWORK_ID must be equal or greater than 0"), att);
-
         return;
     }
 
@@ -217,7 +241,6 @@ void VirtualNetworkReserve::request_execute(
     {
         failure_response(ACTION, request_error("Error in reservation request",
             "NAME for reservation has to be set"), att);
-
         return;
     }
 
@@ -228,7 +251,6 @@ void VirtualNetworkReserve::request_execute(
     {
         failure_response(ACTION, request_error("Error in reservation request",
             "AR_ID must be equal or greater than 0"), att);
-
         return;
     }
 
@@ -242,42 +264,67 @@ void VirtualNetworkReserve::request_execute(
     {
         failure_response(ACTION, request_error("Error in reservation request",
             "AR_ID must be specified for IP/MAC based reservations"), att);
-
         return;
     }
 
-    // --------------- Check/update quotas on the target VNET -----------------
-
-    ostringstream qtmpl_s;
-    Template      qtmpl;
-
-    for (int i=0; i< size ; i++)
-    {
-        qtmpl_s << "NIC = [ NETWORK_ID = " << id << "]" << endl;
-    }
-
-    qtmpl.parse_str_or_xml(qtmpl_s.str(), error_str);
-
-    if (quota_authorization(&qtmpl, Quotas::NETWORK, att) == false)
-    {
-        return;
-    }
-
-    // --------------- Get the VNET to make the reservation -------------
-
+    // -------------------------------------------------------------------------
+    // Authorize the operation Parent:USE Reservation:MANAGE
+    // -------------------------------------------------------------------------
     vn = vnpool->get(id,true);
 
     if ( vn == 0 )
     {
-        quota_rollback(&qtmpl, Quotas::NETWORK, att);
-
         failure_response(NO_EXISTS, get_error(object_name(auth_object),id),att);
         return;
     }
 
-    // -------------- Get/create a network to place the reservation ------------
+    PoolObjectAuth parent_perms;
+    AuthRequest    ar(att.uid, att.group_ids);
 
-    if (!on_exisiting) //Create a new VNET
+    vn->get_permissions(parent_perms);
+
+    ar.add_auth(AuthRequest::USE, parent_perms);
+
+    if (on_exisiting)
+    {
+        rvn = vnpool->get(rid,true);
+
+        if (rvn == 0)
+        {
+            failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
+                att);
+
+            vn->unlock();
+
+            return;
+        }
+
+        PoolObjectAuth reserv_perms;
+
+        rvn->get_permissions(reserv_perms);
+
+        ar.add_auth(AuthRequest::MANAGE, reserv_perms);
+    }
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        failure_response(AUTHORIZATION, authorization_error(ar.message, att),
+            att);
+
+        if (on_exisiting)
+        {
+            rvn->unlock();
+        }
+
+        vn->unlock();
+
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Create a new VNET to place the reservation (if needed)
+    // -------------------------------------------------------------------------
+    if (!on_exisiting)
     {
         VirtualNetworkTemplate * vtmpl = vn->clone_template();
 
@@ -290,8 +337,6 @@ void VirtualNetworkReserve::request_execute(
 
         if (rc < 0)
         {
-            quota_rollback(&qtmpl, Quotas::NETWORK, att);
-
             failure_response(INTERNAL,
                 request_error("Cannot create a reservation VNET",error_str),att);
 
@@ -299,29 +344,29 @@ void VirtualNetworkReserve::request_execute(
 
             return;
         }
+
+        rvn = vnpool->get(rid, true);
+
+        if (rvn == 0)
+        {
+            failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
+                att);
+
+            vn->unlock();
+
+            return;
+        }
     }
 
-    rvn = vnpool->get(rid,true);
-
-    if (rvn == 0)
-    {
-        quota_rollback(&qtmpl, Quotas::NETWORK, att);
-
-        failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),att);
-
-        vn->unlock();
-
-        return;
-    }
-
+    // -------------------------------------------------------------------------
+    // Check reservation consistency
+    // -------------------------------------------------------------------------
     if (on_exisiting && rvn->get_parent() != id)
     {
         ostringstream oss;
 
         oss << "New reservations for virtual network " << rid << " have to be "
             << "from network " << rvn->get_parent();
-
-        quota_rollback(&qtmpl, Quotas::NETWORK, att);
 
         failure_response(INTERNAL, request_error(oss.str(),""), att);
 
@@ -332,8 +377,33 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
-    // -------------- Make address reservation and set it ----------------------
+    // -------------------------------------------------------------------------
+    // Check & update quotas on the target VNET & *reservation owner*
+    // -------------------------------------------------------------------------
+    ostringstream qtmpl_s;
+    Template      qtmpl;
 
+    RequestAttributes reservation_att(rvn->get_uid(), rvn->get_gid(), att);
+
+    for (int i=0; i< size ; i++)
+    {
+        qtmpl_s << "NIC = [ NETWORK_ID = " << id << "]" << endl;
+    }
+
+    qtmpl.parse_str_or_xml(qtmpl_s.str(), error_str);
+
+    if (quota_authorization(&qtmpl, Quotas::NETWORK, reservation_att) == false)
+    {
+        rvn->unlock();
+
+        vn->unlock();
+
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Make address reservation and set it
+    // -------------------------------------------------------------------------
     if (with_ar_id)
     {
         if (!ip.empty())
@@ -356,7 +426,7 @@ void VirtualNetworkReserve::request_execute(
 
     if (rc != 0 )
     {
-        quota_rollback(&qtmpl, Quotas::NETWORK, att);
+        quota_rollback(&qtmpl, Quotas::NETWORK, reservation_att);
 
         failure_response(ACTION, request_error(error_str,""), att);
 
@@ -380,8 +450,9 @@ void VirtualNetworkReserve::request_execute(
 
     vn->unlock();
 
-    // -------------- Add the reservation to the cluster ----------------------
-
+    // -------------------------------------------------------------------------
+    // Add the reservation to the same cluster as the parent VNET
+    // -------------------------------------------------------------------------
     if ((cluster_id != ClusterPool::NONE_CLUSTER_ID) && (!on_exisiting))
     {
         Nebula& nd  = Nebula::instance();
