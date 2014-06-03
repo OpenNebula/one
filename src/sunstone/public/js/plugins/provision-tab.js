@@ -1894,7 +1894,9 @@ Sunstone.addActions(povision_actions);
 
 
 function generate_cardinality_selector(context, role_template) {
-  console.log(role_template)
+  var min_vms = (role_template.min_vms||1);
+  var max_vms = (role_template.max_vms||100);
+
   context.html(
     '<br>'+
     '<div class="row">'+
@@ -1917,38 +1919,42 @@ function generate_cardinality_selector(context, role_template) {
             '<br>'+
             '<span style="color: #999;">'+tr("VMs")+'</span>'+
           '</div>'+
-          '<div class="large-6 columns text-center">'+
+          '<div class="cardinality_slider_div large-6 columns text-center">'+
             '<span class="" style="color: #999;">'+tr("Change cardinality")+'</span>'+
             '<br>'+
             '<div class="cardinality_slider">'+
             '</div>'+
             '<br>'+
-            '<span class="left" style="color: #999;">'+(role_template.min_vms||1)+'</span>'+
-            '<span class="right" style="color: #999;">'+(role_template.max_vms||100)+'</span>'+
+            '<span class="left" style="color: #999;">'+min_vms+'</span>'+
+            '<span class="right" style="color: #999;">'+max_vms+'</span>'+
           '</div>'+
         '</div>'+
       '</div>'+
     '</div>');
 
-    var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
-        handles: 1,
-        connect: "lower",
-        range: [(role_template.min_vms||1),(role_template.max_vms||100)],
-        step: 1,
-        start: role_template.cardinality,
-        value: role_template.cardinality,
-        slide: function(type) {
-            if ( type != "move"){
-              if ($(this).val()) {
-                $(".cardinality_value", context).html($(this).val());
+    if (max_vms > min_vms) {
+      var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
+          handles: 1,
+          connect: "lower",
+          range: [min_vms, max_vms],
+          step: 1,
+          start: role_template.cardinality,
+          value: role_template.cardinality,
+          slide: function(type) {
+              if ( type != "move"){
+                if ($(this).val()) {
+                  $(".cardinality_value", context).html($(this).val());
+                }
               }
-            }
-        }
-    });
+          }
+      });
 
-    provision_cardinality_slider.val(role_template.cardinality)
+      provision_cardinality_slider.val(role_template.cardinality)
 
-    provision_cardinality_slider.addClass("noUiSlider");
+      provision_cardinality_slider.addClass("noUiSlider");
+    } else {
+      $( ".cardinality_slider_div", context).hide();
+    }
 }
 
 var provision_instance_type_accordion_id = 0;
