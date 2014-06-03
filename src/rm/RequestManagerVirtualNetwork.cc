@@ -278,6 +278,16 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    if (vn->get_parent() != -1)
+    {
+        failure_response(ACTION, request_error("Error in reservation request",
+            "Cannot reserve addresses from a reserved VNET"), att);
+
+        vn->unlock();
+
+        return;
+    }
+
     PoolObjectAuth parent_perms;
     AuthRequest    ar(att.uid, att.group_ids);
 
@@ -361,14 +371,28 @@ void VirtualNetworkReserve::request_execute(
     // -------------------------------------------------------------------------
     // Check reservation consistency
     // -------------------------------------------------------------------------
-    if (on_exisiting && rvn->get_parent() != id)
+    int parent = rvn->get_parent();
+
+    if (parent == -1)
+    {
+        failure_response(ACTION, request_error("Cannot add reservations to a "
+            "non-reservation VNET",""), att);
+
+        rvn->unlock();
+
+        vn->unlock();
+
+        return;
+    }
+
+    if (on_exisiting &&  parent != id)
     {
         ostringstream oss;
 
         oss << "New reservations for virtual network " << rid << " have to be "
             << "from network " << rvn->get_parent();
 
-        failure_response(INTERNAL, request_error(oss.str(),""), att);
+        failure_response(ACTION, request_error(oss.str(),""), att);
 
         rvn->unlock();
 
