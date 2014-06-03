@@ -332,7 +332,12 @@ var vnet_actions = {
         type: "single",
         call: OpenNebula.Network.add_ar,
         callback: function(req) {
-          Sunstone.runAction("Network.show",req.request.data[0][0]);
+            // Reset the wizard
+            $add_ar_dialog.foundation('reveal', 'close');
+            $add_ar_dialog.empty();
+            setupAddARDialog();
+
+            Sunstone.runAction("Network.show",req.request.data[0][0]);
         },
         error: onError
     },
@@ -350,7 +355,12 @@ var vnet_actions = {
         type: "single",
         call: OpenNebula.Network.update_ar,
         callback: function(req) {
-          Sunstone.runAction("Network.show",req.request.data[0][0]);
+            // Reset the wizard
+            $update_ar_dialog.foundation('reveal', 'close');
+            $update_ar_dialog.empty();
+            setupUpdateARDialog();
+
+            Sunstone.runAction("Network.show",req.request.data[0][0]);
         },
         error: onError
     },
@@ -681,6 +691,9 @@ function updateVNetworkInfo(request,vn){
             $(this).addClass('markrowchecked');
         });
 
+        $("#update_ar_button", $("#vnet_info_panel")).attr("ar_id", id).removeAttr('disabled');
+        $("#rm_ar_button", $("#vnet_info_panel")).attr("ar_id", id).removeAttr('disabled');
+
         $("#ar_show_info", $("#vnet_info_panel")).html(ar_show_info(vn_info, id));
 
         return false;
@@ -715,16 +728,34 @@ function ar_list_tab_content(vn_info){
     var html =
     '<form id="ar_list_form" vnid="'+vn_info.ID+'">';
 
+    html +=
+        '<div class="row collapse">\
+          <div class="large-12 columns">';
+
     if (Config.isTabActionEnabled("vnets-tab", "Network.add_ar")) {
         html +=
-        '<div class="row collapse">\
-          <div class="large-4 columns">\
-            <button class="button success small radius" id="add_ar_button">'+'\
-              <span class="fa fa-plus"></span> '+tr("Add another Address Range")+'\
-            </button>\
-          </div>\
-        </div>';
+            '<button class="button success small radius" id="add_ar_button">\
+              <span class="fa fa-plus"></span> '+tr("Add")+'\
+            </button>';
     }
+
+    html += '<span class="right">';
+
+    if (Config.isTabActionEnabled("vnets-tab", "Network.update_ar")) {
+        html +=
+        '<button class="button secondary small radius" id="update_ar_button" ar_id="" disabled="disabled">\
+          <span class="fa fa-pencil-square-o"></span> '+tr("Update")+'\
+        </button>';
+    }
+
+    if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
+        html +=
+        '<button class="button secondary small radius" id="rm_ar_button" ar_id="" disabled="disabled">\
+          <span class="fa fa-trash-o"></span> '+tr("Remove")+'\
+        </button>';
+    }
+
+    html += '</span></div></div>';
 
     html +=
     '<div class="row collapse">\
@@ -820,7 +851,7 @@ function ar_show_info(vn_info, ar_id){
 
     for (var i=0; i<ar_list.length; i++){
         if (ar_id == ar_list[i].AR_ID){
-            ar = ar_list[i];
+            ar = $.extend({}, ar_list[i]);
             found = true;
             break;
         }
@@ -830,11 +861,11 @@ function ar_show_info(vn_info, ar_id){
         return "";
     }
 
-    function ar_attr(val, txt){
+    function ar_attr(txt, val){
         if(val){
             return '<tr>\
-                       <td colspan="3" class="key_td">'+txt+'</td>\
-                       <td colspan="4" class="value_td">'+val+'</td>\
+                       <td class="key_td">'+htmlDecode(txt)+'</td>\
+                       <td class="value_td">'+htmlDecode(val)+'</td>\
                      </tr>'
         }
 
@@ -848,31 +879,44 @@ function ar_show_info(vn_info, ar_id){
       <div class="large-6 columns">\
         <table class="dataTable extended_table">\
           <thead>\
-            <tr><th colspan="5">'+tr("Address Range")+' '+ar_id+'</th></tr>\
+            <tr><th colspan="2">'+tr("Address Range")+' '+ar_id+'</th></tr>\
           </thead>\
           <tbody>';
 
     // TODO: translate ar.TYPE values?
-    html += ar_attr(ar.TYPE, tr("Type"));
-    html += ar_attr(ar.MAC, tr("MAC"));
-    html += ar_attr(ar.IP, tr("IP"));
-    html += ar_attr(ar.GLOBAL_PREFIX, tr("Global prefix"));
-    html += ar_attr(ar.ULA_PREFIX, tr("ULA prefix"));
-    html += ar_attr(ar.SIZE, tr("Size"));
-    html += ar_attr(ar.USED_LEASES, tr("Used leases"));
+    html += ar_attr(tr("Type"),         ar.TYPE);
+    html += ar_attr(tr("MAC"),          ar.MAC);
+    html += ar_attr(tr("IP"),           ar.IP);
+    html += ar_attr(tr("Global prefix"),ar.GLOBAL_PREFIX);
+    html += ar_attr(tr("ULA prefix"),   ar.ULA_PREFIX);
+    html += ar_attr(tr("Size"),         ar.SIZE);
+    html += ar_attr(tr("Used leases"),  ar.USED_LEASES);
+
+    delete ar["AR_ID"];
+    delete ar["TYPE"];
+    delete ar["MAC"];
+    delete ar["IP"];
+    delete ar["GLOBAL_PREFIX"];
+    delete ar["ULA_PREFIX"];
+    delete ar["SIZE"];
+    delete ar["USED_LEASES"];
 
     html +=
           '</tbody>\
         </table>';
 
-    if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
-        html +=
-        '<div class="large-12 columns text-center">\
-          <button class="button small radius" id="rm_ar_button" ar_id="'+ar_id+'">'+tr("Remove Address Range")+'</button>\
-        </div>';
-    }
+    html +=
+      '</div>\
+      <div class="large-6 columns">\
+        <table class="dataTable extended_table">\
+          <thead>\
+            <tr><th colspan="2">&nbsp;</th></tr>\
+          </thead>\
+          <tbody>';
 
-    // TODO: extra ar config attributes
+    $.each(ar, function(key, value){
+        html += ar_attr(key, value);
+    });
 
     html +=
       '</div>\
@@ -1241,36 +1285,36 @@ function generate_ar_tab_content(str_ar_tab_id){
     var html =
     '<div class="row">\
       <div class="large-12 columns">\
-        <input type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip4" value="IP4" checked="checked"/><label for="'+str_ar_tab_id+'_ar_type_ip4">'+tr("IPv4")+'</label>\
-        <input type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip4_6" value="IP4_6"/><label for="'+str_ar_tab_id+'_ar_type_ip4_6">'+tr("IPv4/6")+'</label>\
-        <input type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip6" value="IP6"/><label for="'+str_ar_tab_id+'_ar_type_ip6">'+tr("IPv6")+'</label>\
-        <input type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ether" value="ETHER"/><label for="'+str_ar_tab_id+'_ar_type_ether">'+tr("Ethernet")+'</label>\
+        <input wizard_field="TYPE" type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip4" value="IP4"/><label for="'+str_ar_tab_id+'_ar_type_ip4">'+tr("IPv4")+'</label>\
+        <input wizard_field="TYPE" type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip4_6" value="IP4_6"/><label for="'+str_ar_tab_id+'_ar_type_ip4_6">'+tr("IPv4/6")+'</label>\
+        <input wizard_field="TYPE" type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip6" value="IP6"/><label for="'+str_ar_tab_id+'_ar_type_ip6">'+tr("IPv6")+'</label>\
+        <input wizard_field="TYPE" type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ether" value="ETHER"/><label for="'+str_ar_tab_id+'_ar_type_ether">'+tr("Ethernet")+'</label>\
       </div>\
     </div>\
     <div class="row">\
       <div class="large-6 columns">\
         <div class="row collapse ar_input type_ip4 type_ip4_6">\
           <label for="'+str_ar_tab_id+'_ip_start">'+tr("IP Start")+':</label>\
-          <input type="text" name="IP" id="'+str_ar_tab_id+'_ip_start"/>\
+          <input wizard_field="IP" type="text" name="IP" id="'+str_ar_tab_id+'_ip_start"/>\
         </div>\
         <div class="row collapse ar_input type_ip4 type_ip4_6 type_ip6 type_ether">\
           <label for="'+str_ar_tab_id+'_mac_start">'+tr("MAC Start")+':</label>\
-          <input type="text" name="MAC" id="'+str_ar_tab_id+'_mac_start" />\
+          <input wizard_field="MAC" type="text" name="MAC" id="'+str_ar_tab_id+'_mac_start" />\
         </div>\
       </div>\
       <div class="large-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">\
         <label for="'+str_ar_tab_id+'_size">'+tr("Size")+':</label>\
-        <input type="text" name="SIZE" id="'+str_ar_tab_id+'_size" />\
+        <input wizard_field="SIZE" type="text" name="SIZE" id="'+str_ar_tab_id+'_size" />\
       </div>\
     </div>\
     <div class="row">\
       <div class="large-6 columns ar_input type_ip4_6 type_ip6">\
         <label for="'+str_ar_tab_id+'_global_prefix">'+tr("Global prefix")+':</label>\
-        <input type="text" name="GLOBAL_PREFIX" id="'+str_ar_tab_id+'_global_prefix"/>\
+        <input wizard_field="GLOBAL_PREFIX" type="text" name="GLOBAL_PREFIX" id="'+str_ar_tab_id+'_global_prefix"/>\
       </div>\
       <div class="large-6 columns ar_input type_ip4_6 type_ip6">\
         <label for="'+str_ar_tab_id+'_ula_prefix">'+tr("ULA prefix")+':</label>\
-        <input type="text" name="ULA_PREFIX" id="'+str_ar_tab_id+'_ula_prefix"/>\
+        <input wizard_field="ULA_PREFIX" type="text" name="ULA_PREFIX" id="'+str_ar_tab_id+'_ula_prefix"/>\
       </div>\
     </div>\
     <div class="row">\
@@ -1311,7 +1355,7 @@ function setup_ar_tab_content(ar_section, str_ar_tab_id) {
         }
     });
 
-    $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).attr('checked', true);
+    $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).prop('checked', true);
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).change();
 
     setupCustomTags($('#'+str_ar_tab_id+'_custom_tags',ar_section));
@@ -1366,6 +1410,45 @@ function retrieve_ar_tab_data(ar_section){
 
     return data
 }
+
+function fill_ar_tab_data(ar_json, ar_section){
+    var fields = $('[wizard_field]',ar_section);
+
+    fields.each(function(){
+        var field = $(this);
+        var field_name = field.attr('wizard_field');
+        if (ar_json[field_name]){
+            switch(field.attr("type")){
+            case "radio":
+                var checked = (field.val() == ar_json[field_name]);
+
+                field.prop("checked", checked );
+                
+                if(checked){
+                    field.change();
+                }
+                break;
+            default:
+                field.val(escapeDoubleQuotes(htmlDecode(ar_json[field_name])));
+                field.change();
+            }
+        }
+    });
+
+    fields.each(function(){
+        var field = $(this);
+        var field_name = field.attr('wizard_field');
+
+        // Delete so these attributes don't end in the custom tags table also
+        delete ar_json[field_name];
+    });
+
+    delete ar_json["AR_ID"];
+    delete ar_json["USED_LEASES"];
+    delete ar_json["LEASES"];
+
+    fillCustomTags(ar_section, ar_json);
+};
 
 // Listeners to the add, hold, release, delete leases operations in the
 // extended information panel.
@@ -1428,6 +1511,56 @@ function setupLeasesOps(){
         return false;
     });
   }
+
+  if (Config.isTabActionEnabled("vnets-tab", "Network.update_ar")) {
+    $('button#update_ar_button').live("click",function(){
+
+        var id = $(this).parents('form').attr('vnid');
+        var ar_id = $(this).attr('ar_id');
+
+        OpenNebula.Network.show({
+            data : {
+                id: id
+            },
+            timeout: true,
+            success: function (request, vn){
+                var vn_info = vn.VNET;
+
+                var ar_list = vn_info.AR_POOL.AR;
+
+                if (!ar_list) //empty
+                {
+                    ar_list = [];
+                }
+                else if (ar_list.constructor != Array) //>1 lease
+                {
+                    ar_list = [ar_list];
+                };
+
+                var found = false;
+                var ar;
+
+                for (var i=0; i<ar_list.length; i++){
+                    if (ar_id == ar_list[i].AR_ID){
+                        ar = ar_list[i];
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(found){
+                    popUpUpdateAR(id, ar);
+                } else {
+                    notifyError(tr("The Adress Range was not found"));
+                    Sunstone.runAction("Network.show", id);
+                }
+            },
+            error: onError
+        });
+
+        return false;
+    });
+  }
 }
 
 function popUpAddAR(id){
@@ -1445,13 +1578,17 @@ function setupAddARDialog(){
       <form id="add_ar_form" action="">\
         <div class="row">\
           <div class="large-12 columns">\
-            <h3 class="subheader" id="">'+tr("New Address Range for Virtual Network")+' <span id="vnet_id"/></h3>\
+            <h3 class="subheader" id="">\
+              '+tr("Virtual Network")+' <span id="vnet_id"/>\
+              <br>'+tr("New Address Range")+'\
+            </h3>\
           </div>\
         </div>'+
         generate_ar_tab_content("add_ar") +
         '<div class="reveal-footer">\
           <div class="form_buttons">\
             <button class="button radius right success" id="submit_ar_button" type="submit" value="Network.add_ar">'+tr("Add")+'</button>\
+            <button id="submit_ar_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
           </div>\
         </div>\
         <a class="close-reveal-modal">&#215;</a>\
@@ -1465,6 +1602,13 @@ function setupAddARDialog(){
 
     setup_ar_tab_content(dialog, "add_ar")
 
+    $('#submit_ar_reset_button').click(function(){
+        $add_ar_dialog.html("");
+        setupAddARDialog();
+
+        popUpAddAR();
+    });
+
     $('#add_ar_form',dialog).submit(function(){
         var vnet_id = $('#vnet_id', this).text();
         var data = retrieve_ar_tab_data(this);
@@ -1472,10 +1616,71 @@ function setupAddARDialog(){
         var obj = {AR: data}
         Sunstone.runAction('Network.add_ar', vnet_id, obj);
 
-        $add_ar_dialog.foundation('reveal', 'close')
         return false;
     });
 };
+
+function popUpUpdateAR(id, ar){
+    $('#vnet_id',$update_ar_dialog).text(id);
+    $('#ar_id',$update_ar_dialog).text(ar.AR_ID);
+
+    fill_ar_tab_data($.extend({}, ar), $update_ar_dialog);
+
+    $update_ar_dialog.foundation().foundation('reveal', 'open');
+}
+
+function setupUpdateARDialog(){
+    dialogs_context.append('<div id="update_ar_dialog"></div>');
+    $update_ar_dialog = $('#update_ar_dialog',dialogs_context);
+    var dialog = $update_ar_dialog;
+
+    dialog.html(
+    '<div class="reveal-body">\
+      <form id="update_ar_form" action="">\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <h3 class="subheader" id="">\
+              '+tr("Virtual Network")+' <span id="vnet_id"/>\
+              <br>'+tr("Edit Address Range")+' <span id="ar_id"/>\
+            </h3>\
+          </div>\
+        </div>'+
+        generate_ar_tab_content("update_ar") +
+        '<div class="reveal-footer">\
+          <div class="form_buttons">\
+            <button class="button radius right success" id="submit_ar_button" type="submit" value="Network.update_ar">'+tr("Update")+'</button>\
+          </div>\
+        </div>\
+        <a class="close-reveal-modal">&#215;</a>\
+      </form>\
+    </div>');
+
+    //  TODO: max-height?
+
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    setupTips(dialog);
+
+    setup_ar_tab_content(dialog, "update_ar")
+
+    dialog.die();
+    dialog.live('closed', function () {
+        $update_ar_dialog.html("");
+        setupUpdateARDialog();
+    });
+
+    $('#update_ar_form',dialog).submit(function(){
+        var vnet_id = $('#vnet_id', this).text();
+        var ar_id = $('#ar_id', this).text();
+        var data = retrieve_ar_tab_data(this);
+
+        data['AR_ID'] = ar_id;
+
+        var obj = {AR: data}
+        Sunstone.runAction('Network.update_ar', vnet_id, obj);
+
+        return false;
+    });
+}
 
 //The DOM is ready and the ready() from sunstone.js
 //has been executed at this point.
@@ -1508,6 +1713,7 @@ $(document).ready(function(){
       setupLeasesOps();
 
       setupAddARDialog();
+      setupUpdateARDialog();
 
       initCheckAllBoxes(dataTable_vNetworks);
       tableCheckboxesListener(dataTable_vNetworks);

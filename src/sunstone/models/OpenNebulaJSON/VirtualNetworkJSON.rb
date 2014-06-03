@@ -96,7 +96,10 @@ module OpenNebulaJSON
         end
 
         def update_ar(params=Hash.new)
-            super(params['ar_template_raw'])
+            template_json = params['ar_template']
+            template = template_to_str(template_json)
+
+            super(template)
         end
     end
 end

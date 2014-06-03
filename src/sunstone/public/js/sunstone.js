@@ -4658,10 +4658,41 @@ function setupCustomTags(div){
     });
 }
 
-function retrieveCustomTags(div, hash){
+// div is the container div of customTagsHtml()
+// template_json is where the key:values will be stored
+// retrieveCustomTags($('#vnetCreateContextTab', $create_vn_dialog), network_json);
+function retrieveCustomTags(div, template_json){
     $('#custom_tags tr', div).each(function(){
         if ($('#KEY', $(this)).val()) {
-            hash[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val();
+            template_json[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val();
         }
+    });
+}
+
+// div is the container div of customTagsHtml()
+// template_json are the key:values that will be put into the table
+function fillCustomTags(div, template_json){
+    $.each(template_json, function(key, value){
+        var table = $('#custom_tags', div)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = htmlDecode(key);
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = htmlDecode(value);
+        cell2.appendChild(element2);
+
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
     });
 }
