@@ -198,6 +198,18 @@ public:
      */
     int free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid);
 
+    /**
+     *  Frees a previous allocated address range, referenced by its MAC address
+     *  and size
+     *  @param ot the object type of the owner of the address
+     *  @param obid the id of the owner of the address
+     *  @param mac the first MAC address in string form
+     *  @param rsize the size of the range
+     *  @return the number of addresses freed
+     */
+    int free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
+        const string& mac, unsigned int rsize);
+
     // *************************************************************************
     // Address Reservation
     // *************************************************************************
@@ -274,7 +286,8 @@ public:
     /**
      *  Returns the int value of an Address Range Attribute
      *    @param name of the attribute
-     *    @return the value of the attribute if found, empty otherwise
+     *    @param value of the attribute
+     *    @return 0 on success
      */
     int get_attribute(const char *name, int& value) const
     {

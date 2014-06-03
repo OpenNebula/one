@@ -110,6 +110,15 @@ void VirtualNetworkRmAddressRange::
         return;
     }
 
+    string mac;
+    int    rsize;
+
+    int parent    = vn->get_parent();
+    int parent_ar = vn->get_ar_parent(ar_id);
+
+    int rc = vn->get_template_attribute("SIZE", rsize, ar_id);
+    vn->get_template_attribute("MAC" , mac  , ar_id);
+
     if ( vn->rm_ar(ar_id, error_str) < 0 )
     {
         failure_response(INTERNAL,
@@ -124,6 +133,22 @@ void VirtualNetworkRmAddressRange::
     pool->update(vn);
 
     vn->unlock();
+
+    if (parent != -1 && parent_ar != -1 && !mac.empty() && rc == 0)
+    {
+        vn = static_cast<VirtualNetwork *>(pool->get(parent,true));
+
+        if ( vn != 0 )
+        {
+            vn->free_addr_by_range((unsigned int) parent_ar, PoolObjectSQL::NET,
+                    id, mac, rsize);
+
+            pool->update(vn);
+
+            vn->unlock();
+        }
+    }
+
 
     success_response(id, att);
 }
