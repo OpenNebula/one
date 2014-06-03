@@ -464,6 +464,22 @@ int AddressRangePool::get_ar_parent(int ar_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+unsigned int AddressRangePool::get_size() const
+{
+    map<unsigned int, AddressRange *>::const_iterator it;
+
+    unsigned int total = 0;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        total += it->second->get_size();
+    }
+
+    return total;
+}
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
 {
     map<unsigned int, AddressRange *>::const_iterator it;

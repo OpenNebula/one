@@ -291,6 +291,14 @@ public:
     };
 
     /**
+     *    Gets total number of addresses
+     *    @return the number of addresses
+     */
+    unsigned int get_size()
+    {
+        return ar_pool.get_size();
+    };
+    /**
      *  Returns the parent network used to create this VNET (if any)
      *    @return the parent vnet id or -1 this vnet has no parent
      */

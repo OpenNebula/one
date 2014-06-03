@@ -281,6 +281,11 @@ public:
     }
 
     /**
+     *  Return the total number addresses
+     */
+    unsigned int get_size() const;
+
+    /**
      *  Return the parent id of an address range
      *    @param ar_id of the address range
      *    @return the parent ar id, -1 if none
