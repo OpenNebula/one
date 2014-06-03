@@ -207,10 +207,10 @@ public:
      *    @param obid the id of the object requesting the address
      *    @return the number of addresses freed
      */
-    void free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
+    int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
             int obid, const string& mac, unsigned int rsize)
     {
-        ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
+        return ar_pool.free_addr_by_range(arid, ot, obid, mac, rsize);
     }
 
     /**

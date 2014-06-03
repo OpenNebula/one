@@ -216,7 +216,7 @@ public:
      *    @param mac the first MAC address in the range
      *    @param rsize size of the address range
      */
-    void free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
+    int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
             int obid, const string& mac, unsigned int rsize);
 
     // *************************************************************************
