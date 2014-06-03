@@ -645,6 +645,7 @@ void AddressRange::allocated_to_attr()
 {
     if (allocated.empty())
     {
+        attr->replace("ALLOCATED", "");
         return;
     }
 
