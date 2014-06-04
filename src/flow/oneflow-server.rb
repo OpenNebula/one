@@ -427,18 +427,31 @@ post '/service_template/:id/action' do
 
                 ServiceTemplate.validate(instantiate_template)
 
-                instantiate_template = instantiate_template.to_json
+                instantiate_template["roles"].each { |role|
+                    if role["vm_template_contents"]
+                        # $CUSTOM1_VAR Any word character (letter, number, underscore)
+                        role["vm_template_contents"].scan(/\$(\w+)/).each { |key|
+                            if instantiate_template["custom_attrs_values"].has_key?(key[0])
+                                role["vm_template_contents"].gsub!(
+                                    "$"+key[0],
+                                    instantiate_template["custom_attrs_values"][key[0]])
+                            end
+                        }
+                    end
+                }
+
+                instantiate_template_json = instantiate_template.to_json
 
             rescue Validator::ParseException, JSON::ParserError
                 error 400, $!.message
             end
         else
-            instantiate_template = service_template.template
+            instantiate_template_json = service_template.template
         end
 
 
         service = OpenNebula::Service.new(OpenNebula::Service.build_xml, @client)
-        rc = service.allocate(instantiate_template)
+        rc = service.allocate(instantiate_template_json)
         if OpenNebula.is_error?(rc)
             error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
         end

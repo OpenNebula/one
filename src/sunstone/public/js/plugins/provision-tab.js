@@ -1721,7 +1721,6 @@ var povision_actions = {
       $("#flow_name", context).val('');
       //$(".provision_selected_networks").html("");
       $(".provision-pricing-table", context).removeClass("selected");
-      $(".alert-box-error", context).hide();
       //$('a[href="#provision_system_templates_selector"]', context).click();
     },
     error: onError
@@ -2826,7 +2825,9 @@ function show_provision_create_flow() {
   $(".provision_accordion_flow_template .selected_template", context).hide();
   $(".provision_accordion_flow_template .select_template", context).show();
 
-  $("#provision_create_flow dd:not(.active) a[href='#provision_dd_flow_template']", context).trigger("click")
+  $("dd:not(.active) a[href='#provision_dd_flow_template']", context).trigger("click")
+
+  $(".alert-box-error", context).hide();
 
   $(".section_content").hide();
   $("#provision_create_flow").fadeIn();
@@ -4296,30 +4297,30 @@ $(document).ready(function(){
           '<br>'+
           '<br>').appendTo($("#provision_customize_flow_template"))
 
-          var template_id = role.vm_template;
-          var role_html_id = "#provision_create_flow_role_"+index;
-
+//          var template_id = role.vm_template;
+//          var role_html_id = "#provision_create_flow_role_"+index;
+//
           generate_cardinality_selector(
             $(".provision_cardinality_selector", context),
             role);
 
-          OpenNebula.Template.show({
-            data : {
-                id: template_id
-            },
-            success: function(request,template_json){
-              var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-              var nics = []
-              if ($.isArray(template_nic))
-                  nics = template_nic
-              else if (!$.isEmptyObject(template_nic))
-                  nics = [template_nic]
-
-              generate_provision_instance_type_accordion(
-                $(".provision_capacity_selector", context),
-                template_json.VMTEMPLATE.TEMPLATE);
-            }
-          })
+//          OpenNebula.Template.show({
+//            data : {
+//                id: template_id
+//            },
+//            success: function(request,template_json){
+//              var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+//              var nics = []
+//              if ($.isArray(template_nic))
+//                  nics = template_nic
+//              else if (!$.isEmptyObject(template_nic))
+//                  nics = [template_nic]
+//
+//              generate_provision_instance_type_accordion(
+//                $(".provision_capacity_selector", context),
+//                template_json.VMTEMPLATE.TEMPLATE);
+//            }
+//          })
 
 
         })
