@@ -412,7 +412,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
     '<div class="large-10 large-centered columns">'+
       '<dl class="accordion provision_accordion_template" data-accordion="provision_accordion_template">'+
         '<dd style="border-bottom: 1px solid #efefef;" class="active">'+
-          '<a href="#provision_dd_template" style="background: #fff; font-size: 24px">'+
+          '<a href="#provision_dd_template" style="background: #fff; font-size: 30px">'+
             '<span class="select_template" style="color:#555">'+
               tr("Select a Template")+
             '</span>'+
@@ -538,7 +538,7 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
     '<div class="large-10 large-centered columns">'+
       '<dl class="accordion provision_accordion_flow_template" data-accordion="provision_accordion_flow_template">'+
         '<dd style="border-bottom: 1px solid #efefef;" class="active">'+
-          '<a href="#provision_dd_flow_template" style="background: #fff; font-size: 24px">'+
+          '<a href="#provision_dd_flow_template" style="background: #fff; font-size: 30px">'+
             '<span class="select_template" style="color:#555">'+
               tr("Select a Template")+
             '</span>'+
@@ -583,6 +583,15 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
   '<br>'+
   '<br>'+
   '<br>'+
+  '<div class="row">'+
+    '<div class="provision_network_selector large-9 large-centered columns">'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="provision_custom_attributes_selector large-9 large-centered columns">'+
+    '</div>'+
+  '</div>'+
   '<div id="provision_customize_flow_template" style="display: none">'+
   '</div>'+
   '<br>'+
@@ -1893,6 +1902,41 @@ Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
 
+function generate_custom_attrs(context, custom_attrs) {
+  context.html(
+    '<br>'+
+    '<div class="row">'+
+      '<div class="large-12 large-centered columns">'+
+        '<h3 class="subheader text-right">'+
+          '<span class="left">'+
+            '<i class="fa fa-th fa-gears"></i>&emsp;'+
+            tr("Custom Attributes")+
+          '</span>'+
+        '</h3>'+
+        '<br>'+
+      '</div>'+
+    '</div>'+
+    '<br>'+
+    '<div class="provision_custom_attributes">'+
+    '</div>'+
+    '<br>'+
+    '<br>'+
+    '<br>');
+
+  $.each(custom_attrs, function(index, custom_attr){
+    $(".provision_custom_attributes", context).append(
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-10 large-centered columns">'+
+          '<label>' +
+            custom_attr.description +
+            '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+          '</label>'+
+        '</div>'+
+      '</div>');
+  })
+}
+
 function generate_cardinality_selector(context, role_template) {
   var min_vms = (role_template.min_vms||1);
   var max_vms = (role_template.max_vms||100);
@@ -2143,30 +2187,44 @@ function generate_provision_instance_type_accordion(context, capacity) {
 var provision_nic_accordion_id = 0;
 var provision_nic_accordion_dd_id = 0;
 
-function generate_provision_network_table(context, nic){
+function generate_provision_network_table(context, nic, vnet_attr){
   var nic_span;
 
   if (nic) {
     nic_span = '<span class="selected_network" template_nic=\''+JSON.stringify(nic)+'\'>'+
         '<span style="color: #999; font-size: 14px">' + tr("INTERFACE") + "</span>&emsp;&emsp;" +
         '<span style="color: #777;">' + (nic.NETWORK||nic.NETWORK_ID) + "</span>" +
+      '</span>'+
+      '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">'+
+        '<i class="fa fa-times"/>'+
+      '</span>'+
+      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
+        '<i class="fa fa-pencil"/>'+
+      '</span>';
+  } else if (vnet_attr) {
+    nic_span = '<span style="color: #999; font-size: 14px">' + vnet_attr.description + "</span><br>"+
+      '<span class="selected_network" attr_name=\''+vnet_attr.name+'\' style="color: #777;">'+
+        '<span>' + tr("Select a Network for this interface") + "</span>"+
+      '</span>'+
+      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
+        '<i class="fa fa-pencil"/>'+
       '</span>';
   } else {
     nic_span =
       '<span class="selected_network" style="color:#555">'+
         tr("Select a Network for this interface")+
+      '</span>'+
+      '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">'+
+        '<i class="fa fa-times"/>'+
+      '</span>'+
+      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
+        '<i class="fa fa-pencil"/>'+
       '</span>';
   }
 
   var dd_context = $('<dd style="border-bottom: 1px solid #efefef;">'+
     '<a href="#provision_accordion_dd_'+provision_nic_accordion_dd_id+'" style="background: #fff; font-size: 24px">'+
       nic_span +
-      '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">'+
-        '<i class="fa fa-times"/>'+
-      '</span>'+
-      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
-        '<i class="fa fa-pencil"/>'+
-      '</span>'+
     '</a>'+
     '<div id="provision_accordion_dd_'+provision_nic_accordion_dd_id+'" class="content">'+
       '<div class="row">'+
@@ -2275,7 +2333,7 @@ function generate_provision_network_table(context, nic){
     return false;
   });
 
-  if (!nic) {
+  if (!nic && !vnet_attr) {
     $('a', dd_context).trigger("click");
   }
 
@@ -2757,13 +2815,18 @@ function show_provision_create_vm() {
 function show_provision_create_flow() {
   update_provision_flow_templates_datatable(provision_flow_templates_datatable);
 
-  $("#provision_customize_flow_template").hide();
-  $("#provision_customize_flow_template").html("");
+  var context = $("#provision_create_flow");
 
-  $(".provision_accordion_flow_template .selected_template").hide();
-  $(".provision_accordion_flow_template .select_template").show();
+  $("#provision_customize_flow_template", context).hide();
+  $("#provision_customize_flow_template", context).html("");
 
-  $("#provision_create_flow dd:not(.active) a[href='#provision_dd_flow_template']").trigger("click")
+  $(".provision_network_selector", context).html("")
+  $(".provision_custom_attributes_selector", context).html("")
+
+  $(".provision_accordion_flow_template .selected_template", context).hide();
+  $(".provision_accordion_flow_template .select_template", context).show();
+
+  $("#provision_create_flow dd:not(.active) a[href='#provision_dd_flow_template']", context).trigger("click")
 
   $(".section_content").hide();
   $("#provision_create_flow").fadeIn();
@@ -4130,9 +4193,13 @@ $(document).ready(function(){
     });
 
     tab.on("click", ".provision_select_flow_template .provision-pricing-table.only-one" , function(){
+      var context = $("#provision_create_flow");
+
       if ($(this).hasClass("selected")){
         $("#provision_customize_flow_template").hide();
         $("#provision_customize_flow_template").html("");
+        $(".provision_network_selector", context).html("")
+        $(".provision_custom_attributes_selector", context).html("")
 
         $(".provision_accordion_flow_template .selected_template").hide();
         $(".provision_accordion_flow_template .select_template").show();
@@ -4141,14 +4208,70 @@ $(document).ready(function(){
         $("#provision_customize_flow_template").html("");
 
         var data = JSON.parse($(this).attr("data"));
+        var body = data.DOCUMENT.TEMPLATE.BODY;
 
         $(".provision_accordion_flow_template .selected_template").show();
         $(".provision_accordion_flow_template .select_template").hide();
-        $(".provision_accordion_flow_template .selected_template_name").html(data.DOCUMENT.TEMPLATE.BODY.name)
+        $(".provision_accordion_flow_template .selected_template_name").html(body.name)
         $(".provision_accordion_flow_template .selected_template_logo").html('<i class="fa fa-cubes fa-lg"/>&emsp;');
         $(".provision_accordion_flow_template a").first().trigger("click");
 
-        $.each(data.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+        var context = $("#provision_create_flow");
+
+        if (body.custom_attrs) {
+          var network_attrs = [];
+          var text_attrs = [];
+
+          $.each(body.custom_attrs, function(key, value){
+            var parts = value.split("|");
+            // 0 mandatory; 1 type; 2 desc;
+            var attrs = {
+              "name": key,
+              "mandatory": parts[0],
+              "type": parts[1],
+              "description": parts[2],
+            }
+
+            switch (parts[1]) {
+              case "vnet_id":
+                network_attrs.push(attrs)
+                break;
+              case "text":
+                text_attrs.push(attrs)
+                break;
+              case "password":
+                text_attrs.push(attrs)
+                break;
+            }
+          })
+
+          if (network_attrs.length > 0) {
+            generate_provision_network_accordion(
+              $(".provision_network_selector", context));
+
+            $.each(network_attrs, function(index, vnet_attr){
+              generate_provision_network_table(
+                $(".provision_nic_accordion", context),
+                null,
+                vnet_attr);
+            });
+
+            generate_custom_attrs(
+              $(".provision_custom_attributes_selector", context),
+              text_attrs);
+          }
+
+          if (text_attrs.length > 0) {
+            generate_custom_attrs(
+              $(".provision_custom_attributes_selector", context),
+              text_attrs);
+          }
+        } else {
+          $(".provision_network_selector", context).html("")
+          $(".provision_custom_attributes_selector", context).html("")
+        }
+
+        $.each(body.roles, function(index, role){
           var context = $('<div id="provision_create_flow_role_'+index+'" class="provision_create_flow_role" data=\''+JSON.stringify(role)+'\'>'+
             '<div class="row">'+
               '<div class="large-10 large-centered columns">'+
@@ -4195,13 +4318,6 @@ $(document).ready(function(){
               generate_provision_instance_type_accordion(
                 $(".provision_capacity_selector", context),
                 template_json.VMTEMPLATE.TEMPLATE);
-
-
-              //generate_provision_network_accordion($(".provision_network_selector", context))
-//
-              //$.each(nics, function(index, nic){
-              //  generate_provision_network_table($(".provision_nic_accordion", context), nic);
-              //})
             }
           })
 
@@ -4227,23 +4343,45 @@ $(document).ready(function(){
       var flow_name = $("#flow_name", context).val();
       var template_id = $(".provision_select_flow_template .selected", context).attr("opennebula_id");
 
-      //var nics = [];
-      //$(".provision_selected_networks .alert-box", context).each(function(){
-      //  var nic;
-      //  if ($(this).attr("template_nic")) {
-      //    nic = JSON.parse($(this).attr("template_nic"))
-      //  } else {
-      //    nic = {
-      //      'network_id': $(this).attr("opennebula_id")
-      //    }
-      //  }
-      //  nics.push(nic);
-      //});
-//
-      //var instance_type = $("#provision_instance_types_ul .selected", context);
-
       if (!template_id) {
         $(".alert-box-error", context).fadeIn().html(tr("You must select at least a template configuration"));
+        return false;
+      }
+
+      var custom_attrs = {}
+      var missing_network = false;
+      if ($(".provision_nic_accordion", context)) {
+        $(".selected_network", $(".provision_nic_accordion", context)).each(function(){
+          if (!$(this).attr("opennebula_id")) {
+            $(this).css("color", "red");
+            missing_network = true;
+          } else {
+            $(this).css("color", "#777");
+            custom_attrs[$(this).attr("attr_name")] = $(this).attr("opennebula_id");
+          }
+        })
+      }
+
+      if (missing_network) {
+        $(".alert-box-error", context).fadeIn().html(tr("You have not specified all the Networks for this Flow"));
+        return false;
+      }
+
+      var missing_attr = false;
+      if ($(".provision_custom_attributes", context)) {
+        $(".provision_custom_attribute", $(".provision_custom_attributes", context)).each(function(){
+          if (!$(this).val()) {
+            $(this).parent("label").css("color", "red");
+            missing_attr = true;
+          } else {
+            $(this).parent("label").css("color", "#777");
+            custom_attrs[$(this).attr("attr_name")] = $(this).val();
+          }
+        })
+      }
+
+      if (missing_attr) {
+        $(".alert-box-error", context).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Flow"));
         return false;
       }
 
@@ -4256,20 +4394,10 @@ $(document).ready(function(){
       var extra_info = {
         'merge_template': {
           "name" : flow_name,
-          "roles" : roles
+          "roles" : roles,
+          "custom_attrs_values": custom_attrs
         }
       }
-
-      //if (nics.length > 0) {
-      //  extra_info.template.nic = nics;
-      //}
-//
-      //if (instance_type.length > 0) {
-      //  var instance_typa_data = instance_type.attr("data");
-      //  delete instance_typa_data.name;
-//
-      //  $.extend(extra_info.template, JSON.parse(instance_type.attr("data")))
-      //}
 
       Sunstone.runAction("Provision.Flow.instantiate", template_id, extra_info);
       return false;
