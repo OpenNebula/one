@@ -524,7 +524,6 @@ var vnets_tab = {
           <th>'+tr("Group")+'</th>\
           <th>'+tr("Name")+'</th>\
           <th>'+tr("Cluster")+'</th>\
-          <th>'+tr("Type")+'</th>\
           <th>'+tr("Bridge")+'</th>\
           <th>'+tr("Leases")+'</th>\
         </tr>\
@@ -556,7 +555,6 @@ function vNetworkElementArray(vn_json){
         network.GNAME,
         network.NAME,
         network.CLUSTER.length ? network.CLUSTER : "-",
-        "--",
         network.BRIDGE,
         network.USED_LEASES ];
 }
