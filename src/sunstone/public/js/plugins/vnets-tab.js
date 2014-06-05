@@ -991,10 +991,6 @@ function printLeases(vn_info){
         for (var j=0; j<leases.length; j++){
             lease = leases[j];
 
-
-            // TODO: LEASE.VNET
-
-
             html+='<tr ip="'+lease.IP+'">';
 
             html += '<td class="key_td">';
@@ -1007,9 +1003,15 @@ function printLeases(vn_info){
                   html += '<a class="release_lease" href="#"><i class="fa fa-play"/></a>';
                 }
                 html += '</td>';
-            } else { //used
+            } else if (lease.VM != undefined) { //used by a VM
                 html += '<span type="text" class="radius label "></span></td>\
                         <td>' + tr("VM:") + lease.VM+'</td>';
+            } else if (lease.VNET != undefined) { //used by a VNET
+                html += '<span type="text" class="radius label "></span></td>\
+                        <td>' + tr("NET:") + lease.VNET+'</td>';
+            } else {
+                html += '<span type="text" class="radius label "></span></td>\
+                        <td>--</td>';
             }
 
             html += '<td  style="white-space: nowrap" class="value_td">'+ (lease.IP ? lease.IP : "--") +'</td>';
