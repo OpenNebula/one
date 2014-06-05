@@ -211,7 +211,6 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
 void VirtualMachineManager::do_action(const string &action, void * arg)
 {
     int vid;
-    ostringstream os;
 
     if ( arg == 0)
     {
@@ -1048,6 +1047,9 @@ void VirtualMachineManager::cleanup_action(
 
     if ( rc != 0 )
     {
+        os.str("");
+        os << "cleanup_action canceled";
+
         goto error_common;
     }
 
@@ -1086,6 +1088,7 @@ error_driver:
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
 
+    vm->log("VMM", Log::ERROR, os);
     vm->unlock();
     return;
 }
@@ -1133,6 +1136,9 @@ void VirtualMachineManager::cleanup_previous_action(
 
     if ( rc != 0 )
     {
+        os.str("");
+        os << "cleanup_action canceled";
+
         goto error_common;
     }
 
@@ -1171,6 +1177,7 @@ error_driver:
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
 
+    vm->log("VMM", Log::ERROR, os);
     vm->unlock();
     return;
 }
