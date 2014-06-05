@@ -1555,7 +1555,6 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<th>'+tr("Group")+'</th>'+
             '<th>'+tr("Name")+'</th>'+
             '<th>'+tr("Cluster")+'</th>'+
-            '<th>'+tr("Type")+'</th>'+
             '<th>'+tr("Bridge")+'</th>'+
             '<th>'+tr("Leases")+'</th>'+
           '</tr>'+
