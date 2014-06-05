@@ -1954,15 +1954,17 @@ function generate_cardinality_selector(context, role_template) {
       '</div>'+
     '</div>'+
     '<br>'+
+    '<br>'+
     '<div class="row">'+
       '<div class="large-12 columns">'+
         '<div class="row">'+
-          '<div class="large-6 text-center columns">'+
+          '<div class="large-5 text-center columns">'+
             '<span class="cardinality_value" style="color: #777; font-size:60px">'+role_template.cardinality+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("VMs")+'</span>'+
           '</div>'+
-          '<div class="cardinality_slider_div large-6 columns text-center">'+
+          '<div class="large-7 columns text-center">'+
+          '<div class="cardinality_slider_div">'+
             '<span class="" style="color: #999;">'+tr("Change cardinality")+'</span>'+
             '<br>'+
             '<div class="cardinality_slider">'+
@@ -1971,11 +1973,20 @@ function generate_cardinality_selector(context, role_template) {
             '<span class="left" style="color: #999;">'+min_vms+'</span>'+
             '<span class="right" style="color: #999;">'+max_vms+'</span>'+
           '</div>'+
+          '<div class="cardinality_no_slider_div">'+
+            '<br>'+
+            '<br>'+
+            '<span class="" style="color: #999;">'+tr("The cardinality for this role cannot be changed")+'</span>'+
+          '</div>'+
+          '</div>'+
         '</div>'+
       '</div>'+
     '</div>');
 
     if (max_vms > min_vms) {
+      $( ".cardinality_slider_div", context).show();
+      $( ".cardinality_no_slider_div", context).hide();
+
       var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
           handles: 1,
           connect: "lower",
@@ -1997,6 +2008,7 @@ function generate_cardinality_selector(context, role_template) {
       provision_cardinality_slider.addClass("noUiSlider");
     } else {
       $( ".cardinality_slider_div", context).hide();
+      $( ".cardinality_no_slider_div", context).show();
     }
 }
 
@@ -4888,20 +4900,20 @@ $(document).ready(function(){
             }
 
             roles_li +=
-              '<li class="provision-bullet-item text-left" style="margin-left: 10px;">'+
+              '<li class="provision-bullet-item text-left" style="padding-top:0px; margin-left: 10px;">'+
                 '<i class="fa fa-fw fa-cube"/>&emsp;'+
                 role.name+
               '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left: 20px; margin-right: 20px; font-size: 11px">'+
-                '<span class="'+ state.color +'-color">'+
-                  state.str+
-                '</span>'+
-                '<span class="right">'+rvms.str+" VMs</span>"+
-              '</li>'+
-              '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 20px; margin-right: 20px">'+
-                '<div class="progress small radius">'+
+              '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+                '<div class="progress small radius" style="margin-bottom:0px">'+
                 '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
                 '</div>'+
+              '</li>'+
+              '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 11px">'+
+                //'<span class="'+ state.color +'-color">'+
+                //  state.str+
+                //'</span>'+
+                '<span class="right">'+rvms.str+" VMs</span>"+
               '</li>';
           });
         }
@@ -4909,10 +4921,10 @@ $(document).ready(function(){
         $("#provision_flows_ul").append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left" style="padding-bottom: 0px">'+
-                '<a class="provision_info_flow_button" style="color:#555" href="#">'+ data.NAME + '</a>'+
+                '<a class="provision_info_flow_button" style="color:#333" href="#">'+ data.NAME + '</a>'+
                 '<a class="provision_info_flow_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
               '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-bottom:10px; padding-bottom:10px">'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-bottom:10px; padding-bottom:10px;">'+
                 '<span class="'+ state.color +'-color left">'+
                   '<i class="fa fa-fw fa-square"/>&emsp;'+
                   state.str+
@@ -4936,7 +4948,7 @@ $(document).ready(function(){
               //  data.UNAME+
               //'</li>'+
               roles_li +
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:10px; padding-bottom:10px">'+
+              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
                 '<span class="left">'+
                   '<i class="fa fa-fw fa-user"/>&emsp;'+
                   data.UNAME+

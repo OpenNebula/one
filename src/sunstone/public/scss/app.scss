@@ -818,3 +818,36 @@ hr {
     }
   }
 }
+
+.policies_table {
+  th {
+    font-size: 14px !important;
+  }
+}
+
+.accordion_advanced {
+  dd {
+    &>a {
+      padding: 10px 20px;
+      color: #777;
+      font-size: 14px;
+
+      .fa {
+        margin-right: 10px;
+        color: #777;
+      }
+
+      &.active {
+        .fa-chevron-down {
+          display: none;
+        }
+      }
+
+      &:not(.active){
+        .fa-chevron-up {
+          display: none;
+        }
+      }
+    }
+  }
+}
