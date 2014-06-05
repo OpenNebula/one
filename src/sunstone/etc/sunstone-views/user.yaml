@@ -322,6 +322,7 @@ tabs:
     vnets-tab:
         panel_tabs:
             vnet_info_tab: false
+            vnet_ar_list_tab: false
             vnet_leases_tab: true
         table_columns:
             - 0         # Checkbox
