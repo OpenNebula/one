@@ -439,6 +439,7 @@ tabs:
     provision-tab:
         panel_tabs:
             users: true
+            flows: true
         actions:
             Template.chmod: true
             Template.delete: true

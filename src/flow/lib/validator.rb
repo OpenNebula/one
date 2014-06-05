@@ -67,10 +67,13 @@ class Validator
     # @option opts [Booblean] :delete_extra_properties If the body contains properties
     #   not specified in the schema delete them from the body (if true)
     #   or raise an exception (if false)
+    # @option opts [Booblean] :allow_extra_properties Allow properties
+    #   not specified in the schema
     def initialize(opts={})
         @opts = {
             :default_values => true,
-            :delete_extra_properties => false
+            :delete_extra_properties => false,
+            :allow_extra_properties => false
         }.merge(opts)
     end
 
@@ -191,8 +194,12 @@ class Validator
                     body.delete(key)
                 }
             else
-                raise ParseException, "KEY: #{new_body.keys.join(', ')} not"\
-                    " allowed; SCHEMA: #{schema_object}"
+                if @opts[:allow_extra_properties]
+                    return body
+                else
+                    raise ParseException, "KEY: #{new_body.keys.join(', ')} not"\
+                        " allowed; SCHEMA: #{schema_object}"
+                end
             end
         end
 

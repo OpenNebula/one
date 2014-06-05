@@ -220,7 +220,7 @@ $h3-font-size: rem-calc(24);
 // $accordion-navigation-padding: rem-calc(16);
 $accordion-navigation-bg-color: #f7f7f7  ;
 // $accordion-navigation-hover-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -5%);
-$accordion-navigation-active-bg-color: #fff;
+//$accordion-navigation-active-bg-color: #fff;
 $accordion-navigation-font-color: #333;
 // $accordion-navigation-font-size: rem-calc(16);
 // $accordion-navigation-font-family: $body-font-family;
@@ -787,7 +787,7 @@ $panel-border-color: #dfdfdf;
 // $include-html-pricing-classes: $include-html-classes;
 
 // We use this to control the border color
-$price-table-border: 1px solid #dfdfdf;
+$price-table-border: 0px;
 
 // We use this to control the bottom margin of the pricing table
 $price-table-margin-bottom: rem-calc(0);
@@ -843,7 +843,7 @@ $progress-bar-height: rem-calc(10);
 // $progress-bar-color: #f6f6f6  ;
 
 // We use these to control the border styles
-$progress-bar-border-color: #efefef;
+$progress-bar-border-color: #fff;
 // $progress-bar-border-size: 1px;
 // $progress-bar-border-style: solid;
 // $progress-bar-border-radius: $global-radius;

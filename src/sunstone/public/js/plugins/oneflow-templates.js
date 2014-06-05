@@ -16,57 +16,6 @@
 var selected_row_template_role_id;
 var last_selected_row_template_role;
 
-var ServiceTemplate = {
-    "resource" : 'DOCUMENT',
-    "path"     : 'service_template',
-    "create": function(params){
-        params.cache_name = "SERVICE_TEMPLATE";
-        OpenNebula.Action.create(params, ServiceTemplate.resource, ServiceTemplate.path);
-    },
-
-    "instantiate": function(params){
-        var action_obj = params.data.extra_param;
-        OpenNebula.Action.simple_action(params,
-                                        ServiceTemplate.resource,
-                                        "instantiate",
-                                        action_obj,
-                                        ServiceTemplate.path);
-    },
-    "update": function(params){
-        var action_obj = {"template_json" : params.data.extra_param };
-        OpenNebula.Action.simple_action(params,
-                                        ServiceTemplate.resource,
-                                        "update",
-                                        action_obj,
-                                        ServiceTemplate.path);
-    },
-    "del": function(params){
-        params.cache_name = "SERVICE_TEMPLATE";
-        OpenNebula.Action.del(params,ServiceTemplate.resource, ServiceTemplate.path);
-    },
-    "list" : function(params){
-        params.cache_name = "SERVICE_TEMPLATE";
-        OpenNebula.Action.list(params, ServiceTemplate.resource, ServiceTemplate.path)
-    },
-    "show" : function(params){
-        OpenNebula.Action.show(params, ServiceTemplate.resource, false, ServiceTemplate.path)
-    },
-    "chown" : function(params){
-        OpenNebula.Action.chown(params,ServiceTemplate.resource, ServiceTemplate.path);
-    },
-    "chgrp" : function(params){
-        OpenNebula.Action.chgrp(params,ServiceTemplate.resource, ServiceTemplate.path);
-    },
-    "chmod" : function(params){
-        var action_obj = params.data.extra_param;
-        OpenNebula.Action.simple_action(params,
-                                        ServiceTemplate.resource,
-                                        "chmod",
-                                        action_obj,
-                                        ServiceTemplate.path);
-    }
-}
-
 var create_service_template_tmpl = '\
 <div class="row">\
     <div class="large-12 columns">\
@@ -312,7 +261,7 @@ var service_template_actions = {
 
     "ServiceTemplate.create" : {
         type: "create",
-        call: ServiceTemplate.create,
+        call: OpenNebula.ServiceTemplate.create,
         callback: function(request, response) {
             //empty creation dialog roles after successful creation
 /*
@@ -343,14 +292,14 @@ var service_template_actions = {
 
     "ServiceTemplate.show_to_update" : {
         type : "single",
-        call: ServiceTemplate.show,
+        call: OpenNebula.ServiceTemplate.show,
         callback: fillUpUpdateServiceTemplateDialog,
         error: onError
     },
 
     "ServiceTemplate.update" : {  // Update template
         type: "single",
-        call: ServiceTemplate.update,
+        call: OpenNebula.ServiceTemplate.update,
         callback: function(request,response){
             $create_service_template_dialog.foundation('reveal', 'close');
             Sunstone.runAction("ServiceTemplate.show",request.request.data[0][0]);
@@ -362,7 +311,7 @@ var service_template_actions = {
 
     "ServiceTemplate.list" : {
         type: "list",
-        call: ServiceTemplate.list,
+        call: OpenNebula.ServiceTemplate.list,
         callback: function(request, service_list) {
             $("#oneflow-templates #error_message").hide();
             updateServiceTemplatesView(request, service_list);
@@ -374,7 +323,7 @@ var service_template_actions = {
 
     "ServiceTemplate.show" : {
         type : "single",
-        call: ServiceTemplate.show,
+        call: OpenNebula.ServiceTemplate.show,
         callback: function(request, response){
             var tab = dataTable_service_templates.parents(".tab");
 
@@ -391,7 +340,7 @@ var service_template_actions = {
 
     "ServiceTemplate.instantiate" : {
         type: "multiple",
-        call: ServiceTemplate.instantiate,
+        call: OpenNebula.ServiceTemplate.instantiate,
         callback: function(req){
             OpenNebula.Helper.clear_cache("SERVICE");
         },
@@ -415,7 +364,7 @@ var service_template_actions = {
 
     "ServiceTemplate.delete" : {
         type: "multiple",
-        call: ServiceTemplate.del,
+        call: OpenNebula.ServiceTemplate.del,
         callback: deleteServiceTemplateElement,
         elements: serviceTemplateElements,
         error: onError,
@@ -424,7 +373,7 @@ var service_template_actions = {
 
     "ServiceTemplate.chown" : {
         type: "multiple",
-        call: ServiceTemplate.chown,
+        call: OpenNebula.ServiceTemplate.chown,
         callback:  function (req) {
             Sunstone.runAction("ServiceTemplate.show",req.request.data[0][0]);
         },
@@ -435,7 +384,7 @@ var service_template_actions = {
 
     "ServiceTemplate.chgrp" : {
         type: "multiple",
-        call: ServiceTemplate.chgrp,
+        call: OpenNebula.ServiceTemplate.chgrp,
         callback: function (req) {
             Sunstone.runAction("ServiceTemplate.show",req.request.data[0][0]);
         },
@@ -446,7 +395,7 @@ var service_template_actions = {
 
     "ServiceTemplate.chmod" : {
         type: "single",
-        call: ServiceTemplate.chmod,
+        call: OpenNebula.ServiceTemplate.chmod,
         error: onError,
         notify: true
     },
@@ -1312,7 +1261,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     $("#update_service_template_submit", dialog).show();
     $("#create_service_template_reset", dialog).hide();
 
-    var service_template = response[ServiceTemplate.resource]
+    var service_template = response[OpenNebula.ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
     $("#service_name", dialog).val(htmlDecode(service_template.NAME));
 
