@@ -57,11 +57,11 @@ require 'rubygems'
 require 'sinatra'
 require 'erb'
 require 'yaml'
+require 'securerandom'
 
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
-
 
 ##############################################################################
 # Configuration
@@ -142,8 +142,20 @@ DEFAULT_TABLE_ORDER = "desc"
 # Helpers
 ##############################################################################
 helpers do
+    def valid_csrftoken?
+        csrftoken = nil
+
+        if !params[:csrftoken].nil?
+            csrftoken = params[:csrftoken]
+        else
+            csrftoken = JSON.parse(params.keys.first)["csrftoken"] rescue nil
+        end
+
+        !session[:csrftoken].nil? && session[:csrftoken] == csrftoken
+    end
+
     def authorized?
-        session[:ip] && session[:ip]==request.ip ? true : false
+        session[:ip] && session[:ip]==request.ip
     end
 
     def build_session
@@ -175,6 +187,10 @@ helpers do
             session[:ip]           = request.ip
             session[:remember]     = params[:remember]
             session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
+
+            csrftoken_plain = session[:display_name] + session[:user_id] \
+                                + Time.now.to_f.to_s + SecureRandom.base64
+            session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
 
             #User IU options initialization
             #Load options either from user settings or default config.
@@ -241,8 +257,9 @@ end
 before do
     cache_control :no_store
     content_type 'application/json', :charset => 'utf-8'
+
     unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
-        halt 401 unless authorized?
+        halt 401 unless authorized? && valid_csrftoken?
     end
 
     if env['HTTP_ZONE_NAME']

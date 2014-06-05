@@ -33,6 +33,7 @@
     <% end %>
     <script src="vendor/4.0/foundation_datatables/datatables.foundation.js" type="text/javascript"></script>
     <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <script type="text/javascript">var csrftoken='<%= session[:csrftoken] %>';</script>
     <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
