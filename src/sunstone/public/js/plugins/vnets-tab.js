@@ -898,6 +898,7 @@ function ar_show_info(vn_info, ar_id){
     delete ar["ULA_PREFIX"];
     delete ar["SIZE"];
     delete ar["USED_LEASES"];
+    delete ar["LEASES"];
 
     html +=
           '</tbody>\
