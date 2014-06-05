@@ -14,6 +14,26 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+if (typeof(csrftoken) != "undefined")
+{
+    $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+        var params = originalOptions.data;
+
+        if (typeof(params)=="string")
+        {
+            params = JSON.parse(params);
+            params["csrftoken"] = csrftoken;
+            options.data = JSON.stringify(params);
+        }
+        else
+        {
+            params = params || {};
+            params["csrftoken"] = csrftoken;
+            options.data = $.param(params);
+        }
+    });
+}
+
 $.ajaxSetup({
   converters: {
     "text json": function( textValue ) {
