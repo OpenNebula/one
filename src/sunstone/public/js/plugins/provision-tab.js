@@ -4268,17 +4268,13 @@ $(document).ready(function(){
                 null,
                 vnet_attr);
             });
-
-            generate_custom_attrs(
-              $(".provision_custom_attributes_selector", context),
-              text_attrs);
           }
 
-          if (text_attrs.length > 0) {
-            generate_custom_attrs(
-              $(".provision_custom_attributes_selector", context),
-              text_attrs);
-          }
+          //if (text_attrs.length > 0) {
+          //  generate_custom_attrs(
+          //    $(".provision_custom_attributes_selector", context),
+          //    text_attrs);
+          //}
         } else {
           $(".provision_network_selector", context).html("")
           $(".provision_custom_attributes_selector", context).html("")
@@ -4301,38 +4297,68 @@ $(document).ready(function(){
             '</div>'+
             '<br>'+
             '<div class="row">'+
-              '<div class="provision_capacity_selector large-9 large-centered columns">'+
+              '<div class="provision_custom_attributes_selector large-9 large-centered columns">'+
               '</div>'+
             '</div>'+
           '</div>'+
           '<br>'+
-          '<br>'+
           '<br>').appendTo($("#provision_customize_flow_template"))
 
-//          var template_id = role.vm_template;
-//          var role_html_id = "#provision_create_flow_role_"+index;
-//
+          var template_id = role.vm_template;
+          var role_html_id = "#provision_create_flow_role_"+index;
+
           generate_cardinality_selector(
             $(".provision_cardinality_selector", context),
             role);
 
-//          OpenNebula.Template.show({
-//            data : {
-//                id: template_id
-//            },
-//            success: function(request,template_json){
-//              var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-//              var nics = []
-//              if ($.isArray(template_nic))
-//                  nics = template_nic
-//              else if (!$.isEmptyObject(template_nic))
-//                  nics = [template_nic]
+          OpenNebula.Template.show({
+            data : {
+                id: template_id
+            },
+            success: function(request,template_json){
+              var role_context = $(role_html_id)
+              //var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
+              //var nics = []
+              //if ($.isArray(template_nic))
+              //    nics = template_nic
+              //else if (!$.isEmptyObject(template_nic))
+              //    nics = [template_nic]
 //
-//              generate_provision_instance_type_accordion(
-//                $(".provision_capacity_selector", context),
-//                template_json.VMTEMPLATE.TEMPLATE);
-//            }
-//          })
+              //generate_provision_instance_type_accordion(
+              //  $(".provision_capacity_selector", role_context),
+              //  template_json.VMTEMPLATE.TEMPLATE);
+
+              if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
+                var text_attrs = [];
+
+                $.each(template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, function(key, value){
+                  var parts = value.split("|");
+                  // 0 mandatory; 1 type; 2 desc;
+                  var attrs = {
+                    "name": key,
+                    "mandatory": parts[0],
+                    "type": parts[1],
+                    "description": parts[2],
+                  }
+
+                  switch (parts[1]) {
+                    case "text":
+                      text_attrs.push(attrs)
+                      break;
+                    case "password":
+                      text_attrs.push(attrs)
+                      break;
+                  }
+                })
+
+                if (text_attrs.length > 0) {
+                  generate_custom_attrs(
+                    $(".provision_custom_attributes_selector", role_context),
+                    text_attrs);
+                }
+              }
+            }
+          })
 
 
         })
@@ -4380,28 +4406,32 @@ $(document).ready(function(){
         return false;
       }
 
-      var missing_attr = false;
-      if ($(".provision_custom_attributes", context)) {
-        $(".provision_custom_attribute", $(".provision_custom_attributes", context)).each(function(){
-          if (!$(this).val()) {
-            $(this).parent("label").css("color", "red");
-            missing_attr = true;
-          } else {
-            $(this).parent("label").css("color", "#777");
-            custom_attrs[$(this).attr("attr_name")] = $(this).val();
-          }
-        })
-      }
-
-      if (missing_attr) {
-        $(".alert-box-error", context).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Flow"));
-        return false;
-      }
-
       var roles = [];
       $(".provision_create_flow_role", context).each(function(){
+        var missing_attr = false;
+        var custom_attrs = "";
+        if ($(".provision_custom_attributes", $(this))) {
+          $(".provision_custom_attribute", $(".provision_custom_attributes", $(this))).each(function(){
+            if (!$(this).val()) {
+              $(this).parent("label").css("color", "red");
+              missing_attr = true;
+            } else {
+              $(this).parent("label").css("color", "#777");
+              custom_attrs += $(this).attr("attr_name") + "=\"" + $(this).val() + "\"\n";
+            }
+          })
+        }
+
+        if (missing_attr) {
+          $(".alert-box-error", $(this)).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Flow"));
+          return false;
+        }
+
         var role_template = JSON.parse($(this).attr("data"));
-        roles.push($.extend(role_template, {"cardinality": $(".cardinality_value", $(this)).text()}));
+        roles.push($.extend(role_template, {
+          "cardinality": $(".cardinality_value", $(this)).text(),
+          "vm_template_contents": custom_attrs
+        }));
       })
 
       var extra_info = {
