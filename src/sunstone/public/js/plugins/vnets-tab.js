@@ -1721,6 +1721,8 @@ function popUpReserveDialog(id){
 
     $('#vnet_id',$reserve_dialog).text(id);
 
+    $('#refresh_button_reserve').click();
+
     $reserve_dialog.foundation().foundation('reveal', 'open');
 }
 
@@ -1796,7 +1798,9 @@ function setupReserveDialog(){
     $('input#reserve_new', dialog).prop('checked', true);
     $('input#reserve_new', dialog).change();
 
-    setupVNetTableSelect(dialog, "reserve");
+    setupVNetTableSelect(dialog, "reserve", function(vnet){
+        return (vnet['PARENT_NETWORK_ID'] == $('#vnet_id',dialog).text());
+    });
 
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
@@ -1862,7 +1866,7 @@ function generateVNetTableSelect(context_id){
     return html;
 }
 
-function setupVNetTableSelect(section, context_id) {
+function setupVNetTableSelect(section, context_id, filter_fn) {
     var dataTable_networks = $('#datatable_vnet_'+context_id, section).dataTable({
       "bAutoWidth":false,
       "iDisplayLength": 4,
@@ -1879,11 +1883,8 @@ function setupVNetTableSelect(section, context_id) {
     $('#refresh_button_'+context_id).die();
 
     $('#refresh_button_'+context_id).live('click', function(){
-        updateVNetTableSelect($('table[id=datatable_vnet_'+context_id+']').dataTable());
+        updateVNetTableSelect($('table[id=datatable_vnet_'+context_id+']').dataTable(), filter_fn);
     });
-
-    // Retrieve the networks to fill the datatable
-    updateVNetTableSelect(dataTable_networks);
 
     $('#'+context_id+'_search', section).keyup(function(){
         dataTable_networks.fnFilter( $(this).val() );
@@ -1920,20 +1921,28 @@ function setupVNetTableSelect(section, context_id) {
     setupTips(section);
 }
 
-function updateVNetTableSelect(datatable) {
+function updateVNetTableSelect(datatable, filter_fn) {
 
     OpenNebula.Network.list({
-      timeout: true,
-      success: function (request, networks_list){
-          var network_list_array = [];
+        timeout: true,
+        success: function (request, networks_list){
+            var network_list_array = [];
 
-          $.each(networks_list,function(){
-             network_list_array.push(vNetworkElementArray(this));
-          });
+            $.each(networks_list,function(){
+                var add = true;
 
-          updateView(network_list_array, datatable);
-      },
-      error: onError
+                if(filter_fn){
+                    add = filter_fn(this.VNET);
+                }
+
+                if(add){
+                    network_list_array.push(vNetworkElementArray(this));
+                }
+            });
+
+            updateView(network_list_array, datatable);
+        },
+        error: onError
     });
 }
 
