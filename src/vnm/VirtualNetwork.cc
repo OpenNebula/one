@@ -426,7 +426,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     if (!phydev.empty())
     {
-        os << "<PHYDEV>" << phydev << "</PHYDEV>";
+        os << "<PHYDEV><![CDATA[" << phydev << "]]></PHYDEV>";
     }
     else
     {
@@ -435,7 +435,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     if (!vlan_id.empty())
     {
-        os << "<VLAN_ID>" << vlan_id << "</VLAN_ID>";
+        os << "<VLAN_ID><![CDATA[" << vlan_id << "]]></VLAN_ID>";
     }
     else
     {

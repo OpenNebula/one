@@ -481,25 +481,25 @@ string& Datastore::to_xml(string& xml) const
     ObjectCollection::to_xml(collection_xml);
 
     oss <<
-    "<DATASTORE>"    <<
-        "<ID>"          << oid          << "</ID>"          <<
-        "<UID>"         << uid          << "</UID>"         <<
-        "<GID>"         << gid          << "</GID>"         <<
-        "<UNAME>"       << uname        << "</UNAME>"       <<
-        "<GNAME>"       << gname        << "</GNAME>"       <<
-        "<NAME>"        << name         << "</NAME>"        <<
-        perms_to_xml(perms_xml)                             <<
-        "<DS_MAD>"      << ds_mad       << "</DS_MAD>"      <<
-        "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
-        "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
-        "<TYPE>"        << type         << "</TYPE>"        <<
-        "<DISK_TYPE>"   << disk_type    << "</DISK_TYPE>"   <<
-        "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
-        "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
-        "<TOTAL_MB>"    << total_mb     << "</TOTAL_MB>"    <<
-        "<FREE_MB>"     << free_mb      << "</FREE_MB>"    <<
-        "<USED_MB>"     << used_mb      << "</USED_MB>"    <<
-        collection_xml  <<
+    "<DATASTORE>"               <<
+        "<ID>"                  << oid          << "</ID>"          <<
+        "<UID>"                 << uid          << "</UID>"         <<
+        "<GID>"                 << gid          << "</GID>"         <<
+        "<UNAME>"               << uname        << "</UNAME>"       <<
+        "<GNAME>"               << gname        << "</GNAME>"       <<
+        "<NAME>"                << name         << "</NAME>"        <<
+        perms_to_xml(perms_xml) <<
+        "<DS_MAD><![CDATA["     << ds_mad       << "]]></DS_MAD>"   <<
+        "<TM_MAD><![CDATA["     << tm_mad       << "]]></TM_MAD>"   <<
+        "<BASE_PATH><![CDATA["  << base_path    << "]]></BASE_PATH>"<<
+        "<TYPE>"                << type         << "</TYPE>"        <<
+        "<DISK_TYPE>"           << disk_type    << "</DISK_TYPE>"   <<
+        "<CLUSTER_ID>"          << cluster_id   << "</CLUSTER_ID>"  <<
+        "<CLUSTER>"             << cluster      << "</CLUSTER>"     <<
+        "<TOTAL_MB>"            << total_mb     << "</TOTAL_MB>"    <<
+        "<FREE_MB>"             << free_mb      << "</FREE_MB>"     <<
+        "<USED_MB>"             << used_mb      << "</USED_MB>"     <<
+        collection_xml          <<
         obj_template->to_xml(template_xml)                  <<
     "</DATASTORE>";
 

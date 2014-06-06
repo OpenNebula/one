@@ -20,7 +20,7 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
-const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$";
+const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
