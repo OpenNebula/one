@@ -226,11 +226,20 @@ void VirtualNetworkReserve::request_execute(
     int  rid;
     bool on_exisiting = tmpl.get("NETWORK_ID", rid);
 
-    if ( on_exisiting && (rid < 0))
+    if ( on_exisiting)
     {
-        failure_response(ACTION, request_error("Error in reservation request",
-            "NETWORK_ID must be equal or greater than 0"), att);
-        return;
+        if (rid < 0)
+        {
+            failure_response(ACTION, request_error("Error in reservation request",
+                "NETWORK_ID must be equal or greater than 0"), att);
+            return;
+        }
+        else if (rid == id)
+        {
+            failure_response(ACTION, request_error("Error in reservation request",
+                "Cannot add a reservation from the same network"), att);
+            return;
+        }
     }
 
     string name;
