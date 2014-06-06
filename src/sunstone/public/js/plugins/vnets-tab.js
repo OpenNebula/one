@@ -620,6 +620,18 @@ function updateVNetworksView(request, network_list){
 //updates the information panel tabs and pops the panel up
 function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
+
+    var reservation_row = '';
+
+    if(vn_info.PARENT_NETWORK_ID.length > 0){
+        reservation_row =
+            '<tr>\
+              <td class="key_td">'+tr("Reservation parent")+'</td>\
+              <td class="value_td">'+vn_info.PARENT_NETWORK_ID+'</td>\
+              <td></td>\
+            </tr>';
+    }
+
     var info_tab_content =
         '<div class="row">\
         <div class="large-6 columns">\
@@ -639,8 +651,9 @@ function updateVNetworkInfo(request,vn){
                 vn_info.NAME)+
             '<tr>' +
         insert_cluster_dropdown("Network",vn_info.ID,vn_info.CLUSTER,vn_info.CLUSTER_ID,"#info_vn_table") +
-            '</tr>\
-        </table>\
+            '</tr>'+
+            reservation_row+
+        '</table>\
         </div>\
         <div class="large-6 columns">' +
             insert_permissions_table('vnets-tab',
@@ -913,6 +926,7 @@ function ar_show_info(vn_info, ar_id){
     html += ar_attr(tr("ULA prefix"),   ar.ULA_PREFIX);
     html += ar_attr(tr("Size"),         ar.SIZE);
     html += ar_attr(tr("Used leases"),  ar.USED_LEASES);
+    html += ar_attr(tr("Reservation parent AR"),  ar.PARENT_NETWORK_AR_ID);
 
     delete ar["AR_ID"];
     delete ar["TYPE"];
@@ -923,6 +937,7 @@ function ar_show_info(vn_info, ar_id){
     delete ar["SIZE"];
     delete ar["USED_LEASES"];
     delete ar["LEASES"];
+    delete ar["PARENT_NETWORK_AR_ID"];
 
     html +=
           '</tbody>\
