@@ -4697,3 +4697,18 @@ function fillCustomTags(div, template_json){
         cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
     });
 }
+
+// TODO: other types: radio, checkbox
+
+function retrieveWizardFields(dialog, template_json){
+    var fields = $('[wizard_field]',dialog);
+
+    fields.each(function(){
+        var field = $(this);
+
+        if (field.prop('wizard_field_disabled') != true && field.val() != null && field.val().length){
+            var field_name = field.attr('wizard_field');
+            template_json[field_name] = field.val();
+        }
+    });
+}

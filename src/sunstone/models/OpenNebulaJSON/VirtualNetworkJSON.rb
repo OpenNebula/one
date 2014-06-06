@@ -53,6 +53,7 @@ module OpenNebulaJSON
                  when "rm_ar"     then self.rm_ar(action_hash['params'])
                  when "add_ar"    then self.add_ar(action_hash['params'])
                  when "update_ar" then self.update_ar(action_hash['params'])
+                 when "reserve"   then self.reserve(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                                 " available for this resource"
@@ -100,6 +101,11 @@ module OpenNebulaJSON
             template = template_to_str(template_json)
 
             super(template)
+        end
+
+        def reserve(params=Hash.new)
+            super(params['name'], params['size'], params['ar_id'],
+                params['addr'], params['vnet'])
         end
     end
 end

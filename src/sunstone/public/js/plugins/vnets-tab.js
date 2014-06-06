@@ -365,6 +365,25 @@ var vnet_actions = {
         error: onError
     },
 
+    "Network.reserve_dialog" : {
+        type: "custom",
+        call: popUpReserveDialog
+    },
+
+    "Network.reserve" : {
+        type: "single",
+        call: OpenNebula.Network.reserve,
+        callback: function(req) {
+            // Reset the wizard
+            $reserve_dialog.foundation('reveal', 'close');
+            $reserve_dialog.empty();
+            setupReserveDialog();
+
+            Sunstone.runAction("Network.show",req.request.data[0][0]);
+        },
+        error: onError
+    },
+
     "Network.chown" : {
         type: "multiple",
         call: OpenNebula.Network.chown,
@@ -456,6 +475,11 @@ var vnet_buttons = {
         layout: "create"
     },
 
+    "Network.reserve_dialog" : {
+        type: "action",
+        layout: "main",
+        text: tr("Reserve")
+    },
     "Network.addtocluster" : {
         type: "confirm_with_select",
         text: tr("Select cluster"),
@@ -1683,6 +1707,236 @@ function setupUpdateARDialog(){
     });
 }
 
+function popUpReserveDialog(id){
+    var selected_nodes = getSelectedNodes(dataTable_vNetworks);
+
+    if ( selected_nodes.length != 1 )
+    {
+        notifyMessage("Please select one (and just one) Virtual Network.");
+        return false;
+    }
+
+    // Get proper id
+    var id = ""+selected_nodes[0];
+
+    $('#vnet_id',$reserve_dialog).text(id);
+
+    $reserve_dialog.foundation().foundation('reveal', 'open');
+}
+
+function setupReserveDialog(){
+    dialogs_context.append('<div id="reserve_dialog"></div>');
+    $reserve_dialog = $('#reserve_dialog',dialogs_context);
+    var dialog = $reserve_dialog;
+
+    dialog.html(
+    '<div class="reveal-body">\
+      <form id="reserve_form" action="">\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <h3 class="subheader" id="">\
+              '+tr("Virtual Network")+' <span id="vnet_id"/>\
+            </h3>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">\
+            <label for="reserve_size">'+tr("Size")+':</label>\
+            <input wizard_field="size" type="text" id="reserve_size"/>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <input type="radio" name="reserve_target" id="reserve_new" value="NEW"/><label for="reserve_new">'+tr("Create a new Virtual Network")+'</label>\
+            <input type="radio" name="reserve_target" id="reserve_add" value="ADD"/><label for="reserve_add">'+tr("Add to a existing Virtual Network")+'</label>\
+          </div>\
+        </div>\
+        <div id="reserve_new_body">\
+          <div class="row">\
+            <div class="large-6 columns">\
+              <label for="reserve_name">'+tr("Name")+':</label>\
+              <input wizard_field="name" type="text" id="reserve_name"/>\
+            </div>\
+          </div>\
+        </div>\
+        <div id="reserve_add_body">\
+          '+generateVNetTableSelect("reserve")+'\
+        </div>\
+        <div class="reveal-footer">\
+          <div class="form_buttons">\
+            <button class="button radius right success" id="submit_reserve_button" type="submit" value="Network.reserve">'+tr("Reserve")+'</button>\
+          </div>\
+        </div>\
+        <a class="close-reveal-modal">&#215;</a>\
+      </form>\
+    </div>');
+
+    //  TODO: max-height?
+
+
+    $('input[name="reserve_target"]',dialog).change(function(){
+        $('div#reserve_new_body', dialog).hide();
+        $('div#reserve_add_body', dialog).hide();
+
+        $('input', $('div#reserve_new_body', dialog)).prop('wizard_field_disabled', true);
+        $('input', $('div#reserve_add_body', dialog)).prop('wizard_field_disabled', true);
+
+        switch($(this).val()){
+        case "NEW":
+            $('div#reserve_new_body', dialog).show();
+            $('input', $('div#reserve_new_body', dialog)).prop('wizard_field_disabled', false);
+            break;
+        case "ADD":
+            $('div#reserve_add_body', dialog).show();
+            $('input', $('div#reserve_add_body', dialog)).prop('wizard_field_disabled', false);
+            break;
+        }
+    });
+
+    $('input#reserve_new', dialog).prop('checked', true);
+    $('input#reserve_new', dialog).change();
+
+    setupVNetTableSelect(dialog, "reserve");
+
+
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    setupTips(dialog);
+
+    dialog.die();
+    dialog.live('closed', function () {
+        $reserve_dialog.html("");
+        setupReserveDialog();
+    });
+
+    $('#reserve_form',dialog).submit(function(){
+        var vnet_id = $('#vnet_id', this).text();
+        var data = {};
+
+        retrieveWizardFields(dialog, data);
+
+        Sunstone.runAction('Network.reserve', vnet_id, data);
+
+        return false;
+    });
+}
+
+function generateVNetTableSelect(context_id){
+    var html =
+    '<div class="row">\
+      <div class="large-8 columns">\
+         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+      </div>\
+      <div class="large-4 columns">\
+        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="datatable_vnet_'+context_id+'" class="datatable twelve">\
+          <thead>\
+            <tr>\
+              <th></th>\
+              <th>'+tr("ID")+'</th>\
+              <th>'+tr("Owner")+'</th>\
+              <th>'+tr("Group")+'</th>\
+              <th>'+tr("Name")+'</th>\
+              <th>'+tr("Cluster")+'</th>\
+              <th>'+tr("Bridge")+'</th>\
+              <th>'+tr("Leases")+'</th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbodynetworks">\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>\
+    <div id="selected_network" class="row">\
+      <div class="large-12 columns">\
+        <span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>\
+        <span id="network_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following network:")+'</span>\
+        <input id="network_selected_id" wizard_field="vnet" type="text"/>\
+        <span id="network_selected_name" class="radius label" type="text"></span>\
+      </div>\
+    </div>';
+
+    return html;
+}
+
+function setupVNetTableSelect(section, context_id) {
+    var dataTable_networks = $('#datatable_vnet_'+context_id, section).dataTable({
+      "bAutoWidth":false,
+      "iDisplayLength": 4,
+      "sDom" : '<"H">t<"F"p>',
+      "bRetrieve": true,
+      "bSortClasses" : false,
+      "bDeferRender": true,
+      "aoColumnDefs": [
+          { "sWidth": "35px", "aTargets": [0,1] },
+          { "bVisible": false, "aTargets": [0,7]}
+        ]
+    });
+
+    $('#refresh_button_'+context_id).die();
+
+    $('#refresh_button_'+context_id).live('click', function(){
+        updateVNetTableSelect($('table[id=datatable_vnet_'+context_id+']').dataTable());
+    });
+
+    // Retrieve the networks to fill the datatable
+    updateVNetTableSelect(dataTable_networks);
+
+    $('#'+context_id+'_search', section).keyup(function(){
+        dataTable_networks.fnFilter( $(this).val() );
+    })
+
+    dataTable_networks.fnSort( [ [1,config['user_config']['table_order']] ] );
+
+    $('#network_selected_id', section).hide();
+    $('#network_selected_name', section).hide();
+
+    $('#datatable_vnet_'+context_id+' tbody', section).delegate("tr", "click", function(e){
+        dataTable_networks.unbind("draw");
+        var aData = dataTable_networks.fnGetData(this);
+
+        $("td.markrow", section).removeClass('markrow');
+        $('tbody input.check_item', dataTable_networks).removeAttr('checked');
+
+        $('#network_selected', section).show();
+        $('#select_network', section).hide();
+        $('.alert-box', section).hide();
+
+        $("td", this).addClass('markrow');
+        $('input.check_item', this).attr('checked','checked');
+
+        $('#network_selected_id', section).val(aData[1]);
+        $('#network_selected_id', section).hide();
+
+        $('#network_selected_name', section).text(aData[4]);
+        $('#network_selected_name', section).show();
+
+        return true;
+    });
+
+    setupTips(section);
+}
+
+function updateVNetTableSelect(datatable) {
+
+    OpenNebula.Network.list({
+      timeout: true,
+      success: function (request, networks_list){
+          var network_list_array = [];
+
+          $.each(networks_list,function(){
+             network_list_array.push(vNetworkElementArray(this));
+          });
+
+          updateView(network_list_array, datatable);
+      },
+      error: onError
+    });
+}
+
 //The DOM is ready and the ready() from sunstone.js
 //has been executed at this point.
 $(document).ready(function(){
@@ -1715,6 +1969,7 @@ $(document).ready(function(){
 
       setupAddARDialog();
       setupUpdateARDialog();
+      setupReserveDialog();
 
       initCheckAllBoxes(dataTable_vNetworks);
       tableCheckboxesListener(dataTable_vNetworks);
