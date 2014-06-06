@@ -186,11 +186,11 @@ class SLDriver
                 :min_count => 1,
                 :max_count => 1})
 
-        if !opts[:startCpus] and !opts[:maxMemory]
+        if !opts[:startCpus] or !opts[:maxMemory]
           xml = REXML::Document.new xml_text
           instance_type = xml.root.get_elements("//INSTANCE_TYPE")[0].text
           cpu, mem = instance_type_capacity(instance_type)
-          opts[:startCpus] = cpu
+          opts[:startCpus] = cpu / 100
           opts[:maxMemory] = mem / 1024
         end
 
@@ -316,7 +316,11 @@ private
     #Get the associated capacity of the instance_type as cpu (in 100 percent
     #e.g. 800) and memory (in KB)
     def instance_type_capacity(name)
-        return 0, 0 if @instance_types[name].nil?
+        if  @instance_types[name].nil?
+          STDERR.puts("Instance type #{name} not recognized")
+          exit(-1)
+        end
+
         return @instance_types[name]['cpu'].to_i * 100 ,
                @instance_types[name]['memory'].to_i * 1024 * 1024
     end
