@@ -372,7 +372,7 @@ public:
      */
     static string code_version()
     {
-        return "4.6.1"; // bump version
+        return "4.6.2"; // bump version
     }
 
     /**
