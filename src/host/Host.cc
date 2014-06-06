@@ -561,15 +561,15 @@ string& Host::to_xml(string& xml) const
 
     oss <<
     "<HOST>"
-       "<ID>"            << oid       	   << "</ID>"            <<
-       "<NAME>"          << name 	       << "</NAME>"          <<
-       "<STATE>"         << state          << "</STATE>"         <<
-       "<IM_MAD>"        << im_mad_name    << "</IM_MAD>"        <<
-       "<VM_MAD>"        << vmm_mad_name   << "</VM_MAD>"        <<
-       "<VN_MAD>"        << vnm_mad_name   << "</VN_MAD>"        <<
-       "<LAST_MON_TIME>" << last_monitored << "</LAST_MON_TIME>" <<
-       "<CLUSTER_ID>"    << cluster_id     << "</CLUSTER_ID>"    <<
-       "<CLUSTER>"       << cluster        << "</CLUSTER>"       <<
+       "<ID>"               << oid              << "</ID>"              <<
+       "<NAME>"             << name             << "</NAME>"            <<
+       "<STATE>"            << state            << "</STATE>"           <<
+       "<IM_MAD><![CDATA["  << im_mad_name      << "]]></IM_MAD>"       <<
+       "<VM_MAD><![CDATA["  << vmm_mad_name     << "]]></VM_MAD>"       <<
+       "<VN_MAD><![CDATA["  << vnm_mad_name     << "]]></VN_MAD>"       <<
+       "<LAST_MON_TIME>"    << last_monitored   << "</LAST_MON_TIME>"   <<
+       "<CLUSTER_ID>"       << cluster_id       << "</CLUSTER_ID>"      <<
+       "<CLUSTER>"          << cluster          << "</CLUSTER>"         <<
        host_share.to_xml(share_xml)  <<
        vm_collection.to_xml(vm_collection_xml) <<
        obj_template->to_xml(template_xml) <<
