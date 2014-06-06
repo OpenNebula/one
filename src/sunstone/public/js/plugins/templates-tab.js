@@ -33,13 +33,18 @@ var create_template_tmpl = '\
           '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
           wizard_tab_dd()+
           '</dl>'+
-          '<div id="template_create_tabs_content" class="tabs-content">'+
+          '<div id="template_create_tabs_content" class="tabs-content" style="min-height: 300px">'+
           wizard_tab_content()+
           '</div>'+
         '</div>'+
+        '<br>'+
+        '<div class="row">' +
+          '<div class="large-12 columns">' +
             '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
             '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
             '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
+          '</div>' +
+        '</div>' +
       '</form>'+
     '</div>' +
     '<div class="content" id="manual">' +
@@ -605,7 +610,7 @@ function generate_capacity_tab_content() {
               '<label  for="DESCRIPTION">'+tr("Description")+'\
                 <span class="tip">'+tr("Description of the template")+'</span>\
               </label>'+
-              '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 100px;"/>'+
+              '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -628,7 +633,7 @@ function generate_capacity_tab_content() {
                   '<option value="images/logos/windows8.png">'+tr("Windows 8")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div id="template_create_logo" class="large-12 columns" style="margin-bottom: 15px">'+
+            '<div id="template_create_logo" class="text-center large-12 columns" style="margin-bottom: 15px">'+
             '</div>'+
             '<br>'+
           '</div>'+
@@ -2498,6 +2503,7 @@ function wizard_tab_content(){
       '<dl id="context_tabs" class="tabs vertical" data-tab>'+
         '<dd class="active"><a href="#netsshTab">'+tr("Network & SSH")+'</a></dd>'+
         '<dd><a href="#filesTab">'+tr("Files")+'</a></dd>'+
+        '<dd><a href="#userinputsTab">'+tr("User Inputs")+'</a></dd>'+
         '<dd><a href="#zcustomTab">'+tr("Custom vars")+'</a></dd>'+
       '</dl>'+
       '<div class="tabs-content vertical">'+
@@ -2621,6 +2627,43 @@ function wizard_tab_content(){
                      '</tr>'+
                    '</tbody>'+
                 '</table>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="wizard_internal_tab content" id="userinputsTab">'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                  '<table class="service_custom_attrs policies_table dataTable">'+
+                    '<thead>'+
+                      '<tr>'+
+                        '<th colspan="4" style="font-size: 16px !important">'+
+                          '<i class="fa fa-lg fa-fw fa-cogs off-color"/>'+
+                          ''+tr("User Inputs")+''+
+                          '<span class="tip">'+tr("These attributes must be provided by the user when a new VM is intantatiated using this template. They will be included in the VM context")+'</span>'+
+                        '</th>'+
+                      '</tr>'+
+                    '</thead>'+
+                    '<thead>'+
+                      '<tr>'+
+                        '<th style="width:30%">'+tr("Name")+''+
+                        '</th>'+
+                        '<th style="width:20%">'+tr("Type")+''+
+                        '</th>'+
+                        '<th style="width:50%">'+tr("Description")+''+
+                        '</th>'+
+                        '<th style="width:3%"></th>'+
+                      '</tr>'+
+                    '</thead>'+
+                    '<tbody>'+
+                    '</tbody>'+
+                    '<tfoot>'+
+                      '<tr>'+
+                        '<td colspan="4">'+
+                          '<a type="button" class="add_service_custom_attr button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another attribute")+'</a>'+
+                        '</td>'+
+                      '</tr>'+
+                    '</tfoot>'+
+                  '</table>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -3318,6 +3361,34 @@ function setup_context_tab_content(context_section) {
 
         $('#FILES_DS', context_section).val(req_string.join(" "));
     };
+
+    context_section.on("click", ".add_service_custom_attr", function(){
+        $(".service_custom_attrs tbody").append(
+            '<tr>\
+                <td>\
+                    <input class="user_input_name" type="text"/>\
+                </td>\
+                <td>\
+                    <select class="user_input_type" >\
+                        <option value="text">'+tr("text")+'</option>\
+                        <option value="password">'+tr("password")+'</option>\
+                    </select>\
+                </td>\
+                <td>\
+                    <textarea class="user_input_description"/>\
+                </td>\
+                <td>\
+                    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+                </td>\
+            </tr>');
+    })
+
+    $(".add_service_custom_attr", context_section).trigger("click");
+
+    context_section.on("click", ".service_custom_attrs i.remove-tab", function() {
+        var tr = $(this).closest('tr');
+        tr.remove();
+    });
 }
 
 
@@ -3769,6 +3840,19 @@ function initialize_create_template_dialog(dialog) {
         if ($("#token_context", $('#contextTab')).is(":checked")) {
           vm_json["CONTEXT"]["TOKEN"] = "YES";
         };
+
+        vm_json["USER_INPUTS"] = {};
+
+        $(".service_custom_attrs tbody tr").each(function(){
+          if ($(".user_input_name", $(this)).val()) {
+            var attr_name = $(".user_input_name", $(this)).val();
+            var attr_type = $(".user_input_type", $(this)).val();
+            var attr_desc = $(".user_input_description", $(this)).val();
+            var obj = {};
+            vm_json["USER_INPUTS"][attr_name] = "M|" + attr_type + "|" + attr_desc;
+            vm_json["CONTEXT"][attr_name] = "$" + attr_name.toUpperCase();
+          }
+        });
 
         addSectionJSON(vm_json["CONTEXT"],$('#contextTab',dialog));
 
@@ -4287,6 +4371,25 @@ function fillTemplatePopUp(template, dialog){
     $("#ssh_context", context_section).removeAttr('checked');
     $("#network_context", context_section).removeAttr('checked');
 
+    var user_inputs = template.USER_INPUTS;
+    if (user_inputs) {
+      $.each(user_inputs, function(key, value){
+        var context = $(".service_custom_attrs tbody tr", context_section).last();
+        var parts = value.split("|");
+        $(".user_input_name", context).val(key);
+        $(".user_input_type", context).val(parts[1]);
+        $(".user_input_description", context).val(parts[2]);
+
+        $(".add_service_custom_attr", context_section).trigger("click");
+
+        if (context) {
+          delete template.CONTEXT[key];
+        }
+      });
+
+      delete template.USER_INPUTS;
+    }
+
     if (context) {
         var file_ds_regexp = /\$FILE\[IMAGE_ID=([0-9]+)+/g;
         var net_regexp = /^NETWORK$/;;
@@ -4326,27 +4429,6 @@ function fillTemplatePopUp(template, dialog){
                 // TODO updateView should not be required. Currently the dataTable
                 //  is filled twice.
                 update_datatable_template_files(dataTable_context, function(){
-//                    dataTable_context.unbind('draw');
-//
-//                    var data = dataTable_context.fnGetData();
-//                    $.each(data, function(){
-//                        var in_array = $.inArray(this[1], files)
-//                        if (in_array != -1) {
-//                            $('#files_selected',  context_section).show();
-//                            $('#select_files', context_section).hide();
-//                            files.splice(in_array, 1);
-//                            $('#selected_files_spans', context_section).append('<span image_id="'+this[1]+'" id="tag_file_'+this[1]+'" class="image radius label">'+this[4]+' <span class="fa fa-times blue"></span></span> ');
-//                        }
-//                    })
-//
-//                    if (files.length != 0) {
-//                        var alert = '<div class="alert-box alert">'+
-//tr('The following FILES: ') + files.join(', ') + tr(" do not exist any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                        $(".dataTables_wrapper", context_section).append(alert);
-//                    }
                 });
             }
             else {
@@ -4374,7 +4456,7 @@ function fillTemplatePopUp(template, dialog){
             }
         });
 
-        delete template.CONTEXT
+        delete template.CONTEXT;
     }
 
     //
