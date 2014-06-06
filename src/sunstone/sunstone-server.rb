@@ -145,17 +145,19 @@ helpers do
     def valid_csrftoken?
         csrftoken = nil
 
-        if !params[:csrftoken].nil?
+        if params[:csrftoken]
             csrftoken = params[:csrftoken]
         else
-            csrftoken = JSON.parse(params.keys.first)["csrftoken"] rescue nil
+            body = request.body.read
+            csrftoken = JSON.parse(body)["csrftoken"] rescue nil
+            request.body.rewind
         end
 
-        !session[:csrftoken].nil? && session[:csrftoken] == csrftoken
+        session[:csrftoken] && session[:csrftoken] == csrftoken
     end
 
     def authorized?
-        session[:ip] && session[:ip]==request.ip
+        session[:ip] && session[:ip] == request.ip
     end
 
     def build_session
@@ -188,8 +190,7 @@ helpers do
             session[:remember]     = params[:remember]
             session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
-            csrftoken_plain = session[:display_name] + session[:user_id] \
-                                + Time.now.to_f.to_s + SecureRandom.base64
+            csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
             session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
 
             #User IU options initialization
