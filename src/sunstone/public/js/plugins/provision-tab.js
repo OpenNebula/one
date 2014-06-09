@@ -4409,7 +4409,7 @@ $(document).ready(function(){
       var roles = [];
       $(".provision_create_flow_role", context).each(function(){
         var missing_attr = false;
-        var custom_attrs = "";
+        var user_inputs_values = {};
         if ($(".provision_custom_attributes", $(this))) {
           $(".provision_custom_attribute", $(".provision_custom_attributes", $(this))).each(function(){
             if (!$(this).val()) {
@@ -4417,7 +4417,7 @@ $(document).ready(function(){
               missing_attr = true;
             } else {
               $(this).parent("label").css("color", "#777");
-              custom_attrs += $(this).attr("attr_name") + "=\"" + $(this).val() + "\"\n";
+              user_inputs_values[$(this).attr("attr_name")] = $(this).val();
             }
           })
         }
@@ -4430,7 +4430,7 @@ $(document).ready(function(){
         var role_template = JSON.parse($(this).attr("data"));
         roles.push($.extend(role_template, {
           "cardinality": $(".cardinality_value", $(this)).text(),
-          "vm_template_contents": custom_attrs
+          "user_inputs_values": user_inputs_values
         }));
       })
 

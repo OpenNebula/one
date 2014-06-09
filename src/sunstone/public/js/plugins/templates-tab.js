@@ -3848,7 +3848,6 @@ function initialize_create_template_dialog(dialog) {
             var attr_name = $(".user_input_name", $(this)).val();
             var attr_type = $(".user_input_type", $(this)).val();
             var attr_desc = $(".user_input_description", $(this)).val();
-            var obj = {};
             vm_json["USER_INPUTS"][attr_name] = "M|" + attr_type + "|" + attr_desc;
             vm_json["CONTEXT"][attr_name] = "$" + attr_name.toUpperCase();
           }

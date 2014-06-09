@@ -51,7 +51,7 @@ var create_service_template_tmpl = '\
                     <a href="#network_configuration_and_attributes">'+
                         '<i class="fa fa-fw fa-chevron-down"/>'+
                         '<i class="fa fa-fw fa-chevron-up"/>'+
-                        tr("Network Configuration & Attributes")+
+                        tr("Network Configuration")+
                     '</a>\
                     <div id="network_configuration_and_attributes" class="content">\
                         <div class="row">\
@@ -80,41 +80,6 @@ var create_service_template_tmpl = '\
                                           <tr>\
                                             <td colspan="3">\
                                                 <a type="button" class="add_service_network button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another Network")+'</a>\
-                                            </td>\
-                                          </tr>\
-                                        </tfoot>\
-                                  </table>\
-                            </div>\
-                        </div>\
-                        <br>\
-                        <div class="row">\
-                            <div class="large-12 columns">\
-                                  <table class="service_custom_attrs policies_table dataTable">\
-                                        <thead style="background:#dfdfdf">\
-                                          <tr>\
-                                            <th colspan="4" style="font-size: 16px !important">\
-                                                <i class="fa fa-lg fa-fw fa-cogs off-color"/>\
-                                                '+tr("Configuration attributes")+'\
-                                            </th>\
-                                          </tr>\
-                                        </thead>\
-                                        <thead>\
-                                          <tr>\
-                                            <th style="width:30%">'+tr("Name")+'\
-                                            </th>\
-                                            <th style="width:20%">'+tr("Type")+'\
-                                            </th>\
-                                            <th style="width:50%">'+tr("Description")+'\
-                                            </th>\
-                                            <th style="width:3%"></th>\
-                                          </tr>\
-                                        </thead>\
-                                        <tbody>\
-                                        </tbody>\
-                                        <tfoot>\
-                                          <tr>\
-                                            <td colspan="4">\
-                                                <a type="button" class="add_service_custom_attr button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another attribute")+'</a>\
                                             </td>\
                                           </tr>\
                                         </tfoot>\
@@ -220,7 +185,7 @@ var role_tab_content = '\
     </div>\
 </div>\
 <div class="row">\
-    <div class="service_template_param service_role large-4 columns">\
+    <div class="service_template_param service_role large-6 columns">\
         <table class="networks_role extended_table dataTable">\
             <thead>\
                 <tr><th colspan="2"><i class="fa fa-lg fa-fw fa-globe off-color"/>'+tr("Network Interfaces")+'</th></tr>\
@@ -229,16 +194,7 @@ var role_tab_content = '\
             </tbody>\
         </table>\
     </div>\
-    <div class="service_template_param service_role large-4 columns">\
-        <table class="custom_attrs_role extended_table dataTable">\
-            <thead>\
-                <tr><th colspan="2"><i class="fa fa-lg fa-fw fa-cogs off-color"/>'+tr("Configuration Attrs")+'</th></tr>\
-            </thead>\
-            <tbody class="custom_attrs_role_body">\
-            </tbody>\
-        </table>\
-    </div>\
-    <div class="service_template_param service_role large-4 columns">\
+    <div class="service_template_param service_role large-6 columns">\
         <table class="parent_roles extended_table dataTable">\
             <thead>\
                 <tr><th colspan="2">'+tr("Parent roles")+'</th></tr>\
@@ -289,7 +245,7 @@ function generate_advanced_role_accordion(role_id, context){
                           '<label  for="vm_template_content">'+tr("VM Template Content")+'\
                             <span class="tip">'+tr("This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated")+'</span>\
                           </label>'+
-                          '<textarea type="text" id="vm_template_content" name="vm_template_content"/>'+
+                          '<textarea type="text" class="vm_template_content" name="vm_template_content"/>'+
                         '</div>\
                     </div>\
                 </div>\
@@ -1066,6 +1022,7 @@ function setup_role_tab_content(role_section, html_role_id) {
         var new_tr = $('<tr>\
                 <td>\
                     <select id="type" name="type">\
+                        <option value=""></option>\
                         <option value="CHANGE">'+tr("Change")+'</option>\
                         <option value="CARDINALITY">'+tr("Cardinality")+'</option>\
                         <option value="PERCENTAGE_CHANGE">'+tr("Percentage")+'</option>\
@@ -1100,6 +1057,7 @@ function setup_role_tab_content(role_section, html_role_id) {
         var new_tr = $('<tr>\
                 <td>\
                     <select id="type" name="type">\
+                        <option value=""></option>\
                         <option value="CHANGE">'+tr("Change")+'</option>\
                         <option value="CARDINALITY">'+tr("Cardinality")+'</option>\
                         <option value="PERCENTAGE_CHANGE">'+tr("Percentage")+'</option>\
@@ -1149,6 +1107,15 @@ function setup_role_tab_content(role_section, html_role_id) {
     add_elas_policy_tab();
     add_sche_policy_tab();
 
+    role_section.on("change", ".service_network_checkbox", function(){
+        var vm_template_content = "";
+        $(".service_network_checkbox:checked", role_section).each(function(){
+            vm_template_content += "NIC=[NETWORK_ID=\"$"+$(this).val()+"\"]\n"
+        })
+
+        $(".vm_template_content", role_section).val(vm_template_content);
+    })
+
     return false;
 }
 
@@ -1171,7 +1138,7 @@ function setupCreateServiceTemplateDialog(){
                     <input class="service_network_name" type="text"/>\
                 </td>\
                 <td>\
-                    <textarea/>\
+                    <textarea class="service_network_description"/>\
                 </td>\
                 <td>\
                     <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
@@ -1190,7 +1157,7 @@ function setupCreateServiceTemplateDialog(){
             if ($(this).val()) {
                 service_networks = true;
                 str += "<tr>\
-                    <td style='width:10%'><input class='check_item' type='checkbox' value='"+$(this).val()+"' id='"+$(this).val()+"'/></td>\
+                    <td style='width:10%'><input class='service_network_checkbox check_item' type='checkbox' value='"+$(this).val()+"' id='"+$(this).val()+"'/></td>\
                     <td>"+$(this).val()+"</td><tr>\
                 </tr>";
             }
@@ -1199,6 +1166,8 @@ function setupCreateServiceTemplateDialog(){
         if (service_networks) {
             $(".networks_role").show();
         }
+
+        $(".vm_template_content").val("");
 
         $(".networks_role_body").html(str);
     }
@@ -1214,68 +1183,11 @@ function setupCreateServiceTemplateDialog(){
         generate_service_networks_selector();
     });
 
-    dialog.on("click", ".add_service_custom_attr", function(){
-        $(".service_custom_attrs tbody").append(
-            '<tr>\
-                <td>\
-                    <input class="service_custom_attr_name" type="text"/>\
-                </td>\
-                <td>\
-                    <select>\
-                        <option value="text">'+tr("text")+'</option>\
-                        <option value="password">'+tr("password")+'</option>\
-                    </select>\
-                </td>\
-                <td>\
-                    <textarea/>\
-                </td>\
-                <td>\
-                    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
-                </td>\
-            </tr>');
-    })
-
-    $(".add_service_custom_attr").trigger("click");
-
-
-    var generate_service_custom_attrs_selector = function(){
-        $(".custom_attrs_role").hide();
-        var service_custom_attrs = false;
-
-        var str = "";
-        $(".service_custom_attrs .service_custom_attr_name").each(function(){
-            if ($(this).val()) {
-                service_custom_attrs = true;
-                str += "<tr>\
-                    <td style='width:10%'><input class='check_item' type='checkbox' value='"+$(this).val()+"' id='"+$(this).val()+"'/></td>\
-                    <td>"+$(this).val()+"</td><tr>\
-                </tr>";
-            }
-        });
-
-        if (service_custom_attrs) {
-            $(".custom_attrs_role").show();
-        }
-
-        $(".custom_attrs_role_body").html(str);
-    }
-
-    dialog.on("change", ".service_custom_attr_name", function(){
-        generate_service_custom_attrs_selector();
-    })
-
-    $( ".service_custom_attrs i.remove-tab").live( "click", function() {
-        var tr = $(this).closest('tr');
-        tr.remove();
-
-        generate_service_custom_attrs_selector();
-    });
-
     var add_role_tab = function(role_id) {
         var html_role_id  = 'role' + role_id;
 
         // Append the new div containing the tab and add the tab to the list
-        var role_section = $('<div id="'+html_role_id+'Tab" class="content wizard_internal_tab">'+
+        var role_section = $('<div id="'+html_role_id+'Tab" class="content role_content wizard_internal_tab">'+
             role_tab_content +
         '</div>').appendTo($("#roles_tabs_content"));
 
@@ -1283,7 +1195,6 @@ function setupCreateServiceTemplateDialog(){
         generate_advanced_role_accordion(role_id, $(".advanced_role_accordion", role_section))
 
         generate_service_networks_selector();
-        generate_service_custom_attrs_selector();
 
         var a = $("<dd>\
             <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
@@ -1435,15 +1346,28 @@ function generate_json_service_template_from_form() {
     var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
     var shutdown_action_service = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
 
+    var custom_attrs =  {};
+
+    $(".service_networks tbody tr").each(function(){
+      if ($(".service_network_name", $(this)).val()) {
+        var attr_name = $(".service_network_name", $(this)).val();
+        var attr_type = "vnet_id"
+        var attr_desc = $(".service_network_description", $(this)).val();
+        custom_attrs[attr_name] = "M|" + attr_type + "|" + attr_desc;
+      }
+    });
+
     var roles = [];
 
-    $('#roles_tabs_content .content', $create_service_template_dialog).each(function(){
+    $('#roles_tabs_content .role_content', $create_service_template_dialog).each(function(){
         var role = {};
         role['name'] = $('input[name="name"]', this).val();
         role['cardinality'] = $('input[name="cardinality"]', this).val();
         role['vm_template'] = $('#vm_template .resource_list_select', this).val();
         role['shutdown_action'] = $('select[name="shutdown_action_role"]', this).val();
         role['parents'] = [];
+        role['vm_template_content'] = escapeDoubleQuotes($(".vm_template_content", this).val());
+        console.log($(".vm_template_content", this).val())
 
         if (!name || !cardinality || !template){
             notifyError(tr("Please specify name, cardinality and template for this role"));
@@ -1473,31 +1397,35 @@ function generate_json_service_template_from_form() {
             role = removeEmptyObjects(role);
             role['elasticity_policies'] = [];
             $("#elasticity_policies_tbody tr", this).each(function(){
-                var policy = {};
-                policy['type'] = $("#type" ,this).val();
-                policy['adjust']  = $("#adjust" ,this).val();
-                policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
-                policy['expression']  = $("#expression" ,this).val();
-                policy['period_number']  = $("#period_number" ,this).val();
-                policy['period']  = $("#period" ,this).val();
-                policy['cooldown']  = $("#cooldown" ,this).val();
+                if ($("#type" ,this).val()) {
+                    var policy = {};
+                    policy['type'] = $("#type" ,this).val();
+                    policy['adjust']  = $("#adjust" ,this).val();
+                    policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
+                    policy['expression']  = $("#expression" ,this).val();
+                    policy['period_number']  = $("#period_number" ,this).val();
+                    policy['period']  = $("#period" ,this).val();
+                    policy['cooldown']  = $("#cooldown" ,this).val();
 
-                // TODO remove empty policies
-                role['elasticity_policies'].push(removeEmptyObjects(policy));
+                    // TODO remove empty policies
+                    role['elasticity_policies'].push(removeEmptyObjects(policy));
+                }
             });
 
             role['scheduled_policies'] = [];
             $("#scheduled_policies_tbody tr", this).each(function(){
-                var policy = {};
-                policy['type'] = $("#type" ,this).val();
-                policy['adjust']  = $("#adjust" ,this).val();
-                policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
+                if ($("#type" ,this).val()) {
+                    var policy = {};
+                    policy['type'] = $("#type" ,this).val();
+                    policy['adjust']  = $("#adjust" ,this).val();
+                    policy['min_adjust_step']  = $("#min_adjust_step" ,this).val();
 
-                var time_format = $("#time_format" ,this).val();
-                policy[time_format] = $("#time" ,this).val();
+                    var time_format = $("#time_format" ,this).val();
+                    policy[time_format] = $("#time" ,this).val();
 
-                // TODO remove empty policies
-                role['scheduled_policies'].push(removeEmptyObjects(policy));
+                    // TODO remove empty policies
+                    role['scheduled_policies'].push(removeEmptyObjects(policy));
+                }
             });
 
             roles.push(role);
@@ -1507,7 +1435,8 @@ function generate_json_service_template_from_form() {
     var obj = {
         name: name,
         deployment: deployment,
-        roles: roles
+        roles: roles,
+        custom_attrs: custom_attrs
     }
 
     if (shutdown_action_service){
@@ -1575,16 +1504,46 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", dialog).val(service_template.TEMPLATE.BODY.shutdown_action);
 
+    if (service_template.TEMPLATE.BODY['custom_attrs']) {
+        $("a[href='#network_configuration_and_attributes']", dialog).trigger("click");
+
+        $.each(service_template.TEMPLATE.BODY['custom_attrs'], function(key, attr){
+            var parts = attr.split("|");
+            // 0 mandatory; 1 type; 2 desc;
+            var attrs = {
+              "name": key,
+              "mandatory": parts[0],
+              "type": parts[1],
+              "description": parts[2],
+            }
+
+            switch (parts[1]) {
+              case "vnet_id":
+                var tr = $(".service_networks tbody tr").first();
+                $(".service_network_name").val(htmlDecode(attrs.name)).change();
+                $(".service_network_description").val(htmlDecode(attrs.description));
+
+                $(".add_service_network", dialog).trigger("click");
+                break;
+            }
+        });
+    }
+
     var more_than_one = false;
     var roles_names = [];
     $.each(service_template.TEMPLATE.BODY.roles, function(index, value){
         more_than_one ? $("#tf_btn_roles", dialog).click() : (more_than_one = true);
 
-        var context = $('#roles_tabs_content .content', $create_service_template_dialog).last();
+        var context = $('#roles_tabs_content .role_content', $create_service_template_dialog).last();
 
         $("#role_name", context).val(htmlDecode(value.name));
         $("#role_name", context).change();
         roles_names.push(value.name);
+
+        // TODO select current interfaces
+        if (value.vm_template_content){
+            $(".vm_template_content", context).val(htmlDecode(value.vm_template_content));
+        }
 
         $("#cardinality", context).val(htmlDecode(value.cardinality));
 
