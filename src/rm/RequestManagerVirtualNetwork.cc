@@ -202,6 +202,8 @@ void VirtualNetworkReserve::request_execute(
     int    rc;
     int    cluster_id;
 
+    PoolObjectAuth reserv_perms;
+
     // -------------------------------------------------------------------------
     // Process the Reservation Template
     // -------------------------------------------------------------------------
@@ -214,6 +216,8 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    /* ------------------- Reservation SIZE ---------------- */
+
     int size;
 
     if ( !tmpl.get("SIZE", size) || size <= 0 )
@@ -223,24 +227,72 @@ void VirtualNetworkReserve::request_execute(
         return;
     }
 
+    /* ------------------- Target reservation NETWORK_ID ---------------- */
+
     int  rid;
     bool on_exisiting = tmpl.get("NETWORK_ID", rid);
 
     if ( on_exisiting)
     {
+        /* ------------------- Check reservation consistency ---------------- */
+
         if (rid < 0)
         {
             failure_response(ACTION, request_error("Error in reservation request",
                 "NETWORK_ID must be equal or greater than 0"), att);
             return;
         }
-        else if (rid == id)
+
+        if (rid == id)
         {
             failure_response(ACTION, request_error("Error in reservation request",
                 "Cannot add a reservation from the same network"), att);
             return;
         }
+
+        rvn = vnpool->get(rid,true);
+
+        if (rvn == 0)
+        {
+            failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
+                att);
+
+            return;
+        }
+
+        int parent = rvn->get_parent();
+
+        if (parent == -1)
+        {
+            failure_response(ACTION, request_error("Error in reservation request",
+                "Cannot add reservations to a non-reservation VNET"), att);
+
+            rvn->unlock();
+
+            return;
+        }
+
+        if (parent != id)
+        {
+            ostringstream oss;
+
+            oss << "New reservations for virtual network " << rid
+                << " have to be from network " << parent;
+
+            failure_response(ACTION, request_error("Error in reservation request",
+                oss.str()), att);
+
+            rvn->unlock();
+
+            return;
+        }
+
+        rvn->get_permissions(reserv_perms);
+
+        rvn->unlock();
     }
+
+    /* ------------------- Reservation NAME ---------------- */
 
     string name;
 
@@ -252,6 +304,8 @@ void VirtualNetworkReserve::request_execute(
             "NAME for reservation has to be set"), att);
         return;
     }
+
+    /* ------------------- Starting AR_ID, IP & MAC ---------------- */
 
     int  ar_id;
     bool with_ar_id = tmpl.get("AR_ID", ar_id);
@@ -306,22 +360,6 @@ void VirtualNetworkReserve::request_execute(
 
     if (on_exisiting)
     {
-        rvn = vnpool->get(rid,true);
-
-        if (rvn == 0)
-        {
-            failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
-                att);
-
-            vn->unlock();
-
-            return;
-        }
-
-        PoolObjectAuth reserv_perms;
-
-        rvn->get_permissions(reserv_perms);
-
         ar.add_auth(AuthRequest::MANAGE, reserv_perms);
     }
 
@@ -329,11 +367,6 @@ void VirtualNetworkReserve::request_execute(
     {
         failure_response(AUTHORIZATION, authorization_error(ar.message, att),
             att);
-
-        if (on_exisiting)
-        {
-            rvn->unlock();
-        }
 
         vn->unlock();
 
@@ -363,47 +396,14 @@ void VirtualNetworkReserve::request_execute(
 
             return;
         }
-
-        rvn = vnpool->get(rid, true);
-
-        if (rvn == 0)
-        {
-            failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
-                att);
-
-            vn->unlock();
-
-            return;
-        }
     }
 
-    // -------------------------------------------------------------------------
-    // Check reservation consistency
-    // -------------------------------------------------------------------------
-    int parent = rvn->get_parent();
+    rvn = vnpool->get(rid, true);
 
-    if (parent == -1)
+    if (rvn == 0)
     {
-        failure_response(ACTION, request_error("Cannot add reservations to a "
-            "non-reservation VNET",""), att);
-
-        rvn->unlock();
-
-        vn->unlock();
-
-        return;
-    }
-
-    if (on_exisiting &&  parent != id)
-    {
-        ostringstream oss;
-
-        oss << "New reservations for virtual network " << rid << " have to be "
-            << "from network " << rvn->get_parent();
-
-        failure_response(ACTION, request_error(oss.str(),""), att);
-
-        rvn->unlock();
+        failure_response(NO_EXISTS, get_error(object_name(auth_object),rid),
+            att);
 
         vn->unlock();
 
