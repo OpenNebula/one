@@ -1727,7 +1727,7 @@ function getSelectedNodes(dataTable, force_datatable){
 
 // TODO: Too many arguments. Change to use a params object
 function insertSelectOptions(id, context, resource, init_val, empty_value,
-    extra_options, filter_att, filter_val){
+    extra_options, filter_att, filter_val, trigger_change_init_val){
 
     $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
 
@@ -1782,6 +1782,9 @@ function insertSelectOptions(id, context, resource, init_val, empty_value,
 
             if (init_val){
                 $(id+" .resource_list_select", context).val(init_val);
+                if (trigger_change_init_val) {
+                    $(id+" .resource_list_select", context).change();
+                }
             }
         },
         error: onError

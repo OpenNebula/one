@@ -5567,7 +5567,7 @@ $(document).ready(function(){
       var user_id = $("#provision_info_vdc_user").attr("user_id");
 
       insertSelectOptions("#provision_list_vms_filter", $("#provision_list_vms"), "User", user_id, false,
-          '<option value="-2">'+tr("<< all >>")+'</option>');
+          '<option value="-2">'+tr("<< all >>")+'</option>', null, null, true);
 
       $("#provision_list_vms_filter ").on("change", ".resource_list_select", function(){
         var filter;
@@ -5588,7 +5588,7 @@ $(document).ready(function(){
       var user_id = $("#provision_info_vdc_user").attr("user_id");
 
       insertSelectOptions("#provision_list_templates_filter", $("#provision_list_templates"), "User", user_id, false,
-          '<option value="-2">'+tr("<< all >>")+'</option>');
+          '<option value="-2">'+tr("<< all >>")+'</option>', null, null, true);
 
       $("#provision_list_templates_filter ").on("change", ".resource_list_select", function(){
         var filter;
