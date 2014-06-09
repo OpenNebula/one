@@ -438,6 +438,13 @@ post '/service_template/:id/action' do
                             end
                         }
                     end
+
+                    if role["user_inputs_values"]
+                        role["vm_template_contents"] ||= ""
+                        role["user_inputs_values"].each{ |key, value|
+                            role["vm_template_contents"] += "\n#{key}=#{value}"
+                        }
+                    end
                 }
 
                 instantiate_template_json = instantiate_template.to_json
