@@ -502,6 +502,10 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
         '<br>'+
         '<div class="provision_network_selector">'+
         '</div>'+
+        '<br>'+
+        '<br>'+
+        '<div class="provision_custom_attributes_selector">'+
+        '</div>'+
     '</div>'+
   '</div>'+
   '<br>'+
@@ -1902,38 +1906,63 @@ Sunstone.addActions(povision_actions);
 
 
 function generate_custom_attrs(context, custom_attrs) {
-  context.html(
-    '<br>'+
-    '<div class="row">'+
-      '<div class="large-12 large-centered columns">'+
-        '<h3 class="subheader text-right">'+
-          '<span class="left">'+
-            '<i class="fa fa-th fa-gears"></i>&emsp;'+
-            tr("Custom Attributes")+
-          '</span>'+
-        '</h3>'+
-        '<br>'+
-      '</div>'+
-    '</div>'+
-    '<br>'+
-    '<div class="provision_custom_attributes">'+
-    '</div>'+
-    '<br>'+
-    '<br>'+
-    '<br>');
+  var text_attrs = [];
 
-  $.each(custom_attrs, function(index, custom_attr){
-    $(".provision_custom_attributes", context).append(
+  $.each(custom_attrs, function(key, value){
+    var parts = value.split("|");
+    // 0 mandatory; 1 type; 2 desc;
+    var attrs = {
+      "name": key,
+      "mandatory": parts[0],
+      "type": parts[1],
+      "description": parts[2],
+    }
+
+    switch (parts[1]) {
+      case "text":
+        text_attrs.push(attrs)
+        break;
+      case "password":
+        text_attrs.push(attrs)
+        break;
+    }
+  })
+
+  if (text_attrs.length > 0) {
+    context.html(
       '<br>'+
       '<div class="row">'+
-        '<div class="large-10 large-centered columns">'+
-          '<label>' +
-            custom_attr.description +
-            '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-          '</label>'+
+        '<div class="large-12 large-centered columns">'+
+          '<h3 class="subheader text-right">'+
+            '<span class="left">'+
+              '<i class="fa fa-th fa-gears"></i>&emsp;'+
+              tr("Custom Attributes")+
+            '</span>'+
+          '</h3>'+
+          '<br>'+
         '</div>'+
-      '</div>');
-  })
+      '</div>'+
+      '<br>'+
+      '<div class="provision_custom_attributes">'+
+      '</div>'+
+      '<br>'+
+      '<br>'+
+      '<br>');
+
+
+    $.each(text_attrs, function(index, custom_attr){
+      $(".provision_custom_attributes", context).append(
+        '<br>'+
+        '<div class="row">'+
+          '<div class="large-10 large-centered columns">'+
+            '<label>' +
+              custom_attr.description +
+              '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+            '</label>'+
+          '</div>'+
+        '</div>');
+    })
+  }
 }
 
 function generate_cardinality_selector(context, role_template) {
@@ -2816,6 +2845,7 @@ function show_provision_create_vm() {
 
   $("#provision_create_vm .provision_capacity_selector").html("");
   $("#provision_create_vm .provision_network_selector").html("");
+  $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
   $("#provision_create_vm dd:not(.active) a[href='#provision_dd_template']").trigger("click")
 
@@ -4003,9 +4033,11 @@ $(document).ready(function(){
     });
 
     tab.on("click", "#provision_create_vm .provision_select_template .provision-pricing-table.only-one" , function(){
+      var create_vm_context = $("#provision_create_vm");
+
       if ($(this).hasClass("selected")){
-        $(".provision_network_selector", $("#provision_create_vm")).html("");
-        $(".provision_capacity_selector", $("#provision_create_vm")).html("");
+        $(".provision_network_selector", create_vm_context).html("");
+        $(".provision_capacity_selector", create_vm_context).html("");
 
         $(".provision_accordion_template .selected_template").hide();
         $(".provision_accordion_template .select_template").show();
@@ -4032,17 +4064,23 @@ $(document).ready(function(){
         $(".provision_accordion_template a").first().trigger("click");
 
         generate_provision_instance_type_accordion(
-          $(".provision_capacity_selector", $("#provision_create_vm")),
+          $(".provision_capacity_selector", create_vm_context),
           template_json.VMTEMPLATE.TEMPLATE);
 
         generate_provision_network_accordion(
-          $(".provision_network_selector", $("#provision_create_vm")));
+          $(".provision_network_selector", create_vm_context));
 
         $.each(nics, function(index, nic){
             generate_provision_network_table(
-              $("#provision_create_vm .provision_nic_accordion"),
+              $(".provision_nic_accordion", create_vm_context),
               nic);
         })
+
+        if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
+          generate_custom_attrs(
+            $(".provision_custom_attributes_selector", create_vm_context),
+            template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
+        }
       }
     })
 
@@ -4096,6 +4134,29 @@ $(document).ready(function(){
         delete instance_typa_data.name;
 
         $.extend(extra_info.template, JSON.parse(instance_type.attr("data")))
+      }
+
+      var missing_attr = false;
+      var user_inputs_values = {};
+      if ($(".provision_custom_attributes", $(this))) {
+        $(".provision_custom_attribute", $(".provision_custom_attributes", $(this))).each(function(){
+          if (!$(this).val()) {
+            $(this).parent("label").css("color", "red");
+            missing_attr = true;
+          } else {
+            $(this).parent("label").css("color", "#777");
+            user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+          }
+        })
+      }
+
+      if (missing_attr) {
+        $(".alert-box-error", $(this)).fadeIn().html(tr("You have not specified all the Custom Atrributes for this VM"));
+        return false;
+      }
+
+      if (!$.isEmptyObject(user_inputs_values)) {
+         $.extend(extra_info.template, user_inputs_values)
       }
 
       Sunstone.runAction("Provision.instantiate", template_id, extra_info);
@@ -4329,33 +4390,9 @@ $(document).ready(function(){
               //  template_json.VMTEMPLATE.TEMPLATE);
 
               if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
-                var text_attrs = [];
-
-                $.each(template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, function(key, value){
-                  var parts = value.split("|");
-                  // 0 mandatory; 1 type; 2 desc;
-                  var attrs = {
-                    "name": key,
-                    "mandatory": parts[0],
-                    "type": parts[1],
-                    "description": parts[2],
-                  }
-
-                  switch (parts[1]) {
-                    case "text":
-                      text_attrs.push(attrs)
-                      break;
-                    case "password":
-                      text_attrs.push(attrs)
-                      break;
-                  }
-                })
-
-                if (text_attrs.length > 0) {
-                  generate_custom_attrs(
-                    $(".provision_custom_attributes_selector", role_context),
-                    text_attrs);
-                }
+                generate_custom_attrs(
+                  $(".provision_custom_attributes_selector", role_context),
+                  template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
               }
             }
           })
