@@ -14,6 +14,22 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var empty_graph_placeholder =
+  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+    //'<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+  '</span>'+
+  '<br>'+
+  '<span style="color: #cfcfcf">'+
+    tr("There is no information available")+
+  '</span>';
+
+var empty_quota_placeholder =
+  '<span class="fa-stack" style="color: #dfdfdf">'+
+    '<i class="fa fa-minus fa-stack-lg"></i>'+
+    //'<i class="fa fa-unlock-alt fa-stack-1x fa-inverse"></i>'+
+  '</span>';
+
 var provision_quotas_dashboard =
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -27,13 +43,22 @@ var provision_quotas_dashboard =
     '<div class="large-10 large-centered columns">'+
         '<div class="row">'+
           '<div class="large-4 columns text-center">'+
-            '<span id="provision_dashboard_rvms_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span id="provision_dashboard_rvms_percentage"  style="font-size:50px">'+
+              empty_quota_placeholder +
+            '</span>'+
+            '<span style="font-size:20px; color: #999">'+"%"+'</span>'+
           '</div>'+
           '<div class="large-4 columns text-center">'+
-            '<span id="provision_dashboard_cpu_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span id="provision_dashboard_cpu_percentage"  style="font-size:50px">'+
+              empty_quota_placeholder +
+            '</span>'+
+            '<span style="font-size:20px; color: #999">'+"%"+'</span>'+
           '</div>'+
           '<div class="large-4 columns text-center">'+
-            '<span id="provision_dashboard_memory_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span id="provision_dashboard_memory_percentage"  style="font-size:50px">'+
+              empty_quota_placeholder +
+            '</span>'+
+            '<span style="font-size:20px; color: #999">'+"%"+'</span>'+
           '</div>'+
         '</div>'+
         '<div class="row">'+
@@ -88,13 +113,22 @@ var provision_vdc_quotas_dashboard =
     '<div class="large-10 large-centered columns">'+
         '<div class="row">'+
           '<div class="large-4 columns text-center">'+
-            '<span id="provision_dashboard_vdc_rvms_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span id="provision_dashboard_vdc_rvms_percentage" style="font-size:50px">'+
+              empty_quota_placeholder +
+            '</span>'+
+            '<span style="font-size:20px; color: #999">'+"%"+'</span>'+
           '</div>'+
           '<div class="large-4 columns text-center">'+
-            '<span id="provision_dashboard_vdc_cpu_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span id="provision_dashboard_vdc_cpu_percentage" style="font-size:50px">'+
+              empty_quota_placeholder +
+            '</span>'+
+            '<span style="font-size:20px; color: #999">'+"%"+'</span>'+
           '</div>'+
           '<div class="large-4 columns text-center">'+
-            '<span id="provision_dashboard_vdc_memory_percentage" style="font-size:50px"></span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span id="provision_dashboard_vdc_memory_percentage" style="font-size:50px">'+
+              empty_quota_placeholder +
+            '</span>'+
+            '<span style="font-size:20px; color: #999">'+"%"+'</span>'+
           '</div>'+
         '</div>'+
         '<div class="row">'+
@@ -152,7 +186,9 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span  id="provision_dashboard_total" style="font-size:80px">'+20+'</span>'+
+                '<span  id="provision_dashboard_total" style="font-size:80px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span style="color: #999;">'+tr("TOTAL")+'</span>'+
               '</div>'+
@@ -174,7 +210,9 @@ var provision_vms_dashboard =
           '<div class="large-2 columns">'+
             '<div class="row">'+
               '<div class="large-12 columns text-center">'+
-                '<span id="provision_dashboard_running" style="font-size:40px">'+13+'</span>'+
+                '<span id="provision_dashboard_running" style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("RUNNING")+'</span>'+
               '</div>'+
@@ -182,7 +220,9 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns text-center ">'+
-                '<span id="provision_dashboard_deploying"  style="font-size:40px">'+2+'</span>'+
+                '<span id="provision_dashboard_deploying"  style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("DEPLOYING")+'</span>'+
               '</div>'+
@@ -190,7 +230,9 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns text-center">'+
-                '<span  id="provision_dashboard_off" style="font-size:40px">'+1+'</span>'+
+                '<span  id="provision_dashboard_off" style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("OFF")+'</span>'+
               '</div>'+
@@ -198,7 +240,9 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns text-center ">'+
-                '<span  id="provision_dashboard_error" style="font-size:40px">'+0+'</span>'+
+                '<span  id="provision_dashboard_error" style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("ERROR")+'</span>'+
               '</div>'+
@@ -211,7 +255,8 @@ var provision_vms_dashboard =
                 '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
               '</div>'+
               '<div class="large-12 columns">'+
-                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">'+
+                '<div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
                 '</div>'+
               '</div>'+
             '</div>'+
@@ -220,7 +265,8 @@ var provision_vms_dashboard =
                 '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
               '</div>'+
               '<div class="large-12 columns">'+
-                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">'+
+                '<div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
                 '</div>'+
               '</div>'+
             '</div>'+
@@ -248,7 +294,9 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span  id="provision_dashboard_vdc_total" style="font-size:80px">'+20+'</span>'+
+                '<span  id="provision_dashboard_vdc_total" style="font-size:80px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span style="color: #999;">'+tr("TOTAL")+'</span>'+
               '</div>'+
@@ -270,7 +318,9 @@ var provision_vdc_vms_dashboard =
           '<div class="large-2 columns">'+
             '<div class="row">'+
               '<div class="large-12 columns text-center">'+
-                '<span id="provision_dashboard_vdc_running" style="font-size:40px">'+13+'</span>'+
+                '<span id="provision_dashboard_vdc_running" style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("RUNNING")+'</span>'+
               '</div>'+
@@ -278,7 +328,9 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns text-center ">'+
-                '<span id="provision_dashboard_vdc_deploying"  style="font-size:40px">'+2+'</span>'+
+                '<span id="provision_dashboard_vdc_deploying"  style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("DEPLOYING")+'</span>'+
               '</div>'+
@@ -286,7 +338,9 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns text-center">'+
-                '<span  id="provision_dashboard_vdc_off" style="font-size:40px">'+1+'</span>'+
+                '<span  id="provision_dashboard_vdc_off" style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("OFF")+'</span>'+
               '</div>'+
@@ -294,7 +348,9 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns text-center ">'+
-                '<span  id="provision_dashboard_vdc_error" style="font-size:40px">'+0+'</span>'+
+                '<span  id="provision_dashboard_vdc_error" style="font-size:40px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span  style="color: #999; font-size: 14px">'+tr("ERROR")+'</span>'+
               '</div>'+
@@ -307,7 +363,8 @@ var provision_vdc_vms_dashboard =
                 '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
               '</div>'+
               '<div class="large-12 columns">'+
-                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">'+
+                '<div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
                 '</div>'+
               '</div>'+
             '</div>'+
@@ -316,7 +373,8 @@ var provision_vdc_vms_dashboard =
                 '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
               '</div>'+
               '<div class="large-12 columns">'+
-                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">'+
+                '<div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
                 '</div>'+
               '</div>'+
             '</div>'+
@@ -344,7 +402,9 @@ var provision_users_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<span  id="provision_dashboard_users_total" style="font-size:80px">'+20+'</span>'+
+                '<span  id="provision_dashboard_users_total" style="font-size:80px">'+
+                  '<i class="fa fa-spinner fa-spin"></i>'+
+                '</span>'+
                 '<br>'+
                 '<span style="color: #999;">'+tr("TOTAL")+'</span>'+
               '</div>'+
@@ -370,7 +430,8 @@ var provision_users_dashboard =
                 '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
               '</div>'+
               '<div class="large-12 columns">'+
-                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">'+
+                '<div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
                 '</div>'+
               '</div>'+
             '</div>'+
@@ -379,7 +440,8 @@ var provision_users_dashboard =
                 '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
               '</div>'+
               '<div class="large-12 columns">'+
-                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">'+
+                '<div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
                 '</div>'+
               '</div>'+
             '</div>'+

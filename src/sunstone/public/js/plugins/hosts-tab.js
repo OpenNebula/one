@@ -541,7 +541,7 @@ function updateHostsView (request,host_list){
         ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
         info_str = allocated_cpu + ' / ' + max_cpu ;
     } else {
-        info_str = "";
+        info_str = "- / -";
     }
 
     //$("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
@@ -559,7 +559,7 @@ function updateHostsView (request,host_list){
         ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
         info_str = real_cpu + ' / ' + max_cpu;
     } else {
-        info_str = "";
+        info_str = "- / -";
     }
 
     //$("#dash_host_real_cpu").html(usageBarHtml(real_cpu, max_cpu, info_str, true));
@@ -590,8 +590,9 @@ function updateHostsView (request,host_list){
       {"percentage": ratio_allocated_mem, "str": info_str })
     );
 
+    var ratio_real_mem = 0;
     if (max_mem > 0) {
-        var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+        ratio_real_mem = Math.round((real_mem / max_mem) * 100);
         info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem);
     } else {
         info_str = humanize_size(real_mem) + ' / -';

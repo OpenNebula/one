@@ -3593,6 +3593,8 @@ function quotaFloatLimit(limit, default_limit){
 }
 
 function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota){
+    var percentage = quota.percentage > 100 ? 100 : quota.percentage;
+
     return '<div class="row">'+
           '<div class="large-12 columns text-center" style="margin-bottom: 5px">'+
             '<span id="'+html_tag+'_percentage" style="font-size:'+font_large_size+';">'+quota.percentage+'</span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
@@ -3601,7 +3603,7 @@ function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quot
         '<div class="row">'+
           '<div class="large-12 columns text-center">'+
             '<div class="progress large radius">'+
-            '  <span id="'+html_tag+'_meter" class="meter" style="width: '+quota.percentage+'%"></span>'+
+            '  <span id="'+html_tag+'_meter" class="meter" style="width: '+percentage+'%"></span>'+
             '</div>'+
           '</div>'+
         '</div>'+
