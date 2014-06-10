@@ -82,7 +82,7 @@ extern "C"
 %name-prefix = "template__"
 %output      = "template_syntax.cc"
 
-%token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY
+%token EQUAL COMMA OBRACKET CBRACKET EQUAL_EMPTY CCDATA
 %token <val_str>    STRING
 %token <val_str>    VARIABLE
 %type  <val_attr>   array_val
@@ -131,6 +131,10 @@ attribute:  VARIABLE EQUAL STRING
                 pattr = new SingleAttribute(name,value);
 
                 tmpl->set(pattr);
+            }
+         | VARIABLE EQUAL CCDATA
+            {
+                YYABORT;
             }
         ;
 

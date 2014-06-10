@@ -50,8 +50,9 @@ extern int template__debug;
     OBRACKET = 260,
     CBRACKET = 261,
     EQUAL_EMPTY = 262,
-    STRING = 263,
-    VARIABLE = 264
+    CCDATA = 263,
+    STRING = 264,
+    VARIABLE = 265
   };
 #endif
 
@@ -65,7 +66,7 @@ union YYSTYPE
     char * val_str;
     void * val_attr;
 
-#line 69 "template_syntax.hh" /* yacc.c:1909  */
+#line 70 "template_syntax.hh" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -84,5 +85,4 @@ struct YYLTYPE
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
-
 #endif /* !YY_TEMPLATE_TEMPLATE_SYNTAX_HH_INCLUDED  */

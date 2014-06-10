@@ -159,8 +159,9 @@ extern int template__debug;
     OBRACKET = 260,
     CBRACKET = 261,
     EQUAL_EMPTY = 262,
-    STRING = 263,
-    VARIABLE = 264
+    CCDATA = 263,
+    STRING = 264,
+    VARIABLE = 265
   };
 #endif
 
@@ -174,7 +175,7 @@ union YYSTYPE
     char * val_str;
     void * val_attr;
 
-#line 178 "template_syntax.cc" /* yacc.c:355  */
+#line 179 "template_syntax.cc" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -202,7 +203,7 @@ int template__parse (mem_collector * mc, Template *      tmpl, char **         e
 
 /* Copy the second part of user declarations.  */
 
-#line 206 "template_syntax.cc" /* yacc.c:358  */
+#line 207 "template_syntax.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -446,21 +447,21 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  7
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   16
+#define YYLAST   15
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  10
+#define YYNTOKENS  11
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  11
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  20
+#define YYNSTATES  21
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   264
+#define YYMAXUTOK   265
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -495,15 +496,15 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9
+       5,     6,     7,     8,     9,    10
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    94,    94,    95,    98,    99,   102,   112,   125,   137,
-     150
+       0,    94,    94,    95,    98,    99,   102,   112,   125,   135,
+     141,   154
 };
 #endif
 
@@ -513,8 +514,8 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "EQUAL", "COMMA", "OBRACKET", "CBRACKET",
-  "EQUAL_EMPTY", "STRING", "VARIABLE", "$accept", "template_file",
-  "template", "attribute", "array_val", YY_NULLPTR
+  "EQUAL_EMPTY", "CCDATA", "STRING", "VARIABLE", "$accept",
+  "template_file", "template", "attribute", "array_val", YY_NULLPTR
 };
 #endif
 
@@ -523,7 +524,8 @@ static const char *const yytname[] =
    (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261,   262,   263,   264
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
+     265
 };
 # endif
 
@@ -541,8 +543,9 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -8,    -3,     2,    -8,    -9,    -2,    -9,    -9,    -9,    -1,
-      -9,     6,     1,     3,     4,    -9,    -9,     7,     8,    -9
+      -8,    -2,     7,    -8,    -9,    -5,    -9,    -9,    -9,    -1,
+      -9,    -9,     8,     2,     1,     3,    -9,    -9,     9,     5,
+      -9
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -551,19 +554,20 @@ static const yytype_int8 yypact[] =
 static const yytype_uint8 yydefact[] =
 {
        2,     0,     0,     3,     4,     0,     8,     1,     5,     0,
-       6,     0,     0,     0,     0,     7,     9,     0,     0,    10
+       9,     6,     0,     0,     0,     0,     7,    10,     0,     0,
+      11
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -9,    -9,    -9,     9,    -9
+      -9,    -9,    -9,    12,    -9
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     4,    12
+      -1,     2,     3,     4,    13
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -571,36 +575,37 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-       5,     1,     7,     9,     6,    14,    10,    15,    11,    13,
-      18,    16,     8,    17,     0,     0,    19
+       9,     5,     1,    10,    11,     6,    15,     7,    16,    12,
+      17,    14,    19,    18,    20,     8
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-       3,     9,     0,     5,     7,     4,     8,     6,     9,     3,
-       3,     8,     3,     9,    -1,    -1,     8
+       5,     3,    10,     8,     9,     7,     4,     0,     6,    10,
+       9,     3,     3,    10,     9,     3
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     9,    11,    12,    13,     3,     7,     0,    13,     5,
-       8,     9,    14,     3,     4,     6,     8,     9,     3,     8
+       0,    10,    12,    13,    14,     3,     7,     0,    14,     5,
+       8,     9,    10,    15,     3,     4,     6,     9,    10,     3,
+       9
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    10,    11,    11,    12,    12,    13,    13,    13,    14,
-      14
+       0,    11,    12,    12,    13,    13,    14,    14,    14,    14,
+      15,    15
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     0,     1,     1,     2,     3,     5,     2,     3,
-       5
+       3,     5
 };
 
 
@@ -1392,7 +1397,7 @@ yyreduce:
 
                 tmpl->set(pattr);
             }
-#line 1396 "template_syntax.cc" /* yacc.c:1646  */
+#line 1401 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 7:
@@ -1409,7 +1414,7 @@ yyreduce:
 
                 delete amap;
             }
-#line 1413 "template_syntax.cc" /* yacc.c:1646  */
+#line 1418 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 8:
@@ -1423,11 +1428,19 @@ yyreduce:
 
                 tmpl->set(pattr);
             }
-#line 1427 "template_syntax.cc" /* yacc.c:1646  */
+#line 1432 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 138 "template_syntax.y" /* yacc.c:1646  */
+#line 136 "template_syntax.y" /* yacc.c:1646  */
+    {
+                YYABORT;
+            }
+#line 1440 "template_syntax.cc" /* yacc.c:1646  */
+    break;
+
+  case 10:
+#line 142 "template_syntax.y" /* yacc.c:1646  */
     {
                 map<string,string>* vattr;
                 string              name((yyvsp[-2].val_str));
@@ -1440,11 +1453,11 @@ yyreduce:
 
                 (yyval.val_attr) = static_cast<void *>(vattr);
             }
-#line 1444 "template_syntax.cc" /* yacc.c:1646  */
+#line 1457 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
-  case 10:
-#line 151 "template_syntax.y" /* yacc.c:1646  */
+  case 11:
+#line 155 "template_syntax.y" /* yacc.c:1646  */
     {
                 string               name((yyvsp[-2].val_str));
                 string               value((yyvsp[0].val_str));
@@ -1457,11 +1470,11 @@ yyreduce:
                 attrmap->insert(make_pair(name,unescape(value)));
                 (yyval.val_attr) = (yyvsp[-4].val_attr);
             }
-#line 1461 "template_syntax.cc" /* yacc.c:1646  */
+#line 1474 "template_syntax.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1465 "template_syntax.cc" /* yacc.c:1646  */
+#line 1478 "template_syntax.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1696,7 +1709,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 164 "template_syntax.y" /* yacc.c:1906  */
+#line 168 "template_syntax.y" /* yacc.c:1906  */
 
 
 string& unescape (string &str)
