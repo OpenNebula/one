@@ -45,14 +45,14 @@ start() {
     daemon --user oneadmin $SUNSTONE_BIN start-sunstone
     RETVAL=$?
 
-	echo
+    echo
     [ $RETVAL -eq 0 ] && {
-		touch $LOCKFILE
-		echo $(ps -ef|grep su[n]stone-server | awk '{print $2}') > $PID_FILE
-	}
+        touch $LOCKFILE
+        echo $(ps -ef|grep su[n]stone-server | awk '{print $2}') > $PID_FILE
+        service opennebula-novnc start
+    }
 
     return $RETVAL
-    service opennebula-novnc start
 }
 
 stop() {
@@ -63,8 +63,8 @@ stop() {
     daemon --user oneadmin $SUNSTONE_BIN stop-sunstone
     RETVAL=$?
 
-	[ $RETVAL -eq 0 ] && success || failure
-	echo
+    [ $RETVAL -eq 0 ] && success || failure
+    echo
     [ $RETVAL -eq 0 ] && rm -f $LOCKFILE $PID_FILE
 
     return $RETVAL
