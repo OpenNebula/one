@@ -1418,73 +1418,99 @@ function provision_list_vms(opts){
   '</dl>';
 }
 
+var info_flow_accordion_id = 0;
 
-var provision_list_flows = '<div id="provision_list_flows" class="hidden section_content">'+
-  '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
-      '<h2 class="subheader">'+
-        '<span class="">'+
+function provision_info_flow(){
+  info_flow_accordion_id += 1;
+  return "";
+}
+
+var list_flows_accordion_id = 0;
+
+function provision_list_flows(opts){
+  list_flows_accordion_id += 1;
+  return '<dl class="accordion accordion_list provision_list_flows" data-accordion>'+
+    '<dd class="'+ (opts.active ? 'active' : '') +'">'+
+      '<a href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
+        '<h2 class="subheader">'+
           tr("Flows")+
-        '</span>'+
-      '</h2>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
-      '<ul class="inline-list provision_action_icons">'+
-        '<li>'+
-          '<a href"#" class="provision_create_flow_button">'+
-            '<i class="fa fa-fw fa-lg fa-plus-square"/>'+tr("Create")+
-          '</a>'+
-        '</li>'+
-        '<li>'+
-          '<a href"#" id="provision_flows_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
-            '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
-          '</a>'+
-        '</li>'+
-        '<li>'+
-          '<a href"#" id="provision_flows_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
-            '<i class="fa fa-fw fa-lg fa-filter"/>'+tr("Filter")+
-          '</a>'+
-        '</li>'+
-        '<li>'+
-          '<a href"#" id="provision_flows_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
-            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
-          '</a>'+
-        '</li>'+
-      '</ul>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
-      '<ul class="inline-list">'+
-        '<li>'+
-          '<input type="search" class="provision-search-input right" placeholder="Search" id="provision_list_flows_search" style="display: none"/>'+
-        '</li>'+
-        '<li>'+
-          '<span id="provision_list_flows_filter" style="display: none"></span>'+
-          '<span>'+
-        '</li>'+
-      '</ul>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
-      '<table id="provision_flows_table">'+
-        '<thead class="hidden">'+
-          '<tr>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-            '<th>'+tr("User ID")+'</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody class="hidden">'+
-        '</tbody>'+
-      '</table>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-'</div>';
+          '<span class="provision_info_flow_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
+          '</span>'+
+          '<span class="right button small only-not-active radius">'+
+            '<i class="fa fa-fw fa-lg fa-th"/> '+
+            tr("Show List") +
+          '</span>' +
+        '</h2>'+
+      '</a>'+
+      '<div id="provision_list_flow_accordion'+list_flows_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
+        '<div class="">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<ul class="inline-list provision_action_icons">'+
+                '<li>'+
+                  '<a href"#" class="provision_create_flow_button">'+
+                    '<i class="fa fa-fw fa-lg fa-plus-square"/>'+tr("Create")+
+                  '</a>'+
+                '</li>'+
+                '<li>'+
+                  '<a href"#" class="provision_flows_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
+                    '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
+                  '</a>'+
+                '</li>'+
+                '<li>'+
+                  '<a href"#" class="provision_flows_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+                    '<i class="fa fa-fw fa-lg fa-filter"/>'+tr("Filter")+
+                  '</a>'+
+                '</li>'+
+                '<li>'+
+                  '<a href"#" class="provision_flows_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+                    '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+                  '</a>'+
+                '</li>'+
+              '</ul>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<ul class="inline-list">'+
+                '<li>'+
+                  '<input type="search" class="provision_list_flows_search provision-search-input right" placeholder="Search" style="display: none"/>'+
+                '</li>'+
+                '<li>'+
+                  '<span class="provision_list_flows_filter" style="display: none"></span>'+
+                  '<span>'+
+                '</li>'+
+              '</ul>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<table class="provision_flows_table">'+
+                '<thead class="hidden">'+
+                  '<tr>'+
+                    '<th>'+tr("ID")+'</th>'+
+                    '<th>'+tr("Name")+'</th>'+
+                    '<th>'+tr("User ID")+'</th>'+
+                  '</tr>'+
+                '</thead>'+
+                '<tbody class="hidden">'+
+                '</tbody>'+
+              '</table>'+
+              '<br>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</dd>'+
+    '<dd>'+
+      '<a class="provision_show_flow_accordion" href="#provision_show_flow_accordion'+list_flows_accordion_id+'">'+
+      '</a>'+
+      '<div id="provision_show_flow_accordion'+list_flows_accordion_id+'" class="content">'+
+        provision_info_flow +
+      '<div>'+
+    '<dd>'+
+  '</dl>';
+}
 
 var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section_content hidden">'+
   '<div class="row">'+
@@ -1642,13 +1668,14 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
 }
 
 if (Config.isTabPanelEnabled("provision-tab", "flows")) {
-  provision_content += provision_list_flows;
+  provision_content += '<div class="provision_flows_list_section hidden section_content">'
+  provision_content += '</div>'
   provision_content += provision_create_flow;
 }
 
 var provision_header = '<a href="#" class="provision_image_header" ><img src="images/one_small_logo.png" style="height:40px; vertical-align:top"></a>'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
-   '<ul class="inline-list text-center" style="font-size:12px">';
+   '<ul class="inline-list text-center" style="font-size:12px; margin-bottom: 0px">';
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_header +=
@@ -1684,7 +1711,7 @@ if (Config.isTabPanelEnabled("provision-tab", "flows")) {
       '<a href"#" class="medium off-color" id="provision_user_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-user"/><br>'+config['display_name']+'</a>'+
     '</li>'+
     '<li>'+
-      '<a href="#" data-dropdown="provision_zone_selector" class="button small radius secondary dropdown off-color" id="zonelector" style="background: #fff; padding:0px; font-size: 12px;">'+
+      '<a href="#" data-dropdown="provision_zone_selector" class="button small radius secondary dropdown off-color" id="zonelector" style="padding:0px; font-size: 12px;">'+
         '<i class="fa fa-home fa-2x header-icon" style="margin-bottom: 2px"/><br> ' + config['zone_name'] +
       '</a>'+
       '<ul id="provision_zone_selector" data-dropdown-content class="zone-ul f-dropdown"></ul>'+
@@ -2830,9 +2857,9 @@ function show_provision_vm_list(timeout, context) {
 
 function show_provision_flow_list(timeout) {
   $(".section_content").hide();
-  $("#provision_list_flows").fadeIn();
+  $(".provision_flows_list_section").fadeIn();
 
-  update_provision_flows_datatable(provision_flows_datatable, timeout);
+  $(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
 }
 
 function show_provision_user_list(timeout) {
@@ -4027,15 +4054,183 @@ function generate_provision_vms_list(context, opts) {
   setup_info_vm(context);
 }
 
+
+function setup_provision_flows_list(context){
+  //
+  // List Flows
+  //
+
+  provision_flows_datatable = $('.provision_flows_table', context).dataTable({
+    "iDisplayLength": 6,
+    "sDom" : '<"H">t<"F"lp>',
+    "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+    "aaSorting"  : [[0, "desc"]],
+    "aoColumnDefs": [
+        { "bVisible": false, "aTargets": ["all"]}
+    ],
+    "aoColumns": [
+        { "mDataProp": "DOCUMENT.ID" },
+        { "mDataProp": "DOCUMENT.NAME" },
+        { "mDataProp": "DOCUMENT.UID" }
+    ],
+    "fnPreDrawCallback": function (oSettings) {
+      // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+      if (this.$('tr', {"filter": "applied"} ).length == 0) {
+        this.html('<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+            tr("Looks like you don't have any Flow. Click the button below to get started")+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-6 large-centered columns">'+
+              '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+tr("Create a new Flow")+'</a>'+
+            '</div>'+
+          '</div>'+
+          '<br>'+
+          '<br>'+
+          '</div>');
+      } else {
+        $(".provision_flows_table", context).html('<ul class="provision_flows_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+      }
+
+      return true;
+    },
+    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      var data = aData.DOCUMENT;
+      var body = data.TEMPLATE.BODY;
+      var state = get_provision_flow_state(body);
+      var start_time = get_provision_flow_start_time(body);
+
+      var roles_li = "";
+      if (body.roles) {
+        $.each(body.roles, function(index, role) {
+          var role_state = get_provision_flow_state(role);
+          var rvms = {
+            str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
+            percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
+          }
+
+          roles_li +=
+            '<li class="provision-bullet-item text-left" style="padding-top:0px; margin-left: 10px;">'+
+              '<i class="fa fa-fw fa-cube"/>&emsp;'+
+              role.name+
+            '</li>'+
+            '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+              '<div class="progress small radius" style="margin-bottom:0px">'+
+              '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
+              '</div>'+
+            '</li>'+
+            '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 11px">'+
+              //'<span class="'+ state.color +'-color">'+
+              //  state.str+
+              //'</span>'+
+              '<span class="right">'+rvms.str+" VMs</span>"+
+            '</li>';
+        });
+      }
+
+      $(".provision_flows_ul", context).append('<li>'+
+          '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+            '<li class="provision-title text-left" style="padding-bottom: 0px">'+
+              '<a class="provision_info_flow_button" style="color:#333" href="#">'+ data.NAME + '</a>'+
+              '<a class="provision_info_flow_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
+            '</li>'+
+            '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-bottom:10px; padding-bottom:10px;">'+
+              '<span class="'+ state.color +'-color left">'+
+                '<i class="fa fa-fw fa-square"/>&emsp;'+
+                state.str+
+              '</span>'+
+            '</li>'+
+            //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+            //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+            //  'x'+data.TEMPLATE.CPU+' - '+
+            //  ((data.TEMPLATE.MEMORY > 1000) ?
+            //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+            //    (data.TEMPLATE.MEMORY+'MB'))+
+            //'</li>'+
+            //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+            //  get_provision_disk_image(data) +
+            //'</li>'+
+            //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
+            //  get_provision_ips(data) +
+            //'</li>'+
+            //'<li class="provision-bullet-item text-left" style="margin-bottom: 5px; margin-left: 10px">'+
+            //  '<i class="fa fa-fw fa-user"/>&emsp;'+
+            //  data.UNAME+
+            //'</li>'+
+            roles_li +
+            '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
+              '<span class="left">'+
+                '<i class="fa fa-fw fa-user"/>&emsp;'+
+                data.UNAME+
+              '</span>'+
+              '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                (start_time ? _format_date(start_time) : '-') +
+              '</span>'+
+            '</li>'+
+            //'<li class="provision-bullet-item" style="padding: 0px">'+
+            //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
+            //'</li>'+
+          '</ul>'+
+        '</li>');
+
+      return nRow;
+    }
+  });
+
+  $('.provision_list_flows_search', context).keyup(function(){
+    provision_flows_datatable.fnFilter( $(this).val() );
+  })
+
+  $('.provision_list_flows_search', context).change(function(){
+    provision_flows_datatable.fnFilter( $(this).val() );
+  })
+
+  context.on("click", ".provision_flows_list_refresh_button", function(){
+    OpenNebula.Helper.clear_cache("SERVICE");
+    update_provision_flows_datatable(provision_flows_datatable, 0);
+  });
+
+  context.on("click", ".provision_flows_list_search_button", function(){
+    $(".provision_list_flows_search", context).fadeIn();
+  });
+
+  context.on("click", ".provision_flows_list_filter_button", function(){
+    insertSelectOptions(".provision_list_flows_filter", context, "User", config['user_id'], false,
+        '<option value="-2">'+tr("<< all >>")+'</option>');
+
+    $(".provision_list_flows_filter", context).on("change", ".resource_list_select", function(){
+      var filter;
+      if ($(this).val() == "-2"){
+        filter = "";
+      } else {
+        filter = $(this).val();
+      }
+
+      provision_flows_datatable.fnFilter( filter, 2 );
+    })
+
+    $(".provision_list_flows_filter", context).fadeIn();
+  });
+}
+
+function generate_provision_flows_list(context, opts) {
+  context.html(provision_list_flows(opts));
+  setup_provision_flows_list(context);
+  //setup_info_vm(context);
+}
+
 $(document).ready(function(){
   $(document).foundation({
     accordion: {
-      // specify the class used for active (or open) accordion panels
-      active_class: 'active',
-      // allow multiple accordion panels to be active at the same time
-      multi_expand: false,
-      // allow accordion panels to be closed by clicking on their headers
-      // setting to false only closes accordion panels when another is opened
       toggleable: false
     }
   });
@@ -4068,6 +4263,7 @@ $(document).ready(function(){
     })
 
     generate_provision_vms_list($(".provision_vms_list_section"), {active: true});
+    generate_provision_flows_list($(".provision_flows_list_section"), {active: true});
 
     //
     // Dashboard
@@ -4078,6 +4274,12 @@ $(document).ready(function(){
     $(".provision_vms_list_button").on("click", function(){
       OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
+    });
+
+
+    $(".provision_flows_list_button").on("click", function(){
+      OpenNebula.Helper.clear_cache("SERVICE");
+      show_provision_flow_list(0);
     });
 
     //
@@ -5184,176 +5386,6 @@ $(document).ready(function(){
     // List VMs
     //
 
-
-    //
-    // List Flows
-    //
-
-    provision_flows_datatable = $('#provision_flows_table').dataTable({
-      "iDisplayLength": 6,
-      "sDom" : '<"H">t<"F"lp>',
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aaSorting"  : [[0, "desc"]],
-      "aoColumnDefs": [
-          { "bVisible": false, "aTargets": ["all"]}
-      ],
-      "aoColumns": [
-          { "mDataProp": "DOCUMENT.ID" },
-          { "mDataProp": "DOCUMENT.NAME" },
-          { "mDataProp": "DOCUMENT.UID" }
-      ],
-      "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("Looks like you don't have any Flow. Click the button below to get started")+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-6 large-centered columns">'+
-                '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+tr("Create a new Flow")+'</a>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<br>'+
-            '</div>');
-        } else {
-          $("#provision_flows_table").html('<ul id="provision_flows_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
-      },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.DOCUMENT;
-        var body = data.TEMPLATE.BODY;
-        var state = get_provision_flow_state(body);
-        var start_time = get_provision_flow_start_time(body);
-
-        var roles_li = "";
-        if (body.roles) {
-          $.each(body.roles, function(index, role) {
-            var role_state = get_provision_flow_state(role);
-            var rvms = {
-              str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
-              percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
-            }
-
-            roles_li +=
-              '<li class="provision-bullet-item text-left" style="padding-top:0px; margin-left: 10px;">'+
-                '<i class="fa fa-fw fa-cube"/>&emsp;'+
-                role.name+
-              '</li>'+
-              '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
-                '<div class="progress small radius" style="margin-bottom:0px">'+
-                '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
-                '</div>'+
-              '</li>'+
-              '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 11px">'+
-                //'<span class="'+ state.color +'-color">'+
-                //  state.str+
-                //'</span>'+
-                '<span class="right">'+rvms.str+" VMs</span>"+
-              '</li>';
-          });
-        }
-
-        $("#provision_flows_ul").append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" style="padding-bottom: 0px">'+
-                '<a class="provision_info_flow_button" style="color:#333" href="#">'+ data.NAME + '</a>'+
-                '<a class="provision_info_flow_button right" style="color:#555;" href="#"><i class="fa fa-fw fa-lg fa-sign-in right only-on-hover"/></a>'+
-              '</li>'+
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-bottom:10px; padding-bottom:10px;">'+
-                '<span class="'+ state.color +'-color left">'+
-                  '<i class="fa fa-fw fa-square"/>&emsp;'+
-                  state.str+
-                '</span>'+
-              '</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
-              //  '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              //  'x'+data.TEMPLATE.CPU+' - '+
-              //  ((data.TEMPLATE.MEMORY > 1000) ?
-              //    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-              //    (data.TEMPLATE.MEMORY+'MB'))+
-              //'</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
-              //  get_provision_disk_image(data) +
-              //'</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-left: 10px">'+
-              //  get_provision_ips(data) +
-              //'</li>'+
-              //'<li class="provision-bullet-item text-left" style="margin-bottom: 5px; margin-left: 10px">'+
-              //  '<i class="fa fa-fw fa-user"/>&emsp;'+
-              //  data.UNAME+
-              //'</li>'+
-              roles_li +
-              '<li class="provision-bullet-item text-right" style="font-size:12px; color: #999; margin-top:15px; padding-bottom:10px">'+
-                '<span class="left">'+
-                  '<i class="fa fa-fw fa-user"/>&emsp;'+
-                  data.UNAME+
-                '</span>'+
-                '<span style="font-size:12px; color: #999; padding-bottom:10px">'+
-                  '<i class="fa fa-fw fa-clock-o"/>'+
-                  (start_time ? _format_date(start_time) : '-') +
-                '</span>'+
-              '</li>'+
-              //'<li class="provision-bullet-item" style="padding: 0px">'+
-              //  '<div style="height:1px" class="'+ state.color +'-bg"></div>'+
-              //'</li>'+
-            '</ul>'+
-          '</li>');
-
-        return nRow;
-      }
-    });
-
-    $('#provision_list_flows_search').keyup(function(){
-      provision_flows_datatable.fnFilter( $(this).val() );
-    })
-
-    $('#provision_list_flows_search').change(function(){
-      provision_flows_datatable.fnFilter( $(this).val() );
-    })
-
-    $(".provision_flows_list_button").on("click", function(){
-      OpenNebula.Helper.clear_cache("SERVICE");
-      show_provision_flow_list(0);
-    });
-
-    $("#provision_list_flows").on("click", "#provision_flows_list_refresh_button", function(){
-      OpenNebula.Helper.clear_cache("SERVICE");
-      show_provision_flow_list(0);
-    });
-
-    $("#provision_list_flows").on("click", "#provision_flows_list_search_button", function(){
-      $("#provision_list_flows_search", $("#provision_list_flows")).fadeIn();
-    });
-
-    $("#provision_list_flows").on("click", "#provision_flows_list_filter_button", function(){
-      insertSelectOptions("#provision_list_flows_filter", $("#provision_list_flows"), "User", config['user_id'], false,
-          '<option value="-2">'+tr("<< all >>")+'</option>');
-
-      $("#provision_list_flows_filter ").on("change", ".resource_list_select", function(){
-        var filter;
-        if ($(this).val() == "-2"){
-          filter = "";
-        } else {
-          filter = $(this).val();
-        }
-
-        provision_flows_datatable.fnFilter( filter, 2 );
-      })
-
-      $("#provision_list_flows_filter", $("#provision_list_flows")).fadeIn();
-    });
 
     //
     // List Users
