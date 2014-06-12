@@ -547,6 +547,7 @@ var vnets_tab = {
           <th>'+tr("Owner")+'</th>\
           <th>'+tr("Group")+'</th>\
           <th>'+tr("Name")+'</th>\
+          <th>'+tr("Reservation")+'</th>\
           <th>'+tr("Cluster")+'</th>\
           <th>'+tr("Bridge")+'</th>\
           <th>'+tr("Leases")+'</th>\
@@ -586,6 +587,7 @@ function vNetworkElementArray(vn_json){
         network.UNAME,
         network.GNAME,
         network.NAME,
+        network.PARENT_NETWORK_ID.length ? tr("Yes") : tr("No"),
         network.CLUSTER.length ? network.CLUSTER : "-",
         network.BRIDGE,
         quotaBarHtml(network.USED_LEASES, total_size) ];

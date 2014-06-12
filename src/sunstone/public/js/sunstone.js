@@ -4737,6 +4737,7 @@ function generateVNetTableSelect(context_id){
         tr("Owner"),
         tr("Group"),
         tr("Name"),
+        tr("Reservation"),
         tr("Cluster"),
         tr("Bridge"),
         tr("Leases")
