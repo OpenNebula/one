@@ -652,7 +652,7 @@ div.dataTables_scrollFoot table {
   //border: 1px solid #efefef;
   //box-shadow: 0px 1px #dfdfdf;
   padding: 5px;
-  border: 3px solid #f7f7f7 !important;
+  border: 1px solid #dfdfdf !important;
 
   .provision-title  {
     @include pricing-table-title;
@@ -701,7 +701,7 @@ div.dataTables_scrollFoot table {
   }
 
   &:not(.selected):hover {
-    border-color: #cfcfcf !important;
+    border-color: #afafaf !important;
 
     .only-on-hover {
       color: #0099c3 !important
@@ -710,7 +710,7 @@ div.dataTables_scrollFoot table {
 
   &.selected {
     //border: 1px solid #0099c3;
-    border: 3px solid #0099c3 !important;
+    border: 1px solid #0099c3 !important;
   }
 
 }
@@ -791,7 +791,6 @@ div.dataTables_scrollFoot table {
 }
 
 .alert-box.secondary {
-  background: #fff !important;
   margin-top: 10px;
 }
 
@@ -807,15 +806,27 @@ hr {
 }
 
 .provision_action_icons {
-  font-size: 14px;
   margin-bottom: 5px;
+  font-size: 14px;
 
-  a {
-    color: #555;
+  .white {
+    color: #007d9c;
+    background: #fff ;
+    //border-width: 1px ;
+    border-color: $primary-color ;
+  }
 
+  a{
     &:hover {
       color: $primary-color;
     }
+
+    color: #007d9c;
+
+    i {
+      color: #555;
+    }
+
   }
 }
 
@@ -836,18 +847,51 @@ hr {
         margin-right: 10px;
         color: #777;
       }
+    }
 
-      &.active {
-        .fa-chevron-down {
-          display: none;
-        }
-      }
-
-      &:not(.active){
-        .fa-chevron-up {
-          display: none;
-        }
+    &.active {
+      .fa-chevron-down {
+        display: none;
       }
     }
+
+    &:not(.active){
+      .fa-chevron-up {
+        display: none;
+      }
+    }
+  }
+}
+
+.accordion_list {
+  dd {
+    &>a {
+      padding: 0px;
+      background: #fff !important
+    }
+    &>.content {
+      padding: 15px 0px;
+    }
+
+    &:first-child.active {
+      .only-not-active {
+        display: none;
+      }
+    }
+
+    &:first-child>a {
+      border-bottom: 1px solid #efefef;
+    }
+  }
+
+}
+
+.vm_info_inline_list {
+  .fa:not(.fa-square) {
+    color: #afafaf;
+  }
+
+  li {
+    margin-right: 30px;
   }
 }
