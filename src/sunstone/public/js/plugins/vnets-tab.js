@@ -478,7 +478,8 @@ var vnet_buttons = {
     "Network.reserve_dialog" : {
         type: "action",
         layout: "main",
-        text: tr("Reserve")
+        text: tr("Reserve"),
+        custom_classes: "only-right-info reserve-right-info",
     },
     "Network.addtocluster" : {
         type: "confirm_with_select",
@@ -640,6 +641,14 @@ function updateVNetworkInfo(request,vn){
               <td class="value_td">'+vn_info.PARENT_NETWORK_ID+'</td>\
               <td></td>\
             </tr>';
+
+        $(".reserve-right-info").prop("disabled", true);
+        $(".reserve-right-info").addClass("has-tip")
+        $(".reserve-right-info").attr("title", tr("This Network is already a reservation"));
+    } else{
+        $(".reserve-right-info").prop("disabled", false);
+        $(".reserve-right-info").removeClass("has-tip")
+        $(".reserve-right-info").removeAttr("title"));
     }
 
     var info_tab_content =
