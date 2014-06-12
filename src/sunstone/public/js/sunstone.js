@@ -1244,7 +1244,6 @@ function tableCheckboxesListener(dataTable, custom_context){
         else
         {
             $(this).parents('tr').children().removeClass('markrowchecked');
-            $(this).parents('tr').children().removeClass('markrowselected');
         }
 
         recountCheckboxes(datatable, context);
@@ -1254,9 +1253,22 @@ function tableCheckboxesListener(dataTable, custom_context){
 // Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,dataTable){
-    var selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[1]).html();
-    if (!selected_row_id) selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[0]).html();
+    var selected_row_id = null;
     var checked_row_ids = new Array();
+
+    var row_id_index = dataTable.attr("row_id");
+
+    if(row_id_index != undefined){
+        $.each($(dataTable.fnGetNodes()), function(){
+            if($('td.markrow',this).length!=0)
+            {
+                var aData = dataTable.fnGetData(this);
+
+                selected_row_id = aData[row_id_index];
+
+            }
+        });
+    }
 
     $.each($(dataTable.fnGetNodes()), function(){
         if($('td.markrowchecked',this).length!=0)
@@ -1293,12 +1305,15 @@ function updateView(item_list,dataTable){
         dataTable.fnDraw(true);
     };
 
-    if(selected_row_id)
+    if(selected_row_id != undefined)
     {
         $.each($(dataTable.fnGetNodes()),function(){
-            if($($('td',this)[1]).html()==selected_row_id)
+
+            var aData = dataTable.fnGetData(this);
+
+            if(aData[row_id_index] == selected_row_id)
             {
-                $('td',this)[2].click();
+                $('td',this)[0].click();
             }
         });
     }
@@ -4711,4 +4726,178 @@ function retrieveWizardFields(dialog, template_json){
             template_json[field_name] = field.val();
         }
     });
+}
+
+
+function generateVNetTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Cluster"),
+        tr("Bridge"),
+        tr("Leases")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "select_resource": tr("Please select a network from the list"),
+        "you_selected": tr("You selected the following network:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+function setupVNetTableSelect(section, context_id, filter_fn){
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0,1] },
+              { "bVisible": false, "aTargets": [0,7]}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+
+        "update_fn": function(datatable){
+            OpenNebula.Network.list({
+                timeout: true,
+                success: function (request, networks_list){
+                    var network_list_array = [];
+
+                    $.each(networks_list,function(){
+                        var add = true;
+
+                        if(filter_fn){
+                            add = filter_fn(this.VNET);
+                        }
+
+                        if(add){
+                            network_list_array.push(vNetworkElementArray(this));
+                        }
+                    });
+
+                    updateView(network_list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateResourceTableSelect(context_id, columns, options){
+    if (!options.select_resource){
+        options.select_resource = tr("Please select a resource from the list");
+    }
+
+    if (!options.you_selected){
+        options.you_selected = tr("You selected the following resource:");
+    }
+
+    if (options.id_index == undefined){
+        options.id_index = 0;
+    }
+
+    var thead = '<thead><tr>';
+
+    $.each(columns, function(){
+        thead += '<th>'+this+'</th>'
+    });
+
+    thead += '</tr></thead>';
+
+    var html =
+    '<div class="row">\
+      <div class="large-8 columns">\
+         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+      </div>\
+      <div class="large-4 columns">\
+        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="datatable_'+context_id+'" class="datatable twelve" row_id="'+options.id_index+'">\
+          '+thead+'\
+          <tbody id="tbody_datatable_'+context_id+'">\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <span id="select_resource_'+context_id+'" class="radius secondary label">'+options.select_resource+'</span>\
+        <span id="selected_resource_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected+'</span>\
+        <input id="selected_resource_id_'+context_id+'" type="text"/>\
+        <span id="selected_resource_name_'+context_id+'" class="radius label" type="text"></span>\
+      </div>\
+    </div>';
+
+    return html;
+}
+
+function setupResourceTableSelect(section, context_id, options) {
+
+    if (options.id_index == undefined){
+        options.id_index = 0;
+    }
+
+    if (options.name_index == undefined){
+        options.name_index = 1;
+    }
+
+    var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
+
+    $('#refresh_button_'+context_id).die();
+
+    $('#refresh_button_'+context_id).live('click', function(){
+        options.update_fn($('table[id=datatable_'+context_id+']').dataTable());
+    });
+
+    $('#'+context_id+'_search', section).keyup(function(){
+        dataTable_select.fnFilter( $(this).val() );
+    })
+
+    dataTable_select.fnSort( [ [1,config['user_config']['table_order']] ] );
+
+    $('#selected_resource_id_'+context_id, section).hide();
+    $('#selected_resource_name_'+context_id, section).hide();
+
+    $('#datatable_'+context_id+' tbody', section).delegate("tr", "click", function(e){
+        dataTable_select.unbind("draw");
+        var aData = dataTable_select.fnGetData(this);
+
+        $("td.markrow", dataTable_select).removeClass('markrow');
+        $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+        $('#selected_resource_'+context_id, section).show();
+        $('#select_resource_'+context_id, section).hide();
+        $('.alert-box', section).hide();
+
+        $("td", this).addClass('markrow');
+        $('input.check_item', this).attr('checked','checked');
+
+        $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]);
+        $('#selected_resource_id_'+context_id, section).hide();
+
+        $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]);
+        $('#selected_resource_name_'+context_id, section).show();
+
+        return true;
+    });
+
+    setupTips(section);
 }

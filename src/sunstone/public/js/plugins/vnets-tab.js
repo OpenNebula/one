@@ -1737,6 +1737,7 @@ function popUpReserveDialog(id){
     $('#vnet_id',$reserve_dialog).text(id);
 
     $('#refresh_button_reserve').click();
+    $('#refresh_button_ar_reserve').click();
 
     $reserve_dialog.foundation().foundation('reveal', 'open');
 }
@@ -1779,6 +1780,28 @@ function setupReserveDialog(){
         <div id="reserve_add_body">\
           '+generateVNetTableSelect("reserve")+'\
         </div>\
+        <div class="row">\
+          <div class="large-12 columns">\
+            <dl class="tabs wizard_tabs" data-tab>\
+              <dd><a href="#advanced_reserve">'+tr("Advanced options")+'</a></dd>\
+            </dl>\
+          </div>\
+        </div>\
+        <div class="tabs-content">\
+          <div class="content" id="advanced_reserve">\
+            <div class="row">\
+              <div class="large-12 columns">\
+                '+generateARTableSelect("ar_reserve")+'\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="reserve_addr">'+tr("First address")+':</label>\
+                <input wizard_field="addr" type="text" id="reserve_addr" placeholder="'+tr("IPv4 or MAC")+'"/>\
+              </div>\
+            </div>\
+          </div>\
+        </div\
         <div class="reveal-footer">\
           <div class="form_buttons">\
             <button class="button radius right success" id="submit_reserve_button" type="submit" value="Network.reserve">'+tr("Reserve")+'</button>\
@@ -1817,6 +1840,13 @@ function setupReserveDialog(){
         return (vnet['PARENT_NETWORK_ID'] == $('#vnet_id',dialog).text());
     });
 
+    $("input#selected_resource_id_reserve", dialog).attr("wizard_field", "vnet");
+
+    setupARTableSelect(dialog, "ar_reserve", function(section){
+        return $('#vnet_id',section).text();
+    });
+
+    $("input#selected_resource_id_ar_reserve", dialog).attr("wizard_field", "ar_id");
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
@@ -1839,126 +1869,105 @@ function setupReserveDialog(){
     });
 }
 
-function generateVNetTableSelect(context_id){
-    var html =
-    '<div class="row">\
-      <div class="large-8 columns">\
-         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-      </div>\
-      <div class="large-4 columns">\
-        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-      </div>\
-    </div>\
-    <div class="row">\
-      <div class="large-12 columns">\
-        <table id="datatable_vnet_'+context_id+'" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>'+tr("ID")+'</th>\
-              <th>'+tr("Owner")+'</th>\
-              <th>'+tr("Group")+'</th>\
-              <th>'+tr("Name")+'</th>\
-              <th>'+tr("Cluster")+'</th>\
-              <th>'+tr("Bridge")+'</th>\
-              <th>'+tr("Leases")+'</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodynetworks">\
-          </tbody>\
-        </table>\
-      </div>\
-    </div>\
-    <div id="selected_network" class="row">\
-      <div class="large-12 columns">\
-        <span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>\
-        <span id="network_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following network:")+'</span>\
-        <input id="network_selected_id" wizard_field="vnet" type="text"/>\
-        <span id="network_selected_name" class="radius label" type="text"></span>\
-      </div>\
-    </div>';
+function generateARTableSelect(context_id){
+    var columns = [
+        tr("Address Range"),
+        tr("Type"),
+        tr("Start"),
+        tr("IPv6 Prefix"),
+        tr("Leases")
+    ];
 
-    return html;
+    var options = {
+        "id_index": 0,
+        "name_index": 0,
+        "select_resource": tr("Please select an Address Range from the list"),
+        "you_selected": tr("You selected the following Address Range:")
+    }
+
+    return generateResourceTableSelect(context_id, columns, options);
 }
 
-function setupVNetTableSelect(section, context_id, filter_fn) {
-    var dataTable_networks = $('#datatable_vnet_'+context_id, section).dataTable({
-      "bAutoWidth":false,
-      "iDisplayLength": 4,
-      "sDom" : '<"H">t<"F"p>',
-      "bRetrieve": true,
-      "bSortClasses" : false,
-      "bDeferRender": true,
-      "aoColumnDefs": [
-          { "sWidth": "35px", "aTargets": [0,1] },
-          { "bVisible": false, "aTargets": [0,7]}
-        ]
-    });
+function setupARTableSelect(section, context_id, vnet_id_fn){
 
-    $('#refresh_button_'+context_id).die();
-
-    $('#refresh_button_'+context_id).live('click', function(){
-        updateVNetTableSelect($('table[id=datatable_vnet_'+context_id+']').dataTable(), filter_fn);
-    });
-
-    $('#'+context_id+'_search', section).keyup(function(){
-        dataTable_networks.fnFilter( $(this).val() );
-    })
-
-    dataTable_networks.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-    $('#network_selected_id', section).hide();
-    $('#network_selected_name', section).hide();
-
-    $('#datatable_vnet_'+context_id+' tbody', section).delegate("tr", "click", function(e){
-        dataTable_networks.unbind("draw");
-        var aData = dataTable_networks.fnGetData(this);
-
-        $("td.markrow", section).removeClass('markrow');
-        $('tbody input.check_item', dataTable_networks).removeAttr('checked');
-
-        $('#network_selected', section).show();
-        $('#select_network', section).hide();
-        $('.alert-box', section).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#network_selected_id', section).val(aData[1]);
-        $('#network_selected_id', section).hide();
-
-        $('#network_selected_name', section).text(aData[4]);
-        $('#network_selected_name', section).show();
-
-        return true;
-    });
-
-    setupTips(section);
-}
-
-function updateVNetTableSelect(datatable, filter_fn) {
-
-    OpenNebula.Network.list({
-        timeout: true,
-        success: function (request, networks_list){
-            var network_list_array = [];
-
-            $.each(networks_list,function(){
-                var add = true;
-
-                if(filter_fn){
-                    add = filter_fn(this.VNET);
-                }
-
-                if(add){
-                    network_list_array.push(vNetworkElementArray(this));
-                }
-            });
-
-            updateView(network_list_array, datatable);
+    var options = {
+        "dataTable_options": {
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
+            //{ "bSortable": false, "aTargets": [3,4] },
+            ]
         },
-        error: onError
-    });
+
+        "id_index": 0,
+        "name_index": 0,
+
+        "update_fn": function(datatable){
+
+            var vn_id = vnet_id_fn(section);
+
+            OpenNebula.Network.show({
+                data : {
+                    id: vn_id
+                },
+                timeout: true,
+                success: function (request, vn){
+                    var ar_list_array = [];
+
+                    var ar_list = vn.VNET.AR_POOL.AR;
+
+                    if (!ar_list) //empty
+                    {
+                        // TODO: message there are no address ranges
+                        ar_list = [];
+                    }
+                    else if (ar_list.constructor != Array) //>1 lease
+                    {
+                        ar_list = [ar_list];
+                    }
+
+                    $.each(ar_list, function(){
+                        var ar = this;
+                        var id = ar.AR_ID;
+
+                        var start;
+
+                        if(ar.TYPE == "IP4" || ar.TYPE == "IP4_6"){
+                            start = (ar.IP ? ar.IP : "--");
+                        } else {
+                            start = (ar.MAC ? ar.MAC : "--");
+                        }
+
+                        var prefix = "";
+
+                        if(ar.GLOBAL_PREFIX && ar.ULA_PREFIX){
+                            prefix += ar.GLOBAL_PREFIX + "<br>" + ar.ULA_PREFIX;
+                        } else if (ar.GLOBAL_PREFIX){
+                            prefix += ar.GLOBAL_PREFIX;
+                        } else if (ar.ULA_PREFIX){
+                            prefix += ar.ULA_PREFIX;
+                        } else {
+                            prefix = "--";
+                        }
+
+                        ar_list_array.push([
+                            id,
+                            (ar.TYPE ? ar.TYPE : "--"),
+                            start,
+                            prefix,
+                            quotaBarHtml(ar.USED_LEASES, ar.SIZE)
+                        ]);
+                    });
+
+
+                    updateView(ar_list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
 }
 
 //The DOM is ready and the ready() from sunstone.js
