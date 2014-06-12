@@ -718,6 +718,8 @@ function updateVNetworkInfo(request,vn){
         ]
     });
 
+    ar_list_dataTable.fnSort( [ [0,config['user_config']['table_order']] ] );
+
     $('tbody tr',ar_list_dataTable).die("click");
     $('tbody tr',ar_list_dataTable).live("click",function(e){
         var aData = ar_list_dataTable.fnGetData(this);
@@ -1818,9 +1820,13 @@ function setupReserveDialog(){
     $('input#reserve_new', dialog).prop('checked', true);
     $('input#reserve_new', dialog).change();
 
-    setupVNetTableSelect(dialog, "reserve", function(vnet){
-        return (vnet['PARENT_NETWORK_ID'] == $('#vnet_id',dialog).text());
-    });
+    var options = {
+        filter_fn: function(vnet){
+            return (vnet['PARENT_NETWORK_ID'] == $('#vnet_id',dialog).text());
+        }
+    };
+
+    setupVNetTableSelect(dialog, "reserve", options);
 
     $("input#selected_resource_id_reserve", dialog).attr("wizard_field", "vnet");
 

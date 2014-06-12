@@ -4753,7 +4753,26 @@ function generateVNetTableSelect(context_id){
     return generateResourceTableSelect(context_id, columns, options);
 }
 
-function setupVNetTableSelect(section, context_id, filter_fn){
+function setupVNetTableSelect(section, context_id, opts){
+
+    var bVisible = opts.bVisible;
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('vnets-tab');
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -4764,7 +4783,8 @@ function setupVNetTableSelect(section, context_id, filter_fn){
           "bDeferRender": true,
           "aoColumnDefs": [
               { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,7]}
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
             ]
         },
 
@@ -4780,8 +4800,8 @@ function setupVNetTableSelect(section, context_id, filter_fn){
                     $.each(networks_list,function(){
                         var add = true;
 
-                        if(filter_fn){
-                            add = filter_fn(this.VNET);
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.VNET);
                         }
 
                         if(add){
@@ -4872,7 +4892,7 @@ function setupResourceTableSelect(section, context_id, options) {
         dataTable_select.fnFilter( $(this).val() );
     })
 
-    dataTable_select.fnSort( [ [1,config['user_config']['table_order']] ] );
+    dataTable_select.fnSort( [ [options.id_index, config['user_config']['table_order']] ] );
 
     $('#selected_resource_id_'+context_id, section).hide();
     $('#selected_resource_name_'+context_id, section).hide();
