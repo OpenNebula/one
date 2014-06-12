@@ -572,6 +572,14 @@ function vNetworkElementArray(vn_json){
 
     addresses_vnets = addresses_vnets + parseInt(network.USED_LEASES);
 
+    var total_size = 0;
+
+    var ar_list = get_ar_list(network);
+
+    $.each(ar_list, function(){
+        total_size += parseInt(this.SIZE);
+    });
+
     return [
         '<input class="check_item" type="checkbox" id="vnetwork_'+network.ID+'" name="selected_items" value="'+network.ID+'"/>',
         network.ID,
@@ -580,7 +588,7 @@ function vNetworkElementArray(vn_json){
         network.NAME,
         network.CLUSTER.length ? network.CLUSTER : "-",
         network.BRIDGE,
-        network.USED_LEASES ];
+        quotaBarHtml(network.USED_LEASES, total_size) ];
 }
 
 //Callback to update a vnet element after an action on it
@@ -746,19 +754,40 @@ function updateVNetworkInfo(request,vn){
     setPermissionsTable(vn_info,'');
 }
 
-function ar_list_tab_content(vn_info){
-
+function get_ar_list(vn_info){
     var ar_list = vn_info.AR_POOL.AR;
 
     if (!ar_list) //empty
     {
-        // TODO: message there are no address ranges
         ar_list = [];
     }
     else if (ar_list.constructor != Array) //>1 lease
     {
         ar_list = [ar_list];
-    };
+    }
+
+    return ar_list;
+}
+
+function get_ar(vn_info, ar_id){
+    var ar_list = get_ar_list(vn_info);
+    var ar = undefined;
+
+    for (var i=0; i<ar_list.length; i++){
+        if (ar_id == ar_list[i].AR_ID){
+            ar = ar_list[i];
+            break;
+        }
+    }
+
+    return ar;
+}
+
+function ar_list_tab_content(vn_info){
+
+    var ar_list = get_ar_list(vn_info);
+
+    // TODO: message there are no address ranges
 
     var html =
     '<form id="ar_list_form" vnid="'+vn_info.ID+'">';
@@ -870,29 +899,9 @@ function ar_list_tab_content(vn_info){
 
 function ar_show_info(vn_info, ar_id){
 
-    var ar_list = vn_info.AR_POOL.AR;
+    var ar = get_ar(vn_info, ar_id);
 
-    if (!ar_list) //empty
-    {
-        ar_list = [];
-    }
-    else if (ar_list.constructor != Array) //>1 lease
-    {
-        ar_list = [ar_list];
-    };
-
-    var found = false;
-    var ar;
-
-    for (var i=0; i<ar_list.length; i++){
-        if (ar_id == ar_list[i].AR_ID){
-            ar = $.extend({}, ar_list[i]);
-            found = true;
-            break;
-        }
-    }
-
-    if(!found){
+    if(ar == undefined){
         return "";
     }
 
@@ -967,16 +976,7 @@ function ar_show_info(vn_info, ar_id){
 // It adds the "add lease", "hold lease" fields, and each lease comes with
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){
-    var ar_list = vn_info.AR_POOL.AR;
-
-    if (!ar_list) //empty
-    {
-        ar_list = [];
-    }
-    else if (ar_list.constructor != Array) //>1 lease
-    {
-        ar_list = [ar_list];
-    };
+    var ar_list = get_ar_list(vn_info);
 
     var html =
     '<form id="leases_form" vnid="'+vn_info.ID+'">';
@@ -1566,27 +1566,7 @@ function setupLeasesOps(){
             success: function (request, vn){
                 var vn_info = vn.VNET;
 
-                var ar_list = vn_info.AR_POOL.AR;
-
-                if (!ar_list) //empty
-                {
-                    ar_list = [];
-                }
-                else if (ar_list.constructor != Array) //>1 lease
-                {
-                    ar_list = [ar_list];
-                };
-
-                var found = false;
-                var ar;
-
-                for (var i=0; i<ar_list.length; i++){
-                    if (ar_id == ar_list[i].AR_ID){
-                        ar = ar_list[i];
-                        found = true;
-                        break;
-                    }
-                }
+                var ar = get_ar(vn_info, ar_id);
 
                 if(found){
                     popUpUpdateAR(id, ar);
@@ -1914,17 +1894,7 @@ function setupARTableSelect(section, context_id, vnet_id_fn){
                 success: function (request, vn){
                     var ar_list_array = [];
 
-                    var ar_list = vn.VNET.AR_POOL.AR;
-
-                    if (!ar_list) //empty
-                    {
-                        // TODO: message there are no address ranges
-                        ar_list = [];
-                    }
-                    else if (ar_list.constructor != Array) //>1 lease
-                    {
-                        ar_list = [ar_list];
-                    }
+                    var ar_list = get_ar_list(vn.VNET);
 
                     $.each(ar_list, function(){
                         var ar = this;
