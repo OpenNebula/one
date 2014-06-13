@@ -648,7 +648,7 @@ function updateVNetworkInfo(request,vn){
     } else{
         $(".reserve-right-info").prop("disabled", false);
         $(".reserve-right-info").removeClass("has-tip")
-        $(".reserve-right-info").removeAttr("title"));
+        $(".reserve-right-info").removeAttr("title");
     }
 
     var info_tab_content =
