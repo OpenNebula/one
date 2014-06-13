@@ -786,7 +786,16 @@ function updateVNetworkInfo(request,vn){
             $(this).addClass('markrowchecked');
         });
 
-        $("#update_ar_button", $("#vnet_info_panel")).attr("ar_id", id).removeAttr('disabled');
+        if (get_ar(vn_info, id).PARENT_NETWORK_AR_ID != undefined){
+            $("#update_ar_button", $("#vnet_info_panel")).prop("disabled", true);
+            $("#update_ar_button", $("#vnet_info_panel")).addClass("has-tip");
+            $("#update_ar_button", $("#vnet_info_panel")).attr("title", tr("This address range is a reservation"));
+        } else{
+            $("#update_ar_button", $("#vnet_info_panel")).prop("disabled", false);
+            $("#update_ar_button", $("#vnet_info_panel")).removeClass("has-tip");
+            $("#update_ar_button", $("#vnet_info_panel")).removeAttr("title");
+        }
+
         $("#rm_ar_button", $("#vnet_info_panel")).attr("ar_id", id).removeAttr('disabled');
 
         $("#ar_show_info", $("#vnet_info_panel")).html(ar_show_info(vn_info, id));
@@ -827,7 +836,7 @@ function get_ar(vn_info, ar_id){
 
     for (var i=0; i<ar_list.length; i++){
         if (ar_id == ar_list[i].AR_ID){
-            ar = ar_list[i];
+            ar = $.extend({}, ar_list[i]);
             break;
         }
     }
@@ -981,8 +990,8 @@ function ar_show_info(vn_info, ar_id){
 
     // TODO: translate ar.TYPE values?
     html += ar_attr(tr("Type"),         ar.TYPE);
-    html += ar_attr(tr("MAC"),          ar.MAC);
-    html += ar_attr(tr("IP"),           ar.IP);
+    html += ar_attr(tr("MAC Start"),    ar.MAC);
+    html += ar_attr(tr("IP Start"),     ar.IP);
     html += ar_attr(tr("Global prefix"),ar.GLOBAL_PREFIX);
     html += ar_attr(tr("ULA prefix"),   ar.ULA_PREFIX);
     html += ar_attr(tr("Size"),         ar.SIZE);
@@ -1555,6 +1564,10 @@ function fill_ar_tab_data(ar_json, ar_section){
     delete ar_json["LEASES"];
 
     fillCustomTags(ar_section, ar_json);
+
+    $('input[name$="ar_type"]',ar_section).prop("disabled", true);
+    $('input[wizard_field="IP"]',ar_section).prop("disabled", true);
+    $('input[wizard_field="MAC"]',ar_section).prop("disabled", true);
 };
 
 // Listeners to the add, hold, release, delete leases operations in the
@@ -1635,7 +1648,7 @@ function setupLeasesOps(){
 
                 var ar = get_ar(vn_info, ar_id);
 
-                if(found){
+                if(ar != undefined){
                     popUpUpdateAR(id, ar);
                 } else {
                     notifyError(tr("The Adress Range was not found"));
