@@ -43,46 +43,72 @@ var create_vn_tmpl =
           <div class="content active" id="vnetCreateGeneralTab">\
             <div class="row">\
               <div class="large-6 columns">\
-                <label for="name" >' + tr("Name") + ':</label>\
+                <label for="name" >' + tr("Name") + ':\
+                  <span class="tip">'+tr("Name that the Virtual Network will get for description purposes.")+'</span>\
+                </label>\
                 <input type="text" name="name" id="name"/>\
               </div>\
             </div>\
             <div class="row">\
               <div class="large-6 columns">\
-                <label for="DESCRIPTION" >' + tr("Description") + ':</label>\
+                <label for="DESCRIPTION" >' + tr("Description") + ':\
+                  <span class="tip">'+tr("Description of the Virtual Network")+'</span>\
+                </label>\
                 <textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>\
               </div>\
             </div>\
             <br>\
             <div class="row">\
               <div class="large-6 columns">\
-                  <label for="net_address">'+tr("N. Address")+':</label>\
+                  <label for="net_address">'+tr("Network address")+':\
+                    <span class="tip">'+tr("Base network address. For example, 192.168.1.0")+'</span>\
+                  </label>\
                   <input type="text" name="net_address" id="net_address" />\
               </div>\
               <div class="large-6 columns">\
-                  <label for="net_mask">'+tr("N. Mask")+':</label>\
+                  <label for="net_mask">'+tr("Network mask")+':\
+                    <span class="tip">'+tr("Network mask. For example, 255.255.255.0")+'</span>\
+                  </label>\
                   <input type="text" name="net_mask" id="net_mask" />\
               </div>\
             </div>\
             <div class="row">\
               <div class="large-6 columns">\
-                  <label for="net_dns">'+tr("DNS")+':</label>\
-                  <input type="text" name="net_dns" id="net_dns" />\
+                  <label for="net_gateway">'+tr("Gateway")+':\
+                    <span class="tip">'+tr("Router for this network. Leave empty if the network is not routable")+'</span>\
+                  </label>\
+                  <input type="text" name="net_gateway" id="net_gateway" />\
               </div>\
               <div class="large-6 columns">\
-                  <label for="net_gateway">'+tr("Gateway")+':</label>\
-                  <input type="text" name="net_gateway" id="net_gateway" />\
+                  <label for="net_gateway6">'+tr("IPv6 Gateway")+':\
+                    <span class="tip">'+tr("IPv6 Router for this network")+'</span>\
+                  </label>\
+                  <input type="text" name="net_gateway6" id="net_gateway6" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_dns">'+tr("DNS")+':\
+                    <span class="tip">'+tr("Specific DNS for this network")+'</span>\
+                  </label>\
+                  <input type="text" name="net_dns" id="net_dns" />\
               </div>\
             </div>\
           </div>\
           <div class="content" id="vnetCreateBridgeTab">\
             <div class="row">\
               <div class="large-6 columns">\
-                  <label for="bridge">'+tr("Bridge")+':</label>\
+                  <label for="bridge">'+tr("Bridge")+':\
+                    <span class="tip">'+tr("Name of the physical bridge in the physical host where the VM should connect its network interface")+'</span>\
+                  </label>\
                   <input type="text" name="bridge" id="bridge" />\
               </div>\
+            </div>\
+            <div class="row">\
               <div class="large-6 columns">\
-                <label for="network_mode">'+tr("Network model")+':</label>\
+                <label for="network_mode">'+tr("Network model")+':\
+                  <span class="tip">'+tr("Choose the same networking model you chose for the hosts that will use this newtork")+'</span>\
+                </label>\
                 <select name="network_mode" id="network_mode">\
                   <option value="default">'+tr("Default")+'</option>\
                   <option value="802.1Q">'+tr("802.1Q")+'</option>\
@@ -91,19 +117,30 @@ var create_vn_tmpl =
                   <option value="vmware">'+tr("VMware")+'</option>\
                 </select>\
               </div>\
+              <div class="large-6 columns">\
+                <div class="network_mode_description text-justify" value="default">'+tr("Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored.")+'</div>\
+                <div class="network_mode_description text-justify" value="802.1Q">'+tr("802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches.")+'</div>\
+                <div class="network_mode_description text-justify" value="ebtables">'+tr("ebtables: restrict network access through Ebtables rules. No special hardware configuration required.")+'</div>\
+                <div class="network_mode_description text-justify" value="openvswitch">'+tr("Open vSwitch: restrict network access with Open vSwitch Virtual Switch.")+'</div>\
+                <div class="network_mode_description text-justify" value="vmware">'+tr("VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor.")+'</div>\
+              </div>\
             </div>\
             <div class="row">\
               <div class="large-6 columns">\
                 <div class="row">\
                   <div class="large-6 columns">\
-                    <label for="vlan">'+tr("VLAN")+':</label>\
+                    <label for="vlan">'+tr("VLAN")+':\
+                      <span class="tip">'+tr("Whether or not to isolate this virtual network using the Virtual Network Manager drivers")+'</span>\
+                    </label>\
                     <select name="vlan" id="vlan">\
                         <option value="YES" selected="selected">'+tr("Yes")+'</option>\
                         <option value="NO">'+tr("No")+'</option>\
                      </select>\
                   </div>\
                   <div class="large-6 columns">\
-                    <label for="vlan_id">'+tr("VLAN ID")+':</label>\
+                    <label for="vlan_id">'+tr("VLAN ID")+':\
+                      <span class="tip">'+tr("Optional: Set a specific VLAN id")+'</span>\
+                    </label>\
                     <input type="text" name="vlan_id" id="vlan_id" />\
                   </div>\
                 </div>\
@@ -111,7 +148,9 @@ var create_vn_tmpl =
               <div class="large-6 columns">\
                 <div class="row">\
                   <div class="large-12 columns">\
-                    <label for="phydev">'+tr("Physical device")+':</label>\
+                    <label for="phydev">'+tr("Physical device")+':\
+                      <span class="tip">'+tr("Name of the physical network device that will be attached to the bridge")+'</span>\
+                    </label>\
                     <input type="text" name="phydev" id="phydev" />\
                   </div>\
                 </div>\
@@ -643,11 +682,11 @@ function updateVNetworkInfo(request,vn){
             </tr>';
 
         $(".reserve-right-info").prop("disabled", true);
-        $(".reserve-right-info").addClass("has-tip")
+        $(".reserve-right-info").addClass("has-tip");
         $(".reserve-right-info").attr("title", tr("This Network is already a reservation"));
     } else{
         $(".reserve-right-info").prop("disabled", false);
-        $(".reserve-right-info").removeClass("has-tip")
+        $(".reserve-right-info").removeClass("has-tip");
         $(".reserve-right-info").removeAttr("title");
     }
 
@@ -1154,6 +1193,9 @@ function setupCreateVNetDialog() {
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
             break;
         };
+
+        $("div.network_mode_description").hide();
+        $('div.network_mode_description[value="'+$(this).val()+'"]').show();
     });
 
     //Initialize shown options
@@ -1303,6 +1345,8 @@ CONTEXT_FORCE_IPV4  When a vnet is IPv6 the IPv4 is not configured unless this a
         popUpCreateVnetDialog();
         $("a[href='#vnet_advanced']").click();
     });
+
+    setupTips(dialog);
 }
 
 function popUpCreateVnetDialog() {
@@ -1347,26 +1391,36 @@ function generate_ar_tab_content(str_ar_tab_id){
     <div class="row">\
       <div class="large-6 columns">\
         <div class="row collapse ar_input type_ip4 type_ip4_6">\
-          <label for="'+str_ar_tab_id+'_ip_start">'+tr("IP Start")+':</label>\
+          <label for="'+str_ar_tab_id+'_ip_start">'+tr("IP Start")+':\
+            <span class="tip">'+tr("First IP address")+'</span>\
+          </label>\
           <input wizard_field="IP" type="text" name="IP" id="'+str_ar_tab_id+'_ip_start"/>\
         </div>\
         <div class="row collapse ar_input type_ip4 type_ip4_6 type_ip6 type_ether">\
-          <label for="'+str_ar_tab_id+'_mac_start">'+tr("MAC Start")+':</label>\
+          <label for="'+str_ar_tab_id+'_mac_start">'+tr("MAC Start")+':\
+            <span class="tip">'+tr("First MAC address")+'</span>\
+          </label>\
           <input wizard_field="MAC" type="text" name="MAC" id="'+str_ar_tab_id+'_mac_start" />\
         </div>\
       </div>\
       <div class="large-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">\
-        <label for="'+str_ar_tab_id+'_size">'+tr("Size")+':</label>\
+        <label for="'+str_ar_tab_id+'_size">'+tr("Size")+':\
+          <span class="tip">'+tr("Number of addresses in the range")+'</span>\
+        </label>\
         <input wizard_field="SIZE" type="text" name="SIZE" id="'+str_ar_tab_id+'_size" />\
       </div>\
     </div>\
     <div class="row">\
       <div class="large-6 columns ar_input type_ip4_6 type_ip6">\
-        <label for="'+str_ar_tab_id+'_global_prefix">'+tr("Global prefix")+':</label>\
+        <label for="'+str_ar_tab_id+'_global_prefix">'+tr("Global prefix")+':\
+          <span class="tip">'+tr("IPv6 global address prefix to create leases")+'</span>\
+        </label>\
         <input wizard_field="GLOBAL_PREFIX" type="text" name="GLOBAL_PREFIX" id="'+str_ar_tab_id+'_global_prefix"/>\
       </div>\
       <div class="large-6 columns ar_input type_ip4_6 type_ip6">\
-        <label for="'+str_ar_tab_id+'_ula_prefix">'+tr("ULA prefix")+':</label>\
+        <label for="'+str_ar_tab_id+'_ula_prefix">'+tr("ULA prefix")+':\
+          <span class="tip">'+tr("IPv6 unique local address (ULA) prefix to create leases")+'</span>\
+        </label>\
         <input wizard_field="ULA_PREFIX" type="text" name="ULA_PREFIX" id="'+str_ar_tab_id+'_ula_prefix"/>\
       </div>\
     </div>\
