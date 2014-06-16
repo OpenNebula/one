@@ -1209,53 +1209,34 @@ var provision_info_vm =
     '<div class="large-12 large-centered columns">'+
       '<ul class="inline-list provision_action_icons">'+
         '<li>'+
-          '<a href"#" data-tooltip title="Open a VNC console in a new window" class="provision_vnc_button tip-top">'+
-            '<i class="fa fa-fw fa-lg fa-desktop"/>'+tr("Console")+
+          '<a href"#" data-tooltip title="Open a VNC console in a new window" class="left button medium radius provision_vnc_button tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-desktop"/> '+
           '</a>'+
-        '</li>'+
-        '<li>'+
-          '<span data-tooltip title="You have to boot the Virtual Machine first" class="provision_vnc_button_disabled tip-top" style="color: #999">'+
-            '<i class="fa fa-fw fa-lg fa-desktop"/>'+tr("Console")+
-          '</span>'+
-        '</li>'+
-        '<li>'+
-          '<a href"#" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="provision_snapshot_button tip-top">'+
-            '<i class="fa fa-fw fa-lg fa-save"/>'+tr("Save VM")+
+          '<a data-tooltip title="You have to boot the Virtual Machine first" class="left button medium radius white provision_vnc_button_disabled tip-top" style="color: #999">'+
+            '<i class="fa fa-fw fa-lg fa-desktop"/> '+
           '</a>'+
-        '</li>'+
-        '<li>'+
-          '<span data-tooltip title="You have to power-off the virtual machine first" class="provision_snapshot_button_disabled tip-top" style="color: #999">'+
-            '<i class="fa fa-fw fa-lg fa-save"/>'+tr("Save VM")+
-          '</span>'+
-        '</li>'+
-        '<li class="right">'+
-          '<a href"#" data-tooltip title="Delete" class="provision_delete_confirm_button tip-top right">'+
-            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+tr("Delete")+
+          '<a href"#" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="left button medium radius success provision_snapshot_button tip-top">'+
+            '<i class="fa fa-fw fa-lg fa-save"/> '+
           '</a>'+
-          '</li>'+
-        '<li class="right">'+
-        '<a href"#" data-tooltip title="Delete" class="provision_shutdownhard_confirm_button tip-top right">'+
-            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+tr("Delete")+
+          '<a data-tooltip title="You have to power-off the virtual machine first" class="left button medium radius white provision_snapshot_button_disabled tip-top" style="color: #999">'+
+            '<i class="fa fa-fw fa-lg fa-save"/> '+
           '</a>'+
         '</li>'+
         '<li class="right">'+
-          '<a href"#" data-tooltip title="Power off" class="provision_poweroff_confirm_button tip-top right">'+
-            '<i class="fa fa-fw fa-lg fa-power-off"/>'+tr("Power off")+
+          '<a href"#" data-tooltip title="Delete" class="button medium radius alert provision_delete_confirm_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+
           '</a>'+
-        '</li>'+
-        '<li class="right">'+
-          '<a href"#" data-tooltip title="Power on" class="provision_poweron_button tip-top right">'+
-            '<i class="fa fa-fw fa-lg fa-play"/>'+tr("Power on")+
+          '<a href"#" data-tooltip title="Delete" class="button medium radius alert provision_shutdownhard_confirm_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+
           '</a>'+
-        '</li>'+
-        '<li class="right">'+
-          '<a href"#" data-tooltip title="Reboot" class="provision_reboot_confirm_button tip-top right">'+
-            '<i class="fa fa-fw fa-lg fa-repeat"/>'+tr("Reboot")+
+          '<a href"#" data-tooltip title="Power off" class="button medium radius secondary provision_poweroff_confirm_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-power-off"/> '+
           '</a>'+
-        '</li>'+
-        '<li>'+
-          '<a href"#" class="provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'">'+
-            '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
+          '<a href"#" data-tooltip title="Power on" class="button medium radius secondary provision_poweron_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-play"/> '+
+          '</a>'+
+          '<a href"#" data-tooltip title="Reboot" class="button medium radius secondary provision_reboot_confirm_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-repeat"/> '+
           '</a>'+
         '</li>'+
       '</ul>'+
@@ -1333,65 +1314,55 @@ var provision_info_vm =
 
 var list_vms_accordion_id = 0;
 
-function provision_list_vms(opts){
+function provision_list_vms(opts_arg){
+  opts = $.extend({
+      title: tr("Virtual Machines"),
+      refresh: true,
+      create: true,
+      filter: true
+    },opts_arg)
+
   list_vms_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_vms" data-accordion>'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
       '<a href="#provision_list_vm_accordion'+list_vms_accordion_id+'">'+
         '<h2 class="subheader">'+
-          tr("Virtual Machines")+
+          opts.title +
           '<span class="provision_info_vm_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
           '</span>'+
-          '<span class="right button small only-not-active radius">'+
+          (opts.refresh ?
+          '<span href"#" class="right only-active button medium radius secondary provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/> '+
+          '</span>'+
+          '<span href"#" class="right only-not-active button medium radius secondary provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+          '</span>'
+          : '') +
+          '<span class="right button medium only-not-active radius">'+
             '<i class="fa fa-fw fa-lg fa-th"/> '+
-            tr("Show List") +
+            '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
+            //tr("Show List") +
           '</span>' +
+          (opts.filter ?
+          '<span href"#" class="right only-active button medium radius secondary provision_vms_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+            '<i class="fa fa-fw fa-lg fa-filter"/> '+
+          '</span>'+
+          '<span class="provision_list_vms_filter" style="display: none"></span>'+
+          '<span>'
+          : '') +
+          '<input type="search" class="right only-active provision_list_vms_search provision-search-input right" placeholder="Search"/>'+
+          (opts.create ?
+          '<span href"#" class="right only-active button medium radius success provision_create_vm_button">'+
+            '<i class="fa fa-fw fa-lg fa-plus-square"/> '+
+          '</span>'
+          : '') +
         '</h2>'+
       '</a>'+
       '<div id="provision_list_vm_accordion'+list_vms_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
         '<div class="">'+
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
-              '<ul class="inline-list provision_action_icons">'+
-                '<li>'+
-                  '<a href"#" class="provision_create_vm_button">'+
-                    '<i class="fa fa-fw fa-lg fa-plus-square"/> '+tr("Create")+
-                  '</a>'+
-                '</li>'+
-                '<li class="right">'+
-                  '<a href"#" class="provision_vms_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
-                    '<i class="fa fa-fw fa-lg fa-search"/> '+tr("Search")+
-                  '</a>'+
-                '</li>'+
-                '<li class="right">'+
-                  '<a href"#" class="provision_vms_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
-                    '<i class="fa fa-fw fa-lg fa-filter"/> '+tr("Filter")+
-                  '</a>'+
-                '</li>'+
-                '<li>'+
-                  '<a href"#" class="provision_vms_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
-                    '<i class="fa fa-fw fa-lg fa-refresh"/> '+tr("Refresh")+
-                  '</a>'+
-                '</li>'+
-              '</ul>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
-              '<ul class="inline-list">'+
-                '<li>'+
-                  '<input type="search" class="provision_list_vms_search provision-search-input right" placeholder="Search" style="display: none"/>'+
-                '</li>'+
-                '<li>'+
-                  '<span class="provision_list_vms_filter" style="display: none"></span>'+
-                  '<span>'+
-                '</li>'+
-              '</ul>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
-              '<table class="provision_vms_table">'+
+              '<table class="provision_vms_table" '+ (opts.data ? "data='"+JSON.stringify(opts.data)+"'" : "") +'>'+
                 '<thead class="hidden">'+
                   '<tr>'+
                     '<th>'+tr("ID")+'</th>'+
@@ -1418,12 +1389,80 @@ function provision_list_vms(opts){
   '</dl>';
 }
 
-var info_flow_accordion_id = 0;
-
-function provision_info_flow(){
-  info_flow_accordion_id += 1;
-  return "";
-}
+var provision_info_flow =
+'<div class="text-center provision_info_flow_loading">'+
+  '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+    '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+  '</span>'+
+  '<br>'+
+  '<br>'+
+  '<span style="font-size: 18px; color: #999">'+
+  '</span>'+
+'</div>'+
+'<div class="provision_info_flow">'+
+  '<div class="row">'+
+    '<div class="large-12 large-centered columns">'+
+      '<ul class="inline-list provision_action_icons">'+
+        '<li>'+
+          '<a href"#" data-tooltip title="Recover a failed service, cleaning the failed VMs" class="left button medium radius success">'+
+            '<i class="fa fa-fw fa-lg fa-wrench"/> '+
+          '</a>'+
+        '</li>'+
+        '<li class="right">'+
+          '<a href"#" data-tooltip title="Delete" class="button medium radius alert provision_delete_confirm_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-trash-o"/>'+
+          '</a>'+
+        '</li>'+
+      '</ul>'+
+    '</div>'+
+  '</div>'+
+  '<div class="row">'+
+    '<div class="provision_confirm_action large-10 large-centered columns">'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-4 columns">'+
+      '<ul class="provision-pricing-table_flow_info provision-pricing-table" style="border: 0px !important; background: #fff;">'+
+      '</ul>'+
+    '</div>'+
+    '<div class="large-8 columns">'+
+      //'<div class="row">'+
+      //  '<div class="large-12 columns">'+
+      //    '<h3 class="subheader">'+
+      //      tr("Roles")+
+      //    '</h3>'+
+      //  '</div>'+
+      //'</div>'+
+      '<div class="row">'+
+        '<div class="large-12 columns">'+
+          '<ul class="provision_roles_ul large-block-grid-2 medium-block-grid-2 small-block-grid-1 text-center">'+
+          '</ul>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="provision_role_vms_container large-12 large-centered columns">'+
+    '</div>'+
+  '</div>'+
+  //'<br>'+
+  //'<div class="row">'+
+  //  '<div class="provision_info_flow_state large-11 large-centered columns">'+
+  //  '</div>'+
+  //'</div>'+
+  //'<div class="row">'+
+  //  '<div class="provision_info_flow_state_hr large-11 large-centered columns">'+
+  //  '</div>'+
+  //'</div>'+
+  //'<div class="row">'+
+  //  '<div class="provision_info_flow_resume large-11 large-centered columns">'+
+  //  '</div>'+
+  //'</div>'+
+'</div>';
 
 var list_flows_accordion_id = 0;
 
@@ -1431,58 +1470,35 @@ function provision_list_flows(opts){
   list_flows_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_flows" data-accordion>'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
-      '<a href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
+      '<a class="provision_list_flow_accordion" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
         '<h2 class="subheader">'+
           tr("Flows")+
           '<span class="provision_info_flow_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
           '</span>'+
-          '<span class="right button small only-not-active radius">'+
+          '<span href"#" class="only-active right button radius medium secondary provision_flows_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+          '</span>'+
+          '<span href"#" class="only-not-active right button medium radius secondary provision_refresh_info" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+          '</span>'+
+          '<span class="right button medium only-not-active radius">'+
             '<i class="fa fa-fw fa-lg fa-th"/> '+
-            tr("Show List") +
+            '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
+            //tr("Show List") +
           '</span>' +
+          '<span href"#" class="only-active right button radius medium secondary provision_flows_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+            '<i class="fa fa-fw fa-lg fa-filter"/> '+
+          '</span>'+
+          '<span class="only-active right provision_list_flows_filter" style="display: none"></span>'+
+          '<span>'+
+          '<input type="search" class="only-active provision_list_flows_search provision-search-input right" placeholder="Search"/>'+
+          '<span href"#" class="only-active right button radius medium success provision_create_flow_button">'+
+            '<i class="fa fa-fw fa-lg fa-plus-square"/> '+
+          '</span>'+
         '</h2>'+
       '</a>'+
       '<div id="provision_list_flow_accordion'+list_flows_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
         '<div class="">'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
-              '<ul class="inline-list provision_action_icons">'+
-                '<li>'+
-                  '<a href"#" class="provision_create_flow_button">'+
-                    '<i class="fa fa-fw fa-lg fa-plus-square"/>'+tr("Create")+
-                  '</a>'+
-                '</li>'+
-                '<li>'+
-                  '<a href"#" class="provision_flows_list_search_button" data-tooltip title="'+ tr("Search")+'">'+
-                    '<i class="fa fa-fw fa-lg fa-search"/>'+tr("Search")+
-                  '</a>'+
-                '</li>'+
-                '<li>'+
-                  '<a href"#" class="provision_flows_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
-                    '<i class="fa fa-fw fa-lg fa-filter"/>'+tr("Filter")+
-                  '</a>'+
-                '</li>'+
-                '<li>'+
-                  '<a href"#" class="provision_flows_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
-                    '<i class="fa fa-fw fa-lg fa-refresh"/>'+tr("Refresh")+
-                  '</a>'+
-                '</li>'+
-              '</ul>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
-              '<ul class="inline-list">'+
-                '<li>'+
-                  '<input type="search" class="provision_list_flows_search provision-search-input right" placeholder="Search" style="display: none"/>'+
-                '</li>'+
-                '<li>'+
-                  '<span class="provision_list_flows_filter" style="display: none"></span>'+
-                  '<span>'+
-                '</li>'+
-              '</ul>'+
-            '</div>'+
-          '</div>'+
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<table class="provision_flows_table">'+
@@ -1611,6 +1627,12 @@ var provision_info_vdc_user =  '<div id="provision_info_vdc_user" class="section
         '</div>'+
     '</div>'+
   '</div>'+
+  '<br>'+
+  '<div class="row">'+
+    '<div class="large-11 large-centered columns provision_user_vms_list">'+
+    '</div>'+
+  '</div>'+
+  '<br>'+
   '<br>'+
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
@@ -1871,7 +1893,6 @@ var povision_actions = {
 
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
-
 
 function generate_custom_attrs(context, custom_attrs) {
   var text_attrs = [];
@@ -2859,6 +2880,8 @@ function show_provision_flow_list(timeout) {
   $(".section_content").hide();
   $(".provision_flows_list_section").fadeIn();
 
+  $("dd:not(.active) .provision_list_flow_accordion", $(".provision_flows_list_section")).trigger("click");
+
   $(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
 }
 
@@ -3058,6 +3081,34 @@ function update_provision_users_datatable(datatable, timeout) {
   }, timeout );
 }
 
+function fill_provision_vms_datatable(datatable, item_list){
+  datatable.fnClearTable(true);
+  if (item_list.length == 0) {
+    datatable.html('<div class="text-center">'+
+      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<span style="font-size: 18px; color: #999">'+
+        tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-6 large-centered columns">'+
+          '<a href"#" class="medium large-12 button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<br>'+
+      '</div>');
+  } else {
+    datatable.fnAddData(item_list);
+  }
+}
+
 function update_provision_vms_datatable(datatable, timeout) {
   datatable.html('<div class="text-center">'+
     '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
@@ -3074,31 +3125,7 @@ function update_provision_vms_datatable(datatable, timeout) {
     OpenNebula.VM.list({
       timeout: true,
       success: function (request, item_list){
-        datatable.fnClearTable(true);
-        if (item_list.length == 0) {
-          datatable.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-6 large-centered columns">'+
-                '<a href"#" class="medium large-12 button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
-              '</div>'+
-            '</div>'+
-            '<br>'+
-            '<br>'+
-            '</div>');
-        } else {
-          datatable.fnAddData(item_list);
-        }
+        fill_provision_vms_datatable(datatable, item_list)
       },
       error: onError
     })
@@ -3407,173 +3434,6 @@ function get_provision_image_state(data) {
   }
 }
 
-function update_provision_vm_info(vm_id, context) {
-  $(".provision_info_vm", context).hide();
-  $(".provision_info_vm_loading", context).fadeIn();
-
-  OpenNebula.VM.show({
-    data : {
-      id: vm_id
-    },
-    error: onError,
-    success: function(request, response){
-      var data = response.VM
-      var state = get_provision_vm_state(data);
-
-      switch (state.color) {
-        case "deploying":
-          $(".provision_reboot_confirm_button", context).hide();
-          $(".provision_poweroff_confirm_button", context).hide();
-          $(".provision_poweron_button", context).hide();
-          $(".provision_delete_confirm_button", context).show();
-          $(".provision_shutdownhard_confirm_button", context).hide();
-          $(".provision_snapshot_button", context).hide();
-          $(".provision_vnc_button", context).hide();
-          $(".provision_snapshot_button_disabled", context).hide();
-          $(".provision_vnc_button_disabled", context).hide();
-          break;
-        case "running":
-          $(".provision_reboot_confirm_button", context).show();
-          $(".provision_poweroff_confirm_button", context).show();
-          $(".provision_poweron_button", context).hide();
-          $(".provision_delete_confirm_button", context).hide();
-          $(".provision_shutdownhard_confirm_button", context).show();
-          $(".provision_snapshot_button", context).hide();
-          $(".provision_vnc_button", context).show();
-          $(".provision_snapshot_button_disabled", context).show();
-          $(".provision_vnc_button_disabled", context).hide();
-          break;
-        case "off":
-          $(".provision_reboot_confirm_button", context).hide();
-          $(".provision_poweroff_confirm_button", context).hide();
-          $(".provision_poweron_button", context).show();
-          $(".provision_delete_confirm_button", context).show();
-          $(".provision_shutdownhard_confirm_button", context).hide();
-          $(".provision_snapshot_button", context).show();
-          $(".provision_vnc_button", context).hide();
-          $(".provision_snapshot_button_disabled", context).hide();
-          $(".provision_vnc_button_disabled", context).show();
-          break;
-        case "powering_off":
-        case "error":
-          $(".provision_reboot_confirm_button", context).hide();
-          $(".provision_poweroff_confirm_button", context).hide();
-          $(".provision_poweron_button", context).hide();
-          $(".provision_delete_confirm_button", context).show();
-          $(".provision_shutdownhard_confirm_button", context).hide();
-          $(".provision_snapshot_button", context).hide();
-          $(".provision_vnc_button", context).hide();
-          $(".provision_snapshot_button_disabled", context).hide();
-          $(".provision_vnc_button_disabled", context).hide();
-          break;
-        default:
-          color = 'secondary';
-          $(".provision_reboot_confirm_button", context).hide();
-          $(".provision_poweroff_confirm_button", context).hide();
-          $(".provision_poweron_button", context).hide();
-          $(".provision_delete_confirm_button", context).show();
-          $(".provision_shutdownhard_confirm_button", context).hide();
-          $(".provision_snapshot_button", context).hide();
-          $(".provision_vnc_button", context).hide();
-          $(".provision_snapshot_button_disabled", context).hide();
-          $(".provision_vnc_button_disabled", context).hide();
-          break;
-      }
-
-      $(".provision_info_vm", context).attr("vm_id", data.ID);
-      $(".provision_info_vm_name", context).text(data.NAME);
-
-      $(".provision_info_vm_resume", context).html('<ul class="inline-list" style="color: #555; font-size: 14px;">'+
-          '<li>'+
-            '<span>'+
-              '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              'x'+data.TEMPLATE.CPU+' - '+
-              ((data.TEMPLATE.MEMORY > 1000) ?
-                (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                (data.TEMPLATE.MEMORY+'MB'))+
-            '</span>'+
-          '</li>'+
-          '<li>'+
-            '<span>'+
-              get_provision_disk_image(data) +
-            '</span>'+
-          '</li>'+
-          '<li>'+
-            '<span>'+
-              get_provision_ips(data) +
-            '</span>'+
-          '</li>'+
-          '<li class="right">'+
-            '<span style="color: #afafaf;px">'+
-              "ID: " +
-              data.ID+
-            '</span>' +
-          '</li>'+
-        '</ul>');
-
-      $(".provision_info_vm_state", context).html('<ul class="inline-list" style="color: #555; font-size: 14px; margin-bottom: 0px">'+
-          '<li>'+
-            '<span class="'+ state.color +'-color">'+
-              '<i class="fa fa-fw fa-square"/>&emsp;'+
-              state.str+
-            '</span>'+
-          '</li>'+
-          '<li class="right">'+
-            '<span style="color: #999;px">'+
-              '<i class="fa fa-fw fa-clock-o"/>'+
-              _format_date(data.STIME)+
-            '</span>'+
-          '</li>'+
-          '<li class="right">'+
-            '<span style="color: #999;px">'+
-              '<i class="fa fa-fw fa-user"/>&emsp;'+
-              data.UNAME+
-            '</span>'+
-          '</li>'+
-        '</ul>');
-      $(".provision_info_vm_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
-
-      $(".provision_confirm_action", context).html("");
-
-      $(".provision_info_vm_loading", context).hide();
-      $(".provision_info_vm", context).fadeIn();
-
-      OpenNebula.VM.monitor({
-        data : {
-          timeout: true,
-          id: data.ID,
-          monitor: {
-            monitor_resources : "CPU,MEMORY"
-          }
-        },
-        success: function(request, response){
-          var vm_graphs = [
-              {
-                  monitor_resources : "CPU",
-                  labels : "Real CPU",
-                  humanize_figures : false,
-                  div_graph : $(".vm_cpu_graph", context)
-              },
-              {
-                  monitor_resources : "MEMORY",
-                  labels : "Real MEM",
-                  humanize_figures : true,
-                  div_graph : $(".vm_memory_graph", context)
-              }
-          ];
-
-          for(var i=0; i<vm_graphs.length; i++) {
-              plot_graph(
-                  response,
-                  vm_graphs[i]
-              );
-          }
-        }
-      })
-    }
-  })
-}
-
 function update_provision_vdc_user_info(data) {
 
   var context = $("#provision_info_vdc_user");
@@ -3654,6 +3514,174 @@ function update_provision_vdc_user_info(data) {
 }
 
 function setup_info_vm(context) {
+  function update_provision_vm_info(vm_id, context) {
+    $(".provision_info_vm_name", context).text("");
+    $(".provision_info_vm", context).hide();
+    $(".provision_info_vm_loading", context).fadeIn();
+
+    OpenNebula.VM.show({
+      data : {
+        id: vm_id
+      },
+      error: onError,
+      success: function(request, response){
+        var data = response.VM
+        var state = get_provision_vm_state(data);
+
+        switch (state.color) {
+          case "deploying":
+            $(".provision_reboot_confirm_button", context).hide();
+            $(".provision_poweroff_confirm_button", context).hide();
+            $(".provision_poweron_button", context).hide();
+            $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdownhard_confirm_button", context).hide();
+            $(".provision_snapshot_button", context).hide();
+            $(".provision_vnc_button", context).hide();
+            $(".provision_snapshot_button_disabled", context).hide();
+            $(".provision_vnc_button_disabled", context).hide();
+            break;
+          case "running":
+            $(".provision_reboot_confirm_button", context).show();
+            $(".provision_poweroff_confirm_button", context).show();
+            $(".provision_poweron_button", context).hide();
+            $(".provision_delete_confirm_button", context).hide();
+            $(".provision_shutdownhard_confirm_button", context).show();
+            $(".provision_snapshot_button", context).hide();
+            $(".provision_vnc_button", context).show();
+            $(".provision_snapshot_button_disabled", context).show();
+            $(".provision_vnc_button_disabled", context).hide();
+            break;
+          case "off":
+            $(".provision_reboot_confirm_button", context).hide();
+            $(".provision_poweroff_confirm_button", context).hide();
+            $(".provision_poweron_button", context).show();
+            $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdownhard_confirm_button", context).hide();
+            $(".provision_snapshot_button", context).show();
+            $(".provision_vnc_button", context).hide();
+            $(".provision_snapshot_button_disabled", context).hide();
+            $(".provision_vnc_button_disabled", context).show();
+            break;
+          case "powering_off":
+          case "error":
+            $(".provision_reboot_confirm_button", context).hide();
+            $(".provision_poweroff_confirm_button", context).hide();
+            $(".provision_poweron_button", context).hide();
+            $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdownhard_confirm_button", context).hide();
+            $(".provision_snapshot_button", context).hide();
+            $(".provision_vnc_button", context).hide();
+            $(".provision_snapshot_button_disabled", context).hide();
+            $(".provision_vnc_button_disabled", context).hide();
+            break;
+          default:
+            color = 'secondary';
+            $(".provision_reboot_confirm_button", context).hide();
+            $(".provision_poweroff_confirm_button", context).hide();
+            $(".provision_poweron_button", context).hide();
+            $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdownhard_confirm_button", context).hide();
+            $(".provision_snapshot_button", context).hide();
+            $(".provision_vnc_button", context).hide();
+            $(".provision_snapshot_button_disabled", context).hide();
+            $(".provision_vnc_button_disabled", context).hide();
+            break;
+        }
+
+        $(".provision_info_vm", context).attr("vm_id", data.ID);
+        $(".provision_info_vm_name", context).text(data.NAME);
+
+        $(".provision_info_vm_resume", context).html('<ul class="inline-list" style="color: #555; font-size: 14px;">'+
+            '<li>'+
+              '<span>'+
+                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                'x'+data.TEMPLATE.CPU+' - '+
+                ((data.TEMPLATE.MEMORY > 1000) ?
+                  (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+                  (data.TEMPLATE.MEMORY+'MB'))+
+              '</span>'+
+            '</li>'+
+            '<li>'+
+              '<span>'+
+                get_provision_disk_image(data) +
+              '</span>'+
+            '</li>'+
+            '<li>'+
+              '<span>'+
+                get_provision_ips(data) +
+              '</span>'+
+            '</li>'+
+            '<li class="right">'+
+              '<span style="color: #afafaf;px">'+
+                "ID: " +
+                data.ID+
+              '</span>' +
+            '</li>'+
+          '</ul>');
+
+        $(".provision_info_vm_state", context).html('<ul class="inline-list" style="color: #555; font-size: 14px; margin-bottom: 0px">'+
+            '<li>'+
+              '<span class="'+ state.color +'-color">'+
+                '<i class="fa fa-fw fa-square"/>&emsp;'+
+                state.str+
+              '</span>'+
+            '</li>'+
+            '<li class="right">'+
+              '<span style="color: #999;px">'+
+                '<i class="fa fa-fw fa-clock-o"/>'+
+                _format_date(data.STIME)+
+              '</span>'+
+            '</li>'+
+            '<li class="right">'+
+              '<span style="color: #999;px">'+
+                '<i class="fa fa-fw fa-user"/>&emsp;'+
+                data.UNAME+
+              '</span>'+
+            '</li>'+
+          '</ul>');
+        $(".provision_info_vm_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
+
+        $(".provision_confirm_action", context).html("");
+
+        $(".provision_info_vm_loading", context).hide();
+        $(".provision_info_vm", context).fadeIn();
+
+        OpenNebula.VM.monitor({
+          data : {
+            timeout: true,
+            id: data.ID,
+            monitor: {
+              monitor_resources : "CPU,MEMORY"
+            }
+          },
+          success: function(request, response){
+            var vm_graphs = [
+                {
+                    monitor_resources : "CPU",
+                    labels : "Real CPU",
+                    humanize_figures : false,
+                    div_graph : $(".vm_cpu_graph", context)
+                },
+                {
+                    monitor_resources : "MEMORY",
+                    labels : "Real MEM",
+                    humanize_figures : true,
+                    div_graph : $(".vm_memory_graph", context)
+                }
+            ];
+
+            for(var i=0; i<vm_graphs.length; i++) {
+                plot_graph(
+                    response,
+                    vm_graphs[i]
+                );
+            }
+          }
+        })
+      }
+    })
+  }
+
   context.on("click", ".provision_snapshot_button", function(){
     $(".provision_confirm_action", context).html(
       '<div data-alert class="alert-box secondary radius">'+
@@ -3912,7 +3940,20 @@ function setup_info_vm(context) {
   context.on("click", ".provision_refresh_info", function(){
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
     update_provision_vm_info(vm_id, context);
+    return false;
   });
+
+  //
+  // Info VM
+  //
+
+  $(".provision_list_vms", context).on("click", ".provision_info_vm_button", function(){
+    $("a.provision_show_vm_accordion", context).trigger("click");
+    // TODO loading
+
+    var vm_id = $(this).parents(".provision-pricing-table").attr("opennebula_id")
+    update_provision_vm_info(vm_id, context);
+  })
 }
 
 function setup_provision_vms_list(context) {
@@ -3998,6 +4039,13 @@ function setup_provision_vms_list(context) {
     }
   });
 
+
+  if (provision_vms_datatable.attr('data')) {
+    fill_provision_vms_datatable(
+      provision_vms_datatable,
+      JSON.parse(provision_vms_datatable.attr('data')))
+  }
+
   $('.provision_list_vms_search', context).keyup(function(){
     provision_vms_datatable.fnFilter( $(this).val() );
   })
@@ -4009,10 +4057,7 @@ function setup_provision_vms_list(context) {
   context.on("click", ".provision_vms_list_refresh_button", function(){
     OpenNebula.Helper.clear_cache("VM");
     update_provision_vms_datatable(provision_vms_datatable, 0);
-  });
-
-  context.on("click", ".provision_vms_list_search_button", function(){
-    $(".provision_list_vms_search", context).fadeIn();
+    return false;
   });
 
   context.on("click", ".provision_vms_list_filter_button", function(){
@@ -4031,19 +4076,8 @@ function setup_provision_vms_list(context) {
     })
 
     $(".provision_list_vms_filter", context).fadeIn();
+    return false;
   });
-
-  //
-  // Info VM
-  //
-
-  $(".provision_list_vms", context).on("click", ".provision_info_vm_button", function(){
-    $("a.provision_show_vm_accordion", context).trigger("click");
-    // TODO loading
-
-    var vm_id = $(this).parents(".provision-pricing-table").attr("opennebula_id")
-    update_provision_vm_info(vm_id, context);
-  })
 
   $(document).foundation();
 }
@@ -4054,6 +4088,256 @@ function generate_provision_vms_list(context, opts) {
   setup_info_vm(context);
 }
 
+
+function setup_info_flow(context) {
+  function update_provision_flow_info(flow_id, context) {
+    $(".provision_info_flow_name", context).text("");
+    $(".provision_info_flow", context).hide();
+    $(".provision_info_flow_loading", context).fadeIn();
+    $(".provision_role_vms_container").html("");
+
+    OpenNebula.Service.show({
+      data : {
+        id: flow_id
+      },
+      error: onError,
+      success: function(request, response){
+        var data = response.DOCUMENT
+        var body = data.TEMPLATE.BODY;
+        var state = get_provision_flow_state(body);
+        var start_time = get_provision_flow_start_time(body);
+
+        switch (state.color) {
+          case "deploying":
+            $(".provision_recover_button", context).hide();
+            $(".provision_delete_confirm_button", context).show();
+            break;
+          case "running":
+            $(".provision_recover_button", context).hide();
+            $(".provision_delete_confirm_button", context).show();
+            break;
+          case "off":
+            $(".provision_recover_button", context).show();
+            $(".provision_delete_confirm_button", context).show();
+            break;
+          case "powering_off":
+          case "error":
+            $(".provision_recover_button", context).show();
+            $(".provision_delete_confirm_button", context).show();
+            break;
+          default:
+            $(".provision_recover_button", context).show();
+            $(".provision_delete_confirm_button", context).show();
+            break;
+        }
+
+        $(".provision_info_flow", context).attr("flow_id", data.ID);
+        $(".provision_info_flow_name", context).text(data.NAME);
+
+        //$(".provision_info_vm_resume", context).html('<ul class="inline-list" style="color: #555; font-size: 14px;">'+
+        //    '<li>'+
+        //      '<span>'+
+        //        '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+        //        'x'+data.TEMPLATE.CPU+' - '+
+        //        ((data.TEMPLATE.MEMORY > 1000) ?
+        //          (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
+        //          (data.TEMPLATE.MEMORY+'MB'))+
+        //      '</span>'+
+        //    '</li>'+
+        //    '<li>'+
+        //      '<span>'+
+        //        get_provision_disk_image(data) +
+        //      '</span>'+
+        //    '</li>'+
+        //    '<li>'+
+        //      '<span>'+
+        //        get_provision_ips(data) +
+        //      '</span>'+
+        //    '</li>'+
+        //    '<li class="right">'+
+        //      '<span style="color: #afafaf;px">'+
+        //        "ID: " +
+        //        data.ID+
+        //      '</span>' +
+        //    '</li>'+
+        //  '</ul>');
+
+        $(".provision-pricing-table_flow_info", context).html(
+            '<li class="text-left provision-title">'+
+              '<span class="'+ state.color +'-color">'+
+                '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
+                state.str+
+              '</span>'+
+            '</li>'+
+            '<li class="text-left provision-bullet-item">'+
+              '<hr style="margin: 0px">'+
+            '</li>'+
+            '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
+              '<span style="color: #999;px">'+
+                '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
+                _format_date(start_time)+
+              '</span>'+
+            '</li>'+
+            '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
+              '<span style="color: #999;px">'+
+                '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                data.UNAME+
+              '</span>'+
+            '</li>'+
+            '<li class="text-left provision-bullet-item">'+
+            '</li>'+
+          '</ul>');
+
+        $(".provision_roles_ul", context).html("");
+        if (body.roles) {
+          $.each(body.roles, function(index, role) {
+            var role_state = get_provision_flow_state(role);
+            var rvms = {
+              str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
+              percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
+            }
+
+            $(".provision_roles_ul", context).append(
+              '<li>'+
+                '<ul class="provision_role_ul provision-pricing-table" role=\''+JSON.stringify(role)+'\'>'+
+                  '<li class="provision-title text-left">'+
+                    '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                    role.name+
+                  '</li>'+
+                  '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+                    '<div class="progress small radius" style="margin-bottom:0px">'+
+                    '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
+                    '</div>'+
+                  '</li>'+
+                  '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 14px">'+
+                    '<span class="'+ state.color +'-color">'+
+                      state.str+
+                    '</span>'+
+                    '<span class="right">'+rvms.str+" VMs</span>"+
+                  '</li>'+
+                  '<li class="text-left provision-bullet-item">'+
+                    '<br>'+
+                  '</li>'+
+                  '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+                    '<a class="provision_role_vms_button button small radius">'+
+                      tr("Show VMs")+
+                    '</a>'+
+                    '<a class="button small success right radius">'+
+                      tr("Change Cardinality")+
+                    '</a>'+
+                  '</li>'+
+                '</ul>'+
+              '</li>');
+          });
+        }
+
+        context.on("click", ".provision_role_vms_button", function(){
+          $(".provision_role_vms_container", context).html('<div class="text-center" style="margin: 30px 0px">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+            '</span>'+
+            '</div>');
+
+          var role_json = $(this).closest(".provision_role_ul").attr('role');
+          var role = JSON.parse(role_json);
+          var vms = []
+          $.each(role.nodes, function(index, node){
+            vms.push(node.vm_info);
+          })
+
+          generate_provision_vms_list(
+            $(".provision_role_vms_container", context),
+            {
+              title: role.name + ' ' + tr("VMs"),
+              active: true,
+              refresh: false,
+              create: false,
+              filter: false,
+              data: vms
+            });
+        })
+
+        $(".provision_info_flow_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
+
+        $(".provision_confirm_action", context).html("");
+
+        $(".provision_info_flow_loading", context).hide();
+        $(".provision_info_flow", context).fadeIn();
+      }
+    })
+  }
+
+  context.on("click", ".provision_delete_confirm_button", function(){
+    $(".provision_confirm_action", context).html(
+      '<div data-alert class="alert-box secondary radius">'+
+        '<div class="row">'+
+        '<div class="large-9 columns">'+
+          '<span style="font-size: 14px; line-height: 20px">'+
+            tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+            '<br>'+
+            tr("All the information will be lost!")+
+          '</span>'+
+        '</div>'+
+        '<div class="large-3 columns">'+
+          '<a href"#" class="provision_delete_button alert button large-12 radius right" style="margin-right: 15px">'+tr("Delete")+'</a>'+
+        '</div>'+
+        '</div>'+
+        '<a href="#" class="close">&times;</a>'+
+      '</div>');
+  });
+
+  context.on("click", ".provision_recover_button", function(){
+    var flow_id = $(".provision_info_flow", context).attr("flow_id");
+
+    OpenNebula.Service.recover({
+      data : {
+        id: flow_id
+      },
+      success: function(request, response){
+        update_provision_flow_info(flow_id, context);
+      },
+      error: onError
+    })
+  });
+
+  context.on("click", ".provision_delete_button", function(){
+    var flow_id = $(".provision_info_flow", context).attr("flow_id");
+
+    OpenNebula.Service.del({
+      data : {
+        id: flow_id
+      },
+      success: function(request, response){
+        show_provision_flow_list();
+      },
+      error: onError
+    })
+  });
+
+  context.on("click", ".provision_refresh_info", function(){
+    var flow_id = $(".provision_info_flow", context).attr("flow_id");
+    update_provision_flow_info(flow_id, context);
+    $(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
+    return false;
+  });
+
+  //
+  // Info Flow
+  //
+
+  $(".provision_list_flows", context).on("click", ".provision_info_flow_button", function(){
+    $("a.provision_show_flow_accordion", context).trigger("click");
+
+    var flow_id = $(this).parents(".provision-pricing-table").attr("opennebula_id")
+    update_provision_flow_info(flow_id, context);
+    $(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
+  })
+}
 
 function setup_provision_flows_list(context){
   //
@@ -4197,6 +4481,7 @@ function setup_provision_flows_list(context){
   context.on("click", ".provision_flows_list_refresh_button", function(){
     OpenNebula.Helper.clear_cache("SERVICE");
     update_provision_flows_datatable(provision_flows_datatable, 0);
+    return false;
   });
 
   context.on("click", ".provision_flows_list_search_button", function(){
@@ -4225,7 +4510,7 @@ function setup_provision_flows_list(context){
 function generate_provision_flows_list(context, opts) {
   context.html(provision_list_flows(opts));
   setup_provision_flows_list(context);
-  //setup_info_vm(context);
+  setup_info_flow(context);
 }
 
 $(document).ready(function(){
@@ -5722,6 +6007,9 @@ $(document).ready(function(){
 
       return false;
     })
+
+
+    generate_provision_vms_list($(".provision_user_vms_list"), {active: false});
 
     $("#provision_info_vdc_user").on("click", ".show_vdc_user_vms_button", function(){
       show_provision_vm_list(0);
