@@ -199,8 +199,13 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::update_attributes(VectorAttribute *vup)
+int AddressRange::update_attributes(VectorAttribute *vup, string& error_msg)
 {
+    /* --------------- Do not allow to modify a reservation ------- */
+
+    int pid;
+    bool is_reservation = (get_attribute("PARENT_NETWORK_AR_ID", pid) == 0);
+
     /* --------------- Copy non-update attributes ----------------- */
 
     vup->replace("TYPE", attr->vector_value("TYPE"));
@@ -220,11 +225,18 @@ void AddressRange::update_attributes(VectorAttribute *vup)
 
     vup->replace("ALLOCATED", attr->vector_value("ALLOCATED"));
 
-    vup->replace("PARENT_NETWORK_AR_ID", attr->vector_value("PARENT_NETWORK_AR_ID"));
-
     vup->remove("USED_LEASES");
 
     vup->remove("LEASES");
+
+    vup->remove("PARENT_NETWORK_AR_ID");
+
+    if (is_reservation)
+    {
+        vup->replace("PARENT_NETWORK_AR_ID",
+                attr->vector_value("PARENT_NETWORK_AR_ID"));
+    }
+
 
     /* ----------------- update known attributes ----------------- */
 
@@ -234,31 +246,53 @@ void AddressRange::update_attributes(VectorAttribute *vup)
     {
         map<unsigned int, long long> itup;
 
-        if (allocated.upper_bound(new_size-1) == allocated.end())
+        if (is_reservation && new_size != size)
         {
-            size = new_size;
+            error_msg = "The SIZE of a reservation cannot be changed.";
+            return -1;
+        }
+
+        if (allocated.upper_bound(new_size-1) != allocated.end())
+        {
+            error_msg = "New SIZE cannot be applied. There are used leases"
+                    " that would fall outside the range.";
+
+            return -1;
         }
     }
+    else
+    {
+        new_size = size;
+    }
+
+    string new_global = vup->vector_value("GLOBAL_PREFIX");
+
+    if (prefix6_to_i(new_global, global6) != 0 )
+    {
+        error_msg = "Wrong format for IP6 global address prefix";
+        return -1;
+    }
+
+    string new_ula = vup->vector_value("ULA_PREFIX");
+
+    if (prefix6_to_i(new_ula, ula6) != 0 )
+    {
+        error_msg = "Wrong format for IP6 unique local address prefix";
+        return -1;
+    }
+
+    size = new_size;
 
     vup->replace("SIZE", size);
 
-    string value = vup->vector_value("GLOBAL_PREFIX");
-
-    if (prefix6_to_i(value, global6) != 0 )
-    {
-        vup->replace("GLOBAL_PREFIX", attr->vector_value("GLOBAL_PREFIX"));
-    }
-
-    value = vup->vector_value("ULA_PREFIX");
-
-    if (prefix6_to_i(value, ula6) != 0 )
-    {
-        vup->replace("ULA_PREFIX", attr->vector_value("ULA_PREFIX"));
-    }
+    vup->replace("GLOBAL_PREFIX", new_global);
+    vup->replace("ULA_PREFIX", new_ula);
 
     /* Replace with the new attributes */
 
     attr->replace(vup->value());
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -108,8 +108,11 @@ public:
      * Update an address range to the virtual network
      *  @param ars_tmpl template in the form AR = [AR_ID=...]. The address range
      *  is specified by the AR_ID attribute.
+     *  @param error_msg If the action fails, this message contains
+     *  the reason.
+     *  @return 0 on success
      */
-    void update_ar(VirtualNetworkTemplate * ars_tmpl);
+    int update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg);
 
     // *************************************************************************
     // Address hold/release interface

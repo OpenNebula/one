@@ -152,11 +152,7 @@ public:
                       RequestAttributes& att,
                       string& error_str)
     {
-        error_str.clear();
-
-        vn->update_ar(tmpl);
-
-        return 0;
+        return vn->update_ar(tmpl, error_str);
     };
 };
 

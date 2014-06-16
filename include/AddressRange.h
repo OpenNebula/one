@@ -307,8 +307,11 @@ public:
      *  CANNOT be updated: TYPE, SIZE, IP, MAC (plus the internal AR_ID and
      *  ALLOCATED)
      *    @param vup the new vector attributes for the address range
+     *    @param error_msg If the action fails, this message contains
+     *    the reason.
+     *    @return 0 on success
      */
-    void update_attributes(VectorAttribute *vup);
+    int update_attributes(VectorAttribute *vup, string& error_msg);
 
     /*
      *  add_ar from AddressRangePool needs to access the internal representation

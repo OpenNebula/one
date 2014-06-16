@@ -73,10 +73,13 @@ public:
 
     /**
      *  Updates the given address ranges
-     *    @param ars vector of address ranges as VectorAttributes obtined from
-     *    template in the form AR = [...]
+     *    @param ars vector of address ranges as VectorAttributes obtained from
+     *    template in the form AR = [...]. Only one AR is processed.
+     *    @param error_msg If the action fails, this message contains
+     *    the reason.
+     *    @return 0 on success
      */
-    void update_ar(vector<Attribute *> ars);
+    int update_ar(vector<Attribute *> ars, string& error_msg);
 
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it

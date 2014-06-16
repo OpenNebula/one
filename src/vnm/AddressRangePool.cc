@@ -81,7 +81,7 @@ int AddressRangePool::add_ar(AddressRange * ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRangePool::update_ar(vector<Attribute *> ars)
+int AddressRangePool::update_ar(vector<Attribute *> ars, string& error_msg)
 {
     vector<Attribute *>::iterator               it;
     map<unsigned int, AddressRange *>::iterator ar_it;
@@ -99,18 +99,27 @@ void AddressRangePool::update_ar(vector<Attribute *> ars)
 
         if (va->vector_value("AR_ID", arid) != 0)
         {
-            continue;
+            error_msg = "AR/AR_ID attribute is missing.";
+            return -1;
         }
 
         ar_it = ar_pool.find(arid);
 
         if (ar_it == ar_pool.end())
         {
-            continue;
+            ostringstream oss;
+
+            oss << "Address Range with ID " << arid << " was not found.";
+            error_msg = oss.str();
+
+            return -1;
         }
 
-        ar_it->second->update_attributes(va);
+        return ar_it->second->update_attributes(va, error_msg);
     }
+
+    error_msg = "Wrong AR definition. AR vector attribute is missing.";
+    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

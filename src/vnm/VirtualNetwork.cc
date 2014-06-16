@@ -656,13 +656,18 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl)
+int VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 {
     vector<Attribute *> tmp_ars;
 
-    ars_tmpl->get("AR", tmp_ars);
+    if(ars_tmpl->get("AR", tmp_ars) == 0)
+    {
+        error_msg = "Wrong AR definition. AR vector attribute is missing.";
 
-    ar_pool.update_ar(tmp_ars);
+        return -1;
+    }
+
+    return ar_pool.update_ar(tmp_ars, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
