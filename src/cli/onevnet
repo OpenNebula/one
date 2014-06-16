@@ -72,6 +72,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
+    set :format, :ar_id, "Integer" do |arg|
+        format_int(arg)
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -307,18 +311,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
+            obj.delete_element("AR_POOL/AR[AR_ID!=#{args[1]}]")
             obj.delete_element("AR_POOL/AR/LEASES")
             obj.delete_element("AR_POOL/AR/USED_LEASES")
 
+            if obj.template_like_str("AR_POOL").empty?
+                puts "Address Range #{args[1]} does not exit for "<<
+                    "Virtual Network #{args[0]}"
+                exit -1
+            end
+
             str = OpenNebulaHelper.update_template_helper(false, args[0], obj,
-                args[2], "AR_POOL/AR[AR_ID=#{args[1]}]", false)
+                args[2], "AR_POOL", false)
 
-            str[-1]=''
-            str.gsub!(/AR_ID="\d+"\n/,'')
-            str.gsub!(/^\s*(#|$)/,'')
-            str.gsub!(/\n/,',')
-
-            obj.update_ar("AR = [AR_ID=#{args[1]},#{str}]")
+            obj.update_ar(str)
         end
     end
 
