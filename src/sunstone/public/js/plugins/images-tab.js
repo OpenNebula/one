@@ -938,6 +938,7 @@ function initialize_create_image_dialog(dialog) {
         },
         onSubmit: function(id, fileName){
             uploader.setParams({
+                csrftoken: csrftoken,
                 img : JSON.stringify(img_obj),
                 file: fileName
             });
