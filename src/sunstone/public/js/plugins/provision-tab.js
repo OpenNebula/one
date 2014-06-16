@@ -1720,7 +1720,7 @@ if (Config.isTabPanelEnabled("provision-tab", "flows")) {
   '</span>'
 
 var provision_tab = {
-  list_header: provision_header,
+  list_header: "",
   content: provision_content
 };
 
@@ -4239,6 +4239,15 @@ $(document).ready(function(){
   var tab = $("#"+tab_name);
 
   if (Config.isTabEnabled(tab_name)) {
+    $('body').prepend(
+      '<div style="background: #f7f7f7; border-bottom: 1px solid #dfdfdf; padding: 15px 0px 10px 0px; margin-bottom: 20px">'+
+        '<div class="row">'+
+          '<div class="large-10 large-centered columns">'+
+          provision_header+
+          '</div>'+
+        '</div>'+
+      '<div>')
+
     $(".left-content").remove();
     $(".right-content").addClass("large-centered small-centered");
     $("#footer").removeClass("right");

@@ -764,10 +764,10 @@ div.dataTables_scrollFoot table {
 
 .provision-search-input {
   width: 200px !important;
-  height:35px !important;
+  height:39px !important;
   border-radius: 3px;
   border-color: #efefef;
-  margin: 5px 0 0px 0 !important;
+  margin: 0px !important;
 }
 
 #provision_list_vms_filter select,
@@ -816,16 +816,21 @@ hr {
     border-color: $primary-color ;
   }
 
+  .button {
+    margin-right: 3px;
+  }
+
   a{
     &:hover {
-      color: $primary-color;
+      //color: $primary-color;
     }
 
-    color: #007d9c;
+    //color: #007d9c;
+    font-weight: bold;
 
-    i {
-      color: #555;
-    }
+    //i {
+    //  color: #555;
+    //}
 
   }
 }
@@ -867,7 +872,21 @@ hr {
   dd {
     &>a {
       padding: 0px;
-      background: #fff !important
+      background: #fff !important;
+
+      .button {
+        margin: 0px 3px;
+      }
+
+      select {
+        height: 39px !important;
+        margin: 0px 10px !important;
+        float: right !important;
+      }
+
+      input {
+        margin: 0px 20px !important;
+      }
     }
     &>.content {
       padding: 15px 0px;
@@ -875,6 +894,12 @@ hr {
 
     &:first-child.active {
       .only-not-active {
+        display: none;
+      }
+    }
+
+    &:first-child:not(.active) {
+      .only-active {
         display: none;
       }
     }
