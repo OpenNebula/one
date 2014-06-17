@@ -51,11 +51,7 @@ SRC_ARG_PATH=`arg_path $SRC`
 DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
 SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 
-if [[ $SRC_ARG_PATH == /dev/* ]]; then
-    SRC_PATH=$SRC_ARG_PATH
-else
-    SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
-fi
+SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 
 #-------------------------------------------------------------------------------
 # Create DST path
