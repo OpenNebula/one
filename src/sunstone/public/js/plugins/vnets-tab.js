@@ -31,7 +31,7 @@ var create_vn_tmpl =
 </div>\
 <div class="tabs-content">\
   <div class="content active" id="vnet_wizard">\
-    <form id="create_vn_form_easy" action="" class="creation">\
+    <form data-abide="ajax" id="create_vn_form_easy" action="" class="creation">\
       <div>\
         <dl id="vnet_create_tabs" class="tabs right-info-tabs text-center" data-tab>\
           <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
@@ -46,7 +46,7 @@ var create_vn_tmpl =
                 <label for="name" >' + tr("Name") + ':\
                   <span class="tip">'+tr("Name that the Virtual Network will get for description purposes.")+'</span>\
                 </label>\
-                <input type="text" name="name" id="name"/>\
+                <input type="text" wizard_field="NAME" required name="name" id="name"/>\
               </div>\
             </div>\
             <div class="row">\
@@ -54,7 +54,7 @@ var create_vn_tmpl =
                 <label for="DESCRIPTION" >' + tr("Description") + ':\
                   <span class="tip">'+tr("Description of the Virtual Network")+'</span>\
                 </label>\
-                <textarea type="text" id="DESCRIPTION" name="DESCRIPTION"/>\
+                <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>\
               </div>\
             </div>\
             <br>\
@@ -63,13 +63,13 @@ var create_vn_tmpl =
                   <label for="net_address">'+tr("Network address")+':\
                     <span class="tip">'+tr("Base network address. For example, 192.168.1.0")+'</span>\
                   </label>\
-                  <input type="text" name="net_address" id="net_address" />\
+                  <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />\
               </div>\
               <div class="large-6 columns">\
                   <label for="net_mask">'+tr("Network mask")+':\
                     <span class="tip">'+tr("Network mask. For example, 255.255.255.0")+'</span>\
                   </label>\
-                  <input type="text" name="net_mask" id="net_mask" />\
+                  <input type="text" wizard_field="NETWORK_MASK" name="net_mask" id="net_mask" />\
               </div>\
             </div>\
             <div class="row">\
@@ -77,13 +77,13 @@ var create_vn_tmpl =
                   <label for="net_gateway">'+tr("Gateway")+':\
                     <span class="tip">'+tr("Router for this network. Leave empty if the network is not routable")+'</span>\
                   </label>\
-                  <input type="text" name="net_gateway" id="net_gateway" />\
+                  <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />\
               </div>\
               <div class="large-6 columns">\
                   <label for="net_gateway6">'+tr("IPv6 Gateway")+':\
                     <span class="tip">'+tr("IPv6 Router for this network")+'</span>\
                   </label>\
-                  <input type="text" name="net_gateway6" id="net_gateway6" />\
+                  <input type="text" wizard_field="GATEWAY6" name="net_gateway6" id="net_gateway6" />\
               </div>\
             </div>\
             <div class="row">\
@@ -91,7 +91,7 @@ var create_vn_tmpl =
                   <label for="net_dns">'+tr("DNS")+':\
                     <span class="tip">'+tr("Specific DNS for this network")+'</span>\
                   </label>\
-                  <input type="text" name="net_dns" id="net_dns" />\
+                  <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />\
               </div>\
             </div>\
           </div>\
@@ -101,7 +101,7 @@ var create_vn_tmpl =
                   <label for="bridge">'+tr("Bridge")+':\
                     <span class="tip">'+tr("Name of the physical bridge in the physical host where the VM should connect its network interface")+'</span>\
                   </label>\
-                  <input type="text" name="bridge" id="bridge" />\
+                  <input type="text" wizard_field="BRIDGE" name="bridge" id="bridge" />\
               </div>\
             </div>\
             <div class="row">\
@@ -132,7 +132,7 @@ var create_vn_tmpl =
                     <label for="vlan">'+tr("VLAN")+':\
                       <span class="tip">'+tr("Whether or not to isolate this virtual network using the Virtual Network Manager drivers")+'</span>\
                     </label>\
-                    <select name="vlan" id="vlan">\
+                    <select wizard_field="VLAN" name="vlan" id="vlan">\
                         <option value="YES" selected="selected">'+tr("Yes")+'</option>\
                         <option value="NO">'+tr("No")+'</option>\
                      </select>\
@@ -141,7 +141,7 @@ var create_vn_tmpl =
                     <label for="vlan_id">'+tr("VLAN ID")+':\
                       <span class="tip">'+tr("Optional: Set a specific VLAN id")+'</span>\
                     </label>\
-                    <input type="text" name="vlan_id" id="vlan_id" />\
+                    <input type="text" wizard_field="VLAN_ID" name="vlan_id" id="vlan_id" />\
                   </div>\
                 </div>\
               </div>\
@@ -151,7 +151,7 @@ var create_vn_tmpl =
                     <label for="phydev">'+tr("Physical device")+':\
                       <span class="tip">'+tr("Name of the physical network device that will be attached to the bridge")+'</span>\
                     </label>\
-                    <input type="text" name="phydev" id="phydev" />\
+                    <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />\
                   </div>\
                 </div>\
               </div>\
@@ -1174,35 +1174,49 @@ function setupCreateVNetDialog() {
         $('input', $(this).parent()).val("");
         switch ($(this).val()) {
         case "default":
-            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
-            $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide();
-            $('select#vlan,label[for="vlan"]',$create_vn_dialog).hide();
-            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide();
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
+
+            $('input#phydev',$create_vn_dialog).removeAttr('required');
+            $('input#bridge',$create_vn_dialog).attr('required', '');
             break;
         case "802.1Q":
-            // TODO add warning use PHY_DEV unless... BRIDGE
-            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
-            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show();
-            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
-            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+
+            $('input#phydev',$create_vn_dialog).attr('required', '');
+            $('input#bridge',$create_vn_dialog).removeAttr('required');
             break;
         case "ebtables":
-            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
-            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show();
-            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
-            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide();
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
+
+            $('input#phydev',$create_vn_dialog).removeAttr('required');
+            $('input#bridge',$create_vn_dialog).attr('required', '');
             break;
         case "openvswitch":
-            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
-            $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide();
-            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
-            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
+            $('input#bridge,label[for="bridge"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
+            $('select#vlan,label[for="vlan"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+
+            $('input#phydev',$create_vn_dialog).removeAttr('required');
+            $('input#bridge',$create_vn_dialog).attr('required', '');
             break;
         case "vmware":
             $('input#bridge,label[for="bridge"]',$create_vn_dialog).show();
             $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide();
             $('select#vlan,label[for="vlan"]',$create_vn_dialog).show();
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show();
+
+            $('input#phydev',$create_vn_dialog).removeAttr('required');
+            $('input#bridge',$create_vn_dialog).attr('required', '');
             break;
         };
 
@@ -1216,101 +1230,17 @@ function setupCreateVNetDialog() {
     setupCustomTags($("#vnetCreateContextTab", dialog));
 
     //Handle submission of the easy mode
-    $('#create_vn_submit_easy',dialog).click(function(){
+    $('#create_vn_form_easy',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing."));
+    }).on('valid', function () {
         //Fetch values
-        var name = $('#name',dialog).val();
-        if (!name.length){
-            notifyError(tr("Virtual Network name missing!"));
-            return false;
-        }
+        var network_json = {};
 
-        var network_json = {"name" : name};
+        retrieveWizardFields($("#vnetCreateGeneralTab", dialog), network_json);
+        retrieveWizardFields($("#vnetCreateBridgeTab", dialog), network_json);
+        retrieveWizardFields($("#vnetCreateGeneralTab", dialog), network_json);
 
-        var description = $('#DESCRIPTION',dialog).val();
-        if (description.length)
-            network_json['description'] = description;
-
-        var network_mode = $('select#network_mode',dialog).val();
-        var bridge = $('#bridge',dialog).val();
-        var phydev = $('#phydev',dialog).val();
-        var vlan = $('#vlan',dialog).val();
-        var vlan_id = $('#vlan_id',dialog).val();
-
-        //Depending on network mode we include certain params in the
-        //template
-        switch (network_mode) {
-        case "default":
-            if (!bridge && !phydev){
-                notifyError("Bridge or physical device must be specified");
-                return false;
-            };
-            if (bridge) network_json['bridge']=bridge;
-            if (phydev) network_json['phydev']=phydev;
-            break;
-        case "802.1Q":
-            if (!phydev){
-                notifyError("Physical device must be specified");
-                return false;
-            };
-            network_json['phydev']=phydev;
-            if (bridge) network_json['bridge']=bridge;
-            network_json['vlan']=vlan;
-            if (vlan_id) {
-                network_json['vlan_id']=vlan_id;
-            };
-            break;
-        case "ebtables":
-            if (!bridge){
-                notifyError("Bridge must be specified");
-                return false;
-            };
-            network_json['bridge']=bridge;
-            network_json['vlan']=vlan;
-            break;
-        case "openvswitch":
-        case "vmware":
-            if (!bridge){
-                notifyError("Bridge must be specified");
-                return false;
-            };
-            network_json['bridge']=bridge;
-            network_json['vlan']=vlan;
-            if (vlan_id) {
-                network_json['vlan_id']=vlan_id;
-            };
-            break;
-        };
-
-        var network_addr    = $('#net_address',dialog).val();
-        var network_mask    = $('#net_mask',dialog).val();
-        var network_dns     = $('#net_dns',dialog).val();
-        var network_gateway = $('#net_gateway',dialog).val();
-
-        if (network_addr.length)
-            network_json["network_address"] = network_addr;
-
-        if (network_mask.length)
-            network_json["network_mask"] = network_mask;
-
-        if (network_dns.length)
-            network_json["dns"] = network_dns;
-
-        if (network_gateway.length)
-            network_json["gateway"] = network_gateway;
-
-        // TODO: gateway 6 in separate input
-//        if (network_gateway.length)
-//            network_json["gateway6"] = network_gateway;
-
-/*
-Attribute   Description
-NETWORK_ADDRESS Base network address
-NETWORK_MASK    Network mask
-GATEWAY Router for this network, do not set when the network is not routable
-DNS Specific DNS for this network
-GATEWAY6    IPv6 router for this network
-CONTEXT_FORCE_IPV4  When a vnet is IPv6 the IPv4 is not configured unless this attribute is set
-*/
+        retrieveCustomTags($("#vnetCreateContextTab", dialog), network_json);
 
         $('.ar_tab',dialog).each(function(){
             hash = retrieve_ar_tab_data(this);
@@ -1322,9 +1252,6 @@ CONTEXT_FORCE_IPV4  When a vnet is IPv6 the IPv4 is not configured unless this a
                 network_json["AR"].push(hash);
             }
         });
-
-        //Time to add custom attributes
-        retrieveCustomTags($('#vnetCreateContextTab', $create_vn_dialog), network_json);
 
         //Create the VNetwork.
 
