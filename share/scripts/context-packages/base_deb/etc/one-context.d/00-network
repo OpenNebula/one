@@ -69,7 +69,7 @@ get_gateway() {
 get_interfaces() {
     IFCMD="/sbin/ifconfig -a"
     
-    LANG=en_EN.UTF-8
+    LANG=C
 
     $IFCMD | grep ^eth | sed 's/ *Link encap:Ethernet.*HWaddr /-/g'
 }
