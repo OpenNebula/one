@@ -3958,25 +3958,7 @@ function accountingGraphs(div, opt){
     }
 
     div.html(
-    '<div class="row">\
-      <div class="large-4 left columns">\
-        <label for="acct_start_time">'+tr("Start time")+'</label>\
-        <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
-      </div>\
-      <div class="large-4 left columns">\
-        <label for="acct_end_time">'+tr("End time")+'</label>\
-        <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
-      </div>\
-      <div id="acct_group_by_container" class="large-4 left columns">\
-        <label for="acct_group_by">' +  tr("Group by") + '</label>\
-        <select id="acct_group_by" name="acct_group_by">\
-          <option value="user">' + tr("User") + '</option>\
-          <option value="group">' + tr("Group") + '</option>\
-          <option value="vm">' + tr("VM") + '</option>\
-        </select>\
-      </div>\
-    </div>\
-    <div class="row" id="acct_owner">\
+    '<div class="row" id="acct_owner">\
       <div class="large-4 text-center columns large-offset-4">\
         <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
         <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
@@ -3986,15 +3968,28 @@ function accountingGraphs(div, opt){
         <div id="acct_owner_select"/>\
       </div>\
     </div>\
-    <br>\
     <div class="row">\
-      <div class="large-6 large-centered columns">\
-        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get accounting info")+'</button>\
+      <div class="large-3 left columns">\
+        <label for="acct_start_time">'+tr("Start time")+'</label>\
+        <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
+      </div>\
+      <div class="large-3 left columns">\
+        <label for="acct_end_time">'+tr("End time")+'</label>\
+        <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
+      </div>\
+      <div id="acct_group_by_container" class="large-3 left columns">\
+        <label for="acct_group_by">' +  tr("Group by") + '</label>\
+        <select id="acct_group_by" name="acct_group_by">\
+          <option value="user">' + tr("User") + '</option>\
+          <option value="group">' + tr("Group") + '</option>\
+          <option value="vm">' + tr("VM") + '</option>\
+        </select>\
+      </div>\
+      <div class="large-3 right columns" style="margin-top: 15px">\
+        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get Accounting")+'</button>\
       </div>\
     </div>\
     <br>\
-    <div class="row">\
-    </div>\
     <div id="acct_placeholder">\
       <div class="row">\
         <div class="large-8 large-centered columns">\
