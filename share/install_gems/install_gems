@@ -20,7 +20,7 @@ end
 GROUPS={
     :quota => [SQLITE, 'sequel'],
     :sunstone => ['json', 'rack', 'sinatra', 'thin', SQLITE],
-    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
+    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json azure},
     :auth_ldap => 'net-ldap',
     :vmware => %w{builder trollop},
     :oneflow => %w{sinatra json treetop parse-cron},
