@@ -169,9 +169,9 @@ class AzureDriver
 
     # DEPLOY action
     def deploy(id, host, xml_text)
-        az_info = get_deployment_info(host, xml_text)
-
         load_default_template_values
+
+        az_info = get_deployment_info(host, xml_text)
 
         if !az_value(az_info, 'IMAGE')
             STDERR.puts("Cannot find IMAGE in deployment file")
@@ -247,7 +247,7 @@ class AzureDriver
         host_info << "TOTALCPU=#{totalcpu}\n"
         host_info << "HOSTNAME=\"#{@host}\"\n"
 
-        vms_info = "VM_POLL=YES\n"
+        vms_info   = "VM_POLL=YES\n"
 
         usedcpu    = 0
         usedmemory = 0
@@ -346,8 +346,7 @@ private
             end
             az.elements << location
           end
-
-
+          
         az
     end
 
@@ -376,7 +375,22 @@ private
         AZ_POLL_ATTRS.map { |key|
             value = instance.send(key)
             if !value.nil? && !value.empty?
-                info << "AZ_#{key.to_s.upcase}=\"#{value.sub("\"","'")}\ "
+                if value.kind_of?(Hash)
+                    value_str = value.map{|k,v| "#{k}=#{v}"}.join(' ')
+                elsif value.kind_of?(Array)
+                    if value[0].kind_of?(Hash)
+                        value_str= value.each {|val_hash|
+                                    val_hash.map{|k,v| "#{k}=#{v}"}.join(' ')
+                                   }.join(' ')
+                    else
+                        value_str = value.join(' ')
+                    end
+                else
+                    value_str = value
+                end
+
+                info << "AZ_#{key.to_s.upcase}='#{value_str.gsub("\""," ")}' "
+
             end
         }
 
