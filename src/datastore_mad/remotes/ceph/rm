@@ -45,10 +45,12 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
 
 SRC="${XPATH_ELEMENTS[j++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -59,7 +61,7 @@ fi
 
 log "Removing $SRC from the rbd image repository in $DST_HOST"
 
-ssh_exec_and_log "$DST_HOST" "$RBD rm $SRC" \
-    "Error removing $SRC in $DST_HOST"
+ssh_exec_and_log "$DST_HOST" "$RBD rm $SRC --id ${CEPH_USER}" \
+    "Error removing $SRC --id ${CEPH_USER} in $DST_HOST"
 
 exit 0
