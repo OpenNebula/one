@@ -73,7 +73,7 @@ void MonitorThread::do_message()
     }
 
     // -------------------------------------------------------------------------
-    // Monitoring Error
+    // Monitoring Error. VMs running on the host are moved to UNKNOWN
     // -------------------------------------------------------------------------
     if (result != "SUCCESS")
     {
@@ -211,6 +211,10 @@ void MonitorThread::do_message()
 
     host->unlock();
 
+    //--------------------------------------------------------------------------
+    // Process VM information if any. VMs not reported by the hypervisor are
+    // moved to the POWEROFF state.
+    //--------------------------------------------------------------------------
     if (vm_poll)
     {
         set<int>::iterator         its;
@@ -218,7 +222,7 @@ void MonitorThread::do_message()
 
         for (its = lost.begin(); its != lost.end(); its++)
         {
-            lcm->trigger(LifeCycleManager::MONITOR_DONE, *its);
+            lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
         }
 
         for (itm = found.begin(); itm != found.end(); itm++)
