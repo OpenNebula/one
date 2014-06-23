@@ -4257,11 +4257,34 @@ function setup_provision_templates_list(context, opts) {
           id : image_id
         },
         success: function (){
-          Sunstone.runAction('Provision.Template.delete', template_id);
+          OpenNebula.Template.del({
+            timeout: true,
+            data : {
+              id : template_id
+            },
+            success: function (){
+              $(".provision_templates_list_refresh_button", context).trigger("click");
+            },
+            error: function (request,error_json, container) {
+              onError(request, error_json, container);
+            }
+          })
         },
         error: function (request,error_json, container) {
           if (error_json.error.http_status=="404") {
-            Sunstone.runAction('Provision.Template.delete', template_id);
+            OpenNebula.Template.del({
+              timeout: true,
+              data : {
+                id : template_id
+              },
+              success: function (){
+                $(".provision_templates_list_refresh_button", context).trigger("click");
+              },
+              error: function (request,error_json, container) {
+                onError(request, error_json, container);
+                $(".provision_templates_list_refresh_button", context).trigger("click");
+              }
+            })
           } else {
             onError(request, error_json, container);
           }
