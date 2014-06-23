@@ -687,7 +687,7 @@ var service_actions = {
         call: function () {
             var tab = dataTable_services.parents(".tab");
             if (Sunstone.rightInfoVisible(tab)) {
-                selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
+                selected_row_role_id = $($('td.markrowchecked',servicerolesDataTable.fnGetNodes())[1]).html();
                 checked_row_rolevm_ids = new Array();
 
                 if (typeof(serviceroleVMsDataTable) !== 'undefined') {
@@ -1103,13 +1103,13 @@ function updateServiceInfo(request,elem){
 
                 if(last_selected_row_role) {
                     last_selected_row_role.children().each(function(){
-                        $(this).removeClass('markrowselected');
+                        $(this).removeClass('markrowchecked');
                     });
                 }
 
                 last_selected_row_role = $(this);
                 $(this).children().each(function(){
-                    $(this).addClass('markrowselected');
+                    $(this).addClass('markrowchecked');
                 });
             }
         });

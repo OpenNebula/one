@@ -2320,7 +2320,7 @@ function printNics(vm_info){
               <tr nic_id="'+(nic.NIC_ID)+'">\
                 <td>' + nic.NIC_ID + '</td>\
                 <td>' + nic.NETWORK + '</td>\
-                <td>' + nic.IP + '</td>\
+                <td>' + (nic.IP ? nic.IP : "--") + '</td>\
                 <td>' + nic.MAC + '</td>\
                 <td>' + (nic.IP6_SITE ? nic.IP6_SITE : "--") +'</td>\
                 <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\

@@ -821,7 +821,7 @@ EOT
         return update_template_helper(true, id, resource, path, xpath)
     end
 
-    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath)
+    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath, update=true)
         unless path
             require 'tempfile'
 
@@ -829,11 +829,13 @@ EOT
             path = tmp.path
 
             if !append
-                rc = resource.info
+                if update
+                    rc = resource.info
 
-                if OpenNebula.is_error?(rc)
-                    puts rc.message
-                    exit -1
+                    if OpenNebula.is_error?(rc)
+                        puts rc.message
+                        exit -1
+                    end
                 end
 
                 tmp << resource.template_like_str(xpath)

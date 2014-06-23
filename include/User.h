@@ -169,6 +169,13 @@ public:
     int get_umask() const;
 
     /**
+     * Returns the default UMASK attribute (octal) from oned.conf
+     *
+     * @return the UMASK to create new objects
+     */
+    static int get_default_umask();
+
+    /**
      *  Returns a copy of the groups for the user
      */
     set<int> get_groups()

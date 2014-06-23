@@ -230,7 +230,7 @@ void ImageClone::request_execute(
     string name     = xmlrpc_c::value_string(paramList.getString(2));
 
     long long       avail, size;
-    int             rc, new_id, ds_id, umask;
+    int             rc, new_id, ds_id;
     string          error_str, ds_name, ds_data;
     bool            ds_check;
 
@@ -241,30 +241,11 @@ void ImageClone::request_execute(
     Template        img_usage;
     Image *         img;
     Datastore *     ds;
-    User *          user;
 
     Nebula&  nd = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
-    UserPool *      upool  = nd.get_upool();
-
-    // ------------------------- Get user's umask ------------------------------
-
-    user = upool->get(att.uid, true);
-
-    if ( user == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER), att.uid),
-                att);
-
-        return;
-    }
-
-    umask = user->get_umask();
-
-    user->unlock();
 
     // ------------------------- Get source Image info -------------------------
 
@@ -391,7 +372,7 @@ void ImageClone::request_execute(
                          att.gid,
                          att.uname,
                          att.gname,
-                         umask,
+                         att.umask,
                          tmpl,
                          ds_id,
                          ds_name,

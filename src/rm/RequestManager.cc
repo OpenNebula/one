@@ -276,10 +276,13 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
 
     // VirtualNetwork Methods
-    xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
-    xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
+    xmlrpc_c::methodPtr vn_add_ar(new VirtualNetworkAddAddressRange());
+    xmlrpc_c::methodPtr vn_rm_ar(new VirtualNetworkRmAddressRange());
+    xmlrpc_c::methodPtr vn_free_ar(new VirtualNetworkFreeAddressRange());
+    xmlrpc_c::methodPtr vn_update_ar(new VirtualNetworkUpdateAddressRange());
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
+    xmlrpc_c::methodPtr vn_reserve(new VirtualNetworkReserve());
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
@@ -485,8 +488,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.groupquota.update", group_set_default_quota);
 
     /* Network related methods*/
-    RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
-    RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
+    RequestManagerRegistry.addMethod("one.vn.reserve", vn_reserve);
+    RequestManagerRegistry.addMethod("one.vn.add_ar", vn_add_ar);
+    RequestManagerRegistry.addMethod("one.vn.rm_ar", vn_rm_ar);
+    RequestManagerRegistry.addMethod("one.vn.update_ar", vn_update_ar);
+    RequestManagerRegistry.addMethod("one.vn.free_ar", vn_free_ar);
     RequestManagerRegistry.addMethod("one.vn.hold", vn_hold);
     RequestManagerRegistry.addMethod("one.vn.release", vn_release);
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);

@@ -266,6 +266,16 @@ public:
     int vector_value(const char *name, int& value) const;
 
     /**
+     * Returns the unsigned integer value
+     *
+     * @param name Name of the attribute
+     * @param value Integer value
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int vector_value(const char *name, unsigned int& value) const;
+
+    /**
      * Returns the long long value
      *
      * @param name Name of the attribute
@@ -330,6 +340,11 @@ public:
     string * to_xml() const;
 
     /**
+     *  Same as above but the attribute is written in an string stream;
+     */
+    void to_xml(ostringstream &oss) const;
+
+    /**
      *  Builds a new attribute from a string of the form:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      */
@@ -349,6 +364,18 @@ public:
      *  Replace the value of the given vector attribute
      */
     void replace(const string& name, int value)
+    {
+        ostringstream oss;
+
+        oss << value;
+
+        replace(name, oss.str());
+    }
+
+    /**
+     *  Replace the value of the given vector attribute
+     */
+    void replace(const string& name, unsigned int value)
     {
         ostringstream oss;
 
@@ -419,6 +446,14 @@ public:
     {
         return new VectorAttribute(*this);
     };
+
+    /**
+     *  Clear the vector attribute values
+     */
+    void clear()
+    {
+        attribute_value.clear();
+    }
 
 private:
 

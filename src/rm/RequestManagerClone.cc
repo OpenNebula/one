@@ -28,32 +28,14 @@ void RequestManagerClone::request_execute(
     int    source_id = xmlrpc_c::value_int(paramList.getInt(1));
     string name      = xmlrpc_c::value_string(paramList.getString(2));
 
-    int rc, new_id, umask;
+    int rc, new_id;
 
     PoolObjectAuth  perms;
 
     Template *      tmpl;
     PoolObjectSQL * source_obj;
-    User *          user;
-
-    UserPool *      upool = Nebula::instance().get_upool();
 
     string          error_str;
-
-    user = upool->get(att.uid, true);
-
-    if ( user == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER), att.uid),
-                att);
-
-        return;
-    }
-
-    umask = user->get_umask();
-
-    user->unlock();
 
     source_obj = pool->get(source_id, true);
 
@@ -98,7 +80,7 @@ void RequestManagerClone::request_execute(
         }
     }
 
-    rc = pool_allocate(source_id, tmpl, new_id, error_str, att, umask);
+    rc = pool_allocate(source_id, tmpl, new_id, error_str, att);
 
     if ( rc < 0 )
     {

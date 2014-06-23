@@ -322,6 +322,7 @@ tabs:
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
+            vnet_ar_list_tab: true
             vnet_leases_tab: true
         table_columns:
             - 0         # Checkbox
@@ -329,8 +330,8 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
-            - 5         # Cluster
-            - 6         # Type
+            - 5         # Reservation
+            - 6         # Cluster
             #- 7         # Bridge
             - 8         # Leases
         actions:
@@ -341,10 +342,11 @@ tabs:
             Network.chgrp: true
             Network.chmod: true
             Network.delete: true
-            Network.addleases: true
             Network.hold_lease: true
-            Network.remove_lease: true
             Network.release_lease: true
+            Network.add_ar: true
+            Network.remove_ar: true
+            Network.update_ar: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true

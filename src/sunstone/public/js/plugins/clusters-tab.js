@@ -45,8 +45,8 @@ var vnet_datatable_table_tmpl='<thead>\
         <th>'+tr("Owner")+'</th>\
         <th>'+tr("Group")+'</th>\
         <th>'+tr("Name")+'</th>\
+        <th>'+tr("Reservation")+'</th>\
         <th>'+tr("Cluster")+'</th>\
-        <th>'+tr("Type")+'</th>\
         <th>'+tr("Bridge")+'</th>\
         <th>'+tr("Leases")+'</th>\
       </tr>\
