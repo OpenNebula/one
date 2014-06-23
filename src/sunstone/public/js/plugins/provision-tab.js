@@ -1086,7 +1086,7 @@ var provision_info_vdc_user =
             '</div>'+
             '<br>'+
             '<div class="large-12 columns">'+
-              '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 180px;">'+
+              '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 18 0px;">'+
                 empty_graph_placeholder +
               '</div>'+
             '</div>'+
@@ -1098,7 +1098,7 @@ var provision_info_vdc_user =
               '<span style="color: #777; font-size: 14px">'+tr("Memory GB hours")+'</span>'+
             '</div>'+
             '<div class="large-12 columns">'+
-              '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 180px;">'+
+              '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 18 0px;">'+
                 empty_graph_placeholder +
               '</div>'+
             '</div>'+
@@ -4427,48 +4427,17 @@ function setup_info_flow(context) {
                     '<br>'+
                   '</li>'+
                   '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
-                    '<a class="provision_role_vms_button button small radius">'+
-                      tr("Show VMs")+
+                    '<a class="provision_role_vms_button button medium radius">'+
+                      '<i class="fa fa-th fa-lg"></i>'+
                     '</a>'+
-                    '<a class="button small success right radius">'+
-                      tr("Change Cardinality")+
+                    '<a class="provision_role_cardinality_button button medium success right radius">'+
+                      '<i class="fa fa-arrows-h fa-lg"></i>'+
                     '</a>'+
                   '</li>'+
                 '</ul>'+
               '</li>');
           });
         }
-
-        context.on("click", ".provision_role_vms_button", function(){
-          $(".provision_role_vms_container", context).html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-            '</span>'+
-            '</div>');
-
-          var role_json = $(this).closest(".provision_role_ul").attr('role');
-          var role = JSON.parse(role_json);
-          var vms = []
-          $.each(role.nodes, function(index, node){
-            vms.push(node.vm_info);
-          })
-
-          generate_provision_vms_list(
-            $(".provision_role_vms_container", context),
-            {
-              title: role.name + ' ' + tr("VMs"),
-              active: true,
-              refresh: false,
-              create: false,
-              filter: false,
-              data: vms
-            });
-        })
 
         $(".provision_info_flow_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
 
@@ -4479,6 +4448,126 @@ function setup_info_flow(context) {
       }
     })
   }
+
+  context.on("click", ".provision_role_vms_button", function(){
+    $(".provision_role_vms_container", context).html('<div class="text-center">'+
+      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<span style="font-size: 18px; color: #999">'+
+      '</span>'+
+      '</div>');
+
+    var role_json = $(this).closest(".provision_role_ul").attr('role');
+    var role = JSON.parse(role_json);
+    var vms = []
+    $.each(role.nodes, function(index, node){
+      vms.push(node.vm_info);
+    })
+
+    generate_provision_vms_list(
+      $(".provision_role_vms_container", context),
+      {
+        title: role.name + ' ' + tr("VMs"),
+        active: true,
+        refresh: false,
+        create: false,
+        filter: false,
+        data: vms
+      });
+  })
+
+  context.on("click", ".provision_role_cardinality_button", function(){
+    var role_json = $(this).closest(".provision_role_ul").attr('role');
+    var role = JSON.parse(role_json);
+    var min_vms = (role.min_vms||1);
+    var max_vms = (role.max_vms||100);
+
+    $(".provision_confirm_action", context).html(
+      '<div data-alert class="alert-box secondary radius">'+
+        '<div class="row">'+
+          '<div class="large-12 large-centered columns">'+
+            '<div class="row">'+
+              '<div class="large-4 text-center columns">'+
+                '<span class="cardinality_value" style="color: #777; font-size:60px">'+role.cardinality+'</span>'+
+                '<br>'+
+                '<span style="color: #999; font-size:20px">'+role.name + ' ' + tr("VMs")+'</span>'+
+              '</div>'+
+              '<div class="large-8 columns text-center">'+
+              '<div class="cardinality_slider_div">'+
+                '<br>'+
+                '<span class="left" style="color: #999;">'+min_vms+'</span>'+
+                '<span class="right" style="color: #999;">'+max_vms+'</span>'+
+                '<br>'+
+                '<div class="cardinality_slider">'+
+                '</div>'+
+                '<br>'+
+                '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+tr("Change Cardinality")+'</a>'+
+              '</div>'+
+              '<div class="cardinality_no_slider_div">'+
+                '<br>'+
+                '<br>'+
+                '<span class="" style="color: #999;">'+tr("The cardinality for this role cannot be changed")+'</span>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<a href="#" class="close" style="top: 20px">&times;</a>'+
+      '</div>');
+
+
+    if (max_vms > min_vms) {
+      $( ".cardinality_slider_div", context).show();
+      $( ".cardinality_no_slider_div", context).hide();
+
+      var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
+          handles: 1,
+          connect: "lower",
+          range: [min_vms, max_vms],
+          step: 1,
+          start: role.cardinality,
+          value: role.cardinality,
+          slide: function(type) {
+              if ( type != "move"){
+                if ($(this).val()) {
+                  $(".cardinality_value", context).html($(this).val());
+                }
+              }
+          }
+      });
+
+      provision_cardinality_slider.val(role.cardinality)
+
+      provision_cardinality_slider.addClass("noUiSlider");
+    } else {
+      $( ".cardinality_slider_div", context).hide();
+      $( ".cardinality_no_slider_div", context).show();
+    }
+
+    return false;
+  });
+
+  context.on("click", ".provision_change_cardinality_button", function(){
+    var flow_id = $(".provision_info_flow", context).attr("flow_id");
+    var cardinality = $(".cardinality_slider", context).val()
+
+    OpenNebula.Role.update({
+      data : {
+        id: flow_id + '/role/' + $(this).attr("role_id"),
+        extra_param: {
+          cardinality: cardinality
+        }
+      },
+      success: function(request, response){
+        OpenNebula.Helper.clear_cache("SERVICE");
+        update_provision_flow_info(flow_id, context);
+      },
+      error: onError
+    })
+  });
 
   context.on("click", ".provision_delete_confirm_button", function(){
     $(".provision_confirm_action", context).html(
