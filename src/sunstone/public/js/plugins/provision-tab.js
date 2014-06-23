@@ -3698,13 +3698,13 @@ function setup_info_vm(context) {
         '<div class="row">'+
         '<div class="large-12 columns">'+
           '<a href"#" class="provision_poweroff_button button radius right" style="margin-right: 15px">'+tr("Power off")+'</a>'+
-          '<label for="provision_poweroff_hard_radio">'+
-            '<i class="fa fa-fw fa-bolt"/>'+tr("Power off the machine")+
+          '<label class="left" style="margin-left: 25px">'+
             '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" class="provision_poweroff_hard_radio">'+
+            ' <i class="fa fa-fw fa-bolt"/> '+tr("Power off the machine")+
           '</label>'+
-          '<label for="provision_poweroff_radio">'+
-            '<i class="fa fa-fw fa-power-off"/>'+tr("Send the power off signal")+
+          '<label class="left" style="margin-left: 25px">'+
             '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
+            ' <i class="fa fa-fw fa-power-off"/> '+tr("Send the power off signal")+
           '</label>'+
         '</div>'+
         '</div>'+
@@ -3729,13 +3729,13 @@ function setup_info_vm(context) {
         '<div class="row">'+
         '<div class="large-12 columns">'+
           '<a href"#" class="provision_reboot_button button radius right" style="margin-right: 15px">'+tr("Reboot")+'</a>'+
-          '<label for="provision_reboot_hard_radio">'+
-            '<i class="fa fa-fw fa-bolt"/>'+tr("Reboot the machine")+
-            '<input type="radio" name="provision_reboot_radio" value="reboot_hard" class="provision_reboot_hard_radio">'+
+          '<label class="left" style="margin-left: 25px">'+
+            '<input type="radio" name="provision_reboot_radio" value="reset" class="provision_reboot_hard_radio">'+
+            ' <i class="fa fa-fw fa-bolt"/> '+tr("Reboot the machine")+
           '</label>'+
-          '<label for="provision_reboot_radio">'+
-            '<i class="fa fa-fw fa-power-off"/>'+tr("Send the reboot signal")+
+          '<label class="left" style="margin-left: 25px">'+
             '<input type="radio" name="provision_reboot_radio" value="reboot" class="provision_reboot_radio" checked>'+
+            ' <i class="fa fa-fw fa-power-off"/> '+tr("Send the reboot signal")+
           '</label>'+
         '</div>'+
         '</div>'+
@@ -3744,6 +3744,8 @@ function setup_info_vm(context) {
   });
 
   context.on("click", ".provision_snapshot_create_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var context = $(".provision_info_vm");
 
     var vm_id = context.attr("vm_id");
@@ -3764,14 +3766,20 @@ function setup_info_vm(context) {
         OpenNebula.Helper.clear_cache("VMTEMPLATE");
         notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
         update_provision_vm_info(vm_id, context);
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
   });
 
   context.on("click", ".provision_delete_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
     OpenNebula.VM.del({
@@ -3780,14 +3788,20 @@ function setup_info_vm(context) {
       },
       success: function(request, response){
         update_provision_vm_info(vm_id, context);
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
   });
 
   context.on("click", ".provision_shutdownhard_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
     OpenNebula.VM.shutdown_hard({
@@ -3796,14 +3810,20 @@ function setup_info_vm(context) {
       },
       success: function(request, response){
         update_provision_vm_info(vm_id, context);
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
   });
 
   context.on("click", ".provision_poweroff_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
     var poweroff_action = $('input[name=provision_poweroff_radio]:checked').val()
 
@@ -3813,14 +3833,21 @@ function setup_info_vm(context) {
       },
       success: function(request, response){
         update_provision_vm_info(vm_id, context);
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
   });
 
   context.on("click", ".provision_reboot_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
+
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
     var reboot_action = $('input[name=provision_reboot_radio]:checked').val()
 
@@ -3830,14 +3857,20 @@ function setup_info_vm(context) {
       },
       success: function(request, response){
         update_provision_vm_info(vm_id, context);
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
   });
 
   context.on("click", ".provision_poweron_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
     OpenNebula.VM.resume({
@@ -3846,14 +3879,20 @@ function setup_info_vm(context) {
       },
       success: function(request, response){
         update_provision_vm_info(vm_id, context);
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
   });
 
   context.on("click", ".provision_vnc_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
     OpenNebula.VM.startvnc({
@@ -3877,8 +3916,12 @@ function setup_info_vm(context) {
         url += "&title=" + vm_name;
 
         window.open(url, '', '_blank');
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
 
     return false;
