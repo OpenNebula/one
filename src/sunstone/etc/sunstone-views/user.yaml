@@ -322,7 +322,7 @@ tabs:
     vnets-tab:
         panel_tabs:
             vnet_info_tab: false
-            vnet_ar_list_tab: false
+            vnet_ar_list_tab: true
             vnet_leases_tab: true
         table_columns:
             - 0         # Checkbox
@@ -341,11 +341,11 @@ tabs:
             Network.chown: false
             Network.chgrp: false
             Network.chmod: true
-            Network.delete: false
-            Network.hold_lease: false
-            Network.release_lease: false
+            Network.delete: true
+            Network.hold_lease: true
+            Network.release_lease: true
             Network.add_ar: false
-            Network.remove_ar: false
+            Network.remove_ar: true
             Network.update_ar: false
     marketplace-tab:
         panel_tabs:
