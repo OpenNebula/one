@@ -1086,7 +1086,7 @@ var provision_info_vdc_user =
             '</div>'+
             '<br>'+
             '<div class="large-12 columns">'+
-              '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 18 0px;">'+
+              '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 180px;">'+
                 empty_graph_placeholder +
               '</div>'+
             '</div>'+
@@ -1098,7 +1098,7 @@ var provision_info_vdc_user =
               '<span style="color: #777; font-size: 14px">'+tr("Memory GB hours")+'</span>'+
             '</div>'+
             '<div class="large-12 columns">'+
-              '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 18 0px;">'+
+              '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 180px;">'+
                 empty_graph_placeholder +
               '</div>'+
             '</div>'+
@@ -1861,6 +1861,7 @@ Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
 
 function generate_custom_attrs(context, custom_attrs) {
+  context.off();
   var text_attrs = [];
 
   $.each(custom_attrs, function(key, value){
@@ -1921,6 +1922,7 @@ function generate_custom_attrs(context, custom_attrs) {
 }
 
 function generate_cardinality_selector(context, role_template) {
+  context.off();
   var min_vms = (role_template.min_vms||1);
   var max_vms = (role_template.max_vms||100);
 
@@ -1999,6 +2001,7 @@ function generate_cardinality_selector(context, role_template) {
 var provision_instance_type_accordion_id = 0;
 
 function generate_provision_instance_type_accordion(context, capacity) {
+  context.off();
   var memory_value;
   var memory_unit;
 
@@ -2183,6 +2186,7 @@ var provision_nic_accordion_id = 0;
 var provision_nic_accordion_dd_id = 0;
 
 function generate_provision_network_table(context, nic, vnet_attr){
+  context.off();
   var nic_span;
 
   if (nic) {
@@ -2336,6 +2340,7 @@ function generate_provision_network_table(context, nic, vnet_attr){
 }
 
 function generate_provision_network_accordion(context){
+  context.off();
   context.html(
     '<br>'+
     '<div class="row">'+
@@ -3685,7 +3690,7 @@ function setup_info_vm(context) {
             tr("This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later")+
             '<br>'+
             '<br>'+
-            tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command form the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button a physical computer).")+
+            tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer).")+
           '</span>'+
         '</div>'+
         '</div>'+
@@ -3693,14 +3698,14 @@ function setup_info_vm(context) {
         '<div class="row">'+
         '<div class="large-12 columns">'+
           '<a href"#" class="provision_poweroff_button button radius right" style="margin-right: 15px">'+tr("Power off")+'</a>'+
+          '<label for="provision_poweroff_hard_radio">'+
+            '<i class="fa fa-fw fa-bolt"/>'+tr("Power off the machine")+
             '<input type="radio" name="provision_poweroff_radio" value="poweroff_hard" class="provision_poweroff_hard_radio">'+
-              '<label for="provision_poweroff_hard_radio">'+
-                '<i class="fa fa-fw fa-bolt"/>'+tr("Power off the machine")+
-              '</label>'+
+          '</label>'+
+          '<label for="provision_poweroff_radio">'+
+            '<i class="fa fa-fw fa-power-off"/>'+tr("Send the power off signal")+
             '<input type="radio" name="provision_poweroff_radio" value="poweroff" class="provision_poweroff_radio" checked>'+
-              '<label for="provision_poweroff_radio">'+
-                '<i class="fa fa-fw fa-power-off"/>'+tr("Send the power off signal")+
-              '</label>'+
+          '</label>'+
         '</div>'+
         '</div>'+
         '<a href="#" class="close" style="top: 20px">&times;</a>'+
@@ -3724,14 +3729,14 @@ function setup_info_vm(context) {
         '<div class="row">'+
         '<div class="large-12 columns">'+
           '<a href"#" class="provision_reboot_button button radius right" style="margin-right: 15px">'+tr("Reboot")+'</a>'+
+          '<label for="provision_reboot_hard_radio">'+
+            '<i class="fa fa-fw fa-bolt"/>'+tr("Reboot the machine")+
             '<input type="radio" name="provision_reboot_radio" value="reboot_hard" class="provision_reboot_hard_radio">'+
-            '<label for="provision_reboot_hard_radio">'+
-              '<i class="fa fa-fw fa-bolt"/>'+tr("Reboot the machine")+
-            '</label>'+
+          '</label>'+
+          '<label for="provision_reboot_radio">'+
+            '<i class="fa fa-fw fa-power-off"/>'+tr("Send the reboot signal")+
             '<input type="radio" name="provision_reboot_radio" value="reboot" class="provision_reboot_radio" checked>'+
-            '<label for="provision_reboot_radio">'+
-              '<i class="fa fa-fw fa-power-off"/>'+tr("Send the reboot signal")+
-            '</label>'+
+          '</label>'+
         '</div>'+
         '</div>'+
         '<a href="#" class="close" style="top: 20px">&times;</a>'+
@@ -3762,6 +3767,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_delete_button", function(){
@@ -3776,6 +3783,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_shutdownhard_button", function(){
@@ -3790,6 +3799,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_poweroff_button", function(){
@@ -3805,6 +3816,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_reboot_button", function(){
@@ -3820,6 +3833,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_poweron_button", function(){
@@ -3834,6 +3849,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_vnc_button", function(){
@@ -3863,6 +3880,8 @@ function setup_info_vm(context) {
       },
       error: onError
     })
+
+    return false;
   });
 
   context.on("click", ".provision_refresh_info", function(){
@@ -4017,6 +4036,7 @@ function setup_provision_vms_list(context, opts) {
 }
 
 function generate_provision_vms_list(context, opts) {
+  context.off();
   context.html(provision_list_vms(opts));
   setup_provision_vms_list(context, opts);
   setup_info_vm(context);
@@ -4321,6 +4341,7 @@ function setup_provision_templates_list(context, opts) {
 }
 
 function generate_provision_templates_list(context, opts) {
+  context.off();
   context.html(provision_list_templates(opts));
   setup_provision_templates_list(context, opts);
 }
@@ -4799,6 +4820,7 @@ function setup_provision_flows_list(context, opts){
 }
 
 function generate_provision_flows_list(context, opts) {
+  context.off();
   context.html(provision_list_flows(opts));
   setup_provision_flows_list(context, opts);
   setup_info_flow(context);
@@ -5047,13 +5069,6 @@ function setup_provision_user_info(context) {
             data: options
         });
 
-        accountingGraphs(
-          $(".provision_info_vdc_user_acct", context),
-          {   fixed_user: data.ID,
-              init_group_by: "vm" });
-
-        $(".acct_placeholder", context).hide();
-
         $(".provision_info_vdc_user", context).show();
         $(".provision_info_vdc_user_loading", context).hide();
 
@@ -5073,7 +5088,6 @@ function setup_provision_user_info(context) {
     var user_id = $(this).parents(".provision-pricing-table").attr("opennebula_id")
     update_provision_vdc_user_info(user_id, context);
   })
-
 
   context.on("click", ".provision_vdc_user_delete_confirm_button", function(){
     $(".provision_vdc_user_confirm_action", context).html(
@@ -5502,6 +5516,7 @@ function setup_provision_users_list(context){
 }
 
 function generate_provision_users_list(context, opts) {
+  context.off();
   context.html(provision_list_users(opts));
   setup_provision_users_list(context);
   setup_provision_user_info(context);
