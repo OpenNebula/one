@@ -385,7 +385,8 @@ var vnet_actions = {
         type: "single",
         call: OpenNebula.Network.rm_ar,
         callback: function(req) {
-          Sunstone.runAction("Network.show",req.request.data[0][0]);
+            OpenNebula.Helper.clear_cache("VNET");
+            Sunstone.runAction("Network.show",req.request.data[0][0]);
         },
         error: onError
     },
@@ -418,6 +419,7 @@ var vnet_actions = {
             $reserve_dialog.empty();
             setupReserveDialog();
 
+            OpenNebula.Helper.clear_cache("VNET");
             Sunstone.runAction("Network.show",req.request.data[0][0]);
         },
         error: onError
