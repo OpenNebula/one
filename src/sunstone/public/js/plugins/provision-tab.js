@@ -1221,7 +1221,7 @@ function provision_list_templates(opts_arg){
       '<a href="#provision_list_vm_accordion'+list_templates_accordion_id+'">'+
         '<h2 class="subheader">'+
           opts.title +
-          '<span href"#" class="right only-active button medium radius secondary provision_templates_list_refresh_button" data-tooltip title="'+ tr("Refresh")+'">'+
+          '<span href"#" class="right only-active button medium radius secondary provision_templates_list_refresh_button"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
             '<i class="fa fa-fw fa-lg fa-refresh"/>'+
           '</span>'+
           '<span class="right button medium only-not-active radius">'+
@@ -1229,7 +1229,7 @@ function provision_list_templates(opts_arg){
             '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
             //tr("Show List") +
           '</span>' +
-          '<span href"#" class="right only-active button medium radius secondary provision_templates_list_filter_button" data-tooltip title="'+ tr("Filter by User")+'">'+
+          '<span href"#" class="right only-active button medium radius secondary provision_templates_list_filter_button"  '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
             '<i class="fa fa-fw fa-lg fa-filter"/>'+
           '</span>'+
           '<span class="right only-active provision_list_templates_filter" style="display: none"></span>'+
@@ -4195,17 +4195,6 @@ function setup_provision_templates_list(context, opts) {
     $(".provision_list_templates_search", context).fadeIn();
   });
 
-  insertSelectOptions(
-    ".provision_list_templates_filter",
-    context,
-    "User",
-    (opts.filter_expression ? opts.filter_expression : "-2"),
-    false,
-    '<option value="-2">'+tr("ALL")+'</option>',
-    null,
-    null,
-    true);
-
   $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
     var filter;
     if ($(this).val() == "-2"){
@@ -4216,6 +4205,17 @@ function setup_provision_templates_list(context, opts) {
 
     provision_templates_datatable.fnFilter( filter, 3 );
   })
+
+  insertSelectOptions(
+    ".provision_list_templates_filter",
+    context,
+    "User",
+    (opts.filter_expression ? opts.filter_expression : "-2"),
+    false,
+    '<option value="-2">'+tr("ALL")+'</option>',
+    null,
+    null,
+    true);
 
   context.on("click", ".provision_templates_list_filter_button", function(){
     $(".provision_list_templates_filter", context).fadeIn();
@@ -4248,6 +4248,9 @@ function setup_provision_templates_list(context, opts) {
     });
 
     context.on("click", ".provision_delete_template_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+
       var template_id = $(this).attr("template_id");
       var image_id = $(this).attr("image_id");
 
@@ -4320,6 +4323,9 @@ function setup_provision_templates_list(context, opts) {
     });
 
     context.on("click", ".provision_chmod_template_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+
       var template_id = $(this).attr("template_id");
       var image_id = $(this).attr("image_id");
 
@@ -4372,6 +4378,9 @@ function setup_provision_templates_list(context, opts) {
     });
 
     context.on("click", ".provision_unshare_template_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+
       var template_id = $(this).attr("template_id");
       var image_id = $(this).attr("image_id");
 
@@ -4562,7 +4571,7 @@ function setup_info_flow(context) {
         active: true,
         refresh: false,
         create: false,
-        filter: false,
+        filter: true,
         data: vms
       });
   })
@@ -4853,7 +4862,7 @@ function setup_provision_flows_list(context, opts){
   });
 
   insertSelectOptions(
-    ".provision_list_vms_filter",
+    ".provision_list_flows_filter",
     context,
     "User",
     (opts.filter_expression ? opts.filter_expression : "-2"),
@@ -5042,7 +5051,7 @@ function setup_provision_user_info(context) {
               active: true,
               refresh: false,
               create: false,
-              filter: false,
+              filter: true,
               filter_expression: data.ID
             });
         })
@@ -5066,7 +5075,7 @@ function setup_provision_user_info(context) {
               active: true,
               refresh: false,
               create: false,
-              filter: false,
+              filter: true,
               filter_expression: data.ID
             });
         })
@@ -5090,7 +5099,7 @@ function setup_provision_user_info(context) {
               active: true,
               refresh: false,
               create: false,
-              filter: false,
+              filter: true,
               filter_expression: data.ID
             });
         })
