@@ -1168,6 +1168,8 @@ function setupCreateVNetDialog() {
         add_ar_tab(number_of_ar, dialog);
         number_of_ar++;
 
+        dialog.foundation();
+
         return false;
     });
 
@@ -1348,7 +1350,7 @@ function generate_ar_tab_content(str_ar_tab_id){
         <label for="'+str_ar_tab_id+'_size">'+tr("Size")+':\
           <span class="tip">'+tr("Number of addresses in the range")+'</span>\
         </label>\
-        <input wizard_field="SIZE" type="text" name="SIZE" id="'+str_ar_tab_id+'_size" />\
+        <input wizard_field="SIZE" required type="text" name="SIZE" id="'+str_ar_tab_id+'_size" />\
       </div>\
     </div>\
     <div class="row">\
@@ -1387,12 +1389,18 @@ function setup_ar_tab_content(ar_section, str_ar_tab_id) {
     $('input[name$="ar_type"]',ar_section).change(function(){
         $('div.ar_input', ar_section).hide();
 
+        $('input[wizard_field="IP"]',ar_section).removeAttr('required');
+
         switch($(this).val()){
         case "IP4":
             $('div.type_ip4', ar_section).show();
+            $('input[wizard_field="IP"]',ar_section).attr('required', '');
+
             break;
         case "IP4_6":
             $('div.type_ip4_6', ar_section).show();
+            $('input[wizard_field="IP"]',ar_section).attr('required', '');
+
             break;
         case "IP6":
             $('div.type_ip6', ar_section).show();
@@ -1447,14 +1455,6 @@ function retrieve_ar_tab_data(ar_section){
     }
 
     retrieveCustomTags(ar_section, data);
-
-    // TODO MANDATORY INPUTS
-    /*
-    if (!(ip_start.length && ip_end.length) && !network_addr.length){
-        notifyError(tr("There are missing network parameters"));
-        return false;
-    };
-    */
 
     return data
 }
@@ -1607,7 +1607,7 @@ function setupAddARDialog(){
 
     dialog.html(
     '<div class="reveal-body">\
-      <form id="add_ar_form" action="">\
+      <form data-abide="ajax" id="add_ar_form" action="">\
         <div class="row">\
           <div class="large-12 columns">\
             <h3 class="subheader" id="">\
@@ -1641,7 +1641,9 @@ function setupAddARDialog(){
         popUpAddAR();
     });
 
-    $('#add_ar_form',dialog).submit(function(){
+    $('#add_ar_form',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing."));
+    }).on('valid', function () {
         var vnet_id = $('#vnet_id', this).text();
         var data = retrieve_ar_tab_data(this);
 
@@ -1668,7 +1670,7 @@ function setupUpdateARDialog(){
 
     dialog.html(
     '<div class="reveal-body">\
-      <form id="update_ar_form" action="">\
+      <form data-abide="ajax" id="update_ar_form" action="">\
         <div class="row">\
           <div class="large-12 columns">\
             <h3 class="subheader" id="">\
@@ -1700,7 +1702,9 @@ function setupUpdateARDialog(){
         setupUpdateARDialog();
     });
 
-    $('#update_ar_form',dialog).submit(function(){
+    $('#update_ar_form',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing."));
+    }).on('valid', function () {
         var vnet_id = $('#vnet_id', this).text();
         var ar_id = $('#ar_id', this).text();
         var data = retrieve_ar_tab_data(this);
