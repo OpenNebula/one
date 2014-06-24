@@ -4008,18 +4008,6 @@ function setup_provision_vms_list(context, opts) {
     return false;
   });
 
-
-  insertSelectOptions(
-    ".provision_list_vms_filter",
-    context,
-    "User",
-    (opts.filter_expression ? opts.filter_expression : "-2"),
-    false,
-    '<option value="-2">'+tr("ALL")+'</option>',
-    null,
-    null,
-    true);
-
   $(".provision_list_vms_filter", context).on("change", ".resource_list_select", function(){
     var filter;
     if ($(this).val() == "-2"){
@@ -4030,6 +4018,18 @@ function setup_provision_vms_list(context, opts) {
 
     provision_vms_datatable.fnFilter( filter, 2 );
   })
+
+  insertSelectOptions(
+    ".provision_list_vms_filter",
+    context,
+    "User",
+    (opts.filter_expression ? opts.filter_expression : "-2"),
+    false,
+    '<option value="-2">'+tr("ALL")+'</option>',
+    null,
+    null,
+    true,
+    true);
 
   context.on("click", ".provision_vms_list_filter_button", function(){
     $(".provision_list_vms_filter", context).fadeIn();
@@ -4179,6 +4179,7 @@ function setup_provision_templates_list(context, opts) {
     '<option value="-2">'+tr("ALL")+'</option>',
     null,
     null,
+    true,
     true);
 
   context.on("click", ".provision_templates_list_filter_button", function(){
@@ -4532,7 +4533,7 @@ function setup_info_flow(context) {
       {
         title: role.name + ' ' + tr("VMs"),
         active: true,
-        refresh: false,
+        refresh: true,
         create: false,
         filter: true,
         data: vms
@@ -4662,6 +4663,8 @@ function setup_info_flow(context) {
   });
 
   context.on("click", ".provision_delete_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var flow_id = $(".provision_info_flow", context).attr("flow_id");
 
     OpenNebula.Service.del({
@@ -4829,17 +4832,6 @@ function setup_provision_flows_list(context, opts){
     $(".provision_list_flows_search", context).fadeIn();
   });
 
-  insertSelectOptions(
-    ".provision_list_flows_filter",
-    context,
-    "User",
-    (opts.filter_expression ? opts.filter_expression : "-2"),
-    false,
-    '<option value="-2">'+tr("ALL")+'</option>',
-    null,
-    null,
-    true);
-
   $(".provision_list_flows_filter", context).on("change", ".resource_list_select", function(){
     var filter;
     if ($(this).val() == "-2"){
@@ -4850,6 +4842,18 @@ function setup_provision_flows_list(context, opts){
 
     provision_flows_datatable.fnFilter( filter, 2 );
   })
+
+  insertSelectOptions(
+    ".provision_list_flows_filter",
+    context,
+    "User",
+    (opts.filter_expression ? opts.filter_expression : "-2"),
+    false,
+    '<option value="-2">'+tr("ALL")+'</option>',
+    null,
+    null,
+    true,
+    true);
 
   context.on("click", ".provision_flows_list_filter_button", function(){
     $(".provision_list_flows_filter", context).fadeIn();
@@ -5017,7 +5021,7 @@ function setup_provision_user_info(context) {
             {
               title: data.NAME + ' ' + tr("VMs"),
               active: true,
-              refresh: false,
+              refresh: true,
               create: false,
               filter: true,
               filter_expression: data.ID
@@ -5041,7 +5045,7 @@ function setup_provision_user_info(context) {
             {
               title: data.NAME + ' ' + tr("Templates"),
               active: true,
-              refresh: false,
+              refresh: true,
               create: false,
               filter: true,
               filter_expression: data.ID
@@ -5065,7 +5069,7 @@ function setup_provision_user_info(context) {
             {
               title: data.NAME + ' ' + tr("Flows"),
               active: true,
-              refresh: false,
+              refresh: true,
               create: false,
               filter: true,
               filter_expression: data.ID
