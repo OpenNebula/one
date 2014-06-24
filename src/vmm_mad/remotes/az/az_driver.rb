@@ -127,8 +127,8 @@ class AzureDriver
         :media_link,
         :os_type,
         :role_size,
-        :tcp_endpoints,
-        :udp_endpoints,
+        #:tcp_endpoints,
+        #:udp_endpoints,
         :virtual_network_name
     ]
 
@@ -136,11 +136,11 @@ class AzureDriver
     def initialize(host)
         @host = host
 
-        public_cloud_az_conf  = YAML::load(File.read(AZ_DRIVER_CONF))
+        @public_cloud_az_conf  = YAML::load(File.read(AZ_DRIVER_CONF))
 
-        @instance_types = public_cloud_az_conf['instance_types']
+        @instance_types = @public_cloud_az_conf['instance_types']
 
-        regions = public_cloud_az_conf['regions']
+        regions = @public_cloud_az_conf['regions']
         @region = regions[host] || regions["default"]
 
         # Sanitize region data
@@ -180,20 +180,31 @@ class AzureDriver
 
         csn = az_value(az_info, 'CLOUD_SERVICE_NAME')
 
-        csn = "OpenNebulaDefaultCloudServiceName" if !csn
+        csn = "OpenNebulaDefaultCloudServiceName-#{id}" if !csn
 
-        create_params  = create_params(id,csn,az_info)
-        create_options = create_options(id,csn,az_info)
+        create_params  = create_params(id,csn,az_info).delete_if { |k, v| 
+                                                                    v.nil? }
+        create_options = create_options(id,csn,az_info).delete_if { |k, v|
+                                                                    v.nil? }
+
+        instance = nil
 
         begin
+          in_silence do
             instance = @azure_vms.create_virtual_machine(create_params,
                                                          create_options)
+          end
         rescue => e
             STDERR.puts(e.message)
             exit(-1)
         end
 
-        puts(create_params[:vm_name])
+        if instance.class == Azure::VirtualMachineManagement::VirtualMachine
+            puts(instance.vm_name)
+        else
+            STDERR.puts(instance)
+            exit (-1)
+        end
     end
 
     # Shutdown an Azure instance
@@ -229,7 +240,7 @@ class AzureDriver
     end
 
     # Get the info of all Aure instances. An Azure instance must have
-    # a name compliant with the "one-#####" format, where ##### are intengers
+    # a name compliant with the "one-#####_csn" format, where ##### are intengers
     def monitor_all_vms
         totalmemory = 0
         totalcpu    = 0
@@ -335,6 +346,7 @@ private
                   exit(-1)
               end
           end
+
          # If LOCATION not explicitly defined, try to get default, if not
           # try to use hostname as datacenter
           if !az.elements["LOCATION"]
@@ -346,8 +358,13 @@ private
             end
             az.elements << location
           end
-          
-        az
+
+          # Translate region name form keyword to actual value
+          region_keyword = az.elements["LOCATION"].text
+          translated_region = @public_cloud_az_conf["regions"][region_keyword]
+          az.elements["LOCATION"].text=translated_region["region_name"]
+
+          az
     end
 
     # Retrive the vm information from the Azure instance
@@ -376,20 +393,18 @@ private
             value = instance.send(key)
             if !value.nil? && !value.empty?
                 if value.kind_of?(Hash)
-                    value_str = value.map{|k,v| "#{k}=#{v}"}.join(' ')
-                elsif value.kind_of?(Array)
+                    value_str = value.inspect
+                elsif value.is_a?(Array)
                     if value[0].kind_of?(Hash)
-                        value_str= value.each {|val_hash|
-                                    val_hash.map{|k,v| "#{k}=#{v}"}.join(' ')
-                                   }.join(' ')
+                        value_str= value.each {|vh| vh.inspect }.join('|')
                     else
-                        value_str = value.join(' ')
+                        value_str = value.join('')
                     end
                 else
                     value_str = value
                 end
 
-                info << "AZ_#{key.to_s.upcase}='#{value_str.gsub("\""," ")}' "
+                info << "AZ_#{key.to_s.upcase}=#{value_str.gsub("\"","")} "
 
             end
         }
@@ -489,18 +504,35 @@ private
         end
     end
 
-    # Retrive the instance from Azure
-    def get_instance(id)
+    def in_silence
         begin
-            name_and_csn = id.match(/([^_]+)_(.+)/)
-            name         = name_and_csn[1]
-            csn          = name_and_csn[2]
+          orig_stderr = $stderr.clone
+          orig_stdout = $stdout.clone
+          $stderr.reopen File.new('/dev/null', 'w')
+          $stdout.reopen File.new('/dev/null', 'w')
+          retval = yield
+        rescue Exception => e
+          $stdout.reopen orig_stdout
+          $stderr.reopen orig_stderr
+          raise e
+        ensure
+          $stdout.reopen orig_stdout
+          $stderr.reopen orig_stderr
+        end
+       retval
+    end    
 
-            instance = @azure_vms.get_virtual_machine(name,csn)
-            if instance.exists?
+    # Retrive the instance from Azure. If OpenNebula asks for it, then the 
+    # vm_name must comply with the notation name_csn
+    def get_instance(vm_name)
+        begin
+            csn = vm_name.match(/([^_]+)_(.+)/)[2]
+
+            instance = @azure_vms.get_virtual_machine(vm_name,csn)
+            if instance
                 return instance
             else
-                raise "Instance #{id} does not exist"
+                raise "Instance #{vm_name} does not exist"
             end
         rescue => e
             STDERR.puts e.message
