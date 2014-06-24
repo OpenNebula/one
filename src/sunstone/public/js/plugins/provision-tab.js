@@ -197,13 +197,13 @@ var provision_vms_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
+                '<a href"#" class="medium button success left large radius provision_create_vm_button""><i class="fa fa-lg fa-plus-square"/></a>'+
+                '<a href"#" class="medium button right large radius provision_vms_list_button""><i class="fa fa-lg fa-th"/></a>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr("Show Virtual Machines")+'</a>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -304,14 +304,14 @@ var provision_vdc_vms_dashboard =
             '<br>'+
             '<br>'+
             '<div class="row">'+
-              '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
+              '<div class="large-12 columns text-center">'+
+                '<a href"#" class="medium button success large radius provision_create_vm_button" style="margin-left: 5px; margin-right: 5px"><i class="fa fa-lg fa-plus-square"/></a>'+
+                '<a href"#" class="medium button large radius provision_vms_list_button" style="margin-left: 5px; margin-right: 5px"><i class="fa fa-lg fa-th"/></a>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button secondary radius provision_vms_list_button"">'+tr("Show Virtual Machines")+'</a>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -413,13 +413,13 @@ var provision_users_dashboard =
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius provision_create_user_button"">'+tr("Add User")+'</a>'+
+                '<a href"#" class="medium button large success radius provision_create_user_button" style="margin-left: 5px; margin-right: 5px"><i class="fa fa-lg fa-plus-square"/></a>'+
+                '<a href"#" class="medium button large radius provision_users_list_button" style="margin-left: 5px; margin-right: 5px"><i class="fa fa-lg fa-users"/></a>'+
               '</div>'+
             '</div>'+
             '<br>'+
             '<div class="row">'+
               '<div class="large-12 columns">'+
-                '<a href"#" class="medium button radius secondary provision_users_list_button"">'+tr("Show Users")+'</a>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -1078,29 +1078,36 @@ var provision_info_vdc_user =
     '</div>'+
     '<div class="large-8 columns">'+
       '<div class="row dashboard_vm_accounting">'+
-        '<div class="large-6 columns">'+
-          '<input style="display:none;" value="vm" id="acct_group_by"/>'+
-          '<div class="row">'+
-            '<div class="large-12 columns graph_legend text-center">'+
-              '<span style="color: #777; font-size: 14px">'+tr("CPU hours")+'</span>'+
+        '<div id="acct_content">'+
+          '<div class="large-6 columns">'+
+            '<input style="display:none;" value="vm" id="acct_group_by"/>'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend text-center">'+
+                '<span style="color: #777; font-size: 14px">'+tr("CPU hours")+'</span>'+
+              '</div>'+
+              '<br>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 180px;">'+
+                '</div>'+
+              '</div>'+
             '</div>'+
-            '<br>'+
-            '<div class="large-12 columns">'+
-              '<div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 180px;">'+
-                empty_graph_placeholder +
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<div class="row">'+
+              '<div class="large-12 columns graph_legend text-center">'+
+                '<span style="color: #777; font-size: 14px">'+tr("Memory GB hours")+'</span>'+
+              '</div>'+
+              '<div class="large-12 columns">'+
+                '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 180px;">'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
         '</div>'+
-        '<div class="large-6 columns">'+
+        '<div id="acct_no_data">'+
           '<div class="row">'+
-            '<div class="large-12 columns graph_legend text-center">'+
-              '<span style="color: #777; font-size: 14px">'+tr("Memory GB hours")+'</span>'+
-            '</div>'+
-            '<div class="large-12 columns">'+
-              '<div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 180px;">'+
+            '<div class="large-12 columns text-center">'+
                 empty_graph_placeholder +
-              '</div>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -2821,7 +2828,7 @@ function show_provision_user_list(timeout) {
   $(".section_content").hide();
   $(".provision_users_list_section").fadeIn();
 
-  $("dd:not(.active).provision_back", $(".provision_users_list_section")).trigger("click");
+  $("dd:not(.active) .provision_back", $(".provision_users_list_section")).trigger("click");
   $(".provision_users_list_refresh_button", $(".provision_users_list_section")).trigger("click");
 }
 
@@ -4892,6 +4899,7 @@ function setup_provision_user_info(context) {
         $(".provision_info_vdc_user_acct",context).html("");
 
         $(".provision_info_vdc_user", context).attr("opennebula_id", data.ID);
+        $(".provision_info_vdc_user", context).attr("uname", data.NAME);
         $(".provision_info_vdc_user", context).attr("quotas", JSON.stringify(data.VM_QUOTA));
         $(".provision_info_vdc_user_name", context).text(data.NAME);
 
@@ -5004,93 +5012,6 @@ function setup_provision_user_info(context) {
             '<li class="provision-bullet-item text-left">'+
             '</li>')
 
-        context.on("click", ".provision_vdc_user_info_show_vms", function(){
-          $(".provision_vdc_info_container", context).html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-            '</span>'+
-            '</div>');
-
-          generate_provision_vms_list(
-            $(".provision_vdc_info_container", context),
-            {
-              title: data.NAME + ' ' + tr("VMs"),
-              active: true,
-              refresh: true,
-              create: false,
-              filter: true,
-              filter_expression: data.ID
-            });
-        })
-
-        context.on("click", ".provision_vdc_user_info_show_templates", function(){
-          $(".provision_vdc_info_container", context).html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-            '</span>'+
-            '</div>');
-
-          generate_provision_templates_list(
-            $(".provision_vdc_info_container", context),
-            {
-              title: data.NAME + ' ' + tr("Templates"),
-              active: true,
-              refresh: true,
-              create: false,
-              filter: true,
-              filter_expression: data.ID
-            });
-        })
-
-        context.on("click", ".provision_vdc_user_info_show_flows", function(){
-          $(".provision_vdc_info_container", context).html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-            '</span>'+
-            '</div>');
-
-          generate_provision_flows_list(
-            $(".provision_vdc_info_container", context),
-            {
-              title: data.NAME + ' ' + tr("Flows"),
-              active: true,
-              refresh: true,
-              create: false,
-              filter: true,
-              filter_expression: data.ID
-            });
-        })
-
-
-        context.on("click", ".provision_vdc_user_info_show_acct", function(){
-          $(".provision_vdc_info_container", context).html("");
-
-          accountingGraphs(
-            $(".provision_vdc_info_container", context),
-              { fixed_user: data.ID,
-                init_group_by: "vm" });
-
-          $(".provision_vdc_info_container", context).prepend(
-            '<h2 class="subheader">'+
-              data.NAME + ' ' + tr("Accounting")+
-            '</h2>')
-        })
-
         var start_time = new Date().getTime() / 1000;
         // ms to s
 
@@ -5134,6 +5055,93 @@ function setup_provision_user_info(context) {
 
     var user_id = $(this).parents(".provision-pricing-table").attr("opennebula_id")
     update_provision_vdc_user_info(user_id, context);
+  })
+
+  context.on("click", ".provision_vdc_user_info_show_vms", function(){
+    $(".provision_vdc_info_container", context).html('<div class="text-center">'+
+      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<span style="font-size: 18px; color: #999">'+
+      '</span>'+
+      '</div>');
+
+    generate_provision_vms_list(
+      $(".provision_vdc_info_container", context),
+      {
+        title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("VMs"),
+        active: true,
+        refresh: true,
+        create: false,
+        filter: false,
+        filter_expression:  $(".provision_info_vdc_user", context).attr("opennebula_id")
+      });
+  })
+
+  context.on("click", ".provision_vdc_user_info_show_templates", function(){
+    $(".provision_vdc_info_container", context).html('<div class="text-center">'+
+      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<span style="font-size: 18px; color: #999">'+
+      '</span>'+
+      '</div>');
+
+    generate_provision_templates_list(
+      $(".provision_vdc_info_container", context),
+      {
+        title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Templates"),
+        active: true,
+        refresh: true,
+        create: false,
+        filter: false,
+        filter_expression:  $(".provision_info_vdc_user", context).attr("opennebula_id")
+      });
+  })
+
+  context.on("click", ".provision_vdc_user_info_show_flows", function(){
+    $(".provision_vdc_info_container", context).html('<div class="text-center">'+
+      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<span style="font-size: 18px; color: #999">'+
+      '</span>'+
+      '</div>');
+
+    generate_provision_flows_list(
+      $(".provision_vdc_info_container", context),
+      {
+        title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Flows"),
+        active: true,
+        refresh: true,
+        create: false,
+        filter: false,
+        filter_expression:  $(".provision_info_vdc_user", context).attr("opennebula_id")
+      });
+  })
+
+
+  context.on("click", ".provision_vdc_user_info_show_acct", function(){
+    $(".provision_vdc_info_container", context).html("");
+
+    accountingGraphs(
+      $(".provision_vdc_info_container", context),
+        { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id"),
+          init_group_by: "vm" });
+
+    $(".provision_vdc_info_container", context).prepend(
+      '<h2 class="subheader">'+
+        $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Accounting")+
+      '</h2>')
   })
 
   context.on("click", ".provision_vdc_user_delete_confirm_button", function(){
