@@ -1121,7 +1121,7 @@ function provision_list_users(opts_arg){
   list_users_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_users" data-accordion>'+
     '<dd class="active">'+
-      '<a href="#provision_list_user_accordion'+list_users_accordion_id+'" class="right only-not-active">'+
+      '<a href="#provision_list_user_accordion'+list_users_accordion_id+'" class="provision_back right only-not-active">'+
         '<span class="button medium radius">'+
           '<i class="fa fa-fw fa-lg fa-th"/> '+
           '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
@@ -1457,7 +1457,7 @@ function provision_list_vms(opts_arg){
   list_vms_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_vms" data-accordion>'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
-        '<a href="#provision_list_vm_accordion'+list_vms_accordion_id+'" class="right only-not-active">'+
+        '<a href="#provision_list_vm_accordion'+list_vms_accordion_id+'" class="provision_back right only-not-active">'+
           '<span class="button medium radius">'+
             '<i class="fa fa-fw fa-lg fa-th"/> '+
             '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
@@ -1582,7 +1582,7 @@ function provision_list_flows(opts_arg){
   list_flows_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_flows" data-accordion>'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
-      '<a class="provision_list_flow_accordion right only-not-active" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
+      '<a class="provision_list_flow_accordion right only-not-active provision_back" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
         '<span class="button medium radius">'+
           '<i class="fa fa-fw fa-lg fa-th"/> '+
           '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
@@ -1713,16 +1713,6 @@ var provision_tab = {
 };
 
 var povision_actions = {
-  "Provision.Template.delete" : {
-      type: "single",
-      call: OpenNebula.Template.del,
-      callback: function(){
-        OpenNebula.Helper.clear_cache("VMTEMPLATE");
-        show_provision_template_list(1000);
-      },
-      error: onError
-  },
-
   "Provision.User.show" : {
       type: "single",
       call: OpenNebula.User.show,
@@ -1784,35 +1774,6 @@ var povision_actions = {
         $("#repeat_password", context).val('');
         $(".alert-box-error", context).hide();
         $(".alert-box-error", context).html("");
-      },
-      error: onError
-  },
-
-  "Provision.VDCUser.show" : {
-    type: "single",
-    call: OpenNebula.User.show,
-    callback: function(request, response){
-        update_provision_vdc_user_info(response.USER);
-    },
-    error: onError
-  },
-
-  "Provision.VDCUser.passwd" : {
-      type: "single",
-      call: OpenNebula.User.passwd,
-      callback: function() {
-        show_provision_user_list();
-        notifyMessage("Password updated successfully");
-      },
-      error: onError
-  },
-
-  "Provision.VDCUser.delete" : {
-      type: "single",
-      call: OpenNebula.User.del,
-      callback: function(){
-        OpenNebula.Helper.clear_cache("USER");
-        show_provision_user_list(1000);
       },
       error: onError
   },
@@ -2844,6 +2805,7 @@ function show_provision_vm_list(timeout, context) {
   $(".section_content").hide();
   $(".provision_vms_list_section").fadeIn();
 
+  $("dd:not(.active) .provision_back", $(".provision_vms_list_section")).trigger("click");
   $(".provision_vms_list_refresh_button", $(".provision_vms_list_section")).trigger("click");
 }
 
@@ -2851,8 +2813,7 @@ function show_provision_flow_list(timeout) {
   $(".section_content").hide();
   $(".provision_flows_list_section").fadeIn();
 
-  $("dd:not(.active) .provision_list_flow_accordion", $(".provision_flows_list_section")).trigger("click");
-
+  $("dd:not(.active) .provision_back", $(".provision_flows_list_section")).trigger("click");
   $(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
 }
 
@@ -2860,6 +2821,7 @@ function show_provision_user_list(timeout) {
   $(".section_content").hide();
   $(".provision_users_list_section").fadeIn();
 
+  $("dd:not(.active).provision_back", $(".provision_users_list_section")).trigger("click");
   $(".provision_users_list_refresh_button", $(".provision_users_list_section")).trigger("click");
 }
 
@@ -2874,6 +2836,7 @@ function show_provision_template_list(timeout) {
   $(".section_content").hide();
   $(".provision_templates_list_section").fadeIn();
 
+  $("dd:not(.active) .provision_back", $(".provision_flows_list_section")).trigger("click");
   $(".provision_templates_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
 }
 
@@ -3787,7 +3750,8 @@ function setup_info_vm(context) {
         id: vm_id
       },
       success: function(request, response){
-        update_provision_vm_info(vm_id, context);
+        $(".provision_back", context).click();
+        $(".provision_vms_list_refresh_button", context).click();
         button.removeAttr("disabled");
       },
       error: function(request, response){
@@ -4705,9 +4669,14 @@ function setup_info_flow(context) {
         id: flow_id
       },
       success: function(request, response){
-        show_provision_flow_list();
+        $(".provision_back", context).click();
+        $(".provision_flows_list_refresh_button", context).click();
+        button.removeAttr("disabled");
       },
-      error: onError
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
     })
   });
 
@@ -5206,6 +5175,8 @@ function setup_provision_user_info(context) {
       '</div>');
 
       context.on("click", "#provision_vdc_user_change_password_button", function(){
+        var button = $(this);
+        button.attr("disabled", "disabled");
         var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
         var pw = $('.provision_vdc_user_new_password', context).val();
         var confirm_password = $('.provision_vdc_user_new_confirm_password', context).val();
@@ -5220,7 +5191,20 @@ function setup_provision_user_info(context) {
             return false;
         }
 
-        Sunstone.runAction("Provision.VDCUser.passwd", user_id, pw);
+        OpenNebula.User.passwd({
+          data : {
+            id: user_id,
+            extra_param: pw
+          },
+          success: function(request, response){
+            update_provision_vdc_user_info(user_id, context);
+            button.removeAttr("disabled");
+          },
+          error: function(request, response){
+            onError(request, response);
+            button.removeAttr("disabled");
+          }
+        })
         return false;
       });
   });
@@ -5396,19 +5380,50 @@ function setup_provision_user_info(context) {
   });
 
   context.on("click", ".provision_delete_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
-    Sunstone.runAction('Provision.VDCUser.delete', user_id);
+    OpenNebula.User.del({
+      data : {
+        id: user_id
+      },
+      success: function(request, response){
+        $(".provision_back", context).click();
+        $(".provision_users_list_refresh_button", context).click();
+        button.removeAttr("disabled");
+      },
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
+    })
   });
 
   context.on("click", ".provision_update_quota_button", function(){
+    var button = $(this);
+    button.attr("disabled", "disabled");
     var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
-    Sunstone.runAction("Provision.User.set_quota", [user_id], {
-      "VM" : {
-        "VOLATILE_SIZE":"-1",
-        "VMS": $(".provision_rvms_quota_vdc_info_input", context).val()||0,
-        "MEMORY": $(".provision_memory_quota_vdc_info_input", context).val()||0,
-        "CPU": $(".provision_cpu_quota_vdc_info_input", context).val()||0}
-      });
+
+    OpenNebula.User.set_quota({
+      data : {
+        id: user_id,
+        extra_param: {
+          "VM" : {
+            "VOLATILE_SIZE":"-1",
+            "VMS": $(".provision_rvms_quota_vdc_info_input", context).val()||0,
+            "MEMORY": $(".provision_memory_quota_vdc_info_input", context).val()||0,
+            "CPU": $(".provision_cpu_quota_vdc_info_input", context).val()||0}
+        }
+      },
+      success: function(request, response){
+        update_provision_vdc_user_info(user_id, context);
+        button.removeAttr("disabled");
+      },
+      error: function(request, response){
+        onError(request, response);
+        button.removeAttr("disabled");
+      }
+    })
   });
 
   context.on("click", ".provision_refresh_info", function(){
