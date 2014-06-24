@@ -3503,7 +3503,7 @@ function setup_info_vm(context) {
             '<li class="text-left provision-bullet-item">'+
             '</li>');
 
-        $(".provision_confirm_action", context).html("");
+        $(".provision_confirm_action:first", context).html("");
 
         $(".provision_info_vm", context).css('visibility', 'visible');
         $(".provision_info_vm_loading", context).hide();
@@ -3579,7 +3579,7 @@ function setup_info_vm(context) {
   }
 
   context.on("click", ".provision_snapshot_button", function(){
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
           '<div class="large-12 columns">'+
@@ -3607,7 +3607,7 @@ function setup_info_vm(context) {
   });
 
   context.on("click", ".provision_delete_confirm_button", function(){
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
         '<div class="large-9 columns">'+
@@ -3626,7 +3626,7 @@ function setup_info_vm(context) {
   });
 
   context.on("click", ".provision_shutdownhard_confirm_button", function(){
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
         '<div class="large-9 columns">'+
@@ -3645,7 +3645,7 @@ function setup_info_vm(context) {
   });
 
   context.on("click", ".provision_poweroff_confirm_button", function(){
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
         '<div class="large-11 columns">'+
@@ -3676,7 +3676,7 @@ function setup_info_vm(context) {
   });
 
   context.on("click", ".provision_reboot_confirm_button", function(){
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
         '<div class="large-11 columns">'+
@@ -4501,7 +4501,7 @@ function setup_info_flow(context) {
 
         $(".provision_info_flow_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
 
-        $(".provision_confirm_action", context).html("");
+        $(".provision_confirm_action:first", context).html("");
 
         $(".provision_info_flow_loading", context).hide();
         $(".provision_info_flow", context).css('visibility', 'visible');
@@ -4546,7 +4546,7 @@ function setup_info_flow(context) {
     var min_vms = (role.min_vms||1);
     var max_vms = (role.max_vms||100);
 
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
           '<div class="large-12 large-centered columns">'+
@@ -4630,12 +4630,12 @@ function setup_info_flow(context) {
   });
 
   context.on("click", ".provision_delete_confirm_button", function(){
-    $(".provision_confirm_action", context).html(
+    $(".provision_confirm_action:first", context).html(
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
         '<div class="large-9 columns">'+
           '<span style="font-size: 14px; line-height: 20px">'+
-            tr("Be careful, this action will inmediately destroy your Virtual Machine")+
+            tr("Be careful, this action will inmediately destroy your Flow")+
             '<br>'+
             tr("All the information will be lost!")+
           '</span>'+
