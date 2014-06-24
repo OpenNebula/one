@@ -127,8 +127,8 @@ class AzureDriver
         :media_link,
         :os_type,
         :role_size,
-        #:tcp_endpoints,
-        #:udp_endpoints,
+        :tcp_endpoints,
+        :udp_endpoints,
         :virtual_network_name
     ]
 
@@ -178,7 +178,7 @@ class AzureDriver
             exit(-1)
         end
 
-        csn = az_value(az_info, 'CLOUD_SERVICE_NAME')
+        csn = az_value(az_info, 'CLOUD_SERVICE')
 
         csn = "OpenNebulaDefaultCloudServiceName-#{id}" if !csn
 
@@ -392,14 +392,11 @@ private
         AZ_POLL_ATTRS.map { |key|
             value = instance.send(key)
             if !value.nil? && !value.empty?
-                if value.kind_of?(Hash)
+                if key.to_s.upcase == "TCP_ENDPOINTS" or
+                   key.to_s.upcase == "UDP_ENDPOINTS"
+                    value_str = format_endpoints(value)
+                elsif value.kind_of?(Hash)
                     value_str = value.inspect
-                elsif value.is_a?(Array)
-                    if value[0].kind_of?(Hash)
-                        value_str= value.each {|vh| vh.inspect }.join('|')
-                    else
-                        value_str = value.join('')
-                    end
                 else
                     value_str = value
                 end
@@ -410,6 +407,19 @@ private
         }
 
         info
+    end
+
+    def format_endpoints(endpoints)
+        endpnt_str = ""
+
+        endpoints.each{|ep|
+            endpnt_str += "name=#{ep[:name]}," +
+                          "vip=#{ep[:vip]},publicport=#{ep[:public_port]}," +
+                          "local_port=#{ep[:local_port]},"  +
+                          "local_port=#{ep[:protocol]};"
+        }
+
+        endpnt_str.chop
     end
 
     def create_params(id,csn,az_info)
@@ -446,10 +456,10 @@ private
     # +deploy_id+: String, VM id in Azure
     # +az_action+: Symbol, one of the keys of the Azure hash constant (i.e :run)
     def az_action(deploy_id, az_action)
-        i = get_instance(deploy_id)
+        name, csn = deploy_id.match(/([^_]+)_(.+)/)[1..-1]
 
         begin
-            i.send(AZ[az_action][:cmd])
+            @azure_vms.send(AZ[az_action][:cmd], deploy_id, csn)
         rescue => e
             STDERR.puts e.message
             exit(-1)
