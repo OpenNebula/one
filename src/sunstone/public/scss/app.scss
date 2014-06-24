@@ -873,6 +873,27 @@ hr {
     &>a {
       padding: 0px;
       background: #fff !important;
+    }
+
+    &>.content {
+      padding: 5px 0px;
+    }
+
+    &:first-child.active {
+      .only-not-active {
+        display: none;
+      }
+    }
+
+    &:first-child:not(.active) {
+      .only-active {
+        display: none;
+      }
+    }
+
+    &:first-child>h2 {
+      border-bottom: 1px solid #dfdfdf;
+      padding-bottom: 10px;
 
       .button {
         margin: 0px 3px;
@@ -888,25 +909,6 @@ hr {
       input {
         margin: 0px 10px !important;
       }
-    }
-    &>.content {
-      padding: 15px 0px;
-    }
-
-    &:first-child.active {
-      .only-not-active {
-        display: none;
-      }
-    }
-
-    &:first-child:not(.active) {
-      .only-active {
-        display: none;
-      }
-    }
-
-    &:first-child>a {
-      border-bottom: 1px solid #efefef;
     }
   }
 

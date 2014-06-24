@@ -1121,28 +1121,28 @@ function provision_list_users(opts_arg){
   list_users_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_users" data-accordion>'+
     '<dd class="active">'+
-      '<a href="#provision_list_user_accordion'+list_users_accordion_id+'">'+
-        '<h2 class="subheader">'+
-            tr("Users")+
-            '<span class="provision_info_vdc_user_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
-            '</span>'+
-            '<span href"#" class="right only-active provision_users_list_refresh_button button medium radius secondary" data-tooltip title="'+ tr("Refresh")+'">'+
-              '<i class="fa fa-fw fa-lg fa-refresh"/>'+
-            '</span>'+
-            '<span href"#" class="right only-not-active provision_refresh_info button medium radius secondary" data-tooltip title="'+ tr("Refresh")+'">'+
-              '<i class="fa fa-fw fa-lg fa-refresh"/>'+
-            '</span>'+
-            '<span class="right button medium only-not-active radius">'+
-              '<i class="fa fa-fw fa-lg fa-th"/> '+
-              '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
-              //tr("Show List") +
-            '</span>' +
-            '<input type="search" class="provision_list_users_search provision-search-input right only-active" placeholder="Search"/>'+
-            '<span href"#" class="right only-active provision_create_user_button button medium radius success">'+
-              '<i class="fa fa-fw fa-lg fa-plus-square"/>'+
-            '</span>'+
-        '</h2>'+
+      '<a href="#provision_list_user_accordion'+list_users_accordion_id+'" class="right only-not-active">'+
+        '<span class="button medium radius">'+
+          '<i class="fa fa-fw fa-lg fa-th"/> '+
+          '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
+          //tr("Show List") +
+        '</span>' +
       '</a>'+
+      '<h2 class="subheader">'+
+          tr("Users")+
+          '<span class="provision_info_vdc_user_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
+          '</span>'+
+          '<span href"#" class="right only-active provision_users_list_refresh_button button medium radius secondary" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+          '</span>'+
+          '<span href"#" class="right only-not-active provision_refresh_info button medium radius secondary" data-tooltip title="'+ tr("Refresh")+'">'+
+            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+          '</span>'+
+          '<input type="search" class="provision_list_users_search provision-search-input right only-active" placeholder="Search"/>'+
+          '<span href"#" class="right only-active provision_create_user_button button medium radius success">'+
+            '<i class="fa fa-fw fa-lg fa-plus-square"/>'+
+          '</span>'+
+      '</h2>'+
       '<div id="provision_list_user_accordion'+list_users_accordion_id+'" class="content active">'+
         '<div class="row">'+
           '<div class="large-12 large-centered columns">'+
@@ -1218,24 +1218,24 @@ function provision_list_templates(opts_arg){
   list_templates_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_templates" data-accordion="dfsaf">'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
-      '<a href="#provision_list_vm_accordion'+list_templates_accordion_id+'">'+
-        '<h2 class="subheader">'+
-          opts.title +
-          '<span href"#" class="right only-active button medium radius secondary provision_templates_list_refresh_button"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
-            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
-          '</span>'+
-          '<span class="right button medium only-not-active radius">'+
-            '<i class="fa fa-fw fa-lg fa-th"/> '+
-            '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
-            //tr("Show List") +
-          '</span>' +
-          '<span href"#" class="right only-active button medium radius secondary provision_templates_list_filter_button"  '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
-            '<i class="fa fa-fw fa-lg fa-filter"/>'+
-          '</span>'+
-          '<span class="right only-active provision_list_templates_filter" style="display: none"></span>'+
-          '<input type="search" class="provision_list_templates_search right only-active provision-search-input right" placeholder="Search"/>'+
-        '</h2>'+
+      '<a class="right only-not-active" href="#provision_list_template_accordion'+list_templates_accordion_id+'">'+
+        '<span class="button medium radius">'+
+          '<i class="fa fa-fw fa-lg fa-th"/> '+
+          '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
+          //tr("Show List") +
+        '</span>' +
       '</a>'+
+      '<h2 class="subheader">'+
+        opts.title +
+        '<span href"#" class="right only-active button medium radius secondary provision_templates_list_refresh_button"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
+          '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+        '</span>'+
+        '<span href"#" class="right only-active button medium radius secondary provision_templates_list_filter_button"  '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
+          '<i class="fa fa-fw fa-lg fa-filter"/>'+
+        '</span>'+
+        '<span class="right only-active provision_list_templates_filter" style="display: none"></span>'+
+        '<input type="search" class="provision_list_templates_search right only-active provision-search-input right" placeholder="Search"/>'+
+      '</h2>'+
       '<div id="provision_list_template_accordion'+list_templates_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
         '<div class="row">'+
           '<div class="provision_confirm_delete_template_div large-10 large-centered columns">'+
@@ -1457,7 +1457,13 @@ function provision_list_vms(opts_arg){
   list_vms_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_vms" data-accordion>'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
-      '<a href="#provision_list_vm_accordion'+list_vms_accordion_id+'">'+
+        '<a href="#provision_list_vm_accordion'+list_vms_accordion_id+'" class="right only-not-active">'+
+          '<span class="button medium radius">'+
+            '<i class="fa fa-fw fa-lg fa-th"/> '+
+            '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
+            //tr("Show List") +
+          '</span>' +
+        '</a>' +
         '<h2 class="subheader">'+
           opts.title +
           '<span class="provision_info_vm_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
@@ -1468,22 +1474,16 @@ function provision_list_vms(opts_arg){
           '<span href"#" class="right only-not-active button medium radius secondary provision_refresh_info" '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
             '<i class="fa fa-fw fa-lg fa-refresh"/>'+
           '</span>' +
-          '<span class="right button medium only-not-active radius">'+
-            '<i class="fa fa-fw fa-lg fa-th"/> '+
-            '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
-            //tr("Show List") +
-          '</span>' +
           '<span href"#" class="right only-active button medium radius secondary provision_vms_list_filter_button" '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
             '<i class="fa fa-fw fa-lg fa-filter"/> '+
           '</span>'+
-          '<span class="provision_list_vms_filter" style="display: none"></span>'+
+          '<span class=" only-active provision_list_vms_filter" style="display: none"></span>'+
           '<span>' +
           '<input type="search" class="right only-active provision_list_vms_search provision-search-input right" placeholder="Search"/>'+
           '<span href"#" class="right only-active button medium radius success provision_create_vm_button" '+(!opts.create ? 'style="display:none" ': "") + '>'+
             '<i class="fa fa-fw fa-lg fa-plus-square"/> '+
           '</span>' +
         '</h2>'+
-      '</a>'+
       '<div id="provision_list_vm_accordion'+list_vms_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
         '<div class="row">'+
           '<div class="large-12 large-centered columns">'+
@@ -1508,8 +1508,8 @@ function provision_list_vms(opts_arg){
       '</a>'+
       '<div id="provision_show_vm_accordion'+list_vms_accordion_id+'" class="content">'+
         provision_info_vm +
-      '<div>'+
-    '<dd>'+
+      '</div>'+
+    '</dd>'+
   '</dl>';
 }
 
@@ -1582,33 +1582,33 @@ function provision_list_flows(opts_arg){
   list_flows_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_flows" data-accordion>'+
     '<dd class="'+ (opts.active ? 'active' : '') +'">'+
-      '<a class="provision_list_flow_accordion" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
-        '<h2 class="subheader">'+
-          opts.title +
-          '<span class="provision_info_flow_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
-          '</span>'+
-          '<span href"#" class="only-active right button radius medium secondary provision_flows_list_refresh_button"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
-            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
-          '</span>'+
-          '<span href"#" class="only-not-active right button medium radius secondary provision_refresh_info"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
-            '<i class="fa fa-fw fa-lg fa-refresh"/>'+
-          '</span>'+
-          '<span class="right button medium only-not-active radius">'+
-            '<i class="fa fa-fw fa-lg fa-th"/> '+
-            '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
-            //tr("Show List") +
-          '</span>' +
-          '<span href"#" class="only-active right button radius medium secondary provision_flows_list_filter_button"  '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
-            '<i class="fa fa-fw fa-lg fa-filter"/> '+
-          '</span>'+
-          '<span class="only-active right provision_list_flows_filter" style="display: none"></span>'+
-          '<span>'+
-          '<input type="search" class="only-active provision_list_flows_search provision-search-input right" placeholder="Search"/>'+
-          '<span href"#" class="only-active right button radius medium success provision_create_flow_button" '+(!opts.create ? 'style="display:none" ': "") + '>'+
-            '<i class="fa fa-fw fa-lg fa-plus-square"/> '+
-          '</span>'+
-        '</h2>'+
+      '<a class="provision_list_flow_accordion right only-not-active" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
+        '<span class="button medium radius">'+
+          '<i class="fa fa-fw fa-lg fa-th"/> '+
+          '<i class="fa fa-fw fa-lg fa-chevron-left"/> '+
+          //tr("Show List") +
+        '</span>' +
       '</a>'+
+      '<h2 class="subheader">'+
+        opts.title +
+        '<span class="provision_info_flow_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px">'+
+        '</span>'+
+        '<span href"#" class="only-active right button radius medium secondary provision_flows_list_refresh_button"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
+          '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+        '</span>'+
+        '<span href"#" class="only-not-active right button medium radius secondary provision_refresh_info"  '+(!opts.refresh ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Refresh")+'">'+
+          '<i class="fa fa-fw fa-lg fa-refresh"/>'+
+        '</span>'+
+        '<span href"#" class="only-active right button radius medium secondary provision_flows_list_filter_button"  '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
+          '<i class="fa fa-fw fa-lg fa-filter"/> '+
+        '</span>'+
+        '<span class="only-active right provision_list_flows_filter" style="display: none"></span>'+
+        '<span>'+
+        '<input type="search" class="only-active provision_list_flows_search provision-search-input right" placeholder="Search"/>'+
+        '<span href"#" class="only-active right button radius medium success provision_create_flow_button" '+(!opts.create ? 'style="display:none" ': "") + '>'+
+          '<i class="fa fa-fw fa-lg fa-plus-square"/> '+
+        '</span>'+
+      '</h2>'+
       '<div id="provision_list_flow_accordion'+list_flows_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
         '<div class="">'+
           '<div class="row">'+
@@ -1635,8 +1635,8 @@ function provision_list_flows(opts_arg){
       '</a>'+
       '<div id="provision_show_flow_accordion'+list_flows_accordion_id+'" class="content">'+
         provision_info_flow +
-      '<div>'+
-    '<dd>'+
+      '</div>'+
+    '</dd>'+
   '</dl>';
 }
 
@@ -4411,8 +4411,7 @@ function setup_provision_templates_list(context, opts) {
 
   OpenNebula.Helper.clear_cache("VMTEMPLATE");
   update_provision_templates_datatable(provision_templates_datatable, 0);
-
-  $(document).foundation();
+  context.foundation();
 }
 
 function generate_provision_templates_list(context, opts) {
@@ -5598,18 +5597,12 @@ function generate_provision_users_list(context, opts) {
 }
 
 $(document).ready(function(){
-  $(document).foundation({
-    accordion: {
-      toggleable: false
-    }
-  });
-
   var tab_name = 'provision-tab';
   var tab = $("#"+tab_name);
 
   if (Config.isTabEnabled(tab_name)) {
     $('body').prepend(
-      '<div style="background: #f7f7f7; border-bottom: 1px solid #dfdfdf; padding: 15px 0px 10px 0px; margin-bottom: 20px">'+
+      '<div style="background: #f7f7f7; border-bottom: 1px solid #dfdfdf; padding: 15px 0px 10px 0px; margin-bottom: 10px">'+
         '<div class="row">'+
           '<div class="large-10 large-centered columns">'+
           provision_header+
