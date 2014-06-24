@@ -5285,7 +5285,7 @@ function setup_provision_user_info(context) {
                 '</div>'+
               '</div>'+
               '<div class="large-2 small-2 columns">'+
-                '<input type="text"  class="provision_memory_quota_vdc_info_tmp_input provision-input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '<input type="text" class="provision_memory_quota_vdc_info_tmp_input provision-input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -5346,7 +5346,12 @@ function setup_provision_user_info(context) {
       var provision_memory_quota_vdc_info_tmp_input = $(".provision_memory_quota_vdc_info_tmp_input", context);
 
       var update_final_memory_input = function() {
-        provision_memory_quota_vdc_info_input.val( Math.floor(provision_memory_quota_vdc_info_tmp_input.val() * 1024) );
+        var value = provision_memory_quota_vdc_info_tmp_input.val();
+        if (value > 0) {
+         provision_memory_quota_vdc_info_input.val( Math.floor(value * 1024) );
+        } else {
+         provision_memory_quota_vdc_info_input.val(value);
+        }
       }
 
       var provision_memory_quota_vdc_info_slider = $(".provision_memory_quota_vdc_info_slider", context).noUiSlider({
@@ -5359,20 +5364,18 @@ function setup_provision_user_info(context) {
           slide: function(type) {
               if ( type != "move"){
                   provision_memory_quota_vdc_info_tmp_input.val($(this).val()/100);
+                  provision_memory_quota_vdc_info_tmp_input.change();
               }
           }
       });
 
-      provision_memory_quota_vdc_info_tmp_input.change(function() {
-          provision_memory_quota_vdc_info_slider.val(this.value * 100)
+      provision_memory_quota_vdc_info_tmp_input.on("change", function() {
           update_final_memory_input();
+          provision_memory_quota_vdc_info_slider.val(this.value * 100)
       });
 
       provision_memory_quota_vdc_info_slider.addClass("noUiSlider");
 
-      provision_memory_quota_vdc_info_input.change(function() {
-          provision_memory_quota_vdc_info_slider.val(this.value)
-      });
 
       var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
       if (quotas_str) {
@@ -6554,7 +6557,12 @@ $(document).ready(function(){
     var provision_memory_quota_tmp_input = $("#provision_memory_quota_tmp_input");
 
     var update_final_memory_input = function() {
-      provision_memory_quota_input.val( Math.floor(provision_memory_quota_tmp_input.val() * 1024) );
+      var value = provision_memory_quota_tmp_input.val();
+      if (value > 0) {
+       provision_memory_quota_input.val( Math.floor(value * 1024) );
+      } else {
+       provision_memory_quota_input.val(value);
+      }
     }
 
     var provision_memory_quota_slider = $( "#provision_memory_quota_slider").noUiSlider({
@@ -6567,6 +6575,7 @@ $(document).ready(function(){
         slide: function(type) {
             if ( type != "move"){
                 provision_memory_quota_tmp_input.val($(this).val()/100);
+                provision_memory_quota_tmp_input.change();
             }
         }
     });
@@ -6577,10 +6586,6 @@ $(document).ready(function(){
     });
 
     provision_memory_quota_slider.addClass("noUiSlider");
-
-    provision_memory_quota_input.change(function() {
-        provision_memory_quota_slider.val(this.value)
-    });
 
     $("#provision_create_user").submit(function(){
       var context = $(this);
