@@ -182,12 +182,9 @@ class AzureDriver
 
         csn = "OpenNebulaDefaultCloudServiceName-#{id}" if !csn
 
-        create_params  = create_params(id,csn,az_info).delete_if { |k, v| 
-                                                                    v.nil? }
-        create_options = create_options(id,csn,az_info).delete_if { |k, v|
-                                                                    v.nil? }
-
-        instance = nil
+        create_params  = create_params(id,csn,az_info)
+        create_options = create_options(id,csn,az_info)
+        instance       = nil
 
         begin
           in_silence do
@@ -430,7 +427,7 @@ private
             :image => az_value(az_info, 'IMAGE'),
             :password => az_value(az_info, 'VM_PASSWORD'),
             :location => az_value(az_info, 'LOCATION')
-        }
+        }.delete_if { |k, v| v.nil? }
     end
 
     def create_options(id,csn,az_info)
@@ -449,7 +446,7 @@ private
           :virtual_network_name => az_value(az_info, 'VIRTUAL_NETWORK_NAME'),
           :subnet_name => az_value(az_info, 'SUBNET'),
           :availability_set_name => az_value(az_info, 'AVAILABILITY_SET')
-        }
+        }.delete_if { |k, v| v.nil? }
     end
 
     # Execute an Azure command
@@ -459,7 +456,9 @@ private
         name, csn = deploy_id.match(/([^_]+)_(.+)/)[1..-1]
 
         begin
-            @azure_vms.send(AZ[az_action][:cmd], deploy_id, csn)
+            in_silence do
+                @azure_vms.send(AZ[az_action][:cmd], deploy_id, csn)
+            end
         rescue => e
             STDERR.puts e.message
             exit(-1)
