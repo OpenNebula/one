@@ -2291,6 +2291,7 @@ function generate_provision_network_table(context, nic, vnet_attr){
         '<span style="color: #777;">' + $(this).attr("opennebula_name") + "</span>");
 
     $(".selected_network", dd_context).attr("opennebula_id", $(this).attr("opennebula_id"))
+    $(".selected_network", dd_context).removeAttr("template_nic")
 
     $('a', dd_context).first().trigger("click");
   })
