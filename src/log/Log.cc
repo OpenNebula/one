@@ -42,6 +42,8 @@
 
 const char Log::error_names[] ={ 'E', 'W', 'I', 'D' };
 
+unsigned int Log::zone_id = 0;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -102,6 +104,7 @@ void FileLog::log(
         str[24] = '\0';
 
         file << str << " ";
+        file << "[Z"<< zone_id<< "]";
         file << "[" << module << "]";
         file << "[" << error_names[type] << "]: ";
         file << message;
@@ -138,6 +141,7 @@ void CerrLog::log(
         str[24] = '\0';
 
         cerr << str << " ";
+        cerr << "[Z"<< zone_id<< "]";
         cerr << "[" << module << "]";
         cerr << "[" << error_names[type] << "]: ";
         cerr << message;
@@ -201,11 +205,11 @@ void SysLog::log(
 
     while ( getline(smessage, line) )
     {
-        root << level   << "[" << module << "]"
-                        << "[" << error_names[type] << "]: "
-                        << line;
+        root << level << "[Z"<< zone_id<< "]"
+                      << "[" << module << "]"
+                      << "[" << error_names[type] << "]: "
+                      << line;
     }
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -301,10 +305,11 @@ void SysLogResource::log(
 
     while ( getline(smessage, line) )
     {
-        res << level    << obj_label
-                        << "[" << module << "]"
-                        << "[" << error_names[type] << "]: "
-                        << line;
+        res << level << obj_label
+                     << "[Z" << zone_id << "]"
+                     << "[" << module << "]"
+                     << "[" << error_names[type] << "]: "
+                     << line;
     }
 }
 

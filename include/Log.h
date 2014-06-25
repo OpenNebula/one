@@ -56,6 +56,11 @@ public:
         return log_level;
     }
 
+    static void set_zone_id(int zid)
+    {
+        zone_id = zid;
+    }
+
     // -------------------------------------------------------------------------
     // Logger interface
     // -------------------------------------------------------------------------
@@ -70,6 +75,11 @@ protected:
      *  Minimum log level for the messages
      */
     MessageType log_level;
+
+    /**
+     *  Zone ID for log messages, for all Log instances
+     */
+    static unsigned int zone_id;
 };
 
 /* -------------------------------------------------------------------------- */
