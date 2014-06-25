@@ -4488,8 +4488,8 @@ function setup_info_flow(context) {
                     '</div>'+
                   '</li>'+
                   '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 14px">'+
-                    '<span class="'+ state.color +'-color">'+
-                      state.str+
+                    '<span class="'+ role_state.color +'-color">'+
+                      role_state.str+
                     '</span>'+
                     '<span class="right">'+rvms.str+" VMs</span>"+
                   '</li>'+
