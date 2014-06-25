@@ -53,7 +53,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
 
 unset i
 
@@ -65,6 +66,7 @@ POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-$STAGING_DIR}"
 FSTYPE="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
+CEPH_USER="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -97,14 +99,14 @@ REGISTER_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH
 
     if [ "$FSTYPE" = "raw" ]; then
-        $QEMU_IMG create rbd:$RBD_SOURCE ${SIZE}M
+        $QEMU_IMG create rbd:$RBD_SOURCE:id=${CEPH_USER} ${SIZE}M
     else
         # create and format
         $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
         $MKFS_CMD
 
         # create rbd
-        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE
+        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE:id=${CEPH_USER}
 
         # remove original
         $RM -f $TMP_DST
@@ -113,6 +115,6 @@ EOF
 )
 
 ssh_exec_and_log "$DST_HOST" "$REGISTER_CMD" \
-    "Error registering $RBD_SOURCE in $DST_HOST"
+    "Error registering $RBD_SOURCE:id=${CEPH_USER} in $DST_HOST"
 
 echo "$RBD_SOURCE"
