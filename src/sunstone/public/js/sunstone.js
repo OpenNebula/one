@@ -4925,3 +4925,55 @@ function setupResourceTableSelect(section, context_id, options) {
 
     setupTips(section);
 }
+
+// It will replace the div's html with a row for each USER_INPUTS
+function generateVMTemplateUserInputs(div, template_json) {
+    var text_attrs = [];
+
+    $.each(template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, function(key, value){
+        var parts = value.split("|");
+        // 0 mandatory; 1 type; 2 desc;
+        var attrs = {
+          "name": key,
+          "mandatory": parts[0],
+          "type": parts[1],
+          "description": parts[2],
+        }
+
+        switch (parts[1]) {
+          case "text":
+            text_attrs.push(attrs)
+            break;
+          case "password":
+            text_attrs.push(attrs)
+            break;
+        }
+    });
+
+    if (text_attrs.length > 0) {
+        div.html(
+        '<br>'+
+        '<div class="row">'+
+          '<div class="large-12 large-centered columns">'+
+            '<h3 class="subheader">'+
+              tr("Custom Attributes")+
+            '</h3>'+
+          '</div>'+
+        '</div>'+
+        '<div class="instantiate_user_inputs">'+
+        '</div>');
+
+
+    $.each(text_attrs, function(index, custom_attr){
+      $(".instantiate_user_inputs", div).append(
+        '<div class="row">'+
+          '<div class="large-12 large-centered columns">'+
+            '<label>' +
+              htmlDecode(custom_attr.description) +
+              '<input type="'+custom_attr.type+'" wizard_field="'+custom_attr.name+'"/>'+
+            '</label>'+
+          '</div>'+
+        '</div>');
+    })
+  }
+}

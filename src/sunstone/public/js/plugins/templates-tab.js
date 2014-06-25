@@ -89,6 +89,9 @@ var instantiate_vm_template_tmpl ='\
         <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
     </div>\
   </div>\
+  <div id="instantiate_vm_user_inputs">\
+    <i class="fa fa-spinner fa-spin"></i>\
+  </div>\
   <div class="form_buttons">\
      <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
   </div>\
@@ -375,15 +378,7 @@ var template_actions = {
      "Template.instantiate_vms" : {
          type: "custom",
          call: function(){
-             nodes = getSelectedNodes(dataTable_templates);
-             if (nodes.length == 1)
-             {
-               popUpInstantiateVMTemplateDialog(false);
-             }
-             else
-             {
-                Sunstone.runAction("Template.instantiate", nodes);
-             }
+            popUpInstantiateVMTemplateDialog(false);
          }
      },
 /*
@@ -4840,11 +4835,37 @@ function setupInstantiateTemplateDialog(easy_provision){
           update_datatable_template_templates($('#template_templates_table').dataTable());
       });
     } else {
-      dialog.html(instantiate_vm_template_tmpl);
-      dialog.addClass("reveal-modal").attr("data-reveal", "");
-      dialog.removeClass("max-height")
-    }
+        dialog.html(instantiate_vm_template_tmpl);
+        dialog.addClass("reveal-modal").attr("data-reveal", "");
+        dialog.removeClass("max-height");
 
+        $("#instantiate_vm_tenplate_proceed", dialog).attr("disabled", "disabled");
+
+        var selected_nodes = getSelectedNodes(dataTable_templates);
+        template_id = ""+selected_nodes[0];
+
+        OpenNebula.Template.show({
+            data : {
+                id: template_id
+            },
+            timeout: true,
+            success: function (request, template_json){
+                if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
+                    generateVMTemplateUserInputs(
+                        $("#instantiate_vm_user_inputs", dialog),
+                        template_json);
+                } else {
+                    $("#instantiate_vm_user_inputs", dialog).empty();
+                }
+
+                $("#instantiate_vm_tenplate_proceed", dialog).removeAttr("disabled");
+            },
+            error: function(request,error_json, container){
+                onError(request,error_json, container);
+                $("#instantiate_vm_user_inputs", dialog).empty();
+            }
+        });
+    }
 
     setupTips(dialog);
 
@@ -4873,7 +4894,10 @@ function setupInstantiateTemplateDialog(easy_provision){
 
         notifySubmit("Template.instantiate",template_id, extra_msg);
 
-        var extra_info = {};
+        var extra_info = {
+            'template': {}
+        };
+
         if ($("#IMAGE_ID", this).val()) {
           image_id = $("#IMAGE_ID", this).val();
           extra_info['template'] = {
@@ -4882,6 +4906,11 @@ function setupInstantiateTemplateDialog(easy_provision){
             }
           }
         }
+
+        var tmp_json = {};
+        retrieveWizardFields($(this), tmp_json);
+
+        $.extend(extra_info['template'], tmp_json);
 
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
@@ -4911,6 +4940,14 @@ function setupInstantiateTemplateDialog(easy_provision){
 
 // Open creation dialog
 function popUpInstantiateVMTemplateDialog(easy_provision){
+    var selected_nodes = getSelectedNodes(dataTable_templates);
+
+    if ( easy_provision == false && selected_nodes.length != 1 )
+    {
+      notifyMessage("Please select one (and just one) template to instantiate.");
+      return false;
+    }
+
     setupInstantiateTemplateDialog(easy_provision);
     $instantiate_vm_template_dialog.foundation().foundation('reveal', 'open');
     $("input#vm_name",$instantiate_vm_template_dialog).focus();

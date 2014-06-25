@@ -1718,7 +1718,7 @@ function setupUpdateARDialog(){
     });
 }
 
-function popUpReserveDialog(id){
+function popUpReserveDialog(){
     var selected_nodes = getSelectedNodes(dataTable_vNetworks);
 
     if ( selected_nodes.length != 1 )
