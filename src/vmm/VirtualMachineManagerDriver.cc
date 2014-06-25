@@ -617,6 +617,11 @@ void VirtualMachineManagerDriver::process_poll(
     /* Parse VM info and update VM                                            */
     /* ---------------------------------------------------------------------- */
 
+    if (vm->get_state() != VirtualMachine::ACTIVE)
+    {
+        return;
+    }
+
     rc = parse_vm_info(monitor_str, cpu, memory, net_tx, net_rx, state, custom);
 
     if (rc == -1)
@@ -649,8 +654,8 @@ void VirtualMachineManagerDriver::process_poll(
     /* Process the VM state from the monitoring info                          */
     /* ---------------------------------------------------------------------- */
 
-    if (state == '-' || ( vm->get_lcm_state() != VirtualMachine::RUNNING &&
-        vm->get_lcm_state() != VirtualMachine::UNKNOWN))
+    if (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+        vm->get_lcm_state() != VirtualMachine::UNKNOWN)
     {
         return;
     }
