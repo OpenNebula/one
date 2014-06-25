@@ -196,9 +196,9 @@ var provision_vms_dashboard =
             '<br>'+
             '<br>'+
             '<div class="row">'+
-              '<div class="large-12 columns">'+
-                '<a href"#" class="medium button success left large radius provision_create_vm_button""><i class="fa fa-lg fa-plus-square"/></a>'+
-                '<a href"#" class="medium button right large radius provision_vms_list_button""><i class="fa fa-lg fa-th"/></a>'+
+              '<div class="large-12 columns text-center">'+
+                '<a href"#" class="medium button success large radius provision_create_vm_button" style="margin-left: 5px; margin-right: 5px"><i class="fa fa-lg fa-plus-square"/></a>'+
+                '<a href"#" class="medium button large radius provision_vms_list_button" style="margin-left: 5px; margin-right: 5px"><i class="fa fa-lg fa-th"/></a>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -4058,7 +4058,7 @@ function generate_provision_vms_list(context, opts) {
 
 
 function setup_provision_templates_list(context, opts) {
-  provision_templates_datatable = $('.provision_templates_table', context).dataTable({
+  var provision_templates_datatable = $('.provision_templates_table', context).dataTable({
     "iDisplayLength": 8,
     "sDom" : '<"H">t<"F"lp>',
     "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
@@ -4146,6 +4146,8 @@ function setup_provision_templates_list(context, opts) {
       return nRow;
     }
   });
+
+  provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
 
   $('.provision_list_templates_search', context).keyup(function(){
     provision_templates_datatable.fnFilter( $(this).val() );
