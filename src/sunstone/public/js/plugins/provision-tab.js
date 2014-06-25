@@ -803,7 +803,7 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
 
 var provision_user_info = '<div id="provision_user_info" class="hidden section_content">'+
   '<div class="row">'+
-    '<div class="large-11 large-centered columns">'+
+    '<div class="large-12 large-centered columns">'+
       '<h2 class="subheader text-right">'+
         '<span class="left">'+
           '<i class="fa fa-fw fa-user"/>&emsp;'+
@@ -818,72 +818,16 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '</div>'+
   '<br>'+
   '<div class="row">'+
-    '<div class="large-10 large-centered columns">'+
+    '<div class="large-12 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 25%;"><a href="#provision_info_ssh_key"><i class="fa fa-fw fa-lg fa-key"/>&emsp;'+ tr("SSH Key") +'</a></dd>'+
-        '<dd style="width: 25%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
-        '<dd style="width: 25%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
-        '<dd style="width: 25%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        '<dd class="active" style="width: 34%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        '<dd style="width: 33%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
+        '<dd style="width: 33%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
   '</div>'+
   '<div class="tabs-content">'+
-    '<div class="content active" id="provision_info_ssh_key">'+
-      '<form id="provision_add_ssh_key_form">'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<div class="text-center">'+
-              '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
-              '</span>'+
-              '<br>'+
-              '<p style="font-size: 18px; color: #999">'+
-                '<span class="provision_add_ssh_key_button">'+
-                  tr("Add a public SSH key to your account!")+
-                  '<br>'+
-                  tr("You will be able to access your Virtual Machines without password")+
-                '</span>'+
-                '<span class="provision_update_ssh_key_button">'+
-                  tr("Update your public SSH key!")+
-                  '<br>'+
-                  tr("You will be able to access your Virtual Machines without password")+
-                  '<br><br>'+
-                  '<span id="provision_ssh_key_text" style="text-overflow: ellipsis; word-break: break-all; word-wrap: break-word"></span>'+
-                '</span>'+
-              '</p>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<dl class="accordion" data-accordion>'+
-              '<dd >'+
-                '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
-                  '<span class="provision_add_ssh_key_button">'+ tr("Add SSH Key")+ '</span>'+
-                  '<span class="provision_update_ssh_key_button">'+ tr("Update SSH Key")+ '</span>'+
-                '</a>'+
-                '<div id="provision_add_ssh_key_accordion" class="content">'+
-                  '<div class="row">'+
-                    '<div class="large-12 large-centered columns">'+
-                      '<textarea id="provision_ssh_key" style="height: 100px; font-size: 16px" placeholder="SSH key" class="provision-input"></textarea>'+
-                    '</div>'+
-                  '</div>'+
-                  '<br>'+
-                  '<div class="row">'+
-                    '<div class="large-12 large-centered columns">'+
-                      '<button href="#" type="submit" class="provision_add_ssh_key_button button large radius large-12 small-12">'+tr("Add SSH Key")+'</button>'+
-                      '<button href="#" type="submit" class="provision_update_ssh_key_button button large radius large-12 small-12 hidden">'+tr("Update SSH Key")+'</button>'+
-                    '</div>'+
-                  '</div>'+
-                '</div>'+
-              '</dd>'+
-            '</dl>'+
-          '</div>'+
-        '</div>'+
-      '</form>'+
-    '</div>'+
     '<div class="content" id="provision_info_acct">'+
       '<div class="row">'+
         '<div id="provision_user_info_acct_div" class="large-9 large-centered columns">'+
@@ -896,140 +840,191 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div class="content" id="provision_info_settings">'+
+    '<div class="content active" id="provision_info_settings">'+
       '<div class="row">'+
-        '<div class="large-8 large-centered columns">'+
-          '<div class="text-center">'+
-            '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<p style="font-size: 18px; color: #999">'+
-              tr("Portal not in your native language?")+
-            '</p>'+
+        '<div class="large-6 columns">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<dl class="accordion" data-accordion>'+
+                '<dd>'+
+                  '<a href="#provision_update_language_accordion" class="text-center accordion-a">'+
+                    '<div class="row only-not-active">'+
+                      '<div class="large-12 large-centered columns">'+
+                        '<div class="text-center">'+
+                          '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
+                          '</span>'+
+                        '</div>'+
+                      '</div>'+
+                    '</div>'+
+                    '<i class="fa fa-lg fa-comments only-active"></i> '+
+                    tr("Change Language")+
+                  '</a>'+
+                  '<div id="provision_update_language_accordion" class="content">'+
+                    '<br>'+
+                    '<form id="provision_change_language_form">'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<select type="language" id="provision_new_language" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
+                          language_options +
+                          '</select>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Language")+'</button>'+
+                        '</div>'+
+                      '</div>'+
+                    '</form>'+
+                  '</div>'+
+                '</dd>'+
+              '</dl>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-6 columns">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<dl class="accordion" data-accordion>'+
+                '<dd>'+
+                  '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
+                    '<div class="row only-not-active">'+
+                      '<div class="large-12 large-centered columns">'+
+                        '<div class="text-center">'+
+                          '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
+                          '</span>'+
+                        '</div>'+
+                      '</div>'+
+                    '</div>'+
+                    '<i class="fa fa-lg fa-lock only-active"></i> '+
+                    tr("Change Password")+
+                  '</a>'+
+                  '<div id="provision_update_password_accordion" class="content">'+
+                    '<br>'+
+                    '<form id="provision_change_password_form">'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<input type="password" id="provision_new_password" class="provision-input" placeholder="'+tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="'+tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Password")+'</button>'+
+                        '</div>'+
+                      '</div>'+
+                    '</form>'+
+                  '</div>'+
+                '</dd>'+
+              '</dl>'+
+            '</div>'+
           '</div>'+
         '</div>'+
       '</div>'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<dl class="accordion" data-accordion>'+
-              '<dd>'+
-                '<a href="#provision_update_language_accordion" class="text-center accordion-a">'+
-                  '<i class="fa fa-comments"></i>&emsp;'+
-                  tr("Change Language")+
-                '</a>'+
-                '<div id="provision_update_language_accordion" class="content">'+
-                  '<form id="provision_change_language_form">'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<select type="language" id="provision_new_language" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
-                        language_options +
-                        '</select>'+
+      '<br>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-6 columns">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<dl class="accordion" data-accordion>'+
+                '<dd>'+
+                  '<a href="#provision_update_view_accordion" class="text-center accordion-a">'+
+                    '<div class="row only-not-active">'+
+                      '<div class="large-12 large-centered columns">'+
+                        '<div class="text-center">'+
+                          '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>'+
+                          '</span>'+
+                        '</div>'+
                       '</div>'+
                     '</div>'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Language")+'</button>'+
+                    '<i class="fa fa-lg fa-picture-o only-active"></i> '+
+                    tr("Change view")+
+                  '</a>'+
+                  '<div id="provision_update_view_accordion" class="content">'+
+                    '<br>'+
+                    '<form id="provision_change_view_form">'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<select id="provision_user_views_select" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
+                          '</select>'+
+                        '</div>'+
                       '</div>'+
-                    '</div>'+
-                  '</form>'+
-                '</div>'+
-              '</dd>'+
-            '</dl>'+
-          '</div>'+
-        '</div>'+
-        '<br>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-12 large-centered columns">'+
-            '<div class="text-center">'+
-              '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
-              '</span>'+
-              '<br>'+
-              '<p style="font-size: 18px; color: #999">'+
-                tr("Someone might have been eavesdropping?")+
-              '</p>'+
+                      '<div class="row">'+
+                        '<div class="large-12 columns">'+
+                          '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update view")+'</button>'+
+                        '</div>'+
+                      '</div>'+
+                    '</form>'+
+                  '</div>'+
+                '</dd>'+
+              '</dl>'+
             '</div>'+
           '</div>'+
         '</div>'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<dl class="accordion" data-accordion>'+
-              '<dd>'+
-                '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
-                  '<i class="fa fa-lock"></i>&emsp;'+
-                  tr("Change Password")+
-                '</a>'+
-                '<div id="provision_update_password_accordion" class="content">'+
-                  '<form id="provision_change_password_form">'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<input type="password" id="provision_new_password" class="provision-input" placeholder="'+tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '<div class="large-6 columns">'+
+          '<form id="provision_add_ssh_key_form">'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<dl class="accordion" data-accordion>'+
+                  '<dd >'+
+                    '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
+                      '<div class="row only-not-active">'+
+                        '<div class="large-12 large-centered columns">'+
+                          '<div class="text-center">'+
+                            '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                              '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
+                            '</span>'+
+                          '</div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<i class="fa fa-key fa-lg only-active"></i> '+
+                      '<span class="provision_add_ssh_key_button">'+ tr("Add SSH Key")+ '</span>'+
+                      '<span class="provision_update_ssh_key_button">'+ tr("Update SSH Key")+ '</span>'+
+                    '</a>'+
+                    '<div id="provision_add_ssh_key_accordion" class="content">'+
+                      '<br>'+
+                      '<p style="font-size: 16px; color: #999">'+
+                        '<span class="provision_add_ssh_key_button">'+
+                          tr("Add a public SSH key to your account!")+
+                          '<br>'+
+                          tr("You will be able to access your Virtual Machines without password")+
+                        '</span>'+
+                        '<span class="provision_update_ssh_key_button">'+
+                          tr("Update your public SSH key!")+
+                          '<br>'+
+                          tr("You will be able to access your Virtual Machines without password")+
+                        '</span>'+
+                      '</p>'+
+                      '<div class="row">'+
+                        '<div class="large-12 large-centered columns">'+
+                          '<textarea id="provision_ssh_key" style="height: 100px; font-size: 14px" placeholder="SSH key" class="provision-input"></textarea>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="row">'+
+                        '<div class="large-12 large-centered columns">'+
+                          '<button href="#" type="submit" class="provision_add_ssh_key_button button large radius large-12 small-12">'+tr("Add SSH Key")+'</button>'+
+                          '<button href="#" type="submit" class="provision_update_ssh_key_button button large radius large-12 small-12 hidden">'+tr("Update SSH Key")+'</button>'+
+                        '</div>'+
                       '</div>'+
                     '</div>'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="'+tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-                        '<br>'+
-                      '</div>'+
-                    '</div>'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update Password")+'</button>'+
-                      '</div>'+
-                    '</div>'+
-                  '</form>'+
-                '</div>'+
-              '</dd>'+
-            '</dl>'+
-          '</div>'+
-        '</div>'+
-        '<br>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<div class="text-center">'+
-              '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>'+
-              '</span>'+
-              '<br>'+
-              '<p style="font-size: 18px; color: #999">'+
-                tr("Are you an administrator?")+
-              '</p>'+
+                  '</dd>'+
+                '</dl>'+
+              '</div>'+
             '</div>'+
-          '</div>'+
+          '</form>'+
         '</div>'+
-        '<div class="row">'+
-          '<div class="large-8 large-centered columns">'+
-            '<dl class="accordion" data-accordion>'+
-              '<dd>'+
-                '<a href="#provision_update_view_accordion" class="text-center accordion-a">'+
-                  '<i class="fa fa-picture-o"></i>&emsp;'+
-                  tr("Change view")+
-                '</a>'+
-                '<div id="provision_update_view_accordion" class="content">'+
-                  '<form id="provision_change_view_form">'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<select id="provision_user_views_select" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
-                        '</select>'+
-                      '</div>'+
-                    '</div>'+
-                    '<div class="row">'+
-                      '<div class="large-12 columns">'+
-                        '<button href"#" type="submit" class="button large radius large-12 small-12">'+tr("Update view")+'</button>'+
-                      '</div>'+
-                    '</div>'+
-                  '</form>'+
-                '</div>'+
-              '</dd>'+
-            '</dl>'+
-          '</div>'+
-        '</div>'+
+      '</div>'+
     '</div>'+
   '</div>'+
 '</div>';
@@ -2689,7 +2684,6 @@ function show_provision_user_info_callback(request, response) {
   var ssh_key = info.TEMPLATE.SSH_PUBLIC_KEY;
   if (ssh_key && ssh_key.length) {
     $("#provision_ssh_key").val(ssh_key);
-    $("#provision_ssh_key_text").text(ssh_key);
     $(".provision_add_ssh_key_button").hide();
     $(".provision_update_ssh_key_button").show();
   } else {

@@ -868,17 +868,8 @@ hr {
   }
 }
 
-.accordion_list {
+.accordion {
   dd {
-    &>a {
-      padding: 0px;
-      background: #fff !important;
-    }
-
-    &>.content {
-      padding: 5px 0px;
-    }
-
     &:first-child.active {
       .only-not-active {
         display: none;
@@ -889,6 +880,19 @@ hr {
       .only-active {
         display: none;
       }
+    }
+  }
+}
+
+.accordion_list {
+  dd {
+    &>a {
+      padding: 0px;
+      background: #fff !important;
+    }
+
+    &>.content {
+      padding: 5px 0px;
     }
 
     &:first-child>h2 {
