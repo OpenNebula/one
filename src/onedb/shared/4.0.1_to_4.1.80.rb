@@ -59,7 +59,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
