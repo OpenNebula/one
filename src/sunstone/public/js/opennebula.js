@@ -1517,13 +1517,6 @@ var OpenNebula = {
     "Service" : {
         "resource" : 'DOCUMENT',
         "path"     : 'service',
-        "shutdown": function(params){
-            OpenNebula.Action.simple_action(params,
-                                            OpenNebula.Service.resource,
-                                            "shutdown",
-                                            action_obj,
-                                            OpenNebula.Service.path);
-        },
         "del": function(params){
             params.cache_name = "SERVICE";
             OpenNebula.Action.del(params,OpenNebula.Service.resource, OpenNebula.Service.path);

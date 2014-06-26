@@ -1527,13 +1527,16 @@ var provision_info_flow =
     '<div class="large-12 large-centered columns">'+
       '<ul class="inline-list provision_action_icons">'+
         '<li>'+
-          '<a href"#" data-tooltip title="Recover a failed service, cleaning the failed VMs" class="left button medium radius success">'+
+          '<a href"#" data-tooltip title="Recover a failed service, cleaning the failed VMs" class="left button medium radius success provision_recover_button">'+
             '<i class="fa fa-fw fa-lg fa-wrench"/> '+
           '</a>'+
         '</li>'+
         '<li class="right">'+
           '<a href"#" data-tooltip title="Delete" class="button medium radius alert provision_delete_confirm_button tip-top right">'+
             '<i class="fa fa-fw fa-lg fa-trash-o"/>'+
+          '</a>'+
+          '<a href"#" data-tooltip title="Shutdown" class="button medium radius secondary provision_shutdown_confirm_button tip-top right">'+
+            '<i class="fa fa-fw fa-lg fa-power-off"/>'+
           '</a>'+
         '</li>'+
       '</ul>'+
@@ -4643,10 +4646,43 @@ function setup_info_flow(context) {
       '</div>');
   });
 
+  context.on("click", ".provision_shutdown_confirm_button", function(){
+    $(".provision_confirm_action:first", context).html(
+      '<div data-alert class="alert-box secondary radius">'+
+        '<div class="row">'+
+        '<div class="large-9 columns">'+
+          '<span style="font-size: 14px; line-height: 20px">'+
+            tr("Be careful, this action will inmediately shutdown your Flow")+
+            '<br>'+
+            tr("All the information will be lost!")+
+          '</span>'+
+        '</div>'+
+        '<div class="large-3 columns">'+
+          '<a href"#" class="provision_shutdown_button alert button large-12 radius right" style="margin-right: 15px">'+tr("Shtudown")+'</a>'+
+        '</div>'+
+        '</div>'+
+        '<a href="#" class="close">&times;</a>'+
+      '</div>');
+  });
+
   context.on("click", ".provision_recover_button", function(){
     var flow_id = $(".provision_info_flow", context).attr("flow_id");
 
     OpenNebula.Service.recover({
+      data : {
+        id: flow_id
+      },
+      success: function(request, response){
+        update_provision_flow_info(flow_id, context);
+      },
+      error: onError
+    })
+  });
+
+  context.on("click", ".provision_shutdown_button", function(){
+    var flow_id = $(".provision_info_flow", context).attr("flow_id");
+
+    OpenNebula.Service.shutdown({
       data : {
         id: flow_id
       },
