@@ -24,11 +24,7 @@ var empty_graph_placeholder =
     tr("There is no information available")+
   '</span>';
 
-var empty_quota_placeholder =
-  '<span class="fa-stack" style="color: #dfdfdf">'+
-    '<i class="fa fa-minus fa-stack-lg"></i>'+
-    //'<i class="fa fa-unlock-alt fa-stack-1x fa-inverse"></i>'+
-  '</span>';
+var empty_quota_placeholder = 0
 
 var provision_quotas_dashboard =
   '<div class="row">'+
@@ -1874,7 +1870,8 @@ function generate_custom_attrs(context, custom_attrs) {
         '<br>'+
         '<div class="row">'+
           '<div class="large-10 large-centered columns">'+
-            '<label>' +
+            '<label style="font-size: 16px">' +
+              '<i class="fa fa-asterisk" style="color:#0099c3"/> '+
               custom_attr.description +
               '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
             '</label>'+
@@ -1914,7 +1911,7 @@ function generate_cardinality_selector(context, role_template) {
           '</div>'+
           '<div class="large-7 columns text-center">'+
           '<div class="cardinality_slider_div">'+
-            '<span class="" style="color: #999;">'+tr("Change cardinality")+'</span>'+
+            '<span class="" style="color: #777;">'+tr("Change cardinality")+'</span>'+
             '<br>'+
             '<div class="cardinality_slider">'+
             '</div>'+
@@ -2164,22 +2161,30 @@ function generate_provision_network_table(context, nic, vnet_attr){
         '<i class="fa fa-pencil"/>'+
       '</span>';
   } else if (vnet_attr) {
-    nic_span = '<span style="color: #999; font-size: 14px">' + vnet_attr.description + "</span><br>"+
-      '<span class="selected_network" attr_name=\''+vnet_attr.name+'\' style="color: #777;">'+
-        '<span>' + tr("Select a Network for this interface") + "</span>"+
+    nic_span = '<span style="color: #777; font-size: 16px">' + vnet_attr.description + "</span><br>"+
+      '<span class="selected_network only-not-active" attr_name=\''+vnet_attr.name+'\' style="color: #777;">'+
+        '<span style="color: #999; font-size: 14px">' + tr("INTERFACE") + "</span>&emsp;&emsp;" +
+        '<span class="button radius small">' + tr("Select a Network") + "</span>" +
       '</span>'+
-      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
+      '<span class="only-active" style="color:#555">'+
+        tr("Select a Network for this interface")+
+      '</span>'+
+      '<span class="has-tip right only-not-active" style="cursor: pointer; margin-right:10px">'+
         '<i class="fa fa-pencil"/>'+
       '</span>';
   } else {
     nic_span =
-      '<span class="selected_network" style="color:#555">'+
+      '<span class="selected_network only-not-active" style="color: #777;">'+
+        '<span style="color: #999; font-size: 14px">' + tr("INTERFACE") + "</span>&emsp;&emsp;" +
+        '<span class="button radius small">' + tr("Select a Network") + "</span>" +
+      '</span>'+
+      '<span class="only-active" style="color:#555">'+
         tr("Select a Network for this interface")+
       '</span>'+
       '<span class="has-tip right provision_remove_nic" style="cursor: pointer;">'+
         '<i class="fa fa-times"/>'+
       '</span>'+
-      '<span class="has-tip right" style="cursor: pointer; margin-right:10px">'+
+      '<span class="has-tip right only-not-active" style="cursor: pointer; margin-right:10px">'+
         '<i class="fa fa-pencil"/>'+
       '</span>';
   }
@@ -2924,7 +2929,7 @@ function update_provision_networks_datatable(datatable) {
           '<br>'+
           '<br>'+
           '<span style="font-size: 18px; color: #999">'+
-            tr("There are no networks available. Please contact your cloud administrator")+
+            tr("There are no networks available.")+
           '</span>'+
           '</div>');
       } else {
@@ -3025,15 +3030,8 @@ function fill_provision_vms_datatable(datatable, item_list){
       '<br>'+
       '<br>'+
       '<span style="font-size: 18px; color: #999">'+
-        tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
+        tr("There are no Virtual Machines")+
       '</span>'+
-      '<br>'+
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-6 large-centered columns">'+
-          '<a href"#" class="medium large-12 button radius provision_create_vm_button"">'+tr("Create Virtual Machine")+'</a>'+
-        '</div>'+
-      '</div>'+
       '<br>'+
       '<br>'+
       '</div>');
@@ -3097,15 +3095,8 @@ function update_provision_flows_datatable(datatable, timeout) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("Looks like you don't have any Flow. Click the button below to get started")+
+              tr("There no Flows")+
             '</span>'+
-            '<br>'+
-            '<br>'+
-            '<div class="row">'+
-              '<div class="large-6 large-centered columns">'+
-                '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+tr("Create a new Flow")+'</a>'+
-              '</div>'+
-            '</div>'+
             '<br>'+
             '<br>'+
             '</div>');
@@ -3938,7 +3929,7 @@ function setup_provision_vms_list(context, opts) {
           '<br>'+
           '<br>'+
           '<span style="font-size: 18px; color: #999">'+
-            tr("Looks like you don't have any Virtual Machine. Click the button below to get started")+
+            tr("There are no Virtual Machines")+
           '</span>'+
           '</div>');
       } else {
@@ -4447,7 +4438,7 @@ function setup_info_flow(context) {
             '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
               '<span style="color: #999;px">'+
                 '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
-                _format_date(start_time)+
+                (start_time ? _format_date(start_time) : "-") +
               '</span>'+
             '</li>'+
             '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
@@ -6458,8 +6449,9 @@ $(document).ready(function(){
       }
 
       var roles = [];
+      var missing_attr = false;
+
       $(".provision_create_flow_role", context).each(function(){
-        var missing_attr = false;
         var user_inputs_values = {};
         if ($(".provision_custom_attributes", $(this))) {
           $(".provision_custom_attribute", $(".provision_custom_attributes", $(this))).each(function(){
@@ -6471,11 +6463,6 @@ $(document).ready(function(){
               user_inputs_values[$(this).attr("attr_name")] = $(this).val();
             }
           })
-        }
-
-        if (missing_attr) {
-          $(".alert-box-error", $(this)).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Flow"));
-          return false;
         }
 
         var role_template = JSON.parse($(this).attr("data"));
@@ -6491,6 +6478,11 @@ $(document).ready(function(){
           "roles" : roles,
           "custom_attrs_values": custom_attrs
         }
+      }
+
+      if (missing_attr) {
+        $(".alert-box-error", $(this)).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Flow"));
+        return false;
       }
 
       Sunstone.runAction("Provision.Flow.instantiate", template_id, extra_info);

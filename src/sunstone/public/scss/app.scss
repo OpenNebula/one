@@ -870,13 +870,13 @@ hr {
 
 .accordion {
   dd {
-    &:first-child.active {
+    &.active {
       .only-not-active {
         display: none;
       }
     }
 
-    &:first-child:not(.active) {
+    &:not(.active) {
       .only-active {
         display: none;
       }
