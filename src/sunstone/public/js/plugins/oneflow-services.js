@@ -687,10 +687,10 @@ var service_actions = {
         call: function () {
             var tab = dataTable_services.parents(".tab");
             if (Sunstone.rightInfoVisible(tab)) {
-                selected_row_role_id = $($('td.markrowchecked',servicerolesDataTable.fnGetNodes())[1]).html();
                 checked_row_rolevm_ids = new Array();
 
                 if (typeof(serviceroleVMsDataTable) !== 'undefined') {
+                    selected_row_role_id = $($('td.markrowchecked',servicerolesDataTable.fnGetNodes())[1]).html();
                     $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
                        if($('td.markrowchecked',this).length!=0)
                        {
