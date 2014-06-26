@@ -5672,23 +5672,22 @@ $(document).ready(function(){
 
     show_provision_dashboard();
 
-    $(".provision_vms_list_button").on("click", function(){
+    $(document).on("click", ".provision_vms_list_button", function(){
       OpenNebula.Helper.clear_cache("VM");
       show_provision_vm_list(0);
     });
 
-
-    $(".provision_templates_list_button").on("click", function(){
+    $(document).on("click", ".provision_templates_list_button", function(){
       OpenNebula.Helper.clear_cache("VMTEMPLATE");
       show_provision_template_list(0);
     });
 
-    $(".provision_flows_list_button").on("click", function(){
+    $(document).on("click", ".provision_flows_list_button", function(){
       OpenNebula.Helper.clear_cache("SERVICE");
       show_provision_flow_list(0);
     });
 
-    $(".provision_users_list_button").on("click", function(){
+    $(document).on("click", ".provision_users_list_button", function(){
       OpenNebula.Helper.clear_cache("USER");
       show_provision_user_list(0);
     });
