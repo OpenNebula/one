@@ -161,9 +161,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new Image from an existing one
     EOT
 
-    command :clone, clone_desc, :imageid, :name do
+    command :clone, clone_desc, :imageid, :name,
+        :options=>[OneDatastoreHelper::DATASTORE] do
         helper.perform_action(args[0],options,"cloned") do |image|
-            res = image.clone(args[1])
+            ds_id = options[:datastore] || -1 # -1 clones to self
+            res   = image.clone(args[1], ds_id)
 
             if !OpenNebula.is_error?(res)
                 puts "ID: #{res}"

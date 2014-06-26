@@ -206,10 +206,10 @@ module OpenNebula
         #
         # @return [Integer, OpenNebula::Error] The new Image ID in case
         #   of success, Error otherwise
-        def clone(name)
+        def clone(name, target_ds=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(IMAGE_METHODS[:clone], @pe_id, name)
+            rc = @client.call(IMAGE_METHODS[:clone], @pe_id, name, target_ds)
 
             return rc
         end

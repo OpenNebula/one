@@ -115,6 +115,15 @@ public:
     };
 
     /**
+     *  Retrieves DS mad name
+     *    @return string ds mad name
+     */
+    const string& get_ds_mad() const
+    {
+        return ds_mad;
+    };
+
+    /**
      *  Retrieves the base path
      *    @return base path string
      */
