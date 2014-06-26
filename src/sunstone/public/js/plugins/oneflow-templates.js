@@ -1151,6 +1151,7 @@ function setupCreateServiceTemplateDialog(){
     $(".add_service_network", dialog).trigger("click");
 
     var redo_service_networks_selector = function(dialog){
+
         $(".networks_role", dialog).hide();
         var service_networks = false;
 
@@ -1165,13 +1166,28 @@ function setupCreateServiceTemplateDialog(){
             }
         });
 
+        $('#roles_tabs_content .role_content',
+          $create_service_template_dialog).each(function(){
+
+            var role_section = this;
+
+            var selected_networks = [];
+            $(".service_network_checkbox:checked", role_section).each(function(){
+                selected_networks.push($(this).val());
+            });
+
+            $(".networks_role_body", role_section).html(str);
+
+            $(".vm_template_content", role_section).val("");
+
+            $.each(selected_networks, function(){
+                $(".service_network_checkbox[value="+this+"]", role_section).attr('checked', true).change();
+            });
+        });
+
         if (service_networks) {
             $(".networks_role", dialog).show();
         }
-
-        $(".vm_template_content", dialog).val("");
-
-        $(".networks_role_body", dialog).html(str);
     }
 
     var init_service_networks_selector = function(dialog, role_section){
@@ -1569,9 +1585,17 @@ function fillUpUpdateServiceTemplateDialog(request, response){
         $("#role_name", context).change();
         roles_names.push(value.name);
 
-        // TODO select current interfaces
         if (value.vm_template_content){
-            $(".vm_template_content", context).val(htmlDecode(value.vm_template_content));
+
+            $(".service_networks .service_network_name", dialog).each(function(){
+                if ($(this).val()) {
+                    var reg = new RegExp("\\$"+$(this).val()+"\\b");
+
+                    if(reg.exec(value.vm_template_content) != null){
+                        $(".service_network_checkbox[value="+$(this).val()+"]", context).attr('checked', true).change();
+                    }
+                }
+            });
         }
 
         $("#cardinality", context).val(htmlDecode(value.cardinality));
