@@ -1131,6 +1131,8 @@ function setupCreateServiceTemplateDialog(){
 
     setupTips(dialog);
 
+    dialog.off();
+
     dialog.on("click", ".add_service_network", function(){
         $(".service_networks tbody").append(
             '<tr>\
@@ -1146,14 +1148,14 @@ function setupCreateServiceTemplateDialog(){
             </tr>');
     })
 
-    $(".add_service_network").trigger("click");
+    $(".add_service_network", dialog).trigger("click");
 
-    var generate_service_networks_selector = function(){
-        $(".networks_role").hide();
+    var redo_service_networks_selector = function(dialog){
+        $(".networks_role", dialog).hide();
         var service_networks = false;
 
         var str = "";
-        $(".service_networks .service_network_name").each(function(){
+        $(".service_networks .service_network_name", dialog).each(function(){
             if ($(this).val()) {
                 service_networks = true;
                 str += "<tr>\
@@ -1164,23 +1166,47 @@ function setupCreateServiceTemplateDialog(){
         });
 
         if (service_networks) {
-            $(".networks_role").show();
+            $(".networks_role", dialog).show();
         }
 
-        $(".vm_template_content").val("");
+        $(".vm_template_content", dialog).val("");
 
-        $(".networks_role_body").html(str);
+        $(".networks_role_body", dialog).html(str);
+    }
+
+    var init_service_networks_selector = function(dialog, role_section){
+        $(".networks_role", role_section).hide();
+        var service_networks = false;
+
+        var str = "";
+        $(".service_networks .service_network_name", dialog).each(function(){
+            if ($(this).val()) {
+                service_networks = true;
+                str += "<tr>\
+                    <td style='width:10%'><input class='service_network_checkbox check_item' type='checkbox' value='"+$(this).val()+"' id='"+$(this).val()+"'/></td>\
+                    <td>"+$(this).val()+"</td><tr>\
+                </tr>";
+            }
+        });
+
+        if (service_networks) {
+            $(".networks_role", role_section).show();
+        }
+
+        $(".vm_template_content", role_section).val("");
+
+        $(".networks_role_body", role_section).html(str);
     }
 
     dialog.on("change", ".service_network_name", function(){
-        generate_service_networks_selector();
-    })
+        redo_service_networks_selector(dialog);
+    });
 
-    $( ".service_networks i.remove-tab").live( "click", function() {
+    dialog.on("click", ".service_networks i.remove-tab", function(){
         var tr = $(this).closest('tr');
         tr.remove();
 
-        generate_service_networks_selector();
+        redo_service_networks_selector(dialog);
     });
 
     var add_role_tab = function(role_id) {
@@ -1194,7 +1220,7 @@ function setupCreateServiceTemplateDialog(){
         generate_elasticity_accordion(role_id, $(".elasticity_accordion", role_section))
         generate_advanced_role_accordion(role_id, $(".advanced_role_accordion", role_section))
 
-        generate_service_networks_selector();
+        init_service_networks_selector(dialog, role_section);
 
         var a = $("<dd>\
             <a class='text-center' id='"+html_role_id+"' href='#"+html_role_id+"Tab'>\
@@ -1366,7 +1392,7 @@ function generate_json_service_template_from_form() {
         role['vm_template'] = $('#vm_template .resource_list_select', this).val();
         role['shutdown_action'] = $('select[name="shutdown_action_role"]', this).val();
         role['parents'] = [];
-        role['vm_template_content'] = escapeDoubleQuotes($(".vm_template_content", this).val());
+        role['vm_template_content'] = $(".vm_template_content", this).val();
         console.log($(".vm_template_content", this).val())
 
         if (!name || !cardinality || !template){
@@ -1507,6 +1533,8 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     if (service_template.TEMPLATE.BODY['custom_attrs']) {
         $("a[href='#network_configuration_and_attributes']", dialog).trigger("click");
 
+        $(".service_networks i.remove-tab", dialog).trigger("click");
+
         $.each(service_template.TEMPLATE.BODY['custom_attrs'], function(key, attr){
             var parts = attr.split("|");
             // 0 mandatory; 1 type; 2 desc;
@@ -1519,11 +1547,12 @@ function fillUpUpdateServiceTemplateDialog(request, response){
 
             switch (parts[1]) {
               case "vnet_id":
-                var tr = $(".service_networks tbody tr").first();
-                $(".service_network_name").val(htmlDecode(attrs.name)).change();
-                $(".service_network_description").val(htmlDecode(attrs.description));
-
                 $(".add_service_network", dialog).trigger("click");
+
+                var tr = $(".service_networks tbody tr", dialog).last();
+                $(".service_network_name", tr).val(htmlDecode(attrs.name)).change();
+                $(".service_network_description", tr).val(htmlDecode(attrs.description));
+
                 break;
             }
         });
