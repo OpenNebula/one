@@ -854,6 +854,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                         '</div>'+
                       '</div>'+
                     '</div>'+
+                    '<br class="only-not-active">'+
                     '<i class="fa fa-lg fa-comments only-active"></i> '+
                     tr("Change Language")+
                   '</a>'+
@@ -895,6 +896,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                         '</div>'+
                       '</div>'+
                     '</div>'+
+                    '<br class="only-not-active">'+
                     '<i class="fa fa-lg fa-lock only-active"></i> '+
                     tr("Change Password")+
                   '</a>'+
@@ -943,6 +945,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                         '</div>'+
                       '</div>'+
                     '</div>'+
+                    '<br class="only-not-active">'+
                     '<i class="fa fa-lg fa-picture-o only-active"></i> '+
                     tr("Change view")+
                   '</a>'+
@@ -984,6 +987,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                           '</div>'+
                         '</div>'+
                       '</div>'+
+                      '<br class="only-not-active">'+
                       '<i class="fa fa-key fa-lg only-active"></i> '+
                       '<span class="provision_add_ssh_key_button">'+ tr("Add SSH Key")+ '</span>'+
                       '<span class="provision_update_ssh_key_button">'+ tr("Update SSH Key")+ '</span>'+
