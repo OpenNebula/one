@@ -46,6 +46,7 @@ var create_datastore_tmpl =
               <option value="fs_lvm">' + tr("FS LVM") + '</option>\
               <option value="ceph">' + tr("Ceph") + '</option>\
               <option value="gluster">' + tr("Gluster") + '</option>\
+              <option value="dev">' + tr("Devices") + '</option>\
               <option value="custom">' + tr("Custom") + '</option>\
             </select>\
           </div>\
@@ -79,6 +80,7 @@ var create_datastore_tmpl =
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
+                  <option value="dev">' + tr("Devices") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
                 </select>\
                 <div>\
@@ -96,6 +98,7 @@ var create_datastore_tmpl =
                   <option value="fs_lvm">' + tr("FS LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
+                  <option value="dev">' + tr("Devices") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
                 </select>\
                 <div>\
@@ -846,6 +849,9 @@ function setupCreateDatastoreDialog(){
           case 'gluster':
             select_gluster();
             break;
+          case 'dev':
+            select_devices();
+            break;
           case 'custom':
             select_custom();
             break;
@@ -1078,6 +1084,21 @@ function select_gluster(){
     $('select#disk_type').attr('disabled', 'disabled');
     $('label[for="gluster_host"],input#gluster_host').parent().fadeIn();
     $('label[for="gluster_volume"],input#gluster_volume').parent().fadeIn();
+}
+
+function select_devices(){
+    $('select#ds_mad').val('dev');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('dev');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').attr('disabled', 'disabled');
+    $('select#disk_type').val('block');
+    $('select#disk_type').attr('disabled', 'disabled');
+    $('input#safe_dirs').attr('disabled', 'disabled');
+    $('input#base_path').attr('disabled', 'disabled');
+    $('input#limit_mb').attr('disabled', 'disabled');
+    $('input#restricted_dirs').attr('disabled', 'disabled');
 }
 
 function select_custom(){
