@@ -874,11 +874,17 @@ hr {
       .only-not-active {
         display: none;
       }
+      .only-active {
+        display: inline-block;
+      }
     }
 
     &:not(.active) {
       .only-active {
         display: none;
+      }
+      .only-not-active {
+        display: inline-block;
       }
     }
   }
