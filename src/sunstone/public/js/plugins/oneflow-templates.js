@@ -242,10 +242,10 @@ function generate_advanced_role_accordion(role_id, context){
                     </div>\
                     <div class="row">\
                         <div class="service_template_param st_man large-12 columns">'+
-                          '<label  for="vm_template_content">'+tr("VM Template Content")+'\
+                          '<label  for="vm_template_contents">'+tr("VM Template Content")+'\
                             <span class="tip">'+tr("This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated")+'</span>\
                           </label>'+
-                          '<textarea type="text" class="vm_template_content" name="vm_template_content"/>'+
+                          '<textarea type="text" class="vm_template_contents" name="vm_template_contents"/>'+
                         '</div>\
                     </div>\
                 </div>\
@@ -1149,12 +1149,12 @@ function setup_role_tab_content(role_section, html_role_id) {
     add_sche_policy_tab();
 
     role_section.on("change", ".service_network_checkbox", function(){
-        var vm_template_content = "";
+        var vm_template_contents = "";
         $(".service_network_checkbox:checked", role_section).each(function(){
-            vm_template_content += "NIC=[NETWORK_ID=\"$"+$(this).val()+"\"]\n"
+            vm_template_contents += "NIC=[NETWORK_ID=\"$"+$(this).val()+"\"]\n"
         })
 
-        $(".vm_template_content", role_section).val(vm_template_content);
+        $(".vm_template_contents", role_section).val(vm_template_contents);
     })
 
     return false;
@@ -1234,7 +1234,7 @@ function setupCreateServiceTemplateDialog(){
                 $(".networks_role", role_section).show();
             }
 
-            $(".vm_template_content", role_section).val("");
+            $(".vm_template_contents", role_section).val("");
 
             $.each(selected_networks, function(){
                 $(".service_network_checkbox[value="+this+"]", role_section).attr('checked', true).change();
@@ -1436,8 +1436,8 @@ function generate_json_service_template_from_form() {
         role['vm_template'] = $('#vm_template .resource_list_select', this).val();
         role['shutdown_action'] = $('select[name="shutdown_action_role"]', this).val();
         role['parents'] = [];
-        role['vm_template_content'] = $(".vm_template_content", this).val();
-        console.log($(".vm_template_content", this).val())
+        role['vm_template_contents'] = $(".vm_template_contents", this).val();
+        console.log($(".vm_template_contents", this).val())
 
         if (!name || !cardinality || !template){
             notifyError(tr("Please specify name, cardinality and template for this role"));
@@ -1613,13 +1613,13 @@ function fillUpUpdateServiceTemplateDialog(request, response){
         $("#role_name", context).change();
         roles_names.push(value.name);
 
-        if (value.vm_template_content){
+        if (value.vm_template_contents){
 
             $(".service_networks .service_network_name", dialog).each(function(){
                 if ($(this).val()) {
                     var reg = new RegExp("\\$"+$(this).val()+"\\b");
 
-                    if(reg.exec(value.vm_template_content) != null){
+                    if(reg.exec(value.vm_template_contents) != null){
                         $(".service_network_checkbox[value="+$(this).val()+"]", context).attr('checked', true).change();
                     }
                 }
