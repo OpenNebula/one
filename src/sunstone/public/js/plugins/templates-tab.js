@@ -93,7 +93,7 @@ var instantiate_vm_template_tmpl ='\
     <i class="fa fa-spinner fa-spin"></i>\
   </div>\
   <div class="form_buttons">\
-     <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
+     <button class="button radius right success" id="instantiate_vm_template_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
   </div>\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
@@ -213,7 +213,7 @@ var easy_provision_vm_template_tmpl ='\
         </div>\
       </fieldset>\
     <div class="form_buttons reveal-footer">\
-         <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
+         <button class="button radius right success" id="instantiate_vm_template_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
   </form>\
@@ -4839,10 +4839,10 @@ function setupInstantiateTemplateDialog(easy_provision){
         dialog.addClass("reveal-modal").attr("data-reveal", "");
         dialog.removeClass("max-height");
 
-        $("#instantiate_vm_tenplate_proceed", dialog).attr("disabled", "disabled");
+        $("#instantiate_vm_template_proceed", dialog).attr("disabled", "disabled");
 
         var selected_nodes = getSelectedNodes(dataTable_templates);
-        template_id = ""+selected_nodes[0];
+        var template_id = ""+selected_nodes[0];
 
         OpenNebula.Template.show({
             data : {
@@ -4850,15 +4850,14 @@ function setupInstantiateTemplateDialog(easy_provision){
             },
             timeout: true,
             success: function (request, template_json){
-                if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
-                    generateVMTemplateUserInputs(
-                        $("#instantiate_vm_user_inputs", dialog),
-                        template_json);
-                } else {
-                    $("#instantiate_vm_user_inputs", dialog).empty();
-                }
 
-                $("#instantiate_vm_tenplate_proceed", dialog).removeAttr("disabled");
+                $("#instantiate_vm_user_inputs", dialog).empty();
+
+                generateVMTemplateUserInputs(
+                    $("#instantiate_vm_user_inputs", dialog),
+                    template_json);
+
+                $("#instantiate_vm_template_proceed", dialog).removeAttr("disabled");
             },
             error: function(request,error_json, container){
                 onError(request,error_json, container);

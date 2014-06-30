@@ -399,6 +399,40 @@ function generate_elasticity_accordion(role_id, context) {
     $(document).foundation();
 }
 
+var instantiate_service_template_tmpl ='\
+<div class="row">\
+  <h3 class="subheader">'+tr("Instantiate Service Template")+'</h3>\
+</div>\
+<form id="instantiate_service_template_form" action="">\
+  <div class="row">\
+    <div class="large-6 columns">\
+        <label for="service_name">'+tr("Service Name")+
+          '<span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several Services, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>'+
+        '</label>\
+        <input type="text" name="service_name" id="service_name" />\
+    </div>\
+  </div>\
+  <div class="row">\
+    <div class="large-6 columns">\
+        <label for="service_n_times">'+tr("Number of instances")+
+          '<span class="tip">'+tr("Number of Services that will be created using this template")+'.</span>'+
+        '</label>\
+        <input type="text" name="service_n_times" id="service_n_times" value="1">\
+    </div>\
+  </div>\
+  <div id="instantiate_service_user_inputs">\
+    <i class="fa fa-spinner fa-spin"></i>\
+  </div>\
+  <div id="instantiate_service_role_user_inputs">\
+  </div>\
+  <div class="form_buttons">\
+     <button class="button radius right success" id="instantiate_service_tenplate_proceed" value="ServiceTemplate.instantiate">'+tr("Instantiate")+'</button>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+</form>';
+
+
+
 var dataTable_service_templates;
 var $create_service_template_dialog;
 
@@ -494,6 +528,13 @@ var service_template_actions = {
         notify: true
     },
 
+    "ServiceTemplate.instantiate_dialog" : {
+        type: "custom",
+        call: function(){
+            popUpInstantiateServiceTemplateDialog();
+        }
+    },
+
     "ServiceTemplate.refresh" : {
         type: "custom",
         call: function () {
@@ -570,7 +611,7 @@ var service_template_buttons = {
         type: "create_dialog",
         layout: "create"
     },
-    "ServiceTemplate.instantiate" : {
+    "ServiceTemplate.instantiate_dialog" : {
         type: "action",
         layout: "main",
         text: tr("Instantiate")
@@ -1666,6 +1707,183 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     });
 
     dialog.foundation('reveal', 'open');
+}
+
+function popUpInstantiateServiceTemplateDialog(){
+    var selected_nodes = getSelectedNodes(dataTable_service_templates);
+
+    if ( selected_nodes.length != 1 )
+    {
+        notifyMessage("Please select one (and just one) template to instantiate.");
+        return false;
+    }
+
+    setupInstantiateServiceTemplateDialog();
+    $instantiate_service_template_dialog.foundation().foundation('reveal', 'open');
+    $("input#service_name",$instantiate_service_template_dialog).focus();
+}
+
+// Instantiate dialog
+// Sets up the instiantiate template dialog and all the processing associated to it
+function setupInstantiateServiceTemplateDialog(){
+
+    dialogs_context.append('<div id="instantiate_service_template_dialog"></div>');
+    //Insert HTML in place
+    $instantiate_service_template_dialog = $('#instantiate_service_template_dialog')
+    var dialog = $instantiate_service_template_dialog;
+
+    dialog.html(instantiate_service_template_tmpl);
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
+    dialog.removeClass("max-height");
+
+    $("#instantiate_service_tenplate_proceed", dialog).attr("disabled", "disabled");
+
+    var selected_nodes = getSelectedNodes(dataTable_service_templates);
+    var template_id = ""+selected_nodes[0];
+
+    var service_template_json;
+
+    OpenNebula.ServiceTemplate.show({
+        data : {
+            id: template_id
+        },
+        timeout: true,
+        success: function (request, template_json){
+
+            service_template_json = template_json;
+
+            $("#instantiate_service_user_inputs", dialog).empty();
+
+            generateServiceTemplateUserInputs(
+                $("#instantiate_service_user_inputs", dialog),
+                template_json);
+
+            n_roles = template_json.DOCUMENT.TEMPLATE.BODY.roles.length;
+            n_roles_done = 0;
+
+            $.each(template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+                var div_id = "user_input_role_"+index;
+
+                $("#instantiate_service_role_user_inputs", dialog).append(
+                    '<div class="row">\
+                      <div id="'+div_id+'" class="large-6 columns">\
+                      </div>\
+                    </div>'
+                );
+
+                OpenNebula.Template.show({
+                    data : {
+                        id: role.vm_template
+                    },
+                    timeout: true,
+                    success: function (request, vm_template_json){
+
+                        $("#"+div_id, dialog).empty();
+
+                        generateVMTemplateUserInputs(
+                            $("#"+div_id, dialog),
+                            vm_template_json,
+                            {
+                                text_header: tr("Custom Attributes for Role") + " " + role.name
+                            }
+                        );
+
+                        n_roles_done += 1;
+
+                        if(n_roles_done == n_roles){
+                            $("#instantiate_service_tenplate_proceed", dialog).removeAttr("disabled");
+                        }
+                    },
+                    error: function(request,error_json, container){
+                        onError(request,error_json, container);
+                        $("#instantiate_vm_user_inputs", dialog).empty();
+                    }
+                });
+            });
+        },
+        error: function(request,error_json, container){
+            onError(request,error_json, container);
+            $("#instantiate_service_user_inputs", dialog).empty();
+        }
+    });
+
+    setupTips(dialog);
+
+    $('#instantiate_service_template_form',dialog).submit(function(){
+        var service_name = $('#service_name',this).val();
+        var n_times = $('#service_n_times',this).val();
+        var n_times_int=1;
+
+        var template_id
+        if ($("#TEMPLATE_ID", this).val()) {
+            template_id = $("#TEMPLATE_ID", this).val();
+        } else {
+            var selected_nodes = getSelectedNodes(dataTable_service_templates);
+            template_id = ""+selected_nodes[0];
+        }
+
+
+        if (n_times.length){
+            n_times_int=parseInt(n_times,10);
+        };
+
+        var extra_msg = "";
+        if (n_times_int > 1) {
+            extra_msg = n_times_int+" times";
+        }
+
+        var extra_info = {
+            'merge_template': {}
+        };
+
+        var tmp_json = {};
+        retrieveWizardFields($("#instantiate_service_user_inputs", dialog), tmp_json);
+
+        extra_info.merge_template.custom_attrs_values = tmp_json;
+
+        extra_info.merge_template.roles = [];
+
+        $.each(service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+            var div_id = "user_input_role_"+index;
+
+            tmp_json = {};
+
+            retrieveWizardFields($("#"+div_id, dialog), tmp_json);
+
+            role.user_inputs_values = tmp_json;
+
+            extra_info.merge_template.roles.push(role);
+        });
+
+        if (!service_name.length){ //empty name
+            for (var i=0; i< n_times_int; i++){
+                Sunstone.runAction("ServiceTemplate.instantiate", [template_id], extra_info);
+            }
+        }
+        else
+        {
+            if (service_name.indexOf("%i") == -1){//no wildcard, all with the same name
+                extra_info['merge_template']['name'] = service_name;
+
+                for (var i=0; i< n_times_int; i++){
+                    Sunstone.runAction(
+                        "ServiceTemplate.instantiate",
+                        [template_id], extra_info);
+                }
+            } else { //wildcard present: replace wildcard
+                for (var i=0; i< n_times_int; i++){
+                    extra_info['merge_template']['name'] = service_name.replace(/%i/gi,i);
+
+                    Sunstone.runAction(
+                        "ServiceTemplate.instantiate",
+                        [template_id], extra_info);
+                }
+            }
+        }
+
+        $instantiate_service_template_dialog.foundation('reveal', 'close')
+        return false;
+    });
 }
 
 //The DOM is ready at this point
