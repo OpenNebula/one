@@ -1948,19 +1948,19 @@ function wizard_tab_dd(){
     }
 
     if (Config.isTemplateCreationTabEnabled('os_booting')){
-        str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>OS Booting</a></dd>";
+        str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>"+tr("OS Booting")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('input_output')){
-        str += "<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>Input/Output</a></dd>";
+        str += "<dd><a href='#ioTab'><i class='fa fa-exchange'></i><br>"+tr("Input/Output")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('context')){
-        str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>Context</a></dd>";
+        str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>"+tr("Context")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
-        str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>Scheduling</a></dd>";
+        str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>"+tr("Scheduling")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('other')){
