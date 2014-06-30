@@ -37,7 +37,7 @@ var create_vn_tmpl =
           <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
           <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Configuration")+'</a></dd>\
           <dd><a href="#vnetCreateARTab"><i class="fa fa-align-justify"></i><br>'+tr("Addresses")+'</a></dd>\
-          <dd><a href="#vnetCreateContextTab"><i class="fa fa-ellipsis-h"></i><br>'+tr("Other")+'</a></dd>\
+          <dd><a href="#vnetCreateContextTab"><i class="fa fa-folder"></i><br>'+tr("Context")+'</a></dd>\
         </dl>\
         <div id="vnet_create_tabs_content" class="tabs-content">\
           <div class="content active" id="vnetCreateGeneralTab">\
@@ -55,43 +55,6 @@ var create_vn_tmpl =
                   <span class="tip">'+tr("Description of the Virtual Network")+'</span>\
                 </label>\
                 <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>\
-              </div>\
-            </div>\
-            <br>\
-            <div class="row">\
-              <div class="large-6 columns">\
-                  <label for="net_address">'+tr("Network address")+':\
-                    <span class="tip">'+tr("Base network address. For example, 192.168.1.0")+'</span>\
-                  </label>\
-                  <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />\
-              </div>\
-              <div class="large-6 columns">\
-                  <label for="net_mask">'+tr("Network mask")+':\
-                    <span class="tip">'+tr("Network mask. For example, 255.255.255.0")+'</span>\
-                  </label>\
-                  <input type="text" wizard_field="NETWORK_MASK" name="net_mask" id="net_mask" />\
-              </div>\
-            </div>\
-            <div class="row">\
-              <div class="large-6 columns">\
-                  <label for="net_gateway">'+tr("Gateway")+':\
-                    <span class="tip">'+tr("Router for this network. Leave empty if the network is not routable")+'</span>\
-                  </label>\
-                  <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />\
-              </div>\
-              <div class="large-6 columns">\
-                  <label for="net_gateway6">'+tr("IPv6 Gateway")+':\
-                    <span class="tip">'+tr("IPv6 Router for this network")+'</span>\
-                  </label>\
-                  <input type="text" wizard_field="GATEWAY6" name="net_gateway6" id="net_gateway6" />\
-              </div>\
-            </div>\
-            <div class="row">\
-              <div class="large-6 columns">\
-                  <label for="net_dns">'+tr("DNS")+':\
-                    <span class="tip">'+tr("Specific DNS for this network")+'</span>\
-                  </label>\
-                  <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />\
               </div>\
             </div>\
           </div>\
@@ -175,6 +138,43 @@ var create_vn_tmpl =
             </div>\
           </div>\
           <div class="content" id="vnetCreateContextTab">\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_address">'+tr("Network address")+':\
+                    <span class="tip">'+tr("Base network address. For example, 192.168.1.0")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />\
+              </div>\
+              <div class="large-6 columns">\
+                  <label for="net_mask">'+tr("Network mask")+':\
+                    <span class="tip">'+tr("Network mask. For example, 255.255.255.0")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="NETWORK_MASK" name="net_mask" id="net_mask" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_gateway">'+tr("Gateway")+':\
+                    <span class="tip">'+tr("Router for this network. Leave empty if the network is not routable")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />\
+              </div>\
+              <div class="large-6 columns">\
+                  <label for="net_gateway6">'+tr("IPv6 Gateway")+':\
+                    <span class="tip">'+tr("IPv6 Router for this network")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="GATEWAY6" name="net_gateway6" id="net_gateway6" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_dns">'+tr("DNS")+':\
+                    <span class="tip">'+tr("Specific DNS for this network")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />\
+              </div>\
+            </div>\
+            <br>\
             <div class="row">\
               <div class="large-12 columns">\
                 <span>' + tr("Custom attributes") + '</span>\
@@ -1242,7 +1242,7 @@ function setupCreateVNetDialog() {
 
         retrieveWizardFields($("#vnetCreateGeneralTab", dialog), network_json);
         retrieveWizardFields($("#vnetCreateBridgeTab", dialog), network_json);
-        retrieveWizardFields($("#vnetCreateGeneralTab", dialog), network_json);
+        retrieveWizardFields($("#vnetCreateContextTab", dialog), network_json);
 
         retrieveCustomTags($("#vnetCreateContextTab", dialog), network_json);
 
