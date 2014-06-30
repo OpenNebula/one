@@ -74,45 +74,7 @@ var create_vm_tmpl ='\
     </fieldset>\
     <fieldset>\
       <legend>'+tr("Step 2: Select a template")+'</legend>\
-      <div class="row">\
-        <div class="large-8 columns">\
-           <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-        </div>\
-        <div class="large-4 columns">\
-          <input id="template_templates_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-        </div>\
-      </div>\
-      <div class="row">\
-        <div class="large-12 columns">\
-          <table id="template_templates_table" class="datatable twelve">\
-            <thead>\
-              <tr>\
-                <th></th>\
-                <th>'+tr("ID")+'</th>\
-                <th>'+tr("Owner")+'</th>\
-                <th>'+tr("Group")+'</th>\
-                <th>'+tr("Name")+'</th>\
-                <th>'+tr("Registration time")+'</th>\
-              </tr>\
-            </thead>\
-            <tbody id="tbodytemplates">\
-            </tbody>\
-          </table>\
-        </div>\
-      </div>\
-      <div class="row hidden">\
-        <div class="large-12 columns">\
-          <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
-          <input type="text" id="TEMPLATE_ID" name="TEMPLATE_ID"/>\
-        </div>\
-      </div>\
-      <div id="selected_template" class="vm_param row">\
-        <div class="large-12 columns">\
-          <span id="select_template" class="radius secondary label">'+tr("Please select a template from the list")+'</span>\
-          <span id="template_selected" class="radius secondary label hidden">'+tr("You selected the following template:")+'</span>\
-          <span class="radius label" type="text" id="TEMPLATE_NAME" name="template"></span>\
-        </div>\
-      </div>\
+      '+generateTemplateTableSelect("vm_create")+'\
     </fieldset>\
     <div id="select_image_step">\
       <fieldset>\
@@ -2857,58 +2819,9 @@ function setupCreateVMDialog(include_select_image){
     $(document).foundation();
     //dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var dataTable_template_templates = $('#template_templates_table', dialog).dataTable({
-        "bSortClasses": false,
-        "bDeferRender": true,
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [0,2,3,5]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                if ($(this).find("td:eq(0)").html() == $('#TEMPLATE_ID', dialog).val()) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
-    });
+    setupTemplateTableSelect(dialog, "vm_create");
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_templates(dataTable_template_templates);
-
-    $('#template_templates_table_search', dialog).keyup(function(){
-      dataTable_template_templates.fnFilter( $(this).val() );
-    })
-
-    dataTable_template_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-    $('#template_templates_table tbody', dialog).delegate("tr", "click", function(e){
-        var aData = dataTable_template_templates.fnGetData(this);
-
-        $("td.markrow", dataTable_template_templates).removeClass('markrow');
-        $('tbody input.check_item', dataTable_template_templates).removeAttr('checked');
-
-        $('#template_selected', dialog).show();
-        $('#select_template', dialog).hide();
-        $('.alert-box', dialog).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#TEMPLATE_NAME', dialog).text(aData[4]);
-        $('#TEMPLATE_ID', dialog).val(aData[1]);
-        return true;
-    });
-
-    $("#refresh_template_templates_table_button_class").die();
-    $("#refresh_template_templates_table_button_class").live('click', function(){
-        update_datatable_template_templates($('#template_templates_table').dataTable());
-    });
+    $('#refresh_button_vm_create', dialog).click();
 
     if (include_select_image) {
       $("#select_image_step", dialog).show();
@@ -2972,7 +2885,7 @@ function setupCreateVMDialog(include_select_image){
 
     $('#create_vm_form',dialog).submit(function(){
         var vm_name = $('#vm_name',this).val();
-        var template_id = $('#TEMPLATE_ID',this).val();
+        var template_id = $("#selected_resource_id_vm_create", this).val();
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
 

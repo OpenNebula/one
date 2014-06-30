@@ -4731,6 +4731,9 @@ function retrieveWizardFields(dialog, template_json){
     });
 }
 
+//==============================================================================
+// Resource tables with "please select" mechanism
+//==============================================================================
 
 function generateVNetTableSelect(context_id){
 
@@ -4813,6 +4816,93 @@ function setupVNetTableSelect(section, context_id, opts){
                     });
 
                     updateView(network_list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateTemplateTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Registration time")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "select_resource": tr("Please select a template from the list"),
+        "you_selected": tr("You selected the following template:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupTemplateTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('templates-tab');
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+
+        "update_fn": function(datatable){
+            OpenNebula.Template.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.VNET);
+                        }
+
+                        if(add){
+                            list_array.push(templateElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
                 },
                 error: onError
             });
@@ -4925,6 +5015,10 @@ function setupResourceTableSelect(section, context_id, options) {
 
     setupTips(section);
 }
+
+//==============================================================================
+// VM & Service user inputs
+//==============================================================================
 
 // It will replace the div's html with a row for each USER_INPUTS
 // opts.text_header: header text for the text & password inputs
