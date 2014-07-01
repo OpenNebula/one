@@ -147,53 +147,7 @@ var deploy_vm_tmpl ='\
     <div class="row">\
       <fieldset>\
         <legend>'+tr("Select a Host")+'</legend>\
-        <div class="row collapse">\
-          <div class="large-8 columns">\
-             <button id="refresh_deploy_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-4 columns">\
-            <input id="deploy_hosts_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <div class="row collapse">\
-          <div class="large-12 columns">\
-            <table id="deploy_datatable_hosts" class="datatable twelve">\
-              <thead>\
-                <tr>\
-                  <th></th>\
-                  <th>' + tr("ID") + '</th>\
-                  <th>' + tr("Name") + '</th>\
-                  <th>' + tr("Cluster") + '</th>\
-                  <th>' + tr("RVMs") + '</th>\
-                  <th>' + tr("Real CPU") + '</th>\
-                  <th>' + tr("Allocated CPU") + '</th>\
-                  <th>' + tr("Real MEM") + '</th>\
-                  <th>' + tr("Allocated MEM") + '</th>\
-                  <th>' + tr("Status") + '</th>\
-                  <th>' + tr("IM MAD") + '</th>\
-                  <th>' + tr("VM MAD") + '</th>\
-                  <th>' + tr("Last monitored on") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyhosts">\
-              </tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row hidden">\
-          <div class="large-12 columns">\
-            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
-            <input type="text" id="HOST_ID" name="HOST_ID"/>\
-          </div>\
-        </div>\
-        <br>\
-        <div id="selected_host" class="vm_param row">\
-          <div class="large-12 columns">\
-            <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
-            <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
-            <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
-          </div>\
-        </div>\
+        '+generateHostTableSelect("deploy_vm")+'\
       </fieldset>\
     </div>\
     <dl class="accordion" id="advanced_toggle" data-accordion>\
@@ -282,52 +236,7 @@ var migrate_vm_tmpl ='\
       <fieldset>\
         <legend>'+tr("Select a Host")+'</legend>\
         <div class="row collapse">\
-          <div class="large-9 columns">\
-             <button id="refresh_migrate_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-3 columns">\
-            <input id="migrate_hosts_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <table id="migrate_datatable_hosts" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>' + tr("ID") + '</th>\
-              <th>' + tr("Name") + '</th>\
-              <th>' + tr("Cluster") + '</th>\
-              <th>' + tr("RVMs") + '</th>\
-              <th>' + tr("Real CPU") + '</th>\
-              <th>' + tr("Allocated CPU") + '</th>\
-              <th>' + tr("Real MEM") + '</th>\
-              <th>' + tr("Allocated MEM") + '</th>\
-              <th>' + tr("Status") + '</th>\
-              <th>' + tr("IM MAD") + '</th>\
-              <th>' + tr("VM MAD") + '</th>\
-              <th>' + tr("Last monitored on") + '</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodyhosts">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="large-4 columns">\
-            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
-          </div>\
-          <div class="large-6 columns">\
-            <input type="text" id="HOST_ID" name="HOST_ID"/>\
-          </div>\
-          <div class="large-2 columns">\
-            <div class="tip">\
-            </div>\
-          </div>\
-        </div>\
-        <br>\
-        <div id="selected_host" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
-          <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
-          <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
-        </div>\
+        '+generateHostTableSelect("migrate_vm")+'\
       </fieldset>\
     </div>\
     <br>\
@@ -2966,58 +2875,9 @@ function setupDeployVMDialog(){
     dialog.html(deploy_vm_tmpl);
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var dataTable_deploy_hosts = $('#deploy_datatable_hosts', dialog).dataTable({
-        "bSortClasses": false,
-        "bDeferRender": true,
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check",5,6,7,8] },
-              { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
-              { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                if ($(this).find("td:eq(0)").html() == $('#HOST_ID', dialog).val()) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
-    });
+    setupHostTableSelect(dialog, "deploy_vm");
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_hosts(dataTable_deploy_hosts);
-
-    $('#deploy_hosts_table_search', dialog).keyup(function(){
-      dataTable_deploy_hosts.fnFilter( $(this).val() );
-    })
-
-    $('#deploy_datatable_hosts tbody', dialog).delegate("tr", "click", function(e){
-        var aData = dataTable_deploy_hosts.fnGetData(this);
-
-        $("td.markrow", dataTable_deploy_hosts).removeClass('markrow');
-        $('tbody input.check_item', dataTable_deploy_hosts).removeAttr('checked');
-
-        $('#host_selected', dialog).show();
-        $('#select_host', dialog).hide();
-        $('.alert-box', dialog).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#HOST_NAME', dialog).text(aData[2]);
-        $('#HOST_ID', dialog).val(aData[1]);
-        return true;
-    });
-
-    $("#refresh_deploy_hosts_table_button_class").die();
-    $("#refresh_deploy_hosts_table_button_class").live('click', function(){
-        update_datatable_template_hosts($('#deploy_datatable_hosts').dataTable());
-    });
-
+    $('#refresh_button_deploy_vm', dialog).click();
 
     var dataTable_deploy_datastores = $('#deploy_datatable_datastores', dialog).dataTable({
       "bSortClasses": false,
@@ -3084,8 +2944,8 @@ function setupDeployVMDialog(){
     $('#deploy_vm_form',dialog).submit(function(){
         var extra_info = {};
 
-        if ($('#HOST_ID', dialog).val()) {
-            extra_info['host_id'] = $('#HOST_ID', dialog).val();
+        if ($("#selected_resource_id_deploy_vm", dialog).val()) {
+            extra_info['host_id'] = $("#selected_resource_id_deploy_vm", dialog).val();
         } else {
             notifyError(tr("You have not selected a host"));
             return false;
@@ -3113,62 +2973,42 @@ function setupMigrateVMDialog(live){
     dialog.html(migrate_vm_tmpl);
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var dataTable_migrate_hosts = $('#migrate_datatable_hosts', dialog).dataTable({
-        "bSortClasses": false,
-        "bDeferRender": true,
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check",5,6,7,8] },
-              { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
-              { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                if ($(this).find("td:eq(0)").html() == $('#HOST_ID', dialog).val()) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
+    $.each(getSelectedNodes(dataTable_vMachines), function(){
+        var vm_id = ""+this;
+
+        OpenNebula.VM.show({
+            data : {
+                id: vm_id
+            },
+            timeout: true,
+            success: function (request, vm_json){
+
+                var vm = vm_json.VM;
+                var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+
+                if (state == tr("ACTIVE") || state == tr("SUSPENDED") || state == tr("POWEROFF")){
+                    var hostname = "";
+
+                    if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
+                        hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
+                    } else {
+                        hostname = vm.HISTORY_RECORDS.HISTORY.HOSTNAME;
+                    };
+
+                    $("#current_hosts_of_vms").append(
+                        '<span class="radius secondary label">'+
+                        tr("VM")+' ['+ vm.ID + '] ' +
+                        tr("is currently running on Host") +
+                        ' [' + hostname + ']</span><br>'
+                    );
+                };
+            }
+        });
     });
 
-    $('tbody input.check_item:checked',dataTable_vMachines).each(function(){
-        var data = dataTable_vMachines.fnGetData( $(this).closest('tr')[0] );
-        $("#current_hosts_of_vms").append('<span class="radius secondary label">'+tr("VM")+' ['+$(this).val() + '] ' + tr("is currently running on Host") + ' [' + data[8] + ']</span><br>')
-    });
+    setupHostTableSelect(dialog, "migrate_vm");
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_hosts(dataTable_migrate_hosts);
-
-    $('#migrate_hosts_table_search', dialog).keyup(function(){
-      dataTable_migrate_hosts.fnFilter( $(this).val() );
-    })
-
-    $('#migrate_datatable_hosts tbody', dialog).delegate("tr", "click", function(e){
-        var aData = dataTable_migrate_hosts.fnGetData(this);
-
-        $("td.markrow", dataTable_migrate_hosts).removeClass('markrow');
-        $('tbody input.check_item', dataTable_migrate_hosts).removeAttr('checked');
-
-        $('#host_selected', dialog).show();
-        $('#select_host', dialog).hide();
-        $('.alert-box', dialog).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#HOST_NAME', dialog).text(aData[2]);
-        $('#HOST_ID', dialog).val(aData[1]);
-        return true;
-    });
-
-    $("#refresh_migrate_hosts_table_button_class").die();
-    $("#refresh_migrate_hosts_table_button_class").live('click', function(){
-        update_datatable_template_hosts($('#migrate_datatable_hosts').dataTable());
-    });
+    $('#refresh_button_migrate_vm', dialog).click();
 
     $('#advanced_migrate', dialog).hide();
     $('#advanced_migrate_toggle',dialog).click(function(){
@@ -3181,16 +3021,14 @@ function setupMigrateVMDialog(live){
     $('#migrate_vm_form',dialog).submit(function(){
         var extra_info = {};
 
-        if ($('#HOST_ID', dialog).val()) {
-            extra_info['host_id'] = $('#HOST_ID', dialog).val();
+        if ($("#selected_resource_id_migrate_vm", dialog).val()) {
+            extra_info['host_id'] = $("#selected_resource_id_migrate_vm", dialog).val();
         } else {
             notifyError(tr("You have not selected a host"));
             return false;
         }
 
         extra_info['enforce'] = $("#enforce", this).is(":checked") ? true : false
-
-        //notifySubmit("Template.instantiate",template_id, extra_msg);
 
         $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
           if (live) {

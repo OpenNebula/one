@@ -4894,11 +4894,105 @@ function setupTemplateTableSelect(section, context_id, opts){
                         var add = true;
 
                         if(opts.filter_fn){
-                            add = opts.filter_fn(this.VNET);
+                            add = opts.filter_fn(this.VMTEMPLATE);
                         }
 
                         if(add){
                             list_array.push(templateElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateHostTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Name"),
+        tr("Cluster"),
+        tr("RVMs"),
+        tr("Real CPU"),
+        tr("Allocated CPU"),
+        tr("Real MEM"),
+        tr("Allocated MEM"),
+        tr("Status"),
+        tr("IM MAD"),
+        tr("VM MAD"),
+        tr("Last monitored on")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 2,
+        "select_resource": tr("Please select a Host from the list"),
+        "you_selected": tr("You selected the following Host:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupHostTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('hosts-tab');
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Host.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.HOST);
+                        }
+
+                        if(add){
+                            list_array.push(hostElementArray(this));
                         }
                     });
 
