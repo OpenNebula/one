@@ -76,6 +76,9 @@ end
 
 $conf[:debug_level] ||= 3
 
+# Set the TMPDIR environment variable for uploaded images
+ENV['TMPDIR']=$conf[:tmpdir] if $conf[:tmpdir]
+
 CloudServer.print_configuration($conf)
 
 #Sinatra configuration
