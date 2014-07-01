@@ -123,8 +123,7 @@ tabs:
             - 11      # VNC
         actions:
             VM.refresh: true
-            VM.create_dialog: false
-            VM.easy_provision: true
+            VM.create_dialog: true
             VM.chown: false
             VM.chgrp: false
             VM.chmod: true
@@ -172,8 +171,7 @@ tabs:
             - 5         # Registration time
         actions:
             Template.refresh: true
-            Template.create_dialog: false
-            Template.easy_provision: true
+            Template.create_dialog: true
             Template.update_dialog: true
             Template.instantiate_vms: true
             Template.chown: false

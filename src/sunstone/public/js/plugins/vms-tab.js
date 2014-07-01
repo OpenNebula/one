@@ -82,57 +82,6 @@ var create_vm_tmpl ='\
       <legend>'+tr("Step 2: Select a template")+'</legend>\
       '+generateTemplateTableSelect("vm_create")+'\
     </fieldset>\
-    <div id="select_image_step">\
-      <fieldset>\
-        <legend>'+tr("Step 3: Select an operating system")+'</legend>\
-        <div class="row collapse">\
-          <div class="large-8 columns">\
-             <button id="refresh_template_images_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-4 columns">\
-            <input id="template_images_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-            <table id="template_images_table" class="datatable twelve">\
-              <thead>\
-                <tr>\
-                  <th></th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Datastore")+'</th>\
-                  <th>'+tr("Size")+'</th>\
-                  <th>'+tr("Type")+'</th>\
-                  <th>'+tr("Registration time")+'</th>\
-                  <th>'+tr("Persistent")+'</th>\
-                  <th>'+tr("Status")+'</th>\
-                  <th>'+tr("#VMS")+'</th>\
-                  <th>'+tr("Target")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyimages">\
-              </tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row hidden">\
-          <div class="large-12 columns">\
-            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
-            <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
-          </div>\
-        </div>\
-        <div id="selected_image" class="vm_param row">\
-          <div class="large-12 columns">\
-            <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
-            <span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+'</span>\
-            <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
-          </div>\
-        </div>\
-      </div>\
-    </fieldset>\
     <div class="form_buttons reveal-footer">\
       <div class="form_buttons">\
          <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Create")+'</button>\
@@ -291,14 +240,7 @@ var vm_actions = {
     "VM.create_dialog" : {
         type: "custom",
         call: function(){
-          popUpCreateVMDialog(false);
-        }
-    },
-
-    "VM.easy_provision" : {
-        type: "custom",
-        call: function(){
-          popUpCreateVMDialog(true);
+          popUpCreateVMDialog();
         }
     },
 
@@ -825,12 +767,6 @@ var vm_buttons = {
         layout: "create",
         alwaysActive: true
     },
-    "VM.easy_provision" : {
-        type: "action",
-        layout: "create",
-        text: tr("Launch"),
-        alwaysActive: true
-    },
     "VM.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -839,7 +775,6 @@ var vm_buttons = {
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
-
     "VM.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
@@ -2724,7 +2659,7 @@ function setup_vm_snapshot_tab(){
 
 // Sets up the create-template dialog and all the processing associated to it,
 // which is a lot.
-function setupCreateVMDialog(include_select_image){
+function setupCreateVMDialog(){
 
     dialogs_context.append('<div id="create_vm_dialog"  class="reveal-modal large max-height"" data-reveal></div>');
     //Insert HTML in place
@@ -2737,64 +2672,6 @@ function setupCreateVMDialog(include_select_image){
     setupTemplateTableSelect(dialog, "vm_create");
 
     $('#refresh_button_vm_create', dialog).click();
-
-    if (include_select_image) {
-      $("#select_image_step", dialog).show();
-      var dataTable_template_images = $('#template_images_table', dialog).dataTable({
-          "bSortClasses": false,
-          "bDeferRender": true,
-          "iDisplayLength": 4,
-          "bAutoWidth":false,
-          "sDom" : '<"H">t<"F"p>',
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,2,3,7,8,5,9,12]}
-          ],
-            "fnDrawCallback": function(oSettings) {
-              var nodes = this.fnGetNodes();
-              $.each(nodes, function(){
-                  if ($(this).find("td:eq(0)").html() == $('#IMAGE_ID', dialog).val()) {
-                      $("td", this).addClass('markrow');
-                      $('input.check_item', this).attr('checked','checked');
-                  }
-              })
-            }
-      });
-
-      // Retrieve the images to fill the datatable
-      update_datatable_template_images(dataTable_template_images);
-
-      $('#template_images_table_search', dialog).keyup(function(){
-        dataTable_template_images.fnFilter( $(this).val() );
-      })
-
-      dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-      $('#template_images_table tbody', dialog).delegate("tr", "click", function(e){
-          var aData = dataTable_template_images.fnGetData(this);
-
-          $("td.markrow", dataTable_template_images).removeClass('markrow');
-          $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
-
-          $('#image_selected', dialog).show();
-          $('#select_image', dialog).hide();
-          $('.alert-box', dialog).hide();
-
-          $("td", this).addClass('markrow');
-          $('input.check_item', this).attr('checked','checked');
-
-          $('#IMAGE_NAME', dialog).text(aData[4]);
-          $('#IMAGE_ID', dialog).val(aData[1]);
-          return true;
-      });
-
-      $("#refresh_template_images_table_button_class").die();
-      $("#refresh_template_images_table_button_class").live('click', function(){
-          update_datatable_template_images($('#template_images_table').dataTable());
-      });
-    } else {
-      $("#select_image_step", dialog).hide();
-    }
 
     setupTips(dialog);
 
@@ -2825,20 +2702,11 @@ function setupCreateVMDialog(include_select_image){
             'hold': hold
         };
 
-        if ($("#IMAGE_ID", this).val()) {
-          image_id = $("#IMAGE_ID", this).val();
-          extra_info['template'] = {
-            'disk': {
-              'image_id': image_id
-            }
-          }
-        }
-
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = "";
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-            };
+            }
         }
         else
         {
@@ -2846,13 +2714,13 @@ function setupCreateVMDialog(include_select_image){
               for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = vm_name;
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
+              }
           } else { //wildcard present: replace wildcard
               for (var i=0; i< n_times_int; i++){
                   extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
                   Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
-          };
+              }
+          }
         }
 
         setTimeout(function(){
@@ -2864,8 +2732,8 @@ function setupCreateVMDialog(include_select_image){
 }
 
 // Open creation dialog
-function popUpCreateVMDialog(include_select_image){
-    setupCreateVMDialog(include_select_image);
+function popUpCreateVMDialog(){
+    setupCreateVMDialog();
     $create_vm_dialog.foundation().foundation('reveal', 'open');
     $("input#vm_name",$create_vm_dialog).focus();
 }

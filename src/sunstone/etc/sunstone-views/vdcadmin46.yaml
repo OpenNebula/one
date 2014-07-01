@@ -126,7 +126,6 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: false
-            VM.easy_provision: false
             VM.chown: true
             VM.chgrp: false
             VM.chmod: true
@@ -175,7 +174,6 @@ tabs:
         actions:
             Template.refresh: true
             Template.create_dialog: false
-            Template.easy_provision: false
             Template.update_dialog: false
             Template.instantiate_vms: false
             Template.chown: true

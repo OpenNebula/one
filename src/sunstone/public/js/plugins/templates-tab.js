@@ -106,127 +106,6 @@ var instantiate_vm_template_tmpl ='\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var easy_provision_vm_template_tmpl ='\
-<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Instantiate VM Template")+'</h3>\
-</div>\
-<div class="reveal-body">\
-  <form id="instantiate_vm_template_form" action="">\
-      <fieldset>\
-        <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
-        <div class="row">\
-          <div class="large-6 columns">\
-              <label for="vm_name">'+tr("VM Name")+
-                '<span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>'+
-              '</label>\
-              <input type="text" name="vm_name" id="vm_name" />\
-          </div>\
-          <div class="large-6 columns">\
-              <label for="vm_n_times">'+tr("Number of instances")+
-                '<span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>'+
-              '</label>\
-              <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
-          </div>\
-        </div>\
-      </fieldset>\
-      <fieldset>\
-        <legend>'+tr("Step 2: Select a template")+'</legend>\
-        <div class="row">\
-          <div class="large-8 columns">\
-             <button id="refresh_template_templates_table_button_class" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-4 columns">\
-            <input id="template_templates_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-            <table id="template_templates_table" class="datatable twelve">\
-              <thead>\
-                <tr>\
-                  <th></th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Registration time")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodytemplates">\
-              </tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row hidden">\
-          <div class="large-12 columns">\
-            <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
-            <input type="text" id="TEMPLATE_ID" name="TEMPLATE_ID"/>\
-          </div>\
-        </div>\
-        <div id="selected_template" class="vm_param row">\
-          <div class="large-12 columns">\
-            <span id="select_template" class="radius secondary label">'+tr("Please select a template from the list")+'</span>\
-            <span id="template_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following template:")+'</span>\
-            <span class="radius label" type="text" id="TEMPLATE_NAME" name="template"></span>\
-          </div>\
-        </div>\
-      </fieldset>\
-      <fieldset>\
-        <legend>'+tr("Step 3: Select an operating system")+'</legend>\
-        <div class="row">\
-          <div class="large-8 columns">\
-             <button id="refresh_template_images_table_button_class" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-4 columns">\
-            <input id="template_images_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-8 columns">\
-            <table id="template_images_table" class="datatable twelve">\
-              <thead>\
-                <tr>\
-                  <th></th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Datastore")+'</th>\
-                  <th>'+tr("Size")+'</th>\
-                  <th>'+tr("Type")+'</th>\
-                  <th>'+tr("Registration time")+'</th>\
-                  <th>'+tr("Persistent")+'</th>\
-                  <th>'+tr("Status")+'</th>\
-                  <th>'+tr("#VMS")+'</th>\
-                  <th>'+tr("Target")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyimages">\
-              </tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row hidden">\
-          <div class="large-12 columns">\
-            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
-            <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
-          </div>\
-        </div>\
-        <div id="selected_image" class="vm_param row">\
-          <div class="large-12 columns">\
-            <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
-            <span id="image_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following image:")+'</span>\
-            <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
-          </div>\
-        </div>\
-      </fieldset>\
-    <div class="form_buttons reveal-footer">\
-         <button class="button radius right success" id="instantiate_vm_template_proceed" value="Template.instantiate_vms">'+tr("Instantiate")+'</button>\
-    </div>\
-    <a class="close-reveal-modal">&#215;</a>\
-  </form>\
-</div>';
-
 var dataTable_templates;
 var $create_template_dialog;
 
@@ -246,13 +125,6 @@ var template_actions = {
     "Template.create_dialog" : {
         type: "custom",
         call: popUpCreateTemplateDialog
-    },
-
-    "Template.easy_provision" : {
-        type: "custom",
-        call: function() {
-          popUpInstantiateVMTemplateDialog(true);
-        }
     },
 
     "Template.list" : {
@@ -386,7 +258,7 @@ var template_actions = {
      "Template.instantiate_vms" : {
          type: "custom",
          call: function(){
-            popUpInstantiateVMTemplateDialog(false);
+            popUpInstantiateVMTemplateDialog();
          }
      },
 /*
@@ -459,11 +331,6 @@ var template_buttons = {
 //    },
     "Template.create_dialog" : {
         type: "create_dialog",
-        layout: "create"
-    },
-    "Template.easy_provision" : {
-        type: "create_dialog",
-        text: "Launch",
         layout: "create"
     },
     "Template.update_dialog" : {
@@ -1283,28 +1150,6 @@ function update_datatable_template_images(datatable, fnDrawCallback) {
             });
 
             updateView(image_list_array, datatable);
-        }
-    });
-}
-
-function update_datatable_template_templates(datatable, fnDrawCallback) {
-    if (fnDrawCallback) {
-        datatable.unbind('draw');
-        datatable.on('draw', fnDrawCallback);
-    }
-
-    OpenNebula.Template.list({
-        timeout: true,
-        success: function (request, templates_list){
-            var template_list_array = [];
-
-            $.each(templates_list,function(){
-              var template_element_array = templateElementArray(this);
-              if (template_element_array)
-                    template_list_array.push(template_element_array);
-            });
-
-            updateView(template_list_array, datatable);
         }
     });
 }
@@ -4727,153 +4572,42 @@ function popUpTemplateCloneDialog(){
 
 // Instantiate dialog
 // Sets up the instiantiate template dialog and all the processing associated to it
-function setupInstantiateTemplateDialog(easy_provision){
+function setupInstantiateTemplateDialog(){
 
     dialogs_context.append('<div title=\"'+tr("Instantiate VM Template")+'\" id="instantiate_vm_template_dialog"></div>');
     //Insert HTML in place
     $instantiate_vm_template_dialog = $('#instantiate_vm_template_dialog')
     var dialog = $instantiate_vm_template_dialog;
 
-    if (easy_provision) {
-      dialog.html(easy_provision_vm_template_tmpl);
-      dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+    dialog.html(instantiate_vm_template_tmpl);
+    dialog.addClass("reveal-modal").attr("data-reveal", "");
+    dialog.removeClass("max-height");
 
-      var dataTable_template_images = $('#template_images_table', dialog).dataTable({
-          "iDisplayLength": 4,
-          "bAutoWidth":false,
-          "sDom" : '<"H">t<"F"p>',
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [2,3,7,8,5,9,12]}
-          ],
-            "bSortClasses" : false,
-            "bDeferRender": true,
-            "fnDrawCallback": function(oSettings) {
-              var nodes = this.fnGetNodes();
-              $.each(nodes, function(){
-                  if ($(this).find("td:eq(1)").html() == $('#IMAGE_ID', dialog).val()) {
-                      $("td", this).addClass('markrow');
-                      $('input.check_item', this).attr('checked','checked');
-                  }
-              })
-            }
-      });
+    $("#instantiate_vm_template_proceed", dialog).attr("disabled", "disabled");
 
-      // Retrieve the images to fill the datatable
-      update_datatable_template_images(dataTable_template_images);
+    var selected_nodes = getSelectedNodes(dataTable_templates);
+    var template_id = ""+selected_nodes[0];
 
-      $('#template_images_table_search', dialog).keyup(function(){
-        dataTable_template_images.fnFilter( $(this).val() );
-      })
+    OpenNebula.Template.show({
+        data : {
+            id: template_id
+        },
+        timeout: true,
+        success: function (request, template_json){
 
-      dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
+            $("#instantiate_vm_user_inputs", dialog).empty();
 
-      $('#template_images_table tbody', dialog).delegate("tr", "click", function(e){
-          var aData = dataTable_template_images.fnGetData(this);
+            generateVMTemplateUserInputs(
+                $("#instantiate_vm_user_inputs", dialog),
+                template_json);
 
-          $("td.markrow", dataTable_template_images).removeClass('markrow');
-          $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
-
-          $('#image_selected', dialog).show();
-          $('#select_image', dialog).hide();
-          $('.alert-box', dialog).hide();
-
-          $("td", this).addClass('markrow');
-          $('input.check_item', this).attr('checked','checked');
-
-          $('#IMAGE_NAME', dialog).text(aData[4]);
-          $('#IMAGE_ID', dialog).val(aData[1]);
-          return true;
-      });
-
-      $("#refresh_template_images_table_button_class").die();
-      $("#refresh_template_images_table_button_class").live('click', function(){
-          update_datatable_template_images($('#template_images_table').dataTable());
-      });
-
-      var dataTable_template_templates = $('#template_templates_table', dialog).dataTable({
-          "iDisplayLength": 4,
-          "bAutoWidth":false,
-          "sDom" : '<"H">t<"F"p>',
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [1,2,3,5]}
-          ],
-            "bSortClasses" : false,
-            "bDeferRender": true,
-            "fnDrawCallback": function(oSettings) {
-              var nodes = this.fnGetNodes();
-              $.each(nodes, function(){
-                  if ($(this).find("td:eq(1)").html() == $('#TEMPLATE_ID', dialog).val()) {
-                      $("td", this).addClass('markrow');
-                      $('input.check_item', this).attr('checked','checked');
-                  }
-              })
-            }
-      });
-
-      // Retrieve the images to fill the datatable
-      update_datatable_template_templates(dataTable_template_templates);
-
-      $('#template_templates_table_search', dialog).keyup(function(){
-        dataTable_template_templates.fnFilter( $(this).val() );
-      })
-
-      dataTable_template_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-      $('#template_templates_table tbody', dialog).delegate("tr", "click", function(e){
-          var aData = dataTable_template_templates.fnGetData(this);
-
-          $("td.markrow", dataTable_template_templates).removeClass('markrow');
-          $('tbody input.check_item', dataTable_template_templates).removeAttr('checked');
-
-          $('#template_selected', dialog).show();
-          $('#select_template', dialog).hide();
-          $('.alert-box', dialog).hide();
-
-          $("td", this).addClass('markrow');
-          $('input.check_item', this).attr('checked','checked');
-
-          $('#TEMPLATE_NAME', dialog).text(aData[4]);
-          $('#TEMPLATE_ID', dialog).val(aData[1]);
-          return true;
-      });
-
-      $("#refresh_template_templates_table_button_class").die();
-      $("#refresh_template_templates_table_button_class").live('click', function(){
-          update_datatable_template_templates($('#template_templates_table').dataTable());
-      });
-    } else {
-        dialog.html(instantiate_vm_template_tmpl);
-        dialog.addClass("reveal-modal").attr("data-reveal", "");
-        dialog.removeClass("max-height");
-
-        $("#instantiate_vm_template_proceed", dialog).attr("disabled", "disabled");
-
-        var selected_nodes = getSelectedNodes(dataTable_templates);
-        var template_id = ""+selected_nodes[0];
-
-        OpenNebula.Template.show({
-            data : {
-                id: template_id
-            },
-            timeout: true,
-            success: function (request, template_json){
-
-                $("#instantiate_vm_user_inputs", dialog).empty();
-
-                generateVMTemplateUserInputs(
-                    $("#instantiate_vm_user_inputs", dialog),
-                    template_json);
-
-                $("#instantiate_vm_template_proceed", dialog).removeAttr("disabled");
-            },
-            error: function(request,error_json, container){
-                onError(request,error_json, container);
-                $("#instantiate_vm_user_inputs", dialog).empty();
-            }
-        });
-    }
+            $("#instantiate_vm_template_proceed", dialog).removeAttr("disabled");
+        },
+        error: function(request,error_json, container){
+            onError(request,error_json, container);
+            $("#instantiate_vm_user_inputs", dialog).empty();
+        }
+    });
 
     setupTips(dialog);
 
@@ -4884,14 +4618,8 @@ function setupInstantiateTemplateDialog(easy_provision){
 
         var hold = $('#hold',this).prop("checked");
 
-        var template_id
-        if ($("#TEMPLATE_ID", this).val()) {
-          template_id = $("#TEMPLATE_ID", this).val();
-        } else {
-          var selected_nodes = getSelectedNodes(dataTable_templates);
-          template_id = ""+selected_nodes[0];
-        }
-
+        var selected_nodes = getSelectedNodes(dataTable_templates);
+        var template_id = ""+selected_nodes[0];
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
@@ -4905,43 +4633,41 @@ function setupInstantiateTemplateDialog(easy_provision){
         notifySubmit("Template.instantiate",template_id, extra_msg);
 
         var extra_info = {
-            'template': {},
             'hold': hold
         };
-
-        if ($("#IMAGE_ID", this).val()) {
-          image_id = $("#IMAGE_ID", this).val();
-          extra_info['template'] = {
-            'disk': {
-              'image_id': image_id
-            }
-          }
-        }
 
         var tmp_json = {};
         retrieveWizardFields($(this), tmp_json);
 
-        $.extend(extra_info['template'], tmp_json);
+        extra_info['template'] = tmp_json;
 
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = "";
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-            };
+            }
         }
         else
         {
-          if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
-              for (var i=0; i< n_times_int; i++){
+            if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
                 extra_info['vm_name'] = vm_name;
-                Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
-          } else { //wildcard present: replace wildcard
-              for (var i=0; i< n_times_int; i++){
-                  extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
-                  Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
-          };
+
+                for (var i=0; i< n_times_int; i++){
+                    Sunstone.runAction(
+                        "Template.instantiate_quiet",
+                        template_id,
+                        extra_info);
+                }
+            } else { //wildcard present: replace wildcard
+                for (var i=0; i< n_times_int; i++){
+                    extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
+
+                    Sunstone.runAction(
+                        "Template.instantiate_quiet",
+                        template_id,
+                        extra_info);
+                }
+            }
         }
 
         $instantiate_vm_template_dialog.foundation('reveal', 'close')
@@ -4950,16 +4676,16 @@ function setupInstantiateTemplateDialog(easy_provision){
 }
 
 // Open creation dialog
-function popUpInstantiateVMTemplateDialog(easy_provision){
+function popUpInstantiateVMTemplateDialog(){
     var selected_nodes = getSelectedNodes(dataTable_templates);
 
-    if ( easy_provision == false && selected_nodes.length != 1 )
+    if ( selected_nodes.length != 1 )
     {
       notifyMessage("Please select one (and just one) template to instantiate.");
       return false;
     }
 
-    setupInstantiateTemplateDialog(easy_provision);
+    setupInstantiateTemplateDialog();
     $instantiate_vm_template_dialog.foundation().foundation('reveal', 'open');
     $("input#vm_name",$instantiate_vm_template_dialog).focus();
 }
