@@ -1558,6 +1558,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<th>'+tr("Cluster")+'</th>'+
             '<th>'+tr("Bridge")+'</th>'+
             '<th>'+tr("Leases")+'</th>'+
+            '<th>'+tr("VLAN ID")+'</th>'+
           '</tr>'+
         '</thead>'+
         '<tbody id="tbodynetworks">'+

@@ -593,6 +593,7 @@ var vnets_tab = {
           <th>'+tr("Cluster")+'</th>\
           <th>'+tr("Bridge")+'</th>\
           <th>'+tr("Leases")+'</th>\
+          <th>'+tr("VLAN ID")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyvnetworks">\
@@ -632,7 +633,9 @@ function vNetworkElementArray(vn_json){
         network.PARENT_NETWORK_ID.length ? tr("Yes") : tr("No"),
         network.CLUSTER.length ? network.CLUSTER : "-",
         network.BRIDGE,
-        quotaBarHtml(network.USED_LEASES, total_size) ];
+        quotaBarHtml(network.USED_LEASES, total_size),
+        network.VLAN_ID.length ? network.VLAN_ID : "-"
+    ];
 }
 
 //Callback to update a vnet element after an action on it

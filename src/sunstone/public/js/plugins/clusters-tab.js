@@ -49,6 +49,7 @@ var vnet_datatable_table_tmpl='<thead>\
         <th>'+tr("Cluster")+'</th>\
         <th>'+tr("Bridge")+'</th>\
         <th>'+tr("Leases")+'</th>\
+        <th>'+tr("VLAN ID")+'</th>\
       </tr>\
     </thead>\
     <tbody id="tbody_cluster_vnetworks">\

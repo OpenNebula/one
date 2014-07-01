@@ -4746,7 +4746,8 @@ function generateVNetTableSelect(context_id){
         tr("Reservation"),
         tr("Cluster"),
         tr("Bridge"),
-        tr("Leases")
+        tr("Leases"),
+        tr("VLAN_ID")
     ];
 
     var options = {

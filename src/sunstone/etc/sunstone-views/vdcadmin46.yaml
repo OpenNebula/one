@@ -334,6 +334,7 @@ tabs:
             # 6         # Cluster
             #- 7         # Bridge
             - 8         # Leases
+            #- 9         # VLAN ID
         actions:
             Network.refresh: true
             Network.create_dialog: false
