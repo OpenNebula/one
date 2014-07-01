@@ -50,7 +50,7 @@ var netUsage = {
 var create_vm_tmpl ='\
 <div class="row">\
   <div class="large-12 columns">\
-    <h3 id="create_vnet_header" class="subheader">'+tr("Create Virtual Machine")+'</h3>\
+    <h3 class="subheader">'+tr("Create Virtual Machine")+'</h3>\
   </div>\
 </div>\
 <div class="reveal-body">\
@@ -59,20 +59,20 @@ var create_vm_tmpl ='\
       <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
       <div class="row">\
         <div class="large-5 columns">\
-            <label for="vm_name">'+tr("VM Name")+'\
+            <label for="create_vm_name">'+tr("VM Name")+'\
               <span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>\
             </label>\
-            <input type="text" name="vm_name" id="vm_name" />\
+            <input type="text" name="create_vm_name" id="create_vm_name" />\
         </div>\
         <div class="large-4 columns">\
-            <label for="vm_n_times">'+tr("Number of instances")+':\
+            <label for="create_vm_n_times">'+tr("Number of instances")+':\
               <span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>\
             </label>\
-            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+            <input type="text" name="create_vm_n_times" id="create_vm_n_times" value="1">\
         </div>\
         <div class="large-3 columns">\
-            <input type="checkbox" name="hold" id="hold"/>\
-            <label for="hold">'+tr("Hold")+'\
+            <input type="checkbox" name="create_vm_hold" id="create_vm_hold"/>\
+            <label for="create_vm_hold">'+tr("Hold")+'\
               <span class="tip">' + tr("Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually.") +'</span>\
             </label>\
         </div>\
@@ -82,9 +82,16 @@ var create_vm_tmpl ='\
       <legend>'+tr("Step 2: Select a template")+'</legend>\
       '+generateTemplateTableSelect("vm_create")+'\
     </fieldset>\
+    <div id="create_vm_inputs_step">\
+      <fieldset>\
+        <legend>'+tr("Step 3: Fill the required inputs")+'</legend>\
+        <div id="create_vm_user_inputs">\
+        </div>\
+      </fieldset>\
+    </div>\
     <div class="form_buttons reveal-footer">\
       <div class="form_buttons">\
-         <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Create")+'</button>\
+         <button class="button radius right success" id="create_vm_template_proceed" value="Template.instantiate_vms">'+tr("Create")+'</button>\
       </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
@@ -2669,27 +2676,62 @@ function setupCreateVMDialog(){
     $(document).foundation();
     //dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
+    $("#create_vm_template_proceed", dialog).attr("disabled", "disabled");
+    $("#create_vm_inputs_step", dialog).hide();
+
     setupTemplateTableSelect(dialog, "vm_create");
 
     $('#refresh_button_vm_create', dialog).click();
 
+    $("#selected_resource_id_vm_create", dialog).on("change", function(){
+        var template_id = $(this).val();
+
+        $("#create_vm_inputs_step", dialog).hide();
+        $("#create_vm_user_inputs", dialog).empty();
+
+        OpenNebula.Template.show({
+            data : {
+                id: template_id
+            },
+            timeout: true,
+            success: function (request, template_json){
+                $("#create_vm_inputs_step", dialog).hide();
+                $("#create_vm_user_inputs", dialog).empty();
+
+                var has_inputs = generateVMTemplateUserInputs(
+                    $("#create_vm_user_inputs", dialog),
+                    template_json,
+                    {text_header: ""});
+
+                if(has_inputs){
+                    $("#create_vm_inputs_step", dialog).show();
+                }
+
+                $("#create_vm_template_proceed", dialog).removeAttr("disabled");
+            },
+            error: function(request,error_json, container){
+                onError(request,error_json, container);
+            }
+        });
+    });
+
     setupTips(dialog);
 
     $('#create_vm_form',dialog).submit(function(){
-        var vm_name = $('#vm_name',this).val();
+        var vm_name = $('#create_vm_name',this).val();
         var template_id = $("#selected_resource_id_vm_create", this).val();
-        var n_times = $('#vm_n_times',this).val();
+        var n_times = $('#create_vm_n_times',this).val();
         var n_times_int=1;
-        var hold = $('#hold',this).prop("checked");
+        var hold = $('#create_vm_hold',this).prop("checked");
 
         if (!template_id.length){
             notifyError(tr("You have not selected a template"));
             return false;
-        };
+        }
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
-        };
+        }
 
         var extra_msg = "";
         if (n_times_int > 1) {
@@ -2702,14 +2744,17 @@ function setupCreateVMDialog(){
             'hold': hold
         };
 
+        var tmp_json = {};
+        retrieveWizardFields($(this), tmp_json);
+
+        extra_info['template'] = tmp_json;
+
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = "";
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
             }
-        }
-        else
-        {
+        } else {
           if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
               for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = vm_name;

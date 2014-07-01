@@ -5099,10 +5099,10 @@ function setupResourceTableSelect(section, context_id, options) {
         $("td", this).addClass('markrow');
         $('input.check_item', this).attr('checked','checked');
 
-        $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]);
+        $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]).change();
         $('#selected_resource_id_'+context_id, section).hide();
 
-        $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]);
+        $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
         $('#selected_resource_name_'+context_id, section).show();
 
         return true;
@@ -5118,39 +5118,42 @@ function setupResourceTableSelect(section, context_id, options) {
 // It will replace the div's html with a row for each USER_INPUTS
 // opts.text_header: header text for the text & password inputs
 // opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
 function generateVMTemplateUserInputs(div, template_json, opts) {
-    generateInstantiateUserInputs(
+    return generateInstantiateUserInputs(
         div, template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, opts);
 }
 
 // It will replace the div's html with a row for each USER_INPUTS
 // opts.text_header: header text for the text & password inputs
 // opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
 function generateServiceTemplateUserInputs(div, template_json, opts) {
-    generateInstantiateUserInputs(
+    return generateInstantiateUserInputs(
         div, template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs, opts);
 }
 
 // It will replace the div's html with a row for each USER_INPUTS
 // opts.text_header: header text for the text & password inputs
 // opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
 function generateInstantiateUserInputs(div, user_inputs, opts) {
 
     div.empty();
 
     if(user_inputs == undefined){
-        return;
+        return false;
     }
 
     if(opts == undefined){
         opts = {};
     }
 
-    if(!opts.text_header){
+    if(opts.text_header == undefined){
         opts.text_header = tr("Custom Attributes");
     }
 
-    if(!opts.network_header){
+    if(opts.network_header == undefined){
         opts.network_header = tr("Network");
     }
 
@@ -5181,17 +5184,19 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
     });
 
     if (network_attrs.length > 0) {
-        div.append(
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-12 large-centered columns">'+
-            '<h3 class="subheader">'+
-              opts.network_header+
-            '</h3>'+
-          '</div>'+
-        '</div>'+
-        '<div class="instantiate_user_inputs">'+
-        '</div>');
+        if(opts.network_header.length > 0){
+            div.append(
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader">'+
+                  opts.network_header+
+                '</h3>'+
+              '</div>'+
+            '</div>');
+        }
+
+        div.append('<div class="instantiate_user_inputs"/>');
 
         var separator = "";
 
@@ -5221,17 +5226,19 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
     }
 
     if (text_attrs.length > 0) {
-        div.append(
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-12 large-centered columns">'+
-            '<h3 class="subheader">'+
-              opts.text_header+
-            '</h3>'+
-          '</div>'+
-        '</div>'+
-        '<div class="instantiate_user_inputs">'+
-        '</div>');
+        if(opts.text_header.length > 0){
+            div.append(
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader">'+
+                  opts.text_header+
+                '</h3>'+
+              '</div>'+
+            '</div>');
+        }
+
+        div.append('<div class="instantiate_user_inputs"/>');
 
         $.each(text_attrs, function(index, custom_attr){
           $(".instantiate_user_inputs", div).append(
@@ -5245,4 +5252,6 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
             '</div>');
         });
     }
+
+    return (network_attrs.length > 0 || text_attrs.length > 0);
 }
