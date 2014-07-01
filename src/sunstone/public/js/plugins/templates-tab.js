@@ -89,6 +89,14 @@ var instantiate_vm_template_tmpl ='\
         <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
     </div>\
   </div>\
+  <div class="row">\
+    <div class="large-12 columns">\
+      <input type="checkbox" name="hold" id="hold"/>\
+      <label for="hold">'+tr("Hold")+'\
+        <span class="tip">' + tr("Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually.") +'</span>\
+      </label>\
+    </div>\
+  </div>\
   <div id="instantiate_vm_user_inputs">\
     <i class="fa fa-spinner fa-spin"></i>\
   </div>\
@@ -4874,6 +4882,8 @@ function setupInstantiateTemplateDialog(easy_provision){
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
 
+        var hold = $('#hold',this).prop("checked");
+
         var template_id
         if ($("#TEMPLATE_ID", this).val()) {
           template_id = $("#TEMPLATE_ID", this).val();
@@ -4895,7 +4905,8 @@ function setupInstantiateTemplateDialog(easy_provision){
         notifySubmit("Template.instantiate",template_id, extra_msg);
 
         var extra_info = {
-            'template': {}
+            'template': {},
+            'hold': hold
         };
 
         if ($("#IMAGE_ID", this).val()) {

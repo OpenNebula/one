@@ -58,17 +58,23 @@ var create_vm_tmpl ='\
     <fieldset>\
       <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
       <div class="row">\
-        <div class="large-6 columns">\
+        <div class="large-5 columns">\
             <label for="vm_name">'+tr("VM Name")+'\
               <span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>\
             </label>\
             <input type="text" name="vm_name" id="vm_name" />\
         </div>\
-        <div class="large-6 columns">\
+        <div class="large-4 columns">\
             <label for="vm_n_times">'+tr("Number of instances")+':\
               <span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>\
             </label>\
             <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+        </div>\
+        <div class="large-3 columns">\
+            <input type="checkbox" name="hold" id="hold"/>\
+            <label for="hold">'+tr("Hold")+'\
+              <span class="tip">' + tr("Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually.") +'</span>\
+            </label>\
         </div>\
       </div>\
     </fieldset>\
@@ -2797,6 +2803,7 @@ function setupCreateVMDialog(include_select_image){
         var template_id = $("#selected_resource_id_vm_create", this).val();
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
+        var hold = $('#hold',this).prop("checked");
 
         if (!template_id.length){
             notifyError(tr("You have not selected a template"));
@@ -2814,7 +2821,10 @@ function setupCreateVMDialog(include_select_image){
 
         notifySubmit("Template.instantiate",template_id, extra_msg);
 
-        var extra_info = {};
+        var extra_info = {
+            'hold': hold
+        };
+
         if ($("#IMAGE_ID", this).val()) {
           image_id = $("#IMAGE_ID", this).val();
           extra_info['template'] = {

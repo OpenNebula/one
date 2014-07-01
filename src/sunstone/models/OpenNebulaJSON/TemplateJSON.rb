@@ -91,9 +91,9 @@ module OpenNebulaJSON
         def instantiate(params=Hash.new)
             if params['template']
                 template = template_to_str(params['template'])
-                super(params['vm_name'], false, template)
+                super(params['vm_name'], params['hold'], template)
             else
-                super(params['vm_name'])
+                super(params['vm_name'], params['hold'])
             end
         end
 
