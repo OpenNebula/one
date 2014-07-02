@@ -38,6 +38,7 @@ tabs:
         widgets_one_per_row:
             - vms
         widgets_one_footer:
+#            - accounting
     system-tab:
         panel_tabs:
         actions:

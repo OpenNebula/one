@@ -3957,230 +3957,144 @@ function accountingGraphs(div, opt){
         return false;
     }
 
-    if (opt['dashboard_user']) {
-        // HTML for User Dashboard tab
-        div.html(
-        '<div class="row">\
-          <div class="large-4 left columns">\
-            <label for="acct_start_time">'+tr("Start time")+'</label>\
-            <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
-          </div>\
-          <div class="large-4 left columns">\
-            <label for="acct_end_time">'+tr("End time")+'</label>\
-            <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
-          </div>\
-          <div class="large-4 left columns">\
-            <label for="acct_owner">'+tr("Filter")+'</label>\
-            <div id="acct_group_by_container" class="large-4 left columns">\
-              <label for="acct_group_by">' +  tr("Group by") + '</label>\
-              <select id="acct_group_by" name="acct_group_by">\
-                <option value="user">' + tr("User") + '</option>\
-                <option value="group">' + tr("Group") + '</option>\
-                <option value="vm">' + tr("VM") + '</option>\
-              </select>\
-            </div>\
-            <select class="large-4 left columns" id="acct_owner">\
+    div.html(
+    '<div class="row">\
+      <div id="acct_start_time_container" class="left columns">\
+        <label for="acct_start_time">'+tr("Start time")+'</label>\
+        <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
+      </div>\
+      <div id="acct_end_time_container" class="left columns">\
+        <label for="acct_end_time">'+tr("End time")+'</label>\
+        <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
+      </div>\
+      <div id="acct_group_by_container" class="left columns">\
+        <label for="acct_group_by">' +  tr("Group by") + '</label>\
+        <select id="acct_group_by" name="acct_group_by">\
+          <option value="user">' + tr("User") + '</option>\
+          <option value="group">' + tr("Group") + '</option>\
+          <option value="vm">' + tr("VM") + '</option>\
+        </select>\
+      </div>\
+      <div id="acct_owner_container" class="left columns">\
+        <label for="acct_owner">' +  tr("Filter") + '</label>\
+        <div class="row">\
+          <div class="large-5 columns">\
+            <select id="acct_owner" name="acct_owner">\
               <option value="acct_owner_all">' + tr("All") + '</option>\
               <option value="acct_owner_group">' + tr("Group") + '</option>\
               <option value="acct_owner_user">' + tr("User") + '</option>\
             </select>\
-            <div class="large-8 left columns" id="acct_owner_select"/>\
           </div>\
-        </div>\
-        <br>\
-        <div class="row">\
-          <div class="large-6 large-centered columns">\
-            <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get accounting info")+'</button>\
-          </div>\
-        </div>\
-        <br>\
-        <div class="row">\
-        </div>\
-        <div id="acct_placeholder">\
-          <div class="row">\
-            <div class="large-8 large-centered columns">\
-              <div class="text-center">\
-                <span class="fa-stack fa-5x" style="color: #dfdfdf">\
-                  <i class="fa fa-cloud fa-stack-2x"></i>\
-                  <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>\
-                </span>\
-                <div id="acct_no_data" class="hidden">\
-                  <br>\
-                  <p style="font-size: 18px; color: #999">'+
-                  tr("There are no accounting records")+
-                  '</p>\
-                </div>\
-              </div>\
-            </div>\
-          </div>\
-        </div>\
-        <div id="acct_content" class="hidden">\
-          <div class="row">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns">\
-              <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
-              </div>\
-            </div>\
-          </div>\
-          <div class="row">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns">\
-              <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
-              </div>\
-            </div>\
-          </div>\
-          <div class="row acct_table">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns" style="overflow:auto">\
-              <table id="acct_cpu_datatable" class="datatable twelve">\
-                <thead>\
-                  <tr>\
-                    <th>'+tr("Date")+'</th>\
-                  </tr>\
-                </thead>\
-                <tbody id="tbody_acct_cpu_datatable">\
-                </tbody>\
-              </table>\
-            </div>\
-          </div>\
-          <div class="row acct_table">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns" style="overflow:auto">\
-              <table id="acct_mem_datatable" class="datatable twelve">\
-                <thead>\
-                  <tr>\
-                    <th>'+tr("Date")+'</th>\
-                  </tr>\
-                </thead>\
-                <tbody id="tbody_acct_mem_datatable">\
-                </tbody>\
-              </table>\
-            </div>\
-          </div>\
-        </div>');
-    } else {
-        // HTML for Provisioning tab
-        div.html(
-        '<div class="row">\
-          <div class="large-4 left columns">\
-            <label for="acct_start_time">'+tr("Start time")+'</label>\
-            <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
-          </div>\
-          <div class="large-4 left columns">\
-            <label for="acct_end_time">'+tr("End time")+'</label>\
-            <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
-          </div>\
-          <div id="acct_group_by_container" class="large-4 left columns">\
-            <label for="acct_group_by">' +  tr("Group by") + '</label>\
-            <select id="acct_group_by" name="acct_group_by">\
-              <option value="user">' + tr("User") + '</option>\
-              <option value="group">' + tr("Group") + '</option>\
-              <option value="vm">' + tr("VM") + '</option>\
-            </select>\
-          </div>\
-        </div>\
-        <div class="row" id="acct_owner">\
-          <div class="large-4 text-center columns large-offset-4">\
-            <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
-            <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
-            <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
-          </div>\
-          <div class="large-4 columns">\
+          <div class="large-7 columns">\
             <div id="acct_owner_select"/>\
           </div>\
         </div>\
-        <br>\
-        <div class="row">\
-          <div class="large-6 large-centered columns">\
-            <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get accounting info")+'</button>\
-          </div>\
-        </div>\
-        <br>\
-        <div class="row">\
-        </div>\
-        <div id="acct_placeholder">\
-          <div class="row">\
-            <div class="large-8 large-centered columns">\
-              <div class="text-center">\
-                <span class="fa-stack fa-5x" style="color: #dfdfdf">\
-                  <i class="fa fa-cloud fa-stack-2x"></i>\
-                  <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>\
-                </span>\
-                <div id="acct_no_data" class="hidden">\
-                  <br>\
-                  <p style="font-size: 18px; color: #999">'+
-                  tr("There are no accounting records")+
-                  '</p>\
-                </div>\
-              </div>\
+      </div>\
+    </div>\
+    <br>\
+    <div class="row">\
+      <div class="large-6 large-centered columns">\
+        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get accounting info")+'</button>\
+      </div>\
+    </div>\
+    <br>\
+    <div class="row">\
+    </div>\
+    <div id="acct_placeholder">\
+      <div class="row">\
+        <div class="large-8 large-centered columns">\
+          <div class="text-center">\
+            <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+              <i class="fa fa-cloud fa-stack-2x"></i>\
+              <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>\
+            </span>\
+            <div id="acct_no_data" class="hidden">\
+              <br>\
+              <p style="font-size: 18px; color: #999">'+
+              tr("There are no accounting records")+
+              '</p>\
             </div>\
           </div>\
         </div>\
-        <div id="acct_content" class="hidden">\
-          <div class="row">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns">\
-              <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
-              </div>\
-            </div>\
+      </div>\
+    </div>\
+    <div id="acct_content" class="hidden">\
+      <div class="row">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns">\
+          <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
           </div>\
-          <div class="row">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns">\
-              <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
-              </div>\
-            </div>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns">\
+          <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
           </div>\
-          <div class="row acct_table">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns" style="overflow:auto">\
-              <table id="acct_cpu_datatable" class="datatable twelve">\
-                <thead>\
-                  <tr>\
-                    <th>'+tr("Date")+'</th>\
-                  </tr>\
-                </thead>\
-                <tbody id="tbody_acct_cpu_datatable">\
-                </tbody>\
-              </table>\
-            </div>\
-          </div>\
-          <div class="row acct_table">\
-            <div class="large-12 columns graph_legend">\
-              <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
-            </div>\
-            <div class="large-12 columns" style="overflow:auto">\
-              <table id="acct_mem_datatable" class="datatable twelve">\
-                <thead>\
-                  <tr>\
-                    <th>'+tr("Date")+'</th>\
-                  </tr>\
-                </thead>\
-                <tbody id="tbody_acct_mem_datatable">\
-                </tbody>\
-              </table>\
-            </div>\
-          </div>\
-        </div>');
-    }
+        </div>\
+      </div>\
+      <div class="row acct_table">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns" style="overflow:auto">\
+          <table id="acct_cpu_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("Date")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_acct_cpu_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
+      </div>\
+      <div class="row acct_table">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns" style="overflow:auto">\
+          <table id="acct_mem_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("Date")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_acct_mem_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
+      </div>\
+    </div>');
 
     if (opt == undefined){
         opt = {};
     }
+
+    //--------------------------------------------------------------------------
+    // Set column width
+    //--------------------------------------------------------------------------
+
+    var n_columns = 2; // start, end time
+
+    if (opt.fixed_user == undefined && opt.fixed_group == undefined){
+        n_columns += 1;     //acct_owner_container
+    }
+
+    if(opt.fixed_group_by == undefined){
+        n_columns += 1;     //acct_group_by_container
+    }
+
+    var width = parseInt(12 / n_columns);
+
+    $("#acct_start_time_container", div).addClass("large-"+width);
+    $("#acct_end_time_container", div).addClass("large-"+width);
+    $("#acct_group_by_container", div).addClass("large-"+width);
+    $("#acct_owner_container", div).addClass("large-"+width);
 
     //--------------------------------------------------------------------------
     // Init start time to 1st of last month
@@ -4197,33 +4111,9 @@ function accountingGraphs(div, opt){
     //--------------------------------------------------------------------------
 
     if (opt.fixed_user != undefined || opt.fixed_group != undefined){
-      $("#acct_owner", div).hide();
-/*
-        $("input[name='acct_owner']", div).attr("disabled", "disabled");
-
-        $("#acct_owner_select", div).show();
-
-        if(opt.fixed_user != undefined){
-            var text = tr("User") +" " + opt.fixed_user;
-            $("input[value='acct_owner_user']", div).attr("checked", "checked");
-        } else {
-            var text = tr("Group") + " " + opt.fixed_group;
-            $("input[value='acct_owner_group']", div).attr("checked", "checked");
-        }
-
-        $("#acct_owner_select", div).text(text);
-*/
+        $("#acct_owner_container", div).hide();
     } else {
-        // depending on the view, the acct_owner can be in either a select or a
-        // radio button
-        var acct_owner_selector;
-        if ($("select#acct_owner").length > 0) {
-            acct_owner_selector = "select#acct_owner";
-        } else {
-            acct_owner_selector = "input[name='acct_owner']";
-        }
-
-        $(acct_owner_selector, div).change(function(){
+        $("select#acct_owner", div).change(function(){
             var value = $(this).val();
 
             switch (value){
@@ -4306,7 +4196,7 @@ function accountingGraphs(div, opt){
         } else {
             var select_val = $("#acct_owner_select .resource_list_select", div).val();
 
-            switch ($("input[name='acct_owner']:checked", div).val()){
+            switch ($("select#acct_owner", div).val()){
             case "acct_owner_all":
                 break;
 

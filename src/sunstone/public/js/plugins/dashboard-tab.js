@@ -14,16 +14,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var empty_graph_placeholder =
-  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
-    '<i class="fa fa-cloud fa-stack-2x"></i>'+
-    //'<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-  '</span>'+
-  '<br>'+
-  '<span style="color: #cfcfcf">'+
-    tr("There is no information available")+
-  '</span>';
-
 var dashboard_tab_content = '<div>\
   <div id="one_per_row">\
   </div>\
@@ -212,7 +202,7 @@ var widgets = {
         </div>\
     </fieldset>',
   "accounting" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("Accounting")+'</legend>\
+      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-bar-chart-o"></i> '+tr("Accounting")+'</legend>\
         <div id="dashboard_vm_accounting" class="row">\
           <div class="large-16 columns">'+
             '<div id="user_dashboard_info_acct_div" class="large-12 columns columns">'+
@@ -237,17 +227,7 @@ var widget_refresh = {
     "vms" : function(){
             Sunstone.runAction("VM.list");
         },
-    "accounting" : function(){
-            $(document).ready(function(){
-              insertSelectOptions('div#user_dashboard_accounting_group_sel', $dashboard, "Group", gid, false);
-              accountingGraphs(
-                $("#user_dashboard_info_acct_div"),
-                  { dashboard_user: true,
-                    no_table: true,
-                    // fixed_user: config["user_id"],
-                    fixed_group_by: "vm" });
-            });
-        },
+    "accounting" : function(){},
     "user_quotas" : refreshDashboardUserQuotas,
     "group_quotas" : refreshDashboardGroupQuotas
 }
@@ -439,6 +419,16 @@ $(document).ready(function(){
                 fillGroupQuotasInfo(value_str);
             }
         });
+
+        if($("#user_dashboard_info_acct_div", $dashboard).length != 0){
+            accountingGraphs(
+                $("#user_dashboard_info_acct_div", $dashboard),
+                {   no_table: true,
+                    // fixed_user: config["user_id"],
+                    fixed_group_by: "vm"
+                }
+            );
+        }
 
         $(document).foundation();
     }

@@ -38,6 +38,7 @@ tabs:
             - vms
             - hosts
         widgets_one_footer:
+#            - accounting
     system-tab:
         panel_tabs:
         actions:
