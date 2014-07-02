@@ -103,20 +103,26 @@ int LibVirtDriver::deployment_description_kvm(
     const VectorAttribute * disk;
     const VectorAttribute * context;
 
-    string  type       = "";
-    string  target     = "";
-    string  bus        = "";
-    string  ro         = "";
-    string  driver     = "";
-    string  cache      = "";
-    string  disk_io    = "";
-    string  source     = "";
-    string  clone      = "";
-    string  ceph_host  = "";
-    string  ceph_secret= "";
-    string  ceph_user  = "";
-    string  gluster_host   = "";
-    string  gluster_volume = "";
+    string  type            = "";
+    string  target          = "";
+    string  bus             = "";
+    string  ro              = "";
+    string  driver          = "";
+    string  cache           = "";
+    string  disk_io         = "";
+    string  source          = "";
+    string  clone           = "";
+    string  ceph_host       = "";
+    string  ceph_secret     = "";
+    string  ceph_user       = "";
+    string  gluster_host    = "";
+    string  gluster_volume  = "";
+    string  total_bytes_sec = "";
+    string  read_bytes_sec  = "";
+    string  write_bytes_sec = "";
+    string  total_iops_sec  = "";
+    string  read_iops_sec   = "";
+    string  write_iops_sec  = "";
 
     int     disk_id;
     string  default_driver          = "";
@@ -395,19 +401,25 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        type        = disk->vector_value("TYPE");
-        target      = disk->vector_value("TARGET");
-        ro          = disk->vector_value("READONLY");
-        driver      = disk->vector_value("DRIVER");
-        cache       = disk->vector_value("CACHE");
-        disk_io     = disk->vector_value("IO");
-        source      = disk->vector_value("SOURCE");
-        clone       = disk->vector_value("CLONE");
-        ceph_host   = disk->vector_value("CEPH_HOST");
-        ceph_secret = disk->vector_value("CEPH_SECRET");
-        ceph_user   = disk->vector_value("CEPH_USER");
+        type            = disk->vector_value("TYPE");
+        target          = disk->vector_value("TARGET");
+        ro              = disk->vector_value("READONLY");
+        driver          = disk->vector_value("DRIVER");
+        cache           = disk->vector_value("CACHE");
+        disk_io         = disk->vector_value("IO");
+        source          = disk->vector_value("SOURCE");
+        clone           = disk->vector_value("CLONE");
+        ceph_host       = disk->vector_value("CEPH_HOST");
+        ceph_secret     = disk->vector_value("CEPH_SECRET");
+        ceph_user       = disk->vector_value("CEPH_USER");
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
+        total_bytes_sec = disk->vector_value("TOTAL_BYTES_SEC");
+        read_bytes_sec  = disk->vector_value("READ_BYTES_SEC");
+        write_bytes_sec = disk->vector_value("WRITE_BYTES_SEC");
+        total_iops_sec  = disk->vector_value("TOTAL_IOPS_SEC");
+        read_iops_sec   = disk->vector_value("READ_IOPS_SEC");
+        write_iops_sec  = disk->vector_value("WRITE_IOPS_SEC");
 
         disk->vector_value_str("DISK_ID", disk_id);
 
@@ -552,7 +564,46 @@ int LibVirtDriver::deployment_description_kvm(
             file << " io='" << default_driver_disk_io << "'";
         }
 
-        file << "/>" << endl << "\t\t</disk>" << endl;
+        file << "/>" << endl;
+
+        if ( !(total_bytes_sec.empty() && read_bytes_sec.empty()
+             && write_bytes_sec.empty() && total_iops_sec.empty()
+             && read_iops_sec.empty() && write_iops_sec.empty()) )
+        {
+            file << "\t\t\t<iotune>" << endl;
+            if ( !total_bytes_sec.empty() )
+            {
+                file << "\t\t\t\t<total_bytes_sec>" << total_bytes_sec
+                     << "</total_bytes_sec>" << endl;
+            }
+            if ( !read_bytes_sec.empty() )
+            {
+                file << "\t\t\t\t<read_bytes_sec>" << read_bytes_sec
+                     << "</read_bytes_sec>" << endl;
+            }
+            if ( !write_bytes_sec.empty() )
+            {
+                file << "\t\t\t\t<write_bytes_sec>" << write_bytes_sec
+                     << "</write_bytes_sec>" << endl;
+            }
+            if ( !total_iops_sec.empty() )
+            {
+                file << "\t\t\t\t<total_iops_sec>" << total_iops_sec
+                     << "</total_iops_sec>" << endl;
+            }
+            if ( !read_iops_sec.empty() )
+            {
+                file << "\t\t\t\t<read_iops_sec>" << read_iops_sec
+                     << "</read_iops_sec>" << endl;
+            }
+            if ( !write_iops_sec.empty() )
+            {
+                file << "\t\t\t\t<write_iops_sec>" << write_iops_sec
+                     << "</write_iops_sec>" << endl;
+            }
+            file << "\t\t\t</iotune>" << endl;
+        }
+        file << "\t\t</disk>" << endl;
     }
 
     attrs.clear();
