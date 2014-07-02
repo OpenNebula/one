@@ -150,15 +150,6 @@ if build_parsers=='yes':
 else:
     main_env.Append(parsers='no')
 
-# Context pakages
-context_packages=ARGUMENTS.get('context', 'no')
-if context_packages=='no':
-    main_env.Append(context=[])
-elif context_packages=='all':
-    main_env.Append(context=['deb', 'rpm'])
-else:
-    main_env.Append(context=context_packages.split(','))
-
 # Rubygem generation
 main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
 
@@ -248,7 +239,6 @@ build_scripts=[
     'src/zone/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
-    'share/scripts/context-packages/SConstruct',
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct'
