@@ -1088,28 +1088,6 @@ function update_datatable_template_hosts(datatable, fnDrawCallback) {
   });
 }
 
-function update_datatable_template_datastores(datatable, fnDrawCallback) {
-    if (fnDrawCallback) {
-        datatable.unbind('draw');
-        datatable.on('draw', fnDrawCallback);
-    }
-
-    OpenNebula.Datastore.list({
-    timeout: true,
-    success: function (request, datastore_list){
-        var datastore_list_array = [];
-
-        $.each(datastore_list,function(){
-            //Grab table data from the datastore_list
-            datastore_list_array.push(datastoreElementArray(this));
-        });
-
-        updateView(datastore_list_array, datatable);
-    },
-    error: onError
-  });
-}
-
 function update_datatable_template_clusters(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.unbind('draw');

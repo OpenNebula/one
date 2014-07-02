@@ -1264,8 +1264,7 @@ var OpenNebula = {
                                             action_obj);
         },
         "clone" : function(params) {
-            var name = params.data.extra_param ? params.data.extra_param : "";
-            var action_obj = { "name" : name };
+            var action_obj = params.data.extra_param ? params.data.extra_param : {};
             OpenNebula.Action.simple_action(params,OpenNebula.Image.resource, "clone", action_obj);
         },
         "rename" : function(params){

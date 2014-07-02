@@ -1146,22 +1146,31 @@ function setupImageCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Clone Image")+'</h3>\
+    var html =
+'<div class="row">\
+  <h3 class="subheader">'+tr("Clone Image")+'</h3>\
 </div>\
 <form>\
   <div class="row">\
-    <div class="large-12 columns">\
-      <div class="clone_one"></div>\
-      <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
-      <br>\
+    <div class="columns large-12">\
+      <label class="clone_one">'+tr("Name")+':</label>\
+      <label class="clone_several">'+tr("Several images are selected, please choose a prefix to name the new copies")+':</label>\
+      <input type="text" name="image_clone_name"></input>\
     </div>\
   </div>\
   <div class="row">\
-    <div class="columns large-12">\
-      <label class="clone_one">'+tr("Name")+':</label>\
-      <label class="clone_several">'+tr("Prefix")+':</label>\
-      <input type="text" name="name"></input>\
+    <div class="large-12 columns">\
+      <dl class="accordion" id="image_clone_advanced_toggle" data-accordion>\
+        <dd><a href="#image_clone_advanced"> '+tr("Advanced options")+'</a></dd>\
+      </dl>\
+      <div id="image_clone_advanced" class="row collapse content">\
+        <div class="large-12 columns">\
+          <span>'+tr("You can select a different target datastore")+'</span>\
+          <br/>\
+          <br/>\
+        </div>\
+        '+generateDatastoreTableSelect("image_clone")+'\
+      </div>\
     </div>\
   </div>\
   <div class="form_buttons row">\
@@ -1172,23 +1181,46 @@ function setupImageCloneDialog(){
 ';
 
     dialog.html(html);
-    dialog.addClass("reveal-modal").attr("data-reveal", "");
+    dialog.addClass("reveal-modal large").attr("data-reveal", "");
+
+    // TODO: Show DS with the same ds mad only
+    setupDatastoreTableSelect(dialog, "image_clone",
+        { filter_fn: function(ds){ return ds.TYPE == 0; } }
+    );
+
+    $('#image_clone_advanced_toggle',dialog).click(function(){
+        $('#image_clone_advanced',dialog).toggle();
+        return false;
+    });
 
     $('form',dialog).submit(function(){
-        var name = $('input', this).val();
+        var name = $('input[name="image_clone_name"]', this).val();
         var sel_elems = imageElements();
+
         if (!name || !sel_elems.length)
             notifyError('A name or prefix is needed!');
+
+        var extra_info = {};
+
+        if( $("#selected_resource_id_image_clone", dialog).val().length > 0 ){
+            extra_info['target_ds'] =
+                $("#selected_resource_id_image_clone", dialog).val();
+        }
+
         if (sel_elems.length > 1){
-            for (var i=0; i< sel_elems.length; i++)
+            for (var i=0; i< sel_elems.length; i++){
                 //If we are cloning several images we
                 //use the name as prefix
+                extra_info['name'] = name+getImageName(sel_elems[i]);
                 Sunstone.runAction('Image.clone',
                                    sel_elems[i],
-                                   name+getImageName(sel_elems[i]));
+                                   extra_info);
+            }
         } else {
-            Sunstone.runAction('Image.clone',sel_elems[0],name)
-        };
+            extra_info['name'] = name;
+            Sunstone.runAction('Image.clone',sel_elems[0],extra_info)
+        }
+
         dialog.foundation('reveal', 'close')
         setTimeout(function(){
             Sunstone.runAction('Image.refresh');
@@ -1204,16 +1236,19 @@ function popUpImageCloneDialog(){
     if (sel_elems.length > 1){
         $('.clone_one',dialog).hide();
         $('.clone_several',dialog).show();
-        $('input',dialog).val('Copy of ');
+        $('input[name="image_clone_name"]',dialog).val('Copy of ');
     }
     else {
         $('.clone_one',dialog).show();
         $('.clone_several',dialog).hide();
-        $('input',dialog).val('Copy of '+getImageName(sel_elems[0]));
+        $('input[name="image_clone_name"]',dialog).val('Copy of '+getImageName(sel_elems[0]));
     };
 
+    $('#image_clone_advanced', dialog).hide();
+    resetResourceTableSelect(dialog, "image_clone");
+
     $(dialog).foundation().foundation('reveal', 'open');
-    $("input[name='name']",dialog).focus();
+    $("input[name='image_clone_name']",dialog).focus();
 }
 
 //The DOM is ready at this point

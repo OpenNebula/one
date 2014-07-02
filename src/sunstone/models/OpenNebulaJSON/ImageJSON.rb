@@ -100,7 +100,11 @@ module OpenNebulaJSON
         end
 
         def clone(params=Hash.new)
-            super(params['name'])
+            if params['target_ds']
+                super(params['name'], params['target_ds'].to_i)
+            else
+                super(params['name'])
+            end
         end
 
         def rename(params=Hash.new)

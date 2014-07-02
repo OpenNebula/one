@@ -127,51 +127,7 @@ var deploy_vm_tmpl ='\
             <br>\
             <fieldset>\
               <legend>'+tr("Select a datastore")+'</legend>\
-              <div class="row collapse">\
-                <div class="large-9 columns">\
-                   <button id="refresh_deploy_datastores_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-                </div>\
-                <div class="large-3 columns">\
-                  <input id="deploy_datastores_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
-                </div>\
-              </div>\
-              <table id="deploy_datatable_datastores" class="datatable twelve">\
-                <thead>\
-                  <tr>\
-                    <th></th>\
-                    <th>'+tr("ID")+'</th>\
-                    <th>'+tr("Owner")+'</th>\
-                    <th>'+tr("Group")+'</th>\
-                    <th>'+tr("Name")+'</th>\
-                    <th>'+tr("Capacity")+'</th>\
-                    <th>'+tr("Cluster")+'</th>\
-                    <th>'+tr("Basepath")+'</th>\
-                    <th>'+tr("TM MAD")+'</th>\
-                    <th>'+tr("DS MAD")+'</th>\
-                    <th>'+tr("Type")+'</th>\
-                  </tr>\
-                </thead>\
-                <tbody id="tbodydatastores">\
-                </tbody>\
-              </table>\
-              <div class="row hidden">\
-                <div class="large-4 columns">\
-                  <label class="right inline" for="DATASTORE_ID">'+tr("DATASTORE_ID")+':</label>\
-                </div>\
-                <div class="large-6 columns">\
-                  <input type="text" id="DATASTORE_ID" name="DATASTORE_ID"/>\
-                </div>\
-                <div class="large-2 columns">\
-                  <div class="tip">\
-                  </div>\
-                </div>\
-              </div>\
-              <br>\
-              <div id="selected_datastore" class="vm_param kvm_opt xen_opt vmware_opt">\
-                <span id="select_datastore" class="radius secondary label">'+tr("Please select a datastore from the list")+'</span>\
-                <span id="datastore_selected" class="radius secondary label hidden">'+tr("You selected the following datastore:")+'</span>\
-                <span class="radius label" type="text" id="DATASTORE_NAME" name="datastore"></span>\
-              </div>\
+              '+generateDatastoreTableSelect("deploy_vm_ds")+'\
             </fieldset>\
           </div>\
     <div class="form_buttons reveal-footer">\
@@ -2800,61 +2756,13 @@ function setupDeployVMDialog(){
 
     setupHostTableSelect(dialog, "deploy_vm");
 
+    // Show system DS only
+    setupDatastoreTableSelect(dialog, "deploy_vm_ds",
+        { filter_fn: function(ds){ return ds.TYPE == 1; } }
+    );
+
     $('#refresh_button_deploy_vm', dialog).click();
-
-    var dataTable_deploy_datastores = $('#deploy_datatable_datastores', dialog).dataTable({
-      "bSortClasses": false,
-      "bDeferRender": true,
-      "iDisplayLength": 4,
-      "bAutoWidth":false,
-      "sDom" : '<"H">t<"F"p>',
-      "aoColumnDefs": [
-          { "sWidth": "35px", "aTargets": [0,1] },
-          { "bVisible": false, "aTargets": [0,5,7,8,9,10] }
-      ],
-        "fnDrawCallback": function(oSettings) {
-          var nodes = this.fnGetNodes();
-          $.each(nodes, function(){
-              if ($(this).find("td:eq(0)").html() == $('#DATASTORE_ID', dialog).val()) {
-                  $("td", this).addClass('markrow');
-                  $('input.check_item', this).attr('checked','checked');
-              }
-          })
-        }
-    });
-
-    // Retrieve the images to fill the datatable
-    update_datatable_template_datastores(dataTable_deploy_datastores);
-
-    $('#deploy_datastores_table_search', dialog).keyup(function(){
-    dataTable_deploy_datastores.fnFilter( $(this).val() );
-    })
-
-    $('#deploy_datatable_datastores tbody', dialog).delegate("tr", "click", function(e){
-      var aData = dataTable_deploy_datastores.fnGetData(this);
-
-      $("td.markrow", dataTable_deploy_datastores).removeClass('markrow');
-      $('tbody input.check_item', dataTable_deploy_datastores).removeAttr('checked');
-
-      $('#datastore_selected', dialog).show();
-      $('#select_datastore', dialog).hide();
-      $('.alert-box', dialog).hide();
-
-      $("td", this).addClass('markrow');
-      $('input.check_item', this).attr('checked','checked');
-
-      $('#DATASTORE_NAME', dialog).text(aData[4]);
-      $('#DATASTORE_ID', dialog).val(aData[1]);
-      return true;
-    });
-
-    $("#refresh_deploy_datastores_table_button_class").die();
-    $("#refresh_deploy_datastores_table_button_class").live('click', function(){
-      update_datatable_template_datastores($('#deploy_datatable_datastores').dataTable());
-    });
-
-    dataTable_deploy_datastores.fnFilter("system",10);
-
+    $('#refresh_button_deploy_vm_ds', dialog).click();
 
     $('#advanced_deploy', dialog).hide();
     $('#advanced_toggle',dialog).click(function(){
@@ -2874,7 +2782,7 @@ function setupDeployVMDialog(){
             return false;
         }
 
-        extra_info['ds_id'] = $('#DATASTORE_ID', dialog).val() || -1
+        extra_info['ds_id'] = $("#selected_resource_id_deploy_vm_ds", dialog).val() || -1
         extra_info['enforce'] = $("#enforce", this).is(":checked") ? true : false
 
         //notifySubmit("Template.instantiate",template_id, extra_msg);

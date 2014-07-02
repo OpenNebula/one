@@ -5007,6 +5007,100 @@ function setupHostTableSelect(section, context_id, opts){
     return setupResourceTableSelect(section, context_id, options);
 }
 
+
+function generateDatastoreTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Capacity"),
+        tr("Cluster"),
+        tr("Basepath"),
+        tr("TM MAD"),
+        tr("DS MAD"),
+        tr("Type")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "select_resource": tr("Please select a datastore from the list"),
+        "you_selected": tr("You selected the following datastore:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupDatastoreTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('datastores-tab');
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "sWidth": "250px", "aTargets": [5] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+
+        "update_fn": function(datatable){
+            OpenNebula.Datastore.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.DATASTORE);
+                        }
+
+                        if(add){
+                            list_array.push(datastoreElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
 function generateResourceTableSelect(context_id, columns, options){
     if (!options.select_resource){
         options.select_resource = tr("Please select a resource from the list");
@@ -5109,6 +5203,22 @@ function setupResourceTableSelect(section, context_id, options) {
     });
 
     setupTips(section);
+}
+
+function resetResourceTableSelect(section, context_id, options) {
+    var dataTable_select = $('#datatable_'+context_id, section)
+
+    $("td.markrow", dataTable_select).removeClass('markrow');
+    $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+    $('#'+context_id+'_search', section).val("").trigger("keyup");
+    $('#refresh_button_'+context_id).click();
+
+    $('#selected_resource_id_'+context_id, section).val("").hide();
+    $('#selected_resource_name_'+context_id, section).text("").hide();
+
+    $('#selected_resource_'+context_id, section).hide();
+    $('#select_resource_'+context_id, section).show();
 }
 
 //==============================================================================
