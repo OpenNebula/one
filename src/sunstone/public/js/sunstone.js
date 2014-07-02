@@ -4008,7 +4008,7 @@ function accountingGraphs(div, opt){
           </div>\
         </div>\
       </div>\
-      <div class="large-3 right columns" style="margin-top: 15px">\
+      <div id="acct_button_container" class="left columns" style="margin-top: 15px">\
         <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get Accounting")+'</button>\
       </div>\
     </div>\
@@ -4092,7 +4092,7 @@ function accountingGraphs(div, opt){
     // Set column width
     //--------------------------------------------------------------------------
 
-    var n_columns = 2; // start, end time
+    var n_columns = 3; // start, end time, button
 
     if (opt.fixed_user == undefined && opt.fixed_group == undefined){
         n_columns += 1;     //acct_owner_container
@@ -4102,12 +4102,19 @@ function accountingGraphs(div, opt){
         n_columns += 1;     //acct_group_by_container
     }
 
+    if (n_columns > 4){
+        // In this case the first row will have 4 inputs, and the
+        // get accounting button will overflow to the second row
+        n_columns = 4;
+    }
+
     var width = parseInt(12 / n_columns);
 
     $("#acct_start_time_container", div).addClass("large-"+width);
-    $("#acct_end_time_container", div).addClass("large-"+width);
-    $("#acct_group_by_container", div).addClass("large-"+width);
-    $("#acct_owner_container", div).addClass("large-"+width);
+    $("#acct_end_time_container",   div).addClass("large-"+width);
+    $("#acct_group_by_container",   div).addClass("large-"+width);
+    $("#acct_owner_container",      div).addClass("large-"+width);
+    $("#acct_button_container",     div).addClass("large-"+width);
 
     //--------------------------------------------------------------------------
     // Init start time to 1st of last month
