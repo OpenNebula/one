@@ -200,6 +200,14 @@ var widgets = {
             </label>\
           </div>\
         </div>\
+    </fieldset>',
+  "accounting" : '<fieldset>\
+      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-bar-chart-o"></i> '+tr("Accounting")+'</legend>\
+        <div id="dashboard_vm_accounting" class="row">\
+          <div class="large-16 columns">'+
+            '<div id="user_dashboard_info_acct_div" class="large-12 columns columns">'+
+          '</div>\
+        </div>\
     </fieldset>'
 }
 
@@ -219,6 +227,7 @@ var widget_refresh = {
     "vms" : function(){
             Sunstone.runAction("VM.list");
         },
+    "accounting" : function(){},
     "user_quotas" : refreshDashboardUserQuotas,
     "group_quotas" : refreshDashboardGroupQuotas
 }
@@ -410,6 +419,16 @@ $(document).ready(function(){
                 fillGroupQuotasInfo(value_str);
             }
         });
+
+        if($("#user_dashboard_info_acct_div", $dashboard).length != 0){
+            accountingGraphs(
+                $("#user_dashboard_info_acct_div", $dashboard),
+                {   no_table: true,
+                    // fixed_user: config["user_id"],
+                    fixed_group_by: "vm"
+                }
+            );
+        }
 
         $(document).foundation();
     }

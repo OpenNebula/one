@@ -3976,32 +3976,37 @@ function accountingGraphs(div, opt){
     }
 
     div.html(
-    '<div class="row" id="acct_owner">\
-      <div class="large-4 text-center columns large-offset-4">\
-        <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
-        <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
-        <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
-      </div>\
-      <div class="large-4 columns">\
-        <div id="acct_owner_select"/>\
-      </div>\
-    </div>\
-    <div class="row">\
-      <div class="large-3 left columns">\
+    '<div class="row">\
+      <div id="acct_start_time_container" class="left columns">\
         <label for="acct_start_time">'+tr("Start time")+'</label>\
         <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
       </div>\
-      <div class="large-3 left columns">\
+      <div id="acct_end_time_container" class="left columns">\
         <label for="acct_end_time">'+tr("End time")+'</label>\
         <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
       </div>\
-      <div id="acct_group_by_container" class="large-3 left columns">\
+      <div id="acct_group_by_container" class="left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
         <select id="acct_group_by" name="acct_group_by">\
           <option value="user">' + tr("User") + '</option>\
           <option value="group">' + tr("Group") + '</option>\
           <option value="vm">' + tr("VM") + '</option>\
         </select>\
+      </div>\
+      <div id="acct_owner_container" class="left columns">\
+        <label for="acct_owner">' +  tr("Filter") + '</label>\
+        <div class="row">\
+          <div class="large-5 columns">\
+            <select id="acct_owner" name="acct_owner">\
+              <option value="acct_owner_all">' + tr("All") + '</option>\
+              <option value="acct_owner_group">' + tr("Group") + '</option>\
+              <option value="acct_owner_user">' + tr("User") + '</option>\
+            </select>\
+          </div>\
+          <div class="large-7 columns">\
+            <div id="acct_owner_select"/>\
+          </div>\
+        </div>\
       </div>\
       <div class="large-3 right columns" style="margin-top: 15px">\
         <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get Accounting")+'</button>\
@@ -4045,7 +4050,7 @@ function accountingGraphs(div, opt){
           </div>\
         </div>\
       </div>\
-      <div class="row">\
+      <div class="row acct_table">\
         <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
@@ -4061,7 +4066,7 @@ function accountingGraphs(div, opt){
           </table>\
         </div>\
       </div>\
-      <div class="row">\
+      <div class="row acct_table">\
         <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
@@ -4084,6 +4089,27 @@ function accountingGraphs(div, opt){
     }
 
     //--------------------------------------------------------------------------
+    // Set column width
+    //--------------------------------------------------------------------------
+
+    var n_columns = 2; // start, end time
+
+    if (opt.fixed_user == undefined && opt.fixed_group == undefined){
+        n_columns += 1;     //acct_owner_container
+    }
+
+    if(opt.fixed_group_by == undefined){
+        n_columns += 1;     //acct_group_by_container
+    }
+
+    var width = parseInt(12 / n_columns);
+
+    $("#acct_start_time_container", div).addClass("large-"+width);
+    $("#acct_end_time_container", div).addClass("large-"+width);
+    $("#acct_group_by_container", div).addClass("large-"+width);
+    $("#acct_owner_container", div).addClass("large-"+width);
+
+    //--------------------------------------------------------------------------
     // Init start time to 1st of last month
     //--------------------------------------------------------------------------
     var d = new Date();
@@ -4098,24 +4124,9 @@ function accountingGraphs(div, opt){
     //--------------------------------------------------------------------------
 
     if (opt.fixed_user != undefined || opt.fixed_group != undefined){
-      $("#acct_owner", div).hide();
-/*
-        $("input[name='acct_owner']", div).attr("disabled", "disabled");
-
-        $("#acct_owner_select", div).show();
-
-        if(opt.fixed_user != undefined){
-            var text = tr("User") +" " + opt.fixed_user;
-            $("input[value='acct_owner_user']", div).attr("checked", "checked");
-        } else {
-            var text = tr("Group") + " " + opt.fixed_group;
-            $("input[value='acct_owner_group']", div).attr("checked", "checked");
-        }
-
-        $("#acct_owner_select", div).text(text);
-*/
+        $("#acct_owner_container", div).hide();
     } else {
-        $("input[name='acct_owner']", div).change(function(){
+        $("select#acct_owner", div).change(function(){
             var value = $(this).val();
 
             switch (value){
@@ -4198,7 +4209,7 @@ function accountingGraphs(div, opt){
         } else {
             var select_val = $("#acct_owner_select .resource_list_select", div).val();
 
-            switch ($("input[name='acct_owner']:checked", div).val()){
+            switch ($("select#acct_owner", div).val()){
             case "acct_owner_all":
                 break;
 
@@ -4216,10 +4227,15 @@ function accountingGraphs(div, opt){
             }
         }
 
+        var no_table = false;
+        if (opt["no_table"] == true) {
+            no_table = true;
+        }
+
         OpenNebula.VM.accounting({
     //        timeout: true,
             success: function(req, response){
-                fillAccounting(div, req, response);
+                fillAccounting(div, req, response, no_table);
             },
             error: onError,
             data: options
@@ -4491,7 +4507,9 @@ function fillAccounting(div, req, response, no_table) {
     // Init dataTables
     //--------------------------------------------------------------------------
 
-    if (!no_table){
+    if (no_table) {
+        $(".acct_table").hide();
+    } else {
         $("#acct_cpu_datatable",div).dataTable().fnClearTable();
         $("#acct_cpu_datatable",div).dataTable().fnDestroy();
 
