@@ -43,6 +43,10 @@ panel_extended = false;
 var top_interval = 10000; //ms
 var top_interval_ids = {};
 
+// global definitions
+var QUOTA_LIMIT_DEFAULT   = "-1";
+var QUOTA_LIMIT_UNLIMITED = "-2";
+
 //Sunstone configuration is formed by predifined "actions", main tabs
 //and "info_panels". Each tab has "content" and "buttons". Each
 //"info_panel" has "tabs" with "content".
@@ -2389,10 +2393,10 @@ var Quotas = {
         if ($.isEmptyObject(default_quotas.VM_QUOTA)){
             default_quotas.VM_QUOTA = {
                 "VM" : {
-                    "VMS"           : "0",
-                    "MEMORY"        : "0",
-                    "CPU"           : "0",
-                    "VOLATILE_SIZE" : "0"
+                    "VMS"           : QUOTA_LIMIT_UNLIMITED,
+                    "MEMORY"        : QUOTA_LIMIT_UNLIMITED,
+                    "CPU"           : QUOTA_LIMIT_UNLIMITED,
+                    "VOLATILE_SIZE" : QUOTA_LIMIT_UNLIMITED
                 }
             }
         }
@@ -3510,7 +3514,7 @@ function quotaBarMB(usage, limit, default_limit, not_html){
     var int_limit = quotaIntLimit(limit, default_limit);
 
     info_str = humanize_size(int_usage * 1024)+' / '
-            +((int_limit > 0) ? humanize_size(int_limit * 1024) : '-')
+            +((int_limit >= 0) ? humanize_size(int_limit * 1024) : '-')
 
     return quotaBarHtml(int_usage, int_limit, info_str, not_html);
 }
@@ -3530,9 +3534,11 @@ function quotaBarHtml(usage, limit, info_str, not_html){
         if (percentage > 100){
             percentage = 100;
         }
+    } else if (limit == 0 && usage > 0){
+        percentage = 100;
     }
 
-    info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
+    info_str = info_str || ( usage+' / '+((limit >= 0) ? limit : '-') );
 
     if (not_html) {
         return {
@@ -3582,7 +3588,7 @@ function quotaIntLimit(limit, default_limit){
     i_limit = parseInt(limit, 10);
     i_default_limit = parseInt(default_limit, 10);
 
-    if (i_limit == -1){
+    if (limit == QUOTA_LIMIT_DEFAULT){
         i_limit = i_default_limit;
     }
 
@@ -3598,7 +3604,7 @@ function quotaFloatLimit(limit, default_limit){
     f_limit = parseFloat(limit, 10);
     f_default_limit = parseFloat(default_limit, 10);
 
-    if (f_limit == -1){
+    if (f_limit == parseFloat(QUOTA_LIMIT_DEFAULT, 10)){
         f_limit = f_default_limit;
     }
 
