@@ -290,7 +290,7 @@ function generate_elasticity_accordion(role_id, context) {
                                 <thead style="background:#dfdfdf">\
                                   <tr>\
                                     <th colspan="8" style="font-size: 16px !important">\
-                                        '+tr("Elasticty policies")+'\
+                                        '+tr("Elasticity policies")+'\
                                     </th>\
                                   </tr>\
                                 </thead>\
