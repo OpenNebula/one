@@ -132,7 +132,7 @@ module OpenNebula
             failed_states = [
                 Role::STATE['FAILED_DEPLOYING'],
                 Role::STATE['FAILED_UNDEPLOYING']]
-                
+
             @roles.each { |name, role|
                 if failed_states.include?(role.state)
                     return true
@@ -194,7 +194,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def shutdown
-            if ![Service::STATE['FAILED_SCALING'], 
+            if ![Service::STATE['FAILED_SCALING'],
                     Service::STATE['DONE']].include?(self.state)
                 self.set_state(Service::STATE['UNDEPLOYING'])
                 return self.update

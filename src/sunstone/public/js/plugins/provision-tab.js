@@ -3139,7 +3139,6 @@ function get_provision_flow_state(data) {
       state_color = 'deploying';
       state_str = tr("PENDING");
       break;
-      break;
     case tr("DEPLOYING"):
       state_color = 'deploying';
       state_str = tr("DEPLOYING");

@@ -456,7 +456,6 @@ post '/service_template/:id/action' do
             instantiate_template_json = service_template.template
         end
 
-
         service = OpenNebula::Service.new(OpenNebula::Service.build_xml, @client)
         rc = service.allocate(instantiate_template_json)
         if OpenNebula.is_error?(rc)
