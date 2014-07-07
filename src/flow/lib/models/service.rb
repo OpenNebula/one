@@ -180,6 +180,12 @@ module OpenNebula
             template = JSON.parse(template_json)
             template['state'] = STATE['PENDING']
 
+            if template['roles']
+                template['roles'].each { |elem|
+                    elem['state'] ||= Role::STATE['PENDING']
+                }
+            end
+
             super(template.to_json, template['name'])
         end
 
