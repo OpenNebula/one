@@ -92,19 +92,23 @@ fi
 
 MKFS_CMD=`mkfs_command $TMP_DST $FSTYPE $SIZE`
 
+if [ "$RBD_FORMAT" = "2" ]; then
+    FORMAT_OPT="--image-format 2"
+fi
+
 REGISTER_CMD=$(cat <<EOF
     set -e
     export PATH=/usr/sbin:/sbin:\$PATH
 
     if [ "$FSTYPE" = "raw" ]; then
-        $QEMU_IMG create rbd:$RBD_SOURCE ${SIZE}M
+        $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE}
     else
         # create and format
         $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
         $MKFS_CMD
 
         # create rbd
-        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE
+        $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
 
         # remove original
         $RM -f $TMP_DST
