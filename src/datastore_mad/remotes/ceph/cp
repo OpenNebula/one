@@ -118,23 +118,23 @@ http://*|https://*)
 esac
 
 exec_and_log "eval $DUMP | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
-    "Error dumping $SRC to $DST_HOST:$TMP_DST"
+             "Error dumping $SRC to $DST_HOST:$TMP_DST"
+
+if [ "$RBD_FORMAT" = "2" ]; then
+    FORMAT_OPT="--image-format 2"
+fi
 
 REGISTER_CMD=$(cat <<EOF
     set -e
 
-    if [ "$RBD_FORMAT" = "2" ]; then
-        FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print $3}')
+    FORMAT=\$($QEMU_IMG info $TMP_DST | grep "^file format:" | awk '{print $3}')
 
-        if [ "\$FORMAT" != "raw" ]; then
-            $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw
-            mv $TMP_DST.raw $TMP_DST
-        fi
-
-        $RBD import --format 2 $TMP_DST $RBD_SOURCE
-    else
-        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE
+    if [ "\$FORMAT" != "raw" ]; then
+        $QEMU_IMG convert -O raw $TMP_DST $TMP_DST.raw
+        mv $TMP_DST.raw $TMP_DST
     fi
+
+    $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
 
     # remove original
     $RM -f $TMP_DST

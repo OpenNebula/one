@@ -64,6 +64,10 @@ done < <(onevm show -x $VM_ID| $XPATH \
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 PERSISTENT="${XPATH_ELEMENTS[j++]}"
 
+#-------------------------------------------------------------------------------
+# Copy Image back to the datastore
+#-------------------------------------------------------------------------------
+
 if [ "$PERSISTENT" = "YES" ]; then
     RBD_DST="${RBD_SRC}"
 else
@@ -71,6 +75,6 @@ else
 fi
 
 ssh_exec_and_log "$SRC_HOST" "$RBD copy $RBD_DST $DST" \
-                "Error cloning $RBD_DST to $DST in $DST_HOST"
+                 "Error cloning $RBD_DST to $DST in $SRC_HOST"
 
 exit 0
