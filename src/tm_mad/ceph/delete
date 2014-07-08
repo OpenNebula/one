@@ -67,15 +67,17 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
 
 SRC="${XPATH_ELEMENTS[j++]}"
-PERSISTENT="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
 
-# Exit if persistent
-[ -n "$PERSISTENT" ] && exit 0
+# No need to delete no cloned images
+if [ "$CLONE" = "NO" ]; then
+    exit 0
+fi
 
-# non persistent, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
+# cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
 RBD_SNAP="${VM_ID}-${DISK_ID}"
 
