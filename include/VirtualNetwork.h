@@ -194,6 +194,16 @@ public:
     }
 
     /**
+     *  Release previously given address lease
+     *    @param vid the ID of the VM
+     *    @param mac MAC address identifying the lease
+     */
+    void free_addr(int vid, const string& mac)
+    {
+        ar_pool.free_addr(PoolObjectSQL::VM, vid, mac);
+    }
+
+    /**
      *  Release all previously given address leases to the given object
      *    @param ot the type of the object requesting the address (VM or NET)
      *    @param obid the id of the object requesting the address

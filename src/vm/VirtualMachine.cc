@@ -2603,8 +2603,7 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
         return -1;
     }
 
-    if (nic->vector_value("NETWORK_ID", vnid) != 0 ||
-        nic->vector_value("AR_ID", ar_id) != 0)
+    if (nic->vector_value("NETWORK_ID", vnid) != 0)
     {
         return -1;
     }
@@ -2623,7 +2622,14 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
         return -1;
     }
 
-    vn->free_addr(ar_id, vmid, mac);
+    if (nic->vector_value("AR_ID", ar_id) == 0)
+    {
+        vn->free_addr(ar_id, vmid, mac);
+    }
+    else
+    {
+        vn->free_addr(vmid, mac);
+    }
 
     vnpool->update(vn);
 
