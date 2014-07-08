@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'nokogiri'
+require 'ipaddr'
 
 module Migrator
     def db_version
@@ -100,9 +101,192 @@ module Migrator
 
         log_time()
 
+        ########################################################################
+        # Networks
+        ########################################################################
+
+        @db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
+        @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
+
+        @db.fetch("SELECT * FROM old_network_pool") do |row|
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+
+            ranged = doc.root.at_xpath("TYPE").text == "0"
+            doc.root.at_xpath("TYPE").remove
+
+            global_prefix = doc.root.at_xpath("GLOBAL_PREFIX").text
+            site_prefix = doc.root.at_xpath("SITE_PREFIX").text
+
+            doc.root.at_xpath("GLOBAL_PREFIX").remove
+            doc.root.at_xpath("SITE_PREFIX").remove
+
+            doc.root.add_child(doc.create_element("PARENT_NETWORK_ID"))
+            ar_pool = doc.root.add_child(doc.create_element("AR_POOL"))
+
+            doc.root.at_xpath("TOTAL_LEASES").name = "USED_LEASES"
+
+            type = "IP4"
+
+            if(global_prefix != "" || site_prefix != "")
+                force_e = doc.root.at_xpath("TEMPLATE/CONTEXT_FORCE_IPV4")
+
+                if !force_e.nil? && force_e.text.upcase == "YES"
+                    type = "IP4_6"
+                else
+                    type = "IP6"
+                end
+            end
+
+            if ranged
+                ip_start_s = doc.root.at_xpath("RANGE/IP_START").text
+                ip_end_s   = doc.root.at_xpath("RANGE/IP_END").text
+
+                doc.root.at_xpath("RANGE").remove
+
+                ip_start = IPAddr.new(ip_start_s, Socket::AF_INET)
+                ip_end   = IPAddr.new(ip_end_s, Socket::AF_INET)
+
+                size = ip_end.to_i - ip_start.to_i + 1
+
+                # TODO: hardcoded mac prefix
+                mac = mac_to_s(0x200, ip_start.to_i)
+
+                ar = add_element(ar_pool, "AR")
+                add_cdata(ar, "AR_ID",  "0")
+                add_cdata(ar, "MAC",    mac)
+                add_cdata(ar, "SIZE",   size.to_s)
+                add_cdata(ar, "TYPE",   type)
+
+                if type == "IP4" || type == "IP4_6"
+                    add_cdata(ar, "IP", ip_start_s)
+                end
+
+                if type == "IP6" || type == "IP4_6"
+                    if global_prefix != ""
+                        add_cdata(ar, "GLOBAL_PREFIX", global_prefix)
+                    end
+
+                    if site_prefix != ""
+                        add_cdata(ar, "ULA_PREFIX", site_prefix)
+                    end
+                end
+
+                allocated_str = ""
+
+                @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]}") do |lease_row|
+                    lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
+
+                    # TODO: MAC_PREFIX?
+
+                    # For ranged, all leases are used
+                    # For ranged, IP == MAC_SUFFIX
+                    ip  = lease.root.at_xpath("IP").text
+                    vid = lease.root.at_xpath("VID").text.to_i
+
+                    index = ip.to_i - ip_start.to_i
+
+                    binary_magic = 0x0000001000000000 | (vid & 0xFFFFFFFF)
+
+                    allocated_str << " #{index} #{binary_magic}"
+                end
+
+                add_cdata(ar, "ALLOCATED",  allocated_str)
+            else
+                ar_id = 0
+
+                @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]}") do |lease_row|
+                    lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
+
+                    # For fixed, IP != MAC_SUFFIX
+
+                    ip    = lease.root.at_xpath("IP").text
+                    mac_p = lease.root.at_xpath("MAC_PREFIX").text
+                    mac_s = lease.root.at_xpath("MAC_SUFFIX").text
+                    used  = lease.root.at_xpath("USED").text
+                    vid   = lease.root.at_xpath("VID").text.to_i
+
+                    mac = mac_to_s(mac_p, mac_s)
+
+                    allocated_str = ""
+
+                    if used == "1"
+                        binary_magic = 0x0000001000000000 | (vid & 0xFFFFFFFF)
+                        allocated_str << " 0 #{binary_magic}"
+                    end
+
+                    ar = add_element(ar_pool, "AR")
+
+                    add_cdata(ar, "AR_ID",      ar_id.to_s)
+                    add_cdata(ar, "MAC",        mac)
+                    add_cdata(ar, "SIZE",       "1")
+                    add_cdata(ar, "TYPE",       type)
+                    add_cdata(ar, "ALLOCATED",  allocated_str)
+
+                    if type == "IP4" || type == "IP4_6"
+                        add_cdata(ar, "IP", ip_to_s(ip))
+                    end
+
+                    if type == "IP6" || type == "IP4_6"
+                        if global_prefix != ""
+                            add_cdata(ar, "GLOBAL_PREFIX", global_prefix)
+                        end
+
+                        if site_prefix != ""
+                            add_cdata(ar, "ULA_PREFIX", site_prefix)
+                        end
+                    end
+
+                    ar_id += 1
+                end
+            end
+
+            @db[:network_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => row[:uid],
+                :gid        => row[:gid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u],
+                :cid        => row[:cid])
+        end
+
+        @db.run "DROP TABLE old_network_pool;"
+        @db.run "DROP TABLE leases;"
+
+        log_time()
+
         return true
     end
 
+    ############################################################################
+
+    def add_element(elem, name)
+        return elem.add_child(elem.document.create_element(name))
+    end
+
+    def add_cdata(elem, name, text)
+        # The cleaner doc.create_cdata(txt) is not supported in
+        # old versions of nokogiri
+        return add_element(elem, name).add_child(
+                        Nokogiri::XML::CDATA.new(elem.document(), text))
+    end
+
+    def mac_to_s(prefix, suffix)
+        hex_p = prefix.to_i.to_s(16).rjust(4, "0")
+        hex_s = suffix.to_i.to_s(16).rjust(8, "0")
+
+        mac = hex_p.insert(2,":").insert(5,":") <<
+              hex_s.insert(2,":").insert(5,":").insert(8,":")
+    end
+
+    def ip_to_s(ip)
+        hex = ip.to_i.to_s(16).rjust(8, "0")
+        return "#{hex[0..1].hex}.#{hex[2..3].hex}.#{hex[4..5].hex}.#{hex[6..7].hex}"
+    end
+
+    ############################################################################
 
     def redo_quota_limits(doc)
         # VM quotas
