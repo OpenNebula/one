@@ -91,7 +91,7 @@ log "Deleting $DST_PATH"
 DELETE_CMD=$(cat <<EOF
     set -e
 
-    RBD_FORMAT=`rbd info $SRC_PATH | sed -n 's/.*format: // p'`
+    RBD_FORMAT=\$(rbd info $RBD_SRC | sed -n 's/.*format: // p')
 
     $RBD rm $RBD_SRC
 

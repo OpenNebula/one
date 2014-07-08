@@ -80,9 +80,9 @@ log "Dumping $RBD_DST to $DST"
 DUMP_CMD=$(cat <<EOF
     set -e
 
-    RBD_FORMAT=`rbd info $SRC_PATH | sed -n 's/.*format: // p'`
+    RBD_FORMAT=\$(rbd info $RBD_DST | sed -n 's/.*format: // p')
 
-    if [ "\$RBD_FORMAT" = "2" ]; then
+    if [ "\${RBD_FORMAT}" = "2" ]; then
         $RBD flatten $RBD_DST
         $RBD snap unprotect $RBD_SRC@$RBD_SNAP
         $RBD snap rm $RBD_SRC@$RBD_SNAP

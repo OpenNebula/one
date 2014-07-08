@@ -56,7 +56,7 @@ RBD_SNAP="${VM_ID}-${DISK_ID}"
 CLONE_CMD=$(cat <<EOF
     set -e
 
-    RBD_FORMAT=`rbd info $SRC_PATH | sed -n 's/.*format: // p'`
+    RBD_FORMAT=\$(rbd info $SRC_PATH | sed -n 's/.*format: // p')
 
     if [ "\$RBD_FORMAT" = "2" ]; then
         $RBD snap create "$SRC_PATH@$RBD_SNAP"
