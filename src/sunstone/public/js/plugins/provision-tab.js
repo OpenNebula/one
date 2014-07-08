@@ -3704,7 +3704,7 @@ function setup_info_vm(context) {
   context.on("click", ".provision_snapshot_create_button", function(){
     var button = $(this);
     button.attr("disabled", "disabled");
-    var context = $(".provision_info_vm");
+    var context = $(".provision_info_vm[vm_id]");
 
     var vm_id = context.attr("vm_id");
     var image_name = $('.provision_snapshot_name', context).val();
