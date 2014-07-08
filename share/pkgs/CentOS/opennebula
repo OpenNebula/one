@@ -39,6 +39,13 @@ check() {
 start() {
     check
 
+    # Create run and lock directories
+    mkdir -p /var/run/one
+    chown oneadmin:oneadmin /var/run/one
+
+    mkdir -p /var/lock/one
+    chown oneadmin:oneadmin /var/lock/one
+
     echo -n $"Starting OpenNebula daemon: "
     daemon --user oneadmin $ONE_BIN start
     RETVAL=$?
