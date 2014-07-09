@@ -170,6 +170,7 @@ module OpenNebula
 
         def allocate(template_json)
             template = JSON.parse(template_json)
+            template.delete("csrftoken")
 
             validator = Validator::Validator.new(
                 :default_values => true,
@@ -192,6 +193,7 @@ module OpenNebula
 
         def update(template_json)
             template = JSON.parse(template_json)
+            template.delete("csrftoken")
 
             validator = Validator::Validator.new(
                 :default_values => true,
@@ -302,7 +304,7 @@ module OpenNebula
                             raise Validator::ParseException,
                             "Role '#{role['name']}', scheduled policy ##{index} needs to define either "<<
                             "'start_time' or 'recurrence'"
-                        end                       
+                        end
                     end
                 end
             end
