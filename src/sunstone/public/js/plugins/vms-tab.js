@@ -959,15 +959,30 @@ function str_start_time(vm){
 // Return the IP or several IPs of a VM
 function ip_str(vm){
     var nic = vm.TEMPLATE.NIC;
-    var ip = '--';
-    if ($.isArray(nic)) {
-        ip = '';
-        $.each(nic, function(index,value){
+
+    if (nic == undefined){
+        return '--';
+    }
+
+    if (!$.isArray(nic)){
+        nic = [nic];
+    }
+
+    ip = '';
+    $.each(nic, function(index,value){
+        if (value.IP){
             ip += value.IP+'<br />';
-        });
-    } else if (nic && nic.IP) {
-        ip = nic.IP;
-    };
+        }
+
+        if (value.IP6_GLOBAL){
+            ip += value.IP6_GLOBAL+'<br />';
+        }
+
+        if (value.IP6_ULA){
+            ip += value.IP6_ULA+'<br />';
+        }
+    });
+
     return ip;
 };
 
@@ -2030,7 +2045,7 @@ function printNics(vm_info){
                 <th>'+tr("Network")+'</th>\
                 <th>'+tr("IP")+'</th>\
                 <th>'+tr("MAC")+'</th>\
-                <th>'+tr("IPv6 Site")+'</th>\
+                <th>'+tr("IPv6 ULA")+'</th>\
                 <th>'+tr("IPv6 Global")+'</th>\
                 <th colspan="">'+tr("Actions")+'</th>\
                 <th>';
@@ -2097,7 +2112,7 @@ function printNics(vm_info){
                 <td>' + nic.NETWORK + '</td>\
                 <td>' + (nic.IP ? nic.IP : "--") + '</td>\
                 <td>' + nic.MAC + '</td>\
-                <td>' + (nic.IP6_SITE ? nic.IP6_SITE : "--") +'</td>\
+                <td>' + (nic.IP6_ULA ? nic.IP6_ULA : "--") +'</td>\
                 <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\
                 <td>' + actions + '</td>\
             </tr>';
