@@ -226,7 +226,7 @@ EOT
                     e.add_child(doc.create_element("ID")).content = user_gid.to_s
                 }
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
 
             doc.root.xpath("GROUPS/ID").each { |e|
@@ -242,7 +242,7 @@ EOT
 
                 user_gids.add user_gid.to_i
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
 
             user_gids.each do |secondary_gid|
@@ -253,7 +253,7 @@ EOT
                         e.xpath("ID[.=#{secondary_gid}]").each{|x| x.remove}
                     }
 
-                    users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                    users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
                 else
                     group[secondary_gid] << row[:oid]
                 end
@@ -264,7 +264,7 @@ EOT
                     "User #{row[:oid]} is in group #{gid}, but the DB "<<
                     "table has GID column #{row[:gid]}")
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
         end
 
@@ -317,7 +317,7 @@ EOT
                     error_found = true
                 end
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 if !db_version[:is_slave]
                     # commit
@@ -402,7 +402,7 @@ EOT
                             e.text = ""
                         end
 
-                        hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        hosts_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         if cluster_name != cluster_entry[:name]
                             log_error("Host #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -411,7 +411,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                            hosts_fix[row[:oid]] = {:body => doc.root.to_s, :cid => cluster_id}
                         end
 
                         cluster_entry[:hosts] << row[:oid]
@@ -450,7 +450,7 @@ EOT
                             e.text = ""
                         end
 
-                        datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        datastores_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         cluster_entry[:datastores] << row[:oid]
 
@@ -461,7 +461,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                            datastores_fix[row[:oid]] = {:body => doc.root.to_s, :cid => cluster_id}
                         end
                     end
                 end
@@ -498,7 +498,7 @@ EOT
                             e.text = ""
                         end
 
-                        vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        vnets_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         if cluster_name != cluster_entry[:name]
                             log_error("VNet #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -507,7 +507,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                            vnets_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                         end
 
                         cluster_entry[:vnets] << row[:oid]
@@ -589,7 +589,7 @@ EOT
                 end
 
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:cluster_pool_new].insert(row)
@@ -644,7 +644,7 @@ EOT
                         e.text = ds_1_name
                     end
 
-                    images_fix[row[:oid]] = doc.to_s
+                    images_fix[row[:oid]] = doc.root.to_s
 
                     datastore[1][:images] << row[:oid]
                 else
@@ -655,7 +655,7 @@ EOT
                             e.text = ds_entry[:name]
                         end
 
-                        images_fix[row[:oid]] = doc.to_s
+                        images_fix[row[:oid]] = doc.root.to_s
                     end
 
                     ds_entry[:images] << row[:oid]
@@ -701,7 +701,7 @@ EOT
                 end
 
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:datastore_pool_new].insert(row)
@@ -955,7 +955,7 @@ EOT
                     end
                 }
 
-                row[:body] = host_doc.to_s
+                row[:body] = host_doc.root.to_s
 
                 # commit
                 @db[:host_pool_new].insert(row)
@@ -1091,7 +1091,7 @@ EOT
                     end
                 }
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:image_pool_new].insert(row)
@@ -1252,7 +1252,7 @@ EOT
                     end
                 }
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:network_pool_new].insert(row)
