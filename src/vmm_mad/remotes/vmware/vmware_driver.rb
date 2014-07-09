@@ -375,7 +375,7 @@ class VMwareDriver
         if rc == false
             OpenNebula.log_error("Error undefining domain #{id}")
             OpenNebula.log_error("Domain #{id} has to be undefined manually")
-            return info
+            return rc
         end
 
         return 0
