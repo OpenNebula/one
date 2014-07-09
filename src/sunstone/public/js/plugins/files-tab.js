@@ -637,6 +637,7 @@ function setupCreateFileDialog(){
             //since the body is the upload, we need the pass
             //the file info here
             uploader.setParams({
+                csrftoken: csrftoken,
                 img : JSON.stringify(file_obj),
                 file: fileName
             });
