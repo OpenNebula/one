@@ -42,11 +42,17 @@ $: << RUBY_LIB_LOCATION+'/cloud'
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
+require 'json'
 
 require 'CloudAuth'
 require 'CloudServer'
 
 require 'opennebula'
+require 'opennebula/oneflow_client'
+
+USER_AGENT = 'GATE'
+RESOURCE_PATH = "/service"
+
 include OpenNebula
 
 begin
@@ -75,6 +81,8 @@ rescue => e
 end
 
 set :cloud_auth, $cloud_auth
+
+$flow_client = Service::Client.new(:user_agent => USER_AGENT)
 
 helpers do
     def authenticate(env, params)
@@ -115,4 +123,64 @@ put '/vm/:id' do
     end
 
     [200, ""]
+end
+
+get '/vm/:id' do
+    client = authenticate(request.env, params)
+
+    halt 401, "Not authorized" if client.nil?
+
+    vm_id = params[:id].to_i
+    vm = VirtualMachine.new_with_id(vm_id, client)
+    rc = vm.info
+
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
+        halt 404, rc.message
+    end
+
+    service_id = vm['USER_TEMPLATE/SERVICE_ID']
+
+    if service_id.nil? || !service_id.match(/^\d+$/)
+        error_msg = "SERVICE_ID invalid or empty"
+        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
+        halt 400, error_msg
+    end
+
+    response = $flow_client.get("#{RESOURCE_PATH}/#{service_id}")
+
+    if CloudClient::is_error?(response)
+        error_msg = "Service not found: " + response.message
+        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
+        halt 404, error_msg
+    end
+
+    flow_hash = JSON.parse(response.body)
+    roles = flow_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
+
+    # Check that the user has not spoofed the Service_ID
+    flow_vm_ids = []
+    begin
+        if roles
+            roles.each do |role|
+                if (nodes = role["nodes"])
+                    nodes.each do |vm|
+                        flow_vm_ids << vm["deploy_id"]
+                    end
+                end
+            end
+        end
+    rescue Exception => e
+        error_msg = "Could not parse Flow: #{e.message}"
+        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
+        halt 500, error_msg
+    end
+
+    if flow_vm_ids.empty? || !flow_vm_ids.include?(vm_id)
+        error_msg = "Service ID does not correspond the VM"
+        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
+        halt 400, error_msg
+    end
+
+    [200, roles.to_json]
 end
