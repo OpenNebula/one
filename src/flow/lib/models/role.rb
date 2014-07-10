@@ -205,6 +205,14 @@ module OpenNebula
                     vm_state = node['vm_info']['VM']['STATE']
                     lcm_state = node['vm_info']['VM']['LCM_STATE']
 
+                    running = vm_state == '3' && lcm_state >= '3'
+
+                    if running && @service.running_status_gate
+                        running = node['vm_info']['VM']['USER_TEMPLATE']['RUNNING'] == "TRUE"
+                    end
+
+                    node['running'] = running
+
                     if (vm_state == '6')
                         # Store the VM id in the array of disposed nodes
                         disposed_nodes << vm_id
