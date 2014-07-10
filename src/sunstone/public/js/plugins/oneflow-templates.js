@@ -123,6 +123,14 @@ var create_service_template_tmpl = '\
                                 </select>\
                             </div>\
                         </div>\
+                        <div class="row">\
+                            <div class="service_template_param st_man large-6 columns">\
+                                <input type="checkbox" name="running_status_gate" id="running_status_gate" checked="checked"/>\
+                                <label for="running_status_gate">'+tr("Running status reported by VM")+'\
+                                  <span class="tip">' + tr("Running status is reported by the VM to the OneGate server.") +'</span>\
+                                </label>\
+                            </div>\
+                        </div>\
                     </div>\
                 </dd>\
             </dl>\
@@ -1415,6 +1423,7 @@ function generate_json_service_template_from_form() {
     var name = $('input[name="service_name"]', $create_service_template_dialog).val();
     var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
     var shutdown_action_service = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
+    var running_status_gate = $('input[name="running_status_gate"]', $create_service_template_dialog).prop("checked");
 
     var custom_attrs =  {};
 
@@ -1513,6 +1522,8 @@ function generate_json_service_template_from_form() {
         obj['shutdown_action'] = shutdown_action_service
     }
 
+    obj['running_status_gate'] = running_status_gate
+
     return obj;
 }
 
@@ -1573,6 +1584,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     // TODO Check if the template still exists
     $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", dialog).val(service_template.TEMPLATE.BODY.shutdown_action);
+    $("input[name='running_status_gate']", dialog).prop("checked",service_template.TEMPLATE.BODY.running_status_gate || false);
 
     if (service_template.TEMPLATE.BODY['custom_attrs']) {
         $("a[href='#network_configuration_and_attributes']", dialog).trigger("click");
