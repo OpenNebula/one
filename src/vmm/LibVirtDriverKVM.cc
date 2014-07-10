@@ -117,12 +117,20 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_user       = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
+
     string  total_bytes_sec = "";
     string  read_bytes_sec  = "";
     string  write_bytes_sec = "";
     string  total_iops_sec  = "";
     string  read_iops_sec   = "";
     string  write_iops_sec  = "";
+
+    string  default_total_bytes_sec = "";
+    string  default_read_bytes_sec  = "";
+    string  default_write_bytes_sec = "";
+    string  default_total_iops_sec  = "";
+    string  default_read_iops_sec   = "";
+    string  default_write_iops_sec  = "";
 
     int     disk_id;
     string  default_driver          = "";
@@ -373,21 +381,29 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
-    get_default("DISK","DRIVER",default_driver);
+    get_default("DISK", "DRIVER", default_driver);
 
     if (default_driver.empty())
     {
         default_driver = "raw";
     }
 
-    get_default("DISK","CACHE",default_driver_cache);
+    get_default("DISK", "CACHE", default_driver_cache);
 
     if (default_driver_cache.empty())
     {
        default_driver_cache = "default";
     }
 
-    get_default("DISK","IO",default_driver_disk_io);
+    get_default("DISK", "IO", default_driver_disk_io);
+
+    get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
+    get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
+    get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
+    get_default("DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
+    get_default("DISK", "READ_IOPS_SEC", default_read_iops_sec);
+    get_default("DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+
     // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK",attrs);
@@ -409,11 +425,14 @@ int LibVirtDriver::deployment_description_kvm(
         disk_io         = disk->vector_value("IO");
         source          = disk->vector_value("SOURCE");
         clone           = disk->vector_value("CLONE");
+
         ceph_host       = disk->vector_value("CEPH_HOST");
         ceph_secret     = disk->vector_value("CEPH_SECRET");
         ceph_user       = disk->vector_value("CEPH_USER");
+
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
+
         total_bytes_sec = disk->vector_value("TOTAL_BYTES_SEC");
         read_bytes_sec  = disk->vector_value("READ_BYTES_SEC");
         write_bytes_sec = disk->vector_value("WRITE_BYTES_SEC");
@@ -421,34 +440,34 @@ int LibVirtDriver::deployment_description_kvm(
         read_iops_sec   = disk->vector_value("READ_IOPS_SEC");
         write_iops_sec  = disk->vector_value("WRITE_IOPS_SEC");
 
-        if ( total_bytes_sec.empty() )
+        if ( total_bytes_sec.empty() && !default_total_bytes_sec.empty())
         {
-            get_default("DISK", "TOTAL_BYTES_SEC", total_bytes_sec);
+            total_bytes_sec = default_total_bytes_sec;
         }
 
-        if ( read_bytes_sec.empty() )
+        if ( read_bytes_sec.empty() && !default_read_bytes_sec.empty())
         {
-            get_default("DISK", "READ_BYTES_SEC", read_bytes_sec);
+            read_bytes_sec = default_read_bytes_sec;
         }
 
-        if ( write_bytes_sec.empty() )
+        if ( write_bytes_sec.empty() && !default_write_bytes_sec.empty())
         {
-            get_default("DISK", "WRITE_BYTES_SEC", write_bytes_sec);
+            write_bytes_sec = default_write_bytes_sec;
         }
 
-        if ( total_iops_sec.empty() )
+        if ( total_iops_sec.empty() && !default_total_iops_sec.empty())
         {
-            get_default("DISK", "TOTAL_IOPS_SEC", total_iops_sec);
+            total_iops_sec = default_total_iops_sec;
         }
 
-        if ( read_iops_sec.empty() )
+        if ( read_iops_sec.empty() && !default_read_iops_sec.empty())
         {
-            get_default("DISK", "READ_IOPS_SEC", read_iops_sec);
+            read_iops_sec = default_read_iops_sec;
         }
 
-        if ( write_iops_sec.empty() )
+        if ( write_iops_sec.empty() && !default_write_iops_sec.empty())
         {
-            get_default("DISK", "WRITE_IOPS_SEC", write_iops_sec);
+            write_iops_sec = default_write_iops_sec;
         }
 
         disk->vector_value_str("DISK_ID", disk_id);
@@ -596,43 +615,53 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "/>" << endl;
 
-        if ( !(total_bytes_sec.empty() && read_bytes_sec.empty()
-             && write_bytes_sec.empty() && total_iops_sec.empty()
-             && read_iops_sec.empty() && write_iops_sec.empty()) )
+        // ---- I/O Options  ----
+
+        if (!(total_bytes_sec.empty() && read_bytes_sec.empty() &&
+              write_bytes_sec.empty() && total_iops_sec.empty() &&
+              read_iops_sec.empty() && write_iops_sec.empty()))
         {
             file << "\t\t\t<iotune>" << endl;
+
             if ( !total_bytes_sec.empty() )
             {
                 file << "\t\t\t\t<total_bytes_sec>" << total_bytes_sec
                      << "</total_bytes_sec>" << endl;
             }
+
             if ( !read_bytes_sec.empty() )
             {
                 file << "\t\t\t\t<read_bytes_sec>" << read_bytes_sec
                      << "</read_bytes_sec>" << endl;
             }
+
             if ( !write_bytes_sec.empty() )
             {
                 file << "\t\t\t\t<write_bytes_sec>" << write_bytes_sec
                      << "</write_bytes_sec>" << endl;
             }
+
             if ( !total_iops_sec.empty() )
             {
                 file << "\t\t\t\t<total_iops_sec>" << total_iops_sec
                      << "</total_iops_sec>" << endl;
             }
+
             if ( !read_iops_sec.empty() )
             {
                 file << "\t\t\t\t<read_iops_sec>" << read_iops_sec
                      << "</read_iops_sec>" << endl;
             }
+
             if ( !write_iops_sec.empty() )
             {
                 file << "\t\t\t\t<write_iops_sec>" << write_iops_sec
                      << "</write_iops_sec>" << endl;
             }
+
             file << "\t\t\t</iotune>" << endl;
         }
+
         file << "\t\t</disk>" << endl;
     }
 
