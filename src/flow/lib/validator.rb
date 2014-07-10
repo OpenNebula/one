@@ -124,6 +124,7 @@ class Validator
         when :string  then validate_string(body, schema, key)
         when :integer then validate_integer(body, schema, key)
         when :null    then validate_null(body, schema, key)
+        when :boolean then validate_boolean(body, schema, key)
         else raise SchemaException, "type #{schema[:type]} is not a valid type"
         end
     end
@@ -317,6 +318,34 @@ class Validator
     #
     def validate_null(body, schema_null, schema_key)
         if body != nil
+            raise ParseException, "KEY: '#{schema_key}' is not allowed;"\
+                " SCHEMA: #{schema_null}"
+        end
+    end
+
+    # Validate an boolean type
+    #
+    # @param [Object] body to be validated
+    # @param [Hash] schema_null of the object to validate the body
+    # @param [String] schema_key of the body that will be validated in this step
+    #
+    # @return [nil]
+    #
+    # @raise [ParseException] if the body is not a boolean
+    #
+    # @example Validate array
+    #   schema = {
+    #       :type => :boolean
+    #   }
+    #
+    #   body = true
+    #
+    #   Validator.validate_boolean(body, schema)
+    #   #=> nil
+    #
+    #
+    def validate_boolean(body, schema_null, schema_key)
+        if body != true && body != false
             raise ParseException, "KEY: '#{schema_key}' is not allowed;"\
                 " SCHEMA: #{schema_null}"
         end
