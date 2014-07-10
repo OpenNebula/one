@@ -170,6 +170,10 @@ module OpenNebula
                     :properties => {
                     },
                     :required => false
+                },
+                'running_status_gate' => {
+                    :type => :boolean,
+                    :required => false
                 }
             }
         }
