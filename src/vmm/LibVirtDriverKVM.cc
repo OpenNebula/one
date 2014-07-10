@@ -421,6 +421,36 @@ int LibVirtDriver::deployment_description_kvm(
         read_iops_sec   = disk->vector_value("READ_IOPS_SEC");
         write_iops_sec  = disk->vector_value("WRITE_IOPS_SEC");
 
+        if ( total_bytes_sec.empty() )
+        {
+            get_default("DISK", "TOTAL_BYTES_SEC", total_bytes_sec);
+        }
+
+        if ( read_bytes_sec.empty() )
+        {
+            get_default("DISK", "READ_BYTES_SEC", read_bytes_sec);
+        }
+
+        if ( write_bytes_sec.empty() )
+        {
+            get_default("DISK", "WRITE_BYTES_SEC", write_bytes_sec);
+        }
+
+        if ( total_iops_sec.empty() )
+        {
+            get_default("DISK", "TOTAL_IOPS_SEC", total_iops_sec);
+        }
+
+        if ( read_iops_sec.empty() )
+        {
+            get_default("DISK", "READ_IOPS_SEC", read_iops_sec);
+        }
+
+        if ( write_iops_sec.empty() )
+        {
+            get_default("DISK", "WRITE_IOPS_SEC", write_iops_sec);
+        }
+
         disk->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
