@@ -1830,6 +1830,14 @@ function wizard_tab_content(){
             '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
           '</dl>'+
           '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
+            '<div class="row">'+
+              '<div class="large-6 columns">'+
+                '<label for="DEFAULT_MODEL">'+tr("Default model")+
+                  '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
+                '</label>'+
+                '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
+              '</div>'+
+            '</div>'+
           '</div>'+
         '</div>';
     }
@@ -3618,6 +3626,13 @@ function initialize_create_template_dialog(dialog) {
           }
         });
 
+        var default_model = $('#DEFAULT_MODEL', dialog).val();
+        if (default_model){
+            vm_json["NIC_DEFAULT"] = {
+                "MODEL": default_model
+            };
+        }
+
         //
         // GRAPHICS
         //
@@ -4017,6 +4032,14 @@ function fillTemplatePopUp(template, dialog){
         delete template.NIC
     }
 
+    var nic_default = template.NIC_DEFAULT
+    if (nic_default != undefined) {
+        if (nic_default.MODEL) {
+            $('#DEFAULT_MODEL', dialog).val(nic_default.MODEL);
+        }
+
+        delete template.NIC_DEFAULT;
+    }
 
     //
     // OS
