@@ -333,6 +333,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Parse the defaults to merge
+    // ------------------------------------------------------------------------
+
+    rc = parse_defaults(error_str);
+
+    if ( rc != 0 )
+    {
+        goto error_defaults;
+    }
+
+    // ------------------------------------------------------------------------
     // Get network leases
     // ------------------------------------------------------------------------
 
@@ -433,6 +444,7 @@ error_memory:
     goto error_common;
 
 error_os:
+error_defaults:
 error_name:
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);
@@ -611,6 +623,67 @@ int VirtualMachine::parse_os(string& error_str)
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_defaults(string& error_str)
+{
+    int num;
+
+    vector<Attribute *> attr;
+    VectorAttribute*    vatt = 0;
+
+    vector<Attribute *>::iterator it;
+
+    num = user_obj_template->remove("NIC_DEFAULT", attr);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    for (it=attr.begin(); it != attr.end(); it++)
+    {
+        obj_template->set(*it);
+    }
+
+    if ( num > 1 )
+    {
+        error_str = "Only one NIC_DEFAULT attribute can be defined.";
+        return -1;
+    }
+
+    vatt = dynamic_cast<VectorAttribute *>(attr[0]);
+
+    if ( vatt == 0 )
+    {
+        error_str = "Wrong format for NIC_DEFAULT attribute.";
+        return -1;
+    }
+
+    // To avoid authorization bypass and inconsistencies
+
+    string att_names[] =
+        {"NETWORK_ID", "NETWORK", "NETWORK_UID", "NETWORK_UNAME"};
+
+    for (int i=0; i<4; i++)
+    {
+        if(vatt->vector_value(att_names[i].c_str()) != "")
+        {
+            ostringstream oss;
+            oss << "Attribute " << att_names[i]
+                << " is not allowed inside NIC_DEFAULT.";
+
+            error_str = oss.str();
+
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2121,13 +2194,20 @@ long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_nic_info(int& max_nic_id)
+VectorAttribute * VirtualMachine::get_attach_nic_info(
+                            VirtualMachineTemplate * tmpl,
+                            int&                     max_nic_id,
+                            string&                  error_str)
 {
     vector<Attribute  *> nics;
     VectorAttribute *    nic;
 
     int nic_id;
     int num_nics;
+
+    // -------------------------------------------------------------------------
+    // Get the highest NIC_ID
+    // -------------------------------------------------------------------------
 
     max_nic_id = -1;
 
@@ -2149,30 +2229,12 @@ void VirtualMachine::get_nic_info(int& max_nic_id)
             max_nic_id = nic_id;
         }
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VectorAttribute * VirtualMachine::set_up_attach_nic(
-                        int                      vm_id,
-                        VirtualMachineTemplate * tmpl,
-                        int                      max_nic_id,
-                        int                      uid,
-                        int&                     network_id,
-                        string&                  error_str)
-{
-    vector<Attribute  *> nics;
-    VectorAttribute *    new_nic;
-
-    Nebula&             nd     = Nebula::instance();
-    VirtualNetworkPool* vnpool = nd.get_vnpool();
-
-    network_id = -1;
 
     // -------------------------------------------------------------------------
-    // Get the NIC attribute from the template
+    // Get the new NIC attribute from the template
     // -------------------------------------------------------------------------
+
+    nics.clear();
 
     if ( tmpl->get("NIC", nics) != 1 )
     {
@@ -2180,15 +2242,33 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
         return 0;
     }
 
-    new_nic = dynamic_cast<VectorAttribute * >(nics[0]);
+    nic = dynamic_cast<VectorAttribute * >(nics[0]);
 
-    if ( new_nic == 0 )
+    if ( nic == 0 )
     {
         error_str = "Internal error parsing NIC attribute";
         return 0;
     }
 
-    new_nic = new_nic->clone();
+    nic = nic->clone();
+
+    merge_nic_defaults(nic);
+
+    return nic;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::set_up_attach_nic(
+                        int                      vm_id,
+                        VectorAttribute *        new_nic,
+                        int                      max_nic_id,
+                        int                      uid,
+                        string&                  error_str)
+{
+    Nebula&             nd     = Nebula::instance();
+    VirtualNetworkPool* vnpool = nd.get_vnpool();
 
     // -------------------------------------------------------------------------
     // Acquire the new network lease
@@ -2199,10 +2279,10 @@ VectorAttribute * VirtualMachine::set_up_attach_nic(
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
         delete new_nic;
-        return 0;
+        return -1;
     }
 
-    return new_nic;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2554,6 +2634,8 @@ int VirtualMachine::get_network_leases(string& estr)
             continue;
         }
 
+        merge_nic_defaults(nic);
+
         rc = vnpool->nic_attribute(nic, i, uid, oid, estr);
 
         if (rc == -1)
@@ -2563,6 +2645,35 @@ int VirtualMachine::get_network_leases(string& estr)
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::merge_nic_defaults(VectorAttribute* nic)
+{
+    vector<Attribute  *> nics_def;
+    VectorAttribute *    nic_def = 0;
+
+    int num;
+
+    num = obj_template->get("NIC_DEFAULT", nics_def);
+
+    if (num == 0)
+    {
+        return;
+    }
+    else
+    {
+        nic_def = dynamic_cast<VectorAttribute * >(nics_def[0]);
+
+        if ( nic_def == 0 )
+        {
+            return;
+        }
+    }
+
+    nic->merge(nic_def, false);
 }
 
 /* -------------------------------------------------------------------------- */
