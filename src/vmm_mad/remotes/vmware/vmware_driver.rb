@@ -429,11 +429,22 @@ class VMwareDriver
         # Append the raw datavmx to vmx file
         metadata   = REXML::XPath.first(dfile_hash, "/domain/metadata/datavmx")
 
-        return if metadata.nil?
-        return if metadata.text.nil?
-        return if metadata.text.strip.empty?
+        if metadata.nil? || metadata.text.nil? || metadata.text.strip.empty?
+            metadata = ''
+        else
+            metadata = metadata.text
+        end
 
-        metadata = metadata.text
+        if !@reserve_memory
+            mem_txt = REXML::XPath.first(dfile_hash, "/domain/memory").text
+            mem     = mem_txt.to_i/1024
+
+            metadata << "\\nsched.mem.min = \"#{mem}\""
+            metadata << "\\nsched.mem.shares = \"normal\""
+            metadata << "\\nsched.mem.pin = \"TRUE\""
+        end
+
+        return if metadata.strip.empty?
 
         # Get the ds_id for system_ds from the first disk
         disk   = REXML::XPath.first(dfile_hash, "/domain//disk/source")
@@ -446,15 +457,6 @@ class VMwareDriver
         # Reconstruct path to vmx & add metadata
         path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/"
         path_to_vmx << " -name #{name}.vmx)"
-
-        if !@reserve_memory
-            mem_txt = REXML::XPath.first(dfile_hash, "/domain/memory").text
-            mem     = mem_txt.to_i/1024
-
-            metadata << "\\nsched.mem.min = \"#{mem}\""
-            metadata << "\\nsched.mem.shares = \"normal\""
-            metadata << "\\nsched.mem.pin = \"TRUE\""
-        end
 
         metadata.gsub!("\\n","\n")
 
