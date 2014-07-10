@@ -1417,6 +1417,8 @@ int DispatchManager::attach_nic(
 
     if ( vm == 0 )
     {
+        delete nic;
+
         if ( rc == 0 )
         {
             VirtualMachine::release_network_leases(nic, vid);
@@ -1433,6 +1435,8 @@ int DispatchManager::attach_nic(
 
     if ( rc != 0 )
     {
+        delete nic;
+
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
@@ -1440,6 +1444,7 @@ int DispatchManager::attach_nic(
         vm->unlock();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
+
         return -1;
     }
     else

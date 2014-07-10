@@ -178,16 +178,27 @@ void VectorAttribute::replace(const map<string,string>& attr)
 void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
 {
     map<string, string>::const_iterator it;
-    map<string, string> source_values;
+    map<string, string>::iterator       jt;
 
-    source_values = vattr->value();
+    const map<string,string>& source_values = vattr->value();
 
     for(it=source_values.begin(); it!=source_values.end(); it++)
     {
-        if(replace || attribute_value.find(it->first) == attribute_value.end())
+        jt = attribute_value.find(it->first);
+
+        if (jt != attribute_value.end())
         {
-            attribute_value.insert(make_pair(it->first,it->second));
+            if (replace)
+            {
+                attribute_value.erase(jt);
+            }
+            else
+            {
+                continue;
+            }
         }
+
+        attribute_value.insert(make_pair(it->first,it->second));
     }
 }
 

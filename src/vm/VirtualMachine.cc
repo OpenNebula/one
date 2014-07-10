@@ -115,6 +115,11 @@ const char * VirtualMachine::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_monitoring (vmid INTEGER, last_poll INTEGER, body MEDIUMTEXT, "
     "PRIMARY KEY(vmid, last_poll))";
 
+const char * VirtualMachine::NO_NIC_DEFAULTS[] = {"NETWORK_ID", "NETWORK",
+    "NETWORK_UID", "NETWORK_UNAME"};
+
+const int VirtualMachine::NUM_NO_NIC_DEFAULTS = 4;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -634,18 +639,11 @@ int VirtualMachine::parse_defaults(string& error_str)
     vector<Attribute *> attr;
     VectorAttribute*    vatt = 0;
 
-    vector<Attribute *>::iterator it;
-
     num = user_obj_template->remove("NIC_DEFAULT", attr);
 
     if ( num == 0 )
     {
         return 0;
-    }
-
-    for (it=attr.begin(); it != attr.end(); it++)
-    {
-        obj_template->set(*it);
     }
 
     if ( num > 1 )
@@ -662,17 +660,12 @@ int VirtualMachine::parse_defaults(string& error_str)
         return -1;
     }
 
-    // To avoid authorization bypass and inconsistencies
-
-    string att_names[] =
-        {"NETWORK_ID", "NETWORK", "NETWORK_UID", "NETWORK_UNAME"};
-
-    for (int i=0; i<4; i++)
+    for (int i=0; i < NUM_NO_NIC_DEFAULTS; i++)
     {
-        if(vatt->vector_value(att_names[i].c_str()) != "")
+        if(vatt->vector_value(NO_NIC_DEFAULTS[i]) != "")
         {
             ostringstream oss;
-            oss << "Attribute " << att_names[i]
+            oss << "Attribute " << NO_NIC_DEFAULTS[i]
                 << " is not allowed inside NIC_DEFAULT.";
 
             error_str = oss.str();
@@ -680,6 +673,8 @@ int VirtualMachine::parse_defaults(string& error_str)
             return -1;
         }
     }
+
+    obj_template->set(vatt);
 
     return 0;
 }
@@ -2278,7 +2273,6 @@ int VirtualMachine::set_up_attach_nic(
 
     if ( rc == -1 ) //-2 is not using a pre-defined network
     {
-        delete new_nic;
         return -1;
     }
 

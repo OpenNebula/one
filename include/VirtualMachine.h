@@ -1052,12 +1052,6 @@ public:
     int get_network_leases(string &error_str);
 
     /**
-     * Merges NIC_DEFAULT with the given NIC
-     * @param nic NIC to process
-     */
-    void merge_nic_defaults(VectorAttribute* nic);
-
-    /**
      *  Releases all network leases taken by this Virtual Machine
      */
     void release_network_leases();
@@ -1609,6 +1603,14 @@ private:
     int parse_os(string& error_str);
 
     /**
+     *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and
+     *  inconsistencies for NIC_DEFAULTS
+     */
+    static const char * NO_NIC_DEFAULTS[];
+
+    static const int NUM_NO_NIC_DEFAULTS;
+
+    /**
      * Parse the "NIC_DEFAULT" attribute
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
@@ -1662,6 +1664,13 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, int n_history) const;
+
+    /**
+     * Merges NIC_DEFAULT with the given NIC
+     * @param nic NIC to process
+     */
+    void merge_nic_defaults(VectorAttribute* nic);
+
 
 protected:
 
