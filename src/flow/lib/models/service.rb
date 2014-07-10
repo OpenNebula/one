@@ -142,6 +142,12 @@ module OpenNebula
             return false
         end
 
+        # Returns the running_status_vm option
+        # @return [true, false] true if the running_status_vm option is enabled
+        def running_status_gate
+            return @body['running_status_gate']
+        end
+
         def any_role_scaling?()
             @roles.each do |name, role|
                 if role.state == Role::STATE['SCALING']
