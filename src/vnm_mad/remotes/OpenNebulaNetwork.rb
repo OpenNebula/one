@@ -29,6 +29,15 @@ CONF = {
     :start_vlan => 2
 }
 
+def get_xen_command
+    if system("ps axuww | grep -v grep | grep '\\bxen\\b'")
+        "sudo xm"
+    else
+        "sudo xl"
+    end
+end
+
+
 COMMANDS = {
   :ebtables => "sudo ebtables",
   :iptables => "sudo iptables",
@@ -36,11 +45,13 @@ COMMANDS = {
   :ip       => "sudo ip",
   :vconfig  => "sudo vconfig",
   :virsh    => "virsh -c qemu:///system",
-  :xm       => "sudo xm",
+  :xm       => get_xen_command,
   :ovs_vsctl=> "sudo ovs-vsctl",
   :ovs_ofctl=> "sudo ovs-ofctl",
   :lsmod    => "lsmod"
 }
+
+
 
 # Set PATH
 ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"
