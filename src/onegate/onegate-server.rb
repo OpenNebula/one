@@ -158,15 +158,40 @@ get '/vm/:id' do
     flow_hash = JSON.parse(response.body)
     roles = flow_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
 
-    # Check that the user has not spoofed the Service_ID
+    # Build the flow_info hash while checking that the user has not spoofed the
+    # Service_ID
+    flow_info = {}
     flow_vm_ids = []
     begin
         if roles
             roles.each do |role|
                 if (nodes = role["nodes"])
+                    role_name = role["name"]
+
+                    role_info = {}
                     nodes.each do |vm|
-                        flow_vm_ids << vm["deploy_id"]
+                        vm_deploy_id = vm["deploy_id"]
+
+                        flow_vm_ids << vm_deploy_id
+
+                        vm_info = vm["vm_info"]["VM"]
+                        node_info = {
+                            "name" => vm_info["NAME"],
+                            "user_template" => vm_info["USER_TEMPLATE"],
+                        }
+
+                        node_info["nic"] = []
+                        [vm_info["TEMPLATE"]["NIC"]].flatten.each do |nic|
+                            node_info["nic"] << {
+                                "ip" => nic["IP"],
+                                "network" => nic["NETWORK"]
+                            }
+                        end
+
+                        role_info[vm_deploy_id] = node_info
                     end
+
+                    flow_info[role_name] = role_info
                 end
             end
         end
@@ -182,5 +207,5 @@ get '/vm/:id' do
         halt 400, error_msg
     end
 
-    [200, roles.to_json]
+    [200, flow_info.to_json]
 end
