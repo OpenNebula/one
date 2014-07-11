@@ -64,10 +64,10 @@ class Validator
     # @param [Hash] opts the options to validate a body
     # @option opts [Boolean] :default_values Set default values if the schema
     #   specifies it (if true)
-    # @option opts [Booblean] :delete_extra_properties If the body contains properties
+    # @option opts [Boolean] :delete_extra_properties If the body contains properties
     #   not specified in the schema delete them from the body (if true)
     #   or raise an exception (if false)
-    # @option opts [Booblean] :allow_extra_properties Allow properties
+    # @option opts [Boolean] :allow_extra_properties Allow properties
     #   not specified in the schema
     def initialize(opts={})
         @opts = {
@@ -326,7 +326,7 @@ class Validator
     # Validate an boolean type
     #
     # @param [Object] body to be validated
-    # @param [Hash] schema_null of the object to validate the body
+    # @param [Hash] schema_boolean of the object to validate the body
     # @param [String] schema_key of the body that will be validated in this step
     #
     # @return [nil]
@@ -344,11 +344,13 @@ class Validator
     #   #=> nil
     #
     #
-    def validate_boolean(body, schema_null, schema_key)
+    def validate_boolean(body, schema_boolean, schema_key)
         if body != true && body != false
             raise ParseException, "KEY: '#{schema_key}' is not allowed;"\
-                " SCHEMA: #{schema_null}"
+                " SCHEMA: #{schema_boolean}"
         end
+
+        body
     end
 
     # Validate an string type
