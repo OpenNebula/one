@@ -1266,28 +1266,34 @@ public:
     // ------------------------------------------------------------------------
 
     /**
-     *  Collects information about VM DISKS
-     *    @param max_disk_id of the VM
-     */
-    void get_nic_info(int& max_nic_id);
-
-    /**
-     * Generates a NIC attribute to be attached to the VM.
-     *   @param tmpl Template containing a single NIC vector attribute.
-     *   @param max_nic_id Max NIC/NIC_ID of the VM
-     *   @param uid of the VM owner
-     *   @param network_id returns the id of the acquired network
-     *   @param error_str describes the error
+     * Gets info about the new NIC to attach
      *
-     *   @return a new VectorAttribute with the DISK (should be freed if not
+     * @param tmpl Template containing a single NIC vector attribute.
+     * @param max_nic_id Returns the max NIC_ID of the VM
+     * @param error_str error reason, if any
+     * @return a new VectorAttribute with the NIC (should be freed if not
      *   added to the template), 0 in case of error
      */
-    static VectorAttribute * set_up_attach_nic(
-                            int                      vm_id,
+    VectorAttribute * get_attach_nic_info(
                             VirtualMachineTemplate * tmpl,
+                            int&                     max_nic_id,
+                            string&                  error_str);
+
+    /**
+     * Setups the new NIC attribute to be attached to the VM.
+     *
+     * @param vm_id Id of the VM where this nic will be attached
+     * @param new_nic New NIC vector attribute, obtained from get_attach_nic_info
+     * @param max_nic_id Max NIC/NIC_ID of the VM
+     * @param uid of the VM owner
+     * @param error_str error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int set_up_attach_nic(
+                            int                      vm_id,
+                            VectorAttribute *        new_nic,
                             int                      max_nic_id,
                             int                      uid,
-                            int&                     network_id,
                             string&                  error_str);
 
     /**
@@ -1597,6 +1603,21 @@ private:
     int parse_os(string& error_str);
 
     /**
+     *  Attributes not allowed in NIC_DEFAULT to avoid authorization bypass and
+     *  inconsistencies for NIC_DEFAULTS
+     */
+    static const char * NO_NIC_DEFAULTS[];
+
+    static const int NUM_NO_NIC_DEFAULTS;
+
+    /**
+     * Parse the "NIC_DEFAULT" attribute
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_defaults(string& error_str);
+
+    /**
      *  Parse the "CONTEXT" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
      *    @param error_str Returns the error reason, if any
@@ -1643,6 +1664,13 @@ private:
      *  @return a reference to the generated string
      */
     string& to_xml_extended(string& xml, int n_history) const;
+
+    /**
+     * Merges NIC_DEFAULT with the given NIC
+     * @param nic NIC to process
+     */
+    void merge_nic_defaults(VectorAttribute* nic);
+
 
 protected:
 

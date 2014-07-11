@@ -250,12 +250,16 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen4-probes.d \
           $VAR_LOCATION/remotes/im/vmware.d \
           $VAR_LOCATION/remotes/im/ec2.d \
+          $VAR_LOCATION/remotes/im/sl.d \
+          $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/kvm \
           $VAR_LOCATION/remotes/vmm/xen3 \
           $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
           $VAR_LOCATION/remotes/vmm/ec2 \
+          $VAR_LOCATION/remotes/vmm/sl \
+          $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
           $VAR_LOCATION/remotes/vnm/dummy \
@@ -412,6 +416,8 @@ INSTALL_FILES=(
     IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
+    IM_PROBES_SL_FILES:$VAR_LOCATION/remotes/im/sl.d
+    IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
@@ -425,6 +431,8 @@ INSTALL_FILES=(
     VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
+    VMM_EXEC_SL_SCRIPTS:$VAR_LOCATION/remotes/vmm/sl
+    VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
     TM_FILES:$VAR_LOCATION/remotes/tm
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
@@ -576,6 +584,8 @@ INSTALL_ETC_FILES=(
     ETC_FILES:$ETC_LOCATION
     VMWARE_ETC_FILES:$ETC_LOCATION
     EC2_ETC_FILES:$ETC_LOCATION
+    SL_ETC_FILES:$ETC_LOCATION
+    AZ_ETC_FILES:$ETC_LOCATION
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
@@ -788,6 +798,51 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/shutdown \
                       src/vmm_mad/remotes/ec2/ec2_driver.rb"
 
+#------------------------------------------------------------------------------
+# VMM Driver SoftLayer scripts, to be installed under $REMOTES_LOCATION/vmm/sl
+#------------------------------------------------------------------------------
+
+VMM_EXEC_SL_SCRIPTS="src/vmm_mad/remotes/sl/cancel \
+                     src/vmm_mad/remotes/sl/attach_disk \
+                     src/vmm_mad/remotes/sl/detach_disk \
+                     src/vmm_mad/remotes/sl/attach_nic \
+                     src/vmm_mad/remotes/sl/detach_nic \
+                     src/vmm_mad/remotes/sl/snapshot_create \
+                     src/vmm_mad/remotes/sl/snapshot_revert \
+                     src/vmm_mad/remotes/sl/snapshot_delete \
+                     src/vmm_mad/remotes/sl/deploy \
+                     src/vmm_mad/remotes/sl/migrate \
+                     src/vmm_mad/remotes/sl/restore \
+                     src/vmm_mad/remotes/sl/reboot \
+                     src/vmm_mad/remotes/sl/reset \
+                     src/vmm_mad/remotes/sl/save \
+                     src/vmm_mad/remotes/sl/poll \
+                     src/vmm_mad/remotes/sl/shutdown \
+                     src/vmm_mad/remotes/sl/sl_driver.rb"
+
+#------------------------------------------------------------------------------
+# VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
+#------------------------------------------------------------------------------
+
+VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
+                     src/vmm_mad/remotes/az/attach_disk \
+                     src/vmm_mad/remotes/az/detach_disk \
+                     src/vmm_mad/remotes/az/attach_nic \
+                     src/vmm_mad/remotes/az/detach_nic \
+                     src/vmm_mad/remotes/az/snapshot_create \
+                     src/vmm_mad/remotes/az/snapshot_revert \
+                     src/vmm_mad/remotes/az/snapshot_delete \
+                     src/vmm_mad/remotes/az/deploy \
+                     src/vmm_mad/remotes/az/migrate \
+                     src/vmm_mad/remotes/az/restore \
+                     src/vmm_mad/remotes/az/reboot \
+                     src/vmm_mad/remotes/az/reset \
+                     src/vmm_mad/remotes/az/save \
+                     src/vmm_mad/remotes/az/poll \
+                     src/vmm_mad/remotes/az/shutdown \
+                     src/vmm_mad/remotes/az/az_driver.rb"
+>>>>>>> feature-2989
+
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
 #-------------------------------------------------------------------------------
@@ -834,6 +889,9 @@ IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
+
+IM_PROBES_SL_FILES="src/im_mad/remotes/sl.d/poll"
+IM_PROBES_AZ_FILES="src/im_mad/remotes/az.d/poll"
 
 IM_PROBES_VERSION="src/im_mad/remotes/VERSION"
 
@@ -1123,6 +1181,13 @@ VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
 
 EC2_ETC_FILES="src/vmm_mad/remotes/ec2/ec2_driver.conf \
                src/vmm_mad/remotes/ec2/ec2_driver.default"
+
+SL_ETC_FILES="src/vmm_mad/remotes/sl/sl_driver.conf \
+              src/vmm_mad/remotes/sl/sl_driver.default"
+
+AZ_ETC_FILES="src/vmm_mad/remotes/az/az_driver.conf \
+              src/vmm_mad/remotes/az/az_driver.default"
+
 
 #-------------------------------------------------------------------------------
 # Virtualization drivers config. files, to be installed under $ETC_LOCATION

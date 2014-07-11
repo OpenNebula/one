@@ -356,6 +356,14 @@ public:
     void replace(const map<string,string>& attr);
 
     /**
+     * The attributes from vattr will be copied to this vector
+     * @param attr Vector attribute to merge
+     * @param replace True to replace existing values, false to copy values
+     * only if they don't exist in this vector attribute
+     */
+    void merge(VectorAttribute* vattr, bool replace);
+
+    /**
      *  Replace the value of the given vector attribute
      */
     void replace(const string& name, const string& value);

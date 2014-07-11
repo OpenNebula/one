@@ -1,0 +1,55 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+<!--
+ Default configuration attributes for the Azure driver
+ (all domains will use these values as defaults)
+ Valid attributes are: INSTANCE_TYPE, IMAGE, VM_USER, VM_PASSWORD, LOCATION, 
+ STORAGE_ACCOUNT, WIN_RM, CLOUD_SERVICE, TCP_ENDPOINTS, SSHPORT, AFFINITY_GROUP, 
+ VIRTUAL_NETWORK_NAME, SUBNET and AVAILABILITY_SET
+ Use XML syntax to specify defaults, note elements are UPCASE
+ Example:
+ <TEMPLATE>
+   <AZURE>
+     <LOCATION>west-europe</LOCATION>
+     <INSTANCE_TYPE>Small</INSTANCE_TYPE>
+     <CLOUD_SERVICE>MyDefaultCloudService</CLOUD_SERVICE>
+     <IMAGE>0b11de9248dd4d87b18621318e037d37__RightImage-Ubuntu-12.04-x64-v13.4</IMAGE>
+     <VM_USER>MyUser</VM_USER>
+     <VM_PASSWORD>MyPassword</VM_PASSWORD>
+     <STORAGE_ACCOUNT>MyStorageAccountName</STORAGE_ACCOUNT>
+     <WIN_RM>http</WIN_RM>
+     <CLOUD_SERVICE>MyCloudServiceName</CLOUD_SERVICE>
+     <TCP_ENDPOINTS>80,3389:3390</TCP_ENDPOINTS>
+     <SSHPORT>2222</SSHPORT>
+     <AFFINITY_GROUP>MyAffinityGroup</AFFINITY_GROUP>
+     <VIRTUAL_NETWORK_NAME>MyVirtualNetwork</VIRTUAL_NETWORK_NAME>
+     <SUBNET>MySubNet<SUBNET>
+     <AVAILABILITY_SET>MyAvailabilitySetName<AVAILABILITY_SET>
+   </AZURE>
+ </TEMPLATE>
+-->
+
+<TEMPLATE>
+  <AZURE>
+     <LOCATION>west-europe</LOCATION>
+     <INSTANCE_TYPE>Small</INSTANCE_TYPE>
+  </AZURE>
+</TEMPLATE>
+
+
+
+
+
