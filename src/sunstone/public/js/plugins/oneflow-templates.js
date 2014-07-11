@@ -125,7 +125,7 @@ var create_service_template_tmpl = '\
                         </div>\
                         <div class="row">\
                             <div class="service_template_param st_man large-6 columns">\
-                                <input type="checkbox" name="running_status_gate" id="running_status_gate" checked="checked"/>\
+                                <input type="checkbox" name="running_status_gate" id="running_status_gate"/>\
                                 <label for="running_status_gate">'+tr("Running status reported by VM")+'\
                                   <span class="tip">' + tr("Running status is reported by the VM to the OneGate server.") +'</span>\
                                 </label>\
