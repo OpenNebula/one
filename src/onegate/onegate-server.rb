@@ -115,14 +115,7 @@ put '/vm/:id' do
         halt 404, rc.message
     end
 
-    body = request.body.read
-
-    # Sets the RUNNING tag
-    if vm['USER_TEMPLATE/RUNNING'].nil?
-        body << "\nRUNNING=TRUE"
-    end
-
-    rc = vm.update(body, true)
+    rc = vm.update(request.body.read, true)
 
     if OpenNebula.is_error?(rc)
         logger.error {"VMID:#{params[:id]} vm.update error: #{rc.message}"}
@@ -144,16 +137,6 @@ get '/vm/:id' do
     if OpenNebula.is_error?(rc)
         logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
         halt 404, rc.message
-    end
-
-    # Sets the RUNNING tag
-    if vm['USER_TEMPLATE/RUNNING'].nil?
-       rc = vm.update("RUNNING=TRUE", true)
-
-       if OpenNebula.is_error?(rc)
-           logger.error {"VMID:#{params[:id]} vm.update error: #{rc.message}"}
-           halt 500, rc.message
-       end
     end
 
     service_id = vm['USER_TEMPLATE/SERVICE_ID']
