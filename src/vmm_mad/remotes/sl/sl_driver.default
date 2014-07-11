@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
@@ -15,6 +13,25 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+<!--
+ Default configuration attributes for the SoftLayer driver
+ (all domains will use these values as defaults)
+ 
+ Use XML syntax to specify defaults, note elements are UPPERCASE
+ Example:
+ <TEMPLATE>
+   <SOFTLAYER>
+     <INSTANCETYPE>scci.small</INSTANCETYPE>
+   </SOFTLAYER>
+ </TEMPLATE>
+-->
 
-SCRIPT_NAME=$(basename $0)
-echo "Action $SCRIPT_NAME not supported" 1>&2
+ <TEMPLATE>
+   <SOFTLAYER>
+    <DOMAIN>c12g.com</DOMAIN>
+    <INSTANCE_TYPE>slcci.small</INSTANCE_TYPE>
+    <HOURLYBILLINGFLAG>true</HOURLYBILLINGFLAG>
+    <LOCALDISKFLAG>true</LOCALDISKFLAG>
+    <DATACENTER>ams01</DATACENTER>
+   </SOFTLAYER>
+ </TEMPLATE>
