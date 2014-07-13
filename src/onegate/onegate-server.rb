@@ -131,6 +131,7 @@ get '/vm/:id' do
     halt 401, "Not authorized" if client.nil?
 
     vm_id = params[:id].to_i
+
     vm = VirtualMachine.new_with_id(vm_id, client)
     rc = vm.info
 
@@ -139,73 +140,83 @@ get '/vm/:id' do
         halt 404, rc.message
     end
 
-    service_id = vm['USER_TEMPLATE/SERVICE_ID']
+    # Build the vm information
+    vm_hash = vm.to_hash
 
-    if service_id.nil? || !service_id.match(/^\d+$/)
-        error_msg = "SERVICE_ID invalid or empty"
-        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
-        halt 400, error_msg
+    response = {
+        "vm" => {
+            "name" => vm["NAME"],
+            "user_template" => vm_hash["VM"]["USER_TEMPLATE"]
+        }
+    }
+
+    # Build the flow information
+    flow_id = vm['USER_TEMPLATE/SERVICE_ID']
+
+    return [200, response.to_json] if flow_id.nil? || !flow_id.match(/^\d+$/)
+
+    flow = $flow_client.get("#{RESOURCE_PATH}/#{flow_id}")
+
+    if CloudClient::is_error?(flow)
+        logger.error { "VMID:#{vm_id}, FID:#{flow_id} error: " \
+            "Service not found: #{flow.message}" }
+
+        return [200, response.to_json]
     end
 
-    response = $flow_client.get("#{RESOURCE_PATH}/#{service_id}")
+    flow_hash = JSON.parse(flow.body)
+    roles     = flow_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
 
-    if CloudClient::is_error?(response)
-        error_msg = "Service not found: " + response.message
-        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
-        halt 404, error_msg
-    end
+    return [200, response.to_json] if roles.nil?
 
-    flow_hash = JSON.parse(response.body)
-    roles = flow_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
-
-    # Build the flow_info hash while checking that the user has not spoofed the
-    # Service_ID
-    flow_info = {}
+    # Build the flow_info hash
+    flow_info   = {}
     flow_vm_ids = []
+
     begin
-        if roles
-            roles.each do |role|
-                if (nodes = role["nodes"])
-                    role_name = role["name"]
+        roles.each do |role|
+            if (nodes = role["nodes"])
 
-                    role_info = {}
-                    nodes.each do |vm|
-                        vm_deploy_id = vm["deploy_id"]
+                role_name = role["name"]
+                role_info = {}
 
-                        flow_vm_ids << vm_deploy_id
+                nodes.each do |vm|
+                    vm_deploy_id = vm["deploy_id"]
+                    vm_info      = vm["vm_info"]["VM"]
 
-                        vm_info = vm["vm_info"]["VM"]
-                        node_info = {
-                            "name" => vm_info["NAME"],
-                            "user_template" => vm_info["USER_TEMPLATE"],
+                    flow_vm_ids << vm_deploy_id
+
+                    node_info = {
+                        "name" => vm_info["NAME"],
+                        "user_template" => vm_info["USER_TEMPLATE"],
+                    }
+
+                    node_info["nic"] = []
+
+                    [vm_info["TEMPLATE"]["NIC"]].flatten.each do |nic|
+                        node_info["nic"] << {
+                            "ip" => nic["IP"],
+                            "network" => nic["NETWORK"]
                         }
-
-                        node_info["nic"] = []
-                        [vm_info["TEMPLATE"]["NIC"]].flatten.each do |nic|
-                            node_info["nic"] << {
-                                "ip" => nic["IP"],
-                                "network" => nic["NETWORK"]
-                            }
-                        end
-
-                        role_info[vm_deploy_id] = node_info
                     end
 
-                    flow_info[role_name] = role_info
+                    role_info[vm_deploy_id] = node_info
                 end
+
+                flow_info[role_name] = role_info
             end
         end
     rescue Exception => e
-        error_msg = "Could not parse Flow: #{e.message}"
-        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
-        halt 500, error_msg
+        logger.error { "VMID:#{vm_id}, FID:#{flow_id} error: " \
+            "Could not parse Flow: #{e.message}" }
+
+        return [200, response.to_json]
     end
 
-    if flow_vm_ids.empty? || !flow_vm_ids.include?(vm_id)
-        error_msg = "Service ID does not correspond the VM"
-        logger.error {"VMID:#{vm_id} vm.info error: #{error_msg}"}
-        halt 400, error_msg
+    # Add flow information if the user has not spoofed the Service_ID
+    if !flow_vm_ids.empty? && flow_vm_ids.include?(vm_id)
+        response["flow"] = flow_info
     end
 
-    [200, flow_info.to_json]
+    [200, response.to_json]
 end
