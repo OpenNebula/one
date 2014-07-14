@@ -29,7 +29,7 @@
 usage() {
  echo
  echo "Usage: install.sh [-u install_user] [-g install_group] [-k keep conf]"
- echo "                  [-d ONE_LOCATION] [-c occi|ec2] [-r] [-h]"
+ echo "                  [-d ONE_LOCATION] [-c cli|ec2] [-r] [-h]"
  echo
  echo "-u: user that will run opennebula, defaults to user executing install.sh"
  echo "-g: group of the user that will run opennebula, defaults to user"
@@ -39,7 +39,7 @@ usage() {
  echo "    OpenNebula for the first time"
  echo "-d: target installation directory, if not defined it'd be root. Must be"
  echo "    an absolute path."
- echo "-c: install client utilities: OpenNebula cli, occi and ec2 client files"
+ echo "-c: install client utilities: OpenNebula cli and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
  echo "-G: install OpenNebula Gate"
  echo "-f: install OpenNebula Flow"
@@ -214,7 +214,6 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
           $ETC_LOCATION/ec2query_templates \
-          $ETC_LOCATION/occi_templates \
           $ETC_LOCATION/sunstone-views \
           $ETC_LOCATION/cli"
 
@@ -223,7 +222,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
-          $LIB_LOCATION/ruby/cloud/occi \
           $LIB_LOCATION/ruby/cloud/marketplace \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
@@ -356,10 +354,6 @@ LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/cloud/ \
                  $LIB_LOCATION/ruby/cloud/econe"
 
-LIB_OCCI_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula \
-                 $LIB_LOCATION/ruby/cloud/occi"
-
 LIB_MARKET_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula \
                  $LIB_LOCATION/ruby/cloud/marketplace"
@@ -373,7 +367,7 @@ LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
 CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_OCCI_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
+    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS $LIB_MARKET_CLIENT_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
@@ -467,8 +461,6 @@ INSTALL_FILES=(
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
     ECO_BIN_FILES:$BIN_LOCATION
-    OCCI_LIB_FILES:$LIB_LOCATION/ruby/cloud/occi
-    OCCI_BIN_FILES:$BIN_LOCATION
     MARKET_LIB_FILES:$LIB_LOCATION/ruby/cloud/marketplace
     MARKET_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
@@ -486,8 +478,6 @@ INSTALL_CLIENT_FILES=(
     ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe
     ECO_BIN_CLIENT_FILES:$BIN_LOCATION
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
-    OCCI_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/occi
-    OCCI_BIN_CLIENT_FILES:$BIN_LOCATION
     MARKET_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/marketplace
     MARKET_BIN_CLIENT_FILES:$BIN_LOCATION
     CLI_BIN_FILES:$BIN_LOCATION
@@ -591,8 +581,6 @@ INSTALL_ETC_FILES=(
     AUTH_ETC_FILES:$ETC_LOCATION/auth
     ECO_ETC_FILES:$ETC_LOCATION
     ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
-    OCCI_ETC_FILES:$ETC_LOCATION
-    OCCI_ETC_TEMPLATE_FILES:$ETC_LOCATION/occi_templates
     CLI_CONF_FILES:$ETC_LOCATION/cli
 )
 
@@ -1294,8 +1282,7 @@ COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
 
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
-CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/OCCICloudAuth.rb \
-                      src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
+CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
                       src/cloud/common/CloudAuth/EC2CloudAuth.rb \
                       src/cloud/common/CloudAuth/X509CloudAuth.rb \
                       src/cloud/common/CloudAuth/OneGateCloudAuth.rb \
@@ -1397,46 +1384,6 @@ ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
 ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
 
 ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
-
-#-----------------------------------------------------------------------------
-# OCCI files
-#-----------------------------------------------------------------------------
-
-OCCI_LIB_FILES="src/cloud/occi/lib/OCCIServer.rb \
-                src/cloud/occi/lib/occi-server.rb \
-                src/cloud/occi/lib/occi_application.rb \
-                src/cloud/occi/lib/OCCIClient.rb \
-                src/cloud/occi/lib/VirtualMachineOCCI.rb \
-                src/cloud/occi/lib/VirtualMachinePoolOCCI.rb \
-                src/cloud/occi/lib/VirtualNetworkOCCI.rb \
-                src/cloud/occi/lib/VirtualNetworkPoolOCCI.rb \
-                src/cloud/occi/lib/UserOCCI.rb \
-                src/cloud/occi/lib/UserPoolOCCI.rb \
-                src/cloud/occi/lib/ImageOCCI.rb \
-                src/cloud/occi/lib/ImagePoolOCCI.rb \
-                src/sunstone/OpenNebulaVNC.rb"
-
-OCCI_LIB_CLIENT_FILES="src/cloud/occi/lib/OCCIClient.rb"
-
-OCCI_BIN_FILES="src/cloud/occi/bin/occi-server \
-               src/cloud/occi/bin/occi-compute \
-               src/cloud/occi/bin/occi-network \
-               src/cloud/occi/bin/occi-instance-type \
-               src/cloud/occi/bin/occi-storage"
-
-OCCI_BIN_CLIENT_FILES="src/cloud/occi/bin/occi-compute \
-               src/cloud/occi/bin/occi-network \
-               src/cloud/occi/bin/occi-instance-type \
-               src/cloud/occi/bin/occi-storage"
-
-OCCI_ETC_FILES="src/cloud/occi/etc/occi-server.conf"
-
-OCCI_ETC_TEMPLATE_FILES="src/cloud/occi/etc/templates/common.erb \
-                    src/cloud/occi/etc/templates/custom.erb \
-                    src/cloud/occi/etc/templates/small.erb \
-                    src/cloud/occi/etc/templates/medium.erb \
-                    src/cloud/occi/etc/templates/network.erb \
-                    src/cloud/occi/etc/templates/large.erb"
 
 #-------------------------------------------------------------------------------
 # Marketplace Client
@@ -1879,10 +1826,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/econe-start-instances.1.gz \
         share/man/econe-stop-instances.1.gz \
         share/man/econe-terminate-instances.1.gz \
-        share/man/econe-upload.1.gz \
-        share/man/occi-compute.1.gz \
-        share/man/occi-network.1.gz \
-        share/man/occi-storage.1.gz"
+        share/man/econe-upload.1.gz"
 
 #-----------------------------------------------------------------------------
 # Ruby VENDOR files
