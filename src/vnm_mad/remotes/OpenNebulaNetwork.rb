@@ -20,14 +20,21 @@ $: << File.join(File.dirname(__FILE__), '..')
 require 'rexml/document'
 require 'OpenNebulaNic'
 require 'base64'
+require 'yaml'
 
 require 'scripts_common'
 
 include OpenNebula
 
-CONF = {
-    :start_vlan => 2
-}
+begin
+    CONF =  YAML.load_file(
+                File.join(File.dirname(__FILE__), "OpenNebulaNetwork.conf")
+            )
+rescue
+    CONF = {
+        :start_vlan => 2
+    }
+end
 
 def get_xen_command
     if system("ps axuww | grep -v grep | grep '\\bxen\\b'")

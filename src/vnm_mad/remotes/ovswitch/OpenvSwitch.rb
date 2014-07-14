@@ -48,6 +48,9 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
                 tag_trunk_vlans
             end
 
+            # Prevent ARP Cache Poisoning
+            arp_cache_poisoning if CONF[:arp_cache_poisoning]
+
             # Prevent Mac-spoofing
             mac_spoofing
 
@@ -101,9 +104,12 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
         end
     end
 
-    def mac_spoofing
+    def arp_cache_poisoning
         add_flow("in_port=#{port},arp,dl_src=#{@nic[:mac]}",:drop,45000)
         add_flow("in_port=#{port},arp,dl_src=#{@nic[:mac]},nw_src=#{@nic[:ip]}",:normal,46000)
+    end
+
+    def mac_spoofing
         add_flow("in_port=#{port},dl_src=#{@nic[:mac]}",:normal,40000)
         add_flow("in_port=#{port}",:drop,39000)
     end

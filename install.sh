@@ -917,6 +917,7 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 #-------------------------------------------------------------------------------
 
 NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
+               src/vnm_mad/remotes/OpenNebulaNetwork.conf \
                src/vnm_mad/remotes/Firewall.rb \
                src/vnm_mad/remotes/OpenNebulaNic.rb"
 
