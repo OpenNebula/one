@@ -85,6 +85,10 @@ module OpenNebula
         #   group_hash[:resource_providers]
         #   group_hash[:resource_providers][:zone_id]
         #   group_hash[:resource_providers][:cluster_id]
+        #   group_hash[:views] Array of sunstone view names, to be stored
+        #       in SUNSTONE_VIEWS
+        #   group_hash[:default_view] Default sunstone view name, to be stored
+        #       in DEFAULT_VIEW
         #
         def create(group_hash)
             # Check arguments
