@@ -67,13 +67,26 @@ function create_group_tmpl(dialog_name){
         <div class="large-12 columns">\
           <p class="subheader">'
             +tr("Allow users in this group to use the following Sunstone views")+
-            '&emsp;<span class="tip">'+tr("Views available to the group users. The default is set in sunstone-views.yaml")+'</span>\
+            '&emsp;<span class="tip">'+tr("Views available to the group users")+'</span>\
           </p>\
         </div>\
       </div>\
       <div class="row">\
         <div class="large-12 columns">'+
             insert_views(dialog_name)
+        +'</div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <p class="subheader">'
+            +tr("Set the default Sunstone view")+
+            '&emsp;<span class="tip">'+tr("Default view for the group users. If it is unset, the default is set in sunstone-views.yaml")+'</span>\
+          </p>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">'+
+            insert_views_default(dialog_name)
         +'</div>\
       </div>\
     </div>\
@@ -448,7 +461,7 @@ Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
 function insert_views(dialog_name){
-  views_checks_str = ""
+  var views_checks_str = "";
   var views_array = config['available_views'];
   for (var i = 0; i < views_array.length; i++)
   {
@@ -458,6 +471,20 @@ function insert_views(dialog_name){
              '<input type="checkbox" id="group_view_'+dialog_name+'_'+views_array[i]+
                 '" value="'+views_array[i]+'" '+checked+'/>' +
              '<label for="group_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
+             '</label>'
+  }
+  return views_checks_str;
+}
+
+function insert_views_default(dialog_name){
+  var views_checks_str = "";
+  var views_array = config['available_views'];
+  for (var i = 0; i < views_array.length; i++)
+  {
+    views_checks_str = views_checks_str +
+             '<input type="radio" name="group_default_view_'+dialog_name+'" id="group_default_view_'+dialog_name+'_'+views_array[i]+
+                '" value="'+views_array[i]+'"/>' +
+             '<label for="group_default_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
              '</label>'
   }
   return views_checks_str;
@@ -1160,6 +1187,10 @@ function setupCreateGroupDialog(){
             group_json['group']['views'].push($(this).val());
         });
 
+        var default_view = $('[id^="group_default_view"]:checked', dialog).val();
+        if (default_view != undefined){
+            group_json['group']['default_view'] = default_view;
+        }
 
         Sunstone.runAction("Group.create",group_json);
         return false;

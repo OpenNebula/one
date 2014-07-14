@@ -193,6 +193,13 @@ helpers do
             csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
             session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
 
+            group = OpenNebula::Group.new_with_id(user['GID'], client)
+            rc = group.info
+            if OpenNebula.is_error?(rc)
+                logger.error { rc.message }
+                return [500, ""]
+            end
+
             #User IU options initialization
             #Load options either from user settings or default config.
             # - LANG
@@ -222,6 +229,8 @@ helpers do
 
             if user['TEMPLATE/DEFAULT_VIEW']
                 session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
+            elsif group['TEMPLATE/DEFAULT_VIEW']
+                session[:default_view] = group['TEMPLATE/DEFAULT_VIEW']
             else
                 session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
             end

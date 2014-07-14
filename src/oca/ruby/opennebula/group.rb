@@ -142,13 +142,26 @@ module OpenNebula
 
             if OpenNebula.is_error?(rc)
                 self.delete
-                error_msg =  "Error creating admin group: #{rc.message}"
+                error_msg =  "Error creating admin user: #{rc.message}"
                 return OpenNebula::Error.new(error_msg)
             end
 
-            # Add default Sunstone views for the group
+            str = ""
+            update = false
+
+            # Add Sunstone views for the group
             if group_hash[:views]
-                str = "SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n"
+                str += "SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n"
+                update = true
+            end
+
+            # Add Sunstone views for the group
+            if group_hash[:default_view]
+                str += "DEFAULT_VIEW=\"#{group_hash[:default_view]}\"\n"
+                update = true
+            end
+
+            if update
                 self.update(str, true)
             end
 
@@ -318,6 +331,9 @@ module OpenNebula
                 group_admin.delete
                 return rc
             end
+
+            # Set the default admin view to vdcadmin
+            group_admin.update("DEFAULT_VIEW=#{GROUP_ADMIN_SUNSTONE_VIEWS}", true)
 
             #Create admin group acls
             acls = Array.new
