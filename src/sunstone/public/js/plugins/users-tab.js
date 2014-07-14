@@ -531,6 +531,7 @@ var users_tab = {
           <th>'+tr("Memory")+'</th>\
           <th>'+tr("CPU")+'</th>\
           <th>'+tr("Group ID")+'</th>\
+          <th>'+tr("Hidden User Data")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyusers">\
@@ -580,6 +581,18 @@ function userElementArray(user_json){
 
     }
 
+    // Build hidden user template
+    var hidden_template = "";
+    for (var key in user.TEMPLATE){
+        switch (key){
+            // Don't copy unnecesary keys
+            case "SSH_PUBLIC_KEY":
+            case "TOKEN_PASSWORD":
+                break;
+            default:
+                hidden_template = hidden_template + key + "=" + user.TEMPLATE[key] + "\n";
+        }
+    }
 
     return [
         '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
@@ -590,7 +603,8 @@ function userElementArray(user_json){
         vms,
         memory,
         cpu,
-        user.GID
+        user.GID,
+        hidden_template
     ]
 };
 
