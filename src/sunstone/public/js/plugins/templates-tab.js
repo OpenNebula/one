@@ -491,7 +491,7 @@ function generate_capacity_tab_content() {
                 <span class="tip">'+tr("Logo for the template.")+'</span>\
               </label>'+
               '<select id="LOGO" name="LOGO">'+
-                  '<option value="">'+tr("")+'</option>'+
+                  '<option value=""></option>'+
                   '<option value="images/logos/arch.png">'+tr("Arch Linux")+'</option>'+
                   '<option value="images/logos/centos.png">'+tr("CentOS")+'</option>'+
                   '<option value="images/logos/debian.png">'+tr("Debian")+'</option>'+
