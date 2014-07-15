@@ -65,13 +65,17 @@ class SunstoneViews
             group.info
 
             if group["TEMPLATE/SUNSTONE_VIEWS"]
-                available << group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+                views_array = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+                available << views_array.each{|v| v.strip!}
             end
 
             gadmins = group["TEMPLATE/GROUP_ADMINS"]
 
-            if gadmins && gadmins.split(',').include?(user_name) && group["TEMPLATE/GROUP_ADMIN_VIEWS"]
-                available << group["TEMPLATE/GROUP_ADMIN_VIEWS"].split(",")
+            if gadmins && 
+                gadmins.split(',').include?(user_name) && 
+                group["TEMPLATE/GROUP_ADMIN_VIEWS"]
+                views_array = group["TEMPLATE/GROUP_ADMIN_VIEWS"].split(",")
+                available << views_array.each{|v| v.strip!}
             end
         }
 
@@ -84,7 +88,9 @@ class SunstoneViews
         # Fallback to default views if none is defined in templates
 
         available << @views_config['users'][user_name] if @views_config['users']
-        available << @views_config['groups'][group_name] if @views_config['groups']
+        if @views_config['groups']
+            available << @views_config['groups'][group_name]
+        end
         available << @views_config['default']
 
         available.flatten!
