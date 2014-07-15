@@ -1972,24 +1972,28 @@ function wizard_tab_content(){
           '</div>'+
         '</div>'+
         '<br>'+
-        '<div class="row vm_param">'+
-          '<div class="large-6 columns">'+
+        '<div class="row">'+
+          '<div class="large-6 columns vm_param">'+
             '<label for="ROOT">'+tr("Root")+
               '<span class="tip">'+tr("Device to be mounted as root")+'</span>'+
             '</label>'+
             '<input type="text" id="ROOT" name="root"/>'+
           '</div>'+
-          '<div class="large-6 columns">'+
-            '<label for="BOOT">'+tr("Boot")+
-              '<span class="tip">'+tr("Boot device type")+'</span>'+
-            '</label>'+
-            '<select id="BOOT" name="boot">'+
-              '<option id="no_boot" name="no_boot" value=""></option>'+
-              '<option value="hd">'+tr("HD")+'</option>'+
-              '<option value="fd">'+tr("FD")+'</option>'+
-              '<option value="cdrom">'+tr("CDROM")+'</option>'+
-              '<option value="network">'+tr("NETWORK")+'</option>'+
-            '</select>'+
+          '<div class="large-6 columns" id="boot_container">'+
+            '<div class="row">'+
+              '<div class="large-10 columns">'+
+                '<label for="BOOT">'+tr("Boot")+
+                  '<span class="tip">'+tr("Boot device type. You can define more than one, in order of preference")+'</span>'+
+                '</label>'+
+                boot_select(0)+
+              '</div>'+
+              '<div class="large-2 columns">'+
+                '<label>&nbsp;</label>'+
+                '<button type="button" class="button tiny radius" id="boot_add_btn">'+
+                  '<span class="fa fa-plus"></span>'+
+                '</button>'+
+              '</div>'+
+            '</div>'+
           '</div>'+
         '</div>'+
         '<div class="row vm_param">'+
@@ -2853,10 +2857,33 @@ function add_nic_tab(nic_id, dialog) {
 
 **************************************************************************/
 
+function boot_select(index) {
+    return '<select id="BOOT_'+index+'" name="boot">\
+      <option id="no_boot" name="no_boot" value=""></option>\
+      <option value="hd">'+tr("HD")+'</option>\
+      <option value="fd">'+tr("FD")+'</option>\
+      <option value="cdrom">'+tr("CDROM")+'</option>\
+      <option value="network">'+tr("NETWORK")+'</option>\
+    </select>';
+}
+
 function setup_os_tab_content(os_section) {
     var kernel_section = $('#kernelTab', os_section);
     var initrd_section = $('#ramdiskTab', os_section);
 
+    var boot_select_index = 1;
+
+    $("#boot_add_btn", os_section).off("click");
+    $("#boot_add_btn", os_section).on('click', function(){
+        $("#boot_container", os_section).append(
+            '<div class="row">\
+              <div class="large-10 columns">'+
+              boot_select(boot_select_index)+
+              '</div>\
+            </div>');
+
+        boot_select_index += 1;
+    });
 
     // Select Kernel Image or Path. The div is hidden depending on the selection, and the
     // vm_param class is included to be computed when the template is generated.
@@ -3590,6 +3617,25 @@ function initialize_create_template_dialog(dialog) {
         addSectionJSON(vm_json["OS"],$('#osTab #kernelTab',dialog));
         addSectionJSON(vm_json["OS"],$('#osTab #ramdiskTab',dialog));
 
+        var boot = "";
+        var boot_index = 0;
+        var val;
+        while( (val = $('#osTab #BOOT_'+boot_index, dialog).val()) != undefined){
+            if (val.length > 0) {
+                if (boot.length > 0){
+                    boot += ","
+                }
+
+                boot += val;
+            }
+
+            boot_index += 1;
+        }
+
+        if (boot.length > 0){
+            vm_json["OS"]["BOOT"] = boot;
+        }
+
         //
         // FEATURES
         //
@@ -4138,6 +4184,22 @@ function fillTemplatePopUp(template, dialog){
         };
 
         autoFillInputs(os, os_section);
+
+        if (os.BOOT) {
+            var boot_vals = os.BOOT.split(",");
+
+            var boot_select_index = 0;
+
+            $.each(boot_vals, function(){
+                if (boot_select_index != 0) {
+                    $("#boot_add_btn", os_section).click();
+                }
+
+                $('#BOOT_'+boot_select_index, os_section).val(this.toString());
+
+                boot_select_index += 1;
+            });
+        }
 
 
         delete template.OS
