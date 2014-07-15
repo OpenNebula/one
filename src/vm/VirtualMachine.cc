@@ -924,34 +924,24 @@ int VirtualMachine::parse_context(string& error_str)
 
     if (token)
     {
-        string onegate_url;
-        context_parsed->vector_value("ONEGATE_URL");
+        string endpoint;
+        endpoint = context_parsed->vector_value("ONEGATE_ENDPOINT");
 
-        if (onegate_url.empty())
+        if ( endpoint.empty() )
         {
-            string endpoint;
-            endpoint = context_parsed->vector_value("ONEGATE_ENDPOINT");
-
-            if ( endpoint.empty() )
-            {
-                Nebula::instance().get_configuration_attribute(
-                        "ONEGATE_ENDPOINT", endpoint);
-            }
-
-            if ( endpoint.empty() )
-            {
-                error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not "
-                    "defined in oned.conf or CONTEXT.";
-                return -1;
-            }
-            else
-            {
-                ostringstream oss;
-                oss << endpoint << "/vm/" << oid;
-
-                context_parsed->replace("ONEGATE_URL", oss.str());
-            }
+            Nebula::instance().get_configuration_attribute(
+                    "ONEGATE_ENDPOINT", endpoint);
         }
+
+        if ( endpoint.empty() )
+        {
+            error_str = "CONTEXT/TOKEN set, but OneGate endpoint was not "
+                "defined in oned.conf or CONTEXT.";
+            return -1;
+        }
+
+        context_parsed->replace("ONEGATE_ENDPOINT", endpoint);
+        context_parsed->replace("VMID", oid);
     }
 
     return rc;
