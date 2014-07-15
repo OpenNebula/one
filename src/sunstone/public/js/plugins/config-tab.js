@@ -92,7 +92,8 @@ Config = {
             return false;
           }
         }
-      }
+      },
+      "logo": (config['view']["provision_logo"] || "images/one_small_logo.png")
     }
 }
 

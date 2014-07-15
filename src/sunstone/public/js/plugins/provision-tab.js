@@ -847,7 +847,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                     '<div class="row only-not-active">'+
                       '<div class="large-12 large-centered columns">'+
                         '<div class="text-center">'+
-                          '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                          '<span class="fa-stack fa-3x" style="color: #777">'+
                             '<i class="fa fa-cloud fa-stack-2x"></i>'+
                             '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
                           '</span>'+
@@ -889,7 +889,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                     '<div class="row only-not-active">'+
                       '<div class="large-12 large-centered columns">'+
                         '<div class="text-center">'+
-                          '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                          '<span class="fa-stack fa-3x" style="color: #777">'+
                             '<i class="fa fa-cloud fa-stack-2x"></i>'+
                             '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
                           '</span>'+
@@ -938,7 +938,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                     '<div class="row only-not-active">'+
                       '<div class="large-12 large-centered columns">'+
                         '<div class="text-center">'+
-                          '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                          '<span class="fa-stack fa-3x" style="color: #777">'+
                             '<i class="fa fa-cloud fa-stack-2x"></i>'+
                             '<i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>'+
                           '</span>'+
@@ -980,7 +980,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
                       '<div class="row only-not-active">'+
                         '<div class="large-12 large-centered columns">'+
                           '<div class="text-center">'+
-                            '<span class="fa-stack fa-3x" style="color: #dfdfdf">'+
+                            '<span class="fa-stack fa-3x" style="color: #777">'+
                               '<i class="fa fa-cloud fa-stack-2x"></i>'+
                               '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
                             '</span>'+
@@ -1666,7 +1666,7 @@ if (Config.isTabPanelEnabled("provision-tab", "flows")) {
   provision_content += provision_create_flow;
 }
 
-var provision_header = '<a href="#" class="provision_image_header" ><img src="images/one_small_logo.png" style="height:40px; vertical-align:top"></a>'+
+var provision_header = '<a href="#" class="provision_image_header" ><img src="'+Config.provision.logo+'" style="height:40px; vertical-align:top"></a>'+
     '<span class="right" style="font-size: 50%; color: #dfdfdf">'+
    '<ul class="inline-list text-center" style="font-size:12px; margin-bottom: 0px">';
 

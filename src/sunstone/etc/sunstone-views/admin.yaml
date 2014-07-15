@@ -1,4 +1,5 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
+provision_logo: images/one_small_logo.png
 enabled_tabs:
     dashboard-tab: true
     system-tab: true
