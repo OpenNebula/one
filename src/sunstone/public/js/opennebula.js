@@ -1523,11 +1523,12 @@ var OpenNebula = {
                 data: {timeout: timeout},
                 dataType: "json",
                 success: function(response){
-                    return callback ?
-                        callback(request, response) : null;
+                    $(".marketplace_error_message").hide();
+                    return callback ? callback(request, response) : null;
                 },
                 error: function(res){
-                    return notifyError("Cannot connect to OpenNebula Marketplace");
+                    $(".marketplace_error_message").show();
+                    return callback_error ? callback_error(request, OpenNebula.Error(res)) : null;
                 }
             });
         }
