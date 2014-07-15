@@ -100,6 +100,40 @@ helpers do
             return $cloud_auth.client(result)
         end
     end
+
+    def get_vm(vm_id, client)
+        vm = VirtualMachine.new_with_id(vm_id, client)
+        rc = vm.info
+
+        if OpenNebula.is_error?(rc)
+            logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
+            halt 404, rc.message
+        end
+
+        vm
+    end
+
+    def get_service(vm)
+        vm_id = vm["ID"]
+
+        service_id = vm['USER_TEMPLATE/SERVICE_ID']
+
+        if service_id.nil? || !service_id.match(/^\d+$/)
+            error_msg = "VMID:#{vm_id} Empty or invalid SERVICE_ID"
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        service = $flow_client.get("#{RESOURCE_PATH}/#{service_id}")
+
+        if CloudClient::is_error?(service)
+            error_msg = "VMID:#{vm_id} Service #{service_id} not found"
+            logger.error {error_msg}
+            halt 404, error_msg
+        end
+
+        service.body
+    end
 end
 
 NIC_VALID_KEYS = [
@@ -190,13 +224,7 @@ put '/vm' do
 
     vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
 
-    vm = VirtualMachine.new_with_id(vm_id, client)
-    rc = vm.info
-
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
-        halt 404, rc.message
-    end
+    vm = get_vm(vm_id, client)
 
     rc = vm.update(request.body.read, true)
 
@@ -215,13 +243,7 @@ get '/vm' do
 
     vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
 
-    vm = VirtualMachine.new_with_id(vm_id, client)
-    rc = vm.info
-
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
-        halt 404, rc.message
-    end
+    vm = get_vm(vm_id, client)
 
     response = build_vm_hash(vm.to_hash["VM"])
 
@@ -235,34 +257,13 @@ get '/service' do
 
     vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
 
-    vm = VirtualMachine.new_with_id(vm_id, client)
-    rc = vm.info
+    vm = get_vm(vm_id, client)
 
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
-        halt 404, rc.message
-    end
+    service = get_service(vm)
 
-    # Build the service information
-    service_id = vm['USER_TEMPLATE/SERVICE_ID']
+    service_hash = JSON.parse(service)
 
-    if service_id.nil? || !service_id.match(/^\d+$/)
-        error_msg = "VMID:#{vm_id} Empty or invalid SERVICE_ID"
-        logger.error {error_msg}
-        halt 400, error_msg
-    end
-
-    service = $flow_client.get("#{RESOURCE_PATH}/#{service_id}")
-
-    if CloudClient::is_error?(service)
-        error_msg = "VMID:#{vm_id} Service #{service_id} not found"
-        logger.error {error_msg}
-        halt 404, error_msg
-    end
-
-    service_hash = JSON.parse(service.body)
-
-    response = build_service_hash(service_hash) #rescue nil
+    response = build_service_hash(service_hash) rescue nil
 
     if response.nil?
         error_msg = "VMID:#{vm_id} Service #{service_id} is empty."
@@ -279,6 +280,47 @@ get '/service' do
         error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
         logger.error {error_msg}
         halt 400, error_msg
+    end
+
+    [200, response.to_json]
+end
+
+get '/' do
+    client = authenticate(request.env, params)
+
+    halt 401, "Not authorized" if client.nil?
+
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
+
+    vm = get_vm(vm_id, client)
+
+    response = build_vm_hash(vm.to_hash["VM"])
+
+    if vm['USER_TEMPLATE/SERVICE_ID']
+        service = get_service(vm)
+
+        service_hash = JSON.parse(service)
+
+        response_service = build_service_hash(service_hash) rescue nil
+
+        if response_service.nil?
+            error_msg = "VMID:#{vm_id} Service #{service_id} is empty."
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        service_vm_ids =    response_service["SERVICE"]["roles"].collect do |_,role|
+                                role["nodes"].keys
+                            end.flatten
+
+        # Check that the user has not spoofed the Service_ID
+        if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
+            error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        response.merge!(response_service)
     end
 
     [200, response.to_json]
