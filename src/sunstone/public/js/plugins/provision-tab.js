@@ -3092,6 +3092,7 @@ function update_provision_flows_datatable(datatable, timeout) {
     OpenNebula.Service.list({
       timeout: true,
       success: function (request, item_list){
+        $(".flow_error_message").hide();
         datatable.fnClearTable(true);
         if (item_list.length == 0) {
           datatable.html('<div class="text-center">'+
@@ -3111,7 +3112,23 @@ function update_provision_flows_datatable(datatable, timeout) {
           datatable.fnAddData(item_list);
         }
       },
-      error: onError
+      error: function(request, error_json) {
+        datatable.html('<div class="text-center">'+
+          '<br>'+
+          '<br>'+
+          '<div class="row flow_error_message" id="" hidden>'+
+            '<div class="small-6 columns small-centered text-center">'+
+                '<div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>'+
+            '</div>'+
+          '</div>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+          '</span>'+
+          '</div>');
+
+          onError(request, error_json, $(".flow_error_message"));
+      }
     })
   }, timeout );
 }
