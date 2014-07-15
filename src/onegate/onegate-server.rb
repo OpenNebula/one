@@ -182,7 +182,7 @@ def build_service_hash(service_hash)
     service_info = {
         "name"  => service_hash["DOCUMENT"]["NAME"],
         "id"    => service_hash["DOCUMENT"]["ID"],
-        "roles" => {}
+        "roles" => []
     }
 
     roles.each do |role|
@@ -190,7 +190,7 @@ def build_service_hash(service_hash)
             "name"        => role["name"],
             "cardinality" => role["cardinality"],
             "state"       => role["state"],
-            "nodes"       => {}
+            "nodes"       => []
         }
 
         if (nodes = role["nodes"])
@@ -199,17 +199,15 @@ def build_service_hash(service_hash)
                 vm_info      = vm["vm_info"]["VM"]
                 vm_running   = vm["running"]
 
-                role_info["nodes"][vm_deploy_id]= {
+                role_info["nodes"] << {
                     "deploy_id" => vm_deploy_id,
                     "running"   => vm["running"],
-                    "vm_info"   => build_vm_hash(vm_info)["VM"]
+                    "vm_info"   => build_vm_hash(vm_info)
                 }
-
-                role_info["nodes"][vm_deploy_id]
             end
         end
 
-        service_info["roles"][role["name"]] = role_info
+        service_info["roles"] << role_info
     end
 
     {
@@ -271,9 +269,9 @@ get '/service' do
         halt 400, error_msg
     end
 
-    service_vm_ids =    response["SERVICE"]["roles"].collect do |_,role|
-                            role["nodes"].keys
-                        end.flatten
+    service_vm_ids = response["SERVICE"]["roles"].collect do |r|
+                        r["nodes"].collect{|n| n["deploy_id"]}
+                     end.flatten
 
     # Check that the user has not spoofed the Service_ID
     if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
@@ -309,9 +307,9 @@ get '/' do
             halt 400, error_msg
         end
 
-        service_vm_ids =    response_service["SERVICE"]["roles"].collect do |_,role|
-                                role["nodes"].keys
-                            end.flatten
+        service_vm_ids = response["SERVICE"]["roles"].collect do |r|
+                            r["nodes"].collect{|n| n["deploy_id"]}
+                         end.flatten
 
         # Check that the user has not spoofed the Service_ID
         if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
