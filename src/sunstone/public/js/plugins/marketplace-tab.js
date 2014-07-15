@@ -23,11 +23,8 @@ var market_actions = {
         type: "list",
         call: OpenNebula.Marketplace.list,
         callback: function(req,res){
-            //data can be added to the table directly, without further
-            //processing
             updateView(res.appliances,dataTable_marketplace);
-        },
-        error: onError
+        }
     },
     "Marketplace.refresh" : {
         type: "custom",
@@ -364,6 +361,11 @@ var marketplace_tab = {
     list_header: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+tr("OpenNebula Marketplace"),
     info_header: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+tr("Appliance"),
     subheader: '<span/> <small></small>&emsp;',
+    content:   '<div class="row marketplace_error_message" hidden>\
+        <div class="small-6 columns small-centered text-center">\
+            <div class="alert-box alert radius">'+tr("Cannot connect to OpenNebula Marketplace")+'</div>\
+        </div>\
+    </div>',
     table: '<table id="datatable_marketplace" class="datatable twelve">\
       <thead>\
         <tr>\

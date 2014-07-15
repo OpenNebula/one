@@ -657,11 +657,11 @@ var service_actions = {
         type: "list",
         call: OpenNebula.Service.list,
         callback: function(request, service_list) {
-            $("#oneflow-services #error_message").hide();
+            $(".flow_error_message").hide();
             updateServicesView(request, service_list);
         },
         error: function(request, error_json) {
-            onError(request, error_json, $("#oneflow-services #error_message"));
+            onError(request, error_json, $(".flow_error_message"));
         }
     },
 
@@ -823,7 +823,7 @@ var services_tab = {
     list_header: '<i class="fa fa-fw fa-code-fork fa fa-rotate-90"></i>&emsp;'+tr("OneFlow - Services"),
     info_header: '<i class="fa fa-fw fa-code-fork fa fa-rotate-90"></i>&emsp;'+tr("OneFlow - Service"),
     subheader: '<span/> <small></small>&emsp;',
-    content:   '<div class="row" id="error_message" hidden>\
+    content:   '<div class="row flow_error_message" id="" hidden>\
         <div class="small-6 columns small-centered text-center">\
             <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
         </div>\
