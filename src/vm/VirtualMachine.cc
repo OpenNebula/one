@@ -925,13 +925,9 @@ int VirtualMachine::parse_context(string& error_str)
     if (token)
     {
         string endpoint;
-        endpoint = context_parsed->vector_value("ONEGATE_ENDPOINT");
 
-        if ( endpoint.empty() )
-        {
-            Nebula::instance().get_configuration_attribute(
+        Nebula::instance().get_configuration_attribute(
                     "ONEGATE_ENDPOINT", endpoint);
-        }
 
         if ( endpoint.empty() )
         {
