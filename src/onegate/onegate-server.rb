@@ -102,35 +102,93 @@ helpers do
     end
 end
 
-put '/vm/:id' do
-    client = authenticate(request.env, params)
+NIC_VALID_KEYS = [
+    /^IP/,
+    /^NETWORK/,
+    "MAC"
+]
 
-    halt 401, "Not authorized" if client.nil?
+USER_TEMPLATE_INVALID_KEYS = %w(
+    SCHED_MESSAGE
+)
 
-    vm = VirtualMachine.new_with_id(params[:id], client)
-    rc = vm.info
-
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{params[:id]} vm.info error: #{rc.message}"}
-        halt 404, rc.message
+def build_vm_hash(vm_hash)
+    nics = []
+    vm_hash["TEMPLATE"]["NIC"].each do |nic|
+        # This snippet collects only the keys of nic that match the expressions
+        # defined in NIC_VALID_KEYS
+        nics << nic.select do |k,v|
+            !NIC_VALID_KEYS.collect{|m| m.match(k)}.compact.empty?
+        end
     end
 
-    rc = vm.update(request.body.read, true)
-
-    if OpenNebula.is_error?(rc)
-        logger.error {"VMID:#{params[:id]} vm.update error: #{rc.message}"}
-        halt 500, rc.message
-    end
-
-    [200, ""]
+    {
+        "VM" => {
+            "NAME"          => vm_hash["NAME"],
+            "ID"            => vm_hash["ID"],
+            "USER_TEMPLATE" => vm_hash["USER_TEMPLATE"].select {|k,v|
+                                    !USER_TEMPLATE_INVALID_KEYS.include?(k)
+                                },
+            "STATE"     => vm_hash["STATE"],
+            "LCM_STATE" => vm_hash["LCM_STATE"],
+            "TEMPLATE"  => {
+                "NIC" => nics
+            }
+        }
+    }
 end
 
-get '/vm/:id' do
+def build_service_hash(service_hash)
+    roles = service_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
+
+    if roles.nil?
+        return nil
+    end
+
+    service_info = {
+        "name"  => service_hash["DOCUMENT"]["NAME"],
+        "id"    => service_hash["DOCUMENT"]["ID"],
+        "roles" => {}
+    }
+
+    roles.each do |role|
+        role_info = {
+            "name"        => role["name"],
+            "cardinality" => role["cardinality"],
+            "state"       => role["state"],
+            "nodes"       => {}
+        }
+
+        if (nodes = role["nodes"])
+            nodes.each do |vm|
+                vm_deploy_id = vm["deploy_id"].to_i
+                vm_info      = vm["vm_info"]["VM"]
+                vm_running   = vm["running"]
+
+                role_info["nodes"][vm_deploy_id]= {
+                    "deploy_id" => vm_deploy_id,
+                    "running"   => vm["running"],
+                    "vm_info"   => build_vm_hash(vm_info)["VM"]
+                }
+
+                role_info["nodes"][vm_deploy_id]
+            end
+        end
+
+        service_info["roles"][role["name"]] = role_info
+    end
+
+    {
+        "SERVICE" => service_info
+    }
+end
+
+put '/vm' do
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
 
-    vm_id = params[:id].to_i
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
 
     vm = VirtualMachine.new_with_id(vm_id, client)
     rc = vm.info
@@ -140,82 +198,87 @@ get '/vm/:id' do
         halt 404, rc.message
     end
 
-    # Build the vm information
-    vm_hash = vm.to_hash
+    rc = vm.update(request.body.read, true)
 
-    response = {
-        "vm" => {
-            "name" => vm["NAME"],
-            "user_template" => vm_hash["VM"]["USER_TEMPLATE"]
-        }
-    }
-
-    # Build the flow information
-    flow_id = vm['USER_TEMPLATE/SERVICE_ID']
-
-    return [200, response.to_json] if flow_id.nil? || !flow_id.match(/^\d+$/)
-
-    flow = $flow_client.get("#{RESOURCE_PATH}/#{flow_id}")
-
-    if CloudClient::is_error?(flow)
-        logger.error { "VMID:#{vm_id}, FID:#{flow_id} error: " \
-            "Service not found: #{flow.message}" }
-
-        return [200, response.to_json]
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{vm_id} vm.update error: #{rc.message}"}
+        halt 500, rc.message
     end
 
-    flow_hash = JSON.parse(flow.body)
-    roles     = flow_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
+    [200, ""]
+end
 
-    return [200, response.to_json] if roles.nil?
+get '/vm' do
+    client = authenticate(request.env, params)
 
-    # Build the flow_info hash
-    flow_info   = {}
-    flow_vm_ids = []
+    halt 401, "Not authorized" if client.nil?
 
-    begin
-        roles.each do |role|
-            if (nodes = role["nodes"])
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
 
-                role_name = role["name"]
-                role_info = {}
+    vm = VirtualMachine.new_with_id(vm_id, client)
+    rc = vm.info
 
-                nodes.each do |vm|
-                    vm_deploy_id = vm["deploy_id"]
-                    vm_info      = vm["vm_info"]["VM"]
-
-                    flow_vm_ids << vm_deploy_id
-
-                    node_info = {
-                        "name" => vm_info["NAME"],
-                        "user_template" => vm_info["USER_TEMPLATE"],
-                    }
-
-                    node_info["nic"] = []
-
-                    [vm_info["TEMPLATE"]["NIC"]].flatten.each do |nic|
-                        node_info["nic"] << {
-                            "ip" => nic["IP"],
-                            "network" => nic["NETWORK"]
-                        }
-                    end
-
-                    role_info[vm_deploy_id] = node_info
-                end
-
-                flow_info[role_name] = role_info
-            end
-        end
-    rescue Exception => e
-        logger.error { "VMID:#{vm_id}, FID:#{flow_id} error: " \
-            "Could not parse Flow: #{e.message}" }
-
-        return [200, response.to_json]
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
+        halt 404, rc.message
     end
 
-    # Add flow information if the user has not spoofed the Service_ID
-    if !flow_vm_ids.empty? && flow_vm_ids.include?(vm_id)
-        response["flow"] = flow_info
+    response = build_vm_hash(vm.to_hash["VM"])
+
+    [200, response.to_json]
+end
+
+get '/service' do
+    client = authenticate(request.env, params)
+
+    halt 401, "Not authorized" if client.nil?
+
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
+
+    vm = VirtualMachine.new_with_id(vm_id, client)
+    rc = vm.info
+
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
+        halt 404, rc.message
+    end
+
+    # Build the service information
+    service_id = vm['USER_TEMPLATE/SERVICE_ID']
+
+    if service_id.nil? || !service_id.match(/^\d+$/)
+        error_msg = "VMID:#{vm_id} Empty or invalid SERVICE_ID"
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
+    service = $flow_client.get("#{RESOURCE_PATH}/#{service_id}")
+
+    if CloudClient::is_error?(service)
+        error_msg = "VMID:#{vm_id} Service #{service_id} not found"
+        logger.error {error_msg}
+        halt 404, error_msg
+    end
+
+    service_hash = JSON.parse(service.body)
+
+    response = build_service_hash(service_hash) #rescue nil
+
+    if response.nil?
+        error_msg = "VMID:#{vm_id} Service #{service_id} is empty."
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
+    service_vm_ids =    response["SERVICE"]["roles"].collect do |_,role|
+                            role["nodes"].keys
+                        end.flatten
+
+    # Check that the user has not spoofed the Service_ID
+    if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
+        error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
+        logger.error {error_msg}
+        halt 400, error_msg
     end
 
     [200, response.to_json]
