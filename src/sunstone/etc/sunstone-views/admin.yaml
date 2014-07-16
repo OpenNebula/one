@@ -20,7 +20,10 @@ enabled_tabs:
     oneflow-dashboard: true
     oneflow-services: true
     oneflow-templates: true
-    zones-tab: true
+    support-tab: true
+    doc-tab: true
+    community-tab: true
+    enterprise-tab: true
 autorefresh: true
 tabs:
     dashboard-tab:

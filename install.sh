@@ -1519,7 +1519,7 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/oneflow-dashboard.js \
                         src/sunstone/public/js/plugins/oneflow-services.js \
                         src/sunstone/public/js/plugins/oneflow-templates.js \
-                        src/sunstone/public/js/plugins/zones-tab.js"
+                        src/sunstone/public/js/plugins/support-tab.js"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 

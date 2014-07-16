@@ -121,7 +121,7 @@ var widgets = {
         </div>\
       </fieldset>',
   "vms" : '<fieldset class="dashboard-panel">\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-cloud"></i> '+tr("Virtual Machines")+'</legend>\
+        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-th"></i> '+tr("Virtual Machines")+'</legend>\
         <div class="row totals-info">\
           <div class="small-3 large-3 columns">\
             <div class="small-6 large-6 columns text-right">\

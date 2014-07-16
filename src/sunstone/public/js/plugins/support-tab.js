@@ -14,10 +14,48 @@
 // limitations under the License.                                           //
 //------------------------------------------------------------------------- //
 
-var oneflow_dashboard_tab = {
-    title: '<i class="fa fa-lg fa-fw fa-cubes"></i>&emsp;OneFlow',
+var support_tab = {
+    title: '<hr><i class="fa fa-lg fa-fw fa-support"></i>&emsp;'+tr("Support"),
     no_content: true
 }
 
+var doc_tab = {
+    title: tr("Documentation"),
+    tabClass: 'subTab',
+    parentTab: 'support-tab',
+    no_content: true
+}
 
-Sunstone.addMainTab('oneflow-dashboard',oneflow_dashboard_tab);
+var community_tab = {
+    title: tr("Community"),
+    tabClass: 'subTab',
+    parentTab: 'support-tab',
+    no_content: true
+}
+
+var enterprise_tab = {
+    title: tr("Enterprise"),
+    tabClass: 'subTab',
+    parentTab: 'support-tab',
+    no_content: true
+}
+
+Sunstone.addMainTab('support-tab',support_tab);
+Sunstone.addMainTab('doc-tab',doc_tab);
+Sunstone.addMainTab('community-tab',community_tab);
+Sunstone.addMainTab('enterprise-tab',enterprise_tab);
+
+$(document).on("click", "#li_doc-tab a", function(){
+    window.open("http://docs.opennebula.org/4.6/");
+    return false;
+})
+
+$(document).on("click", "#li_community-tab a", function(){
+    window.open("http://opennebula.org/support/community/");
+    return false;
+})
+
+$(document).on("click", "#li_enterprise-tab a", function(){
+    window.open("http://c12g.com/support/");
+    return false;
+})

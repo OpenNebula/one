@@ -907,8 +907,8 @@ var vms_tab = {
     tabClass: 'subTab',
     parentTab: 'vresources-tab',
     search_input: '<input id="vms_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machines"),
-    info_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machine"),
+    list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Machines"),
+    info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Machine"),
     subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
         <span class="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
