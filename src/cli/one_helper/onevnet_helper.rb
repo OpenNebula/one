@@ -99,7 +99,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :USER, "Username of the Virtual Network owner", :left,
-                    :size=>12 do |d|
+                    :size=>15 do |d|
                 helper.user_name(d, options)
             end
 
@@ -109,16 +109,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :NAME, "Name of the Virtual Network", :left,
-                    :size=>15 do |d|
+                    :size=>19 do |d|
                 d["NAME"]
             end
 
             column :CLUSTER, "Name of the Cluster", :left, :size=>10 do |d|
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
-            end
-
-            column :SIZE, "Size of the Virtual Network", :size=>5 do |d|
-                d["SIZE"]
             end
 
             column :BRIDGE, "Bridge associated to the Virtual Network", :left,
@@ -131,7 +127,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d["USED_LEASES"]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :CLUSTER, :TYPE, :BRIDGE, :LEASES
+            default :ID, :USER, :GROUP, :NAME, :CLUSTER, :BRIDGE, :LEASES
         end
 
         table
