@@ -163,8 +163,6 @@ def build_vm_hash(vm_hash)
             "USER_TEMPLATE" => vm_hash["USER_TEMPLATE"].select {|k,v|
                                     !USER_TEMPLATE_INVALID_KEYS.include?(k)
                                 },
-            "STATE"     => vm_hash["STATE"],
-            "LCM_STATE" => vm_hash["LCM_STATE"],
             "TEMPLATE"  => {
                 "NIC" => nics
             }
