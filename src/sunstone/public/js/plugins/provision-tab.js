@@ -585,14 +585,14 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<h2 class="subheader">'+
-        tr("Create Flow")+
+        tr("Create Service")+
       '</h2>'+
       '<br>'+
     '</div>'+
   '</div>'+
   '<div class="row">'+
     '<div class="large-8 large-centered columns">'+
-      '<input type="text" id="flow_name"  class="provision-input" placeholder="'+tr("Flow Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+      '<input type="text" id="flow_name"  class="provision-input" placeholder="'+tr("Service Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
       '<br>'+
     '</div>'+
   '</div>'+
@@ -1577,7 +1577,7 @@ var list_flows_accordion_id = 0;
 
 function provision_list_flows(opts_arg){
   opts = $.extend({
-      title: tr("Flows"),
+      title: tr("Services"),
       active: true,
       refresh: true,
       create: true,
@@ -1693,7 +1693,7 @@ provision_header +=  '<li>'+
 if (Config.isTabPanelEnabled("provision-tab", "flows")) {
   provision_header +=
     '<li>'+
-      '<a href"#" class="medium off-color provision_flows_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-cubes"/><br>'+tr("Flows")+'</a>'+
+      '<a href"#" class="medium off-color provision_flows_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-2x fa-fw fa-cubes"/><br>'+tr("Services")+'</a>'+
     '</li>';
 }
 
@@ -3103,7 +3103,7 @@ function update_provision_flows_datatable(datatable, timeout) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There no Flows")+
+              tr("There no Services")+
             '</span>'+
             '<br>'+
             '<br>'+
@@ -4653,7 +4653,7 @@ function setup_info_flow(context) {
         '<div class="row">'+
         '<div class="large-9 columns">'+
           '<span style="font-size: 14px; line-height: 20px">'+
-            tr("Be careful, this action will inmediately destroy your Flow")+
+            tr("Be careful, this action will inmediately destroy your Service")+
             '<br>'+
             tr("All the information will be lost!")+
           '</span>'+
@@ -4672,7 +4672,7 @@ function setup_info_flow(context) {
         '<div class="row">'+
         '<div class="large-9 columns">'+
           '<span style="font-size: 14px; line-height: 20px">'+
-            tr("Be careful, this action will inmediately shutdown your Flow")+
+            tr("Be careful, this action will inmediately shutdown your Service")+
             '<br>'+
             tr("All the information will be lost!")+
           '</span>'+
@@ -4783,13 +4783,13 @@ function setup_provision_flows_list(context, opts){
           '<br>'+
           '<br>'+
           '<span style="font-size: 18px; color: #999">'+
-            tr("Looks like you don't have any Flow. Click the button below to get started")+
+            tr("Looks like you don't have any Service. Click the button below to get started")+
           '</span>'+
           '<br>'+
           '<br>'+
           '<div class="row">'+
             '<div class="large-6 large-centered columns">'+
-              '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+tr("Create a new Flow")+'</a>'+
+              '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+tr("Create a new Service")+'</a>'+
             '</div>'+
           '</div>'+
           '<br>'+
@@ -5046,7 +5046,7 @@ function setup_provision_user_info(context) {
               '<span class="provision_vdc_user_info_show_templates button medium radius" data-tooltip title="'+tr("User Saved Templates")+'" style="margin-right: 10px">'+
                 '<i class="fa fa-save fa-lg"></i>'+
               '</span>'+
-              '<span class="provision_vdc_user_info_show_flows button medium radius" data-tooltip title="'+tr("User Flows")+'" style="margin-right: 10px">'+
+              '<span class="provision_vdc_user_info_show_flows button medium radius" data-tooltip title="'+tr("User Services")+'" style="margin-right: 10px">'+
                 '<i class="fa fa-cubes fa-lg"></i>'+
               '</span>'+
               '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="'+tr("User Accounting")+'" style="margin-right: 10px">'+
@@ -5164,7 +5164,7 @@ function setup_provision_user_info(context) {
     generate_provision_flows_list(
       $(".provision_vdc_info_container", context),
       {
-        title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Flows"),
+        title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Services"),
         active: true,
         refresh: true,
         create: false,
@@ -6500,7 +6500,7 @@ $(document).ready(function(){
       }
 
       if (missing_network) {
-        $(".alert-box-error", context).fadeIn().html(tr("You have not specified all the Networks for this Flow"));
+        $(".alert-box-error", context).fadeIn().html(tr("You have not specified all the Networks for this Service"));
         return false;
       }
 
@@ -6537,7 +6537,7 @@ $(document).ready(function(){
       }
 
       if (missing_attr) {
-        $(".alert-box-error", $(this)).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Flow"));
+        $(".alert-box-error", $(this)).fadeIn().html(tr("You have not specified all the Custom Atrributes for this Service"));
         return false;
       }
 
