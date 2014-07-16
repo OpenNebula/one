@@ -136,11 +136,7 @@ helpers do
     end
 end
 
-NIC_VALID_KEYS = [
-    /^IP/,
-    /^NETWORK/,
-    "MAC"
-]
+NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC)
 
 USER_TEMPLATE_INVALID_KEYS = %w(
     SCHED_MESSAGE
@@ -149,11 +145,7 @@ USER_TEMPLATE_INVALID_KEYS = %w(
 def build_vm_hash(vm_hash)
     nics = []
     vm_hash["TEMPLATE"]["NIC"].each do |nic|
-        # This snippet collects only the keys of nic that match the expressions
-        # defined in NIC_VALID_KEYS
-        nics << nic.select do |k,v|
-            !NIC_VALID_KEYS.collect{|m| m.match(k)}.compact.empty?
-        end
+        nics << nic.select{|k,v| NIC_VALID_KEYS.include?(k)}
     end
 
     {
