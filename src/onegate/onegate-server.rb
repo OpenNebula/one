@@ -215,6 +215,23 @@ def build_service_hash(service_hash)
     }
 end
 
+get '/' do
+    client = authenticate(request.env, params)
+    halt 401, "Not authorized" if client.nil?
+
+    protocol = request.env["rack.url_scheme"]
+    host     = request.env["HTTP_HOST"]
+
+    base_uri = "#{protocol}://#{host}"
+
+    response = {
+        "vm_info"      => "#{base_uri}/vm",
+        "service_info" => "#{base_uri}/service"
+    }
+
+    [200, response.to_json]
+end
+
 put '/vm' do
     client = authenticate(request.env, params)
 
@@ -278,47 +295,6 @@ get '/service' do
         error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
         logger.error {error_msg}
         halt 400, error_msg
-    end
-
-    [200, response.to_json]
-end
-
-get '/' do
-    client = authenticate(request.env, params)
-
-    halt 401, "Not authorized" if client.nil?
-
-    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
-
-    vm = get_vm(vm_id, client)
-
-    response = build_vm_hash(vm.to_hash["VM"])
-
-    if vm['USER_TEMPLATE/SERVICE_ID']
-        service = get_service(vm)
-
-        service_hash = JSON.parse(service)
-
-        response_service = build_service_hash(service_hash) rescue nil
-
-        if response_service.nil?
-            error_msg = "VMID:#{vm_id} Service #{service_id} is empty."
-            logger.error {error_msg}
-            halt 400, error_msg
-        end
-
-        service_vm_ids = response["SERVICE"]["roles"].collect do |r|
-                            r["nodes"].collect{|n| n["deploy_id"]}
-                         end.flatten
-
-        # Check that the user has not spoofed the Service_ID
-        if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
-            error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
-            logger.error {error_msg}
-            halt 400, error_msg
-        end
-
-        response.merge!(response_service)
     end
 
     [200, response.to_json]
