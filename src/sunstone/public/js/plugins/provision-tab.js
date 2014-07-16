@@ -4678,7 +4678,7 @@ function setup_info_flow(context) {
           '</span>'+
         '</div>'+
         '<div class="large-3 columns">'+
-          '<a href"#" class="provision_shutdown_button alert button large-12 radius right" style="margin-right: 15px">'+tr("Shtudown")+'</a>'+
+          '<a href"#" class="provision_shutdown_button alert button large-12 radius right" style="margin-right: 15px">'+tr("Shutdown")+'</a>'+
         '</div>'+
         '</div>'+
         '<a href="#" class="close">&times;</a>'+

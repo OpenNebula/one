@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-15 12:53+0200\n"
+"POT-Creation-Date: 2014-07-16 10:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -135,7 +135,7 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:753
 #: ../public/js/plugins/oneflow-services.js:837
 #: ../public/js/plugins/oneflow-services.js:1157
-#: ../public/js/plugins/oneflow-templates.js:685
+#: ../public/js/plugins/oneflow-templates.js:683
 #: ../public/js/plugins/templates-tab.js:402
 #: ../public/js/plugins/templates-tab.js:786
 #: ../public/js/plugins/templates-tab.js:1386
@@ -275,8 +275,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:835
 #: ../public/js/plugins/oneflow-services.js:926
 #: ../public/js/plugins/oneflow-services.js:1155
-#: ../public/js/plugins/oneflow-templates.js:683
-#: ../public/js/plugins/oneflow-templates.js:761
+#: ../public/js/plugins/oneflow-templates.js:681
+#: ../public/js/plugins/oneflow-templates.js:759
 #: ../public/js/plugins/provision-tab.js:508
 #: ../public/js/plugins/provision-tab.js:521
 #: ../public/js/plugins/provision-tab.js:535
@@ -399,7 +399,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:629
 #: ../public/js/plugins/oneflow-services.js:635
 #: ../public/js/plugins/oneflow-services.js:803
-#: ../public/js/plugins/oneflow-templates.js:651
+#: ../public/js/plugins/oneflow-templates.js:649
 #: ../public/js/plugins/provision-tab.js:3637
 #: ../public/js/plugins/provision-tab.js:3656
 #: ../public/js/plugins/provision-tab.js:4122
@@ -428,7 +428,7 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:500
 #: ../public/js/plugins/marketplace-tab.js:360
 #: ../public/js/plugins/oneflow-services.js:822
-#: ../public/js/plugins/oneflow-templates.js:670
+#: ../public/js/plugins/oneflow-templates.js:668
 #: ../public/js/plugins/templates-tab.js:392
 #: ../public/js/plugins/templates-tab.js:777
 #: ../public/js/plugins/templates-tab.js:1375
@@ -511,9 +511,9 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1158
 #: ../public/js/plugins/oneflow-templates.js:30
 #: ../public/js/plugins/oneflow-templates.js:70
-#: ../public/js/plugins/oneflow-templates.js:686
-#: ../public/js/plugins/oneflow-templates.js:765
-#: ../public/js/plugins/oneflow-templates.js:800
+#: ../public/js/plugins/oneflow-templates.js:684
+#: ../public/js/plugins/oneflow-templates.js:763
+#: ../public/js/plugins/oneflow-templates.js:798
 #: ../public/js/plugins/provision-tab.js:509
 #: ../public/js/plugins/provision-tab.js:522
 #: ../public/js/plugins/provision-tab.js:536
@@ -621,7 +621,7 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:752
 #: ../public/js/plugins/oneflow-services.js:836
 #: ../public/js/plugins/oneflow-services.js:1156
-#: ../public/js/plugins/oneflow-templates.js:684
+#: ../public/js/plugins/oneflow-templates.js:682
 #: ../public/js/plugins/templates-tab.js:401
 #: ../public/js/plugins/templates-tab.js:785
 #: ../public/js/plugins/templates-tab.js:1385
@@ -699,8 +699,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1249
 #: ../public/js/plugins/oneflow-templates.js:311
 #: ../public/js/plugins/oneflow-templates.js:368
-#: ../public/js/plugins/oneflow-templates.js:909
-#: ../public/js/plugins/oneflow-templates.js:973
+#: ../public/js/plugins/oneflow-templates.js:907
+#: ../public/js/plugins/oneflow-templates.js:971
 #: ../public/js/plugins/templates-tab.js:790
 #: ../public/js/plugins/templates-tab.js:957
 #: ../public/js/plugins/templates-tab.js:2041
@@ -761,7 +761,7 @@ msgstr ""
 #: ../public/js/plugins/groups-tab.js:178
 #: ../public/js/plugins/groups-tab.js:409
 #: ../public/js/plugins/oneflow-templates.js:159
-#: ../public/js/plugins/oneflow-templates.js:630
+#: ../public/js/plugins/oneflow-templates.js:628
 #: ../public/js/plugins/templates-tab.js:44
 #: ../public/js/plugins/templates-tab.js:64
 #: ../public/js/plugins/templates-tab.js:339
@@ -808,7 +808,7 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:610
 #: ../public/js/plugins/marketplace-tab.js:435
 #: ../public/js/plugins/oneflow-services.js:916
-#: ../public/js/plugins/oneflow-templates.js:751
+#: ../public/js/plugins/oneflow-templates.js:749
 #: ../public/js/plugins/templates-tab.js:1642
 #: ../public/js/plugins/users-tab.js:655 ../public/js/plugins/vms-tab.js:1303
 #: ../public/js/plugins/vnets-tab.js:741 ../public/js/plugins/zones-tab.js:309
@@ -826,8 +826,8 @@ msgstr ""
 #: ../public/js/plugins/marketplace-tab.js:441
 #: ../public/js/plugins/oneflow-services.js:923
 #: ../public/js/plugins/oneflow-services.js:1124
-#: ../public/js/plugins/oneflow-templates.js:758
-#: ../public/js/plugins/oneflow-templates.js:878
+#: ../public/js/plugins/oneflow-templates.js:756
+#: ../public/js/plugins/oneflow-templates.js:876
 #: ../public/js/plugins/templates-tab.js:1649
 #: ../public/js/plugins/users-tab.js:497 ../public/js/plugins/users-tab.js:662
 #: ../public/js/plugins/vms-tab.js:1310 ../public/js/plugins/vnets-tab.js:703
@@ -924,8 +924,8 @@ msgid "Confirm Password"
 msgstr ""
 
 #: ../public/js/plugins/config-tab.js:260
-#: ../public/js/plugins/oneflow-templates.js:1075
-#: ../public/js/plugins/oneflow-templates.js:1110
+#: ../public/js/plugins/oneflow-templates.js:1073
+#: ../public/js/plugins/oneflow-templates.js:1108
 #: ../public/js/plugins/users-tab.js:113 ../public/js/plugins/users-tab.js:132
 msgid "Change"
 msgstr ""
@@ -1432,7 +1432,7 @@ msgstr ""
 #: ../public/js/plugins/files-tab.js:307
 #: ../public/js/plugins/images-tab.js:438
 #: ../public/js/plugins/oneflow-services.js:779
-#: ../public/js/plugins/oneflow-templates.js:634
+#: ../public/js/plugins/oneflow-templates.js:632
 #: ../public/js/plugins/templates-tab.js:348
 #: ../public/js/plugins/vms-tab.js:735 ../public/js/plugins/vnets-tab.js:535
 msgid "Change owner"
@@ -1442,7 +1442,7 @@ msgstr ""
 #: ../public/js/plugins/files-tab.js:310
 #: ../public/js/plugins/images-tab.js:441
 #: ../public/js/plugins/oneflow-services.js:781
-#: ../public/js/plugins/oneflow-templates.js:637
+#: ../public/js/plugins/oneflow-templates.js:635
 #: ../public/js/plugins/templates-tab.js:351
 #: ../public/js/plugins/vms-tab.js:738 ../public/js/plugins/vnets-tab.js:538
 msgid "Select the new owner"
@@ -1452,7 +1452,7 @@ msgstr ""
 #: ../public/js/plugins/files-tab.js:315
 #: ../public/js/plugins/images-tab.js:446
 #: ../public/js/plugins/oneflow-services.js:786
-#: ../public/js/plugins/oneflow-templates.js:642
+#: ../public/js/plugins/oneflow-templates.js:640
 #: ../public/js/plugins/templates-tab.js:356
 #: ../public/js/plugins/users-tab.js:465 ../public/js/plugins/vms-tab.js:743
 #: ../public/js/plugins/vnets-tab.js:544
@@ -1463,7 +1463,7 @@ msgstr ""
 #: ../public/js/plugins/files-tab.js:318
 #: ../public/js/plugins/images-tab.js:449
 #: ../public/js/plugins/oneflow-services.js:788
-#: ../public/js/plugins/oneflow-templates.js:645
+#: ../public/js/plugins/oneflow-templates.js:643
 #: ../public/js/plugins/templates-tab.js:359
 #: ../public/js/plugins/vms-tab.js:746 ../public/js/plugins/vnets-tab.js:547
 msgid "Select the new group"
@@ -2488,6 +2488,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:794
 #: ../public/js/plugins/oneflow-templates.js:121
 #: ../public/js/plugins/oneflow-templates.js:244
+#: ../public/js/plugins/provision-tab.js:4681
 #: ../public/js/plugins/vms-tab.js:845 ../public/js/plugins/vms-tab.js:851
 msgid "Shutdown"
 msgstr ""
@@ -2546,7 +2547,7 @@ msgid "This will delete the selected services"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:811
-#: ../public/js/plugins/oneflow-templates.js:659
+#: ../public/js/plugins/oneflow-templates.js:657
 msgid "Service information"
 msgstr ""
 
@@ -2559,14 +2560,14 @@ msgid "OneFlow - Service"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:828
-#: ../public/js/plugins/oneflow-templates.js:676
+#: ../public/js/plugins/oneflow-templates.js:674
 #: ../public/js/plugins/provision-tab.js:3121
 msgid "Cannot connect to OneFlow server"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:934
 #: ../public/js/plugins/oneflow-templates.js:107
-#: ../public/js/plugins/oneflow-templates.js:769
+#: ../public/js/plugins/oneflow-templates.js:767
 msgid "Strategy"
 msgstr ""
 
@@ -2574,8 +2575,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1128
 #: ../public/js/plugins/oneflow-templates.js:116
 #: ../public/js/plugins/oneflow-templates.js:239
-#: ../public/js/plugins/oneflow-templates.js:773
-#: ../public/js/plugins/oneflow-templates.js:883
+#: ../public/js/plugins/oneflow-templates.js:771
+#: ../public/js/plugins/oneflow-templates.js:881
 msgid "Shutdown action"
 msgstr ""
 
@@ -2587,7 +2588,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:972
 #: ../public/js/plugins/oneflow-services.js:1212
 #: ../public/js/plugins/oneflow-templates.js:331
-#: ../public/js/plugins/oneflow-templates.js:936
+#: ../public/js/plugins/oneflow-templates.js:934
 msgid "Period"
 msgstr ""
 
@@ -2605,30 +2606,31 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:995
 #: ../public/js/plugins/oneflow-services.js:1434
-#: ../public/js/plugins/oneflow-templates.js:801
-#: ../public/js/plugins/oneflow-templates.js:1076
-#: ../public/js/plugins/oneflow-templates.js:1111
+#: ../public/js/plugins/oneflow-templates.js:799
+#: ../public/js/plugins/oneflow-templates.js:1074
+#: ../public/js/plugins/oneflow-templates.js:1109
 #: ../public/js/plugins/provision-tab.js:1903
 msgid "Cardinality"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:996
-#: ../public/js/plugins/oneflow-templates.js:802
+#: ../public/js/plugins/oneflow-templates.js:800
 msgid "VM Template"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:997
-#: ../public/js/plugins/oneflow-templates.js:803
+#: ../public/js/plugins/oneflow-templates.js:801
 msgid "Parents"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1005
-#: ../public/js/plugins/oneflow-templates.js:810
+#: ../public/js/plugins/oneflow-templates.js:808
 msgid "Select a role in the table for more information"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1120
-#: ../public/js/plugins/oneflow-templates.js:873
+#: ../public/js/plugins/oneflow-templates.js:871
+#: ../public/js/plugins/oneflow-templates.js:1795
 msgid "Role"
 msgstr ""
 
@@ -2636,27 +2638,27 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1216
 #: ../public/js/plugins/oneflow-templates.js:289
 #: ../public/js/plugins/oneflow-templates.js:334
-#: ../public/js/plugins/oneflow-templates.js:885
-#: ../public/js/plugins/oneflow-templates.js:940
+#: ../public/js/plugins/oneflow-templates.js:883
+#: ../public/js/plugins/oneflow-templates.js:938
 msgid "Cooldown"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1132
 #: ../public/js/plugins/oneflow-templates.js:277
-#: ../public/js/plugins/oneflow-templates.js:887
+#: ../public/js/plugins/oneflow-templates.js:885
 msgid "Min VMs"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1134
 #: ../public/js/plugins/oneflow-templates.js:283
-#: ../public/js/plugins/oneflow-templates.js:889
+#: ../public/js/plugins/oneflow-templates.js:887
 #: ../public/js/plugins/users-tab.js:153
 msgid "Max VMs"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1180
 #: ../public/js/plugins/oneflow-templates.js:301
-#: ../public/js/plugins/oneflow-templates.js:904
+#: ../public/js/plugins/oneflow-templates.js:902
 msgid "Elasticity policies"
 msgstr ""
 
@@ -2664,8 +2666,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1250
 #: ../public/js/plugins/oneflow-templates.js:307
 #: ../public/js/plugins/oneflow-templates.js:364
-#: ../public/js/plugins/oneflow-templates.js:910
-#: ../public/js/plugins/oneflow-templates.js:974
+#: ../public/js/plugins/oneflow-templates.js:908
+#: ../public/js/plugins/oneflow-templates.js:972
 msgid "Type of adjustment."
 msgstr ""
 
@@ -2673,8 +2675,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1251
 #: ../public/js/plugins/oneflow-templates.js:308
 #: ../public/js/plugins/oneflow-templates.js:365
-#: ../public/js/plugins/oneflow-templates.js:911
-#: ../public/js/plugins/oneflow-templates.js:975
+#: ../public/js/plugins/oneflow-templates.js:909
+#: ../public/js/plugins/oneflow-templates.js:973
 msgid "CHANGE: Add/substract the given number of VMs."
 msgstr ""
 
@@ -2682,8 +2684,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1252
 #: ../public/js/plugins/oneflow-templates.js:309
 #: ../public/js/plugins/oneflow-templates.js:366
-#: ../public/js/plugins/oneflow-templates.js:912
-#: ../public/js/plugins/oneflow-templates.js:976
+#: ../public/js/plugins/oneflow-templates.js:910
+#: ../public/js/plugins/oneflow-templates.js:974
 msgid "CARDINALITY: Set the cardinality to the given number."
 msgstr ""
 
@@ -2691,8 +2693,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1253
 #: ../public/js/plugins/oneflow-templates.js:310
 #: ../public/js/plugins/oneflow-templates.js:367
-#: ../public/js/plugins/oneflow-templates.js:913
-#: ../public/js/plugins/oneflow-templates.js:977
+#: ../public/js/plugins/oneflow-templates.js:911
+#: ../public/js/plugins/oneflow-templates.js:975
 msgid "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."
 msgstr ""
 
@@ -2700,8 +2702,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1256
 #: ../public/js/plugins/oneflow-templates.js:317
 #: ../public/js/plugins/oneflow-templates.js:374
-#: ../public/js/plugins/oneflow-templates.js:916
-#: ../public/js/plugins/oneflow-templates.js:980
+#: ../public/js/plugins/oneflow-templates.js:914
+#: ../public/js/plugins/oneflow-templates.js:978
 msgid "Adjust"
 msgstr ""
 
@@ -2709,8 +2711,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1257
 #: ../public/js/plugins/oneflow-templates.js:313
 #: ../public/js/plugins/oneflow-templates.js:370
-#: ../public/js/plugins/oneflow-templates.js:917
-#: ../public/js/plugins/oneflow-templates.js:981
+#: ../public/js/plugins/oneflow-templates.js:915
+#: ../public/js/plugins/oneflow-templates.js:979
 msgid "Positive or negative adjustment. Its meaning depends on 'type'"
 msgstr ""
 
@@ -2718,8 +2720,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1258
 #: ../public/js/plugins/oneflow-templates.js:314
 #: ../public/js/plugins/oneflow-templates.js:371
-#: ../public/js/plugins/oneflow-templates.js:918
-#: ../public/js/plugins/oneflow-templates.js:982
+#: ../public/js/plugins/oneflow-templates.js:916
+#: ../public/js/plugins/oneflow-templates.js:980
 msgid "CHANGE: -2, will substract 2 VMs from the role"
 msgstr ""
 
@@ -2727,8 +2729,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1259
 #: ../public/js/plugins/oneflow-templates.js:315
 #: ../public/js/plugins/oneflow-templates.js:372
-#: ../public/js/plugins/oneflow-templates.js:919
-#: ../public/js/plugins/oneflow-templates.js:983
+#: ../public/js/plugins/oneflow-templates.js:917
+#: ../public/js/plugins/oneflow-templates.js:981
 msgid "CARDINALITY: 8, will set carditanilty to 8"
 msgstr ""
 
@@ -2736,8 +2738,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1260
 #: ../public/js/plugins/oneflow-templates.js:316
 #: ../public/js/plugins/oneflow-templates.js:373
-#: ../public/js/plugins/oneflow-templates.js:920
-#: ../public/js/plugins/oneflow-templates.js:984
+#: ../public/js/plugins/oneflow-templates.js:918
+#: ../public/js/plugins/oneflow-templates.js:982
 msgid "PERCENTAGE_CHANGE: 20, will increment cardinality by 20%"
 msgstr ""
 
@@ -2745,22 +2747,22 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1263
 #: ../public/js/plugins/oneflow-templates.js:321
 #: ../public/js/plugins/oneflow-templates.js:377
-#: ../public/js/plugins/oneflow-templates.js:923
-#: ../public/js/plugins/oneflow-templates.js:987
+#: ../public/js/plugins/oneflow-templates.js:921
+#: ../public/js/plugins/oneflow-templates.js:985
 msgid "Min"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1200
 #: ../public/js/plugins/oneflow-services.js:1264
 #: ../public/js/plugins/oneflow-templates.js:376
-#: ../public/js/plugins/oneflow-templates.js:924
-#: ../public/js/plugins/oneflow-templates.js:988
+#: ../public/js/plugins/oneflow-templates.js:922
+#: ../public/js/plugins/oneflow-templates.js:986
 msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1203
 #: ../public/js/plugins/oneflow-templates.js:325
-#: ../public/js/plugins/oneflow-templates.js:927
+#: ../public/js/plugins/oneflow-templates.js:925
 #: ../public/js/plugins/templates-tab.js:2605
 #: ../public/js/plugins/templates-tab.js:2616
 #: ../public/js/plugins/templates-tab.js:2643
@@ -2770,48 +2772,48 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1204
 #: ../public/js/plugins/oneflow-templates.js:323
-#: ../public/js/plugins/oneflow-templates.js:928
+#: ../public/js/plugins/oneflow-templates.js:926
 msgid "Expression to trigger the elasticity"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1205
 #: ../public/js/plugins/oneflow-templates.js:324
-#: ../public/js/plugins/oneflow-templates.js:929
+#: ../public/js/plugins/oneflow-templates.js:927
 msgid "Example: ATT < 20"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1208
-#: ../public/js/plugins/oneflow-templates.js:932
+#: ../public/js/plugins/oneflow-templates.js:930
 msgid "# Periods"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1209
 #: ../public/js/plugins/oneflow-templates.js:327
-#: ../public/js/plugins/oneflow-templates.js:933
+#: ../public/js/plugins/oneflow-templates.js:931
 msgid "Number of periods that the expression must be true before the elasticity is triggered"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1213
 #: ../public/js/plugins/oneflow-templates.js:330
-#: ../public/js/plugins/oneflow-templates.js:937
+#: ../public/js/plugins/oneflow-templates.js:935
 msgid "Duration, in seconds, of each period in '# Periods'"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1217
 #: ../public/js/plugins/oneflow-templates.js:333
-#: ../public/js/plugins/oneflow-templates.js:941
+#: ../public/js/plugins/oneflow-templates.js:939
 msgid "Cooldown period duration after a scale operation, in seconds"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1244
 #: ../public/js/plugins/oneflow-templates.js:358
-#: ../public/js/plugins/oneflow-templates.js:968
+#: ../public/js/plugins/oneflow-templates.js:966
 msgid "Scheduled policies"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1267
 #: ../public/js/plugins/oneflow-templates.js:381
-#: ../public/js/plugins/oneflow-templates.js:991
+#: ../public/js/plugins/oneflow-templates.js:989
 msgid "Time format"
 msgstr ""
 
@@ -2819,8 +2821,8 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1274
 #: ../public/js/plugins/oneflow-templates.js:379
 #: ../public/js/plugins/oneflow-templates.js:384
-#: ../public/js/plugins/oneflow-templates.js:992
-#: ../public/js/plugins/oneflow-templates.js:998
+#: ../public/js/plugins/oneflow-templates.js:990
+#: ../public/js/plugins/oneflow-templates.js:996
 msgid "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"
 msgstr ""
 
@@ -2828,20 +2830,20 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1275
 #: ../public/js/plugins/oneflow-templates.js:380
 #: ../public/js/plugins/oneflow-templates.js:385
-#: ../public/js/plugins/oneflow-templates.js:993
-#: ../public/js/plugins/oneflow-templates.js:999
+#: ../public/js/plugins/oneflow-templates.js:991
+#: ../public/js/plugins/oneflow-templates.js:997
 msgid "Start time: Exact time for the adjustement"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1272
 #: ../public/js/plugins/oneflow-templates.js:386
-#: ../public/js/plugins/oneflow-templates.js:996
+#: ../public/js/plugins/oneflow-templates.js:994
 msgid "Time expression"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1273
 #: ../public/js/plugins/oneflow-templates.js:383
-#: ../public/js/plugins/oneflow-templates.js:997
+#: ../public/js/plugins/oneflow-templates.js:995
 msgid "Time expression depends on the the time formar selected"
 msgstr ""
 
@@ -2997,66 +2999,62 @@ msgstr ""
 msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several Services, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:425
+#: ../public/js/plugins/oneflow-templates.js:423
 #: ../public/js/plugins/templates-tab.js:86 ../public/js/plugins/vms-tab.js:68
 msgid "Number of instances"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:426
+#: ../public/js/plugins/oneflow-templates.js:424
 msgid "Number of Services that will be created using this template"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:437
-#: ../public/js/plugins/oneflow-templates.js:625
+#: ../public/js/plugins/oneflow-templates.js:435
+#: ../public/js/plugins/oneflow-templates.js:623
 #: ../public/js/plugins/templates-tab.js:104
 #: ../public/js/plugins/templates-tab.js:344
 msgid "Instantiate"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:464
+#: ../public/js/plugins/oneflow-templates.js:462
 msgid "Service Template created"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:494
+#: ../public/js/plugins/oneflow-templates.js:492
 msgid "ServiceTemplate updated correctly"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:653
+#: ../public/js/plugins/oneflow-templates.js:651
 msgid "This will delete the selected templates"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:671
+#: ../public/js/plugins/oneflow-templates.js:669
 msgid "OneFlow - Templates"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:672
+#: ../public/js/plugins/oneflow-templates.js:670
 msgid "OneFlow - Template"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:1077
-#: ../public/js/plugins/oneflow-templates.js:1112
+#: ../public/js/plugins/oneflow-templates.js:1075
+#: ../public/js/plugins/oneflow-templates.js:1110
 msgid "Percentage"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:1122
+#: ../public/js/plugins/oneflow-templates.js:1120
 #: ../public/js/plugins/vms-tab.js:1339 ../public/js/sunstone.js:3987
 msgid "Start time"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:1123
+#: ../public/js/plugins/oneflow-templates.js:1121
 msgid "Recurrence"
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:1279
+#: ../public/js/plugins/oneflow-templates.js:1277
 msgid "Role "
 msgstr ""
 
-#: ../public/js/plugins/oneflow-templates.js:1452
+#: ../public/js/plugins/oneflow-templates.js:1450
 msgid "Please specify name, cardinality and template for this role"
-msgstr ""
-
-#: ../public/js/plugins/oneflow-templates.js:1799
-msgid "Custom Attributes for Role"
 msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:24
@@ -3608,10 +3606,6 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:4675
 msgid "Be careful, this action will inmediately shutdown your Flow"
-msgstr ""
-
-#: ../public/js/plugins/provision-tab.js:4681
-msgid "Shtudown"
 msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:4786
