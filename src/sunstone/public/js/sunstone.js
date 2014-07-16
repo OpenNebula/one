@@ -5348,9 +5348,9 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
               '<div class="row">'+
                 '<div class="large-12 large-centered columns">'+
                   separator+
-                  '<label>' +
+                  '<h5>' +
                     htmlDecode(vnet_attr.description) +
-                  '</label>'+
+                  '</h5>'+
                   generateVNetTableSelect(unique_id)+
                 '</div>'+
               '</div>');

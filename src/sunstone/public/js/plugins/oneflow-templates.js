@@ -419,8 +419,6 @@ var instantiate_service_template_tmpl ='\
         '</label>\
         <input type="text" name="service_name" id="service_name" />\
     </div>\
-  </div>\
-  <div class="row">\
     <div class="large-6 columns">\
         <label for="service_n_times">'+tr("Number of instances")+
           '<span class="tip">'+tr("Number of Services that will be created using this template")+'.</span>'+
@@ -431,7 +429,7 @@ var instantiate_service_template_tmpl ='\
   <div id="instantiate_service_user_inputs">\
     <i class="fa fa-spinner fa-spin"></i>\
   </div>\
-  <div id="instantiate_service_role_user_inputs">\
+  <div class="row" id="instantiate_service_role_user_inputs">\
   </div>\
   <div class="form_buttons">\
      <button class="button radius right success" id="instantiate_service_tenplate_proceed" value="ServiceTemplate.instantiate">'+tr("Instantiate")+'</button>\
@@ -1777,9 +1775,7 @@ function setupInstantiateServiceTemplateDialog(){
                 var div_id = "user_input_role_"+index;
 
                 $("#instantiate_service_role_user_inputs", dialog).append(
-                    '<div class="row">\
-                      <div id="'+div_id+'" class="large-6 columns">\
-                      </div>\
+                    '<div id="'+div_id+'" class="large-6 columns">\
                     </div>'
                 );
 
@@ -1796,7 +1792,7 @@ function setupInstantiateServiceTemplateDialog(){
                             $("#"+div_id, dialog),
                             vm_template_json,
                             {
-                                text_header: tr("Custom Attributes for Role") + " " + role.name
+                                text_header: tr("Role") + " " + role.name
                             }
                         );
 
