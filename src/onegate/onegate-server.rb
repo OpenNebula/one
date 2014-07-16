@@ -138,9 +138,7 @@ end
 
 NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC)
 
-USER_TEMPLATE_INVALID_KEYS = %w(
-    SCHED_MESSAGE
-)
+USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE )
 
 def build_vm_hash(vm_hash)
     nics = []
@@ -276,11 +274,11 @@ get '/service' do
         halt 400, error_msg
     end
 
+    # Check that the user has not spoofed the Service_ID
     service_vm_ids = response["SERVICE"]["roles"].collect do |r|
                         r["nodes"].collect{|n| n["deploy_id"]}
-                     end.flatten
+                     end.flatten rescue []
 
-    # Check that the user has not spoofed the Service_ID
     if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
         error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
         logger.error {error_msg}
