@@ -1854,7 +1854,7 @@ function wizard_tab_content(){
     '<div class="tabs-content vertical">'+
       '<div class="wizard_internal_tab active content" id="bootTab">'+
         '<div class="row vm_param">'+
-          '<div class="large-3 columns">'+
+          '<div class="large-4 columns">'+
             '<label for="ARCH">'+tr("Arch")+
               '<span class="tip">'+tr("CPU architecture to virtualization")+'</span>'+
             '</label>'+
@@ -1864,13 +1864,21 @@ function wizard_tab_content(){
               '<option value="x86_64">x86_64</option>'+
             '</select>'+
           '</div>'+
-          '<div class="large-4 columns">'+
+          '<div class="large-8 columns">'+
             '<label for="MACHINE">'+tr("Machine type")+
               '<span class="tip">'+tr("libvirt machine type, only for KVM")+'</span>'+
             '</label>'+
             '<input type="text" id="MACHINE" name="machine" />'+
           '</div>'+
-          '<div class="large-5 columns">'+
+        '</div>'+
+        '<div class="row vm_param">'+
+          '<div class="large-4 columns">'+
+            '<label for="ROOT">'+tr("Root")+
+              '<span class="tip">'+tr("Device to be mounted as root")+'</span>'+
+            '</label>'+
+            '<input type="text" id="ROOT" name="root"/>'+
+          '</div>'+
+          '<div class="large-8 columns">'+
             '<label for="GUESTOS">'+tr("Guest OS")+
               '<span class="tip">'+tr("Set the OS of the VM, only for VMware")+'</span>'+
             '</label>'+
@@ -1972,18 +1980,36 @@ function wizard_tab_content(){
           '</div>'+
         '</div>'+
         '<br>'+
-        '<div class="row vm_param">'+
-          '<div class="large-6 columns">'+
-            '<label for="ROOT">'+tr("Root")+
-              '<span class="tip">'+tr("Device to be mounted as root")+'</span>'+
+        '<div class="row">'+
+          '<div class="large-4 columns">'+
+            '<label for="BOOT_0">'+tr("1st Boot")+
+              '<span class="tip">'+tr("1st Boot device type")+'</span>'+
             '</label>'+
-            '<input type="text" id="ROOT" name="root"/>'+
+            '<select id="BOOT_0" name="boot">'+
+              '<option id="no_boot" name="no_boot" value=""></option>'+
+              '<option value="hd">'+tr("HD")+'</option>'+
+              '<option value="fd">'+tr("FD")+'</option>'+
+              '<option value="cdrom">'+tr("CDROM")+'</option>'+
+              '<option value="network">'+tr("NETWORK")+'</option>'+
+            '</select>'+
           '</div>'+
-          '<div class="large-6 columns">'+
-            '<label for="BOOT">'+tr("Boot")+
-              '<span class="tip">'+tr("Boot device type")+'</span>'+
+          '<div class="large-4 columns">'+
+            '<label for="BOOT_1">'+tr("2nd Boot")+
+              '<span class="tip">'+tr("2nd Boot device type")+'</span>'+
             '</label>'+
-            '<select id="BOOT" name="boot">'+
+            '<select id="BOOT_1" name="boot">'+
+              '<option id="no_boot" name="no_boot" value=""></option>'+
+              '<option value="hd">'+tr("HD")+'</option>'+
+              '<option value="fd">'+tr("FD")+'</option>'+
+              '<option value="cdrom">'+tr("CDROM")+'</option>'+
+              '<option value="network">'+tr("NETWORK")+'</option>'+
+            '</select>'+
+          '</div>'+
+          '<div class="large-4 columns">'+
+            '<label for="BOOT_2">'+tr("3rd Boot")+
+              '<span class="tip">'+tr("3rd Boot device type")+'</span>'+
+            '</label>'+
+            '<select id="BOOT_2" name="boot">'+
               '<option id="no_boot" name="no_boot" value=""></option>'+
               '<option value="hd">'+tr("HD")+'</option>'+
               '<option value="fd">'+tr("FD")+'</option>'+
@@ -3590,6 +3616,24 @@ function initialize_create_template_dialog(dialog) {
         addSectionJSON(vm_json["OS"],$('#osTab #kernelTab',dialog));
         addSectionJSON(vm_json["OS"],$('#osTab #ramdiskTab',dialog));
 
+        var boot = "";
+
+        for (var i=0; i<3; i++){
+            var val = $('#osTab #BOOT_'+i, dialog).val();
+
+            if (val != undefined && val.length > 0) {
+                if (boot.length > 0){
+                    boot += ","
+                }
+
+                boot += val;
+            }
+        }
+
+        if (boot.length > 0){
+            vm_json["OS"]["BOOT"] = boot;
+        }
+
         //
         // FEATURES
         //
@@ -4139,6 +4183,13 @@ function fillTemplatePopUp(template, dialog){
 
         autoFillInputs(os, os_section);
 
+        if (os.BOOT) {
+            var boot_vals = os.BOOT.split(",");
+
+            for(var i=0; i<3 && i<boot_vals.length; i++){
+                $('#BOOT_'+i, os_section).val(boot_vals[i]);
+            }
+        }
 
         delete template.OS
     }
