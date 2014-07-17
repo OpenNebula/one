@@ -46,7 +46,7 @@ Sunstone.addMainTab('community-tab',community_tab);
 Sunstone.addMainTab('enterprise-tab',enterprise_tab);
 
 $(document).on("click", "#li_doc-tab a", function(){
-    window.open("http://docs.opennebula.org/4.6/");
+    window.open("http://docs.opennebula.org/4.8/");
     return false;
 })
 
