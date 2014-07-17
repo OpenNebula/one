@@ -4801,7 +4801,7 @@ function setupVNetTableSelect(section, context_id, opts){
 
     if(opts.bVisible == undefined){
         // Use the settings in the conf, but removing the checkbox
-        var config = Config.tabTableColumns('vnets-tab');
+        var config = Config.tabTableColumns('vnets-tab').slice(0);
         var i = config.indexOf(0);
 
         if(i != -1){
@@ -4888,7 +4888,7 @@ function setupTemplateTableSelect(section, context_id, opts){
 
     if(opts.bVisible == undefined){
         // Use the settings in the conf, but removing the checkbox
-        var config = Config.tabTableColumns('templates-tab');
+        var config = Config.tabTableColumns('templates-tab').slice(0);
         var i = config.indexOf(0);
 
         if(i != -1){
@@ -4982,7 +4982,7 @@ function setupHostTableSelect(section, context_id, opts){
 
     if(opts.bVisible == undefined){
         // Use the settings in the conf, but removing the checkbox
-        var config = Config.tabTableColumns('hosts-tab');
+        var config = Config.tabTableColumns('hosts-tab').slice(0);
         var i = config.indexOf(0);
 
         if(i != -1){
@@ -5075,7 +5075,7 @@ function setupDatastoreTableSelect(section, context_id, opts){
 
     if(opts.bVisible == undefined){
         // Use the settings in the conf, but removing the checkbox
-        var config = Config.tabTableColumns('datastores-tab');
+        var config = Config.tabTableColumns('datastores-tab').slice(0);
         var i = config.indexOf(0);
 
         if(i != -1){

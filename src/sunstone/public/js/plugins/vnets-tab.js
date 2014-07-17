@@ -80,14 +80,15 @@ var create_vn_tmpl =
                   <option value="vmware">'+tr("VMware")+'</option>\
                 </select>\
               </div>\
-              <div class="large-6 columns">\
-                <div class="network_mode_description text-justify" value="default">'+tr("Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored.")+'</div>\
-                <div class="network_mode_description text-justify" value="802.1Q">'+tr("802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches.")+'</div>\
-                <div class="network_mode_description text-justify" value="ebtables">'+tr("ebtables: restrict network access through Ebtables rules. No special hardware configuration required.")+'</div>\
-                <div class="network_mode_description text-justify" value="openvswitch">'+tr("Open vSwitch: restrict network access with Open vSwitch Virtual Switch.")+'</div>\
-                <div class="network_mode_description text-justify" value="vmware">'+tr("VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor.")+'</div>\
+              <div class="large-12 columns">\
+                <div class="network_mode_description" value="default">'+tr("Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored.")+'</div>\
+                <div class="network_mode_description" value="802.1Q">'+tr("802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches.")+'</div>\
+                <div class="network_mode_description" value="ebtables">'+tr("ebtables: restrict network access through Ebtables rules. No special hardware configuration required.")+'</div>\
+                <div class="network_mode_description" value="openvswitch">'+tr("Open vSwitch: restrict network access with Open vSwitch Virtual Switch.")+'</div>\
+                <div class="network_mode_description" value="vmware">'+tr("VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor.")+'</div>\
               </div>\
             </div>\
+            <br>\
             <div class="row">\
               <div class="large-6 columns">\
                 <div class="row">\
@@ -959,7 +960,7 @@ function ar_list_tab_content(vn_info){
       </div>';
     }
 
-    html += 
+    html +=
       '</div>\
     </form>';
 
@@ -1474,7 +1475,7 @@ function fill_ar_tab_data(ar_json, ar_section){
                 var checked = (field.val() == ar_json[field_name]);
 
                 field.prop("checked", checked );
-                
+
                 if(checked){
                     field.change();
                 }

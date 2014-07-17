@@ -1164,6 +1164,7 @@ function setupImageCloneDialog(){
         <dd><a href="#image_clone_advanced"> '+tr("Advanced options")+'</a></dd>\
       </dl>\
       <div id="image_clone_advanced" class="row collapse content">\
+        <br>\
         <div class="large-12 columns">\
           <span>'+tr("You can select a different target datastore")+'</span>\
           <br/>\
