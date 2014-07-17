@@ -247,7 +247,7 @@ module OpenNebula
 
             @body['last_vmname'] ||= 0
 
-            extra_template = @body['vm_template_contents']
+            extra_template = @body['vm_template_contents'].dup
 
             extra_template = "" if extra_template.nil?
 
