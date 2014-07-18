@@ -197,7 +197,7 @@ module OpenNebula
 
             while true
                 a=@client.call("#{@pool_name.delete('_').downcase}.info",
-                    -2, current, -size, -1)
+                    @user_id, current, -size, -1)
                 return a if OpenNebula.is_error?(a)
 
                 a_array=parser.parse(a)
