@@ -4626,7 +4626,7 @@ function popUpTemplateCloneDialog(){
 // Sets up the instiantiate template dialog and all the processing associated to it
 function setupInstantiateTemplateDialog(){
 
-    dialogs_context.append('<div title=\"'+tr("Instantiate VM Template")+'\" id="instantiate_vm_template_dialog"></div>');
+    dialogs_context.append('<div id="instantiate_vm_template_dialog"></div>');
     //Insert HTML in place
     $instantiate_vm_template_dialog = $('#instantiate_vm_template_dialog')
     var dialog = $instantiate_vm_template_dialog;
