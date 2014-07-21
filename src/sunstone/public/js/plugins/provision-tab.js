@@ -3789,7 +3789,8 @@ function setup_info_vm(context) {
         id: vm_id
       },
       success: function(request, response){
-        update_provision_vm_info(vm_id, context);
+        $(".provision_back", context).click();
+        $(".provision_vms_list_refresh_button", context).click();
         button.removeAttr("disabled");
       },
       error: function(request, response){
