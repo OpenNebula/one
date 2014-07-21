@@ -19,68 +19,68 @@ require 'one_helper/onevm_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
     AR = {
-        :name => "ar_id",
+        :name => "address_range",
         :short => "-a ar_id",
         :large => "--address_range ar_id",
         :format => Integer,
         :description => "ID of the address range"
     }
 
-    AR_MAC = {
+    MAC = {
         :name => "mac",
         :short => "-m mac",
-        :large => "--address_range_mac mac",
+        :large => "--mac mac",
         :format => String,
         :description => "First MAC address in : notation"
     }
 
-    AR_IP = {
+    IP = {
         :name => "ip",
         :short => "-i ip",
-        :large => "--address_range_ip ip",
+        :large => "--ip ip",
         :format => String,
         :description => "First IP address in . notation"
     }
 
-    AR_SIZE = {
+    SIZE = {
         :name => "size",
         :short => "-s size",
-        :large => "--address_range_size size",
+        :large => "--size size",
         :format => String,
-        :description => "Number of addresses in the range"
+        :description => "Number of addresses"
     }
 
-    AR_IP6_GLOBAL = {
+    IP6_GLOBAL = {
         :name => "ip6_global",
         :short => "-g ip6_pref",
-        :large => "--address_range_ip6g ip6_pref",
+        :large => "--ip6_global ip6_pref",
         :format => String,
         :description => "IP6 global prefix"
     }
 
-    AR_IP6_ULA = {
+    IP6_ULA = {
         :name => "ip6_ula",
         :short => "-u ip6_pref",
-        :large => "--address_range_ip6u ip6_pref",
+        :large => "--ip6_ula ip6_pref",
         :format => String,
         :description => "IP6 ula prefix"
     }
 
-    R_NAME = {
-        :name => "rname",
+    NAME = {
+        :name => "name",
         :short => "-n reservation name",
         :large => "--name reservation name",
         :format => String,
         :description => "Name of the address reservation"
     }
 
-    R_SIZE = {
-        :name => "rsize",
-        :short => "-s reservation size",
-        :large => "--size reservation size",
-        :format => String,
-        :description => "Number of addresses to reserve"
-    }
+#    R_SIZE = {
+#        :name => "rsize",
+#        :short => "-s reservation size",
+#        :large => "--size reservation size",
+#        :format => String,
+#        :description => "Number of addresses to reserve"
+#    }
 
     def self.rname
         "VNET"

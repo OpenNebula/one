@@ -112,9 +112,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Adds an address range to the Virtual Network
     EOT
 
-    command :addar, addar_desc, :vnetid, :options=>STD_OPTIONS + [OneVNetHelper::AR_SIZE,
-        OneVNetHelper::AR_MAC, OneVNetHelper::AR_IP, OneVNetHelper::AR_IP6_GLOBAL,
-        OneVNetHelper::AR_IP6_ULA ] do
+    command :addar, addar_desc, :vnetid, :options=>STD_OPTIONS + [OneVNetHelper::SIZE,
+        OneVNetHelper::MAC, OneVNetHelper::IP, OneVNetHelper::IP6_GLOBAL,
+        OneVNetHelper::IP6_ULA ] do
         helper.perform_action(args[0],options,"lease added") do |vn|
             ar = "AR = [ "
 
@@ -204,8 +204,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :reserve, reserve_desc, :vnetid, [:vnetid, nil],
-        :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::R_NAME,
-            OneVNetHelper::R_SIZE, OneVNetHelper::AR_MAC, OneVNetHelper::AR_IP] do
+        :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::NAME,
+            OneVNetHelper::SIZE, OneVNetHelper::MAC, OneVNetHelper::IP] do
         helper.perform_action(args[0],options,"reservation made") do |vn|
             rsize = options[:rsize] || -1
             rname = options[:rname] || -1
