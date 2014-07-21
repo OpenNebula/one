@@ -4145,7 +4145,6 @@ function setup_provision_templates_list(context, opts) {
             '<li class="provision-description text-right" style="padding-top:5px; margin-right: 5px">'+
               '<i class="fa fa-fw fa-clock-o"/>'+
               _format_date(data.REGTIME)+
-              " " + tr("from VM") + ": " + (data.TEMPLATE.SAVED_TEMPLATE_ID||'-') +
             '</li>'+
             '<li class="provision-title" style="padding-top:10px">'+
               actions_html+
