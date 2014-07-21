@@ -1479,7 +1479,7 @@ function provision_list_vms(opts_arg){
           '<span href"#" class="right only-active button medium radius secondary provision_vms_list_filter_button" '+(!opts.filter ? 'style="display:none" ': "") + 'data-tooltip title="'+ tr("Filter by User")+'">'+
             '<i class="fa fa-fw fa-lg fa-filter"/> '+
           '</span>'+
-          '<span class=" only-active provision_list_vms_filter" style="display: none"></span>'+
+          '<span class="right only-active provision_list_vms_filter" style="display: none"></span>'+
           '<span>' +
           '<input type="search" class="right only-active provision_list_vms_search provision-search-input right" placeholder="Search"/>'+
           '<span href"#" class="right only-active button medium radius success provision_create_vm_button" '+(!opts.create ? 'style="display:none" ': "") + '>'+

@@ -1444,7 +1444,6 @@ function generate_json_service_template_from_form() {
         role['shutdown_action'] = $('select[name="shutdown_action_role"]', this).val();
         role['parents'] = [];
         role['vm_template_contents'] = $(".vm_template_contents", this).val();
-        console.log($(".vm_template_contents", this).val())
 
         if (!name || !cardinality || !template){
             notifyError(tr("Please specify name, cardinality and template for this role"));
