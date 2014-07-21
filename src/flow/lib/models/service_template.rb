@@ -24,7 +24,8 @@ module OpenNebula
             :properties => {
                 'name' => {
                     :type => :string,
-                    :required => true
+                    :required => true,
+                    :regex => /^\w+$/
                 },
                 'cardinality' => {
                     :type => :integer,

@@ -377,6 +377,7 @@ class Validator
     # @note Schema options supported
     #   :format
     #   :enum
+    #   :regex
     #
     def validate_string(body, schema_string, schema_key)
         if body.instance_of?(String)
@@ -384,6 +385,8 @@ class Validator
                 check_format(body, schema_string, schema_key)
             elsif schema_string[:enum]
                 check_enum(body, schema_string, schema_key)
+            elsif schema_string[:regex]
+                check_regex(body, schema_string, schema_key)
             else
                 body
             end
@@ -466,6 +469,40 @@ class Validator
         else
             raise ParseException, "KEY: '#{schema_key}' must be one of"\
                 " #{schema_string[:enum].join(', ')}; SCHEMA: #{schema_string}"
+        end
+    end
+
+    # Validate an string regex
+    #
+    # @param [String] body_value to be validated
+    # @param [Hash] schema_string of the object to validate the body
+    # @param [String] schema_key of the body that will be validated in this step
+    #
+    # @return [String] The modified body
+    #
+    # @raise [ParseException] if the body does not meet the schema definition
+    #
+    # @example Validate array
+    #   schema = {
+    #       :type => :string,
+    #       :regex =>  /^\w+$/
+    #   }
+    #
+    #   body = "juan"
+    #
+    #   Validator.check_regex(body, schema)
+    #   #=> "juan"
+    #
+    # @note The parameter body will be modified
+    # @note Schema options supported
+    #   :enum
+    #
+    def check_regex(body_value, schema_string, schema_key)
+        if schema_string[:regex] =~ body_value
+            body_value
+        else
+            raise ParseException, "KEY: '#{schema_key}' malformed; "\
+                "SCHEMA: #{schema_string}"
         end
     end
 end
