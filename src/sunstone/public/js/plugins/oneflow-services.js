@@ -942,6 +942,10 @@ function updateServiceInfo(request,elem){
              <td class="key_td">'+tr("State")+'</td>\
              <td class="value_td">'+ OpenNebula.Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
            </tr>\
+           <tr>\
+             <td class="key_td">'+tr("Running Status Gate")+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.running_status_gate ? "yes" : "no")+'</td>\
+           </tr>\
          </table>' +
        '</div>\
         <div class="large-6 columns">' + insert_permissions_table('oneflow-services',
