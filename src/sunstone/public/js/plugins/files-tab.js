@@ -57,9 +57,9 @@ var create_file_tmpl ='<div class="row">\
                         '</span>'+
                       '</label>\
                        <select name="file_type" id="file_type">\
+                            <option value="CONTEXT">'+tr("Context")+'</option>\
                             <option value="KERNEL">'+tr("Kernel")+'</option>\
                             <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                            <option value="CONTEXT">'+tr("Context")+'</option>\
                        </select>\
                     </div>\
                   </div>\
