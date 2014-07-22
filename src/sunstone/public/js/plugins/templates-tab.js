@@ -3916,6 +3916,7 @@ function fillTemplatePopUp(template, dialog){
         });
     };
 
+    // Populates the Avanced mode Tab
     $('#template',dialog).val(convert_template_to_string(template).replace(/^[\r\n]+$/g, ""));
 
     //
@@ -3924,7 +3925,7 @@ function fillTemplatePopUp(template, dialog){
 
     var capacity_section = $('#capacityTab', dialog);
     autoFillInputs(template, capacity_section);
-    $("#DESCRIPTION", capacity_section).val(template["DESCRIPTION"]);
+    $("#DESCRIPTION", capacity_section).val(escapeDoubleQuotes(htmlDecode(template["DESCRIPTION"])));
     delete template["DESCRIPTION"];
 
     //
@@ -4278,7 +4279,7 @@ function fillTemplatePopUp(template, dialog){
         var parts = value.split("|");
         $(".user_input_name", context).val(key);
         $(".user_input_type", context).val(parts[1]);
-        $(".user_input_description", context).val(parts[2]);
+        $(".user_input_description", context).val(escapeDoubleQuotes(htmlDecode(parts[2])));
 
         $(".add_service_custom_attr", context_section).trigger("click");
 
@@ -4347,9 +4348,8 @@ function fillTemplatePopUp(template, dialog){
               var element2 = document.createElement("input");
               element2.id = "VALUE";
               element2.type = "text";
-              element2.value = htmlDecode(value);
+              element2.value = escapeDoubleQuotes(htmlDecode(value));
               cell2.appendChild(element2);
-
 
               var cell3 = row.insertCell(2);
               cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
