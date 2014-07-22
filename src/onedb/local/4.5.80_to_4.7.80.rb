@@ -144,17 +144,25 @@ module Migrator
                 doc.root.at_xpath("RANGE").remove
 
                 ip_start = IPAddr.new(ip_start_s, Socket::AF_INET)
-                ip_end   = IPAddr.new(ip_end_s, Socket::AF_INET)
-
-                size = ip_end.to_i - ip_start.to_i + 1
+                range_ip_end   = IPAddr.new(ip_end_s, Socket::AF_INET)
 
                 # TODO: hardcoded mac prefix
-                mac = mac_to_s(0x200, ip_start.to_i)
+                mac_prefix = 0x200
+
+                @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]} ORDER BY ip ASC LIMIT 1") do |lease_row|
+                    lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
+
+                    mac_prefix = lease.root.at_xpath("MAC_PREFIX").text.to_i
+                end
+
+                mac_start_s = mac_to_s(mac_prefix, ip_start.to_i)
+                mac_start = mac_prefix | ip_start.to_i
+
+                ar_id = 0
 
                 ar = add_element(ar_pool, "AR")
-                add_cdata(ar, "AR_ID",  "0")
-                add_cdata(ar, "MAC",    mac)
-                add_cdata(ar, "SIZE",   size.to_s)
+                add_cdata(ar, "AR_ID",  ar_id.to_s)
+                add_cdata(ar, "MAC",    mac_start_s)
                 add_cdata(ar, "TYPE",   type)
 
                 if type == "IP4" || type == "IP4_6"
@@ -173,23 +181,74 @@ module Migrator
 
                 allocated_str = ""
 
-                @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]}") do |lease_row|
+                @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]} ORDER BY ip ASC") do |lease_row|
                     lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
 
-                    # TODO: MAC_PREFIX?
-
                     # For ranged, all leases are used
-                    # For ranged, IP == MAC_SUFFIX
+
                     ip  = lease.root.at_xpath("IP").text
+
+                    mac_p = lease.root.at_xpath("MAC_PREFIX").text.to_i
+                    mac_s = lease.root.at_xpath("MAC_SUFFIX").text.to_i
+                    mac = mac_p | mac_s
+
                     vid = lease.root.at_xpath("VID").text.to_i
 
                     index = ip.to_i - ip_start.to_i
+
+                    # If mac + index does not match, open a new AR with
+                    # a different MAC start
+                    if (mac_start + index != mac)
+                        # Close current AR
+                        ip_end = ip.to_i - 1
+
+                        size = ip_end.to_i - ip_start.to_i + 1
+                        add_cdata(ar, "SIZE",   size.to_s)
+                        add_cdata(ar, "ALLOCATED",  allocated_str)
+
+                        # Create a new AR
+                        ar_id += 1
+
+                        ip_start    = ip.to_i
+                        ip_start_s  = ip_to_s(ip_start)
+
+                        mac_start   = mac
+                        mac_start_s = mac_to_s(mac_p, mac_s)
+
+                        ar = add_element(ar_pool, "AR")
+                        add_cdata(ar, "AR_ID",  ar_id.to_s)
+                        add_cdata(ar, "MAC",    mac_start_s)
+                        add_cdata(ar, "SIZE",   size.to_s)
+                        add_cdata(ar, "TYPE",   type)
+
+                        if type == "IP4" || type == "IP4_6"
+                            add_cdata(ar, "IP", ip_start_s)
+                        end
+
+                        if type == "IP6" || type == "IP4_6"
+                            if global_prefix != ""
+                                add_cdata(ar, "GLOBAL_PREFIX", global_prefix)
+                            end
+
+                            if site_prefix != ""
+                                add_cdata(ar, "ULA_PREFIX", site_prefix)
+                            end
+                        end
+
+                        allocated_str = ""
+
+                        # Recalculate index from new ip_start
+                        index = ip.to_i - ip_start.to_i
+                    end
 
                     binary_magic = 0x0000001000000000 | (vid & 0xFFFFFFFF)
 
                     allocated_str << " #{index} #{binary_magic}"
                 end
 
+                # Close the last AR
+                size = range_ip_end.to_i - ip_start.to_i + 1
+                add_cdata(ar, "SIZE",   size.to_s)
                 add_cdata(ar, "ALLOCATED",  allocated_str)
             else
                 ar_id = 0
