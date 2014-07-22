@@ -83,6 +83,26 @@ EOT
         table
     end
 
+    def get_user_inputs(template)
+        user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
+
+        return nil if !user_inputs
+
+        answers = ""
+
+        puts "There are some parameters that require user input."
+
+        user_inputs.each do |key, val|
+            description=val.split('|').last.strip
+            print "  * (#{key}) #{description}: "
+            answer = STDIN.readline
+            answers << "#{key} = \""
+            answers << answer.chop.gsub('"', "\\\"") << "\"\n"
+        end
+
+        answers
+    end
+
     private
 
     def factory(id=nil)
