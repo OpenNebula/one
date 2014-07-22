@@ -74,7 +74,7 @@ end
 post '/service/:id/action' do
     client = af_build_client
 
-    resp = client.post('/service/' + params[:id] + '/action', request.body.read)
+    resp = client.post('/service/' + params[:id] + '/action', @request_body)
 
     af_format_response(resp)
 end
@@ -82,7 +82,7 @@ end
 post '/service/:id/role/:role_name/action' do
     client = af_build_client
 
-    resp = client.post('/service/' + params[:id] + '/role/' + params[:role_name]  + '/action', request.body.read)
+    resp = client.post('/service/' + params[:id] + '/role/' + params[:role_name]  + '/action', @request_body)
 
     af_format_response(resp)
 end
@@ -91,7 +91,7 @@ end
 put '/service/:id/role/:role_name' do
     client = af_build_client
 
-    resp = client.put('/service/' + params[:id] + '/role/' + params[:role_name], request.body.read)
+    resp = client.put('/service/' + params[:id] + '/role/' + params[:role_name], @request_body)
 
     af_format_response(resp)
 end
@@ -127,7 +127,7 @@ end
 post '/service_template/:id/action' do
     client = af_build_client
 
-    resp = client.post('/service_template/' + params[:id] + '/action', request.body.read)
+    resp = client.post('/service_template/' + params[:id] + '/action', @request_body)
 
     af_format_response(resp)
 end
@@ -135,7 +135,7 @@ end
 post '/service_template' do
     client = af_build_client
 
-    resp = client.post('/service_template', request.body.read)
+    resp = client.post('/service_template', @request_body)
 
     af_format_response(resp)
 end

@@ -148,9 +148,13 @@ helpers do
         if params[:csrftoken]
             csrftoken = params[:csrftoken]
         else
-            body = request.body.read
-            csrftoken = JSON.parse(body)["csrftoken"] rescue nil
-            request.body.rewind
+            begin
+                # Extract "csrftoken" and remove from @request_body if present
+                request_body  = JSON.parse(@request_body)
+                csrftoken     = request_body.delete("csrftoken")
+                @request_body = request_body.to_json
+            rescue
+            end
         end
 
         session[:csrftoken] && session[:csrftoken] == csrftoken
@@ -268,7 +272,10 @@ before do
     cache_control :no_store
     content_type 'application/json', :charset => 'utf-8'
 
-    unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
+    @request_body = request.body.read
+    request.body.rewind
+
+    unless %w(/ /login /vnc).include?(request.path)
         halt 401 unless authorized? && valid_csrftoken?
     end
 
@@ -288,7 +295,7 @@ before do
          }
     end
 
-    client=$cloud_auth.client(session[:user],
+    client = $cloud_auth.client(session[:user],
                               session[:active_zone_endpoint])
 
     @SunstoneServer = SunstoneServer.new(client,$conf,logger)
@@ -378,7 +385,7 @@ end
 post '/config' do
     @SunstoneServer.perform_action('user',
                                OpenNebula::User::SELF,
-                               request.body.read)
+                               @request_body)
 
     user = OpenNebula::User.new_with_id(
                 OpenNebula::User::SELF,
@@ -491,8 +498,7 @@ end
 ##############################################################################
 # Upload image
 ##############################################################################
-post '/upload'do
-
+post '/upload' do
     tmpfile = nil
     rackinput = request.env['rack.input']
 
@@ -500,7 +506,7 @@ post '/upload'do
         tmpfile = rackinput
     elsif rackinput.respond_to?('read')
         tmpfile = Tempfile.open('sunstone-upload')
-        tmpfile.write rackinput.read
+        tmpfile.write(rackinput.read)
         tmpfile.flush
     else
         logger.error { "Unexpected rackinput class #{rackinput.class}" }
@@ -519,7 +525,7 @@ end
 # Create a new Resource
 ##############################################################################
 post '/:pool' do
-    @SunstoneServer.create_resource(params[:pool], request.body.read)
+    @SunstoneServer.create_resource(params[:pool], @request_body)
 end
 
 ##############################################################################
@@ -536,7 +542,7 @@ end
 post '/:resource/:id/action' do
     @SunstoneServer.perform_action(params[:resource],
                                    params[:id],
-                                   request.body.read)
+                                   @request_body)
 end
 
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))
