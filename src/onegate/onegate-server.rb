@@ -147,8 +147,10 @@ USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE)
 def build_vm_hash(vm_hash)
     nics = []
 
-    vm_hash["TEMPLATE"]["NIC"].each do |nic|
-        nics << nic.select{|k,v| NIC_VALID_KEYS.include?(k)}
+    if vm_hash["TEMPLATE"]["NIC"]
+        [vm_hash["TEMPLATE"]["NIC"]].flatten.each do |nic|
+            nics << nic.select{|k,v| NIC_VALID_KEYS.include?(k)}
+        end
     end
 
     {
