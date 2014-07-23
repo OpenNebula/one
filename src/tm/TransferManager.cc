@@ -148,13 +148,14 @@ void TransferManager::trigger(Actions action, int _vid)
 
 void TransferManager::do_action(const string &action, void * arg)
 {
-    int                 vid;
-    int                 hid;
-    VirtualMachine *    vm;
-    Host           *    host;
-    bool                host_is_public_cloud  = false;
-    bool                host_is_deleted = false;
-    Nebula&             nd = Nebula::instance();
+
+    VirtualMachine * vm;
+
+    int  vid;
+    bool host_is_cloud = false;
+    bool vm_no_history = false;
+
+    Nebula& nd = Nebula::instance();
 
     if (arg == 0)
     {
@@ -183,36 +184,22 @@ void TransferManager::do_action(const string &action, void * arg)
 
     if (vm->hasHistory())
     {
-        hid = vm->get_hid();
-
-        vm->unlock();
-
-        host = hpool->get(hid,true);
+        host_is_cloud = vm->get_host_is_cloud();
     }
     else
     {
-        vm->unlock();
-
-        host = 0;
+        vm_no_history = true;
     }
 
-    if ( host == 0)
-    {
-        host_is_deleted=true;
-    }
-    else
-    {
-        host_is_public_cloud = host->is_public_cloud();
-        host->unlock();
-    }
+    vm->unlock();
 
     if (action == "PROLOG")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
         }
@@ -223,11 +210,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "PROLOG_MIGR")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
         }
@@ -238,11 +225,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "PROLOG_RESUME")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
         }
@@ -253,11 +240,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
@@ -268,11 +255,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_STOP")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
@@ -283,11 +270,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
@@ -298,11 +285,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE_STOP")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
@@ -313,11 +300,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE_PREVIOUS")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }
@@ -328,11 +315,11 @@ void TransferManager::do_action(const string &action, void * arg)
     }
     else if (action == "EPILOG_DELETE_BOTH")
     {
-        if (host_is_public_cloud)
+        if (host_is_cloud)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_SUCCESS,vid);
         }
-        else if (host_is_deleted)
+        else if (vm_no_history)
         {
             (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
         }

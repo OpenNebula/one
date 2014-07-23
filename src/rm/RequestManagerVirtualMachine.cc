@@ -695,9 +695,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // Get information about the system DS to use (tm_mad)
     // ------------------------------------------------------------------------
 
-    if (is_public_cloud)
-    {
-        ds_id = -1;
+    if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
+    {                    // by VirtualMachine::get_host_is_cloud()
+        ds_id  = -1;
+        tm_mad = "";
     }
     else
     {

@@ -616,6 +616,16 @@ public:
     };
 
     /**
+     *  Returns if the host is a public cloud based on the system ds and tm_mad.
+     *  The hasHistory() function MUST be called before this one.
+     *    @return the hostname
+     */
+    bool get_host_is_cloud() const
+    {
+        return ((history->ds_id == -1) && history->tm_mad_name.empty());
+    };
+
+    /**
      * Updates the current hostname. The hasHistory()
      *  function MUST be called before this one.
      * @param hostname New hostname

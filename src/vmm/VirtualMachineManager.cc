@@ -1001,8 +1001,6 @@ error_common:
 void VirtualMachineManager::cleanup_action(
     int vid, bool cancel_previous)
 {
-    int rc;
-
     VirtualMachine * vm;
     ostringstream    os;
 
@@ -1043,14 +1041,21 @@ void VirtualMachineManager::cleanup_action(
         m_net_drv  = vm->get_previous_vnm_mad();
     }
 
-    rc = nd.get_tm()->epilog_delete_commands(vm, os, false, false);
+    if (!vm->get_host_is_cloud())
+    {
+        int rc = nd.get_tm()->epilog_delete_commands(vm, os, false, false);
 
-    if ( rc != 0 )
+        if ( rc != 0 )
+        {
+            os.str("");
+            os << "cleanup_action canceled";
+
+            goto error_common;
+        }
+    }
+    else
     {
         os.str("");
-        os << "cleanup_action canceled";
-
-        goto error_common;
     }
 
     // Invoke driver method
