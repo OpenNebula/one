@@ -126,6 +126,22 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
+        # Get cluster names to use later in list
+        cluster_pool = OpenNebula::ClusterPool.new(@client)
+        rc = cluster_pool.info
+
+        cluster_names = {}
+        cluster_names["-1"] = "default"
+
+        if !OpenNebula.is_error?(rc)
+            hash = cluster_pool.to_hash
+            clusters = [hash["CLUSTER_POOL"]["CLUSTER"]].flatten
+
+            clusters.each do |cluster|
+                cluster_names[cluster["ID"]] = cluster["NAME"]
+            end
+        end
+
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
@@ -168,6 +184,23 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     if %w{ACTIVE SUSPENDED POWEROFF}.include? state_str
                         d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
                     end
+                end
+            end
+
+            column :CLUSTER, "Cluster where the VM is running", :left,
+                    :size=> 10 do |d|
+                if d["HISTORY_RECORDS"]["HISTORY"]
+                    history = [d["HISTORY_RECORDS"]["HISTORY"]].flatten
+                    cluster_id = history.last["CID"]
+                    cluster = cluster_names[cluster_id]
+
+                    if !cluster
+                        cluster_id
+                    else
+                        cluster
+                    end
+                else
+                    "NONE"
                 end
             end
 
