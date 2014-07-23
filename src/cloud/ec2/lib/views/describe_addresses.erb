@@ -2,7 +2,7 @@
 <DescribeAddressesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
    <requestId><%= @request_id %></requestId>
    <addressesSet>
-   <% vnet.each("LEASES/LEASE[USED=1 and VID=-1]") do |eip| %>
+   <% vnet.each("AR_POOL/AR/LEASES/LEASE[VM=-1]") do |eip| %>
       <% if vnet["TEMPLATE/EC2_ADDRESSES[IP=\"#{eip["IP"]}\"]/UID"] == user_id.to_s %>
      <item>
        <publicIp><%= eip["IP"] %></publicIp>
