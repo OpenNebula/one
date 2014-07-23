@@ -943,7 +943,7 @@ function initialize_create_image_dialog(dialog) {
                 file: fileName
             });
 
-            $('#upload_progress_bars').append('<div id="'+id+'progressBar" class="row" style="margin-bottom:10px">\
+            $('#upload_progress_bars').append('<div id="'+fileName+'progressBar" class="row" style="margin-bottom:10px">\
               <div class="large-2 columns dataTables_info">\
                 '+tr("Uploading...")+'\
               </div>\
@@ -951,12 +951,12 @@ function initialize_create_image_dialog(dialog) {
                 <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
                   <span class="meter" style="width:0%"></span>\
                 </div>\
-                <div class="progress-text" style="margin-left:15px">'+id+' '+fileName+'</div>\
+                <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
               </div>\
             </div>');
         },
         onProgress: function(id, fileName, loaded, total){
-            $('span.meter', $('#'+id+'progressBar')).css('width', Math.floor(loaded*100/total)+'%')
+            $('span.meter', $('div[id="'+fileName+'progressBar"]')).css('width', Math.floor(loaded*100/total)+'%')
         },
         onComplete: function(id, fileName, responseJSON){
 
@@ -964,10 +964,10 @@ function initialize_create_image_dialog(dialog) {
                 uploader._handler._xhrs[id].status == 500) {
 
                 onError({}, JSON.parse(uploader._handler._xhrs[id].response) )
-                $('#'+id+'progressBar').remove();
+                $('div[id="'+fileName+'progressBar"]').remove();
             } else {
                 notifyMessage("Image uploaded correctly");
-                $('#'+id+'progressBar').remove();
+                $('div[id="'+fileName+'progressBar"]').remove();
                 Sunstone.runAction("Image.list");
             }
 
