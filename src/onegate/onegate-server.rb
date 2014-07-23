@@ -51,7 +51,6 @@ require 'opennebula'
 require 'opennebula/oneflow_client'
 
 USER_AGENT = 'GATE'
-RESOURCE_PATH = "/service"
 
 include OpenNebula
 
@@ -101,6 +100,16 @@ helpers do
         end
     end
 
+    def flow_client(client)
+        split_array = client.one_auth.split(':')
+
+        Service::Client.new(
+                :url        => settings.config[:oneflow_server],
+                :user_agent => USER_AGENT,
+                :username   => split_array.shift,
+                :password   => split_array.join(':'))
+    end
+
     def get_vm(vm_id, client)
         vm = VirtualMachine.new_with_id(vm_id, client)
         rc = vm.info
@@ -113,21 +122,17 @@ helpers do
         vm
     end
 
-    def get_service(vm)
-        vm_id = vm["ID"]
-
-        service_id = vm['USER_TEMPLATE/SERVICE_ID']
-
+    def get_service(service_id, client)
         if service_id.nil? || !service_id.match(/^\d+$/)
-            error_msg = "VMID:#{vm_id} Empty or invalid SERVICE_ID"
+            error_msg = "Empty or invalid SERVICE_ID"
             logger.error {error_msg}
             halt 400, error_msg
         end
 
-        service = $flow_client.get("#{RESOURCE_PATH}/#{service_id}")
+        service = flow_client(client).get("/service/#{service_id}")
 
         if CloudClient::is_error?(service)
-            error_msg = "VMID:#{vm_id} Service #{service_id} not found"
+            error_msg = "Service #{service_id} not found"
             logger.error {error_msg}
             halt 404, error_msg
         end
@@ -262,7 +267,8 @@ get '/service' do
 
     vm = get_vm(vm_id, client)
 
-    service = get_service(vm)
+    service_id = vm['USER_TEMPLATE/SERVICE_ID']
+    service = get_service(service_id, client)
 
     service_hash = JSON.parse(service)
 
