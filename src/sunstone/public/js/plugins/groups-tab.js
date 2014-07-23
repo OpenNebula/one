@@ -1166,7 +1166,7 @@ function setupCreateGroupDialog(){
         group_json['group']['resources'] = resources;
 
         if ( $('#shared_resources', this).prop('checked') ){
-            group_json['group']['shared_resources'] = "VM+NET+IMAGE+TEMPLATE+DOCUMENT";
+            group_json['group']['shared_resources'] = "VM+DOCUMENT";
         }
 
         if (user_json){
