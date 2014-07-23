@@ -43,6 +43,9 @@
       var available_views = JSON.parse('["<%=
         $views_config.available_views(session[:user], session[:user_gname]).join('","')
       %>"]')
+      var all_views = JSON.parse('["<%=
+        $views_config.get_all_views.join('","')
+      %>"]')      
 
       config = {
         'user_config' : {
@@ -57,6 +60,7 @@
         },
         'view' : view,
         'available_views' : available_views,
+        'all_views' : all_views,
         'user_id' : '<%= session[:user_id] %>',
         'user_gid' : '<%= session[:user_gid] %>',
         'display_name' : '<%= session[:display_name] %>',

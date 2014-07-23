@@ -462,7 +462,7 @@ Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
 function insert_views(dialog_name){
   var views_checks_str = "";
-  var views_array = config['available_views'];
+  var views_array = config['all_views'];
   for (var i = 0; i < views_array.length; i++)
   {
     var checked = views_array[i] == 'cloud' ? "checked" : "";
@@ -478,7 +478,7 @@ function insert_views(dialog_name){
 
 function insert_views_default(dialog_name){
   var views_checks_str = "";
-  var views_array = config['available_views'];
+  var views_array = config['all_views'];
   for (var i = 0; i < views_array.length; i++)
   {
     views_checks_str = views_checks_str +

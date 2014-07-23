@@ -111,6 +111,10 @@ class SunstoneViews
         return available.uniq
     end
 
+    def get_all_views
+        @views.keys
+    end
+
     def available_tabs
         @views_config['available_tabs']
     end
