@@ -30,7 +30,7 @@ module OneGateCloudAuth
 
     def do_auth(env, params={})
         token = env['HTTP_X_ONEGATE_TOKEN']
-        vmid  = env['HTTP_X_ONEGATE_VMID']
+        vmid  = env['HTTP_X_ONEGATE_VMID'] || params[:id] # DEPRECATED
 
         if token.nil?
             logger.error {"X_ONEGATE_TOKEN header not preset"}
