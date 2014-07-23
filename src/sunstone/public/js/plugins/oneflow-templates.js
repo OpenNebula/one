@@ -745,6 +745,57 @@ function updateServiceTemplatesView(request, service_templates_list){
 function updateServiceTemplateInfo(request,elem){
     var elem_info = elem.DOCUMENT;
 
+    var network_configuration = "";
+    if (elem_info.TEMPLATE.BODY['custom_attrs']) {
+        network_configuration +=
+            '<table id="info_template_table" class="dataTable extended_table">\
+                <thead>\
+                <tr><th colspan="2">'+tr("Network Configuration")+'</th></tr>\
+            </thead>'
+
+        $.each(elem_info.TEMPLATE.BODY['custom_attrs'], function(key, attr){
+            var parts = attr.split("|");
+            // 0 mandatory; 1 type; 2 desc;
+            var attrs = {
+              "name": key,
+              "mandatory": parts[0],
+              "type": parts[1],
+              "description": parts[2],
+            }
+
+            switch (parts[1]) {
+              case "vnet_id":
+                network_configuration +=
+                   '<tr>\
+                     <td class="key_td">'+htmlDecode(attrs.name)+'</td>\
+                     <td class="value_td">'+htmlDecode(attrs.description)+'</td>\
+                   </tr>'
+
+                var roles_using_net = [];
+                $.each(elem_info.TEMPLATE.BODY.roles, function(index, value){
+                    if (value.vm_template_contents){
+                        var reg = new RegExp("\\$"+htmlDecode(attrs.name)+"\\b");
+
+                        if(reg.exec(value.vm_template_contents) != null){
+                            roles_using_net.push(value.name);
+                            console.log(roles_using_net)
+                        }
+                    }
+                })
+
+                network_configuration +=
+                   '<tr>\
+                     <td class="key_td"></td>\
+                     <td class="value_td">'+tr("Roles") + ": " + roles_using_net.join(", ")+'</td>\
+                   </tr>'
+
+                break;
+            }
+        });
+
+        network_configuration += '</table>';
+    }
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",
@@ -776,6 +827,7 @@ function updateServiceTemplateInfo(request,elem){
              <td class="value_td">'+(elem_info.TEMPLATE.BODY.running_status_gate ? "yes" : "no")+'</td>\
            </tr>\
          </table>' +
+         network_configuration +
        '</div>\
         <div class="large-6 columns">' + insert_permissions_table('oneflow-templates',
                                                               "ServiceTemplate",
