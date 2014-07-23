@@ -2249,8 +2249,8 @@ var Quotas = {
 
                 if (default_ds_quotas == undefined){
                     default_ds_quotas = {
-                        "IMAGES"    : "0",
-                        "SIZE"      : "0"
+                        "IMAGES"    : QUOTA_LIMIT_UNLIMITED,
+                        "SIZE"      : QUOTA_LIMIT_UNLIMITED
                     }
                 }
 
@@ -2309,7 +2309,7 @@ var Quotas = {
 
                 if (default_img_quotas == undefined){
                     default_img_quotas = {
-                        "RVMS"  : "0"
+                        "RVMS"  : QUOTA_LIMIT_UNLIMITED
                     }
                 }
 
@@ -2362,7 +2362,7 @@ var Quotas = {
 
                 if (default_net_quotas == undefined){
                     default_net_quotas = {
-                        "LEASES" : "0"
+                        "LEASES" : QUOTA_LIMIT_UNLIMITED
                     }
                 }
 
@@ -2473,7 +2473,7 @@ function setupQuotasDialog(dialog){
                 notifyError(tr("Please select an element"));
                 return false;
             };
-            if (!value) value = -1;
+            if (!value) value = QUOTA_LIMIT_DEFAULT;
             json[name] = value;
         };
 
