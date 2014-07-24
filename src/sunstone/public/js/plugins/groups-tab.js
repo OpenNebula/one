@@ -184,22 +184,25 @@ function create_group_tmpl(dialog_name){
 </div>';
 }
 
-var group_quotas_tmpl = '<div class="row" class="subheader">\
-  <div class="large-12 columns">\
-    <h3 id="create_group_quotas_header">'+tr("Update Quota")+'</h3>\
-  </div>\
-</div>\
-<div class="reveal-body">\
-<form id="group_quotas_form" action="">'+
-  quotas_tmpl +
-  '<div class="reveal-footer">\
-    <div class="form_buttons">\
-        <button class="button radius right success" id="create_user_submit" type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+function group_quotas_tmpl(){
+    return '<div class="row" class="subheader">\
+      <div class="large-12 columns">\
+        <h3 id="create_group_quotas_header">'+tr("Update Quota")+'</h3>\
+      </div>\
     </div>\
-  </div>\
-  <a class="close-reveal-modal">&#215;</a>\
-</form>\
-</div>';
+    <div class="reveal-body">\
+    <form id="group_quotas_form" action="">'+
+      quotas_tmpl() +
+      '<div class="reveal-footer">\
+        <div class="form_buttons">\
+            <button class="button radius right success" id="create_user_submit" \
+            type="submit" value="Group.set_quota">'+tr("Apply changes")+'</button>\
+        </div>\
+      </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+    </form>\
+    </div>';
+}
 
 
 var group_actions = {
@@ -295,11 +298,11 @@ var group_actions = {
         type: "single",
         call: OpenNebula.Group.show,
         callback: function (request,response) {
-            var parsed = parseQuotas(response.GROUP,quotaListItem);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.VM);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.DATASTORE);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.IMAGE);
-            $('.current_quotas table tbody',$group_quotas_dialog).append(parsed.NETWORK);
+            populateQuotasDialog(
+                response.GROUP,
+                default_group_quotas,
+                "#group_quotas_dialog",
+                $group_quotas_dialog);
         },
         error: onError
     },
@@ -1379,10 +1382,10 @@ function popUpUpdateGroupDialog(group, dialog)
 
 // Add groups quotas dialog and calls common setup() in sunstone utils.
 function setupGroupQuotasDialog(){
-    dialogs_context.append('<div title="'+tr("Group quotas")+'" id="group_quotas_dialog"></div>');
+    dialogs_context.append('<div id="group_quotas_dialog"></div>');
     $group_quotas_dialog = $('#group_quotas_dialog',dialogs_context);
     var dialog = $group_quotas_dialog;
-    dialog.html(group_quotas_tmpl);
+    dialog.html(group_quotas_tmpl());
 
     setupQuotasDialog(dialog);
 }
@@ -1393,7 +1396,12 @@ function popUpGroupQuotasDialog(){
         $('a[href="#group_quotas_tab"]', tab).click();
         $('#edit_quotas_button', tab).click();
     } else {
-        popUpQuotasDialog($group_quotas_dialog, 'Group', groupElements())
+        popUpQuotasDialog(
+            $group_quotas_dialog,
+            'Group',
+            groupElements(),
+            default_group_quotas,
+            "#group_quotas_dialog");
     }
 }
 

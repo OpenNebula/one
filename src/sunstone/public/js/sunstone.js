@@ -2321,7 +2321,7 @@ var Quotas = {
 
         return quotas_tab_html;
     },
-    // opts.parent_container: optional. Example: "#user_info_panel". If set, the listeners
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
     // for the "add new quota" buttons will be set.
     "datastore" : function(info, default_quotas, opts) {
         var empty_quotas = $.isEmptyObject(info.DATASTORE_QUOTA);
@@ -2410,11 +2410,11 @@ var Quotas = {
 
         if (!opts) opts = {};
 
-        if (opts.parent_container){
-            $(document).off("click", opts.parent_container+" #ds_add_quota_btn");
-            $(document).on("click", opts.parent_container+" #ds_add_quota_btn", function(){
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #ds_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #ds_add_quota_btn", function(){
 
-                $(".ds_quota_table tbody", $(opts.parent_container)).append(
+                $(".ds_quota_table tbody", $(opts.parent_id_str)).append(
                     '<tr class="ds_quota_tr" quota_id="-1">\
                         <td class="ds_select" colspan="3"></td>\
                         <td class="img_bar"></td>\
@@ -2423,14 +2423,14 @@ var Quotas = {
 
                 insertSelectOptions(
                     'td.ds_select',
-                    $(".ds_quota_table tbody tr", $(opts.parent_container)).last(),
+                    $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last(),
                     "Datastore",
                     null, true);
 
-                $(".ds_quota_table tbody tr", $(opts.parent_container)).last().off(
+                $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last().off(
                     "change", ".resource_list_select");
 
-                $(".ds_quota_table tbody tr", $(opts.parent_container)).last().on(
+                $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last().on(
                     "change", ".resource_list_select", function(){
 
                     $(this).parents("td").attr("colspan", "1");
@@ -2480,7 +2480,7 @@ var Quotas = {
         return quotas_tab_html;
     },
 
-    // opts.parent_container: optional. Example: "#user_info_panel". If set, the listeners
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
     // for the "add new quota" buttons will be set.
     "image" : function(info, default_quotas, opts) {
         var empty_quotas = $.isEmptyObject(info.IMAGE_QUOTA);
@@ -2556,11 +2556,11 @@ var Quotas = {
 
         if (!opts) opts = {};
 
-        if (opts.parent_container){
-            $(document).off("click", opts.parent_container+" #image_add_quota_btn");
-            $(document).on("click", opts.parent_container+" #image_add_quota_btn", function(){
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #image_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #image_add_quota_btn", function(){
 
-                $(".image_quota_table tbody", $(opts.parent_container)).append(
+                $(".image_quota_table tbody", $(opts.parent_id_str)).append(
                     '<tr class="image_quota_tr" quota_id="-1">\
                         <td class="image_select" colspan="2"></td>\
                         <td class="rvms_bar"></td>\
@@ -2568,14 +2568,14 @@ var Quotas = {
 
                 insertSelectOptions(
                     'td.image_select',
-                    $(".image_quota_table tbody tr", $(opts.parent_container)).last(),
+                    $(".image_quota_table tbody tr", $(opts.parent_id_str)).last(),
                     "Image",
                     null, true);
 
-                $(".image_quota_table tbody tr", $(opts.parent_container)).last().off(
+                $(".image_quota_table tbody tr", $(opts.parent_id_str)).last().off(
                     "change", ".resource_list_select");
 
-                $(".image_quota_table tbody tr", $(opts.parent_container)).last().on(
+                $(".image_quota_table tbody tr", $(opts.parent_id_str)).last().on(
                     "change", ".resource_list_select", function(){
 
                     $(this).parents("td").attr("colspan", "1");
@@ -2615,7 +2615,7 @@ var Quotas = {
         return quotas_tab_html;
     },
 
-    // opts.parent_container: optional. Example: "#user_info_panel". If set, the listeners
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
     // for the "add new quota" buttons will be set.
     "network" : function(info, default_quotas, opts){
         var empty_quotas = $.isEmptyObject(info.NETWORK_QUOTA);
@@ -2691,11 +2691,11 @@ var Quotas = {
 
         if (!opts) opts = {};
 
-        if (opts.parent_container){
-            $(document).off("click", opts.parent_container+" #network_add_quota_btn");
-            $(document).on("click", opts.parent_container+" #network_add_quota_btn", function(){
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #network_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #network_add_quota_btn", function(){
 
-                $(".network_quota_table tbody", $(opts.parent_container)).append(
+                $(".network_quota_table tbody", $(opts.parent_id_str)).append(
                     '<tr class="network_quota_tr" quota_id="-1">\
                         <td class="network_select" colspan="2"></td>\
                         <td class="leases_bar"></td>\
@@ -2703,14 +2703,14 @@ var Quotas = {
 
                 insertSelectOptions(
                     'td.network_select',
-                    $(".network_quota_table tbody tr", $(opts.parent_container)).last(),
+                    $(".network_quota_table tbody tr", $(opts.parent_id_str)).last(),
                     "Network",
                     null, true);
 
-                $(".network_quota_table tbody tr", $(opts.parent_container)).last().off(
+                $(".network_quota_table tbody tr", $(opts.parent_id_str)).last().off(
                     "change", ".resource_list_select");
 
-                $(".network_quota_table tbody tr", $(opts.parent_container)).last().on(
+                $(".network_quota_table tbody tr", $(opts.parent_id_str)).last().on(
                     "change", ".resource_list_select", function(){
 
                     $(this).parents("td").attr("colspan", "1");
@@ -2824,43 +2824,43 @@ function emptyQuotas(resource_info){
             $.isEmptyObject(resource_info.NETWORK_QUOTA) );
 }
 
-function initQuotasPanel(resource_info, default_quotas, parent_container, edit_enabled){
+function initQuotasPanel(resource_info, default_quotas, parent_id_str, edit_enabled){
     var vms_quota = Quotas.vms(resource_info, default_quotas);
     var cpu_quota = Quotas.cpu(resource_info, default_quotas);
     var memory_quota = Quotas.memory(resource_info, default_quotas);
     var volatile_size_quota = Quotas.volatile_size(resource_info, default_quotas);
 
     var image_quota = Quotas.image(
-        resource_info, default_quotas, {parent_container: parent_container});
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
 
     var network_quota = Quotas.network(
-        resource_info, default_quotas, {parent_container: parent_container});
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
 
     var datastore_quota = Quotas.datastore(
-        resource_info, default_quotas, {parent_container: parent_container});
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
 
     var quotas_html;
 
-        quotas_html = '<div class="row quotas">';
+    quotas_html = '<div class="row quotas">';
 
-        if (edit_enabled) {
-            quotas_html +=
-            '<div class="row">\
-              <div class="large-12 columns">\
-                <span class="right">\
-                  <button class="button secondary small radius" id="edit_quotas_button">\
-                    <span class="fa fa-pencil-square-o"></span> '+tr("Edit")+'\
-                  </button>\
-                  <button class="button alert small radius" id="cancel_quotas_button" style="display: none">\
-                    '+tr("Cancel")+'\
-                  </button>\
-                  <button class="button success small radius" id="submit_quotas_button" style="display: none">\
-                    '+tr("Apply")+'\
-                  </button>\
-                </span>\
-              </div>\
-            </div>';
-        }
+    if (edit_enabled) {
+        quotas_html +=
+        '<div class="row">\
+          <div class="large-12 columns">\
+            <span class="right">\
+              <button class="button secondary small radius" id="edit_quotas_button">\
+                <span class="fa fa-pencil-square-o"></span> '+tr("Edit")+'\
+              </button>\
+              <button class="button alert small radius" id="cancel_quotas_button" style="display: none">\
+                '+tr("Cancel")+'\
+              </button>\
+              <button class="button success small radius" id="submit_quotas_button" style="display: none">\
+                '+tr("Apply")+'\
+              </button>\
+            </span>\
+          </div>\
+        </div>';
+    }
 
     if (emptyQuotas(resource_info)) {
         quotas_html +=
@@ -2918,178 +2918,174 @@ function initQuotaInputValue(input){
     }
 }
 
-function setupQuotasPanel(resource_info, parent_container, edit_enabled, resource_name){
-    if (edit_enabled) {
-        $(parent_container).off("click", "#edit_quotas_button");
-        $(parent_container).on("click",  "#edit_quotas_button", function() {
-            $(parent_container+" #edit_quotas_button").hide();
-            $(parent_container+" #cancel_quotas_button").show();
-            $(parent_container+" #submit_quotas_button").show();
+function quotasPanelEditAction(parent_container){
+    $("#edit_quotas_button", parent_container).hide();
+    $("#cancel_quotas_button", parent_container).show();
+    $("#submit_quotas_button", parent_container).show();
 
-            $.each($(parent_container+" div.quotabar_container input"), function(){
-                initQuotaInputValue(this);
+    $.each($("div.quotabar_container input", parent_container), function(){
+        initQuotaInputValue(this);
+    });
+
+    $(".editable_quota", parent_container).show();
+    $(".non_editable_quota", parent_container).hide();
+
+    return false;
+}
+
+function setupQuotasBarButtons(resource_info, parent_container){
+    parent_container.off("click", ".quotabar_edit_btn");
+    parent_container.on("click",  ".quotabar_edit_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        if(input.attr("quota_mode") != "edit"){
+            input.attr("quota_mode", "edit");
+            input.attr("disabled", false);
+            input.val( input.attr("quota_limit") >= 0 ? input.attr("quota_limit") : "0" );
+        }
+
+        return false;
+    });
+
+    parent_container.off("click", ".quotabar_default_btn");
+    parent_container.on("click",  ".quotabar_default_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        var default_value = input.attr("quota_default");
+
+        if (default_value == QUOTA_LIMIT_UNLIMITED) {
+            default_value = "∞";
+        }
+
+        input.val( tr("Default") + " (" + default_value + ")" );
+        input.attr("quota_mode", "default");
+        input.attr("disabled", "disabled");
+
+        return false;
+    });
+
+    parent_container.off("click", ".quotabar_unlimited_btn");
+    parent_container.on("click",  ".quotabar_unlimited_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        input.val(tr("Unlimited"));
+        input.attr("quota_mode", "unlimited");
+        input.attr("disabled", "disabled");
+
+        return false;
+    });
+}
+
+function retrieveQuotasValues(parent_container){
+    var obj = {};
+
+    obj["VM"] = {
+        "CPU"           : input_val( $("div[quota_name=VM_CPU] input", parent_container) ),
+        "MEMORY"        : input_val( $("div[quota_name=VM_MEMORY] input", parent_container) ),
+        "VMS"           : input_val( $("div[quota_name=VM_VMS] input", parent_container) ),
+        "VOLATILE_SIZE" : input_val( $("div[quota_name=VM_VOLATILE_SIZE] input", parent_container) )
+    };
+
+    $.each($("tr.image_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["IMAGE"] == undefined) {
+                obj["IMAGE"] = [];
+            }
+
+            obj["IMAGE"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "RVMS"  : input_val( $("div[quota_name=IMAGE_RVMS] input", this) )
             });
+        }
+    });
 
-            $(parent_container+" .editable_quota").show();
-            $(parent_container+" .non_editable_quota").hide();
+    $.each($("tr.network_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["NETWORK"] == undefined) {
+                obj["NETWORK"] = [];
+            }
 
-            return false;
+            obj["NETWORK"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "LEASES": input_val( $("div[quota_name=NETWORK_LEASES] input", this) )
+            });
+        }
+    });
+
+    $.each($("tr.ds_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["DATASTORE"] == undefined) {
+                obj["DATASTORE"] = [];
+            }
+
+            obj["DATASTORE"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "IMAGES": input_val( $("div[quota_name=DS_IMAGES] input", this) ),
+                "SIZE"  : input_val( $("div[quota_name=DS_SIZE] input", this) )
+            });
+        }
+    });
+
+    return obj;
+}
+
+function setupQuotasPanel(resource_info, parent_id_str, edit_enabled, resource_name){
+    if (edit_enabled) {
+        $(parent_id_str).off("click", "#edit_quotas_button");
+        $(parent_id_str).on("click",  "#edit_quotas_button", function() {
+            return quotasPanelEditAction($(parent_id_str));
         });
 
-        $(parent_container).off("click", "#cancel_quotas_button");
-        $(parent_container).on("click",  "#cancel_quotas_button", function() {
+        $(parent_id_str).off("click", "#cancel_quotas_button");
+        $(parent_id_str).on("click",  "#cancel_quotas_button", function() {
             Sunstone.runAction(resource_name+".show", resource_info.ID);
             return false;
         });
 
-        $(parent_container).off("click", "#submit_quotas_button");
-        $(parent_container).on("click",  "#submit_quotas_button", function() {
-            var obj = {};
-
-            obj["VM"] = {
-                "CPU"           : input_val( $(parent_container+" div[quota_name=VM_CPU] input") ),
-                "MEMORY"        : input_val( $(parent_container+" div[quota_name=VM_MEMORY] input") ),
-                "VMS"           : input_val( $(parent_container+" div[quota_name=VM_VMS] input") ),
-                "VOLATILE_SIZE" : input_val( $(parent_container+" div[quota_name=VM_VOLATILE_SIZE] input") )
-            };
-
-            $.each($(parent_container+" tr.image_quota_tr"), function(){
-                if($(this).attr("quota_id") != "-1"){
-                    if (obj["IMAGE"] == undefined) {
-                        obj["IMAGE"] = [];
-                    }
-
-                    obj["IMAGE"].push({
-                        "ID"    : $(this).attr("quota_id"),
-                        "RVMS"  : input_val( $("div[quota_name=IMAGE_RVMS] input", this) )
-                    });
-                }
-            });
-
-            $.each($(parent_container+" tr.network_quota_tr"), function(){
-                if($(this).attr("quota_id") != "-1"){
-                    if (obj["NETWORK"] == undefined) {
-                        obj["NETWORK"] = [];
-                    }
-
-                    obj["NETWORK"].push({
-                        "ID"    : $(this).attr("quota_id"),
-                        "LEASES": input_val( $("div[quota_name=NETWORK_LEASES] input", this) )
-                    });
-                }
-            });
-
-            $.each($(parent_container+" tr.ds_quota_tr"), function(){
-                if($(this).attr("quota_id") != "-1"){
-                    if (obj["DATASTORE"] == undefined) {
-                        obj["DATASTORE"] = [];
-                    }
-
-                    obj["DATASTORE"].push({
-                        "ID"    : $(this).attr("quota_id"),
-                        "IMAGES": input_val( $("div[quota_name=DS_IMAGES] input", this) ),
-                        "SIZE"  : input_val( $("div[quota_name=DS_SIZE] input", this) )
-                    });
-                }
-            });
-
+        $(parent_id_str).off("click", "#submit_quotas_button");
+        $(parent_id_str).on("click",  "#submit_quotas_button", function() {
+            var obj = retrieveQuotasValues($(parent_id_str));
             Sunstone.runAction(resource_name+".set_quota", [resource_info.ID], obj);
 
             return false;
         });
 
-        $(parent_container).off("click", ".quotabar_edit_btn");
-        $(parent_container).on("click",  ".quotabar_edit_btn", function() {
-            var input = $(this).parents(".quotabar_container").find("input");
-
-            if(input.attr("quota_mode") != "edit"){
-                input.attr("quota_mode", "edit");
-                input.attr("disabled", false);
-                input.val( input.attr("quota_limit") >= 0 ? input.attr("quota_limit") : "0" );
-            }
-
-            return false;
-        });
-
-        $(parent_container).off("click", ".quotabar_default_btn");
-        $(parent_container).on("click",  ".quotabar_default_btn", function() {
-            var input = $(this).parents(".quotabar_container").find("input");
-
-            var default_value = input.attr("quota_default");
-
-            if (default_value == QUOTA_LIMIT_UNLIMITED) {
-                default_value = "∞";
-            }
-
-            input.val( tr("Default") + " (" + default_value + ")" );
-            input.attr("quota_mode", "default");
-            input.attr("disabled", "disabled");
-
-            return false;
-        });
-
-        $(parent_container).off("click", ".quotabar_unlimited_btn");
-        $(parent_container).on("click",  ".quotabar_unlimited_btn", function() {
-            var input = $(this).parents(".quotabar_container").find("input");
-
-            input.val(tr("Unlimited"));
-            input.attr("quota_mode", "unlimited");
-            input.attr("disabled", "disabled");
-
-            return false;
-        });
+        setupQuotasBarButtons(resource_info, $(parent_id_str));
     }
 }
 
+function quotas_tmpl(){
+    return '<div class="row">\
+        <div class="large-12 columns">\
+          <dl class="tabs right-info-tabs text-center" data-tab>\
+               <dd class="active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+tr("VM")+'</a></dd>\
+               <dd><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+tr("Datastore")+'</a></dd>\
+               <dd><a href="#image_quota"><i class="fa fa-upload"></i><br>'+tr("Image")+'</a></dd>\
+               <dd><a href="#network_quota"><i class="fa fa-globe"></i><br>'+tr("VNet")+'</a></dd>\
+          </dl>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="tabs-content">\
+          <div id="vm_quota" class="content active">\
+          </div>\
+          <div id="datastore_quota" class="content">\
+          </div>\
+          <div id="image_quota" class="content">\
+          </div>\
+          <div id="network_quota" class="content">\
+          </div>\
+        </div>\
+      </div>';
+}
 
 // Sets up a dialog to edit and update user and group quotas
 // Called from user/group plugins
 function setupQuotasDialog(dialog){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    $('#add_quota_button',dialog).click(function(){
-        var sel = $('.tabs-content div.content.active',dialog).attr("id");
-        var fields = $('div#'+sel+' input,div#'+sel+' select',dialog);
-        var json = {};
-
-        for (var i = 0; i < fields.length; i++){
-            var field = $(fields[i]);
-            var name = field.attr('name');
-            var value = field.val();
-            if (name == 'ID' && !value.length){
-                notifyError(tr("Please select an element"));
-                return false;
-            };
-            if (!value) value = QUOTA_LIMIT_DEFAULT;
-            json[name] = value;
-        };
-
-        json['TYPE'] = sel.split("_quota")[0].toUpperCase();
-
-        if (json['TYPE'] == "VM" &&
-            $('.current_quotas table tbody tr.vm_quota', dialog).length){
-            notifyError("Only 1 VM quota is allowed")
-            return false;
-        }
-
-
-        var tr = quotaListItem(json)
-        $('.current_quotas table tbody',dialog).append($(tr).hide().fadeIn());
-        return false;
-    });
-
     $('form', dialog).submit(function(){
-        var obj = {};
-        $('table tbody tr',this).each(function(){
-            var json = JSON.parse($(this).attr('quota'));
-            var type = json['TYPE'];
-            delete json['TYPE'];
-            if (typeof obj[type.toUpperCase()] == "undefined") {
-                obj[type.toUpperCase()] = [];
-            }
-            obj[type.toUpperCase()].push(json);
-        });
-
+        var obj = retrieveQuotasValues(dialog);
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
@@ -3098,25 +3094,53 @@ function setupQuotasDialog(dialog){
     });
 }
 
-function popUpQuotasDialog(dialog, resource, sel_elems){
-    insertSelectOptions("#image_quota select",      dialog, "Image",    null, true);
-    insertSelectOptions("#network_quota select",    dialog, "Network",  null, true);
-    insertSelectOptions("#datastore_quota select",  dialog, "Datastore",null, true);
-
-    $('table tbody',dialog).empty();
-    //If only one user is selected we fecth the user's quotas, otherwise we do nothing.
+function popUpQuotasDialog(dialog, resource, sel_elems, default_quotas, parent_id_str){
+    //If only one user is selected we fecth the user's quotas
     if (sel_elems.length == 1){
         var id = sel_elems[0];
         Sunstone.runAction(resource + '.fetch_quotas',id);
-    };
-
-    $('input[value="vm"]', dialog).click();
-
-    dialog.foundation().foundation('reveal', 'open');
-
-    $("input[name='VMS']",dialog).focus();
+    } else {
+        // More than one, populate with '0' usage
+        populateQuotasDialog({}, default_quotas, parent_id_str, dialog);
+    }
 }
 
+function populateQuotasDialog(resource_info, default_quotas, parent_id_str, dialog){
+    var vms_quota = Quotas.vms(resource_info, default_quotas);
+    var cpu_quota = Quotas.cpu(resource_info, default_quotas);
+    var memory_quota = Quotas.memory(resource_info, default_quotas);
+    var volatile_size_quota = Quotas.volatile_size(resource_info, default_quotas);
+
+    var image_quota = Quotas.image(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var network_quota = Quotas.network(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var datastore_quota = Quotas.datastore(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    $(parent_id_str+" #vm_quota").html(
+        '<div class="large-6 columns">' + vms_quota + '</div>\
+        <div class="large-6 columns">' + cpu_quota + '</div>\
+        <div class="large-6 columns">' + memory_quota + '</div>\
+        <div class="large-6 columns">' + volatile_size_quota+ '</div>');
+
+    $(parent_id_str+" #datastore_quota").html(
+        '<div class="large-12 columns">' + datastore_quota + '</div>');
+
+    $(parent_id_str+" #image_quota").html(
+        '<div class="large-12 columns">' + image_quota + '</div>');
+
+    $(parent_id_str+" #network_quota").html(
+        '<div class="large-12 columns">' + network_quota + '</div>');
+
+    setupQuotasBarButtons(resource_info, dialog);
+
+    quotasPanelEditAction(dialog);
+
+    dialog.foundation().foundation('reveal', 'open');
+}
 
 //Action to be performed when an edit quota icon is clicked.
 function setupQuotaIcons(){
@@ -3149,100 +3173,6 @@ function setupQuotaIcons(){
         tr.fadeOut(function(){$(this).remove()});
         return false;
     });
-}
-
-// Returns an object with quota information in form of list items
-function parseQuotas(elem, formatter_f){
-    var quotas = [];
-    var results = {
-        VM : "",
-        DATASTORE : "",
-        IMAGE : "",
-        NETWORK : ""
-    }
-    //max 1 vm quota
-    if (!$.isEmptyObject(elem.VM_QUOTA)){
-        elem.VM_QUOTA.VM.TYPE = 'VM'
-        quotas.push(elem.VM_QUOTA.VM)
-    }
-
-    var ds_arr = []
-    if ($.isArray(elem.DATASTORE_QUOTA.DATASTORE)){
-        ds_arr = elem.DATASTORE_QUOTA.DATASTORE
-    } else if (!$.isEmptyObject(elem.DATASTORE_QUOTA)){
-        ds_arr = [elem.DATASTORE_QUOTA.DATASTORE]
-    }
-
-    for (var i = 0; i < ds_arr.length; i++){
-        ds_arr[i].TYPE = 'DATASTORE';
-        quotas.push(ds_arr[i]);
-    }
-
-    var im_arr = []
-    if ($.isArray(elem.IMAGE_QUOTA.IMAGE)){
-        im_arr = elem.IMAGE_QUOTA.IMAGE
-    } else if (!$.isEmptyObject(elem.IMAGE_QUOTA)){
-        im_arr = [elem.IMAGE_QUOTA.IMAGE]
-    }
-
-    for (var i = 0; i < im_arr.length; i++){
-        im_arr[i].TYPE = 'IMAGE';
-        quotas.push(im_arr[i]);
-    }
-
-    var vn_arr = []
-    if ($.isArray(elem.NETWORK_QUOTA.NETWORK)){
-        vn_arr = elem.NETWORK_QUOTA.NETWORK
-    } else if (!$.isEmptyObject(elem.NETWORK_QUOTA)){
-        vn_arr = [elem.NETWORK_QUOTA.NETWORK]
-    }
-
-    for (var i = 0; i < vn_arr.length; i++){
-        vn_arr[i].TYPE = 'NETWORK';
-        quotas.push(vn_arr[i]);
-    }
-
-    for (var i = 0; i < quotas.length; i++){
-        var tr = formatter_f(quotas[i]);
-        results[quotas[i].TYPE] += tr;
-    }
-    return results;
-}
-
-//Receives a quota json object. Returns a nice string out of it.
-function quotaListItem(quota_json){
-    var value = JSON.stringify(quota_json)
-    var str = '<tr quota=\''+value+'\' ';
-
-    if (quota_json.TYPE == "VM")
-        str += ' class="vm_quota" ';
-
-    str += '><td>'+
-        quota_json.TYPE+
-        '</td><td style="width:100%;">';
-    switch(quota_json.TYPE){
-    case "VM":
-        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") + '<br>' +
-               'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ") + '<br>' +
-               'Volatile disks: ' + quota_json.VOLATILE_SIZE + (quota_json.VOLATILE_SIZE_USED ? ' MB (' + quota_json.VOLATILE_SIZE_USED + ' MB). ' : " MB. ");
-        break;
-    case "DATASTORE":
-        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' + '<br>' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") + '<br>' +
-               'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
-        break;
-    case "IMAGE":
-        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' + '<br>' +
-               'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
-        break;
-    case "NETWORK":
-        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' + '<br>' +
-               'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
-        break;
-    }
-    str += '</td><td><button class="quota_edit_icon radius tiny"><i class="fa fa-pencil"></i></button></td></tr>';
-    return str;
 }
 
 /* Returns the code of a jquery progress bar
