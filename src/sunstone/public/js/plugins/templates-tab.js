@@ -72,7 +72,7 @@ var instantiate_vm_template_tmpl ='\
 <div class="row">\
   <h3 id="create_vnet_header" class="subheader">'+tr("Instantiate VM Template")+'</h3>\
 </div>\
-<form id="instantiate_vm_template_form" action="">\
+<form data-abide="ajax" id="instantiate_vm_template_form" action="">\
   <div class="row">\
     <div class="large-12 columns">\
         <label for="vm_name">'+tr("VM Name")+
@@ -4663,7 +4663,9 @@ function setupInstantiateTemplateDialog(){
 
     setupTips(dialog);
 
-    $('#instantiate_vm_template_form',dialog).submit(function(){
+    $('#instantiate_vm_template_form',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+    }).on('valid', function() {
         var vm_name = $('#vm_name',this).val();
         var n_times = $('#vm_n_times',this).val();
         var n_times_int=1;
