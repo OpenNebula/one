@@ -207,7 +207,7 @@ class Router
                 end
             end
         elsif search
-            File.open(FILE[:resolv_conf], 'a') do |resolv_conf|
+            File.open(FILES[:resolv_conf], 'a') do |resolv_conf|
                 resolv_conf.puts "search #{search}"
             end
         end
