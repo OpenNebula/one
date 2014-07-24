@@ -126,6 +126,19 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
+        # Get cluster names to use later in list
+        cluster_pool = OpenNebula::ClusterPool.new(@client)
+        rc = cluster_pool.info
+
+        cluster_names = {}
+        cluster_names["-1"] = "default"
+
+        if !OpenNebula.is_error?(rc)
+            cluster_pool.each do |c|
+                cluster_names[c["ID"]] = c["NAME"]
+            end
+        end
+
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
@@ -168,6 +181,23 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     if %w{ACTIVE SUSPENDED POWEROFF}.include? state_str
                         d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
                     end
+                end
+            end
+
+            column :CLUSTER, "Cluster where the VM is running", :left,
+                    :size=> 10 do |d|
+                if d["HISTORY_RECORDS"]["HISTORY"]
+                    history = [d["HISTORY_RECORDS"]["HISTORY"]].flatten
+                    cluster_id = history.last["CID"]
+                    cluster = cluster_names[cluster_id]
+
+                    if !cluster
+                        cluster_id
+                    else
+                        cluster
+                    end
+                else
+                    "NONE"
                 end
             end
 
@@ -236,6 +266,28 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
         str="%-20s: %-20s"
 
+        cluster = nil
+
+        if %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
+            cluster_id = vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID']
+        else
+            cluster_id = nil
+        end
+
+        if cluster_id
+            if cluster_id == "-1"
+                cluster = "default"
+            else
+                clu = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml(cluster_id), @client)
+                rc = clu.info
+                if OpenNebula.is_error?(rc)
+                    cluster = "ERROR"
+                else
+                    cluster = clu["NAME"]
+                end
+            end
+        end
+
         CLIHelper.print_header(
             str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
@@ -248,9 +300,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["HOST",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
                 %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
-        puts str % ["CLUSTER ID",
-            vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID'] ] if
-                %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
+        puts str % ["CLUSTER ID", cluster_id ] if cluster_id
+        puts str % ["CLUSTER", cluster ] if cluster
         puts str % ["START TIME",
             OpenNebulaHelper.time_to_str(vm['/VM/STIME'])]
         puts str % ["END TIME",
