@@ -201,6 +201,14 @@ $command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
 if [ "$?" != "0" ]; then
     echo "Error copying: $command" >&2
+
+    # Remove incomplete file
+    if [ -f "$TO" ]; then
+        rm "$TO"
+    elif [ -d "$TO" ]; then
+        rm -r "$TO"
+    fi
+
     exit -1
 fi
 
