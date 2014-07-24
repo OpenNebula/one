@@ -870,7 +870,13 @@ function setupUserQuotasDialog(){
 }
 
 function popUpUserQuotasDialog(){
-    popUpQuotasDialog($user_quotas_dialog, 'User', userElements());
+    var tab = dataTable_users.parents(".tab");
+    if (Sunstone.rightInfoVisible(tab)) {
+        $('a[href="#user_quotas_tab"]', tab).click();
+        $('#edit_quotas_button', tab).click();
+    } else {
+        popUpQuotasDialog($user_quotas_dialog, 'User', userElements());
+    }
 }
 
 function popUpCreateUserDialog(){

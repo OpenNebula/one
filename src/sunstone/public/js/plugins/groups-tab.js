@@ -1388,7 +1388,13 @@ function setupGroupQuotasDialog(){
 }
 
 function popUpGroupQuotasDialog(){
-    popUpQuotasDialog($group_quotas_dialog, 'Group', groupElements())
+    var tab = dataTable_groups.parents(".tab");
+    if (Sunstone.rightInfoVisible(tab)) {
+        $('a[href="#group_quotas_tab"]', tab).click();
+        $('#edit_quotas_button', tab).click();
+    } else {
+        popUpQuotasDialog($group_quotas_dialog, 'Group', groupElements())
+    }
 }
 
 $(document).ready(function(){
