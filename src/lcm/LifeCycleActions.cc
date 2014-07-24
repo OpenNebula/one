@@ -43,6 +43,8 @@ void  LifeCycleManager::deploy_action(int vid)
         //                 PROLOG STATE
         //----------------------------------------------------
 
+        vm->get_requirements(cpu,mem,disk);
+
         if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk) == -1)
         {
             //The host has been deleted, move VM to FAILURE
@@ -101,8 +103,6 @@ void  LifeCycleManager::deploy_action(int vid)
         vm->set_prolog_stime(thetime);
 
         vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
 
         vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
 
