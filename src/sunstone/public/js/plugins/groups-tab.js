@@ -685,35 +685,10 @@ function updateGroupInfo(request,group){
       }
 
     var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
-    var vms_quota = Quotas.vms(info, default_group_quotas);
-    var cpu_quota = Quotas.cpu(info, default_group_quotas);
-    var memory_quota = Quotas.memory(info, default_group_quotas);
-    var volatile_size_quota = Quotas.volatile_size(info, default_group_quotas);
-    var image_quota = Quotas.image(info, default_group_quotas);
-    var network_quota = Quotas.network(info, default_group_quotas);
-    var datastore_quota = Quotas.datastore(info, default_group_quotas);
 
-    var quotas_html;
-    if (vms_quota || cpu_quota || memory_quota || volatile_size_quota || image_quota || network_quota || datastore_quota) {
-      quotas_html = '<div class="quotas">';
-      quotas_html += '<div class="large-6 columns">' + vms_quota + '</div>';
-      quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
-      quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
-      quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
-      quotas_html += '<br><br>';
-      quotas_html += '<div class="large-6 columns">' + image_quota + '</div>';
-      quotas_html += '<div class="large-6 columns">' + network_quota + '</div>';
-      quotas_html += '<br><br>';
-      quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
-      quotas_html += '</div>';
-
-    } else {
-      quotas_html = '<div class="row">\
-              <div class="large-12 columns">\
-                <p class="subheader">'+tr("No quotas defined")+'</p>\
-              </div>\
-            </div>'
-    }
+    var quotas_html = initQuotasPanel(info, default_group_quotas,
+        "#group_info_panel",
+        Config.isTabActionEnabled("groups-tab", "Group.quotas_dialog"));
 
     var quotas_tab = {
         title : tr("Quotas"),
@@ -772,6 +747,11 @@ function updateGroupInfo(request,group){
         $("#group_accounting","#group_info_panel"),
         {   fixed_group: info.ID,
             init_group_by: "user" });
+
+    setupQuotasPanel(info,
+        "#group_info_panel",
+        Config.isTabActionEnabled("groups-tab", "Group.quotas_dialog"),
+        "Group");
 }
 
 function setup_group_resource_tab_content(zone_id, zone_section, str_zone_tab_id, str_datatable_id, selected_group_clusters, group) {
