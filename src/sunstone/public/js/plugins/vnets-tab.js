@@ -1753,26 +1753,26 @@ function setupReserveDialog(){
         <div class="row">\
           <div class="large-12 columns">\
             <h3 class="subheader" id="">\
-              '+tr("Virtual Network")+' <span id="vnet_id"/>\
+              '+tr("Reservation from Virtual Network")+' <span id="vnet_id"/>\
             </h3>\
           </div>\
         </div>\
         <div class="row">\
           <div class="large-6 columns">\
-            <label for="reserve_size">'+tr("Size")+':</label>\
+            <label for="reserve_size">'+tr("Number of addresses")+':</label>\
             <input wizard_field="size" type="text" id="reserve_size"/>\
           </div>\
         </div>\
         <div class="row">\
           <div class="large-12 columns">\
-            <input type="radio" name="reserve_target" id="reserve_new" value="NEW"/><label for="reserve_new">'+tr("Create a new Virtual Network")+'</label>\
-            <input type="radio" name="reserve_target" id="reserve_add" value="ADD"/><label for="reserve_add">'+tr("Add to a existing Virtual Network")+'</label>\
+            <input type="radio" name="reserve_target" id="reserve_new" value="NEW"/><label for="reserve_new">'+tr("Add to a new Virtual Network")+'</label>\
+            <input type="radio" name="reserve_target" id="reserve_add" value="ADD"/><label for="reserve_add">'+tr("Add to an existing Reservation")+'</label>\
           </div>\
         </div>\
         <div id="reserve_new_body">\
           <div class="row">\
             <div class="large-6 columns">\
-              <label for="reserve_name">'+tr("Name")+':</label>\
+              <label for="reserve_name">'+tr("Virtual Network Name")+':</label>\
               <input wizard_field="name" type="text" id="reserve_name"/>\
             </div>\
           </div>\
@@ -1780,6 +1780,7 @@ function setupReserveDialog(){
         <div id="reserve_add_body">\
           '+generateVNetTableSelect("reserve")+'\
         </div>\
+        <br>\
         <div class="row">\
           <div class="large-12 columns">\
             <dl class="tabs wizard_tabs" data-tab>\
@@ -1791,9 +1792,15 @@ function setupReserveDialog(){
           <div class="content" id="advanced_reserve">\
             <div class="row">\
               <div class="large-12 columns">\
+                <p>'+tr("You can select the addresses from an specific Address Range")+'</p>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-12 columns">\
                 '+generateARTableSelect("ar_reserve")+'\
               </div>\
             </div>\
+            <br>\
             <div class="row">\
               <div class="large-6 columns">\
                 <label for="reserve_addr">'+tr("First address")+':</label>\
