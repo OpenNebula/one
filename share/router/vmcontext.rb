@@ -25,11 +25,12 @@ class Router
     # Default files
 
     FILES = {
-        :resolv_conf   => "/etc/resolv.conf",
-        :context       => "/mnt/context/context.sh",
-        :dnsmasq_conf  => "/etc/dnsmasq.conf",
-        :radvd_conf    => "/etc/radvd.conf",
-        :log_file      => "/var/log/router.log"
+        :resolv_conf     => "/etc/resolv.conf",
+        :context         => "/mnt/context/context.sh",
+        :dnsmasq_conf    => "/etc/dnsmasq.conf",
+        :radvd_conf      => "/etc/radvd.conf",
+        :log_file        => "/var/log/router.log",
+        :authorized_keys => "/root/.ssh/authorized_keys"
     }
 
     # Default MAC prefix
@@ -124,9 +125,11 @@ class Router
 
     def initialize
         mount_context
-        @context = read_context
-        unpack if @context
-        get_network_information
+
+        if (@context = read_context)
+            unpack
+            get_network_information
+        end
     end
 
     ############################################################################
@@ -155,7 +158,7 @@ class Router
     end
 
     def root_pubkey
-        get_attribute(:root_pubkey) || get_attribute(:ssh_public_key)
+        get_attribute(:ssh_public_key) || get_attribute(:root_pubkey)
     end
 
     def nat
@@ -211,37 +214,6 @@ class Router
     end
 
     def configure_network
-        if has_context?
-            log("has context")
-            configure_network_context
-        else
-            log("no context")
-            configure_network_static
-        end
-    end
-
-    def configure_network_static
-        macs = @mac_interfaces.invert
-
-        defaultgw = true
-        macs.keys.sort.each do |nic|
-            next if nic !~ /^eth/
-
-            mac = macs[nic]
-            ip = mac2ip(mac)
-            gateway = ip.gsub(/\.\d{1,3}$/,".#{DEFAULT_GW}")
-
-            run "ip link set #{nic} up"
-            run "ip addr add #{ip}/24 dev #{nic}"
-
-            if defaultgw
-                defaultgw = false
-                run "ip route add default via #{gateway}"
-            end
-        end
-    end
-
-    def configure_network_context
         if pubnet
             ip         = @pubnet[:ip]
             ip6_global = @pubnet[:ip6_global]
@@ -275,16 +247,17 @@ class Router
 
     def configure_dnsmasq
         File.open(FILES[:dnsmasq_conf],'w') do |conf|
-            _,ip_start,_ = dhcp_ip_mac_pairs[0]
-            _,ip_end,_   = dhcp_ip_mac_pairs[-1]
+            dhcp_ip_mac_pairs.collect do |ar|
+                conf.puts "dhcp-range=#{ar[:ip_start]},#{ar[:ip_end]},infinite"
+            end
 
-            conf.puts "dhcp-range=#{ip_start},#{ip_end},infinite"
             conf.puts "dhcp-option=42,#{ntp_server} # ntp server" if ntp_server
             conf.puts "dhcp-option=4,#{@privnet[:ip]} # name server"
 
-            dhcp_ip_mac_pairs.each do |pair|
-                mac, ip = pair
-                conf.puts "dhcp-host=#{mac},#{ip}"
+            dhcp_ip_mac_pairs.each do |ar|
+                ar[:mac_ip_pairs].each do |mac,ip,_|
+                    conf.puts "dhcp-host=#{mac},#{ip}"
+                end
             end
         end
     end
@@ -338,8 +311,8 @@ class Router
     end
 
     def configure_root_pubkey
-        FileUtils.mkdir_p("/root/.ssh",:mode => 0700)
-        File.open("/root/.ssh/authorized_keys", "a", 0600) do |f|
+        FileUtils.mkdir_p(File.dirname(FILES[:authorized_keys]),:mode => 0700)
+        File.open(FILES[:authorized_keys], "a", 0600) do |f|
             f.write(root_pubkey)
         end
     end
@@ -354,15 +327,15 @@ class Router
         File.open(FILES[:log_file],'a') {|f| f.puts msg}
     end
 
+    def has_context?
+        !!@context
+    end
+
     ############################################################################
     # Private methods
     ############################################################################
 
 private
-
-    def has_context?
-        !@context.nil?
-    end
 
     def get_network_information
         @pubnet  = Hash.new
@@ -374,14 +347,12 @@ private
             end
         ]
 
-        return if !has_context?
-
         if (pubnet_id = get_element_xpath(:pubnet, 'ID'))
             @pubnet[:network_id] = pubnet_id
 
             xpath_ip         = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP"
             xpath_ip6_global = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP6_GLOBAL"
-            xpath_ip6_site   = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP6_SITE"
+            xpath_ip6_site   = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/IP6_ULA"
             xpath_mac        = "TEMPLATE/NIC[NETWORK_ID='#{pubnet_id}']/MAC"
 
             @pubnet[:ip]         = get_element_xpath(:template, xpath_ip)
@@ -408,7 +379,7 @@ private
 
             xpath_ip         = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP"
             xpath_ip6_global = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP6_GLOBAL"
-            xpath_ip6_site   = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP6_SITE"
+            xpath_ip6_site   = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/IP6_ULA"
             xpath_mac        = "TEMPLATE/NIC[NETWORK_ID='#{privnet_id}']/MAC"
 
             @privnet[:ip]         = get_element_xpath(:template, xpath_ip)
@@ -430,7 +401,7 @@ private
         output = `#{cmd} 2>&1`
         exitstatus = $?.exitstatus
         log(output) if !output.empty?
-        log("Error: exit code #{exitstatus}") if exitstatus != 0
+        log("ERROR: exit code #{exitstatus}") if exitstatus != 0
     end
 
     def dhcp_ip_mac_pairs
@@ -438,35 +409,36 @@ private
 
         pairs = Array.new
 
-        if netxml.elements['RANGE']
-            ip_start = netxml.elements['RANGE/IP_START'].text
-            ip_end   = netxml.elements['RANGE/IP_END'].text
+        netxml.elements.each('AR_POOL/AR') do |ar|
+            mac_ip_pairs = Array.new
 
-            (ip_to_int(ip_start)..ip_to_int(ip_end)).each do |int_ip|
+            ip_start = ar.elements['IP'].text
+            size     = ar.elements['SIZE'].text.to_i
+
+            ip_start_int = ip_to_int(ip_start)
+            ip_end_int   = ip_start_int + size
+
+            ip_end = int_to_ip(ip_end_int)
+
+            (ip_start_int..ip_end_int).each do |int_ip|
                 ip  = int_to_ip(int_ip)
                 mac = ip2mac(ip)
 
-                used_node = netxml.elements["LEASES/LEASE[IP='#{ip}']/USED"]
-                used = (used_node.text.to_i == 1 if used_node) || false
-                next if used
+                # skip this IP if it's already taken
+                next if ar.elements["LEASES/LEASE[IP='#{ip}']"]
 
-                pairs << [mac, ip, int_ip]
+                mac_ip_pairs << [mac, ip]
             end
-        elsif netxml.elements['LEASES/LEASE']
-            netxml.elements.each('LEASES/LEASE') do |lease|
-                used = lease.elements['USED'].text.to_i == 1
-                next if used
 
-                ip   = lease.elements['IP'].text
-                mac  = lease.elements['MAC'].text
-
-                int_ip = ip_to_int(ip)
-
-                pairs << [mac, ip, int_ip]
-            end
+            pairs << {
+                :ip_start     => ip_start,
+                :ip_end       => ip_end,
+                :size         => size,
+                :mac_ip_pairs => mac_ip_pairs
+            }
         end
 
-        pairs.sort{|a,b| a[2] <=> b[2]}
+        pairs
     end
 
     def ip_to_int(ip)
@@ -515,7 +487,6 @@ private
         order = ATTRIBUTES[name]
 
         return nil if order.nil?
-        return nil if !has_context?
 
         order.each do |e|
             if e[:resource] != :context
@@ -568,6 +539,11 @@ private
 end
 
 router = Router.new
+
+if !router.has_context?
+    router.log("ERROR: Context not found. Stopping.")
+    exit 1
+end
 
 router.log("configure network")
 router.configure_network
