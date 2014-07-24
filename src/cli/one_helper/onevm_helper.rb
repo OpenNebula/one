@@ -134,11 +134,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         cluster_names["-1"] = "default"
 
         if !OpenNebula.is_error?(rc)
-            hash = cluster_pool.to_hash
-            clusters = [hash["CLUSTER_POOL"]["CLUSTER"]].flatten
-
-            clusters.each do |cluster|
-                cluster_names[cluster["ID"]] = cluster["NAME"]
+            cluster_pool.each do |c|
+                cluster_names[c["ID"]] = c["NAME"]
             end
         end
 
