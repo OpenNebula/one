@@ -24,13 +24,13 @@ var create_service_template_tmpl = '\
     </div>\
 </div>\
 <div class="reveal-body create_form">\
-  <form id="create_service_template_form" action="">\
+  <form data-abide="ajax" id="create_service_template_form" action="">\
     <div class="row">\
         <div class="service_template_param st_man large-6 columns">\
             <label for="service_name">' + tr("Name") +
                 '<span class="tip">'+ tr("Name for this template") +'</span>'+
             '</label>'+
-            '<input type="text" id="service_name" name="service_name" />\
+            '<input type="text" id="service_name" name="service_name" required/>\
         </div>\
         <div class="service_template_param st_man large-6 columns">'+
         '</div>\
@@ -170,7 +170,7 @@ var role_tab_content = '\
               <label for="name">' + tr("Role Name") +
                 '<span class="tip">'+ tr("Name of the role") +'</span>'+
               '</label>\
-              <input type="text" id="role_name" name="name"/>\
+              <input type="text" id="role_name" name="name" required/>\
     </div>\
 </div>\
 <div class="row">\
@@ -1244,7 +1244,8 @@ function setupCreateServiceTemplateDialog(){
         $(".service_networks tbody").append(
             '<tr>\
                 <td>\
-                    <input class="service_network_name" type="text"/>\
+                    <input class="service_network_name" type="text" pattern="[\\w]+"/>\
+                    <small class="error">'+ tr("Only word characters are allowed") + '</small>\
                 </td>\
                 <td>\
                     <textarea class="service_network_description"/>\
@@ -1404,17 +1405,18 @@ function setupCreateServiceTemplateDialog(){
         add_role_tab(roles_index);
     });
 
-
-    $('#create_service_template_submit',dialog).click(function(){
-        var json_template = generate_json_service_template_from_form();
-        Sunstone.runAction("ServiceTemplate.create", json_template );
-        return false;
-    });
-
-    $('#update_service_template_submit',dialog).click(function(){
-        var json_template = generate_json_service_template_from_form();
-        Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, JSON.stringify(json_template));
-        return false;
+    $('#create_service_template_form',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+    }).on('valid', function() {
+        if ($('#create_service_template_form',dialog).attr("opennebula_action") == "create") {
+            var json_template = generate_json_service_template_from_form();
+            Sunstone.runAction("ServiceTemplate.create", json_template );
+            return false;
+        } else if ($('#create_service_template_form',dialog).attr("opennebula_action") == "update") {
+            var json_template = generate_json_service_template_from_form();
+            Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, JSON.stringify(json_template));
+            return false;
+        }
     });
 
     $('#create_service_template_reset', dialog).click(function(){
@@ -1595,6 +1597,7 @@ function popUpCreateServiceTemplateDialog(){
 
     dialog.die();
 
+    $("#create_service_template_form", dialog).attr("opennebula_action", "create");
     $("#create_service_template_header", dialog).show();
     $("#update_service_template_header", dialog).hide();
     $("#create_service_template_submit", dialog).show();
@@ -1630,6 +1633,7 @@ function popUpUpdateServiceTemplateDialog() {
 function fillUpUpdateServiceTemplateDialog(request, response){
     var dialog = $('#create_service_template_dialog',dialogs_context);
 
+    $("#create_service_template_form", dialog).attr("opennebula_action", "update");
     $("#create_service_template_header", dialog).hide();
     $("#update_service_template_header", dialog).show();
     $("#create_service_template_submit", dialog).hide();
