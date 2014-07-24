@@ -18,6 +18,9 @@
 var INCLUDE_URI = "vendor/noVNC/";
 var VM_HISTORY_LENGTH = 40;
 
+// Only one vnc request is allowed
+var vnc_lock = false;
+
 function loadVNC(){
     var script = '<script src="vendor/noVNC/vnc.js"></script>';
     document.write(script);
@@ -535,7 +538,10 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.startvnc,
         callback: vncCallback,
-        error: onError,
+        error: function(req, resp){
+            onError(req, resp);
+            vnc_lock = false;
+        },
         notify: true
     },
 
@@ -2986,15 +2992,27 @@ function setupVNC(){
         var id = $(this).attr('vm_id');
 
         //Ask server for connection params
-        Sunstone.runAction("VM.startvnc_action",id);
-        return false;
+        if (!vnc_lock) {
+            vnc_lock = true
+            Sunstone.runAction("VM.startvnc_action",id);
+            return false;
+        } else {
+            notifyError(tr("VNC Connection in progress"))
+            return false;
+        }
     });
 }
 
 // Open vnc window
 function popUpVnc(){
     $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
-        Sunstone.runAction("VM.startvnc_action", elem);
+        if (!vnc_lock) {
+            vnc_lock = true
+            Sunstone.runAction("VM.startvnc_action", elem);
+        } else {
+            notifyError(tr("VNC Connection in progress"))
+            return false;
+        }
     });
 }
 
@@ -3024,6 +3042,7 @@ function vncCallback(request,response){
     $("#open_in_a_new_window").attr('href', url)
     rfb.connect(proxy_host, proxy_port, pw, path);
     $vnc_dialog.foundation("reveal", "open");
+    vnc_lock = false;
 
     $vnc_dialog.off("closed");
     $vnc_dialog.on("closed", function () {
