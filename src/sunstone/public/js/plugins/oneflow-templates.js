@@ -411,7 +411,7 @@ var instantiate_service_template_tmpl ='\
 <div class="row">\
   <h3 class="subheader">'+tr("Instantiate Service Template")+'</h3>\
 </div>\
-<form id="instantiate_service_template_form" action="">\
+<form data-abide="ajax" id="instantiate_service_template_form" action="">\
   <div class="row">\
     <div class="large-6 columns">\
         <label for="service_name">'+tr("Service Name")+
@@ -1884,7 +1884,9 @@ function setupInstantiateServiceTemplateDialog(){
 
     setupTips(dialog);
 
-    $('#instantiate_service_template_form',dialog).submit(function(){
+    $('#instantiate_service_template_form',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+    }).on('valid', function() {
         var service_name = $('#service_name',this).val();
         var n_times = $('#service_n_times',this).val();
         var n_times_int=1;

@@ -5363,6 +5363,8 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
 
             $("input#selected_resource_id_"+unique_id, div).attr(
                 "wizard_field", vnet_attr.name);
+
+            $("input#selected_resource_id_"+unique_id, div).attr("required", "")
         });
     }
 
@@ -5387,7 +5389,7 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
               '<div class="large-12 large-centered columns">'+
                 '<label>' +
                   htmlDecode(custom_attr.description) +
-                  '<input type="'+custom_attr.type+'" wizard_field="'+custom_attr.name+'"/>'+
+                  '<input type="'+custom_attr.type+'" wizard_field="'+custom_attr.name+'" required/>'+
                 '</label>'+
               '</div>'+
             '</div>');
