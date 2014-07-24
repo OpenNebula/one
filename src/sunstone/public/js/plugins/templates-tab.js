@@ -4217,7 +4217,7 @@ function fillTemplatePopUp(template, dialog){
     if (graphics) {
         var type = graphics.TYPE;
         if (graphics.TYPE) {
-            $("input[value='"+ type + "']").click();
+            $("input[value='"+ type.toUpperCase() + "']").click();
 
             autoFillInputs(graphics, graphics_section);
         }
