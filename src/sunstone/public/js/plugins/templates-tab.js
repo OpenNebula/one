@@ -474,7 +474,7 @@ function generate_capacity_tab_content() {
               '<label  for="NAME">'+tr("Name")+'\
                 <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
               </label>'+
-              '<input type="text" id="NAME" name="name"/>'+
+              '<input type="text" id="NAME" name="name" required/>'+
             '</div>'+
             '<div class="large-12 columns">'+
               '<label  for="DESCRIPTION">'+tr("Description")+'\
@@ -3227,7 +3227,8 @@ function setup_context_tab_content(context_section) {
         $(".service_custom_attrs tbody").append(
             '<tr>\
                 <td>\
-                    <input class="user_input_name" type="text"/>\
+                    <input class="user_input_name" type="text" pattern="[\\w]+"/>\
+                    <small class="error">'+ tr("Only word characters are allowed") + '</small>\
                 </td>\
                 <td>\
                     <select class="user_input_type" >\
@@ -3833,7 +3834,8 @@ function popUpUpdateTemplateDialog(){
     $('#update_template_header', $create_template_dialog).show();
 
     $('#template_name_form', $create_template_dialog).hide();
-    $('#NAME').attr("disabled", "disabled");;
+    $('#NAME', $create_template_dialog).attr("disabled", "disabled");
+    $('#NAME', $create_template_dialog).removeAttr("required");
 
     $create_template_dialog.die();
     $create_template_dialog.live('closed', function () {
@@ -3861,7 +3863,8 @@ function popUpCreateTemplateDialog(){
     $('#update_template_header', $create_template_dialog).hide();
 
     $('#template_name_form', $create_template_dialog).show();
-    $('#NAME').removeAttr('disabled');
+    $('#NAME', $create_template_dialog).removeAttr('disabled');
+    $('#NAME', $create_template_dialog).attr("required", "");
 
     $('#wizard_mode', $create_template_dialog).show();
 
