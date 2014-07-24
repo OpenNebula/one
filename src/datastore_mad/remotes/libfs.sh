@@ -158,7 +158,7 @@ function fs_size {
         HEADERS=`curl -LIk --max-time 60 --fail $1 2>&1`
         error=$?
 
-        if [ "$?" != "0" ]; then
+        if [ "$?" = "0" ]; then
             if echo "$HEADERS" | grep -q "OpenNebula-AppMarket-Size"; then
                 # An AppMarket/Marketplace URL
                 SIZE=$(echo "$HEADERS" | grep "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
