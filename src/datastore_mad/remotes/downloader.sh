@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+set -o pipefail
+
 # Execute a command (first parameter) and use the first kb of stdout
 # to determine the file type
 function get_type
@@ -25,7 +27,7 @@ function get_type
     else
         command=$1
 
-        ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
+        $command | head -n 1024 | file -b --mime-type -
     fi
 }
 
@@ -168,7 +170,8 @@ http://*|https://*)
     # -L  to follow redirects
     # -sS to hide output except on failure
     # --limit_rate to limit the bw
-    curl_args="-sS -k -L $FROM"
+    # --fail to fail silently on server errors
+    curl_args="-sS -k -L --fail $FROM"
 
     if [ -n "$LIMIT_RATE" ]; then
         curl_args="--limit-rate $LIMIT_RATE $curl_args"
@@ -186,12 +189,18 @@ http://*|https://*)
 esac
 
 file_type=$(get_type "$command")
+
+if [ "$?" != "0" ]; then
+    echo "Error getting type: $command" >&2
+    exit -1
+fi
+
 decompressor=$(get_decompressor "$file_type")
 
 $command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
 if [ "$?" != "0" ]; then
-    echo "Error copying" >&2
+    echo "Error copying: $command" >&2
     exit -1
 fi
 
