@@ -28,7 +28,7 @@ var create_template_tmpl = '\
 '</div>'+
   '<div class="tabs-content">' +
     '<div class="content active" id="easy">' +
-      '<form class="custom creation">'+
+      '<form data-abide="ajax" id="create_template_form" class="custom creation">'+
         '<div class="">'+
           '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
           wizard_tab_dd()+
@@ -40,8 +40,8 @@ var create_template_tmpl = '\
         '<br>'+
         '<div class="row">' +
           '<div class="large-12 columns">' +
-            '<button class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
-            '<button class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
+            '<button type="submit" class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
+            '<button type="submit" class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
             '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
           '</div>' +
         '</div>' +
@@ -3770,31 +3770,26 @@ function initialize_create_template_dialog(dialog) {
     }
 
     //Process form
-    $('button#create_template_form_easy',dialog).click(function(){
-        $create_template_dialog = dialog;
-         //wrap it in the "vmtemplate" object
-        var vm_json = build_template();
-        vm_json = {vmtemplate: vm_json};
+    $('#create_template_form',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+    }).on('valid', function (opt) {
+        if ($('#create_template_form',dialog).attr("opennebula_action") == "create") {
+          $create_template_dialog = dialog;
+           //wrap it in the "vmtemplate" object
+          var vm_json = build_template();
+          vm_json = {vmtemplate: vm_json};
 
-        if (vm_json.vmtemplate.NAME == undefined ||
-            vm_json.vmtemplate.NAME.length == 0 ) {
+          //validate form
+          Sunstone.runAction("Template.create",vm_json);
+          return false;
+        } else if ($('#create_template_form',dialog).attr("opennebula_action") == "update") {
+          var vm_json = build_template();
+          vm_json = {vmtemplate: vm_json};
+          vm_json =JSON.stringify(vm_json);
 
-            notifyError(tr("Virtual Machine name missing!"));
-            return false;
+          Sunstone.runAction("Template.update",template_to_update_id,vm_json);
+          return false;
         }
-
-        //validate form
-        Sunstone.runAction("Template.create",vm_json);
-        return false;
-    });
-
-    $('button#template_template_update_button',dialog).click(function(){
-        var vm_json = build_template();
-        vm_json = {vmtemplate: vm_json};
-        vm_json =JSON.stringify(vm_json);
-
-        Sunstone.runAction("Template.update",template_to_update_id,vm_json);
-        return false;
     });
 
     $('button#manual_template_update_button',dialog).click(function(){
@@ -3827,6 +3822,7 @@ function popUpUpdateTemplateDialog(){
 
     setupCreateTemplateDialog();
 
+    $("#create_template_form", $create_template_dialog).attr("opennebula_action", "update");
     $('button#create_template_form_easy', $create_template_dialog).hide();
     $('button#template_template_update_button', $create_template_dialog).show();
     $('button#template_template_reset_button', $create_template_dialog).hide();
@@ -3854,6 +3850,7 @@ function popUpCreateTemplateDialog(){
 
     $create_template_dialog.die();
 
+    $("#create_template_form", $create_template_dialog).attr("opennebula_action", "create");
     $('button#create_template_form_easy', $create_template_dialog).show();
     $('button#template_template_update_button', $create_template_dialog).hide();
     $('button#template_template_reset_button', $create_template_dialog).show();
