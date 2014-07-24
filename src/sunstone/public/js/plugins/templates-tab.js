@@ -3773,7 +3773,7 @@ function initialize_create_template_dialog(dialog) {
     //Process form
     $('#create_template_form',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
-    }).on('valid', function (opt) {
+    }).on('valid', function() {
         if ($('#create_template_form',dialog).attr("opennebula_action") == "create") {
           $create_template_dialog = dialog;
            //wrap it in the "vmtemplate" object

@@ -815,6 +815,10 @@ function updateServiceTemplateInfo(request,elem){
              <td class="value_td">'+elem_info.NAME+'</td>\
            </tr>\
            <tr>\
+             <td class="key_td">'+tr("Description")+'</td>\
+             <td class="value_td">'+(htmlDecode(elem_info.TEMPLATE.BODY.description)||"-")+'</td>\
+           </tr>\
+           <tr>\
              <td class="key_td">'+tr("Strategy")+'</td>\
              <td class="value_td">'+elem_info.TEMPLATE.BODY.deployment+'</td>\
            </tr>\
@@ -1475,6 +1479,7 @@ var removeEmptyObjects = function(obj){
 
 function generate_json_service_template_from_form() {
     var name = $('input[name="service_name"]', $create_service_template_dialog).val();
+    var description = $('#description', $create_service_template_dialog).val();
     var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
     var shutdown_action_service = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
     var running_status_gate = $('input[name="running_status_gate"]', $create_service_template_dialog).prop("checked");
@@ -1567,6 +1572,7 @@ function generate_json_service_template_from_form() {
     var obj = {
         name: name,
         deployment: deployment,
+        description: description,
         roles: roles,
         custom_attrs: custom_attrs
     }
@@ -1633,6 +1639,8 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     var service_template = response[OpenNebula.ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
     $("#service_name", dialog).val(htmlDecode(service_template.NAME));
+
+    $("#description", dialog).val(htmlDecode(service_template.TEMPLATE.BODY.description));
 
     // TODO Check if the template still exists
     $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
