@@ -17,6 +17,8 @@
 require 'nokogiri'
 require 'ipaddr'
 
+ONEDCONF_MAC_PREFIX = "02:00"
+
 module Migrator
     def db_version
         "4.7.80"
@@ -146,8 +148,7 @@ module Migrator
                 ip_start = IPAddr.new(ip_start_s, Socket::AF_INET)
                 range_ip_end   = IPAddr.new(ip_end_s, Socket::AF_INET)
 
-                # TODO: hardcoded mac prefix
-                mac_prefix = 0x200
+                mac_prefix = ONEDCONF_MAC_PREFIX.gsub(":","").to_i(16)
 
                 @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]} ORDER BY ip ASC LIMIT 1") do |lease_row|
                     lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
