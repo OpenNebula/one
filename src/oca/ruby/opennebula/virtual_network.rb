@@ -124,6 +124,14 @@ module OpenNebula
         # Simulates old addleases call
         # @deprecated use {#add_ar}
         def addleases(ip, mac=nil)
+            self.info
+
+            ar_id = self.retrieve_elements("AR_POOL/AR[IP='#{ip}' and SIZE='1']/AR_ID")
+
+            if !ar_id.nil?
+                return Error.new("IP Address Range found with IP #{ip}")
+            end
+
             template = 'AR = [ '
             template << 'TYPE = "IP4"'
             template << ', IP = "' << ip << '"' if ip
@@ -147,25 +155,15 @@ module OpenNebula
         # @deprecated use #{rm_ar}
         def rmleases(ip)
             self.info
-            if !self.to_hash['VNET']['AR_POOL']['AR'].nil?
-                arlist = [self.to_hash['VNET']['AR_POOL']['AR']].flatten
-            else
-                return Error.new('No Address Ranges defined')
-            end
 
-            ar_id = nil
-
-            arlist.each do |ar|
-                if ar['SIZE']=='1' && ar['IP']==ip
-                    ar_id = ar['AR_ID']
-                    break
-                end
-            end
+            ar_id = self.retrieve_elements("AR_POOL/AR[IP='#{ip}' and SIZE='1']/AR_ID")
 
             if !ar_id
                 Error.new("No single IP Address Range found with IP #{ip}")
+            elsif ar_id.size > 1
+                Error.new("More than one Address Range found with IP #{ip} use rmar")
             else
-                rm_ar(ar_id)
+                rm_ar(ar_id[0])
             end
         end
 
