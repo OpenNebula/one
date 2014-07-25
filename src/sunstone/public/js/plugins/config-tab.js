@@ -179,22 +179,6 @@ var config_tab_content =
           </dl>\
           <div class="tabs-content">\
             <div class="content active" id="user_quotas">\
-              <div class="large-12 columns">'+
-                '<div class="row">'+
-                  '<div class="large-8 large-centered columns">'+
-                    '<div class="text-center">'+
-                      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                        '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                        '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
-                      '</span>'+
-                      '<br>'+
-                      '<p style="font-size: 18px; color: #999">'+
-                        tr("There are no quotas defined")+
-                      '</p>'+
-                    '</div>'+
-                  '</div>'+
-                '</div>'+
-              '</div>\
             </div>\
             <div id="group_quotas" class="content">\
               <div class="row">\
@@ -206,22 +190,6 @@ var config_tab_content =
                 </div>\
               </div>\
               <div id="group_quotasTabBody" class="row">\
-                <div class="large-12 columns">'+
-                  '<div class="row">'+
-                    '<div class="large-8 large-centered columns">'+
-                      '<div class="text-center">'+
-                        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                          '<i class="fa fa-align-left fa-stack-1x fa-inverse"></i>'+
-                        '</span>'+
-                        '<br>'+
-                        '<p style="font-size: 18px; color: #999">'+
-                          tr("There are no quotas defined")+
-                        '</p>'+
-                      '</div>'+
-                    '</div>'+
-                  '</div>'+
-                '</div>\
               </div>\
             </div>\
           </div>\
@@ -401,18 +369,17 @@ function tr(str){
 function updateUserConfigInfo(request,user_json) {
     var info = user_json.USER;
 
-    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-    var quotas_tab_html = Quotas.vms(info, default_user_quotas);
-    quotas_tab_html += Quotas.cpu(info, default_user_quotas);
-    quotas_tab_html += Quotas.memory(info, default_user_quotas);
-    quotas_tab_html += Quotas.volatile_size(info, default_user_quotas);
-    quotas_tab_html += Quotas.image(info, default_user_quotas);
-    quotas_tab_html += Quotas.network(info, default_user_quotas);
-    quotas_tab_html += Quotas.datastore(info, default_user_quotas);
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS);
 
-    if (quotas_tab_html !== "") {
-      $("#user_quotas").html(quotas_tab_html);
-    }
+    var quotas_tab_html = initQuotasPanel(info, default_user_quotas,
+                                        "#user_quotas", false);
+
+    $("#user_quotas").html(quotas_tab_html);
+
+    setupQuotasPanel(info,
+        "#user_quotas",
+        false,
+        "User");
 
     $("#user_information tbody").html('<tr>\
         <td class="key_td">' + tr("ID") + '</td>\
@@ -501,17 +468,15 @@ function fillGroupQuotas(group_id){
 
             var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
 
-            var quotas_tab_html = Quotas.vms(info, default_group_quotas);
-            quotas_tab_html += Quotas.cpu(info, default_group_quotas);
-            quotas_tab_html += Quotas.memory(info, default_group_quotas);
-            quotas_tab_html += Quotas.volatile_size(info, default_group_quotas);
-            quotas_tab_html += Quotas.image(info, default_group_quotas);
-            quotas_tab_html += Quotas.network(info, default_group_quotas);
-            quotas_tab_html += Quotas.datastore(info, default_group_quotas);
+            var quotas_tab_html = initQuotasPanel(info, default_group_quotas,
+                                                "#group_quotasTabBody", false);
 
-            if (quotas_tab_html !== "") {
-              $("#group_quotasTabBody").html(quotas_tab_html);
-            }
+            $("#group_quotasTabBody").html(quotas_tab_html);
+
+            setupQuotasPanel(info,
+                "#group_quotasTabBody",
+                false,
+                "Group");
 
             $("select#quota_group_sel").val(info.ID);
         }
