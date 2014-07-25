@@ -1369,7 +1369,7 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
   var html = '<div class="row">'+
     '<div class="large-8 columns">' +
-       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>' +
+       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary refresh"><i class="fa fa-refresh" /></button>' +
     '</div>' +
     '<div class="large-4 columns">'+
       '<input id="'+str_nic_tab_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>'+
