@@ -150,6 +150,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    addleases_desc = <<-EOT.unindent
+        (DEPRECATED, use addar) Adds a lease to the Virtual Network
+    EOT
+
+    command :addleases, addleases_desc, :vnetid, :ip, [:mac, nil] do
+        helper.perform_action(args[0],options,"lease added") do |vn|
+            vn.addleases(args[1], args[2])
+        end
+    end
+
     rmar_desc = <<-EOT.unindent
         Removes an address range from the Virtual Network
     EOT
@@ -157,6 +167,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :rmar, rmar_desc, :vnetid, :ar_id do
         helper.perform_action(args[0],options,"address range removed") do |vn|
             vn.rm_ar(args[1])
+        end
+    end
+
+    rmleases_desc = <<-EOT.unindent
+        (DEPRECATED, use rmar) Removes a lease from the Virtual Network
+    EOT
+
+    command :rmleases, rmleases_desc, :vnetid, :ip do
+        helper.perform_action(args[0],options,"lease removed") do |vn|
+            vn.rmleases(args[1])
         end
     end
 

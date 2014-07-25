@@ -121,6 +121,26 @@ module OpenNebula
             return rc
         end
 
+        # Simulates old addleases call
+        # @deprecated use {#add_ar}
+        def addleases(ip, mac=nil)
+            self.info
+
+            ar_id = self.retrieve_elements("AR_POOL/AR[IP='#{ip}' and SIZE='1']/AR_ID")
+
+            if !ar_id.nil?
+                return Error.new("IP Address Range found with IP #{ip}")
+            end
+
+            template = 'AR = [ '
+            template << 'TYPE = "IP4"'
+            template << ', IP = "' << ip << '"' if ip
+            template << ', MAC = "' << mac << '"' if mac
+            template << ', SIZE = 1 ]'
+
+            add_ar(template)
+        end
+
         # Removes an Address Range from the VirtualNetwork
         def rm_ar(ar_id)
             return Error.new('ID not defined') if !@pe_id
@@ -129,6 +149,22 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        # Simulates old rmleases call
+        # @deprecated use #{rm_ar}
+        def rmleases(ip)
+            self.info
+
+            ar_id = self.retrieve_elements("AR_POOL/AR[IP='#{ip}' and SIZE='1']/AR_ID")
+
+            if !ar_id
+                Error.new("No single IP Address Range found with IP #{ip}")
+            elsif ar_id.size > 1
+                Error.new("More than one Address Range found with IP #{ip} use rmar")
+            else
+                rm_ar(ar_id[0])
+            end
         end
 
         # Updates Address Ranges from the VirtualNetwork
