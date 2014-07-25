@@ -124,7 +124,7 @@ function create_group_tmpl(dialog_name){
         <div class="large-12 columns">\
           <label>\
             <input type="checkbox" id="shared_resources" name="shared_resources" value="YES" />\
-            '+tr("Allow users to view the VMs of other users in the same group")+'\
+            '+tr("Allow users to view the VMs a Services of other users in the same group")+'\
             <span class="tip">'+tr("An ACL Rule will be created to give users in this group access to all the resources in the same group.")+'</span>\
           </label>\
         </div>\

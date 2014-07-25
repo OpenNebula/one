@@ -1754,9 +1754,9 @@ var povision_actions = {
         Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
           "VM" : {
             "VOLATILE_SIZE":"-1",
-            "VMS": $("#provision_rvms_quota_input").val()||0,
-            "MEMORY": $("#provision_memory_quota_input").val()||0,
-            "CPU": $("#provision_cpu_quota_input").val()||0}
+            "VMS": $("#provision_rvms_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
+            "MEMORY": $("#provision_memory_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
+            "CPU": $("#provision_cpu_quota_input").val()||QUOTA_LIMIT_UNLIMITED}
           });
       },
       error: onError
@@ -5432,9 +5432,13 @@ function setup_provision_user_info(context) {
       var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
       if (quotas_str) {
         var quotas = JSON.parse(quotas_str);
-        provision_rvms_quota_vdc_info_input.val(quotas.VM.VMS).change();
-        provision_cpu_quota_vdc_info_input.val(quotas.VM.CPU).change();
-        provision_memory_quota_vdc_info_tmp_input.val(Math.floor(quotas.VM.MEMORY/1024)).change();
+        var rvms_quotas = (quotas.VM.VMS == QUOTA_LIMIT_UNLIMITED ? "" : quotas.VM.VMS)
+        var cpu_quotas = (quotas.VM.CPU == QUOTA_LIMIT_UNLIMITED ? "" : quotas.VM.CPU)
+        var memory_quotas = (quotas.VM.MEMORY == QUOTA_LIMIT_UNLIMITED ? "" : Math.floor(quotas.VM.MEMORY/1024))
+
+        provision_rvms_quota_vdc_info_input.val(rvms_quotas).change();
+        provision_cpu_quota_vdc_info_input.val(cpu_quotas).change();
+        provision_memory_quota_vdc_info_tmp_input.val(memory_quotas).change();
       }
   });
 
@@ -5469,9 +5473,9 @@ function setup_provision_user_info(context) {
         extra_param: {
           "VM" : {
             "VOLATILE_SIZE":"-1",
-            "VMS": $(".provision_rvms_quota_vdc_info_input", context).val()||0,
-            "MEMORY": $(".provision_memory_quota_vdc_info_input", context).val()||0,
-            "CPU": $(".provision_cpu_quota_vdc_info_input", context).val()||0}
+            "VMS": $(".provision_rvms_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED,
+            "MEMORY": $(".provision_memory_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED,
+            "CPU": $(".provision_cpu_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED}
         }
       },
       success: function(request, response){
