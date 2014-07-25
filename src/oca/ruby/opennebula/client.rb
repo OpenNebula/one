@@ -142,6 +142,7 @@ module OpenNebula
             http_proxy=options[:http_proxy] if options[:http_proxy]
 
             @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
+            @server.http_header_extra = {'accept-encoding' => 'identity'}
 
             if defined?(OxStreamParser)
                 @server.set_parser(OxStreamParser.new)
