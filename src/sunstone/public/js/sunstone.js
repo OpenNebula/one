@@ -2396,7 +2396,7 @@ var Quotas = {
                     <tr class="editable_quota" style="display: none">\
                         <td colspan="3">\
                             <a type="button" \
-                              class="button small radius secondary large-12" \
+                              class="button small radius small-12" \
                               id="ds_add_quota_btn"><i class="fa fa-plus"></i>\
                               '+tr("Add a new quota")+'\
                             </a>\
@@ -2544,7 +2544,7 @@ var Quotas = {
                     <tr class="editable_quota" style="display: none">\
                         <td colspan="2">\
                             <a type="button" \
-                              class="button small radius secondary large-12" \
+                              class="button small radius small-12" \
                               id="image_add_quota_btn"><i class="fa fa-plus"></i>\
                               '+tr("Add a new quota")+'\
                             </a>\
@@ -2679,7 +2679,7 @@ var Quotas = {
                     <tr class="editable_quota" style="display: none">\
                         <td colspan="2">\
                             <a type="button" \
-                              class="button small radius secondary large-12" \
+                              class="button small radius small-12" \
                               id="network_add_quota_btn"><i class="fa fa-plus"></i>\
                               '+tr("Add a new quota")+'\
                             </a>\
@@ -2841,7 +2841,7 @@ function initQuotasPanel(resource_info, default_quotas, parent_id_str, edit_enab
 
     var quotas_html;
 
-    quotas_html = '<div class="row quotas">';
+    quotas_html = '<div class="quotas">';
 
     if (edit_enabled) {
         quotas_html +=
@@ -2880,16 +2880,25 @@ function initQuotasPanel(resource_info, default_quotas, parent_id_str, edit_enab
         </div>';
     }
 
-    quotas_html += '<div class="large-6 columns">' + vms_quota + '</div>';
-    quotas_html += '<div class="large-6 columns">' + cpu_quota + '</div>';
-    quotas_html += '<div class="large-6 columns">' + memory_quota + '</div>';
-    quotas_html += '<div class="large-6 columns">' + volatile_size_quota+ '</div>';
-    quotas_html += '<br><br>';
-    quotas_html += '<div class="large-6 columns">' + image_quota + '</div>';
-    quotas_html += '<div class="large-6 columns right">' + network_quota + '</div>';
-    quotas_html += '<br><br>';
-    quotas_html += '<div class="large-12 columns">' + datastore_quota + '</div>';
-    quotas_html += '</div>';
+    quotas_html +=
+        '<div class="row">\
+          <div class="large-6 columns">' + vms_quota + '</div>\
+          <div class="large-6 columns">' + cpu_quota + '</div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">' + memory_quota + '</div>\
+          <div class="large-6 columns">' + volatile_size_quota+ '</div>\
+        </div>\
+        <br><br>\
+        <div class="row">\
+          <div class="large-6 columns">' + image_quota + '</div>\
+          <div class="large-6 columns right">' + network_quota + '</div>\
+        </div>\
+        <br><br>\
+        <div class="row">\
+          <div class="large-12 columns">' + datastore_quota + '</div>\
+        </div>\
+      </div>';
 
     return quotas_html;
 }
@@ -4063,10 +4072,11 @@ function editableQuotaBar(usage, quota_limit, default_limit, opts){
 
     html =
     '<div class="quotabar_container" quota_name="'+opts.quota_name+'">\
-      <div class="row collapse editable_quota right" style="font-size: 12px; display: none">\
-        <div class="small-2 columns text-right">\
-          <label class="inline">'+ usage + ' /&nbsp;</label>\
+      <div class="row collapse editable_quota" style="font-size: 12px; display: none">\
+        <div class="small-2 columns">\
+          <label style="font-size: 12px; margin: 0px" class="inline right">'+ usage + ' /&nbsp;</label>\
         </div>';
+
 
     if (opts.mb){
         html +=
@@ -4077,22 +4087,22 @@ function editableQuotaBar(usage, quota_limit, default_limit, opts){
     }
 
     html +=
-          '<input type="text" quota_mode="edit" quota_limit="'+quota_limit+'" quota_default="'+default_limit+'" value="'+quota_limit+'"/>\
+          '<input type="text" style="font-size: 12px; margin: 0px" quota_mode="edit" quota_limit="'+quota_limit+'" quota_default="'+default_limit+'" value="'+quota_limit+'"/>\
         </div>';
 
     if (opts.mb){
         html +=
         '<div class="small-1 columns">\
-          <span class="postfix">MB</span>\
+          <span style="font-size: 12px; height: 2.0625rem !important; line-height: 2.0625rem !important;" class="postfix">MB</span>\
         </div>';
     }
 
     html +=
         '<div class="small-5 columns">\
           <ul class="button-group">\
-            <li><a class="button small secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a></li>\
-            <li><a class="button small secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a></li>\
-            <li><a class="button small secondary quotabar_unlimited_btn"><strong>&infin;</strong></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a></li>\
           </ul>\
         </div>\
       </div>\
@@ -4109,7 +4119,6 @@ function editableQuotaBar(usage, quota_limit, default_limit, opts){
         </div>\
       </div>\
     </div>';
-
     return html;
 }
 
