@@ -1382,7 +1382,7 @@ function updateServiceInfo(request,elem){
                     var aData = serviceroleVMsDataTable.fnGetData(this);
                     if (!aData) return true;
 
-                    var id = $(aData[1]).val();
+                    var id = $(aData[2]).val();
                     if (!id) return true;
 
                     showElement("vms-tab", "VM.show", id);
