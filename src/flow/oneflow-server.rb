@@ -187,7 +187,7 @@ delete '/service/:id' do
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
-    status 201
+    status 204
 end
 
 post '/service/:id/action' do
@@ -358,7 +358,7 @@ delete '/service_template/:id' do
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
-    status 201
+    status 204
 end
 
 put '/service_template/:id' do
