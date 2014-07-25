@@ -129,8 +129,15 @@ class OpenNebulaVNC
             return false
         end
 
-        File.open(@lock_file, "w") do |f|
-            f.write(pid.to_s)
+        begin
+            File.open(@lock_file, "w") do |f|
+                f.write(pid.to_s)
+            end
+        rescue Exception => e
+            @logger.error e.message
+            Process.kill('-KILL', pid)
+
+            return false
         end
 
         sleep 1
