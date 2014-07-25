@@ -86,7 +86,7 @@ EOT
     def get_user_inputs(template)
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
-        return nil if !user_inputs
+        return "" if !user_inputs
 
         answers = ""
 
