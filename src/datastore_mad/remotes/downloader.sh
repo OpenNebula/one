@@ -28,7 +28,7 @@ function get_type
         command=$1
 
         $command | head -n 1024 | file -b --mime-type -
-    fi
+   fi
 }
 
 # Gets the command needed to decompress an stream.
@@ -119,6 +119,19 @@ function unarchive
     fi
 }
 
+# Determine if an error status is valid
+function valid_status
+{
+    case $1 in
+    0|141)
+        return 0
+        ;;
+    *)
+        return $1
+        ;;
+    esac
+}
+
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -190,7 +203,7 @@ esac
 
 file_type=$(get_type "$command")
 
-if [ "$?" != "0" ]; then
+if ! valid_status $? ; then
     echo "Error getting type: $command" >&2
     exit -1
 fi
@@ -199,7 +212,7 @@ decompressor=$(get_decompressor "$file_type")
 
 $command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
-if [ "$?" != "0" ]; then
+if ! valid_status $? ; then
     echo "Error copying: $command" >&2
 
     # Remove incomplete file
