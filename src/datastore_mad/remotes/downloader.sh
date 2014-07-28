@@ -28,7 +28,7 @@ function get_type
         command=$1
 
         $command | head -n 1024 | file -b --mime-type -
-   fi
+    fi
 }
 
 # Gets the command needed to decompress an stream.
