@@ -202,13 +202,13 @@ public class VirtualNetworkTest
 
         res = vnet.release("192.168.0.11", 0);
         assertTrue( res.getErrorMessage(), !res.isError() );
-//*
+
         res = vnet.release("192.168.0.10");
-        assertTrue( res.isError() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
 
         res = vnet.release("192.168.100.1");
         assertTrue( res.isError() );
-//*/
+
         vnet.delete();
     }
 
