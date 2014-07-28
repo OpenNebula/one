@@ -200,9 +200,11 @@ public class VirtualNetwork extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
      * @param template Address to hold, examples:
+     *<pre>
      *      LEASES = [ IP = 192.168.0.5 ]
      *      LEASES = [ MAC = 02:00:0a:00:00:96 ]
      *      LEASES = [ IP = 192.168.0.5, AR_ID = 3 ]
+     *</pre>
      * @return A encapsulated response.
      */
     public static OneResponse hold(Client client, int id, String template)
@@ -216,9 +218,11 @@ public class VirtualNetwork extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The virtual network id (nid) of the target network.
      * @param template Address to release, examples:
+     *<pre>
      *      LEASES = [ IP = 192.168.0.5 ]
      *      LEASES = [ MAC = 02:00:0a:00:00:96 ]
      *      LEASES = [ IP = 192.168.0.5, AR_ID = 3 ]
+     *</pre>
      * @return A encapsulated response.
      */
     public static OneResponse release(Client client, int id, String template)
@@ -420,10 +424,12 @@ public class VirtualNetwork extends PoolElement{
      * Adds an Address Range to the VirtualNetwork
      *
      * @param template AR to add, example:
+     *<pre>
      *      AR = [
      *          TYPE = IP4,
      *          IP = 192.168.0.5,
      *          SIZE = 10 ]
+     *</pre>
      *
      * @return A encapsulated response.
      */
@@ -447,11 +453,13 @@ public class VirtualNetwork extends PoolElement{
      * Upates an Address Range from the VirtualNetwork
      *
      * @param template AR to update, example:
+     *<pre>
      *      AR = [
      *          AR_ID = 3,
      *          TYPE  = IP4,
      *          IP    = 192.168.0.5,
      *          SIZE  = 10 ]
+     *</pre>
      *
      * @return A encapsulated response.
      */
