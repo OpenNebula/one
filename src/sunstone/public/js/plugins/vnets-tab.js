@@ -1294,13 +1294,15 @@ function setupCreateVNetDialog() {
     });
 
     setupTips(dialog);
+
+    dialog.foundation();
+
+    // Add first AR
+    $("#vnet_wizard_ar_btn", dialog).trigger("click");
 }
 
 function popUpCreateVnetDialog() {
     $create_vn_dialog.foundation().foundation('reveal', 'open');
-
-    // Add first AR
-    $("#vnet_wizard_ar_btn", $create_vn_dialog).trigger("click");
 
     $("input#name",$create_vn_dialog).focus();
 }
