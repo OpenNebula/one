@@ -87,6 +87,8 @@ else
   rm -f $DST_PATH
 
   cp $SRC_PATH $DST_PATH
+
+  rm -f $DST_PATH.iso
   ln -s $DST_PATH $DST_PATH.iso
 fi
 EOF

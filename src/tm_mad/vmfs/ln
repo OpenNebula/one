@@ -84,6 +84,7 @@ if [ ! -d $DST_DIR ]; then
    mkdir -p $DST_DIR
 fi
 
+rm -f $DST_PATH.iso
 ln -s $SRC_PATH $DST_PATH.iso
 EOF
 )
