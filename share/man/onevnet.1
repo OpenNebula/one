@@ -20,14 +20,13 @@
  \-\-user name               User name used to connect to OpenNebula
  \-\-password password       Password to authenticate with OpenNebula
  \-\-endpoint endpoint       URL of OpenNebula xmlrpc frontend
- \-s, \-\-address_range_size size Number of addresses in the range
- \-m, \-\-address_range_mac mac First MAC address in : notation
- \-i, \-\-address_range_ip ip First IP address in \. notation
- \-g, \-\-address_range_ip6g ip6_pref IP6 global prefix
- \-u, \-\-address_range_ip6u ip6_pref IP6 ula prefix
+ \-s, \-\-size size           Number of addresses
+ \-m, \-\-mac mac             First MAC address in : notation
+ \-i, \-\-ip ip               First IP address in \. notation
+ \-g, \-\-ip6_global ip6_pref IP6 global prefix
+ \-u, \-\-ip6_ula ip6_pref    IP6 ula prefix
  \-a, \-\-address_range ar_id ID of the address range
  \-n, \-\-name reservation name Name of the address reservation
- \-s, \-\-size reservation size Number of addresses to reserve
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -59,19 +58,25 @@ delete \fIrange|vnetid_list\fR Deletes the given Virtual Network
 addar \fIvnetid\fR Adds an address range to the Virtual Network valid options: verbose, help, version, user, password, endpoint, size, mac, ip, ip6_global, ip6_ula
 .
 .IP "\(bu" 4
+addleases \fIvnetid\fR \fIip\fR [\fImac\fR] (DEPRECATED, use addar) Adds a lease to the Virtual Network
+.
+.IP "\(bu" 4
 rmar \fIvnetid\fR \fIar_id\fR Removes an address range from the Virtual Network
+.
+.IP "\(bu" 4
+rmleases \fIvnetid\fR \fIip\fR (DEPRECATED, use rmar) Removes a lease from the Virtual Network
 .
 .IP "\(bu" 4
 free \fIvnetid\fR \fIar_id\fR Frees a reserved address range from the Virtual Network
 .
 .IP "\(bu" 4
-hold \fIvnetid\fR \fIip\fR Holds a Virtual Network lease, marking it as used valid options: verbose, help, version, user, password, endpoint, ar_id
+hold \fIvnetid\fR \fIip\fR Holds a Virtual Network lease, marking it as used valid options: verbose, help, version, user, password, endpoint, address_range
 .
 .IP "\(bu" 4
-release \fIvnetid\fR \fIip\fR Releases a Virtual Network lease on hold valid options: verbose, help, version, user, password, endpoint, ar_id
+release \fIvnetid\fR \fIip\fR Releases a Virtual Network lease on hold valid options: verbose, help, version, user, password, endpoint, address_range
 .
 .IP "\(bu" 4
-reserve \fIvnetid\fR [\fIvnetid\fR] Reserve addresses from the Virtual Network\. A new virtual network will be created to hold the reservation\. Optionally the reservation can be put on an exisiting VNET, as long as it contains a valid reservation from the same VNET valid options: verbose, help, version, user, password, endpoint, ar_id, rname, rsize, mac, ip
+reserve \fIvnetid\fR [\fIvnetid\fR] Reserve addresses from the Virtual Network\. A new virtual network will be created to hold the reservation\. Optionally the reservation can be put on an exisiting VNET, as long as it contains a valid reservation from the same VNET valid options: verbose, help, version, user, password, endpoint, address_range, name, size, mac, ip
 .
 .IP "\(bu" 4
 chgrp \fIrange|vnetid_list\fR \fIgroupid\fR Changes the Virtual Network group
@@ -131,7 +136,7 @@ ar_id Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.7\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.8\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
