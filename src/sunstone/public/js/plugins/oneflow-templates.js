@@ -125,9 +125,9 @@ var create_service_template_tmpl = '\
                         </div>\
                         <div class="row">\
                             <div class="service_template_param st_man large-6 columns">\
-                                <input type="checkbox" name="running_status_gate" id="running_status_gate"/>\
-                                <label for="running_status_gate">'+tr("Running status reported by VM")+'\
-                                  <span class="tip">' + tr("Running status is reported by the VM to the OneGate server.") +'</span>\
+                                <input type="checkbox" name="ready_status_gate" id="ready_status_gate"/>\
+                                <label for="ready_status_gate">'+tr("Wait for VMs to report that the are READY")+'\
+                                  <span class="tip">' + tr("Before deploying any child roles, wait for all VMs of the parent roles to report via OneGate that they are READY=YES") +'</span>\
                                 </label>\
                             </div>\
                         </div>\
@@ -827,8 +827,8 @@ function updateServiceTemplateInfo(request,elem){
              <td class="value_td">'+elem_info.TEMPLATE.BODY.shutdown_action+'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">'+tr("Running Status Gate")+'</td>\
-             <td class="value_td">'+(elem_info.TEMPLATE.BODY.running_status_gate ? "yes" : "no")+'</td>\
+             <td class="key_td">'+tr("Ready Status Gate")+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.ready_status_gate ? "yes" : "no")+'</td>\
            </tr>\
          </table>' +
          network_configuration +
@@ -1484,7 +1484,7 @@ function generate_json_service_template_from_form() {
     var description = $('#description', $create_service_template_dialog).val();
     var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
     var shutdown_action_service = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
-    var running_status_gate = $('input[name="running_status_gate"]', $create_service_template_dialog).prop("checked");
+    var ready_status_gate = $('input[name="ready_status_gate"]', $create_service_template_dialog).prop("checked");
 
     var custom_attrs =  {};
 
@@ -1583,7 +1583,7 @@ function generate_json_service_template_from_form() {
         obj['shutdown_action'] = shutdown_action_service
     }
 
-    obj['running_status_gate'] = running_status_gate
+    obj['ready_status_gate'] = ready_status_gate
 
     return obj;
 }
@@ -1649,7 +1649,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     // TODO Check if the template still exists
     $('select[name="deployment"]', dialog).val(service_template.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", dialog).val(service_template.TEMPLATE.BODY.shutdown_action);
-    $("input[name='running_status_gate']", dialog).prop("checked",service_template.TEMPLATE.BODY.running_status_gate || false);
+    $("input[name='ready_status_gate']", dialog).prop("checked",service_template.TEMPLATE.BODY.ready_status_gate || false);
 
     if (service_template.TEMPLATE.BODY['custom_attrs']) {
         $("a[href='#network_configuration_and_attributes']", dialog).trigger("click");

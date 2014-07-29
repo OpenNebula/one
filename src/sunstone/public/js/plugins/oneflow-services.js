@@ -943,8 +943,8 @@ function updateServiceInfo(request,elem){
              <td class="value_td">'+ OpenNebula.Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
            </tr>\
            <tr>\
-             <td class="key_td">'+tr("Running Status Gate")+'</td>\
-             <td class="value_td">'+(elem_info.TEMPLATE.BODY.running_status_gate ? "yes" : "no")+'</td>\
+             <td class="key_td">'+tr("Ready Status Gate")+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.ready_status_gate ? "yes" : "no")+'</td>\
            </tr>\
          </table>' +
        '</div>\

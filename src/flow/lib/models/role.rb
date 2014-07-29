@@ -207,8 +207,8 @@ module OpenNebula
 
                     running = vm_state == '3' && lcm_state >= '3'
 
-                    if running && @service.running_status_gate
-                        running_status = node['vm_info']['VM']['USER_TEMPLATE']['RUNNING'] || ""
+                    if running && @service.ready_status_gate
+                        running_status = node['vm_info']['VM']['USER_TEMPLATE']['READY'] || ""
                         running = running_status.upcase == "YES"
                     end
 

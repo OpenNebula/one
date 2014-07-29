@@ -172,7 +172,7 @@ module OpenNebula
                     },
                     :required => false
                 },
-                'running_status_gate' => {
+                'ready_status_gate' => {
                     :type => :boolean,
                     :required => false
                 }

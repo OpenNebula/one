@@ -144,8 +144,8 @@ module OpenNebula
 
         # Returns the running_status_vm option
         # @return [true, false] true if the running_status_vm option is enabled
-        def running_status_gate
-            return @body['running_status_gate']
+        def ready_status_gate
+            return @body['ready_status_gate']
         end
 
         def any_role_scaling?()
