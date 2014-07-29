@@ -240,19 +240,42 @@ var host_actions = {
             var host = params.data.id;
 
             if (cluster == -1){
-                //get cluster name
-                var current_cluster = getValue(host,1,3,dataTable_hosts);
-                //get cluster id
-                current_cluster = getValue(current_cluster,
-                                           2,1,dataTable_clusters);
-                if (!current_cluster) return;
-                Sunstone.runAction("Cluster.delhost",current_cluster,host)
+                OpenNebula.Host.show({
+                    data : {
+                        id: host
+                    },
+                    success: function (request, host_info){
+                        var current_cluster = host_info.HOST.CLUSTER_ID;
+
+                        if(current_cluster != -1){
+                            OpenNebula.Cluster.delhost({
+                                data: {
+                                    id: current_cluster,
+                                    extra_param: host
+                                },
+                                success: function(){
+                                    Sunstone.runAction('Host.show',host);
+                                },
+                                error: onError
+                            });
+                        } else {
+                            Sunstone.runAction('Host.show',host);
+                        }
+                    },
+                    error: onError
+                });
+            } else {
+                OpenNebula.Cluster.addhost({
+                    data: {
+                        id: cluster,
+                        extra_param: host
+                    },
+                    success: function(){
+                        Sunstone.runAction('Host.show',host);
+                    },
+                    error: onError
+                });
             }
-            else
-                Sunstone.runAction("Cluster.addhost",cluster,host);
-        },
-        callback: function(request) {
-            Sunstone.runAction('Host.show',request.request.data[0]);
         },
         elements: hostElements
     },

@@ -418,26 +418,42 @@ var datastore_actions = {
             var ds = params.data.id;
 
             if (cluster == -1){
-                //get cluster name
-                var current_cluster = getValue(ds,
-                                               1,
-                                               6,
-                                               dataTable_datastores);
-                //get cluster id
-                current_cluster = getValue(current_cluster,
-                                           2,
-                                           1,
-                                           dataTable_clusters);
-                if (!current_cluster) return;
-                Sunstone.runAction("Cluster.deldatastore",current_cluster,ds)
+                OpenNebula.Datastore.show({
+                    data : {
+                        id: ds
+                    },
+                    success: function (request, ds_info){
+                        var current_cluster = ds_info.DATASTORE.CLUSTER_ID;
+
+                        if(current_cluster != -1){
+                            OpenNebula.Cluster.deldatastore({
+                                data: {
+                                    id: current_cluster,
+                                    extra_param: ds
+                                },
+                                success: function(){
+                                    Sunstone.runAction('Datastore.show',ds);
+                                },
+                                error: onError
+                            });
+                        } else {
+                            Sunstone.runAction('Datastore.show',ds);
+                        }
+                    },
+                    error: onError
+                });
+            } else {
+                OpenNebula.Cluster.adddatastore({
+                    data: {
+                        id: cluster,
+                        extra_param: ds
+                    },
+                    success: function(){
+                        Sunstone.runAction('Datastore.show',ds);
+                    },
+                    error: onError
+                });
             }
-            else
-            {
-                Sunstone.runAction("Cluster.adddatastore",cluster,ds);
-            }
-        },
-        callback: function (req) {
-            Sunstone.runAction("Datastore.show",req.request.data[0][0]);
         },
         elements: datastoreElements
     },

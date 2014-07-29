@@ -480,19 +480,44 @@ var vnet_actions = {
             var vnet = params.data.id;
 
             if (cluster == -1){
-                //get cluster name
-                var current_cluster = getValue(vnet,1,5,dataTable_vNetworks);
-                //get cluster id
-                current_cluster = getValue(current_cluster,
-                                           2,1,dataTable_clusters);
-                if (!current_cluster) return;
-                Sunstone.runAction("Cluster.delvnet",current_cluster,vnet)
+                OpenNebula.Network.show({
+                    data : {
+                        id: vnet
+                    },
+                    success: function (request, vn){
+                        var vn_info = vn.VNET;
+
+                        var current_cluster = vn_info.CLUSTER_ID;
+
+                        if(current_cluster != -1){
+                            OpenNebula.Cluster.delvnet({
+                                data: {
+                                    id: current_cluster,
+                                    extra_param: vnet
+                                },
+                                success: function(){
+                                    Sunstone.runAction('Network.show',vnet);
+                                },
+                                error: onError
+                            });
+                        } else {
+                            Sunstone.runAction('Network.show',vnet);
+                        }
+                    },
+                    error: onError
+                });
+            } else {
+                OpenNebula.Cluster.addvnet({
+                    data: {
+                        id: cluster,
+                        extra_param: vnet
+                    },
+                    success: function(){
+                        Sunstone.runAction('Network.show',vnet);
+                    },
+                    error: onError
+                });
             }
-            else
-                Sunstone.runAction("Cluster.addvnet",cluster,vnet);
-        },
-        callback: function(request) {
-            Sunstone.runAction('Network.show',request.request.data[0]);
         },
         elements: vnElements
     }
