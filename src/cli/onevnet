@@ -197,7 +197,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :hold, hold_desc, :vnetid, :ip,
         :options=>STD_OPTIONS + [OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease on hold") do |vn|
-            ar  = options[:ar_id] || -1
+            ar = options[:address_range] || -1
 
             vn.hold(args[1], ar)
         end
@@ -210,7 +210,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :release, release_desc, :vnetid, :ip,
         :options=>STD_OPTIONS + [OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease released") do |vn|
-            ar  = options[:ar_id] || -1
+            ar  = options[:address_range] || -1
 
             vn.release(args[1], ar)
         end
@@ -244,7 +244,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
-            vn.reserve(rname, rsize, options[:ar_id], addr, args[1])
+            vn.reserve(rname, rsize, options[:address_range], addr, args[1])
         end
     end
 
