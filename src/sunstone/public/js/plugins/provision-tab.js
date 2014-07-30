@@ -2850,8 +2850,8 @@ function show_provision_template_list(timeout) {
   $(".section_content").hide();
   $(".provision_templates_list_section").fadeIn();
 
-  $("dd:not(.active) .provision_back", $(".provision_flows_list_section")).trigger("click");
-  $(".provision_templates_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
+  //$("dd:not(.active) .provision_back", $(".provision_templates_list_section")).trigger("click");
+  $(".provision_templates_list_refresh_button", $(".provision_templates_list_section")).trigger("click");
 }
 
 function update_provision_templates_datatable(datatable, timeout) {
