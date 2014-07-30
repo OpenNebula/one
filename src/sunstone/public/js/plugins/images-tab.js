@@ -968,7 +968,7 @@ function initialize_create_image_dialog(dialog) {
             } else {
                 notifyMessage("Image uploaded correctly");
                 $('div[id="'+fileName+'progressBar"]').remove();
-                Sunstone.runAction("Image.list");
+                Sunstone.runAction("Image.refresh");
             }
 
             return false;

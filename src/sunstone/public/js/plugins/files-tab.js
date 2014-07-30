@@ -674,7 +674,7 @@ function setupCreateFileDialog(){
                 $('#files'+id+'progressBar').remove();
             } else {
                 notifyMessage("File uploaded correctly");
-                Sunstone.runAction("File.list");
+                Sunstone.runAction("File.refresh");
                 $('#files'+id+'progressBar').remove();
             }
 
