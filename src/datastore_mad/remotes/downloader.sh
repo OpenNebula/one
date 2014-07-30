@@ -16,8 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-set -o pipefail
-
 # Execute a command (first parameter) and use the first kb of stdout
 # to determine the file type
 function get_type
@@ -27,7 +25,7 @@ function get_type
     else
         command=$1
 
-        $command | head -n 1024 | file -b --mime-type -
+        ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
     fi
 }
 
@@ -119,19 +117,6 @@ function unarchive
     fi
 }
 
-# Determine if an error status is valid
-function valid_status
-{
-    case $1 in
-    0|141)
-        return 0
-        ;;
-    *)
-        return $1
-        ;;
-    esac
-}
-
 TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
@@ -183,8 +168,7 @@ http://*|https://*)
     # -L  to follow redirects
     # -sS to hide output except on failure
     # --limit_rate to limit the bw
-    # --fail to fail silently on server errors
-    curl_args="-sS -k -L --fail $FROM"
+    curl_args="-sS -k -L $FROM"
 
     if [ -n "$LIMIT_RATE" ]; then
         curl_args="--limit-rate $LIMIT_RATE $curl_args"
@@ -202,26 +186,12 @@ http://*|https://*)
 esac
 
 file_type=$(get_type "$command")
-
-if ! valid_status $? ; then
-    echo "Error getting type: $command" >&2
-    exit -1
-fi
-
 decompressor=$(get_decompressor "$file_type")
 
 $command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
-if ! valid_status $? ; then
-    echo "Error copying: $command" >&2
-
-    # Remove incomplete file
-    if [ -f "$TO" ]; then
-        rm "$TO"
-    elif [ -d "$TO" ]; then
-        rm -r "$TO"
-    fi
-
+if [ "$?" != "0" ]; then
+    echo "Error copying" >&2
     exit -1
 fi
 
