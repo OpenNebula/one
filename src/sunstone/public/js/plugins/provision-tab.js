@@ -3193,7 +3193,7 @@ function get_provision_flow_state(data) {
       state_str = tr("SCALING");
       break;
     case tr("COOLDOWN"):
-      state_color = 'off';
+      state_color = 'error';
       state_str = tr("COOLDOWN");
       break;
     case tr("DONE"):
@@ -4425,23 +4425,28 @@ function setup_info_flow(context) {
           case "deploying":
             $(".provision_recover_button", context).hide();
             $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdown_confirm_button", context).show();
             break;
           case "running":
             $(".provision_recover_button", context).hide();
             $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdown_confirm_button", context).show();
             break;
           case "off":
-            $(".provision_recover_button", context).show();
+            $(".provision_recover_button", context).hide();
             $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdown_confirm_button", context).hide();
             break;
           case "powering_off":
           case "error":
             $(".provision_recover_button", context).show();
             $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdown_confirm_button", context).show();
             break;
           default:
             $(".provision_recover_button", context).show();
             $(".provision_delete_confirm_button", context).show();
+            $(".provision_shutdown_confirm_button", context).show();
             break;
         }
 
