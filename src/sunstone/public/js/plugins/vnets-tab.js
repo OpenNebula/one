@@ -1129,7 +1129,7 @@ function printLeases(vn_info){
         for (var j=0; j<leases.length; j++){
             lease = leases[j];
 
-            html+='<tr ip="'+lease.IP+'">';
+            html+='<tr ip="'+lease.IP+'" mac="'+lease.MAC+'">';
 
             html += '<td class="key_td">';
 
@@ -1565,8 +1565,13 @@ function setupLeasesOps(){
 
   if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
     $('a.release_lease').live("click",function(){
-        var lease = $(this).parents('tr').attr('ip');
         var id = $(this).parents('form').attr('vnid');
+
+        var lease = $(this).parents('tr').attr('ip');
+        if (lease == "undefined"){
+            lease = $(this).parents('tr').attr('mac');
+        }
+
         var obj = { ip: lease};
         Sunstone.runAction('Network.release',id,obj);
         //Set spinner
