@@ -3103,7 +3103,7 @@ function update_provision_flows_datatable(datatable, timeout) {
             '<br>'+
             '<br>'+
             '<span style="font-size: 18px; color: #999">'+
-              tr("There no Services")+
+              tr("There are no Services")+
             '</span>'+
             '<br>'+
             '<br>'+
