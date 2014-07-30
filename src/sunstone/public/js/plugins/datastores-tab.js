@@ -432,11 +432,13 @@ var datastore_actions = {
                                     extra_param: ds
                                 },
                                 success: function(){
+                                    OpenNebula.Helper.clear_cache("DATASTORE");
                                     Sunstone.runAction('Datastore.show',ds);
                                 },
                                 error: onError
                             });
                         } else {
+                            OpenNebula.Helper.clear_cache("DATASTORE");
                             Sunstone.runAction('Datastore.show',ds);
                         }
                     },
@@ -449,6 +451,7 @@ var datastore_actions = {
                         extra_param: ds
                     },
                     success: function(){
+                        OpenNebula.Helper.clear_cache("DATASTORE");
                         Sunstone.runAction('Datastore.show',ds);
                     },
                     error: onError

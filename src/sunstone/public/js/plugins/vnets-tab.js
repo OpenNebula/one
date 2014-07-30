@@ -496,11 +496,13 @@ var vnet_actions = {
                                     extra_param: vnet
                                 },
                                 success: function(){
+                                    OpenNebula.Helper.clear_cache("VNET");
                                     Sunstone.runAction('Network.show',vnet);
                                 },
                                 error: onError
                             });
                         } else {
+                            OpenNebula.Helper.clear_cache("VNET");
                             Sunstone.runAction('Network.show',vnet);
                         }
                     },
@@ -513,6 +515,7 @@ var vnet_actions = {
                         extra_param: vnet
                     },
                     success: function(){
+                        OpenNebula.Helper.clear_cache("VNET");
                         Sunstone.runAction('Network.show',vnet);
                     },
                     error: onError

@@ -254,11 +254,13 @@ var host_actions = {
                                     extra_param: host
                                 },
                                 success: function(){
+                                    OpenNebula.Helper.clear_cache("HOST");
                                     Sunstone.runAction('Host.show',host);
                                 },
                                 error: onError
                             });
                         } else {
+                            OpenNebula.Helper.clear_cache("HOST");
                             Sunstone.runAction('Host.show',host);
                         }
                     },
@@ -271,6 +273,7 @@ var host_actions = {
                         extra_param: host
                     },
                     success: function(){
+                        OpenNebula.Helper.clear_cache("HOST");
                         Sunstone.runAction('Host.show',host);
                     },
                     error: onError
