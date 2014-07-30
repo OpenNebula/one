@@ -620,8 +620,6 @@ EOT
             datastore[row[:oid]] = {:name => row[:name], :images => []}
         end
 
-        ds_1_name = datastore[1][:name]
-
         images_fix = {}
 
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
@@ -634,19 +632,12 @@ EOT
                 ds_entry = datastore[ds_id]
 
                 if ds_entry.nil?
-                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. It will be moved to the Datastore #{ds_1_name} (1), but it is probably unusable anymore")
-
-                    doc.root.each_element('DATASTORE_ID') do |e|
-                        e.text = "1"
-                    end
-
-                    doc.root.each_element('DATASTORE') do |e|
-                        e.text = ds_1_name
-                    end
-
-                    images_fix[row[:oid]] = doc.root.to_s
-
-                    datastore[1][:images] << row[:oid]
+                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. The image is probably unusable, and needs to be deleted manually:\n"<<
+                        "  * The image contents should be deleted manually:\n"<<
+                        "    #{doc.root.get_text('SOURCE')}\n"<<
+                        "  * The DB entry can be then deleted with the command:\n"<<
+                        "    DELETE FROM image_pool WHERE oid=#{row[:oid]};\n"<<
+                        "  * Run fsck again.\n")
                 else
                     if ds_name != ds_entry[:name]
                         log_error("Image #{row[:oid]} has a wrong name for datastore #{ds_id}, #{ds_name}. It will be changed to #{ds_entry[:name]}")
