@@ -24,6 +24,7 @@ enabled_tabs:
     doc-tab: true
     community-tab: true
     enterprise-tab: true
+    zones-tab: true
 autorefresh: true
 tabs:
     dashboard-tab:
