@@ -126,7 +126,7 @@ var create_service_template_tmpl = '\
                         <div class="row">\
                             <div class="service_template_param st_man large-6 columns">\
                                 <input type="checkbox" name="ready_status_gate" id="ready_status_gate"/>\
-                                <label for="ready_status_gate">'+tr("Wait for VMs to report that the are READY")+'\
+                                <label for="ready_status_gate">'+tr("Wait for VMs to report that they are READY")+'\
                                   <span class="tip">' + tr("Before deploying any child roles, wait for all VMs of the parent roles to report via OneGate that they are READY=YES") +'</span>\
                                 </label>\
                             </div>\

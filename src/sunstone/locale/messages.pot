@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-30 17:05+0200\n"
+"POT-Creation-Date: 2014-07-30 17:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -502,7 +502,7 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:163
 #: ../public/js/plugins/images-tab.js:512
 #: ../public/js/plugins/images-tab.js:754
-#: ../public/js/plugins/images-tab.js:1156
+#: ../public/js/plugins/images-tab.js:1155
 #: ../public/js/plugins/marketplace-tab.js:374
 #: ../public/js/plugins/marketplace-tab.js:449
 #: ../public/js/plugins/oneflow-services.js:838
@@ -1599,7 +1599,7 @@ msgid "Running VMS"
 msgstr ""
 
 #: ../public/js/plugins/files-tab.js:650
-#: ../public/js/plugins/images-tab.js:948
+#: ../public/js/plugins/images-tab.js:947
 msgid "Uploading..."
 msgstr ""
 
@@ -2073,7 +2073,7 @@ msgid " Formatted. The disk image is stored in a hypervisor specific format VMDK
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:122
-#: ../public/js/plugins/images-tab.js:1164
+#: ../public/js/plugins/images-tab.js:1163
 #: ../public/js/plugins/templates-tab.js:564
 #: ../public/js/plugins/templates-tab.js:826
 #: ../public/js/plugins/templates-tab.js:987
@@ -2146,7 +2146,7 @@ msgid "Make non persistent"
 msgstr ""
 
 #: ../public/js/plugins/images-tab.js:475
-#: ../public/js/plugins/images-tab.js:1178
+#: ../public/js/plugins/images-tab.js:1177
 #: ../public/js/plugins/templates-tab.js:365
 #: ../public/js/plugins/templates-tab.js:4587
 msgid "Clone"
@@ -2176,28 +2176,28 @@ msgstr ""
 msgid "no"
 msgstr ""
 
-#: ../public/js/plugins/images-tab.js:900
+#: ../public/js/plugins/images-tab.js:899
 msgid "Custom attribute name and value must be filled in"
 msgstr ""
 
-#: ../public/js/plugins/images-tab.js:992
+#: ../public/js/plugins/images-tab.js:991
 msgid "There are mandatory parameters missing"
 msgstr ""
 
-#: ../public/js/plugins/images-tab.js:1001
-#: ../public/js/plugins/images-tab.js:1081
+#: ../public/js/plugins/images-tab.js:1000
+#: ../public/js/plugins/images-tab.js:1080
 msgid "Please select a datastore for this image"
 msgstr ""
 
-#: ../public/js/plugins/images-tab.js:1151
+#: ../public/js/plugins/images-tab.js:1150
 msgid "Clone Image"
 msgstr ""
 
-#: ../public/js/plugins/images-tab.js:1157
+#: ../public/js/plugins/images-tab.js:1156
 msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr ""
 
-#: ../public/js/plugins/images-tab.js:1169
+#: ../public/js/plugins/images-tab.js:1168
 msgid "You can select a different target datastore"
 msgstr ""
 
@@ -2908,7 +2908,7 @@ msgid "Shutdown hard"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:129
-msgid "Wait for VMs to report that the are READY"
+msgid "Wait for VMs to report that they are READY"
 msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:130
