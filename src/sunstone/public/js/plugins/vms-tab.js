@@ -2372,7 +2372,7 @@ function setupResizeCapacityDialog(){
                   '</label>\
           </div>\
           </div>' +
-          generate_capacity_tab_content() +
+          generate_capacity_inputs() +
           '<div class="reveal-footer">\
           <div class="form_buttons">\
               <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
@@ -2384,9 +2384,7 @@ function setupResizeCapacityDialog(){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
-    $("#template_name_form", dialog).hide();
-
-    setup_capacity_tab_content(dialog);
+    setup_capacity_inputs(dialog);
 
     $('#resize_capacity_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).text();

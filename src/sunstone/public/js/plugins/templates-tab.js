@@ -466,6 +466,11 @@ function updateTemplatesView(request, templates_list){
     updateView(template_list_array,dataTable_templates);
 }
 
+/**************************************************************************
+    CAPACITY TAB
+
+**************************************************************************/
+
 function generate_capacity_tab_content() {
     var html = '<div class="row vm_param">'+
         '<div class="large-8 columns">'+
@@ -509,7 +514,14 @@ function generate_capacity_tab_content() {
           '</div>'+
         '</div>'+
     '</div>'+
-    '<div class="vm_param">'+
+    generate_capacity_inputs();
+
+    return html;
+}
+
+// Warning: used also in vms-tab.js
+function generate_capacity_inputs() {
+    var html = '<div class="vm_param">'+
         '<input type="hidden" id="MEMORY" name="memory" />'+
     '</div>'+
     '<div class="row">'+
@@ -573,12 +585,21 @@ function generate_capacity_tab_content() {
     return html;
 }
 
-/**************************************************************************
-    CAPACITY TAB
-
-**************************************************************************/
-
 function setup_capacity_tab_content(capacity_section) {
+    setupTips(capacity_section);
+
+    capacity_section.on("change", "#LOGO", function(){
+      $("#template_create_logo",capacity_section).show();
+      $("#template_create_logo",capacity_section).html('<a  class="th radius" href="#">'+
+          '<img src="' + $(this).val() + '">'+
+        '</a>');
+    });
+
+    setup_capacity_inputs(capacity_section);
+}
+
+// Warning: used also in vms-tab.js
+function setup_capacity_inputs(capacity_section) {
     setupTips(capacity_section);
 
     // Hide advanced options
@@ -587,13 +608,6 @@ function setup_capacity_tab_content(capacity_section) {
     $('#advanced_capacity',capacity_section).click(function(){
         $('.advanced',capacity_section).toggle();
         return false;
-    });
-
-    capacity_section.on("change", "#LOGO", function(){
-      $("#template_create_logo",capacity_section).show();
-      $("#template_create_logo",capacity_section).html('<a  class="th radius" href="#">'+
-          '<img src="' + $(this).val() + '">'+
-        '</a>');
     });
 
     // Define the cpu slider
