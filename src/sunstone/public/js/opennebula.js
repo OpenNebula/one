@@ -578,9 +578,7 @@ var OpenNebula = {
                 type: "POST",
                 data: JSON.stringify(action),
                 success: function(){
-                    if(method == "clone"){
-                        OpenNebula.Helper.clear_cache(cache_name);
-                    }
+                    OpenNebula.Helper.clear_cache(cache_name);
 
                    return callback ? callback(request) : null;
                 },
@@ -1546,15 +1544,19 @@ var OpenNebula = {
             OpenNebula.Action.list(params, OpenNebula.Service.resource, OpenNebula.Service.path)
         },
         "show" : function(params){
+            params.cache_name = "SERVICE";
             OpenNebula.Action.show(params, OpenNebula.Service.resource, false, OpenNebula.Service.path)
         },
         "chown" : function(params){
+            params.cache_name = "SERVICE";
             OpenNebula.Action.chown(params,OpenNebula.Service.resource, OpenNebula.Service.path);
         },
         "chgrp" : function(params){
+            params.cache_name = "SERVICE";
             OpenNebula.Action.chgrp(params,OpenNebula.Service.resource, OpenNebula.Service.path);
         },
         "chmod" : function(params){
+            params.cache_name = "SERVICE";
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.Service.resource,
@@ -1563,6 +1565,7 @@ var OpenNebula = {
                                             OpenNebula.Service.path);
         },
         "shutdown" : function(params){
+            params.cache_name = "SERVICE";
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.Service.resource,
                                             "shutdown",
@@ -1570,6 +1573,7 @@ var OpenNebula = {
                                             OpenNebula.Service.path);
         },
         "recover" : function(params){
+            params.cache_name = "SERVICE";
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.Service.resource,
                                             "recover",
@@ -1768,6 +1772,7 @@ var OpenNebula = {
         },
 
         "instantiate": function(params){
+            params.cache_name = "SERVICE_TEMPLATE";
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.ServiceTemplate.resource,
@@ -1776,6 +1781,7 @@ var OpenNebula = {
                                             OpenNebula.ServiceTemplate.path);
         },
         "update": function(params){
+            params.cache_name = "SERVICE_TEMPLATE";
             var action_obj = {"template_json" : params.data.extra_param };
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.ServiceTemplate.resource,
@@ -1792,15 +1798,19 @@ var OpenNebula = {
             OpenNebula.Action.list(params, OpenNebula.ServiceTemplate.resource, OpenNebula.ServiceTemplate.path)
         },
         "show" : function(params){
+            params.cache_name = "SERVICE_TEMPLATE";
             OpenNebula.Action.show(params, OpenNebula.ServiceTemplate.resource, false, OpenNebula.ServiceTemplate.path)
         },
         "chown" : function(params){
+            params.cache_name = "SERVICE_TEMPLATE";
             OpenNebula.Action.chown(params,OpenNebula.ServiceTemplate.resource, OpenNebula.ServiceTemplate.path);
         },
         "chgrp" : function(params){
+            params.cache_name = "SERVICE_TEMPLATE";
             OpenNebula.Action.chgrp(params,OpenNebula.ServiceTemplate.resource, OpenNebula.ServiceTemplate.path);
         },
         "chmod" : function(params){
+            params.cache_name = "SERVICE_TEMPLATE";
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,
                                             OpenNebula.ServiceTemplate.resource,
