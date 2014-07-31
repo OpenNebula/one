@@ -1333,8 +1333,8 @@ function updateServiceInfo(request,elem){
                         info.push("");
                     }
 
-                    if (elem_info.TEMPLATE.BODY.running_status_gate) {
-                        if (vm_info.VM.USER_TEMPLATE.RUNNING == "YES") {
+                    if (elem_info.TEMPLATE.BODY.ready_status_gate) {
+                        if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
                             info.push('<span data-tooltip class="has-tip" title="'+tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
 
                         } else {
