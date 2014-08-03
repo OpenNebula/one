@@ -309,9 +309,9 @@ if RUBY_VERSION<'1.9'
             command=args[0..-2]
 
             # Close stdin and point out and err to log file
-            $stdin.close
             $stdout.reopen(VNC_LOG, "a")
             $stderr.reopen(VNC_LOG, "a")
+            $stdin.close
 
             # Detach process from the parent
             Process.setsid
