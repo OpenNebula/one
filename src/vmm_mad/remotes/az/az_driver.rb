@@ -153,8 +153,8 @@ class AzureDriver
         end
 
         # Set default endpoint if not declared
-        if @region['managment_endpoint'].nil?
-           @region['managment_endpoint']="https://management.core.windows.net"
+        if @region['management_endpoint'].nil?
+           @region['management_endpoint']="https://management.core.windows.net"
         end
 
         Azure.configure do |config|
