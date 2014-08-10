@@ -404,10 +404,8 @@ private
             if all_ec2_elements.size == 1
                 ec2 = all_ec2_elements[0]
             else
-                STDERR.puts(
-                    "Cannot find EC2 element in deployment file "<<
-                    "#{local_dfile} or couldn't find any EC2 site matching "<<
-                    "one of the template.")
+                STDERR.puts("Cannot find EC2 element in deployment file or no" \
+                    "EC2 site matching in the template.")
                 exit(-1)
             end
         end
