@@ -237,7 +237,7 @@ void MonitorThread::do_message()
 
             if (vm->hasHistory() &&
                 vm->get_lcm_state() == VirtualMachine::RUNNING &&
-                (vm->get_running_stime() + 3*monitor_interval) < last_monitored)
+                (vm->get_running_stime() + 2*monitor_interval) < last_monitored)
             {
                 lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
             }
