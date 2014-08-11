@@ -25,6 +25,7 @@ class HostPool;
 class ClusterPool;
 class DatastorePool;
 class LifeCycleManager;
+class VirtualMachinePool;
 
 class MonitorThreadPool;
 
@@ -54,13 +55,17 @@ private:
     // Pointers shared by all the MonitorThreads, init by MonitorThreadPool
     static HostPool * hpool;
 
-    static ClusterPool *cpool;
+    static ClusterPool * cpool;
 
     static DatastorePool * dspool;
 
     static LifeCycleManager *lcm;
 
+    static VirtualMachinePool * vmpool;
+
     static MonitorThreadPool * mthpool;
+
+    static time_t monitor_interval;
 };
 
 // -----------------------------------------------------------------------------
