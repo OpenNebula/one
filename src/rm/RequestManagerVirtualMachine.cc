@@ -882,7 +882,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     if((vm->get_state()     != VirtualMachine::ACTIVE)  ||
-       (vm->get_lcm_state() != VirtualMachine::RUNNING) ||
+       (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+        vm->get_lcm_state() != VirtualMachine::UNKNOWN) ||
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
         failure_response(ACTION,
