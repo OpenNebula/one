@@ -267,6 +267,60 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
+    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+    {
+        //----------------------------------------------------
+        //     Bypass SAVE_MIGRATE to PROLOG_MIGRATE STATE
+        //----------------------------------------------------
+
+        Nebula&             nd = Nebula::instance();
+        TransferManager *   tm = nd.get_tm();
+        int                 cpu,mem,disk;
+        time_t              the_time = time(0);
+
+        vm->set_resched(false);
+
+        vm->set_state(VirtualMachine::PROLOG);
+
+        vm->delete_snapshots();
+
+        map<string, string> empty;
+        vm->update_info(0, 0, -1, -1, empty);
+
+        vmpool->update(vm);
+
+
+        vm->set_stime(the_time);
+
+        vm->set_previous_action(History::MIGRATE_ACTION);
+
+        vm->set_previous_etime(the_time);
+
+        vm->set_previous_vm_info();
+
+        vm->set_previous_running_etime(the_time);
+
+        vm->set_previous_reason(History::USER);
+
+        vmpool->update_previous_history(vm);
+
+        vm->set_prolog_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+
+        vm->log("LCM", Log::INFO, "New VM state is PROLOG");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::PROLOG_MIGR,vid);
+    }
     else
     {
         vm->log("LCM", Log::ERROR, "migrate_action, VM in a wrong state.");
