@@ -46,10 +46,12 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
 HOST=`get_destination_host`
 
@@ -58,10 +60,15 @@ if [ -z "$HOST" ]; then
     exit -1
 fi
 
+if [ -z "$CEPH_USER" ]; then
+    error_message "Datastore template missing 'CEPH_USER' attribute."
+    exit -1
+fi
+
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$RADOS df | $AWK '{
+$RADOS df -p ${POOL_NAME} --id ${CEPH_USER}| $AWK '{
     if (\$1 == "total") {
 
         space = int(\$3/1024)
