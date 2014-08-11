@@ -91,7 +91,8 @@ int DispatchManager::migrate(
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN ) )
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -776,7 +777,8 @@ int DispatchManager::resched(int vid, bool do_resched)
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         vm->set_resched(do_resched);
         vmpool->update(vm);
