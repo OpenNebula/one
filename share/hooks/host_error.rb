@@ -19,6 +19,8 @@
 ####################################################
 # Script to implement host failure tolerance
 #   It can be set to
+#           -m migrate VMs to another host.
+#                   State will be lost. Only for shared storage
 #           -r recreate VMs running in the host
 #           -d delete VMs running in the host
 #   Additional flags
@@ -55,6 +57,7 @@ force  = "n"  # By default, don't recreate/delete suspended VMs
 repeat = nil  # By default, don't wait for monitorization cycles"
 
 opts = GetoptLong.new(
+            ['--migrate',  '-m',GetoptLong::NO_ARGUMENT],
             ['--delete',   '-d',GetoptLong::NO_ARGUMENT],
             ['--recreate', '-r',GetoptLong::NO_ARGUMENT],
             ['--force',    '-f',GetoptLong::NO_ARGUMENT],
@@ -64,6 +67,8 @@ opts = GetoptLong.new(
 begin
     opts.each do |opt, arg|
         case opt
+            when '--migrate'
+                mode="-m"
             when '--delete'
                 mode="-d"
             when '--recreate'
@@ -124,6 +129,8 @@ if vm_ids_array
             vm.delete(true)
         elsif mode == "-d"
             vm.delete
+        elsif mode == "-m"
+            vm.resched
         end
     end
 end
