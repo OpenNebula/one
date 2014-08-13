@@ -324,12 +324,11 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale/zh_CN \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/crypto-js \
-               $SUNSTONE_LOCATION/public/vendor/explorercanvas \
-               $SUNSTONE_LOCATION/public/vendor/flot \
                $SUNSTONE_LOCATION/public/vendor/fileuploader \
                $SUNSTONE_LOCATION/public/vendor/noVNC \
                $SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js \
                $SUNSTONE_LOCATION/public/vendor/4.0 \
+               $SUNSTONE_LOCATION/public/vendor/4.0/flot \
                $SUNSTONE_LOCATION/public/vendor/4.0/datatables \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables \
                $SUNSTONE_LOCATION/public/vendor/4.0/jquery_layout \
@@ -338,6 +337,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/vendor/4.0/jgrowl \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation \
+               $SUNSTONE_LOCATION/public/vendor/4.0/modernizr \
                $SUNSTONE_LOCATION/public/vendor/4.0/nouislider \
                $SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1 \
                $SUNSTONE_LOCATION/public/vendor/4.0/jdpicker_1.1/images \
@@ -505,17 +505,16 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
-    SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS:$SUNSTONE_LOCATION/public/vendor/explorercanvas
-    SUNSTONE_PUBLIC_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/flot
     SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER:$SUNSTONE_LOCATION/public/vendor/fileuploader
     SUNSTONE_PUBLIC_VENDOR_NOVNC:$SUNSTONE_LOCATION/public/vendor/noVNC
     SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET:$SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js
+    SUNSTONE_PUBLIC_NEW_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/4.0/flot
     SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/4.0/jgrowl
     SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/4.0/
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION:$SUNSTONE_LOCATION/public/vendor/4.0/foundation
-    SUNSTONE_PUBLIC_NEW_VENDOR_JQUERYLAYOUT:$SUNSTONE_LOCATION/public/vendor/4.0/jquery_layout
+    SUNSTONE_PUBLIC_NEW_VENDOR_MODERNIZR:$SUNSTONE_LOCATION/public/vendor/4.0/modernizr
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/fonts
     SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS:$SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css
@@ -1523,19 +1522,82 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 
+# begin bower
+
+
+SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
+    src/sunstone/public/bower_components/jquery/dist/jquery.min.js \
+    src/sunstone/public/bower_components/jquery-migrate/jquery-migrate.min.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES="\
+    src/sunstone/public/bower_components/datatables/media/js/jquery.dataTables.min.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_MODERNIZR="\
+    src/sunstone/public/bower_components/modernizr/modernizr.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
+    src/sunstone/public/bower_components/foundation/js/foundation.min.js"
+
+
+SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
+    src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.js \
+    src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.css"
+
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES="\
+    src/sunstone/public/bower_components/foundation-datatables/integration/foundation/dataTables.foundation.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FLOT="\
+    src/sunstone/public/bower_components/flot/jquery.flot.js \
+    src/sunstone/public/bower_components/flot/excanvas.min.js \
+    src/sunstone/public/bower_components/flot/jquery.flot.time.js \
+    src/sunstone/public/bower_components/flot/jquery.flot.resize.js \
+    src/sunstone/public/bower_components/flot.tooltip/js/jquery.flot.tooltip.min.js \
+    src/sunstone/public/bower_components/flot/jquery.flot.stack.js"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS="\
+    src/sunstone/public/bower_components/fontawesome/css/font-awesome.min.css"
+
+SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT="\
+    src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.eot \
+    src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff \
+    src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.ttf \
+    src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.svg \
+    src/sunstone/public/bower_components/fontawesome/fonts/FontAwesome.otf"
+
+SUNSTONE_PUBLIC_VENDOR_NOVNC="\
+    src/sunstone/public/bower_components/no-vnc/include/base.css \
+    src/sunstone/public/bower_components/no-vnc/include/base64.js \
+    src/sunstone/public/bower_components/no-vnc/include/black.css \
+    src/sunstone/public/bower_components/no-vnc/include/blue.css \
+    src/sunstone/public/bower_components/no-vnc/include/des.js \
+    src/sunstone/public/bower_components/no-vnc/include/display.js \
+    src/sunstone/public/bower_components/no-vnc/include/input.js \
+    src/sunstone/public/bower_components/no-vnc/include/jsunzip.js \
+    src/sunstone/public/bower_components/no-vnc/include/keyboard.js \
+    src/sunstone/public/bower_components/no-vnc/include/keysymdef.js \
+    src/sunstone/public/bower_components/no-vnc/include/logo.js \
+    src/sunstone/public/bower_components/no-vnc/include/Orbitron700.ttf \
+    src/sunstone/public/bower_components/no-vnc/include/Orbitron700.woff \
+    src/sunstone/public/bower_components/no-vnc/include/playback.js \
+    src/sunstone/public/bower_components/no-vnc/include/rfb.js \
+    src/sunstone/public/bower_components/no-vnc/include/ui.js \
+    src/sunstone/public/bower_components/no-vnc/include/util.js \
+    src/sunstone/public/bower_components/no-vnc/include/websock.js \
+    src/sunstone/public/bower_components/no-vnc/include/webutil.js"
+
+SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET="\
+    src/sunstone/public/bower_components/no-vnc/include/web-socket-js/web_socket.js \
+    src/sunstone/public/bower_components/no-vnc/include/web-socket-js/swfobject.js \
+    src/sunstone/public/bower_components/no-vnc/include/web-socket-js/WebSocketMain.swf"
+
+# end bower
+
+
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.css \
                 src/sunstone/public/css/opensans.woff \
                 src/sunstone/public/css/login.css"
 
-SUNSTONE_PUBLIC_VENDOR_FLOT="\
-src/sunstone/public/vendor/flot/jquery.flot.min.js \
-src/sunstone/public/vendor/flot/jquery.flot.navigate.min.js \
-src/sunstone/public/vendor/flot/jquery.flot.pie.min.js \
-src/sunstone/public/vendor/flot/jquery.flot.resize.min.js \
-src/sunstone/public/vendor/flot/jquery.flot.stack.min.js \
-src/sunstone/public/vendor/flot/jquery.flot.tooltip.min.js \
-src/sunstone/public/vendor/flot/LICENSE.txt \
-src/sunstone/public/vendor/flot/NOTICE"
 
 SUNSTONE_PUBLIC_VENDOR_CRYPTOJS="\
 src/sunstone/public/vendor/crypto-js/NOTICE \
@@ -1544,83 +1606,15 @@ src/sunstone/public/vendor/crypto-js/core-min.js \
 src/sunstone/public/vendor/crypto-js/enc-base64-min.js \
 src/sunstone/public/vendor/crypto-js/NEW-BSD-LICENSE.txt"
 
-SUNSTONE_PUBLIC_VENDOR_EXPLORERCANVAS="\
-src/sunstone/public/vendor/explorercanvas/excanvas.compiled.js \
-src/sunstone/public/vendor/explorercanvas/NOTICE \
-src/sunstone/public/vendor/explorercanvas/LICENSE.txt"
 
 SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER="\
 src/sunstone/public/vendor/fileuploader/NOTICE \
 src/sunstone/public/vendor/fileuploader/fileuploader.js"
 
-SUNSTONE_PUBLIC_VENDOR_NOVNC="\
-src/sunstone/public/vendor/noVNC/LICENSE.txt \
-src/sunstone/public/vendor/noVNC/black.css \
-src/sunstone/public/vendor/noVNC/playback.js \
-src/sunstone/public/vendor/noVNC/websock.js \
-src/sunstone/public/vendor/noVNC/util.js \
-src/sunstone/public/vendor/noVNC/des.js \
-src/sunstone/public/vendor/noVNC/jsunzip.js \
-src/sunstone/public/vendor/noVNC/Orbitron700.ttf \
-src/sunstone/public/vendor/noVNC/display.js \
-src/sunstone/public/vendor/noVNC/input.js \
-src/sunstone/public/vendor/noVNC/rfb.js \
-src/sunstone/public/vendor/noVNC/base64.js \
-src/sunstone/public/vendor/noVNC/Orbitron700.woff \
-src/sunstone/public/vendor/noVNC/logo.js \
-src/sunstone/public/vendor/noVNC/blue.css \
-src/sunstone/public/vendor/noVNC/ui.js \
-src/sunstone/public/vendor/noVNC/vnc.js \
-src/sunstone/public/vendor/noVNC/base.css \
-src/sunstone/public/vendor/noVNC/webutil.js"
-
-SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET="\
-src/sunstone/public/vendor/noVNC/web-socket-js/web_socket.js \
-src/sunstone/public/vendor/noVNC/web-socket-js/README.txt \
-src/sunstone/public/vendor/noVNC/web-socket-js/swfobject.js \
-src/sunstone/public/vendor/noVNC/web-socket-js/WebSocketMain.swf"
 
 SUNSTONE_PUBLIC_VENDOR_XML2JSON="\
 src/sunstone/public/vendor/xml2json/NOTICE \
 src/sunstone/public/vendor/xml2json/jquery.xml2json.pack.js"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES="\
-                src/sunstone/public/vendor/4.0/datatables/media/js/jquery.dataTables.min.js \
-                src/sunstone/public/vendor/4.0/datatables/license-bsd.txt"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES="\
-                src/sunstone/public/vendor/4.0/foundation_datatables/javascripts/datatables.foundation.js \
-                src/sunstone/public/vendor/4.0/foundation_datatables/javascripts/responsive-tables.js"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
-                src/sunstone/public/vendor/4.0/jgrowl/jquery.jgrowl.js \
-                src/sunstone/public/vendor/4.0/jgrowl/jquery.jgrowl.css \
-                src/sunstone/public/vendor/4.0/jgrowl/LICENSE"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
-  src/sunstone/public/bower_components/modernizr/modernizr.js \
-  src/sunstone/public/bower_components/foundation/js/foundation.min.js"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
-                        src/sunstone/public/vendor/4.0/jquery-2.1.1.min.js \
-                        src/sunstone/public/vendor/4.0/jquery-1.11.0.min.map \
-                        src/sunstone/public/vendor/4.0/jquery-migrate-1.2.1.js"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_JQUERYLAYOUT="\
-            src/sunstone/public/vendor/4.0/jquery_layout/layout-default-latest.css \
-            src/sunstone/public/vendor/4.0/jquery_layout/jquery.layout-latest.min.js"
-
-
-SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS="\
-  src/sunstone/public/vendor/4.0/fontawesome/css/font-awesome.min.css"
-
-SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT="\
-src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.eot \
-src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.woff \
-src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.ttf \
-src/sunstone/public/vendor/4.0/fontawesome/fonts/fontawesome-webfont.svg \
-src/sunstone/public/vendor/4.0/fontawesome/fonts/FontAwesome.otf \
-"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_NOUISLIDER="\
                 src/sunstone/public/vendor/4.0/nouislider/jquery.nouislider.min.js \
