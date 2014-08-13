@@ -2457,7 +2457,7 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("vms")) {
     $("#provision_dashboard").append(provision_vms_dashboard);
 
-    var start_time = new Date().getTime() / 1000;
+    var start_time =  Math.floor(new Date().getTime() / 1000);
     // ms to s
 
     // 604800 = 7 days = 7*24*60*60
@@ -2531,7 +2531,7 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("vdcvms")) {
     $("#provision_dashboard").append(provision_vdc_vms_dashboard);
 
-    var start_time = new Date().getTime() / 1000;
+    var start_time =  Math.floor(new Date().getTime() / 1000);
     // ms to s
 
     // 604800 = 7 days = 7*24*60*60
@@ -2605,7 +2605,7 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("users")) {
     $("#provision_dashboard").append(provision_users_dashboard);
 
-    var start_time = new Date().getTime() / 1000;
+    var start_time =  Math.floor(new Date().getTime() / 1000);
     // ms to s
 
     // 604800 = 7 days = 7*24*60*60
@@ -5061,7 +5061,7 @@ function setup_provision_user_info(context) {
             '<li class="provision-bullet-item text-left">'+
             '</li>')
 
-        var start_time = new Date().getTime() / 1000;
+        var start_time =  Math.floor(new Date().getTime() / 1000);
         // ms to s
 
         // 604800 = 7 days = 7*24*60*60

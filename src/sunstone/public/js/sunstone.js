@@ -1883,15 +1883,14 @@ function plot_graph(response, info) {
             tickFormatter: function(val,axis){
                 return pretty_time_axis(val, info.show_date);
             },
-            color: "#999",
+            color: "#efefef",
             size: 8
         },
-        yaxis : { labelWidth: 50,
-                  tickFormatter: function(val, axis) {
+        yaxis : { tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0,
-                color: "#999",
+                color: "#efefef",
                 size: 8
                 },
         series: {
@@ -1901,7 +1900,7 @@ function plot_graph(response, info) {
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#cfcfcf"
+            borderColor: "#efefef"
         }
     };
 
@@ -4886,6 +4885,7 @@ function fillAccounting(div, req, response, no_table) {
 
     // start_time is mandatory
     var start = new Date(options.start_time * 1000);
+    start.setHours(0,0,0,0);
 
     var end = new Date();
 
@@ -4917,20 +4917,19 @@ function fillAccounting(div, req, response, no_table) {
         xaxis : {
             mode: "time",
             timeformat: "%y/%m/%d",
-            color: "#999",
+            color: "#efefef",
             size: 8,
             ticks: 4,
             minTickSize: [1, "day"]
         },
-        yaxis : { labelWidth: 50,
-                  min: 0,
-                color: "#999",
+        yaxis : { min: 0,
+                color: "#efefef",
                 size: 8
                 },
         series: {
             bars: {
                 show: true,
-                lineWidth: 1,
+                lineWidth: 0,
                 fill: true,
                 barWidth: 24*60*60*1000 * 0.8,
                 align: "center"
@@ -4942,7 +4941,7 @@ function fillAccounting(div, req, response, no_table) {
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#cfcfcf",
+            borderColor: "#efefef",
             hoverable: true
         },
         tooltip: true,
