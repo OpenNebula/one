@@ -1293,7 +1293,10 @@ function updateView(item_list,dataTable){
         var prev_start = dTable_settings._iDisplayStart;
 
         dataTable.fnClearTable(false);
-        dataTable.fnAddData(item_list, false);
+
+        if (item_list.length > 0) {
+            dataTable.fnAddData(item_list, false);
+        }
 
         var new_start = prev_start;
 
