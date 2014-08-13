@@ -1,6 +1,7 @@
 *.a
 *.o
 *.pyc
+*.DS_Store
 .xmlrpc_test/
 .sconsign.dblite
 share/man/*.gz
@@ -16,3 +17,6 @@ share/doc/one/html
 *.class
 src/oca/java/jar
 src/oca/java/share/doc
+
+src/sunstone/public/.sass-cache
+src/sunstone/public/node_modules
