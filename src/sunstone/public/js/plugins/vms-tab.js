@@ -22,8 +22,11 @@ var VM_HISTORY_LENGTH = 40;
 var vnc_lock = false;
 
 function loadVNC(){
-    var script = '<script src="vendor/noVNC/vnc.js"></script>';
-    document.write(script);
+    // Load supporting scripts
+        "use strict";
+    Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
+                       "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                       "jsunzip.js", "rfb.js"]);
 }
 loadVNC();
 
