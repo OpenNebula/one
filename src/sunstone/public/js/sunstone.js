@@ -4751,7 +4751,7 @@ function accountingGraphs(div, opt){
     d.setDate(1);
     d.setMonth(d.getMonth() - 1);
 
-    $("#acct_start_time", div).val(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+    $("#acct_start_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
 
     //--------------------------------------------------------------------------
     // VM owner: all, group, user
