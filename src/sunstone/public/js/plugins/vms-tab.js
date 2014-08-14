@@ -1533,8 +1533,8 @@ function printActionsTable(vm_info)
                               </select>\
               </td>\
              <td>\
-                <input id="date_input" class="jdpicker" type="text" placeholder="2013/12/30"/>\
-                <input id="time_input" type="text" placeholder="12:30"/>\
+                <input id="date_input" type="date" placeholder="2013/12/30"/>\
+                <input id="time_input" type="time" placeholder="12:30"/>\
              </td>\
              <td>\
                 <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
@@ -1542,7 +1542,6 @@ function printActionsTable(vm_info)
              <td colspan=2></td>\
            </tr>');
 
-        $("#date_input").jdPicker();
         return false;
     });
 
