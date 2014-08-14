@@ -60,15 +60,14 @@ if [ -z "$HOST" ]; then
     exit -1
 fi
 
-if [ -z "$CEPH_USER" ]; then
-    error_message "Datastore template missing 'CEPH_USER' attribute."
-    exit -1
+if [ -n "$CEPH_USER" ]; then
+    RADOS="$RADOS --id ${CEPH_USER}"
 fi
 
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$RADOS df -p ${POOL_NAME} --id ${CEPH_USER}| $AWK '{
+$RADOS df -p ${POOL_NAME}| $AWK '{
     if (\$1 == "total") {
 
         space = int(\$3/1024)

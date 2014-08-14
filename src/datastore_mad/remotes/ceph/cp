@@ -87,11 +87,9 @@ if [ -z "$DST_HOST" ]; then
     exit -1
 fi
 
-if [ -z "$CEPH_USER" ]; then
-    error_message "Datastore template missing 'CEPH_USER' attribute."
-    exit -1
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
 fi
-
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
@@ -142,7 +140,7 @@ REGISTER_CMD=$(cat <<EOF
         mv $TMP_DST.raw $TMP_DST
     fi
 
-    $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE --id ${CEPH_USER}
+    $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
 
     # remove original
     $RM -f $TMP_DST
@@ -150,6 +148,6 @@ EOF
 )
 
 ssh_exec_and_log    "$DST_HOST" "$REGISTER_CMD" \
-                    "Error registering $RBD_SOURCE:id=${CEPH_USER} in $DST_HOST"
+                    "Error registering $RBD_SOURCE in $DST_HOST"
 
 echo "$RBD_SOURCE"

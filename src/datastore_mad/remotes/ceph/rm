@@ -59,9 +59,8 @@ if [ -z "$DST_HOST" ]; then
     exit -1
 fi
 
-if [ -z "$CEPH_USER" ]; then
-     error_message "Datastore template missing 'CEPH_USER' attribute."
-     exit -1
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
 fi
 
 
@@ -69,6 +68,6 @@ fi
 
 log "Removing $SRC from the rbd image repository in $DST_HOST"
 
-ssh_exec_and_log "$DST_HOST" "$RBD rm $SRC --id ${CEPH_USER}" "Error removing $SRC in $DST_HOST"
+ssh_exec_and_log "$DST_HOST" "$RBD rm $SRC" "Error removing $SRC in $DST_HOST"
 
 exit 0
