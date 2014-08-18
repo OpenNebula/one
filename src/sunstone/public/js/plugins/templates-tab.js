@@ -3174,38 +3174,40 @@ function setup_context_tab_content(context_section) {
 
     $('#datatable_context tbody', context_section).delegate("tr", "click", function(e){
         var aData   = datTable_template_context.fnGetData(this);
-        var file_id = aData[1];
+        if (aData) {
+          var file_id = aData[1];
 
-        if ($.isEmptyObject(selected_files)) {
-            $('#files_selected',  context_section).show();
-            $('#select_files', context_section).hide();
+          if ($.isEmptyObject(selected_files)) {
+              $('#files_selected',  context_section).show();
+              $('#select_files', context_section).hide();
+          }
+
+          if (!$("td:first", this).hasClass('markrowchecked')) {
+              $('input.check_item', this).attr('checked','checked');
+              selected_files[file_id]=1;
+              file_row_hash[file_id]=this;
+              $(this).children().each(function(){$(this).addClass('markrowchecked');});
+              if ($('#tag_file_'+aData[1], $('div#selected_files_spans', context_section)).length == 0 ) {
+                  $('#selected_files_spans', context_section).append('<span image_id="'+aData[1]+'" id="tag_file_'+aData[1]+'" class="image radius label">'+aData[4]+' <span class="fa fa-times blue"></span></span> ');
+              }
+          } else {
+              $('input.check_item', this).removeAttr('checked');
+              delete selected_files[file_id];
+              $("td", this).removeClass('markrowchecked');
+              $('div#selected_files_spans span#tag_file_'+file_id, context_section).remove();
+          }
+
+          if ($.isEmptyObject(selected_files)) {
+            $('#files_selected',  context_section).hide();
+            $('#select_files', context_section).show();
+          }
+
+          $('.alert-box', $('#contextTab')).hide();
+
+          generate_context_files();
+
+          return true;
         }
-
-        if (!$("td:first", this).hasClass('markrowchecked')) {
-            $('input.check_item', this).attr('checked','checked');
-            selected_files[file_id]=1;
-            file_row_hash[file_id]=this;
-            $(this).children().each(function(){$(this).addClass('markrowchecked');});
-            if ($('#tag_file_'+aData[1], $('div#selected_files_spans', context_section)).length == 0 ) {
-                $('#selected_files_spans', context_section).append('<span image_id="'+aData[1]+'" id="tag_file_'+aData[1]+'" class="image radius label">'+aData[4]+' <span class="fa fa-times blue"></span></span> ');
-            }
-        } else {
-            $('input.check_item', this).removeAttr('checked');
-            delete selected_files[file_id];
-            $("td", this).removeClass('markrowchecked');
-            $('div#selected_files_spans span#tag_file_'+file_id, context_section).remove();
-        }
-
-        if ($.isEmptyObject(selected_files)) {
-          $('#files_selected',  context_section).hide();
-          $('#select_files', context_section).show();
-        }
-
-        $('.alert-box', $('#contextTab')).hide();
-
-        generate_context_files();
-
-        return true;
     });
 
     $( "span.fa.fa-times", $("#selected_files_spans") ).die()
