@@ -1860,7 +1860,7 @@ function plot_graph(response, info) {
 
         var data = response.monitoring[attribute];
 
-        if(info.derivative == true) {
+        if(info.derivative == true && data) {
             derivative(data);
         }
 
@@ -1889,11 +1889,13 @@ function plot_graph(response, info) {
             color: "#efefef",
             size: 8
         },
-        yaxis : { tickFormatter: function(val, axis) {
+        yaxis : {
+                tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0,
                 color: "#efefef",
+
                 size: 8
                 },
         series: {
@@ -1934,7 +1936,9 @@ function plot_totals(response, info) {
 
                     var data = response[id][attribute];
 
-                    derivative(data);
+                    if (data) {
+                        derivative(data);
+                    }
                 }
             }
 
