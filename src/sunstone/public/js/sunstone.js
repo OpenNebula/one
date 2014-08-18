@@ -5257,8 +5257,13 @@ function fillAccounting(div, req, response, no_table) {
             ]
         });
 
-        acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
-        acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        if (cpu_dataTable_data.length > 0) {
+            acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
+        }
+
+        if (mem_dataTable_data.length > 0) {
+            acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        }
     }
 
     $("#acct_placeholder", div).hide();

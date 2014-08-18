@@ -937,6 +937,7 @@ hr {
   background: #cfcfcf;
 }
 
+// There is a bug in zurb foundation and the tooltip z-index is < than modal
 .tooltip {
   z-index: 2000;
 }
