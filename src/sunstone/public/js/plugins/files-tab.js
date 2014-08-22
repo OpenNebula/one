@@ -126,6 +126,7 @@ var create_file_tmpl ='<div class="row">\
 
 var dataTable_files;
 var $create_file_dialog;
+var size_files = 0;
 
 var file_actions = {
 

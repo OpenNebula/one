@@ -228,7 +228,7 @@ input.search {
 }
 
 .header-title {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 // action block
@@ -255,6 +255,9 @@ select {
 
 .button.secondary {
   color: #555;
+}
+
+.button {
   margin-right: 3px;
 }
 
@@ -939,4 +942,14 @@ hr {
 // There is a bug in zurb foundation and the tooltip z-index is < than modal
 .tooltip {
   z-index: 2000;
+}
+
+.tabs.vertical {
+  width: 10%;
+  max-width: 10%;
+}
+
+.tabs-content.vertical {
+  width: 90%;
+  max-width: 90%;
 }
