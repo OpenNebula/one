@@ -53,7 +53,8 @@ var QUOTA_LIMIT_UNLIMITED = "-2";
 var SunstoneCfg = {
     "actions" : {},
      "tabs" : {},
-     "info_panels" : {}
+     "info_panels" : {},
+     "form_panels" : {}
 };
 
 var language_options = '<option value="en_US">English (en_US)</option>\
@@ -139,6 +140,20 @@ var Sunstone = {
          }
     },
 
+    "addFormPanel" : function(tab_id, form_name, form_obj){
+        SunstoneCfg["form_panels"][form_name]=form_obj;
+
+        var context = $(".right-form", $('#'+tab_id));
+
+        // TODO check if it is already included
+
+        $("#advancedForms", context).append(form_obj.advanced_html);
+        $("#wizardForms", context).append(form_obj.wizard_html);
+
+        //var form_context = $("#"+form_name+"_wizard, #"+form_name+"_advanced", context)
+        form_obj.setup(context)
+    },
+
     //Adds a new info panel
     "addInfoPanel" : function(panel_name, panel_obj){
         SunstoneCfg["info_panels"][panel_name]=panel_obj;
@@ -154,9 +169,69 @@ var Sunstone = {
         delete SunstoneCfg["info_panels"][panel_name];
     },
 
+    "popUpFormPanel" : function(form_name, selected_tab, action, reset, initialize_func){
+        var context = $("#"+selected_tab);
+        popFormDialogLoading(context);
+
+        var form_obj = SunstoneCfg["form_panels"][form_name];
+
+        if (action) {
+            $(".right-form-title", context).text(form_obj["actions"][action]["title"]);
+            $(".submit_button", context).text(form_obj["actions"][action]["submit_text"]);
+        }
+
+        setTimeout(function() {
+            if (reset) {
+                $("#"+form_name+"_wizard", context).remove();
+                $("#"+form_name+"_advanced", context).remove();
+
+                $("#advancedForms", context).append(form_obj.advanced_html);
+                $("#wizardForms", context).append(form_obj.wizard_html);
+
+                //var form_context = $("#"+form_name+"_wizard, #"+form_name+"_advanced", context)
+                form_obj.setup(context)
+            }
+
+            if (initialize_func){
+                initialize_func(context);
+            }
+
+            if (action) {
+                $("#"+form_name+"_wizard", context).attr("action", action);
+                $("#"+form_name+"_advanced", context).attr("action", action);
+            }
+
+            popFormDialog(form_name, context);
+
+        },13)
+
+    },
+
+    "submitFormPanel" : function(form_name, selected_tab){
+        var context = $("#"+selected_tab);
+        popFormDialogLoading(context);
+
+        if ($("#wizardForms.active", context).length > 0) {
+            $("#"+form_name+"_wizard", context).submit();
+        } else if ($("#advancedForms.active", context).length > 0) {
+            $("#"+form_name+"_advanced", context).submit();
+        }
+
+        // Success callbalck must include:
+        //    $("a[href=back]", $("#"+selected_tab)).trigger("click");
+        //    popFormDialog(form_name, $("#"+selected_tab));
+        // Error callback must include:
+        //    popFormDialog(form_name, $("#"+selected_tab));
+    },
+
     //Makes an info panel content pop up in the screen.
     "popUpInfoPanel" : function(panel_name, selected_tab){
         popDialog(Sunstone.getInfoPanelHTML(panel_name, selected_tab), $("#"+selected_tab));
+    },
+
+    "getFormPanelHTML" : function(form_name, selected_tab){
+        //$("#"+form_name, $("#dialogs")).detach();
+        return formElement;
     },
 
     //Generates and returns the HTML div element for an info panel, with
@@ -168,13 +243,9 @@ var Sunstone = {
         }
 
         var dl_tabs = $('<div id="'+panel_name+'">\
-            <div class="row">\
-                <div class="large-12 columns">\
-                    <dl class="tabs right-info-tabs text-center" data-tab>\
-                    </dl>\
-                </div>\
-            </div>\
-            <div class="tabs-content"></div>\
+            <dl class="vertical tabs right-info-tabs text-center" data-tab>\
+            </dl>\
+            <div class="vertical tabs-content"></div>\
             </div>\
         </div>');
 
@@ -504,34 +575,27 @@ function insertTab(tab_name){
                   '</span>&emsp;\
                   <span class="resource-id"></span>\
                 </h3>\
+                <h3 class="subheader header-title only-right-form" hidden>\
+                  <span class="right-form-title">' +
+                  '</span>\
+                </h3>\
               </div>\
             </div>'
         }
-/*
-        if (tab_info.search_input) {
-            tab_content_str += '<div class="row header-info">\
-              <div class="large-3 columns right">' +
-                tab_info.search_input +
-              '</div>\
-              <div class="large-9 columns">' +
-                  (tab_info.subheader ? tab_info.subheader : "") +
-              '</div>\
-            </div>'
-        }
-*/
+
         if (tab_info.buttons) {
             tab_content_str += '<div class="row">\
-              <div class="small-9 large-9 columns">\
+              <div class="small-12 large-12 columns">\
                 <div class="action_blocks">\
                 </div>\
-              </div>\
-              <div class="small-3 large-3 columns only-right-list">'
+              <div class="small-3 large-3 columns only-right-list" style="margin-top: 2px">'
 
             if (tab_info.search_input) {
                 tab_content_str += tab_info.search_input;
             }
 
             tab_content_str += '</div>\
+              </div>\
             </div>'
         }
 
@@ -565,7 +629,25 @@ function insertTab(tab_name){
         tab_content_str += '<div class="right-info" hidden>'
         tab_content_str += '</div>'
 
-        tab_content_str += '</div>';
+        tab_content_str += '<div class="right-form" hidden>'+
+            '<div class="text-center  loadingForm">'+
+              '<br>'+
+              '<br>'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<br>'+
+            '</div>'+
+            '<div class="tabs-content tabs-contentForm">' +
+                '<div class="content active" id="wizardForms">' +
+                '</div>' +
+                '<div class="content" id="advancedForms">' +
+                '</div>'+
+            '</div>'+
+        '</div>';
+
         main_tabs_context.append(tab_content_str);
     }
 
@@ -587,6 +669,12 @@ function insertTab(tab_name){
     if (showOnTop){
         $('div#header ul#menutop_ul').append('<li id="top_'+tab_name+'">'+tab_info.title+'</li>');
     };
+
+    if (tab_info.forms) {
+        $.each(tab_info.forms, function(key, value){
+            Sunstone.addFormPanel(tab_name, key, value)
+        })
+    }
 };
 
 function hideSubTabs(){
@@ -632,10 +720,10 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
         var buttons_row = $('<div class="text-center">'+
                   '<span class="left">'+
 
-                    '<span id="'+custom_id+'refresh_buttons">'+
+                    '<span id="'+custom_id+'refresh_buttons" class="only-right-info only-right-list">'+
                     '</span>'+
 
-                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info">'+
+                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info only-right-form">'+
                         '<a class="button small radius" href="back"><i class="fa fa-arrow-left"></i>&emsp;&emsp;<i class="fa fa-list"></i></a>'+
                     '</span>')+
 
@@ -643,60 +731,74 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '</span>'+
                   '</span>'+
 
-                  '<span>'+
+
+                  '<span class="right" style="margin-left: 20px">'+
+                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='only-right-info only-right-list top_button small  secondary button dropdown radius'>"+
+                        "<i class='fa fa-user'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"user_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='only-right-info only-right-list top_button small  button alert dropdown radius'>"+
+                        "<i class='fa fa-trash-o'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"vmsdelete_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    "<span id='"+custom_id+"delete_buttons' class='only-right-info only-right-list'>"+
+                    "</span>"+
+                  "</span>"+
+
+                  '<span class="right">'+
                     '<span id="'+custom_id+'vmsplay_buttons">'+
                     '</span>'+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-pause'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmspause_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmspause_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-stop'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsstop_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsstop_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-repeat'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-th-list'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsplanification_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsplanification_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    '<span id="'+custom_id+'main_buttons" class="only-right-info only-right-list">'+
+                    "</span>"+
+
+                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'> " +
+                        "<i class='fa fa-ellipsis-v'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"more_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
                   '</span>'+
 
-                  '<span class="right">'+
-                    '<span id="'+custom_id+'main_buttons">'+
-                    "</span>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='top_button small  button secondary dropdown radius'> " +
-                        "<i class='fa fa-ellipsis-v'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"more_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='top_button small  secondary button dropdown radius'>"+
-                        "<i class='fa fa-user'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"user_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='top_button small  button alert dropdown radius'>"+
-                        "<i class='fa fa-trash-o'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"vmsdelete_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<span id='"+custom_id+"delete_buttons'>"+
-                    "</span>"+
-                  "</span>"+
+                "<span id='"+custom_id+"form_buttons' class='only-right-form'>"+
+                    '<span id="'+custom_id+'reset_button" class="left" style="margin-left: 10px;">'+
+                        '<a class="button small secondary radius" href="submit">'+tr("Reset")+'</a>'+
+                    '</span>'+
+                    '<span id="'+custom_id+'submit_button" class="left" style="margin-left: 10px;">'+
+                        '<a class="button small success radius submit_button" href="submit">'+tr("Create")+'</a>'+
+                    '</span>'+
+                    '<dl class="tabs right wizard_tabs" data-tab style="margin-left: 10px;">' +
+                      '<dd id="wizard_mode" class="active"><a style="padding: 0.3rem 1rem;" href="#wizardForms">'+tr("Wizard")+'</a></dd>' +
+                      '<dd id="advanced_mode"><a style="padding: 0.3rem 1rem;" id="advanced_mode_a" href="#advancedForms">'+tr("Advanced")+'</a></dd>' +
+                    '</dl>' +
+                "</span>"+
         "</div>");
 
         //for every button defined for this tab...
@@ -733,17 +835,17 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 str_class.push(button.custom_classes);
             }
 
-            var context;
+            var button_context;
             var text;
             switch (button.layout) {
             case "create":
-                context = $("#"+custom_id+"create_buttons", buttons_row);
+                button_context = $("#"+custom_id+"create_buttons", buttons_row);
                 text = button.text ? '<i class="fa fa-plus"/>  ' + button.text : '<i class="fa fa-plus"/>';
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "refresh":
-                context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                button_context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<span class="fa-stack">'+
                     '<i class="fa fa-refresh fa-stack-lg" style="font-size: 1.5em"></i>'+
                     //'<i class="fa fa-play fa-stack-1x"></i>'+
@@ -752,7 +854,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 button_code = '<a class="'+str_class.join(' ')+'" href="'+button_name+'" style="padding-left: 5px">'+text+'</a>';
                 break;
             case "top":
-                context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                button_context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<span class="fa-stack">'+
                     '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>'+
                     '<i class="fa fa-play fa-stack-1x"></i>'+
@@ -761,66 +863,66 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 button_code = '<a class="'+str_class.join(' ')+'" style="padding-left:0px; margin-right: 20px">'+text+'</a>';
                 break;
             case "main":
-                context = $("#"+custom_id+"main_buttons", buttons_row);
+                button_context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmsplay_buttons":
-                context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmspause_buttons":
-                context = $("#"+custom_id+"vmspause_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmspause_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsstop_buttons":
-                context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsrepeat_buttons":
-                context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsdelete_buttons":
-                context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsplanification_buttons":
-                context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "more_select":
-                context = $("#"+custom_id+"more_buttons", buttons_row);
+                button_context = $("#"+custom_id+"more_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "user_select":
-                context = $("#"+custom_id+"user_buttons", buttons_row);
+                button_context = $("#"+custom_id+"user_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "del":
-                context = $("#"+custom_id+"delete_buttons", buttons_row);
+                button_context = $("#"+custom_id+"delete_buttons", buttons_row);
                 text = '<i class=" fa fa-trash-o"/> ';
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             default:
-                context = $("#"+custom_id+"main_buttons", buttons_row);
+                button_context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
             }
 
-            context.append(button_code);
+            button_context.append(button_code);
         }//for each button in tab
         //$('.top_button',action_block).button();
         //$('.top_button',action_block).addClass("secondary small button")
@@ -863,6 +965,20 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
         $('.top_button, .list_button',action_block).attr('disabled', true);
         $('.create_dialog_button',action_block).attr('disabled', false);
         $('.alwaysActive',action_block).attr('disabled', false);
+
+        $('#'+custom_id+'reset_button', action_block).on("click", function(){
+            var form_name = $(".right-form", context).attr("form_name");
+            Sunstone.popUpFormPanel(form_name, tab_name, null, true)
+
+            return false;
+        })
+
+        $('#'+custom_id+'submit_button', action_block).on("click", function(){
+            var form_name = $(".right-form", context).attr("form_name");
+            Sunstone.submitFormPanel(form_name, tab_name);
+
+            return false;
+        })
 
     $(document).foundation();
     }//if tab exists
@@ -4275,16 +4391,37 @@ function hideDialog(){
 function popDialog(content, context){
     $(".right-info", context).html(content);
     context.foundation();
-    //innerLayout.open("south");
 }
 
 function popDialogLoading(context){
     $(".right-list", context).hide();
+    $(".right-form", context).hide();
     $(".right-info", context).show();
     $(".only-right-list", context).hide();
+    $(".only-right-form", context).hide();
     $(".only-right-info", context).show();
     var loading = '<div style="margin-top:'+Math.round($("#dialog").height()/6)+'px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
     popDialog(loading, context);
+}
+
+function popFormDialog(form_name, context){
+    //$(".right-form", context).html(content);
+    $(".loadingForm", context).hide();
+    $(".tabs-contentForm", context).show();
+    $(".right-form", context).attr("form_name", form_name)
+    context.foundation();
+}
+
+function popFormDialogLoading(context){
+    $(".right-list", context).hide();
+    $(".right-info", context).hide();
+    $(".right-form", context).show();
+    $(".only-right-list", context).hide();
+    $(".only-right-info", context).hide();
+    $(".only-right-form", context).show();
+
+    $(".tabs-contentForm", context).hide();
+    $(".loadingForm", context).show();
 }
 
 function showTab(tabname,highlight_tab){
@@ -4333,10 +4470,12 @@ function showTab(tabname,highlight_tab){
     //show tab
     $(".tab").hide();
     tab.show();
-    $(".right-list", tab).show();
     $(".right-info", tab).hide();
-    $(".only-right-list", tab).show();
+    $(".right-form", tab).hide();
+    $(".right-list", tab).show();
     $(".only-right-info", tab).hide();
+    $(".only-right-form", tab).hide();
+    $(".only-right-list", tab).show();
 
     recountCheckboxes($(".dataTable", tab).first());
 

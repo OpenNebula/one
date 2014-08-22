@@ -109,6 +109,10 @@ var create_host_tmpl =
 
 var dataTable_hosts;
 var $create_host_dialog;
+var on_hosts = 0;
+var off_hosts = 0;
+var error_hosts = 0;
+
 
 //Setup actions
 var host_actions = {
