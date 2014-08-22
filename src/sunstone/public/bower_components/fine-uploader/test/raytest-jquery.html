@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <script type="text/template" id="qq-template">
+            <div class="qq-uploader-selector qq-uploader">
+                <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+                    <span>Drop files here to upload</span>
+                </div>
+                <div class="qq-upload-button-selector qq-upload-button">
+                    <div>Upload a file</div>
+                </div>
+                <span class="qq-drop-processing-selector qq-drop-processing">
+                    <span>Processing dropped files...</span>
+                    <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+                </span>
+                <ul class="qq-upload-list-selector qq-upload-list">
+                    <li>
+                        <div class="qq-progress-bar-container-selector">
+                            <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                        </div>
+                        <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                        <img class="qq-thumbnail-selector" qq-max-size="50" qq-server-scale>
+                        <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                        <span class="qq-upload-file-selector qq-upload-file"></span>
+                        <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                        <span class="qq-upload-size-selector qq-upload-size"></span>
+                        <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">Cancel</a>
+                        <a class="qq-upload-retry-selector qq-upload-retry" href="#">Retry</a>
+                        <a class="qq-upload-delete-selector qq-upload-delete" href="#">Delete</a>
+                        <button class="qq-upload-pause-selector qq-upload-pause">Pause</button>
+                        <button class="qq-upload-continue-selector qq-upload-continue">Continue</button>
+                        <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                    </li>
+                </ul>
+            </div>
+        </script>
+
+        <title>Fine Uploader Development</title>
+        <meta charset="utf-8" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <link href="../_build/fineuploader.css" rel="stylesheet" type="text/css"/>
+        <link href="styles.css" rel="stylesheet" type="text/css"/>
+        <script src="../_build/all.fineuploader.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.min.js"></script>
+        <script src="uploader-demo-jquery.js"></script>
+    </head>
+    <body>
+        <ul id="foobar"></ul>
+        <h1>Fine Uploader Development</h1>
+
+        <img src="https://www.google.com/images/srpr/logo3w.png"/>
+
+        <div id="examples">
+            <div class="example">
+                <h3>Manually Trigger Uploads</h3>
+                <ul id="manual-example" class="unstyled"></ul>
+                <span id="triggerUpload" class="btn btn-primary">Upload Queued Files</span>
+            </div>
+
+            <div class="example">
+                <h3>FU S3</h3>
+                <ul id="s3-example" class="unstyled"></ul>
+            </div>
+
+            <div class="example">
+                <h3>FU Azure</h3>
+                <ul id="azure-example" class="unstyled"></ul>
+            </div>
+
+            <div class="example">
+                <h3>See server failure messages</h3>
+                <ul id="failure-example" class="unstyled"></ul>
+            </div>
+
+            <div class="example">
+                <h3>Various Options</h3>
+                <ul id="validation-example" class="unstyled"></ul>
+            </div>
+
+            <div class="example">
+                <h3>FineUploaderBasic</h3>
+                <div id="core-example"></div>
+                <div id="fubUploadButton" class="btn btn-primary"><div>Select Files</div></div>
+            </div>
+        </div>
+    </body>
+</html>
+

@@ -22,8 +22,11 @@ var VM_HISTORY_LENGTH = 40;
 var vnc_lock = false;
 
 function loadVNC(){
-    var script = '<script src="vendor/noVNC/vnc.js"></script>';
-    document.write(script);
+    // Load supporting scripts
+        "use strict";
+    Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
+                       "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                       "jsunzip.js", "rfb.js"]);
 }
 loadVNC();
 
@@ -1451,9 +1454,20 @@ function updateVMInfo(request,vm){
 
     //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel", "vms-tab");
-    Sunstone.runAction("VM.log",vm_info.ID);
-    Sunstone.runAction("VM.monitor",vm_info.ID,
-        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
+
+    $("[href='#vm_capacity_tab']").on("click", function(){
+        Sunstone.runAction("VM.monitor",vm_info.ID,
+        { monitor_resources : "CPU,MEMORY"});
+    })
+
+    $("[href='#vm_network_tab']").on("click", function(){
+        Sunstone.runAction("VM.monitor",vm_info.ID,
+        { monitor_resources : "NET_TX,NET_RX"});
+    })
+
+    $("[href='#vm_log_tab']").on("click", function(){
+        Sunstone.runAction("VM.log",vm_info.ID);
+    })
 
     var $info_panel = $('div#vm_info_panel');
     var $hotplugging_tab = $('div#vm_hotplugging_tab', $info_panel);
@@ -1530,8 +1544,8 @@ function printActionsTable(vm_info)
                               </select>\
               </td>\
              <td>\
-                <input id="date_input" class="jdpicker" type="text" placeholder="2013/12/30"/>\
-                <input id="time_input" type="text" placeholder="12:30"/>\
+                <input id="date_input" type="date" placeholder="2013/12/30"/>\
+                <input id="time_input" type="time" placeholder="12:30"/>\
              </td>\
              <td>\
                 <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
@@ -1539,7 +1553,6 @@ function printActionsTable(vm_info)
              <td colspan=2></td>\
            </tr>');
 
-        $("#date_input").jdPicker();
         return false;
     });
 
@@ -2318,12 +2331,8 @@ function printCapacity(vm_info){
               </div>\
               <div class="row">\
                 <div class="large-12 columns">\
-                  <div class="large-10 columns centered graph vm_cpu_graph" style="height: 100px;">\
+                  <div class="large-12 columns centered graph vm_cpu_graph" style="height: 100px;">\
                   </div>\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="large-10 columns centered" id="vm_cpu_legend">\
                 </div>\
               </div>\
             </div>\
@@ -2332,11 +2341,7 @@ function printCapacity(vm_info){
                 <h3 class="subheader"><small>'+tr("REAL MEMORY")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="large-10 columns centered graph vm_memory_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="large-10 columns centered" id="vm_memory_legend">\
+                <div class="large-12 columns centered graph vm_memory_graph" style="height: 100px;">\
                 </div>\
               </div>\
             </div>\

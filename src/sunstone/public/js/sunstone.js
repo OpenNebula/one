@@ -1293,7 +1293,10 @@ function updateView(item_list,dataTable){
         var prev_start = dTable_settings._iDisplayStart;
 
         dataTable.fnClearTable(false);
-        dataTable.fnAddData(item_list, false);
+
+        if (item_list.length > 0) {
+            dataTable.fnAddData(item_list, false);
+        }
 
         var new_start = prev_start;
 
@@ -1857,7 +1860,7 @@ function plot_graph(response, info) {
 
         var data = response.monitoring[attribute];
 
-        if(info.derivative == true) {
+        if(info.derivative == true && data) {
             derivative(data);
         }
 
@@ -1883,15 +1886,16 @@ function plot_graph(response, info) {
             tickFormatter: function(val,axis){
                 return pretty_time_axis(val, info.show_date);
             },
-            color: "#999",
+            color: "#efefef",
             size: 8
         },
-        yaxis : { labelWidth: 50,
-                  tickFormatter: function(val, axis) {
+        yaxis : {
+                tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0,
-                color: "#999",
+                color: "#efefef",
+
                 size: 8
                 },
         series: {
@@ -1901,7 +1905,7 @@ function plot_graph(response, info) {
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#cfcfcf"
+            borderColor: "#efefef"
         }
     };
 
@@ -1932,7 +1936,9 @@ function plot_totals(response, info) {
 
                     var data = response[id][attribute];
 
-                    derivative(data);
+                    if (data) {
+                        derivative(data);
+                    }
                 }
             }
 
@@ -4604,11 +4610,11 @@ function accountingGraphs(div, opt){
     '<div class="row">\
       <div id="acct_start_time_container" class="left columns">\
         <label for="acct_start_time">'+tr("Start time")+'</label>\
-        <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
+        <input id="acct_start_time" type="date" placeholder="2013/12/30"/>\
       </div>\
       <div id="acct_end_time_container" class="left columns">\
         <label for="acct_end_time">'+tr("End time")+'</label>\
-        <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
+        <input id="acct_end_time" type="date" placeholder="'+tr("Today")+'"/>\
       </div>\
       <div id="acct_group_by_container" class="left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
@@ -4749,7 +4755,7 @@ function accountingGraphs(div, opt){
     d.setDate(1);
     d.setMonth(d.getMonth() - 1);
 
-    $("#acct_start_time", div).val(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+    $("#acct_start_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
 
     //--------------------------------------------------------------------------
     // VM owner: all, group, user
@@ -4886,6 +4892,7 @@ function fillAccounting(div, req, response, no_table) {
 
     // start_time is mandatory
     var start = new Date(options.start_time * 1000);
+    start.setHours(0,0,0,0);
 
     var end = new Date();
 
@@ -4917,20 +4924,19 @@ function fillAccounting(div, req, response, no_table) {
         xaxis : {
             mode: "time",
             timeformat: "%y/%m/%d",
-            color: "#999",
+            color: "#efefef",
             size: 8,
             ticks: 4,
             minTickSize: [1, "day"]
         },
-        yaxis : { labelWidth: 50,
-                  min: 0,
-                color: "#999",
+        yaxis : { min: 0,
+                color: "#efefef",
                 size: 8
                 },
         series: {
             bars: {
                 show: true,
-                lineWidth: 1,
+                lineWidth: 0,
                 fill: true,
                 barWidth: 24*60*60*1000 * 0.8,
                 align: "center"
@@ -4942,7 +4948,7 @@ function fillAccounting(div, req, response, no_table) {
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#cfcfcf",
+            borderColor: "#efefef",
             hoverable: true
         },
         tooltip: true,
@@ -5255,8 +5261,13 @@ function fillAccounting(div, req, response, no_table) {
             ]
         });
 
-        acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
-        acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        if (cpu_dataTable_data.length > 0) {
+            acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
+        }
+
+        if (mem_dataTable_data.length > 0) {
+            acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        }
     }
 
     $("#acct_placeholder", div).hide();

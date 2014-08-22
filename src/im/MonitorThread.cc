@@ -38,6 +38,10 @@ MonitorThreadPool * MonitorThread::mthpool;
 
 ClusterPool * MonitorThread::cpool;
 
+VirtualMachinePool * MonitorThread::vmpool;
+
+time_t MonitorThread::monitor_interval;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -209,6 +213,8 @@ void MonitorThread::do_message()
 
     NebulaLog::log("InM", Log::DEBUG, oss);
 
+    time_t last_monitored = host->get_last_monitored();
+
     host->unlock();
 
     //--------------------------------------------------------------------------
@@ -222,7 +228,21 @@ void MonitorThread::do_message()
 
         for (its = lost.begin(); its != lost.end(); its++)
         {
-            lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
+            VirtualMachine * vm = vmpool->get(*its, true);
+
+            if (vm == 0)
+            {
+                continue;
+            }
+
+            if (vm->hasHistory() &&
+                vm->get_lcm_state() == VirtualMachine::RUNNING &&
+                (vm->get_running_stime() + 2*monitor_interval) < last_monitored)
+            {
+                lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
+            }
+
+            vm->unlock();
         }
 
         for (itm = found.begin(); itm != found.end(); itm++)
@@ -246,6 +266,11 @@ MonitorThreadPool::MonitorThreadPool(int max_thr):concurrent_threads(max_thr),
     MonitorThread::lcm    = Nebula::instance().get_lcm();
 
     MonitorThread::cpool  = Nebula::instance().get_clpool();
+
+    MonitorThread::vmpool = Nebula::instance().get_vmpool();
+
+    Nebula::instance().get_configuration_attribute("MONITORING_INTERVAL",
+        MonitorThread::monitor_interval);
 
     MonitorThread::mthpool= this;
 

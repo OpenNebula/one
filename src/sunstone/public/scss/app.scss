@@ -202,10 +202,8 @@ input.search {
 }
 
 .side-nav {
-    margin-left: 15px;
 
     .topTab {
-        margin-top: 15px;
 
         a {
             color: #555 !important;
@@ -934,3 +932,11 @@ hr {
   }
 }
 
+.range-slider-active-segment {
+  background: #cfcfcf;
+}
+
+// There is a bug in zurb foundation and the tooltip z-index is < than modal
+.tooltip {
+  z-index: 2000;
+}

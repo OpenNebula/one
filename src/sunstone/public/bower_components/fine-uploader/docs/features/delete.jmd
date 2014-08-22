@@ -1,0 +1,28 @@
+{% extends "_templates/base.html" %}
+{% set page_title = "Deleting Files" %}
+{% block sidebar %}
+{{ api_links(['deleteFile', 'deleteFile-ui'], ['deleteFile', 'setDeleteFileEndpoint', 'setDeleteFileParams'], ['delete', 'deleteComplete', 'submitDelete']) }}
+{% endblock %}
+{% block content %}
+{% markdown %}
+
+[session]: session.html
+
+# Deleting Files {: .page-header }
+
+Enabling the deletion of files means your users can delete files after they have been uploaded.
+You can only delete files that have been uploaded during the current session or which have been passed in by using the
+[initial file list][session] feature.
+If you upload a file, leave the page, and come back then you cannot delete that file though Fine Uploader.
+
+A file is eligible for deletion only after it has been successfully uploaded.
+
+{{
+alert("""Fine Uploader appends a `_method` parameter to the request object with a value of DELETE when the HTTP method is
+POST instead of DELETE.  This makes it easier to determine the intended semantics of the request server-side.""")
+}}
+
+[For more information, see the associated blog post](http://blog.fineuploader.com/2013/01/25/delete-an-uploaded-file-in-3-3/)
+
+{% endmarkdown %}
+{% endblock %}
