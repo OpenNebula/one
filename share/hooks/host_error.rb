@@ -16,18 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-####################################################
+##############################################################################
 # Script to implement host failure tolerance
 #   It can be set to
-#           -m migrate VMs to another host.
-#                   State will be lost. Only for shared storage
-#           -r recreate VMs running in the host
+#           -m migrate VMs to another host. Only for images in shared storage
+#           -r recreate VMs running in the host. State will be lost.
 #           -d delete VMs running in the host
 #   Additional flags
 #           -f force resubmission of suspended VMs
 #           -p <n> avoid resubmission if host comes
 #                  back after n monitoring cycles
-####################################################
+##############################################################################
+
+##############################################################################
+# WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+#
+# This scripts needs to fence the error host to prevent split brain VMs. You
+# may use any fence mechanism and invoke it around L105, using host_name
+#
+# WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+#############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
