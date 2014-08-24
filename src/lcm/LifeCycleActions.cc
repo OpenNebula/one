@@ -271,7 +271,7 @@ void  LifeCycleManager::migrate_action(int vid)
              vm->get_lcm_state() == VirtualMachine::UNKNOWN)
     {
         //----------------------------------------------------
-        //     Bypass SAVE_MIGRATE to PROLOG_MIGRATE STATE
+        //   Bypass SAVE_MIGRATE & PROLOG_MIGRATE goto BOOT
         //----------------------------------------------------
 
         Nebula&             nd = Nebula::instance();
@@ -281,15 +281,15 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_resched(false);
 
-        vm->set_state(VirtualMachine::PROLOG);
+        vm->set_state(VirtualMachine::BOOT);
 
         vm->delete_snapshots();
 
         map<string, string> empty;
+
         vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
-
 
         vm->set_stime(the_time);
 
@@ -305,8 +305,6 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->set_prolog_stime(the_time);
-
         vmpool->update_history(vm);
 
         vm->get_requirements(cpu,mem,disk);
@@ -315,11 +313,11 @@ void  LifeCycleManager::migrate_action(int vid)
 
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
-        vm->log("LCM", Log::INFO, "New VM state is PROLOG");
+        vm->log("LCM", Log::INFO, "New VM state is BOOT");
 
         //----------------------------------------------------
 
-        tm->trigger(TransferManager::PROLOG_MIGR,vid);
+        vmm->trigger(VirtualMachine::BOOT, vid);
     }
     else
     {
