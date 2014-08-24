@@ -31,7 +31,7 @@
 ##############################################################################
 # WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 #
-# This scripts needs to fence the error host to prevent split brain VMs. You
+# This script needs to fence the error host to prevent split brain VMs. You
 # may use any fence mechanism and invoke it around L105, using host_name
 #
 # WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
