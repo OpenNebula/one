@@ -1003,7 +1003,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (live == true)
+    if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
         dm->live_migrate(vm);
     }
