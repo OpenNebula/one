@@ -274,10 +274,11 @@ void  LifeCycleManager::migrate_action(int vid)
         //   Bypass SAVE_MIGRATE & PROLOG_MIGRATE goto BOOT
         //----------------------------------------------------
 
-        Nebula&             nd = Nebula::instance();
-        TransferManager *   tm = nd.get_tm();
-        int                 cpu,mem,disk;
-        time_t              the_time = time(0);
+        Nebula& nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        int    cpu, mem, disk;
+        time_t the_time = time(0);
 
         vm->set_resched(false);
 
@@ -317,7 +318,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachine::BOOT, vid);
+        vmm->trigger(VirtualMachineManager::DEPLOY, vid);
     }
     else
     {
