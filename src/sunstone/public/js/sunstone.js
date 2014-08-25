@@ -243,9 +243,9 @@ var Sunstone = {
         }
 
         var dl_tabs = $('<div id="'+panel_name+'">\
-            <dl class="vertical tabs right-info-tabs text-center" data-tab>\
+            <dl class="tabs right-info-tabs text-center" data-tab>\
             </dl>\
-            <div class="vertical tabs-content"></div>\
+            <div class="tabs-content"></div>\
             </div>\
         </div>');
 
