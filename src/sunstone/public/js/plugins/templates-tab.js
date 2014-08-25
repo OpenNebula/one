@@ -17,10 +17,10 @@
 var create_template_wizard_html =
   '<form data-abide="ajax" id="create_template_form_wizard" class="custom creation">'+
     '<div class="">'+
-      '<dl id="template_create_tabs" class="vertical tabs right-info-tabs text-center" data-tab>'+
+      '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
       wizard_tab_dd()+
       '</dl>'+
-      '<div id="template_create_tabs_content" class="vertical tabs-content" style="min-height: 300px">'+
+      '<div id="template_create_tabs_content" class="tabs-content" style="min-height: 300px">'+
       wizard_tab_content()+
       '</div>'+
     '</div>'+
@@ -1850,10 +1850,10 @@ function wizard_tab_content(){
     if (Config.isTemplateCreationTabEnabled('storage')){
         str +=
         '<div id="storageTab" class="wizard_tab content">'+
-          '<dl class="tabs " id="template_create_storage_tabs" data-tab>'+
-            '<dt class="text-center"><button type="button" class="button tiny radius right" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
+          '<dl class="tabs vertical" id="template_create_storage_tabs" data-tab>'+
+            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
           '</dl>'+
-          '<div class="tabs-content " id="template_create_storage_tabs_content">'+
+          '<div class="tabs-content vertical" id="template_create_storage_tabs_content">'+
           '</div>'+
         '</div>';
     }
@@ -1869,10 +1869,10 @@ function wizard_tab_content(){
               '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
             '</div>'+
           '</div>'+
-          '<dl class="tabs " id="template_create_network_tabs" data-tab>'+
-            '<dt class="text-center"><button type="button" class="button tiny radius right" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
+          '<dl class="tabs vertical" id="template_create_network_tabs" data-tab>'+
+            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
           '</dl>'+
-          '<div class="tabs-content " id="template_create_network_tabs_content">'+
+          '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
           '</div>'+
         '</div>';
     }
@@ -1880,13 +1880,13 @@ function wizard_tab_content(){
         str +=
 '<div id="osTab" class="wizard_tab content">'+
   '<div id="tabs-bootos">'+
-    '<dl class="tabs " data-tab>'+
+    '<dl class="tabs vertical" data-tab>'+
       '<dd class="active"><a href="#bootTab">'+tr("Boot")+'</a></dd>'+
       '<dd><a href="#kernelTab">'+tr("Kernel")+'</a></dd>'+
       '<dd><a href="#ramdiskTab">'+tr("Ramdisk")+'</a></dd>'+
       '<dd><a href="#featuresTab">'+tr("Features")+'</a></dd>'+
     '</dl>'+
-    '<div class="tabs-content ">'+
+    '<div class="tabs-content vertical">'+
       '<div class="wizard_internal_tab active content" id="bootTab">'+
         '<div class="row vm_param">'+
           '<div class="large-4 columns">'+
@@ -2396,13 +2396,13 @@ function wizard_tab_content(){
     if (Config.isTemplateCreationTabEnabled('context')){
         str +=
     '<div id="contextTab" class="wizard_tab content">'+
-      '<dl id="context_tabs" class="tabs " data-tab>'+
+      '<dl id="context_tabs" class="tabs vertical" data-tab>'+
         '<dd class="active"><a href="#netsshTab">'+tr("Network & SSH")+'</a></dd>'+
         '<dd><a href="#filesTab">'+tr("Files")+'</a></dd>'+
         '<dd><a href="#userinputsTab">'+tr("User Inputs")+'</a></dd>'+
         '<dd><a href="#zcustomTab">'+tr("Custom vars")+'</a></dd>'+
       '</dl>'+
-      '<div class="tabs-content ">'+
+      '<div class="tabs-content vertical">'+
           '<div class="wizard_internal_tab active content" id="netsshTab">'+
             '<div class="row">'+
               '<div class="columns large-12">'+
@@ -2570,11 +2570,11 @@ function wizard_tab_content(){
     if (Config.isTemplateCreationTabEnabled('scheduling')){
         str +=
       '<div id="schedulingTab" class="wizard_tab content">'+
-        '<dl class="tabs " data-tab>'+
+        '<dl class="tabs vertical" data-tab>'+
           '<dd class="active"><a href="#placementTab">'+tr("Placement")+'</a></dd>'+
           '<dd><a href="#policyTab">'+tr("Policy")+'</a></dd>'+
         '</dl>'+
-        '<div class="tabs-content ">'+
+        '<div class="tabs-content vertical">'+
             '<div class="requirements wizard_internal_tab active content" id="placementTab">'+
               '<fieldset>'+
                 '<legend>'+tr("Host Requirements")+'</legend>'+
