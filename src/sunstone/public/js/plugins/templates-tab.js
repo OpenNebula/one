@@ -493,26 +493,35 @@ function updateTemplatesView(request, templates_list){
 **************************************************************************/
 
 function generate_capacity_tab_content() {
-    var html = '<div class="row vm_param">'+
+    var html =
+      '<div class="row vm_param">'+
+        '<div class="large-6 columns">'+
+          '<label>'+tr("Hypervisor")+'</label>'+
+          '<input type="radio" name="hypervisor" value="only_kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
+          '<input type="radio" name="hypervisor" value="only_vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
+          '<input type="radio" name="hypervisor" value="only_xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
+        '</div>'+
+        '<div class="large-6 columns">'+
+        '</div>'+
+      '</div>'+
+      '<div class="row vm_param">'+
+        '<div id="template_name_form"  class="large-6 columns">'+
+          '<label  for="NAME">'+tr("Name")+'\
+            <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
+          </label>'+
+          '<input type="text" id="NAME" name="name" required/>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row vm_param">'+
         '<div class="large-8 columns">'+
-          '<div class="row collapse">'+
-            '<div id="template_name_form"  class="large-12 columns">'+
-              '<label  for="NAME">'+tr("Name")+'\
-                <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
-              </label>'+
-              '<input type="text" id="NAME" name="name" required/>'+
-            '</div>'+
-            '<div class="large-12 columns">'+
-              '<label  for="DESCRIPTION">'+tr("Description")+'\
-                <span class="tip">'+tr("Description of the template")+'</span>\
-              </label>'+
-              '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>'+
-            '</div>'+
-          '</div>'+
+          '<label  for="DESCRIPTION">'+tr("Description")+'\
+            <span class="tip">'+tr("Description of the template")+'</span>\
+          </label>'+
+          '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>'+
         '</div>'+
         '<div class="large-4 columns">'+
-          '<div class="row collapse">'+
-            '<div class="large-12 columns">'+
+          '<div class="row">'+
+            '<div class="large-6 columns">'+
               '<label  for="LOGO">'+tr("Logo")+'\
                 <span class="tip">'+tr("Logo for the template.")+'</span>\
               </label>'+
@@ -529,12 +538,13 @@ function generate_capacity_tab_content() {
                   '<option value="images/logos/windows8.png">'+tr("Windows 8")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div id="template_create_logo" class="text-center large-12 columns" style="margin-bottom: 15px">'+
+            '<div id="template_create_logo" class="text-center large-6 columns" style="margin-bottom: 15px">'+
             '</div>'+
             '<br>'+
           '</div>'+
         '</div>'+
-    '</div>'+
+      '</div>'+
+      '<br>'+
     generate_capacity_inputs();
 
     return html;
@@ -579,27 +589,18 @@ function generate_capacity_inputs() {
           '<input type="text" id="CPU" name="cpu"/>'+
         '</div>'+
     '</div>'+
-    '<div class="row">'+
-      '<div class="large-12 columns">'+
-        '<dl class="tabs wizard_tabs" data-tab>' +
-          '<dd><a href="#advanced_capacity">'+tr("Advanced options")+'</a></dd>' +
-        '</dl>' +
+    '<div class="row">' +
+      '<div class="large-2 columns">'+
+        '<label class="inline" for="VCPU">'+tr("VCPU")+'\
+          <span class="tip right">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
+        </label>'+
       '</div>'+
-    '</div>'+
-    '<div class="tabs-content">' +
-      '<div class="content row" id="advanced_capacity">' +
-        '<div class="large-2 columns">'+
-          '<label class="inline" for="VCPU">'+tr("VCPU")+'\
-            <span class="tip right">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
-          </label>'+
+      '<div class="large-8 columns">'+
+        '<div id="vcpu_slider">'+
         '</div>'+
-        '<div class="large-8 columns">'+
-          '<div id="vcpu_slider">'+
-          '</div>'+
-        '</div>'+
-        '<div class="large-2 columns vm_param">'+
-          '<input type="text" id="VCPU" name="vcpu"/>'+
-        '</div>'+
+      '</div>'+
+      '<div class="large-2 columns vm_param">'+
+        '<input type="text" id="VCPU" name="vcpu"/>'+
       '</div>'+
     '</div>'
 
@@ -611,9 +612,15 @@ function setup_capacity_tab_content(capacity_section) {
 
     capacity_section.on("change", "#LOGO", function(){
       $("#template_create_logo",capacity_section).show();
-      $("#template_create_logo",capacity_section).html('<a  class="th radius" href="#">'+
+      $("#template_create_logo",capacity_section).html('<span  class="">'+
           '<img src="' + $(this).val() + '">'+
-        '</a>');
+        '</span>');
+    });
+
+    capacity_section.on("change", "input[name='hypervisor']", function(){
+      var context = $(this).closest("#create_template_form_wizard");
+      $(".hypervisor", context).hide();
+      $("." + this.value, context).show();
     });
 
     setup_capacity_inputs(capacity_section);
@@ -622,14 +629,6 @@ function setup_capacity_tab_content(capacity_section) {
 // Warning: used also in vms-tab.js
 function setup_capacity_inputs(capacity_section) {
     setupTips(capacity_section);
-
-    // Hide advanced options
-    $('.advanced',capacity_section).hide();
-
-    $('#advanced_capacity',capacity_section).click(function(){
-        $('.advanced',capacity_section).toggle();
-        return false;
-    });
 
     // Define the cpu slider
 
@@ -889,7 +888,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '</label>'+
               '<input type="text"  id="TARGET" name="target"/>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_xen only_kvm">'+
               '<label for="DRIVER">'+tr("Driver")+
                   '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
                     '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
@@ -927,12 +926,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="CACHE">'+tr("Cache")+
-                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
-                      '+tr("Xen: Not supported")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Not supported")+
+                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
                   '</span>'+
               '</label>'+
               '<select id="CACHE" name="CACHE">'+
@@ -945,12 +941,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '<option value="unsafe">'+tr("unsafe")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="IO">'+tr("IO")+
-                '<span class="tip">'+tr("Set IO policy.")+'<br><br>\
-                  '+tr("Xen: Not supported")+'<br>\
-                  '+tr("KVM: Optional")+'<br>\
-                  '+tr("VMWare: Not supported")+
+                '<span class="tip">'+tr("Set IO policy.")+
                 '</span>'+
               '</label>'+
               '<select id="IO" name="IO">'+
@@ -1019,7 +1012,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '</label>'+
               '<input type="text"  id="TARGET" name="target"/>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_xen only_kvm">'+
               '<label for="DRIVER">'+tr("Driver")+
                   '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
                     '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
@@ -1057,12 +1050,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="CACHE">'+tr("Cache")+
-                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
-                      '+tr("Xen: Not supported")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Not supported")+
+                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
                   '</span>'+
               '</label>'+
               '<select id="CACHE" name="CACHE">'+
@@ -1075,12 +1065,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '<option value="unsafe">'+tr("unsafe")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="IO">'+tr("IO")+
-                '<span class="tip">'+tr("Set IO policy.")+'<br><br>\
-                  '+tr("Xen: Not supported")+'<br>\
-                  '+tr("KVM: Optional")+'<br>\
-                  '+tr("VMWare: Not supported")+
+                '<span class="tip">'+tr("Set IO policy.")+
                 '</span>'+
               '</label>'+
               '<select id="IO" name="IO">'+
@@ -1899,7 +1886,7 @@ function wizard_tab_content(){
               '<option value="x86_64">x86_64</option>'+
             '</select>'+
           '</div>'+
-          '<div class="large-8 columns">'+
+          '<div class="large-8 columns hypervisor only_kvm">'+
             '<label for="MACHINE">'+tr("Machine type")+
               '<span class="tip">'+tr("libvirt machine type, only for KVM")+'</span>'+
             '</label>'+
@@ -1913,7 +1900,7 @@ function wizard_tab_content(){
             '</label>'+
             '<input type="text" id="ROOT" name="root"/>'+
           '</div>'+
-          '<div class="large-8 columns">'+
+          '<div class="large-8 columns hypervisor only_vmware">'+
             '<label for="GUESTOS">'+tr("Guest OS")+
               '<span class="tip">'+tr("Set the OS of the VM, only for VMware")+'</span>'+
             '</label>'+
@@ -2262,7 +2249,7 @@ function wizard_tab_content(){
               '<option value="no">'+tr("No")+'</option>'+
             '</select>'+
           '</div>'+
-          '<div class="large-6 columns">'+
+          '<div class="large-6 columns hypervisor only_xen">'+
             '<label for="DEVICE_MODEL">'+tr("Device model")+
               '<span class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</span>'+
             '</label>'+
@@ -2270,7 +2257,7 @@ function wizard_tab_content(){
           '</div>'+
         '</div>'+
         '<div class="row vm_param">'+
-          '<div class="large-6 columns">'+
+          '<div class="large-6 columns hypervisor only_vmware">'+
             '<label for="PCIBRIDGE">'+tr("PCI BRIDGE")+
               '<span class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</span>'+
             '</label>'+
