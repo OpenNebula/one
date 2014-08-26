@@ -494,14 +494,18 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html =
-      '<div class="row vm_param">'+
+      '<div class="row">'+
         '<div class="large-6 columns">'+
           '<label>'+tr("Hypervisor")+'</label>'+
-          '<input type="radio" name="hypervisor" value="only_kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
-          '<input type="radio" name="hypervisor" value="only_vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
-          '<input type="radio" name="hypervisor" value="only_xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
+          '<input type="radio" name="hypervisor" value="kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
+          '<input type="radio" name="hypervisor" value="vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
+          '<input type="radio" name="hypervisor" value="xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
         '</div>'+
         '<div class="large-6 columns">'+
+          '<label>'+tr("Hybrid Cloud")+'</label>'+
+          '<input type="checkbox" name="hybrid" value="amazonRadio" id="amazonRadio"><label for="amazonRadio">'+tr("Amazon EC2")+'</label>'+
+          '<input type="checkbox" name="hybrid" value="softlayerRadio" id="softlayerRadio"><label for="softlayerRadio">'+tr("IBM Softlayer")+'</label>'+
+          '<input type="checkbox" name="hybrid" value="azureRadio" id="azureRadio"><label for="azureRadio">'+tr("Microsoft Azure")+'</label>'+
         '</div>'+
       '</div>'+
       '<div class="row vm_param">'+
@@ -620,7 +624,7 @@ function setup_capacity_tab_content(capacity_section) {
     capacity_section.on("change", "input[name='hypervisor']", function(){
       var context = $(this).closest("#create_template_form_wizard");
       $(".hypervisor", context).hide();
-      $("." + this.value, context).show();
+      $(".only_" + this.value, context).show();
     });
 
     setup_capacity_inputs(capacity_section);
@@ -3665,6 +3669,7 @@ function build_template(dialog){
     addSectionJSON(vm_json,$('#capacityTab',dialog));
     vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
     vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
+    vm_json["HYPERVISOR"] = $('input[name="hypervisor"]:checked', $('#capacityTab',dialog)).val();
 
     //
     // OS
@@ -3863,6 +3868,12 @@ var fillTemplatePopUp = function(template, dialog){
     autoFillInputs(template, capacity_section);
     $("#DESCRIPTION", capacity_section).val(escapeDoubleQuotes(htmlDecode(template["DESCRIPTION"])));
     delete template["DESCRIPTION"];
+
+    if (template["HYPERVISOR"]) {
+      $("input[name='hypervisor'][value='"+template["HYPERVISOR"]+"']", capacity_section).trigger("click")
+      delete template["HYPERVISOR"];
+    }
+
 
     //
     // DISKS
