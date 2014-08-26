@@ -494,26 +494,26 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html =
-      '<div class="row">'+
-        '<div class="large-6 columns">'+
-          '<label>'+tr("Hypervisor")+'</label>'+
-          '<input type="radio" name="hypervisor" value="kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
-          '<input type="radio" name="hypervisor" value="vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
-          '<input type="radio" name="hypervisor" value="xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
-        '</div>'+
-        '<div class="large-6 columns">'+
-          '<label>'+tr("Hybrid Cloud")+'</label>'+
-          '<input type="checkbox" name="hybrid" value="amazonRadio" id="amazonRadio"><label for="amazonRadio">'+tr("Amazon EC2")+'</label>'+
-          '<input type="checkbox" name="hybrid" value="softlayerRadio" id="softlayerRadio"><label for="softlayerRadio">'+tr("IBM Softlayer")+'</label>'+
-          '<input type="checkbox" name="hybrid" value="azureRadio" id="azureRadio"><label for="azureRadio">'+tr("Microsoft Azure")+'</label>'+
-        '</div>'+
-      '</div>'+
+      //'<div class="row">'+
+      //  '<div class="large-6 columns">'+
+      //    '<label>'+tr("Hybrid Cloud")+'</label>'+
+      //    '<input type="checkbox" name="hybrid" value="amazonRadio" id="amazonRadio"><label for="amazonRadio">'+tr("Amazon EC2")+'</label>'+
+      //    '<input type="checkbox" name="hybrid" value="softlayerRadio" id="softlayerRadio"><label for="softlayerRadio">'+tr("IBM Softlayer")+'</label>'+
+      //    '<input type="checkbox" name="hybrid" value="azureRadio" id="azureRadio"><label for="azureRadio">'+tr("Microsoft Azure")+'</label>'+
+      //  '</div>'+
+      //'</div>'+
       '<div class="row vm_param">'+
         '<div id="template_name_form"  class="large-6 columns">'+
           '<label  for="NAME">'+tr("Name")+'\
             <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
           </label>'+
           '<input type="text" id="NAME" name="name" required/>'+
+        '</div>'+
+        '<div class="large-6 columns">'+
+          '<label>'+tr("Hypervisor")+'</label>'+
+          '<input type="radio" name="hypervisor" value="kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
+          '<input type="radio" name="hypervisor" value="vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
+          '<input type="radio" name="hypervisor" value="xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
         '</div>'+
       '</div>'+
       '<div class="row vm_param">'+
