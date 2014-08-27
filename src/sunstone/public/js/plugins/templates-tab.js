@@ -759,8 +759,8 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html =
-      '<div class="row vm_param">'+
-        '<div id="template_name_form"  class="large-6 columns">'+
+      '<div class="row">'+
+        '<div id="template_name_form"  class="large-6 columns vm_param">'+
           '<label  for="NAME">'+tr("Name")+'\
             <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
           </label>'+
@@ -3803,12 +3803,12 @@ function add_provider_tab(provider_id, dialog) {
       '<div class="row">'+
         '<div class="large-12 columns">'+
           '<label>'+tr("Hybrid Cloud")+'</label>'+
-          '<input type="radio" name="hybrid" value="ec2" id="amazonRadio'+str_provider_tab_id+'"><label for="amazonRadio'+str_provider_tab_id+'">'+tr("Amazon EC2")+'</label>'+
-          '<input type="radio" name="hybrid" value="softlayer" id="softlayerRadio'+str_provider_tab_id+'"><label for="softlayerRadio'+str_provider_tab_id+'">'+tr("IBM Softlayer")+'</label>'+
-          '<input type="radio" name="hybrid" value="azure" id="azureRadio'+str_provider_tab_id+'"><label for="azureRadio'+str_provider_tab_id+'">'+tr("Microsoft Azure")+'</label>'+
+          '<input type="radio" class="hybridRadio" name="hybrid'+str_provider_tab_id+'" value="ec2" id="amazonRadio'+str_provider_tab_id+'"><label for="amazonRadio'+str_provider_tab_id+'">'+tr("Amazon EC2")+'</label>'+
+          '<input type="radio" class="hybridRadio" name="hybrid'+str_provider_tab_id+'" value="softlayer" id="softlayerRadio'+str_provider_tab_id+'"><label for="softlayerRadio'+str_provider_tab_id+'">'+tr("IBM Softlayer")+'</label>'+
+          '<input type="radio" class="hybridRadio" name="hybrid'+str_provider_tab_id+'" value="azure" id="azureRadio'+str_provider_tab_id+'"><label for="azureRadio'+str_provider_tab_id+'">'+tr("Microsoft Azure")+'</label>'+
         '</div>'+
       '</div>'+
-      '<div class="row hybrid_inputs">'+
+      '<div class="row hybrid_inputs vm_param">'+
       '</div>'+
     '</div>'
     $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", dialog));
@@ -3821,7 +3821,7 @@ function add_provider_tab(provider_id, dialog) {
 
     var provider_section = $('#' +str_provider_tab_id+'Tab', dialog);
 
-    provider_section.on("change", "input[name='hybrid']", function(){
+    provider_section.on("change", "input.hybridRadio", function(){
       $(".hybrid_inputs", provider_section).html("");
 
       $.each(hybrid_inputs[this.value], function(index, obj){
@@ -4092,6 +4092,32 @@ function build_template(dialog){
             "MODEL": default_model
         };
     }
+
+    // HYBRID
+
+    vm_json["PUBLIC_CLOUD"] = [];
+    vm_json["EC2"] = [];
+
+    $('.provider',dialog).each(function(){
+      var hash  = {};
+      addSectionJSON(hash, this);
+      if (!$.isEmptyObject(hash)) {
+        var hybrid = $("input.hybridRadio:checked", this).val();
+        switch(hybrid) {
+          case 'ec2':
+            vm_json["EC2"].push(hash);
+            break;
+          case 'softlayer':
+            hash["TYPE"] = hybrid.toUpperCase();
+            vm_json["PUBLIC_CLOUD"].push(hash);
+            break;
+          case 'azure':
+            hash["TYPE"] = hybrid.toUpperCase();
+            vm_json["PUBLIC_CLOUD"].push(hash);
+            break;
+        }
+      };
+    });
 
     //
     // GRAPHICS
