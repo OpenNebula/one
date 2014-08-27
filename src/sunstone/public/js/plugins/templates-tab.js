@@ -14,6 +14,271 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var hybrid_inputs = {
+  ec2 : [
+    {
+      name: "AKI",
+      label: tr("AKI"),
+      tooltip: tr("The ID of the kernel with which to launch the instance.")
+    },
+    {
+      name: "AMI",
+      label: tr("AMI"),
+      tooltip: tr("Unique ID of a machine image, returned by a call to ec2-describe-images.")
+    },
+    {
+      name: "AVAILABILITYZONE",
+      label: tr("Availability Zone"),
+      tooltip: tr("The Availability Zone in which to run the instance.")
+    },
+    {
+      name: "BLOCKDEVICEMAPPING",
+      label: tr("Block Device Mapping"),
+      tooltip: tr("The block device mapping for the instance. More than one can be specified in a space-separated list. Check the –block-device-mapping option of the EC2 CLI Reference for the syntax")
+    },
+    {
+      name: "CLIENTTOKEN",
+      label: tr("Client Token"),
+      tooltip: tr("Unique, case-sensitive identifier you provide to ensure idempotency of the request.")
+    },
+    {
+      name: "EBS_OPTIMIZED",
+      label: tr("EBS Optimized"),
+      tooltip: tr("Obtain a better I/O throughput for VMs with EBS provisioned volumes")
+    },
+    {
+      name: "ELASTICIP",
+      label: tr("Elastic IP"),
+      tooltip: tr("EC2 Elastic IP address to assign to the instance. This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip.")
+    },
+    {
+      name: "HOST",
+      label: tr("OpenNebula Host"),
+      tooltip: tr("Defines which OpenNebula host will use this template")
+    },
+    {
+      name: "INSTANCETYPE",
+      label: tr("Instance Type"),
+      tooltip: tr("Specifies the instance type.")
+    },
+    {
+      name: "KEYPAIR",
+      label: tr("Keypair"),
+      tooltip: tr("The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair")
+    },
+    {
+      name: "LICENSEPOOL",
+      label: tr("License Pool"),
+      tooltip: tr("Name of the license pool.")
+    },
+    {
+      name: "PLACEMENTGROUP",
+      label: tr("Placement Group"),
+      tooltip: tr("Name of the placement group.")
+    },
+    {
+      name: "PRIVATEIP",
+      label: tr("Private IP"),
+      tooltip: tr("If you’re using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet.")
+    },
+    {
+      name: "RAMDISK",
+      label: tr("Ramdisk"),
+      tooltip: tr("The ID of the RAM disk to select.")
+    },
+    {
+      name: "SECURITYGROUPS",
+      label: tr("Security Groups"),
+      tooltip: tr("Name of the security group. You can specify more than one security group (comma separated).")
+    },
+    {
+      name: "SUBNETID",
+      label: tr("Subnet ID"),
+      tooltip: tr("If you’re using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip.")
+    },
+    {
+      name: "TAGS",
+      label: tr("Tags"),
+      tooltip: tr("Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated).")
+    },
+    {
+      name: "TENANCY",
+      label: tr("Tenancy"),
+      tooltip: tr("The tenancy of the instance you want to launch.")
+    },
+    {
+      name: "USERDATA",
+      label: tr("User Data"),
+      tooltip: tr("Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation.")
+    }
+  ],
+  softlayer: [
+    {
+      name: "BLOCKDEVICETEMPLATE",
+      label: tr("Block Device Template"),
+      tooltip: tr("A global identifier for the template to be used to provision the computing instance")
+    },
+    {
+      name: "BLOCKDEVICE",
+      label: tr("Block Device Size"),
+      tooltip: tr("Size of the block device size to be presented to the VM")
+    },
+    {
+      name: "DATACENTER",
+      label: tr("Datacenter"),
+      tooltip: tr("Specifies which datacenter the instance is to be provisioned in")
+    },
+    {
+      name: "DEDICATEDHOST",
+      label: tr("Dedicated Host"),
+      tooltip: tr("Specifies whether or not the instance must only run on hosts with instances from the same account")
+    },
+    {
+      name: "DOMAIN",
+      label: tr("Domain"),
+      tooltip: tr("Domain for the computing instance")
+    },
+    {
+      name: "HOSTNAME",
+      label: tr("Hostname"),
+      tooltip: tr("Hostname for the computing instance")
+    },
+    {
+      name: "HOURLYBILLING",
+      label: tr("Hourly Billing"),
+      tooltip: tr("Specifies the billing type for the instance . When true the computing instance will be billed on hourly usage, otherwise it will be billed on a monthly basis")
+    },
+    {
+      name: "INSTANCE_TYPE",
+      label: tr("Instance Type"),
+      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory. If both STARTCPUS and MAXMEMORY are used, then this parameter is disregarded")
+    },
+    {
+      name: "LOCALDISK",
+      label: tr("Local Disk"),
+      tooltip: tr("Name of the placement group. When true the disks for the computing instance will be provisioned on the host which it runs, otherwise SAN disks will be provisioned")
+    },
+    {
+      name: "MAXMEMORY",
+      label: tr("Max Memory"),
+      tooltip: tr("The amount of memory to allocate in megabytes")
+    },
+    {
+      name: "NETWORKCOMPONENTSMAXSPEED",
+      label: tr("Network Components Max Speed"),
+      tooltip: tr("Specifies the connection speed for the instance's network components")
+    },
+    {
+      name: "OPERATINGSYSTEM",
+      label: tr("Operating System"),
+      tooltip: tr("An identifier for the operating system to provision the computing instance with. A non exhaustive list of identifiers can be found here")
+    },
+    {
+      name: "POSTSCRIPT",
+      label: tr("Postscript"),
+      tooltip: tr("Specifies the uri location of the script to be downloaded and run after installation is complete")
+    },
+    {
+      name: "PRIVATENETWORKONLY",
+      label: tr("Private Netwrok Only"),
+      tooltip: tr("Specifies whether or not the instance only has access to the private network  (ie, if it is going to have a public IP interface or not)")
+    },
+    {
+      name: "PRIMARYNETWORKVLAN",
+      label: tr("Primary Network VLAN"),
+      tooltip: tr("Specifies the network vlan which is to be used for the frontend interface of the computing instance")
+    },
+    {
+      name: "PRIMARYBACKENDNETWORKVLAN",
+      label: tr("Primary Backed Network VLAN"),
+      tooltip: tr("Specifies the network vlan which is to be used for the backend interface of the computing instance")
+    },
+    {
+      name: "SSHKEYS",
+      label: tr("SSH Keys"),
+      tooltip: tr("SSH keys to install on the computing instance upon provisioning")
+    },
+    {
+      name: "STARTCPUS",
+      label: tr("Start CPUs"),
+      tooltip: tr("The number of CPU cores to allocate to the VM")
+    },
+    {
+      name: "USERDATA",
+      label: tr("User Data"),
+      tooltip: tr("Arbitrary data to be made available to the computing instance")
+    }
+  ],
+  azure: [
+    {
+      name: "AVAILABILITY_SET",
+      label: tr("Availability Set"),
+      tooltip: tr("Name of the availability set to which this VM will belong")
+    },
+    {
+      name: "CLOUD_SERVICE",
+      label: tr("Cloud Service"),
+      tooltip: tr("Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'")
+    },
+    {
+      name: "IMAGE",
+      label: tr("Image"),
+      tooltip: tr("Specifies the base OS of the VM.")
+    },
+    {
+      name: "INSTANCE_TYPE",
+      label: tr("Instance Type"),
+      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory")
+    },
+    {
+      name: "LOCATION",
+      label: tr("Location"),
+      tooltip: tr("Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)")
+    },
+    {
+      name: "SSHPORT",
+      label: tr("SSH Port"),
+      tooltip: tr("Port where the VMs ssh server will listen on")
+    },
+    {
+      name: "STORAGE_ACCOUNT",
+      label: tr("Storage Account"),
+      tooltip: tr("Specify the storage account where this VM will belong")
+    },
+    {
+      name: "SUBNET",
+      label: tr("Subnet"),
+      tooltip: tr("Name of the particular Subnet where this VM will be connected to")
+    },
+    {
+      name: "TCP_ENDPOINTS",
+      label: tr("TCP Endpoints"),
+      tooltip: tr("Comma-separated list of TCP ports to be accesible from the public internet to this VM")
+    },
+    {
+      name: "VIRTUAL_NETWORK_NAME",
+      label: tr("Virtual Network Name"),
+      tooltip: tr("Name of the virtual network to which this VM will be connected")
+    },
+    {
+      name: "VM_USER",
+      label: tr("VM User"),
+      tooltip: tr("If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted")
+    },
+    {
+      name: "VM_PASSWORD",
+      label: tr("VM Password"),
+      tooltip: tr("Password for VM_USER")
+    },
+    {
+      name: "WIN_RM",
+      label: tr("Win RM"),
+      tooltip: tr("Comma-separated list of possible protocols to access this Windows VM")
+    }
+  ]
+}
+
+
 var create_template_wizard_html =
   '<form data-abide="ajax" id="create_template_form_wizard" class="custom creation">'+
     '<div class="">'+
@@ -494,14 +759,6 @@ function updateTemplatesView(request, templates_list){
 
 function generate_capacity_tab_content() {
     var html =
-      //'<div class="row">'+
-      //  '<div class="large-6 columns">'+
-      //    '<label>'+tr("Hybrid Cloud")+'</label>'+
-      //    '<input type="checkbox" name="hybrid" value="amazonRadio" id="amazonRadio"><label for="amazonRadio">'+tr("Amazon EC2")+'</label>'+
-      //    '<input type="checkbox" name="hybrid" value="softlayerRadio" id="softlayerRadio"><label for="softlayerRadio">'+tr("IBM Softlayer")+'</label>'+
-      //    '<input type="checkbox" name="hybrid" value="azureRadio" id="azureRadio"><label for="azureRadio">'+tr("Microsoft Azure")+'</label>'+
-      //  '</div>'+
-      //'</div>'+
       '<div class="row vm_param">'+
         '<div id="template_name_form"  class="large-6 columns">'+
           '<label  for="NAME">'+tr("Name")+'\
@@ -1821,6 +2078,10 @@ function wizard_tab_dd(){
         str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>"+tr("Scheduling")+"</a></dd>";
     }
 
+    if (Config.isTemplateCreationTabEnabled('hybrid')){
+        str += "<dd><a href='#hybridTab'><i class='fa fa-cloud'></i><br>"+tr("Hybrid")+"</a></dd>";
+    }
+
     if (Config.isTemplateCreationTabEnabled('other')){
         str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
     }
@@ -2726,6 +2987,17 @@ function wizard_tab_content(){
       '</div>';
     }
 
+    if (Config.isTemplateCreationTabEnabled('hybrid')){
+        str +=
+        '<div id="hybridTab" class="wizard_tab content">'+
+          '<dl class="tabs vertical" id="template_create_hybrid_tabs" data-tab>'+
+            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_hybrid"><span class="fa fa-plus"></span>'+tr("Add another provider")+'</button></dt>'+
+          '</dl>'+
+          '<div class="tabs-content vertical" id="template_create_hybrid_tabs_content">'+
+          '</div>'+
+        '</div>';
+    }
+
     if (Config.isTemplateCreationTabEnabled('other')){
         str +=
     '<div id="rawTab" class="wizard_tab content">'+
@@ -3493,11 +3765,87 @@ function setup_scheduling_tab_content(scheduling_section) {
     };
 }
 
+/**************************************************************************
+    DISK TAB
 
-    /**************************************************************************
-        OTHER TAB
+**************************************************************************/
 
-    **************************************************************************/
+function setup_hybrid_tab_content(hybrid_section) {
+    var number_of_providers = 0;
+
+    // close icon: removing the tab on click
+    $(hybrid_section).on("click", "i.remove-tab", function() {
+        var target = $(this).parent().attr("href");
+        var dd = $(this).closest('dd');
+        var dl = $(this).closest('dl');
+        var content = $(target);
+
+        dd.remove();
+        content.remove();
+
+        if (dd.attr("class") == 'active') {
+            $('a', dl.children('dd').last()).click();
+        }
+    });
+
+    $("#tf_btn_hybrid", hybrid_section).bind("click", function(){
+      add_provider_tab(number_of_providers, hybrid_section);
+      number_of_providers++;
+    });
+}
+
+function add_provider_tab(provider_id, dialog) {
+    var str_provider_tab_id  = 'provider' + provider_id;
+    var str_datatable_id = 'datatable_template_images' + provider_id;
+
+    // Append the new div containing the tab and add the tab to the list
+    var html_tab_content = '<div id="'+str_provider_tab_id+'Tab" class="provider wizard_internal_tab content">'+
+      '<div class="row">'+
+        '<div class="large-12 columns">'+
+          '<label>'+tr("Hybrid Cloud")+'</label>'+
+          '<input type="radio" name="hybrid" value="ec2" id="amazonRadio'+str_provider_tab_id+'"><label for="amazonRadio'+str_provider_tab_id+'">'+tr("Amazon EC2")+'</label>'+
+          '<input type="radio" name="hybrid" value="softlayer" id="softlayerRadio'+str_provider_tab_id+'"><label for="softlayerRadio'+str_provider_tab_id+'">'+tr("IBM Softlayer")+'</label>'+
+          '<input type="radio" name="hybrid" value="azure" id="azureRadio'+str_provider_tab_id+'"><label for="azureRadio'+str_provider_tab_id+'">'+tr("Microsoft Azure")+'</label>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row hybrid_inputs">'+
+      '</div>'+
+    '</div>'
+    $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", dialog));
+
+    var a = $("<dd>\
+      <a id='provider_tab"+str_provider_tab_id+"' href='#"+str_provider_tab_id+"Tab'>"+tr("PROVIDER")+" <i class='fa fa-times-circle remove-tab'></i></a>\
+    </dd>").appendTo($("dl#template_create_hybrid_tabs", dialog));
+
+    $("a", a).trigger("click");
+
+    var provider_section = $('#' +str_provider_tab_id+'Tab', dialog);
+
+    provider_section.on("change", "input[name='hybrid']", function(){
+      $(".hybrid_inputs", provider_section).html("");
+
+      $.each(hybrid_inputs[this.value], function(index, obj){
+        $(".hybrid_inputs", provider_section).append(
+          '<div class="large-6 columns">'+
+            '<label>'+
+              obj.label +
+              '<span class="tip">'+
+                obj.tooltip +
+              '</span>'+
+            '</label>'+
+            '<input type="text" id="'+obj.name+'">'+
+          '</div>')
+      });
+
+      setupTips($(".hybrid_inputs", provider_section));
+    })
+}
+
+
+/**************************************************************************
+    OTHER TAB
+
+**************************************************************************/
 
 function setup_other_tab_content(other_tab){
     $('#add_context', other_tab).click(function() {
@@ -3586,6 +3934,10 @@ function initialize_create_template_dialog(dialog) {
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
         setup_scheduling_tab_content($('#schedulingTab', dialog));
+    }
+
+    if (Config.isTemplateCreationTabEnabled('hybrid')){
+        setup_hybrid_tab_content($('#hybridTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('other')){
