@@ -4412,6 +4412,49 @@ var fillTemplatePopUp = function(template, dialog){
     }
 
     //
+    // HYBRID
+    //
+
+    function fillProviderTab(provider, provider_type){
+        $("#tf_btn_hybrid").trigger("click");
+        var context = $(".provider", dialog).last();
+
+        $("input.hybridRadio[value='"+provider_type+"']", context).trigger("click");
+
+        autoFillInputs(provider, context);
+    }
+
+    if (template.PUBLIC_CLOUD) {
+        var providers = template.PUBLIC_CLOUD
+
+        if (providers instanceof Array) {
+            $.each(providers, function(){
+                fillProviderTab(this, this.TYPE.toLowerCase());
+            });
+        }
+        else if (providers instanceof Object) {
+            fillProviderTab(providers, this.TYPE.toLowerCase());
+        }
+
+        delete template.PUBLIC_CLOUD
+    }
+
+    if (template.EC2) {
+        var providers = template.EC2
+
+        if (providers instanceof Array) {
+            $.each(providers, function(){
+                fillProviderTab(this, "ec2");
+            });
+        }
+        else if (providers instanceof Object) {
+            fillProviderTab(providers, "ec2");
+        }
+
+        delete template.EC2
+    }
+
+    //
     // OS
     //
 
