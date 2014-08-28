@@ -3981,6 +3981,7 @@ function initialize_create_template_dialog(dialog) {
     setupTips(dialog);
     $("#tf_btn_disks", dialog).trigger("click");
     $("#tf_btn_nics", dialog).trigger("click");
+    $("#tf_btn_hybrid", dialog).trigger("click");
 
 
     //Different selector for items of kvm and xen (mandatory and optional)
@@ -4448,13 +4449,19 @@ var fillTemplatePopUp = function(template, dialog){
     //
 
     function fillProviderTab(provider, provider_type){
-        $("#tf_btn_hybrid").trigger("click");
+        if (number_of_providers > 0) {
+            $("#tf_btn_hybrid", dialog).trigger("click");
+        }
+
         var context = $(".provider", dialog).last();
 
         $("input.hybridRadio[value='"+provider_type+"']", context).trigger("click");
 
         autoFillInputs(provider, context);
+        number_of_providers++;
     }
+
+    var number_of_providers = 0;
 
     if (template.PUBLIC_CLOUD) {
         var providers = template.PUBLIC_CLOUD
