@@ -107,7 +107,7 @@ host_name = host.name
 if repeat
     # Retrieve host monitor interval
     monitor_interval = nil
-    File.read(CONFIG_FILE).each{|line|
+    File.readlines(CONFIG_FILE).each{|line|
          monitor_interval = line.split("=").last.to_i if /MONITORING_INTERVAL/=~line
     }
     # Sleep through the desired number of monitor interval
