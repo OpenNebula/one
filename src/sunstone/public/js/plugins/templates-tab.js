@@ -24,7 +24,8 @@ var hybrid_inputs = {
     {
       name: "AMI",
       label: tr("AMI"),
-      tooltip: tr("Unique ID of a machine image, returned by a call to ec2-describe-images.")
+      tooltip: tr("Unique ID of a machine image, returned by a call to ec2-describe-images."),
+      required: true
     },
     {
       name: "AVAILABILITYZONE",
@@ -59,7 +60,8 @@ var hybrid_inputs = {
     {
       name: "INSTANCETYPE",
       label: tr("Instance Type"),
-      tooltip: tr("Specifies the instance type.")
+      tooltip: tr("Specifies the instance type."),
+      required: true
     },
     {
       name: "KEYPAIR",
@@ -136,12 +138,14 @@ var hybrid_inputs = {
     {
       name: "DOMAIN",
       label: tr("Domain"),
-      tooltip: tr("Domain for the computing instance")
+      tooltip: tr("Domain for the computing instance"),
+      required: true
     },
     {
       name: "HOSTNAME",
       label: tr("Hostname"),
-      tooltip: tr("Hostname for the computing instance")
+      tooltip: tr("Hostname for the computing instance"),
+      required: true
     },
     {
       name: "HOURLYBILLING",
@@ -151,7 +155,8 @@ var hybrid_inputs = {
     {
       name: "INSTANCE_TYPE",
       label: tr("Instance Type"),
-      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory. If both STARTCPUS and MAXMEMORY are used, then this parameter is disregarded")
+      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory. If both STARTCPUS and MAXMEMORY are used, then this parameter is disregarded"),
+      required: true
     },
     {
       name: "LOCALDISK",
@@ -171,7 +176,8 @@ var hybrid_inputs = {
     {
       name: "OPERATINGSYSTEM",
       label: tr("Operating System"),
-      tooltip: tr("An identifier for the operating system to provision the computing instance with. A non exhaustive list of identifiers can be found here")
+      tooltip: tr("An identifier for the operating system to provision the computing instance with. A non exhaustive list of identifiers can be found here"),
+      required: true
     },
     {
       name: "POSTSCRIPT",
@@ -223,17 +229,20 @@ var hybrid_inputs = {
     {
       name: "IMAGE",
       label: tr("Image"),
-      tooltip: tr("Specifies the base OS of the VM.")
+      tooltip: tr("Specifies the base OS of the VM."),
+      required: true
     },
     {
       name: "INSTANCE_TYPE",
       label: tr("Instance Type"),
-      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory")
+      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory"),
+      required: true
     },
     {
       name: "LOCATION",
       label: tr("Location"),
-      tooltip: tr("Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)")
+      tooltip: tr("Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)"),
+      required: true
     },
     {
       name: "SSHPORT",
@@ -263,12 +272,14 @@ var hybrid_inputs = {
     {
       name: "VM_USER",
       label: tr("VM User"),
-      tooltip: tr("If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted")
+      tooltip: tr("If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"),
+      required: true
     },
     {
       name: "VM_PASSWORD",
       label: tr("VM Password"),
-      tooltip: tr("Password for VM_USER")
+      tooltip: tr("Password for VM_USER"),
+      required: true
     },
     {
       name: "WIN_RM",
@@ -3824,9 +3835,12 @@ function add_provider_tab(provider_id, dialog) {
     provider_section.on("change", "input.hybridRadio", function(){
       $(".hybrid_inputs", provider_section).html("");
 
+      var required_str = "";
+      var not_required_str = "";
+
       $.each(hybrid_inputs[this.value], function(index, obj){
-        $(".hybrid_inputs", provider_section).append(
-          '<div class="large-6 columns">'+
+        if (obj.required){
+          required_str += '<div class="large-6 columns">'+
             '<label>'+
               obj.label +
               '<span class="tip">'+
@@ -3834,8 +3848,24 @@ function add_provider_tab(provider_id, dialog) {
               '</span>'+
             '</label>'+
             '<input type="text" id="'+obj.name+'">'+
-          '</div>')
+          '</div>'
+        } else {
+          not_required_str += '<div class="large-6 columns">'+
+            '<label>'+
+              obj.label +
+              '<span class="tip">'+
+                obj.tooltip +
+              '</span>'+
+            '</label>'+
+            '<input type="text" id="'+obj.name+'">'+
+          '</div>'
+        }
       });
+
+      $(".hybrid_inputs", provider_section).append(
+        required_str +
+        '<br><hr><br>'+
+        not_required_str)
 
       setupTips($(".hybrid_inputs", provider_section));
     })
