@@ -382,6 +382,7 @@ var template_actions = {
         call: function(){
           Sunstone.popUpFormPanel("create_template_form", "templates-tab", "create", false, function(context){
             $('#template_name_form', context).show();
+            $('#template_hypervisor_form', context).removeClass("left");
             $('#NAME', context).removeAttr('disabled');
             $('#NAME', context).attr("required", "");
 
@@ -412,6 +413,7 @@ var template_actions = {
           template_to_update_id = response.VMTEMPLATE.ID;
           Sunstone.popUpFormPanel("create_template_form", "templates-tab", "update", true, function(context){
             $('#template_name_form', context).hide();
+            $('#template_hypervisor_form', context).addClass("left");
             $('#NAME', context).attr("disabled", "disabled");
             $('#NAME', context).removeAttr("required");
 
@@ -777,7 +779,7 @@ function generate_capacity_tab_content() {
           </label>'+
           '<input type="text" id="NAME" name="name" required/>'+
         '</div>'+
-        '<div class="large-6 columns">'+
+        '<div  id="template_hypervisor_form" class="large-6 columns">'+
           '<label>'+tr("Hypervisor")+'</label>'+
           '<input type="radio" name="hypervisor" value="kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
           '<input type="radio" name="hypervisor" value="vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
