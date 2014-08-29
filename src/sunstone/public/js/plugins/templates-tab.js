@@ -14,59 +14,307 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var create_template_tmpl = '\
-<div class="row" id="create_template_header_row">'+
-  '<div class="large-5 columns">'+
-    '<h3 class="subheader" id="create_template_header">'+tr("Create VM Template")+'</h3><h3 class="subheader" id="update_template_header" class="hidden">'+tr("Update VM Template")+'</h3>'+
-  '</div>'+
-  '<div class="large-7 columns">'+
-    '<dl class="tabs right wizard_tabs" data-tab>' +
-      '<dd id="wizard_mode" class="active"><a href="#easy">'+tr("Wizard")+'</a></dd>' +
-      '<dd id="advanced_mode"><a id="advanced_mode_a" href="#manual">'+tr("Advanced mode")+'</a></dd>' +
-    '</dl>' +
-  '</div>'+
-'</div>'+
-  '<div class="tabs-content">' +
-    '<div class="content active" id="easy">' +
-      '<form data-abide="ajax" id="create_template_form" class="custom creation">'+
-        '<div class="">'+
-          '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
-          wizard_tab_dd()+
-          '</dl>'+
-          '<div id="template_create_tabs_content" class="tabs-content" style="min-height: 300px">'+
-          wizard_tab_content()+
-          '</div>'+
-        '</div>'+
-        '<br>'+
-        '<div class="row">' +
-          '<div class="large-12 columns">' +
-            '<button type="submit" class="success button radius" id="create_template_form_easy" value="OpenNebula.Template.create" style="float: right">'+tr("Create")+'</button>'+
-            '<button type="submit" class="button hidden radius" id="template_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
-            '<button class="button secondary radius" id="template_template_reset_button" value="reset" type="reset">'+tr("Reset")+'</button>'+
-          '</div>' +
-        '</div>' +
-      '</form>'+
+var hybrid_inputs = {
+  ec2 : [
+    {
+      name: "AKI",
+      label: tr("AKI"),
+      tooltip: tr("The ID of the kernel with which to launch the instance.")
+    },
+    {
+      name: "AMI",
+      label: tr("AMI"),
+      tooltip: tr("Unique ID of a machine image, returned by a call to ec2-describe-images."),
+      required: true
+    },
+    {
+      name: "AVAILABILITYZONE",
+      label: tr("Availability Zone"),
+      tooltip: tr("The Availability Zone in which to run the instance.")
+    },
+    {
+      name: "BLOCKDEVICEMAPPING",
+      label: tr("Block Device Mapping"),
+      tooltip: tr("The block device mapping for the instance. More than one can be specified in a space-separated list. Check the –block-device-mapping option of the EC2 CLI Reference for the syntax")
+    },
+    {
+      name: "CLIENTTOKEN",
+      label: tr("Client Token"),
+      tooltip: tr("Unique, case-sensitive identifier you provide to ensure idempotency of the request.")
+    },
+    {
+      name: "EBS_OPTIMIZED",
+      label: tr("EBS Optimized"),
+      tooltip: tr("Obtain a better I/O throughput for VMs with EBS provisioned volumes")
+    },
+    {
+      name: "ELASTICIP",
+      label: tr("Elastic IP"),
+      tooltip: tr("EC2 Elastic IP address to assign to the instance. This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip.")
+    },
+    {
+      name: "HOST",
+      label: tr("OpenNebula Host"),
+      tooltip: tr("Defines which OpenNebula host will use this template")
+    },
+    {
+      name: "INSTANCETYPE",
+      label: tr("Instance Type"),
+      tooltip: tr("Specifies the instance type."),
+      required: true
+    },
+    {
+      name: "KEYPAIR",
+      label: tr("Keypair"),
+      tooltip: tr("The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair")
+    },
+    {
+      name: "LICENSEPOOL",
+      label: tr("License Pool"),
+      tooltip: tr("Name of the license pool.")
+    },
+    {
+      name: "PLACEMENTGROUP",
+      label: tr("Placement Group"),
+      tooltip: tr("Name of the placement group.")
+    },
+    {
+      name: "PRIVATEIP",
+      label: tr("Private IP"),
+      tooltip: tr("If you’re using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet.")
+    },
+    {
+      name: "RAMDISK",
+      label: tr("Ramdisk"),
+      tooltip: tr("The ID of the RAM disk to select.")
+    },
+    {
+      name: "SECURITYGROUPS",
+      label: tr("Security Groups"),
+      tooltip: tr("Name of the security group. You can specify more than one security group (comma separated).")
+    },
+    {
+      name: "SUBNETID",
+      label: tr("Subnet ID"),
+      tooltip: tr("If you’re using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip.")
+    },
+    {
+      name: "TAGS",
+      label: tr("Tags"),
+      tooltip: tr("Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated).")
+    },
+    {
+      name: "TENANCY",
+      label: tr("Tenancy"),
+      tooltip: tr("The tenancy of the instance you want to launch.")
+    },
+    {
+      name: "USERDATA",
+      label: tr("User Data"),
+      tooltip: tr("Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation.")
+    }
+  ],
+  softlayer: [
+    {
+      name: "BLOCKDEVICETEMPLATE",
+      label: tr("Block Device Template"),
+      tooltip: tr("A global identifier for the template to be used to provision the computing instance")
+    },
+    {
+      name: "BLOCKDEVICE",
+      label: tr("Block Device Size"),
+      tooltip: tr("Size of the block device size to be presented to the VM")
+    },
+    {
+      name: "DATACENTER",
+      label: tr("Datacenter"),
+      tooltip: tr("Specifies which datacenter the instance is to be provisioned in")
+    },
+    {
+      name: "DEDICATEDHOST",
+      label: tr("Dedicated Host"),
+      tooltip: tr("Specifies whether or not the instance must only run on hosts with instances from the same account")
+    },
+    {
+      name: "DOMAIN",
+      label: tr("Domain"),
+      tooltip: tr("Domain for the computing instance"),
+      required: true
+    },
+    {
+      name: "HOSTNAME",
+      label: tr("Hostname"),
+      tooltip: tr("Hostname for the computing instance"),
+      required: true
+    },
+    {
+      name: "HOURLYBILLING",
+      label: tr("Hourly Billing"),
+      tooltip: tr("Specifies the billing type for the instance . When true the computing instance will be billed on hourly usage, otherwise it will be billed on a monthly basis")
+    },
+    {
+      name: "INSTANCE_TYPE",
+      label: tr("Instance Type"),
+      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory. If both STARTCPUS and MAXMEMORY are used, then this parameter is disregarded"),
+      required: true
+    },
+    {
+      name: "LOCALDISK",
+      label: tr("Local Disk"),
+      tooltip: tr("Name of the placement group. When true the disks for the computing instance will be provisioned on the host which it runs, otherwise SAN disks will be provisioned")
+    },
+    {
+      name: "MAXMEMORY",
+      label: tr("Max Memory"),
+      tooltip: tr("The amount of memory to allocate in megabytes")
+    },
+    {
+      name: "NETWORKCOMPONENTSMAXSPEED",
+      label: tr("Network Components Max Speed"),
+      tooltip: tr("Specifies the connection speed for the instance's network components")
+    },
+    {
+      name: "OPERATINGSYSTEM",
+      label: tr("Operating System"),
+      tooltip: tr("An identifier for the operating system to provision the computing instance with. A non exhaustive list of identifiers can be found here"),
+      required: true
+    },
+    {
+      name: "POSTSCRIPT",
+      label: tr("Postscript"),
+      tooltip: tr("Specifies the uri location of the script to be downloaded and run after installation is complete")
+    },
+    {
+      name: "PRIVATENETWORKONLY",
+      label: tr("Private Netwrok Only"),
+      tooltip: tr("Specifies whether or not the instance only has access to the private network  (ie, if it is going to have a public IP interface or not)")
+    },
+    {
+      name: "PRIMARYNETWORKVLAN",
+      label: tr("Primary Network VLAN"),
+      tooltip: tr("Specifies the network vlan which is to be used for the frontend interface of the computing instance")
+    },
+    {
+      name: "PRIMARYBACKENDNETWORKVLAN",
+      label: tr("Primary Backed Network VLAN"),
+      tooltip: tr("Specifies the network vlan which is to be used for the backend interface of the computing instance")
+    },
+    {
+      name: "SSHKEYS",
+      label: tr("SSH Keys"),
+      tooltip: tr("SSH keys to install on the computing instance upon provisioning")
+    },
+    {
+      name: "STARTCPUS",
+      label: tr("Start CPUs"),
+      tooltip: tr("The number of CPU cores to allocate to the VM")
+    },
+    {
+      name: "USERDATA",
+      label: tr("User Data"),
+      tooltip: tr("Arbitrary data to be made available to the computing instance")
+    }
+  ],
+  azure: [
+    {
+      name: "AVAILABILITY_SET",
+      label: tr("Availability Set"),
+      tooltip: tr("Name of the availability set to which this VM will belong")
+    },
+    {
+      name: "CLOUD_SERVICE",
+      label: tr("Cloud Service"),
+      tooltip: tr("Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'")
+    },
+    {
+      name: "IMAGE",
+      label: tr("Image"),
+      tooltip: tr("Specifies the base OS of the VM."),
+      required: true
+    },
+    {
+      name: "INSTANCE_TYPE",
+      label: tr("Instance Type"),
+      tooltip: tr("Specifies the capacity of the VM in terms of CPU and memory"),
+      required: true
+    },
+    {
+      name: "LOCATION",
+      label: tr("Location"),
+      tooltip: tr("Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)"),
+      required: true
+    },
+    {
+      name: "SSHPORT",
+      label: tr("SSH Port"),
+      tooltip: tr("Port where the VMs ssh server will listen on")
+    },
+    {
+      name: "STORAGE_ACCOUNT",
+      label: tr("Storage Account"),
+      tooltip: tr("Specify the storage account where this VM will belong")
+    },
+    {
+      name: "SUBNET",
+      label: tr("Subnet"),
+      tooltip: tr("Name of the particular Subnet where this VM will be connected to")
+    },
+    {
+      name: "TCP_ENDPOINTS",
+      label: tr("TCP Endpoints"),
+      tooltip: tr("Comma-separated list of TCP ports to be accesible from the public internet to this VM")
+    },
+    {
+      name: "VIRTUAL_NETWORK_NAME",
+      label: tr("Virtual Network Name"),
+      tooltip: tr("Name of the virtual network to which this VM will be connected")
+    },
+    {
+      name: "VM_USER",
+      label: tr("VM User"),
+      tooltip: tr("If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"),
+      required: true
+    },
+    {
+      name: "VM_PASSWORD",
+      label: tr("VM Password"),
+      tooltip: tr("Password for VM_USER"),
+      required: true
+    },
+    {
+      name: "WIN_RM",
+      label: tr("Win RM"),
+      tooltip: tr("Comma-separated list of possible protocols to access this Windows VM")
+    }
+  ]
+}
+
+
+var create_template_wizard_html =
+  '<form data-abide="ajax" id="create_template_form_wizard" class="custom creation">'+
+    '<div class="">'+
+      '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
+      wizard_tab_dd()+
+      '</dl>'+
+      '<div id="template_create_tabs_content" class="tabs-content" style="min-height: 300px">'+
+      wizard_tab_content()+
+      '</div>'+
+    '</div>'+
+  '</form>';
+
+var create_template_advanced_html =
+ '<form data-abide="ajax" id="create_template_form_advanced" class="custom creation">' +
+    '<div class="row">' +
+      '<div class="large-12 columns">' +
+        '<p>'+tr("Write the Virtual Machine template here")+'</p>' +
+      '</div>' +
     '</div>' +
-    '<div class="content" id="manual">' +
-     '<form id="create_template_form_manual" action="">' +
-        '<div class="row">' +
-          '<div class="large-12 columns">' +
-            '<p>'+tr("Write the Virtual Machine template here")+'</p>' +
-          '</div>' +
-        '</div>' +
-        '<div class="row">' +
-          '<div class="large-12 columns">' +
-            '<textarea id="template" rows="15"></textarea>' +
-          '</div>' +
-        '</div>' +
-          '<div class="form_buttons">' +
-            '<button class="button success right radius" id="create_template_submit_manual" value="template/create">'+tr("Create")+'</button>' +
-            '<button class="button hidden radius" id="manual_template_update_button" value="Template.update_template" style="float: right">'+tr("Update")+'</button>'+
-          '</div>' +
-      '</form>' +
+    '<div class="row">' +
+      '<div class="large-12 columns">' +
+        '<textarea id="template" rows="15" required></textarea>' +
+      '</div>' +
     '</div>' +
-'</div>'+
-'<a class="close-reveal-modal">&#215;</a>';
+  '</form>';
 
 var instantiate_vm_template_tmpl ='\
 <div class="row">\
@@ -115,16 +363,80 @@ var template_actions = {
         type: "create",
         call: OpenNebula.Template.create,
         callback: function(request, response){
-          $create_template_dialog.foundation('reveal', 'close');
+          $("a[href=back]", $("#templates-tab")).trigger("click");
+          popFormDialog("create_template_form", $("#templates-tab"));
+
           addTemplateElement(request, response);
           notifyCustom(tr("Template created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
-        error: onError
+        error: function(request, response){
+          popFormDialog("create_template_form", $("#templates-tab"));
+
+          onError(request, response);
+        }
+
     },
 
     "Template.create_dialog" : {
         type: "custom",
-        call: popUpCreateTemplateDialog
+        call: function(){
+          Sunstone.popUpFormPanel("create_template_form", "templates-tab", "create", false, function(context){
+            $('#template_name_form', context).show();
+            $('#template_hypervisor_form', context).removeClass("left");
+            $('#NAME', context).removeAttr('disabled');
+            $('#NAME', context).attr("required", "");
+
+            $('button.refresh', context).trigger("click");
+          });
+        }
+    },
+
+    "Template.update_dialog" : {
+        type: "custom",
+        call: function(){
+          var selected_nodes = getSelectedNodes(dataTable_templates);
+          if ( selected_nodes.length != 1 ) {
+            notifyMessage("Please select one (and just one) template to update.");
+            return false;
+          }
+
+          // Get proper cluster_id
+          var template_id   = ""+selected_nodes[0];
+          Sunstone.runAction("Template.show_to_update", template_id);
+        }
+    },
+
+    "Template.show_to_update" : {
+        type: "single",
+        call: OpenNebula.Template.show,
+        callback: function(request, response) {
+          template_to_update_id = response.VMTEMPLATE.ID;
+          Sunstone.popUpFormPanel("create_template_form", "templates-tab", "update", true, function(context){
+            $('#template_name_form', context).hide();
+            $('#template_hypervisor_form', context).addClass("left");
+            $('#NAME', context).attr("disabled", "disabled");
+            $('#NAME', context).removeAttr("required");
+
+            fillTemplatePopUp(response.VMTEMPLATE.TEMPLATE, context)
+          });
+        },
+        error: onError
+    },
+
+    "Template.update" : {
+        type: "single",
+        call: OpenNebula.Template.update,
+        callback: function(request, response){
+          $("a[href=back]", $("#templates-tab")).trigger("click");
+          popFormDialog("create_template_form", $("#templates-tab"));
+
+          notifyMessage(tr("Template updated correctly"));
+        },
+        error: function(request, response){
+          popFormDialog("create_template_form", $("#templates-tab"));
+
+          onError(request, response);
+        }
     },
 
     "Template.list" : {
@@ -164,25 +476,6 @@ var template_actions = {
         }
     },
 
-    "Template.show_to_update" : {
-        type: "single",
-        call: OpenNebula.Template.show,
-        callback: function(request, response) {
-          template_to_update_id = response.VMTEMPLATE.ID;
-
-          popUpUpdateTemplateDialog();
-          fillTemplatePopUp(
-            response.VMTEMPLATE.TEMPLATE,
-            $create_template_dialog);
-        },
-        error: onError
-    },
-
-    "Template.update_dialog" : {
-        type: "custom",
-        call: popUpTemplateTemplateUpdateDialog
-    },
-
     "Template.rename" : {
         type: "single",
         call: OpenNebula.Template.rename,
@@ -192,17 +485,6 @@ var template_actions = {
         },
         error: onError,
         notify: true
-    },
-
-    "Template.update" : {
-        type: "single",
-        call: OpenNebula.Template.update,
-        callback: function(request, response){
-            $create_template_dialog.foundation('reveal', 'close');
-            templateShow(request);
-            notifyMessage(tr("Template updated correctly"));
-        },
-        error: onError
     },
 
     "Template.fetch_template" : {
@@ -406,7 +688,24 @@ var templates_tab = {
         </thead>\
         <tbody id="tbodytemplates">\
         </tbody>\
-      </table>'
+      </table>',
+    forms: {
+      "create_template_form": {
+        actions: {
+          create: {
+            title: tr("Create Template"),
+            submit_text: tr("Create")
+          },
+          update: {
+            title: tr("Update Template"),
+            submit_text: tr("Update")
+          }
+        },
+        wizard_html: create_template_wizard_html,
+        advanced_html: create_template_advanced_html,
+        setup: initialize_create_template_dialog
+      }
+    }
 }
 
 Sunstone.addActions(template_actions);
@@ -472,26 +771,31 @@ function updateTemplatesView(request, templates_list){
 **************************************************************************/
 
 function generate_capacity_tab_content() {
-    var html = '<div class="row vm_param">'+
+    var html =
+      '<div class="row">'+
+        '<div id="template_name_form"  class="large-6 columns vm_param">'+
+          '<label  for="NAME">'+tr("Name")+'\
+            <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
+          </label>'+
+          '<input type="text" id="NAME" name="name" required/>'+
+        '</div>'+
+        '<div  id="template_hypervisor_form" class="large-6 columns">'+
+          '<label>'+tr("Hypervisor")+'</label>'+
+          '<input type="radio" name="hypervisor" value="kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
+          '<input type="radio" name="hypervisor" value="vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
+          '<input type="radio" name="hypervisor" value="xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row vm_param">'+
         '<div class="large-8 columns">'+
-          '<div class="row collapse">'+
-            '<div id="template_name_form"  class="large-12 columns">'+
-              '<label  for="NAME">'+tr("Name")+'\
-                <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
-              </label>'+
-              '<input type="text" id="NAME" name="name" required/>'+
-            '</div>'+
-            '<div class="large-12 columns">'+
-              '<label  for="DESCRIPTION">'+tr("Description")+'\
-                <span class="tip">'+tr("Description of the template")+'</span>\
-              </label>'+
-              '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>'+
-            '</div>'+
-          '</div>'+
+          '<label  for="DESCRIPTION">'+tr("Description")+'\
+            <span class="tip">'+tr("Description of the template")+'</span>\
+          </label>'+
+          '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>'+
         '</div>'+
         '<div class="large-4 columns">'+
-          '<div class="row collapse">'+
-            '<div class="large-12 columns">'+
+          '<div class="row">'+
+            '<div class="large-6 columns">'+
               '<label  for="LOGO">'+tr("Logo")+'\
                 <span class="tip">'+tr("Logo for the template.")+'</span>\
               </label>'+
@@ -508,12 +812,13 @@ function generate_capacity_tab_content() {
                   '<option value="images/logos/windows8.png">'+tr("Windows 8")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div id="template_create_logo" class="text-center large-12 columns" style="margin-bottom: 15px">'+
+            '<div id="template_create_logo" class="text-center large-6 columns" style="margin-bottom: 15px">'+
             '</div>'+
             '<br>'+
           '</div>'+
         '</div>'+
-    '</div>'+
+      '</div>'+
+      '<br>'+
     generate_capacity_inputs();
 
     return html;
@@ -558,27 +863,18 @@ function generate_capacity_inputs() {
           '<input type="text" id="CPU" name="cpu"/>'+
         '</div>'+
     '</div>'+
-    '<div class="row">'+
-      '<div class="large-12 columns">'+
-        '<dl class="tabs wizard_tabs" data-tab>' +
-          '<dd><a href="#advanced_capacity">'+tr("Advanced options")+'</a></dd>' +
-        '</dl>' +
+    '<div class="row">' +
+      '<div class="large-2 columns">'+
+        '<label class="inline" for="VCPU">'+tr("VCPU")+'\
+          <span class="tip right">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
+        </label>'+
       '</div>'+
-    '</div>'+
-    '<div class="tabs-content">' +
-      '<div class="content row" id="advanced_capacity">' +
-        '<div class="large-2 columns">'+
-          '<label class="inline" for="VCPU">'+tr("VCPU")+'\
-            <span class="tip right">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
-          </label>'+
+      '<div class="large-8 columns">'+
+        '<div id="vcpu_slider">'+
         '</div>'+
-        '<div class="large-8 columns">'+
-          '<div id="vcpu_slider">'+
-          '</div>'+
-        '</div>'+
-        '<div class="large-2 columns vm_param">'+
-          '<input type="text" id="VCPU" name="vcpu"/>'+
-        '</div>'+
+      '</div>'+
+      '<div class="large-2 columns vm_param">'+
+        '<input type="text" id="VCPU" name="vcpu"/>'+
       '</div>'+
     '</div>'
 
@@ -590,9 +886,15 @@ function setup_capacity_tab_content(capacity_section) {
 
     capacity_section.on("change", "#LOGO", function(){
       $("#template_create_logo",capacity_section).show();
-      $("#template_create_logo",capacity_section).html('<a  class="th radius" href="#">'+
+      $("#template_create_logo",capacity_section).html('<span  class="">'+
           '<img src="' + $(this).val() + '">'+
-        '</a>');
+        '</span>');
+    });
+
+    capacity_section.on("change", "input[name='hypervisor']", function(){
+      var context = $(this).closest("#create_template_form_wizard");
+      $(".hypervisor", context).hide();
+      $(".only_" + this.value, context).show();
     });
 
     setup_capacity_inputs(capacity_section);
@@ -601,14 +903,6 @@ function setup_capacity_tab_content(capacity_section) {
 // Warning: used also in vms-tab.js
 function setup_capacity_inputs(capacity_section) {
     setupTips(capacity_section);
-
-    // Hide advanced options
-    $('.advanced',capacity_section).hide();
-
-    $('#advanced_capacity',capacity_section).click(function(){
-        $('.advanced',capacity_section).toggle();
-        return false;
-    });
 
     // Define the cpu slider
 
@@ -868,7 +1162,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '</label>'+
               '<input type="text"  id="TARGET" name="target"/>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_xen only_kvm">'+
               '<label for="DRIVER">'+tr("Driver")+
                   '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
                     '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
@@ -906,12 +1200,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="CACHE">'+tr("Cache")+
-                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
-                      '+tr("Xen: Not supported")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Not supported")+
+                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
                   '</span>'+
               '</label>'+
               '<select id="CACHE" name="CACHE">'+
@@ -924,12 +1215,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '<option value="unsafe">'+tr("unsafe")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="IO">'+tr("IO")+
-                '<span class="tip">'+tr("Set IO policy.")+'<br><br>\
-                  '+tr("Xen: Not supported")+'<br>\
-                  '+tr("KVM: Optional")+'<br>\
-                  '+tr("VMWare: Not supported")+
+                '<span class="tip">'+tr("Set IO policy.")+
                 '</span>'+
               '</label>'+
               '<select id="IO" name="IO">'+
@@ -998,7 +1286,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '</label>'+
               '<input type="text"  id="TARGET" name="target"/>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_xen only_kvm">'+
               '<label for="DRIVER">'+tr("Driver")+
                   '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
                     '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
@@ -1036,12 +1324,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             '</div>'+
           '</div>'+
           '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="CACHE">'+tr("Cache")+
-                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+'<br><br>\
-                      '+tr("Xen: Not supported")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Not supported")+
+                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
                   '</span>'+
               '</label>'+
               '<select id="CACHE" name="CACHE">'+
@@ -1054,12 +1339,9 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '<option value="unsafe">'+tr("unsafe")+'</option>'+
               '</select>'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="IO">'+tr("IO")+
-                '<span class="tip">'+tr("Set IO policy.")+'<br><br>\
-                  '+tr("Xen: Not supported")+'<br>\
-                  '+tr("KVM: Optional")+'<br>\
-                  '+tr("VMWare: Not supported")+
+                '<span class="tip">'+tr("Set IO policy.")+
                 '</span>'+
               '</label>'+
               '<select id="IO" name="IO">'+
@@ -1809,6 +2091,10 @@ function wizard_tab_dd(){
         str += "<dd><a href='#schedulingTab'><i class='fa fa-sitemap'></i><br>"+tr("Scheduling")+"</a></dd>";
     }
 
+    if (Config.isTemplateCreationTabEnabled('hybrid')){
+        str += "<dd><a href='#hybridTab'><i class='fa fa-cloud'></i><br>"+tr("Hybrid")+"</a></dd>";
+    }
+
     if (Config.isTemplateCreationTabEnabled('other')){
         str += "<dd><a href='#rawTab'><i class='fa fa-ellipsis-h'></i><br>"+tr("Other")+"</a></dd>";
     }
@@ -1840,18 +2126,18 @@ function wizard_tab_content(){
     if (Config.isTemplateCreationTabEnabled('network')){
         str +=
         '<div id="networkTab" class="content wizard_tab">'+
+          '<div class="row">'+
+            '<div class="large-6 columns">'+
+              '<label for="DEFAULT_MODEL">'+tr("Default model")+
+                '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
+              '</label>'+
+              '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
+            '</div>'+
+          '</div>'+
           '<dl class="tabs vertical" id="template_create_network_tabs" data-tab>'+
             '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
           '</dl>'+
           '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
-            '<div class="row">'+
-              '<div class="large-6 columns">'+
-                '<label for="DEFAULT_MODEL">'+tr("Default model")+
-                  '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
-                '</label>'+
-                '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
-              '</div>'+
-            '</div>'+
           '</div>'+
         '</div>';
     }
@@ -1878,7 +2164,7 @@ function wizard_tab_content(){
               '<option value="x86_64">x86_64</option>'+
             '</select>'+
           '</div>'+
-          '<div class="large-8 columns">'+
+          '<div class="large-8 columns hypervisor only_kvm">'+
             '<label for="MACHINE">'+tr("Machine type")+
               '<span class="tip">'+tr("libvirt machine type, only for KVM")+'</span>'+
             '</label>'+
@@ -1892,7 +2178,7 @@ function wizard_tab_content(){
             '</label>'+
             '<input type="text" id="ROOT" name="root"/>'+
           '</div>'+
-          '<div class="large-8 columns">'+
+          '<div class="large-8 columns hypervisor only_vmware">'+
             '<label for="GUESTOS">'+tr("Guest OS")+
               '<span class="tip">'+tr("Set the OS of the VM, only for VMware")+'</span>'+
             '</label>'+
@@ -2241,7 +2527,7 @@ function wizard_tab_content(){
               '<option value="no">'+tr("No")+'</option>'+
             '</select>'+
           '</div>'+
-          '<div class="large-6 columns">'+
+          '<div class="large-6 columns hypervisor only_xen">'+
             '<label for="DEVICE_MODEL">'+tr("Device model")+
               '<span class="tip">'+tr("Used to change the IO emulator in Xen HVM. Only XEN.")+'</span>'+
             '</label>'+
@@ -2249,7 +2535,7 @@ function wizard_tab_content(){
           '</div>'+
         '</div>'+
         '<div class="row vm_param">'+
-          '<div class="large-6 columns">'+
+          '<div class="large-6 columns hypervisor only_vmware">'+
             '<label for="PCIBRIDGE">'+tr("PCI BRIDGE")+
               '<span class="tip">'+tr(" Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware.")+'</span>'+
             '</label>'+
@@ -2712,6 +2998,17 @@ function wizard_tab_content(){
             '</div>'+
         '</div>'+
       '</div>';
+    }
+
+    if (Config.isTemplateCreationTabEnabled('hybrid')){
+        str +=
+        '<div id="hybridTab" class="wizard_tab content">'+
+          '<dl class="tabs vertical" id="template_create_hybrid_tabs" data-tab>'+
+            '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_hybrid"><span class="fa fa-plus"></span>'+tr("Add another provider")+'</button></dt>'+
+          '</dl>'+
+          '<div class="tabs-content vertical" id="template_create_hybrid_tabs_content">'+
+          '</div>'+
+        '</div>';
     }
 
     if (Config.isTemplateCreationTabEnabled('other')){
@@ -3481,11 +3778,106 @@ function setup_scheduling_tab_content(scheduling_section) {
     };
 }
 
+/**************************************************************************
+    DISK TAB
 
-    /**************************************************************************
-        OTHER TAB
+**************************************************************************/
 
-    **************************************************************************/
+function setup_hybrid_tab_content(hybrid_section) {
+    var number_of_providers = 0;
+
+    // close icon: removing the tab on click
+    $(hybrid_section).on("click", "i.remove-tab", function() {
+        var target = $(this).parent().attr("href");
+        var dd = $(this).closest('dd');
+        var dl = $(this).closest('dl');
+        var content = $(target);
+
+        dd.remove();
+        content.remove();
+
+        if (dd.attr("class") == 'active') {
+            $('a', dl.children('dd').last()).click();
+        }
+    });
+
+    $("#tf_btn_hybrid", hybrid_section).bind("click", function(){
+      add_provider_tab(number_of_providers, hybrid_section);
+      number_of_providers++;
+    });
+}
+
+function add_provider_tab(provider_id, dialog) {
+    var str_provider_tab_id  = 'provider' + provider_id;
+    var str_datatable_id = 'datatable_template_images' + provider_id;
+
+    // Append the new div containing the tab and add the tab to the list
+    var html_tab_content = '<div id="'+str_provider_tab_id+'Tab" class="provider wizard_internal_tab content">'+
+      '<div class="row">'+
+        '<div class="large-12 columns">'+
+          '<label>'+tr("Hybrid Cloud")+'</label>'+
+          '<input type="radio" class="hybridRadio" name="hybrid'+str_provider_tab_id+'" value="ec2" id="amazonRadio'+str_provider_tab_id+'"><label for="amazonRadio'+str_provider_tab_id+'">'+tr("Amazon EC2")+'</label>'+
+          '<input type="radio" class="hybridRadio" name="hybrid'+str_provider_tab_id+'" value="softlayer" id="softlayerRadio'+str_provider_tab_id+'"><label for="softlayerRadio'+str_provider_tab_id+'">'+tr("IBM Softlayer")+'</label>'+
+          '<input type="radio" class="hybridRadio" name="hybrid'+str_provider_tab_id+'" value="azure" id="azureRadio'+str_provider_tab_id+'"><label for="azureRadio'+str_provider_tab_id+'">'+tr("Microsoft Azure")+'</label>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row hybrid_inputs vm_param">'+
+      '</div>'+
+    '</div>'
+    $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", dialog));
+
+    var a = $("<dd>\
+      <a id='provider_tab"+str_provider_tab_id+"' href='#"+str_provider_tab_id+"Tab'>"+tr("PROVIDER")+" <i class='fa fa-times-circle remove-tab'></i></a>\
+    </dd>").appendTo($("dl#template_create_hybrid_tabs", dialog));
+
+    $("a", a).trigger("click");
+
+    var provider_section = $('#' +str_provider_tab_id+'Tab', dialog);
+
+    provider_section.on("change", "input.hybridRadio", function(){
+      $(".hybrid_inputs", provider_section).html("");
+
+      var required_str = "";
+      var not_required_str = "";
+
+      $.each(hybrid_inputs[this.value], function(index, obj){
+        if (obj.required){
+          required_str += '<div class="large-6 columns">'+
+            '<label>'+
+              obj.label +
+              '<span class="tip">'+
+                obj.tooltip +
+              '</span>'+
+            '</label>'+
+            '<input type="text" id="'+obj.name+'">'+
+          '</div>'
+        } else {
+          not_required_str += '<div class="large-6 columns">'+
+            '<label>'+
+              obj.label +
+              '<span class="tip">'+
+                obj.tooltip +
+              '</span>'+
+            '</label>'+
+            '<input type="text" id="'+obj.name+'">'+
+          '</div>'
+        }
+      });
+
+      $(".hybrid_inputs", provider_section).append(
+        required_str +
+        '<br><hr><br>'+
+        not_required_str)
+
+      setupTips($(".hybrid_inputs", provider_section));
+    })
+}
+
+
+/**************************************************************************
+    OTHER TAB
+
+**************************************************************************/
 
 function setup_other_tab_content(other_tab){
     $('#add_context', other_tab).click(function() {
@@ -3535,7 +3927,7 @@ function setupCreateTemplateDialog(){
 
     //***CREATE VM DIALOG MAIN BODY***
 
-    dialogs_context.append('<div id="create_template_dialog" class="reveal-modal large" data-reveal></div>');
+    dialogs_context.append('<div id="create_template_dialog"></div>');
     $create_template_dialog = $('#create_template_dialog',dialogs_context);
     var dialog = $create_template_dialog;
 
@@ -3546,52 +3938,42 @@ function setupCreateTemplateDialog(){
 }
 
 function initialize_create_template_dialog(dialog) {
-    var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-vertical");
-
-    $('#template_template_reset_button', dialog).click(function(){
-        dialog.html("");
-        setupCreateTemplateDialog();
-        popUpCreateTemplateDialog();
-    });
+    var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-");
 
     if (Config.isTemplateCreationTabEnabled('general')){
-        var tab = $('#capacityTab', dialog);
-        setup_capacity_tab_content(tab);
+        setup_capacity_tab_content($('#capacityTab',dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('storage')){
-        var tab = $('#storageTab', dialog);
-        setup_storage_tab_content(tab);
+        setup_storage_tab_content($('#storageTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('network')){
-        var tab = $('#networkTab', dialog);
-        setup_network_tab_content(tab);
+        setup_network_tab_content($('#networkTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('os_booting')){
-        var tab = $('#osTab', dialog);
-        setup_os_tab_content(tab);
+        setup_os_tab_content($('#osTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('input_output')){
-        var tab = $('#ioTab', dialog);
-        setup_io_tab_content(tab);
+        setup_io_tab_content($('#ioTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('context')){
-        var tab = $('#contextTab', dialog);
-        setup_context_tab_content(tab);
+        setup_context_tab_content($('#contextTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
-        var tab = $('#schedulingTab', dialog);
-        setup_scheduling_tab_content(tab);
+        setup_scheduling_tab_content($('#schedulingTab', dialog));
+    }
+
+    if (Config.isTemplateCreationTabEnabled('hybrid')){
+        setup_hybrid_tab_content($('#hybridTab', dialog));
     }
 
     if (Config.isTemplateCreationTabEnabled('other')){
-        var tab = $('#rawTab', dialog);
-        setup_other_tab_content(tab);
+        setup_other_tab_content($('#rawTab', dialog));
     }
 
     dialog.foundation();
@@ -3599,6 +3981,7 @@ function initialize_create_template_dialog(dialog) {
     setupTips(dialog);
     $("#tf_btn_disks", dialog).trigger("click");
     $("#tf_btn_nics", dialog).trigger("click");
+    $("#tf_btn_hybrid", dialog).trigger("click");
 
 
     //Different selector for items of kvm and xen (mandatory and optional)
@@ -3607,199 +3990,19 @@ function initialize_create_template_dialog(dialog) {
     // Enhace buttons
     //$('button',dialog).button();
 
-    var build_template = function(){
-        var vm_json = {};
-        var name,value,boot_method;
-        //
-        // CAPACITY
-        //
-
-        if (!$('input#MEMORY',$('#capacityTab',dialog)).val())
-        {
-          // Put default memory value
-          $('input#MEMORY',$('#capacityTab',dialog)).val("512")
-        }
-
-        addSectionJSON(vm_json,$('#capacityTab',dialog));
-        vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
-        vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
-
-        //
-        // OS
-        //
-
-        vm_json["OS"] = {};
-        addSectionJSON(vm_json["OS"],$('#osTab #bootTab',dialog));
-        addSectionJSON(vm_json["OS"],$('#osTab #kernelTab',dialog));
-        addSectionJSON(vm_json["OS"],$('#osTab #ramdiskTab',dialog));
-
-        var boot = "";
-
-        for (var i=0; i<3; i++){
-            var val = $('#osTab #BOOT_'+i, dialog).val();
-
-            if (val != undefined && val.length > 0) {
-                if (boot.length > 0){
-                    boot += ","
-                }
-
-                boot += val;
-            }
-        }
-
-        if (boot.length > 0){
-            vm_json["OS"]["BOOT"] = boot;
-        }
-
-        //
-        // FEATURES
-        //
-
-        vm_json['FEATURES'] = {};
-        addSectionJSON(vm_json["FEATURES"],$('#osTab #featuresTab',dialog));
-
-        //
-        // DISK
-        //
-
-        vm_json["DISK"] = [];
-
-        $('.disk div#disk_type.vm_param ',dialog).each(function(){
-          var hash  = {};
-          addSectionJSON(hash, this);
-          if (!$.isEmptyObject(hash)) {
-            vm_json["DISK"].push(hash);
-          };
-        });
-
-
-        //
-        // NIC
-        //
-
-        vm_json["NIC"] = [];
-
-        $('.nic',dialog).each(function(){
-          hash = retrieve_nic_tab_data(this);
-
-          if (!$.isEmptyObject(hash)) {
-              vm_json["NIC"].push(hash);
-          }
-        });
-
-        var default_model = $('#DEFAULT_MODEL', dialog).val();
-        if (default_model){
-            vm_json["NIC_DEFAULT"] = {
-                "MODEL": default_model
-            };
-        }
-
-        //
-        // GRAPHICS
-        //
-
-        vm_json["GRAPHICS"] = {};
-        addSectionJSON(vm_json["GRAPHICS"],$('#ioTab .graphics',dialog));
-
-        //
-        // INPUT
-        //
-
-        vm_json["INPUT"] = [];
-        $('#input_table tr', $('#ioTab')).each(function(){
-          var hash  = {};
-          if ($('#TYPE', $(this)).val()) {
-            hash['TYPE'] = $('#TYPE', $(this)).val()
-            hash['BUS'] = $('#BUS', $(this)).val()
-            vm_json["INPUT"].push(hash);
-          }
-        });
-
-        //
-        // CONTEXT
-        //
-
-        vm_json["CONTEXT"] = {};
-        $('#context_table tr', $('#contextTab')).each(function(){
-          if ($('#KEY', $(this)).val()) {
-            vm_json["CONTEXT"][$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
-          }
-        });
-
-        if ($("#ssh_context", $('#contextTab')).is(":checked")) {
-          var public_key = $("#ssh_public_key", $('#contextTab')).val();
-          if (public_key){
-            vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = public_key;
-          }
-          else {
-            vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
-          }
-        };
-
-        if ($("#network_context", $('#contextTab')).is(":checked")) {
-          vm_json["CONTEXT"]["NETWORK"] = "YES";
-        };
-
-        if ($("#token_context", $('#contextTab')).is(":checked")) {
-          vm_json["CONTEXT"]["TOKEN"] = "YES";
-        };
-
-        vm_json["USER_INPUTS"] = {};
-
-        $(".service_custom_attrs tbody tr").each(function(){
-          if ($(".user_input_name", $(this)).val()) {
-            var attr_name = $(".user_input_name", $(this)).val();
-            var attr_type = $(".user_input_type", $(this)).val();
-            var attr_desc = $(".user_input_description", $(this)).val();
-            vm_json["USER_INPUTS"][attr_name] = "M|" + attr_type + "|" + attr_desc;
-            vm_json["CONTEXT"][attr_name] = "$" + attr_name.toUpperCase();
-          }
-        });
-
-        addSectionJSON(vm_json["CONTEXT"],$('#contextTab',dialog));
-
-        //
-        // PLACEMENT
-        //
-
-        addSectionJSON(vm_json,$('#schedulingTab',dialog));
-
-        //
-        // RAW
-        //
-        vm_json["RAW"] = {}
-        t = $('#raw_type', dialog).val();
-        if (t) { vm_json["RAW"]['TYPE'] = t; }
-        t = escapeDoubleQuotes($('#raw_data', dialog).val());
-        if (t) { vm_json["RAW"]['DATA'] = t; }
-        t = escapeDoubleQuotes($('#raw_data_vmx', dialog).val());
-        if (t) { vm_json["RAW"]['DATA_VMX'] = t; }
-
-        $('#custom_tags tr', $('#rawTab')).each(function(){
-          if ($('#KEY', $(this)).val()) {
-            vm_json[$('#KEY', $(this)).val()] = escapeDoubleQuotes($('#VALUE', $(this)).val());
-          }
-        });
-
-        // remove empty elements
-        vm_json = removeEmptyObjects(vm_json);
-        return vm_json;
-    }
-
     //Process form
-    $('#create_template_form',dialog).on('invalid', function () {
+    $('#create_template_form_wizard',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
+        popFormDialog("create_template_form", $("#templates-tab"));
     }).on('valid', function() {
-        if ($('#create_template_form',dialog).attr("opennebula_action") == "create") {
-          $create_template_dialog = dialog;
-           //wrap it in the "vmtemplate" object
-          var vm_json = build_template();
+        if ($('#create_template_form_wizard',dialog).attr("action") == "create") {
+          var vm_json = build_template(this);
           vm_json = {vmtemplate: vm_json};
 
           //validate form
           Sunstone.runAction("Template.create",vm_json);
           return false;
-        } else if ($('#create_template_form',dialog).attr("opennebula_action") == "update") {
+        } else if ($('#create_template_form_wizard',dialog).attr("action") == "update") {
           var vm_json = build_template();
           vm_json = {vmtemplate: vm_json};
           vm_json =JSON.stringify(vm_json);
@@ -3809,7 +4012,20 @@ function initialize_create_template_dialog(dialog) {
         }
     });
 
-    $('button#manual_template_update_button',dialog).click(function(){
+    $('#create_template_form_advanced',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+        popFormDialog("create_template_form", $("#templates-tab"));
+    }).on('valid', function() {
+      if ($('#create_template_form_advanced',dialog).attr("action") == "create") {
+        var template = $('textarea#template',this).val();
+
+        //wrap it in the "vm" object
+        template = {"vmtemplate": {"template_raw": template}};
+
+        Sunstone.runAction("Template.create",template);
+        return false;
+
+      } else if ($('#create_template_form_advanced',dialog).attr("action") == "update") {
         var template = $('textarea#template',dialog).val();
 
         //wrap it in the "vm" object
@@ -3818,97 +4034,217 @@ function initialize_create_template_dialog(dialog) {
 
         Sunstone.runAction("Template.update",template_to_update_id,vm_json);
         return false;
-    });
-
-    //Handle manual forms
-    $('button#create_template_submit_manual',dialog).click(function(){
-        var template = $('textarea#template',dialog).val();
-
-        //wrap it in the "vm" object
-        template = {"vmtemplate": {"template_raw": template}};
-
-        Sunstone.runAction("Template.create",template);
-        return false;
+      }
     });
 }
 
-function popUpUpdateTemplateDialog(){
-    if ($create_template_dialog) {
-      $create_template_dialog.html("");
+function build_template(dialog){
+    var vm_json = {};
+    var name,value,boot_method;
+    //
+    // CAPACITY
+    //
+
+    if (!$('input#MEMORY',$('#capacityTab',dialog)).val())
+    {
+      // Put default memory value
+      $('input#MEMORY',$('#capacityTab',dialog)).val("512")
     }
 
-    setupCreateTemplateDialog();
+    addSectionJSON(vm_json,$('#capacityTab',dialog));
+    vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
+    vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
+    vm_json["HYPERVISOR"] = $('input[name="hypervisor"]:checked', $('#capacityTab',dialog)).val();
 
-    $("#create_template_form", $create_template_dialog).attr("opennebula_action", "update");
-    $('button#create_template_form_easy', $create_template_dialog).hide();
-    $('button#template_template_update_button', $create_template_dialog).show();
-    $('button#template_template_reset_button', $create_template_dialog).hide();
-    $('button#manual_template_update_button', $create_template_dialog).show();
-    $('button#create_template_submit_manual', $create_template_dialog).hide();
+    //
+    // OS
+    //
 
-    $('#create_template_header', $create_template_dialog).hide();
-    $('#update_template_header', $create_template_dialog).show();
+    vm_json["OS"] = {};
+    addSectionJSON(vm_json["OS"],$('#osTab #bootTab',dialog));
+    addSectionJSON(vm_json["OS"],$('#osTab #kernelTab',dialog));
+    addSectionJSON(vm_json["OS"],$('#osTab #ramdiskTab',dialog));
 
-    $('#template_name_form', $create_template_dialog).hide();
-    $('#NAME', $create_template_dialog).attr("disabled", "disabled");
-    $('#NAME', $create_template_dialog).removeAttr("required");
+    var boot = "";
 
-    $create_template_dialog.die();
-    $create_template_dialog.live('closed', function () {
-        $create_template_dialog.html("");
+    for (var i=0; i<3; i++){
+        var val = $('#osTab #BOOT_'+i, dialog).val();
+
+        if (val != undefined && val.length > 0) {
+            if (boot.length > 0){
+                boot += ","
+            }
+
+            boot += val;
+        }
+    }
+
+    if (boot.length > 0){
+        vm_json["OS"]["BOOT"] = boot;
+    }
+
+    //
+    // FEATURES
+    //
+
+    vm_json['FEATURES'] = {};
+    addSectionJSON(vm_json["FEATURES"],$('#osTab #featuresTab',dialog));
+
+    //
+    // DISK
+    //
+
+    vm_json["DISK"] = [];
+
+    $('.disk div#disk_type.vm_param ',dialog).each(function(){
+      var hash  = {};
+      addSectionJSON(hash, this);
+      if (!$.isEmptyObject(hash)) {
+        vm_json["DISK"].push(hash);
+      };
     });
 
-    $create_template_dialog.foundation().foundation('reveal', 'open');
-};
 
-function popUpCreateTemplateDialog(){
-    if (!$create_template_dialog || $create_template_dialog.html() == "") {
-        setupCreateTemplateDialog();
+    //
+    // NIC
+    //
+
+    vm_json["NIC"] = [];
+
+    $('.nic',dialog).each(function(){
+      hash = retrieve_nic_tab_data(this);
+
+      if (!$.isEmptyObject(hash)) {
+          vm_json["NIC"].push(hash);
+      }
+    });
+
+    var default_model = $('#DEFAULT_MODEL', dialog).val();
+    if (default_model){
+        vm_json["NIC_DEFAULT"] = {
+            "MODEL": default_model
+        };
     }
 
-    $create_template_dialog.die();
+    // HYBRID
 
-    $("#create_template_form", $create_template_dialog).attr("opennebula_action", "create");
-    $('button#create_template_form_easy', $create_template_dialog).show();
-    $('button#template_template_update_button', $create_template_dialog).hide();
-    $('button#template_template_reset_button', $create_template_dialog).show();
-    $('button#manual_template_update_button', $create_template_dialog).hide();
-    $('button#create_template_submit_manual', $create_template_dialog).show();
+    vm_json["PUBLIC_CLOUD"] = [];
+    vm_json["EC2"] = [];
 
-    $('#create_template_header', $create_template_dialog).show();
-    $('#update_template_header', $create_template_dialog).hide();
+    $('.provider',dialog).each(function(){
+      var hash  = {};
+      addSectionJSON(hash, this);
+      if (!$.isEmptyObject(hash)) {
+        var hybrid = $("input.hybridRadio:checked", this).val();
+        switch(hybrid) {
+          case 'ec2':
+            vm_json["EC2"].push(hash);
+            break;
+          case 'softlayer':
+            hash["TYPE"] = hybrid.toUpperCase();
+            vm_json["PUBLIC_CLOUD"].push(hash);
+            break;
+          case 'azure':
+            hash["TYPE"] = hybrid.toUpperCase();
+            vm_json["PUBLIC_CLOUD"].push(hash);
+            break;
+        }
+      };
+    });
 
-    $('#template_name_form', $create_template_dialog).show();
-    $('#NAME', $create_template_dialog).removeAttr('disabled');
-    $('#NAME', $create_template_dialog).attr("required", "");
+    //
+    // GRAPHICS
+    //
 
-    $('#wizard_mode', $create_template_dialog).show();
+    vm_json["GRAPHICS"] = {};
+    addSectionJSON(vm_json["GRAPHICS"],$('#ioTab .graphics',dialog));
 
-    $create_template_dialog.foundation('reveal', 'open');
+    //
+    // INPUT
+    //
 
-    $("input#NAME",$create_template_dialog).focus();
+    vm_json["INPUT"] = [];
+    $('#input_table tr', $('#ioTab')).each(function(){
+      var hash  = {};
+      if ($('#TYPE', $(this)).val()) {
+        hash['TYPE'] = $('#TYPE', $(this)).val()
+        hash['BUS'] = $('#BUS', $(this)).val()
+        vm_json["INPUT"].push(hash);
+      }
+    });
 
-    $('button.refresh', $(create_template_dialog)).each(function(){
-        this.click();
-    })
-};
+    //
+    // CONTEXT
+    //
 
-function popUpTemplateTemplateUpdateDialog(){
-    var selected_nodes = getSelectedNodes(dataTable_templates);
+    vm_json["CONTEXT"] = {};
+    $('#context_table tr', $('#contextTab')).each(function(){
+      if ($('#KEY', $(this)).val()) {
+        vm_json["CONTEXT"][$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
+      }
+    });
 
-    if ( selected_nodes.length != 1 )
-    {
-      notifyMessage("Please select one (and just one) template to update.");
-      return false;
-    }
+    if ($("#ssh_context", $('#contextTab')).is(":checked")) {
+      var public_key = $("#ssh_public_key", $('#contextTab')).val();
+      if (public_key){
+        vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = public_key;
+      }
+      else {
+        vm_json["CONTEXT"]["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
+      }
+    };
 
-    // Get proper cluster_id
-    var template_id   = ""+selected_nodes[0];
+    if ($("#network_context", $('#contextTab')).is(":checked")) {
+      vm_json["CONTEXT"]["NETWORK"] = "YES";
+    };
 
-    Sunstone.runAction("Template.show_to_update", template_id);
-};
+    if ($("#token_context", $('#contextTab')).is(":checked")) {
+      vm_json["CONTEXT"]["TOKEN"] = "YES";
+    };
 
-function fillTemplatePopUp(template, dialog){
+    vm_json["USER_INPUTS"] = {};
+
+    $(".service_custom_attrs tbody tr").each(function(){
+      if ($(".user_input_name", $(this)).val()) {
+        var attr_name = $(".user_input_name", $(this)).val();
+        var attr_type = $(".user_input_type", $(this)).val();
+        var attr_desc = $(".user_input_description", $(this)).val();
+        vm_json["USER_INPUTS"][attr_name] = "M|" + attr_type + "|" + attr_desc;
+        vm_json["CONTEXT"][attr_name] = "$" + attr_name.toUpperCase();
+      }
+    });
+
+    addSectionJSON(vm_json["CONTEXT"],$('#contextTab',dialog));
+
+    //
+    // PLACEMENT
+    //
+
+    addSectionJSON(vm_json,$('#schedulingTab',dialog));
+
+    //
+    // RAW
+    //
+    vm_json["RAW"] = {}
+    t = $('#raw_type', dialog).val();
+    if (t) { vm_json["RAW"]['TYPE'] = t; }
+    t = escapeDoubleQuotes($('#raw_data', dialog).val());
+    if (t) { vm_json["RAW"]['DATA'] = t; }
+    t = escapeDoubleQuotes($('#raw_data_vmx', dialog).val());
+    if (t) { vm_json["RAW"]['DATA_VMX'] = t; }
+
+    $('#custom_tags tr', $('#rawTab')).each(function(){
+      if ($('#KEY', $(this)).val()) {
+        vm_json[$('#KEY', $(this)).val()] = escapeDoubleQuotes($('#VALUE', $(this)).val());
+      }
+    });
+
+    // remove empty elements
+    vm_json = removeEmptyObjects(vm_json);
+    return vm_json;
+}
+
+var fillTemplatePopUp = function(template, dialog){
     var use_advanced_template = false;
 
     function autoFillInputs(template_json, context){
@@ -3943,6 +4279,12 @@ function fillTemplatePopUp(template, dialog){
     autoFillInputs(template, capacity_section);
     $("#DESCRIPTION", capacity_section).val(escapeDoubleQuotes(htmlDecode(template["DESCRIPTION"])));
     delete template["DESCRIPTION"];
+
+    if (template["HYPERVISOR"]) {
+      $("input[name='hypervisor'][value='"+template["HYPERVISOR"]+"']", capacity_section).trigger("click")
+      delete template["HYPERVISOR"];
+    }
+
 
     //
     // DISKS
@@ -4100,6 +4442,55 @@ function fillTemplatePopUp(template, dialog){
         }
 
         delete template.NIC_DEFAULT;
+    }
+
+    //
+    // HYBRID
+    //
+
+    function fillProviderTab(provider, provider_type){
+        if (number_of_providers > 0) {
+            $("#tf_btn_hybrid", dialog).trigger("click");
+        }
+
+        var context = $(".provider", dialog).last();
+
+        $("input.hybridRadio[value='"+provider_type+"']", context).trigger("click");
+
+        autoFillInputs(provider, context);
+        number_of_providers++;
+    }
+
+    var number_of_providers = 0;
+
+    if (template.PUBLIC_CLOUD) {
+        var providers = template.PUBLIC_CLOUD
+
+        if (providers instanceof Array) {
+            $.each(providers, function(){
+                fillProviderTab(this, this.TYPE.toLowerCase());
+            });
+        }
+        else if (providers instanceof Object) {
+            fillProviderTab(providers, this.TYPE.toLowerCase());
+        }
+
+        delete template.PUBLIC_CLOUD
+    }
+
+    if (template.EC2) {
+        var providers = template.EC2
+
+        if (providers instanceof Array) {
+            $.each(providers, function(){
+                fillProviderTab(this, "ec2");
+            });
+        }
+        else if (providers instanceof Object) {
+            fillProviderTab(providers, "ec2");
+        }
+
+        delete template.EC2
     }
 
     //
@@ -4568,30 +4959,30 @@ function setupTemplateCloneDialog(){
     //Put HTML in place
 
     var html = '<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Clone Template")+'</h3>\
-</div>\
-<form>\
-<div class="row">\
-  <div class="large-12 columns">\
-    <div class="clone_one"></div>\
-    <div class="clone_several">'+tr("Several templates are selected, please choose prefix to name the new copies")+'<br></div>\
-  </div>\
-</div>\
-<div class="row">\
-  <div class="large-12 columns">\
-    <label class="clone_one">'+tr("Name")+'</label>\
-    <label class="clone_several">'+tr("Prefix")+'</label>\
-    <input type="text" name="name"></input>\
-  </div>\
-</div>\
-<div class="form_buttons row">\
-  <button class="button radius right" id="template_clone_button" value="Template.clone">\
-'+tr("Clone")+'\
-  </button>\
+        <h3 id="create_vnet_header" class="subheader">'+tr("Clone Template")+'</h3>\
+      </div>\
+      <form>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <div class="clone_one"></div>\
+          <div class="clone_several">'+tr("Several templates are selected, please choose prefix to name the new copies")+'<br></div>\
         </div>\
-<a class="close-reveal-modal">&#215;</a>\
-</form>\
-';
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <label class="clone_one">'+tr("Name")+'</label>\
+          <label class="clone_several">'+tr("Prefix")+'</label>\
+          <input type="text" name="name"></input>\
+        </div>\
+      </div>\
+      <div class="form_buttons row">\
+        <button class="button radius right" id="template_clone_button" value="Template.clone">\
+      '+tr("Clone")+'\
+        </button>\
+              </div>\
+      <a class="close-reveal-modal">&#215;</a>\
+      </form>\
+      ';
 
 
     dialog.html(html);

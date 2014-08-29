@@ -197,6 +197,7 @@ tabs:
             input_output: true
             context: true
             scheduling: true
+            hybrid: true
             other: true
     images-tab:
         panel_tabs:

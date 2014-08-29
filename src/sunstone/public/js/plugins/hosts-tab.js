@@ -20,84 +20,107 @@ var HOST_HISTORY_LENGTH = 40;
 
 var create_host_tmpl =
 '<div class="row">\
-    <div class="large-12 columns">\
-      <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
-    </div>\
+  <div class="large-12 columns">\
+    <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
   </div>\
-  <div class="reveal-body">\
+</div>\
+<div class="reveal-body">\
   <form id="create_host_form" action="" class="">\
   <div class="row">\
-      <div class="large-6 columns">\
-          <label for="name">' + tr("Hostname")  + '</label>\
-          <input type="text" name="name" id="name" />\
+    <div class="large-6 columns">\
+      <label for="name">' + tr("Hostname")  + '</label>\
+      <input type="text" name="name" id="name" />\
+    </div>\
+    <div class="large-6 columns" id="cluster_select">\
+      <label for="host_cluster_id">' + tr("Cluster") + '</label>\
+      <div id="host_cluster_id" name="host_cluster_id">\
       </div>\
-      <div class="large-6 columns" id="cluster_select">\
-          <label for="host_cluster_id">' + tr("Cluster") + '</label>\
-          <div id="host_cluster_id" name="host_cluster_id">\
-          </div>\
-      </div>\
+    </div>\
   </div>\
-  <fieldset>\
-    <legend>'+tr("Drivers")+'</legend>\
   <div class="row">\
-      <div class="large-6 columns">\
-    <div class="manager clear row" id="vmm_mads">\
-      <div class="large-12 columns">\
-          <label for="vmm">' +  tr("Virtualization") + '</label>\
-          <select id="vmm_mad" name="vmm">\
-                <option value="kvm">' + tr("KVM") + '</option>\
-                <option value="xen">' + tr("XEN") + '</option>\
-                <option value="vmware">' + tr("VMware") + '</option>\
-                <option value="ec2">' + tr("EC2") + '</option>\
-                <option value="dummy">' + tr("Dummy") + '</option>\
-                <option value="custom">' + tr("Custom") + '</option>\
-          </select>\
-      </div>\
-      <div class="large-12 columns">\
-          <label>' + tr("Custom VMM_MAD") + '</label>\
-          <input type="text" name="custom_vmm_mad" />\
-      </div>\
+    <div class="large-6 columns">\
+        <label for="host_type">' +  tr("Type") + '</label>\
+        <select id="host_type_mad" name="host_type">\
+              <option value="kvm">' + tr("KVM") + '</option>\
+              <option value="xen">' + tr("XEN") + '</option>\
+              <option value="vmware">' + tr("VMware") + '</option>\
+              <option value="az">' + tr("Microsoft Azure") + '</option>\
+              <option value="ec2">' + tr("Amazon EC2") + '</option>\
+              <option value="sl">' + tr("IBM Softlayer") + '</option>\
+              <option value="dummy">' + tr("Dummy") + '</option>\
+              <option value="custom">' + tr("Custom") + '</option>\
+        </select>\
     </div>\
-    <div class="manager clear row" id="im_mads">\
-      <div class="large-12 columns">\
-          <label for="im">' +  tr("Information") + '</label>\
-          <select id="im_mad" name="im">\
-               <option value="kvm">' + tr("KVM") + '</option>\
-               <option value="xen">' + tr("XEN") + '</option>\
-               <option value="vmware">' + tr("VMware") + '</option>\
-               <option value="ec2">' + tr("EC2") + '</option>\
-               <option value="dummy">' + tr("Dummy") + '</option>\
+    <div class="large-6 columns">\
+      <div class="manager clear row" id="vnm_mads">\
+        <div class="large-12 columns">\
+            <label for="vn">' +  tr("Networking") + '</label>\
+            <select id="vnm_mad" name="vn">\
+               <option value="dummy">' + tr("Default (dummy)") +'</option>\
+               <option value="fw">'+tr("Firewall")+'</option>\
+               <option value="802.1Q">'+tr("802.1Q")+'</option>\
+               <option value="ebtables">'+tr("ebtables")+'</option>\
+               <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
+               <option value="vmware">'+tr("VMware")+'</option>\
                <option value="custom">' + tr("Custom") + '</option>\
-          </select>\
-      </div>\
-      <div class="large-12 columns">\
-          <label>' + tr("Custom IM_MAD") + ':</label>\
-          <input type="text" name="custom_im_mad" />\
-      </div>\
-    </div>\
-      </div>\
-      <div class="large-6 columns">\
-    <div class="manager clear row" id="vnm_mads">\
-      <div class="large-12 columns">\
-          <label for="vn">' +  tr("Networking") + '</label>\
-          <select id="vnm_mad" name="vn">\
-             <option value="dummy">' + tr("Default (dummy)") +'</option>\
-             <option value="fw">'+tr("Firewall")+'</option>\
-             <option value="802.1Q">'+tr("802.1Q")+'</option>\
-             <option value="ebtables">'+tr("ebtables")+'</option>\
-             <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
-             <option value="vmware">'+tr("VMware")+'</option>\
-             <option value="custom">' + tr("Custom") + '</option>\
-           </select>\
-      </div>\
-      <div class="large-12 columns">\
-          <label>' + tr("Custom VNM_MAD") + '</label>\
-          <input type="text" name="custom_vnm_mad" />\
+             </select>\
+        </div>\
+        <div class="large-12 columns">\
+            <label>' + tr("Custom VNM_MAD") + '</label>\
+            <input type="text" name="custom_vnm_mad" />\
+        </div>\
       </div>\
     </div>\
+  </div>\
+  <div class="drivers">\
+    <fieldset>\
+      <legend>'+tr("Drivers")+'</legend>\
+      <div class="row">\
+        <div class="large-6 columns">\
+          <div class="manager clear row" id="vmm_mads">\
+            <div class="large-12 columns">\
+                <label for="vmm">' +  tr("Virtualization") + '</label>\
+                <select id="vmm_mad" name="vmm">\
+                      <option value="kvm">' + tr("KVM") + '</option>\
+                      <option value="xen">' + tr("XEN") + '</option>\
+                      <option value="vmware">' + tr("VMware") + '</option>\
+                      <option value="az">' + tr("Microsoft Azure") + '</option>\
+                      <option value="ec2">' + tr("Amazon EC2") + '</option>\
+                      <option value="sl">' + tr("IBM Softlayer") + '</option>\
+                      <option value="dummy">' + tr("Dummy") + '</option>\
+                      <option value="custom">' + tr("Custom") + '</option>\
+                </select>\
+            </div>\
+            <div class="large-12 columns">\
+                <label>' + tr("Custom VMM_MAD") + '</label>\
+                <input type="text" name="custom_vmm_mad" />\
+            </div>\
+          </div>\
+        </div>\
+        <div class="large-6 columns">\
+          <div class="manager clear row" id="im_mads">\
+            <div class="large-12 columns">\
+                <label for="im">' +  tr("Information") + '</label>\
+                <select id="im_mad" name="im">\
+                     <option value="kvm">' + tr("KVM") + '</option>\
+                     <option value="xen">' + tr("XEN") + '</option>\
+                     <option value="vmware">' + tr("VMware") + '</option>\
+                      <option value="az">' + tr("Microsoft Azure") + '</option>\
+                      <option value="ec2">' + tr("Amazon EC2") + '</option>\
+                      <option value="sl">' + tr("IBM Softlayer") + '</option>\
+                     <option value="dummy">' + tr("Dummy") + '</option>\
+                     <option value="custom">' + tr("Custom") + '</option>\
+                </select>\
+            </div>\
+            <div class="large-12 columns">\
+                <label>' + tr("Custom IM_MAD") + ':</label>\
+                <input type="text" name="custom_im_mad" />\
+            </div>\
+          </div>\
+        </div>\
       </div>\
-    </div>\
-  </fieldset>\
+    </fieldset>\
+  </div>\
   <br>\
   <div class="form_buttons row">\
       <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
@@ -109,6 +132,10 @@ var create_host_tmpl =
 
 var dataTable_hosts;
 var $create_host_dialog;
+var on_hosts = 0;
+var off_hosts = 0;
+var error_hosts = 0;
+
 
 //Setup actions
 var host_actions = {
@@ -903,6 +930,19 @@ function setupCreateHostDialog(){
 
     $create_host_dialog.addClass("reveal-modal medium").attr("data-reveal", "");
     $create_host_dialog.foundation()
+
+    $(".drivers", $create_host_dialog).hide();
+
+    $("#host_type_mad", $create_host_dialog).on("change", function(){
+      $("#vmm_mad", $create_host_dialog).val(this.value).change();
+      $("#im_mad", $create_host_dialog).val(this.value).change();
+
+      if (this.value == "custom") {
+        $(".drivers", $create_host_dialog).show();
+      } else {
+        $(".drivers", $create_host_dialog).hide();
+      }
+    })
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
