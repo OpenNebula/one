@@ -266,6 +266,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/ovswitch \
           $VAR_LOCATION/remotes/vnm/ovswitch_brcompat \
           $VAR_LOCATION/remotes/vnm/vmware \
+          $VAR_LOCATION/remotes/vnm/security_groups \
           $VAR_LOCATION/remotes/tm/ \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
@@ -450,6 +451,7 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
+    NETWORK_SG_FILES:$VAR_LOCATION/remotes/vnm/security_groups
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
@@ -936,6 +938,11 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
                     src/vnm_mad/remotes/vmware/post \
                     src/vnm_mad/remotes/vmware/pre \
                     src/vnm_mad/remotes/vmware/VMware.rb"
+
+NETWORK_SG_FILES="src/vnm_mad/remotes/security_groups/clean \
+                    src/vnm_mad/remotes/security_groups/post \
+                    src/vnm_mad/remotes/security_groups/pre \
+                    src/vnm_mad/remotes/security_groups/SecurityGroups.rb"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands

@@ -44,7 +44,6 @@ def get_xen_command
     end
 end
 
-
 COMMANDS = {
   :ebtables => "sudo ebtables",
   :iptables => "sudo iptables",
@@ -54,16 +53,39 @@ COMMANDS = {
   :xm       => get_xen_command,
   :ovs_vsctl=> "sudo ovs-vsctl",
   :ovs_ofctl=> "sudo ovs-ofctl",
-  :lsmod    => "lsmod"
+  :lsmod    => "lsmod",
+  :ipset    => "sudo ipset"
 }
-
-
 
 # Set PATH
 ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"
 
 class VM
-    attr_accessor :nics, :vm_info, :deploy_id
+    attr_accessor :nics, :vm_info, :deploy_id, :vm_root
+
+    def nic_build_hash(nic_element,nic)
+        nic_element.elements.each('*') do |nic_attribute|
+            key = nic_attribute.name.downcase.to_sym
+
+
+            if nic_attribute.has_elements?
+                data = {}
+                nic_build_hash(nic_attribute,data)
+            else
+                data = nic_attribute.text
+            end
+
+            if nic[key]
+                if nic[key].instance_of?(Array)
+                    nic[key] << data
+                else
+                    nic[key] = [nic[key], data]
+                end
+            else
+                nic[key] = data
+            end
+        end
+    end
 
     def initialize(vm_root, xpath_filter, deploy_id, hypervisor)
         @vm_root      = vm_root
@@ -79,10 +101,7 @@ class VM
         @vm_root.elements.each(@xpath_filter) do |nic_element|
             nic =  nics.new_nic
 
-            nic_element.elements.each('*') do |nic_attribute|
-                key      = nic_attribute.xpath.split('/')[-1].downcase.to_sym
-                nic[key] = nic_attribute.text
-            end
+            nic_build_hash(nic_element,nic)
 
             nic.get_info(self)
             nic.get_tap(self)
