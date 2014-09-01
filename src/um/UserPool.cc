@@ -686,10 +686,16 @@ bool UserPool::authenticate_external(const string&  username,
     string mad_name;
     string mad_pass;
     string error_str;
+    string tmp_str;
 
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
+    GroupPool *   gpool = nd.get_gpool();
 
+    User*   user;
+    Group*  group;
+
+    set<int>::iterator it;
     set<int> empty_set;
 
     AuthRequest ar(-1,empty_set);
@@ -726,15 +732,64 @@ bool UserPool::authenticate_external(const string&  username,
 
     if ( !is.fail() )
     {
-        getline(is, mad_pass);
+        is >> mad_pass >> ws;
+    }
+
+    if ( is.good() )
+    {
+        is >> group_id >> ws;
+
+        if ( is.fail() )
+        {
+            error_str = "One or more group IDs do not exist";
+            goto auth_failure_user;
+        }
+
+        group_ids.insert( group_id );
+
+        group = gpool->get(group_id, true);
+
+        if( group == 0 )
+        {
+            error_str = "One or more group IDs do not exist";
+            goto auth_failure_user;
+        }
+
+        gname = group->get_name();
+
+        group->unlock();
+
+        int tmp_gid;
+
+        while ( is.good() )
+        {
+            is >> tmp_gid >> ws;
+
+            if ( is.fail() )
+            {
+                error_str = "One or more group IDs are malformed";
+                goto auth_failure_user;
+            }
+            else
+            {
+                group_ids.insert( tmp_gid );
+            }
+        }
+    }
+    else
+    {
+        group_id = GroupPool::USERS_ID;
+        gname    = GroupPool::USERS_NAME;
+
+        group_ids.insert( group_id );
     }
 
     if ( !is.fail() )
     {
         allocate(&user_id,
-                 GroupPool::USERS_ID,
+                 group_id,
                  mad_name,
-                 GroupPool::USERS_NAME,
+                 gname,
                  mad_pass,
                  driver_name,
                  true,
@@ -746,15 +801,68 @@ bool UserPool::authenticate_external(const string&  username,
         goto auth_failure_user;
     }
 
-    group_id = GroupPool::USERS_ID;
-    group_ids.insert( GroupPool::USERS_ID );
+    // Add the User to the secondary groups
+    user = get(user_id,true);
+
+    if ( user == 0 )
+    {
+        error_str = "User object could not be retrieved";
+        goto auth_failure_user;
+    }
+
+    for(it = group_ids.begin(); it != group_ids.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if( group == 0 )
+        {
+            drop(user, tmp_str);
+            user->unlock();
+
+            error_str = "One or more group IDs do not exist";
+
+            goto auth_failure_group;
+        }
+
+        group->add_user(user_id);
+
+        gpool->update(group);
+
+        group->unlock();
+
+        user->add_group(*it);
+    }
+
+    update(user);
+
+    user->unlock();
 
     uname = mad_name;
-    gname = GroupPool::USERS_NAME;
 
     umask = User::get_default_umask();
 
     return true;
+
+
+auth_failure_group:
+    oss << "Can't create user: " << error_str << ". Driver response: "
+        << ar.message;
+    NebulaLog::log("AuM",Log::ERROR,oss);
+
+    for(it = group_ids.begin(); it != group_ids.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if( group != 0 )
+        {
+            group->del_user(user_id);
+
+            gpool->update(group);
+            group->unlock();
+        }
+    }
+
+    goto auth_failure;
 
 auth_failure_user:
     oss << "Can't create user: " << error_str << ". Driver response: "
