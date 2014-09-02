@@ -4568,6 +4568,17 @@ $(document).ready(function(){
     info_panels_context = $('div#info_panels');
 
 
+    $(document).on("click", ".accordion_advanced > a", function() {
+        if ($(this).hasClass("active")){
+            $(this).removeClass("active");
+        } else {
+            $(this).addClass("active");
+        }
+
+        $(this).closest(".accordion_advanced").children(".content").toggle();
+
+        return false;
+    })
 
     //Insert the tabs in the DOM and their buttons.
     insertTabs();

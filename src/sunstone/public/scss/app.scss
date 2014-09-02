@@ -418,7 +418,7 @@ fieldset {
 
 .right-info-tabs {
   dd {
-    width: 90px;
+    width: 84px;
   }
 
   i {
@@ -843,30 +843,43 @@ hr {
 }
 
 .accordion_advanced {
-  dd {
+    margin-bottom: 20px;
+
     &>a {
       padding: 10px 20px;
-      color: #777;
+      background: #f7f7f7;
+      border: 1px solid #efefef;
+      color: #333333;
       font-size: 14px;
 
       .fa {
         margin-right: 10px;
         color: #777;
       }
-    }
 
-    &.active {
-      .fa-chevron-down {
-        display: none;
+      &.active {
+        .fa-chevron-down {
+          display: none;
+        }
+      }
+
+      &:not(.active){
+
+        .fa-chevron-up {
+          display: none;
+        }
+      }
+
+      &:hover {
+        background: #dfdfdf;
+        color: #333333;
       }
     }
 
-    &:not(.active){
-      .fa-chevron-up {
-        display: none;
-      }
+    &>.content {
+      padding: 20px 10px 5px 10px;
+      border: 1px solid #efefef;
     }
-  }
 }
 
 .accordion {
