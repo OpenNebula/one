@@ -52,7 +52,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
             arp_cache_poisoning if CONF[:arp_cache_poisoning]
 
             # Prevent Mac-spoofing
-            mac_spoofing
+            mac_spoofing if CONF[:mac_spoofing]
 
             # Apply Firewall
             configure_fw if FIREWALL_PARAMS & @nic.keys != []
