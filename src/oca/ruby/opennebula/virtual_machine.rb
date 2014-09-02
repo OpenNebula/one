@@ -391,10 +391,13 @@ module OpenNebula
         #   to use the default type
         # @param hot [true|false] True to save the disk immediately, false will
         #   perform the operation when the VM shuts down
+        # @param do_template [true|false] True to clone also the VM originating
+        # template and replace the disk with the saved image
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def disk_snapshot(disk_id, image_name, image_type="", hot=false)
+        def disk_snapshot(disk_id, image_name, image_type="", hot=false,
+            do_template=false)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VM_METHODS[:savedisk],
@@ -402,8 +405,8 @@ module OpenNebula
                               disk_id,
                               image_name,
                               image_type,
-                              hot)
-
+                              hot,
+                              do_template)
             return rc
         end
 

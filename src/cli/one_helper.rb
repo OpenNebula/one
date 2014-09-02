@@ -138,14 +138,6 @@ EOT
             :format => String
         },
         {
-            :name   => 'admin_group',
-            :large  => '--admin_group name',
-            :short => "-a",
-            :description =>
-                'Creates an admin group with name',
-            :format => String
-        },
-        {
             :name   => 'admin_user',
             :large  => '--admin_user name',
             :short => "-u",
@@ -155,7 +147,7 @@ EOT
         },
         {
             :name   => 'admin_password',
-            :large  => '--admin_password password',
+            :large  => '--admin_password pass',
             :short => "-p",
             :description =>
                 'Password for the admin user of the group',
@@ -163,7 +155,7 @@ EOT
         },
         {
             :name   => 'admin_driver',
-            :large  => '--admin_driver auth_driver',
+            :large  => '--admin_driver driver',
             :short => "-d",
             :description =>
                 'Auth driver for the admin user of the group',
@@ -171,20 +163,20 @@ EOT
         },
         {
             :name   => 'resources',
-            :large  => '--resources resources_str',
+            :large  => '--resources res_str',
             :short => "-r",
             :description =>
-                'Which resources can be created by group users "\
-                "(VM+NET+IMAGE+TEMPLATE by default)',
+                "Which resources can be created by group users "<<
+                "(VM+NET+IMAGE+TEMPLATE by default)",
             :format => String
         },
         {
             :name   => 'admin_resources',
-            :large  => '--admin_resources resources_str',
+            :large  => '--admin_resources res_str',
             :short => "-o",
             :description =>
-                'Which resources can be created by group users "\
-                "(VM+NET+IMAGE+TEMPLATE by default)',
+                "Which resources can be created by the admin user "<<
+                "(VM+NET+IMAGE+TEMPLATE by default)",
             :format => String
         }
     ]
@@ -482,9 +474,10 @@ EOT
                     array=pool.get_hash
                     return -1, array.message if OpenNebula.is_error?(array)
 
-                    if options[:ids]
-                        rname=self.class.rname
-                        array["#{rname}_POOL"][rname].reject! do |element|
+                    rname=self.class.rname
+                    elements=array["#{rname}_POOL"][rname]
+                    if options[:ids] && elements
+                        elements.reject! do |element|
                             !options[:ids].include?(element['ID'].to_i)
                         end
                     end
@@ -828,7 +821,7 @@ EOT
         return update_template_helper(true, id, resource, path, xpath)
     end
 
-    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath)
+    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath, update=true)
         unless path
             require 'tempfile'
 
@@ -836,11 +829,13 @@ EOT
             path = tmp.path
 
             if !append
-                rc = resource.info
+                if update
+                    rc = resource.info
 
-                if OpenNebula.is_error?(rc)
-                    puts rc.message
-                    exit -1
+                    if OpenNebula.is_error?(rc)
+                        puts rc.message
+                        exit -1
+                    end
                 end
 
                 tmp << resource.template_like_str(xpath)

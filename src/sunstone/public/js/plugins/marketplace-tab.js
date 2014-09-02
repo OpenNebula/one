@@ -23,18 +23,15 @@ var market_actions = {
         type: "list",
         call: OpenNebula.Marketplace.list,
         callback: function(req,res){
-            //data can be added to the table directly, without further
-            //processing
             updateView(res.appliances,dataTable_marketplace);
-        },
-        error: onError
+        }
     },
     "Marketplace.refresh" : {
         type: "custom",
         call: function () {
           var tab = dataTable_marketplace.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Marketplace.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Marketplace.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_marketplace);
             Sunstone.runAction("Marketplace.list");
@@ -47,126 +44,280 @@ var market_actions = {
         type: "multiple",
         elements: marketplaceElements,
         call: OpenNebula.Marketplace.show,
-        callback: function(request,response){
-            if (response['status'] && response['status'] != 'ready') {
+        callback: function(request,appliance){
+            if (appliance['status'] && appliance['status'] != 'ready') {
                 notifyError(tr("The appliance is not ready"));
                 return;
             }
 
-            if ($('#marketplace_import_dialog',dialogs_context) != undefined) {
-              $('#marketplace_import_dialog',dialogs_context).remove();
+            if ($('#market_import_dialog',dialogs_context) != undefined) {
+              $('#market_import_dialog',dialogs_context).remove();
             }
 
             dialogs_context.append(marketplace_import_dialog);
-            $marketplace_import_dialog = $('#marketplace_import_dialog',dialogs_context);
-            $marketplace_import_dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
-            $marketplace_import_dialog.foundation().foundation('reveal', 'open');
+            $marketplace_import_dialog = $('#market_import_dialog',dialogs_context);
+            $marketplace_import_dialog.addClass("reveal-modal medium").attr("data-reveal", "");
 
-            var tab_id = 1;
+            //var tab_id = 1;
+            $('<div class="row">'+
+                '<div class="large-12 columns">'+
+                    '<p style="font-size:14px">'+
+                        tr("The following images will be created in OpenNebula.")+ ' '+
+                        tr("If you want to edit parameters of the image you can do it later in the images tab")+ ' '+
+                    '</p>'+
+                '</div>'+
+            '</div>').appendTo($("#market_import_dialog_content"));
 
-            $.each(response['files'], function(index, value){
-                // Append the new div containing the tab and add the tab to the list
-                var image_dialog = $('<div id="Tab'+tab_id+'" class="content disk wizard_internal_tab">'+
-                  create_image_tmpl +
-                '</div>').appendTo($("#marketplace_import_dialog_tabs_content"));
+            $('<div class="row">'+
+                '<div class="large-10 large-centered columns">'+
+                    '<div class="large-10 columns">'+
+                        '<label for="market_img_datastore">'+tr("Select the datastore for the images")+
+                        '</label>'+
+                        '<div id="market_img_datastore" name="market_img_datastore">'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="large-2 columns">'+
+                    '</div>'+
+                '</div>'+
+            '</div>').appendTo($("#market_import_dialog_content"));
 
-                var a_image_dialog = $("<dd>\
-                  <a id='disk_tab"+tab_id+"' href='#Tab"+tab_id+"'>"+tr("Image")+"</a>\
-                </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
+            // Filter out DS with type system (1) or file (2)
+            var filter_att = ["TYPE", "TYPE"];
+            var filter_val = ["1", "2"];
 
-                $(".create_image_header", image_dialog).hide();
-                $("#wizard_image_reset_button", image_dialog).hide();
+            insertSelectOptions('div#market_img_datastore', $marketplace_import_dialog, "Datastore",
+                                null, false, null, filter_att, filter_val);
 
-                initialize_create_image_dialog(image_dialog);
-                initialize_datastore_info_create_image_dialog(image_dialog);
-
-                $('#img_name', image_dialog).val(value['name']||response['name']);
-                $('#img_path', image_dialog).val(response['links']['download']['href']+'/'+index);
-                $('#src_path_select input[value="path"]', image_dialog).trigger('click');
-                $('select#img_type', image_dialog).val(value['type']);
-                $('select#img_type', image_dialog).trigger('change');
-
-                //remove any options from the custom vars dialog box
-                $("#custom_var_image_box",image_dialog).empty();
-
-                var md5 = value['md5']
-                if ( md5 ) {
-                    option = '<option value=\'' +
-                        md5 + '\' name="MD5">MD5=' +
-                        md5 + '</option>';
-                    $("#custom_var_image_box",image_dialog).append(option);
-                }
-
-                var sha1 = value['sha1']
-                if ( sha1 ) {
-                    option = '<option value=\'' +
-                        sha1 + '\' name="SHA1">SHA1=' +
-                        sha1 + '</option>';
-                    $("#custom_var_image_box",image_dialog).append(option);
-                }
-
-                a_image_dialog.on('click', function(){
-                    $create_image_dialog = image_dialog;
-                })
-
-                image_dialog.on("close", function(){
-                  a_image_dialog.html("");
-                  image_dialog.html("");
-                  if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
-                    $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
-                  } else {
-                    $marketplace_import_dialog.foundation('reveal', 'close');
-                  }
-                  return false;
-                });
-
-                $("a[href='#img_manual']", image_dialog).closest('dl').remove();
-                tab_id++;
+            $.each(appliance['files'], function(index, value){
+                $('<div class="row" id="market_import_file_'+index+'">'+
+                    '<div class="large-10 large-centered columns">'+
+                        '<div class="large-10 columns">'+
+                            '<label>'+
+                                '<i class="fa fa-fw fa-download"/>&emsp;'+
+                                index+' - '+tr("Image Name")+
+                                '<span class="right">'+
+                                    humanize_size(value['size'], true)+
+                                '</span>'+
+                            '</label>'+
+                            '<input type="text" class="name"    value="' + (value['name']||appliance['name']) +'" />'+
+                        '</div>'+
+                        '<div class="large-2 columns market_image_result">'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="large-10 large-centered columns market_image_response">'+
+                    '</div>'+
+                '</div>').appendTo($("#market_import_dialog_content"));
             })
 
-            if (response['opennebula_template'] && response['opennebula_template'] !== "CPU=1") {
-              $create_template_dialog.html("");
-              // Template
-              // Append the new div containing the tab and add the tab to the list
-              var template_dialog = $('<div id="'+tab_id+'Tab" class="content disk wizard_internal_tab">'+
-                create_template_tmpl +
-              '</div>').appendTo($("#marketplace_import_dialog_tabs_content"));
+            if (appliance['opennebula_template'] && appliance['opennebula_template'] !== "CPU=1") {
+                $('<br>'+
+                '<div class="row">'+
+                    '<div class="large-12 columns">'+
+                        '<p style="font-size:14px">'+
+                            tr("The following template will be created in OpenNebula and the previous images will be referenced in the disks")+ ' '+
+                            tr("If you want to edit parameters of the template you can do it later in the templates tab")+ ' '+
+                        '</p>'+
+                    '</div>'+
+                '</div>').appendTo($("#market_import_dialog_content"));
 
-              var a_template_dialog = $("<dd>\
-                <a id='disk_tab"+tab_id+"' href='#"+tab_id+"Tab'>"+tr("Template")+"</a>\
-              </dd>").appendTo($("dl#marketplace_import_dialog_tabs"));
-
-              initialize_create_template_dialog(template_dialog);
-              fillTemplatePopUp(
-                JSON.parse(response['opennebula_template']),
-                template_dialog);
-
-              a_template_dialog.on('click', function(){
-                  $create_template_dialog = template_dialog;
-              })
-
-              template_dialog.on("close", function(){
-                a_template_dialog.html("");
-                template_dialog.html("");
-                if ($('a', $("dl#marketplace_import_dialog_tabs")).size > 0) {
-                  $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
-                } else {
-                  $marketplace_import_dialog.foundation('reveal', 'close');
-                }
-                return false;
-              });
-
-              $("a[href='#manual']", template_dialog).closest('dl').remove();
+                $('<div class="row" id="market_import_file_template">'+
+                    '<div class="large-10 large-centered columns">'+
+                        '<div class="large-10 columns">'+
+                            '<label>'+
+                                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
+                                tr("Template Name")+
+                            '</label>'+
+                            '<input type="text" class="name" value="' + (appliance['opennebula_template']['NAME']||appliance['name']) +'" />'+
+                        '</div>'+
+                        '<div class="large-2 columns market_template_result">'+
+                        '</div>'+
+                    '</div>'+
+                    '<div class="large-10 large-centered columns market_template_response">'+
+                    '</div>'+
+                '</div>').appendTo($("#market_import_dialog_content"));
             }
 
-            $('a', $("dl#marketplace_import_dialog_tabs")).first().click();
+            $marketplace_import_dialog.foundation().foundation('reveal', 'open');
+
+            var images_information = [];
+
+            $("#market_import_form").submit(function(){
+                function try_to_create_template(){
+                    var images_created = $(".market_image_result.success", $marketplace_import_dialog).length;
+                    if ((images_created == number_of_files) && !template_created) {
+                        template_created = true;
+
+                        if (appliance['opennebula_template'] && appliance['opennebula_template'] !== "CPU=1") {
+                            var vm_template
+                            try {
+                                vm_template = JSON.parse(appliance['opennebula_template'])
+                            } catch (error) {
+                                $(".market_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                      '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                                    '</span>');
+
+                                $(".market_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                                      (error.message || tr("Cannot contact server: is it running and reachable?"))+
+                                    '</p>');
+
+                                $("input", template_context).removeAttr("disabled");
+                                $("button", $marketplace_import_dialog).removeAttr("disabled");
+                                template_created = false;
+                                return;
+                            }
+
+                            if ($.isEmptyObject(vm_template.DISK))
+                                vm_template.DISK = []
+                            else if (!$.isArray(vm_template.DISK))
+                                vm_template.DISK = [vm_template.DISK]
+
+                            vm_template.NAME = $("input", template_context).val();
+                            if (!vm_template.CPU)
+                                vm_template.CPU = "1"
+                            if (!vm_template.MEMORY)
+                                vm_template.MEMORY = "1024"
+
+                            $.each(images_information, function(image_index, image_info){
+                                if (!vm_template.DISK[image_index]) {
+                                    vm_template.DISK[image_index] = {}
+                                }
+
+                                vm_template.DISK[image_index].IMAGE = image_info.IMAGE.NAME;
+                                vm_template.DISK[image_index].IMAGE_UNAME = image_info.IMAGE.UNAME;
+                            })
+
+                            vm_template.FROM_APP = appliance['_id']["$oid"];
+                            vm_template.FROM_APP_NAME = appliance['name'];
+
+                            OpenNebula.Template.create({
+                                timeout: true,
+                                data: {vmtemplate: vm_template},
+                                success: function (request, response){
+                                    $(".market_template_result", template_context).addClass("success").html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                          '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                                        '</span>');
+
+                                    $(".market_template_response", template_context).html('<p style="font-size:12px" class="running-color">'+
+                                          tr("Template created successfully")+' ID:'+response.VMTEMPLATE.ID+
+                                        '</p>');
+
+                                    $("button", $marketplace_import_dialog).hide();
+                                },
+                                error: function (request, error_json){
+                                    $(".market_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                          '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                                        '</span>');
+
+                                    $(".market_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                                          (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                                        '</p>');
+
+                                    $("input", template_context).removeAttr("disabled");
+                                    $("button", $marketplace_import_dialog).removeAttr("disabled");
+                                    template_created = false;
+                                }
+                            });
+                        } else {
+                            $("button", $marketplace_import_dialog).hide();
+                        }
+                    };
+                }
+
+                var number_of_files = appliance['files'].length;
+                var template_created = false;
+
+                $("input, button", $marketplace_import_dialog).attr("disabled", "disabled");
+                $(".market_image_result:not(.success)",  $marketplace_import_dialog).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+                $(".market_template_result",  $marketplace_import_dialog).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                var template_context = $("#market_import_file_template",  $marketplace_import_dialog);
+
+                $.each(appliance['files'], function(index, value){
+                    var context = $("#market_import_file_"+index,  $marketplace_import_dialog);
+
+                    if ($(".market_image_result:not(.success)", context).length > 0) {
+                        img_obj = {
+                            "image" : {
+                                "NAME": $("input.name",context).val(),
+                                "PATH": appliance['links']['download']['href']+'/'+index,
+                                "TYPE": value['type'],
+                                "MD5": value['md5'],
+                                "SHA1": value['sha1'],
+                                "TYPE": value['type'],
+                                "DRIVER": value['driver'],
+                                "DEV_PREFIX": value['dev_prefix'],
+                                "FROM_APP": appliance['_id']["$oid"],
+                                "FROM_APP_NAME": appliance['name'],
+                                "FROM_APP_FILE": index
+                            },
+                            "ds_id" : $("#market_img_datastore select", $marketplace_import_dialog).val()
+                        };
+
+                        OpenNebula.Image.create({
+                            timeout: true,
+                            data: img_obj,
+                            success: function (file_index, file_context){
+                                return function(request, response) {
+                                    $(".market_image_result", file_context).addClass("success").html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                          '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                                        '</span>');
+
+                                    $(".market_image_response", file_context).html('<p style="font-size:12px" class="running-color">'+
+                                          tr("Image created successfully")+' ID:'+response.IMAGE.ID+
+                                        '</p>');
+
+                                    images_information[file_index] = response;
+
+                                    try_to_create_template();
+                                };
+                            }(index, context),
+                            error: function (request, error_json){
+                                $(".market_template_result", template_context).html('');
+
+                                $(".market_image_result", context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                      '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                                    '</span>');
+
+                                $(".market_image_response", context).html('<p style="font-size:12px" class="error-color">'+
+                                      (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                                    '</p>');
+
+                                $("input", template_context).removeAttr("disabled");
+                                $("input", context).removeAttr("disabled");
+                                $("button", $marketplace_import_dialog).removeAttr("disabled");
+                            }
+                        });
+                    }
+                });
+
+                try_to_create_template();
+
+                return false;
+            })
         },
         error: onError
     },
-    "Marketplace.showinfo" : {
+
+    "Marketplace.show" : {
         type: "single",
         call: OpenNebula.Marketplace.show,
-        callback: updateMarketInfo,
+        callback: function(request, response) {
+//            updateMarketElement(request, response);
+            if (Sunstone.rightInfoVisible($("#marketplace-tab"))) {
+                updateMarketInfo(request, response);
+            }
+        },
         error: onError
     }
 }
@@ -186,29 +337,35 @@ var market_buttons = {
 };
 
 var marketplace_import_dialog =
-'<div id="marketplace_import_dialog">'+
+'<div id="market_import_dialog">'+
   '<div class="row">'+
-    '<div class="large-12 columns">'+
+    '<div class="large-12">'+
       '<h3 class="subheader">'+tr("Import Appliance")+'</h3>'+
     '</div>'+
   '</div>'+
-  '<div class="reveal-body">'+
-    '<dl class="tabs" id="marketplace_import_dialog_tabs" data-tab>'+
-    '</dl>'+
-    '<div class="tabs-content" id="marketplace_import_dialog_tabs_content">'+
-    '</div>'+
-  '</div>'+
+  '<form id="market_import_form">'+
+      '<div id="market_import_dialog_content">'+
+      '</div>'+
+      '<div class="form_buttons">'+
+          '<button class="button radius right success" id="market_import_button" type="submit">'+tr("Import")+'</button>'+
+      '</div>'+
+  '</form>'+
   '<a class="close-reveal-modal">&#215;</a>'+
 '</div>';
 
 
 var marketplace_tab = {
-    title: '<i class="fa fa-shopping-cart"></i>' + tr("Marketplace"),
+    title: '<i class="fa fa-lg fa-fw fa-shopping-cart"></i>&emsp;' + tr("Marketplace"),
     buttons: market_buttons,
     search_input: '<input id="marketplace_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-shopping-cart"></i> '+tr("OpenNebula Marketplace"),
-    info_header: '<i class="fa fa-shopping-cart"></i> '+tr("Appliance"),
+    list_header: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+tr("OpenNebula Marketplace"),
+    info_header: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+tr("Appliance"),
     subheader: '<span/> <small></small>&emsp;',
+    content:   '<div class="row marketplace_error_message" hidden>\
+        <div class="small-6 columns small-centered text-center">\
+            <div class="alert-box alert radius">'+tr("Cannot connect to OpenNebula Marketplace")+'</div>\
+        </div>\
+    </div>',
     table: '<table id="datatable_marketplace" class="datatable twelve">\
       <thead>\
         <tr>\
@@ -249,17 +406,39 @@ function marketplaceElements(){
 }
 
 function updateMarketInfo(request,app){
+    var url = app.links.download.href;
+    url = url.replace(/\/download$/, '');
+
+    var files_table = '<table id="info_marketplace_table2" class="dataTable">\
+         <thead>\
+           <tr><th colspan="2">'+tr("Images")+'</th></tr>\
+         </thead>\
+         <tbody>';
+
+    if (app['files']) {
+        $.each(app['files'], function(index, value){
+            files_table +=  '<tr>\
+                      <td class="value_td">'+value['name']+'</td>\
+                      <td class="value_td">'+humanize_size(value['size'], true)+'</td>\
+                    </tr>'
+        });
+    } else {
+        files_table +=  '<tr>\
+                  <td colspan="2" class="value_td">'+tr("No Images defined")+'</td>\
+                </tr>'
+    }
+
+    files_table += '</tbody>\
+      </table>';
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",
-        content :
-        '<form class="custom"><div class="row">\
+        content: '<div class="row">\
         <div class="large-6 columns">\
-        <table id="info_marketplace_table" class="dataTable extended_table">\
+        <table id="info_marketplace_table" class="dataTable">\
             <thead>\
-              <tr>\
-                <th colspan="2">'+tr("Information") + '</th>\
-              </tr>\
+              <tr><th colspan="2">'+tr("Information")+'</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
@@ -267,8 +446,12 @@ function updateMarketInfo(request,app){
                 <td class="value_td">'+app['_id']["$oid"]+'</td>\
               </tr>\
               <tr>\
+                <td class="key_td">' + tr("Name") + '</td>\
+                <td class="value_td">'+app['name']+'</td>\
+              </tr>\
+              <tr>\
                 <td class="key_td">' + tr("URL") + '</td>\
-                <td class="value_td"><a href="'+config.system_config.marketplace_url+'/'+app['_id']["$oid"]+'" target="_blank">'+tr("link")+'</a></td>\
+                <td class="value_td"><a href="'+url+'" target="_blank">'+tr("link")+'</a></td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Publisher") + '</td>\
@@ -276,58 +459,87 @@ function updateMarketInfo(request,app){
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Downloads") + '</td>\
-                <td class="value_td">'+app['downloads']+'</td>\
-              </tr>\
-              <tr>\
+                <td class="value_td">'+app['downloads']+'</td>'+
+              (app['status'] ? '<tr>\
+                <td class="key_td">' + tr("Status") + '</td>\
+                <td class="value_td">'+app['status']+'</td>\
+              </tr>' : '') +
+              (app['tags'] ? '<tr>\
+                <td class="key_td">' + tr("Tags") + '</td>\
+                <td class="value_td">'+app['tags'].join(' ')+'</td>\
+              </tr>' : '') +
+              (app['catalog'] ? '<tr>\
+                <td class="key_td">' + tr("Catalog") + '</td>\
+                <td class="value_td">'+app['catalog']+'</td>\
+              </tr>' : '') +
+              '<tr>\
                 <td class="key_td">' + tr("OS") + '</td>\
-                <td class="value_td">'+app['files'][0]['os-id']+' '+app['files'][0]['os-release']+'</td>\
+                <td class="value_td">'+app['os-id']+' '+app['os-release']+'</td>\
               </tr>\
               <tr>\
                 <td class="key_td">' + tr("Arch") + '</td>\
-                <td class="value_td">'+app['files'][0]['os-arch']+'</td>\
-              </tr>\
-              <tr>\
+                <td class="value_td">'+app['os-arch']+'</td>\
+              </tr>' +
+              (app['files'] ? '<tr>\
                 <td class="key_td">' + tr("Size") + '</td>\
                 <td class="value_td">'+humanize_size(app['files'][0]['size'],true)+'</td>\
+              </tr>' : '') +
+              '<tr>\
+                <td class="key_td">' + tr("Hypervisor") + '</td>\
+                <td class="value_td">'+app['hypervisor']+'</td>\
               </tr>\
               <tr>\
-                <td class="key_td">' + tr("Hypervisor") + '</td>\
-                <td class="value_td">'+app['files'][0]['hypervisor']+'</td>\
-              </tr>\
-            </tbody>\
+                <td class="key_td">' + tr("Format") + '</td>\
+                <td class="value_td">'+app['format']+'</td>\
+              </tr>' +
+            '</tbody>\
         </table>\
         </div>\
-        <div class="large-6 columns">\
-        <table id="info_marketplace_table2" class="dataTable extended_table">\
-           <thead>\
-             <tr><th>'+tr("Description")+'</th></tr>\
-           </thead>\
-           <tbody>\
-              <tr>\
-                <td class="">'+app['description'].replace(/\n/g, "<br />")+'</td>\
-              </tr>\
-            </tbody>\
-        </table>\
-      </div>\
-      </div>\
-    </form>'
+        <div class="large-6 columns">'+
+          (app['short_description'] ? '<table class="dataTable">\
+             <thead>\
+               <tr><th colspan="2">'+tr("Short Description")+'</th></tr>\
+             </thead>\
+             <tbody>\
+                <tr>\
+                  <td class="value_td">'+app['short_description'].replace(/\n/g, "<br />")+'</td>\
+                </tr>\
+              </tbody>\
+          </table>' : '') +
+          '<table id="info_marketplace_table2" class="dataTable">\
+             <thead>\
+               <tr><th colspan="2">'+tr("Description")+'</th></tr>\
+             </thead>\
+             <tbody>\
+                <tr>\
+                  <td class="value_td">'+app['description'].replace(/\n/g, "<br />")+'</td>\
+                </tr>\
+              </tbody>\
+          </table>'+
+          files_table+
+          (app['opennebula_template'] ? '<table class="dataTable">\
+             <thead>\
+               <tr><th colspan="2">'+tr("OpenNebula Template")+'</th></tr>\
+             </thead>\
+             <tbody>\
+                <tr>\
+                  <td class="value_td">'+app['opennebula_template'].replace(/\n/g, "<br />")+'</td>\
+                </tr>\
+              </tbody>\
+          </table>' : '') +
+        '</div>\
+      </div>'
     };
 
     Sunstone.updateInfoPanelTab("marketplace_info_panel", "marketplace_info_tab", info_tab);
     Sunstone.popUpInfoPanel("marketplace_info_panel", "marketplace-tab");
-
-    $("#marketplace_info_panel_refresh", $("#marketplace_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Marketplace.showinfo', app['_id']["$oid"]);
-    })
 };
 
  function infoListenerMarket(dataTable){
     $('tbody tr',dataTable).live("click",function(e){
-
-    if ($(e.target).is('input') ||
-        $(e.target).is('select') ||
-        $(e.target).is('option')) return true;
+      if ($(e.target).is('input') ||
+          $(e.target).is('select') ||
+          $(e.target).is('option')) return true;
 
       var aData = dataTable.fnGetData(this);
       var id =aData["_id"]["$oid"];
@@ -338,8 +550,8 @@ function updateMarketInfo(request,app){
           $('.check_item',this).trigger('click');
       } else {
           var context = $(this).parents(".tab");
-          popDialogLoading();
-          Sunstone.runAction("Marketplace.showinfo",id);
+          popDialogLoading($("#marketplace-tab"));
+          Sunstone.runAction("Marketplace.show",id);
           $(".resource-id", context).html(id);
           $('.top_button, .list_button', context).attr('disabled', false);
       }
@@ -372,7 +584,8 @@ $(document).ready(function(){
 
     if (Config.isTabEnabled(tab_name)) {
       dataTable_marketplace = $("#datatable_marketplace", main_tabs_context).dataTable({
-          "bSortClasses": true,
+            "bSortClasses" : false,
+            "bDeferRender": true,
           "aoColumns": [
               { "bSortable": false,
                 "mData": function ( o, val, data ) {

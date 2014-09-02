@@ -29,7 +29,7 @@ int NebulaTemplate::load_configuration()
     string      aname;
     Attribute * attr;
 
-    map<string, Attribute *>::iterator  iter, j;
+    map<string, Attribute *>::iterator  iter, j, prev;
 
     set_conf_default();
 
@@ -59,7 +59,10 @@ int NebulaTemplate::load_configuration()
         else
         {
             delete iter->second;
-            conf_default.erase(iter++);
+
+            prev = iter++;
+
+            conf_default.erase(prev);
         }
     }
 
@@ -93,6 +96,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  MONITORING_THREADS
 #  HOST_PER_INTERVAL
 #  HOST_MONITORING_EXPIRATION_TIME
+#  VM_INDIVIDUAL_MONITORING
 #  VM_PER_INTERVAL
 #  VM_MONITORING_EXPIRATION_TIME
 #  PORT
@@ -124,6 +128,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "43200";
 
     attribute = new SingleAttribute("HOST_MONITORING_EXPIRATION_TIME",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    // VM_INDIVIDUAL_MONITORING
+    value = "no";
+
+    attribute = new SingleAttribute("VM_INDIVIDUAL_MONITORING",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     // VM_PER_INTERVAL

@@ -3,35 +3,47 @@
   <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- bower:js -->
+  <!-- endbower -->
+
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
-    <script src="vendor/4.0/jquery-1.11.0.min.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jquery-migrate-1.2.1.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jgrowl/jquery.jgrowl.js" type="text/javascript"></script>
-    <script src="vendor/4.0/datatables/jquery.dataTables.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.pie.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
-    <script src="vendor/flot/jquery.flot.stack.min.js" type="text/javascript"></script>
-    <script src="vendor/fileuploader/fileuploader.js" type="text/javascript"></script>
-    <script src="vendor/4.0/nouislider/jquery.nouislider.min.js" type="text/javascript"></script>
-    <script src="vendor/4.0/jdpicker_1.1/jquery.jdpicker.js" type="text/javascript"></script>
-    <link href="vendor/4.0/jgrowl/jquery.jgrowl.css" rel="stylesheet" type="text/css"></link>
-    <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css"></link>
-    <link href="vendor/4.0/nouislider/nouislider.css" rel="stylesheet" type="text/css"></link>
-    <link href="vendor/4.0/jdpicker_1.1/jdpicker.css" rel="stylesheet" type="text/css"></link>
-    <!--[if lte IE 8]
-      <script src="vendor/explorercanvas/excanvas.compiled.js" type="text/javascript"></script>
-    -->
 
-    <script src="vendor/4.0/foundation/modernizr.js" type="text/javascript"></script>
-    <script src="vendor/4.0/foundation/foundation.min.js" type="text/javascript"></script>
+    <script src="vendor/4.0/modernizr/modernizr.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+
+    <script src="vendor/4.0/jquery.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/jquery-migrate.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+
+    <script src="vendor/4.0/datatables/jquery.dataTables.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+
+    <script src="vendor/4.0/foundation/foundation.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/foundation_datatables/dataTables.foundation.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+
+    <script src="vendor/4.0/jgrowl/jquery.jgrowl.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <link href="vendor/4.0/jgrowl/jquery.jgrowl.min.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
+
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="vendor/flot/excanvas.min.js"></script><![endif]-->
+    <script src="vendor/4.0/flot/jquery.flot.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/flot/jquery.flot.stack.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/flot/jquery.flot.resize.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/flot/jquery.flot.tooltip.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/flot/jquery.flot.time.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="vendor/4.0/fontawesome/css/font-awesome.min.css?v=<%= OpenNebula::VERSION %>"></link>
+
+    <script src="vendor/noVNC/util.js"></script>
+
+    <script src="vendor/fileuploader/fileuploader.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <script src="vendor/4.0/nouislider/jquery.nouislider.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    <link href="vendor/4.0/nouislider/nouislider.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
+
 
     <% if session[:lang] %>
       <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% end %>
-    <script src="vendor/4.0/foundation_datatables/datatables.foundation.js" type="text/javascript"></script>
     <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <script type="text/javascript">var csrftoken='<%= session[:csrftoken] %>';</script>
     <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
@@ -40,6 +52,9 @@
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
         $views_config.available_views(session[:user], session[:user_gname]).join('","')
+      %>"]')
+      var all_views = JSON.parse('["<%=
+        $views_config.get_all_views.join('","')
       %>"]')
 
       config = {
@@ -55,8 +70,12 @@
         },
         'view' : view,
         'available_views' : available_views,
+        'all_views' : all_views,
+        'user_id' : '<%= session[:user_id] %>',
+        'user_gid' : '<%= session[:user_gid] %>',
         'display_name' : '<%= session[:display_name] %>',
-        'zone_name' : '<%= session[:zone_name] %>'
+        'zone_name' : '<%= session[:zone_name] %>',
+        'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>')
       };
 
 
@@ -69,9 +88,9 @@
     <%- end -%>
     <!-- end tabs -->
   </head>
-  <body class="antialiased row">
-    <div class="row collapse" style="height:100%;">
-      <div class="large-2 columns left-content">
+  <body class="antialiased">
+    <div class="row">
+      <div class="small-2 large-2 columns left-content">
         <div class="row left-header">
           <div class="large-12 columns">
             <img src="<%= view['small_logo'] %>"/>
@@ -82,15 +101,15 @@
         </div>
       </div>
 
-      <div class="large-10 columns right-content">
+      <div class="small-10 large-10 columns right-content">
         <div class="row user-zone-container"><div class="user-zone-info"></div></div>
         <div class="row right-header">
         </div>
       </div>
-    </div>
-    <div id="dialogs"></div>
-    <div class="left-footer text-center">
-      <a href="http://opennebula.org" target="_blank">OpenNebula 4.5.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
+      <div id="footer" class="text-center large-10 columns right">
+        <a href="http://opennebula.org" target="_blank">OpenNebula 4.8.0</a> by <a href="http://c12g.com" target="_blank">C12G Labs</a>.
+      </div>
+      <div class="large-12 columns hidden" id="dialogs"></div>
     </div>
   </body>
 </html>

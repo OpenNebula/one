@@ -1,5 +1,0 @@
-    <NETWORK>
-	<NAME>MyServiceNetwork</NAME>
-	<ADDRESS>192.168.1.1</ADDRESS>
-	<SIZE>200</SIZE>
-    </NETWORK>

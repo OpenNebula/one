@@ -1,5 +1,0 @@
-<INSTANCE_TYPE_COLLECTION>
-  <INSTANCE_TYPE href="http://localhost:4567/instance_type/large" name="large"/>
-  <INSTANCE_TYPE href="http://localhost:4567/instance_type/medium" name="medium"/>
-  <INSTANCE_TYPE href="http://localhost:4567/instance_type/small" name="small"/>
-</INSTANCE_TYPE_COLLECTION>

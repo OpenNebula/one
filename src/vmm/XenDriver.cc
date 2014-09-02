@@ -241,16 +241,16 @@ int XenDriver::deployment_description(
     }
     else if ( !bootloader.empty() ) //Host loader boot method
     {
-        file << "bootloader = \"" << bootloader << "\"" << endl;
+        file << "bootloader = '" << bootloader << "'" << endl;
     }
     else //No kernel & no bootloader use hvm
     {
         is_hvm = 1;
-        file << "builder = \"hvm\"" << endl;
+        file << "builder = 'hvm'" << endl;
 
         if ( !boot.empty() )
         {
-            file << "boot = \"";
+            file << "boot = '";
 
             boots = one_util::split(boot, ',');
 
@@ -282,7 +282,7 @@ int XenDriver::deployment_description(
                 }
             }
 
-            file << "\"" << endl;
+            file << "'" << endl;
         }
     }
 
@@ -510,22 +510,21 @@ int XenDriver::deployment_description(
                 if ( !is_hvm )
                 {
                     file << "vfb = ['type=vnc";
-                } else {
-                    file << "vnc=1" << endl;
+                }
+                else
+                {
+                    file << "vnc = '1'" << endl;
                 }
 
                 if ( !listen.empty() )
                 {
-                    if ( !is_hvm )
-                    {
-                        file << ",";
-                    }
-
-                    file << "vnclisten=" << listen;
-
                     if ( is_hvm )
                     {
-                        file << endl;
+                        file << "vnclisten = '" << listen << "'" << endl;
+                    }
+                    else
+                    {
+                        file << ",vnclisten=" << listen;
                     }
                 }
 
@@ -543,46 +542,37 @@ int XenDriver::deployment_description(
 
                     if ( is_hvm )
                     {
-                        file << "vncunused=0" << endl;
-                    } else {
-                        file << ",vncunused=0,";
+                        file << "vncunused = '0'" << endl;
+                        file << "vncdisplay = '" << display - 5900 << "'" << endl;
                     }
-
-                    file << "vncdisplay=" << display - 5900;
-
-                    if ( is_hvm )
+                    else
                     {
-                        file << endl;
+                        file << ",vncunused=0";
+                        file << ",vncdisplay=" << display - 5900;
                     }
                 }
 
                 if ( !passwd.empty() )
                 {
-                    if ( !is_hvm )
-                    {
-                        file << ",";
-                    }
-
-                    file <<"vncpasswd=" << passwd;
-
                     if ( is_hvm )
                     {
-                        file << endl;
+                        file << "vncpasswd = '" << passwd << "'" << endl;
+                    }
+                    else
+                    {
+                        file << ",vncpasswd=" << passwd;
                     }
                 }
 
                 if ( !keymap.empty() )
                 {
-                    if ( !is_hvm )
-                    {
-                        file << ",";
-                    }
-
-                    file << "keymap=" << keymap ;
-
                     if ( is_hvm )
                     {
-                        file << endl;
+                        file << "keymap = '" << keymap << "'" << endl;
+                    }
+                    else
+                    {
+                        file << ",keymap=" << keymap;
                     }
                 }
 
@@ -708,7 +698,7 @@ int XenDriver::deployment_description(
 
         if ( localtime )
         {
-            file << "localtime = 'yes'" << endl;
+            file << "localtime = '1'" << endl;
         }
 
         attrs.clear();

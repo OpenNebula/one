@@ -155,7 +155,7 @@ function fs_size {
 
     case $1 in
     http://*)
-        HEADERS=`curl -LIk $1 2>&1`
+        HEADERS=`curl -LIk --max-time 60 $1 2>&1`
 
         if echo "$HEADERS" | grep -q "OpenNebula-AppMarket-Size"; then
             # An AppMarket/Marketplace URL

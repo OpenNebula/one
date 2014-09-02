@@ -129,8 +129,15 @@ class OpenNebulaVNC
             return false
         end
 
-        File.open(@lock_file, "w") do |f|
-            f.write(pid.to_s)
+        begin
+            File.open(@lock_file, "w") do |f|
+                f.write(pid.to_s)
+            end
+        rescue Exception => e
+            @logger.error e.message
+            Process.kill('-KILL', pid)
+
+            return false
         end
 
         sleep 1
@@ -209,7 +216,7 @@ class OpenNebulaVNC
         if pid
             @logger.info "Killing VNC proxy"
 
-            signal=(force ? 'KILL' : 'TERM')
+            signal=(force ? '-KILL' : '-TERM')
             Process.kill(signal ,pid)
 
             sleep 1
@@ -217,7 +224,7 @@ class OpenNebulaVNC
             begin
                 Process.getpgid(pid)
 
-                Process.kill('KILL', pid)
+                Process.kill('-KILL', pid)
             rescue
             end
 
@@ -302,9 +309,9 @@ if RUBY_VERSION<'1.9'
             command=args[0..-2]
 
             # Close stdin and point out and err to log file
-            $stdin.close
             $stdout.reopen(VNC_LOG, "a")
             $stderr.reopen(VNC_LOG, "a")
+            $stdin.close
 
             # Detach process from the parent
             Process.setsid

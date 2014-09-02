@@ -205,6 +205,15 @@ module OpenNebula
                     vm_state = node['vm_info']['VM']['STATE']
                     lcm_state = node['vm_info']['VM']['LCM_STATE']
 
+                    running = vm_state == '3' && lcm_state >= '3'
+
+                    if running && @service.ready_status_gate
+                        running_status = node['vm_info']['VM']['USER_TEMPLATE']['READY'] || ""
+                        running = running_status.upcase == "YES"
+                    end
+
+                    node['running'] = running
+
                     if (vm_state == '6')
                         # Store the VM id in the array of disposed nodes
                         disposed_nodes << vm_id
@@ -238,6 +247,16 @@ module OpenNebula
 
             @body['last_vmname'] ||= 0
 
+            if @body['vm_template_contents']
+                extra_template = @body['vm_template_contents'].dup
+            else
+                extra_template = ""
+            end
+
+            extra_template <<
+                "\nSERVICE_ID = #{@service.id()}" <<
+                "\nROLE_NAME = \"#{@body['name']}\""
+
             n_nodes.times { |i|
                 vm_name = @@vm_name_template.
                     gsub("$SERVICE_ID",    @service.id().to_s).
@@ -253,9 +272,6 @@ module OpenNebula
                     "#{template_id}, with name #{vm_name}", @service.id()
 
                 template = OpenNebula::Template.new_with_id(template_id, @service.client)
-
-                extra_template = "SERVICE_ID = #{@service.id()}\n"\
-                    "ROLE_NAME = \"#{@body['name']}\""
 
                 vm_id = template.instantiate(vm_name, false, extra_template)
 

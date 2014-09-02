@@ -61,12 +61,11 @@ protected:
 
     virtual Template * get_object_template() { return 0; };
 
-    virtual int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+    virtual int pool_allocate(xmlrpc_c::paramList const& _paramList,
                               Template * tmpl,
-                              int& id, 
+                              int& id,
                               string& error_str,
-                              RequestAttributes& att,
-                              int umask)
+                              RequestAttributes& att)
     {
         return -1;
     };
@@ -77,10 +76,9 @@ protected:
                               string& error_str,
                               RequestAttributes& att,
                               int cluster_id,
-                              const string& cluster_name,
-                              int umask)
+                              const string& cluster_name)
     {
-        return pool_allocate(_paramList, tmpl, id, error_str, att, umask);
+        return pool_allocate(_paramList, tmpl, id, error_str, att);
     };
 
     virtual int get_cluster_id(xmlrpc_c::paramList const&  paramList)
@@ -122,7 +120,7 @@ public:
                                "Allocates a new virtual machine",
                                "A:ssb",
                                true)
-    {    
+    {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
@@ -132,17 +130,16 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() 
-    { 
-        return new VirtualMachineTemplate; 
+    Template * get_object_template()
+    {
+        return new VirtualMachineTemplate;
     };
 
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
-                      int& id, 
+                      int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 
     bool allocate_authorization(Template *          obj_template,
                                 RequestAttributes&  att,
@@ -160,7 +157,7 @@ public:
                                "Allocates a new virtual network",
                                "A:ssi",
                                true)
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -170,9 +167,9 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() 
-    { 
-        return new VirtualNetworkTemplate; 
+    Template * get_object_template()
+    {
+        return new VirtualNetworkTemplate;
     };
 
     int pool_allocate(xmlrpc_c::paramList const& _paramList,
@@ -181,8 +178,7 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name,
-                      int umask);
+                      const string& cluster_name);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -235,7 +231,7 @@ public:
                                "Allocates a new virtual machine template",
                                "A:ss",
                                true)
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
@@ -245,17 +241,16 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() 
-    { 
-        return new VirtualMachineTemplate; 
+    Template * get_object_template()
+    {
+        return new VirtualMachineTemplate;
     };
 
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
-                      int& id, 
+                      int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -269,7 +264,7 @@ public:
                                "Allocates a new host",
                                "A:sssssi",
                                false)
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
@@ -285,8 +280,7 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name,
-                      int umask);
+                      const string& cluster_name);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -314,7 +308,7 @@ public:
                                "Returns user information",
                                "A:ssss",
                                false)
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
@@ -322,12 +316,11 @@ public:
 
     ~UserAllocate(){};
 
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
-                      int& id, 
+                      int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 
     void log_xmlrpc_param(
             const xmlrpc_c::value&  v,
@@ -346,7 +339,7 @@ public:
                                "Allocates a new group",
                                "A:ss",
                                false)
-    {    
+    {
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
@@ -354,12 +347,11 @@ public:
 
     ~GroupAllocate(){};
 
-    int pool_allocate(xmlrpc_c::paramList const& _paramList, 
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
                       Template * tmpl,
-                      int& id, 
+                      int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -394,8 +386,7 @@ public:
                       string& error_str,
                       RequestAttributes& att,
                       int cluster_id,
-                      const string& cluster_name,
-                      int umask);
+                      const string& cluster_name);
 
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
@@ -449,8 +440,7 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -483,8 +473,7 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -520,8 +509,7 @@ public:
                       Template * tmpl,
                       int& id,
                       string& error_str,
-                      RequestAttributes& att,
-                      int umask);
+                      RequestAttributes& att);
 };
 
 /* -------------------------------------------------------------------------- */

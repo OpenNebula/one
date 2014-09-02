@@ -56,7 +56,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_user_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 quotas_doc = extract_quotas(doc)
 
@@ -64,7 +64,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -92,7 +92,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_group_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 quotas_doc = extract_quotas(doc)
 
@@ -102,7 +102,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -125,7 +125,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_network_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 template = doc.root.at_xpath("TEMPLATE")
 
@@ -133,20 +133,23 @@ module Migrator
                     elem = doc.root.at_xpath(elem_name)
                     txt  = elem.nil? ? "" : elem.text
 
+                    # The cleaner doc.create_cdata(txt) is not supported in
+                    # old versions of nokogiri
+
                     template.add_child(doc.create_element(elem_name)).
-                        add_child(doc.create_cdata(txt))
+                        add_child(Nokogiri::XML::CDATA.new(doc,txt))
                 end
 
                 vlan_text = doc.root.at_xpath("VLAN").text == "0" ? "NO" : "YES"
 
                 template.add_child(doc.create_element("VLAN")).
-                    add_child(doc.create_cdata(vlan_text))
+                    add_child(Nokogiri::XML::CDATA.new(doc,vlan_text))
 
                 @db[:network_pool].insert(
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -166,7 +169,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_template_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 atts = ["SCHED_REQUIREMENTS", "SCHED_RANK", "REQUIREMENTS", "RANK"]
 
@@ -188,7 +191,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -214,12 +217,22 @@ module Migrator
     end
 
     def extract_quotas(doc)
-        ds_quota  = doc.root.at_xpath("DATASTORE_QUOTA").remove
-        net_quota = doc.root.at_xpath("NETWORK_QUOTA").remove
-        vm_quota  = doc.root.at_xpath("VM_QUOTA").remove
-        img_quota = doc.root.at_xpath("IMAGE_QUOTA").remove
+        ds_quota  = doc.root.at_xpath("DATASTORE_QUOTA")
+        net_quota = doc.root.at_xpath("NETWORK_QUOTA")
+        vm_quota  = doc.root.at_xpath("VM_QUOTA")
+        img_quota = doc.root.at_xpath("IMAGE_QUOTA")
 
-        quotas_doc = Nokogiri::XML("<QUOTAS></QUOTAS>")
+        quotas_doc = Nokogiri::XML("<QUOTAS></QUOTAS>"){|c| c.default_xml.noblanks}
+
+        ds_quota  = quotas_doc.create_element("DATASTORE_QUOTA") if ds_quota.nil?
+        net_quota = quotas_doc.create_element("NETWORK_QUOTA")   if net_quota.nil?
+        vm_quota  = quotas_doc.create_element("VM_QUOTA")        if vm_quota.nil?
+        img_quota = quotas_doc.create_element("IMAGE_QUOTA")     if img_quota.nil?
+
+        ds_quota.remove
+        net_quota.remove
+        vm_quota.remove
+        img_quota.remove
 
         quotas_doc.root.add_child(quotas_doc.create_element("ID")).
             content = doc.root.at_xpath("ID").text

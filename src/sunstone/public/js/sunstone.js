@@ -39,14 +39,42 @@ var info_panels_context;
 
 panel_extended = false;
 
+// global settings
+var top_interval = 10000; //ms
+var top_interval_ids = {};
+
+// global definitions
+var QUOTA_LIMIT_DEFAULT   = "-1";
+var QUOTA_LIMIT_UNLIMITED = "-2";
+
 //Sunstone configuration is formed by predifined "actions", main tabs
 //and "info_panels". Each tab has "content" and "buttons". Each
 //"info_panel" has "tabs" with "content".
 var SunstoneCfg = {
     "actions" : {},
      "tabs" : {},
-     "info_panels" : {}
+     "info_panels" : {},
+     "form_panels" : {}
 };
+
+var language_options = '<option value="en_US">English (en_US)</option>\
+   <option value="ca">Catalan (ca)</option>\
+   <option value="cs_CZ">Czech (cs_CZ)</option>\
+   <option value="nl_NL">Dutch (nl_NL)</option>\
+   <option value="da">Danish (da)</option>\
+   <option value="fr_FR">French (fr_FR)</option>\
+   <option value="de">German (de)</option>\
+   <option value="el_GR">Greek (el_GR)</option>\
+   <option value="it_IT">Italian (el_GR)</option>\
+   <option value="fa_IR">Persian (fa_IR)</option>\
+   <option value="pl">Polish (pl)</option>\
+   <option value="pt_BR">Portuguese (pt_BR)</option>\
+   <option value="pt_PT">Portuguese (pt_PT)</option>\
+   <option value="ru_RU">Russian (ru_RU)</option>\
+   <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
+   <option value="sk_SK">Slovak (sk_SK)</option>\
+   <option value="es_ES">Spanish (es_ES)</option>\
+   <option value="zh_TW">Traditional Chinese (zh_TW)</option>';
 
 /* Public plugin interface */
 
@@ -112,6 +140,20 @@ var Sunstone = {
          }
     },
 
+    "addFormPanel" : function(tab_id, form_name, form_obj){
+        SunstoneCfg["form_panels"][form_name]=form_obj;
+
+        var context = $(".right-form", $('#'+tab_id));
+
+        // TODO check if it is already included
+
+        $("#advancedForms", context).append(form_obj.advanced_html);
+        $("#wizardForms", context).append(form_obj.wizard_html);
+
+        //var form_context = $("#"+form_name+"_wizard, #"+form_name+"_advanced", context)
+        form_obj.setup(context)
+    },
+
     //Adds a new info panel
     "addInfoPanel" : function(panel_name, panel_obj){
         SunstoneCfg["info_panels"][panel_name]=panel_obj;
@@ -127,9 +169,69 @@ var Sunstone = {
         delete SunstoneCfg["info_panels"][panel_name];
     },
 
+    "popUpFormPanel" : function(form_name, selected_tab, action, reset, initialize_func){
+        var context = $("#"+selected_tab);
+        popFormDialogLoading(context);
+
+        var form_obj = SunstoneCfg["form_panels"][form_name];
+
+        if (action) {
+            $(".right-form-title", context).text(form_obj["actions"][action]["title"]);
+            $(".submit_button", context).text(form_obj["actions"][action]["submit_text"]);
+        }
+
+        setTimeout(function() {
+            if (reset) {
+                $("#"+form_name+"_wizard", context).remove();
+                $("#"+form_name+"_advanced", context).remove();
+
+                $("#advancedForms", context).append(form_obj.advanced_html);
+                $("#wizardForms", context).append(form_obj.wizard_html);
+
+                //var form_context = $("#"+form_name+"_wizard, #"+form_name+"_advanced", context)
+                form_obj.setup(context)
+            }
+
+            if (initialize_func){
+                initialize_func(context);
+            }
+
+            if (action) {
+                $("#"+form_name+"_wizard", context).attr("action", action);
+                $("#"+form_name+"_advanced", context).attr("action", action);
+            }
+
+            popFormDialog(form_name, context);
+
+        },13)
+
+    },
+
+    "submitFormPanel" : function(form_name, selected_tab){
+        var context = $("#"+selected_tab);
+        popFormDialogLoading(context);
+
+        if ($("#wizardForms.active", context).length > 0) {
+            $("#"+form_name+"_wizard", context).submit();
+        } else if ($("#advancedForms.active", context).length > 0) {
+            $("#"+form_name+"_advanced", context).submit();
+        }
+
+        // Success callbalck must include:
+        //    $("a[href=back]", $("#"+selected_tab)).trigger("click");
+        //    popFormDialog(form_name, $("#"+selected_tab));
+        // Error callback must include:
+        //    popFormDialog(form_name, $("#"+selected_tab));
+    },
+
     //Makes an info panel content pop up in the screen.
     "popUpInfoPanel" : function(panel_name, selected_tab){
         popDialog(Sunstone.getInfoPanelHTML(panel_name, selected_tab), $("#"+selected_tab));
+    },
+
+    "getFormPanelHTML" : function(form_name, selected_tab){
+        //$("#"+form_name, $("#dialogs")).detach();
+        return formElement;
     },
 
     //Generates and returns the HTML div element for an info panel, with
@@ -141,12 +243,8 @@ var Sunstone = {
         }
 
         var dl_tabs = $('<div id="'+panel_name+'">\
-            <div class="row">\
-                <div class="large-12 columns">\
-                    <dl class="tabs right-info-tabs text-center" data-tab>\
-                    </dl>\
-                </div>\
-            </div>\
+            <dl class="tabs right-info-tabs text-center" data-tab>\
+            </dl>\
             <div class="tabs-content"></div>\
             </div>\
         </div>');
@@ -267,7 +365,7 @@ var Sunstone = {
             };
             break;
         case "list":
-            call({success: callback, error:err});
+            call({success: callback, error:err, options:data_arg});
             break;
         case "monitor_global":
             call({
@@ -352,7 +450,7 @@ function zone_refresh(){
       success: function (request, obj_list){
           $('.zone-ul').empty();
           $.each(obj_list,function(){
-              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice"><i class="fa fa-home"></i> '+this.ZONE.NAME+'</a></li>');
+              $('.zone-ul').append('<li><a id="'+this.ZONE.NAME+'" class="zone-choice">'+this.ZONE.NAME+'</a></li>');
           });
       },
       error: onError
@@ -388,13 +486,13 @@ function setLogin(){
     };
 
     var user_login_content =  '<a href="#" data-dropdown="drop1" class="button small radius secondary dropdown" id="logout">\
-      <i class="fa fa-user header-icon"></i> '+ config['display_name'] + '</a>\
+      <i class="fa fa-user fa-lg fa-fw header-icon"></i> '+ config['display_name'] + '</a>\
       <ul id="drop1" data-dropdown-content class="f-dropdown">\
         <li><a href="#" class="configuration"><i class="fa fa-cog"></i> Settings</a></li>\
         <li><a href="#" class="logout"><i class="fa fa-power-off"></i> Sign Out</a></li>\
       </ul>\
     <a href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
-      <i class="fa fa-home header-icon"></i> '+ config['zone_name'] + '</a>\
+      <i class="fa fa-home fa-lg fa-fw header-icon"></i> '+ config['zone_name'] + '</a>\
       <ul id="drop2" data-dropdown-content class="zone-ul f-dropdown"></ul>';
 
     $(".user-zone-info").html(user_login_content);
@@ -428,6 +526,17 @@ function insertTabs(){
     var tab_info;
     for (tab in SunstoneCfg["tabs"]){
         insertTab(tab);
+
+        if (config['view']['autorefresh']) {
+            var tab_context = $("#" + tab);
+            var refresh_button = $(".fa-refresh", $(".action_blocks", tab_context).first());
+            setInterval(function(){
+                if(Sunstone.rightListVisible(tab_context)){
+                    refresh_button.click();
+                }
+                //else {console.log("top not visible for "+custom_id);}
+            }, top_interval);
+        }
     }
 }
 
@@ -466,34 +575,27 @@ function insertTab(tab_name){
                   '</span>&emsp;\
                   <span class="resource-id"></span>\
                 </h3>\
+                <h3 class="subheader header-title only-right-form" hidden>\
+                  <span class="right-form-title">' +
+                  '</span>\
+                </h3>\
               </div>\
             </div>'
         }
-/*
-        if (tab_info.search_input) {
-            tab_content_str += '<div class="row header-info">\
-              <div class="large-3 columns right">' +
-                tab_info.search_input +
-              '</div>\
-              <div class="large-9 columns">' +
-                  (tab_info.subheader ? tab_info.subheader : "") +
-              '</div>\
-            </div>'
-        }
-*/
+
         if (tab_info.buttons) {
             tab_content_str += '<div class="row">\
-              <div class="large-9 columns">\
+              <div class="small-12 large-12 columns">\
                 <div class="action_blocks">\
                 </div>\
-              </div>\
-              <div class="large-3 columns only-right-list">'
+              <div class="small-3 large-3 columns only-right-list" style="margin-top: 2px">'
 
             if (tab_info.search_input) {
                 tab_content_str += tab_info.search_input;
             }
 
             tab_content_str += '</div>\
+              </div>\
             </div>'
         }
 
@@ -527,7 +629,25 @@ function insertTab(tab_name){
         tab_content_str += '<div class="right-info" hidden>'
         tab_content_str += '</div>'
 
-        tab_content_str += '</div>';
+        tab_content_str += '<div class="right-form" hidden>'+
+            '<div class="text-center  loadingForm">'+
+              '<br>'+
+              '<br>'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<br>'+
+            '</div>'+
+            '<div class="tabs-content tabs-contentForm">' +
+                '<div class="content active" id="wizardForms">' +
+                '</div>' +
+                '<div class="content" id="advancedForms">' +
+                '</div>'+
+            '</div>'+
+        '</div>';
+
         main_tabs_context.append(tab_content_str);
     }
 
@@ -549,6 +669,12 @@ function insertTab(tab_name){
     if (showOnTop){
         $('div#header ul#menutop_ul').append('<li id="top_'+tab_name+'">'+tab_info.title+'</li>');
     };
+
+    if (tab_info.forms) {
+        $.each(tab_info.forms, function(key, value){
+            Sunstone.addFormPanel(tab_name, key, value)
+        })
+    }
 };
 
 function hideSubTabs(){
@@ -594,10 +720,10 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
         var buttons_row = $('<div class="text-center">'+
                   '<span class="left">'+
 
-                    '<span id="'+custom_id+'refresh_buttons">'+
+                    '<span id="'+custom_id+'refresh_buttons" class="only-right-info only-right-list">'+
                     '</span>'+
 
-                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info">'+
+                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info only-right-form">'+
                         '<a class="button small radius" href="back"><i class="fa fa-arrow-left"></i>&emsp;&emsp;<i class="fa fa-list"></i></a>'+
                     '</span>')+
 
@@ -605,59 +731,74 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '</span>'+
                   '</span>'+
 
-                  '<span>'+
+
+                  '<span class="right" style="margin-left: 20px">'+
+                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='only-right-info only-right-list top_button small  secondary button dropdown radius'>"+
+                        "<i class='fa fa-user'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"user_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='only-right-info only-right-list top_button small  button alert dropdown radius'>"+
+                        "<i class='fa fa-trash-o'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"vmsdelete_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    "<span id='"+custom_id+"delete_buttons' class='only-right-info only-right-list'>"+
+                    "</span>"+
+                  "</span>"+
+
+                  '<span class="right">'+
                     '<span id="'+custom_id+'vmsplay_buttons">'+
                     '</span>'+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-pause'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmspause_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmspause_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-stop'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsstop_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsstop_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-repeat'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-th-list'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsplanification_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsplanification_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    '<span id="'+custom_id+'main_buttons" class="only-right-info only-right-list">'+
+                    "</span>"+
+
+                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'> " +
+                        "<i class='fa fa-ellipsis-v'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"more_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
                   '</span>'+
 
-                  '<span class="right">'+
-                    '<span id="'+custom_id+'main_buttons">'+
-                    "</span>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='top_button small  button secondary dropdown radius'> " + tr("More")+
-                    "</a>"+
-                    "<ul id='"+custom_id+"more_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='top_button small  secondary button dropdown radius'>"+
-                        "<i class='fa fa-user'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"user_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='top_button small  button alert dropdown radius'>"+
-                        "<i class='fa fa-trash-o'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"vmsdelete_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<span id='"+custom_id+"delete_buttons'>"+
-                    "</span>"+
-                  "</span>"+
+                "<span id='"+custom_id+"form_buttons' class='only-right-form'>"+
+                    '<span id="'+custom_id+'reset_button" class="left" style="margin-left: 10px;">'+
+                        '<a class="button small secondary radius" href="submit">'+tr("Reset")+'</a>'+
+                    '</span>'+
+                    '<span id="'+custom_id+'submit_button" class="left" style="margin-left: 10px;">'+
+                        '<a class="button small success radius submit_button" href="submit">'+tr("Create")+'</a>'+
+                    '</span>'+
+                    '<dl class="tabs right wizard_tabs" data-tab style="margin-left: 10px;">' +
+                      '<dd id="wizard_mode" class="active"><a style="padding: 0.3rem 1rem;" href="#wizardForms">'+tr("Wizard")+'</a></dd>' +
+                      '<dd id="advanced_mode"><a style="padding: 0.3rem 1rem;" id="advanced_mode_a" href="#advancedForms">'+tr("Advanced")+'</a></dd>' +
+                    '</dl>' +
+                "</span>"+
         "</div>");
 
         //for every button defined for this tab...
@@ -690,82 +831,98 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 str_class.push("alwaysActive");
             }
 
-            var context;
+            if (button.custom_classes) {
+                str_class.push(button.custom_classes);
+            }
+
+            var button_context;
             var text;
             switch (button.layout) {
             case "create":
-                context = $("#"+custom_id+"create_buttons", buttons_row);
-                text = button.text ? '<i class="fa fa-plus-sign"/>  ' + button.text : '<i class="fa fa-plus-sign"/>  ' + tr("Create");
+                button_context = $("#"+custom_id+"create_buttons", buttons_row);
+                text = button.text ? '<i class="fa fa-plus"/>  ' + button.text : '<i class="fa fa-plus"/>';
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "refresh":
-                context = $("#"+custom_id+"refresh_buttons", buttons_row);
-                text = '<i class="fa fa-refresh"/>';
-                str_class.push("secondary", "button", "small", "radius");
-                button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
+                button_context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                text = '<span class="fa-stack">'+
+                    '<i class="fa fa-refresh fa-stack-lg" style="font-size: 1.5em"></i>'+
+                    //'<i class="fa fa-play fa-stack-1x"></i>'+
+                  '</span>';
+                str_class.push("white_button", "refresh", "secondary", "button", "small", "radius");
+                button_code = '<a class="'+str_class.join(' ')+'" href="'+button_name+'" style="padding-left: 5px">'+text+'</a>';
+                break;
+            case "top":
+                button_context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                text = '<span class="fa-stack">'+
+                    '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>'+
+                    '<i class="fa fa-play fa-stack-1x"></i>'+
+                  '</span>';
+                str_class.push("white_button", "toggle_top_button", "only-right-list","secondary", "button", "small", "radius");
+                button_code = '<a class="'+str_class.join(' ')+'" style="padding-left:0px; margin-right: 20px">'+text+'</a>';
                 break;
             case "main":
-                context = $("#"+custom_id+"main_buttons", buttons_row);
+                button_context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmsplay_buttons":
-                context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmspause_buttons":
-                context = $("#"+custom_id+"vmspause_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmspause_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsstop_buttons":
-                context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsrepeat_buttons":
-                context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsdelete_buttons":
-                context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsplanification_buttons":
-                context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "more_select":
-                context = $("#"+custom_id+"more_buttons", buttons_row);
+                button_context = $("#"+custom_id+"more_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "user_select":
-                context = $("#"+custom_id+"user_buttons", buttons_row);
+                button_context = $("#"+custom_id+"user_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "del":
-                context = $("#"+custom_id+"delete_buttons", buttons_row);
-                text = '<i class=" fa fa-trash-o"/>  ' + tr("Delete");
+                button_context = $("#"+custom_id+"delete_buttons", buttons_row);
+                text = '<i class=" fa fa-trash-o"/> ';
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             default:
-                context = $("#"+custom_id+"main_buttons", buttons_row);
+                button_context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
             }
 
-            context.append(button_code);
+            button_context.append(button_code);
         }//for each button in tab
         //$('.top_button',action_block).button();
         //$('.top_button',action_block).addClass("secondary small button")
@@ -808,6 +965,20 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
         $('.top_button, .list_button',action_block).attr('disabled', true);
         $('.create_dialog_button',action_block).attr('disabled', false);
         $('.alwaysActive',action_block).attr('disabled', false);
+
+        $('#'+custom_id+'reset_button', action_block).on("click", function(){
+            var form_name = $(".right-form", context).attr("form_name");
+            Sunstone.popUpFormPanel(form_name, tab_name, null, true)
+
+            return false;
+        })
+
+        $('#'+custom_id+'submit_button', action_block).on("click", function(){
+            var form_name = $(".right-form", context).attr("form_name");
+            Sunstone.submitFormPanel(form_name, tab_name);
+
+            return false;
+        })
 
     $(document).foundation();
     }//if tab exists
@@ -855,9 +1026,7 @@ function setupConfirmDialogs(){
             </div>\
             <br />\
             <div class="row">\
-                <div class="large-12 columns">\
-                    <select id="confirm_select">\
-                    </select>\
+                <div class="large-12 columns" id="confirm_select">\
                 </div>\
             </div>\
             <br />\            <br />\
@@ -877,7 +1046,7 @@ function setupConfirmDialogs(){
         var error = 0;
         var value = $(this).val();
         var action = SunstoneCfg["actions"][value];
-        var param = $('select#confirm_select',context).val();
+        var param = $('select.resource_list_select',context).val();
 
         if (!param.length){
             notifyError("You must select a value");
@@ -947,8 +1116,12 @@ function popUpConfirmWithSelectDialog(target_elem){
     else
         var tip = button.tip
 
-    var select_var = button.select();
-    $('select#confirm_select',dialog).html(select_var);
+    if (button.custom_select){
+        $('div#confirm_select', dialog).html(button.custom_select);
+    } else{
+        insertSelectOptions('div#confirm_select', dialog, button.select, null, true);
+    }
+
     $('div#confirm_with_select_tip',dialog).text(tip);
 
     var action = SunstoneCfg["actions"][value];
@@ -1025,9 +1198,45 @@ function pretty_time_runtime(time){
     var month = pad(d.getUTCMonth()+1,2); //getMonths returns 0-11
     var year = d.getUTCFullYear();
 
-    return day + "d " + hour + ":" + mins;
+    return day + "d " + hour + "h " + mins + "m ";
 }
 
+function _format_date(unix_timestamp) {
+  var difference_in_seconds = (Math.round((new Date()).getTime() / 1000)) - unix_timestamp,
+      current_date = new Date(unix_timestamp * 1000), minutes, hours,
+      months = new Array(
+        'January','February','March','April','May',
+        'June','July','August','September','October',
+        'November','December');
+
+  if(difference_in_seconds < 60) {
+    return difference_in_seconds + "s" + " ago";
+  } else if (difference_in_seconds < 60*60) {
+    minutes = Math.floor(difference_in_seconds/60);
+    return minutes + "m" + " ago";
+  } else if (difference_in_seconds < 60*60*24) {
+    hours = Math.floor(difference_in_seconds/60/60);
+    return hours + "h" + " ago";
+  } else if (difference_in_seconds > 60*60*24){
+    if(current_date.getYear() !== new Date().getYear())
+      return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3) + " " + _fourdigits(current_date.getYear());
+    else {
+        return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3);
+    }
+  }
+
+  return difference_in_seconds;
+
+  function _fourdigits(number)  {
+        return (number < 1000) ? number + 1900 : number;}
+
+  //function _plural(number) {
+  //  if(parseInt(number) === 1) {
+  //    return "";
+  //  }
+  //  return "s";
+  //}
+}
 //returns a human readable size in Kilo, Mega, Giga or Tera bytes
 //if no from_bytes, assumes value comes in Ks
 function humanize_size(value,from_bytes,sufix) {
@@ -1155,7 +1364,6 @@ function tableCheckboxesListener(dataTable, custom_context){
         else
         {
             $(this).parents('tr').children().removeClass('markrowchecked');
-            $(this).parents('tr').children().removeClass('markrowselected');
         }
 
         recountCheckboxes(datatable, context);
@@ -1165,9 +1373,22 @@ function tableCheckboxesListener(dataTable, custom_context){
 // Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,dataTable){
-    var selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[1]).html();
-    if (!selected_row_id) selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[0]).html();
+    var selected_row_id = null;
     var checked_row_ids = new Array();
+
+    var row_id_index = dataTable.attr("row_id");
+
+    if(row_id_index != undefined){
+        $.each($(dataTable.fnGetNodes()), function(){
+            if($('td.markrow',this).length!=0)
+            {
+                var aData = dataTable.fnGetData(this);
+
+                selected_row_id = aData[row_id_index];
+
+            }
+        });
+    }
 
     $.each($(dataTable.fnGetNodes()), function(){
         if($('td.markrowchecked',this).length!=0)
@@ -1187,8 +1408,11 @@ function updateView(item_list,dataTable){
         var dTable_settings = dataTable.fnSettings();
         var prev_start = dTable_settings._iDisplayStart;
 
-        dataTable.fnClearTable(0);
-        dataTable.fnAddData(item_list);
+        dataTable.fnClearTable(false);
+
+        if (item_list.length > 0) {
+            dataTable.fnAddData(item_list, false);
+        }
 
         var new_start = prev_start;
 
@@ -1199,17 +1423,20 @@ function updateView(item_list,dataTable){
                 new_start = 0;
         }
 
-        dTable_settings._iDisplayStart = new_start;
+        dTable_settings.iInitDisplayStart = new_start;
 
-        dataTable.fnDraw(false);
+        dataTable.fnDraw(true);
     };
 
-    if(selected_row_id)
+    if(selected_row_id != undefined)
     {
         $.each($(dataTable.fnGetNodes()),function(){
-            if($($('td',this)[1]).html()==selected_row_id)
+
+            var aData = dataTable.fnGetData(this);
+
+            if(aData[row_id_index] == selected_row_id)
             {
-                $('td',this)[2].click();
+                $('td',this)[0].click();
             }
         });
     }
@@ -1238,13 +1465,16 @@ function updateView(item_list,dataTable){
 
 //replaces an element with id 'tag' in a dataTable with a new one
 function updateSingleElement(element,dataTable,tag){
+    // fnGetData should be used instead, otherwise it depends on the visible columns
     var nodes = dataTable.fnGetNodes();
     var tr = $(tag,nodes).parents('tr')[0];
-    var checked_val = $('input.check_item',tr).attr('checked');
-    var position = dataTable.fnGetPosition(tr);
-    dataTable.fnUpdate(element,position,undefined,false);
-    $('input.check_item',tr).attr('checked',checked_val);
-    recountCheckboxes(dataTable);
+    if(tr){
+        var checked_val = $('input.check_item',tr).attr('checked');
+        var position = dataTable.fnGetPosition(tr);
+        dataTable.fnUpdate(element,position,undefined,false);
+        $('input.check_item',tr).attr('checked',checked_val);
+        recountCheckboxes(dataTable);
+    }
 }
 
 function getElementData(id, resource_tag, dataTable){
@@ -1268,7 +1498,7 @@ function stringJSON(json){
 function notifySubmit(action, args, extra_param){
     var action_text = action.replace(/OpenNebula\./,'').replace(/\./,' ');
 
-    var msg = '<h1>'+tr("Submitted")+'</h1>';
+    var msg = "";
     if (!args || (typeof args == 'object' && args.constructor != Array)){
 
         msg += action_text;
@@ -1285,18 +1515,16 @@ function notifySubmit(action, args, extra_param){
 
 //Notification on error
 function notifyError(msg){
-    msg = "<h1>"+tr("Error")+"</h1>" + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-error", position: "bottom-right", sticky: true });
 }
 
 //Standard notification
 function notifyMessage(msg){
-    msg = "<h1>"+tr("Info")+"</h1>" + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right"});
 }
 
 function notifyCustom(title, msg, sticky) {
-    msg = "<h1>" + title + "</h1>" + msg;
+    msg = (title ? title : "") + msg;
     $.jGrowl(msg, {theme: "jGrowl-notify-submit", position: "bottom-right", sticky: sticky });
 }
 
@@ -1429,6 +1657,11 @@ function onError(request,error_json, container) {
         }
         return false;
     };
+
+    if (error_json.error.http_status=="404") {
+        notifyError(message);
+        return false;
+    }
 
     if (container) {
         container.show();
@@ -1607,7 +1840,9 @@ function setupTips(context, position){
         }
         //replace the text with an icon and spans
         obj.html('<span data-tooltip class="'+tip_classes.join(' ')+'" data-width="210" title="'+tip+'"><i class="fa fa-question-circle"></i></span>');
+        obj.foundation();
     });
+
 }
 
 //returns an array of ids of selected elements in a dataTable
@@ -1628,48 +1863,74 @@ function getSelectedNodes(dataTable, force_datatable){
     return selected_nodes;
 }
 
-//returns a HTML string with options for
-//a select input code generated from a dataTable.
-//Allows filtering elements specifing status columns
-//and bad status (if the values of the columns match the bad status)
-//then this elem is skipped.
-//no_empty_obj allows to skip adding a Please Select option
-function makeSelectOptions(dataTable,
-                           option_value_col,
-                           option_name_col,
-                           status_cols,
-                           bad_status_values,
-                           no_empty_opt){
-    var nodes = dataTable.fnGetData();
-    var select = "";
-    if (!no_empty_opt)
-        select = '<option class="empty_value" value="">'+tr("Please select")+'</option>';
-    var array;
-    for (var j=0; j<nodes.length;j++){
-        var elem = nodes[j];
-        var value = elem[option_value_col];
+// TODO: Too many arguments. Change to use a params object
+function insertSelectOptions(id, context, resource, init_val, empty_value,
+    extra_options, filter_att, filter_val, trigger_change_init_val, only_name){
 
-        //ASSUMPTION: elem id in column 1
-        var id = elem[1];
+    $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
 
-        var name = elem[option_name_col];
-        var status, bad_status;
-        var ok=true;
-        for (var i=0;i<status_cols.length;i++){
-            status = elem[status_cols[i]];
-            bad_status = bad_status_values[i];
-            //if the column has a bad value, we
-            //will skip this item
-            if (status == bad_status){
-                ok=false;
-                break;
-            };
-        };
-        if (ok){
-            select +='<option elem_id="'+id+'" value="'+value+'">'+name+' (id:'+id+')</option>';
-        };
-    };
-    return select;
+    OpenNebula[resource].list({
+        timeout: true,
+        success: function (request, obj_list){
+            var select_str='<select class="resource_list_select">';
+
+            if (empty_value){
+                select_str += '<option class="empty_value" value="">'+
+                                tr("Please select")+'</option>';
+            }
+
+            if (resource == "Cluster"){
+                if(!extra_options){
+                    extra_options = "";
+                }
+
+                extra_options += '<option value="-1">Default (none)</option>';
+            }
+
+            if (extra_options){
+                select_str += extra_options;
+            }
+
+            if (!filter_att){
+                filter_att = [];
+            }
+
+            var res_name = OpenNebula[resource].resource;
+            $.each(obj_list,function(){
+                var id = this[res_name].ID;
+                var name = this[res_name].NAME;
+                var add = true;
+
+                for (var i=0;i<filter_att.length;i++){
+                    if (this[res_name][filter_att[i]] == filter_val[i]){
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (add){
+                    select_str +='<option elem_id="'+id+'" value="'+id+'">'
+                    if (!only_name) {
+                        select_str += id+': '
+                    }
+                    select_str += name+'</option>';
+                }
+            });
+
+            select_str+="</select>";
+
+            $(id, context).html(select_str);
+
+            if (init_val){
+                $(id+" .resource_list_select", context).val(init_val);
+                if (trigger_change_init_val) {
+                    $(id+" .resource_list_select", context).change();
+                }
+            }
+        },
+        error: onError
+    });
+
 }
 
 //Escape doublequote in a string and return it
@@ -1715,7 +1976,7 @@ function plot_graph(response, info) {
 
         var data = response.monitoring[attribute];
 
-        if(info.derivative == true) {
+        if(info.derivative == true && data) {
             derivative(data);
         }
 
@@ -1740,14 +2001,28 @@ function plot_graph(response, info) {
         xaxis : {
             tickFormatter: function(val,axis){
                 return pretty_time_axis(val, info.show_date);
-            }
+            },
+            color: "#efefef",
+            size: 8
         },
-        yaxis : { labelWidth: 50,
-                  tickFormatter: function(val, axis) {
+        yaxis : {
+                tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
-                  min: 0
-                }
+                  min: 0,
+                color: "#efefef",
+
+                size: 8
+                },
+        series: {
+            lines: {
+                lineWidth: 1
+            }
+        },
+        grid: {
+            borderWidth: 1,
+            borderColor: "#efefef"
+        }
     };
 
     $.plot(info.div_graph, series, options);
@@ -1777,7 +2052,9 @@ function plot_totals(response, info) {
 
                     var data = response[id][attribute];
 
-                    derivative(data);
+                    if (data) {
+                        derivative(data);
+                    }
                 }
             }
 
@@ -1880,7 +2157,8 @@ function plot_totals(response, info) {
 
 
 //Shows run a custom action when clicking on rows.
-function infoListener(dataTable, info_action){
+function infoListener(dataTable, info_action, target_tab){
+    $('tbody tr',dataTable).die("click");
     $('tbody tr',dataTable).live("click",function(e){
 
         if ($(e.target).is('input') ||
@@ -1901,12 +2179,11 @@ function infoListener(dataTable, info_action){
             }
             else
             {
-                var context = $(this).parents(".tab");
-                popDialogLoading(context);
-                Sunstone.runAction(info_action,id);
-                $(".resource-id", context).html(id);
-                //enable action buttons
-                $('.top_button, .list_button', context).attr('disabled', false);
+                if(!target_tab){
+                    target_tab = activeTab;
+                }
+
+                showElement(target_tab, info_action, id);
             };
         }
         else
@@ -1924,30 +2201,6 @@ function mustBeAdmin(){
 
 function mustNotBeAdmin(){
     return !mustBeAdmin();
-}
-
-function users_sel(){
-    return users_select;
-}
-
-function groups_sel(){
-    return groups_select;
-}
-
-function hosts_sel(){
-    return hosts_select;
-}
-
-function clusters_sel() {
-    return clusters_select;
-}
-
-function datastores_sel() {
-    return datastores_select;
-}
-
-function zones_sel(){
-    return zones_select;
 }
 
 /* Below functions to easier permission management */
@@ -2031,241 +2284,602 @@ function setPermissionsTable(resource,context){
 
 var Quotas = {
     "vms" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var vms_bar = quotaBar(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var vms_bar;
+
+        if (!empty_quotas){
+            vms_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.VMS_USED,
                 info.VM_QUOTA.VM.VMS,
-                default_quotas.VM_QUOTA.VM.VMS);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("VMs") + '</legend><div>'+vms_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.VMS,
+                { quota_name: "VM_VMS"});
         } else {
-            return '';
+            vms_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.VMS,
+                { quota_name: "VM_VMS"});
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("VMs") + '</legend>\
+            <div>'+vms_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
     "cpu" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var cpu_bar = quotaBarFloat(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var cpu_bar;
+
+        if (!empty_quotas){
+            cpu_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.CPU_USED,
                 info.VM_QUOTA.VM.CPU,
-                default_quotas.VM_QUOTA.VM.CPU);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("CPU") + '</legend><div>'+cpu_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.CPU,
+                {   is_float: true,
+                    quota_name: "VM_CPU"
+                });
         } else {
-            return '';
+            cpu_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.CPU,
+                {   is_float: true,
+                    quota_name: "VM_CPU"
+                });
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("CPU") + '</legend>\
+            <div>'+cpu_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
     "memory" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var memory_bar = quotaBarMB(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var memory_bar;
+
+        if (!empty_quotas){
+            memory_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.MEMORY_USED,
                 info.VM_QUOTA.VM.MEMORY,
-                default_quotas.VM_QUOTA.VM.MEMORY);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("Memory") + '</legend><div>'+memory_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.MEMORY,
+                {   mb: true,
+                    quota_name: "VM_MEMORY"
+                });
         } else {
-            return '';
+            memory_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.MEMORY,
+                {   mb: true,
+                    quota_name: "VM_MEMORY"
+                });
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("Memory") + '</legend>\
+            <div>'+memory_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
     "volatile_size" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var volatile_bar = quotaBarMB(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var volatile_bar;
+
+        if (!empty_quotas){
+            volatile_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.VOLATILE_SIZE_USED,
                 info.VM_QUOTA.VM.VOLATILE_SIZE,
-                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div>'+volatile_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE,
+                {   mb: true,
+                    quota_name: "VM_VOLATILE_SIZE"
+                });
         } else {
-            return '';
+            volatile_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE,
+                {   mb: true,
+                    quota_name: "VM_VOLATILE_SIZE"
+                });
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("Volatile disks") + '</legend>\
+            <div>'+volatile_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
-    "datastore" : function(info, default_quotas) {
-        if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
-            var quotas_tab_html =
-            '<fieldset>\
-                <legend>'+tr("Datastore")+'</legend>\
-                <table class="dataTable extended_table">\
-                <thead>\
-                    <tr>\
-                        <th style="width:16%">'+tr("ID")+'</th>\
-                        <th style="width:42%">'+tr("Images")+'</th>\
-                        <th style="width:42%">'+tr("Size")+'</th>\
-                    </tr>\
-                </thead>\
-                <tbody>';
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
+    // for the "add new quota" buttons will be set.
+    "datastore" : function(info, default_quotas, opts) {
+        var empty_quotas = $.isEmptyObject(info.DATASTORE_QUOTA);
 
-            var ds_quotas = [];
+        var quotas_tab_html = "";
 
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px; display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px">';
+        }
+
+        quotas_tab_html +=
+            '<legend>'+tr("Datastore")+'</legend>\
+            <table class="quota_table extended_table ds_quota_table">\
+            <thead>\
+                <tr>\
+                    <th style="width:16%">'+tr("ID")+'</th>\
+                    <th style="width:42%">'+tr("Images")+'</th>\
+                    <th style="width:42%">'+tr("Size")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var ds_quotas = [];
+
+        if (!empty_quotas){
             if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
                 ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
             else if (info.DATASTORE_QUOTA.DATASTORE.ID)
                 ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
+        }
 
-            for (var i=0; i < ds_quotas.length; i++){
+        for (var i=0; i < ds_quotas.length; i++){
 
-                var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
+            var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
 
-                if (default_ds_quotas == undefined){
-                    default_ds_quotas = {
-                        "IMAGES"    : "0",
-                        "SIZE"      : "0"
-                    }
+            if (default_ds_quotas == undefined){
+                default_ds_quotas = {
+                    "IMAGES"    : QUOTA_LIMIT_UNLIMITED,
+                    "SIZE"      : QUOTA_LIMIT_UNLIMITED
                 }
-
-                var img_bar = quotaBar(
-                    ds_quotas[i].IMAGES_USED,
-                    ds_quotas[i].IMAGES,
-                    default_ds_quotas.IMAGES);
-
-                var size_bar = quotaBarMB(
-                    ds_quotas[i].SIZE_USED,
-                    ds_quotas[i].SIZE,
-                    default_ds_quotas.SIZE);
-
-                quotas_tab_html +=
-                '<tr>\
-                    <td>'+ds_quotas[i].ID+'</td>\
-                    <td>'+img_bar+'</td>\
-                    <td>'+size_bar+'</td>\
-                </tr>';
             }
 
+            var img_bar = editableQuotaBar(
+                ds_quotas[i].IMAGES_USED,
+                ds_quotas[i].IMAGES,
+                default_ds_quotas.IMAGES,
+                { quota_name: "DS_IMAGES" });
+
+            var size_bar = editableQuotaBar(
+                ds_quotas[i].SIZE_USED,
+                ds_quotas[i].SIZE,
+                default_ds_quotas.SIZE,
+                {   mb: true,
+                    quota_name: "DS_SIZE"
+                });
+
             quotas_tab_html +=
-                    '</tbody>\
-                </table>\
-            </fieldset>';
-
-            return quotas_tab_html;
-        } else {
-            return '';
+            '<tr class="ds_quota_tr" quota_id="'+ds_quotas[i].ID+'">\
+                <td>'+ds_quotas[i].ID+'</td>\
+                <td>'+img_bar+'</td>\
+                <td>'+size_bar+'</td>\
+            </tr>';
         }
-    },
-    "image" : function(info, default_quotas) {
-        if (!$.isEmptyObject(info.IMAGE_QUOTA)){
-            var quotas_tab_html =
-            '<fieldset>\
-                <legend>'+tr("Image")+'</legend>\
-                <table class="dataTable extended_table">\
-                <thead>\
-                    <tr>\
-                        <th style="width:16%">'+tr("ID")+'</th>\
-                        <th style="width:84%">'+tr("Running VMs")+'</th>\
+
+        quotas_tab_html +=
+                '</tbody>\
+                <tfoot>\
+                    <tr class="editable_quota" style="display: none">\
+                        <td colspan="3">\
+                            <a type="button" \
+                              class="button small radius small-12" \
+                              id="ds_add_quota_btn"><i class="fa fa-plus"></i>\
+                              '+tr("Add a new quota")+'\
+                            </a>\
+                        </td>\
                     </tr>\
-                </thead>\
-                <tbody>';
+                </tfoot>\
+            </table>\
+            <div class="">\
+            </div>\
+        </fieldset>';
 
-            var img_quotas = [];
+        if (!opts) opts = {};
 
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #ds_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #ds_add_quota_btn", function(){
+
+                $(".ds_quota_table tbody", $(opts.parent_id_str)).append(
+                    '<tr class="ds_quota_tr" quota_id="-1">\
+                        <td class="ds_select" colspan="3"></td>\
+                        <td class="img_bar"></td>\
+                        <td class="size_bar"></td>\
+                    </tr>');
+
+                insertSelectOptions(
+                    'td.ds_select',
+                    $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last(),
+                    "Datastore",
+                    null, true);
+
+                $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last().off(
+                    "change", ".resource_list_select");
+
+                $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last().on(
+                    "change", ".resource_list_select", function(){
+
+                    $(this).parents("td").attr("colspan", "1");
+
+                    var ds_id = $(this).val();
+                    var tr = $(this).parents("tr");
+                    tr.attr("quota_id", ds_id);
+
+                    var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_id];
+
+                    if (default_ds_quotas == undefined){
+                        default_ds_quotas = {
+                            "IMAGES"    : QUOTA_LIMIT_UNLIMITED,
+                            "SIZE"      : QUOTA_LIMIT_UNLIMITED
+                        }
+                    }
+
+                    var img_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_ds_quotas.IMAGES,
+                        { quota_name: "DS_IMAGES" });
+
+                    var size_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_ds_quotas.SIZE,
+                        {   mb: true,
+                            quota_name: "DS_SIZE"
+                        });
+
+                    $("td.img_bar", tr).html(img_bar);
+                    $("td.size_bar", tr).html(size_bar);
+
+                    $(".editable_quota", tr).show();
+                    $(".non_editable_quota", tr).hide();
+
+                    $.each($("input", tr), function(){
+                        initQuotaInputValue(this);
+                    });
+                });
+
+                return false;
+            });
+        }
+
+        return quotas_tab_html;
+    },
+
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
+    // for the "add new quota" buttons will be set.
+    "image" : function(info, default_quotas, opts) {
+        var empty_quotas = $.isEmptyObject(info.IMAGE_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px; display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px">';
+        }
+
+        quotas_tab_html +=
+            '<legend>'+tr("Image")+'</legend>\
+            <table class="quota_table extended_table image_quota_table">\
+            <thead>\
+                <tr>\
+                    <th style="width:16%">'+tr("ID")+'</th>\
+                    <th style="width:84%">'+tr("Running VMs")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var img_quotas = [];
+
+        if (!empty_quotas){
             if ($.isArray(info.IMAGE_QUOTA.IMAGE))
                 img_quotas = info.IMAGE_QUOTA.IMAGE;
             else if (info.IMAGE_QUOTA.IMAGE.ID)
                 img_quotas = [info.IMAGE_QUOTA.IMAGE];
+        }
 
-            for (var i=0; i < img_quotas.length; i++){
+        for (var i=0; i < img_quotas.length; i++){
 
-                var default_img_quotas = default_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+            var default_img_quotas = default_quotas.IMAGE_QUOTA[img_quotas[i].ID]
 
-                if (default_img_quotas == undefined){
-                    default_img_quotas = {
-                        "RVMS"  : "0"
-                    }
+            if (default_img_quotas == undefined){
+                default_img_quotas = {
+                    "RVMS"  : QUOTA_LIMIT_UNLIMITED
                 }
-
-                var rvms_bar = quotaBar(
-                    img_quotas[i].RVMS_USED,
-                    img_quotas[i].RVMS,
-                    default_img_quotas.RVMS);
-
-                quotas_tab_html +=
-                '<tr>\
-                    <td>'+img_quotas[i].ID+'</td>\
-                    <td>'+rvms_bar+'</td>\
-                </tr>';
             }
 
+            var rvms_bar = editableQuotaBar(
+                img_quotas[i].RVMS_USED,
+                img_quotas[i].RVMS,
+                default_img_quotas.RVMS,
+                { quota_name: "IMAGE_RVMS"});
+
             quotas_tab_html +=
-                    '</tbody>\
-                </table>\
-            </fieldset>';
-
-            return quotas_tab_html;
-        } else {
-            return '';
+            '<tr class="image_quota_tr" quota_id="'+img_quotas[i].ID+'">\
+                <td>'+img_quotas[i].ID+'</td>\
+                <td>'+rvms_bar+'</td>\
+            </tr>';
         }
+
+        quotas_tab_html +=
+                '</tbody>\
+                <tfoot>\
+                    <tr class="editable_quota" style="display: none">\
+                        <td colspan="2">\
+                            <a type="button" \
+                              class="button small radius small-12" \
+                              id="image_add_quota_btn"><i class="fa fa-plus"></i>\
+                              '+tr("Add a new quota")+'\
+                            </a>\
+                        </td>\
+                    </tr>\
+                </tfoot>\
+            </table>\
+        </fieldset>';
+
+        if (!opts) opts = {};
+
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #image_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #image_add_quota_btn", function(){
+
+                $(".image_quota_table tbody", $(opts.parent_id_str)).append(
+                    '<tr class="image_quota_tr" quota_id="-1">\
+                        <td class="image_select" colspan="2"></td>\
+                        <td class="rvms_bar"></td>\
+                    </tr>');
+
+                insertSelectOptions(
+                    'td.image_select',
+                    $(".image_quota_table tbody tr", $(opts.parent_id_str)).last(),
+                    "Image",
+                    null, true);
+
+                $(".image_quota_table tbody tr", $(opts.parent_id_str)).last().off(
+                    "change", ".resource_list_select");
+
+                $(".image_quota_table tbody tr", $(opts.parent_id_str)).last().on(
+                    "change", ".resource_list_select", function(){
+
+                    $(this).parents("td").attr("colspan", "1");
+
+                    var image_id = $(this).val();
+                    var tr = $(this).parents("tr");
+                    tr.attr("quota_id", image_id);
+
+                    var default_img_quotas = default_quotas.IMAGE_QUOTA[image_id];
+
+                    if (default_img_quotas == undefined){
+                        default_img_quotas = {
+                            "RVMS"  : QUOTA_LIMIT_UNLIMITED
+                        }
+                    }
+
+                    var rvms_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_img_quotas.RVMS,
+                        { quota_name: "IMAGE_RVMS"});
+
+                    $("td.rvms_bar", tr).html(rvms_bar);
+
+                    $(".editable_quota", tr).show();
+                    $(".non_editable_quota", tr).hide();
+
+                    $.each($("input", tr), function(){
+                        initQuotaInputValue(this);
+                    });
+                });
+
+                return false;
+            });
+        }
+
+        return quotas_tab_html;
     },
-    "network" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.NETWORK_QUOTA)){
-            var quotas_tab_html =
-            '<fieldset>\
-                <legend>'+tr("Network")+'</legend>\
-                <table class="dataTable extended_table">\
-                    <thead>\
-                        <tr>\
-                            <th style="width:16%">'+tr("ID")+'</th>\
-                            <th style="width:84%">'+tr("Leases")+'</th>\
-                        </tr>\
-                    </thead>\
-                    <tbody>';
 
-            var net_quotas = [];
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
+    // for the "add new quota" buttons will be set.
+    "network" : function(info, default_quotas, opts){
+        var empty_quotas = $.isEmptyObject(info.NETWORK_QUOTA);
 
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px; display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px">';
+        }
+
+        quotas_tab_html +=
+            '<legend>'+tr("Network")+'</legend>\
+            <table class="quota_table extended_table network_quota_table">\
+                <thead>\
+                    <tr>\
+                        <th style="width:16%">'+tr("ID")+'</th>\
+                        <th style="width:84%">'+tr("Leases")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>';
+
+        var net_quotas = [];
+
+        if (!empty_quotas){
             if ($.isArray(info.NETWORK_QUOTA.NETWORK))
                 net_quotas = info.NETWORK_QUOTA.NETWORK;
             else if (info.NETWORK_QUOTA.NETWORK.ID)
                 net_quotas = [info.NETWORK_QUOTA.NETWORK];
+        }
 
-            for (var i=0; i < net_quotas.length; i++){
+        for (var i=0; i < net_quotas.length; i++){
 
-                var default_net_quotas = default_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+            var default_net_quotas = default_quotas.NETWORK_QUOTA[net_quotas[i].ID]
 
-                if (default_net_quotas == undefined){
-                    default_net_quotas = {
-                        "LEASES" : "0"
-                    }
+            if (default_net_quotas == undefined){
+                default_net_quotas = {
+                    "LEASES" : QUOTA_LIMIT_UNLIMITED
                 }
-
-                var leases_bar = quotaBar(
-                    net_quotas[i].LEASES_USED,
-                    net_quotas[i].LEASES,
-                    default_net_quotas.LEASES);
-
-                quotas_tab_html +=
-                '<tr>\
-                    <td>'+net_quotas[i].ID+'</td>\
-                    <td>'+leases_bar+'</td>\
-                </tr>';
             }
 
-            quotas_tab_html +=
-                    '</tbody>\
-                </table>\
-            </fieldset>';
+            var leases_bar = editableQuotaBar(
+                net_quotas[i].LEASES_USED,
+                net_quotas[i].LEASES,
+                default_net_quotas.LEASES,
+                { quota_name: "NETWORK_LEASES" });
 
-            return quotas_tab_html;
-        } else {
-            return '';
+            quotas_tab_html +=
+            '<tr class="network_quota_tr" quota_id="'+net_quotas[i].ID+'">\
+                <td>'+net_quotas[i].ID+'</td>\
+                <td>'+leases_bar+'</td>\
+            </tr>';
         }
+
+        quotas_tab_html +=
+                '</tbody>\
+                <tfoot>\
+                    <tr class="editable_quota" style="display: none">\
+                        <td colspan="2">\
+                            <a type="button" \
+                              class="button small radius small-12" \
+                              id="network_add_quota_btn"><i class="fa fa-plus"></i>\
+                              '+tr("Add a new quota")+'\
+                            </a>\
+                        </td>\
+                    </tr>\
+                </tfoot>\
+            </table>\
+        </fieldset>';
+
+        if (!opts) opts = {};
+
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #network_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #network_add_quota_btn", function(){
+
+                $(".network_quota_table tbody", $(opts.parent_id_str)).append(
+                    '<tr class="network_quota_tr" quota_id="-1">\
+                        <td class="network_select" colspan="2"></td>\
+                        <td class="leases_bar"></td>\
+                    </tr>');
+
+                insertSelectOptions(
+                    'td.network_select',
+                    $(".network_quota_table tbody tr", $(opts.parent_id_str)).last(),
+                    "Network",
+                    null, true);
+
+                $(".network_quota_table tbody tr", $(opts.parent_id_str)).last().off(
+                    "change", ".resource_list_select");
+
+                $(".network_quota_table tbody tr", $(opts.parent_id_str)).last().on(
+                    "change", ".resource_list_select", function(){
+
+                    $(this).parents("td").attr("colspan", "1");
+
+                    var network_id = $(this).val();
+                    var tr = $(this).parents("tr");
+                    tr.attr("quota_id", network_id);
+
+                    var default_net_quotas = default_quotas.NETWORK_QUOTA[network_id];
+
+                    if (default_net_quotas == undefined){
+                        default_net_quotas = {
+                            "LEASES" : QUOTA_LIMIT_UNLIMITED
+                        }
+                    }
+
+                    var leases_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_net_quotas.LEASES,
+                        { quota_name: "NETWORK_LEASES" });
+
+                    $("td.leases_bar", tr).html(leases_bar);
+
+                    $(".editable_quota", tr).show();
+                    $(".non_editable_quota", tr).hide();
+
+                    $.each($("input", tr), function(){
+                        initQuotaInputValue(this);
+                    });
+                });
+
+                return false;
+            });
+        }
+
+        return quotas_tab_html;
     },
     "default_quotas" : function(default_quotas){
         // Initialize the VM_QUOTA to unlimited if it does not exist
         if ($.isEmptyObject(default_quotas.VM_QUOTA)){
             default_quotas.VM_QUOTA = {
                 "VM" : {
-                    "VMS"           : "0",
-                    "MEMORY"        : "0",
-                    "CPU"           : "0",
-                    "VOLATILE_SIZE" : "0"
+                    "VMS"           : QUOTA_LIMIT_UNLIMITED,
+                    "MEMORY"        : QUOTA_LIMIT_UNLIMITED,
+                    "CPU"           : QUOTA_LIMIT_UNLIMITED,
+                    "VOLATILE_SIZE" : QUOTA_LIMIT_UNLIMITED
                 }
             }
         }
@@ -2324,54 +2938,285 @@ var Quotas = {
         return default_quotas;
     }
 }
+
+function emptyQuotas(resource_info){
+    return ($.isEmptyObject(resource_info.VM_QUOTA) &&
+            $.isEmptyObject(resource_info.DATASTORE_QUOTA) &&
+            $.isEmptyObject(resource_info.IMAGE_QUOTA) &&
+            $.isEmptyObject(resource_info.NETWORK_QUOTA) );
+}
+
+function initQuotasPanel(resource_info, default_quotas, parent_id_str, edit_enabled){
+    var vms_quota = Quotas.vms(resource_info, default_quotas);
+    var cpu_quota = Quotas.cpu(resource_info, default_quotas);
+    var memory_quota = Quotas.memory(resource_info, default_quotas);
+    var volatile_size_quota = Quotas.volatile_size(resource_info, default_quotas);
+
+    var image_quota = Quotas.image(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var network_quota = Quotas.network(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var datastore_quota = Quotas.datastore(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var quotas_html;
+
+    quotas_html = '<div class="quotas">';
+
+    if (edit_enabled) {
+        quotas_html +=
+        '<div class="row">\
+          <div class="large-12 columns">\
+            <span class="right">\
+              <button class="button secondary small radius" id="edit_quotas_button">\
+                <span class="fa fa-pencil-square-o"></span> '+tr("Edit")+'\
+              </button>\
+              <button class="button alert small radius" id="cancel_quotas_button" style="display: none">\
+                '+tr("Cancel")+'\
+              </button>\
+              <button class="button success small radius" id="submit_quotas_button" style="display: none">\
+                '+tr("Apply")+'\
+              </button>\
+            </span>\
+          </div>\
+        </div>';
+    }
+
+    if (emptyQuotas(resource_info)) {
+        quotas_html +=
+        '<div class="row non_editable_quota">\
+          <div class="large-8 large-centered columns">\
+            <div class="text-center">\
+              <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+                <i class="fa fa-cloud fa-stack-2x"></i>\
+                <i class="fa fa-align-left fa-stack-1x fa-inverse"></i>\
+              </span>\
+              <br>\
+              <p style="font-size: 18px; color: #999">\
+                '+tr("There are no quotas defined")+'\
+              </p>\
+            </div>\
+          </div>\
+        </div>';
+    }
+
+    quotas_html +=
+        '<div class="row">\
+          <div class="large-6 columns">' + vms_quota + '</div>\
+          <div class="large-6 columns">' + cpu_quota + '</div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">' + memory_quota + '</div>\
+          <div class="large-6 columns">' + volatile_size_quota+ '</div>\
+        </div>\
+        <br><br>\
+        <div class="row">\
+          <div class="large-6 columns">' + image_quota + '</div>\
+          <div class="large-6 columns right">' + network_quota + '</div>\
+        </div>\
+        <br><br>\
+        <div class="row">\
+          <div class="large-12 columns">' + datastore_quota + '</div>\
+        </div>\
+      </div>';
+
+    return quotas_html;
+}
+
+function input_val(input){
+    switch(input.attr("quota_mode")) {
+        case "edit":
+            return input.val();
+        case "default":
+            return QUOTA_LIMIT_DEFAULT;
+        case "unlimited":
+            return QUOTA_LIMIT_UNLIMITED;
+    }
+}
+
+function initQuotaInputValue(input){
+    switch($(input).val()) {
+        case QUOTA_LIMIT_DEFAULT:
+            $(input).parents(".quotabar_container").find(".quotabar_default_btn").click();
+            break;
+        case QUOTA_LIMIT_UNLIMITED:
+            $(input).parents(".quotabar_container").find(".quotabar_unlimited_btn").click();
+            break;
+        default:
+            break;
+    }
+}
+
+function quotasPanelEditAction(parent_container){
+    $("#edit_quotas_button", parent_container).hide();
+    $("#cancel_quotas_button", parent_container).show();
+    $("#submit_quotas_button", parent_container).show();
+
+    $.each($("div.quotabar_container input", parent_container), function(){
+        initQuotaInputValue(this);
+    });
+
+    $(".editable_quota", parent_container).show();
+    $(".non_editable_quota", parent_container).hide();
+
+    return false;
+}
+
+function setupQuotasBarButtons(resource_info, parent_container){
+    parent_container.off("click", ".quotabar_edit_btn");
+    parent_container.on("click",  ".quotabar_edit_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        if(input.attr("quota_mode") != "edit"){
+            input.attr("quota_mode", "edit");
+            input.attr("disabled", false);
+            input.val( input.attr("quota_limit") >= 0 ? input.attr("quota_limit") : "0" );
+        }
+
+        return false;
+    });
+
+    parent_container.off("click", ".quotabar_default_btn");
+    parent_container.on("click",  ".quotabar_default_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        var default_value = input.attr("quota_default");
+
+        if (default_value == QUOTA_LIMIT_UNLIMITED) {
+            default_value = "∞";
+        }
+
+        input.val( tr("Default") + " (" + default_value + ")" );
+        input.attr("quota_mode", "default");
+        input.attr("disabled", "disabled");
+
+        return false;
+    });
+
+    parent_container.off("click", ".quotabar_unlimited_btn");
+    parent_container.on("click",  ".quotabar_unlimited_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        input.val(tr("Unlimited"));
+        input.attr("quota_mode", "unlimited");
+        input.attr("disabled", "disabled");
+
+        return false;
+    });
+}
+
+function retrieveQuotasValues(parent_container){
+    var obj = {};
+
+    obj["VM"] = {
+        "CPU"           : input_val( $("div[quota_name=VM_CPU] input", parent_container) ),
+        "MEMORY"        : input_val( $("div[quota_name=VM_MEMORY] input", parent_container) ),
+        "VMS"           : input_val( $("div[quota_name=VM_VMS] input", parent_container) ),
+        "VOLATILE_SIZE" : input_val( $("div[quota_name=VM_VOLATILE_SIZE] input", parent_container) )
+    };
+
+    $.each($("tr.image_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["IMAGE"] == undefined) {
+                obj["IMAGE"] = [];
+            }
+
+            obj["IMAGE"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "RVMS"  : input_val( $("div[quota_name=IMAGE_RVMS] input", this) )
+            });
+        }
+    });
+
+    $.each($("tr.network_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["NETWORK"] == undefined) {
+                obj["NETWORK"] = [];
+            }
+
+            obj["NETWORK"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "LEASES": input_val( $("div[quota_name=NETWORK_LEASES] input", this) )
+            });
+        }
+    });
+
+    $.each($("tr.ds_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["DATASTORE"] == undefined) {
+                obj["DATASTORE"] = [];
+            }
+
+            obj["DATASTORE"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "IMAGES": input_val( $("div[quota_name=DS_IMAGES] input", this) ),
+                "SIZE"  : input_val( $("div[quota_name=DS_SIZE] input", this) )
+            });
+        }
+    });
+
+    return obj;
+}
+
+function setupQuotasPanel(resource_info, parent_id_str, edit_enabled, resource_name){
+    if (edit_enabled) {
+        $(parent_id_str).off("click", "#edit_quotas_button");
+        $(parent_id_str).on("click",  "#edit_quotas_button", function() {
+            return quotasPanelEditAction($(parent_id_str));
+        });
+
+        $(parent_id_str).off("click", "#cancel_quotas_button");
+        $(parent_id_str).on("click",  "#cancel_quotas_button", function() {
+            Sunstone.runAction(resource_name+".show", resource_info.ID);
+            return false;
+        });
+
+        $(parent_id_str).off("click", "#submit_quotas_button");
+        $(parent_id_str).on("click",  "#submit_quotas_button", function() {
+            var obj = retrieveQuotasValues($(parent_id_str));
+            Sunstone.runAction(resource_name+".set_quota", [resource_info.ID], obj);
+
+            return false;
+        });
+
+        setupQuotasBarButtons(resource_info, $(parent_id_str));
+    }
+}
+
+function quotas_tmpl(){
+    return '<div class="row">\
+        <div class="large-12 columns">\
+          <dl class="tabs right-info-tabs text-center" data-tab>\
+               <dd class="active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+tr("VM")+'</a></dd>\
+               <dd><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+tr("Datastore")+'</a></dd>\
+               <dd><a href="#image_quota"><i class="fa fa-upload"></i><br>'+tr("Image")+'</a></dd>\
+               <dd><a href="#network_quota"><i class="fa fa-globe"></i><br>'+tr("VNet")+'</a></dd>\
+          </dl>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="tabs-content">\
+          <div id="vm_quota" class="content active">\
+          </div>\
+          <div id="datastore_quota" class="content">\
+          </div>\
+          <div id="image_quota" class="content">\
+          </div>\
+          <div id="network_quota" class="content">\
+          </div>\
+        </div>\
+      </div>';
+}
+
 // Sets up a dialog to edit and update user and group quotas
 // Called from user/group plugins
 function setupQuotasDialog(dialog){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    $('#add_quota_button',dialog).click(function(){
-        var sel = $('.tabs-content div.content.active',dialog).attr("id");
-        var fields = $('div#'+sel+' input,div#'+sel+' select',dialog);
-        var json = {};
-
-        for (var i = 0; i < fields.length; i++){
-            var field = $(fields[i]);
-            var name = field.attr('name');
-            var value = field.val();
-            if (name == 'ID' && !value.length){
-                notifyError(tr("Please select an element"));
-                return false;
-            };
-            if (!value) value = -1;
-            json[name] = value;
-        };
-
-        json['TYPE'] = sel.split("_quota")[0].toUpperCase();
-
-        if (json['TYPE'] == "VM" &&
-            $('.current_quotas table tbody tr.vm_quota', dialog).length){
-            notifyError("Only 1 VM quota is allowed")
-            return false;
-        }
-
-
-        var tr = quotaListItem(json)
-        $('.current_quotas table tbody',dialog).append($(tr).hide().fadeIn());
-        return false;
-    });
-
     $('form', dialog).submit(function(){
-        var obj = {};
-        $('table tbody tr',this).each(function(){
-            var json = JSON.parse($(this).attr('quota'));
-            var type = json['TYPE'];
-            delete json['TYPE'];
-            if (typeof obj[type.toUpperCase()] == "undefined") {
-                obj[type.toUpperCase()] = [];
-            }
-            obj[type.toUpperCase()].push(json);
-        });
-
+        var obj = retrieveQuotasValues(dialog);
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
@@ -2380,27 +3225,53 @@ function setupQuotasDialog(dialog){
     });
 }
 
-function popUpQuotasDialog(dialog, resource, sel_elems){
-    var im_sel = makeSelectOptions(dataTable_images,1,4,[],[]);
-    var vn_sel = makeSelectOptions(dataTable_vNetworks,1,4,[],[]);
-    $('#datastore_quota select',dialog).html(datastores_sel());
-    $('#image_quota select',dialog).html(im_sel);
-    $('#network_quota select',dialog).html(vn_sel);
-
-    $('table tbody',dialog).empty();
-    //If only one user is selected we fecth the user's quotas, otherwise we do nothing.
+function popUpQuotasDialog(dialog, resource, sel_elems, default_quotas, parent_id_str){
+    //If only one user is selected we fecth the user's quotas
     if (sel_elems.length == 1){
         var id = sel_elems[0];
         Sunstone.runAction(resource + '.fetch_quotas',id);
-    };
-
-    $('input[value="vm"]', dialog).click();
-
-    dialog.foundation().foundation('reveal', 'open');
-
-    $("input[name='VMS']",dialog).focus();
+    } else {
+        // More than one, populate with '0' usage
+        populateQuotasDialog({}, default_quotas, parent_id_str, dialog);
+    }
 }
 
+function populateQuotasDialog(resource_info, default_quotas, parent_id_str, dialog){
+    var vms_quota = Quotas.vms(resource_info, default_quotas);
+    var cpu_quota = Quotas.cpu(resource_info, default_quotas);
+    var memory_quota = Quotas.memory(resource_info, default_quotas);
+    var volatile_size_quota = Quotas.volatile_size(resource_info, default_quotas);
+
+    var image_quota = Quotas.image(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var network_quota = Quotas.network(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var datastore_quota = Quotas.datastore(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    $(parent_id_str+" #vm_quota").html(
+        '<div class="large-6 columns">' + vms_quota + '</div>\
+        <div class="large-6 columns">' + cpu_quota + '</div>\
+        <div class="large-6 columns">' + memory_quota + '</div>\
+        <div class="large-6 columns">' + volatile_size_quota+ '</div>');
+
+    $(parent_id_str+" #datastore_quota").html(
+        '<div class="large-12 columns">' + datastore_quota + '</div>');
+
+    $(parent_id_str+" #image_quota").html(
+        '<div class="large-12 columns">' + image_quota + '</div>');
+
+    $(parent_id_str+" #network_quota").html(
+        '<div class="large-12 columns">' + network_quota + '</div>');
+
+    setupQuotasBarButtons(resource_info, dialog);
+
+    quotasPanelEditAction(dialog);
+
+    dialog.foundation().foundation('reveal', 'open');
+}
 
 //Action to be performed when an edit quota icon is clicked.
 function setupQuotaIcons(){
@@ -2433,100 +3304,6 @@ function setupQuotaIcons(){
         tr.fadeOut(function(){$(this).remove()});
         return false;
     });
-}
-
-// Returns an object with quota information in form of list items
-function parseQuotas(elem, formatter_f){
-    var quotas = [];
-    var results = {
-        VM : "",
-        DATASTORE : "",
-        IMAGE : "",
-        NETWORK : ""
-    }
-    //max 1 vm quota
-    if (!$.isEmptyObject(elem.VM_QUOTA)){
-        elem.VM_QUOTA.VM.TYPE = 'VM'
-        quotas.push(elem.VM_QUOTA.VM)
-    }
-
-    var ds_arr = []
-    if ($.isArray(elem.DATASTORE_QUOTA.DATASTORE)){
-        ds_arr = elem.DATASTORE_QUOTA.DATASTORE
-    } else if (!$.isEmptyObject(elem.DATASTORE_QUOTA)){
-        ds_arr = [elem.DATASTORE_QUOTA.DATASTORE]
-    }
-
-    for (var i = 0; i < ds_arr.length; i++){
-        ds_arr[i].TYPE = 'DATASTORE';
-        quotas.push(ds_arr[i]);
-    }
-
-    var im_arr = []
-    if ($.isArray(elem.IMAGE_QUOTA.IMAGE)){
-        im_arr = elem.IMAGE_QUOTA.IMAGE
-    } else if (!$.isEmptyObject(elem.IMAGE_QUOTA)){
-        im_arr = [elem.IMAGE_QUOTA.IMAGE]
-    }
-
-    for (var i = 0; i < im_arr.length; i++){
-        im_arr[i].TYPE = 'IMAGE';
-        quotas.push(im_arr[i]);
-    }
-
-    var vn_arr = []
-    if ($.isArray(elem.NETWORK_QUOTA.NETWORK)){
-        vn_arr = elem.NETWORK_QUOTA.NETWORK
-    } else if (!$.isEmptyObject(elem.NETWORK_QUOTA)){
-        vn_arr = [elem.NETWORK_QUOTA.NETWORK]
-    }
-
-    for (var i = 0; i < vn_arr.length; i++){
-        vn_arr[i].TYPE = 'NETWORK';
-        quotas.push(vn_arr[i]);
-    }
-
-    for (var i = 0; i < quotas.length; i++){
-        var tr = formatter_f(quotas[i]);
-        results[quotas[i].TYPE] += tr;
-    }
-    return results;
-}
-
-//Receives a quota json object. Returns a nice string out of it.
-function quotaListItem(quota_json){
-    var value = JSON.stringify(quota_json)
-    var str = '<tr quota=\''+value+'\' ';
-
-    if (quota_json.TYPE == "VM")
-        str += ' class="vm_quota" ';
-
-    str += '><td>'+
-        quota_json.TYPE+
-        '</td><td style="width:100%;">';
-    switch(quota_json.TYPE){
-    case "VM":
-        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") + '<br>' +
-               'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ") + '<br>' +
-               'Volatile disks: ' + quota_json.VOLATILE_SIZE + (quota_json.VOLATILE_SIZE_USED ? ' MB (' + quota_json.VOLATILE_SIZE_USED + ' MB). ' : " MB. ");
-        break;
-    case "DATASTORE":
-        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' + '<br>' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") + '<br>' +
-               'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
-        break;
-    case "IMAGE":
-        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' + '<br>' +
-               'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
-        break;
-    case "NETWORK":
-        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' + '<br>' +
-               'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
-        break;
-    }
-    str += '</td><td><button class="quota_edit_icon radius tiny"><i class="fa fa-pencil"></i></button></td></tr>';
-    return str;
 }
 
 /* Returns the code of a jquery progress bar
@@ -2580,8 +3357,8 @@ function loadAccounting(resource, id, graphs, options){
     };
 }
 
-var unscape = function(convert){
-    return $("<span />", { html: convert }).text();
+function htmlDecode(value){
+  return $('<div/>').html(value).text();
 };
 
 // Convert from hash to string
@@ -2645,7 +3422,7 @@ function convert_template_to_string(template_json,unshown_values)
         }
     })
 
-    return unscape(template_str);
+    return htmlDecode(template_str);
 }
 
 // Create the extended template table (with listeners)
@@ -3219,33 +3996,20 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
             // Handlers for chown
             $(document).off("click", context + " #div_edit_chg_owner_link");
-            $(document).off("change", context + " #user_confirm_select");
-
-            // Listener for key,value pair edit action
             $(document).on("click", context + " #div_edit_chg_owner_link", function() {
                 var tr_context = $(this).parents("tr");
-
-                var value_str = $("#value_td_owner", tr_context).text();
-                var select_str='<select id="user_confirm_select">';
-                select_str += makeSelectOptions(dataTable_users,1,2,[],[],true);
-                select_str+="</select>";
-                $("#value_td_owner", tr_context).html(select_str);
-                $("select#user_confirm_select", tr_context).val(vm_uid);
+                insertSelectOptions("#value_td_owner", tr_context, "User", vm_uid, false);
             });
 
-            $(document).on("change", context + " #user_confirm_select", function() {
-                var tr_context = $(this).parents("tr");
-
-                var value_str = $('select#user_confirm_select', tr_context).val();
+            $(document).off("change", context + " #value_td_owner .resource_list_select");
+            $(document).on("change", context + " #value_td_owner .resource_list_select", function() {
+                var value_str = $(this).val();
                 if(value_str!="")
                 {
                     // Let OpenNebula know
                     var resource_struct = new Array();
                     resource_struct[0]  = resource_id;
-
-                    // TODO: race condition. Show can return before chown does
                     Sunstone.runAction(resource_type+".chown",resource_struct,value_str);
-                    Sunstone.runAction(resource_type+".showinfo",resource_id);
                 }
             });
         }
@@ -3262,31 +4026,20 @@ function insert_permissions_table(tab_name, resource_type, resource_id, owner, g
 
             // Handlers for chgrp
             $(document).off("click", context + " #div_edit_chg_group_link");
-            $(document).off("change", context + " #group_confirm_select");
-
-            // Listener for key,value pair edit action
             $(document).on("click", context + " #div_edit_chg_group_link", function() {
                 var tr_context = $(this).parents("tr");
-
-                var value_str = $("#value_td_group", tr_context).text();
-                var select_str='<select id="group_confirm_select">';
-                select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
-                select_str+="</select>";
-                $("#value_td_group", tr_context).html(select_str);
-                $("select#group_confirm_select", tr_context).val(vm_gid);
+                insertSelectOptions("#value_td_group", tr_context, "Group", vm_gid, false);
             });
 
-            $(document).on("change", context + " #group_confirm_select", function() {
-                var tr_context = $(this).parents("tr");
-
-                var value_str = $('select#group_confirm_select', tr_context).val();
+            $(document).off("change", context + " #value_td_group .resource_list_select");
+            $(document).on("change", context + " #value_td_group .resource_list_select", function() {
+                var value_str = $(this).val();
                 if(value_str!="")
                 {
                     // Let OpenNebula know
                     var resource_struct = new Array();
                     resource_struct[0]  = resource_id;
                     Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
-                    Sunstone.runAction(resource_type+".showinfo",resource_id);
                 }
             });
         }
@@ -3333,7 +4086,7 @@ function insert_rename_tr(tab_name, resource_type, resource_id, resource_name){
     return str;
 }
 
-function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id){
+function insert_cluster_dropdown(resource_type, resource_id, cluster_value, cluster_id, context_str){
     var str =  '<td class="key_td">' + tr("Cluster") + '</td>\
                 <td class="value_td_cluster">'+(cluster_value.length ? cluster_value : "-")+'</td>\
                 <td>\
@@ -3342,37 +4095,29 @@ function insert_cluster_dropdown(resource_type, resource_id, cluster_value, clus
                   </div>\
                 </td>';
 
-    $("#div_edit_chg_cluster_link").die();
-    $("#cluster_confirm_select").die();
-
-
-    // Listener for key,value pair edit action
-    $("#div_edit_chg_cluster_link").live("click", function() {
-        var value_str = $(".value_td_cluster").text();
-        var select_str='<select style="margin: 10px 0;" id="cluster_confirm_select">';
-        select_str+='<option elem_id="-" value="-1">none (id:-)</option>';
-        select_str += makeSelectOptions(dataTable_clusters,1,2,[],[],true);
-        select_str+="</select>";
-        $(".value_td_cluster").html(select_str);
-        $("select#cluster_confirm_select").val(cluster_id);
+    $(document).off("click", context_str + " #div_edit_chg_cluster_link");
+    $(document).on("click", context_str + " #div_edit_chg_cluster_link", function() {
+        var tr_context = $(this).parents("tr");
+        insertSelectOptions(".value_td_cluster", tr_context, "Cluster", cluster_id, false);
     });
 
-    $("#cluster_confirm_select").live("change", function() {
-        var value_str = $('select#cluster_confirm_select').val();
+    $(document).off("change", context_str + " .value_td_cluster .resource_list_select");
+    $(document).on("change", context_str + " .value_td_cluster .resource_list_select", function() {
+        var value_str = $(this).val();
         if(value_str!="")
         {
             // Let OpenNebula know
             var resource_struct = new Array();
             resource_struct[0]  = resource_id;
             Sunstone.runAction(resource_type+".addtocluster",resource_struct,value_str);
-            Sunstone.runAction(resource_type+".showinfo",resource_id);
         }
     });
 
     return str;
 }
 
-function insert_group_dropdown(resource_type, resource_id, group_value, group_id){
+//insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
+function insert_group_dropdown(resource_type, resource_id, group_value, group_id, context_str){
     var str =  '<td class="key_td">' + tr("Group") + '</td>\
                 <td class="value_td_group">'+ group_value +'</td>\
                 <td>\
@@ -3381,29 +4126,21 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
                   </div>\
                 </td>';
 
-    $("#div_edit_chg_group_link").die();
-    $("#group_confirm_select").die();
-
-
-    // Listener for key,value pair edit action
-    $("#div_edit_chg_group_link").live("click", function() {
-        var value_str = $(".value_td_group").text();
-        var select_str='<select style="margin: 10px 0;" id="group_confirm_select">';
-        select_str += makeSelectOptions(dataTable_groups,1,2,[],[],true);
-        select_str+="</select>";
-        $(".value_td_group").html(select_str);
-        $("select#group_confirm_select").val(group_id);
+    $(document).off("click", context_str + " #div_edit_chg_group_link");
+    $(document).on("click", context_str + " #div_edit_chg_group_link", function() {
+        var tr_context = $(this).parents("tr");
+        insertSelectOptions(".value_td_group", tr_context, "Group", group_id, false);
     });
 
-    $("#group_confirm_select").live("change", function() {
-        var value_str = $('select#group_confirm_select').val();
+    $(document).off("change", context_str + " .value_td_group .resource_list_select");
+    $(document).on("change", context_str + " .value_td_group .resource_list_select", function() {
+        var value_str = $(this).val();
         if(value_str!="")
         {
             // Let OpenNebula know
             var resource_struct = new Array();
             resource_struct[0]  = resource_id;
             Sunstone.runAction(resource_type+".chgrp",resource_struct,value_str);
-            Sunstone.runAction(resource_type+".showinfo",resource_id);
         }
     });
 
@@ -3414,29 +4151,150 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
  * Helpers for quotas
  */
 
-function quotaBar(usage, limit, default_limit){
-    var int_usage = parseInt(usage, 10);
-    var int_limit = quotaIntLimit(limit, default_limit);
-    return quotaBarHtml(int_usage, int_limit);
+/*
+ * opts.is_float : true to parse quota_limit and default_limit as floats instead of int
+ * opts.mb : true if the quota is in MB
+ * opts.quota_name : string to identify the quota widget
+ */
+function editableQuotaBar(usage, quota_limit, default_limit, opts){
+
+    if (!opts) opts = {};
+    if (!opts.quota_name) opts.quota_name = "";
+
+    var limit;
+
+    if (opts.is_float){
+        usage = parseFloat(usage, 10);
+        limit = quotaFloatLimit(quota_limit, default_limit);
+    } else {
+        usage = parseInt(usage, 10);
+        limit = quotaIntLimit(quota_limit, default_limit);
+    }
+
+    percentage = 0;
+
+    if (limit > 0){
+        percentage = Math.floor((usage / limit) * 100);
+
+        if (percentage > 100){
+            percentage = 100;
+        }
+    } else if (limit == 0 && usage > 0){
+        percentage = 100;
+    }
+
+    var info_str;
+
+    if (opts.mb){
+        info_str = humanize_size(usage * 1024)+' / '
+            +((limit >= 0) ? humanize_size(limit * 1024) : '-')
+    } else {
+        info_str = usage+' / '+((limit >= 0) ? limit : '-');
+    }
+
+    html =
+    '<div class="quotabar_container" quota_name="'+opts.quota_name+'">\
+      <div class="row collapse editable_quota" style="font-size: 12px; display: none">\
+        <div class="small-2 columns">\
+          <label style="font-size: 12px; margin: 0px" class="inline right">'+ usage + ' /&nbsp;</label>\
+        </div>';
+
+
+    if (opts.mb){
+        html +=
+        '<div class="small-4 columns">';
+    }else{
+        html +=
+        '<div class="small-5 columns">';
+    }
+
+    html +=
+          '<input type="text" style="font-size: 12px; margin: 0px" quota_mode="edit" quota_limit="'+quota_limit+'" quota_default="'+default_limit+'" value="'+quota_limit+'"/>\
+        </div>';
+
+    if (opts.mb){
+        html +=
+        '<div class="small-1 columns">\
+          <span style="font-size: 12px; height: 2.0625rem !important; line-height: 2.0625rem !important;" class="postfix">MB</span>\
+        </div>';
+    }
+
+    html +=
+        '<div class="small-5 columns">\
+          <ul class="button-group">\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a></li>\
+          </ul>\
+        </div>\
+      </div>\
+      <div class="row collapse non_editable_quota">\
+        <div class="large-12 columns">\
+          <div class="progress-text right" style="font-size: 12px">\
+            '+info_str+'\
+          </div>\
+          <br>\
+          <div class="progress radius" style="height: 10px; margin-bottom:0px">\
+            <span class="meter" style="width: '
+              +percentage+'%" />\
+          </div>\
+        </div>\
+      </div>\
+    </div>';
+    return html;
 }
 
-function quotaBarMB(usage, limit, default_limit){
+function quotaBar(usage, limit, default_limit, not_html){
+    var int_usage = parseInt(usage, 10);
+    var int_limit = quotaIntLimit(limit, default_limit);
+    return quotaBarHtml(int_usage, int_limit, null, not_html);
+}
+
+function quotaBarMB(usage, limit, default_limit, not_html){
     var int_usage = parseInt(usage, 10);
     var int_limit = quotaIntLimit(limit, default_limit);
 
     info_str = humanize_size(int_usage * 1024)+' / '
-            +((int_limit > 0) ? humanize_size(int_limit * 1024) : '-')
+            +((int_limit >= 0) ? humanize_size(int_limit * 1024) : '-')
 
-    return quotaBarHtml(int_usage, int_limit, info_str);
+    return quotaBarHtml(int_usage, int_limit, info_str, not_html);
 }
 
-function quotaBarFloat(usage, limit, default_limit){
+function quotaBarFloat(usage, limit, default_limit, not_html){
     var float_usage = parseFloat(usage, 10);
     var float_limit = quotaFloatLimit(limit, default_limit);
-    return quotaBarHtml(float_usage, float_limit);
+    return quotaBarHtml(float_usage, float_limit, null, not_html);
 }
 
-function quotaBarHtml(usage, limit, info_str){
+function quotaBarHtml(usage, limit, info_str, not_html){
+    percentage = 0;
+
+    if (limit > 0){
+        percentage = Math.floor((usage / limit) * 100);
+
+        if (percentage > 100){
+            percentage = 100;
+        }
+    } else if (limit == 0 && usage > 0){
+        percentage = 100;
+    }
+
+    info_str = info_str || ( usage+' / '+((limit >= 0) ? limit : '-') );
+
+    if (not_html) {
+        return {
+            "percentage": percentage,
+            "str": info_str
+        }
+    } else {
+        html = '<span class="progress-text right" style="font-size: 12px">'+info_str+'</span><br><div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '
+            +percentage+'%"></div>';
+
+        return html;
+    }
+}
+
+function usageBarHtml(usage, limit, info_str, color){
     percentage = 0;
 
     if (limit > 0){
@@ -3449,8 +4307,20 @@ function quotaBarHtml(usage, limit, info_str){
 
     info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
 
-    html = '<div class="progress-container"><div class="progress secondary radius"><span class="meter" style="width: '
-        +percentage+'%"></span></div><div class="progress-text">'+info_str+'</div></div>';
+    var classes = "meter";
+    if (color){
+        if (percentage <= 20){
+            classes += " usage-low";
+        } else if (percentage >= 80){
+            classes += " usage-high";
+        } else {
+            classes += " usage-mid";
+        }
+    }
+
+    html = '<div class="progress-container"><div class="progress secondary round">\
+    <span class="'+classes+'" style="width: '+percentage+'%"></span></div>\
+    <div class="progress-text">'+info_str+'</div></div>';
 
     return html;
 }
@@ -3459,7 +4329,7 @@ function quotaIntLimit(limit, default_limit){
     i_limit = parseInt(limit, 10);
     i_default_limit = parseInt(default_limit, 10);
 
-    if (i_limit == -1){
+    if (limit == QUOTA_LIMIT_DEFAULT){
         i_limit = i_default_limit;
     }
 
@@ -3475,7 +4345,7 @@ function quotaFloatLimit(limit, default_limit){
     f_limit = parseFloat(limit, 10);
     f_default_limit = parseFloat(default_limit, 10);
 
-    if (f_limit == -1){
+    if (f_limit == parseFloat(QUOTA_LIMIT_DEFAULT, 10)){
         f_limit = f_default_limit;
     }
 
@@ -3487,6 +4357,30 @@ function quotaFloatLimit(limit, default_limit){
     return f_limit
 }
 
+function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota){
+    var percentage = quota.percentage > 100 ? 100 : quota.percentage;
+
+    return '<div class="row">'+
+          '<div class="large-12 columns text-center" style="margin-bottom: 5px">'+
+            '<span id="'+html_tag+'_percentage" style="font-size:'+font_large_size+';">'+quota.percentage+'</span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-12 columns text-center">'+
+            '<div class="progress large radius">'+
+            '  <span id="'+html_tag+'_meter" class="meter" style="width: '+percentage+'%"></span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div class="large-12 columns text-center">'+
+            '<span>'+legend+'</span>'+
+            '<br>'+
+            '<span id="'+html_tag+'_str" style="color: #999; font-size: '+font_small_size+';">'+quota.str+'</span>'+
+          '</div>'+
+        '</div>';
+}
+
 var activeTab;
 var outerLayout, innerLayout;
 
@@ -3496,17 +4390,38 @@ function hideDialog(){
 
 function popDialog(content, context){
     $(".right-info", context).html(content);
-    $(document).foundation();
-    //innerLayout.open("south");
+    context.foundation();
 }
 
 function popDialogLoading(context){
     $(".right-list", context).hide();
+    $(".right-form", context).hide();
     $(".right-info", context).show();
     $(".only-right-list", context).hide();
+    $(".only-right-form", context).hide();
     $(".only-right-info", context).show();
     var loading = '<div style="margin-top:'+Math.round($("#dialog").height()/6)+'px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
     popDialog(loading, context);
+}
+
+function popFormDialog(form_name, context){
+    //$(".right-form", context).html(content);
+    $(".loadingForm", context).hide();
+    $(".tabs-contentForm", context).show();
+    $(".right-form", context).attr("form_name", form_name)
+    context.foundation();
+}
+
+function popFormDialogLoading(context){
+    $(".right-list", context).hide();
+    $(".right-info", context).hide();
+    $(".right-form", context).show();
+    $(".only-right-list", context).hide();
+    $(".only-right-info", context).hide();
+    $(".only-right-form", context).show();
+
+    $(".tabs-contentForm", context).hide();
+    $(".loadingForm", context).show();
 }
 
 function showTab(tabname,highlight_tab){
@@ -3516,6 +4431,11 @@ function showTab(tabname,highlight_tab){
 
     //$('tbody input.check_item:checked').click();
     //$('td').removeClass('markrowchecked markrowselected');
+
+    if(!SunstoneCfg['tabs'][tabname]){
+        return false;
+    }
+
     last_selected_row = null;
 
     if (tabname.indexOf('#') == 0)
@@ -3523,7 +4443,14 @@ function showTab(tabname,highlight_tab){
     if (highlight_tab && highlight_tab.indexOf('#') == 0)
         highlight_tab == highlight.substring(1);
 
-    var activeTab = tabname;
+    //check if we are already in the target tab
+    if( activeTab == tabname &&
+        Sunstone.rightListVisible(tab)){
+
+        return false;
+    }
+
+    activeTab = tabname;
 
     if (!highlight_tab) highlight_tab = activeTab;
 
@@ -3543,13 +4470,43 @@ function showTab(tabname,highlight_tab){
     //show tab
     $(".tab").hide();
     tab.show();
-    $(".right-list", tab).show();
     $(".right-info", tab).hide();
-    $(".only-right-list", tab).show();
+    $(".right-form", tab).hide();
+    $(".right-list", tab).show();
     $(".only-right-info", tab).hide();
+    $(".only-right-form", tab).hide();
+    $(".only-right-list", tab).show();
 
     recountCheckboxes($(".dataTable", tab).first());
-    //$("#refresh_buttons .button", $('#'+activeTab)).click()
+
+    var res = SunstoneCfg['tabs'][activeTab]['resource']
+    if (res){
+        Sunstone.runAction(res+".list");
+    } else {
+        var action = activeTab+".refresh";
+
+        if(SunstoneCfg["actions"][action]){
+            Sunstone.runAction(action);
+        }
+    }
+}
+
+function showElement(tabname, info_action, element_id){
+    if(!SunstoneCfg['tabs'][tabname]){
+        return false;
+    }
+
+    showTab(tabname);
+
+    var context = $('#'+tabname);
+    popDialogLoading(context);
+
+    var res = SunstoneCfg['tabs'][tabname]['resource'];
+
+    Sunstone.runAction(info_action,element_id);
+    $(".resource-id", context).html(element_id);
+    //enable action buttons
+    $('.top_button, .list_button', context).attr('disabled', false);
 }
 
 function setupTabs(){
@@ -3646,6 +4603,10 @@ $(document).ready(function(){
             value = $(this).attr('href');
         }
 
+        if(!$(this).hasClass("refresh")){
+            $(document).foundation('dropdown', 'closeall');
+        }
+
         var action = SunstoneCfg["actions"][value];
         if (!action) {
             notifyError("Action "+value+" not defined.");
@@ -3661,7 +4622,7 @@ $(document).ready(function(){
             error = Sunstone.runAction(value);
         }
 
-        if (!error){
+        if (!error && !$(this).hasClass("refresh")){
             //proceed to close confirm dialog in
             //case it was open
             $('div#confirm_dialog').foundation('reveal', 'close');
@@ -3670,10 +4631,34 @@ $(document).ready(function(){
         return false;
     });
 
+    //Listen .toggle_top_buttons.
+    //$(".toggle_top_button").live("click", function(){
+    //    var tab = $(this).parents(".tab");
+    //    var custom_id = tab.attr('id');
+//
+    //    if(top_interval_ids[custom_id] == null){
+    //        $(this).html('<i class="fa fa-eye-slash"/>');
+//
+    //        var refresh_button = $(".fa-refresh", $(this).parents(".action_blocks"));
+    //        top_interval_ids[custom_id] = setInterval(function(){
+    //            if(Sunstone.rightListVisible(tab)){
+    //                //console.log("top for "+custom_id);
+    //                refresh_button.click();
+    //            }
+    //            //else {console.log("top not visible for "+custom_id);}
+    //        }, top_interval);
+    //    } else {
+    //        clearInterval(top_interval_ids[custom_id]);
+    //        top_interval_ids[custom_id] = null;
+//
+    //        $(this).html('<i class="fa fa-eye"/>');
+    //    }
+    //});
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.
     $('.confirm_button',main_tabs_context).live("click",function(){
+        $(document).foundation('dropdown', 'closeall');
         popUpConfirmDialog(this);
         return false;
     });
@@ -3681,6 +4666,7 @@ $(document).ready(function(){
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //with a select box before running the action.
     $('.confirm_with_select_button',main_tabs_context).live("click",function(){
+        $(document).foundation('dropdown', 'closeall');
         popUpConfirmWithSelectDialog(this);
         return false;
     });
@@ -3731,5 +4717,1453 @@ $(document).ready(function(){
     //Start with the dashboard (supposing we have one).
     showTab('dashboard-tab');
 
+    $(document).foundation({
+      reveal : {
+        animation: 'fade',
+        animation_speed: 150
+      }
+    })
 });
 
+// Format time in UTC, YYYY/MM/DD
+// time is in ms
+function time_UTC(time){
+    var d = new Date(time);
+
+    return d.getUTCFullYear() + '/' + (d.getUTCMonth()+1) + '/' + d.getUTCDate();
+}
+
+// div is a jQuery selector
+// The following options can be set:
+//   fixed_user     fix an owner user ID
+//   fixed_group    fix an owner group ID
+//   init_group_by  "user", "group", "vm". init the group-by selector
+//   fixed_group_by "user", "group", "vm". set a fixed group-by selector
+function accountingGraphs(div, opt){
+
+    if(div.html() != ""){
+        return false;
+    }
+
+    div.html(
+    '<div class="row">\
+      <div id="acct_start_time_container" class="left columns">\
+        <label for="acct_start_time">'+tr("Start time")+'</label>\
+        <input id="acct_start_time" type="date" placeholder="2013/12/30"/>\
+      </div>\
+      <div id="acct_end_time_container" class="left columns">\
+        <label for="acct_end_time">'+tr("End time")+'</label>\
+        <input id="acct_end_time" type="date" placeholder="'+tr("Today")+'"/>\
+      </div>\
+      <div id="acct_group_by_container" class="left columns">\
+        <label for="acct_group_by">' +  tr("Group by") + '</label>\
+        <select id="acct_group_by" name="acct_group_by">\
+          <option value="user">' + tr("User") + '</option>\
+          <option value="group">' + tr("Group") + '</option>\
+          <option value="vm">' + tr("VM") + '</option>\
+        </select>\
+      </div>\
+      <div id="acct_owner_container" class="left columns">\
+        <label for="acct_owner">' +  tr("Filter") + '</label>\
+        <div class="row">\
+          <div class="large-5 columns">\
+            <select id="acct_owner" name="acct_owner">\
+              <option value="acct_owner_all">' + tr("All") + '</option>\
+              <option value="acct_owner_group">' + tr("Group") + '</option>\
+              <option value="acct_owner_user">' + tr("User") + '</option>\
+            </select>\
+          </div>\
+          <div class="large-7 columns">\
+            <div id="acct_owner_select"/>\
+          </div>\
+        </div>\
+      </div>\
+      <div id="acct_button_container" class="left columns" style="margin-top: 15px">\
+        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get Accounting")+'</button>\
+      </div>\
+    </div>\
+    <br>\
+    <div id="acct_placeholder">\
+      <div class="row">\
+        <div class="large-8 large-centered columns">\
+          <div class="text-center">\
+            <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+              <i class="fa fa-cloud fa-stack-2x"></i>\
+              <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>\
+            </span>\
+            <div id="acct_no_data" class="hidden">\
+              <br>\
+              <p style="font-size: 18px; color: #999">'+
+              tr("There are no accounting records")+
+              '</p>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div id="acct_content" class="hidden">\
+      <div class="row">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns">\
+          <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">\
+          </div>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns">\
+          <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">\
+          </div>\
+        </div>\
+      </div>\
+      <div class="row acct_table">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns" style="overflow:auto">\
+          <table id="acct_cpu_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("Date")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_acct_cpu_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
+      </div>\
+      <div class="row acct_table">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
+        </div>\
+        <div class="large-12 columns" style="overflow:auto">\
+          <table id="acct_mem_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("Date")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_acct_mem_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
+      </div>\
+    </div>');
+
+    if (opt == undefined){
+        opt = {};
+    }
+
+    //--------------------------------------------------------------------------
+    // Set column width
+    //--------------------------------------------------------------------------
+
+    var n_columns = 3; // start, end time, button
+
+    if (opt.fixed_user == undefined && opt.fixed_group == undefined){
+        n_columns += 1;     //acct_owner_container
+    }
+
+    if(opt.fixed_group_by == undefined){
+        n_columns += 1;     //acct_group_by_container
+    }
+
+    if (n_columns > 4){
+        // In this case the first row will have 4 inputs, and the
+        // get accounting button will overflow to the second row
+        n_columns = 4;
+    }
+
+    var width = parseInt(12 / n_columns);
+
+    $("#acct_start_time_container", div).addClass("large-"+width);
+    $("#acct_end_time_container",   div).addClass("large-"+width);
+    $("#acct_group_by_container",   div).addClass("large-"+width);
+    $("#acct_owner_container",      div).addClass("large-"+width);
+    $("#acct_button_container",     div).addClass("large-"+width);
+
+    //--------------------------------------------------------------------------
+    // Init start time to 1st of last month
+    //--------------------------------------------------------------------------
+    var d = new Date();
+
+    d.setDate(1);
+    d.setMonth(d.getMonth() - 1);
+
+    $("#acct_start_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
+
+    //--------------------------------------------------------------------------
+    // VM owner: all, group, user
+    //--------------------------------------------------------------------------
+
+    if (opt.fixed_user != undefined || opt.fixed_group != undefined){
+        $("#acct_owner_container", div).hide();
+    } else {
+        $("select#acct_owner", div).change(function(){
+            var value = $(this).val();
+
+            switch (value){
+            case "acct_owner_all":
+                $("#acct_owner_select", div).hide();
+                break;
+
+            case "acct_owner_group":
+                $("#acct_owner_select", div).show();
+                insertSelectOptions("#acct_owner_select", div, "Group");
+                break;
+
+            case "acct_owner_user":
+                $("#acct_owner_select", div).show();
+                insertSelectOptions("#acct_owner_select", div, "User", -1, false,
+                    '<option value="-1">'+tr("<< me >>")+'</option>');
+                break;
+            }
+        });
+    }
+
+    //--------------------------------------------------------------------------
+    // Init group by select
+    //--------------------------------------------------------------------------
+
+    if(opt.init_group_by != undefined){
+        $("#acct_group_by", div).val(opt.init_group_by);
+    }else if(opt.fixed_group_by != undefined){
+        $("#acct_group_by", div).val(opt.fixed_group_by);
+        $("#acct_group_by_container", div).hide();
+    }
+
+    //--------------------------------------------------------------------------
+    // Submit request
+    //--------------------------------------------------------------------------
+
+    $("#acct_submit", div).on("click", function(){
+        var start_time = -1;
+        var end_time = -1;
+
+        var v = $("#acct_start_time", div).val();
+        if (v == ""){
+            notifyError(tr("Time range start is mandatory"));
+            return false;
+        }else{
+            start_time = Date.parse(v+' UTC');
+
+            if (isNaN(start_time)){
+                notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
+                return false;
+            }
+
+            // ms to s
+            start_time = start_time / 1000;
+        }
+
+        var v = $("#acct_end_time", div).val();
+        if (v != ""){
+
+            end_time = Date.parse(v+' UTC');
+
+            if (isNaN(end_time)){
+                notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
+                return false;
+            }
+
+            // ms to s
+            end_time = end_time / 1000;
+        }
+
+        var options = {
+            "start_time": start_time,
+            "end_time": end_time
+        };
+
+        if (opt.fixed_user != undefined){
+            options.userfilter = opt.fixed_user;
+        } else if (opt.fixed_group != undefined){
+            options.group = opt.fixed_group;
+        } else {
+            var select_val = $("#acct_owner_select .resource_list_select", div).val();
+
+            switch ($("select#acct_owner", div).val()){
+            case "acct_owner_all":
+                break;
+
+            case "acct_owner_group":
+                if(select_val != ""){
+                    options.group = select_val;
+                }
+                break;
+
+            case "acct_owner_user":
+                if(select_val != ""){
+                    options.userfilter = select_val;
+                }
+                break;
+            }
+        }
+
+        var no_table = false;
+        if (opt["no_table"] == true) {
+            no_table = true;
+        }
+
+        OpenNebula.VM.accounting({
+    //        timeout: true,
+            success: function(req, response){
+                fillAccounting(div, req, response, no_table);
+            },
+            error: onError,
+            data: options
+        });
+
+        return false;
+    });
+}
+
+function fillAccounting(div, req, response, no_table) {
+    var options = req.request.data[0];
+
+    //--------------------------------------------------------------------------
+    // Time slots
+    //--------------------------------------------------------------------------
+
+    // start_time is mandatory
+    var start = new Date(options.start_time * 1000);
+    start.setHours(0,0,0,0);
+
+    var end = new Date();
+
+    if(options.end_time != undefined && options.end_time != -1){
+        var end = new Date(options.end_time * 1000)
+    }
+
+    // granularity of 1 day
+    var times = [];
+
+    var tmp_time = start;
+
+    // End time is the start of the last time slot. We use <=, to
+    // add one extra time step
+    while (tmp_time <= end) {
+        times.push(tmp_time.getTime());
+
+        // day += 1
+        tmp_time.setUTCDate( tmp_time.getUTCDate() + 1 );
+    }
+
+    //--------------------------------------------------------------------------
+    // Flot options
+    //--------------------------------------------------------------------------
+
+    var options = {
+        colors: ["#0098C3","#0A00C2","#AB00C2","#C20037","#C26B00","#78C200","#00C22A","#00B8C2"],
+
+        xaxis : {
+            mode: "time",
+            timeformat: "%y/%m/%d",
+            color: "#efefef",
+            size: 8,
+            ticks: 4,
+            minTickSize: [1, "day"]
+        },
+        yaxis : { min: 0,
+                color: "#efefef",
+                size: 8
+                },
+        series: {
+            bars: {
+                show: true,
+                lineWidth: 0,
+                fill: true,
+                barWidth: 24*60*60*1000 * 0.8,
+                align: "center"
+            },
+            stack: true
+        },
+        legend : {
+            show : false
+        },
+        grid: {
+            borderWidth: 1,
+            borderColor: "#efefef",
+            hoverable: true
+        },
+        tooltip: true,
+        tooltipOpts: {
+            content: "%x | %s | %y"
+        }
+    };
+
+    //--------------------------------------------------------------------------
+    // Group by
+    //--------------------------------------------------------------------------
+
+    // TODO: Allow to change group by dynamically, instead of calling oned again
+
+    switch ($("#acct_group_by", div).val()){
+    case "user":
+        var group_by_fn = function(history){
+            return history.VM.UID;
+        }
+
+        var group_by_name = function(history){
+            return history.VM.UNAME;
+        }
+
+        var group_by_prefix = tr("User");
+
+        break;
+
+    case "group":
+        var group_by_fn = function(history){
+            return history.VM.GID;
+        }
+
+        var group_by_name = function(history){
+            return history.VM.GNAME;
+        }
+
+        var group_by_prefix = tr("Group");
+
+        break;
+
+    case "vm":
+        var group_by_fn = function(history){
+            return history.OID;
+        }
+
+        var group_by_name = function(history){
+            return history.VM.NAME;
+        }
+
+        var group_by_prefix = tr("VM");
+
+        break;
+    }
+
+    //--------------------------------------------------------------------------
+    // Filter history entries
+    //--------------------------------------------------------------------------
+
+    // TODO filter
+    // True to proccess, false to discard
+    var filter_by_fn = function(history){
+//        return history.OID == 3605 || history.OID == 2673;
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+    // Process data series for flot
+    //--------------------------------------------------------------------------
+
+    var series = {};
+
+    $("#acct_no_data", div).hide();
+
+    if(response.HISTORY_RECORDS == undefined){
+        $("#acct_placeholder", div).show();
+        $("#acct_content", div).hide();
+
+        $("#acct_no_data", div).show();
+        return false;
+    }
+
+    $.each(response.HISTORY_RECORDS.HISTORY, function(index, history){
+
+/*
+        if(!filter_by_fn(history)){
+            return true; //continue
+        }
+*/
+        var group_by = group_by_fn(history);
+
+        if (series[group_by] == undefined){
+            series[group_by] = {};
+            series[group_by].data_points = {};
+
+            series[group_by].data_points[times[0]] = {};
+            series[group_by].data_points[times[times.length-2]] = {};
+
+            series[group_by].data_points[times[0]].CPU_HOURS = 0;
+            series[group_by].data_points[times[times.length-2]].CPU_HOURS = 0;
+
+            series[group_by].data_points[times[0]].MEM_HOURS = 0;
+            series[group_by].data_points[times[times.length-2]].MEM_HOURS = 0;
+
+            var name = group_by_name(history);
+            series[group_by].name = name;
+            series[group_by].label = group_by_prefix+" "+group_by+" "+name;
+        }
+
+        var serie = series[group_by].data_points;
+
+        for (var i = 0; i<times.length-1; i++){
+
+            var t = times[i];
+            var t_next = times[i+1];
+
+            if( (history.ETIME*1000 > t || history.ETIME == 0) &&
+                (history.STIME != 0 && history.STIME*1000 <= t_next) ) {
+
+                var stime = t;
+                if(history.STIME != 0){
+                    stime = Math.max(t, history.STIME*1000);
+                }
+
+                var etime = t_next;
+                if(history.ETIME != 0){
+                    etime = Math.min(t_next, history.ETIME*1000);
+                }
+
+                var n_hours = (etime - stime) / 1000 / 60 / 60;
+
+                if(serie[t] == undefined){
+                    serie[t] = {};
+                    serie[t].CPU_HOURS = 0;
+                    serie[t].MEM_HOURS = 0;
+                }
+
+                // --- cpu ---
+
+                var val = parseFloat(history.VM.TEMPLATE.CPU) * n_hours;
+
+                if (!isNaN(val)){
+                    serie[t].CPU_HOURS += val;
+                }
+
+                // --- mem ---
+
+                var val = parseInt(history.VM.TEMPLATE.MEMORY)/1024 * n_hours;
+
+                if (!isNaN(val)){
+                    serie[t].MEM_HOURS += val;
+                }
+            }
+        }
+    });
+
+    //--------------------------------------------------------------------------
+    // Create series, draw plots
+    //--------------------------------------------------------------------------
+
+    var cpu_plot_series = [];
+    var mem_plot_series = [];
+
+    $.each(series, function(key, val){
+        var cpu_data = [];
+        var mem_data = [];
+
+        $.each(val.data_points, function(time,num){
+            cpu_data.push([parseInt(time),num.CPU_HOURS]);
+            mem_data.push([parseInt(time),num.MEM_HOURS]);
+        });
+
+        cpu_plot_series.push(
+        {
+            label: val.label,
+            name: val.name,
+            id: key,
+            data: cpu_data
+        });
+
+        mem_plot_series.push(
+        {
+            label: val.label,
+            name: val.name,
+            id: key,
+            data: mem_data
+        });
+    });
+
+    var cpu_plot = $.plot($("#acct_cpu_graph", div), cpu_plot_series, options);
+    var mem_plot = $.plot($("#acct_mem_graph", div), mem_plot_series, options);
+
+    //--------------------------------------------------------------------------
+    // Init dataTables
+    //--------------------------------------------------------------------------
+
+    if (no_table) {
+        $(".acct_table").hide();
+    } else {
+        $("#acct_cpu_datatable",div).dataTable().fnClearTable();
+        $("#acct_cpu_datatable",div).dataTable().fnDestroy();
+
+        $("#acct_cpu_datatable thead",div).remove();
+        $("#acct_cpu_datatable",div).width("100%");
+
+
+        $("#acct_mem_datatable",div).dataTable().fnClearTable();
+        $("#acct_mem_datatable",div).dataTable().fnDestroy();
+
+        $("#acct_mem_datatable thead",div).remove();
+        $("#acct_mem_datatable",div).width("100%");
+
+
+        cpu_plot_data = cpu_plot.getData();
+        mem_plot_data = mem_plot.getData();
+
+        var thead =
+        '<thead>\
+          <tr>\
+            <th>'+tr("Date UTC")+'</th>\
+            <th>'+tr("Total")+'</th>';
+
+        $.each(cpu_plot_data, function(i, serie){
+            thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+                ' border-left: 10px solid white; border-right: 5px solid white;'+
+                ' white-space: nowrap">'+
+                group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
+        });
+
+        thead += '</tr></thead>';
+
+        $("#acct_cpu_datatable",div).append(thead);
+
+        thead =
+        '<thead>\
+          <tr>\
+            <th>'+tr("Date UTC")+'</th>\
+            <th>'+tr("Total")+'</th>';
+
+        $.each(mem_plot_data, function(i, serie){
+            thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+                ' border-left: 10px solid white; border-right: 5px solid white;'+
+                ' white-space: nowrap">'+
+                group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
+        });
+
+        thead += '</tr></thead>';
+
+        $("#acct_mem_datatable",div).append(thead);
+
+
+        var cpu_dataTable_data = [];
+        var mem_dataTable_data = [];
+
+        for (var i = 0; i<times.length-1; i++){
+            var t = times[i];
+
+            var cpu_row = [];
+            var mem_row = [];
+
+            var time_st = time_UTC(t);
+
+            cpu_row.push(time_st);
+            mem_row.push(time_st);
+
+            cpu_row.push(0);
+            mem_row.push(0);
+
+            var cpu_total = 0;
+            var mem_total = 0;
+
+            $.each(series, function(key, val){
+                var v = val.data_points[t];
+
+                if(v != undefined){
+                    var cpu_v = (v.CPU_HOURS * 100).toFixed() / 100;
+                    var mem_v = (v.MEM_HOURS * 100).toFixed() / 100;
+
+                    cpu_total += cpu_v;
+                    mem_total += mem_v;
+
+                    cpu_row.push(cpu_v);
+                    mem_row.push(mem_v);
+                } else {
+                    cpu_row.push(0);
+                    mem_row.push(0);
+                }
+            });
+
+            cpu_row[1] = cpu_total;
+            mem_row[1] = mem_total;
+
+            cpu_dataTable_data.push(cpu_row);
+            mem_dataTable_data.push(mem_row);
+        }
+
+        var acct_cpu_dataTable = $("#acct_cpu_datatable",div).dataTable({
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ['_all'] },
+            ]
+        });
+
+        var acct_mem_dataTable = $("#acct_mem_datatable",div).dataTable({
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
+                { "bSortable": false, "aTargets": ['_all'] },
+            ]
+        });
+
+        if (cpu_dataTable_data.length > 0) {
+            acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
+        }
+
+        if (mem_dataTable_data.length > 0) {
+            acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        }
+    }
+
+    $("#acct_placeholder", div).hide();
+    $("#acct_content", div).show();
+}
+
+function customTagsHtml(){
+    return '<div class="row">\
+      <div class="large-4 columns">\
+        <input type="text" id="KEY" name="key" />\
+      </div>\
+      <div class="large-6 columns">\
+        <input type="text" id="VALUE" name="value" />\
+      </div>\
+      <div class="large-2 columns">\
+        <button type="button" class="button secondary small radius" id="add_custom">'+tr("Add")+'</button>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="custom_tags" class="dataTable policies_table">\
+          <thead>\
+            <tr>\
+              <th>'+tr("KEY")+'</th>\
+              <th>'+tr("VALUE")+'</th>\
+              <th></th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbodyinput">\
+            <tr>\
+            </tr>\
+            <tr>\
+            </tr>\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>';
+}
+
+// div is the container div of customTagsHtml(), eg
+// setupCustomTags($("#vnetCreateContextTab", dialog));
+function setupCustomTags(div){
+    $('#add_custom', div).click(function() {
+        var table = $('#custom_tags', div)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = $('input#KEY', div).val()
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = $('input#VALUE', div).val()
+        cell2.appendChild(element2);
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    });
+
+    div.on("click", "i.remove-tab", function() {
+        $(this).closest("tr").remove()
+    });
+}
+
+// div is the container div of customTagsHtml()
+// template_json is where the key:values will be stored
+// retrieveCustomTags($('#vnetCreateContextTab', $create_vn_dialog), network_json);
+function retrieveCustomTags(div, template_json){
+    $('#custom_tags tr', div).each(function(){
+        if ($('#KEY', $(this)).val()) {
+            template_json[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val();
+        }
+    });
+}
+
+// div is the container div of customTagsHtml()
+// template_json are the key:values that will be put into the table
+function fillCustomTags(div, template_json){
+    $.each(template_json, function(key, value){
+        var table = $('#custom_tags', div)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = htmlDecode(key);
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = htmlDecode(value);
+        cell2.appendChild(element2);
+
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    });
+}
+
+// TODO: other types: radio, checkbox
+
+function retrieveWizardFields(dialog, template_json){
+    var fields = $('[wizard_field]',dialog);
+
+    fields.each(function(){
+        var field = $(this);
+
+        if (field.prop('wizard_field_disabled') != true && field.val() != null && field.val().length){
+            var field_name = field.attr('wizard_field');
+            template_json[field_name] = field.val();
+        }
+    });
+}
+
+//==============================================================================
+// Resource tables with "please select" mechanism
+//==============================================================================
+
+function generateVNetTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Reservation"),
+        tr("Cluster"),
+        tr("Bridge"),
+        tr("Leases"),
+        tr("VLAN_ID")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "select_resource": tr("Please select a network from the list"),
+        "you_selected": tr("You selected the following network:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupVNetTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('vnets-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0,1] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+
+        "update_fn": function(datatable){
+            OpenNebula.Network.list({
+                timeout: true,
+                success: function (request, networks_list){
+                    var network_list_array = [];
+
+                    $.each(networks_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.VNET);
+                        }
+
+                        if(add){
+                            network_list_array.push(vNetworkElementArray(this));
+                        }
+                    });
+
+                    updateView(network_list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateTemplateTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Registration time")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "select_resource": tr("Please select a template from the list"),
+        "you_selected": tr("You selected the following template:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupTemplateTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('templates-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+
+        "update_fn": function(datatable){
+            OpenNebula.Template.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.VMTEMPLATE);
+                        }
+
+                        if(add){
+                            list_array.push(templateElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateHostTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Name"),
+        tr("Cluster"),
+        tr("RVMs"),
+        tr("Real CPU"),
+        tr("Allocated CPU"),
+        tr("Real MEM"),
+        tr("Allocated MEM"),
+        tr("Status"),
+        tr("IM MAD"),
+        tr("VM MAD"),
+        tr("Last monitored on")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 2,
+        "select_resource": tr("Please select a Host from the list"),
+        "you_selected": tr("You selected the following Host:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupHostTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('hosts-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Host.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.HOST);
+                        }
+
+                        if(add){
+                            list_array.push(hostElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+
+function generateDatastoreTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Capacity"),
+        tr("Cluster"),
+        tr("Basepath"),
+        tr("TM MAD"),
+        tr("DS MAD"),
+        tr("Type")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "select_resource": tr("Please select a datastore from the list"),
+        "you_selected": tr("You selected the following datastore:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which vnets to show
+function setupDatastoreTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('datastores-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "sWidth": "250px", "aTargets": [5] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+
+        "update_fn": function(datatable){
+            OpenNebula.Datastore.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.DATASTORE);
+                        }
+
+                        if(add){
+                            list_array.push(datastoreElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        }
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateResourceTableSelect(context_id, columns, options){
+    if (!options.select_resource){
+        options.select_resource = tr("Please select a resource from the list");
+    }
+
+    if (!options.you_selected){
+        options.you_selected = tr("You selected the following resource:");
+    }
+
+    if (options.id_index == undefined){
+        options.id_index = 0;
+    }
+
+    var thead = '<thead><tr>';
+
+    $.each(columns, function(){
+        thead += '<th>'+this+'</th>'
+    });
+
+    thead += '</tr></thead>';
+
+    var html =
+    '<div class="row">\
+      <div class="large-8 columns">\
+         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+      </div>\
+      <div class="large-4 columns">\
+        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="datatable_'+context_id+'" class="datatable twelve" row_id="'+options.id_index+'">\
+          '+thead+'\
+          <tbody id="tbody_datatable_'+context_id+'">\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <span id="select_resource_'+context_id+'" class="radius secondary label">'+options.select_resource+'</span>\
+        <span id="selected_resource_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected+'</span>\
+        <input id="selected_resource_id_'+context_id+'" type="text"/>\
+        <span id="selected_resource_name_'+context_id+'" class="radius label" type="text"></span>\
+      </div>\
+    </div>';
+
+    return html;
+}
+
+function setupResourceTableSelect(section, context_id, options) {
+
+    if (options.id_index == undefined){
+        options.id_index = 0;
+    }
+
+    if (options.name_index == undefined){
+        options.name_index = 1;
+    }
+
+    var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
+
+    $('#refresh_button_'+context_id).die();
+
+    $('#refresh_button_'+context_id).live('click', function(){
+        options.update_fn($('table[id=datatable_'+context_id+']').dataTable());
+    });
+
+    $('#'+context_id+'_search', section).keyup(function(){
+        dataTable_select.fnFilter( $(this).val() );
+    })
+
+    dataTable_select.fnSort( [ [options.id_index, config['user_config']['table_order']] ] );
+
+    $('#selected_resource_id_'+context_id, section).hide();
+    $('#selected_resource_name_'+context_id, section).hide();
+
+    $('#datatable_'+context_id+' tbody', section).delegate("tr", "click", function(e){
+        dataTable_select.unbind("draw");
+        var aData = dataTable_select.fnGetData(this);
+
+        $("td.markrow", dataTable_select).removeClass('markrow');
+        $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+        $('#selected_resource_'+context_id, section).show();
+        $('#select_resource_'+context_id, section).hide();
+        $('.alert-box', section).hide();
+
+        $("td", this).addClass('markrow');
+        $('input.check_item', this).attr('checked','checked');
+
+        $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]).change();
+        $('#selected_resource_id_'+context_id, section).hide();
+
+        $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
+        $('#selected_resource_name_'+context_id, section).show();
+
+        return true;
+    });
+
+    setupTips(section);
+}
+
+function resetResourceTableSelect(section, context_id, options) {
+    var dataTable_select = $('#datatable_'+context_id, section)
+
+    $("td.markrow", dataTable_select).removeClass('markrow');
+    $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+    $('#'+context_id+'_search', section).val("").trigger("keyup");
+    $('#refresh_button_'+context_id).click();
+
+    $('#selected_resource_id_'+context_id, section).val("").hide();
+    $('#selected_resource_name_'+context_id, section).text("").hide();
+
+    $('#selected_resource_'+context_id, section).hide();
+    $('#select_resource_'+context_id, section).show();
+}
+
+//==============================================================================
+// VM & Service user inputs
+//==============================================================================
+
+// It will replace the div's html with a row for each USER_INPUTS
+// opts.text_header: header text for the text & password inputs
+// opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
+function generateVMTemplateUserInputs(div, template_json, opts) {
+    return generateInstantiateUserInputs(
+        div, template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, opts);
+}
+
+// It will replace the div's html with a row for each USER_INPUTS
+// opts.text_header: header text for the text & password inputs
+// opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
+function generateServiceTemplateUserInputs(div, template_json, opts) {
+    return generateInstantiateUserInputs(
+        div, template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs, opts);
+}
+
+// It will replace the div's html with a row for each USER_INPUTS
+// opts.text_header: header text for the text & password inputs
+// opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
+function generateInstantiateUserInputs(div, user_inputs, opts) {
+
+    div.empty();
+
+    if(user_inputs == undefined){
+        return false;
+    }
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.text_header == undefined){
+        opts.text_header = tr("Custom Attributes");
+    }
+
+    if(opts.network_header == undefined){
+        opts.network_header = tr("Network");
+    }
+
+    var network_attrs = [];
+    var text_attrs = [];
+
+    $.each(user_inputs, function(key, value){
+        var parts = value.split("|");
+        // 0 mandatory; 1 type; 2 desc;
+        var attrs = {
+            "name": key,
+            "mandatory": parts[0],
+            "type": parts[1],
+            "description": parts[2],
+        }
+
+        switch (parts[1]) {
+            case "vnet_id":
+                network_attrs.push(attrs)
+                break;
+            case "text":
+                text_attrs.push(attrs)
+                break;
+            case "password":
+                text_attrs.push(attrs)
+                break;
+        }
+    });
+
+    if (network_attrs.length > 0) {
+        if(opts.network_header.length > 0){
+            div.append(
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader">'+
+                  opts.network_header+
+                '</h3>'+
+              '</div>'+
+            '</div>');
+        }
+
+        div.append('<div class="instantiate_user_inputs"/>');
+
+        var separator = "";
+
+        $.each(network_attrs, function(index, vnet_attr){
+            var unique_id = "user_input_"+vnet_attr.name;
+
+            $(".instantiate_user_inputs", div).append(
+              '<div class="row">'+
+                '<div class="large-12 large-centered columns">'+
+                  separator+
+                  '<h5>' +
+                    htmlDecode(vnet_attr.description) +
+                  '</h5>'+
+                  generateVNetTableSelect(unique_id)+
+                '</div>'+
+              '</div>');
+
+            separator = "<hr/>";
+
+            setupVNetTableSelect(div, unique_id);
+
+            $('#refresh_button_'+unique_id).click();
+
+            $("input#selected_resource_id_"+unique_id, div).attr(
+                "wizard_field", vnet_attr.name);
+
+            $("input#selected_resource_id_"+unique_id, div).attr("required", "")
+        });
+    }
+
+    if (text_attrs.length > 0) {
+        if(opts.text_header.length > 0){
+            div.append(
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader">'+
+                  opts.text_header+
+                '</h3>'+
+              '</div>'+
+            '</div>');
+        }
+
+        div.append('<div class="instantiate_user_inputs"/>');
+
+        $.each(text_attrs, function(index, custom_attr){
+          $(".instantiate_user_inputs", div).append(
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<label>' +
+                  htmlDecode(custom_attr.description) +
+                  '<input type="'+custom_attr.type+'" wizard_field="'+custom_attr.name+'" required/>'+
+                '</label>'+
+              '</div>'+
+            '</div>');
+        });
+    }
+
+    return (network_attrs.length > 0 || text_attrs.length > 0);
+}

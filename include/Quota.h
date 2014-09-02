@@ -91,6 +91,18 @@ public:
          return get_quota(id, va, it);
      }
 
+     /**
+      * Value for limit default
+      */
+     static const int    DEFAULT;
+     static const string DEFAULT_STR;
+
+     /**
+      * Value for "unlimited" limit
+      */
+     static const int UNLIMITED;
+
+
 protected:
 
     Quota(const char *  quota_name,

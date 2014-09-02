@@ -476,6 +476,20 @@ public:
     }
 
     /**
+     *  Removes an attribute from the template. The attributes are returned, and
+     *  MUST be freed by the calling funtion
+     *    @param name of the attribute
+     *    @param values a vector containing a pointer to the attributes
+     *    @return the number of attributes removed
+     */
+    int remove_template_attribute(
+        const string&        name,
+        vector<Attribute *>& values)
+    {
+        return obj_template->remove(name, values);
+    }
+
+    /**
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */

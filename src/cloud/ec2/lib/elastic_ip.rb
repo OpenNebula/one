@@ -22,7 +22,7 @@ module ElasticIP
             return vnet
         end
 
-        ips = vnet.retrieve_elements('LEASES/LEASE[USED=0]/IP')
+        ips = vnet.retrieve_elements('AR_POOL/AR[USED_LEASES=0 and SIZE=1]/IP')
         if ips.nil?
             rc = OpenNebula::Error.new("There is no lease available to be allocated")
             rc.ec2_code = "AddressLimitExceeded"

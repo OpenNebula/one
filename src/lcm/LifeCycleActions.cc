@@ -31,10 +31,10 @@ void  LifeCycleManager::deploy_action(int vid)
 
     if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
-        Nebula&             nd = Nebula::instance();
-        TransferManager *   tm = nd.get_tm();
-        time_t              thetime = time(0);
-        int                 cpu,mem,disk;
+        Nebula&           nd = Nebula::instance();
+        TransferManager * tm = nd.get_tm();
+        time_t            thetime = time(0);
+        int               cpu,mem,disk;
 
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
@@ -42,6 +42,39 @@ void  LifeCycleManager::deploy_action(int vid)
         //----------------------------------------------------
         //                 PROLOG STATE
         //----------------------------------------------------
+
+        vm->get_requirements(cpu,mem,disk);
+
+        if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk) == -1)
+        {
+            //The host has been deleted, move VM to FAILURE
+
+            vm->log("LCM", Log::ERROR, "deploy_action, Host has been removed.");
+
+            vm->set_state(VirtualMachine::FAILURE);
+
+            vm->set_resched(false);
+
+            map<string, string> empty;
+            vm->update_info(0, 0, -1, -1, empty);
+
+            vmpool->update(vm);
+
+            vm->set_stime(thetime);
+            vm->set_etime(thetime);
+
+            vm->set_vm_info();
+
+            vm->set_reason(History::ERROR);
+
+            vmpool->update_history(vm);
+
+            vm->unlock();
+
+            nd.get_dm()->trigger(DispatchManager::FAILED, vid);
+
+            return;
+        }
 
         vm_state  = VirtualMachine::PROLOG;
         tm_action = TransferManager::PROLOG;
@@ -70,10 +103,6 @@ void  LifeCycleManager::deploy_action(int vid)
         vm->set_prolog_stime(thetime);
 
         vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
 
@@ -237,6 +266,59 @@ void  LifeCycleManager::migrate_action(int vid)
         //----------------------------------------------------
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
+    }
+    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+    {
+        //----------------------------------------------------
+        //   Bypass SAVE_MIGRATE & PROLOG_MIGRATE goto BOOT
+        //----------------------------------------------------
+
+        Nebula& nd = Nebula::instance();
+        VirtualMachineManager * vmm = nd.get_vmm();
+
+        int    cpu, mem, disk;
+        time_t the_time = time(0);
+
+        vm->set_resched(false);
+
+        vm->set_state(VirtualMachine::BOOT);
+
+        vm->delete_snapshots();
+
+        map<string, string> empty;
+
+        vm->update_info(0, 0, -1, -1, empty);
+
+        vmpool->update(vm);
+
+        vm->set_stime(the_time);
+
+        vm->set_previous_action(History::MIGRATE_ACTION);
+
+        vm->set_previous_etime(the_time);
+
+        vm->set_previous_vm_info();
+
+        vm->set_previous_running_etime(the_time);
+
+        vm->set_previous_reason(History::USER);
+
+        vmpool->update_previous_history(vm);
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+
+        vm->log("LCM", Log::INFO, "New VM state is BOOT");
+
+        //----------------------------------------------------
+
+        vmm->trigger(VirtualMachineManager::DEPLOY, vid);
     }
     else
     {

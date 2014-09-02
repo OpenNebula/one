@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "March 2014" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "July 2014" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -55,6 +55,8 @@
  \-\-recreate                Resubmits a fresh VM
  \-t, \-\-type type           Type of the new Image
  \-\-live                    Do the action with the VM running
+ \-c, \-\-clonetemplate       Clone original VM Template and replace disk with
+                           saved one
  \-\-hard                    Does not communicate with the guest OS
  \-e, \-\-enforce             Enforce that the host capacity is not exceeded
  \-\-success                 Recover a VM by succeeding the pending action
@@ -178,7 +180,7 @@ disk\-snapshot \fIvmid\fR \fIdiskid\fR \fIimg_name\fR Sets the specified VM disk
 If \'\-\-live\' is specified, the Image will be saved immediately\.
 
 States: ANY
-valid options: type, live
+valid options: type, live, clonetemplate
 .
 .fi
 .
@@ -519,7 +521,7 @@ diskid Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.5\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.8\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

@@ -16,7 +16,6 @@
 
 /*Users tab plugin*/
 var dataTable_users;
-var users_select="";
 var $create_user_dialog;
 var $user_quotas_dialog;
 var $update_pw_dialog;
@@ -135,136 +134,25 @@ var change_password_tmpl = '<div class="row">\
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var quotas_tmpl = '<div class="row">\
-    <div class="large-12 columns">\
-      <dl class="tabs right-info-tabs text-center" data-tab>\
-           <dd class="active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+tr("VM")+'</a></dd>\
-           <dd><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+tr("Datastore")+'</a></dd>\
-           <dd><a href="#image_quota"><i class="fa fa-upload"></i><br>'+tr("Image")+'</a></dd>\
-           <dd><a href="#network_quota"><i class="fa fa-globe"></i><br>'+tr("VNet")+'</a></dd>\
-      </dl>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <div class="large-4 columns">\
-      <div class="tabs-content">\
-      <div id="vm_quota" class="content active">\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max VMs")+'\
-                <input type="text" name="VMS"></input>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max Memory (MB)")+'\
-                <input type="text" name="MEMORY"></input>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max CPU")+'\
-                <input type="text" name="CPU"></input>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max Volatile Storage (MB)")+'\
-                <input type="text" name="VOLATILE_SIZE"></input>\
-              </label>\
-          </div>\
-        </div>\
-      </div>\
-      <div id="datastore_quota" class="content">\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Datastore")+'\
-                <select name="ID"></select>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max size (MB)")+'\
-                <input type="text" name="SIZE"></input>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max images")+'\
-                <input type="text" name="IMAGES"></input>\
-              </label>\
-          </div>\
-        </div>\
-      </div>\
-      <div id="image_quota" class="content">\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Image")+'\
-                <select name="ID"></select>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max RVMs")+'\
-                <input type="text" name="RVMS"></input>\
-              </label>\
-          </div>\
-        </div>\
-      </div>\
-      <div id="network_quota" class="content">\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Network")+'\
-                <select name="ID"></select>\
-              </label>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-              <label>'+tr("Max leases")+'\
-                <input type="text" name="LEASES"></input>\
-              </label>\
-          </div>\
-        </div>\
-      </div>\
-      </div>\
-      <button class="button right small radius" id="add_quota_button" value="add_quota">'+tr("Add/edit quota")+'</button>\
-    </div>\
-    <div class="large-8 columns">\
-      <div class="current_quotas">\
-         <table class="dataTable extended_table" cellpadding="0" cellspacing="0" border="0">\
-            <thead><tr>\
-                 <th>'+tr("Type")+'</th>\
-                 <th>'+tr("Quota")+'</th>\
-                 <th>'+tr("Edit")+'</th></tr></thead>\
-            <tbody>\
-            </tbody>\
-         </table>\
+function user_quotas_tmpl(){
+    return '<div class="row">\
+      <div class="large-12 columns">\
+        <h3 class="subheader">'+tr("Update Quota")+'</h3>\
       </div>\
     </div>\
-  </div>'
-var user_quotas_tmpl = '<div class="row">\
-  <div class="large-12 columns">\
-    <h3 id="create_vnet_header" class="subheader">'+tr("Update Quota")+'</h3>\
-  </div>\
-</div>\
-<div class="reveal-body">\
-<form id="user_quotas_form" action="">'+
-  quotas_tmpl +
-  '<div class="reveal-footer">\
-      <div class="form_buttons">\
-          <button class="button radius right success" id="create_user_submit" type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
-      </div>\
-  </div>\
-  <a class="close-reveal-modal">&#215;</a>\
-</form>\
-  </div>';
+    <div class="reveal-body">\
+      <form id="user_quotas_form" action="">'+
+        quotas_tmpl() +
+        '<div class="reveal-footer">\
+          <div class="form_buttons">\
+            <button class="button radius right success" id="create_user_submit" \
+            type="submit" value="User.set_quota">'+tr("Apply changes")+'</button>\
+          </div>\
+        </div>\
+        <a class="close-reveal-modal">&#215;</a>\
+      </form>\
+    </div>';
+}
 
 
 var user_actions = {
@@ -272,8 +160,12 @@ var user_actions = {
         type: "create",
         call: OpenNebula.User.create,
         callback: function(request, response) {
-          addUserElement(request, response);
-          notifyCustom(tr("User created"), " ID: " + response.USER.ID, false);
+            $create_user_dialog.foundation('reveal', 'close');
+            $create_user_dialog.empty();
+            setupCreateUserDialog();
+
+            addUserElement(request, response);
+            notifyCustom(tr("User created"), " ID: " + response.USER.ID, false);
         },
         error: onError
     },
@@ -295,22 +187,11 @@ var user_actions = {
         call: function () {
           var tab = dataTable_users.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("User.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("User.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_users);
-            Sunstone.runAction("User.list");
+            Sunstone.runAction("User.list", {force: true});
           }
-        }
-    },
-
-    "User.autorefresh" : {
-        type: "custom",
-        call: function(){
-            OpenNebula.User.list({
-                timeout: true,
-                success: updateUsersView,
-                error: onError
-            });
         }
     },
 
@@ -322,9 +203,6 @@ var user_actions = {
     "User.passwd" : {
         type: "multiple",
         call: OpenNebula.User.passwd,
-        callback: function(req,res){
-            notifyMessage(tr("Change password successful"));
-        },
         elements: userElements,
         error: onError
     },
@@ -335,8 +213,7 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.addgroup" : {
         type: "multiple",
@@ -345,8 +222,7 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.delgroup" : {
         type: "multiple",
@@ -355,8 +231,7 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements : userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.change_authentication" : {
         type: "custom",
@@ -369,20 +244,17 @@ var user_actions = {
             Sunstone.runAction("User.show",req.request.data[0][0]);
         },
         elements: userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
     "User.show" : {
         type: "single",
         call: OpenNebula.User.show,
-        callback: updateUserElement,
-        error: onError
-    },
-
-    "User.showinfo" : {
-        type: "single",
-        call: OpenNebula.User.show,
-        callback: updateUserInfo,
+        callback:   function(request, response) {
+            updateUserElement(request, response);
+            if (Sunstone.rightInfoVisible($("#users-tab"))) {
+                updateUserInfo(request, response);
+            }
+        },
         error: onError
     },
 
@@ -391,16 +263,14 @@ var user_actions = {
         call: OpenNebula.User.del,
         callback: deleteUserElement,
         elements: userElements,
-        error: onError,
-        notify: true
+        error: onError
     },
 
     "User.update_template" : {
         type: "single",
         call: OpenNebula.User.update,
         callback: function(request) {
-            notifyMessage(tr("Template updated correctly"));
-            Sunstone.runAction('User.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('User.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -409,14 +279,11 @@ var user_actions = {
         type: "single",
         call: OpenNebula.User.show,
         callback: function (request,response) {
-            // when we receive quotas we parse them and create an
-            // quota objects with html code (<li>) that can be inserted
-            // in the dialog
-            var parsed = parseQuotas(response.USER,quotaListItem);
-            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.VM);
-            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.DATASTORE);
-            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.IMAGE);
-            $('.current_quotas table tbody',$user_quotas_dialog).append(parsed.NETWORK);
+            populateQuotasDialog(
+                response.USER,
+                default_user_quotas,
+                "#user_quotas_dialog",
+                $user_quotas_dialog);
         },
         error: onError
     },
@@ -431,8 +298,7 @@ var user_actions = {
         call: OpenNebula.User.set_quota,
         elements: userElements,
         callback: function(request) {
-            notifyMessage(tr("Quotas updated correctly"));
-            Sunstone.runAction('User.showinfo',request.request.data[0]);
+            Sunstone.runAction('User.show',request.request.data[0]);
         },
         error: onError
     },
@@ -445,14 +311,6 @@ var user_actions = {
             plot_graph(response,'#user_acct_tab','user_acct_', info);
         },
         error: onError
-    },
-
-    "User.help" : {
-        type: "custom",
-        call: function() {
-            hideDialog();
-            $('div#users_tab div.legend_div').slideToggle();
-        }
     }
 }
 
@@ -462,6 +320,11 @@ var user_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "User.create_dialog" : {
         type: "create_dialog",
         layout: "create",
@@ -487,7 +350,7 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("This will change the main group of the selected users. Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -495,7 +358,7 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Add to group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("This will add the user to a secondary group. Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -503,7 +366,7 @@ var user_buttons = {
         type: "confirm_with_select",
         text: tr("Remove from group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("This will remove the user from a secondary group. Select the group")+":",
         condition: mustBeAdmin
     },
@@ -532,12 +395,13 @@ var user_info_panel = {
 
 var users_tab = {
     title: tr("Users"),
+    resource: 'User',
     buttons: user_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
     search_input: ' <input id="user_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-user"></i> '+tr("Users"),
-    info_header: '<i class="fa fa-user"></i> '+tr("User"),
+    list_header: '<i class="fa fa-fw fa-user"></i>&emsp;'+tr("Users"),
+    info_header: '<i class="fa fa-fw fa-user"></i>&emsp;'+tr("User"),
     subheader: '<span>\
         <span class="total_users"/> <small>'+tr("TOTAL")+'</small>\
       </span>',
@@ -553,6 +417,7 @@ var users_tab = {
           <th>'+tr("Memory")+'</th>\
           <th>'+tr("CPU")+'</th>\
           <th>'+tr("Group ID")+'</th>\
+          <th>'+tr("Hidden User Data")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyusers">\
@@ -594,8 +459,26 @@ function userElementArray(user_json){
             user.VM_QUOTA.VM.CPU_USED,
             user.VM_QUOTA.VM.CPU,
             default_user_quotas.VM_QUOTA.VM.CPU);
+    } else {
+
+        var vms = quotaBar(0, 0, null);
+        var memory = quotaBarMB(0, 0, null);
+        var cpu = quotaBarFloat(0, 0, null);
+
     }
 
+    // Build hidden user template
+    var hidden_template = "";
+    for (var key in user.TEMPLATE){
+        switch (key){
+            // Don't copy unnecesary keys
+            case "SSH_PUBLIC_KEY":
+            case "TOKEN_PASSWORD":
+                break;
+            default:
+                hidden_template = hidden_template + key + "=" + user.TEMPLATE[key] + "\n";
+        }
+    }
 
     return [
         '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
@@ -606,18 +489,10 @@ function userElementArray(user_json){
         vms,
         memory,
         cpu,
-        user.GID
+        user.GID,
+        hidden_template
     ]
 };
-
-function updateUserSelect(){
-    users_select = makeSelectOptions(dataTable_users,
-                                     1,//id_col
-                                     2,//name_col
-                                     [],//status_cols
-                                     []//bad status values
-                                     );
-}
 
 // Callback to refresh a single element from the dataTable
 function updateUserElement(request, user_json){
@@ -629,14 +504,12 @@ function updateUserElement(request, user_json){
 // Callback to delete a single element from the dataTable
 function deleteUserElement(req){
     deleteElement(dataTable_users,'#user_'+req.request.data);
-    updateUserSelect();
 }
 
 // Callback to add a single user element
 function addUserElement(request,user_json){
     var element = userElementArray(user_json);
     addElement(element,dataTable_users);
-    updateUserSelect();
 }
 
 // Callback to update the list of users
@@ -644,9 +517,6 @@ function updateUsersView(request,users_list,quotas_list){
     var user_list_array = [];
 
     $.each(users_list,function(){
-        //if (this.USER.ID == uid)
-        //    dashboardQuotasHTML(this.USER);
-
         // Inject the VM user quota. This info is returned separately in the
         // pool info call, but the userElementArray expects it inside the USER,
         // as it is returned by the individual info call
@@ -660,7 +530,6 @@ function updateUsersView(request,users_list,quotas_list){
     });
     updateView(user_list_array,dataTable_users);
 
-    updateUserSelect();
 
     $(".total_users").text(users_list.length);
 };
@@ -690,7 +559,7 @@ function updateUserInfo(request,user){
                 <td></td>\
             </tr>\
             <tr>' +
-                insert_group_dropdown("User",info.ID,info.GNAME,info.GID) +
+                insert_group_dropdown("User",info.ID,info.GNAME,info.GID,"#info_user_table") +
             '</tr>\
             <tr>\
                 <td class="key_td">' + tr("Secondary groups") + '</td>\
@@ -718,31 +587,39 @@ function updateUserInfo(request,user){
      </div>'
     };
 
-    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-    var quotas_tab_html = '<div class="large-3 columns">' + Quotas.vms(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-3 columns">' + Quotas.cpu(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-3 columns">' + Quotas.memory(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-3 columns">' + Quotas.volatile_size(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<br><br>';
-    quotas_tab_html += '<div class="large-6 columns">' + Quotas.image(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<div class="large-6 columns">' + Quotas.network(info, default_user_quotas) + '</div>';
-    quotas_tab_html += '<br><br>';
-    quotas_tab_html += '<div class="large-12 columns">' + Quotas.datastore(info, default_user_quotas) + '</div>';
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS);
+
+    var quotas_html = initQuotasPanel(info, default_user_quotas,
+        "#user_info_panel",
+        Config.isTabActionEnabled("users-tab", "User.quotas_dialog"));
+
     var quotas_tab = {
         title : tr("Quotas"),
         icon: "fa-align-left",
-        content : quotas_tab_html
+        content : quotas_html
+    };
+
+    var accounting_tab = {
+        title: tr("Accounting"),
+        icon: "fa-bar-chart-o",
+        content: '<div id="user_accounting"></div>'
     };
 
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
+    Sunstone.updateInfoPanelTab("user_info_panel","user_accouning_tab",accounting_tab);
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
 
-    $("#user_info_panel_refresh", $("#user_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('User.showinfo', info.ID);
-    })
+    accountingGraphs(
+        $("#user_accounting","#user_info_panel"),
+        {   fixed_user: info.ID,
+            init_group_by: "vm" });
+
+    setupQuotasPanel(info,
+        "#user_info_panel",
+        Config.isTabActionEnabled("users-tab", "User.quotas_dialog"),
+        "User");
 };
 
 // Used also from groups-tabs.js
@@ -802,7 +679,6 @@ function setupCreateUserDialog(){
         }
 
         Sunstone.runAction("User.create",user_json);
-        $create_user_dialog.foundation('reveal', 'close');
         return false;
     });
 }
@@ -869,10 +745,10 @@ function setupChangeAuthenticationDialog(){
 
 //add a setup quota dialog and call the sunstone-util.js initialization
 function setupUserQuotasDialog(){
-    dialogs_context.append('<div title="'+tr("User quotas")+'" id="user_quotas_dialog"></div>');
+    dialogs_context.append('<div id="user_quotas_dialog"></div>');
     $user_quotas_dialog = $('#user_quotas_dialog',dialogs_context);
     var dialog = $user_quotas_dialog;
-    dialog.html(user_quotas_tmpl);
+    dialog.html(user_quotas_tmpl());
 
     $(document).foundation();
 
@@ -880,7 +756,18 @@ function setupUserQuotasDialog(){
 }
 
 function popUpUserQuotasDialog(){
-    popUpQuotasDialog($user_quotas_dialog, 'User', userElements());
+    var tab = dataTable_users.parents(".tab");
+    if (Sunstone.rightInfoVisible(tab)) {
+        $('a[href="#user_quotas_tab"]', tab).click();
+        $('#edit_quotas_button', tab).click();
+    } else {
+        popUpQuotasDialog(
+            $user_quotas_dialog,
+            'User',
+            userElements(),
+            default_user_quotas,
+            "#user_quotas_dialog");
+    }
 }
 
 function popUpCreateUserDialog(){
@@ -900,24 +787,16 @@ function popUpChangeAuthenticationDialog(){
     $change_auth_dialog.foundation().foundation('reveal', 'open');;
 }
 
-// Prepare the autorefresh of the list
-function setUserAutorefresh(){
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_users);
-        var filter = $("#user_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("User.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
 $(document).ready(function(){
     var tab_name = 'users-tab';
 
     if (Config.isTabEnabled(tab_name)) {
       //if we are not oneadmin, our tab will not even be in the DOM.
       dataTable_users = $("#datatable_users",main_tabs_context).dataTable({
-          "aoColumnDefs": [
+            "bSortClasses": false,
+            "bAutoWidth": false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check",5,6,7] },
               { "sWidth": "35px", "aTargets": [0] },
               { "sWidth": "150px", "aTargets": [5,6,7] },
@@ -940,14 +819,13 @@ $(document).ready(function(){
       setupUpdatePasswordDialog();
       setupChangeAuthenticationDialog();
       setupUserQuotasDialog();
-      setUserAutorefresh();
       //Setup quota icons
       //Also for group tab
       setupQuotaIcons();
 
       initCheckAllBoxes(dataTable_users);
       tableCheckboxesListener(dataTable_users);
-      infoListener(dataTable_users,'User.showinfo');
+      infoListener(dataTable_users,'User.show');
 
       $('div#users_tab div.legend_div').hide();
       $('div#users_tab_non_admin div.legend_div').hide();

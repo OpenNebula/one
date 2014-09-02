@@ -43,7 +43,7 @@ nodeinfo_text.split(/\n/).each{|line|
 #   for everything else, top & proc
 #####
 
-NETINTERFACE = "eth|bond"
+NETINTERFACE = "eth|bond|em|p[0-9]+p[0-9]+"
 
 top_text=`top -bin2`
 exit(-1) if $?.exitstatus != 0

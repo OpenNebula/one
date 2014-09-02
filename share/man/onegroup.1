@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEGROUP" "1" "March 2014" "" "onegroup(1) -- manages OpenNebula groups"
+.TH "ONEGROUP" "1" "July 2014" "" "onegroup(1) -- manages OpenNebula groups"
 .
 .SH "NAME"
 \fBonegroup\fR
@@ -14,14 +14,13 @@
 .nf
 
  \-n, \-\-name name           Name for the new group
- \-a, \-\-admin_group name    Creates an admin group with name
  \-u, \-\-admin_user name     Creates an admin user for the group with name
- \-p, \-\-admin_password password Password for the admin user of the group
- \-d, \-\-admin_driver auth_driver Auth driver for the admin user of the group
- \-r, \-\-resources resources_str Which resources can be created by group users
-                           "\e "(VM+NET+IMAGE+TEMPLATE by default)
- \-o, \-\-admin_resources resources_str Which resources can be created by group
-                           users "\e "(VM+NET+IMAGE+TEMPLATE by default)
+ \-p, \-\-admin_password pass Password for the admin user of the group
+ \-d, \-\-admin_driver driver Auth driver for the admin user of the group
+ \-r, \-\-resources res_str   Which resources can be created by group users
+                           (VM+NET+IMAGE+TEMPLATE by default)
+ \-o, \-\-admin_resources res_str Which resources can be created by the admin
+                           user (VM+NET+IMAGE+TEMPLATE by default)
  \-a, \-\-append              Append new attributes to the current template
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
@@ -51,19 +50,15 @@ create [\fIgroup_name\fR] Creates a new Group\. A group name can be passed as th
 
 Examples:
 
-  \- using a template description file:
-
-    onegroup create group_description\.tmpl
-
-  \- create a group with admin group, admin user and allow group users
-    to only create new templates and VMs, and group admins to manage
+  \- create a group with admin user and allow group users
+    to only create new templates and VMs, and group admin to manage
     templates, vms, images and virtual networks
 
-    onegroup create \-\-name groupA \-\-admin_group admin_groupA
+    onegroup create \-\-name groupA
                     \-\-admin_user admin_userA \-\-admin_password somestr
-                    \-\-resource TEMPLATE+VM
+                    \-\-resources TEMPLATE+VM
                     \-\-admin_resources TEMPLATE+VM+IMAGE+NET
-valid options: name, admin_group, admin_user, admin_password, admin_driver, resources, admin_resources
+valid options: name, admin_user, admin_password, admin_driver, resources, admin_resources
 .
 .fi
 .
@@ -125,7 +120,7 @@ zoneid OpenNebula ZONE name or id
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.5\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.8\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

@@ -101,6 +101,7 @@ module OpenNebula
             return Error.new('ID not defined') if !@pe_id
 
             name ||= ""
+            hold = false if hold.nil?
             template ||= ""
 
             rc = @client.call(

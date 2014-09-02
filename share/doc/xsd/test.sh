@@ -59,6 +59,8 @@ onevnet create test/vnet.2
 onecluster addvnet newcluster 0
 onecluster addvnet newcluster 2
 
+onevnet reserve 1 --address_range 1 --size 2 --name reserve
+
 for i in `onevnet list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
     onevnet show $i -x > samples/vnet/$i.xml
 done

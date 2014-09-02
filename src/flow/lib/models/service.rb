@@ -132,7 +132,7 @@ module OpenNebula
             failed_states = [
                 Role::STATE['FAILED_DEPLOYING'],
                 Role::STATE['FAILED_UNDEPLOYING']]
-                
+
             @roles.each { |name, role|
                 if failed_states.include?(role.state)
                     return true
@@ -140,6 +140,12 @@ module OpenNebula
             }
 
             return false
+        end
+
+        # Returns the running_status_vm option
+        # @return [true, false] true if the running_status_vm option is enabled
+        def ready_status_gate
+            return @body['ready_status_gate']
         end
 
         def any_role_scaling?()
@@ -180,6 +186,12 @@ module OpenNebula
             template = JSON.parse(template_json)
             template['state'] = STATE['PENDING']
 
+            if template['roles']
+                template['roles'].each { |elem|
+                    elem['state'] ||= Role::STATE['PENDING']
+                }
+            end
+
             super(template.to_json, template['name'])
         end
 
@@ -188,7 +200,7 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def shutdown
-            if ![Service::STATE['FAILED_SCALING'], 
+            if ![Service::STATE['FAILED_SCALING'],
                     Service::STATE['DONE']].include?(self.state)
                 self.set_state(Service::STATE['UNDEPLOYING'])
                 return self.update

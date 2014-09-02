@@ -1,0 +1,553 @@
+{% extends "_templates/base.html" %}
+{% set page_title = "Methods" %}
+
+{% block title %}Methods - Fine Uploader Documentation{% endblock %}
+
+{% block sidebar %}
+<div id="sidebar-accordion" class="accordion">
+</div>
+{% endblock %}
+
+{% block js_head %}
+<script src="{{ ASSETS }}/js/sidebar.js"></script>
+{% endblock %}
+
+{% block js_footer %}
+<script type="text/javascript">
+$(document).ready(function() {
+    renderMethodsSidebarNav(['core', 'ui']);
+});
+</script>
+{% endblock %}
+
+{% block content %}
+{% markdown %}
+# Methods <small>Traditional</small> {: .page-header }
+{% endmarkdown %}
+
+<div class="all-methods data-spy="scroll" data-target="">
+<div class="methods-core">
+{% markdown %}
+## Core
+{% endmarkdown %}
+{{ api_method("addFiles", "addFiles (files[, params[, endpoint]])", "Submit one or more File objects to the uploader",
+[
+        {
+            "name": "files",
+            "type": "Array",
+            "description": "An array of `File`s or `<input>` `HTMLElements`"
+        },
+    {
+        "name": "params",
+        "type": "Object",
+        "description": "A set of parameters to send with the file to be added"
+    },
+    {
+        "name": "endpoint",
+        "type": "String",
+        "description": "The endpoint to send this file to"
+    }
+]) }}
+
+{{ api_method("addBlobs", "addBlobs (blobs[, params[, endpoint]])", "Submit one or more Blob objects to the uploader.
+
+A `BlobData` object:
+
+| Property | Description |
+| -------- | :---------- |
+| name     | the name of the `Blob` |
+| blob     | the bytes of the `Blob` object being uploaded | {: .table }
+
+",
+[
+    {
+        "name": "blobs",
+        "type": "Array",
+        "description": "An array of `Blob` or `BlobData` objects."
+    },
+    {
+        "name": "params",
+        "type": "Object",
+        "description": "A set of parameters to send with the file to be added"
+    },
+    {
+        "name": "endpoint",
+        "type": "String",
+        "description": "The endpoint to send this file to"
+    }
+]) }}
+
+{{ api_method("cancel", "cancel (id)", "Cancel the queued or currently uploading item which corresponds to the `id`.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file's id"
+    }
+]) }}
+
+{{ api_method("cancelAll", "cancelAll ()", "Cancels all queued or currently uploading items.") }}
+
+{{ api_method("clearStoredFiles", "clearStoredFiles ()", "Clears the internal list of stored items. Only applies when `autoUpload` is `false`") }}
+
+{{ api_method("continueUpload", "continueUpload (id)", "Attempts to continue a paused upload.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "A file id"
+    }
+],
+[
+    {
+        "type": "Boolean",
+        "description": "`true` if attempt was successful."
+    }
+]) }}
+
+{{ api_method("deleteFile", "deleteFile (id)", "",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "Send a delete request to the server for the corresponding file id."
+    }
+]) }}
+
+{{ api_method("drawThumbnail", "drawThumbnail (id, targetContainer[, maxSize[, fromServer]])",
+"Draws a thumbnail.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The id of the image file."
+    },
+    {
+        "name": "targetContainer",
+        "type": "HTMLElement",
+        "description": "The element where the image preview will be drawn. Must be either an `<img>` or `<canvas>` element."
+    },
+    {
+        "name": "maxSize",
+        "type": "Integer",
+        "description": "The maximum dimensions (for width and height) you will allow this image to scale to."
+    },
+    {
+        "name": "fromServer",
+        "type": "Boolean",
+        "description": "`true` if the image data will come as a response from the server rather than be generated client-side."
+    }
+],
+[
+    {
+        "type": "promise",
+        "description": "Fulfilled by passing the container back into the success callback after the thumbnail has been rendered. If the thumbnail cannot be rendered, failure callbacks will be invoked instead, passing an object with `container` and `error` properties."
+    }
+
+]) }}
+{{ api_method("getButton", "getButton (id)", "Returns the button container element associated with a file",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id"
+    }
+],
+[
+    {
+        "type": "HTMLElement",
+        "description": "The button container element associated with a file, or `undefined` if the file was not submitted via a Fine Uploader controlled upload button."
+    }
+
+]) }}
+
+{{ api_method("getFile", "getFile (id)", "Returns the file identified by the id. File API browsers only.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+],
+[
+    {
+        "type": "File or Blob",
+        "description": "A `File` or `Blob` object."
+    }
+
+]) }}
+
+{{ api_method("getInProgress", "getInProgress ()", "Returns the number of items that are either currently uploading or waiting for an available connection (`qq.status.QUEUED`). If called inside of a `cancel` event handler, then this method will return a value that includes the upload associated with the `cancel` event handler. This is because the upload will not be canceled until the event handler returns.", none, [
+    {
+        "type": "Integer",
+        "description": "The number of items that are currently uploading or queued."
+    }
+]) }}
+
+{{ api_method("getName", "getName (id)", "Returns the name of the file with the associated id.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id"
+    }
+],
+[
+    {
+        "type": "String",
+        "description": "Returns the name of the file identified by the id."
+    }
+
+]) }}
+
+{{ api_method("getNetUploads", "getNetUploads ()", "Get the number of items that have been successfully uploaded and have not been deleted.", null,
+[
+    {
+        "type": "Integer",
+        "description": "The number of items that have been successfully uploaded and not deleted."
+    }
+
+]) }}
+
+{{ api_method("getParentId", "getParentId (scaledFileId)", "Get the ID of the parent file for this scaled file.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The ID of a scaled image file"
+    }
+],
+[
+    {
+        "type": "Integer",
+        "description": "Returns the ID of the scaled image's parent file.  `null` if this is not a scaled image or a parent cannot be located."
+    }
+
+]) }}
+
+{{ api_method("getRemainingAllowedItems", "getRemainingAllowedItems ()", "Returns the numer of remaining allowed items that may be submitted for upload based on `validation.itemLimit`.", null,
+[
+    {
+        "type": "Integer",
+        "description": "The number of items that may be submitted for upload."
+    }
+
+]) }}
+
+{{ api_method("getResumableFilesData", "getResumableFilesData ()", "Returns an array of potentially resumable items. Each resumable is represented by an object with the following properties:
+
+| Property | Description |
+| -------- | :---------- |
+| `name`   | filename |
+| `uuid`   | the unique id |
+| `partIdx` | the index of the part where the resume will start from |
+", null,
+[
+    {
+        "type": "Array",
+        "description": "An array of resumable items. "
+    }
+
+]) }}
+
+{{ api_method("getSize", "getSize (id)", "Returns the size of the item with the associated id.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+],
+[
+    {
+        "type": "Integer",
+        "description": "The size of the file with the corresponding id."
+    }
+
+]) }}
+
+{{ api_method("getUploads", "getUploads (filter)", "Return information about all the items that have been submitted to the uploader. The objects being iterated over will have the following properties: `id`, `uuid`, `originalName`, `name`, `status`, and `size`. For information on filtering via the filter parameter, see the [upload status feature page](http://docs.fineuploader.com/branch/master/features/statistics-and-status-updates.html).",
+[
+    {
+        "name": "filter",
+        "type": "Object",
+        "description": "An object which indicates which keys and values must be present in an upload to be returned."
+    }
+],
+[
+    {
+        "type": "Array or Object",
+        "description": "A list of items or a single item that has been filtered/found.  This returns an array only when
+        there is a potential for the operation to return more than one file in the result set. This excludes queries
+        for a specific, single ID or UUID. All other queries will return an array."
+    }
+
+]) }}
+
+{{ api_method("getUuid", "getUuid (id)", "Returns the UUID of the item with the associated id.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The fild id."
+    }
+],
+[
+    {
+        "type": "String",
+        "description": "A level 4 UUID which identifies the corresponding file."
+    }
+
+]) }}
+
+{{ api_method("log", "log (message[, level])", "Output a message to the console, if possible.",
+[
+    {
+        "name": "message",
+        "type": "String",
+        "description": "The message to print"
+    },
+    {
+        "name": "level",
+        "type": "String",
+        "description": "The level to output the message at."
+    }
+]) }}
+
+{{ api_method("pauseUpload", "pauseUpload (id)", "Attempts to pause an in-progress upload.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The fild id."
+    }
+],
+[
+    {
+        "type": "Boolean",
+        "description": "`true` if the attempt was succesful. `false` otherwise."
+    }
+
+]) }}
+
+{{ api_method("reset", "reset ()", "Reset Fine Uploader", null, null) }}
+
+{{ api_method("retry", "retry (id)", "Attempt to upload a specific item again.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+], null) }}
+
+{{ api_method("scaleImage", "scaleImage (id, options)", "Generates a scaled version of a submitted image file.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The id of the image file."
+    },
+    {
+        "name": "options",
+        "type": "Object",
+        "description": "Information about the scaled image to generate.  The `maxSize` property is required (integer).  Optional properties are: `orient` (boolean, defaults to true), `type` (string, defaults to the type of the reference image), and `quality` (number between 0 and 100, defaults to 80), and `includeExif` (boolean, defaults to `false`)."
+    }
+],
+[
+    {
+        "type": "promise",
+        "description": "Fulfilled by passing the scaled image as a `Blob` back into the success callback after the original image has been scaled. If the scaled image cannot be generated, the failure callback will be invoked instead."
+    }
+
+]) }}
+
+{{ api_method("setCustomHeaders", "setCustomHeaders (customHeaders[, id])", "Set custom headers for an upload request. Pass in a file id to make the headers specific to that file.",
+[
+    {
+        "name": "customHeaders",
+        "type": "Object",
+        "description": "The custom headers to include in the upload request.  Fine Uploader may also send some other required headers."
+    },
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+], null) }}
+
+{{ api_method("setEndpoint", "setEndpoint (path[, identifier])", "Modify the location where upload requests should be directed. Pass in a file id or `HTMLElement` to change the endpoint for that specific item.",
+[
+    {
+        "name": "path",
+        "type": "String",
+        "description": "A valid URI where upload requests will be sent."
+    },
+    {
+        "name": "identifier",
+        "type": "Integer or HTMLElement",
+        "description": "Either an integer corresponding to a file, or an `HTMLElement` corresponding to an upload button."
+    }
+], null) }}
+
+{{ api_method("setDeleteFileCustomHeaders", "setDeleteFileCustomHeaders (customHeaders[, id])", "Set custom headers for a delete file request. Pass in a file id to make the headers specific to that file.",
+[
+    {
+        "name": "customHeaders",
+        "type": "Object",
+        "description": "The custom headers to include in the delete request.  Fine Uploader may also send some other required headers."
+    },
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+], null) }}
+
+{{ api_method("setDeleteFileEndpoint", "setDeleteFileEndpoint (path[, identifier])", "Modify the location where upload requests should be directed. Pass in a file id or `HTMLElement` to change the endpoint for that specific item.",
+[
+    {
+        "name": "path",
+        "type": "String",
+        "description": "A valid URI where deleterequests will be sent."
+    },
+    {
+        "name": "identifier",
+        "type": "Integer or HTMLElement",
+        "description": "Either an integer corresponding to a file, or an `HTMLElement` corresponding to an upload button."
+    }
+], null) }}
+
+{{ api_method("setDeleteFileParams", "setDeleteFileParams (params[, id])", "Set the parameters for a delete request. Pass in a file id to make the parameters specific to that file.",
+[
+    {
+        "name": "params",
+        "type": "Object",
+        "description": "The parameters to include in the delete request."
+    },
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+
+], null) }}
+
+{{ api_method("setName", "setName (id, name)", "Change the name of a file.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    },
+    {
+        "name": "name",
+        "type": "String",
+        "description": "The new file name."
+    }
+], null) }}
+
+{{ api_method("setParams", "setParams (params[, id])", "Set the parameters for an upload request. Pass in a file id to make the parameters specific to that file.",
+[
+    {
+        "name": "params",
+        "type": "Object",
+        "description": "The parameters to include in the upload request."
+    },
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+], null) }}
+
+{{ api_method("setUuid", "setUuid (id, uuid)", "Change the UUID of a file.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    },
+    {
+        "name": "uuid",
+        "type": "String",
+        "description": "The new file UUID."
+    }
+], null) }}
+
+{{ api_method("uploadStoredFiles", "uploadStoredFiles ()", "Begin uploading all queued items. Throws a `NoFilesError` of there are no items to upload.", null, null) }}
+</div>
+
+<div class="methods-ui">
+{% markdown %}
+## UI
+{% endmarkdown %}
+
+{{ api_method("addExtraDropzone", "addExtraDropzone (element)", "Mark `element` as a drop zone.",
+[
+    {
+        "name": "element",
+        "type": "HTMLElement",
+        "description": "The element to mark as a drop zone."
+    }
+], null) }}
+
+{{ api_method("getDropTarget", "getDropTarget (id)", "Returns the (drop zone) element where the file was dropped. Undefined if drop event was not involved.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The id of a file."
+    }
+],
+[
+    {
+        "type": "HTMLElement",
+        "description": "The drop zone element where the file as dropped."
+    }
+]) }}
+
+{{ api_method("getId", "getId (element)", "Returns the file `id` associated with an `HTMLElement`.",
+[
+    {
+        "name": "element",
+        "type": "HTMLElement",
+        "description": "Returns the ID of the associated file, given a file container element or a child of a file container element."
+    }
+],
+[
+    {
+        "type": "Integer",
+        "description": "The id of the file."
+    }
+]) }}
+
+{{ api_method("getItemByFileId", "getItemByFileId (id)", "Returns the `HTMLElement` associated with the file id.",
+[
+    {
+        "name": "id",
+        "type": "Integer",
+        "description": "The file id."
+    }
+],
+[
+    {
+        "type": "HTMLElement",
+        "description": "The `HTMLElement` that is associated with the file id."
+    }
+]) }}
+
+{{ api_method("removeExtraDropzone", "removeExtraDropzone (element)", "Uesd to un-mark an `element` as a drop zone.",
+[
+    {
+        "name": "element",
+        "type": "HTMLElement",
+        "description": "The element to un-mark as a drop zone."
+    }
+], null) }}
+
+</div>
+
+</div>
+{% endblock %}
+</div>

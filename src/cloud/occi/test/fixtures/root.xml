@@ -1,7 +1,0 @@
-<COLLECTIONS>
-  <COMPUTE_COLLECTION href="http://localhost:4567/compute"/>
-  <INSTANCE_TYPE_COLLECTION href="http://localhost:4567/instance_type"/>
-  <NETWORK_COLLECTION href="http://localhost:4567/network"/>
-  <STORAGE_COLLECTION href="http://localhost:4567/storage"/>
-  <USER_COLLECTION href="http://localhost:4567/user"/>
-</COLLECTIONS>

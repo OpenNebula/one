@@ -73,10 +73,12 @@ protected:
         string uname;             /**< name of the user */
         string gname;             /**< name of the user's group */
 
-        set<int> group_ids;      /**< set of user's group ids */
+        set<int> group_ids;       /**< set of user's group ids */
 
         string session;           /**< Session from ONE XML-RPC API */
         int    req_id;            /**< Request ID for log messages */
+
+        int umask;                /**< User umask for new objects */
 
         xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
 
@@ -92,6 +94,8 @@ protected:
 
             session  = ra.session;
             retval   = ra.retval;
+
+            umask = ra.umask;
         };
 
         RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -101,6 +105,8 @@ protected:
 
             uname = "";
             gname = "";
+
+            umask = 0;
 
             session  = ra.session;
             retval   = ra.retval;

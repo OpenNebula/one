@@ -104,7 +104,10 @@ module OpenNebulaJSON
         end
 
         def save_as(params=Hash.new)
-            super(params['disk_id'].to_i, params['image_name'], params['type'], params['hot'])
+            clone = params['clonetemplate']
+            clone = false if clone.nil?
+
+            disk_snapshot(params['disk_id'].to_i, params['image_name'], params['type'], params['hot'], clone)
         end
 
         def snapshot_create(params=Hash.new)

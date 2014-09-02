@@ -37,6 +37,7 @@ $: << RUBY_LIB_LOCATION+'/onedb'
 
 require 'cli/command_parser'
 require 'onedb'
+require 'opennebula'
 
 FORCE={
     :name => "force",

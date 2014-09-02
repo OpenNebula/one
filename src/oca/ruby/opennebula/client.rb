@@ -20,7 +20,9 @@ require 'stringio'
 
 
 module OpenNebula
-    attr_accessor   :pool_page_size
+    def self.pool_page_size
+        @@pool_page_size
+    end
 
     if OpenNebula::OX
         class OxStreamParser < XMLRPC::XMLParser::AbstractStreamParser
@@ -68,12 +70,12 @@ module OpenNebula
 
     if size=ENV['ONE_POOL_PAGE_SIZE']
         if size.strip.match(/^\d+$/) && size.to_i >= 2
-            @pool_page_size = size.to_i
+            @@pool_page_size = size.to_i
         else
-            @pool_page_size = nil
+            @@pool_page_size = nil
         end
     else
-        @pool_page_size = DEFAULT_POOL_PAGE_SIZE
+        @@pool_page_size = DEFAULT_POOL_PAGE_SIZE
     end
 
 
@@ -111,8 +113,10 @@ module OpenNebula
             elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
                     File.file?(ENV["ONE_AUTH"])
                 @one_auth = File.read(ENV["ONE_AUTH"])
-            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+            elsif ENV["HOME"] and File.file?(ENV["HOME"]+"/.one/one_auth")
                 @one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+            elsif File.file?("/var/lib/one/.one/one_auth")
+                @one_auth = File.read("/var/lib/one/.one/one_auth")
             else
                 raise "ONE_AUTH file not present"
             end
@@ -123,8 +127,10 @@ module OpenNebula
                 @one_endpoint = endpoint
             elsif ENV["ONE_XMLRPC"]
                 @one_endpoint = ENV["ONE_XMLRPC"]
-            elsif File.exists?(ENV['HOME']+"/.one/one_endpoint")
+            elsif ENV['HOME'] and File.exists?(ENV['HOME']+"/.one/one_endpoint")
                 @one_endpoint = File.read(ENV['HOME']+"/.one/one_endpoint")
+            elsif File.exists?("/var/lib/one/.one/one_endpoint")
+                @one_endpoint = File.read("/var/lib/one/.one/one_endpoint")
             else
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
@@ -136,6 +142,7 @@ module OpenNebula
             http_proxy=options[:http_proxy] if options[:http_proxy]
 
             @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
+            @server.http_header_extra = {'accept-encoding' => 'identity'}
 
             if defined?(OxStreamParser)
                 @server.set_parser(OxStreamParser.new)

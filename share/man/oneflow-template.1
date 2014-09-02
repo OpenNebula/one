@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEFLOW\-TEMPLATE" "1" "March 2014" "" "oneflow-template(1) -- Manage oneFlow Templates"
+.TH "ONEFLOW\-TEMPLATE" "1" "July 2014" "" "oneflow-template(1) -- Manage oneFlow Templates"
 .
 .SH "NAME"
 \fBoneflow\-template\fR
@@ -36,13 +36,13 @@ top List the available Service Templates continuously valid options: json, top, 
 create \fIfile\fR Create a new Service Template valid options: json
 .
 .IP "\(bu" 4
-show \fItemplate_id\fR Show detailed information of a given Service Template valid options: json
+show \fItemplateid\fR Show detailed information of a given Service Template valid options: json
 .
 .IP "\(bu" 4
 delete \fIrange|templateid_list\fR Delete a given Service Template
 .
 .IP "\(bu" 4
-instantiate \fItemplate_id\fR Instantiate a Service Template valid options: json, top
+instantiate \fItemplateid\fR [\fIfile\fR] Instantiate a Service Template valid options: json, top
 .
 .IP "\(bu" 4
 chgrp \fIrange|templateid_list\fR \fIgroupid\fR Changes the service template group
@@ -76,7 +76,7 @@ groupid OpenNebula GROUP name or id
 userid OpenNebula USER name or id
 .
 .IP "\(bu" 4
-template_id OpenNebula SERVICE TEMPLATE name or id
+templateid OpenNebula SERVICE TEMPLATE name or id
 .
 .IP "\(bu" 4
 templateid_list Comma\-separated list of OpenNebula SERVICE TEMPLATE names or ids
@@ -84,7 +84,7 @@ templateid_list Comma\-separated list of OpenNebula SERVICE TEMPLATE names or id
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.5\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.8\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

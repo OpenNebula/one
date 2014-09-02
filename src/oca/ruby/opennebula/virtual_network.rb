@@ -23,26 +23,21 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         VN_METHODS = {
             :info       => "vn.info",
             :allocate   => "vn.allocate",
             :delete     => "vn.delete",
-            :addleases  => "vn.addleases",
-            :rmleases   => "vn.rmleases",
+            :add_ar     => "vn.add_ar",
+            :rm_ar      => "vn.rm_ar",
+            :update_ar  => "vn.update_ar",
             :chown      => "vn.chown",
             :chmod      => "vn.chmod",
             :update     => "vn.update",
             :hold       => "vn.hold",
             :release    => "vn.release",
-            :rename     => "vn.rename"
-        }
-
-        VN_TYPES=%w{RANGED FIXED}
-
-        SHORT_VN_TYPES={
-            "RANGED" => "R",
-            "FIXED"  => "F"
+            :rename     => "vn.rename",
+            :reserve    => "vn.reserve",
+            :free_ar    => "vn.free_ar"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -116,38 +111,88 @@ module OpenNebula
             super(VN_METHODS[:delete])
         end
 
-        # Adds a lease to the VirtualNetwork
-        def addleases(ip, mac = nil)
+        # Adds Address Ranges to the VirtualNetwork
+        def add_ar(ar_template)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template = "LEASES = [ IP = #{ip}"
-            lease_template << ", MAC = #{mac}" if mac
-            lease_template << " ]"
-
-            rc = @client.call(VN_METHODS[:addleases], @pe_id, lease_template)
+            rc = @client.call(VN_METHODS[:add_ar], @pe_id, ar_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
 
-        # Removes a lease from the VirtualNetwork
+        # Simulates old addleases call
+        # @deprecated use {#add_ar}
+        def addleases(ip, mac=nil)
+            self.info
+
+            ar_id = self.retrieve_elements("AR_POOL/AR[IP='#{ip}' and SIZE='1']/AR_ID")
+
+            if !ar_id.nil?
+                return Error.new("IP Address Range found with IP #{ip}")
+            end
+
+            template = 'AR = [ '
+            template << 'TYPE = "IP4"'
+            template << ', IP = "' << ip << '"' if ip
+            template << ', MAC = "' << mac << '"' if mac
+            template << ', SIZE = 1 ]'
+
+            add_ar(template)
+        end
+
+        # Removes an Address Range from the VirtualNetwork
+        def rm_ar(ar_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VN_METHODS[:rm_ar], @pe_id, ar_id.to_i)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Simulates old rmleases call
+        # @deprecated use #{rm_ar}
         def rmleases(ip)
+            self.info
+
+            ar_id = self.retrieve_elements("AR_POOL/AR[IP='#{ip}' and SIZE='1']/AR_ID")
+
+            if !ar_id
+                Error.new("No single IP Address Range found with IP #{ip}")
+            elsif ar_id.size > 1
+                Error.new("More than one Address Range found with IP #{ip} use rmar")
+            else
+                rm_ar(ar_id[0])
+            end
+        end
+
+        # Updates Address Ranges from the VirtualNetwork
+        def update_ar(ar_template)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template = "LEASES = [ IP = #{ip} ]"
-
-            rc = @client.call(VN_METHODS[:rmleases], @pe_id, lease_template)
+            rc = @client.call(VN_METHODS[:update_ar], @pe_id, ar_template)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
         end
 
-        # Holds a virtual network Lease as used
-        # @param ip [String] IP to hold
-        def hold(ip)
+        # Holds a virtual network address
+        # @param ip [String] address to hold, if contains ":" a MAC address is assumed
+        # @param ar_id [Integer] The address range to hold the lease. If not set
+        #        the lease will be held from all possible address ranges
+        def hold(ip, ar_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template = "LEASES = [ IP = #{ip} ]"
+            if ip.include?':'
+                addr_name = "MAC"
+            else
+                addr_name = "IP"
+            end
+
+            lease_template =  "LEASES = [ #{addr_name} = #{ip}"
+            lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
+            lease_template << "]"
 
             rc = @client.call(VN_METHODS[:hold], @pe_id, lease_template)
             rc = nil if !OpenNebula.is_error?(rc)
@@ -155,14 +200,67 @@ module OpenNebula
             return rc
         end
 
-        # Releases a virtual network Lease on hold
-        # @param ip [String] IP to release
-        def release(ip)
+        # Releases an address on hold
+        # @param ip [String] IP to release, if contains ":" a MAC address is assumed
+        # @param ar_id [Integer] The address range to release the lease. If not
+        #        set the lease will be freed from all possible address ranges
+        def release(ip, ar_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            lease_template = "LEASES = [ IP = #{ip} ]"
+            if ip.include?':'
+                addr_name = "MAC"
+            else
+                addr_name = "IP"
+            end
+
+            lease_template =  "LEASES = [ #{addr_name} = #{ip}"
+            lease_template << ", AR_ID = #{ar_id}" if ar_id != -1
+            lease_template << "]"
 
             rc = @client.call(VN_METHODS[:release], @pe_id, lease_template)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Reserve a set of addresses from this virtual network
+        # @param name [String] of the reservation
+        # @param rsize[String] number of addresses to reserve
+        # @param ar_id[String] the ar_id to make the reservation. If set to nil
+        #        any address range will be used
+        # @param addr [String] the first address in the reservation. If set to
+        #        nil the first free address will be used
+        # @param vnet [String] ID of the VNET to add the reservation to. If not
+        #        set a new VNET will be created.
+        def reserve(rname, rsize, ar_id, addr, vnet)
+            return Error.new('ID not defined') if !@pe_id
+
+            rtmpl =  "SIZE       = #{rsize}\n"
+            rtmpl << "NAME       = #{rname}\n" if !rname.nil?
+            rtmpl << "AR_ID      = #{ar_id}\n" if !ar_id.nil?
+            rtmpl << "NETWORK_ID = #{vnet}\n"  if !vnet.nil?
+
+            if !addr.nil?
+                if addr.include?':'
+                    addr_name = "MAC"
+                else
+                    addr_name = "IP"
+                end
+
+                rtmpl << "#{addr_name} = #{addr}\n"
+            end
+
+            rc = @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
+        # Removes an Address Range from the VirtualNetwork
+        def free(ar_id)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(VN_METHODS[:free_ar], @pe_id, ar_id.to_i)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
@@ -198,7 +296,7 @@ module OpenNebula
             super(VN_METHODS[:chmod], owner_u, owner_m, owner_a, group_u,
                 group_m, group_a, other_u, other_m, other_a)
         end
-        
+
         # Renames this virtual network
         #
         # @param name [String] New name for the virtual network.
@@ -217,21 +315,6 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
-        end
-
-        # Returns the type of the Virtual Network (numeric value)
-        def type
-            self['TYPE'].to_i
-        end
-
-        # Returns the type of the Virtual Network (string value)
-        def type_str
-            VN_TYPES[type]
-        end
-
-        # Returns the state of the Virtual Network (string value)
-        def short_type_str
-            SHORT_VN_TYPES[type_str]
         end
 
         def public?

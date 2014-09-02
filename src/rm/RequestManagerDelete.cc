@@ -317,3 +317,59 @@ int ZoneDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     return rc;
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    VirtualNetwork * vnet = static_cast<VirtualNetwork *>(object);
+
+    if ( vnet->get_used() > 0 )
+    {
+        error_msg = "Can not remove a virtual network with leases in use";
+
+        vnet->unlock();
+
+        return -1;
+    }
+
+    int pvid = vnet->get_parent();
+    int uid  = vnet->get_uid();
+    int gid  = vnet->get_gid();
+
+    int rc  = RequestManagerDelete::drop(oid, object, error_msg);
+
+    if (pvid != -1)
+    {
+        vnet = (static_cast<VirtualNetworkPool *>(pool))->get(pvid, true);
+
+        if (vnet == 0)
+        {
+            return rc;
+        }
+
+        int freed = vnet->free_addr_by_owner(PoolObjectSQL::NET, oid);
+
+        pool->update(vnet);
+
+        vnet->unlock();
+
+        if (freed > 0)
+        {
+            ostringstream oss;
+            Template      tmpl;
+
+            for (int i= 0 ; i < freed ; i++)
+            {
+                oss << " NIC = [ NETWORK_ID = " << pvid << " ]" << endl;
+            }
+
+            tmpl.parse_str_or_xml(oss.str(), error_msg);
+
+            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+        }
+    }
+
+    return rc;
+}

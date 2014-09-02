@@ -147,7 +147,7 @@ class OneDBBacKEnd
 
         @db.fetch("SELECT is_slave FROM local_db_versioning "<<
                   "WHERE oid=#{max_oid}") do |row|
-            is_slave = row[:is_slave]
+            is_slave = row[:is_slave] ? 1 : 0
         end
 
         @db.run(
@@ -327,6 +327,7 @@ class BackEndSQLite < OneDBBacKEnd
 
         begin
             @db = Sequel.sqlite(@sqlite_file)
+            @db.integer_booleans = true
         rescue Exception => e
             raise "Error connecting to DB: " + e.message
         end

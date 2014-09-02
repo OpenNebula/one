@@ -1,0 +1,22 @@
+{
+  "name": "datatables",
+  "version": "1.10.2",
+  "main": [
+    "media/js/jquery.dataTables.js",
+    "media/css/jquery.dataTables.css"
+  ],
+  "dependencies": {
+    "jquery": ">=1.7.0"
+  },
+  "homepage": "https://github.com/DataTables/DataTables",
+  "_release": "1.10.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.10.2",
+    "commit": "e07d49d42d768c0c1adf4137cc954a23a39c7beb"
+  },
+  "_source": "git://github.com/DataTables/DataTables.git",
+  "_target": "~1.10.2",
+  "_originalSource": "datatables",
+  "_direct": true
+}

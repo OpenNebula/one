@@ -83,6 +83,48 @@ EOT
         table
     end
 
+    def get_user_inputs(template)
+        user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
+
+        return "" if !user_inputs
+
+        answers = ""
+
+        puts "There are some parameters that require user input."
+
+        user_inputs.each do |key, val|
+            input_cfg = val.split('|')
+
+            if input_cfg.length != 3
+                STDERR.puts "Malformed user input. It should have 3 parts separated by '|':"
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            optional, type, description = input_cfg
+            optional.strip!
+            type.strip!
+            description.strip!
+
+            print "  * (#{key}) #{description}: "
+
+            case type
+            when 'text'
+                answer = STDIN.readline.chop
+            when 'password'
+                answer = OpenNebulaHelper::OneHelper.get_password
+            else
+                STDERR.puts "user input types can only be text or password:"
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+            answers << "#{key} = \""
+            answers << answer.gsub('"', "\\\"") << "\"\n"
+        end
+
+        answers
+    end
+
     private
 
     def factory(id=nil)

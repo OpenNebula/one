@@ -52,6 +52,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RBD_FORMAT \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
 
@@ -63,6 +64,7 @@ SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-$STAGING_DIR}"
+RBD_FORMAT="${XPATH_ELEMENTS[i++]:-$RBD_FORMAT}"
 FSTYPE="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 
@@ -92,19 +94,23 @@ fi
 
 MKFS_CMD=`mkfs_command $TMP_DST $FSTYPE $SIZE`
 
+if [ "$RBD_FORMAT" = "2" ]; then
+    FORMAT_OPT="--image-format 2"
+fi
+
 REGISTER_CMD=$(cat <<EOF
     set -e
     export PATH=/usr/sbin:/sbin:\$PATH
 
     if [ "$FSTYPE" = "raw" ]; then
-        $QEMU_IMG create rbd:$RBD_SOURCE ${SIZE}M
+        $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE}
     else
         # create and format
         $DD if=/dev/zero of=$TMP_DST bs=1 count=1 seek=${SIZE}M
         $MKFS_CMD
 
         # create rbd
-        $QEMU_IMG convert $QEMU_IMG_CONVERT_ARGS $TMP_DST rbd:$RBD_SOURCE
+        $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
 
         # remove original
         $RM -f $TMP_DST

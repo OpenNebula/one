@@ -64,3 +64,29 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
         failure_response(INTERNAL, request_error("Could not connect to the federation master oned", ""), att);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RequestManagerProxy::hide_argument(int arg)
+{
+    hidden_arg = arg;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RequestManagerProxy::log_xmlrpc_param(
+            const xmlrpc_c::value&  v,
+            ostringstream&          oss,
+            const int&              index)
+{
+    if (index == hidden_arg)
+    {
+        oss << ", ****";
+    }
+    else
+    {
+        Request::log_xmlrpc_param(v, oss, index);
+    }
+}

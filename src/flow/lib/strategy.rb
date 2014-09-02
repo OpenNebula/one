@@ -261,17 +261,7 @@ protected
         end
 
         role.get_nodes.each { |node|
-            if node && node['vm_info']
-                vm_state = node['vm_info']['VM']['STATE']
-                lcm_state = node['vm_info']['VM']['LCM_STATE']
-
-                # !(ACTIVE && RUNNING)
-                if (vm_state != '3') || (lcm_state != '3')
-                    return false
-                end
-            else
-                return false
-            end
+            return false if !(node && node['running'])
         }
 
         return true
@@ -320,7 +310,7 @@ protected
         role.get_nodes.each { |node|
             if node && node['vm_info']
                 vm_state = node['vm_info']['VM']['STATE']
-    
+
                 if vm_state != '6' # DONE
                     return false
                 end
@@ -338,7 +328,7 @@ protected
     def any_node_failed_scaling?(role)
         role.get_nodes.each { |node|
             if node && node['vm_info'] &&
-                (node['disposed'] == '1' || node['scale_up'] == '1') && 
+                (node['disposed'] == '1' || node['scale_up'] == '1') &&
                 node['vm_info']['VM']['STATE'] == '7' # FAILED
 
                 return true
@@ -350,23 +340,10 @@ protected
 
     def role_finished_scaling?(role)
         role.get_nodes.each { |node|
-            if node && node['vm_info']
-                # For scale up, check new nodes are running, or past running
+            # For scale up, check new nodes are running, or past running
+            if node
                 if node['scale_up'] == '1'
-                    vm_state = node['vm_info']['VM']['STATE'].to_i
-                    lcm_state = node['vm_info']['VM']['LCM_STATE'].to_i
-
-                    # If any node didn't make it through the initial deployment,
-                    # return false
-
-                    # INIT, PENDING, HOLD ||
-                    # ACTIVE && (LCM_INIT, PROLOG, BOOT)
-
-                    if vm_state == 7 ||
-                        ((vm_state < 3) || (vm_state == 3 && lcm_state < 3 ))
-
-                        return false
-                    end
+                    return false if !node['running']
                 end
             else
                 return false

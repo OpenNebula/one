@@ -6,12 +6,21 @@
       <xs:sequence>
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="USERS">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-              </xs:complexType>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RESOURCE_PROVIDER" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ZONE_ID" type="xs:integer"/>
+              <xs:element name="CLUSTER_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
         </xs:element>
         <xs:element name="DATASTORE_QUOTA" minOccurs="0" maxOccurs="1">
           <xs:complexType>

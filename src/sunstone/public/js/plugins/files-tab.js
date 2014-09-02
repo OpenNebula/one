@@ -25,7 +25,6 @@ var create_file_tmpl ='<div class="row">\
       </dl>\
     </div>\
   </div>\
-  <div class="reveal-body">\
   <form id="create_file_form_easy" action="" class="custom creation">\
       <div class="tabs-content">\
         <div id="file_easyTab" class="content active">\
@@ -58,9 +57,9 @@ var create_file_tmpl ='<div class="row">\
                         '</span>'+
                       '</label>\
                        <select name="file_type" id="file_type">\
+                            <option value="CONTEXT">'+tr("Context")+'</option>\
                             <option value="KERNEL">'+tr("Kernel")+'</option>\
                             <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                            <option value="CONTEXT">'+tr("Context")+'</option>\
                        </select>\
                     </div>\
                   </div>\
@@ -69,8 +68,8 @@ var create_file_tmpl ='<div class="row">\
                       <label for="file_datastore">'+tr("Datastore")+
                         '<span class="tip">'+tr("Select the datastore for this file")+'</span>'+
                       '</label>\
-                       <select id="file_datastore" name="file_datastore">\
-                       </select>\
+                       <div id="file_datastore" name="file_datastore">\
+                       </div>\
                     </div>\
                   </div>\
                 </div>\
@@ -97,19 +96,17 @@ var create_file_tmpl ='<div class="row">\
                   </div>\
                </div>\
             </fieldset>\
-          <div class="reveal-footer">\
             <div class="form_buttons">\
-              <button class="button success radius right" id="create_file_submit" type="button" value="file/create">'+tr("Create")+'</button>\
+              <button class="button success radius right" id="create_file_submit" type="submit" value="file/create">'+tr("Create")+'</button>\
               <button id="wizard_file_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
-          </div>\
         </div>\
         <div id="file_manualTab" class="content">\
-          <div class="reveal-body">\
               <div class="row">\
                  <div class="columns large-12">\
                    <label for="file_datastores_raw">'+tr("Datastore")+':</label>\
-                   <select id="file_datastore_raw" name="file_datastore_raw"></select>\
+                   <div id="file_datastore_raw" name="file_datastore_raw">\
+                   </div>\
                  </div>\
               </div>\
               <div class="row">\
@@ -117,8 +114,6 @@ var create_file_tmpl ='<div class="row">\
                    <textarea id="template" rows="15" style="height:180px !important; width:100%;"></textarea>\
                 </div>\
               </div>\
-          </div>\
-          <div class="reveal-footer">\
                <div class="form_buttons">\
                  <button class="button success radius right" id="create_file_submit_manual" value="file/create">'+tr("Create")+'</button>\
                  <button  id="advanced_file_reset_button" class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
@@ -131,6 +126,7 @@ var create_file_tmpl ='<div class="row">\
 
 var dataTable_files;
 var $create_file_dialog;
+var size_files = 0;
 
 var file_actions = {
 
@@ -138,8 +134,13 @@ var file_actions = {
         type: "create",
         call: OpenNebula.Image.create,
         callback: function(request, response) {
-          addFileElement(request, response);
-          notifyCustom(tr("File created"), " ID: " + response.IMAGE.ID, false);
+            // Reset the create wizard
+            $create_file_dialog.foundation('reveal', 'close');
+            $create_file_dialog.empty();
+            setupCreateFileDialog();
+
+            addFileElement(request, response);
+            notifyCustom(tr("File created"), " ID: " + response.IMAGE.ID, false);
         },
         error: onError
     },
@@ -159,14 +160,17 @@ var file_actions = {
     "File.show" : {
         type : "single",
         call: OpenNebula.Image.show,
-        callback: updateFileElement,
-        error: onError
-    },
+        callback: function(request, response){
+            var tab = dataTable_files.parents(".tab");
 
-    "File.showinfo" : {
-        type: "single",
-        call: OpenNebula.Image.show,
-        callback: updateFileInfo,
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateFileInfo(request, response);
+            }
+
+            // datatable row
+            updateFileElement(request, response);
+        },
         error: onError
     },
 
@@ -175,18 +179,11 @@ var file_actions = {
         call: function () {
           var tab = dataTable_files.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("File.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("File.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_files);
-            Sunstone.runAction("File.list");
+            Sunstone.runAction("File.list", {force: true});
           }
-        }
-    },
-
-    "File.autorefresh" : {
-        type: "custom",
-        call: function() {
-            OpenNebula.Image.list({timeout: true, success: updateFilesView, error: onError});
         }
     },
 
@@ -195,7 +192,7 @@ var file_actions = {
         call: OpenNebula.Image.update,
         callback: function(request) {
             notifyMessage("Template updated correctly");
-            Sunstone.runAction('File.showinfo',request.request.data[0][0]);
+            Sunstone.runAction('File.show',request.request.data[0][0]);
         },
         error: onError
     },
@@ -236,7 +233,6 @@ var file_actions = {
         call: OpenNebula.Image.chown,
         callback:  function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('File.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -248,7 +244,6 @@ var file_actions = {
         call: OpenNebula.Image.chgrp,
         callback: function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction('File.showinfo',req.request.data[0]);
         },
         elements: fileElements,
         error: onError,
@@ -268,7 +263,6 @@ var file_actions = {
         call: OpenNebula.Image.chtype,
         callback: function (req) {
             Sunstone.runAction("File.show",req.request.data[0][0]);
-            Sunstone.runAction("File.list");
         },
         elements: fileElements,
         error: onError,
@@ -286,8 +280,7 @@ var file_actions = {
         call: OpenNebula.Image.rename,
         callback: function(request) {
             notifyMessage(tr("File renamed correctly"));
-            Sunstone.runAction('File.showinfo',request.request.data[0]);
-            Sunstone.runAction('File.list');
+            Sunstone.runAction('File.show',request.request.data[0]);
         },
         error: onError,
         notify: true
@@ -301,6 +294,11 @@ var file_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "File.create_dialog" : {
         type: "create_dialog",
         layout: "create"
@@ -309,7 +307,7 @@ var file_buttons = {
         type: "confirm_with_select",
         text: tr("Change owner"),
         layout: "user_select",
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
@@ -317,7 +315,7 @@ var file_buttons = {
         type: "confirm_with_select",
         text: tr("Change group"),
         layout: "user_select",
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         condition: mustBeAdmin
     },
@@ -347,6 +345,7 @@ var file_info_panel = {
 
 var files_tab = {
     title: tr("Files & Kernels"),
+    resource: 'File',
     buttons: file_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',
@@ -354,8 +353,8 @@ var files_tab = {
       <div id="files_upload_progress_bars"></div>\
     </div>',
     search_input: '<input id="file_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-folder-open"></i> '+tr("Files & Kernels"),
-    info_header: '<i class="fa fa-folder-open"></i> '+tr("File"),
+    list_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("Files & Kernels"),
+    info_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("File"),
     subheader: '<span class="total_files"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="size_files"/> <small>'+tr("SIZE")+'</small>',
     table: '<table id="datatable_files" class="datatable twelve">\
@@ -564,20 +563,13 @@ function updateFileInfo(request,file){
     $("#chg_type_select_files").live("change", function() {
         var new_value = $(this).val();
         Sunstone.runAction("File.chtype", file_info.ID, new_value);
-        Sunstone.runAction("File.showinfo", file_info.ID);
     });
 
 
     Sunstone.updateInfoPanelTab("file_info_panel","file_info_tab",info_tab);
     Sunstone.popUpInfoPanel("file_info_panel", "files-tab");
 
-    $("#file_info_panel_refresh", $("#file_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('File.showinfo', file_info.ID);
-    })
-
     setPermissionsTable(file_info,'');
-
 }
 
 function enable_all_datastores()
@@ -596,7 +588,7 @@ function setupCreateFileDialog(){
     var dialog = $create_file_dialog;
     dialog.html(create_file_tmpl);
 
-    dialog.addClass("reveal-modal medium max-height").attr("data-reveal", "");
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
 
     $('#files_file-uploader',dialog).closest('.row').hide();
 
@@ -646,6 +638,7 @@ function setupCreateFileDialog(){
             //since the body is the upload, we need the pass
             //the file info here
             uploader.setParams({
+                csrftoken: csrftoken,
                 img : JSON.stringify(file_obj),
                 file: fileName
             });
@@ -682,7 +675,7 @@ function setupCreateFileDialog(){
                 $('#files'+id+'progressBar').remove();
             } else {
                 notifyMessage("File uploaded correctly");
-                Sunstone.runAction("File.list");
+                Sunstone.runAction("File.refresh");
                 $('#files'+id+'progressBar').remove();
             }
 
@@ -700,10 +693,10 @@ function setupCreateFileDialog(){
         file_input = input;  return false;
     };
 
-    $('#create_file_submit',dialog).click(function(){
+    $('#create_file_form_easy',dialog).submit(function(){
         var upload = false;
 
-        var ds_id = $('#file_datastore',dialog).val();
+        var ds_id = $('#file_datastore .resource_list_select',dialog).val();
         if (!ds_id){
             notifyError(tr("Please select a datastore for this file"));
             return false;
@@ -739,18 +732,21 @@ function setupCreateFileDialog(){
         //we this is an file upload we trigger FileUploader
         //to start the upload
         if (upload){
+            $create_file_dialog.foundation('reveal', 'close');
+            $create_file_dialog.empty();
+            setupCreateFileDialog();
+
             uploader._onInputChange(file_input);
         } else {
             Sunstone.runAction("File.create", file_obj);
         };
 
-        $create_file_dialog.foundation('reveal', 'close')
         return false;
     });
 
     $('#create_file_submit_manual',dialog).click(function(){
         var template=$('#template',dialog).val();
-        var ds_id = $('#file_datastore_raw',dialog).val();
+        var ds_id = $('#file_datastore_raw .resource_list_select',dialog).val();
 
         if (!ds_id){
             notifyError(tr("Please select a datastore for this file"));
@@ -764,41 +760,50 @@ function setupCreateFileDialog(){
             "ds_id" : ds_id
         };
         Sunstone.runAction("File.create",file_obj);
-        $create_file_dialog.foundation('reveal', 'close')
         return false;
     });
 
+    setupTips(dialog);
+
+    $('#wizard_file_reset_button', dialog).click(function(){
+        $('#create_file_dialog').html("");
+        setupCreateFileDialog();
+
+        popUpCreateFileDialog();
+    });
+
+    $('#advanced_file_reset_button', dialog).click(function(){
+        $('#create_file_dialog').html("");
+        setupCreateFileDialog();
+
+        popUpCreateFileDialog();
+        $("a[href='#file_manual']").click();
+    });
 }
 
 function popUpCreateFileDialog(){
     $('#files_file-uploader input',$create_file_dialog).removeAttr("style");
     $('#files_file-uploader input',$create_file_dialog).attr('style','margin:0;width:256px!important');
 
-    datastores_str = makeSelectOptions(dataTable_datastores,
-                                          1,
-                                          4,
-                                          [10,10],//system ds
-                                          ['image','system'], //filter image & sys datastores
-                                          true
-                                         );
+    var ds_id = $("div#file_datastore .resource_list_select",
+                    $create_file_dialog).val();
 
-    $('#file_datastore',$create_file_dialog).html(datastores_str);
-    $('#file_datastore_raw',$create_file_dialog).html(datastores_str);
+    var ds_id_raw = $("div#file_datastore_raw .resource_list_select",
+                        $create_file_dialog).val();
+
+    // Filter out DS with type image (0) or system (1)
+    var filter_att = ["TYPE", "TYPE"];
+    var filter_val = ["0", "1"];
+
+    insertSelectOptions('div#file_datastore', $create_file_dialog, "Datastore",
+                        ds_id, false, null, filter_att, filter_val);
+
+    insertSelectOptions('div#file_datastore_raw', $create_file_dialog, "Datastore",
+                        ds_id_raw, false, null, filter_att, filter_val);
 
     $create_file_dialog.foundation().foundation('reveal', 'open');
     $("input#file_name",$create_file_dialog).focus();
 }
-
-// Set the autorefresh interval for the datatable
-function setFileAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_files);
-        var filter = $("#file_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("File.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
 
 function is_persistent_file(id){
     var data = getElementData(id,"#file",dataTable_files)[8];
@@ -816,7 +821,9 @@ $(document).ready(function(){
               { "sWidth": "35px", "aTargets": [0] },
               { "bVisible": true, "aTargets": Config.tabTableColumns(tab_name)},
               { "bVisible": false, "aTargets": ['_all']}
-          ]
+          ],
+          "bSortClasses" : false,
+          "bDeferRender": true,
       });
 
       $('#file_search').keyup(function(){
@@ -830,12 +837,10 @@ $(document).ready(function(){
       Sunstone.runAction("File.list");
 
       setupCreateFileDialog();
-      setupTips($create_file_dialog);
-      setFileAutorefresh();
 
       initCheckAllBoxes(dataTable_files);
       tableCheckboxesListener(dataTable_files);
-      infoListener(dataTable_files,'File.showinfo');
+      infoListener(dataTable_files,'File.show');
 
       $('div#files_tab div.legend_div').hide();
       dataTable_files.fnSort( [ [1,config['user_config']['table_order']] ] );

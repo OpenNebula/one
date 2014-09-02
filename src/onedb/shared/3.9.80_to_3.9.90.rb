@@ -49,7 +49,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.xpath("HISTORY_RECORDS/HISTORY").each do |e|
                     update_history(e)
@@ -79,7 +79,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_history") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.xpath("/HISTORY").each do |e|
                     update_history(e)

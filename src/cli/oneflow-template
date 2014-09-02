@@ -165,7 +165,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OpenNebulaHelper.rname_to_id(arg, "USER")
     end
 
-    set :format, :template_id, Service.rname_to_id_desc("SERVICE TEMPLATE") do |arg|
+    set :format, :templateid, Service.rname_to_id_desc("SERVICE TEMPLATE") do |arg|
         Service.rname_to_id(arg, "SERVICE TEMPLATE")
     end
 
@@ -266,7 +266,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Show detailed information of a given Service Template
     EOT
 
-    command :show, show_desc, :template_id, :options => Service::JSON_FORMAT do
+    command :show, show_desc, :templateid, :options => Service::JSON_FORMAT do
         client = Service::Client.new(
                     :username   => options[:username],
                     :password   => options[:password],
@@ -304,7 +304,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Instantiate a Service Template
     EOT
 
-    command :instantiate, instantiate_desc, :template_id,
+    command :instantiate, instantiate_desc, :templateid, [:file, nil],
             :options => [Service::JSON_FORMAT, Service::TOP] do
         client = Service::Client.new(
                     :username   => options[:username],
@@ -312,7 +312,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     :url        => options[:server],
                     :user_agent => USER_AGENT)
 
-        json_str = Service.build_json_action('instantiate')
+        params = Hash.new
+
+        if(args[1])
+            params['merge_template'] = JSON.parse(File.read(args[1]))
+        end
+
+        json_str = Service.build_json_action('instantiate', params)
 
         response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json_str)
 

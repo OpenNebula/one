@@ -43,8 +43,12 @@ Config = {
     },
 
     "isTabPanelEnabled": function(tab_name, panel_tab_name){
-      var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
-      return enabled;
+      if (config['view']['tabs'][tab_name]) {
+        var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
+        return enabled;
+      } else {
+        return false;
+      }
     },
 
     "tabTableColumns": function(tab_name){
@@ -59,8 +63,12 @@ Config = {
     },
 
     "isTemplateCreationTabEnabled": function(template_tab_name){
-      var enabled = config['view']['tabs']['templates-tab']['template_creation_tabs'][template_tab_name];
-      return enabled;
+      if (config['view']['tabs']['templates-tab']){
+        var enabled = config['view']['tabs']['templates-tab']['template_creation_tabs'][template_tab_name];
+        return enabled;
+      } else {
+        return false;
+      }
     },
 
     "dashboardWidgets": function(per_row){
@@ -76,6 +84,20 @@ Config = {
 
     "tableOrder": function(){
         return config['user_config']["table_order"];
+    },
+
+    "provision": {
+      "dashboard": {
+        "isEnabled": function(widget) {
+          if (config['view']['tabs']['provision-tab']){
+            var enabled = config['view']['tabs']['provision-tab']['dashboard'][widget];
+            return enabled;
+          } else {
+            return false;
+          }
+        }
+      },
+      "logo": (config['view']["provision_logo"] || "images/one_small_logo.png")
     }
 }
 
@@ -109,34 +131,27 @@ var config_tab_content =
         </div>\
       </div>\
       <div class="row">\
-        <div id="setting_user_template" class="large-12 columns">\
-        </div>\
+        <div id="setting_user_template" class="large-12 columns">'+
+          '<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+            '</span>'+
+          '</div>'+
+        '</div>\
       </div>\
     </div>\
     <div id="conf_configuration" class="row content">\
         <div class="large-5 columns">\
           <div class="row">\
               <label for="lang_sel" >' + tr("Language") + ':\
-                <select id="lang_sel">\
-                   <option value="en_US">English (en_US)</option>\
-                   <option value="ca">Catalan (ca)</option>\
-                   <option value="cs_CZ">Czech (cs_CZ)</option>\
-                   <option value="nl_NL">Dutch (nl_NL)</option>\
-                   <option value="da">Danish (da)</option>\
-                   <option value="fr_FR">French (fr_FR)</option>\
-                   <option value="de">German (de)</option>\
-                   <option value="el_GR">Greek (el_GR)</option>\
-                   <option value="it_IT">Italian (el_GR)</option>\
-                   <option value="fa_IR">Persian (fa_IR)</option>\
-                   <option value="pl">Polish (pl)</option>\
-                   <option value="pt_BR">Portuguese (pt_BR)</option>\
-                   <option value="pt_PT">Portuguese (pt_PT)</option>\
-                   <option value="ru_RU">Russian (ru_RU)</option>\
-                   <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
-                   <option value="sk_SK">Slovak (sk_SK)</option>\
-                   <option value="es_ES">Spanish (es_ES)</option>\
-                   <option value="zh_TW">Traditional Chinese (zh_TW)</option>\
-                </select>\
+                <select id="lang_sel">'+
+                  language_options +
+                '</select>\
               </label>\
           </div>\
           <div class="row">\
@@ -168,9 +183,6 @@ var config_tab_content =
           </dl>\
           <div class="tabs-content">\
             <div class="content active" id="user_quotas">\
-              <div class="large-12 columns">\
-                <p class="subheader">'+tr("No quotas defined")+'</p>\
-              </div>\
             </div>\
             <div id="group_quotas" class="content">\
               <div class="row">\
@@ -182,9 +194,6 @@ var config_tab_content =
                 </div>\
               </div>\
               <div id="group_quotasTabBody" class="row">\
-                <div class="large-12 columns">\
-                  <p class="subheader">'+tr("No quotas defined")+'</p>\
-                </div>\
               </div>\
             </div>\
           </div>\
@@ -201,35 +210,24 @@ var config_tab_content =
   <a class="close-reveal-modal">&#215;</a>';
 
 
-var settings_update_password = '<div class="panel">\
-  <h3>\
-    <small id="create_vnet_header">'+tr("Update Password")+'</small>\
-  </h3>\
+var settings_update_password = '<div class="row">\
+  <div class="large-12 columns">\
+    <h3 id="create_vnet_header" class="subheader">'+tr("Update Password")+'</h3>\
+  </div>\
 </div>\
 <form id="settings_update_password_form" action="">\
-      <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="new_password">'+tr("New password")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+      <div class="row ">\
+          <div class="large-12 columns">\
+              <label for="new_password">'+tr("New password")+'</label>\
               <input type="password" name="new_password" id="new_password" />\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
       <div class="row centered">\
-          <div class="large-4 columns">\
-              <label class="inline right" for="confirm_password">'+tr("Confirm Password")+':</label>\
-          </div>\
-          <div class="large-7 columns">\
+          <div class="large-12 columns">\
+              <label for="confirm_password">'+tr("Confirm Password")+'</label>\
               <input type="password" name="confirm_password" id="confirm_password" />\
           </div>\
-          <div class="large-1 columns">\
-              <div class=""></div>\
-          </div>\
       </div>\
-      <hr>\
       <div class="form_buttons">\
           <button class="button radius right success" id="update_pw_submit" type="submit" value="User.update">'+tr("Change")+'</button>\
       </div>\
@@ -242,7 +240,6 @@ Sunstone.addActions({
         type: "single",
         call: OpenNebula.User.update,
         callback: function(request) {
-            notifyMessage(tr("Template updated correctly"));
             fillUserInfo();
         },
         error: onError
@@ -251,7 +248,6 @@ Sunstone.addActions({
         type: "multiple",
         call: OpenNebula.User.passwd,
         callback: function(req,res){
-            notifyMessage(tr("Change password successful"));
         },
         error: onError
     }
@@ -284,7 +280,7 @@ function setupUpdatePassword() {
         }
 
         Sunstone.runAction("UserSettings.passwd",[-1],pw);
-        $('#settings_update_password',dialogs_context).foundation('reveal', 'close')
+        dialog.foundation('reveal', 'close');
         return false;
     });
 }
@@ -377,18 +373,17 @@ function tr(str){
 function updateUserConfigInfo(request,user_json) {
     var info = user_json.USER;
 
-    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS)
-    var quotas_tab_html = Quotas.vms(info, default_user_quotas);
-    quotas_tab_html += Quotas.cpu(info, default_user_quotas);
-    quotas_tab_html += Quotas.memory(info, default_user_quotas);
-    quotas_tab_html += Quotas.volatile_size(info, default_user_quotas);
-    quotas_tab_html += Quotas.image(info, default_user_quotas);
-    quotas_tab_html += Quotas.network(info, default_user_quotas);
-    quotas_tab_html += Quotas.datastore(info, default_user_quotas);
+    var default_user_quotas = Quotas.default_quotas(info.DEFAULT_USER_QUOTAS);
 
-    if (quotas_tab_html !== "") {
-      $("#user_quotas").html(quotas_tab_html);
-    }
+    var quotas_tab_html = initQuotasPanel(info, default_user_quotas,
+                                        "#user_quotas", false);
+
+    $("#user_quotas").html(quotas_tab_html);
+
+    setupQuotasPanel(info,
+        "#user_quotas",
+        false,
+        "User");
 
     $("#user_information tbody").html('<tr>\
         <td class="key_td">' + tr("ID") + '</td>\
@@ -477,17 +472,15 @@ function fillGroupQuotas(group_id){
 
             var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
 
-            var quotas_tab_html = Quotas.vms(info, default_group_quotas);
-            quotas_tab_html += Quotas.cpu(info, default_group_quotas);
-            quotas_tab_html += Quotas.memory(info, default_group_quotas);
-            quotas_tab_html += Quotas.volatile_size(info, default_group_quotas);
-            quotas_tab_html += Quotas.image(info, default_group_quotas);
-            quotas_tab_html += Quotas.network(info, default_group_quotas);
-            quotas_tab_html += Quotas.datastore(info, default_group_quotas);
+            var quotas_tab_html = initQuotasPanel(info, default_group_quotas,
+                                                "#group_quotasTabBody", false);
 
-            if (quotas_tab_html !== "") {
-              $("#group_quotasTabBody").html(quotas_tab_html);
-            }
+            $("#group_quotasTabBody").html(quotas_tab_html);
+
+            setupQuotasPanel(info,
+                "#group_quotasTabBody",
+                false,
+                "Group");
 
             $("select#quota_group_sel").val(info.ID);
         }
@@ -508,6 +501,7 @@ $(document).ready(function(){
     setupUpdatePassword();
 
     $(".user-zone-info a.configuration").click(function(){
+        $(document).foundation('dropdown', 'closeall');
         fillUserInfo();
 
         OpenNebula.Group.list(

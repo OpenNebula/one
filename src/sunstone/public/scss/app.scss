@@ -51,18 +51,24 @@
   display: none;
 }
 
-.left-footer {
-  clear: both;
-  position: relative;
-  z-index: 10;
-  height: 3em;
-  margin-top: -3em;
-  font-size:12px;
-  margin-left: 200px;
+#footer {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #999;
+
+  a {
+    color: #999;
+  }
+
+  a:hover {
+    color: #333;
+  }
 }
 
 .left-content {
   padding-top: 31px;
+  padding-left: 20px;
 }
 
 .left-header {
@@ -76,7 +82,8 @@
 
 .right-content {
   padding-top: 20px;
-  padding-left: 40px;
+  padding-left: 30px;
+  padding-right: 20px;
 }
 
 .right-info {
@@ -99,13 +106,17 @@ table {
     th {
         font-weight: normal !important;
         font-size: 16px !important;
-        background: #fff !important;
+        background-color: #fff !important;
         border-bottom: 1px solid #efefef !important;;
         color: #333 !important;
     }
 
     td {
         color: #555 !important;
+    }
+
+    tfoot {
+        background-color: #fff !important;
     }
 }
 
@@ -133,13 +144,13 @@ table.dataTable {
 }
 
 
-tr.odd:hover td {
+tr.odd:hover td:not(.dataTables_empty) {
     background-color: #2ba6cb !important;
     cursor: pointer;
     color: #FFF !important;
 }
 
-tr.even:hover td {
+tr.even:hover td:not(.dataTables_empty) {
     background-color: #2ba6cb !important;
     cursor: pointer;
     color: #FFF !important;
@@ -166,11 +177,22 @@ input.search {
 
         .button {
             background: #fff;
+            border: none;
         }
 
         .button:hover {
             background: #F5F5F5;
         }
+    }
+}
+
+
+.white_button {
+    background-color: #fff !important;
+    border: none;
+
+    &:hover {
+      color: $primary-color !important;
     }
 }
 
@@ -180,13 +202,11 @@ input.search {
 }
 
 .side-nav {
-    margin-left: 15px;
 
     .topTab {
-        margin-top: 15px;
 
         a {
-            color: #333 !important;
+            color: #555 !important;
         }
     }
 
@@ -208,7 +228,7 @@ input.search {
 }
 
 .header-title {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 // action block
@@ -235,12 +255,14 @@ select {
 
 .button.secondary {
   color: #555;
+}
+
+.button {
   margin-right: 3px;
 }
 
 // Dropdown
 .f-dropdown {
-  width: auto;
   text-align: left;
   li {
     padding: 0px 10px;
@@ -275,6 +297,8 @@ select {
 
 .has-tip {
   margin-left: 10px;
+  color: #555;
+  font-weight: normal;
 }
 
 // Totals
@@ -302,9 +326,11 @@ select {
 // Dashboard
 
 fieldset {
-  margin: 0px;
+  margin-top: 0px;
+  margin-bottom: 20px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
+  padding: 15px;
 
   legend {
     font-weight: normal !important;
@@ -416,63 +442,51 @@ fieldset {
 // Reveal
 
 .reveal-modal h3 {
+    margin-left: -20px;
     margin-bottom: 25px !important;
 }
 
 .reveal-body {
-    height:80%;
-    overflow-y: overlay;
-    overflow-x: hidden;
     padding: 5px 20px;
 }
 
-.reveal-footer {
-    position: absolute;
-    bottom: 20px;
-    width: 90%;
-}
 
 .max-height{
-    max-height: 90%;
-    position: absolute;
-    height: 100%;
 }
 
 .form_buttons {
-  padding-top: 20px;
+  padding-top: 30px;
 }
 
 
 // Progress bar
 
-.progress-container {
-    position:relative;
-    width: 100%;
-    text-align: center;
-    background: #FFF;
-    line-height: 18px;
-    margin-top: -8px;
+.quotas {
+  fieldset {
+    padding-top:  5px;
+    padding-bottom: 0px;
+  }
 }
 
-.progress {
-    position:absolute;
-    width: 100%;
-    height: 19px !important;
-    background: #FFF;
-    border: 1px solid #cfcfcf
+.provision-bullet-item {
+
+  .progress {
+    height: 10px;
+    background-color: #fff;
+  }
+
+  .progress-text {
+  }
 }
 
-.progress-text {
-    position:absolute;
-    width: 100%;
-    font-size: 12px;
-    color: #000 !important;
-}
 
-.meter {
-    background: #cdebf5 !important;
+.quota_table {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  clear: both;
+  max-width: none !important;
+  width: 100%;
 }
-
 
 ul.pagination li a {
   background: #f5f5f5;
@@ -563,12 +577,8 @@ table.dataTable thead .sorting_desc_disabled {
   *cursor: hand;
 }
 
-table.dataTable thead .sorting { background: url('images/sort_both.png') no-repeat center right; }
-table.dataTable thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
-table.dataTable thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
-
-table.dataTable thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
-table.dataTable thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
+table.dataTable thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
+table.dataTable thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
 
 table.dataTable th:active {
   outline: none;
@@ -623,3 +633,314 @@ div.dataTables_scrollFoot table {
 .jGrowl-close {
   font-size: 1.5em !important;
 }
+
+.alert-box-error {
+    border: 0px!important;
+    background-color: #F39999!important;
+    color: #660000;
+}
+
+
+.custom-panel {
+  @include panel();
+
+  border-color: #efefef;
+  margin-bottom: 0px;
+}
+
+.provision-pricing-table  {
+  @include pricing-table-container;
+  //border: 1px solid #efefef;
+  //box-shadow: 0px 1px #dfdfdf;
+  padding: 5px;
+  border: 1px solid #dfdfdf !important;
+
+  .provision-title  {
+    @include pricing-table-title;
+
+    font-weight: normal;
+    color: #555;
+  }
+  .provision-price  {
+    @include pricing-table-price;
+  }
+  .provision-description   {
+    @include pricing-table-description;
+  }
+  .provision-bullet-item {
+    @include pricing-table-bullet;
+
+    padding: 5px 10px;
+  }
+  .provision-cta    {
+    @include pricing-table-cta;
+  }
+
+
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+
+  background: #f7f7f7;
+
+  li {
+    background: none !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  &.hoverable.only-one:not(.selected):hover {
+    cursor: pointer;
+  }
+
+  &.hoverable.more-than-one:hover {
+    cursor: pointer;
+  }
+
+  .only-on-hover {
+    color: #cfcfcf !important
+  }
+
+  &:not(.selected):hover {
+    border-color: #afafaf !important;
+
+    .only-on-hover {
+      color: #0099c3 !important
+    }
+  }
+
+  &.selected {
+    //border: 1px solid #0099c3;
+    border: 1px solid #0099c3 !important;
+  }
+
+}
+
+.deploying-bg {
+  background-color: #C7731F !important;
+}
+
+.error-bg {
+  background-color: #cf280e !important;
+}
+
+
+.powering_off-bg {
+  background-color: #cf280e !important;
+}
+
+.off-bg {
+  background-color: #999;
+}
+
+.running-bg {
+  background-color: #368a54 !important;
+}
+
+
+.deploying-color {
+  color: #C7731F;
+}
+
+.error-color {
+  color: #cf280e;
+}
+
+.powering_off-color {
+  color: #cf280e;
+}
+
+.off-color {
+  color: #555;
+}
+
+.running-color {
+  color: #368a54;
+}
+
+.provision-input {
+  border-color: #dfdfdf;
+  border-radius: 3px;
+}
+
+.provision-search-input {
+  width: 200px !important;
+  height:39px !important;
+  border-radius: 3px;
+  border-color: #efefef;
+  margin: 0px !important;
+}
+
+#provision_list_vms_filter select,
+#provision_list_templates_filter select,
+#provision_list_flows_filter select  {
+  width: 200px !important;
+  height:35px !important;
+  border-radius: 3px;
+  border-color: #efefef;
+  float: right !important;
+  margin: 5px 10px 0px 0px;
+}
+
+.accordion {
+  a.accordion-a {
+   border: 1px solid #efefef;
+   background: #f7f7f7;
+   border-radius: 5px;
+   color: #555 !important;
+  }
+}
+
+.alert-box.secondary {
+  margin-top: 10px;
+}
+
+hr {
+  border-color: #dfdfdf;
+}
+
+
+.provision-logo img {
+  padding: 10px;
+  border-radius: 3px;
+  height: 80px;
+}
+
+.provision_action_icons {
+  margin-bottom: 5px;
+  font-size: 14px;
+
+  .white {
+    color: #007d9c;
+    background: #fff ;
+    //border-width: 1px ;
+    border-color: $primary-color ;
+  }
+
+  .button {
+    margin-right: 3px;
+  }
+
+  a{
+    &:hover {
+      //color: $primary-color;
+    }
+
+    //color: #007d9c;
+    font-weight: bold;
+
+    //i {
+    //  color: #555;
+    //}
+
+  }
+}
+
+.policies_table {
+  th {
+    font-size: 14px !important;
+  }
+}
+
+.accordion_advanced {
+  dd {
+    &>a {
+      padding: 10px 20px;
+      color: #777;
+      font-size: 14px;
+
+      .fa {
+        margin-right: 10px;
+        color: #777;
+      }
+    }
+
+    &.active {
+      .fa-chevron-down {
+        display: none;
+      }
+    }
+
+    &:not(.active){
+      .fa-chevron-up {
+        display: none;
+      }
+    }
+  }
+}
+
+.accordion {
+  dd {
+    &.active {
+      .only-not-active {
+        display: none;
+      }
+      .only-active {
+        display: inline-block;
+      }
+    }
+
+    &:not(.active) {
+      .only-active {
+        display: none;
+      }
+      .only-not-active {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+.accordion_list {
+  dd {
+    &>a {
+      padding: 0px;
+      background: #fff !important;
+    }
+
+    &>.content {
+      padding: 5px 0px;
+    }
+
+    &:first-child>h2 {
+      border-bottom: 1px solid #dfdfdf;
+      padding-bottom: 10px;
+
+      .button {
+        margin: 0px 3px;
+      }
+
+      select {
+        height: 39px !important;
+        margin: 0px 5px 0px 0px !important;
+        float: right !important;
+        width: auto !important;
+      }
+
+      input {
+        margin: 0px 10px !important;
+      }
+    }
+  }
+
+}
+
+.vm_info_inline_list {
+  .fa:not(.fa-square) {
+    color: #afafaf;
+  }
+
+  li {
+    margin-right: 30px;
+  }
+}
+
+.range-slider-active-segment {
+  background: #cfcfcf;
+}
+
+// There is a bug in zurb foundation and the tooltip z-index is < than modal
+.tooltip {
+  z-index: 2000;
+}
+

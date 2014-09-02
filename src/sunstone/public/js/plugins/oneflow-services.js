@@ -18,235 +18,6 @@ var last_selected_row_role;
 var last_selected_row_rolevm;
 var checked_row_rolevm_ids = [];
 
-var Service = {
-    "resource" : 'DOCUMENT',
-    "path"     : 'service',
-    "shutdown": function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Service.resource,
-                                        "shutdown",
-                                        action_obj,
-                                        Service.path);
-    },
-    "del": function(params){
-        OpenNebula.Action.del(params,Service.resource, Service.path);
-    },
-    "list" : function(params){
-        OpenNebula.Action.list(params, Service.resource, Service.path)
-    },
-    "show" : function(params){
-        OpenNebula.Action.show(params, Service.resource, false, Service.path)
-    },
-    "chown" : function(params){
-        OpenNebula.Action.chown(params,Service.resource, Service.path);
-    },
-    "chgrp" : function(params){
-        OpenNebula.Action.chgrp(params,Service.resource, Service.path);
-    },
-    "chmod" : function(params){
-        var action_obj = params.data.extra_param;
-        OpenNebula.Action.simple_action(params,
-                                        Service.resource,
-                                        "chmod",
-                                        action_obj,
-                                        Service.path);
-    },
-    "shutdown" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Service.resource,
-                                        "shutdown",
-                                        null,
-                                        Service.path);
-    },
-    "recover" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Service.resource,
-                                        "recover",
-                                        null,
-                                        Service.path);
-    },
-    "state" : function(state_int){
-        var state = [
-            tr("PENDING"),
-            tr("DEPLOYING"),
-            tr("RUNNING"),
-            tr("UNDEPLOYING"),
-            tr("WARNING"),
-            tr("DONE"),
-            tr("FAILED_UNDEPLOYING"),
-            tr("FAILED_DEPLOYING"),
-            tr("SCALING"),
-            tr("FAILED_SCALING"),
-            tr("COOLDOWN")
-        ][state_int]
-        return state ? state : state_int;
-    }
-}
-
-var Role = {
-    "resource" : 'DOCUMENT',
-    "path"     : 'service',
-    "state" : function(state_int){
-        state_int = state_int ? state_int : 0;
-        var state = [
-            tr("PENDING"),
-            tr("DEPLOYING"),
-            tr("RUNNING"),
-            tr("UNDEPLOYING"),
-            tr("WARNING"),
-            tr("DONE"),
-            tr("FAILED_UNDEPLOYING"),
-            tr("FAILED_DEPLOYING"),
-            tr("SCALING"),
-            tr("FAILED_SCALING"),
-            tr("COOLDOWN")
-        ][state_int]
-        return state ? state : state_int;
-    },
-    "hold" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Service.resource,
-                                        "hold",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "release" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "release",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "suspend" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "suspend",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "resume" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "resume",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "stop" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "stop",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "boot" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "boot",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "delete_recreate" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "delete-recreate",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "reboot" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "reboot",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "reboot_hard" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "reboot-hard",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "poweroff" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "poweroff",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "poweroff_hard" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "poweroff-hard",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "undeploy" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "undeploy",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "undeploy_hard" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "undeploy-hard",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "snapshot_create" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "snapshot-create",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "shutdown" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "shutdown",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "cancel" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "shutdown-hard",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "del" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "delete",
-                                        generate_batch_action_params(),
-                                        Role.path);
-    },
-    "recover" : function(params){
-        OpenNebula.Action.simple_action(params,
-                                        Role.resource,
-                                        "recover",
-                                        null,
-                                        Role.path);
-    },
-    "update" : function(params){
-        request = OpenNebula.Helper.request(Role.resource, "update", params.data.id);
-
-        $.ajax({
-            url: Role.path + "/" + params.data.id,
-            type: "PUT",
-            dataType: "json",
-            data: JSON.stringify(params.data.extra_param),
-            success: function(response){
-                return roleCallback(request, response);
-            },
-            error: function(response){
-                return onError(request, OpenNebula.Error(response));
-            }
-        });
-    }
-}
-
 var generate_batch_action_params = function(){
     var action_obj = {
         "period" : $("#batch_action_period").val(),
@@ -263,7 +34,7 @@ var role_actions = {
 
     "Role.update" : {
         type: "multiple",
-        call: Role.update,
+        call: OpenNebula.Role.update,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -272,7 +43,7 @@ var role_actions = {
 
     "Role.hold" : {
         type: "multiple",
-        call: Role.hold,
+        call: OpenNebula.Role.hold,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -281,7 +52,7 @@ var role_actions = {
 
     "Role.release" : {
         type: "multiple",
-        call: Role.release,
+        call: OpenNebula.Role.release,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -290,7 +61,7 @@ var role_actions = {
 
     "Role.suspend" : {
         type: "multiple",
-        call: Role.suspend,
+        call: OpenNebula.Role.suspend,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -299,7 +70,7 @@ var role_actions = {
 
     "Role.resume" : {
         type: "multiple",
-        call: Role.resume,
+        call: OpenNebula.Role.resume,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -308,7 +79,7 @@ var role_actions = {
 
     "Role.stop" : {
         type: "multiple",
-        call: Role.stop,
+        call: OpenNebula.Role.stop,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -317,7 +88,7 @@ var role_actions = {
 
     "Role.boot" : {
         type: "multiple",
-        call: Role.boot,
+        call: OpenNebula.Role.boot,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -326,7 +97,7 @@ var role_actions = {
 
     "Role.reboot_hard" : {
         type: "multiple",
-        call: Role.reboot_hard,
+        call: OpenNebula.Role.reboot_hard,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -335,7 +106,7 @@ var role_actions = {
 
     "Role.delete_recreate" : {
         type: "multiple",
-        call: Role.delete_recreate,
+        call: OpenNebula.Role.delete_recreate,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -344,7 +115,7 @@ var role_actions = {
 
     "Role.reboot" : {
         type: "multiple",
-        call: Role.reboot,
+        call: OpenNebula.Role.reboot,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -353,7 +124,7 @@ var role_actions = {
 
     "Role.poweroff" : {
         type: "multiple",
-        call: Role.poweroff,
+        call: OpenNebula.Role.poweroff,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -362,7 +133,7 @@ var role_actions = {
 
     "Role.poweroff_hard" : {
         type: "multiple",
-        call: Role.poweroff_hard,
+        call: OpenNebula.Role.poweroff_hard,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -371,7 +142,7 @@ var role_actions = {
 
     "Role.undeploy" : {
         type: "multiple",
-        call: Role.undeploy,
+        call: OpenNebula.Role.undeploy,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -380,7 +151,7 @@ var role_actions = {
 
     "Role.undeploy_hard" : {
         type: "multiple",
-        call: Role.undeploy_hard,
+        call: OpenNebula.Role.undeploy_hard,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -389,7 +160,7 @@ var role_actions = {
 
     "Role.snapshot_create" : {
         type: "single",
-        call: Role.snapshot_create,
+        call: OpenNebula.Role.snapshot_create,
         callback: roleCallback,
         error:onError,
         notify: true
@@ -397,7 +168,7 @@ var role_actions = {
 
     "Role.shutdown" : {
         type: "multiple",
-        call: Role.shutdown,
+        call: OpenNebula.Role.shutdown,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -406,7 +177,7 @@ var role_actions = {
 
     "Role.shutdown_hard" : {
         type: "multiple",
-        call: Role.cancel,
+        call: OpenNebula.Role.cancel,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -415,7 +186,7 @@ var role_actions = {
 
     "Role.delete" : {
         type: "multiple",
-        call: Role.del,
+        call: OpenNebula.Role.del,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -424,7 +195,7 @@ var role_actions = {
 
     "Role.recover" : {
         type: "multiple",
-        call: Role.recover,
+        call: OpenNebula.Role.recover,
         callback: roleCallback,
         elements: roleElements,
         error: onError,
@@ -884,27 +655,30 @@ var dataTable_services;
 var service_actions = {
     "Service.list" : {
         type: "list",
-        call: Service.list,
+        call: OpenNebula.Service.list,
         callback: function(request, service_list) {
-            $("#oneflow-services #error_message").hide();
+            $(".flow_error_message").hide();
             updateServicesView(request, service_list);
         },
         error: function(request, error_json) {
-            onError(request, error_json, $("#oneflow-services #error_message"));
+            onError(request, error_json, $(".flow_error_message"));
         }
     },
 
     "Service.show" : {
         type : "single",
-        call: Service.show,
-        callback: updateServiceElement,
-        error: onError
-    },
+        call: OpenNebula.Service.show,
+        callback: function(request, response){
+            var tab = dataTable_services.parents(".tab");
 
-    "Service.showinfo" : {
-        type: "single",
-        call: Service.show,
-        callback: updateServiceInfo,
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateServiceInfo(request, response);
+            }
+
+            // datatable row
+            updateServiceElement(request, response);
+        },
         error: onError
     },
 
@@ -913,10 +687,10 @@ var service_actions = {
         call: function () {
             var tab = dataTable_services.parents(".tab");
             if (Sunstone.rightInfoVisible(tab)) {
-                selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
                 checked_row_rolevm_ids = new Array();
 
                 if (typeof(serviceroleVMsDataTable) !== 'undefined') {
+                    selected_row_role_id = $($('td.markrowchecked',servicerolesDataTable.fnGetNodes())[1]).html();
                     $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
                        if($('td.markrowchecked',this).length!=0)
                        {
@@ -925,33 +699,17 @@ var service_actions = {
                     });
                 }
 
-                Sunstone.runAction("Service.showinfo", Sunstone.rightInfoResourceId(tab))
+                Sunstone.runAction("Service.show", Sunstone.rightInfoResourceId(tab))
             } else {
                 waitingNodes(dataTable_services);
-                Sunstone.runAction("Service.list");
+                Sunstone.runAction("Service.list", {force: true});
             }
-        }
-    },
-
-    "Service.autorefresh" : {
-        type: "custom",
-        call: function() {
-            Service.list({
-                timeout: true,
-                success: function(request, service_list) {
-                    $("#oneflow-services #error_message").hide();
-                    updateServicesView(request, service_list);
-                },
-                error: function(request, error_json) {
-                    onError(request, error_json, $("#oneflow-services #error_message"));
-                }
-            });
         }
     },
 
     "Service.delete" : {
         type: "multiple",
-        call: Service.del,
+        call: OpenNebula.Service.del,
         callback: deleteServiceElement,
         elements: serviceElements,
         error: onError,
@@ -960,7 +718,7 @@ var service_actions = {
 
     "Service.chown" : {
         type: "multiple",
-        call: Service.chown,
+        call: OpenNebula.Service.chown,
         callback:  function (req) {
             Sunstone.runAction("Service.show",req.request.data[0][0]);
         },
@@ -971,7 +729,7 @@ var service_actions = {
 
     "Service.chgrp" : {
         type: "multiple",
-        call: Service.chgrp,
+        call: OpenNebula.Service.chgrp,
         callback: function (req) {
             Sunstone.runAction("Service.show",req.request.data[0][0]);
         },
@@ -982,14 +740,14 @@ var service_actions = {
 
     "Service.chmod" : {
         type: "single",
-        call: Service.chmod,
+        call: OpenNebula.Service.chmod,
         error: onError,
         notify: true
     },
 
     "Service.shutdown" : {
         type: "multiple",
-        call: Service.shutdown,
+        call: OpenNebula.Service.shutdown,
         elements: serviceElements,
         error: onError,
         notify: true
@@ -997,7 +755,7 @@ var service_actions = {
 
     "Service.recover" : {
         type: "multiple",
-        call: Service.recover,
+        call: OpenNebula.Service.recover,
         elements: serviceElements,
         error: onError,
         notify: true
@@ -1011,18 +769,22 @@ var service_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
-
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "Service.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
-        select: users_sel,
+        select: "User",
         tip: tr("Select the new owner")+":",
         layout: "user_select"
     },
     "Service.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
-        select: groups_sel,
+        select: "Group",
         tip: tr("Select the new group")+":",
         layout: "user_select"
     },
@@ -1053,15 +815,18 @@ var service_info_panel = {
 
 var services_tab = {
     title: "Services",
+    resource: 'Service',
     buttons: service_buttons,
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',
     search_input: '<input id="services_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Services"),
-    info_header: '<i class="fa fa-code-fork fa fa-rotate-90"></i> '+tr("OneFlow - Service"),
+    list_header: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+tr("OneFlow - Services"),
+    info_header: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+tr("OneFlow - Service"),
     subheader: '<span/> <small></small>&emsp;',
-    content:   '<div class="row" id="error_message" hidden>\
-        <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+    content:   '<div class="row flow_error_message" id="" hidden>\
+        <div class="small-6 columns small-centered text-center">\
+            <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
+        </div>\
     </div>',
     table: '<table id="datatable_services" class="datatable twelve">\
         <thead>\
@@ -1099,7 +864,7 @@ function serviceElementArray(service_json){
         service.UNAME,
         service.GNAME,
         service.NAME,
-        Service.state(service.TEMPLATE.BODY.state)
+        OpenNebula.Service.state(service.TEMPLATE.BODY.state)
     ];
 }
 
@@ -1175,7 +940,11 @@ function updateServiceInfo(request,elem){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("State")+'</td>\
-             <td class="value_td">'+ Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
+             <td class="value_td">'+ OpenNebula.Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">'+tr("Ready Status Gate")+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.ready_status_gate ? "yes" : "no")+'</td>\
            </tr>\
          </table>' +
        '</div>\
@@ -1280,6 +1049,7 @@ function updateServiceInfo(request,elem){
     if (roles && roles.length) {
         servicerolesDataTable = $('#datatable_service_roles').dataTable({
             "bSortClasses": false,
+            "bDeferRender": true,
             "bAutoWidth":false,
             "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] }
@@ -1293,7 +1063,7 @@ function updateServiceInfo(request,elem){
             role_elements.push([
                 '<input class="check_item" type="checkbox" id="role_'+this.name+'" name="selected_items" value="'+elem_info.ID+'/role/'+this.name+'"/>',
                 this.name,
-                Role.state(this.state),
+                OpenNebula.Role.state(this.state),
                 this.cardinality,
                 this.vm_template,
                 this.parents ? this.parents.join(', ') : '-'
@@ -1337,13 +1107,13 @@ function updateServiceInfo(request,elem){
 
                 if(last_selected_row_role) {
                     last_selected_row_role.children().each(function(){
-                        $(this).removeClass('markrowselected');
+                        $(this).removeClass('markrowchecked');
                     });
                 }
 
                 last_selected_row_role = $(this);
                 $(this).children().each(function(){
-                    $(this).addClass('markrowselected');
+                    $(this).addClass('markrowchecked');
                 });
             }
         });
@@ -1384,6 +1154,7 @@ function updateServiceInfo(request,elem){
                     <table id="datatable_service_vms_'+role.name+'" class="dataTable twelve ">\
                       <thead>\
                         <tr>\
+                          <th></th>\
                           <th></th>\
                           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
                           <th>'+tr("ID")+'</th>\
@@ -1540,10 +1311,12 @@ function updateServiceInfo(request,elem){
 
             var vms = [];
             serviceroleVMsDataTable = $('#datatable_service_vms_'+role.name, context).dataTable({
+                "bSortClasses": false,
+                "bDeferRender": true,
                 "aoColumnDefs": [
-                    { "bSortable": false, "aTargets": [0,1,7,8,10,12] },
-                    { "sWidth": "35px", "aTargets": [0,1] },
-                    { "bVisible": false, "aTargets": [7,8,11]}
+                    { "bSortable": false, "aTargets": [0,1,8,9,11,13] },
+                    { "sWidth": "35px", "aTargets": [0,1,2] },
+                    { "bVisible": false, "aTargets": [8,9,12]}
                 ]
             });
 
@@ -1560,13 +1333,24 @@ function updateServiceInfo(request,elem){
                         info.push("");
                     }
 
+                    if (elem_info.TEMPLATE.BODY.ready_status_gate) {
+                        if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
+                            info.push('<span data-tooltip class="has-tip" title="'+tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+
+                        } else {
+                            info.push('<span data-tooltip class="has-tip" title="'+tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+                        }
+                    } else {
+                        info.push("");
+                    }
+
                     if (vm_info) {
                       vms.push(info.concat(vMachineElementArray(vm_info)));
                     } else {
                         empty_arr = [
                             '<input class="check_item" type="checkbox" id="vm_'+this.deploy_id+'" name="selected_items" value="'+this.deploy_id+'"/>',
                             this.deploy_id,
-                            '', '', '', '', '', '', '', '', '', '' ];
+                            '', '', '', '', '', '', '', '', '', '', "-" ];
 
                         vms.push(info.concat(empty_arr));
                     }
@@ -1595,6 +1379,14 @@ function updateServiceInfo(request,elem){
                 }
                 else
                 {
+                    var aData = serviceroleVMsDataTable.fnGetData(this);
+                    if (!aData) return true;
+
+                    var id = $(aData[2]).val();
+                    if (!id) return true;
+
+                    showElement("vms-tab", "VM.show", id);
+/*
                     $('tbody input.check_item',$(this).parents('table')).removeAttr('checked');
                     $('.check_item',this).click();
                     $('td',$(this).parents('table')).removeClass('markrowchecked');
@@ -1609,6 +1401,7 @@ function updateServiceInfo(request,elem){
                     $(this).children().each(function(){
                         $(this).addClass('markrowchecked');
                     });
+*/
                 }
             });
 
@@ -1700,23 +1493,14 @@ function popUpScaleDialog(){
     return false;
 }
 
-// Set the autorefresh interval for the datatable
-function setServiceAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_services);
-        var filter = $("#services_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Service.autorefresh");
-        }
-    },INTERVAL+someTime());
-};
-
 //The DOM is ready at this point
 $(document).ready(function(){
     var tab_name = "oneflow-services";
 
     if (Config.isTabEnabled(tab_name)) {
         dataTable_services = $("#datatable_services",main_tabs_context).dataTable({
+            "bSortClasses": false,
+            "bDeferRender": true,
             "aoColumnDefs": [
                 { "bSortable": false, "aTargets": ["check"] },
                 { "sWidth": "35px", "aTargets": [0] },
@@ -1735,11 +1519,9 @@ $(document).ready(function(){
 
         Sunstone.runAction("Service.list");
 
-        setServiceAutorefresh();
-
         initCheckAllBoxes(dataTable_services);
         tableCheckboxesListener(dataTable_services);
-        infoListener(dataTable_services,'Service.showinfo');
+        infoListener(dataTable_services,'Service.show');
         dataTable_services.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

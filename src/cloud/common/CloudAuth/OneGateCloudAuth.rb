@@ -30,17 +30,20 @@ module OneGateCloudAuth
 
     def do_auth(env, params={})
         token = env['HTTP_X_ONEGATE_TOKEN']
+        vmid  = env['HTTP_X_ONEGATE_VMID'] || params[:id] # DEPRECATED
 
         if token.nil?
-            logger.error {"VMID:#{params[:id]} X_ONEGATE_TOKEN" \
-                " header not preset"}
+            logger.error {"X_ONEGATE_TOKEN header not preset"}
+            return nil
+        elsif vmid.nil?
+            logger.error {"X_ONEGATE_VMID header not preset"}
             return nil
         else
-            vm = VirtualMachine.new_with_id(params[:id], client)
+            vm = VirtualMachine.new_with_id(vmid, client)
             rc = vm.info
 
             if OpenNebula.is_error?(rc)
-                logger.error {"VMID:#{params[:id]} vm.info" \
+                logger.error {"VMID:#{vmid} vm.info" \
                     " error: #{rc.message}"}
                 return nil
             end
@@ -48,7 +51,7 @@ module OneGateCloudAuth
             user_id = vm['TEMPLATE/CREATED_BY']
 
             if user_id.nil?
-                logger.error {"VMID:#{params[:id]} CREATED_BY not present" \
+                logger.error {"VMID:#{vmid} CREATED_BY not present" \
                     " in the VM TEMPLATE"}
                 return nil
             end
@@ -57,7 +60,7 @@ module OneGateCloudAuth
             rc   = user.info
 
             if OpenNebula.is_error?(rc)
-                logger.error {"VMID:#{params[:id]} user.info" \
+                logger.error {"VMID:#{vmid} user.info" \
                     " error: #{rc.message}"}
                 return nil
             end
@@ -65,7 +68,7 @@ module OneGateCloudAuth
             token_password = user['TEMPLATE/TOKEN_PASSWORD']
 
             if token_password.nil?
-                logger.error {"VMID:#{params[:id]} TOKEN_PASSWORD not present"\
+                logger.error {"VMID:#{vmid} TOKEN_PASSWORD not present"\
                     " in the USER:#{user_id} TEMPLATE"}
                 return nil
             end
@@ -76,16 +79,15 @@ module OneGateCloudAuth
 
                 if (token_vm_id.nil? || (token_vm_id != vm['ID']) ||
                     token_vm_stime.nil? || (token_vm_stime != vm['STIME']))
-                    logger.error {"VMID:#{params[:id]} token content does not" \
+                    logger.error {"VMID:#{vmid} token content does not" \
                         " match"}
                     return nil
                 end
             rescue => e
-                logger.error {"VMID:#{params[:id]} token decrypt error:" \
+                logger.error {"VMID:#{vmid} token decrypt error:" \
                     " #{e.message}"}
                 return nil
             end
-
 
             return vm['UNAME']
         end

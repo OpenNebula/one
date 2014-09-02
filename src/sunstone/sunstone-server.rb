@@ -57,11 +57,11 @@ require 'rubygems'
 require 'sinatra'
 require 'erb'
 require 'yaml'
+require 'securerandom'
 
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
-
 
 ##############################################################################
 # Configuration
@@ -75,6 +75,9 @@ rescue Exception => e
 end
 
 $conf[:debug_level] ||= 3
+
+# Set the TMPDIR environment variable for uploaded images
+ENV['TMPDIR']=$conf[:tmpdir] if $conf[:tmpdir]
 
 CloudServer.print_configuration($conf)
 
@@ -139,8 +142,26 @@ DEFAULT_TABLE_ORDER = "desc"
 # Helpers
 ##############################################################################
 helpers do
+    def valid_csrftoken?
+        csrftoken = nil
+
+        if params[:csrftoken]
+            csrftoken = params[:csrftoken]
+        else
+            begin
+                # Extract "csrftoken" and remove from @request_body if present
+                request_body  = JSON.parse(@request_body)
+                csrftoken     = request_body.delete("csrftoken")
+                @request_body = request_body.to_json
+            rescue
+            end
+        end
+
+        session[:csrftoken] && session[:csrftoken] == csrftoken
+    end
+
     def authorized?
-        session[:ip] && session[:ip]==request.ip ? true : false
+        session[:ip] && session[:ip] == request.ip
     end
 
     def build_session
@@ -173,6 +194,16 @@ helpers do
             session[:remember]     = params[:remember]
             session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
+            csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
+            session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
+
+            group = OpenNebula::Group.new_with_id(user['GID'], client)
+            rc = group.info
+            if OpenNebula.is_error?(rc)
+                logger.error { rc.message }
+                return [500, ""]
+            end
+
             #User IU options initialization
             #Load options either from user settings or default config.
             # - LANG
@@ -202,6 +233,8 @@ helpers do
 
             if user['TEMPLATE/DEFAULT_VIEW']
                 session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
+            elsif group['TEMPLATE/DEFAULT_VIEW']
+                session[:default_view] = group['TEMPLATE/DEFAULT_VIEW']
             else
                 session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
             end
@@ -229,13 +262,21 @@ helpers do
         session.clear
         return [204, ""]
     end
+
+    def cloud_view_instance_types
+        $conf[:instance_types] || []
+    end
 end
 
 before do
     cache_control :no_store
     content_type 'application/json', :charset => 'utf-8'
-    unless request.path=='/login' || request.path=='/' || request.path=='/vnc'
-        halt 401 unless authorized?
+
+    @request_body = request.body.read
+    request.body.rewind
+
+    unless %w(/ /login /vnc).include?(request.path)
+        halt 401 unless authorized? && valid_csrftoken?
     end
 
     if env['HTTP_ZONE_NAME']
@@ -250,11 +291,11 @@ before do
             if z.name == env['HTTP_ZONE_NAME']
               session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
               session[:zone_name] = env['HTTP_ZONE_NAME']
-            end 
+            end
          }
     end
 
-    client=$cloud_auth.client(session[:user],
+    client = $cloud_auth.client(session[:user],
                               session[:active_zone_endpoint])
 
     @SunstoneServer = SunstoneServer.new(client,$conf,logger)
@@ -344,7 +385,7 @@ end
 post '/config' do
     @SunstoneServer.perform_action('user',
                                OpenNebula::User::SELF,
-                               request.body.read)
+                               @request_body)
 
     user = OpenNebula::User.new_with_id(
                 OpenNebula::User::SELF,
@@ -356,10 +397,10 @@ post '/config' do
         error 500, ""
     end
 
-    session[:lang]         = user['TEMPLATE/LANG']
-    session[:vnc_wss]      = user['TEMPLATE/VNC_WSS']
-    session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
-    session[:table_order]  = user['TEMPLATE/TABLE_ORDER']
+    session[:lang]         = user['TEMPLATE/LANG'] if user['TEMPLATE/LANG']
+    session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
+    session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
+    session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
     [200, ""]
@@ -370,7 +411,7 @@ get '/vm/:id/log' do
 end
 
 ##############################################################################
-# Accounting & Monitoring
+# Monitoring
 ##############################################################################
 
 get '/:resource/monitor' do
@@ -394,6 +435,15 @@ get '/:resource/:id/monitor' do
         params[:resource],
         params[:monitor_resources])
 end
+
+##############################################################################
+# Accounting
+##############################################################################
+
+get '/vm/accounting' do
+    @SunstoneServer.get_vm_accounting(params)
+end
+
 
 ##############################################################################
 # Marketplace
@@ -421,8 +471,8 @@ get '/:pool' do
                                          zone['TEMPLATE/ENDPOINT'])
     end
 
-    @SunstoneServer.get_pool(params[:pool], 
-                             session[:user_gid], 
+    @SunstoneServer.get_pool(params[:pool],
+                             session[:user_gid],
                              zone_client)
 end
 
@@ -448,8 +498,7 @@ end
 ##############################################################################
 # Upload image
 ##############################################################################
-post '/upload'do
-
+post '/upload' do
     tmpfile = nil
     rackinput = request.env['rack.input']
 
@@ -457,7 +506,7 @@ post '/upload'do
         tmpfile = rackinput
     elsif rackinput.respond_to?('read')
         tmpfile = Tempfile.open('sunstone-upload')
-        tmpfile.write rackinput.read
+        tmpfile.write(rackinput.read)
         tmpfile.flush
     else
         logger.error { "Unexpected rackinput class #{rackinput.class}" }
@@ -476,7 +525,7 @@ end
 # Create a new Resource
 ##############################################################################
 post '/:pool' do
-    @SunstoneServer.create_resource(params[:pool], request.body.read)
+    @SunstoneServer.create_resource(params[:pool], @request_body)
 end
 
 ##############################################################################
@@ -493,7 +542,7 @@ end
 post '/:resource/:id/action' do
     @SunstoneServer.perform_action(params[:resource],
                                    params[:id],
-                                   request.body.read)
+                                   @request_body)
 end
 
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))

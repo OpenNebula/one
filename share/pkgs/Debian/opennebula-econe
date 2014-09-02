@@ -17,6 +17,7 @@ NAME=econe-server
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS=""
 SCRIPTNAME=/etc/init.d/$NAME
+PID_FILE=/var/run/one/econe-server.pid
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
@@ -63,6 +64,17 @@ case "$1" in
         2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
     esac
     ;;
+  status)
+    ECONE_PID=`cat $PID_FILE`
+    kill -0 $ECONE_PID > /dev/null 2>&1
+    if [ "$?" -eq "0" ]; then
+      log_daemon_msg "$NAME is running"
+      log_end_msg 0
+    else
+      log_daemon_msg "$NAME is not running"
+      log_end_msg 1
+    fi
+    ;;
   restart|force-reload)
     #
     # If the "reload" option is implemented then remove the
@@ -86,7 +98,7 @@ case "$1" in
     esac
     ;;
   *)
-    echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+    echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
     exit 3
     ;;
 esac

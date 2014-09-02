@@ -117,6 +117,8 @@ public:
     {
         return cluster->del_vnet(id, error_msg);
     };
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
 /* ------------------------------------------------------------------------- */

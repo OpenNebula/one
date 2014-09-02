@@ -25,7 +25,7 @@ module CLIHelper
         :description => "Selects columns to display with list command"
     }
 
-    CSV = {
+    CSV_OPT = {
         :name  => "csv",
         :large => "--csv",
         :description => "Write table in csv format"
@@ -64,7 +64,7 @@ module CLIHelper
     }
 
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, DELAY, FILTER, CSV]
+    OPTIONS = [LIST, DELAY, FILTER, CSV_OPT]
 
     # Sets bold font
     def CLIHelper.scr_bold
@@ -268,10 +268,8 @@ module CLIHelper
 
             begin
                 if options[:csv]
-                    CSV($stdout, :write_headers => true,
-                                 :headers => @default_columns) do |csv|
-                        res_data.each {|l| csv << l }
-                    end
+                    puts CSV.generate_line(@default_columns)
+                    res_data.each {|l| puts CSV.generate_line(l) }
                 else
                     res_data.each{|l|
                         puts (0..ncolumns-1).collect{ |i|
@@ -370,7 +368,7 @@ module CLIHelper
                         exit(-1)
                     end
                 else
-                    STDERR.puts "Expresion '#{s}' incorrect"
+                    STDERR.puts "Expression '#{s}' incorrect"
                     exit(-1)
                 end
             end

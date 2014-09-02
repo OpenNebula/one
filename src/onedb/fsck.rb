@@ -22,8 +22,8 @@ require 'set'
 require 'nokogiri'
 
 module OneDBFsck
-    VERSION = "4.5.80"
-    LOCAL_VERSION = "4.5.80"
+    VERSION = "4.6.0"
+    LOCAL_VERSION = "4.7.80"
 
     def check_db_version()
         db_version = read_db_version()
@@ -43,6 +43,10 @@ EOT
 
     def one_version
         "OpenNebula #{VERSION}"
+    end
+
+    def db_version
+        one_version()
     end
 
     IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -197,9 +201,9 @@ EOT
         users_fix = {}
 
         @db.fetch("SELECT oid,body,gid FROM user_pool") do |row|
-            doc = Document.new(row[:body])
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
-            gid = doc.root.get_text('GID').to_s.to_i
+            gid = doc.root.at_xpath('GID').text.to_i
             user_gid = gid
             user_gids = Set.new
 
@@ -208,47 +212,48 @@ EOT
 
                 user_gid = 1
 
-                doc.root.each_element('GID') do |e|
-                    e.text = "1"
+                doc.root.xpath('GID').each do |e|
+                    e.content = "1"
                 end
 
-                doc.root.each_element('GNAME') do |e|
-                    e.text = "users"
+                doc.root.xpath('GNAME').each do |e|
+                    e.content = "users"
                 end
 
-                doc.root.each_element("GROUPS") { |e|
-                    e.elements.delete("ID[.=#{gid}]")
-                    e.add_element("ID").text = user_gid.to_s
+                doc.root.xpath("GROUPS").each { |e|
+                    e.xpath("ID[.=#{gid}]").each{|x| x.remove}
+
+                    e.add_child(doc.create_element("ID")).content = user_gid.to_s
                 }
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
 
-            doc.root.each_element("GROUPS/ID") { |e|
+            doc.root.xpath("GROUPS/ID").each { |e|
                 user_gids.add e.text.to_i
             }
 
             if !user_gids.include?(user_gid)
                 log_error("User #{row[:oid]} does not have his primary group #{user_gid} in the list of secondary groups")
 
-                doc.root.each_element("GROUPS") { |e|
-                    e.add_element("ID").text = user_gid.to_s
+                doc.root.xpath("GROUPS").each { |e|
+                    e.add_child(doc.create_element("ID")).content = user_gid.to_s
                 }
 
                 user_gids.add user_gid.to_i
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
 
             user_gids.each do |secondary_gid|
                 if group[secondary_gid].nil?
                     log_error("User #{row[:oid]} has secondary group #{secondary_gid}, but it does not exist")
 
-                    doc.root.each_element("GROUPS") { |e|
-                        e.elements.delete("ID[.=#{secondary_gid}]")
+                    doc.root.xpath("GROUPS").each { |e|
+                        e.xpath("ID[.=#{secondary_gid}]").each{|x| x.remove}
                     }
 
-                    users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                    users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
                 else
                     group[secondary_gid] << row[:oid]
                 end
@@ -259,13 +264,11 @@ EOT
                     "User #{row[:oid]} is in group #{gid}, but the DB "<<
                     "table has GID column #{row[:gid]}")
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
         end
 
-        if db_version[:is_slave]
-            log_error("^ User errors need to be fixed in the master OpenNebula")
-        else
+        if !db_version[:is_slave]
             @db.transaction do
                 users_fix.each do |id, user|
                     @db[:user_pool].where(:oid => id).update(
@@ -273,6 +276,8 @@ EOT
                         :gid => user[:gid])
                 end
             end
+        elsif !users_fix.empty?
+            log_error("^ User errors need to be fixed in the master OpenNebula")
         end
 
         log_time()
@@ -284,33 +289,41 @@ EOT
         @db.transaction do
             @db.fetch("SELECT * from group_pool") do |row|
                 gid = row[:oid]
-                doc = Document.new(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
-                users_elem = doc.root.elements.delete("USERS")
+                users_elem = doc.root.at_xpath("USERS")
+                users_elem.remove if !users_elem.nil?
 
-                users_new_elem = doc.root.add_element("USERS")
+                users_new_elem = doc.create_element("USERS")
+                doc.root.add_child(users_new_elem)
+
+                error_found = false
 
                 group[gid].each do |id|
-                    id_elem = users_elem.elements.delete("ID[.=#{id}]")
+                    id_elem = users_elem.at_xpath("ID[.=#{id}]")
 
                     if id_elem.nil?
                         log_error("User #{id} is missing from Group #{gid} users id list")
+                        error_found = true
+                    else
+                        id_elem.remove
                     end
 
-                    users_new_elem.add_element("ID").text = id.to_s
+                    users_new_elem.add_child(doc.create_element("ID")).content = id.to_s
                 end
 
-                users_elem.each_element("ID") do |id_elem|
+                users_elem.xpath("ID").each do |id_elem|
                     log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
+                    error_found = true
                 end
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
-                if db_version[:is_slave]
-                    log_error("^ Group errors need to be fixed in the master OpenNebula")
-                else
+                if !db_version[:is_slave]
                     # commit
                     @db[:group_pool_new].insert(row)
+                elsif error_found
+                    log_error("^ Group errors need to be fixed in the master OpenNebula")
                 end
             end
         end
@@ -357,8 +370,6 @@ EOT
             cluster[row[:oid]][:hosts]      = []
             cluster[row[:oid]][:datastores] = []
             cluster[row[:oid]][:vnets]      = []
-
-            cluster[row[:oid]][:system_ds]  = 0
         end
 
         hosts_fix       = {}
@@ -391,7 +402,7 @@ EOT
                             e.text = ""
                         end
 
-                        hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        hosts_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         if cluster_name != cluster_entry[:name]
                             log_error("Host #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -400,7 +411,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                            hosts_fix[row[:oid]] = {:body => doc.root.to_s, :cid => cluster_id}
                         end
 
                         cluster_entry[:hosts] << row[:oid]
@@ -439,30 +450,9 @@ EOT
                             e.text = ""
                         end
 
-                        datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        datastores_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
-                        if doc.root.get_text('TYPE').to_s != "1"
-                            cluster_entry[:datastores] << row[:oid]
-                        else
-                            if cluster_entry[:system_ds] == 0
-                                cluster_entry[:datastores] << row[:oid]
-                                cluster_entry[:system_ds] = row[:oid]
-                            else
-                                log_error("System Datastore #{row[:oid]} is in Cluster #{cluster_id}, but it already contains System Datastore #{cluster_entry[:system_ds]}")
-
-                                doc.root.each_element('CLUSTER_ID') do |e|
-                                    e.text = "-1"
-                                end
-
-                                doc.root.each_element('CLUSTER') do |e|
-                                    e.text = ""
-                                end
-
-                                datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
-
-                                next
-                            end
-                        end
+                        cluster_entry[:datastores] << row[:oid]
 
                         if cluster_name != cluster_entry[:name]
                             log_error("Datastore #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -471,7 +461,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                            datastores_fix[row[:oid]] = {:body => doc.root.to_s, :cid => cluster_id}
                         end
                     end
                 end
@@ -508,7 +498,7 @@ EOT
                             e.text = ""
                         end
 
-                        vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        vnets_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         if cluster_name != cluster_entry[:name]
                             log_error("VNet #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -517,7 +507,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                            vnets_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                         end
 
                         cluster_entry[:vnets] << row[:oid]
@@ -564,16 +554,6 @@ EOT
 
                 ds_new_elem = doc.root.add_element("DATASTORES")
 
-                doc.root.each_element("SYSTEM_DS") do |e|
-                    system_ds = e.text.to_i
-
-                    if system_ds != cluster[cluster_id][:system_ds]
-                        log_error("Cluster #{cluster_id} has System Datastore set to #{system_ds}, but it should be #{cluster[cluster_id][:system_ds]}")
-
-                        e.text = cluster[cluster_id][:system_ds].to_s
-                    end
-                end
-
                 cluster[cluster_id][:datastores].each do |id|
                     id_elem = ds_elem.elements.delete("ID[.=#{id}]")
 
@@ -609,7 +589,7 @@ EOT
                 end
 
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:cluster_pool_new].insert(row)
@@ -640,8 +620,6 @@ EOT
             datastore[row[:oid]] = {:name => row[:name], :images => []}
         end
 
-        ds_1_name = datastore[1][:name]
-
         images_fix = {}
 
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
@@ -654,19 +632,12 @@ EOT
                 ds_entry = datastore[ds_id]
 
                 if ds_entry.nil?
-                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. It will be moved to the Datastore #{ds_1_name} (1), but it is probably unusable anymore")
-
-                    doc.root.each_element('DATASTORE_ID') do |e|
-                        e.text = "1"
-                    end
-
-                    doc.root.each_element('DATASTORE') do |e|
-                        e.text = ds_1_name
-                    end
-
-                    images_fix[row[:oid]] = doc.to_s
-
-                    datastore[1][:images] << row[:oid]
+                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. The image is probably unusable, and needs to be deleted manually:\n"<<
+                        "  * The image contents should be deleted manually:\n"<<
+                        "    #{doc.root.get_text('SOURCE')}\n"<<
+                        "  * The DB entry can be then deleted with the command:\n"<<
+                        "    DELETE FROM image_pool WHERE oid=#{row[:oid]};\n"<<
+                        "  * Run fsck again.\n")
                 else
                     if ds_name != ds_entry[:name]
                         log_error("Image #{row[:oid]} has a wrong name for datastore #{ds_id}, #{ds_name}. It will be changed to #{ds_entry[:name]}")
@@ -675,7 +646,7 @@ EOT
                             e.text = ds_entry[:name]
                         end
 
-                        images_fix[row[:oid]] = doc.to_s
+                        images_fix[row[:oid]] = doc.root.to_s
                     end
 
                     ds_entry[:images] << row[:oid]
@@ -721,7 +692,7 @@ EOT
                 end
 
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:datastore_pool_new].insert(row)
@@ -788,8 +759,7 @@ EOT
 
             counters[:vnet][row[:oid]] = {
                 :type           => doc.root.get_text('TYPE').to_s.to_i,
-                :total_leases   => 0,
-                :leases         => {}
+                :ar_leases      => {}
             }
         end
 
@@ -799,7 +769,7 @@ EOT
 
         # Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
-            vm_doc = Nokogiri::XML(row[:body])
+            vm_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
             state     = vm_doc.root.at_xpath('STATE').text.to_i
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i            
@@ -828,12 +798,20 @@ EOT
                         log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
                             "but it does not exist")
                     else
-                        counters[:vnet][net_id][:leases][e.at_xpath('IP').text] =
+=begin
+                        ar_id_e = e.at_xpath('AR_ID')
+                        ar_id = ar_id_e.nil? ? -1 : ar_id_e.text.to_i
+
+                        if counters[:vnet][net_id][:ar_leases][ar_id].nil?
+                            counters[:vnet][net_id][:ar_leases][ar_id] = []
+                        end
+
+                        counters[:vnet][net_id][:ar_leases][ar_id] <<
                             [
                                 e.at_xpath('MAC').text,                 # MAC
-                                "1",                                    # USED
                                 vm_doc.root.at_xpath('ID').text.to_i    # VID
                             ]
+=end
                     end
                 end
             end
@@ -975,7 +953,7 @@ EOT
                     end
                 }
 
-                row[:body] = host_doc.to_s
+                row[:body] = host_doc.root.to_s
 
                 # commit
                 @db[:host_pool_new].insert(row)
@@ -1111,7 +1089,7 @@ EOT
                     end
                 }
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:image_pool_new].insert(row)
@@ -1121,167 +1099,6 @@ EOT
         # Rename table
         @db.run("DROP TABLE image_pool")
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
-
-        log_time()
-
-        ########################################################################
-        # VNet
-        #
-        # LEASES
-        ########################################################################
-
-        @db.run "CREATE TABLE leases_new (oid INTEGER, ip BIGINT, body MEDIUMTEXT, PRIMARY KEY(oid,ip));"
-
-        @db.transaction do
-            @db[:leases].each do |row|
-                doc = Nokogiri::XML(row[:body])
-
-                used = (doc.root.at_xpath('USED').text == "1")
-                vid  = doc.root.at_xpath('VID').text.to_i
-
-                ip_str = IPAddr.new(row[:ip], Socket::AF_INET).to_s
-
-                vnet_structure = counters[:vnet][row[:oid]]
-
-                if vnet_structure.nil?
-                    log_error("Table leases contains the lease #{ip_str} "<<
-                        "for VNet #{row[:oid]}, but it does not exit")
-
-                    next
-                end
-
-                ranged = vnet_structure[:type] == 0
-
-                counter_mac, counter_used, counter_vid =
-                    vnet_structure[:leases][ip_str]
-
-                vnet_structure[:leases].delete(ip_str)
-
-                insert = true
-
-                if used && (vid != -1) # Lease used by a VM
-                    if counter_mac.nil?
-                        log_error(
-                            "VNet #{row[:oid]} has used lease #{ip_str} "<<
-                            "(VM #{vid}) \tbut it is free")
-
-                        if ranged
-                            insert = false
-                        end
-
-                        doc.root.at_xpath("USED").content = "0"
-
-                        doc.root.at_xpath("VID").content = "-1"
-
-                        row[:body] = doc.root.to_s
-
-                    elsif vid != counter_vid
-                        log_error(
-                            "VNet #{row[:oid]} has used lease #{ip_str} "<<
-                            "(VM #{vid}) \tbut it used by VM #{counter_vid}")
-
-                        doc.root.at_xpath("VID").content = counter_vid.to_s
-
-                        row[:body] = doc.root.to_s
-                    end
-                else # Lease is free or on hold (used=1, vid=-1)
-                    if !counter_mac.nil?
-                        if used
-                            log_error(
-                                "VNet #{row[:oid]} has lease on hold #{ip_str} "<<
-                                "\tbut it is used by VM #{counter_vid}")
-                        else
-                            log_error(
-                                "VNet #{row[:oid]} has free lease #{ip_str} "<<
-                                "\tbut it is used by VM #{counter_vid}")
-                        end
-
-                        doc.root.at_xpath("USED").content = "1"
-
-                        doc.root.at_xpath("VID").content = counter_vid.to_s
-
-                        row[:body] = doc.root.to_s
-                    end
-                end
-
-                if (doc.root.at_xpath('USED').text == "1")
-                    vnet_structure[:total_leases] += 1
-                end
-
-                # commit
-                @db[:leases_new].insert(row) if insert
-            end
-        end
-
-        log_time()
-
-        # Now insert all the leases left in the hash, i.e. used by a VM in
-        # vm_pool, but not in the leases table. This will only happen in
-        # ranged networks
-        @db.transaction do
-            counters[:vnet].each do |net_id,vnet_structure|
-                vnet_structure[:leases].each do |ip,array|
-                    mac,used,vid = array
-
-                    ip_i = IPAddr.new(ip, Socket::AF_INET).to_i
-
-                    # TODO: MAC_PREFIX is now hardcoded to "02:00"
-                    body = "<LEASE><IP>#{ip_i}</IP><MAC_PREFIX>512</MAC_PREFIX><MAC_SUFFIX>#{ip_i}</MAC_SUFFIX><USED>#{used}</USED><VID>#{vid}</VID></LEASE>"
-
-                    log_error("VNet #{net_id} has free lease #{ip} \tbut it is used by VM #{vid}")
-
-                    vnet_structure[:total_leases] += 1
-
-                    @db[:leases_new].insert(
-                        :oid        => net_id,
-                        :ip         => ip_i,
-                        :body       => body)
-                end
-            end
-        end
-
-
-        # Rename table
-        @db.run("DROP TABLE leases")
-        @db.run("ALTER TABLE leases_new RENAME TO leases")
-
-        log_time()
-
-        ########################################################################
-        # VNet
-        #
-        # VNET/TOTAL_LEASES
-        ########################################################################
-
-        # Create a new empty table where we will store the new calculated values
-        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
-
-        @db.transaction do
-            @db[:network_pool].each do |row|
-                doc = Document.new(row[:body])
-
-                oid = row[:oid]
-
-                total_leases = counters[:vnet][oid][:total_leases]
-
-                # rewrite running_vms
-                doc.root.each_element("TOTAL_LEASES") {|e|
-                    if e.text != total_leases.to_s
-                        log_error("VNet #{oid} TOTAL_LEASES has #{e.text} \tis\t#{total_leases}")
-                        e.text = total_leases
-                    end
-                }
-
-                row[:body] = doc.to_s
-
-                # commit
-                @db[:network_pool_new].insert(row)
-            end
-        end
-
-        # Rename table
-        @db.run("DROP TABLE network_pool")
-        @db.run("ALTER TABLE network_pool_new RENAME TO network_pool")
 
         log_time()
 
@@ -1319,7 +1136,7 @@ EOT
             end
 
             @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 calculate_quotas(doc, "uid=#{row[:user_oid]}", "User")
 
@@ -1367,7 +1184,7 @@ EOT
             end
 
             @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 calculate_quotas(doc, "gid=#{row[:group_oid]}", "Group")
 
@@ -1415,7 +1232,7 @@ EOT
         img_usage = {}
 
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
-            vmdoc = Nokogiri::XML(vm_row[:body])
+            vmdoc = Nokogiri::XML(vm_row[:body]){|c| c.default_xml.noblanks}
 
             # VM quotas
             vmdoc.root.xpath("TEMPLATE/CPU").each { |e|
@@ -1600,7 +1417,7 @@ EOT
         ds_usage = {}
 
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
-            img_doc = Nokogiri::XML(img_row[:body])
+            img_doc = Nokogiri::XML(img_row[:body]){|c| c.default_xml.noblanks}
 
             img_doc.root.xpath("DATASTORE_ID").each { |e|
                 ds_usage[e.text] = [0,0] if ds_usage[e.text].nil?

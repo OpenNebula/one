@@ -19,9 +19,10 @@
 
 //Prepares the dialog to create
 function setupCreateZoneDialog(){
-    // TODO
+    if ($('#create_zone_dialog').length == 0) {
+        dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
+    }
 
-    dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
     $create_zone_dialog = $('#create_zone_dialog',dialogs_context);
     var dialog = $create_zone_dialog;
 
@@ -33,7 +34,6 @@ function setupCreateZoneDialog(){
         var endpoint=$("#endpoint",this).val();
         var zone_json = { "zone" : { "name" : name, "endpoint" : endpoint}};
         Sunstone.runAction("Zone.create",zone_json);
-        $create_zone_dialog.foundation('reveal', 'close');
         return false;
     });
 
@@ -76,7 +76,6 @@ var create_zone_tmpl =
   <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
-var zones_select="";
 var dataTable_zones;
 var $create_zone_dialog;
 
@@ -87,6 +86,9 @@ var zone_actions = {
         type: "create",
         call: OpenNebula.Zone.create,
         callback: function(request, response){
+            $create_zone_dialog.foundation('reveal', 'close');
+            $("form", $create_zone_dialog)[0].reset();
+
             Sunstone.runAction('Zone.list');
         },
         error: onError,
@@ -108,14 +110,17 @@ var zone_actions = {
     "Zone.show" : {
         type: "single",
         call: OpenNebula.Zone.show,
-        callback: updateZoneElement,
-        error: onError
-    },
+        callback: function(request, response){
+            var tab = dataTable_zones.parents(".tab");
 
-    "Zone.showinfo" : {
-        type: "single",
-        call: OpenNebula.Zone.show,
-        callback: updateZoneInfo,
+            if (Sunstone.rightInfoVisible(tab)) {
+                // individual view
+                updateZoneInfo(request, response);
+            }
+
+            // datatable row
+            updateZoneElement(request, response);
+        },
         error: onError
     },
 
@@ -131,20 +136,13 @@ var zone_actions = {
         call: function(){
           var tab = dataTable_zones.parents(".tab");
           if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Zone.showinfo", Sunstone.rightInfoResourceId(tab))
+            Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
           } else {
             waitingNodes(dataTable_zones);
-            Sunstone.runAction("Zone.list");
+            Sunstone.runAction("Zone.list", {force: true});
           }
         },
         error: onError
-    },
-
-    "Zone.autorefresh" : {
-        type: "custom",
-        call : function() {
-            OpenNebula.Zone.list({timeout: true, success: updateZonesView,error: onError});
-        }
     },
 
     "Zone.delete" : {
@@ -162,7 +160,6 @@ var zone_actions = {
         callback: function(request,response){
            notifyMessage(tr("Zone updated correctly"));
            Sunstone.runAction('Zone.show',request.request.data[0][0]);
-           Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
         },
         error: onError
     },
@@ -182,8 +179,7 @@ var zone_actions = {
         call: OpenNebula.Zone.rename,
         callback: function(request) {
             notifyMessage(tr("Zone renamed correctly"));
-            Sunstone.runAction('Zone.showinfo',request.request.data[0][0]);
-            Sunstone.runAction('Zone.list');
+            Sunstone.runAction('Zone.show',request.request.data[0][0]);
         },
         error: onError,
         notify: true
@@ -196,6 +192,11 @@ var zone_buttons = {
         layout: "refresh",
         alwaysActive: true
     },
+//    "Sunstone.toggle_top" : {
+//        type: "custom",
+//        layout: "top",
+//        alwaysActive: true
+//    },
     "Zone.create_dialog" : {
         type: "create_dialog",
         layout: "create"
@@ -215,12 +216,13 @@ var zone_buttons = {
 
 var zones_tab = {
     title: tr("Zones"),
+    resource: 'Zone',
     buttons: zone_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="zone_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-files-o"></i> '+tr("Zones"),
-    info_header: '<i class="fa fa-files-o"></i> '+tr("Zone"),
+    list_header: '<i class="fa fa-fw fa-files-o"></i>&emsp;'+tr("Zones"),
+    info_header: '<i class="fa fa-fw fa-files-o"></i>&emsp;'+tr("Zone"),
     subheader: '<span/> <small></small>&emsp;',
     table: '<table id="datatable_zones" class="datatable twelve">\
       <thead>\
@@ -264,32 +266,17 @@ function zoneElementArray(element_json){
     ];
 }
 
-
-//updates the zone select by refreshing the options in it
-function updateZoneSelect(){
-    zones_select = makeSelectOptions(dataTable_zones,
-                                         1,//id_col
-                                         2,//name_col
-                                         3,//endpoint_col
-                                         [],//status_cols
-                                         [],//bad_st
-                                         true
-                                        );
-}
-
 //callback for an action affecting a zone element
 function updateZoneElement(request, element_json){
     var id = element_json.ZONE.ID;
     var element = zoneElementArray(element_json);
     updateSingleElement(element,dataTable_zones,'#zone_'+id);
-    updateZoneSelect();
 }
 
 //callback for actions deleting a zone element
 function deleteZoneElement(req){
     deleteElement(dataTable_zones,'#zone_'+req.request.data);
     $('div#zone_tab_'+req.request.data,main_tabs_context).remove();
-    updateZoneSelect();
 }
 
 //call back for actions creating a zone element
@@ -297,7 +284,6 @@ function addZoneElement(request,element_json){
     var id = element_json.ZONE.ID;
     var element = zoneElementArray(element_json);
     addElement(element,dataTable_zones);
-    updateZoneSelect();
 }
 
 //callback to update the list of zones.
@@ -310,7 +296,6 @@ function updateZonesView (request,list){
     });
 
     updateView(list_array,dataTable_zones);
-    updateZoneSelect();
 };
 
 
@@ -360,26 +345,6 @@ function updateZoneInfo(request,zone){
     Sunstone.updateInfoPanelTab("zone_info_panel","zone_info_tab",info_tab);
 
     Sunstone.popUpInfoPanel("zone_info_panel", "zones-tab");
-
-    $("#zone_info_panel_refresh", $("#zone_info_panel")).click(function(){
-      $(this).html(spinner);
-      Sunstone.runAction('Zone.showinfo', zone_info.ID);
-    })
-}
-
-//Prepares the autorefresh for zones
-function setZoneAutorefresh() {
-    setInterval(function(){
-        var checked = $('input.check_item:checked',dataTable_zones);
-        var  filter = $("#zone_search").attr('value');
-        if ((checked.length==0) && !filter){
-            Sunstone.runAction("Zone.autorefresh");
-        }
-    },INTERVAL+someTime());
-}
-
-function zones_sel() {
-    return zones_select;
 }
 
 //This is executed after the sunstone.js ready() is run.
@@ -391,6 +356,8 @@ $(document).ready(function(){
     if (Config.isTabEnabled(tab_name)) {
       //prepare zone datatable
       dataTable_zones = $("#datatable_zones",main_tabs_context).dataTable({
+          "bSortClasses": false,
+          "bDeferRender": true,
           "aoColumnDefs": [
               { "bSortable": false, "aTargets": ["check"] },
               { "sWidth": "35px", "aTargets": [0] },
@@ -412,11 +379,9 @@ $(document).ready(function(){
 
       dialogs_context.append('<div title=\"'+tr("Create zone")+'\" id="create_zone_dialog"></div>');
 
-      setZoneAutorefresh();
-
       initCheckAllBoxes(dataTable_zones);
       tableCheckboxesListener(dataTable_zones);
-      infoListener(dataTable_zones, "Zone.showinfo");
+      infoListener(dataTable_zones, "Zone.show");
       dataTable_zones.fnSort( [ [1,config['user_config']['table_order']] ] );
     }
 });

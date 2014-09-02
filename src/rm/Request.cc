@@ -36,12 +36,13 @@ void Request::execute(
     Nebula& nd = Nebula::instance();
     UserPool* upool = nd.get_upool();
 
-    bool authenticated = upool->authenticate(   att.session,
-                                                att.uid,
-                                                att.gid,
-                                                att.uname,
-                                                att.gname,
-                                                att.group_ids);
+    bool authenticated = upool->authenticate(att.session,
+                                             att.uid,
+                                             att.gid,
+                                             att.uname,
+                                             att.gname,
+                                             att.group_ids,
+                                             att.umask);
 
     log_method_invoked(att, _paramList);
 

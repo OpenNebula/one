@@ -79,17 +79,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         Examples:
 
-          - using a template description file:
-
-            onegroup create group_description.tmpl
-
-          - create a group with admin group, admin user and allow group users
-            to only create new templates and VMs, and group admins to manage
+          - create a group with admin user and allow group users
+            to only create new templates and VMs, and group admin to manage
             templates, vms, images and virtual networks
 
-            onegroup create --name groupA --admin_group admin_groupA 
+            onegroup create --name groupA
                             --admin_user admin_userA --admin_password somestr
-                            --resource TEMPLATE+VM 
+                            --resources TEMPLATE+VM
                             --admin_resources TEMPLATE+VM+IMAGE+NET
 
     EOT
@@ -110,20 +106,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             admin_user=Hash.new
-            admin_user[:name]      = options[:admin_user]
-            admin_user[:password]  = options[:admin_password]
-            if options[:admin_driver]
-                admin_user[:auth_driver] = options[:admin_driver]
-            end
-            options[:user] = admin_user
+            admin_user[:name]       = options[:admin_user]
+            admin_user[:password]   = options[:admin_password]
+            admin_user[:auth_driver]= options[:admin_driver] if options[:admin_driver]
+            admin_user[:resources]  = options[:admin_resources] if options[:admin_resources]
+
+            options[:group_admin] = admin_user
         end
 
         if !options.empty?
             helper.create_complete_resource(options)
         elsif args[0]
-            helper.create_resource(options) do |group|
-                group.allocate(args[0])
-            end
+            options[:name] = args[0]
+            helper.create_complete_resource(options)
         end
     end
 
@@ -143,7 +138,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             obj.update(str, options[:append])
         end
-    end    
+    end
 
     delete_desc = <<-EOT.unindent
         Deletes the given Group
@@ -194,7 +189,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
         end
-    end  
+    end
 
     batchquota_desc = <<-EOT.unindent
         Sets the quota limits in batch for various groups. If a path is not
@@ -233,7 +228,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             exit(-1)
         end
 
-        str = OneQuotaHelper.set_quota(default_quotas, args[0])
+        str = OneQuotaHelper.set_quota(default_quotas, args[0], true)
 
         rc  = system.set_group_quotas(str)
 

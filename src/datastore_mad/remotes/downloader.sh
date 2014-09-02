@@ -35,7 +35,7 @@ function get_decompressor
     type=$1
 
     case "$type" in
-    "application/x-gzip")
+    "application/x-gzip"|"application/gzip")
         echo "gunzip -c -"
         ;;
     "application/x-bzip2")
@@ -188,10 +188,7 @@ esac
 file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-# Note: the 'cat' at the end of this pipeline forces the pipe to wait until
-# all the 'tee' processes are finished
-$command | tee >( decompress "$decompressor" "$TO" ) \
-    >( hasher $HASH_TYPE ) | cat >/dev/null
+$command | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
 
 if [ "$?" != "0" ]; then
     echo "Error copying" >&2

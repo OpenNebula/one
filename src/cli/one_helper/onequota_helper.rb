@@ -18,6 +18,9 @@ require 'cli_helper'
 
 class OneQuotaHelper
 
+    LIMIT_DEFAULT   = "-1"
+    LIMIT_UNLIMITED = "-2"
+
     EDITOR_PATH='/usr/bin/vi'
 
     HELP_QUOTA = <<-EOT.unindent
@@ -46,13 +49,26 @@ class OneQuotaHelper
         #    ID     = <ID of the image>
         #    RVMS   = <Max. number of VMs using the image>
         #  ]
+    EOT
+
+    HELP_QUOTA_FOOTER = <<-EOT.unindent
         #
         #  In any quota:
-        #    -1 means use the default limit ('defaultquota' command)
-        #    0 means unlimited.
+        #    -1 means use the default limit (set with the 'defaultquota' command)
+        #    -2 means unlimited.
         #
         #  The usage counters "*_USED" are shown for information
         #  purposes and will NOT be modified.
+        #-----------------------------------------------------------------------
+    EOT
+
+    HELP_DEFAULT_QUOTA_FOOTER = <<-EOT.unindent
+        #
+        #  In any quota:
+        #    -2 means unlimited.
+        #
+        #  The usage counters "*_USED" will always be 0 for the default
+        #  quotas, and can be ignored.
         #-----------------------------------------------------------------------
     EOT
 
@@ -60,8 +76,9 @@ class OneQuotaHelper
     #  @param [XMLElement] resource to get the current info from
     #  @param [String] path to the new contents. If nil a editor will be 
     #         used
+    #  @param [True|False] is_default To change the help text
     #  @return [String] contents of the new quotas
-    def self.set_quota(resource, path)
+    def self.set_quota(resource, path, is_default=false)
         str = ""
 
         if path.nil?
@@ -71,6 +88,13 @@ class OneQuotaHelper
             path = tmp.path
 
             tmp << HELP_QUOTA
+
+            if (is_default)
+                tmp << HELP_DEFAULT_QUOTA_FOOTER
+            else
+                tmp << HELP_QUOTA_FOOTER
+            end
+
             tmp << resource.template_like_str("DATASTORE_QUOTA") << "\n"
             tmp << resource.template_like_str("VM_QUOTA") << "\n"
             tmp << resource.template_like_str("NETWORK_QUOTA") << "\n"
@@ -188,7 +212,11 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "VM_QUOTA/VM/#{elem}")
 
-                        "%7d / %7d" % [d["VMS_USED"], limit]
+                        if limit == LIMIT_UNLIMITED
+                            "%7d /       -" % [d["VMS_USED"]]
+                        else
+                            "%7d / %7d" % [d["VMS_USED"], limit]
+                        end
                     end
                 end
 
@@ -199,10 +227,16 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "VM_QUOTA/VM/#{elem}")
 
-                        "%8s / %8s" % [
-                            OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
-                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                        ]
+                        if limit == LIMIT_UNLIMITED
+                            "%8s /        -" % [
+                                OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M")
+                            ]
+                        else
+                            "%8s / %8s" % [
+                                OpenNebulaHelper.unit_to_str(d["MEMORY_USED"].to_i,{},"M"),
+                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                            ]
+                        end
                     end
                 end
 
@@ -213,7 +247,11 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "VM_QUOTA/VM/#{elem}")
 
-                        "%8.2f / %8.2f" % [d["CPU_USED"], limit]
+                        if limit == LIMIT_UNLIMITED
+                            "%8.2f /        -" % [d["CPU_USED"]]
+                        else
+                            "%8.2f / %8.2f" % [d["CPU_USED"], limit]
+                        end
                     end
                 end
 
@@ -224,10 +262,16 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "VM_QUOTA/VM/#{elem}")
 
-                        "%8s / %8s" % [
-                            OpenNebulaHelper.unit_to_str(d["VOLATILE_SIZE_USED"].to_i,{},"M"),
-                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                        ]
+                        if limit == LIMIT_UNLIMITED
+                            "%8s /        -" % [
+                                OpenNebulaHelper.unit_to_str(d["VOLATILE_SIZE_USED"].to_i,{},"M")
+                            ]
+                        else
+                            "%8s / %8s" % [
+                                OpenNebulaHelper.unit_to_str(d["VOLATILE_SIZE_USED"].to_i,{},"M"),
+                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                            ]
+                        end
                     end
                 end
             end.show(vm_quotas, {})
@@ -250,7 +294,11 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}")
 
-                        "%8d / %8d" % [d["IMAGES_USED"], limit]
+                        if limit == LIMIT_UNLIMITED
+                            "%8d /        -" % [d["IMAGES_USED"]]
+                        else
+                            "%8d / %8d" % [d["IMAGES_USED"], limit]
+                        end
                     end
                 end
 
@@ -261,10 +309,16 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "DATASTORE_QUOTA/DATASTORE[ID=#{d['ID']}]/#{elem}")
 
-                        "%8s / %8s" % [
-                            OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M"),
-                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
-                        ]
+                        if limit == LIMIT_UNLIMITED
+                            "%8s /        -" % [
+                                OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M")
+                            ]
+                        else
+                            "%8s / %8s" % [
+                                OpenNebulaHelper.unit_to_str(d["SIZE_USED"].to_i,{},"M"),
+                                OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")
+                            ]
+                        end
                     end
                 end
             end.show(ds_quotas, {})
@@ -287,7 +341,11 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "NETWORK_QUOTA/NETWORK[ID=#{d['ID']}]/#{elem}")
 
-                        "%8d / %8d" % [d["LEASES_USED"], limit]
+                        if limit == LIMIT_UNLIMITED
+                            "%8d /        -" % [d["LEASES_USED"]]
+                        else
+                            "%8d / %8d" % [d["LEASES_USED"], limit]
+                        end
                     end
                 end
             end.show(net_quotas, {})
@@ -310,7 +368,11 @@ class OneQuotaHelper
                         limit = helper.get_default_limit(
                             limit, "IMAGE_QUOTA/IMAGE[ID=#{d['ID']}]/RVMS")
 
-                        "%8d / %8d" % [d["RVMS_USED"], limit]
+                        if limit == LIMIT_UNLIMITED
+                            "%8d /        -" % [d["RVMS_USED"]]
+                        else
+                            "%8d / %8d" % [d["RVMS_USED"], limit]
+                        end
                     end
                 end
             end.show(image_quotas, {})
@@ -318,13 +380,13 @@ class OneQuotaHelper
     end
 
     def get_default_limit(limit, xpath)
-        if limit == "-1"
+        if limit == LIMIT_DEFAULT
             if !@default_quotas.nil?
                 limit = @default_quotas[xpath]
 
-                limit = "0" if limit.nil? || limit == ""
+                limit = LIMIT_UNLIMITED if limit.nil? || limit == ""
             else
-                limit = "0"
+                limit = LIMIT_UNLIMITED
             end
         end
 

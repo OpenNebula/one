@@ -19,10 +19,19 @@ require 'json'
 
 require 'pp'
 
-VIEWS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-views.yaml"
-VIEWS_CONFIGURATION_DIR = ETC_LOCATION + "/sunstone-views/"
 
+# This class is used by Sunstone to set and return the views available to a user
+# as well as available tabs.
 class SunstoneViews
+
+    ############################################################################
+    # Class Constants:
+    #   - Configuration files
+    #   - sunstone-views.yaml includes default group views
+    ############################################################################
+    VIEWS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-views.yaml"
+    VIEWS_CONFIGURATION_DIR  = ETC_LOCATION + "/sunstone-views/"
+
 	def initialize
 		@views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
 
@@ -49,7 +58,8 @@ class SunstoneViews
 	end
 
     # Return the name of the views avialable to a user. Those defined in the
-    # group template and configured in this sunstone.
+    # group template and configured in sunstone. If no view is defined in a
+    # group defaults in sunstone-views.yaml will be used.
     #
     def available_views(user_name, group_name)
         onec = $cloud_auth.client(user_name)
@@ -65,7 +75,18 @@ class SunstoneViews
             group.info
 
             if group["TEMPLATE/SUNSTONE_VIEWS"]
-                available << group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+                views_array = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
+                available << views_array.each{|v| v.strip!}
+            elsif @views_config['groups']
+                available << @views_config['groups'][group.name]
+            end
+
+            gadmins       = group["TEMPLATE/GROUP_ADMINS"]
+            gadmins_views = group["TEMPLATE/GROUP_ADMIN_VIEWS"]
+
+            if gadmins && gadmins.split(',').include?(user_name) && gadmins_views
+                views_array = gadmins_views.split(",")
+                available << views_array.each{|v| v.strip!}
             end
         }
 
@@ -78,7 +99,9 @@ class SunstoneViews
         # Fallback to default views if none is defined in templates
 
         available << @views_config['users'][user_name] if @views_config['users']
-        available << @views_config['groups'][group_name] if @views_config['groups']
+        if @views_config['groups']
+            available << @views_config['groups'][group_name]
+        end
         available << @views_config['default']
 
         available.flatten!
@@ -86,6 +109,10 @@ class SunstoneViews
         available.reject!{|v| !@views.has_key?(v)} #sanitize array views
 
         return available.uniq
+    end
+
+    def get_all_views
+        @views.keys
     end
 
     def available_tabs

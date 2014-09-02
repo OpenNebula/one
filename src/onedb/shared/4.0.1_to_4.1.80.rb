@@ -49,7 +49,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_user_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.at_xpath("TEMPLATE").
                     add_child(doc.create_element("TOKEN_PASSWORD")).
@@ -59,7 +59,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -80,7 +80,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.add_child(doc.create_element("TOTAL_MB")).content = "0"
                 doc.root.add_child(doc.create_element("FREE_MB")).content  = "0"

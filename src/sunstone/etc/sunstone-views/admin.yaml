@@ -1,4 +1,5 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
+provision_logo: images/one_small_logo.png
 enabled_tabs:
     dashboard-tab: true
     system-tab: true
@@ -19,19 +20,30 @@ enabled_tabs:
     oneflow-dashboard: true
     oneflow-services: true
     oneflow-templates: true
+    support-tab: true
+    doc-tab: true
+    community-tab: true
+    enterprise-tab: true
     zones-tab: true
+autorefresh: true
 tabs:
     dashboard-tab:
         panel_tabs:
         actions:
+            Dashboard.refresh: false
+            Sunstone.toggle_top: false
         widgets_three_per_row:
             - storage
             - users
             - network
         widgets_two_per_row:
+#            - user_quotas
+#            - group_quotas
         widgets_one_per_row:
             - vms
             - hosts
+        widgets_one_footer:
+#            - accounting
     system-tab:
         panel_tabs:
         actions:
@@ -49,6 +61,7 @@ tabs:
             - 6         # Memory
             - 7         # CPU
             #- 8         # Group ID
+            #- 9         # Hidden User Data
         actions:
             User.refresh: true
             User.create_dialog: true
@@ -120,7 +133,6 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: true
-            VM.easy_provision: false
             VM.chown: true
             VM.chgrp: true
             VM.chmod: true
@@ -169,7 +181,6 @@ tabs:
         actions:
             Template.refresh: true
             Template.create_dialog: true
-            Template.easy_provision: false
             Template.update_dialog: true
             Template.instantiate_vms: true
             Template.chown: true
@@ -186,6 +197,7 @@ tabs:
             input_output: true
             context: true
             scheduling: true
+            hybrid: true
             other: true
     images-tab:
         panel_tabs:
@@ -316,6 +328,7 @@ tabs:
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
+            vnet_ar_list_tab: true
             vnet_leases_tab: true
         table_columns:
             - 0         # Checkbox
@@ -323,10 +336,11 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
-            - 5         # Cluster
-            - 6         # Type
+            - 5         # Reservation
+            - 6         # Cluster
             #- 7         # Bridge
             - 8         # Leases
+            #- 9         # VLAN ID
         actions:
             Network.refresh: true
             Network.create_dialog: true
@@ -335,10 +349,11 @@ tabs:
             Network.chgrp: true
             Network.chmod: true
             Network.delete: true
-            Network.addleases: true
             Network.hold_lease: true
-            Network.remove_lease: true
             Network.release_lease: true
+            Network.add_ar: true
+            Network.remove_ar: true
+            Network.update_ar: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true

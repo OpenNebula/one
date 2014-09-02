@@ -62,27 +62,41 @@ setup()
 
 start()
 {
+  if [ "$1" = "-n" ]; then
+    novnc=1
+  fi
+
   if [ ! -f "$SUNSTONE_SERVER" ]; then
     echo "Cannot find $SUNSTONE_SERVER."
     exit 1
   fi
 
-  # Start novnc server
-  $NOVNC_SERVER start
+  if [ "$novnc" = "1" ]; then
+    # Start novnc server
+    $NOVNC_SERVER start
 
-  if [ "$?" != "0" ]; then
-    echo "Could not start novnc server" 1>&2
+    if [ "$?" != "0" ]; then
+      echo "Could not start novnc server" 1>&2
+    fi
   fi
 
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
+
+  if [ "$?" != "0" ]; then
+    echo "Error creating lock file" 1>&2
+
+    $NOVNC_SERVER stop
+    exit 1
+  fi
+
   ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
   LASTPID=$!
 
   if [ $? -ne 0 ]; then
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
-    $NOVNC_SERVER stop
+    [ "$novnc" = "1" ] && $NOVNC_SERVER stop
     exit 1
   else
     echo $LASTPID > $SUNSTONE_PID
@@ -94,7 +108,7 @@ start()
   if [ $? -ne 0 ]; then
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
-    $NOVNC_SERVER stop
+    [ "$novnc" = "1" ] && $NOVNC_SERVER stop
     exit 1
   fi
 
@@ -106,8 +120,12 @@ start()
 #
 stop()
 {
+  if [ "$1" = "-n" ]; then
+    novnc=1
+  fi
+
   # Stop novnc server
-  $NOVNC_SERVER stop
+  [ "$novnc" = "1" ] && $NOVNC_SERVER stop
 
   if [ ! -f $SUNSTONE_PID ]; then
     echo "Couldn't find sunstone-server process pid."
@@ -127,18 +145,30 @@ stop()
 case "$1" in
   start)
     setup
-    start
+    start -n
     ;;
   stop)
-    stop
+    stop -n
     ;;
   restart)
+    stop -n
+    setup
+    start -n
+    ;;
+  start-sunstone)
+    setup
+    start
+    ;;
+  stop-sunstone)
+    stop
+    ;;
+  restart-sunstone)
     stop
     setup
     start
     ;;
   *)
-    echo "Usage: sunstone-server {start|stop|restart}" >&2
+    echo "Usage: sunstone-server {start|stop|restart|start-sunstone|stop-sunstone|restart-sunstone}" >&2
     exit 3
     ;;
 esac

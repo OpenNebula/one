@@ -2,8 +2,7 @@
 
 require 'pp'
 
-
-DEFAULT=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca}
+DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
@@ -15,17 +14,21 @@ if !defined?(RUBY_VERSION) || RUBY_VERSION < '1.9.0'
     $nokogiri='nokogiri --version "< 1.6.0"'
 else
     $nokogiri='nokogiri'
+    DEFAULT = DEFAULT_PRE + %w{hybrid}
 end
 
+DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
+
 GROUPS={
-    :quota => [SQLITE, 'sequel'],
-    :sunstone => ['json', 'rack', 'sinatra', 'thin', SQLITE],
-    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
-    :auth_ldap => 'net-ldap',
-    :vmware => %w{builder trollop},
-    :oneflow => %w{sinatra json treetop parse-cron},
+    :quota      => [SQLITE, 'sequel'],
+    :sunstone   => ['json', 'rack', 'sinatra', 'thin', SQLITE],
+    :cloud      => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
+    :hybrid     => %w{softlayer_api configparser azure},
+    :auth_ldap  => 'net-ldap',
+    :vmware     => %w{builder trollop},
+    :oneflow    => %w{sinatra json treetop parse-cron},
     :ec2_hybrid => 'aws-sdk',
-    :oca => 'ox'
+    :oca        => 'ox'
 }
 
 PACKAGES=GROUPS.keys

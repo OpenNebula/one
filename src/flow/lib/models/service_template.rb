@@ -24,7 +24,8 @@ module OpenNebula
             :properties => {
                 'name' => {
                     :type => :string,
-                    :required => true
+                    :required => true,
+                    :regex => /^\w+$/
                 },
                 'cardinality' => {
                     :type => :integer,
@@ -34,6 +35,10 @@ module OpenNebula
                 'vm_template' => {
                     :type => :integer,
                     :required => true
+                },
+                'vm_template_contents' => {
+                    :type => :string,
+                    :required => false
                 },
                 'parents' => {
                     :type => :array,
@@ -160,6 +165,16 @@ module OpenNebula
                     :type => :array,
                     :items => ROLE_SCHEMA,
                     :required => true
+                },
+                'custom_attrs' => {
+                    :type => :object,
+                    :properties => {
+                    },
+                    :required => false
+                },
+                'ready_status_gate' => {
+                    :type => :boolean,
+                    :required => false
                 }
             }
         }
@@ -171,14 +186,7 @@ module OpenNebula
         def allocate(template_json)
             template = JSON.parse(template_json)
 
-            validator = Validator::Validator.new(
-                :default_values => true,
-                :delete_extra_properties => false
-            )
-
-            validator.validate!(template, SCHEMA)
-
-            validate_values(template)
+            ServiceTemplate.validate(template)
 
             super(template.to_json, template['name'])
         end
@@ -193,21 +201,26 @@ module OpenNebula
         def update(template_json)
             template = JSON.parse(template_json)
 
+            ServiceTemplate.validate(template)
+
+            super(template.to_json)
+        end
+
+        def self.validate(template)
             validator = Validator::Validator.new(
                 :default_values => true,
-                :delete_extra_properties => false
+                :delete_extra_properties => false,
+                :allow_extra_properties => true
             )
 
             validator.validate!(template, SCHEMA)
 
             validate_values(template)
-
-            super(template.to_json)
         end
 
     private
 
-        def validate_values(template)
+        def self.validate_values(template)
             parser = ElasticityGrammarParser.new
 
             roles = template['roles']
@@ -302,7 +315,7 @@ module OpenNebula
                             raise Validator::ParseException,
                             "Role '#{role['name']}', scheduled policy ##{index} needs to define either "<<
                             "'start_time' or 'recurrence'"
-                        end                       
+                        end
                     end
                 end
             end

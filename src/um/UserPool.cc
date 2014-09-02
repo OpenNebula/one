@@ -80,13 +80,22 @@ UserPool::UserPool(SqlDB * db,
 
     _session_expiration_time = __session_expiration_time;
 
-    //Federation slaves do not need to init the pool
+    User * oneadmin_user = get(0, true);
+
+    //Slaves do not need to init the pool, just the oneadmin username
     if (is_federation_slave)
     {
+        if (oneadmin_user == 0)
+        {
+            throw("Database has not been bootstrapped with master data.");
+        }
+
+        oneadmin_name = oneadmin_user->get_name();
+
+        oneadmin_user->unlock();
+
         return;
     }
-
-    User * oneadmin_user = get(0, true);
 
     if (oneadmin_user != 0)
     {
@@ -410,7 +419,8 @@ bool UserPool::authenticate_internal(User *        user,
                                      int&          group_id,
                                      string&       uname,
                                      string&       gname,
-                                     set<int>&     group_ids)
+                                     set<int>&     group_ids,
+                                     int&          umask)
 {
     bool result = false;
 
@@ -431,12 +441,14 @@ bool UserPool::authenticate_internal(User *        user,
 
     group_ids = user->get_groups();
 
-    uname  = user->name;
-    gname  = user->gname;
+    uname = user->name;
+    gname = user->gname;
 
     auth_driver = user->auth_driver;
 
     result = user->valid_session(token);
+
+    umask = user->get_umask();
 
     user->unlock();
 
@@ -514,6 +526,8 @@ auth_failure:
     uname = "";
     gname = "";
 
+    umask = 0;
+
     return false;
 }
 
@@ -526,7 +540,8 @@ bool UserPool::authenticate_server(User *        user,
                                    int&          group_id,
                                    string&       uname,
                                    string&       gname,
-                                   set<int>&     group_ids)
+                                   set<int>&     group_ids,
+                                   int&          umask)
 {
     bool result = false;
 
@@ -575,6 +590,8 @@ bool UserPool::authenticate_server(User *        user,
     gname  = user->gname;
 
     result = user->valid_session(second_token);
+
+    umask = user->get_umask();
 
     user->unlock();
 
@@ -645,6 +662,8 @@ auth_failure:
     uname = "";
     gname = "";
 
+    umask = 0;
+
     return false;
 }
 
@@ -657,7 +676,8 @@ bool UserPool::authenticate_external(const string&  username,
                                      int&           group_id,
                                      string&        uname,
                                      string&        gname,
-                                     set<int>&      group_ids)
+                                     set<int>&      group_ids,
+                                     int&           umask)
 {
     ostringstream oss;
     istringstream is;
@@ -732,6 +752,8 @@ bool UserPool::authenticate_external(const string&  username,
     uname = mad_name;
     gname = GroupPool::USERS_NAME;
 
+    umask = User::get_default_umask();
+
     return true;
 
 auth_failure_user:
@@ -761,6 +783,8 @@ auth_failure:
     uname = "";
     gname = "";
 
+    umask = 0;
+
     return false;
 }
 
@@ -772,7 +796,8 @@ bool UserPool::authenticate(const string& session,
                             int&          group_id,
                             string&       uname,
                             string&       gname,
-                            set<int>&     group_ids)
+                            set<int>&     group_ids,
+                            int&          umask)
 {
     User * user = 0;
     string username;
@@ -796,16 +821,19 @@ bool UserPool::authenticate(const string& session,
 
         if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
         {
-            ar = authenticate_server(user,token,user_id,group_id,uname,gname,group_ids);
+            ar = authenticate_server(user, token, user_id, group_id, uname,
+                gname, group_ids, umask);
         }
         else
         {
-            ar = authenticate_internal(user,token,user_id,group_id,uname,gname,group_ids);
+            ar = authenticate_internal(user, token, user_id, group_id, uname,
+                gname, group_ids, umask);
         }
     }
     else
     {
-        ar = authenticate_external(username,token,user_id,group_id,uname,gname,group_ids);
+        ar = authenticate_external(username, token, user_id, group_id, uname,
+            gname, group_ids, umask);
     }
 
    return ar;

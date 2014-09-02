@@ -37,7 +37,7 @@ module OpenNebula
         SELF = -1
 
         # Default resource ACL's for group users (create)
-        GROUP_DEFAULT_ACLS = "VM+IMAGE+NET+TEMPLATE+DOCUMENT"
+        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT"
         ALL_CLUSTERS_IN_ZONE = 10
 
         # The default view for group and group admins, must be defined in
@@ -79,34 +79,33 @@ module OpenNebula
         alias_method :info!, :info
 
         # Creates a group based in a group definition hash
-        #   group_hash[:name]
-        #   group_hash[:admin_group]
-        #   group_hash[:user][:name]
-        #   group_hash[:user][:password]
+        #   group_hash[:name] the group name
+        #   group_hash[:group_admin] the admin user definition hash, see def
+        #   create_admin_user function description for details.
         #   group_hash[:resource_providers]
         #   group_hash[:resource_providers][:zone_id]
         #   group_hash[:resource_providers][:cluster_id]
+        #   group_hash[:views] Array of sunstone view names, to be stored
+        #       in SUNSTONE_VIEWS
+        #   group_hash[:default_view] Default sunstone view name, to be stored
+        #       in DEFAULT_VIEW
         #
         def create(group_hash)
             # Check arguments
-            return -1, "Group name not defined" if !group_hash[:name]
+            if !group_hash[:name]
+                return OpenNebula::Error.new("Group name not defined")
+            end
 
-            if group_hash[:user]
-                if group_hash[:user][:name] and !group_hash[:admin_group]
-                    return -1, "Admin user defined but not admin group"
-                end
-
-                if group_hash[:user][:name] and !group_hash[:user][:password]
-                    return -1, "Admin user password not defined"
+            if group_hash[:group_admin]
+                if group_hash[:group_admin][:name] && !group_hash[:group_admin][:password]
+                    error_msg = "Admin user password not defined"
+                    return OpenNebula::Error.new(error_msg)
                 end
             end
 
             # Allocate group
             rc = self.allocate(group_hash[:name])
-
-            if OpenNebula.is_error?(rc)
-                return -1, "Error allocating group: #{rc.message}"
-            end
+            return rc if OpenNebula.is_error?(rc)
 
             # Handle resource providers
             group_hash[:resource_providers].each { |rp|
@@ -124,23 +123,53 @@ module OpenNebula
 
             if OpenNebula.is_error?(rc)
                 self.delete
-                return -1, "Error creating group ACL's: #{rc.message}"
+                error_msg =  "Error creating group ACL's: #{rc.message}"
+                return OpenNebula::Error.new(error_msg)
             end
 
-            # Create associated admin group if needed
-            rc = create_group_admin(group_hash)
+            # Set group ACLs to share resources
+            if group_hash[:shared_resources]
+                acls = Array.new
+                acls << "@#{self.id} #{group_hash[:shared_resources]}/@#{self.id} USE"
+
+                rc, msg = create_group_acls(acls)
+
+                if OpenNebula.is_error?(rc)
+                    self.delete
+                    error_msg =  "Error creating group ACL's: #{rc.message}"
+                    return OpenNebula::Error.new(error_msg)
+                end
+            end
+
+            # Create associated group admin if needed
+            rc = create_admin_user(group_hash)
 
             if OpenNebula.is_error?(rc)
                 self.delete
-                return -1, "Error creating admin group: #{rc.message}"
+                error_msg =  "Error creating admin user: #{rc.message}"
+                return OpenNebula::Error.new(error_msg)
             end
 
-            # Add default Sunstone views for the group
+            str = ""
+            update = false
+
+            # Add Sunstone views for the group
             if group_hash[:views]
-                self.update("SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n")
+                str += "SUNSTONE_VIEWS=\"#{group_hash[:views].join(",")}\"\n"
+                update = true
             end
 
-            return 0, ""
+            # Add Sunstone views for the group
+            if group_hash[:default_view]
+                str += "DEFAULT_VIEW=\"#{group_hash[:default_view]}\"\n"
+                update = true
+            end
+
+            if update
+                self.update(str, true)
+            end
+
+            return 0
         end
 
         # Allocates a new Group in OpenNebula
@@ -264,81 +293,79 @@ module OpenNebula
 
         # Creates a group admin and user based on the group definition hash
         # @param gdef [Hash] keys are ruby sumbols
-        #     gdef[:admin_group] the group name
-        #     gdef[:user][:name] of admin user for the admin group
-        #     gdef[:user][:password] of admin user
-        #     gdef[:user][:auth_driver] of the admin user
-        #     gdef[:admin_resources]
-        #     gdef[:resources]
-        #
+        #     gdef[:group_admin] the group admin hash
+        #     gdef[:group_admin][:name] username for group admin
+        #     gdef[:group_admin][:password] password for group admin
+        #     gdef[:group_admin][:auth_driver] auth driver for group admin
+        #     gdef[:group_admin][:resources] resources that group admin manage
+        #     gdef[:group_admin][:manage_resources] whether group admin manages
+        #                                           group users
+        #     gdef[:resources] resources that group users manage
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
-        def create_group_admin(gdef)
+        def create_admin_user(gdef)
 
-            return nil if gdef[:admin_group].nil?
+            return nil if gdef[:group_admin].nil? || gdef[:group_admin][:name].nil?
 
-            # Create the admin group
-            gadmin = Group.new(Group.build_xml, @client)
-            rc     = gadmin.allocate(gdef[:admin_group])
-
-            return rc if OpenNebula.is_error?(rc)
-
-            # Create group admin user
-            uadmin  = gdef[:user][:name] if gdef[:user]
-            upasswd = gdef[:user][:password] if gdef[:user]
-            udriver = gdef[:user][:auth_driver] if gdef[:user]
+            # Create group admin
+            uadmin  = gdef[:group_admin][:name]
+            upasswd = gdef[:group_admin][:password]
+            udriver = gdef[:group_admin][:auth_driver]
 
             if !uadmin.nil? && !upasswd.nil?
 
-                user = OpenNebula::User.new(OpenNebula::User.build_xml,
-                                    @client)
+                group_admin = OpenNebula::User.new(OpenNebula::User.build_xml,
+                                                   @client)
 
                 if udriver
-                    rc = user.allocate(uadmin, upasswd, udriver)
+                    rc = group_admin.allocate(uadmin, upasswd, udriver)
                 else
-                    rc = user.allocate(uadmin, upasswd)
+                    rc = group_admin.allocate(uadmin, upasswd)
                 end
 
                 if OpenNebula.is_error?(rc)
-                    gadmin.delete
-                    return rc
-                end
-
-                # Set admin user groups to admin group and self
-                rc = user.chgrp(self.id)
-                rc = user.addgroup(gadmin.id) if !OpenNebula.is_error?(rc)
-
-                if OpenNebula.is_error?(rc)
-                    user.delete
-                    gadmin.delete
                     return rc
                 end
             end
+
+            # Set admin user groups to self
+            rc = group_admin.chgrp(self.id)
+
+            if OpenNebula.is_error?(rc)
+                group_admin.delete
+                return rc
+            end
+
+            # Set the default admin view to vdcadmin
+            group_admin.update("DEFAULT_VIEW=#{GROUP_ADMIN_SUNSTONE_VIEWS}", true)
 
             #Create admin group acls
             acls = Array.new
 
-            acls_str = gdef[:admin_resources] || gdef[:resources] || GROUP_DEFAULT_ACLS
+            acls_str = (gdef[:group_admin][:resources] || \
+                        gdef[:resources] || GROUP_DEFAULT_ACLS)
 
-            manage_users = gdef[:admin_manage_users] || "YES"
+            manage_users = gdef[:group_admin][:manage_users] || "YES"
 
             if manage_users.upcase == "YES"
-                acls << "@#{gadmin.id} USER/* CREATE"
-                acls << "@#{gadmin.id} USER/@#{self.id} USE+MANAGE+ADMIN"
+                acls << "##{group_admin.id} USER/@#{self.id} CREATE+USE+MANAGE+ADMIN"
             end
 
-            acls << "@#{gadmin.id} #{acls_str}/@#{self.id} CREATE+USE+MANAGE"
+            acls << "##{group_admin.id} #{acls_str}/@#{self.id} " +
+                    "CREATE+USE+MANAGE"
 
             rc, tmp = create_group_acls(acls)
 
             if OpenNebula.is_error?(rc)
-                user.delete
-                gadmin.delete
+                group_admin.delete
                 return rc
             end
 
             #Set Sunstone Views for the group
-            gadmin.update("SUNSTONE_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}\n")
+            gtmpl =  "GROUP_ADMINS=#{gdef[:group_admin][:name]}\n"
+            gtmpl << "GROUP_ADMIN_VIEWS=#{GROUP_ADMIN_SUNSTONE_VIEWS}\n"
+
+            self.update(gtmpl, true)
 
             return nil
         end

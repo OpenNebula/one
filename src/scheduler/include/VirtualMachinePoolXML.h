@@ -88,8 +88,9 @@ protected:
 
     int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        return get_nodes("/VM_POOL/VM[STATE=1 or (LCM_STATE=3 and RESCHED=1)]",
-                         content);
+        // Pending or ((running or unknown) and resched))
+        return get_nodes("/VM_POOL/VM[STATE=1 or "
+            "((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]", content);
     }
 
     virtual void add_object(xmlNodePtr node);

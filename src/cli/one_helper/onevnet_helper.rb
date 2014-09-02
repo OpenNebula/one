@@ -18,18 +18,76 @@ require 'one_helper'
 require 'one_helper/onevm_helper'
 
 class OneVNetHelper < OpenNebulaHelper::OneHelper
+    AR = {
+        :name => "address_range",
+        :short => "-a ar_id",
+        :large => "--address_range ar_id",
+        :format => Integer,
+        :description => "ID of the address range"
+    }
+
+    MAC = {
+        :name => "mac",
+        :short => "-m mac",
+        :large => "--mac mac",
+        :format => String,
+        :description => "First MAC address in : notation"
+    }
+
+    IP = {
+        :name => "ip",
+        :short => "-i ip",
+        :large => "--ip ip",
+        :format => String,
+        :description => "First IP address in . notation"
+    }
+
+    SIZE = {
+        :name => "size",
+        :short => "-s size",
+        :large => "--size size",
+        :format => String,
+        :description => "Number of addresses"
+    }
+
+    IP6_GLOBAL = {
+        :name => "ip6_global",
+        :short => "-g ip6_pref",
+        :large => "--ip6_global ip6_pref",
+        :format => String,
+        :description => "IP6 global prefix"
+    }
+
+    IP6_ULA = {
+        :name => "ip6_ula",
+        :short => "-u ip6_pref",
+        :large => "--ip6_ula ip6_pref",
+        :format => String,
+        :description => "IP6 ula prefix"
+    }
+
+    NAME = {
+        :name => "name",
+        :short => "-n reservation name",
+        :large => "--name reservation name",
+        :format => String,
+        :description => "Name of the address reservation"
+    }
+
+#    R_SIZE = {
+#        :name => "rsize",
+#        :short => "-s reservation size",
+#        :large => "--size reservation size",
+#        :format => String,
+#        :description => "Number of addresses to reserve"
+#    }
+
     def self.rname
         "VNET"
     end
 
     def self.conf_file
         "onevnet.yaml"
-    end
-
-    def self.type_to_str(id)
-        id = id.to_i
-        type_str = VirtualNetwork::VN_TYPES[id]
-        return VirtualNetwork::SHORT_VN_TYPES[type_str]
     end
 
     def format_pool(options)
@@ -41,7 +99,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :USER, "Username of the Virtual Network owner", :left,
-                    :size=>12 do |d|
+                    :size=>15 do |d|
                 helper.user_name(d, options)
             end
 
@@ -51,20 +109,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :NAME, "Name of the Virtual Network", :left,
-                    :size=>15 do |d|
+                    :size=>19 do |d|
                 d["NAME"]
             end
 
             column :CLUSTER, "Name of the Cluster", :left, :size=>10 do |d|
                 OpenNebulaHelper.cluster_str(d["CLUSTER"])
-            end 
-
-            column :TYPE, "Type of Virtual Network", :size=>6 do |d|
-                OneVNetHelper.type_to_str(d["TYPE"])
-            end
-
-            column :SIZE, "Size of the Virtual Network", :size=>5 do |d|
-                d["SIZE"]
             end
 
             column :BRIDGE, "Bridge associated to the Virtual Network", :left,
@@ -74,10 +124,10 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
             column :LEASES, "Number of this Virtual Network's given leases",
                     :size=>6 do |d|
-                d["TOTAL_LEASES"]
+                d["USED_LEASES"]
             end
 
-            default :ID, :USER, :GROUP, :NAME, :CLUSTER, :TYPE, :BRIDGE, :LEASES
+            default :ID, :USER, :GROUP, :NAME, :CLUSTER, :BRIDGE, :LEASES
         end
 
         table
@@ -109,14 +159,11 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
         puts str % ["CLUSTER", OpenNebulaHelper.cluster_str(vn['CLUSTER'])]
-        puts str % ["TYPE", vn.type_str]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VLAN", OpenNebulaHelper.boolean_to_str(vn['VLAN'])]
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
         puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
-        puts str % ["GLOBAL PREFIX", vn["GLOBAL_PREFIX"]] if !vn["GLOBAL_PREFIX"].empty?
-        puts str % ["SITE PREFIX", vn["SITE_PREFIX"]] if !vn["SITE_PREFIX"].empty?
-        puts str % ["USED LEASES", vn['TOTAL_LEASES']]
+        puts str % ["USED LEASES", vn['USED_LEASES']]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
@@ -129,45 +176,97 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
             puts str % [e,  mask]
         }
+
         puts
 
         CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
 
         puts vn.template_str(false)
 
-        if vn.type_str == "RANGED"
-            puts
-            CLIHelper.print_header(str_h1 % ["RANGE"], false)
-            puts str % ["IP_START", vn['RANGE/IP_START']]
-            puts str % ["IP_END", vn['RANGE/IP_END']]
+        puts
+
+        CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false)
+
+        if !vn.to_hash['VNET']['AR_POOL']['AR'].nil?
+            arlist = [vn.to_hash['VNET']['AR_POOL']['AR']].flatten
         end
 
-        lease_types = [ ["LEASES ON HOLD",  'LEASE[USED=1 and VID=-1]'],
-                        ["USED LEASES",     'LEASE[USED=1 and VID>-1]'],
-                        ["FREE LEASES",     'LEASE[USED=0]'] ]
-
-        lease_types.each { |pair|
-            leases_str = vn.template_like_str('/VNET/LEASES', false, pair[1])
-
-            if !leases_str.empty?
-                puts
-                CLIHelper.print_header(str_h1 % [pair[0]], false)
-                puts leases_str
+        CLIHelper::ShowTable.new(nil, self) do
+            column :AR, "", :size=>3 do |d|
+                    d["AR_ID"]
             end
-        }
+
+            column :TYPE, "", :left, :size=>5 do |d|
+                    d["TYPE"]
+            end
+
+            column :SIZE, "", :size=>6 do |d|
+                    d["SIZE"]
+            end
+
+            column :LEASES, "", :size=>6 do |d|
+                    d["USED_LEASES"]
+            end
+
+            column :MAC, "", :size=>17 do |d|
+                    d["MAC"]
+            end
+
+            column :IP, "", :size=>15 do |d|
+                    d["IP"]||"-"
+            end
+
+            column :GLOBAL_PREFIX, "", :right, :size=>22 do |d|
+                    d["GLOBAL_PREFIX"]||"-"
+            end
+
+        end.show(arlist, {})
 
         puts
-        CLIHelper.print_header("VIRTUAL MACHINES", false)
-        puts
+        CLIHelper.print_header(str_h1 % ["LEASES"], false)
 
-        vms=vn.retrieve_elements("LEASES/LEASE/VID")
+        if !vn.to_hash['VNET']['AR_POOL']['AR'].nil?
+            lease_list = [vn.to_hash['VNET']['AR_POOL']['AR']].flatten
+            leases     = Array.new
 
-        if vms
-            vms=vms.delete_if {|vm| vm=="-1" }
-            vms.map!{|e| e.to_i }
-            onevm_helper=OneVMHelper.new
-            onevm_helper.client=@client
-            onevm_helper.list_pool({:ids=>vms}, false)
+            lease_list.each do |ar|
+                id = ar['AR_ID']
+                if ar['LEASES'] && !ar['LEASES']['LEASE'].nil?
+                    lease = [ar['LEASES']['LEASE']].flatten
+                    lease.each do |l|
+                        l['AR_ID'] = id
+                    end
+                    leases << lease
+                end
+            end
+
+            leases.flatten!
         end
+
+        CLIHelper::ShowTable.new(nil, self) do
+            column :AR, "", :left, :size=>3 do |d|
+                d['AR_ID']
+            end
+
+            column :OWNER, "", :left, :size=>10 do |d|
+                if d['VM']
+                    "VM : #{d['VM']}"
+                elsif d['VNET']
+                    "NET: #{d['VNET']}"
+                end
+            end
+
+            column :MAC, "", :size=>17 do |d|
+                    d["MAC"]
+            end
+
+            column :IP, "", :size=>15 do |d|
+                    d["IP"]||"-"
+            end
+
+            column :IP6_GLOBAL, "", :size=>31 do |d|
+                    d["IP6_GLOBAL"]||"-"
+            end
+        end.show(leases, {})
     end
 end

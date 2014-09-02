@@ -50,17 +50,14 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
     def create_complete_resource(group_hash)
         group = factory
-        exit_code , msg = group.create(group_hash)
+        rc = group.create(group_hash)
 
-        puts msg if msg
-
-        if (exit_code.class==Fixnum and exit_code < 0) or OpenNebula.is_error?(exit_code)
-            puts exit_code.message if OpenNebula.is_error?(exit_code) && exit_code.message
-            return -1
-        else
-            puts "ID: #{group.id}"
-            return 0
+        if OpenNebula.is_error?(rc)
+            return -1, rc.message
         end
+
+        puts "ID: #{group.id}"
+        return 0
     end
 
     def format_pool(options)
@@ -113,12 +110,16 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["VMS"]
 
-                    if limit == "-1"
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/VMS")
-                        limit = "0" if limit.nil? || limit == ""
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit == ""
                     end
 
-                    "%3d / %3d" % [q['VM_QUOTA']['VM']["VMS_USED"], limit]
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%3d /   -" % [q['VM_QUOTA']['VM']["VMS_USED"]]
+                    else
+                        "%3d / %3d" % [q['VM_QUOTA']['VM']["VMS_USED"], limit]
+                    end
 
                 rescue NoMethodError
                     "-"
@@ -130,13 +131,19 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["MEMORY"]
 
-                    if limit == "-1"
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/MEMORY")
-                        limit = "0" if limit.nil? || limit == ""
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit == ""
                     end
 
-                    "%7s / %7s" % [OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
-                    OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%7s /       -" % [
+                            OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M")]
+                    else
+                        "%7s / %7s" % [
+                            OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
+                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
+                    end
 
                 rescue NoMethodError
                     "-"
@@ -148,12 +155,16 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["CPU"]
 
-                    if limit == "-1"
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/CPU")
-                        limit = "0" if limit.nil? || limit == ""
+                        limit = OneQuotaHelper::LIMIT_UNLIMITED if limit.nil? || limit == ""
                     end
 
-                    "%3.1f / %3.1f" % [q['VM_QUOTA']['VM']["CPU_USED"], limit]
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%3.1f /    -" % [q['VM_QUOTA']['VM']["CPU_USED"]]
+                    else
+                        "%3.1f / %3.1f" % [q['VM_QUOTA']['VM']["CPU_USED"], limit]
+                    end
 
                 rescue NoMethodError
                     "-"

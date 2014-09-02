@@ -57,9 +57,10 @@ if [ -z "$DST_HOST" ]; then
     exit -1
 fi
 
+# -------- Remove Image from Datastore ------------
+
 log "Removing $SRC from the rbd image repository in $DST_HOST"
 
-ssh_exec_and_log "$DST_HOST" "$RBD rm $SRC" \
-    "Error removing $SRC in $DST_HOST"
+ssh_exec_and_log "$DST_HOST" "$RBD rm $SRC" "Error removing $SRC in $DST_HOST"
 
 exit 0

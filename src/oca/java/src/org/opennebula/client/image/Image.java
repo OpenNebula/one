@@ -261,11 +261,12 @@ public class Image extends PoolElement
      * @param client XML-RPC Client.
      * @param id The Image id of the target Image.
      * @param name Name for the new Image.
+     * @param targetDS The ID of the target datastore. Set to -1 to use the current one.
      * @return If successful the message contains the new Image ID.
      */
-    public static OneResponse clone(Client client, int id, String name)
+    public static OneResponse clone(Client client, int id, String name, int targetDS)
     {
-        return client.call(CLONE, id, name);
+        return client.call(CLONE, id, name, targetDS);
     }
 
     /**
@@ -523,7 +524,19 @@ public class Image extends PoolElement
      */
     public OneResponse clone(String name)
     {
-        return clone(client, id, name);
+        return clone(client, id, name, -1);
+    }
+
+    /**
+     * Clones this Image into a new one
+     *
+     * @param name Name for the new Image.
+     * @param targetDS The ID of the target datastore.
+     * @return If successful the message contains the new Image ID.
+     */
+    public OneResponse clone(String name, int targetDS)
+    {
+        return clone(client, id, name, targetDS);
     }
 
     /**

@@ -133,6 +133,8 @@ class OneDB
     # max_version is ignored for now, as this is the first onedb release.
     # May be used in next releases
     def upgrade(max_version, ops)
+        one_not_running()
+
         db_version = @backend.read_db_version
 
         if ops[:verbose]
@@ -183,12 +185,16 @@ class OneDB
 
             timeb = Time.now
 
+            puts
             puts "Total time: #{"%0.02f" % (timeb - timea).to_s}s" if ops[:verbose]
 
             return 0
 
         rescue Exception => e
+            puts
             puts e.message
+            puts e.backtrace.join("\n")
+            puts
 
             puts
             puts "The database will be restored"
@@ -278,13 +284,14 @@ class OneDB
 
                 time1 = Time.now
 
-                if LOG_TIME
-                    puts "  > Total time: #{time1 - time0}s" if ops[:verbose]
-                end
+                puts "  > Total time: #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
 
                 return 0
             rescue Exception => e
+                puts
                 puts e.message
+                puts e.backtrace.join("\n")
+                puts
 
                 puts "Error running fsck version #{ret[:version]}"
                 puts "The database will be restored"
@@ -412,7 +419,10 @@ is preserved.
 
                 return 0
             rescue Exception => e
+                puts
                 puts e.message
+                puts e.backtrace.join("\n")
+                puts
 
                 puts "Error running slave import"
                 puts "The databases will be restored"
@@ -435,6 +445,12 @@ is preserved.
     def one_not_running()
         if File.exists?(LOCK_FILE)
             raise "First stop OpenNebula. Lock file found: #{LOCK_FILE}"
+        end
+
+        client = OpenNebula::Client.new
+        rc = client.get_version
+        if !OpenNebula.is_error?(rc)
+            raise "OpenNebula found listening on '#{client.one_endpoint}'"
         end
     end
 

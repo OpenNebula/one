@@ -62,6 +62,7 @@ public:
         const string&               uname,
         const string&               gname,
         int                         umask,
+        int                         parent_vid,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
         int                         cluster_id,
@@ -188,7 +189,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1,"","",0,-1,"",0);
+        return new VirtualNetwork(-1,-1,"","",0,-1,-1,"",0);
     };
 
     /**

@@ -71,6 +71,6 @@ IMAGE_NAME="one-${ID}"
 RBD_DST="${POOL_NAME}/${IMAGE_NAME}"
 
 ssh_exec_and_log "$DST_HOST" "$RBD copy $SRC $RBD_DST" \
-                "Error cloning $SRC to $RBD_DST in $DST_HOST"
+                 "Error cloning $SRC to $RBD_DST in $DST_HOST"
 
 echo "$RBD_DST"

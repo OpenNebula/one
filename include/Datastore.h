@@ -115,6 +115,15 @@ public:
     };
 
     /**
+     *  Retrieves DS mad name
+     *    @return string ds mad name
+     */
+    const string& get_ds_mad() const
+    {
+        return ds_mad;
+    };
+
+    /**
      *  Retrieves the base path
      *    @return base path string
      */
@@ -265,7 +274,7 @@ private:
             int                 cluster_id,
             const string&       cluster_name);
 
-    virtual ~Datastore(){};
+    virtual ~Datastore();
 
     // *************************************************************************
     // DataBase implementation (Private)

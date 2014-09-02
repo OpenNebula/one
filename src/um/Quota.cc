@@ -20,6 +20,13 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const int Quota::DEFAULT        = -1;
+const string Quota::DEFAULT_STR = "-1";
+const int Quota::UNLIMITED      = -2;
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Quota::get_quota(
         const string& id,
         VectorAttribute ** va,
@@ -189,7 +196,7 @@ bool Quota::check_quota(const string& qid,
 
             metrics_used += "_USED";
 
-            values.insert(make_pair(metrics[i],  "-1"));
+            values.insert(make_pair(metrics[i], DEFAULT_STR));
             values.insert(make_pair(metrics_used, "0"));
         }
 
@@ -222,7 +229,7 @@ bool Quota::check_quota(const string& qid,
         q->vector_value(metrics[i],   limit);
         q->vector_value(metrics_used.c_str(), usage);
 
-        if ( limit == -1 )
+        if ( limit == DEFAULT )
         {
             if ( default_q != 0 )
             {
@@ -230,11 +237,11 @@ bool Quota::check_quota(const string& qid,
             }
             else
             {
-                limit = 0;
+                limit = UNLIMITED;
             }
         }
 
-        check = ( limit == 0 ) || ( ( usage + it->second ) <= limit );
+        check = ( limit == UNLIMITED ) || ( ( usage + it->second ) <= limit );
 
         if ( !check )
         {
@@ -335,11 +342,11 @@ void Quota::cleanup_quota(const string& qid)
 
     if ( is_default )
     {
-        implicit_limit = 0;
+        implicit_limit = UNLIMITED;
     }
     else
     {
-        implicit_limit = -1;
+        implicit_limit = DEFAULT;
     }
 
     for (int i=0; i < num_metrics; i++)
@@ -376,10 +383,14 @@ int Quota::update_limits(
     {
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        //No quota, NaN or negative
-        if ((!is_default &&
-                ( limit_f < -1 || ( limit_f == -1 && limit == "" ))) ||
-            (is_default && limit_f < 0) )
+        if (( limit_f == -1 && limit == "" )    // NaN
+            ||
+            // Negative. Default & unlimited allowed
+            ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
+            ||
+            // Negative. Unlimited allowed
+            ( is_default && limit_f < 0 && limit_f != UNLIMITED )
+           )
         {
             return -1;
         }
@@ -408,9 +419,14 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        //No quota, NaN or negative
-        if ( (!is_default && limit_f < -1) ||
-             (is_default && limit_f < 0) )
+        if (( limit_f == -1 && limit == "" )    // NaN
+            ||
+            // Negative. Default & unlimited allowed
+            ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
+            ||
+            // Negative. Unlimited allowed
+            ( is_default && limit_f < 0 && limit_f != UNLIMITED )
+           )
         {
             return 0;
         }

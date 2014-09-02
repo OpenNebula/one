@@ -52,6 +52,7 @@ TARGET_DEV="/dev/$VG_NAME/$LV_NAME"
 LINK_CMD=$(cat <<EOF
     set -e
     mkdir -p $DST_DIR
+    rm -f "$DST_PATH"
     ln -s "$TARGET_DEV" "$DST_PATH"
 EOF
 )

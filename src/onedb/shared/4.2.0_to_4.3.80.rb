@@ -90,7 +90,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_user_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 g_elem = doc.create_element("GROUPS")
                 g_elem.add_child(doc.create_element("ID")).content = row[:gid].to_s
@@ -106,7 +106,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -132,7 +132,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => row[:body],
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -140,7 +140,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 redo_vm_quotas(doc, "gid=#{row[:oid]}")
 
@@ -148,7 +148,7 @@ module Migrator
                     :oid        => row[:oid],
                     :name       => row[:name],
                     :body       => doc.root.to_s,
-                    :uid        => row[:oid],
+                    :uid        => row[:uid],
                     :gid        => row[:gid],
                     :owner_u    => row[:owner_u],
                     :group_u    => row[:group_u],
@@ -235,7 +235,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.xpath("HISTORY_RECORDS/HISTORY").each do |e|
                     update_history(e)
@@ -265,7 +265,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_history") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.xpath("/HISTORY").each do |e|
                     update_history(e)
@@ -293,7 +293,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_host_pool") do |row|
-                doc = Nokogiri::XML(row[:body])
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
                 doc.root.at_xpath("HOST_SHARE").
                     add_child(doc.create_element("DATASTORES"))
@@ -362,7 +362,7 @@ http://opennebula.org/documentation:rel4.4:upgrade
         vol_used = 0
 
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
-            vmdoc = Nokogiri::XML(vm_row[:body])
+            vmdoc = Nokogiri::XML(vm_row[:body]){|c| c.default_xml.noblanks}
 
             # VM quotas
             vmdoc.root.xpath("TEMPLATE/CPU").each { |e|
