@@ -144,14 +144,6 @@ var Sunstone = {
         SunstoneCfg["form_panels"][form_name]=form_obj;
 
         var context = $(".right-form", $('#'+tab_id));
-
-        // TODO check if it is already included
-
-        $("#advancedForms", context).append(form_obj.advanced_html);
-        $("#wizardForms", context).append(form_obj.wizard_html);
-
-        //var form_context = $("#"+form_name+"_wizard, #"+form_name+"_advanced", context)
-        form_obj.setup(context)
     },
 
     //Adds a new info panel
@@ -184,11 +176,12 @@ var Sunstone = {
             if (reset) {
                 $("#"+form_name+"_wizard", context).remove();
                 $("#"+form_name+"_advanced", context).remove();
+            }
 
+            if ($("#"+form_name+"_wizard", context).length == 0) {
                 $("#advancedForms", context).append(form_obj.advanced_html);
                 $("#wizardForms", context).append(form_obj.wizard_html);
 
-                //var form_context = $("#"+form_name+"_wizard, #"+form_name+"_advanced", context)
                 form_obj.setup(context)
             }
 
