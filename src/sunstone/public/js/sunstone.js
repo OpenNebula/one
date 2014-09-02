@@ -622,8 +622,8 @@ function insertTab(tab_name){
         tab_content_str += '<div class="right-info" hidden>'
         tab_content_str += '</div>'
 
-        tab_content_str += '<div class="right-form" hidden>'+
-            '<div class="text-center  loadingForm">'+
+        tab_content_str += '<div class="large-10 small-12 right-form" hidden>'+
+            '<div class="loadingForm">'+
               '<br>'+
               '<br>'+
               '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
@@ -633,7 +633,7 @@ function insertTab(tab_name){
               '<br>'+
               '<br>'+
             '</div>'+
-            '<div class="tabs-content tabs-contentForm">' +
+            '<div class="tabs-content tabs-contentForm  ">' +
                 '<div class="content active" id="wizardForms">' +
                 '</div>' +
                 '<div class="content" id="advancedForms">' +
