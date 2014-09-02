@@ -3920,23 +3920,6 @@ function setup_other_tab_content(other_tab){
     });
 }
 
-
-
-// Prepare the template creation dialog
-function setupCreateTemplateDialog(){
-
-    //***CREATE VM DIALOG MAIN BODY***
-
-    dialogs_context.append('<div id="create_template_dialog"></div>');
-    $create_template_dialog = $('#create_template_dialog',dialogs_context);
-    var dialog = $create_template_dialog;
-
-    //Insert HTML in place
-    dialog.html(create_template_tmpl);
-    //$(document).foundation();
-    initialize_create_template_dialog(dialog);
-}
-
 function initialize_create_template_dialog(dialog) {
     var tabs = $( "#template_create_tabs", dialog)//.tabs().addClass("ui-tabs-");
 
