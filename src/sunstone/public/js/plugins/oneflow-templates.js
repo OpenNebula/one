@@ -16,15 +16,8 @@
 var selected_row_template_role_id;
 var last_selected_row_template_role;
 
-var create_service_template_tmpl = '\
-<div class="row">\
-    <div class="large-12 columns">\
-    <h3 id="create_service_template_header" class="subheader">'+tr("Create Service Template")+'</h3>\
-    <h3 id="update_service_template_header" class="subheader" hidden>'+tr("Update Service Template")+'</h3>\
-    </div>\
-</div>\
-<div class="reveal-body create_form">\
-  <form data-abide="ajax" id="create_service_template_form" action="">\
+var create_service_template_wizard_html = '\
+  <form data-abide="ajax" id="create_service_template_form_wizard" action="">\
     <div class="row">\
         <div class="service_template_param st_man large-6 columns">\
             <label for="service_name">' + tr("Name") +
@@ -44,99 +37,77 @@ var create_service_template_tmpl = '\
         '</div>\
     </div>\
     <br>\
-    <div class="row">\
-        <div class="large-12 columns">\
-            <dl class="accordion accordion_advanced" data-accordion>\
-                <dd>\
-                    <a href="#network_configuration_and_attributes">'+
-                        '<i class="fa fa-fw fa-chevron-down"/>'+
-                        '<i class="fa fa-fw fa-chevron-up"/>'+
-                        tr("Network Configuration")+
-                    '</a>\
-                    <div id="network_configuration_and_attributes" class="content">\
-                        <div class="row">\
-                            <div class="large-12 columns">\
-                                  <table class="service_networks policies_table dataTable">\
-                                        <thead style="background:#dfdfdf">\
-                                          <tr>\
-                                            <th colspan="3" style="font-size: 16px !important">\
-                                                <i class="fa fa-lg fa-fw fa-globe off-color"/>\
-                                                '+tr("Network Configuration")+'\
-                                            </th>\
-                                          </tr>\
-                                        </thead>\
-                                        <thead>\
-                                          <tr>\
-                                            <th style="width:30%">'+tr("Name")+'\
-                                            </th>\
-                                            <th style="width:70%">'+tr("Description")+'\
-                                            </th>\
-                                            <th style="width:3%"></th>\
-                                          </tr>\
-                                        </thead>\
-                                        <tbody>\
-                                        </tbody>\
-                                        <tfoot>\
-                                          <tr>\
-                                            <td colspan="3">\
-                                                <a type="button" class="add_service_network button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another Network")+'</a>\
-                                            </td>\
-                                          </tr>\
-                                        </tfoot>\
-                                  </table>\
-                            </div>\
-                        </div>\
-                    </div>\
-                </dd>\
-            </dl>\
+    <div class="accordion_advanced">\
+        <a href="#network_configuration_and_attributes">'+
+            '<i class="fa fa-fw fa-chevron-down"/>'+
+            '<i class="fa fa-fw fa-chevron-up"/>'+
+            tr("Network Configuration")+
+        '</a>\
+        <div id="network_configuration_and_attributes" class="content hidden">\
+            <div class="row">\
+                <div class="large-12 columns">\
+                      <table class="service_networks policies_table dataTable">\
+                            <thead>\
+                              <tr>\
+                                <th style="width:30%">'+tr("Name")+'\
+                                </th>\
+                                <th style="width:70%">'+tr("Description")+'\
+                                </th>\
+                                <th style="width:3%"></th>\
+                              </tr>\
+                            </thead>\
+                            <tbody>\
+                            </tbody>\
+                            <tfoot>\
+                              <tr>\
+                                <td colspan="3">\
+                                    <a type="button" class="add_service_network button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another Network")+'</a>\
+                                </td>\
+                              </tr>\
+                            </tfoot>\
+                      </table>\
+                </div>\
+            </div>\
         </div>\
     </div>\
-    <br>\
-    <div class="row">\
-        <div class="large-12 columns">\
-            <dl class="accordion accordion_advanced" data-accordion>\
-                <dd>\
-                    <a href="#advanced_service_params">'+
-                        '<i class="fa fa-fw fa-chevron-down"/>'+
-                        '<i class="fa fa-fw fa-chevron-up"/>'+
-                        tr("Advanced Service Parameters")+
-                    '</a>\
-                    <div id="advanced_service_params" class="content">\
-                        <div class="row">\
-                            <div class="service_template_param st_man large-6 columns">\
-                                <label for="deployment">' + tr("Strategy") +
-                                    '<span class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</span>'+
-                                '</label>\
-                                <select name="deployment">\
-                                    <option value="straight">'+ tr("Straight") + '</option>\
-                                    <option value="none">'+ tr("None") + '</option>\
-                                </select>\
-                            </div>\
-                            <div class="service_template_param st_man large-6 columns">\
-                                <label for="shutdown_action_service">' + tr("Shutdown action") +
-                                    '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'.") +'</span>'+
-                                '</label>\
-                                <select name="shutdown_action_service">\
-                                    <option value=""></option>\
-                                    <option value="shutdown">'+tr("Shutdown")+'</option>\
-                                    <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
-                                </select>\
-                            </div>\
-                        </div>\
-                        <div class="row">\
-                            <div class="service_template_param st_man large-6 columns">\
-                                <input type="checkbox" name="ready_status_gate" id="ready_status_gate"/>\
-                                <label for="ready_status_gate">'+tr("Wait for VMs to report that they are READY")+'\
-                                  <span class="tip">' + tr("Before deploying any child roles, wait for all VMs of the parent roles to report via OneGate that they are READY=YES") +'</span>\
-                                </label>\
-                            </div>\
-                        </div>\
-                    </div>\
-                </dd>\
-            </dl>\
+    <div class="accordion_advanced">\
+        <a href="#advanced_service_params">'+
+            '<i class="fa fa-fw fa-chevron-down"/>'+
+            '<i class="fa fa-fw fa-chevron-up"/>'+
+            tr("Advanced Service Parameters")+
+        '</a>\
+        <div id="advanced_service_params" class="content hidden">\
+            <div class="row">\
+                <div class="service_template_param st_man large-6 columns">\
+                    <label for="deployment">' + tr("Strategy") +
+                        '<span class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</span>'+
+                    '</label>\
+                    <select name="deployment">\
+                        <option value="straight">'+ tr("Straight") + '</option>\
+                        <option value="none">'+ tr("None") + '</option>\
+                    </select>\
+                </div>\
+                <div class="service_template_param st_man large-6 columns">\
+                    <label for="shutdown_action_service">' + tr("Shutdown action") +
+                        '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'.") +'</span>'+
+                    '</label>\
+                    <select name="shutdown_action_service">\
+                        <option value=""></option>\
+                        <option value="shutdown">'+tr("Shutdown")+'</option>\
+                        <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
+                    </select>\
+                </div>\
+            </div>\
+            <div class="row">\
+                <div class="service_template_param st_man large-6 columns">\
+                    <input type="checkbox" name="ready_status_gate" id="ready_status_gate"/>\
+                    <label for="ready_status_gate">'+tr("Wait for VMs to report that they are READY")+'\
+                      <span class="tip">' + tr("Before deploying any child roles, wait for all VMs of the parent roles to report via OneGate that they are READY=YES") +'</span>\
+                    </label>\
+                </div>\
+            </div>\
         </div>\
     </div>\
-    <br>\
     <br>\
     <div class="row">\
         <div class="large-12 columns">\
@@ -145,7 +116,7 @@ var create_service_template_tmpl = '\
     </div>\
     <br>\
     <div class="row">\
-        <div id="new_role" class="large-12 columns">\
+        <div id="new_role" class="bordered-tabs large-12 columns">\
            <dl class="tabs" id="roles_tabs" data-tab>\
             <a class="button small right radius" id="tf_btn_roles"><span class="fa fa-plus"></span> '+tr("Add another role")+'</a>\
            </dl>\
@@ -153,16 +124,7 @@ var create_service_template_tmpl = '\
            </div>\
         </div>\
     </div>\
-    <div class="reveal-footer">\
-      <div class="form_buttons">\
-          <button id="create_service_template_submit" class="button radius right success"" type="action" value="ServiceTemplate.create">' + tr("Create") + '</button>\
-          <button id="update_service_template_submit" class="button radius right success"" type="action" value="ServiceTemplate.update" hidden>' + tr("Update") + '</button>\
-          <button id="create_service_template_reset" class="button radius secondary" type="reset" value="reset">' + tr("Reset") + '</button>\
-      </div>\
-    </div>\
-    <a class="close-reveal-modal">&#215;</a>\
-  </form>\
-</div>';
+  </form>';
 
 var role_tab_content = '\
 <div class="row">\
@@ -213,27 +175,38 @@ var role_tab_content = '\
     </div>\
 </div>\
 <br>\
-<br>\
 <div class="row">\
     <div class="large-12 columns elasticity_accordion">\
     </div>\
 </div>\
-<br>\
 <div class="row">\
     <div class="large-12 columns advanced_role_accordion">\
     </div>\
 </div>';
 
+var create_service_template_advanced_html =
+ '<form data-abide="ajax" id="create_service_template_form_advanced" class="custom creation">' +
+    '<div class="row">' +
+      '<div class="large-12 columns">' +
+        '<p>'+tr("Write the Service template here")+'</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="row">' +
+      '<div class="large-12 columns">' +
+        '<textarea id="template" rows="15" required></textarea>' +
+      '</div>' +
+    '</div>' +
+  '</form>';
+
 function generate_advanced_role_accordion(role_id, context){
     context.html(
-        '<dl class="accordion accordion_advanced" data-accordion>\
-            <dd>\
+        '<div class="accordion_advanced">\
                 <a href="#advanced_role'+role_id+'">'+
                     '<i class="fa fa-fw fa-chevron-down"/>'+
                     '<i class="fa fa-fw fa-chevron-up"/>'+
                     tr("Advanced Role Parameters")+
                 '</a>\
-                <div id="advanced_role'+role_id+'" class="content">\
+                <div id="advanced_role'+role_id+'" class="content hidden">\
                     <div class="row">\
                         <div class="service_template_param service_role large-6 columns">\
                             <label for="shutdown_action_role">' + tr("Shutdown action") +
@@ -257,105 +230,46 @@ function generate_advanced_role_accordion(role_id, context){
                         '</div>\
                     </div>\
                 </div>\
-            </dd>\
-        </dl>');
+        </div>');
 
     $(document).foundation();
 }
 
 function generate_elasticity_accordion(role_id, context) {
-    context.html('<dl class="accordion accordion_advanced" data-accordion>\
-        <dd>\
-            <a href="#elasticity_accordion'+role_id+'">'+
-                '<i class="fa fa-fw fa-chevron-down"/>'+
-                '<i class="fa fa-fw fa-chevron-up"/>'+
-                tr("Role Elasticity")+
-            '</a>\
-            <div id="elasticity_accordion'+role_id+'" class="content">\
-                <div class="row">\
-                    <div class="large-4 columns">\
-                            <label for="min_vms">' + tr("Min VMs") +
-                                '<span class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</span>'+
-                            '</label>\
-                            <input type="text" id="min_vms" name="min_vms" value="" />\
-                    </div>\
-                    <div class="large-4 columns">\
-                            <label for="max_vms">' + tr("Max VMs") +
-                                '<span class="tip">'+ tr("Maximum number of VMs for elasticity adjustments") +'</span>'+
-                            '</label>\
-                            <input type="text" id="max_vms" name="max_vms" value="" />\
-                    </div>\
-                    <div class="service_template_param service_role large-4 columns">\
-                        <label for="cooldown">' + tr("Cooldown") +
-                            '<span class="tip">'+ tr("Cooldown time after an elasticity operation (secs)") +'</span>'+
+    context.html('<div class="accordion_advanced">\
+        <a href="#elasticity_accordion'+role_id+'">'+
+            '<i class="fa fa-fw fa-chevron-down"/>'+
+            '<i class="fa fa-fw fa-chevron-up"/>'+
+            tr("Role Elasticity")+
+        '</a>\
+        <div id="elasticity_accordion'+role_id+'" class="content hidden">\
+            <div class="row">\
+                <div class="large-4 columns">\
+                        <label for="min_vms">' + tr("Min VMs") +
+                            '<span class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</span>'+
                         '</label>\
-                        <input type="text" id="cooldown" name="cooldown" value="" />\
-                    </div>\
+                        <input type="text" id="min_vms" name="min_vms" value="" />\
                 </div>\
-                <div class="row">\
-                    <div class="large-12 columns">\
-                          <table id="elasticity_policies_table" class="policies_table dataTable">\
-                                <thead style="background:#dfdfdf">\
-                                  <tr>\
-                                    <th colspan="8" style="font-size: 16px !important">\
-                                        '+tr("Elasticity policies")+'\
-                                    </th>\
-                                  </tr>\
-                                </thead>\
-                                <thead>\
-                                  <tr>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Type of adjustment.")+'<br><br>\
-                                            '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
-                                            '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
-                                            '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+
-                                        '" style="width:14%">'+tr("Type")+'\
-                                    </th>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
-                                            '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
-                                            '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
-                                            '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+
-                                        '" style="width:12%">'+tr("Adjust")+'\
-                                    </th>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type.")+'<br>'+
-                                        tr(" If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+
-                                        '" style="width:9%">'+tr("Min")+'\
-                                    </th>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Expression to trigger the elasticity")+'<br><br>\
-                                            '+tr("Example: ATT < 20")+
-                                        '" style="width:30%">'+tr("Expression")+'\
-                                    </th>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Number of periods that the expression must be true before the elasticity is triggered")+
-                                        '" style="width:8%">#\
-                                    </th>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Duration, in seconds, of each period in '# Periods'")+
-                                        '" style="width:9%">'+tr("Period")+'\
-                                    </th>\
-                                    <th class="has-tip" data-tooltip title="'+tr("Cooldown period duration after a scale operation, in seconds")+
-                                        '" style="width:15%">'+tr("Cooldown")+'\
-                                    </th>\
-                                    <th style="width:3%"></th>\
-                                  </tr>\
-                                </thead>\
-                                <tbody id="elasticity_policies_tbody">\
-                                </tbody>\
-                                <tfoot>\
-                                  <tr>\
-                                    <td colspan="8">\
-                                        <a type="button" class="button small radius secondary large-12" id="tf_btn_elas_policies"><i class="fa fa-plus"></i> '+tr("Add another policy")+'</a>\
-                                    </td>\
-                                  </tr>\
-                                </tfoot>\
-                          </table>\
-                    </div>\
+                <div class="large-4 columns">\
+                        <label for="max_vms">' + tr("Max VMs") +
+                            '<span class="tip">'+ tr("Maximum number of VMs for elasticity adjustments") +'</span>'+
+                        '</label>\
+                        <input type="text" id="max_vms" name="max_vms" value="" />\
                 </div>\
-                <br>\
-                <div class="row">\
-                    <div class="large-12 columns">\
-                         <table id="scheduled_policies_table" class="policies_table dataTable">\
+                <div class="service_template_param service_role large-4 columns">\
+                    <label for="cooldown">' + tr("Cooldown") +
+                        '<span class="tip">'+ tr("Cooldown time after an elasticity operation (secs)") +'</span>'+
+                    '</label>\
+                    <input type="text" id="cooldown" name="cooldown" value="" />\
+                </div>\
+            </div>\
+            <div class="row">\
+                <div class="large-12 columns">\
+                      <table id="elasticity_policies_table" class="policies_table dataTable">\
                             <thead style="background:#dfdfdf">\
                               <tr>\
-                                <th colspan="6" style="font-size: 16px !important">\
-                                    '+tr("Scheduled policies")+'\
+                                <th colspan="8" style="font-size: 16px !important">\
+                                    '+tr("Elasticity policies")+'\
                                 </th>\
                               </tr>\
                             </thead>\
@@ -373,36 +287,92 @@ function generate_elasticity_accordion(role_id, context) {
                                         '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+
                                     '" style="width:12%">'+tr("Adjust")+'\
                                 </th>\
-                                <th class="has-tip" data-tooltip title="'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+
+                                <th class="has-tip" data-tooltip title="'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type.")+'<br>'+
+                                    tr(" If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+
                                     '" style="width:9%">'+tr("Min")+'\
                                 </th>\
-                                <th class="has-tip" data-tooltip title="'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
-                                        '+tr("Start time: Exact time for the adjustement")+
-                                    '" style="width:28%">'+tr("Time format")+'\
+                                <th class="has-tip" data-tooltip title="'+tr("Expression to trigger the elasticity")+'<br><br>\
+                                        '+tr("Example: ATT < 20")+
+                                    '" style="width:30%">'+tr("Expression")+'\
                                 </th>\
-                                <th class="has-tip" data-tooltip title="'+tr("Time expression depends on the the time formar selected")+'<br><br>\
-                                        '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
-                                        '+tr("Start time: Exact time for the adjustement")+
-                                    '" style="width:33%">'+tr("Time expression")+'\
+                                <th class="has-tip" data-tooltip title="'+tr("Number of periods that the expression must be true before the elasticity is triggered")+
+                                    '" style="width:8%">#\
+                                </th>\
+                                <th class="has-tip" data-tooltip title="'+tr("Duration, in seconds, of each period in '# Periods'")+
+                                    '" style="width:9%">'+tr("Period")+'\
+                                </th>\
+                                <th class="has-tip" data-tooltip title="'+tr("Cooldown period duration after a scale operation, in seconds")+
+                                    '" style="width:15%">'+tr("Cooldown")+'\
                                 </th>\
                                 <th style="width:3%"></th>\
                               </tr>\
                             </thead>\
-                            <tbody id="scheduled_policies_tbody">\
+                            <tbody id="elasticity_policies_tbody">\
                             </tbody>\
                             <tfoot>\
                               <tr>\
-                                <td colspan="6">\
-                                    <a type="button" class="button small radius secondary large-12" id="tf_btn_sche_policies"><i class="fa fa-plus"></i> '+tr("Add another policy")+'</a>\
+                                <td colspan="8">\
+                                    <a type="button" class="button small radius right" id="tf_btn_elas_policies"><i class="fa fa-plus"></i> '+tr("Add another policy")+'</a>\
                                 </td>\
                               </tr>\
                             </tfoot>\
-                        </table>\
-                    </div>\
+                      </table>\
                 </div>\
             </div>\
-        </dd>\
-    </dl>');
+            <br>\
+            <div class="row">\
+                <div class="large-12 columns">\
+                     <table id="scheduled_policies_table" class="policies_table dataTable">\
+                        <thead style="background:#dfdfdf">\
+                          <tr>\
+                            <th colspan="6" style="font-size: 16px !important">\
+                                '+tr("Scheduled policies")+'\
+                            </th>\
+                          </tr>\
+                        </thead>\
+                        <thead>\
+                          <tr>\
+                            <th class="has-tip" data-tooltip title="'+tr("Type of adjustment.")+'<br><br>\
+                                    '+tr("CHANGE: Add/substract the given number of VMs.")+'<br>\
+                                    '+tr("CARDINALITY: Set the cardinality to the given number.")+'<br>\
+                                    '+tr("PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality.")+
+                                '" style="width:14%">'+tr("Type")+'\
+                            </th>\
+                            <th class="has-tip" data-tooltip title="'+tr("Positive or negative adjustment. Its meaning depends on 'type'")+'<br><br>\
+                                    '+tr("CHANGE: -2, will substract 2 VMs from the role")+'<br>\
+                                    '+tr("CARDINALITY: 8, will set carditanilty to 8")+'<br>\
+                                    '+tr("PERCENTAGE_CHANGE: 20, will increment cardinality by 20%")+
+                                '" style="width:12%">'+tr("Adjust")+'\
+                            </th>\
+                            <th class="has-tip" data-tooltip title="'+tr("Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute.")+
+                                '" style="width:9%">'+tr("Min")+'\
+                            </th>\
+                            <th class="has-tip" data-tooltip title="'+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br><br>\
+                                    '+tr("Start time: Exact time for the adjustement")+
+                                '" style="width:28%">'+tr("Time format")+'\
+                            </th>\
+                            <th class="has-tip" data-tooltip title="'+tr("Time expression depends on the the time formar selected")+'<br><br>\
+                                    '+tr("Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax")+'<br>\
+                                    '+tr("Start time: Exact time for the adjustement")+
+                                '" style="width:33%">'+tr("Time expression")+'\
+                            </th>\
+                            <th style="width:3%"></th>\
+                          </tr>\
+                        </thead>\
+                        <tbody id="scheduled_policies_tbody">\
+                        </tbody>\
+                        <tfoot>\
+                          <tr>\
+                            <td colspan="6">\
+                                <a type="button" class="button small radius right" id="tf_btn_sche_policies"><i class="fa fa-plus"></i> '+tr("Add another policy")+'</a>\
+                            </td>\
+                          </tr>\
+                        </tfoot>\
+                    </table>\
+                </div>\
+            </div>\
+        </div>\
+    </div>');
 
     $(document).foundation();
 }
@@ -440,45 +410,56 @@ var instantiate_service_template_tmpl ='\
 
 
 var dataTable_service_templates;
-var $create_service_template_dialog;
 
 var service_template_actions = {
 
     "ServiceTemplate.create" : {
         type: "create",
         call: OpenNebula.ServiceTemplate.create,
-        callback: function(request, response) {
-            //empty creation dialog roles after successful creation
-/*
-            var dialog = $create_service_template_dialog;
-            $('table#current_roles tbody', dialog).empty();
-            $('select[name="parents"]', dialog).empty();
-            dialog.foundation('reveal', 'close');
-*/
-            $create_service_template_dialog.foundation('reveal', 'close')
-            $create_service_template_dialog.empty();
+        callback: function(request, response){
+            $("a[href=back]", $("#oneflow-templates")).trigger("click");
+            popFormDialog("create_service_template_form", $("#oneflow-templates"));
 
             addServiceTemplateElement(request, response);
             notifyCustom(tr("Service Template created"), " ID: " + response.DOCUMENT.ID, false);
         },
-        error: onError
+        error: function(request, response){
+            popFormDialog("create_service_template_form", $("#oneflow-templates"));
+            onError(request, response);
+        }
     },
 
     "ServiceTemplate.create_dialog" : {
         type : "custom",
-        call: popUpCreateServiceTemplateDialog
+        call: function(){
+          Sunstone.popUpFormPanel("create_service_template_form", "oneflow-templates", "create", false);
+        }
     },
 
     "ServiceTemplate.update_dialog" : {
         type : "single",
-        call: popUpUpdateServiceTemplateDialog,
+        call: function(){
+          var selected_nodes = getSelectedNodes(dataTable_service_templates);
+          if ( selected_nodes.length != 1 ) {
+            notifyMessage("Please select one (and just one) template to update.");
+            return false;
+          }
+
+          // Get proper cluster_id
+          var template_id   = ""+selected_nodes[0];
+          Sunstone.runAction("ServiceTemplate.show_to_update", template_id);
+        },
         error: onError
     },
 
     "ServiceTemplate.show_to_update" : {
         type : "single",
         call: OpenNebula.ServiceTemplate.show,
-        callback: fillUpUpdateServiceTemplateDialog,
+        callback: function(request, response) {
+          Sunstone.popUpFormPanel("create_service_template_form", "oneflow-templates", "update", true, function(context){
+            fillUpUpdateServiceTemplateDialog(response, context)
+          });
+        },
         error: onError
     },
 
@@ -486,12 +467,16 @@ var service_template_actions = {
         type: "single",
         call: OpenNebula.ServiceTemplate.update,
         callback: function(request,response){
-            $create_service_template_dialog.foundation('reveal', 'close');
+            $("a[href=back]", $("#oneflow-templates")).trigger("click");
+            popFormDialog("create_service_template_form", $("#oneflow-templates"));
             Sunstone.runAction("ServiceTemplate.show",request.request.data[0][0]);
 
             notifyMessage(tr("ServiceTemplate updated correctly"));
         },
-        error: onError
+        error: function(request, response){
+          popFormDialog("create_service_template_form", $("#oneflow-templates"));
+          onError(request, response);
+        }
     },
 
     "ServiceTemplate.list" : {
@@ -686,7 +671,24 @@ var service_templates_tab = {
         </thead>\
         <tbody>\
         </tbody>\
-      </table>'
+      </table>',
+    forms: {
+      "create_service_template_form": {
+        actions: {
+          create: {
+            title: tr("Create Service Template"),
+            submit_text: tr("Create")
+          },
+          update: {
+            title: tr("Update Service Template"),
+            submit_text: tr("Update")
+          }
+        },
+        wizard_html: create_service_template_wizard_html,
+        advanced_html: create_service_template_advanced_html,
+        setup: initialize_create_service_template_dialog
+      }
+    }
 }
 
 Sunstone.addActions(service_template_actions);
@@ -1227,19 +1229,10 @@ function setup_role_tab_content(role_section, html_role_id) {
 
 
 // Prepare the creation dialog
-function setupCreateServiceTemplateDialog(){
-    dialogs_context.append('<div id="create_service_template_dialog"></div>');
-    $create_service_template_dialog =  $('#create_service_template_dialog',dialogs_context);
-
-    var dialog = $create_service_template_dialog;
-    dialog.html(create_service_template_tmpl);
-    dialog.addClass("reveal-modal large").attr("data-reveal", "");
-
+function initialize_create_service_template_dialog(dialog){
     setupTips(dialog);
 
-    dialog.off();
-
-    dialog.on("click", ".add_service_network", function(){
+    $(".add_service_network", dialog).on("click", function(){
         $(".service_networks tbody").append(
             '<tr>\
                 <td>\
@@ -1258,8 +1251,7 @@ function setupCreateServiceTemplateDialog(){
     $(".add_service_network", dialog).trigger("click");
 
     var redo_service_networks_selector = function(dialog){
-        $('#roles_tabs_content .role_content',
-          $create_service_template_dialog).each(function(){
+        $('#roles_tabs_content .role_content', dialog).each(function(){
 
             var role_section = this;
 
@@ -1268,8 +1260,7 @@ function setupCreateServiceTemplateDialog(){
     };
 
     var redo_service_networks_selector_role = function(dialog, role_section){
-        $('#roles_tabs_content .role_content',
-          $create_service_template_dialog).each(function(){
+        $('#roles_tabs_content .role_content', dialog).each(function(){
 
             var role_section = this;
 
@@ -1325,7 +1316,7 @@ function setupCreateServiceTemplateDialog(){
         // Append the new div containing the tab and add the tab to the list
         var role_section = $('<div id="'+html_role_id+'Tab" class="content role_content wizard_internal_tab">'+
             role_tab_content +
-        '</div>').appendTo($("#roles_tabs_content"));
+        '</div>').appendTo($("#roles_tabs_content", dialog));
 
         generate_elasticity_accordion(role_id, $(".elasticity_accordion", role_section))
         generate_advanced_role_accordion(role_id, $(".advanced_role_accordion", role_section))
@@ -1337,7 +1328,7 @@ function setupCreateServiceTemplateDialog(){
             <span><i class='off-color fa fa-cube fa-3x'/><br><span id='role_name_text'>"+tr("Role ")+role_id+" </span></span>\
                 <i class='fa fa-times-circle remove-tab'></i>\
             </a>\
-        </dd>").appendTo($("dl#roles_tabs"));
+        </dd>").appendTo($("dl#roles_tabs", dialog));
 
         $("a", a).trigger("click");
 
@@ -1404,29 +1395,24 @@ function setupCreateServiceTemplateDialog(){
         add_role_tab(roles_index);
     });
 
-    $('#create_service_template_form',dialog).on('invalid', function () {
+    $('#create_service_template_form_wizard',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
+        popFormDialog("create_service_template_form", $("#oneflow-templates"));
     }).on('valid', function() {
-        if ($('#create_service_template_form',dialog).attr("opennebula_action") == "create") {
-            var json_template = generate_json_service_template_from_form();
+        if ($('#create_service_template_form_wizard',dialog).attr("action") == "create") {
+            var json_template = generate_json_service_template_from_form(this);
             Sunstone.runAction("ServiceTemplate.create", json_template );
             return false;
-        } else if ($('#create_service_template_form',dialog).attr("opennebula_action") == "update") {
-            var json_template = generate_json_service_template_from_form();
+        } else if ($('#create_service_template_form_wizard',dialog).attr("action") == "update") {
+            var json_template = generate_json_service_template_from_form(this);
             Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, JSON.stringify(json_template));
             return false;
         }
     });
 
-    $('#create_service_template_reset', dialog).click(function(){
-        dialog.html("");
-        setupCreateServiceTemplateDialog();
+    // TODO advanced
 
-        popUpCreateServiceTemplateDialog();
-    });
-
-
-    $(document).foundation();
+    dialog.foundation();
 
     roles_index = 0;
     add_role_tab(roles_index);
@@ -1478,12 +1464,12 @@ var removeEmptyObjects = function(obj){
     return obj;
 }
 
-function generate_json_service_template_from_form() {
-    var name = $('input[name="service_name"]', $create_service_template_dialog).val();
-    var description = $('#description', $create_service_template_dialog).val();
-    var deployment = $('select[name="deployment"]', $create_service_template_dialog).val();
-    var shutdown_action_service = $('select[name="shutdown_action_service"]', $create_service_template_dialog).val();
-    var ready_status_gate = $('input[name="ready_status_gate"]', $create_service_template_dialog).prop("checked");
+function generate_json_service_template_from_form(dialog) {
+    var name = $('input[name="service_name"]', dialog).val();
+    var description = $('#description', dialog).val();
+    var deployment = $('select[name="deployment"]', dialog).val();
+    var shutdown_action_service = $('select[name="shutdown_action_service"]', dialog).val();
+    var ready_status_gate = $('input[name="ready_status_gate"]', dialog).prop("checked");
 
     var custom_attrs =  {};
 
@@ -1498,7 +1484,7 @@ function generate_json_service_template_from_form() {
 
     var roles = [];
 
-    $('#roles_tabs_content .role_content', $create_service_template_dialog).each(function(){
+    $('#roles_tabs_content .role_content', dialog).each(function(){
         var role = {};
         role['name'] = $('input[name="name"]', this).val();
         role['cardinality'] = $('input[name="cardinality"]', this).val();
@@ -1587,58 +1573,7 @@ function generate_json_service_template_from_form() {
     return obj;
 }
 
-function popUpCreateServiceTemplateDialog(){
-    if (!$create_service_template_dialog || $create_service_template_dialog.html() == "") {
-        setupCreateServiceTemplateDialog();
-    }
-
-    var dialog = $create_service_template_dialog;
-
-    dialog.die();
-
-    $("#create_service_template_form", dialog).attr("opennebula_action", "create");
-    $("#create_service_template_header", dialog).show();
-    $("#update_service_template_header", dialog).hide();
-    $("#create_service_template_submit", dialog).show();
-    $("#update_service_template_submit", dialog).hide();
-    $("#create_service_template_reset", dialog).show();
-
-    $("#service_name", dialog).removeAttr("disabled");
-
-    dialog.foundation().foundation('reveal', 'open');
-}
-
-function popUpUpdateServiceTemplateDialog() {
-    var selected_nodes = getSelectedNodes(dataTable_service_templates);
-
-    if ( selected_nodes.length != 1 )
-    {
-      notifyMessage("Please select one (and just one) template to update.");
-      return false;
-    }
-
-    if (!$create_service_template_dialog) {
-        setupCreateServiceTemplateDialog();
-    } else {
-        $create_service_template_dialog.remove();
-        setupCreateServiceTemplateDialog();
-    }
-
-    var template_id   = ""+selected_nodes[0];
-    Sunstone.runAction("ServiceTemplate.show_to_update", template_id);
-}
-
-
-function fillUpUpdateServiceTemplateDialog(request, response){
-    var dialog = $('#create_service_template_dialog',dialogs_context);
-
-    $("#create_service_template_form", dialog).attr("opennebula_action", "update");
-    $("#create_service_template_header", dialog).hide();
-    $("#update_service_template_header", dialog).show();
-    $("#create_service_template_submit", dialog).hide();
-    $("#update_service_template_submit", dialog).show();
-    $("#create_service_template_reset", dialog).hide();
-
+function fillUpUpdateServiceTemplateDialog(response, dialog){
     var service_template = response[OpenNebula.ServiceTemplate.resource]
     $("#service_name", dialog).attr("disabled", "disabled");
     $("#service_name", dialog).val(htmlDecode(service_template.NAME));
@@ -1683,7 +1618,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     $.each(service_template.TEMPLATE.BODY.roles, function(index, value){
         more_than_one ? $("#tf_btn_roles", dialog).click() : (more_than_one = true);
 
-        var context = $('#roles_tabs_content .role_content', $create_service_template_dialog).last();
+        var context = $('#roles_tabs_content .role_content', dialog).last();
 
         $("#role_name", context).val(htmlDecode(value.name));
         $("#role_name", context).change();
@@ -1766,7 +1701,7 @@ function fillUpUpdateServiceTemplateDialog(request, response){
 
         $(tab_id+" .parent_roles_body").html(str);
 
-        var context = $('#roles_tabs_content .content#role'+index+'Tab', $create_service_template_dialog);
+        var context = $('#roles_tabs_content .content#role'+index+'Tab', dialog);
 
         if (value.parents) {
             $.each(value.parents, function(index, value){
@@ -1776,13 +1711,6 @@ function fillUpUpdateServiceTemplateDialog(request, response){
     });
 
     service_template_to_update_id = service_template.ID;
-
-    dialog.die();
-    dialog.live('closed', function () {
-        $create_service_template_dialog.html("");
-    });
-
-    dialog.foundation('reveal', 'open');
 }
 
 function popUpInstantiateServiceTemplateDialog(){
