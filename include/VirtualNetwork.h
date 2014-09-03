@@ -358,9 +358,13 @@ public:
     /**
      *  Replace the template of the virtual network it also updates the BRIDGE,
      *  PHY_DEV, VLAN_ID and VLAN attributes.
-     *    @param tmpl string representation of the template
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, string& error);
+    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     /**
      *  Gets a string based attribute (single) from an address range. If the

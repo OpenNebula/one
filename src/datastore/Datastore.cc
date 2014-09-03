@@ -584,7 +584,8 @@ int Datastore::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Datastore::replace_template(const string& tmpl_str, string& error_str)
+int Datastore::replace_template(
+        const string& tmpl_str, bool keep_restricted, string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
