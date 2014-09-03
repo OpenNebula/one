@@ -1410,6 +1410,22 @@ function initialize_create_service_template_dialog(dialog){
         }
     });
 
+
+    $('#create_service_template_form_advanced',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+        popFormDialog("create_service_template_form", $("#oneflow-templates"));
+    }).on('valid', function() {
+        if ($('#create_service_template_form_advanced',dialog).attr("action") == "create") {
+            var json_template = $("#template", this).val();
+            Sunstone.runAction("ServiceTemplate.create", JSON.parse(json_template) );
+            return false;
+        } else if ($('#create_service_template_form_advanced',dialog).attr("action") == "update") {
+            var json_template = $("#template", this).val();
+            Sunstone.runAction("ServiceTemplate.update",service_template_to_update_id, json_template);
+            return false;
+        }
+    });
+
     // TODO advanced
 
     dialog.foundation();
@@ -1575,6 +1591,9 @@ function generate_json_service_template_from_form(dialog) {
 
 function fillUpUpdateServiceTemplateDialog(response, dialog){
     var service_template = response[OpenNebula.ServiceTemplate.resource]
+
+    $("#template", dialog).val(JSON.stringify(service_template.TEMPLATE.BODY));
+
     $("#service_name", dialog).attr("disabled", "disabled");
     $("#service_name", dialog).val(htmlDecode(service_template.NAME));
 
