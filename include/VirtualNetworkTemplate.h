@@ -31,6 +31,48 @@ public:
         Template(false,'=',"TEMPLATE"){};
 
     ~VirtualNetworkTemplate(){};
+
+    /**
+     *  Checks the template for RESTRICTED ATTRIBUTES
+     *    @param rs_attr the first restricted attribute found if any
+     *    @return true if a restricted attribute is found in the template
+     */
+    bool check(string& rs_attr)
+    {
+        return Template::check(rs_attr, restricted_attributes);
+    };
+
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted()
+    {
+        Template::remove_restricted(restricted_attributes);
+    };
+
+    /**
+     * Deletes all the attributes, except the restricted ones
+     */
+    void remove_all_except_restricted()
+    {
+        Template::remove_all_except_restricted(restricted_attributes);
+    };
+
+private:
+
+    friend class VirtualNetworkPool;
+
+    static vector<string> restricted_attributes;
+
+    /**
+     * Stores the attributes as restricted, these attributes will be used in
+     * VirtualMachineTemplate::check
+     * @param rattrs Attributes to restrict
+     */
+    static void set_restricted_attributes(vector<const Attribute *>& rattrs)
+    {
+        Template::set_restricted_attributes(rattrs, restricted_attributes);
+    };
 };
 
 /* -------------------------------------------------------------------------- */

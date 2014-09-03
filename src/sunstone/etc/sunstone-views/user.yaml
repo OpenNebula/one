@@ -325,7 +325,7 @@ tabs:
             Datastore.delete: false
     vnets-tab:
         panel_tabs:
-            vnet_info_tab: false
+            vnet_info_tab: true
             vnet_ar_list_tab: true
             vnet_leases_tab: true
         table_columns:
