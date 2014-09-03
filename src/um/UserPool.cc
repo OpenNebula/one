@@ -695,6 +695,8 @@ bool UserPool::authenticate_external(const string&  username,
     User*   user;
     Group*  group;
 
+    int     gid = -1;
+
     set<int>::iterator it;
     set<int> empty_set;
 
@@ -720,6 +722,11 @@ bool UserPool::authenticate_external(const string&  username,
 
     user_id = -1;
 
+    //--------------------------------------------------------------------------
+    // Parse driver response format is:
+    // <driver> <username> <passwd> [gid...]
+    //--------------------------------------------------------------------------
+
     if ( is.good() )
     {
         is >> driver_name >> ws;
@@ -735,53 +742,58 @@ bool UserPool::authenticate_external(const string&  username,
         is >> mad_pass >> ws;
     }
 
-    if ( is.good() )
+    while ( is.good() )
     {
-        is >> group_id >> ws;
+        int tmp_gid;
+
+        is >> tmp_gid >> ws;
 
         if ( is.fail() )
+        {
+            error_str = "One or more group IDs are malformed";
+            goto auth_failure_user;
+        }
+
+        if ( gpool->get(tmp_gid, false) == 0 )
         {
             error_str = "One or more group IDs do not exist";
             goto auth_failure_user;
         }
 
+        if ( gid == -1 ) //Keep the first id for primary group
+        {
+            gid = tmp_gid;
+        }
+
+        group_ids.insert(tmp_gid);
+    }
+
+    //--------------------------------------------------------------------------
+    // Create the user, and set primary group
+    //--------------------------------------------------------------------------
+
+    if ( gid == -1 )
+    {
+        group_id = GroupPool::USERS_ID;
+        gname    = GroupPool::USERS_NAME;
+
         group_ids.insert( group_id );
+    }
+    else
+    {
+        group_id = gid;
 
         group = gpool->get(group_id, true);
 
         if( group == 0 )
         {
-            error_str = "One or more group IDs do not exist";
+            error_str = "Primary Group no longer exist";
             goto auth_failure_user;
         }
 
         gname = group->get_name();
 
         group->unlock();
-
-        int tmp_gid;
-
-        while ( is.good() )
-        {
-            is >> tmp_gid >> ws;
-
-            if ( is.fail() )
-            {
-                error_str = "One or more group IDs are malformed";
-                goto auth_failure_user;
-            }
-            else
-            {
-                group_ids.insert( tmp_gid );
-            }
-        }
-    }
-    else
-    {
-        group_id = GroupPool::USERS_ID;
-        gname    = GroupPool::USERS_NAME;
-
-        group_ids.insert( group_id );
     }
 
     if ( !is.fail() )
@@ -801,7 +813,10 @@ bool UserPool::authenticate_external(const string&  username,
         goto auth_failure_user;
     }
 
-    // Add the User to the secondary groups
+    //--------------------------------------------------------------------------
+    // Add the user to the secondary groups
+    //--------------------------------------------------------------------------
+
     user = get(user_id,true);
 
     if ( user == 0 )
@@ -810,18 +825,13 @@ bool UserPool::authenticate_external(const string&  username,
         goto auth_failure_user;
     }
 
-    for(it = group_ids.begin(); it != group_ids.end(); it++)
+    for(it = ++group_ids.begin(); it != group_ids.end(); it++)
     {
         group = gpool->get(*it, true);
 
-        if( group == 0 )
+        if( group == 0 ) //Secondary group no longer exists
         {
-            drop(user, tmp_str);
-            user->unlock();
-
-            error_str = "One or more group IDs do not exist";
-
-            goto auth_failure_group;
+            continue;
         }
 
         group->add_user(user_id);
@@ -842,27 +852,6 @@ bool UserPool::authenticate_external(const string&  username,
     umask = User::get_default_umask();
 
     return true;
-
-
-auth_failure_group:
-    oss << "Can't create user: " << error_str << ". Driver response: "
-        << ar.message;
-    NebulaLog::log("AuM",Log::ERROR,oss);
-
-    for(it = group_ids.begin(); it != group_ids.end(); it++)
-    {
-        group = gpool->get(*it, true);
-
-        if( group != 0 )
-        {
-            group->del_user(user_id);
-
-            gpool->update(group);
-            group->unlock();
-        }
-    }
-
-    goto auth_failure;
 
 auth_failure_user:
     oss << "Can't create user: " << error_str << ". Driver response: "
