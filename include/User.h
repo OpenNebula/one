@@ -21,6 +21,7 @@
 #include "UserTemplate.h"
 #include "ObjectCollection.h"
 #include "QuotasSQL.h"
+#include "LoginToken.h"
 
 class UserQuotas;
 
@@ -93,7 +94,7 @@ public:
     void disable()
     {
         enabled = false;
-        invalidate_session();
+        session.reset();
     };
 
     /**
@@ -133,7 +134,7 @@ public:
     int set_auth_driver(const string& _auth_driver, string& error_str)
     {
         auth_driver = _auth_driver;
-        invalidate_session();
+        session.reset();
 
         return 0;
     };
@@ -260,50 +261,7 @@ private:
     // Authentication session (Private)
     // *************************************************************************
 
-    /**
-     * Until when the session_token is valid
-     */
-    time_t session_expiration_time;
-
-    /**
-     * Last authentication token validated by the driver, can
-     * be trusted until the session_expiration_time
-     */
-    string session_token;
-
-    /**
-     * Checks if a session token is authorized and still valid
-     *
-     * @param token The authentication token
-     * @return true if the token is still valid
-     */
-    bool valid_session(const string& token)
-    {
-        return (( session_token == token ) &&
-                ( time(0) < session_expiration_time ) );
-    };
-
-    /**
-     * Resets the authentication session
-     */
-    void invalidate_session()
-    {
-        session_token.clear();
-        session_expiration_time = 0;
-    };
-
-    /**
-     * Stores the given session token for a limited time. This eliminates the
-     * need to call the external authentication driver until the time expires.
-     *
-     * @param token The authenticated token
-     * @param validity_time
-     */
-    void set_session(const string& token, time_t validity_time)
-    {
-        session_token           = token;
-        session_expiration_time = time(0) + validity_time;
-    };
+    LoginToken session;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -388,9 +346,7 @@ protected:
         quota(),
         password(_password),
         auth_driver(_auth_driver),
-        enabled(_enabled),
-        session_expiration_time(0),
-        session_token("")
+        enabled(_enabled)
     {
         obj_template = new UserTemplate;
     };

@@ -354,7 +354,7 @@ int User::set_password(const string& passwd, string& error_str)
             password = passwd;
         }
 
-        invalidate_session();
+        session.reset();
     }
     else
     {

@@ -37,6 +37,7 @@ const char * UserPool::CORE_AUTH    = "core";
 const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";
 const char * UserPool::DEFAULT_AUTH = "default";
+//const char * UserPool::TOKEN_AUTH   = "token";
 
 const char * UserPool::SERVER_NAME  = "serveradmin";
 
@@ -446,7 +447,7 @@ bool UserPool::authenticate_internal(User *        user,
 
     auth_driver = user->auth_driver;
 
-    result = user->valid_session(token);
+    result = user->session.is_valid(token);
 
     umask = user->get_umask();
 
@@ -494,7 +495,7 @@ bool UserPool::authenticate_internal(User *        user,
 
     if (user != 0)
     {
-        user->set_session(token, _session_expiration_time);
+        user->session.set(token, _session_expiration_time);
         user->unlock();
     }
 
@@ -589,7 +590,7 @@ bool UserPool::authenticate_server(User *        user,
     uname  = user->name;
     gname  = user->gname;
 
-    result = user->valid_session(second_token);
+    result = user->session.is_valid(second_token);
 
     umask = user->get_umask();
 
@@ -623,7 +624,7 @@ bool UserPool::authenticate_server(User *        user,
 
     if (user != 0)
     {
-        user->set_session(second_token, _session_expiration_time);
+        user->session.set(second_token, _session_expiration_time);
         user->unlock();
     }
 
