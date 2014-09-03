@@ -94,7 +94,9 @@ public:
     void disable()
     {
         enabled = false;
+
         session.reset();
+        login_token.reset();
     };
 
     /**
@@ -262,6 +264,8 @@ private:
     // *************************************************************************
 
     LoginToken session;
+
+    LoginToken login_token;
 
     // *************************************************************************
     // DataBase implementation (Private)
