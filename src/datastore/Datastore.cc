@@ -610,6 +610,19 @@ int Datastore::replace_template(
         return -1;
     }
 
+    if (keep_restricted)
+    {
+        new_tmpl->remove_restricted();
+
+        if (obj_template != 0)
+        {
+            obj_template->remove_all_except_restricted();
+
+            string aux_error;
+            new_tmpl->merge(obj_template, aux_error);
+        }
+    }
+
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
     /* ---------------------------------------------------------------------- */
