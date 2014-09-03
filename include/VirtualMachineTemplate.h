@@ -52,20 +52,26 @@ public:
         return Template::check(rs_attr, restricted_attributes);
     };
 
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted()
+    {
+        Template::remove_restricted(restricted_attributes);
+    };
+
+    /**
+     * Deletes all the attributes, except the restricted ones
+     */
+    void remove_all_except_restricted()
+    {
+        Template::remove_all_except_restricted(restricted_attributes);
+    };
+
     void set_xml_root(const char * _xml_root)
     {
         Template::set_xml_root(_xml_root);
     };
-
-    /**
-     * Deletes all restricted attributes
-     */
-    void remove_restricted();
-
-    /**
-     * Deletes all the attributes, excepts the restricted ones
-     */
-    void remove_all_except_restricted();
 
     /**
      * Replaces the given image from the DISK attribute with a new one

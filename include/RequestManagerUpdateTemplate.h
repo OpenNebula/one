@@ -84,14 +84,6 @@ public:
     };
 
     ~VirtualMachineUpdateTemplate(){};
-
-    /* -------------------------------------------------------------------- */
-
-    int replace_template(PoolObjectSQL * object, const string & tmpl,
-            const RequestAttributes &att, string &error_str);
-
-    int append_template(PoolObjectSQL * object, const string & tmpl,
-            const RequestAttributes &att, string &error_str);
 };
 
 /* ------------------------------------------------------------------------- */
