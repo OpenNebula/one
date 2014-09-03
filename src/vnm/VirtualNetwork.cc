@@ -206,7 +206,8 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::replace_template(const string& tmpl_str, string& error_str)
+int VirtualNetwork::replace_template(
+        const string& tmpl_str, bool keep_restricted, string& error_str)
 {
     string new_bridge;
     bool   b_vlan;
