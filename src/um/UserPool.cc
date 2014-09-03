@@ -686,10 +686,18 @@ bool UserPool::authenticate_external(const string&  username,
     string mad_name;
     string mad_pass;
     string error_str;
+    string tmp_str;
 
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
+    GroupPool *   gpool = nd.get_gpool();
 
+    User*   user;
+    Group*  group;
+
+    int     gid = -1;
+
+    set<int>::iterator it;
     set<int> empty_set;
 
     AuthRequest ar(-1,empty_set);
@@ -714,6 +722,11 @@ bool UserPool::authenticate_external(const string&  username,
 
     user_id = -1;
 
+    //--------------------------------------------------------------------------
+    // Parse driver response format is:
+    // <driver> <username> <passwd> [gid...]
+    //--------------------------------------------------------------------------
+
     if ( is.good() )
     {
         is >> driver_name >> ws;
@@ -726,15 +739,69 @@ bool UserPool::authenticate_external(const string&  username,
 
     if ( !is.fail() )
     {
-        getline(is, mad_pass);
+        is >> mad_pass >> ws;
+    }
+
+    while ( is.good() )
+    {
+        int tmp_gid;
+
+        is >> tmp_gid >> ws;
+
+        if ( is.fail() )
+        {
+            error_str = "One or more group IDs are malformed";
+            goto auth_failure_user;
+        }
+
+        if ( gpool->get(tmp_gid, false) == 0 )
+        {
+            error_str = "One or more group IDs do not exist";
+            goto auth_failure_user;
+        }
+
+        if ( gid == -1 ) //Keep the first id for primary group
+        {
+            gid = tmp_gid;
+        }
+
+        group_ids.insert(tmp_gid);
+    }
+
+    //--------------------------------------------------------------------------
+    // Create the user, and set primary group
+    //--------------------------------------------------------------------------
+
+    if ( gid == -1 )
+    {
+        group_id = GroupPool::USERS_ID;
+        gname    = GroupPool::USERS_NAME;
+
+        group_ids.insert( group_id );
+    }
+    else
+    {
+        group_id = gid;
+
+        group = gpool->get(group_id, true);
+
+        if( group == 0 )
+        {
+            error_str = "Primary Group no longer exist";
+            goto auth_failure_user;
+        }
+
+        gname = group->get_name();
+
+        group->unlock();
     }
 
     if ( !is.fail() )
     {
         allocate(&user_id,
-                 GroupPool::USERS_ID,
+                 group_id,
                  mad_name,
-                 GroupPool::USERS_NAME,
+                 gname,
                  mad_pass,
                  driver_name,
                  true,
@@ -746,11 +813,41 @@ bool UserPool::authenticate_external(const string&  username,
         goto auth_failure_user;
     }
 
-    group_id = GroupPool::USERS_ID;
-    group_ids.insert( GroupPool::USERS_ID );
+    //--------------------------------------------------------------------------
+    // Add the user to the secondary groups
+    //--------------------------------------------------------------------------
+
+    user = get(user_id,true);
+
+    if ( user == 0 )
+    {
+        error_str = "User object could not be retrieved";
+        goto auth_failure_user;
+    }
+
+    for(it = ++group_ids.begin(); it != group_ids.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if( group == 0 ) //Secondary group no longer exists
+        {
+            continue;
+        }
+
+        group->add_user(user_id);
+
+        gpool->update(group);
+
+        group->unlock();
+
+        user->add_group(*it);
+    }
+
+    update(user);
+
+    user->unlock();
 
     uname = mad_name;
-    gname = GroupPool::USERS_NAME;
 
     umask = User::get_default_umask();
 
