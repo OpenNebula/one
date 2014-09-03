@@ -37,7 +37,6 @@ const char * UserPool::CORE_AUTH    = "core";
 const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";
 const char * UserPool::DEFAULT_AUTH = "default";
-//const char * UserPool::TOKEN_AUTH   = "token";
 
 const char * UserPool::SERVER_NAME  = "serveradmin";
 
@@ -447,13 +446,19 @@ bool UserPool::authenticate_internal(User *        user,
 
     auth_driver = user->auth_driver;
 
-    result = user->session.is_valid(token);
+    //Check if token is a login token
+    result = user->login_token.is_valid(token);
+
+    if (!result) //Not a login token check if the token is a session token
+    {
+        result = user->session.is_valid(token);
+    }
 
     umask = user->get_umask();
 
     user->unlock();
 
-    if (result)
+    if (result) //Good either a valid session or login_token
     {
         return true;
     }

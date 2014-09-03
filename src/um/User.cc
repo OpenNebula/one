@@ -223,6 +223,7 @@ string& User::to_xml_extended(string& xml, bool extended) const
 
     string template_xml;
     string collection_xml;
+    string token_xml;
 
     ObjectCollection::to_xml(collection_xml);
 
@@ -238,6 +239,7 @@ string& User::to_xml_extended(string& xml, bool extended) const
          "<PASSWORD>"    << password    <<"</PASSWORD>"   <<
          "<AUTH_DRIVER>" << auth_driver <<"</AUTH_DRIVER>"<<
          "<ENABLED>"     << enabled_int <<"</ENABLED>"    <<
+        login_token.to_xml(token_xml) <<
         obj_template->to_xml(template_xml);
 
     if (extended)
@@ -280,6 +282,16 @@ int User::from_xml(const string& xml)
 
     // Set itself as the owner
     set_user(oid, name);
+
+    ObjectXML::get_nodes("/USER/LOGIN_TOKEN", content);
+
+    if (!content.empty())
+    {
+        login_token.from_xml_node(content[0]);
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
 
     // Get associated metadata for the user
     ObjectXML::get_nodes("/USER/TEMPLATE", content);
@@ -355,6 +367,8 @@ int User::set_password(const string& passwd, string& error_str)
         }
 
         session.reset();
+
+        login_token.reset();
     }
     else
     {
