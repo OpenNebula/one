@@ -292,7 +292,7 @@ var hybrid_inputs = {
 
 var create_template_wizard_html =
   '<form data-abide="ajax" id="create_template_form_wizard" class="custom creation">'+
-    '<div class="">'+
+    '<div class="bordered-tabs">'+
       '<dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>'+
       wizard_tab_dd()+
       '</dl>'+
@@ -3109,6 +3109,10 @@ function setup_storage_tab_content(storage_section) {
         if (dd.attr("class") == 'active') {
             $('a', dl.children('dd').last()).click();
         }
+
+        $("dl#template_create_storage_tabs dd", storage_section).each(function(index){
+          $("a", this).html(tr("Disk")+' '+index+" <i class='fa fa-times-circle remove-tab'></i>");
+        })
     });
 
     $("#tf_btn_disks", storage_section).bind("click", function(){
@@ -3128,8 +3132,12 @@ function add_disk_tab(disk_id, dialog) {
     $(html_tab_content).appendTo($("#template_create_storage_tabs_content", dialog));
 
     var a = $("<dd>\
-      <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"Tab'>"+tr("DISK")+" <i class='fa fa-times-circle remove-tab'></i></a>\
+      <a id='disk_tab"+str_disk_tab_id+"' href='#"+str_disk_tab_id+"Tab'>"+tr("DISK")+"</a>\
     </dd>").appendTo($("dl#template_create_storage_tabs", dialog));
+
+    $("dl#template_create_storage_tabs dd", dialog).each(function(index){
+      $("a", this).html(tr("Disk")+' '+index+" <i class='fa fa-times-circle remove-tab'></i>");
+    })
 
     $("a", a).trigger("click");
 
@@ -3158,6 +3166,10 @@ function setup_network_tab_content(network_section) {
         if (dd.attr("class") == 'active') {
             $('a', dl.children('dd').last()).click();
         }
+
+        $("dl#template_create_network_tabs dd", network_section).each(function(index){
+          $("a", this).html(tr("Interface")+' '+index+" <i class='fa fa-times-circle remove-tab'></i>");
+        })
     });
 
     $("#tf_btn_nics").bind("click", function(){
@@ -3175,9 +3187,13 @@ function add_nic_tab(nic_id, dialog) {
     '</div>'
 
   // Append the new div containing the tab and add the tab to the list
-  var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"Tab'>"+tr("NIC")+" <i class='fa fa-times-circle remove-tab'></i></a></dd>").appendTo($("dl#template_create_network_tabs", dialog));
+  var a = $("<dd><a id='nic_tab"+str_nic_tab_id+"' href='#"+str_nic_tab_id+"Tab'>"+tr("NIC")+"</a></dd>").appendTo($("dl#template_create_network_tabs", dialog));
 
   $(html_tab_content).appendTo($("#template_create_network_tabs_content", dialog));
+
+  $("dl#template_create_network_tabs dd", dialog).each(function(index){
+    $("a", this).html(tr("Interface")+' '+index+" <i class='fa fa-times-circle remove-tab'></i>");
+  })
 
   $("a", a).trigger("click");
 
@@ -3799,6 +3815,10 @@ function setup_hybrid_tab_content(hybrid_section) {
         if (dd.attr("class") == 'active') {
             $('a', dl.children('dd').last()).click();
         }
+
+        $("dl#template_create_hybrid_tabs dd", hybrid_section).each(function(index){
+          $("a", this).html(tr("Provider")+' '+index+" <i class='fa fa-times-circle remove-tab'></i>");
+        })
     });
 
     $("#tf_btn_hybrid", hybrid_section).bind("click", function(){
@@ -3827,8 +3847,12 @@ function add_provider_tab(provider_id, dialog) {
     $(html_tab_content).appendTo($("#template_create_hybrid_tabs_content", dialog));
 
     var a = $("<dd>\
-      <a id='provider_tab"+str_provider_tab_id+"' href='#"+str_provider_tab_id+"Tab'>"+tr("PROVIDER")+" <i class='fa fa-times-circle remove-tab'></i></a>\
+      <a id='provider_tab"+str_provider_tab_id+"' href='#"+str_provider_tab_id+"Tab'>"+tr("PROVIDER")+"</a>\
     </dd>").appendTo($("dl#template_create_hybrid_tabs", dialog));
+
+    $("dl#template_create_hybrid_tabs dd", dialog).each(function(index){
+      $("a", this).html(tr("Provider")+' '+index+" <i class='fa fa-times-circle remove-tab'></i>");
+    })
 
     $("a", a).trigger("click");
 
