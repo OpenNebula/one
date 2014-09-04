@@ -187,8 +187,7 @@ class SLDriver
                 :max_count => 1})
 
         if !opts[:startCpus] or !opts[:maxMemory]
-          xml = REXML::Document.new xml_text
-          instance_type = xml.root.get_elements("//INSTANCE_TYPE")[0].text
+          instance_type = value_from_xml(sl_info,"INSTANCE_TYPE")
           cpu, mem = instance_type_capacity(instance_type)
           opts[:startCpus] = cpu / 100
           opts[:maxMemory] = mem / 1024
