@@ -20,6 +20,7 @@
 #include "Nebula.h"
 #include "PoolObjectAuth.h"
 #include "AuthManager.h"
+#include "AddressRange.h"
 #include <sstream>
 #include <ctype.h>
 
@@ -75,6 +76,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     _mac_prefix += tmp;
 
     VirtualNetworkTemplate::set_restricted_attributes(restricted_attrs);
+    AddressRange::set_restricted_attributes(restricted_attrs);
 
     register_hooks(hook_mads, remotes_location);
 
