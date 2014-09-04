@@ -6171,3 +6171,21 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
 
     return (network_attrs.length > 0 || text_attrs.length > 0);
 }
+
+/*
+    opts.title string to be shown
+    opts.html_id unique identifier
+    opts.content html to be shown when clicking in the element
+*/
+function generateAdvancedSection(opts){
+    return '<div class="accordion_advanced">'+
+        '<a href="#'+opts.html_id+'">'+
+            '<i class="fa fa-fw fa-chevron-down"/>'+
+            '<i class="fa fa-fw fa-chevron-up"/>'+
+            opts.title+
+        '</a>\
+        <div id="'+opts.html_id+'" class="content hidden">'+
+            opts.content +
+        '</div>'+
+    '</div>';
+}
