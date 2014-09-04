@@ -235,7 +235,7 @@ var Sunstone = {
             var active_tab_href = active_tab.attr('href');
         }
 
-        var dl_tabs = $('<div id="'+panel_name+'">\
+        var dl_tabs = $('<div id="'+panel_name+'" class="bordered-tabs">\
             <dl class="tabs right-info-tabs text-center" data-tab>\
             </dl>\
             <div class="tabs-content"></div>\
