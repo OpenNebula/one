@@ -1070,12 +1070,11 @@ function setup_capacity_inputs(capacity_section) {
 
 function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
   var html = '<div class="row">'+
-        '<div class="large-12 columns text-center">'+
+        '<div class="large-12 columns">'+
           '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> <label for="'+str_disk_tab_id+'radioImage">'+tr("Image")+'</label>'+
           '<input id="'+str_disk_tab_id+'radioVolatile" type="radio" name="'+str_disk_tab_id+'" value="volatile"> <label for="'+str_disk_tab_id+'radioVolatile">'+tr("Volatile Disk")+'</label>'+
         '</div>'+
       '</div>'+
-      '<br>'+
         '<div id="disk_type" class="vm_param image">'+
           '<div class="row collapse">'+
             '<div class="large-8 columns">' +
@@ -1116,121 +1115,119 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
             tr("The image you specified cannot be selected in the table") +
             '</div>'+
           '</div>'+
-        '<div class="show_hide" id="advanced_image">'+
-          '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
-        '</div>'+
-        '<div class="advanced">'+
-          '<fieldset>'+
-          '<legend>'+tr("Image")+'</legend>'+
-          '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
-              '<label for="IMAGE_ID">'+tr("ID")+
-                '<span class="tip">'+tr("Image ID to be used in the Virtual Image disk.")+'</span>'+
-              '</label>'+
-              '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
-            '</div>'+
-            '<div class="large-6 columns">'+
-              '<label for="IMAGE">'+tr("Name")+
-                '<span class="tip">'+tr("Name of the image to be used in the Virtual Image disk.")+'</span>'+
-              '</label>'+
-              '<input type="text" id="IMAGE" name="IMAGE"/>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
-              '<label for="IMAGE_UID">'+tr("User ID")+
-                '<span class="tip">'+tr("Identifier of the user owner of the image to reduce ambiguity.")+'</span>'+
-              '</label>'+
-              '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
-            '</div>'+
-            '<div class="large-6 columns">'+
-              '<label for="IMAGE_UNAME">'+tr("User Name")+
-                '<span class="tip">'+tr("Name of the user owner of the image to reduce ambiguity.")+'</span>'+
-              '</label>'+
-              '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
-            '</div>'+
-          '</div>'+
-          '</fieldset>'+
-          '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
-              '<label for="TARGET">'+tr("Target")+
-                  '<span class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
-                      '+tr("Xen: Optional")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Optional")+
-                  '</span>'+
-              '</label>'+
-              '<input type="text"  id="TARGET" name="target"/>'+
-            '</div>'+
-            '<div class="large-6 columns hypervisor only_xen only_kvm">'+
-              '<label for="DRIVER">'+tr("Driver")+
-                  '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
-                    '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
-                    '+tr("KVM: Optional (raw, qcow2)")+'<br>\
-                    '+tr("VMWare: Not supported")+
-                  '</span>'+
-              '</label>'+
-              '<input type="text" id="DRIVER" name="driver" />'+
-            '</div>'+
-          '</div>'+
-          '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns">'+
-              '<label for="DEV_PREFIX">'+tr("Device Prefix")+
-                  '<span class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
-                      '+tr("Xen: Optional")+'<br>\
-                      '+tr("KVM: Optional")+'<br>\
-                      '+tr("VMWare: Optional")+
-                  '</span>'+
-              '</label>'+
-              '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
-            '</div>'+
-            '<div class="large-6 columns">'+
-              '<label for="READONLY">'+tr("Read Only")+
-                  '<span class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
-                    '+tr("Xen: Optional")+'<br>\
-                    '+tr("KVM: Optional")+'<br>\
-                    '+tr("VMWare: Optional")+
-                  '</span>'+
-              '</label>'+
-              '<select id="READONLY" name="READONLY">'+
-                '<option value=""></option>'+
-                '<option value="yes">'+tr("yes")+'</option>'+
-                '<option value="no">'+tr("no")+'</option>'+
-              '</select>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row advanced vm_param">'+
-            '<div class="large-6 columns hypervisor only_kvm">'+
-              '<label for="CACHE">'+tr("Cache")+
-                  '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
-                  '</span>'+
-              '</label>'+
-              '<select id="CACHE" name="CACHE">'+
-                '<option value=""></option>'+
-                '<option value="default">'+tr("default")+'</option>'+
-                '<option value="none">'+tr("none")+'</option>'+
-                '<option value="writethrough">'+tr("writethrough")+'</option>'+
-                '<option value="writeback">'+tr("writeback")+'</option>'+
-                '<option value="directsync">'+tr("directsync")+'</option>'+
-                '<option value="unsafe">'+tr("unsafe")+'</option>'+
-              '</select>'+
-            '</div>'+
-            '<div class="large-6 columns hypervisor only_kvm">'+
-              '<label for="IO">'+tr("IO")+
-                '<span class="tip">'+tr("Set IO policy.")+
-                '</span>'+
-              '</label>'+
-              '<select id="IO" name="IO">'+
-                '<option value=""></option>'+
-                '<option value="threads">'+tr("threads")+'</option>'+
-                '<option value="native">'+tr("native")+'</option>'+
-              '</select>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
+          '<br>'+
+          generateAdvancedSection({
+            title: tr("Advanced Options"),
+            html_id: 'advanced_image_template_create',
+            content: '<fieldset>'+
+              '<legend>'+tr("Image")+'</legend>'+
+              '<div class="row vm_param">'+
+                '<div class="large-6 columns">'+
+                  '<label for="IMAGE_ID">'+tr("ID")+
+                    '<span class="tip">'+tr("Image ID to be used in the Virtual Image disk.")+'</span>'+
+                  '</label>'+
+                  '<input type="text" id="IMAGE_ID" name="IMAGE_ID"/>'+
+                '</div>'+
+                '<div class="large-6 columns">'+
+                  '<label for="IMAGE">'+tr("Name")+
+                    '<span class="tip">'+tr("Name of the image to be used in the Virtual Image disk.")+'</span>'+
+                  '</label>'+
+                  '<input type="text" id="IMAGE" name="IMAGE"/>'+
+                '</div>'+
+              '</div>'+
+              '<div class="row vm_param">'+
+                '<div class="large-6 columns">'+
+                  '<label for="IMAGE_UID">'+tr("User ID")+
+                    '<span class="tip">'+tr("Identifier of the user owner of the image to reduce ambiguity.")+'</span>'+
+                  '</label>'+
+                  '<input type="text" id="IMAGE_UID" name="IMAGE_UID"/>'+
+                '</div>'+
+                '<div class="large-6 columns">'+
+                  '<label for="IMAGE_UNAME">'+tr("User Name")+
+                    '<span class="tip">'+tr("Name of the user owner of the image to reduce ambiguity.")+'</span>'+
+                  '</label>'+
+                  '<input type="text" id="IMAGE_UNAME" name="IMAGE_UNAME"/>'+
+                '</div>'+
+              '</div>'+
+              '</fieldset>'+
+              '<div class="row vm_param">'+
+                '<div class="large-6 columns">'+
+                  '<label for="TARGET">'+tr("Target")+
+                      '<span class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
+                          '+tr("Xen: Optional")+'<br>\
+                          '+tr("KVM: Optional")+'<br>\
+                          '+tr("VMWare: Optional")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text"  id="TARGET" name="target"/>'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_xen only_kvm">'+
+                  '<label for="DRIVER">'+tr("Driver")+
+                      '<span class="tip">'+tr("Specific image mapping driver")+'<br><br>\
+                        '+tr("Xen: Optional (tap:aio:, file:)")+'<br>\
+                        '+tr("KVM: Optional (raw, qcow2)")+'<br>\
+                        '+tr("VMWare: Not supported")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="DRIVER" name="driver" />'+
+                '</div>'+
+              '</div>'+
+              '<div class="row vm_param">'+
+                '<div class="large-6 columns">'+
+                  '<label for="DEV_PREFIX">'+tr("Device Prefix")+
+                      '<span class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
+                          '+tr("Xen: Optional")+'<br>\
+                          '+tr("KVM: Optional")+'<br>\
+                          '+tr("VMWare: Optional")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>'+
+                '</div>'+
+                '<div class="large-6 columns">'+
+                  '<label for="READONLY">'+tr("Read Only")+
+                      '<span class="tip">'+tr("Set how the image is exposed by the hypervisor")+'<br><br>\
+                        '+tr("Xen: Optional")+'<br>\
+                        '+tr("KVM: Optional")+'<br>\
+                        '+tr("VMWare: Optional")+
+                      '</span>'+
+                  '</label>'+
+                  '<select id="READONLY" name="READONLY">'+
+                    '<option value=""></option>'+
+                    '<option value="yes">'+tr("yes")+'</option>'+
+                    '<option value="no">'+tr("no")+'</option>'+
+                  '</select>'+
+                '</div>'+
+              '</div>'+
+              '<div class="row vm_param">'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="CACHE">'+tr("Cache")+
+                      '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
+                      '</span>'+
+                  '</label>'+
+                  '<select id="CACHE" name="CACHE">'+
+                    '<option value=""></option>'+
+                    '<option value="default">'+tr("default")+'</option>'+
+                    '<option value="none">'+tr("none")+'</option>'+
+                    '<option value="writethrough">'+tr("writethrough")+'</option>'+
+                    '<option value="writeback">'+tr("writeback")+'</option>'+
+                    '<option value="directsync">'+tr("directsync")+'</option>'+
+                    '<option value="unsafe">'+tr("unsafe")+'</option>'+
+                  '</select>'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="IO">'+tr("IO")+
+                    '<span class="tip">'+tr("Set IO policy.")+
+                    '</span>'+
+                  '</label>'+
+                  '<select id="IO" name="IO">'+
+                    '<option value=""></option>'+
+                    '<option value="threads">'+tr("threads")+'</option>'+
+                    '<option value="native">'+tr("native")+'</option>'+
+                  '</select>'+
+                '</div>'+
+              '</div>'})+
       '</div>'+
       '<div id="disk_type" class="volatile" style="display: none;">'+
-        '<br>'+
         '<div class="vm_param">'+
             '<input type="hidden" id="SIZE" name="size" />'+
         '</div>'+
@@ -1271,11 +1268,11 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '<input type="text" id="FORMAT" name="format" />'+
           '</div>'+
         '</div>'+
-        '<div class="show_hide" id="advanced_volatile">'+
-          '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
-        '</div>'+
-        '<div class="advanced">'+
-          '<div class="row advanced vm_param">'+
+          '<br>'+
+          generateAdvancedSection({
+            title: tr("Advanced Options"),
+            html_id: 'advanced_volatile_template_create',
+            content:  '<div class="row  vm_param">'+
             '<div class="large-6 columns">'+
               '<label for="TARGET">'+tr("Target")+
                   '<span class="tip">'+tr("Device to map image disk. If set, it will overwrite the default device mapping")+'<br><br>\
@@ -1297,7 +1294,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '<input type="text" id="DRIVER" name="driver" />'+
             '</div>'+
           '</div>'+
-          '<div class="row advanced vm_param">'+
+          '<div class="row  vm_param">'+
             '<div class="large-6 columns">'+
               '<label for="DEV_PREFIX">'+tr("Device Prefix")+
                   '<span class="tip">'+tr("Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used")+'<br><br>\
@@ -1323,7 +1320,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
               '</select>'+
             '</div>'+
           '</div>'+
-          '<div class="row advanced vm_param">'+
+          '<div class="row  vm_param">'+
             '<div class="large-6 columns hypervisor only_kvm">'+
               '<label for="CACHE">'+tr("Cache")+
                   '<span class="tip">'+tr("Selects the cache mechanism for the disk.")+
@@ -1350,8 +1347,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
                 '<option value="native">'+tr("native")+'</option>'+
               '</select>'+
             '</div>'+
-          '</div>'+
-        '</div>'+
+          '</div>'})+
     '</div>';
 
     $("#refresh_template_images_table_button_class"+str_disk_tab_id).die();
@@ -1642,22 +1638,6 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         return true;
     });
 
-    // Hide image advanced options
-    $('.image .advanced', disk_section).hide();
-
-    $('#advanced_image', disk_section).click(function(){
-        $('.image .advanced', disk_section).toggle();
-        return false;
-    });
-
-    // Hide volatile advanced options
-    $('.volatile .advanced', disk_section).hide();
-
-    $('#advanced_volatile', disk_section).click(function(){
-        $('.volatile .advanced', disk_section).toggle();
-        return false;
-    });
-
     setupTips(disk_section);
 }
 
@@ -1703,15 +1683,13 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div class="show_hide row" id="advanced">'+
-      '<div class="large-12 columns">'+
-          '<h4><small><i class=" fa fa-caret-down"/> '+tr("Advanced options")+'<a id="add_os_boot_opts" class="icon_left" href="#"></a></small></h4>'+
-      '</div>'+
-    '</div>'+
-    '<div class="advanced">'+
-      '<fieldset>'+
+    '<br>'+
+    generateAdvancedSection({
+      title: tr("Advanced Options"),
+      html_id: 'advanced_nic_template_create',
+      content: '<fieldset>'+
         '<legend>'+tr("Network")+'</legend>'+
-        '<div class="row advanced vm_param">'+
+        '<div class="row  vm_param">'+
           '<div class="large-6 columns">'+
             '<label for="NETWORK_ID">'+tr("ID")+
               '<span class="tip">'+tr("Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+'</span>'+
@@ -1725,7 +1703,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '<input type="text" id="NETWORK" name="NETWORK" />'+
           '</div>'+
         '</div>'+
-        '<div class="row advanced vm_param">'+
+        '<div class="row  vm_param">'+
           '<div class="large-6 columns">'+
             '<label for="NETWORK_UID">'+tr("User ID")+
               '<span class="tip">'+tr("Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")+'</span>'+
@@ -1799,8 +1777,7 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '</label>'+
           '</div>'+
         '</div>'+
-      '</fieldset>'+
-    '</div>';
+      '</fieldset>'});
 
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
 
@@ -1919,13 +1896,6 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $('#NETWORK_UNAME', nic_section).val(aData[2]);
         $('#NETWORK_UID', nic_section).val("");
         return true;
-    });
-
-    $('.advanced', nic_section).hide();
-
-    $('#advanced', nic_section).click(function(){
-        $('.advanced', nic_section).toggle();
-        return false;
     });
 
     setupTips(nic_section);
@@ -2126,19 +2096,19 @@ function wizard_tab_content(){
     if (Config.isTemplateCreationTabEnabled('network')){
         str +=
         '<div id="networkTab" class="content wizard_tab">'+
-          '<div class="row">'+
-            '<div class="large-6 columns">'+
-              '<label for="DEFAULT_MODEL">'+tr("Default model")+
-                '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
-              '</label>'+
-              '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
-            '</div>'+
-          '</div>'+
           '<dl class="tabs vertical" id="template_create_network_tabs" data-tab>'+
             '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_nics"><span class="fa fa-plus"></span> '+tr("Add another nic")+'</button></dt>'+
           '</dl>'+
           '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
           '</div>'+
+          //'<div class="row">'+
+          //  '<div class="large-6 columns">'+
+          //    '<label for="DEFAULT_MODEL">'+tr("Default model")+
+          //      '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
+          //    '</label>'+
+          //    '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
+          //  '</div>'+
+          //'</div>'+
         '</div>';
     }
     if (Config.isTemplateCreationTabEnabled('os_booting')){
@@ -3353,14 +3323,6 @@ function setup_os_tab_content(os_section) {
         $('#INITRD', os_section).text(aData[4]);
         $('#INITRD_DS', os_section).val("$FILE[IMAGE_ID="+ aData[1] +"]");
         return true;
-    });
-
-    // Hide image advanced options
-    $('fieldset.advanced', $('div#advanced_os')).hide();
-
-    $('#advanced_os', os_section).click(function(){
-        $('fieldset.advanced', $('div##advanced_os')).toggle();
-        return false;
     });
 }
 

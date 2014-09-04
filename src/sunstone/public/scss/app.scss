@@ -210,6 +210,7 @@ input.search {
         }
 
         margin-top: 10px;
+        margin-bottom: 5px;
     }
 
     .subTab {
@@ -223,7 +224,7 @@ input.search {
             color: #999 !important;
 
             &:hover {
-              color: #555 !important;
+              color: #555;
             }
         }
     }
@@ -241,7 +242,7 @@ input.search {
             color: #222 !important;
         }
 
-        border-left: 3px solid #008cba;
+        border-left: 3px solid #008cba !important;
     }
 
     i {
