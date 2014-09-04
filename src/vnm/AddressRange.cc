@@ -199,12 +199,20 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::update_attributes(VectorAttribute *vup, string& error_msg)
+int AddressRange::update_attributes(
+        VectorAttribute *   vup,
+        bool                keep_restricted,
+        string&             error_msg)
 {
     /* --------------- Do not allow to modify a reservation ------- */
 
     int pid;
     bool is_reservation = (get_attribute("PARENT_NETWORK_AR_ID", pid) == 0);
+
+    if (keep_restricted)
+    {
+        remove_restricted(vup);
+    }
 
     /* --------------- Copy non-update attributes ----------------- */
 
@@ -237,6 +245,14 @@ int AddressRange::update_attributes(VectorAttribute *vup, string& error_msg)
                 attr->vector_value("PARENT_NETWORK_AR_ID"));
     }
 
+    /* ----------------- restricted attributes ----------------- */
+
+    if (keep_restricted)
+    {
+        remove_all_except_restricted(attr);
+
+        vup->merge(attr, true);
+    }
 
     /* ----------------- update known attributes ----------------- */
 
@@ -1318,3 +1334,44 @@ void AddressRange::set_restricted_attributes(
         restricted_attributes.insert(one_util::toupper(attr_s));
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::remove_restricted(VectorAttribute* va)
+{
+    set<string>::const_iterator it;
+    size_t pos;
+
+    for (it=restricted_attributes.begin(); it!=restricted_attributes.end(); it++)
+    {
+        pos = it->find("AR/");
+
+        if (pos != string::npos)
+        {
+            va->remove( it->substr(pos+3) );
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::remove_all_except_restricted(VectorAttribute* va)
+{
+    map<string,string>::iterator it;
+    map<string,string> vals = va->value();
+
+    ostringstream oss;
+
+    for(it = vals.begin(); it != vals.end(); it++)
+    {
+        oss.str("");
+        oss << "AR/" << it->first;
+
+        if (restricted_attributes.count(oss.str()) == 0)
+        {
+            va->remove(it->first);
+        }
+    }
+}

@@ -670,7 +670,10 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
+int VirtualNetwork::update_ar(
+        VirtualNetworkTemplate* ars_tmpl,
+        bool                    keep_restricted,
+        string&                 error_msg)
 {
     vector<Attribute *> tmp_ars;
 
@@ -681,7 +684,7 @@ int VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_m
         return -1;
     }
 
-    return ar_pool.update_ar(tmp_ars, error_msg);
+    return ar_pool.update_ar(tmp_ars, keep_restricted, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
