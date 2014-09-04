@@ -52,7 +52,7 @@ $body-font-family: "Open Sans", sans-serif;
 
 // We use these as default colors throughout
 //$primary-color: #2ba6cb;
-$primary-color: #0099c3;
+$primary-color: #0098c3;
 $secondary-color: #f7f7f7;
 // $alert-color: #f04124;
 // $success-color: #43AC6A;
@@ -337,9 +337,9 @@ $button-font-weight: normal;
 // $button-function-factor: 5%;
 
 // We use these to control button border styles.
-$button-border-width: 0px;
+$button-border-width: 1px;
 $button-border-style: solid;
-
+$secondary-button-border-color: #efefef;
 // We use this to set the default radius used throughout the core.
 // $button-radius: $global-radius;
 // $button-round: $global-rounded;
