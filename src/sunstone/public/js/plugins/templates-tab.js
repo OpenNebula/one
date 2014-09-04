@@ -2114,7 +2114,7 @@ function wizard_tab_content(){
 
     if (Config.isTemplateCreationTabEnabled('storage')){
         str +=
-        '<div id="storageTab" class="wizard_tab content">'+
+        '<div id="storageTab" class="wizard_tab content bordered-tabs">'+
           '<dl class="tabs vertical" id="template_create_storage_tabs" data-tab>'+
             '<dt class="text-center"><button type="button" class="button tiny radius" id="tf_btn_disks"><span class="fa fa-plus"></span>'+tr("Add another disk")+'</button></dt>'+
           '</dl>'+
