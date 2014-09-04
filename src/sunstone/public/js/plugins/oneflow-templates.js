@@ -36,15 +36,11 @@ var create_service_template_wizard_html = '\
           '<textarea type="text" id="description" name="description"/>'+
         '</div>\
     </div>\
-    <br>\
-    <div class="accordion_advanced">\
-        <a href="#network_configuration_and_attributes">'+
-            '<i class="fa fa-fw fa-chevron-down"/>'+
-            '<i class="fa fa-fw fa-chevron-up"/>'+
-            tr("Network Configuration")+
-        '</a>\
-        <div id="network_configuration_and_attributes" class="content hidden">\
-            <div class="row">\
+    <br>'+
+    generateAdvancedSection({
+        title: tr("Network Configuration"),
+        html_id: "network_configuration_and_attributes",
+        content: '<div class="row">\
                 <div class="large-12 columns">\
                       <table class="service_networks policies_table dataTable">\
                             <thead>\
@@ -67,17 +63,11 @@ var create_service_template_wizard_html = '\
                             </tfoot>\
                       </table>\
                 </div>\
-            </div>\
-        </div>\
-    </div>\
-    <div class="accordion_advanced">\
-        <a href="#advanced_service_params">'+
-            '<i class="fa fa-fw fa-chevron-down"/>'+
-            '<i class="fa fa-fw fa-chevron-up"/>'+
-            tr("Advanced Service Parameters")+
-        '</a>\
-        <div id="advanced_service_params" class="content hidden">\
-            <div class="row">\
+            </div>'}) +
+    generateAdvancedSection({
+        title: tr("Advanced Service Parameters"),
+        html_id: "advanced_service_params",
+        content: '<div class="row">\
                 <div class="service_template_param st_man large-6 columns">\
                     <label for="deployment">' + tr("Strategy") +
                         '<span class="tip">'+ tr("Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships.") +'</span>'+
@@ -105,10 +95,8 @@ var create_service_template_wizard_html = '\
                       <span class="tip">' + tr("Before deploying any child roles, wait for all VMs of the parent roles to report via OneGate that they are READY=YES") +'</span>\
                     </label>\
                 </div>\
-            </div>\
-        </div>\
-    </div>\
-    <br>\
+            </div>'}) +
+    '<br>\
     <div class="row">\
         <div class="large-12 columns">\
             <h4>'+tr("Roles")+'</h4>\
@@ -199,51 +187,38 @@ var create_service_template_advanced_html =
   '</form>';
 
 function generate_advanced_role_accordion(role_id, context){
-    context.html(
-        '<div class="accordion_advanced">\
-                <a href="#advanced_role'+role_id+'">'+
-                    '<i class="fa fa-fw fa-chevron-down"/>'+
-                    '<i class="fa fa-fw fa-chevron-up"/>'+
-                    tr("Advanced Role Parameters")+
-                '</a>\
-                <div id="advanced_role'+role_id+'" class="content hidden">\
-                    <div class="row">\
-                        <div class="service_template_param service_role large-6 columns">\
-                            <label for="shutdown_action_role">' + tr("Shutdown action") +
-                                '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used") +'</span>'+
-                            '</label>\
-                            <select name="shutdown_action_role">\
-                                <option value=""></option>\
-                                <option value="shutdown">'+tr("Shutdown")+'</option>\
-                                <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
-                            </select>\
-                        </div>\
-                        <div class="large-6 columns">\
-                        </div>\
-                    </div>\
-                    <div class="row">\
-                        <div class="service_template_param st_man large-12 columns">'+
-                          '<label  for="vm_template_contents">'+tr("VM Template Content")+'\
-                            <span class="tip">'+tr("This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated")+'</span>\
-                          </label>'+
-                          '<textarea type="text" class="vm_template_contents" name="vm_template_contents"/>'+
-                        '</div>\
-                    </div>\
+    context.html(generateAdvancedSection({
+        title: tr("Advanced Role Parameters"),
+        html_id: 'advanced_role'+role_id,
+        content: '<div class="row">\
+                <div class="service_template_param service_role large-6 columns">\
+                    <label for="shutdown_action_role">' + tr("Shutdown action") +
+                        '<span class="tip">'+ tr("VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used") +'</span>'+
+                    '</label>\
+                    <select name="shutdown_action_role">\
+                        <option value=""></option>\
+                        <option value="shutdown">'+tr("Shutdown")+'</option>\
+                        <option value="shutdown-hard">'+tr("Shutdown hard")+'</option>\
+                    </select>\
                 </div>\
-        </div>');
-
-    $(document).foundation();
+                <div class="large-6 columns">\
+                </div>\
+            </div>\
+            <div class="row">\
+                <div class="service_template_param st_man large-12 columns">'+
+                  '<label  for="vm_template_contents">'+tr("VM Template Content")+'\
+                    <span class="tip">'+tr("This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated")+'</span>\
+                  </label>'+
+                  '<textarea type="text" class="vm_template_contents" name="vm_template_contents"/>'+
+                '</div>\
+            </div>'}));
 }
 
 function generate_elasticity_accordion(role_id, context) {
-    context.html('<div class="accordion_advanced">\
-        <a href="#elasticity_accordion'+role_id+'">'+
-            '<i class="fa fa-fw fa-chevron-down"/>'+
-            '<i class="fa fa-fw fa-chevron-up"/>'+
-            tr("Role Elasticity")+
-        '</a>\
-        <div id="elasticity_accordion'+role_id+'" class="content hidden">\
-            <div class="row">\
+    context.html(generateAdvancedSection({
+        title: tr("Role Elasticity"),
+        html_id: 'elasticity_accordion'+role_id,
+        content: '<div class="row">\
                 <div class="large-4 columns">\
                         <label for="min_vms">' + tr("Min VMs") +
                             '<span class="tip">'+ tr("Minimum number of VMs for elasticity adjustments") +'</span>'+
@@ -370,11 +345,7 @@ function generate_elasticity_accordion(role_id, context) {
                         </tfoot>\
                     </table>\
                 </div>\
-            </div>\
-        </div>\
-    </div>');
-
-    $(document).foundation();
+            </div>'}));
 }
 
 var instantiate_service_template_tmpl ='\
