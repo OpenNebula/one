@@ -1489,7 +1489,7 @@ function provision_list_vms(opts_arg){
       '<div id="provision_list_vm_accordion'+list_vms_accordion_id+'" class="content '+ (opts.active ? 'active' : '') +'">'+
         '<div class="row">'+
           '<div class="large-12 large-centered columns">'+
-            '<table class="provision_vms_table" '+ (opts.data ? "data='"+JSON.stringify(opts.data)+"'" : "") +'>'+
+            '<table class="provision_vms_table">'+
               '<thead class="hidden">'+
                 '<tr>'+
                   '<th>'+tr("ID")+'</th>'+
@@ -2089,8 +2089,8 @@ function generate_provision_instance_type_accordion(context, capacity) {
     "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
       var data = aData;
 
-      $(".provision_instance_types_ul", context).append('<li>'+
-          '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'" data=\''+JSON.stringify(data)+'\'>'+
+      var li = $('<li>'+
+          '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'">'+
             '<li class="provision-title" title="'+data.name+'">'+
               data.name+
             '</li>'+
@@ -2109,7 +2109,9 @@ function generate_provision_instance_type_accordion(context, capacity) {
               (data.description || '')+
             '</li>'+
           '</ul>'+
-        '</li>');
+        '</li>').appendTo($(".provision_instance_types_ul", context));
+
+      $(".provision-pricing-table", li).data("opennebula", data)
 
       return nRow;
     }
@@ -3059,10 +3061,9 @@ function update_provision_vms_datatable(datatable, timeout) {
     '</span>'+
     '</div>');
 
-    if (datatable.attr('data')) {
-      fill_provision_vms_datatable(
-        datatable,
-        JSON.parse(datatable.attr('data')))
+    var data = datatable.data('opennebula');
+    if (data) {
+      fill_provision_vms_datatable(datatable, data)
     } else {
       setTimeout( function(){
         OpenNebula.VM.list({
@@ -4062,6 +4063,11 @@ function setup_provision_vms_list(context, opts) {
 function generate_provision_vms_list(context, opts) {
   context.off();
   context.html(provision_list_vms(opts));
+
+  if (opts.data) {
+    $(".provision_vms_table", context).data("opennebula", opts.data)
+  }
+
   setup_provision_vms_list(context, opts);
   setup_info_vm(context);
 }
@@ -4488,9 +4494,9 @@ function setup_info_flow(context) {
               percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
             }
 
-            $(".provision_roles_ul", context).append(
+            var li = $(
               '<li>'+
-                '<ul class="provision_role_ul provision-pricing-table" role=\''+JSON.stringify(role)+'\'>'+
+                '<ul class="provision_role_ul provision-pricing-table">'+
                   '<li class="provision-title text-left">'+
                     '<i class="fa fa-fw fa-cube"/>&emsp;'+
                     role.name+
@@ -4518,7 +4524,9 @@ function setup_info_flow(context) {
                     '</a>'+
                   '</li>'+
                 '</ul>'+
-              '</li>');
+              '</li>').appendTo($(".provision_roles_ul", context));
+
+              $(".provision_role_ul", li).data("role", role);
           });
         }
 
@@ -4544,12 +4552,14 @@ function setup_info_flow(context) {
       '</span>'+
       '</div>');
 
-    var role_json = $(this).closest(".provision_role_ul").attr('role');
-    var role = JSON.parse(role_json);
+    var role = $(this).closest(".provision_role_ul").data('role');
     var vms = []
-    $.each(role.nodes, function(index, node){
-      vms.push(node.vm_info);
-    })
+
+    if (role.nodes.length > 0) {
+      $.each(role.nodes, function(index, node){
+        vms.push(node.vm_info);
+      })
+    }
 
     generate_provision_vms_list(
       $(".provision_role_vms_container", context),
@@ -4564,8 +4574,7 @@ function setup_info_flow(context) {
   })
 
   context.on("click", ".provision_role_cardinality_button", function(){
-    var role_json = $(this).closest(".provision_role_ul").attr('role');
-    var role = JSON.parse(role_json);
+    var role = $(this).closest(".provision_role_ul").data('role');
     var min_vms = (role.min_vms||1);
     var max_vms = (role.max_vms||100);
 
@@ -5930,8 +5939,8 @@ $(document).ready(function(){
           '</span>';
         }
 
-        $("#provision_system_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
+        var li = $('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
@@ -5942,7 +5951,9 @@ $(document).ready(function(){
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</li>').appendTo($("#provision_system_templates_ul"));
+
+        $(".provision-pricing-table", li).data("opennebula", aData);
 
         return nRow;
       }
@@ -5996,8 +6007,8 @@ $(document).ready(function(){
           '</span>';
         }
 
-        $("#provision_vdc_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
+        var li = ('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
@@ -6008,7 +6019,9 @@ $(document).ready(function(){
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</li>').appendTo($("#provision_vdc_templates_ul"));
+
+        $(".provision-pricing-table", li).data("opennebula", aData);
 
         return nRow;
       }
@@ -6063,8 +6076,8 @@ $(document).ready(function(){
           '</span>';
         }
 
-        $("#provision_saved_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
+        var li = $('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
@@ -6075,7 +6088,9 @@ $(document).ready(function(){
                 (data.TEMPLATE.DESCRIPTION || '...')+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</li>').appendTo($("#provision_saved_templates_ul"));
+
+        $(".provision-pricing-table", li).data("opennebula", aData);
 
         return nRow;
       }
@@ -6113,7 +6128,7 @@ $(document).ready(function(){
         $(".provision_accordion_template .select_template").show();
       } else {
         var template_id = $(this).attr("opennebula_id");
-        var template_json = JSON.parse($(this).attr("data"));
+        var template_json = $(this).data("opennebula");
 
         var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
         var nics = []
@@ -6200,10 +6215,10 @@ $(document).ready(function(){
       }
 
       if (instance_type.length > 0) {
-        var instance_typa_data = instance_type.attr("data");
+        var instance_typa_data = instance_type.data("opennebula");
         delete instance_typa_data.name;
 
-        $.extend(extra_info.template, JSON.parse(instance_type.attr("data")))
+        $.extend(extra_info.template, instance_typa_data)
       }
 
       var missing_attr = false;
@@ -6303,8 +6318,8 @@ $(document).ready(function(){
           '</span>';
         }
 
-        $("#provision_flow_templates_ul").append('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'" data=\''+JSON.stringify(aData)+'\'>'+
+        var li = $('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
               '<li class="provision-title" title="'+data.NAME+'">'+
                 data.NAME+
               '</li>'+
@@ -6316,7 +6331,9 @@ $(document).ready(function(){
                 (data.TEMPLATE.DESCRIPTION || '')+
               '</li>'+
             '</ul>'+
-          '</li>');
+          '</li>').appendTo($("#provision_flow_templates_ul"));
+
+        $(".provision-pricing-table", li).data("opennebula", aData);
 
         return nRow;
       }
@@ -6351,7 +6368,7 @@ $(document).ready(function(){
         $("#provision_customize_flow_template").show();
         $("#provision_customize_flow_template").html("");
 
-        var data = JSON.parse($(this).attr("data"));
+        var data = $(this).data("opennebula");
         var body = data.DOCUMENT.TEMPLATE.BODY;
 
         $(".provision_accordion_flow_template .selected_template").show();
@@ -6412,7 +6429,7 @@ $(document).ready(function(){
         }
 
         $.each(body.roles, function(index, role){
-          var context = $('<div id="provision_create_flow_role_'+index+'" class="provision_create_flow_role" data=\''+JSON.stringify(role)+'\'>'+
+          var context = $('<div id="provision_create_flow_role_'+index+'" class="provision_create_flow_role">'+
             '<div class="row">'+
               '<div class="large-10 large-centered columns">'+
                 '<h2 class="subheader">'+
@@ -6434,6 +6451,8 @@ $(document).ready(function(){
           '</div>'+
           '<br>'+
           '<br>').appendTo($("#provision_customize_flow_template"))
+
+          context.data("opennebula", role);
 
           var template_id = role.vm_template;
           var role_html_id = "#provision_create_flow_role_"+index;
@@ -6530,7 +6549,7 @@ $(document).ready(function(){
           })
         }
 
-        var role_template = JSON.parse($(this).attr("data"));
+        var role_template = $(this).data("opennebula");
         roles.push($.extend(role_template, {
           "cardinality": $(".cardinality_value", $(this)).text(),
           "user_inputs_values": user_inputs_values
