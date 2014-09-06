@@ -387,3 +387,80 @@ int UserDelGroup::secondary_group_action(
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
+{
+    string uname = xmlrpc_c::value_string(paramList.getString(1));
+    string token = xmlrpc_c::value_string(paramList.getString(2));
+    time_t valid = xmlrpc_c::value_int(paramList.getInt(3));
+
+    User * user;
+    string error_str;
+
+    PoolObjectAuth perms;
+
+    if (att.uid != 0)
+    {
+        user = static_cast<UserPool *>(pool)->get(uname,true);
+
+        if ( user == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(auth_object),-1),
+                    att);
+
+            return;
+        }
+
+        user->get_permissions(perms);
+
+        user->unlock();
+
+
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(auth_op, perms);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    user = static_cast<UserPool *>(pool)->get(uname,true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),-1),
+                att);
+
+        return;
+    }
+
+    if (valid <= 0) //Reset token
+    {
+        user->login_token.reset();
+
+        token = "";
+    }
+    else
+    {
+        token = user->login_token.set(token, valid);
+    }
+
+    pool->update(user);
+
+    user->unlock();
+
+    success_response(token, att);
+}
+

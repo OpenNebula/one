@@ -515,6 +515,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * user_add_group_pt;
     xmlrpc_c::method * user_del_group_pt;
     xmlrpc_c::method * user_change_auth_pt;
+    xmlrpc_c::method * user_login_pt;
 
     if (nebula.is_federation_slave())
     {
@@ -526,6 +527,7 @@ void RequestManager::register_xml_methods()
         user_add_group_pt       = new RequestManagerProxy("one.user.addgroup");
         user_del_group_pt       = new RequestManagerProxy("one.user.delgroup");
         user_change_auth_pt     = new RequestManagerProxy("one.user.chauth");
+        user_login_pt           = new RequestManagerProxy("one.user.login");
 
         static_cast<RequestManagerProxy*>(user_allocate_pt)->hide_argument(2);
         static_cast<RequestManagerProxy*>(user_change_password_pt)->hide_argument(2);
@@ -541,6 +543,7 @@ void RequestManager::register_xml_methods()
         user_add_group_pt       = new UserAddGroup();
         user_del_group_pt       = new UserDelGroup();
         user_change_auth_pt     = new UserChangeAuth();
+        user_login_pt           = new UserLogin();
     }
 
     xmlrpc_c::methodPtr user_allocate(user_allocate_pt);
@@ -551,6 +554,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_add_group(user_add_group_pt);
     xmlrpc_c::methodPtr user_del_group(user_del_group_pt);
     xmlrpc_c::methodPtr user_change_auth(user_change_auth_pt);
+    xmlrpc_c::methodPtr user_login(user_login_pt);
 
     xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr user_set_quota(new UserSetQuota());
@@ -568,6 +572,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
     RequestManagerRegistry.addMethod("one.user.chauth", user_change_auth);
     RequestManagerRegistry.addMethod("one.user.quota", user_set_quota);
+    RequestManagerRegistry.addMethod("one.user.login", user_login);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
 

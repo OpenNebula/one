@@ -159,11 +159,6 @@ public:
     }
 
     /**
-     *  Object quotas, provides set and check interface
-     */
-    UserQuotas quota;
-
-    /**
      * Returns the UMASK template attribute (read as an octal number), or the
      * default UMASK from oned.conf if it does not exist
      *
@@ -224,6 +219,11 @@ public:
     // *************************************************************************
 
     /**
+     *  Object quotas, provides set and check interface
+     */
+    UserQuotas quota;
+
+    /**
      *  Writes/updates the User quotas fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
@@ -232,6 +232,15 @@ public:
     {
         return quota.update(oid, db);
     };
+
+    // *************************************************************************
+    // Login token
+    // *************************************************************************
+
+    /**
+     * The login token object, provides the set & reset interface for the token
+     */
+    LoginToken login_token;
 
 private:
     // -------------------------------------------------------------------------
@@ -264,8 +273,6 @@ private:
     // *************************************************************************
 
     LoginToken session;
-
-    LoginToken login_token;
 
     // *************************************************************************
     // DataBase implementation (Private)

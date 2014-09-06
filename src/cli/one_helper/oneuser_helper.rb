@@ -17,7 +17,17 @@
 require 'one_helper'
 require 'one_helper/onequota_helper'
 
+# Interface for OpenNebula generated tokens.
+class TokenAuth
+    def login_token(username, expire)
+        return OpenNebulaHelper::OneHelper.get_password
+    end
+end
+
 class OneUserHelper < OpenNebulaHelper::OneHelper
+
+    ONE_AUTH     = ENV['HOME']+'/.one/one_auth'
+
     def self.rname
         "USER"
     end
@@ -90,7 +100,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, auth.password
     end
 
-    def self.login(username, options)
+    ############################################################################
+    # Generates a token and stores it in ONE_AUTH path as defined in this class
+    ############################################################################
+    def login(username, options)
+
+        #-----------------------------------------------------------------------
+        # Init the associated Authentication class to generate the token.
+        #-----------------------------------------------------------------------
         case options[:driver]
         when OpenNebula::User::SSH_AUTH
             require 'opennebula/ssh_auth'
@@ -102,6 +119,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
+
         when OpenNebula::User::X509_AUTH
             require 'opennebula/x509_auth'
 
@@ -116,6 +134,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
+
         when OpenNebula::User::X509_PROXY_AUTH
             require 'opennebula/x509_auth'
 
@@ -134,15 +153,47 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue => e
                 return -1, e.message
             end
+
         else
-            return -1, "You have to specify an Auth method"
+            auth = TokenAuth.new() #oned generated token
         end
 
-        options[:time] ||= 3600
+        #-----------------------------------------------------------------------
+        # Check that ONE_AUTH target can be written
+        #-----------------------------------------------------------------------
+        if File.file?(ONE_AUTH) && !options[:force]
+                return -1, "File #{ONE_AUTH} exists, use --force to overwirte"
+            end
+        end
 
-        auth.login(username, options[:time])
+        #-----------------------------------------------------------------------
+        # Authenticate with oned using the token/passwd and set/generate the
+        # authentication token for the user
+        #-----------------------------------------------------------------------
+        token        = auth.login_token(username, options[:time])
+        login_client = OpenNebula::Client.new("#{username}:#{token}")
 
-        return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
+        user = OpenNebula::User.new(User.build_xml, login_client)
+
+        token_oned = user.login(username, token, options[:time])
+
+        return -1, token_oned.message if OpenNebula.is_error?(token_oned)
+
+        #-----------------------------------------------------------------------
+        # Store the token in ONE_AUTH.
+        #-----------------------------------------------------------------------
+        begin
+            FileUtils.mkdir_p(File.dirname(ONE_AUTH))
+        rescue Errno::EEXIST
+        end
+
+        file = File.open(ONE_AUTH, "w")
+        file.write("#{username}:#{token_oned}")
+        file.close
+
+        File.chmod(0600, ONE_AUTH)
+
+        return 0, ''
     end
 
     def format_pool(options)
