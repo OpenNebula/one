@@ -34,8 +34,6 @@ class OpenNebula::X509Auth
         ETC_LOCATION      = ENV["ONE_LOCATION"] + "/etc"
     end
 
-    LOGIN_PATH = ENV['HOME']+'/.one/one_x509'
-
     X509_AUTH_CONF_PATH = ETC_LOCATION + "/auth/x509_auth.conf"
 
     X509_DEFAULTS = {
@@ -79,13 +77,6 @@ class OpenNebula::X509Auth
     # Client side
     ###########################################################################
 
-    # Creates the login file for x509 authentication at ~/.one/one_x509.
-    # By default it is valid as long as the certificate is valid. It can
-    # be changed to any number of seconds with expire parameter (sec.)
-    def login(user, expire=0)
-        write_login(login_token(user,expire))
-    end
-
     # Returns a valid password string to create a user using this auth driver.
     # In this case the dn of the user certificate.
     def password
@@ -95,8 +86,10 @@ class OpenNebula::X509Auth
     # Generates a login token in the form:
     # user_name:x509:user_name:time_expires:cert_chain
     #   - user_name:time_expires is encrypted with the user certificate
-    #   - user_name:time_expires:cert_chain is base64 encoded
-    def login_token(user, expire)
+    #   - user_name:time_expires:cert_chain is base64 encoded.
+    # By default it is valid as long as the certificate is valid. It can
+    # be changed to any number of seconds with expire parameter (sec.)
+    def login_token(user, expire=0)
         if expire != 0
             expires = Time.now.to_i + expire.to_i
         else
@@ -107,13 +100,9 @@ class OpenNebula::X509Auth
         signed_text  = encrypt(text_to_sign)
 
         certs_pem = @cert_chain.collect{|cert| cert.to_pem}.join(":")
-
         token     = "#{signed_text}:#{certs_pem}"
-        token64   = Base64::encode64(token).strip.delete("\n")
 
-        login_out = "#{user}:#{token64}"
-
-        login_out
+        return Base64::encode64(token).strip.delete("\n")
     end
 
     ###########################################################################
@@ -150,25 +139,6 @@ class OpenNebula::X509Auth
     end
 
 private
-    # Writes a login_txt to the login file as defined in LOGIN_PATH
-    # constant
-    def write_login(login_txt)
-        # Inits login file path and creates ~/.one directory if needed
-        # Set instance variables
-        login_dir = File.dirname(LOGIN_PATH)
-
-        begin
-            FileUtils.mkdir_p(login_dir)
-        rescue Errno::EEXIST
-        end
-
-        file = File.open(LOGIN_PATH, "w")
-        file.write(login_txt)
-        file.close
-
-        File.chmod(0600,LOGIN_PATH)
-    end
-
     # Load class options form a configuration file (yaml syntax)
     def load_options(conf_file)
         if File.readable?(conf_file)
