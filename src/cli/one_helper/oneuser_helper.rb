@@ -163,7 +163,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         #-----------------------------------------------------------------------
         if File.file?(ONE_AUTH) && !options[:force]
                 return -1, "File #{ONE_AUTH} exists, use --force to overwirte"
-            end
         end
 
         #-----------------------------------------------------------------------
