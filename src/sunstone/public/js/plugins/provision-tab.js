@@ -721,11 +721,14 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
     '<div class="large-8 large-centered columns">'+
       '<div class="row collapse">'+
         '<div class="large-9 small-9 columns">'+
-          '<div id="provision_rvms_quota_slider">'+
+          '<div class="range-slider radius provision_rvms_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+            '<span class="range-slider-handle"></span>'+
+            '<span class="range-slider-active-segment"></span>'+
+            '<input type="hidden">'+
           '</div>'+
         '</div>'+
         '<div class="large-2 small-2 columns">'+
-          '<input type="text"  class="provision-input" id="provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+          '<input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -744,11 +747,14 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
     '<div class="large-8 large-centered columns">'+
       '<div class="row collapse">'+
         '<div class="large-9 small-9 columns">'+
-          '<div id="provision_cpu_quota_slider">'+
+          '<div class="range-slider radius provision_cpu_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+            '<span class="range-slider-handle"></span>'+
+            '<span class="range-slider-active-segment"></span>'+
+            '<input type="hidden">'+
           '</div>'+
         '</div>'+
         '<div class="large-2 small-2 columns">'+
-          '<input type="text"  class="provision-input" id="provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+          '<input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -764,17 +770,20 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
     '</div>'+
   '</div>'+
   '<div class="vm_param">'+
-      '<input type="hidden" id="provision_memory_quota_input"/>'+
+      '<input type="hidden" class="provision_memory_quota_input"/>'+
   '</div>'+
   '<div class="row">'+
     '<div class="large-8 large-centered columns">'+
       '<div class="row collapse">'+
         '<div class="large-9 small-9 columns">'+
-          '<div id="provision_memory_quota_slider">'+
+          '<div class="range-slider radius provision_memory_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+            '<span class="range-slider-handle"></span>'+
+            '<span class="range-slider-active-segment"></span>'+
+            '<input type="hidden">'+
           '</div>'+
         '</div>'+
         '<div class="large-2 small-2 columns">'+
-          '<input type="text"  class="provision-input" id="provision_memory_quota_tmp_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+          '<input type="text"  class="provision-input provision_memory_quota_tmp_input"  style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -1772,10 +1781,10 @@ var povision_actions = {
         var context = $("#provision_create_user");
         $("#username", context).val('');
         $("#password", context).val('');
-        $("#provision_rvms_quota_input").val('');
-        $("#provision_memory_quota_input").val('');
-        $("#provision_memory_quota_tmp_input").val('');
-        $("#provision_cpu_quota_input").val('');
+        $(".provision_rvms_quota_input", context).val('');
+        $(".provision_memory_quota_input", context).val('');
+        $(".provision_memory_quota_tmp_input", context).val('');
+        $(".provision_cpu_quota_input", context).val('');
         $("#repeat_password", context).val('');
         $(".alert-box-error", context).hide();
         $(".alert-box-error", context).html("");
@@ -1825,6 +1834,8 @@ var povision_actions = {
 
 Sunstone.addMainTab('provision-tab',provision_tab);
 Sunstone.addActions(povision_actions);
+
+$(document).foundation();
 
 function generate_custom_attrs(context, custom_attrs) {
   context.off();
@@ -1916,13 +1927,15 @@ function generate_cardinality_selector(context, role_template) {
             '<br>'+
             '<span style="color: #999;">'+tr("VMs")+'</span>'+
           '</div>'+
-          '<div class="large-7 columns text-center">'+
+          '<div class="large-7 columns">'+
           '<div class="cardinality_slider_div">'+
             '<span class="" style="color: #777;">'+tr("Change cardinality")+'</span>'+
             '<br>'+
-            '<div class="cardinality_slider">'+
+            '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
+              '<span class="range-slider-handle"></span>'+
+              '<span class="range-slider-active-segment"></span>'+
+              '<input type="hidden">'+
             '</div>'+
-            '<br>'+
             '<span class="left" style="color: #999;">'+min_vms+'</span>'+
             '<span class="right" style="color: #999;">'+max_vms+'</span>'+
           '</div>'+
@@ -1937,28 +1950,18 @@ function generate_cardinality_selector(context, role_template) {
     '</div>');
 
     if (max_vms > min_vms) {
+      $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
+      context.foundation();
       $( ".cardinality_slider_div", context).show();
       $( ".cardinality_no_slider_div", context).hide();
 
-      var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
-          handles: 1,
-          connect: "lower",
-          range: [min_vms, max_vms],
-          step: 1,
-          start: role_template.cardinality,
-          value: role_template.cardinality,
-          slide: function(type) {
-              if ( type != "move"){
-                if ($(this).val()) {
-                  $(".cardinality_value", context).html($(this).val());
-                }
-              }
-          }
+      $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
+
+      $( ".cardinality_slider", context).on('change', function(){
+        $(".cardinality_value",context).html($(this).attr('data-slider'))
       });
 
-      provision_cardinality_slider.val(role_template.cardinality)
 
-      provision_cardinality_slider.addClass("noUiSlider");
     } else {
       $( ".cardinality_slider_div", context).hide();
       $( ".cardinality_no_slider_div", context).show();
@@ -2459,7 +2462,7 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("vms")) {
     $("#provision_dashboard").append(provision_vms_dashboard);
 
-    var start_time = new Date().getTime() / 1000;
+    var start_time =  Math.floor(new Date().getTime() / 1000);
     // ms to s
 
     // 604800 = 7 days = 7*24*60*60
@@ -2533,7 +2536,7 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("vdcvms")) {
     $("#provision_dashboard").append(provision_vdc_vms_dashboard);
 
-    var start_time = new Date().getTime() / 1000;
+    var start_time =  Math.floor(new Date().getTime() / 1000);
     // ms to s
 
     // 604800 = 7 days = 7*24*60*60
@@ -2607,7 +2610,7 @@ function show_provision_dashboard() {
   if (Config.provision.dashboard.isEnabled("users")) {
     $("#provision_dashboard").append(provision_users_dashboard);
 
-    var start_time = new Date().getTime() / 1000;
+    var start_time =  Math.floor(new Date().getTime() / 1000);
     // ms to s
 
     // 604800 = 7 days = 7*24*60*60
@@ -2815,6 +2818,7 @@ function show_provision_create_flow() {
 function show_provision_create_user() {
   $(".section_content").hide();
   $("#provision_create_user").fadeIn();
+  $(document).foundation();
 }
 
 function show_provision_vm_list(timeout, context) {
@@ -5070,7 +5074,7 @@ function setup_provision_user_info(context) {
             '<li class="provision-bullet-item text-left">'+
             '</li>')
 
-        var start_time = new Date().getTime() / 1000;
+        var start_time =  Math.floor(new Date().getTime() / 1000);
         // ms to s
 
         // 604800 = 7 days = 7*24*60*60
@@ -5298,11 +5302,14 @@ function setup_provision_user_info(context) {
           '<div class="large-10 large-centered columns">'+
             '<div class="row collapse">'+
               '<div class="large-9 small-9 columns">'+
-                '<div class="provision_rvms_quota_vdc_info_slider">'+
+                '<div class="range-slider radius provision_rvms_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                  '<span class="range-slider-handle"></span>'+
+                  '<span class="range-slider-active-segment"></span>'+
+                  '<input type="hidden">'+
                 '</div>'+
               '</div>'+
               '<div class="large-2 small-2 columns">'+
-                '<input type="text"  class="provision_rvms_quota_vdc_info_input provision-input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '<input type="text"  class="provision_rvms_quota_vdc_info_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -5321,11 +5328,14 @@ function setup_provision_user_info(context) {
           '<div class="large-10 large-centered columns">'+
             '<div class="row collapse">'+
               '<div class="large-9 small-9 columns">'+
-                '<div class="provision_cpu_quota_vdc_info_slider">'+
+                '<div class="range-slider radius provision_cpu_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                  '<span class="range-slider-handle"></span>'+
+                  '<span class="range-slider-active-segment"></span>'+
+                  '<input type="hidden">'+
                 '</div>'+
               '</div>'+
               '<div class="large-2 small-2 columns">'+
-                '<input type="text"  class="provision_cpu_quota_vdc_info_input provision-input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '<input type="text"  class="provision_cpu_quota_vdc_info_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -5347,11 +5357,14 @@ function setup_provision_user_info(context) {
           '<div class="large-10 large-centered columns">'+
             '<div class="row collapse">'+
               '<div class="large-9 small-9 columns">'+
-                '<div class="provision_memory_quota_vdc_info_slider">'+
+                '<div class="range-slider radius provision_memory_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                  '<span class="range-slider-handle"></span>'+
+                  '<span class="range-slider-active-segment"></span>'+
+                  '<input type="hidden">'+
                 '</div>'+
               '</div>'+
               '<div class="large-2 small-2 columns">'+
-                '<input type="text" class="provision_memory_quota_vdc_info_tmp_input provision-input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '<input type="text" class="provision_memory_quota_vdc_info_tmp_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -5367,45 +5380,23 @@ function setup_provision_user_info(context) {
       '</div>');
 
       var provision_rvms_quota_vdc_info_input = $(".provision_rvms_quota_vdc_info_input", context);
-      var provision_rvms_quota_vdc_info_slider = $( ".provision_rvms_quota_vdc_info_slider", context).noUiSlider({
-          handles: 1,
-          connect: "lower",
-          range: [0,5000],
-          step: 100,
-          start: 500,
-          value: 500,
-          slide: function(type) {
-              if ( type != "move"){
-                  provision_rvms_quota_vdc_info_input.val($(this).val()/100);
-              }
-          }
+
+      $( ".provision_rvms_quota_vdc_info_slider", context).on('change', function(){
+        provision_rvms_quota_vdc_info_input.val($(this).attr('data-slider'))
       });
 
-      provision_rvms_quota_vdc_info_slider.addClass("noUiSlider");
-
       provision_rvms_quota_vdc_info_input.change(function() {
-          provision_rvms_quota_vdc_info_slider.val(this.value * 100)
+        $( ".provision_rvms_quota_vdc_info_slider", context).foundation('slider', 'set_value', this.value);
       });
 
       var provision_cpu_quota_vdc_info_input = $(".provision_cpu_quota_vdc_info_input", context);
-      var provision_cpu_quota_vdc_info_slider = $(".provision_cpu_quota_vdc_info_slider", context).noUiSlider({
-          handles: 1,
-          connect: "lower",
-          range: [0,5000],
-          step: 100,
-          start: 4000,
-          value: 4000,
-          slide: function(type) {
-              if ( type != "move"){
-                  provision_cpu_quota_vdc_info_input.val($(this).val()/100);
-              }
-          }
+
+      $( ".provision_cpu_quota_vdc_info_slider", context).on('change', function(){
+        provision_cpu_quota_vdc_info_input.val($(this).attr('data-slider'))
       });
 
-      provision_cpu_quota_vdc_info_slider.addClass("noUiSlider");
-
       provision_cpu_quota_vdc_info_input.change(function() {
-          provision_cpu_quota_vdc_info_slider.val(this.value * 100)
+          $( ".provision_cpu_quota_vdc_info_slider", context).foundation('slider', 'set_value', this.value);
       });
 
       var provision_memory_quota_vdc_info_input = $(".provision_memory_quota_vdc_info_input", context);
@@ -5420,28 +5411,17 @@ function setup_provision_user_info(context) {
         }
       }
 
-      var provision_memory_quota_vdc_info_slider = $(".provision_memory_quota_vdc_info_slider", context).noUiSlider({
-          handles: 1,
-          connect: "lower",
-          range: [0,6400],
-          start: 1600,
-          step: 50,
-          value: 1600,
-          slide: function(type) {
-              if ( type != "move"){
-                  provision_memory_quota_vdc_info_tmp_input.val($(this).val()/100);
-                  provision_memory_quota_vdc_info_tmp_input.change();
-              }
-          }
+      $( ".provision_memory_quota_vdc_info_slider", context).on('change', function(){
+        provision_memory_quota_vdc_info_tmp_input.val($(this).attr('data-slider'));
+        update_final_memory_input();
       });
 
       provision_memory_quota_vdc_info_tmp_input.on("change", function() {
           update_final_memory_input();
-          provision_memory_quota_vdc_info_slider.val(this.value * 100)
+          $( ".provision_memory_quota_vdc_info_slider", context).foundation('slider', 'set_value', this.value);
       });
 
-      provision_memory_quota_vdc_info_slider.addClass("noUiSlider");
-
+      $(document).foundation();
 
       var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
       if (quotas_str) {
@@ -6591,50 +6571,29 @@ $(document).ready(function(){
     // Create User
     //
 
-    var provision_rvms_quota_input = $("#provision_rvms_quota_input");
-    var provision_rvms_quota_slider = $( "#provision_rvms_quota_slider").noUiSlider({
-        handles: 1,
-        connect: "lower",
-        range: [0,5000],
-        step: 100,
-        start: 500,
-        value: 500,
-        slide: function(type) {
-            if ( type != "move"){
-                provision_rvms_quota_input.val($(this).val()/100);
-            }
-        }
-    });
+    var context = $("#provision_create_user");
+    var provision_rvms_quota_input = $(".provision_rvms_quota_input", context);
 
-    provision_rvms_quota_slider.addClass("noUiSlider");
+    $( ".provision_rvms_quota_slider", context).on('change', function(){
+      provision_rvms_quota_input.val($(this).attr('data-slider'))
+    });
 
     provision_rvms_quota_input.change(function() {
-        provision_rvms_quota_slider.val(this.value * 100)
+        $( ".provision_rvms_quota_slider", context).foundation('slider', 'set_value', this.value);
     });
 
-    var provision_cpu_quota_input = $("#provision_cpu_quota_input");
-    var provision_cpu_quota_slider = $( "#provision_cpu_quota_slider").noUiSlider({
-        handles: 1,
-        connect: "lower",
-        range: [0,20000],
-        step: 100,
-        start: 4000,
-        value: 4000,
-        slide: function(type) {
-            if ( type != "move"){
-                provision_cpu_quota_input.val($(this).val()/100);
-            }
-        }
-    });
+    var provision_cpu_quota_input = $(".provision_cpu_quota_input", context);
 
-    provision_cpu_quota_slider.addClass("noUiSlider");
+    $( ".provision_cpu_quota_slider", context).on('change', function(){
+      provision_cpu_quota_input.val($(this).attr('data-slider'))
+    });
 
     provision_cpu_quota_input.change(function() {
-        provision_cpu_quota_slider.val(this.value * 100)
+        $( ".provision_cpu_quota_slider", context).foundation('slider', 'set_value', this.value);
     });
 
-    var provision_memory_quota_input = $("#provision_memory_quota_input");
-    var provision_memory_quota_tmp_input = $("#provision_memory_quota_tmp_input");
+    var provision_memory_quota_input = $(".provision_memory_quota_input", context);
+    var provision_memory_quota_tmp_input = $(".provision_memory_quota_tmp_input", context);
 
     var update_final_memory_input = function() {
       var value = provision_memory_quota_tmp_input.val();
@@ -6645,27 +6604,15 @@ $(document).ready(function(){
       }
     }
 
-    var provision_memory_quota_slider = $( "#provision_memory_quota_slider").noUiSlider({
-        handles: 1,
-        connect: "lower",
-        range: [0,6400],
-        start: 1600,
-        step: 50,
-        value: 1600,
-        slide: function(type) {
-            if ( type != "move"){
-                provision_memory_quota_tmp_input.val($(this).val()/100);
-                provision_memory_quota_tmp_input.change();
-            }
-        }
+    $( ".provision_memory_quota_slider", context).on('change', function(){
+      provision_memory_quota_tmp_input.val($(this).attr('data-slider'));
+      update_final_memory_input();
     });
 
     provision_memory_quota_tmp_input.change(function() {
-        provision_memory_quota_slider.val(this.value * 100)
         update_final_memory_input();
+        $( ".provision_memory_quota_slider", context).foundation('slider', 'set_value', this.value);
     });
-
-    provision_memory_quota_slider.addClass("noUiSlider");
 
     $("#provision_create_user").submit(function(){
       var context = $(this);

@@ -311,13 +311,18 @@ public:
      *    the reason.
      *    @return 0 on success
      */
-    int update_attributes(VectorAttribute *vup, string& error_msg);
+    int update_attributes(
+            VectorAttribute *   vup,
+            bool                keep_restricted,
+            string&             error_msg);
 
     /*
      *  add_ar from AddressRangePool needs to access the internal representation
      *  of the AR to include it in the ARPool template.
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
+
+    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
 
 private:
     /* ---------------------------------------------------------------------- */
@@ -424,7 +429,15 @@ private:
     /* ---------------------------------------------------------------------- */
     bool check(string& rs_attr) const;
 
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted(VectorAttribute* va);
+
+    /**
+     * Deletes all the attributes, except the restricted ones
+     */
+    void remove_all_except_restricted(VectorAttribute* va);
 
     /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */

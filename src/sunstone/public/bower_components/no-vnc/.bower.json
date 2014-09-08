@@ -1,0 +1,14 @@
+{
+  "name": "no-vnc",
+  "homepage": "https://github.com/kanaka/noVNC",
+  "_release": "9b731d3a58",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "9b731d3a5811cce05001e1d8fbb0d53e2859c86b"
+  },
+  "_source": "git://github.com/kanaka/noVNC.git",
+  "_target": "*",
+  "_originalSource": "no-vnc",
+  "_direct": true
+}

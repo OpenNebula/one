@@ -778,7 +778,6 @@ function updateServiceTemplateInfo(request,elem){
 
                         if(reg.exec(value.vm_template_contents) != null){
                             roles_using_net.push(value.name);
-                            console.log(roles_using_net)
                         }
                     }
                 })
