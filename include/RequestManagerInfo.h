@@ -283,6 +283,24 @@ public:
     ~ZoneInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupInfo : public RequestManagerInfo
+{
+public:
+    SecurityGroupInfo():
+        RequestManagerInfo("SecurityGroupInfo",
+                           "Returns security group information")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+        auth_object = PoolObjectSQL::SECGROUP;
+    };
+
+    ~SecurityGroupInfo(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

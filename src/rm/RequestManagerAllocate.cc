@@ -700,3 +700,19 @@ int ZoneAllocate::pool_allocate(
 
     return zonepool->allocate(tmpl, &id, error_str);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SecurityGroupAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att)
+{
+    SecurityGroupPool * sgpool = static_cast<SecurityGroupPool *>(pool);
+
+    return sgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+        tmpl, &id, error_str);
+}

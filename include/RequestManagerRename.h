@@ -295,6 +295,28 @@ public:
     ~ZoneRename(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupRename: public RequestManagerRename
+{
+public:
+    SecurityGroupRename():
+        RequestManagerRename("SecurityGroupRename", "Renames a security group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+        auth_object = PoolObjectSQL::SECGROUP;
+    };
+
+    ~SecurityGroupRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

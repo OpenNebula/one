@@ -258,6 +258,24 @@ public:
     ~GroupUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    SecurityGroupUpdateTemplate():
+        RequestManagerUpdateTemplate("SecurityGroupUpdateTemplate",
+                                     "Updates a security group template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+        auth_object = PoolObjectSQL::SECGROUP;
+    };
+
+    ~SecurityGroupUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

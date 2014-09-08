@@ -316,6 +316,24 @@ public:
     int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupDelete : public RequestManagerDelete
+{
+public:
+    SecurityGroupDelete():
+        RequestManagerDelete("SecurityGroupDelete",
+                             "Deletes a security group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+        auth_object = PoolObjectSQL::SECGROUP;
+    };
+
+    ~SecurityGroupDelete(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

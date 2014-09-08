@@ -152,6 +152,25 @@ public:
     ~DocumentChmod(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupChmod: public RequestManagerChmod
+{
+public:
+    SecurityGroupChmod():
+        RequestManagerChmod("SecurityGroupChmod",
+                            "Changes permission bits of a security group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+        auth_object = PoolObjectSQL::SECGROUP;
+    };
+
+    ~SecurityGroupChmod(){};
+
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

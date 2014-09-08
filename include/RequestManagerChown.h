@@ -246,6 +246,28 @@ public:
     };
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupChown: public RequestManagerChown
+{
+public:
+    SecurityGroupChown():
+        RequestManagerChown("SecurityGroupChown",
+                            "Changes ownership of a security group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+        auth_object = PoolObjectSQL::SECGROUP;
+    };
+
+    ~SecurityGroupChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
+    };
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

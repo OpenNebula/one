@@ -82,6 +82,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/document',
     cwd+'/src/zone',
     cwd+'/src/client',
+    cwd+'/src/secgroup',
 ])
 
 # Compile flags
@@ -237,6 +238,7 @@ build_scripts=[
     'src/xml/SConstruct',
     'src/document/SConstruct',
     'src/zone/SConstruct',
+    'src/secgroup/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/locale/languages/SConstruct',
     'share/rubygems/SConstruct',

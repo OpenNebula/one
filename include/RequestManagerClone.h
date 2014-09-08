@@ -137,6 +137,45 @@ public:
     };
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class SecurityGroupClone : public RequestManagerClone
+{
+public:
+    SecurityGroupClone():
+        RequestManagerClone("SecurityGroupClone",
+                            "Clone an existing security group")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_secgrouppool();
+
+        auth_object = PoolObjectSQL::SECGROUP;
+        auth_op     = AuthRequest::USE;
+    };
+
+    ~SecurityGroupClone(){};
+
+    /* -------------------------------------------------------------------- */
+
+    Template * clone_template(PoolObjectSQL* obj)
+    {
+        return static_cast<SecurityGroup*>(obj)->clone_template();
+    };
+
+    int pool_allocate(
+            int                         source_id,
+            Template *                  tmpl,
+            int&                        id,
+            string&                     error_str,
+            RequestAttributes&          att)
+    {
+        SecurityGroupPool * secgrouppool = static_cast<SecurityGroupPool *>(pool);
+
+        return secgrouppool->allocate(att.uid, att.gid, att.uname, att.gname,
+            att.umask, tmpl, &id, error_str);
+    };
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
