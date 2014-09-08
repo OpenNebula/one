@@ -211,7 +211,7 @@ module CLIHelper
                 pool=@data.keys.first
                 return print_table(nil, options) if !pool
 
-                element=pool.split('_').first
+                element=pool.split('_')[0..-2].join('_')
 
                 pool_data=@data.dsearch("#{pool}/#{element}")
                 pool_data=[pool_data].flatten if pool_data

@@ -25,7 +25,7 @@ module OpenNebula
         alias_method :each_with_xpath, :each
 
         PAGINATED_POOLS=%w{VM_POOL IMAGE_POOL TEMPLATE_POOL VN_POOL
-                           DOCUMENT_POOL}
+                           DOCUMENT_POOL SECGROUP_POOL}
 
     protected
         #pool:: _String_ XML name of the root element

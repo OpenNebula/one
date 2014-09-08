@@ -601,6 +601,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onezone \
            src/cli/oneflow \
            src/cli/oneflow-template \
+           src/cli/onesecgroup \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
            share/scripts/one"
@@ -1258,6 +1259,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/image.rb \
                             src/oca/ruby/opennebula/pool_element.rb \
                             src/oca/ruby/opennebula/pool.rb \
+                            src/oca/ruby/opennebula/security_group_pool.rb \
+                            src/oca/ruby/opennebula/security_group.rb \
                             src/oca/ruby/opennebula/system.rb \
                             src/oca/ruby/opennebula/template_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
@@ -1420,7 +1423,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
                    src/cli/one_helper/onecluster_helper.rb \
                    src/cli/one_helper/onezone_helper.rb \
-                   src/cli/one_helper/oneacct_helper.rb"
+                   src/cli/one_helper/oneacct_helper.rb \
+                   src/cli/one_helper/onesecgroup_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1435,7 +1439,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onezone \
                src/cli/oneflow \
                src/cli/oneflow-template \
-               src/cli/oneacct"
+               src/cli/oneacct \
+               src/cli/onesecgroup"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1448,7 +1453,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onedatastore.yaml \
                 src/cli/etc/onecluster.yaml \
                 src/cli/etc/onezone.yaml \
-                src/cli/etc/oneacct.yaml"
+                src/cli/etc/oneacct.yaml \
+                src/cli/etc/onesecgroup.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1793,6 +1799,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onezone.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
+        share/man/onesecgroup.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \
