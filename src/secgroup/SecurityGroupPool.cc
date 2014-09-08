@@ -20,7 +20,18 @@
 
 SecurityGroupPool::SecurityGroupPool(SqlDB * db)
     :PoolSQL(db, SecurityGroup::table, true, true)
-{}
+{
+    //lastOID is set in PoolSQL::init_cb
+    if (get_lastOID() == -1)
+    {
+        // The first 100 IDs are reserved for system Security Groups.
+        // Regular ones start from ID 100
+
+        set_update_lastOID(99);
+    }
+
+    return;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
