@@ -31,7 +31,8 @@ source_files=[
     'QuotaImage.cc',
     'Quotas.cc',
     'DefaultQuotas.cc',
-    'QuotasSQL.cc'
+    'QuotasSQL.cc',
+    'LoginToken.cc'
 ]
 
 # Build library

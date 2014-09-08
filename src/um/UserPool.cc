@@ -446,13 +446,19 @@ bool UserPool::authenticate_internal(User *        user,
 
     auth_driver = user->auth_driver;
 
-    result = user->valid_session(token);
+    //Check if token is a login token
+    result = user->login_token.is_valid(token);
+
+    if (!result) //Not a login token check if the token is a session token
+    {
+        result = user->session.is_valid(token);
+    }
 
     umask = user->get_umask();
 
     user->unlock();
 
-    if (result)
+    if (result) //Good either a valid session or login_token
     {
         return true;
     }
@@ -494,7 +500,7 @@ bool UserPool::authenticate_internal(User *        user,
 
     if (user != 0)
     {
-        user->set_session(token, _session_expiration_time);
+        user->session.set(token, _session_expiration_time);
         user->unlock();
     }
 
@@ -589,7 +595,7 @@ bool UserPool::authenticate_server(User *        user,
     uname  = user->name;
     gname  = user->gname;
 
-    result = user->valid_session(second_token);
+    result = user->session.is_valid(second_token);
 
     umask = user->get_umask();
 
@@ -623,7 +629,7 @@ bool UserPool::authenticate_server(User *        user,
 
     if (user != 0)
     {
-        user->set_session(second_token, _session_expiration_time);
+        user->session.set(second_token, _session_expiration_time);
         user->unlock();
     }
 
