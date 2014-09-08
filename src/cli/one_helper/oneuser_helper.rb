@@ -162,7 +162,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         # Check that ONE_AUTH target can be written
         #-----------------------------------------------------------------------
         if File.file?(ONE_AUTH) && !options[:force]
-                return -1, "File #{ONE_AUTH} exists, use --force to overwirte"
+                return -1, "File #{ONE_AUTH} exists, use --force to overwrite"
         end
 
         #-----------------------------------------------------------------------
@@ -348,8 +348,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts str % ["SECONDARY GROUPS", groups.join(',') ] if groups.size > 1
         puts str % ["PASSWORD",    user['PASSWORD']]
         puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
-        puts str % ["LOGIN_TOKEN", user['LOGIN_TOKEN/TOKEN']]
-        puts str % ["VALIDITY", "not after #{Time.at(user['LOGIN_TOKEN/EXPIRATION_TIME'].to_i)}"] if !user['LOGIN_TOKEN/EXPIRATION_TIME'].nil?
+        puts str % ["LOGIN_TOKEN", user['LOGIN_TOKEN/TOKEN']] if !user['LOGIN_TOKEN/TOKEN'].nil?
+        puts str % ["TOKEN VALIDITY", "not after #{Time.at(user['LOGIN_TOKEN/EXPIRATION_TIME'].to_i)}"] if !user['LOGIN_TOKEN/EXPIRATION_TIME'].nil?
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
 
