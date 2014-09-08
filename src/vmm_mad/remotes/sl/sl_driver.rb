@@ -332,13 +332,15 @@ private
         sl              = nil
         all_sl_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
+        all_sl_elements = all_sl_elements.select { |element| 
+             element.elements["TYPE"].text.downcase.eql? "softlayer"
+        }
+
         # First, let's see if we have an SoftLayer site that matches
         # our desired host name
         all_sl_elements.each { |element|
             cloud_host = element.elements["DATACENTER"]
             type       = element.elements["TYPE"].text
-
-            next if !type.downcase.eql? "softlayer"
 
             if cloud_host and cloud_host.text.upcase.eql? host.upcase
                 sl = element
@@ -348,14 +350,14 @@ private
         if !sl
             # If we don't find the SoftLayer site, and ONE just
             # knows about one SoftLayer site, let's use that
-            if all_sl_elements.size == 1 and 
-               all_sl_elements[0].elements["TYPE"].text.upcase.eql? "SOFTLAYER"
+            if all_sl_elements.size == 1
                 sl = all_sl_elements[0]
             else
                 STDERR.puts(
                     "Cannot find SoftLayer element in VM template "<<
-                    "or couldn't find any SoftLayer site matching "<<
-                    "one of the templates.")
+                    "or ambigous definition of SofLayer templates "<<
+                    "(for instance, two SoftLayer sections without " <<
+                    "a DATACENTER defined)")
                 exit(-1)
             end
         end
