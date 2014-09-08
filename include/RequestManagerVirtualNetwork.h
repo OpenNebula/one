@@ -142,7 +142,7 @@ public:
         RequestManagerVirtualNetwork("VirtualNetworkUpdateAddressRange",
           "Updates address ranges to a virtual network")
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::ADMIN;
     };
 
     ~VirtualNetworkUpdateAddressRange(){};
@@ -152,14 +152,7 @@ public:
                       RequestAttributes& att,
                       string& error_str)
     {
-        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
-        {
-            return vn->update_ar(tmpl, true, error_str);
-        }
-        else
-        {
-            return vn->update_ar(tmpl, false, error_str);
-        }
+        return vn->update_ar(tmpl, error_str);
     };
 };
 

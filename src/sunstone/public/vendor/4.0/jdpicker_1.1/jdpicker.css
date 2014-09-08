@@ -1,0 +1,179 @@
+.jdpicker_w .date_selector * {
+	width: auto;
+	height: auto;
+	border: none;
+	background: none;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	text-decoration: none;
+	font-size:12px;
+}
+.jdpicker_w .date_selector {
+	background: #FFF;
+	border: 1px solid #bbb;
+	padding: 5px;
+	margin: -1px 0 0 0;
+	position: absolute;
+	z-index: 100000;
+	display: none;
+	width:222px
+}
+
+.jdpicker_w .date_selector table{
+	width:210px;
+	margin-left:3px;
+}
+
+.jdpicker_w .date_clearer{
+	color: #a00;
+	padding-left:3px;
+	cursor:pointer;
+	font-weight:bold;
+	font-family:sans-serif
+}
+
+.jdpicker_w .date_selector_ieframe {
+	position: absolute;
+	z-index: 99999;
+	display: none;
+}
+
+.jdpicker_w .error_msg{
+	display:none;
+	text-align:center;
+	font-size:0.8em;
+	color:#666
+}
+
+.jdpicker_w .date_selector .nav {
+	width: 17.5em; /* 7 * 2.5em */
+}
+.jdpicker_w .date_selector .month_nav, .jdpicker_w .date_selector .year_nav {
+	margin: 0 0 3px 0;
+	padding: 0;
+	display: block;
+	position: relative;
+	text-align: center;
+}
+.jdpicker_w .date_selector .month_nav {
+	float: left;
+	width: 56%;
+}
+.jdpicker_w .date_selector .year_nav {
+	float: right;
+	width: 37%;
+	position:relative;
+}
+
+.jdpicker_w .date_selector .month_nav select {
+	width:75px;
+	margin: 0 auto;
+	border:1px solid #ccc;
+	position:relative;
+	top:1px
+}
+
+.jdpicker_w .date_selector .year_nav .year_input {
+	text-align:center;
+	width:36px;
+	border:1px solid #ccc;
+	position:relative;
+	top:2px
+}  
+
+.jdpicker_w .date_selector .month_name, .jdpicker_w .date_selector .year_name {
+	font-weight: bold;
+	line-height: 20px;
+}
+.jdpicker_w .date_selector .button {
+	display: block;
+	position: absolute;
+	top: 0;
+	width: 18px;
+	height: 18px;
+	line-height: 17px;
+	font-weight: bold;
+	color: #333;
+	text-align: center;
+	font-size: 120%;
+	overflow: hidden;
+	border: 1px solid #F2F2F2;
+	cursor:pointer;
+}
+
+.jdpicker_w .date_selector .button:hover, .jdpicker_w .date_selector .button.hover {
+	background: none;
+	color: #333;
+	cursor: pointer;
+	border-color: #ccc;
+}
+
+.jdpicker_w .date_selector .prev {
+	left: 0;
+}
+.jdpicker_w .date_selector .next {
+	right: 0;
+}
+
+.jdpicker_w .date_selector table {
+	margin:0 auto;
+	border-spacing: 1px;
+
+	clear: both;
+}
+.jdpicker_w .date_selector th{
+	padding-top:5px
+}
+
+.jdpicker_w .date_selector th, .jdpicker_w .date_selector td {
+	text-align: center;
+	color: black;
+}
+
+.jdpicker_w .date_selector th.week_label{
+	font-weight:normal;
+	font-style:italic;
+	font-size:80%;
+	width:25px
+}
+
+.jdpicker_w .date_selector .week_num, .jdpicker_w .date_selector .hover .week_num, .jdpicker_w .date_selector .selected .week_num{
+	font-style:italic;
+	color:#333 !important;
+	vertical-align:bottom !important;
+	text-align:right;
+	border:none !important;
+	font-size:70%;
+	background:#FCFCFC !important;
+	padding-right:4px;
+}
+
+.jdpicker_w .date_selector td {
+	border: 1px solid #ccc;
+	line-height: 2em;
+	text-align: center;
+	white-space: nowrap;
+	color: #003C78;
+	background: white;
+}
+.jdpicker_w .date_selector td.today {
+	background: #FFFEB3;
+}
+.jdpicker_w .date_selector td.unselected_month {
+	color: #ccc;
+}
+.jdpicker_w .date_selector td.selectable_day, .jdpicker_w .date_selector tr.selectable_week td {
+	cursor: pointer;
+	background:url('images/bg_selectable.png');
+	border:1px solid #aaa;
+	color:#333
+}
+.jdpicker_w .date_selector td.selected, .jdpicker_w .date_selector tr.selected  td{
+	background: url('images/bg_selected.png');
+	font-weight: bold;
+}
+.jdpicker_w .date_selector tr.selectable_week.hover td, .jdpicker_w .date_selector td.selectable_day.hover {
+	background: url('images/bg_hover.png');
+	color: white;
+}

@@ -125,45 +125,6 @@ bool VirtualMachineAllocate::allocate_authorization(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualNetworkAllocate::allocate_authorization(
-        Template *          tmpl,
-        RequestAttributes&  att,
-        PoolObjectAuth *    cluster_perms)
-{
-    string aname;
-
-    VirtualNetworkTemplate * vn_tmpl = static_cast<VirtualNetworkTemplate *>(tmpl);
-
-    bool auth = RequestManagerAllocate::allocate_authorization(
-                                                vn_tmpl, att, cluster_perms);
-
-    if ( auth )
-    {
-        // ------------ Check template for restricted attributes  --------------
-
-        if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
-        {
-            if (vn_tmpl->check(aname))
-            {
-                ostringstream oss;
-
-                oss << "Template includes a restricted attribute " << aname;
-
-                failure_response(AUTHORIZATION,
-                        authorization_error(oss.str(), att),
-                        att);
-
-                return false;
-            }
-        }
-    }
-
-    return auth;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
                                              RequestAttributes& att)
 {

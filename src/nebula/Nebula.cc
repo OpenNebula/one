@@ -463,7 +463,6 @@ void Nebula::start(bool bootstrap_only)
 
         vector<const Attribute *> vm_restricted_attrs;
         vector<const Attribute *> img_restricted_attrs;
-        vector<const Attribute *> vnet_restricted_attrs;
 
         vector<const Attribute *> inherit_image_attrs;
         vector<const Attribute *> inherit_datastore_attrs;
@@ -482,7 +481,6 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
-        nebula_configuration->get("VNET_RESTRICTED_ATTR", vnet_restricted_attrs);
 
         nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
         nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_datastore_attrs);
@@ -512,7 +510,6 @@ void Nebula::start(bool bootstrap_only)
         vnpool = new VirtualNetworkPool(db,
                                         mac_prefix,
                                         size,
-                                        vnet_restricted_attrs,
                                         vnet_hooks,
                                         remotes_location,
                                         inherit_vnet_attrs);

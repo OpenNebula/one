@@ -40,7 +40,7 @@
     <script>
 var INCLUDE_URI = "vendor/noVNC/";
 </script>
-        <script src="vendor/noVNC/util.js"></script>
+        <script src="vendor/noVNC/vnc.js"></script>
 </head>
 
 <body style="margin: 0px;">
@@ -53,14 +53,6 @@ var INCLUDE_URI = "vendor/noVNC/";
                     <td width="1%"><div id="noVNC_buttons">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
-                        <span id="noVNC_xvp_buttons">
-                        <input type=button value="Shutdown"
-                            id="xvpShutdownButton">
-                        <input type=button value="Reboot"
-                            id="xvpRebootButton">
-                        <input type=button value="Reset"
-                            id="xvpResetButton">
-                        </span>
                             </div></td>
                 </tr></table>
             </div>
@@ -76,8 +68,7 @@ var INCLUDE_URI = "vendor/noVNC/";
 
         // Load supporting scripts
         Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                           "keysymdef.js", "keyboard.js", "input.js", "display.js",
-                           "jsunzip.js", "rfb.js"]);
+                           "input.js", "display.js", "jsunzip.js", "rfb.js"]);
 
         var rfb;
 
@@ -99,18 +90,6 @@ var INCLUDE_URI = "vendor/noVNC/";
             rfb.sendCtrlAltDel();
             return false;
         }
-        function xvpShutdown() {
-            rfb.xvpShutdown();
-            return false;
-        }
-        function xvpReboot() {
-            rfb.xvpReboot();
-            return false;
-        }
-        function xvpReset() {
-            rfb.xvpReset();
-            return false;
-        }
         function updateState(rfb, state, oldstate, msg) {
             var s, sb, cad, level;
             s = $D('noVNC_status');
@@ -125,26 +104,12 @@ var INCLUDE_URI = "vendor/noVNC/";
                 default:             level = "warn";   break;
             }
 
-            if (state === "normal") {
-                cad.disabled = false;
-            } else {
-                cad.disabled = true;
-                xvpInit(0);
-            }
+            if (state === "normal") { cad.disabled = false; }
+            else                    { cad.disabled = true; }
 
             if (typeof(msg) !== 'undefined') {
                 sb.setAttribute("class", "noVNC_status_" + level);
                 s.innerHTML = msg;
-            }
-        }
-
-        function xvpInit(ver) {
-            var xvpbuttons;
-            xvpbuttons = $D('noVNC_xvp_buttons');
-            if (ver >= 1) {
-                xvpbuttons.style.display = 'inline';
-            } else {
-                xvpbuttons.style.display = 'none';
             }
         }
 
@@ -153,9 +118,6 @@ var INCLUDE_URI = "vendor/noVNC/";
 
             $D('sendCtrlAltDelButton').style.display = "inline";
             $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
-            $D('xvpShutdownButton').onclick = xvpShutdown;
-            $D('xvpRebootButton').onclick = xvpReboot;
-            $D('xvpResetButton').onclick = xvpReset;
 
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
             document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
@@ -185,24 +147,19 @@ var INCLUDE_URI = "vendor/noVNC/";
             path = WebUtil.getQueryVar('path', 'websockify');
 
             if ((!host) || (!port)) {
-                updateState('failed',
-                    "Must specify host and port in URL");
-                return;
+                updateState('failed', "Must specify host and port in URL");
+            } else {
+                rfb = new RFB({'target':       $D('noVNC_canvas'),
+                               'encrypt':      "<%=params['encrypt']%>" == "yes",
+                               'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
+                               'true_color':   WebUtil.getQueryVar('true_color', true),
+                               'local_cursor': WebUtil.getQueryVar('cursor', true),
+                               'shared':       WebUtil.getQueryVar('shared', true),
+                               'view_only':    WebUtil.getQueryVar('view_only', false),
+                               'updateState':  updateState,
+                               'onPasswordRequired':  passwordRequired});
+                rfb.connect("<%= params['host']%>", "<%= params['port']%>", "<%= params['password']%>", path+"?token=<%= params['token']%>");
             }
-
-            rfb = new RFB({'target':       $D('noVNC_canvas'),
-                           'encrypt':      WebUtil.getQueryVar('encrypt',
-                                    (window.location.protocol === "https:")),
-                           'repeaterID':   WebUtil.getQueryVar('repeaterID', ''),
-                           'true_color':   WebUtil.getQueryVar('true_color', true),
-                           'local_cursor': WebUtil.getQueryVar('cursor', true),
-                           'shared':       WebUtil.getQueryVar('shared', true),
-                           'view_only':    WebUtil.getQueryVar('view_only', false),
-                           'updateState':  updateState,
-                           'onXvpInit':    xvpInit,
-                           'onPasswordRequired':  passwordRequired});
-
-            rfb.connect("<%= params['host']%>", "<%= params['port']%>", "<%= params['password']%>", path+"?token=<%= params['token']%>");
         };
 
         </script>

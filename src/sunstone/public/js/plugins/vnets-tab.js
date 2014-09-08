@@ -820,8 +820,18 @@ function updateVNetworkInfo(request,vn){
             $(this).addClass('markrowchecked');
         });
 
-        $("#update_ar_button", $("#vnet_info_panel")).attr("ar_id", id);
-        $("#update_ar_button", $("#vnet_info_panel")).prop("disabled", false);
+        if (get_ar(vn_info, id).PARENT_NETWORK_AR_ID != undefined &&
+            get_ar(vn_info, id).PARENT_NETWORK_AR_ID.length > 0){
+
+            $("#update_ar_button", $("#vnet_info_panel")).prop("disabled", true);
+            $("#update_ar_button", $("#vnet_info_panel")).addClass("has-tip");
+            $("#update_ar_button", $("#vnet_info_panel")).attr("title", tr("This address range is a reservation"));
+        } else{
+            $("#update_ar_button", $("#vnet_info_panel")).attr("ar_id", id);
+            $("#update_ar_button", $("#vnet_info_panel")).prop("disabled", false);
+            $("#update_ar_button", $("#vnet_info_panel")).removeClass("has-tip");
+            $("#update_ar_button", $("#vnet_info_panel")).removeAttr("title");
+        }
 
         $("#rm_ar_button", $("#vnet_info_panel")).attr("ar_id", id).removeAttr('disabled');
 

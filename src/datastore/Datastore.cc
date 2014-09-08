@@ -584,8 +584,7 @@ int Datastore::from_xml(const string& xml)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Datastore::replace_template(
-        const string& tmpl_str, bool keep_restricted, string& error_str)
+int Datastore::replace_template(const string& tmpl_str, string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
@@ -608,19 +607,6 @@ int Datastore::replace_template(
     {
         delete new_tmpl;
         return -1;
-    }
-
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
-        }
     }
 
     /* ---------------------------------------------------------------------- */

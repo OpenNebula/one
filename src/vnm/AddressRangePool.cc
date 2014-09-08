@@ -81,10 +81,7 @@ int AddressRangePool::add_ar(AddressRange * ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::update_ar(
-        vector<Attribute *>     ars,
-        bool                    keep_restricted,
-        string&                 error_msg)
+int AddressRangePool::update_ar(vector<Attribute *> ars, string& error_msg)
 {
     vector<Attribute *>::iterator               it;
     map<unsigned int, AddressRange *>::iterator ar_it;
@@ -118,7 +115,7 @@ int AddressRangePool::update_ar(
             return -1;
         }
 
-        return ar_it->second->update_attributes(va, keep_restricted, error_msg);
+        return ar_it->second->update_attributes(va, error_msg);
     }
 
     error_msg = "Wrong AR definition. AR vector attribute is missing.";

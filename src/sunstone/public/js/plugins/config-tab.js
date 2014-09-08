@@ -63,12 +63,8 @@ Config = {
     },
 
     "isTemplateCreationTabEnabled": function(template_tab_name){
-      if (config['view']['tabs']['templates-tab']){
-        var enabled = config['view']['tabs']['templates-tab']['template_creation_tabs'][template_tab_name];
-        return enabled;
-      } else {
-        return false;
-      }
+      var enabled = config['view']['tabs']['templates-tab']['template_creation_tabs'][template_tab_name];
+      return enabled;
     },
 
     "dashboardWidgets": function(per_row){

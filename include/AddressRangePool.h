@@ -75,13 +75,11 @@ public:
      *  Updates the given address ranges
      *    @param ars vector of address ranges as VectorAttributes obtained from
      *    template in the form AR = [...]. Only one AR is processed.
-     *    @param keep_restricted If true, the restricted attributes of the
-     *    current template will override the new template
      *    @param error_msg If the action fails, this message contains
      *    the reason.
      *    @return 0 on success
      */
-    int update_ar(vector<Attribute *> ars, bool keep_restricted, string& error_msg);
+    int update_ar(vector<Attribute *> ars, string& error_msg);
 
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it

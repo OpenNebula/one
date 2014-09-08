@@ -251,7 +251,7 @@ int Zone::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Zone::replace_template(const string& tmpl_str, bool keep_restricted, string& error_str)
+int Zone::replace_template(const string& tmpl_str, string& error_str)
 {
     Template * new_tmpl  = get_new_template();
 
@@ -265,19 +265,6 @@ int Zone::replace_template(const string& tmpl_str, bool keep_restricted, string&
     {
         delete new_tmpl;
         return -1;
-    }
-
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
-        }
     }
 
     string new_endpoint;

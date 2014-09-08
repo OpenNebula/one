@@ -25,8 +25,7 @@ source_files=[
     'VirtualNetwork.cc',
     'VirtualNetworkPool.cc',
     'AddressRange.cc',
-    'AddressRangePool.cc',
-    'VirtualNetworkTemplate.cc'
+    'AddressRangePool.cc'
 ]
 
 # Build library

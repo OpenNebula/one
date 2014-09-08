@@ -206,8 +206,7 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::replace_template(
-        const string& tmpl_str, bool keep_restricted, string& error_str)
+int VirtualNetwork::replace_template(const string& tmpl_str, string& error_str)
 {
     string new_bridge;
     bool   b_vlan;
@@ -228,19 +227,6 @@ int VirtualNetwork::replace_template(
     {
         delete new_tmpl;
         return -1;
-    }
-
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
-        }
     }
 
     delete obj_template;
@@ -670,10 +656,7 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::update_ar(
-        VirtualNetworkTemplate* ars_tmpl,
-        bool                    keep_restricted,
-        string&                 error_msg)
+int VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 {
     vector<Attribute *> tmp_ars;
 
@@ -684,7 +667,7 @@ int VirtualNetwork::update_ar(
         return -1;
     }
 
-    return ar_pool.update_ar(tmp_ars, keep_restricted, error_msg);
+    return ar_pool.update_ar(tmp_ars, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */

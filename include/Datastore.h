@@ -163,16 +163,13 @@ public:
             VectorAttribute *       disk,
             const vector<string>&   inherit_attrs);
 
+
     /**
      *  Replace template for this object. Object should be updated
      *  after calling this method
-     *    @param tmpl_str new contents
-     *    @param keep_restricted If true, the restricted attributes of the
-     *    current template will override the new template
-     *    @param error string describing the error if any
-     *    @return 0 on success
+     *    @param tmpl string representation of the template
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int replace_template(const string& tmpl_str, string& error);
 
     /**
      *  Set monitor information for the Datastore
