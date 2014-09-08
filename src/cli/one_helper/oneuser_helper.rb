@@ -348,7 +348,8 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts str % ["SECONDARY GROUPS", groups.join(',') ] if groups.size > 1
         puts str % ["PASSWORD",    user['PASSWORD']]
         puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
-
+        puts str % ["LOGIN_TOKEN", user['LOGIN_TOKEN/TOKEN']]
+        puts str % ["VALIDITY", "not after #{Time.at(user['LOGIN_TOKEN/EXPIRATION_TIME'].to_i)}"] if !user['LOGIN_TOKEN/EXPIRATION_TIME'].nil?
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]
 
