@@ -180,6 +180,10 @@ public:
                       int cluster_id,
                       const string& cluster_name);
 
+    bool allocate_authorization(Template *          obj_template,
+                                RequestAttributes&  att,
+                                PoolObjectAuth *    cluster_perms);
+
     int get_cluster_id(xmlrpc_c::paramList const&  paramList)
     {
         return xmlrpc_c::value_int(paramList.getInt(2));
