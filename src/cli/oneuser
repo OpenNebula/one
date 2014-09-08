@@ -134,7 +134,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     FORCE = {
         :name   => "force",
         :large  => "--force" ,
-        :description => "Force probe upgrade in onehost sync"
+        :description => "Force one_auth file rewrite"
     }
 
     create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
