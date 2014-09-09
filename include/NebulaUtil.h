@@ -84,6 +84,15 @@ namespace one_util
             const std::string& st,
             char delim,
             bool clean_empty=true);
+
+    /**
+     * Joins the strings with the given delimiter
+     *
+     * @param v vector with the strings to join
+     * @param delim delimiter character
+     * @return the joined strings
+     */
+    std::string join(const std::vector<std::string>& v, char delim);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

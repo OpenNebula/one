@@ -18,6 +18,7 @@
 #define SECURITYGROUP_H_
 
 #include "PoolObjectSQL.h"
+#include "ObjectCollection.h"
 
 using namespace std;
 
@@ -52,6 +53,40 @@ public:
         return new Template(obj_template);
     };
 
+    /* ---------------------------------------------------------------------- */
+    /*   Access VM Counter                                                    */
+    /* ---------------------------------------------------------------------- */
+
+    /**
+     *  Adds a VM ID to the set.
+     *    @param vm_id The new id
+     *
+     *    @return 0 on success, -1 if the ID was already in the set
+     */
+    int add_vm(int vm_id)
+    {
+        return vm_collection.add_collection_id(vm_id);
+    }
+
+    /**
+     *  Deletes a VM ID from the set.
+     *    @param vm_id The id
+     *
+     *    @return 0 on success, -1 if the ID was not in the set
+     */
+    int del_vm(int vm_id)
+    {
+        return vm_collection.del_collection_id(vm_id);
+    }
+
+    /**
+     *  Returns how many VMs are using the security group.
+     *    @return how many IDs are there in the set.
+     */
+    int get_vms() const
+    {
+        return vm_collection.get_collection_size();
+    }
 private:
 
     // -------------------------------------------------------------------------
@@ -128,6 +163,11 @@ private:
     {
         return new Template;
     }
+
+    /**
+     *  Stores a collection with the VMs using the security group
+     */
+    ObjectCollection vm_collection;
 };
 
 #endif /*SECURITYGROUP_H_*/

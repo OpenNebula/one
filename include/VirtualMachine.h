@@ -1077,6 +1077,35 @@ public:
     static int release_network_leases(VectorAttribute const * nic, int vmid);
 
     /**
+     * Acquires the security groups of this NIC
+     *
+     * @param vm_id Virtual Machine oid
+     * @param nic NIC to get the security groups from
+     * @param error_str Returns the error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int get_security_groups(
+            int vm_id, VectorAttribute const * nic, string &error_str);
+
+    /**
+     * Releases the security groups of this NIC
+     *
+     * @param vm_id Virtual Machine oid
+     * @param nic NIC to release the security groups
+     * @param error_str Returns the error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int release_security_groups(
+            int vm_id, VectorAttribute const * nic, string &error_str);
+
+    /**
+     * Returns a vector of the security group IDs of this NIC
+     * @param nic NIC to get the security groups from
+     * @return a vector of security group IDs
+     */
+    static vector<int> nic_security_groups(VectorAttribute const * nic);
+
+    /**
      *  Get all disk images for this Virtual Machine
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success

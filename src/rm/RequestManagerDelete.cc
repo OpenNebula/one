@@ -373,3 +373,22 @@ int VirtualNetworkDelete::drop(int oid, PoolObjectSQL * object, string& error_ms
 
     return rc;
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int SecurityGroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
+{
+    SecurityGroup * sgroup = static_cast<SecurityGroup *>(object);
+
+    if ( sgroup->get_vms() > 0 )
+    {
+        error_msg = "The security group has VMs using it";
+
+        sgroup->unlock();
+
+        return -1;
+    }
+
+    return RequestManagerDelete::drop(oid, object, error_msg);
+}

@@ -55,7 +55,7 @@ public:
      *  Returns how many IDs are there in the set.
      *    @return how many IDs are there in the set.
      */
-    int get_collection_size()
+    int get_collection_size() const
     {
         return collection_set.size();
     };

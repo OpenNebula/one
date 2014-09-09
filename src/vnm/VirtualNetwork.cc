@@ -530,6 +530,10 @@ int VirtualNetwork::nic_attribute(
     string inherit_val;
     vector<string>::const_iterator it;
 
+    vector<string>  nic_sgroups;
+    string          st_sgroups;
+    int             ar_id;
+
     //--------------------------------------------------------------------------
     //  Set default values from the Virtual Network
     //--------------------------------------------------------------------------
@@ -592,6 +596,29 @@ int VirtualNetwork::nic_attribute(
     {
         rc = allocate_addr(vid, nic, inherit_attrs);
     }
+
+    //--------------------------------------------------------------------------
+    //  Copy the security group IDs
+    //--------------------------------------------------------------------------
+
+    nic_sgroups = one_util::split(nic->vector_value("SECURITY_GROUPS"), ',');
+
+    obj_template->get("SECURITY_GROUPS", st_sgroups);
+
+    vector<string> vnet_sgroups = one_util::split(st_sgroups, ',');
+
+    nic_sgroups.insert(nic_sgroups.end(), vnet_sgroups.begin(), vnet_sgroups.end());
+
+    if (nic->vector_value("AR_ID", ar_id) == 0)
+    {
+        get_template_attribute("SECURITY_GROUPS", st_sgroups, ar_id);
+
+        vector<string> vnet_sgroups = one_util::split(st_sgroups, ',');
+
+        nic_sgroups.insert(nic_sgroups.end(), vnet_sgroups.begin(), vnet_sgroups.end());
+    }
+
+    nic->replace("SECURITY_GROUPS", one_util::join(nic_sgroups, ','));
 
     return rc;
 }

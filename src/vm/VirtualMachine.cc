@@ -2262,7 +2262,9 @@ int VirtualMachine::set_up_attach_nic(
         return -1;
     }
 
-    return 0;
+    rc = get_security_groups(vm_id, new_nic, error_str);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2622,6 +2624,13 @@ int VirtualMachine::get_network_leases(string& estr)
         {
             return -1;
         }
+
+        rc = get_security_groups(this->get_oid(), nic, estr);
+
+        if (rc == -1)
+        {
+            return -1;
+        }
     }
 
     return 0;
@@ -2688,11 +2697,14 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
     int     vnid;
     int     ar_id;
     string  mac;
+    string  error_msg;
 
     if ( nic == 0 )
     {
         return -1;
     }
+
+    release_security_groups(vmid, nic, error_msg);
 
     if (nic->vector_value("NETWORK_ID", vnid) != 0)
     {
@@ -2726,6 +2738,98 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 
     vn->unlock();
 
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+vector<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
+{
+    int         secgroup_id;
+    vector<int> result;
+    vector<string>::const_iterator it;
+
+    vector<string> secgroups =
+            one_util::split(nic->vector_value("SECURITY_GROUPS"), ',');
+
+    for (it = secgroups.begin(); it != secgroups.end(); it++)
+    {
+        istringstream iss(*it);
+        iss >> secgroup_id;
+
+        if ( iss.fail() )
+        {
+            continue;
+        }
+
+        result.push_back(secgroup_id);
+    }
+
+    return result;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_security_groups(
+        int vm_id, VectorAttribute const * nic, string &error_str)
+{
+    vector<int>::const_iterator it;
+    vector<int> secgroups = nic_security_groups(nic);
+
+    SecurityGroup*      sgroup;
+    SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();
+
+    for (it = secgroups.begin(); it != secgroups.end(); it++)
+    {
+        sgroup = sgroup_pool->get(*it, true);
+
+        if (sgroup == 0)
+        {
+            continue;
+        }
+
+        sgroup->add_vm(vm_id);
+
+        sgroup_pool->update(sgroup);
+
+        sgroup->unlock();
+    }
+
+    // TODO: error handling
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::release_security_groups(
+        int vm_id, VectorAttribute const * nic, string &error_str)
+{
+    vector<int>::const_iterator it;
+    vector<int> secgroups = nic_security_groups(nic);
+
+    SecurityGroup*      sgroup;
+    SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();
+
+    for (it = secgroups.begin(); it != secgroups.end(); it++)
+    {
+        sgroup = sgroup_pool->get(*it, true);
+
+        if (sgroup == 0)
+        {
+            continue;
+        }
+
+        sgroup->del_vm(vm_id);
+
+        sgroup_pool->update(sgroup);
+
+        sgroup->unlock();
+    }
+
+    // TODO: error handling
     return 0;
 }
 

@@ -38,7 +38,8 @@ SecurityGroup::SecurityGroup(
         const string&   _gname,
         int             _umask,
         Template*       sgroup_template):
-        PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,table)
+        PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,table),
+        vm_collection("VMS")
 {
     if (sgroup_template != 0)
     {
@@ -179,6 +180,7 @@ string& SecurityGroup::to_xml(string& xml) const
     ostringstream   oss;
     string          template_xml;
     string          perms_xml;
+    string          vm_collection_xml;
 
     oss <<
     "<SECURITY_GROUP>"    <<
@@ -189,6 +191,7 @@ string& SecurityGroup::to_xml(string& xml) const
         "<GNAME>"   << gname    << "</GNAME>"       <<
         "<NAME>"    << name     << "</NAME>"        <<
         perms_to_xml(perms_xml)                                   <<
+        vm_collection.to_xml(vm_collection_xml)                   <<
         obj_template->to_xml(template_xml) <<
     "</SECURITY_GROUP>";
 
@@ -229,6 +232,18 @@ int SecurityGroup::from_xml(const string& xml)
 
     // Template contents
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    ObjectXML::get_nodes("/SECURITY_GROUP/VMS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += vm_collection.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
