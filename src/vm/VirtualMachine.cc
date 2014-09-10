@@ -2244,6 +2244,7 @@ VectorAttribute * VirtualMachine::get_attach_nic_info(
 int VirtualMachine::set_up_attach_nic(
                         int                      vm_id,
                         VectorAttribute *        new_nic,
+                        vector<VectorAttribute*> &rules,
                         int                      max_nic_id,
                         int                      uid,
                         string&                  error_str)
@@ -2262,7 +2263,7 @@ int VirtualMachine::set_up_attach_nic(
         return -1;
     }
 
-    rc = get_security_groups(vm_id, new_nic, error_str);
+    rc = get_security_groups(vm_id, new_nic, rules, error_str);
 
     return rc;
 }
@@ -2321,6 +2322,25 @@ VectorAttribute * VirtualMachine::delete_attach_nic()
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::set_attach_nic(
+        VectorAttribute *       new_nic,
+        vector<VectorAttribute*> &rules)
+{
+    vector<VectorAttribute*>::iterator it;
+
+    new_nic->replace("ATTACH", "YES");
+
+    obj_template->set(new_nic);
+
+    for(it = rules.begin(); it != rules.end(); it++ )
+    {
+        obj_template->set(*it);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2600,6 +2620,9 @@ int VirtualMachine::get_network_leases(string& estr)
     Nebula& nd = Nebula::instance();
     vnpool     = nd.get_vnpool();
 
+    vector<VectorAttribute*>            sg_rules;
+    vector<VectorAttribute*>::iterator  it;
+
     num_nics   = user_obj_template->remove("NIC",nics);
 
     for (vector<Attribute*>::iterator it=nics.begin(); it != nics.end(); it++)
@@ -2625,12 +2648,17 @@ int VirtualMachine::get_network_leases(string& estr)
             return -1;
         }
 
-        rc = get_security_groups(this->get_oid(), nic, estr);
+        rc = get_security_groups(this->get_oid(), nic, sg_rules, estr);
 
         if (rc == -1)
         {
             return -1;
         }
+    }
+
+    for(it = sg_rules.begin(); it != sg_rules.end(); it++ )
+    {
+        obj_template->set(*it);
     }
 
     return 0;
@@ -2744,10 +2772,10 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-vector<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
+set<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
 {
     int         secgroup_id;
-    vector<int> result;
+    set<int>    result;
     vector<string>::const_iterator it;
 
     vector<string> secgroups =
@@ -2763,7 +2791,7 @@ vector<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
             continue;
         }
 
-        result.push_back(secgroup_id);
+        result.insert(secgroup_id);
     }
 
     return result;
@@ -2773,10 +2801,13 @@ vector<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_security_groups(
-        int vm_id, VectorAttribute const * nic, string &error_str)
+        int                         vm_id,
+        VectorAttribute const *     nic,
+        vector<VectorAttribute*>    &rules,
+        string                      &error_str)
 {
-    vector<int>::const_iterator it;
-    vector<int> secgroups = nic_security_groups(nic);
+    set<int>::const_iterator it;
+    set<int> secgroups = nic_security_groups(nic);
 
     SecurityGroup*      sgroup;
     SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();
@@ -2791,6 +2822,9 @@ int VirtualMachine::get_security_groups(
         }
 
         sgroup->add_vm(vm_id);
+
+        vector<VectorAttribute*> sgroup_rules = sgroup->get_rules();
+        rules.insert(rules.end(), sgroup_rules.begin(), sgroup_rules.end());
 
         sgroup_pool->update(sgroup);
 
@@ -2807,8 +2841,8 @@ int VirtualMachine::get_security_groups(
 int VirtualMachine::release_security_groups(
         int vm_id, VectorAttribute const * nic, string &error_str)
 {
-    vector<int>::const_iterator it;
-    vector<int> secgroups = nic_security_groups(nic);
+    set<int>::const_iterator it;
+    set<int> secgroups = nic_security_groups(nic);
 
     SecurityGroup*      sgroup;
     SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();

@@ -1359,7 +1359,8 @@ int DispatchManager::attach_nic(
     int oid;
     int rc;
 
-    VectorAttribute * nic;
+    VectorAttribute *        nic;
+    vector<VectorAttribute*> sg_rules;
 
     Nebula&                 nd  = Nebula::instance();
     VirtualMachineManager*  vmm = nd.get_vmm();
@@ -1412,6 +1413,7 @@ int DispatchManager::attach_nic(
 
     rc = VirtualMachine::set_up_attach_nic(oid,
                                     nic,
+                                    sg_rules,
                                     max_nic_id,
                                     uid,
                                     error_str);
@@ -1424,6 +1426,12 @@ int DispatchManager::attach_nic(
         if ( rc == 0 )
         {
             VirtualMachine::release_network_leases(nic, vid);
+
+            vector<VectorAttribute*>::iterator it;
+            for(it = sg_rules.begin(); it != sg_rules.end(); it++)
+            {
+                delete *it;
+            }
         }
 
         oss << "Could not attach a new NIC to VM " << vid
@@ -1439,6 +1447,12 @@ int DispatchManager::attach_nic(
     {
         delete nic;
 
+        vector<VectorAttribute*>::iterator it;
+        for(it = sg_rules.begin(); it != sg_rules.end(); it++)
+        {
+            delete *it;
+        }
+
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
@@ -1451,7 +1465,7 @@ int DispatchManager::attach_nic(
     }
     else
     {
-        vm->set_attach_nic(nic);
+        vm->set_attach_nic(nic, sg_rules);
     }
 
     vmpool->update(vm);

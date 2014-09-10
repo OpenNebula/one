@@ -87,6 +87,17 @@ public:
     {
         return vm_collection.get_collection_size();
     }
+
+    /**
+     * Returns a group of Vector Attributes, in the form
+     *  SECURITY_GROUP_RULE = [ SECURITY_GROUP_ID = oid, ... ]
+     *
+     * New objects are allocated, and must be deleted by the calling method
+     *
+     * @return a group of vector attributes
+     */
+    vector<VectorAttribute*> get_rules() const;
+
 private:
 
     // -------------------------------------------------------------------------

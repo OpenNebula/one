@@ -258,3 +258,33 @@ int SecurityGroup::from_xml(const string& xml)
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
+
+vector<VectorAttribute*> SecurityGroup::get_rules() const
+{
+    vector<const Attribute*>::const_iterator it;
+    vector<const Attribute*> rules;
+
+    vector<VectorAttribute*> result;
+
+    get_template_attribute("RULE", rules);
+
+    for ( it = rules.begin(); it != rules.end(); it++ )
+    {
+        const VectorAttribute* rule = dynamic_cast<const VectorAttribute*>(*it);
+
+        if ( rule == 0 )
+        {
+            continue;
+        }
+
+        VectorAttribute* new_rule = new VectorAttribute(
+                                    "SECURITY_GROUP_RULE", rule->value());
+
+        new_rule->replace("SECURITY_GROUP_ID", this->get_oid());
+        new_rule->replace("SECURITY_GROUP_NAME", this->get_name());
+
+        result.push_back(new_rule);
+    }
+
+    return result;
+}
