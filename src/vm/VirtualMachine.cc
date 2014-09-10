@@ -3360,11 +3360,15 @@ void VirtualMachine::set_auth_request(int uid,
     int                   num;
     vector<Attribute  * > vectors;
     VectorAttribute *     vector;
+    set<int>::iterator    it;
 
     Nebula& nd = Nebula::instance();
 
     ImagePool *           ipool  = nd.get_ipool();
     VirtualNetworkPool *  vnpool = nd.get_vnpool();
+    SecurityGroupPool *   sgpool = nd.get_secgrouppool();
+
+    SecurityGroup *       sgroup;
 
     num = tmpl->get("DISK",vectors);
 
@@ -3395,6 +3399,23 @@ void VirtualMachine::set_auth_request(int uid,
         }
 
         vnpool->authorize_nic(vector,uid,&ar);
+
+        set<int> sgroups = nic_security_groups(vector);
+
+        for(it = sgroups.begin(); it != sgroups.end(); it++)
+        {
+            sgroup = sgpool->get(*it, true);
+
+            if(sgroup != 0)
+            {
+                PoolObjectAuth perm;
+                sgroup->get_permissions(perm);
+
+                sgroup->unlock();
+
+                ar.add_auth(AuthRequest::USE, perm);
+            }
+        }
     }
 }
 
