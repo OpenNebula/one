@@ -375,39 +375,25 @@ error_common:
 
 string& VirtualNetwork::to_xml(string& xml) const
 {
-    return to_xml_extended(xml,false);
+    const vector<int> empty;
+
+    return to_xml_extended(xml,false, empty, empty);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_xml64(string &xml64, bool extended)
+string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
+        const vector<int>& vnets) const
 {
-    string *str64;
-
-    to_xml_extended(xml64, extended);
-
-    str64 = one_util::base64_encode(xml64);
-
-    xml64 = *str64;
-
-    delete str64;
-
-    return xml64;
+    return to_xml_extended(xml,true, vms, vnets);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_xml_extended(string& xml) const
-{
-    return to_xml_extended(xml,true);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
+string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
+    const vector<int>& vms, const vector<int>& vnets) const
 {
     ostringstream   os;
 
@@ -459,7 +445,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os  << obj_template->to_xml(template_xml);
 
-    os  << ar_pool.to_xml(leases_xml, extended);
+    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets);
 
     os << "</VNET>";
 

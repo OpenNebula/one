@@ -20,6 +20,7 @@
 #include "NebulaUtil.h"
 
 #include <arpa/inet.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -352,10 +353,14 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::to_xml(ostringstream &oss) const
+void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
+        const vector<int>& vns) const
 {
     const map<string,string>&          ar_attrs = attr->value();
     map<string,string>::const_iterator it;
+
+    bool all_vms = (vms.size() == 1 && vms[0] == -1);
+    bool all_vns = (vns.size() == 1 && vns[0] == -1);
 
     oss << "<AR>";
 
@@ -379,13 +384,43 @@ void AddressRange::to_xml(ostringstream &oss) const
     else
     {
         map<unsigned int, long long>::const_iterator it;
+
         VectorAttribute lease("LEASE");
+        bool            is_in;
 
         oss << "<LEASES>";
 
         for (it = allocated.begin(); it != allocated.end(); it++)
         {
             lease.clear();
+
+            is_in = false;
+
+            if (it->second & PoolObjectSQL::VM)
+            {
+                int vmid = it->second & 0x00000000FFFFFFFFLL;
+
+                if (all_vms || (find(vms.begin(),vms.end(),vmid) != vms.end()))
+                {
+                    lease.replace("VM", vmid);
+                    is_in = true;
+                }
+            }
+            else if (it->second & PoolObjectSQL::NET)
+            {
+                int vnid = it->second & 0x00000000FFFFFFFFLL;
+
+                if (all_vns || (find(vns.begin(),vns.end(),vnid) != vns.end()))
+                {
+                    lease.replace("VNET", vnid);
+                    is_in = true;
+                }
+            }
+
+            if (!is_in)
+            {
+                continue;
+            }
 
             set_mac(it->first, &lease);
 
@@ -397,19 +432,6 @@ void AddressRange::to_xml(ostringstream &oss) const
             if (type & 0x00000004)
             {
                 set_ip6(it->first, &lease);
-            }
-
-            if (it->second & PoolObjectSQL::VM)
-            {
-                int vmid = it->second & 0x00000000FFFFFFFFLL;
-
-                lease.replace("VM", vmid);
-            }
-            else if (it->second & PoolObjectSQL::NET)
-            {
-                int vnid = it->second & 0x00000000FFFFFFFFLL;
-
-                lease.replace("VNET", vnid);
             }
 
             lease.to_xml(oss);

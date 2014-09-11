@@ -228,7 +228,8 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& AddressRangePool::to_xml(string& sstream, bool extended) const
+string& AddressRangePool::to_xml(string& sstream, bool extended,
+    const vector<int>& vms, const vector<int>& vnets) const
 {
     if (extended)
     {
@@ -239,7 +240,7 @@ string& AddressRangePool::to_xml(string& sstream, bool extended) const
 
         for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
         {
-            it->second->to_xml(oss);
+            it->second->to_xml(oss, vms, vnets);
         }
 
         oss << "</AR_POOL>";

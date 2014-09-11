@@ -116,8 +116,14 @@ public:
     /**
      *  Builds an extended XML representation of the AR to send it back to
      *  clients
+     *    @param oss stream to write the XML
+     *    @param vm_ids list of VM the user can access VNET usage info from.
+     *      A vector containing just -1 means all VMs.
+     *    @param vnet_ids list of VNET the user can access reservation info from.
+     *      A vector containing just -1 means all VNETs.
      */
-    void to_xml(ostringstream &oss) const;
+    void to_xml(ostringstream &oss, const vector<int>& vms,
+        const vector<int>& vnets) const;
 
     // *************************************************************************
     // Address allocation functions
