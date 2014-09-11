@@ -318,9 +318,14 @@ public:
      *  Generate a XML representation of the Address Range Pool
      *    @param sstream where the ARPool is written
      *    @param extended true to include lease information
+     *    @param vm_ids list of VM the user can access VNET usage info from.
+     *      A vector containing just -1 means all VMs.
+     *    @param vnet_ids list of VNET the user can access reservation info from.
+     *      A vector containing just -1 means all VNETs.
      *    @return the string with the XML
      */
-    string& to_xml(string& sstream, bool extended) const;
+    string& to_xml(string& sstream, bool extended, const vector<int>& vms,
+        const vector<int>& vnets) const;
 
 private:
     /**

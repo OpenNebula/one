@@ -229,7 +229,7 @@ void get_network_attribute(VirtualMachine * vm,
 
     if (attr_name == "TEMPLATE")
     {
-        attr_value = vn->to_xml64(attr_value, true);
+        attr_value = vn->to_xml64(attr_value);
     }
     else
     {

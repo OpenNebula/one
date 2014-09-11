@@ -39,6 +39,17 @@ public:
     /** Specify user's + group objects (-1)     */
     static const int MINE_GROUP;
 
+    /**
+     *  Set a where filter to get the oids of objects that a user can "USE"
+     *    @param att the XML-RPC Attributes with user information
+     *    @param auth_object the object type
+     *    @param where_string will store the resulting SQL filter
+     *    @return true if the use_filter is empty and access to all objects
+     *    should be granted.
+     */
+    static bool use_filter(RequestAttributes& att, PoolObjectSQL::ObjectType aobj,
+        string& where_str);
+
 protected:
     RequestManagerPoolInfoFilter(const string& method_name,
                                  const string& help,
@@ -56,12 +67,12 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void where_filter(RequestAttributes& att,
-                      int                filter_flag,
-                      int                start_id,
-                      int                end_id,
-                      const string&      and_clause,
-                      const string&      or_clause,
-                      string&            where_string);
+              int                filter_flag,
+              int                start_id,
+              int                end_id,
+              const string&      and_clause,
+              const string&      or_clause,
+              string&            where_string);
 
     /* -------------------------------------------------------------------- */
 
@@ -90,7 +101,7 @@ public:
         RequestManagerPoolInfoFilter("VirtualMachinePoolInfo",
                                      "Returns the virtual machine instances pool",
                                      "A:siiii")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
@@ -164,7 +175,7 @@ public:
         RequestManagerPoolInfoFilter("TemplatePoolInfo",
                                      "Returns the virtual machine template pool",
                                      "A:siii")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
@@ -183,7 +194,7 @@ public:
         RequestManagerPoolInfoFilter("VirtualNetworkPoolInfo",
                                      "Returns the virtual network pool",
                                      "A:siii")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -202,7 +213,7 @@ public:
         RequestManagerPoolInfoFilter("ImagePoolInfo",
                                      "Returns the image pool",
                                      "A:siii")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;

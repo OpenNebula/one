@@ -23,7 +23,7 @@ using namespace std;
 
 const int RequestManagerPoolInfoFilter::ALL  = -2;
 
-const int RequestManagerPoolInfoFilter::MINE = -3;      
+const int RequestManagerPoolInfoFilter::MINE = -3;
 
 const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
 
@@ -31,7 +31,7 @@ const int RequestManagerPoolInfoFilter::MINE_GROUP = -1;
 
 const int VirtualMachinePoolInfo::ALL_VM   = -2;
 
-const int VirtualMachinePoolInfo::NOT_DONE = -1;      
+const int VirtualMachinePoolInfo::NOT_DONE = -1;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -46,6 +46,24 @@ void RequestManagerPoolInfoFilter::request_execute(
 
     dump(att, filter_flag, start_id, end_id, "", "");
 }
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+bool RequestManagerPoolInfoFilter::use_filter(RequestAttributes& att,
+    PoolObjectSQL::ObjectType aobj,
+    string& where_str)
+{
+    bool all;
+
+    string acl_str;
+
+    PoolSQL::acl_filter(att.uid, att.group_ids, aobj, all, acl_str);
+
+    PoolSQL::usr_filter(att.uid, att.group_ids, ALL, all, acl_str, where_str);
+
+    return all;
+};
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -114,8 +132,8 @@ void VirtualMachinePoolAccounting::request_execute(
     where_filter(att, filter_flag, -1, -1, "", "", where);
 
     rc = (static_cast<VirtualMachinePool *>(pool))->dump_acct(oss,
-                                                              where, 
-                                                              time_start, 
+                                                              where,
+                                                              time_start,
                                                               time_end);
     if ( rc != 0 )
     {
@@ -295,8 +313,8 @@ void RequestManagerPoolInfoFilter::where_filter(
 
     PoolSQL::oid_filter(start_id, end_id, oid_str);
 
-    // ------------------------------------------------------------------------- 
-    //                          Compound WHERE clause 
+    // -------------------------------------------------------------------------
+    //                          Compound WHERE clause
     //   WHERE ( id_str ) AND ( uid_str ) AND ( and_clause ) OR ( or_clause )
     // -------------------------------------------------------------------------
 
