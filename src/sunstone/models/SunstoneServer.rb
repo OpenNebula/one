@@ -63,6 +63,7 @@ class SunstoneServer < CloudServer
             when "acl"        then AclPoolJSON.new(client)
             when "datastore"  then DatastorePoolJSON.new(client)
             when "zone"       then ZonePoolJSON.new(client)
+            when "security_group"   then SecurityGroupPoolJSON.new(client, user_flag)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -118,6 +119,7 @@ class SunstoneServer < CloudServer
             when "acl"        then AclJSON.new(Acl.build_xml, @client)
             when "datastore"  then DatastoreJSON.new(Acl.build_xml, @client)
             when "zone"       then ZoneJSON.new(Zone.build_xml, @client)
+            when "security_group"   then SecurityGroupJSON.new(SecurityGroup.build_xml, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
@@ -410,6 +412,7 @@ class SunstoneServer < CloudServer
             when "acl"        then AclJSON.new_with_id(id, @client)
             when "datastore"  then DatastoreJSON.new_with_id(id, @client)
             when "zone"       then ZoneJSON.new_with_id(id, @client)
+            when "security_group"   then SecurityGroupJSON.new_with_id(id, @client)
             else
                 error = Error.new("Error: #{kind} resource not supported")
                 return error

@@ -30,6 +30,7 @@ require 'OpenNebulaJSON/VirtualNetworkJSON'
 require 'OpenNebulaJSON/AclJSON'
 require 'OpenNebulaJSON/DatastoreJSON'
 require 'OpenNebulaJSON/ZoneJSON'
+require 'OpenNebulaJSON/SecurityGroupJSON'
 
 module OpenNebula
     class Error

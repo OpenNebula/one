@@ -1498,6 +1498,58 @@ var OpenNebula = {
         }
     },
 
+    "SecurityGroup" : {
+        "resource" : "SECURITY_GROUP",
+
+        "create" : function(params){
+            OpenNebula.Action.create(params,OpenNebula.SecurityGroup.resource);
+        },
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.SecurityGroup.resource);
+        },
+        "list" : function(params){
+            OpenNebula.Action.list(params,OpenNebula.SecurityGroup.resource);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.SecurityGroup.resource);
+        },
+        "chown" : function(params){
+            OpenNebula.Action.chown(params,OpenNebula.SecurityGroup.resource);
+        },
+        "chgrp" : function(params){
+            OpenNebula.Action.chgrp(params,OpenNebula.SecurityGroup.resource);
+        },
+        "chmod" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.SecurityGroup.resource,
+                                            "chmod",
+                                            action_obj);
+        },
+        "update": function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.SecurityGroup.resource,
+                                            "update",
+                                            action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.SecurityGroup.resource,"template");
+        },
+        "clone" : function(params) {
+            var name = params.data.extra_param ? params.data.extra_param : "";
+            var action_obj = { "name" : name };
+            OpenNebula.Action.simple_action(params,OpenNebula.SecurityGroup.resource, "clone", action_obj);
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.SecurityGroup.resource,
+                                            "rename",
+                                            action_obj);
+        }
+    },
+
     "Marketplace" : {
         "resource" : "MARKETPLACE",
 

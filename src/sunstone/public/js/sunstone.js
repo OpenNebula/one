@@ -1780,6 +1780,13 @@ function getZoneName(id){
     return id;
 };
 
+function getSecurityGroupName(id){
+    if (typeof(dataTable_security_groups) != "undefined"){
+        return getName(id,dataTable_security_groups,4);
+    }
+    return id;
+}
+
 // Returns the value of the column with the resource of specified
 // id in the dataTable.
 function getName(id,dataTable,name_col){

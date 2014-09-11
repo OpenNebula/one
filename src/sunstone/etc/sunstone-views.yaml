@@ -16,6 +16,7 @@ available_tabs:
     - hosts-tab
     - datastores-tab
     - vnets-tab
+    - secgroups-tab
     - zones-tab
     - marketplace-tab
     - oneflow-dashboard

@@ -1491,7 +1491,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
-                    src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb"
+                    src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/login.erb \
@@ -1527,7 +1528,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/oneflow-services.js \
                         src/sunstone/public/js/plugins/oneflow-templates.js \
                         src/sunstone/public/js/plugins/support-tab.js \
-                        src/sunstone/public/js/plugins/zones-tab.js"
+                        src/sunstone/public/js/plugins/zones-tab.js \
+                        src/sunstone/public/js/plugins/secgroups-tab.js"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
 
