@@ -168,6 +168,17 @@ public:
         return _default_size;
     };
 
+    /**
+     *  Gets the IDs of VNETs matching the given SQL where string.
+     *    @param oids a vector that contains the IDs
+     *    @param where SQL clause
+     *    @return 0 on success
+     */
+    int search(vector<int>& oids, const string& where)
+    {
+        return PoolSQL::search(oids, VirtualNetwork::table, where);
+    };
+
 private:
     /**
      *  Holds the system-wide MAC prefix
