@@ -21,13 +21,50 @@
 function initialize_create_security_group_dialog(dialog){
     setupTips(dialog);
 
+    $(".add_security_group_rule", dialog).on("click", function(){
+        $(".security_group_rules tbody").append(
+            '<tr>\
+                <td>\
+                    <select class="security_group_rule_protocol">\
+                        <option value="TCP">'+tr("TCP")+'</option>\
+                        <option value="UDP">'+tr("UDP")+'</option>\
+                        <option value="ICMP">'+tr("ICMP")+'</option>\
+                    </select>\
+                </td>\
+                <td>\
+                    <select class="security_group_rule_type">\
+                        <option value="inbound">'+tr("Inbound")+'</option>\
+                        <option value="outbound">'+tr("Outbound")+'</option>\
+                    </select>\
+                </td>\
+                <td>\
+                    <input class="security_group_rule_range" type="text"/>\
+                </td>\
+                <td>\
+                    <input class="security_group_rule_network" type="text"/>\
+                </td>\
+                <td>\
+                    <input class="security_group_rule_icmp_type" type="text"/>\
+                </td>\
+                <td>\
+                    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+                </td>\
+            </tr>');
+    });
+
+    $(".add_security_group_rule", dialog).trigger("click");
+
+    dialog.on("click", ".security_group_rules i.remove-tab", function(){
+        var tr = $(this).closest('tr');
+        tr.remove();
+    });
+
     $('#create_security_group_form_wizard',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_security_group_form", $("#secgroup-tab"));
     }).on('valid', function() {
         if ($('#create_security_group_form_wizard',dialog).attr("action") == "create") {
-            var name=$('#security_groupname',this).val();
-            var security_group_json = { "security_group" : { "name" : name}};
+            security_group_json = generate_json_security_group_from_form(this);
             Sunstone.runAction("SecurityGroup.create",security_group_json);
             return false;
         }
@@ -35,6 +72,39 @@ function initialize_create_security_group_dialog(dialog){
 
     dialog.foundation();
 }
+
+function generate_json_security_group_from_form(dialog) {
+    var name = $('#security_group_name', dialog).val();
+    var description = $('#security_group_description', dialog).val();
+
+    var rules =  [];
+
+    $(".security_group_rules tbody tr").each(function(){
+        // TODO: if (x & y & z empty){} else do nothing
+        var rule = {};
+
+        rule["PROTOCOL"] = $(".security_group_rule_protocol", $(this)).val();
+        rule["TYPE"] = $(".security_group_rule_type", $(this)).val();
+        rule["RANGE"] = $(".security_group_rule_range", $(this)).val();
+        rule["NETWORK"] = $(".security_group_rule_network", $(this)).val();
+        rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", $(this)).val();
+
+        rules.push(rule);
+    });
+
+    var security_group_json =
+    { 
+        "security_group" :
+        {
+            "name" : name,
+            "description": description,
+            "rule" : rules
+        }
+    };
+
+    return security_group_json;
+}
+
 
 // Security Group clone dialog
 function setupSecurityGroupCloneDialog(){
@@ -119,9 +189,47 @@ function popUpSecurityGroupCloneDialog(){
 var create_security_group_wizard_html =
 '<form data-abide="ajax" id="create_security_group_form_wizard" action="">\
   <div class="row">\
+    <div class="large-6 columns">\
+      <label for="security_group_name">'+tr("Security Group Name")+':</label>\
+      <input type="text" name="security_group_name" id="security_group_name" />\
+    </div>\
+  </div>\
+  <div class="row">\
+    <div class="large-6 columns">\
+      <label for="security_group_description">'+tr("Description")+'\
+        <span class="tip">'+tr("Description for the Security Group")+'</span>\
+      </label>\
+      <textarea type="text" id="security_group_description" name="security_group_description" style="height: 70px;"/>\
+    </div>\
+  </div>\
+  <div class="row">\
     <div class="large-12 columns">\
-      <label for="security_groupname">'+tr("Security Group Name")+':</label>\
-      <input type="text" name="security_groupname" id="security_groupname" />\
+      <table class="security_group_rules policies_table dataTable">\
+        <thead>\
+          <tr>\
+            <th>'+tr("Protocol")+'\
+            </th>\
+            <th>'+tr("Type")+'\
+            </th>\
+            <th>'+tr("Range")+'\
+            </th>\
+            <th>'+tr("Network")+'\
+            </th>\
+            <th>'+tr("ICMP Type")+'\
+            </th>\
+            <th style="width:3%"></th>\
+          </tr>\
+        </thead>\
+        <tbody>\
+        </tbody>\
+        <tfoot>\
+          <tr>\
+            <td colspan="6">\
+              <a type="button" class="add_security_group_rule button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another Rule")+'</a>\
+            </td>\
+          </tr>\
+        </tfoot>\
+      </table>\
     </div>\
   </div>\
 </form>';
