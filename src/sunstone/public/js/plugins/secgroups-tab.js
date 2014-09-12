@@ -18,30 +18,22 @@
 
 
 //Prepares the dialog to create
-function setupCreateSecurityGroupDialog(){
-    if ($('#create_security_group_dialog').length == 0) {
-        dialogs_context.append('<div id="create_security_group_dialog"></div>');
-    }
+function initialize_create_security_group_dialog(dialog){
+    setupTips(dialog);
 
-    $create_security_group_dialog = $('#create_security_group_dialog',dialogs_context);
-    var dialog = $create_security_group_dialog;
-
-    dialog.html(create_security_group_tmpl);
-    dialog.addClass("reveal-modal").attr("data-reveal", "");
-
-    $('#create_security_group_form',dialog).submit(function(){
-        var name=$('#security_groupname',this).val();
-        var security_group_json = { "security_group" : { "name" : name}};
-        Sunstone.runAction("SecurityGroup.create",security_group_json);
-        return false;
+    $('#create_security_group_form_wizard',dialog).on('invalid', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+        popFormDialog("create_security_group_form", $("#secgroup-tab"));
+    }).on('valid', function() {
+        if ($('#create_security_group_form_wizard',dialog).attr("action") == "create") {
+            var name=$('#security_groupname',this).val();
+            var security_group_json = { "security_group" : { "name" : name}};
+            Sunstone.runAction("SecurityGroup.create",security_group_json);
+            return false;
+        }
     });
 
-}
-
-function popUpCreateSecurityGroupDialog(){
-    $create_security_group_dialog.foundation().foundation('reveal', 'open');
-    $("input#name",$create_security_group_dialog).focus();
-    return false;
+    dialog.foundation();
 }
 
 // Security Group clone dialog
@@ -124,23 +116,14 @@ function popUpSecurityGroupCloneDialog(){
 }
 
 
-var create_security_group_tmpl =
-'<div class="row">\
-  <div class="large-12 columns">\
-    <h3 id="create_security_group_header" class="subheader">'+tr("Create Security Group")+'</h3>\
-  </div>\
-</div>\
-<form id="create_security_group_form" action="">\
+var create_security_group_wizard_html =
+'<form data-abide="ajax" id="create_security_group_form_wizard" action="">\
   <div class="row">\
     <div class="large-12 columns">\
       <label for="security_groupname">'+tr("Security Group Name")+':</label>\
       <input type="text" name="security_groupname" id="security_groupname" />\
     </div>\
   </div>\
-  <div class="form_buttons">\
-      <button class="button radius right success" id="create_security_group_submit" value="security_group/create">'+tr("Create")+'</button>\
-  </div>\
-  <a class="close-reveal-modal">&#215;</a>\
 </form>';
 
 var dataTable_security_groups;
@@ -153,18 +136,23 @@ var security_group_actions = {
         type: "create",
         call: OpenNebula.SecurityGroup.create,
         callback: function(request, response){
-            $create_security_group_dialog.foundation('reveal', 'close');
-            $("form", $create_security_group_dialog)[0].reset();
+            $("a[href=back]", $("#secgroups-tab")).trigger("click");
+            popFormDialog("create_security_group_form", $("#secgroups-tab"));
 
-            Sunstone.runAction('SecurityGroup.list');
+            addSecurityGroupElement(request, response);
+            notifyCustom(tr("Security Group created"), " ID: " + response.SECURITY_GROUP.ID, false);
         },
-        error: onError,
-        notify: true
+        error: function(request, response){
+            popFormDialog("create_security_group_form", $("#secgroups-tab"));
+            onError(request, response);
+        }
     },
 
     "SecurityGroup.create_dialog" : {
         type: "custom",
-        call: popUpCreateSecurityGroupDialog
+        call: function(){
+          Sunstone.popUpFormPanel("create_security_group_form", "secgroups-tab", "create", false);
+        }
     },
 
     "SecurityGroup.list" : {
@@ -188,13 +176,6 @@ var security_group_actions = {
             // datatable row
             updateSecurityGroupElement(request, response);
         },
-        error: onError
-    },
-
-    "SecurityGroup.show_to_update" : {
-        type: "single",
-        call: OpenNebula.SecurityGroup.show,
-        callback: fillPopPup,
         error: onError
     },
 
@@ -329,8 +310,8 @@ var security_groups_tab = {
     tabClass: "subTab",
     parentTab: "infra-tab",
     search_input: '<input id="security_group_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-files-o"></i>&emsp;'+tr("Security Groups"),
-    info_header: '<i class="fa fa-fw fa-files-o"></i>&emsp;'+tr("Security Group"),
+    list_header: '<i class="fa fa-fw fa-shield"></i>&emsp;'+tr("Security Groups"),
+    info_header: '<i class="fa fa-fw fa-shield"></i>&emsp;'+tr("Security Group"),
     subheader: '<span/> <small></small>&emsp;',
     table: '<table id="datatable_security_groups" class="datatable twelve">\
       <thead>\
@@ -344,7 +325,20 @@ var security_groups_tab = {
       </thead>\
       <tbody id="tbodysecurity_groups">\
       </tbody>\
-    </table>'
+    </table>',
+    forms: {
+      "create_security_group_form": {
+        actions: {
+          create: {
+            title: tr("Create Security Group"),
+            submit_text: tr("Create")
+          }
+        },
+        wizard_html: create_security_group_wizard_html,
+//        advanced_html: create_security_group_advanced_html,
+        setup: initialize_create_security_group_dialog
+      }
+    }
 };
 
 var security_group_info_panel = {
@@ -495,7 +489,6 @@ $(document).ready(function(){
 
       Sunstone.runAction("SecurityGroup.list");
 
-      setupCreateSecurityGroupDialog();
       setupSecurityGroupCloneDialog();
 
       dialogs_context.append('<div id="create_security_group_dialog"></div>');
