@@ -159,13 +159,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         end
 
         #-----------------------------------------------------------------------
-        # Check that ONE_AUTH target can be written
-        #-----------------------------------------------------------------------
-        if File.file?(ONE_AUTH) && !options[:force]
-                return -1, "File #{ONE_AUTH} exists, use --force to overwrite"
-        end
-
-        #-----------------------------------------------------------------------
         # Authenticate with oned using the token/passwd and set/generate the
         # authentication token for the user
         #-----------------------------------------------------------------------
@@ -177,6 +170,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         token_oned = user.login(username, token, options[:time])
 
         return -1, token_oned.message if OpenNebula.is_error?(token_oned)
+
+        #-----------------------------------------------------------------------
+        # Check that ONE_AUTH target can be written
+        #-----------------------------------------------------------------------
+        if File.file?(ONE_AUTH) && !options[:force]
+                return 0, "File #{ONE_AUTH} exists, use --force to overwrite."\
+                "\nAuthentication Token is:\n#{username}:#{token_oned}"
+        end
 
         #-----------------------------------------------------------------------
         # Store the token in ONE_AUTH.
