@@ -135,15 +135,48 @@ class VCenterHost < ::OpenNebula::Host
         str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s  << "\n"
     end
 
+    ############################################################################
+    # Generate a template with information for each ESX Host. Reference:
+    # http://pubs.vmware.com/vi-sdk/visdk250/ReferenceGuide/vim.HostSystem.html
+    #   - Summary: Basic information about the host, including connection state
+    #     - hardware: Hardware configuration of the host. This might not be
+    #       available for a disconnected host.
+    #     - quickStats: Basic host statistics.
+    ############################################################################
     def monitor_host_systems
-        vc.cluster.host.each{|h|
-            if h.runtime.connectionState == "connected"
+        host_info = ""
 
-            else
+        cluster.host.each{|h|
+            next if h.runtime.connectionState != "connected"
 
-            end
+            summary = h.summary
+            hw      = summary.hardware
+            stats   = summary.quickStats
+
+            total_cpu = hw.numCpuCores * 100
+            used_cpu  = (stats.overallCpuUsage.to_f / hw.cpuMhz.to_f) * 100
+            used_cpu  = sprintf('%.2f', used_cpu).to_f # Trim precission
+            free_cpu  = total_cpu - used_cpu
+
+            total_memory = hw.memorySize/1024
+            used_memory  = stats.overallMemoryUsage*1024
+            free_memory  = total_memory - used_memory
+
+            host_info << "HOST=["
+            host_info << "STATE=on,"
+            host_info << "HOSTNAME=\""  << h.name.to_s  << "\","
+            host_info << "MODELNAME=\"" << hw.cpuModel.to_s  << "\","
+            host_info << "CPUSPEED="    << hw.cpuMhz.to_s    << ","
+            host_info << "TOTALCPU="    << total_cpu.to_s << ","
+            host_info << "USEDCPU="     << used_cpu.to_s  << ","
+            host_info << "FREECPU="     << free_cpu.to_s << ","
+            host_info << "TOTALMEMORY=" << total_memory.to_s << ","
+            host_info << "USEDMEMORY="  << used_memory.to_s  << ","
+            host_info << "FREEMEMORY="  << free_memory.to_s
+            host_info << "]\n"
         }
-    end
 
+        return host_info
+    end
 end
 end
