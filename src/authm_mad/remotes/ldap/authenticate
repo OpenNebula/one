@@ -92,9 +92,6 @@ begin
              end
     end
 
-
-
-
     if ldap.authenticate(user_name, secret)
         escaped_user=URI_PARSER.escape(user)
         escaped_secret=URI_PARSER.escape(user_name)
