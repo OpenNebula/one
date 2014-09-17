@@ -222,7 +222,7 @@ const bool AclManager::authorize(
 
     long long resource_gid_req;
 
-    if ( obj_perms.gid >= 0 )
+    if ((obj_perms.gid >= 0) && (!obj_perms.disable_group_acl))
     {
         resource_gid_req = obj_perms.obj_type |
                            AclRule::GROUP_ID |
@@ -235,7 +235,7 @@ const bool AclManager::authorize(
 
     long long resource_cid_req;
 
-    if ( obj_perms.cid >= 0 )
+    if ((obj_perms.cid >= 0) && (!obj_perms.disable_cluster_acl))
     {
         resource_cid_req = obj_perms.obj_type |
                            AclRule::CLUSTER_ID |
@@ -246,7 +246,17 @@ const bool AclManager::authorize(
         resource_cid_req = AclRule::NONE_ID;
     }
 
-    long long resource_all_req  = obj_perms.obj_type | AclRule::ALL_ID;
+    long long resource_all_req ;
+
+    if (!obj_perms.disable_all_acl)
+    {
+        resource_all_req = obj_perms.obj_type | AclRule::ALL_ID;
+    }
+    else
+    {
+        resource_all_req = AclRule::NONE_ID;
+    }
+
     long long rights_req        = op;
 
     long long resource_oid_mask = obj_perms.obj_type |
