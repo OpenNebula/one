@@ -43,7 +43,10 @@ public:
         group_a(0),
         other_u(0),
         other_m(0),
-        other_a(0) {};
+        other_a(0),
+        disable_all_acl(false),
+        disable_cluster_acl(false),
+        disable_group_acl(false) {};
 
     void get_acl_rules(AclRule& owner_rule,
                        AclRule& group_rule,
@@ -75,6 +78,10 @@ public:
     int other_u;
     int other_m;
     int other_a;
+
+    bool disable_all_acl;     // All objects of this type (e.g. NET/*)
+    bool disable_cluster_acl; // All objects in a cluster (e.g. NET/%100)
+    bool disable_group_acl;   // All objects own by this group (e.g. NET/@101)
 };
 
 #endif /*POOL_OBJECT_AUTH_H_*/

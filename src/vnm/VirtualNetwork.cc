@@ -19,6 +19,7 @@
 #include "VirtualNetworkPool.h"
 #include "VirtualNetworkTemplate.h"
 #include "AddressRange.h"
+#include "PoolObjectAuth.h"
 
 #include "NebulaLog.h"
 
@@ -65,6 +66,20 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
 VirtualNetwork::~VirtualNetwork()
 {
     delete obj_template;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
+{
+    PoolObjectSQL::get_permissions(auths);
+
+    if (parent_vid != -1)
+    {
+        auths.disable_cluster_acl = true;
+        auths.disable_all_acl     = true;
+    }
 }
 
 /* ************************************************************************** */
