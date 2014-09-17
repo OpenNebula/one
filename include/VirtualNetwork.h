@@ -56,6 +56,14 @@ public:
         return new VirtualNetworkTemplate;
     }
 
+    /**
+     *  Fills a auth class to perform an authZ/authN request based on the object
+     *  attributes. Disables the cluster and all NET rules (NET* and NET/%) for
+     *  reservations.
+     *    @param auths to be filled
+     */
+    void get_permissions(PoolObjectAuth& auths);
+
     // *************************************************************************
     // Address Range management interface
     // *************************************************************************

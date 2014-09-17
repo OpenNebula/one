@@ -585,7 +585,7 @@ public:
      *  attributes
      *    @param auths to be filled
      */
-    void get_permissions(PoolObjectAuth& auths);
+    virtual void get_permissions(PoolObjectAuth& auths);
 
 protected:
 
