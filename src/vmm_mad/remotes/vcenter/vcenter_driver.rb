@@ -24,7 +24,6 @@ if !ONE_LOCATION
    LIB_LOCATION = "/usr/lib/one" if !defined?(LIB_LOCATION)
    ETC_LOCATION = "/etc/one/" if !defined?(ETC_LOCATION)
    VAR_LOCATION = "/var/lib/one" if !defined?(VAR_LOCATION)
-   RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
 else
    BIN_LOCATION = ONE_LOCATION + "/bin" if !defined?(BIN_LOCATION)
    LIB_LOCATION = ONE_LOCATION + "/lib" if !defined?(LIB_LOCATION)
@@ -132,7 +131,7 @@ class VCenterHost < ::OpenNebula::Host
         # Memory
         str_info << "TOTALMEMORY=" << total_mem.to_s << "\n"
         str_info << "FREEMEMORY="  << free_mem.to_s << "\n"
-        str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s  << "\n"
+        str_info << "USEDMEMORY="  << (total_mem - free_mem).to_s
     end
 
     ############################################################################
@@ -162,7 +161,7 @@ class VCenterHost < ::OpenNebula::Host
             used_memory  = stats.overallMemoryUsage*1024
             free_memory  = total_memory - used_memory
 
-            host_info << "HOST=["
+            host_info << "\nHOST=["
             host_info << "STATE=on,"
             host_info << "HOSTNAME=\""  << h.name.to_s  << "\","
             host_info << "MODELNAME=\"" << hw.cpuModel.to_s  << "\","
@@ -173,10 +172,111 @@ class VCenterHost < ::OpenNebula::Host
             host_info << "TOTALMEMORY=" << total_memory.to_s << ","
             host_info << "USEDMEMORY="  << used_memory.to_s  << ","
             host_info << "FREEMEMORY="  << free_memory.to_s
-            host_info << "]\n"
+            host_info << "]"
         }
 
         return host_info
+    end
+
+    def monitor_vms
+        str_info = ""
+        @cluster.resourcePool.vm.each { |v|
+            name   = v.name
+            number = -1
+            number = name.split('-').last if (name =~ /^one-\d*$/)
+
+            vm = VCenterVm.new(v)
+            vm.monitor
+
+            str_info << "\nVM = ["
+            str_info << "ID=#{number},"
+            str_info << "DEPLOY_ID=\"#{name}\","
+            str_info << "POLL=\"#{vm.info}\"]"
+        }
+
+        return str_info
+    end
+end
+
+################################################################################
+# This class is a high level abstraction of a VI VirtualMachine class with
+# OpenNebula semantics.
+################################################################################
+
+class VCenterVm
+    ########################################################################
+    #  Creates a new VIVm using a RbVmomi::VirtualMachine object
+    #    @param vm_vi [RbVmomi::VirtualMachine] it will be used if not nil
+    ########################################################################
+    def initialize(vm_vi)
+        @vm          = vm_vi
+
+        @used_cpu    = 0
+        @used_memory = 0
+
+        @net_rx = 0
+        @net_tx = 0
+    end
+
+    ########################################################################
+    #  Initialize the vm monitor information
+    ########################################################################
+    def monitor
+        @summary = @vm.summary
+        @state   = state_to_c(@summary.runtime.powerState)
+
+        if @state != 'a'
+            @used_cpu    = 0
+            @used_memory = 0
+
+            @net_rx = 0
+            @net_tx = 0
+
+            return
+        end
+
+        @used_memory = @summary.quickStats.hostMemoryUsage * 1024
+
+        host        = @vm.runtime.host
+        cpuMhz      = host.summary.hardware.cpuMhz.to_f
+        @used_cpu   =
+                ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s
+        @used_cpu   = sprintf('%.2f',@used_cpu).to_s
+
+        # Check for negative values
+        @used_memory = 0 if @used_memory.to_i < 0
+        @used_cpu    = 0 if @used_cpu.to_i < 0
+    end
+
+    ########################################################################
+    #  Generates a OpenNebula IM Driver valid string with the monitor info
+    ########################################################################
+    def info
+      return 'STATE=d' if @state == 'd'
+
+      str_info = ""
+
+      str_info << "STATE="     << @state            << " "
+      str_info << "USEDCPU="   << @used_cpu.to_s    << " "
+      str_info << "USEDMEMORY="<< @used_memory.to_s << " "
+      str_info << "NETRX="     << @net_rx.to_s      << " "
+      str_info << "NETTX="     << @net_tx.to_s
+    end
+
+private
+
+    ########################################################################
+    #  Converts the VI string state to OpenNebula state convention
+    ########################################################################
+    def state_to_c(state)
+        case state
+            when 'poweredOn'
+                'a'
+            when 'suspended'
+                'p'
+            else
+                'd'
+        end
     end
 end
 end
