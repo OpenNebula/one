@@ -34,13 +34,14 @@ if !host_id
     exit -1
 end
 
-vcenter_host = VCenterDriver::VCenterHost.new(host_id)
+vi_client    = VCenterDriver::VIClient.new host_id
+
+vcenter_host = VCenterDriver::VCenterHost.new vi_client
 
 cluster_info = vcenter_host.monitor_cluster
-
 cluster_info << vcenter_host.monitor_host_systems
-
 vm_monitor_info = vcenter_host.monitor_vms
+
 cluster_info << "\nVM_POLL=YES"
 cluster_info << "#{vm_monitor_info}" if !vm_monitor_info.empty?
 

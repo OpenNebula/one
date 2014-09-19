@@ -114,8 +114,10 @@ class VIClient
             next if ccrs.nil?
 
             @cluster = ccrs.find{ |ccr|
-                @host.name == ccr.name
+                @one_host.name == ccr.name
             }
+
+            break if @cluster
         }
 
         return @cluster
@@ -263,7 +265,7 @@ class VCenterVm
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
     #    @param vm_vi [RbVmomi::VirtualMachine] it will be used if not nil
     ########################################################################
-    def initialize(vm_vi, client)
+    def initialize(client, vm_vi )
         @vm     = vm_vi
         @client = client
 
@@ -274,7 +276,7 @@ class VCenterVm
         @net_tx = 0
     end
 
-    def self.deploy(host, xml_text, vmid)
+    def self.deploy(xml_text)
 
         xml = REXML::Document.new xml_text
 
