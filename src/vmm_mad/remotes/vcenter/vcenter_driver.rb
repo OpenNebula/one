@@ -119,6 +119,7 @@ class VCenterHost < ::OpenNebula::Host
         str_info = ""
 
         # System
+        str_info << "HYPERVISOR=vcenter\n"
         str_info << "TOTALHOST=" << summary.numHosts.to_s << "\n"
         str_info << "AVAILHOST=" << summary.numEffectiveHosts.to_s << "\n"
 
@@ -216,6 +217,82 @@ class VCenterVm
 
         @net_rx = 0
         @net_tx = 0
+    end
+
+    def self.deploy(host, xml_text, vmid)
+
+        xml = REXML::Document.new xml_text
+
+        pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
+
+        if pcs.nil?
+            STDERR.puts("Cannot find VCenter element in VM template ")
+            exit(-1)
+        end
+
+        template = pcs.find { |t|
+            type = t.elements["TYPE"]
+            !type.nil? && type.text.downcase == "vcenter"
+        }
+
+        if !template
+            STDERR.puts("Cannot find VCenter element in VM template ")
+            exit(-1)
+        end
+
+        uuid = template.elements["VM_TEMPLATE"]
+    
+        if uuid.nil?
+            STDERR.puts("Cannot find VM_TEMPLATE in VCenter element.")
+            exit(-1)
+        end            
+
+        uuid = uuid.text
+
+        begin
+            client = ::OpenNebula::Client.new()
+        rescue Exception => e
+            raise "Error initializing OpenNebula client: #{e.message    }"
+        end
+
+        vm = ::OpenNebula::VirtualMachine.new_with_id(vmid, client)
+        rc = vm.info
+
+        if ::OpenNebula.is_error?(rc)
+            raise "Error getting host information: #{rc.message}"
+        end
+
+        hid = vm["HISTORY_RECORDS/HISTORY/HID"]
+
+        vc  = VCenterHost.new(hid)
+
+        vc_template = ""
+        used_dc     = ""
+
+        # Look for the wanted VM Template
+        vc.vc_root.childEntity.each {|dc|
+            vms = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+            vms.each{|v|
+                if v.config.uuid == uuid
+                    used_dc     = dc
+                    vc_template = v
+                    break
+                end
+            }
+        }
+
+        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
+            :diskMoveType => :moveChildMostDiskBacking,
+            :pool => vc_template.runtime.host.parent.resourcePool)
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(:location => relocate_spec, 
+            :powerOn => true, :template => false)
+
+        rc = vc_template.CloneVM_Task(
+            :folder => vc_template.parent, :name => "one-#{vmid}", 
+            :spec => clone_spec).wait_for_completion
+
+        rc.config.uuid
     end
 
     ########################################################################
