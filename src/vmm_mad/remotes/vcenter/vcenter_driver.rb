@@ -49,7 +49,7 @@ module VCenterDriver
 # For the VCenter driver each OpenNebula host represents a VCenter cluster
 ################################################################################
 class VIClient
-    attr_reader :vim, :one, :root
+    attr_reader :vim, :one, :root, :cluster
 
     ############################################################################
     # Initializr the VIClient, and creates an OpenNebula client
@@ -86,42 +86,39 @@ class VIClient
             raise "Error connecting to #{@host}: #{e.message}"
         end
 
-        @root    = @vim.root
-
-        @cluster       = nil
-        @resource_pool = nil
-    end
-
-
-    # The associated resource pool for this connection
-    def resource_pool
-        return @resource_pool if !@resource_pool.nil?
-
-        cl = cluster
-
-        @resource_pool = cl.resourcePool if !cl.nil?
-
-        return @resource_pool
-    end
-
-
-    # The associated cluster for this connection
-    def cluster
-        return @cluster if !@cluster.nil?
+        @root = @vim.root
 
         @root.childEntity.each {|dc|
             ccrs = dc.hostFolder.childEntity.grep(RbVmomi::VIM::ClusterComputeResource)
+
             next if ccrs.nil?
 
             @cluster = ccrs.find{ |ccr|
                 @one_host.name == ccr.name
             }
 
-            break if @cluster
+            if @cluster
+                @dc = dc
+                break
+            end
         }
 
-        return @cluster
+        if @dc.nil? || @cluser.nil?
+            raise "Cannot find DataCenter or ClusterComputeResource for host."
+        end
     end
+
+    # The associated resource pool for this connection
+    def resource_pool
+        return @cluster.resourcePool
+    end
+
+    def find_vm_template(uuid)
+        vms = @dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+
+        return vms.find{ |v| v.config.uuid == uuid }
+    end
+
 end
 
 ################################################################################
@@ -261,7 +258,7 @@ end
 ################################################################################
 
 class VCenterVm
-    ########################################################################
+    ############################################################################
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
     #    @param vm_vi [RbVmomi::VirtualMachine] it will be used if not nil
     ########################################################################
@@ -276,80 +273,55 @@ class VCenterVm
         @net_tx = 0
     end
 
+    ############################################################################
+    # Deploys a VM
+    #  @param host the hostname of the OpenNebula host to deploy the VM
+    #  @xml_test the XML of the
+    ############################################################################
     def self.deploy(xml_text)
 
         xml = REXML::Document.new xml_text
 
         pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
-        if pcs.nil?
-            STDERR.puts("Cannot find VCenter element in VM template ")
-            exit(-1)
-        end
+        raise "Cannot find VCenter element in VM template." if pcs.nil?
 
         template = pcs.find { |t|
             type = t.elements["TYPE"]
             !type.nil? && type.text.downcase == "vcenter"
         }
 
-        if !template
-            STDERR.puts("Cannot find VCenter element in VM template ")
-            exit(-1)
-        end
+        raise "Cannot find VCenter element in VM template." if template.nil?
 
         uuid = template.elements["VM_TEMPLATE"]
-    
-        if uuid.nil?
-            STDERR.puts("Cannot find VM_TEMPLATE in VCenter element.")
-            exit(-1)
-        end            
+
+        raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
 
         uuid = uuid.text
 
-        begin
-            client = ::OpenNebula::Client.new()
-        rescue Exception => e
-            raise "Error initializing OpenNebula client: #{e.message    }"
-        end
+        hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
 
-        vm = ::OpenNebula::VirtualMachine.new_with_id(vmid, client)
-        rc = vm.info
+        raise "Cannot find host id in deployment file history." if hid.nil?
 
-        if ::OpenNebula.is_error?(rc)
-            raise "Error getting host information: #{rc.message}"
-        end
+        connection = VIClient.new(hid)
 
-        hid = vm["HISTORY_RECORDS/HISTORY/HID"]
-
-        vc  = VCenterHost.new(hid)
-
-        vc_template = ""
-        used_dc     = ""
-
-        # Look for the wanted VM Template
-        vc.vc_root.childEntity.each {|dc|
-            vms = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
-            vms.each{|v|
-                if v.config.uuid == uuid
-                    used_dc     = dc
-                    vc_template = v
-                    break
-                end
-            }
-        }
+        vc_template= connection.find_vm_template(uuid)
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
             :diskMoveType => :moveChildMostDiskBacking,
-            :pool => vc_template.runtime.host.parent.resourcePool)
+            :pool         => connection.resource_pool)
 
-        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(:location => relocate_spec, 
-            :powerOn => true, :template => false)
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
+            :location => relocate_spec,
+            :powerOn  => true,
+            :template => false)
 
         rc = vc_template.CloneVM_Task(
-            :folder => vc_template.parent, :name => "one-#{vmid}", 
-            :spec => clone_spec).wait_for_completion
+            :folder => vc_template.parent,
+            :name   => "one-#{vmid}",
+            :spec   => clone_spec).wait_for_completion
 
-        rc.config.uuid
+        return rc.config.uuid
     end
 
     ########################################################################
