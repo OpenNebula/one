@@ -103,7 +103,7 @@ class VIClient
             end
         }
 
-        if @dc.nil? || @cluser.nil?
+        if @dc.nil? || @cluster.nil?
             raise "Cannot find DataCenter or ClusterComputeResource for host."
         end
     end
@@ -239,7 +239,7 @@ class VCenterHost < ::OpenNebula::Host
             number = -1
             number = name.split('-').last if (name =~ /^one-\d*$/)
 
-            vm = VCenterVm.new(v, @client)
+            vm = VCenterVm.new(@client, v)
             vm.monitor
 
             str_info << "\nVM = ["
@@ -299,13 +299,15 @@ class VCenterVm
 
         uuid = uuid.text
 
+        vmid = xml.root.elements["/VM/ID"].text
+
         hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
-        connection = VIClient.new(hid)
+        connection  = VIClient.new(hid)
 
-        vc_template= connection.find_vm_template(uuid)
+        vc_template = connection.find_vm_template(uuid)
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
             :diskMoveType => :moveChildMostDiskBacking,
