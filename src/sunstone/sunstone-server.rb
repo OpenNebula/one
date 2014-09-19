@@ -529,7 +529,7 @@ post '/upload_chunk' do
     file_name = info['resumableIdentifier']
     file_path = File.join(Dir.tmpdir, file_name)
 
-    tmpfile=env['rack.request.form_hash']['file'][:tempfile]
+    tmpfile=info['file'][:tempfile]
 
     begin
         chunk = tmpfile.read
@@ -539,7 +539,7 @@ post '/upload_chunk' do
                                            "chunk.".to_json)]
     end
 
-    if File.exist? file_name
+    if File.exist? file_path
         mode = "r+"
     else
         mode = "w"
@@ -550,6 +550,7 @@ post '/upload_chunk' do
             f.seek(chunk_start)
             f.write_nonblock(chunk)
         end
+        tmpfile.unlink
     rescue => e
         STDERR.puts e.backtrace
         return [500, OpenNebula::Error.new("Can not write to the temporary" \
