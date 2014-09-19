@@ -173,6 +173,7 @@ class VCenterHost < ::OpenNebula::Host
 
         # System
         str_info << "HYPERVISOR=vcenter\n"
+        str_info << "PUBLIC_CLOUD=YES\n"
         str_info << "TOTALHOST=" << summary.numHosts.to_s << "\n"
         str_info << "AVAILHOST=" << summary.numEffectiveHosts.to_s << "\n"
 
