@@ -129,7 +129,7 @@ class VIClient
 
     end
 
-    private:
+    private
 
     ############################################################################
     # Initialize an OpenNebula connection with the default ONE_AUTH
@@ -150,7 +150,7 @@ class VIClient
     #    :host => vCenter hostname or IP
     #    :insecure => SSL (optional, defaults to true)
     ############################################################################
-    def initialize_vim(opts={})
+    def initialize_vim(user_opts={})
         opts = {
             :insecure => true
         }.merge(user_opts)
