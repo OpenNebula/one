@@ -28,7 +28,7 @@ $: << "../../vmm/vcenter/"
 
 require 'vcenter_driver'
 
-host_id = ARGV[0]
+host_id = ARGV[4]
 
 if !host_id
     exit -1
