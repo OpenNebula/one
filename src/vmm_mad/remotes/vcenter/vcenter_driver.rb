@@ -42,6 +42,86 @@ require 'opennebula'
 
 module VCenterDriver
 
+
+################################################################################
+# This class represents a VCenter connection and an associated OpenNebula client
+# The connection is associated to the VCenter backing a given OpenNebula host.
+# For the VCenter driver each OpenNebula host represents a VCenter cluster
+################################################################################
+class VIClient
+    attr_reader :vim, :one, :root
+
+    ############################################################################
+    # Initializr the VIClient, and creates an OpenNebula client
+    # @param hid [Integer] The OpenNebula host id with VCenter attributes
+    ############################################################################
+    def initialize(hid)
+        begin
+            @one = ::OpenNebula::Client.new()
+        rescue Exception => e
+            raise "Error initializing OpenNebula client: #{e.message}"
+        end
+
+        @one_host = ::OpenNebula::Host.new_with_id(hid, @one)
+        rc = @one_host.info
+
+        if ::OpenNebula.is_error?(rc)
+            raise "Error getting host information: #{rc.message}"
+        end
+
+        @user = @one_host["TEMPLATE/VCENTER_USER"]
+        @pass = @one_host["TEMPLATE/VCENTER_PASSWORD"]
+        @host = @one_host["TEMPLATE/VCENTER_HOST"]
+
+        connection = {
+            :host => @host,
+            :user => @user,
+            :password => @pass,
+            :insecure => true
+        }
+
+        begin
+            @vim = RbVmomi::VIM.connect(connection)
+        rescue Exception => e
+            raise "Error connecting to #{@host}: #{e.message}"
+        end
+
+        @root    = @vim.root
+
+        @cluster       = nil
+        @resource_pool = nil
+    end
+
+
+    # The associated resource pool for this connection
+    def resource_pool
+        return @resource_pool if !@resource_pool.nil?
+
+        cl = cluster
+
+        @resource_pool = cl.resourcePool if !cl.nil?
+
+        return @resource_pool
+    end
+
+
+    # The associated cluster for this connection
+    def cluster
+        return @cluster if !@cluster.nil?
+
+        @root.childEntity.each {|dc|
+            ccrs = dc.hostFolder.childEntity.grep(RbVmomi::VIM::ClusterComputeResource)
+            next if ccrs.nil?
+
+            @cluster = ccrs.find{ |ccr|
+                @host.name == ccr.name
+            }
+        }
+
+        return @cluster
+    end
+end
+
 ################################################################################
 # This class is an OpenNebula hosts that abstracts a vCenter cluster. It
 # includes the functionality needed to monitor the cluster and report the ESX
@@ -50,42 +130,16 @@ module VCenterDriver
 class VCenterHost < ::OpenNebula::Host
     attr_reader :vc_client, :vc_root, :cluster, :host, :client
 
-    def initialize(hid)
-        begin
-            @client = ::OpenNebula::Client.new()
-        rescue Exception => e
-            raise "Error initializing OpenNebula client: #{e.message    }"
-        end
+    ############################################################################
+    # Initialize the VCenterHost by looking for the associated objects of the
+    # VIM hierarchy
+    # client [VIClient] to interact with the associated vCenter
+    ############################################################################
+    def initialize(client)
+        @client  = client
+        @cluster = client.cluster
 
-        @host = ::OpenNebula::Host.new_with_id(hid,@client)
-        rc    = @host.info
-
-        if ::OpenNebula.is_error?(rc)
-            raise "Error getting host information: #{rc.message}"
-        end
-
-        @vc_user = @host["TEMPLATE/VCENTER_USER"]
-        @vc_pass = @host["TEMPLATE/VCENTER_PASSWORD"]
-        @vc_host = @host["TEMPLATE/VCENTER_HOST"]
-
-        begin
-            @vc_client = RbVmomi::VIM.connect(:host => @vc_host, :user => @vc_user,
-                :password => @vc_pass, :insecure => true)
-            @vc_root   = @vc_client.root
-        rescue Exception => e
-            raise "Error connecting to #{@vc_host}: #{e.message}"
-        end
-
-        # Look for the corresponding ClusterComputeResource
-        @vc_root.childEntity.each {|dc|
-            clusters = dc.hostFolder.childEntity.grep(RbVmomi::VIM::ClusterComputeResource)
-            clusters.each{|cl|
-                if @host.name == cl.name
-                    @cluster = cl
-                    break
-                end
-            }
-        }
+        @resource_pool = client.resource_pool
     end
 
     ############################################################################
@@ -146,7 +200,7 @@ class VCenterHost < ::OpenNebula::Host
     def monitor_host_systems
         host_info = ""
 
-        cluster.host.each{|h|
+        @cluster.host.each{|h|
             next if h.runtime.connectionState != "connected"
 
             summary = h.summary
@@ -181,12 +235,12 @@ class VCenterHost < ::OpenNebula::Host
 
     def monitor_vms
         str_info = ""
-        @cluster.resourcePool.vm.each { |v|
+        @resource_pool.vm.each { |v|
             name   = v.name
             number = -1
             number = name.split('-').last if (name =~ /^one-\d*$/)
 
-            vm = VCenterVm.new(v)
+            vm = VCenterVm.new(v, @client)
             vm.monitor
 
             str_info << "\nVM = ["
@@ -209,8 +263,9 @@ class VCenterVm
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
     #    @param vm_vi [RbVmomi::VirtualMachine] it will be used if not nil
     ########################################################################
-    def initialize(vm_vi)
-        @vm          = vm_vi
+    def initialize(vm_vi, client)
+        @vm     = vm_vi
+        @client = client
 
         @used_cpu    = 0
         @used_memory = 0
@@ -314,8 +369,9 @@ class VCenterVm
 
         @used_memory = @summary.quickStats.hostMemoryUsage * 1024
 
-        host        = @vm.runtime.host
-        cpuMhz      = host.summary.hardware.cpuMhz.to_f
+        host   = @vm.runtime.host
+        cpuMhz = host.summary.hardware.cpuMhz.to_f
+
         @used_cpu   =
                 ((@summary.quickStats.overallCpuUsage.to_f / cpuMhz) * 100).to_s
         @used_cpu   = sprintf('%.2f',@used_cpu).to_s
