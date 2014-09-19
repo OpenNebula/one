@@ -52,15 +52,13 @@ class VIClient
     attr_reader :vim, :one, :root, :cluster
 
     ############################################################################
-    # Initializr the VIClient, and creates an OpenNebula client
+    # Initializr the VIClient, and creates an OpenNebula client. The parameters
+    # are obtained from the associated OpenNebula host
     # @param hid [Integer] The OpenNebula host id with VCenter attributes
     ############################################################################
     def initialize(hid)
-        begin
-            @one = ::OpenNebula::Client.new()
-        rescue Exception => e
-            raise "Error initializing OpenNebula client: #{e.message}"
-        end
+
+        initialize_one
 
         @one_host = ::OpenNebula::Host.new_with_id(hid, @one)
         rc = @one_host.info
@@ -69,38 +67,25 @@ class VIClient
             raise "Error getting host information: #{rc.message}"
         end
 
-        @user = @one_host["TEMPLATE/VCENTER_USER"]
-        @pass = @one_host["TEMPLATE/VCENTER_PASSWORD"]
-        @host = @one_host["TEMPLATE/VCENTER_HOST"]
-
         connection = {
-            :host => @host,
-            :user => @user,
-            :password => @pass,
-            :insecure => true
+            :host     => @one_host["TEMPLATE/VCENTER_HOST"],
+            :user     => @one_host["TEMPLATE/VCENTER_USER"],
+            :password => @one_host["TEMPLATE/VCENTER_PASSWORD"]
         }
 
-        begin
-            @vim = RbVmomi::VIM.connect(connection)
-        rescue Exception => e
-            raise "Error connecting to #{@host}: #{e.message}"
-        end
+        initialize_vim(connection)
 
         @root = @vim.root
 
         @root.childEntity.each {|dc|
-            ccrs = dc.hostFolder.childEntity.grep(RbVmomi::VIM::ClusterComputeResource)
+            ccrs = dc.hostFolder.childEntity.grep(
+                RbVmomi::VIM::ClusterComputeResource)
 
             next if ccrs.nil?
 
-            @cluster = ccrs.find{ |ccr|
-                @one_host.name == ccr.name
-            }
+            @cluster = ccrs.find{ |ccr| @one_host.name == ccr.name }
 
-            if @cluster
-                @dc = dc
-                break
-            end
+            (@dc = dc; break) if @cluster
         }
 
         if @dc.nil? || @cluster.nil?
@@ -108,17 +93,78 @@ class VIClient
         end
     end
 
+    ############################################################################
+    # Initialize a VIConnection based just on the VIM parameters. The OpenNebula
+    # client is also initilialize
+    ############################################################################
+    def self.new_connection(user_opts)
+
+        conn = allocate
+
+        conn.initialize_one
+
+        conn.initialize_vim(user_opts)
+
+        return conn
+    end
+
     # The associated resource pool for this connection
     def resource_pool
         return @cluster.resourcePool
     end
 
+    # Searches the associated vmFolder of the DataCenter for the current
+    # connection. Returns a RbVmomi::VIM::VirtualMachine or nil if not found
+    # @param uuid [String] the UUID of the VM or VM Template
     def find_vm_template(uuid)
         vms = @dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
 
         return vms.find{ |v| v.config.uuid == uuid }
     end
 
+
+    # Builds a hash with the DataCenter / ClusterComputeResource hierarchy
+    # for this VCenter
+    def hierarchy
+
+    end
+
+    private:
+
+    ############################################################################
+    # Initialize an OpenNebula connection with the default ONE_AUTH
+    ############################################################################
+    def initialize_one
+        begin
+            @one = ::OpenNebula::Client.new()
+        rescue Exception => e
+            raise "Error initializing OpenNebula client: #{e.message}"
+        end
+    end
+
+    ############################################################################
+    # Initialize a connection with vCenter. Options
+    # @param options[Hash] with:
+    #    :user => The vcenter user
+    #    :password => Password for the user
+    #    :host => vCenter hostname or IP
+    #    :insecure => SSL (optional, defaults to true)
+    ############################################################################
+    def initialize_vim(opts={})
+        opts = {
+            :insecure => true
+        }.merge(user_opts)
+
+        @user = opts[:user]
+        @pass = opts[:password]
+        @host = opts[:host]
+
+        begin
+            @vim = RbVmomi::VIM.connect(opts)
+        rescue Exception => e
+            raise "Error connecting to #{@host}: #{e.message}"
+        end
+    end
 end
 
 ################################################################################
