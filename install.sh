@@ -247,6 +247,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/xen3-probes.d \
           $VAR_LOCATION/remotes/im/xen4-probes.d \
           $VAR_LOCATION/remotes/im/vmware.d \
+          $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/sl.d \
           $VAR_LOCATION/remotes/im/az.d \
@@ -255,6 +256,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/xen3 \
           $VAR_LOCATION/remotes/vmm/xen4 \
           $VAR_LOCATION/remotes/vmm/vmware \
+          $VAR_LOCATION/remotes/vmm/vcenter \
           $VAR_LOCATION/remotes/vmm/ec2 \
           $VAR_LOCATION/remotes/vmm/sl \
           $VAR_LOCATION/remotes/vmm/az \
@@ -407,6 +409,7 @@ INSTALL_FILES=(
     IM_PROBES_XEN4_FILES:$VAR_LOCATION/remotes/im/xen4.d
     IM_PROBES_XEN4_PROBES_FILES:$VAR_LOCATION/remotes/im/xen4-probes.d
     IM_PROBES_VMWARE_FILES:$VAR_LOCATION/remotes/im/vmware.d
+    IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_SL_FILES:$VAR_LOCATION/remotes/im/sl.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
@@ -422,6 +425,7 @@ INSTALL_FILES=(
     VMM_EXEC_XEN3_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen3
     VMM_EXEC_XEN4_SCRIPTS:$VAR_LOCATION/remotes/vmm/xen4
     VMM_EXEC_VMWARE_SCRIPTS:$VAR_LOCATION/remotes/vmm/vmware
+    VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/vmm/ec2
     VMM_EXEC_SL_SCRIPTS:$VAR_LOCATION/remotes/vmm/sl
     VMM_EXEC_AZ_SCRIPTS:$VAR_LOCATION/remotes/vmm/az
@@ -759,6 +763,29 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
                          src/vmm_mad/remotes/vmware/vmware_driver.rb \
                          src/vmm_mad/remotes/vmware/vi_driver.rb"
 
+#-------------------------------------------------------------------------------
+# VMM Driver vCenter scripts, installed under $REMOTES_LOCATION/vmm/vcenter
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
+                         src/vmm_mad/remotes/vcenter/attach_disk \
+                         src/vmm_mad/remotes/vcenter/detach_disk \
+                         src/vmm_mad/remotes/vcenter/attach_nic \
+                         src/vmm_mad/remotes/vcenter/detach_nic \
+                         src/vmm_mad/remotes/vcenter/snapshot_create \
+                         src/vmm_mad/remotes/vcenter/snapshot_revert \
+                         src/vmm_mad/remotes/vcenter/snapshot_delete \
+                         src/vmm_mad/remotes/vcenter/deploy \
+                         src/vmm_mad/remotes/vcenter/migrate \
+                         src/vmm_mad/remotes/vcenter/restore \
+                         src/vmm_mad/remotes/vcenter/reboot \
+                         src/vmm_mad/remotes/vcenter/reset \
+                         src/vmm_mad/remotes/vcenter/save \
+                         src/vmm_mad/remotes/vcenter/poll \
+                         src/vmm_mad/remotes/vcenter/checkpoint \
+                         src/vmm_mad/remotes/vcenter/shutdown \
+                         src/vmm_mad/remotes/vcenter/vcenter_driver.rb"
+
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2
 #------------------------------------------------------------------------------
@@ -869,6 +896,8 @@ IM_PROBES_XEN4_PROBES_FILES="src/im_mad/remotes/xen-probes.d/xen.rb \
                       src/im_mad/remotes/common.d/collectd-client-shepherd.sh"
 
 IM_PROBES_VMWARE_FILES="src/im_mad/remotes/vmware.d/vmware.rb"
+
+IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/vcenter.rb"
 
 IM_PROBES_EC2_FILES="src/im_mad/remotes/ec2.d/poll"
 
