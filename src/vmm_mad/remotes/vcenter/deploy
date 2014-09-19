@@ -34,10 +34,10 @@ host  = ARGV[1]
 id    = ARGV[2]
 
 begin
-    puts VCenterDriver::VCenterVm.deploy dfile
+    puts VCenterDriver::VCenterVm.deploy File.read(dfile)
     exit 0
 rescue Exception => e
-    STDERR.puts "Deploy of VM #{id} on host #{host} with #{dfile} failed \
-                 due to #{e.message}"
+    STDERR.puts "Deploy of VM #{id} on host #{host} with #{dfile} failed " +
+                "due to \"#{e.message}\""
 end
 
