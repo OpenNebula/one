@@ -33,10 +33,11 @@ dfile = ARGV[0]
 host  = ARGV[1]
 id    = ARGV[2]
 
-vcenter_vm = VCenterDriver::VCenterVm.new
+begin
+    puts VCenterDriver::VCenterVm.deploy dfile
+    exit 0
+rescue Exception => e
+    STDERR.puts "Deploy of VM #{id} on host #{host} with #{dfile} failed \
+                 due to #{e.message}"
+end
 
-vcenter_vm.deploy 
-
-puts vmware_drv.deploy(dfile, id)
-
-exit 0
