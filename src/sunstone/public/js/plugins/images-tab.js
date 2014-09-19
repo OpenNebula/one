@@ -97,9 +97,9 @@ var create_image_tmpl ='<div class="row create_image_header">\
                   </div>\
                </div>\
                <div class="row">\
-                  <div id="file-uploader" class="large-12 columns text-center">'+
-                    tr("Click to choose image")+
-                  '</div>\
+                  <div id="file-uploader" class="large-12 columns text-center">\
+                    <input id="file-uploader-input" type="file"></input>\
+                  </div>\
                </div>\
                <div class="img_size row">\
                  <div class="large-6 columns">\
@@ -936,7 +936,7 @@ function initialize_create_image_dialog(dialog) {
         }
     });
 
-    uploader.assignBrowse($('#file-uploader',dialog)[0]);
+    uploader.assignBrowse($('#file-uploader-input',dialog)[0]);
 
     var fileName = '';
     var file_input = false;
