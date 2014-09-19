@@ -767,7 +767,7 @@ VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vmware/cancel \
 # VMM Driver vCenter scripts, installed under $REMOTES_LOCATION/vmm/vcenter
 #-------------------------------------------------------------------------------
 
-VMM_EXEC_VMWARE_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
+VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/attach_disk \
                          src/vmm_mad/remotes/vcenter/detach_disk \
                          src/vmm_mad/remotes/vcenter/attach_nic \

@@ -129,6 +129,15 @@ class VIClient
 
     end
 
+    def self.translate_hostname(hostname)
+        host_pool = OpenNebula::HostPool.new(::OpenNebula::Client.new())
+        rc        = host_pool.info
+        raise "Could not find host #{hostname}" if OpenNebula.is_error?(rc)
+
+        host = host_pool.select {|host_element| host_element.name==hostname }
+        return host.first.id
+    end
+
     private
 
     ############################################################################
@@ -322,8 +331,7 @@ class VCenterVm
 
     ############################################################################
     # Deploys a VM
-    #  @param host the hostname of the OpenNebula host to deploy the VM
-    #  @xml_test the XML of the
+    #  @xml_text XML repsentation of the VM
     ############################################################################
     def self.deploy(xml_text)
 
@@ -371,6 +379,159 @@ class VCenterVm
             :spec   => clone_spec).wait_for_completion
 
         return rc.config.uuid
+    end
+
+    ############################################################################
+    # Cancels a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)
+    ############################################################################
+    def self.cancel(deploy_id, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.TerminateVM
+    end
+
+    ############################################################################
+    # Saves a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    ############################################################################
+    def self.save(deploy_id, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.SuspendVM_Task.wait_for_completion
+    end
+
+    ############################################################################
+    # Resumes a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    ############################################################################
+    def self.resume(deploy_id, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.PowerOnVM_Task.wait_for_completion
+    end
+
+    ############################################################################
+    # Reboots a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    ############################################################################
+    def self.reboot(deploy_id, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.PowerOnVM_Task.wait_for_completion
+    end   
+
+    ############################################################################
+    # Resets a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    ############################################################################
+    def self.reset(deploy_id, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.ResetVM_Task.wait_for_completion
+    end
+
+    ############################################################################
+    # Shutdown a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    ############################################################################
+    def self.shutdown(deploy_id, hostname)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.ShutdownGuest.wait_for_completion
+    end
+
+    ############################################################################
+    # Create VM snapshot
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    #  @param snaphot_name name of the snapshot
+    ############################################################################
+    def self.create_snapshot(deploy_id, hostname, snapshot_name)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        snapshot_hash = {
+            :name => snapshot_name,
+            :description => "OpenNebula Snapshot of VM #{deploy_id}",
+            :memory => true,
+            :quiesce => true
+        }
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        vm.CreateSnapshot_Task(snapshot_hash).wait_for_completion
+    end
+
+    ############################################################################
+    # Delete VM snapshot
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    #  @param snaphot_name name of the snapshot
+    ############################################################################
+    def self.delete_snapshot(deploy_id, hostname, snapshot_name)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        snapshot = vm.snapshot.rootSnapshotList.find {|s| 
+                      s.name == snapshot_name
+                   }.snapshot
+
+        delete_snapshot_hash = {
+            :_this => snapshot,
+            :removeChildren => true
+        }
+
+        vm.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
+    end
+
+    ############################################################################
+    # Revert VM snapshot
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)    
+    #  @param snaphot_name name of the snapshot
+    ############################################################################
+    def self.revert_snapshot(deploy_id, hostname, snapshot_name)
+        hid         = VIClient::translate_hostname(hostname)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        snapshot = vm.snapshot.rootSnapshotList.find {|s| 
+                      s.name == snapshot_name
+                   }.snapshot
+
+        revert_snapshot_hash = {
+            :_this => snapshot
+        }
+
+        vm.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
     end
 
     ########################################################################
