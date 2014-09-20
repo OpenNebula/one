@@ -1,0 +1,147 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    REMOTES_LOCATION="/var/lib/one/remotes/"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+$: << REMOTES_LOCATION+"vmm/vcenter/"
+
+require 'command_parser'
+require 'one_helper/onehost_helper'
+require 'one_helper/onecluster_helper'
+require 'vcenter_driver'
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+
+    usage "`onevcenter` <command> [<args>] [<options>]"
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneHostHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+    cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
+    set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
+
+
+    VCENTER = {
+        :name   => "vcenter",
+        :large  => "--vcenter vCenter" ,
+        :description => "The vCenter hostname",
+        :format => String
+    }
+
+    USER = {
+        :name   => "vuser",
+        :large  => "--vuser username" ,
+        :description => "The username to interact with vCenter",
+        :format => String
+    }
+
+    PASS = {
+        :name   => "vpass",
+        :large  => "--vpass password",
+        :description => "The password for the user",
+        :format => String
+    }
+
+    ############################################################################
+    # Import clusters
+    ############################################################################
+    hosts_desc = <<-EOT.unindent
+        Import vCenter clusters as OpenNebula hosts
+    EOT
+
+    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS ] do
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " host:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "Connecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.puts "done!"
+
+            STDOUT.print "Exploring vCenter resources..."
+
+            rs = vc.hierarchy
+
+            STDOUT.puts "done!"
+
+            rs.each {|dc, cluster|
+                STDOUT.print "Do you want to process datacenter #{dc} [y/n]? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+
+                if cluster.empty?
+                    STDOUT.puts "    No clusters found in #{dc}..."
+                    next
+                end
+
+                cluster.each{ |c|
+                    STDOUT.print "  * Import cluster #{c} [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    r, m = VCenterDriver::VCenterHost.to_one(c, vc)
+
+                    if r == 0
+                        STDOUT.puts "    OpenNebula host #{c} with id #{m}"\
+                            " successfully created."
+                    else
+                        STDOUT.puts "    Error: #{m}"
+                    end
+
+                    STDOUT.puts
+                }
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
+        #h = VCenterDriver::VCenterHost.to_one(vc)
+    end
+end
