@@ -94,20 +94,20 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         begin
-            STDOUT.print "Connecting to vCenter: #{options[:vcenter]}..."
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
 
             vc = VCenterDriver::VIClient.new_connection(
                     :user     => options[:vuser],
                     :password => options[:vpass],
                     :host     => options[:vcenter])
 
-            STDOUT.puts "done!"
+            STDOUT.print "done!\n\n"
 
             STDOUT.print "Exploring vCenter resources..."
 
             rs = vc.hierarchy
 
-            STDOUT.puts "done!"
+            STDOUT.print "done!\n\n"
 
             rs.each {|dc, cluster|
                 STDOUT.print "Do you want to process datacenter #{dc} [y/n]? "
@@ -142,6 +142,76 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         exit 0
-        #h = VCenterDriver::VCenterHost.to_one(vc)
+    end
+
+    templates_desc = <<-EOT.unindent
+        Import vCenter VM Templates into OpenNebula
+    EOT
+
+    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS ] do
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " VM templates:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.print "done!\n\n"
+
+            STDOUT.print "Looking for VM Templates..."
+
+            rs = vc.vm_templates
+
+            STDOUT.print "done!\n"
+
+            rs.each {|dc, tmps|
+                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+
+                if tmps.empty?
+                    STDOUT.print "    No VM Templates found in #{dc}...\n\n"
+                    next
+                end
+
+                tmps.each{ |t|
+                    STDOUT.print "\n  * VM Template found:\n"\
+                                 "      - Name   : #{t[:name]}\n"\
+                                 "      - UUID   : #{t[:uuid]}\n"\
+                                 "      - Cluster: #{t[:host]}\n"\
+                                 "    Import this VM template [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    one_t = ::OpenNebula::Template.new(
+                                ::OpenNebula::Template.build_xml, vc.one)
+
+                    rc = one_t.allocate(t[:one])
+
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating template: #{rc.message}\n"
+                    else
+                        STDOUT.puts "    OpenNebula template #{one_t.id} created!\n"
+                    end
+                }
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
     end
 end

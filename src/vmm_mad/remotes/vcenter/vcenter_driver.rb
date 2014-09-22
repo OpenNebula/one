@@ -42,7 +42,6 @@
 
     module VCenterDriver
 
-
     ################################################################################
     # This class represents a VCenter connection and an associated OpenNebula client
     # The connection is associated to the VCenter backing a given OpenNebula host.
@@ -128,7 +127,7 @@
         # Builds a hash with the DataCenter / ClusterComputeResource hierarchy
         # for this VCenter.
         # @return [Hash] in the form
-        #    { dc_name [String] => ClusterComputeResources [Array] }
+        #   {dc_name [String] => ClusterComputeResources Names [Array - String]}
         ########################################################################
         def hierarchy
             vc_hosts = {}
@@ -142,6 +141,39 @@
             }
 
             return vc_hosts
+        end
+
+        ########################################################################
+        # Builds a hash with the Datacenter / VM Templates for this VCenter
+        # @return [Hash] in the form
+        #   { dc_name [String] => }
+        ########################################################################
+        def vm_templates
+            vm_templates = {}
+
+            @root.childEntity.each { |dc|
+
+                vms = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+
+                tmp = vms.select { |v| v.config.template == true }
+
+                one_tmp = []
+
+                tmp.each { |t|
+                    vi_tmp = VCenterVm.new(self, t)
+
+                    one_tmp << {
+                        :name => vi_tmp.vm.name,
+                        :uuid => vi_tmp.vm.config.uuid,
+                        :host => vi_tmp.vm.runtime.host.parent.name,
+                        :one  => vi_tmp.to_one
+                    }
+                }
+
+                vm_templates[dc.name] = one_tmp
+            }
+
+            return vm_templates
         end
 
         def self.translate_hostname(hostname)
@@ -365,6 +397,8 @@
     ################################################################################
 
     class VCenterVm
+        attr_reader :vm
+
         ############################################################################
         #  Creates a new VIVm using a RbVmomi::VirtualMachine object
         #    @param vm_vi [RbVmomi::VirtualMachine] it will be used if not nil
@@ -629,6 +663,23 @@
           str_info << "USEDMEMORY="<< @used_memory.to_s << " "
           str_info << "NETRX="     << @net_rx.to_s      << " "
           str_info << "NETTX="     << @net_tx.to_s
+        end
+
+        ########################################################################
+        # Generates an OpenNebula Template for this VCenterVm
+        #
+        #
+        ########################################################################
+        def to_one
+            str = "NAME   = \"#{@vm.name}\"\n"\
+                  "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
+                  "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
+                  "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
+                  "PUBLIC_CLOUD = [\n"\
+                  "  TYPE        =\"vcenter\",\n"\
+                  "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
+                  "]\n"\
+                  "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
         end
 
     private
