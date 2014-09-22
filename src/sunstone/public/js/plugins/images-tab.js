@@ -98,7 +98,7 @@ var create_image_tmpl ='<div class="row create_image_header">\
                </div>\
                <div class="row">\
                   <div id="file-uploader" class="large-12 columns text-center">\
-                    <input id="file-uploader-input" type="file"></input>\
+                    <input id="file-uploader-input" type="file"/>\
                   </div>\
                </div>\
                <div class="img_size row">\
