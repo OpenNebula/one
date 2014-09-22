@@ -202,9 +202,9 @@ module OpenNebula
         # @return [String] The USER_TEMPLATE
         def user_template_xml
             if NOKOGIRI
-                @xml.xpath('TEMPLATE').to_s
+                @xml.xpath('USER_TEMPLATE').to_s
             else
-                @xml.elements['TEMPLATE'].to_s
+                @xml.elements['USER_TEMPLATE'].to_s
             end
         end
 
