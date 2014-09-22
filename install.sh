@@ -603,6 +603,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onezone \
            src/cli/oneflow \
            src/cli/oneflow-template \
+           src/cli/onevcenter \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
            share/scripts/one"
