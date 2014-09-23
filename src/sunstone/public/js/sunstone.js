@@ -780,7 +780,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     "</ul>"+
                   '</span>'+
 
-                "<span id='"+custom_id+"form_buttons' class='only-right-form'>"+
+                "<span id='"+custom_id+"form_buttons' class='only-right-form' style='display: none'>"+
                     '<span id="'+custom_id+'reset_button" class="left" style="margin-left: 10px;">'+
                         '<a class="button small secondary radius" href="submit">'+tr("Reset")+'</a>'+
                     '</span>'+
