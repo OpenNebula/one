@@ -47,8 +47,13 @@ public:
      *    @return true if the use_filter is empty and access to all objects
      *    should be granted.
      */
-    static bool use_filter(RequestAttributes& att, PoolObjectSQL::ObjectType aobj,
-        string& where_str);
+    static bool use_filter(RequestAttributes& att,
+          PoolObjectSQL::ObjectType aobj,
+          bool disable_all_acl,
+          bool disable_cluster_acl,
+          bool disable_group_acl,
+          const string& and_str,
+          string& where_str);
 
 protected:
     RequestManagerPoolInfoFilter(const string& method_name,
@@ -72,6 +77,9 @@ protected:
               int                end_id,
               const string&      and_clause,
               const string&      or_clause,
+              bool               disable_all_acl,
+              bool               disable_cluster_acl,
+              bool               disable_group_acl,
               string&            where_string);
 
     /* -------------------------------------------------------------------- */
@@ -201,6 +209,9 @@ public:
     };
 
     ~VirtualNetworkPoolInfo(){};
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
