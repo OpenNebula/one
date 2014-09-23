@@ -89,13 +89,13 @@ void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
 const char * VirtualNetwork::table    = "network_pool";
 
 const char * VirtualNetwork::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid";
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid, pid";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
     " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
     " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
-    " cid INTEGER, UNIQUE(name,uid))";
+    " cid INTEGER, pid INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -354,7 +354,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          owner_u     << ","
         <<          group_u     << ","
         <<          other_u     << ","
-        <<          cluster_id  << ")";
+        <<          cluster_id  << ","
+        <<          parent_vid  << ")";
 
     rc = db->exec(oss);
 
