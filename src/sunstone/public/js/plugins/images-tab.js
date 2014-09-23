@@ -981,8 +981,7 @@ function initialize_create_image_dialog(dialog) {
                 Sunstone.runAction("Image.refresh");
             },
             error: function(response){
-                //onError({}, JSON.parse(response) );
-                notifyMessage(response);
+                onError({}, OpenNebula.Error(response));
                 $('div[id="'+fileName+'progressBar"]').remove();
             }
         });

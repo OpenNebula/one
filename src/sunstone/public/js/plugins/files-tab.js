@@ -679,8 +679,7 @@ function setupCreateFileDialog(){
                 Sunstone.runAction("Image.refresh");
             },
             error: function(response){
-                //onError({}, JSON.parse(response) );
-                notifyMessage(response);
+                onError({}, OpenNebula.Error(response));
                 $('div[id="file-'+fileName+'-progressBar"]').remove();
             }
         });
