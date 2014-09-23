@@ -172,9 +172,13 @@ class OpenNebulaVNC
         end
 
         # Proxy data
-        host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
-        vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
-        vnc_pw = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+        host       = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+        vnc_port   = vm_resource['TEMPLATE/GRAPHICS/PORT']
+        vnc_pw     = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+
+        if vm_resource['TEMPLATE/ESX_HOST'] # It is behind a vCenter
+            host       = vm_resource['TEMPLATE/ESX_HOST']
+        end
 
         # Generate token random_str: host:port
         random_str = rand(36**20).to_s(36) #random string a-z0-9 length 20

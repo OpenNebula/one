@@ -463,7 +463,18 @@ class VCenterVm
             :name   => "one-#{vmid}",
             :spec   => clone_spec).wait_for_completion
 
-        return rc.config.uuid
+        vm_uuid = rc.config.uuid
+
+        vnc_port = xml.root.elements["/VM/TEMPLATE/GRAPHICS/PORT"]
+
+        if vnc_port
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => 
+                     [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"}, 
+                      {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text}])
+            rc.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
+
+        return vm_uuid
     end
 
     ############################################################################
@@ -478,7 +489,7 @@ class VCenterVm
         vm          = connection.find_vm_template(deploy_id)
 
         vm.PowerOffVM_Task.wait_for_completion
-        vm.UnregisterVM.wait_for_completion
+        vm.Destroy_Task.wait_for_completion
     end
 
     ############################################################################
@@ -520,7 +531,7 @@ class VCenterVm
 
         vm          = connection.find_vm_template(deploy_id)
 
-        vm.PowerOnVM_Task.wait_for_completion
+        vm.RebootGuest.wait_for_completion
     end
 
     ############################################################################
@@ -650,6 +661,8 @@ class VCenterVm
         # Check for negative values
         @used_memory = 0 if @used_memory.to_i < 0
         @used_cpu    = 0 if @used_cpu.to_i < 0
+
+        @esx_host    = @vm.summary.runtime.host.name
     end
 
     ########################################################################
@@ -664,7 +677,8 @@ class VCenterVm
       str_info << "USEDCPU="   << @used_cpu.to_s    << " "
       str_info << "USEDMEMORY="<< @used_memory.to_s << " "
       str_info << "NETRX="     << @net_rx.to_s      << " "
-      str_info << "NETTX="     << @net_tx.to_s
+      str_info << "NETTX="     << @net_tx.to_s      << " "
+      str_info << "ESX_HOST="  << @esx_host.to_s
     end
 
     ########################################################################
