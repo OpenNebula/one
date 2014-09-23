@@ -74,31 +74,31 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     vector<int> vms;
     vector<int> vnets;
 
-    string where_str;
+    string where_vnets;
+    string where_vms;
 
-    bool all = RequestManagerPoolInfoFilter::use_filter(att, PoolObjectSQL::NET,
-        where_str);
+    bool all_reservations = RequestManagerPoolInfoFilter::use_filter(att,
+            PoolObjectSQL::NET, true, true, false, "(pid != -1)", where_vnets);
 
-    if (all)
+    bool all_vms = RequestManagerPoolInfoFilter::use_filter(att,
+            PoolObjectSQL::VM, false, false, false, "", where_vms);
+
+    if ( all_reservations == true )
     {
         vnets.push_back(-1);
+    }
+    else
+    {
+        Nebula::instance().get_vnpool()->search(vnets, where_vnets);
+    }
+
+    if ( all_vms == true )
+    {
         vms.push_back(-1);
     }
     else
     {
-        if ( Nebula::instance().get_vnpool()->search(vnets, where_str) != 0 )
-        {
-            //Log warning
-        }
-
-        where_str = "";
-
-        RequestManagerPoolInfoFilter::use_filter(att, PoolObjectSQL::VM, where_str);
-
-        if ( Nebula::instance().get_vmpool()->search(vms, where_str) != 0 )
-        {
-            //Log warning
-        }
+        Nebula::instance().get_vmpool()->search(vms, where_vms);
     }
 
     static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets);

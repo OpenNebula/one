@@ -201,14 +201,20 @@ public:
      *    @param user_groups Set of group IDs that the user is part of
      *    @param auth_object object type
      *    @param all returns if the user can access all objects
+     *    @param disable_all_acl e.g. NET\*
+     *    @param disable_cluster_acl e.g. NET/%100
+     *    @param disable_group_acl e.g. NET/@102
      *    @param filter the resulting filter string
+     *
      */
     static void acl_filter(int                       uid,
                            const set<int>&           user_groups,
                            PoolObjectSQL::ObjectType auth_object,
                            bool&                     all,
+                           bool                      disable_all_acl,
+                           bool                      disable_cluster_acl,
+                           bool                      disable_group_acl,
                            string&                   filter);
-
     /**
      *  Creates a filter for the objects owned by a given user/group
      *    @param uid the user id
