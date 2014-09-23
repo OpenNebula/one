@@ -336,6 +336,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/vendor/4.0/jgrowl \
+               $SUNSTONE_LOCATION/public/vendor/4.0/resumablejs \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation \
                $SUNSTONE_LOCATION/public/vendor/4.0/modernizr \
                $SUNSTONE_LOCATION/public/vendor/4.0/nouislider \
@@ -510,6 +511,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/4.0/jgrowl
+    SUNSTONE_PUBLIC_NEW_VENDOR_RESUMABLEJS:$SUNSTONE_LOCATION/public/vendor/4.0/resumablejs
     SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/4.0/
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION:$SUNSTONE_LOCATION/public/vendor/4.0/foundation
     SUNSTONE_PUBLIC_NEW_VENDOR_MODERNIZR:$SUNSTONE_LOCATION/public/vendor/4.0/modernizr
@@ -1539,6 +1541,9 @@ SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
     src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.js \
     src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.css"
 
+
+SUNSTONE_PUBLIC_NEW_VENDOR_RESUMABLEJS="\
+    src/sunstone/public/bower_components/resumablejs/resumable.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES="\
     src/sunstone/public/bower_components/foundation-datatables/integration/foundation/dataTables.foundation.js"

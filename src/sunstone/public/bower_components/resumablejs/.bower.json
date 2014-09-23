@@ -1,0 +1,24 @@
+{
+  "name": "resumable.js",
+  "main": "resumable.js",
+  "ignore": [
+    ".gitignore",
+    "*.md"
+  ],
+  "keywords": [
+    "HTML5 File API",
+    "Upload",
+    "Large files"
+  ],
+  "homepage": "https://github.com/23/resumable.js",
+  "_release": "703fc629fe",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "703fc629feb01e8fe58f8faab62ceb2f24aaa1e6"
+  },
+  "_source": "git://github.com/23/resumable.js.git",
+  "_target": "*",
+  "_originalSource": "resumablejs",
+  "_direct": true
+}
