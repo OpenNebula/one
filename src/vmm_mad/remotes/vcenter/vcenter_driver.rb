@@ -401,6 +401,7 @@ class VCenterVm
 
     ############################################################################
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
+    #    @param client [VCenterClient] client to connect to vCenter
     #    @param vm_vi [RbVmomi::VirtualMachine] it will be used if not nil
     ########################################################################
     def initialize(client, vm_vi )

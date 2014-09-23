@@ -33,8 +33,11 @@ require 'vcenter_driver'
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
-host_id      = VCenterDriver::VCenterVm.translate_hostname(host)
+host_id      = VCenterDriver::VIClient.translate_hostname(host)
 vi_client    = VCenterDriver::VIClient.new host_id
-vm           = connection.find_vm_template(deploy_id)
+vm           = vi_client.find_vm_template(deploy_id)
+vm           = VCenterDriver::VCenterVm.new(vi_client, vm)
+
+vm.monitor
 
 puts vm.info
