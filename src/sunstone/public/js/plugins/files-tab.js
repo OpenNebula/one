@@ -93,6 +93,7 @@ var create_file_tmpl ='<div class="row">\
                </div>\
                <div class="row">\
                   <div id="files_file-uploader" class="large-12 columns text-center">\
+                    <input id="files_file-uploader-input" type="file"/>\
                   </div>\
                </div>\
             </fieldset>\
@@ -623,6 +624,68 @@ function setupCreateFileDialog(){
 
     var file_obj;
 
+    var uploader = new Resumable({
+        target: '/upload_chunk',
+        chunkSize: 10*1024*1024,
+        maxFiles: 1,
+        testChunks: false,
+        query: {
+            csrftoken: csrftoken
+        }
+    });
+
+    uploader.assignBrowse($('#files_file-uploader-input',dialog)[0]);
+
+    var fileName = '';
+    var file_input = false;
+
+    uploader.on('fileAdded', function(file){
+        fileName = file.fileName;
+        file_input = fileName;
+    });
+
+    uploader.on('uploadStart', function() {
+        $('#files_upload_progress_bars').append('<div id="files-'+fileName+'-progressBar" class="row" style="margin-bottom:10px">\
+          <div id="files-'+fileName+'-info" class="large-2 columns dataTables_info">\
+            '+tr("Uploading...")+'\
+          </div>\
+          <div class="large-10 columns">\
+            <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+              <span class="meter" style="width:0%"></span>\
+            </div>\
+            <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
+          </div>\
+        </div>');
+    });
+
+    uploader.on('progress', function() {
+        $('span.meter', $('div[id="files-'+fileName+'-progressBar"]')).css('width', uploader.progress()*100.0+'%')
+    });
+
+    uploader.on('fileSuccess', function(file) {
+        $('div[id="files-'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
+        $.ajax({
+            url: '/upload',
+            type: "POST",
+            data: {
+                csrftoken: csrftoken,
+                img : JSON.stringify(img_obj),
+                file: fileName,
+                tempfile: file.uniqueIdentifier
+            },
+            success: function(){
+                notifyMessage("Image uploaded correctly");
+                $('div[id="file-'+fileName+'-progressBar"]').remove();
+                Sunstone.runAction("Image.refresh");
+            },
+            error: function(response){
+                //onError({}, JSON.parse(response) );
+                notifyMessage(response);
+                $('div[id="file-'+fileName+'-progressBar"]').remove();
+            }
+        });
+    });
+/*
     // Upload is handled by FileUploader vendor plugin
     var uploader = new qq.FileUploaderBasic({
         button: $('#files_file-uploader',$create_file_dialog)[0],
@@ -687,11 +750,10 @@ function setupCreateFileDialog(){
         onCancel: function(id, fileName){
         }
     });
+*/
 
-    var file_input = false;
-    uploader._button._options.onChange = function(input) {
-        file_input = input;  return false;
-    };
+
+
 
     $('#create_file_form_easy',dialog).submit(function(){
         var upload = false;
