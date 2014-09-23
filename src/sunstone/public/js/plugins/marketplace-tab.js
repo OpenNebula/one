@@ -104,7 +104,7 @@ var market_actions = {
                         '<div class="large-2 columns market_image_result">'+
                         '</div>'+
                     '</div>'+
-                    '<div class="large-10 large-centered columns market_image_response">'+
+                    '<div class="large-10 columns market_image_response">'+
                     '</div>'+
                 '</div>').appendTo($("#market_import_dialog_content"));
             })
@@ -132,7 +132,7 @@ var market_actions = {
                         '<div class="large-2 columns market_template_result">'+
                         '</div>'+
                     '</div>'+
-                    '<div class="large-10 large-centered columns market_template_response">'+
+                    '<div class="large-10 columns market_template_response">'+
                     '</div>'+
                 '</div>').appendTo($("#market_import_dialog_content"));
             }
