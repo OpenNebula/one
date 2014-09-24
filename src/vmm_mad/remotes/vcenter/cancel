@@ -31,11 +31,17 @@ require 'vcenter_driver'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
+vm_id     = ARGV[-2]
+
+vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
+vm.info
+
+lcm_state = vm.lcm_state_str
 
 begin
-    puts VCenterDriver::VCenterVm.cancel(deploy_id, host)
-    exit 0
+    puts VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state)
 rescue Exception => e
     STDERR.puts "Cancel of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
+    exit -1
 end

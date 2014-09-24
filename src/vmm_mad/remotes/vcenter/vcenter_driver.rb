@@ -419,63 +419,16 @@ class VCenterVm
     # Deploys a VM
     #  @xml_text XML repsentation of the VM
     ############################################################################
-    def self.deploy(xml_text)
-
-        xml = REXML::Document.new xml_text
-
-        pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
-
-        raise "Cannot find VCenter element in VM template." if pcs.nil?
-
-        template = pcs.find { |t|
-            type = t.elements["TYPE"]
-            !type.nil? && type.text.downcase == "vcenter"
-        }
-
-        raise "Cannot find VCenter element in VM template." if template.nil?
-
-        uuid = template.elements["VM_TEMPLATE"]
-
-        raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
-
-        uuid = uuid.text
-
-        vmid = xml.root.elements["/VM/ID"].text
-
-        hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
-
-        raise "Cannot find host id in deployment file history." if hid.nil?
-
-        connection  = VIClient.new(hid)
-
-        vc_template = connection.find_vm_template(uuid)
-
-        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
-            :diskMoveType => :moveChildMostDiskBacking,
-            :pool         => connection.resource_pool)
-
-        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
-            :location => relocate_spec,
-            :powerOn  => true,
-            :template => false)
-
-        rc = vc_template.CloneVM_Task(
-            :folder => vc_template.parent,
-            :name   => "one-#{vmid}",
-            :spec   => clone_spec).wait_for_completion
-
-        vm_uuid = rc.config.uuid
-
-        vnc_port = xml.root.elements["/VM/TEMPLATE/GRAPHICS/PORT"]
-
-        if vnc_port
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => 
-                     [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"}, 
-                      {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text}])
-            rc.ReconfigVM_Task(:spec => spec).wait_for_completion
+    def self.deploy(xml_text, lcm_state, deploy_id, hostname)
+        if lcm_state == "BOOT"
+            return clone_vm(xml_text)
+        else
+            hid         = VIClient::translate_hostname(hostname)
+            connection  = VIClient.new(hid)
+            vm          = connection.find_vm_template(deploy_id)
+            vm.PowerOnVM_Task.wait_for_completion
+            return vm.config.uuid
         end
-
-        return vm_uuid
     end
 
     ############################################################################
@@ -483,14 +436,21 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.cancel(deploy_id, hostname)
-        hid         = VIClient::translate_hostname(hostname)
-        connection  = VIClient.new(hid)
+    def self.cancel(deploy_id, hostname, lcm_state)
+        case lcm_state
+            when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+                shutdown(deploy_id, hostname, lcm_state)
+            when "CANCEL"
+                hid         = VIClient::translate_hostname(hostname)
+                connection  = VIClient.new(hid)
+                vm          = connection.find_vm_template(deploy_id)
 
-        vm          = connection.find_vm_template(deploy_id)
-
-        vm.PowerOffVM_Task.wait_for_completion
-        vm.Destroy_Task.wait_for_completion
+                begin
+                    vm.PowerOffVM_Task.wait_for_completion
+                rescue
+                end
+                vm.Destroy_Task.wait_for_completion
+        end
     end
 
     ############################################################################
@@ -498,13 +458,17 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.save(deploy_id, hostname)
-        hid         = VIClient::translate_hostname(hostname)
-        connection  = VIClient.new(hid)
+    def self.save(deploy_id, hostname, lcm_state)
+        case lcm_state
+            when "SAVE_MIGRATE"
+                raise "Migration between vCenters cluster not supported"
+            when "SAVE_SUSPEND", "SAVE_STOP"
+                hid         = VIClient::translate_hostname(hostname)
+                connection  = VIClient.new(hid)
+                vm          = connection.find_vm_template(deploy_id)
 
-        vm          = connection.find_vm_template(deploy_id)
-
-        vm.SuspendVM_Task.wait_for_completion
+                vm.SuspendVM_Task.wait_for_completion
+        end
     end
 
     ############################################################################
@@ -515,7 +479,6 @@ class VCenterVm
     def self.resume(deploy_id, hostname)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
-
         vm          = connection.find_vm_template(deploy_id)
 
         vm.PowerOnVM_Task.wait_for_completion
@@ -554,14 +517,27 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.shutdown(deploy_id, hostname)
+    def self.shutdown(deploy_id, hostname, lcm_state)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
         vm          = connection.find_vm_template(deploy_id)
 
-        vm.ShutdownGuest.wait_for_completion
-        vm.UnregisterVM.wait_for_completion
+        case lcm_state
+            when "SHUTDOWN"
+                begin
+                    vm.ShutdownGuest.wait_for_completion
+                rescue
+                end
+                vm.PowerOffVM_Task.wait_for_completion
+                vm.Destroy_Task.wait_for_completion
+            when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+                begin
+                    vm.ShutdownGuest.wait_for_completion
+                rescue
+                end
+                vm.PowerOffVM_Task.wait_for_completion
+        end
     end
 
     ############################################################################
@@ -696,7 +672,11 @@ class VCenterVm
               "  TYPE        =\"vcenter\",\n"\
               "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
               "]\n"\
-              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+              "GRAPHICS = [\n"\
+              "  TYPE     =\"vnc\",\n"\
+              "  LISTEN   =\"0.0.0.0\"\n"\
+              "]\n"\
+         "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
     end
 
 private
@@ -713,6 +693,76 @@ private
             else
                 'd'
         end
+    end
+
+    ########################################################################
+    #  Clone a vCenter VM Template and leaves it powered on
+    ########################################################################    
+    def self.clone_vm(xml_text)
+
+        xml = REXML::Document.new xml_text
+
+        pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
+
+        raise "Cannot find VCenter element in VM template." if pcs.nil?
+
+        template = pcs.find { |t|
+            type = t.elements["TYPE"]
+            !type.nil? && type.text.downcase == "vcenter"
+        }
+
+        raise "Cannot find VCenter element in VM template." if template.nil?
+
+        uuid = template.elements["VM_TEMPLATE"]
+
+        raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
+
+        uuid = uuid.text
+
+        vmid = xml.root.elements["/VM/ID"].text
+
+        hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
+
+        raise "Cannot find host id in deployment file history." if hid.nil?
+
+        connection  = VIClient.new(hid)
+
+        vc_template = connection.find_vm_template(uuid)
+
+        relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
+            :diskMoveType => :moveChildMostDiskBacking,
+            :pool         => connection.resource_pool)
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
+            :location => relocate_spec,
+            :powerOn  => true,
+            :template => false)
+
+        rc = vc_template.CloneVM_Task(
+            :folder => vc_template.parent,
+            :name   => "one-#{vmid}",
+            :spec   => clone_spec).wait_for_completion
+
+        vm_uuid = rc.config.uuid
+
+        vnc_port   = xml.root.elements["/VM/TEMPLATE/GRAPHICS/PORT"]
+        vnc_listen = xml.root.elements["/VM/TEMPLATE/GRAPHICS/LISTEN"]
+
+        if !vnc_listen
+            vnc_listen = "0.0.0.0"
+        else
+            vnc_listen = vnc_listen.text
+        end
+
+        if vnc_port
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => 
+                     [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"}, 
+                      {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text},
+                      {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}])
+            rc.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
+
+        return vm_uuid
     end
 end
 end

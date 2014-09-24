@@ -25,6 +25,6 @@ fi
 LOCAL_ACTIONS="deploy,shutdown,reboot,cancel,save,restore,migrate,poll,pre"
 LOCAL_ACTIONS="${LOCAL_ACTIONS},post,clean"
 LOCAL_ACTIONS="${LOCAL_ACTIONS},snapshotcreate,snapshotrevert,snapshotdelete"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_nic,detach_nic"
+LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_nic,detach_nic,reset"
 
 exec $MAD_LOCATION/one_vmm_exec -l $LOCAL_ACTIONS $*
