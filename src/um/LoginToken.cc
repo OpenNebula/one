@@ -24,7 +24,8 @@ using namespace std;
 
 bool LoginToken::is_valid(const string& user_token) const
 {
-    return ((user_token == token) && (time(0) < expiration_time));
+    return ((user_token == token) &&
+            ((expiration_time == -1) || (time(0) < expiration_time)));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -32,7 +33,18 @@ bool LoginToken::is_valid(const string& user_token) const
 
 const std::string& LoginToken::set(const std::string& user_token, time_t valid)
 {
-    expiration_time = time(0) + valid;
+    if (valid == -1)
+    {
+        expiration_time = -1;
+    }
+    else if (valid > 0 )
+    {
+        expiration_time = time(0) + valid;
+    }
+    else
+    {
+        expiration_time = 0;
+    }
 
     if (user_token.empty())
     {

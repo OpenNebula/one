@@ -121,7 +121,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :name  => "time",
         :large => "--time x",
         :format => Integer,
-        :description => "Token duration in seconds, defaults to 3600 (1 h)"
+        :description => "Token duration in seconds, defaults to 36000 (10 h). "\
+                        "To reset the token set time to 0." \
+                        "To generate a non-expiring token use -1"\
+                        " (not valid for ssh and x509 tokens). "\
     }
 
     DRIVER={
@@ -339,7 +342,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :login, login_desc, :username, :options=>login_options do
 
-        options[:time] ||= 3600
+        options[:time] ||= 36000
 
         helper.login(args[0], options)
     end

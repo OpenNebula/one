@@ -446,15 +446,24 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (valid <= 0) //Reset token
+    if (valid == 0) //Reset token
     {
         user->login_token.reset();
 
         token = "";
     }
-    else
+    else if (valid > 0 || valid == -1)
     {
         token = user->login_token.set(token, valid);
+    }
+    else
+    {
+        failure_response(XML_RPC_API,
+            request_error("Wrong valid period for token",""), att);
+
+        user->unlock();
+
+        return;
     }
 
     pool->update(user);
