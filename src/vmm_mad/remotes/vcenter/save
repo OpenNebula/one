@@ -28,15 +28,22 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'opennebula'
 
 deploy_id = ARGV[0]
 file      = ARGV[1]
 host      = ARGV[2]
+vm_id     = ARGV[-2]
+
+vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
+vm.info
+
+lcm_state = vm.lcm_state_str
 
 begin
-    puts VCenterDriver::VCenterVm.save(deploy_id, host)
-    exit 0
+    puts VCenterDriver::VCenterVm.save(deploy_id, host, lcm_state)
 rescue Exception => e
     STDERR.puts "Save of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
+    exit -1
 end

@@ -33,9 +33,9 @@ host            = ARGV[-1]
 deploy_id       = ARGV[2]
 
 begin
-    puts VCenterDriver::VCenterVm.resume(deploy_id, host)
-    exit 0
+    VCenterDriver::VCenterVm.resume(deploy_id, host)
 rescue Exception => e
     STDERR.puts "Restore of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
+    exit -1
 end

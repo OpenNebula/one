@@ -33,9 +33,9 @@ deploy_id = ARGV[0]
 host      = ARGV[1]
 
 begin
-    puts VCenterDriver::VCenterVm.reboot(deploy_id, host)
-    exit 0
+    VCenterDriver::VCenterVm.reboot(deploy_id, host)
 rescue Exception => e
     STDERR.puts "Guest reboot of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
+    exit -1
 end

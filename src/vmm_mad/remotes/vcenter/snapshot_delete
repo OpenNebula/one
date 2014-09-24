@@ -34,11 +34,11 @@ snapshot_name = ARGV[1]
 host          = ARGV[3]
 
 begin
-    puts VCenterDriver::VCenterVm.delete_snapshot(deploy_id,
-                                                  host, 
-                                                  snapshot_name)
-    exit 0
+    VCenterDriver::VCenterVm.delete_snapshot(deploy_id,
+                                             host, 
+                                             snapshot_name)
 rescue Exception => e
     STDERR.puts "Snapshot of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
+    exit -1
 end

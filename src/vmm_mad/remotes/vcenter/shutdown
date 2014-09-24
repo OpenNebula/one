@@ -28,10 +28,21 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'opennebula'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
+vm_id     = ARGV[-2]
 
-vmware_drv = VMwareDriver.new(host)
+vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
+vm.info
 
-vmware_drv.shutdown(deploy_id)
+lcm_state     = vm.lcm_state_str
+
+begin
+    VCenterDriver::VCenterVm.shutdown(deploy_id, host, lcm_state)
+rescue Exception => e
+    STDERR.puts "Shutdown of VM #{deploy_id} on host #{host} failed " +
+                "due to \"#{e.message}\""
+    exit -1
+end
