@@ -936,7 +936,7 @@ function initialize_create_image_dialog(dialog) {
         }
     });
 
-    uploader.assignBrowse($('#file-uploader-input',dialog)[0]);
+    uploader.assignBrowse($('#file-uploader-input',dialog));
 
     var fileName = '';
     var file_input = false;
