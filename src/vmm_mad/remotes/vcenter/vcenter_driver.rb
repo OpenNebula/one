@@ -639,7 +639,14 @@ class VCenterVm
         @used_memory = 0 if @used_memory.to_i < 0
         @used_cpu    = 0 if @used_cpu.to_i < 0
 
-        @esx_host    = @vm.summary.runtime.host.name
+        @esx_host       = @vm.summary.runtime.host.name
+        @guest_ip       = @vm.guest.ipAddress
+        @guest_state    = @vm.guest.guestState
+        @vmware_tools   = @vm.guest.toolsRunningStatus
+        @vmtools_ver    = @vm.guest.toolsVersion
+        @vmtools_verst  = @vm.guest.toolsVersionStatus 
+
+
     end
 
     ########################################################################
@@ -650,12 +657,17 @@ class VCenterVm
 
       str_info = ""
 
-      str_info << "STATE="     << @state            << " "
-      str_info << "USEDCPU="   << @used_cpu.to_s    << " "
-      str_info << "USEDMEMORY="<< @used_memory.to_s << " "
-      str_info << "NETRX="     << @net_rx.to_s      << " "
-      str_info << "NETTX="     << @net_tx.to_s      << " "
-      str_info << "ESX_HOST="  << @esx_host.to_s
+      str_info << "GUEST_IP=" << @guest_ip.to_s << " " if @guest_ip
+      str_info << "STATE="                      << @state                << " "
+      str_info << "USEDCPU="                    << @used_cpu.to_s        << " "
+      str_info << "USEDMEMORY="                 << @used_memory.to_s     << " "
+      str_info << "NETRX="                      << @net_rx.to_s          << " "
+      str_info << "NETTX="                      << @net_tx.to_s          << " "
+      str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
+      str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
+      str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
+      str_info << "VMWARETOOLS_VERSION="        << @vmtools_ver.to_s     << " "
+      str_info << "VMWARETOOLS_VERSION_STATUS=" << @vmtools_verst.to_s   << " "
     end
 
     ########################################################################
