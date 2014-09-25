@@ -1546,7 +1546,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/support-tab.js \
                         src/sunstone/public/js/plugins/zones-tab.js"
 
-SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb"
+SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
+  src/sunstone/routes/vcenter.rb"
 
 # begin bower
 
