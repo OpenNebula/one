@@ -31,25 +31,26 @@ var create_host_tmpl =
       <label for="name">' + tr("Hostname")  + '</label>\
       <input type="text" name="name" id="name" />\
     </div>\
-    <div class="large-6 columns" id="cluster_select">\
-      <label for="host_cluster_id">' + tr("Cluster") + '</label>\
-      <div id="host_cluster_id" name="host_cluster_id">\
-      </div>\
-    </div>\
-  </div>\
-  <div class="row">\
     <div class="large-6 columns">\
         <label for="host_type">' +  tr("Type") + '</label>\
         <select id="host_type_mad" name="host_type">\
               <option value="kvm">' + tr("KVM") + '</option>\
               <option value="xen">' + tr("XEN") + '</option>\
               <option value="vmware">' + tr("VMware") + '</option>\
+              <option value="vcenter">' + tr("vCenter") + '</option>\
               <option value="az">' + tr("Microsoft Azure") + '</option>\
               <option value="ec2">' + tr("Amazon EC2") + '</option>\
               <option value="sl">' + tr("IBM Softlayer") + '</option>\
               <option value="dummy">' + tr("Dummy") + '</option>\
               <option value="custom">' + tr("Custom") + '</option>\
         </select>\
+    </div>\
+  </div>\
+  <div class="row">\
+    <div class="large-6 columns" id="cluster_select">\
+      <label for="host_cluster_id">' + tr("Cluster") + '</label>\
+      <div id="host_cluster_id" name="host_cluster_id">\
+      </div>\
     </div>\
     <div class="large-6 columns">\
       <div class="manager clear row" id="vnm_mads">\
@@ -84,6 +85,7 @@ var create_host_tmpl =
                       <option value="kvm">' + tr("KVM") + '</option>\
                       <option value="xen">' + tr("XEN") + '</option>\
                       <option value="vmware">' + tr("VMware") + '</option>\
+                      <option value="vcenter">' + tr("vCenter") + '</option>\
                       <option value="az">' + tr("Microsoft Azure") + '</option>\
                       <option value="ec2">' + tr("Amazon EC2") + '</option>\
                       <option value="sl">' + tr("IBM Softlayer") + '</option>\
@@ -105,6 +107,7 @@ var create_host_tmpl =
                      <option value="kvm">' + tr("KVM") + '</option>\
                      <option value="xen">' + tr("XEN") + '</option>\
                      <option value="vmware">' + tr("VMware") + '</option>\
+                     <option value="vcenter">' + tr("vCenter") + '</option>\
                       <option value="az">' + tr("Microsoft Azure") + '</option>\
                       <option value="ec2">' + tr("Amazon EC2") + '</option>\
                       <option value="sl">' + tr("IBM Softlayer") + '</option>\
@@ -118,6 +121,27 @@ var create_host_tmpl =
             </div>\
           </div>\
         </div>\
+      </div>\
+    </fieldset>\
+  </div>\
+  <div class="row vcenter_credentials hidden">\
+    <fieldset>\
+      <legend>'+tr("vCenter")+'</legend>\
+      <div class="large-6 columns">\
+        <label for="vcenter_user">' + tr("User")  + '</label>\
+        <input type="text" name="vcenter_user" id="vcenter_user" />\
+      </div>\
+      <div class="large-6 columns">\
+        <label for="vcenter_host">' + tr("Hostname")  + '</label>\
+        <input type="text" name="vcenter_host" id="vcenter_host" />\
+      </div>\
+      <div class="large-6 columns">\
+        <label for="vcenter_password">' + tr("Password")  + '</label>\
+        <input type="text" name="vcenter_password" id="vcenter_password" />\
+      </div>\
+      <div class="large-6 columns">\
+        <br>\
+        <a class="button radius small right">'+tr("Get vCenter Clusters")+'</a>\
       </div>\
     </fieldset>\
   </div>\
@@ -938,8 +962,19 @@ function setupCreateHostDialog(){
       $("#im_mad", $create_host_dialog).val(this.value).change();
 
       if (this.value == "custom") {
+        $(".vcenter_credentials", $create_host_dialog).hide();
+        $("#vnm_mads", $create_host_dialog).show();
+        $("#create_host_submit", $create_host_dialog).removeAttr("disabled");
         $(".drivers", $create_host_dialog).show();
+      } else if (this.value == "vcenter") {
+        $("#vnm_mads", $create_host_dialog).hide();
+        $(".vcenter_credentials", $create_host_dialog).show();
+        $("#create_host_submit", $create_host_dialog).attr("disabled", "disabled");
+        $(".drivers", $create_host_dialog).hide();
       } else {
+        $(".vcenter_credentials", $create_host_dialog).hide();
+        $("#vnm_mads", $create_host_dialog).show();
+        $("#create_host_submit", $create_host_dialog).removeAttr("disabled");
         $(".drivers", $create_host_dialog).hide();
       }
     })
