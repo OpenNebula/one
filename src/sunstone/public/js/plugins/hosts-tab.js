@@ -28,10 +28,6 @@ var create_host_tmpl =
   <form id="create_host_form" action="" class="">\
   <div class="row">\
     <div class="large-6 columns">\
-      <label for="name">' + tr("Hostname")  + '</label>\
-      <input type="text" name="name" id="name" />\
-    </div>\
-    <div class="large-6 columns">\
         <label for="host_type">' +  tr("Type") + '</label>\
         <select id="host_type_mad" name="host_type">\
               <option value="kvm">' + tr("KVM") + '</option>\
@@ -45,12 +41,16 @@ var create_host_tmpl =
               <option value="custom">' + tr("Custom") + '</option>\
         </select>\
     </div>\
-  </div>\
-  <div class="row">\
     <div class="large-6 columns" id="cluster_select">\
       <label for="host_cluster_id">' + tr("Cluster") + '</label>\
       <div id="host_cluster_id" name="host_cluster_id">\
       </div>\
+    </div>\
+  </div>\
+  <div class="row">\
+    <div class="large-6 columns">\
+      <label for="name">' + tr("Hostname")  + '</label>\
+      <input type="text" name="name" id="name" />\
     </div>\
     <div class="large-6 columns">\
       <div class="manager clear row" id="vnm_mads">\
@@ -982,16 +982,19 @@ function setupCreateHostDialog(){
       if (this.value == "custom") {
         $(".vcenter_credentials", $create_host_dialog).hide();
         $("#vnm_mads", $create_host_dialog).show();
+        $("#name", $create_host_dialog).show();
         $("#create_host_submit", $create_host_dialog).show();
         $(".drivers", $create_host_dialog).show();
       } else if (this.value == "vcenter") {
         $("#vnm_mads", $create_host_dialog).hide();
+        $("#name", $create_host_dialog).hide();
         $(".vcenter_credentials", $create_host_dialog).show();
         $("#create_host_submit", $create_host_dialog).hide();
         $(".drivers", $create_host_dialog).hide();
       } else {
         $(".vcenter_credentials", $create_host_dialog).hide();
         $("#vnm_mads", $create_host_dialog).show();
+        $("#name", $create_host_dialog).show();
         $("#create_host_submit", $create_host_dialog).show();
         $(".drivers", $create_host_dialog).hide();
       }
@@ -1008,7 +1011,7 @@ function setupCreateHostDialog(){
       $.ajax({
           url: '/vcenter',
           type: "GET",
-          //data: {timeout: timeout},
+          data: {timeout: false},
           dataType: "json",
           headers: {
             "X_VCENTER_USER": $("#vcenter_user", $create_host_dialog).val(),
@@ -1017,24 +1020,26 @@ function setupCreateHostDialog(){
           },
           success: function(response){
               console.log(response);
+              $("#vcenter_user", $create_host_dialog).attr("disabled", "disabled")
+              $("#vcenter_password", $create_host_dialog).attr("disabled", "disabled")
+              $("#vcenter_host", $create_host_dialog).attr("disabled", "disabled")
               $("#get_vcenter_clusters", $create_host_dialog).hide();
               $(".import_vcenter_clusters_div", $create_host_dialog).show();
 
               var vcenter_container = $(".vcenter_clusters", $create_host_dialog);
               vcenter_container.html("");
-
               $('<div class="row">' +
                   '<div class="large-12 columns">' +
-                    '<h5>' +
-                      datacenter_name + ' ' + tr("Clusters") +
-                    '</h5>' +
+                    '<p style="color: #999">' + tr("Please select the vCenter Clusters to be imported to OpenNebula. Each vCenter Cluster will be included as a new OpenNebula Host") + '</p>' +
                   '</div>' +
                 '</div>').appendTo(vcenter_container)
 
               $.each(response, function(datacenter_name, clusters){
                 $('<div class="row">' +
                     '<div class="large-12 columns">' +
-                      '<span style="color: #999">' + tr("Please select the vCenter Clusters and Templates to be imported to OpenNebula. Each vCenter Cluster will be included as a new OpenNebula Host") + '</span>' +
+                      '<h5>' +
+                        datacenter_name + ' ' + tr("Clusters") +
+                      '</h5>' +
                     '</div>' +
                   '</div>').appendTo(vcenter_container)
 
@@ -1050,12 +1055,16 @@ function setupCreateHostDialog(){
                   $.each(clusters, function(id, cluster_name){
                     var row = $('<div class="vcenter_cluster">' +
                         '<div class="row">' +
-                          '<div class="large-12 columns">' +
+                          '<div class="large-10 columns">' +
                             '<label>' +
                               '<input type="checkbox" class="cluster_name"/> ' +
                               cluster_name +
                             '</label>' +
+                            '<div class="large-12 columns vcenter_host_response">'+
+                            '</div>'+
                           '</div>' +
+                          '<div class="large-2 columns vcenter_host_result">'+
+                          '</div>'+
                         '</div>'+
                         '<div class="vcenter_templates">'+
                         '</div>'+
@@ -1064,66 +1073,185 @@ function setupCreateHostDialog(){
                     $(".cluster_name", row).data("cluster_name", cluster_name)
                     $(".cluster_name", row).data("datacenter_name", datacenter_name)
                     $(".cluster_name", row).on("change", function(){
-                      var path = '/vcenter/' + $(this).data("datacenter_name") + '/cluster/' + $(this).data("cluster_name");
-                      var templates_container = $(".vcenter_templates", $(this).closest(".vcenter_cluster"))
-                      templates_container.html(generateAdvancedSection({
-                        html_id: path,
-                        title: tr("Templates"),
-                        content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
-                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-                        '</span>'
-                      }))
+                      var templates_container = $(".vcenter_templates", $(this).closest(".vcenter_cluster"));
+                      if ($(this).is(":checked")) {
+                        var path = '/vcenter/' + $(this).data("datacenter_name") + '/cluster/' + $(this).data("cluster_name");
+                        templates_container.html(generateAdvancedSection({
+                          html_id: path,
+                          title: tr("Templates"),
+                          content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                          '</span>'
+                        }))
 
-                      $('a', templates_container).trigger("click")
+                        $('a', templates_container).trigger("click")
 
-                      $.ajax({
-                          url: path,
-                          type: "GET",
-                          //data: {timeout: timeout},
-                          dataType: "json",
-                          headers: {
-                            "X_VCENTER_USER": $("#vcenter_user", $create_host_dialog).val(),
-                            "X_VCENTER_PASSWORD": $("#vcenter_password", $create_host_dialog).val(),
-                            "X_VCENTER_HOST": $("#vcenter_host", $create_host_dialog).val()
-                          },
-                          success: function(response){
-                            $(".content", templates_container).html("");
-                            console.log(response);
-                            $.each(response, function(id, template){
-                              var trow = $('<div class="vcenter_template">' +
-                                  '<div class="row">' +
-                                    '<div class="large-12 columns">' +
-                                      '<label>' +
-                                        '<input type="checkbox" class="template_name"/> ' +
-                                        template.name + '&emsp;<span style="color: #999">' + template.uuid + '</span>' +
-                                      '</label>' +
-                                    '</div>' +
-                                  '</div>'+
-                                  '<div class="vcenter_templates">'+
-                                  '</div>'+
-                                '</div>').appendTo($(".content", templates_container))
+                        $.ajax({
+                            url: path,
+                            type: "GET",
+                            data: {timeout: false},
+                            dataType: "json",
+                            headers: {
+                              "X_VCENTER_USER": $("#vcenter_user", $create_host_dialog).val(),
+                              "X_VCENTER_PASSWORD": $("#vcenter_password", $create_host_dialog).val(),
+                              "X_VCENTER_HOST": $("#vcenter_host", $create_host_dialog).val()
+                            },
+                            success: function(response){
+                              $(".content", templates_container).html("");
+                              console.log(response);
+                              $.each(response, function(id, template){
+                                var trow = $('<div class="vcenter_template">' +
+                                    '<div class="row">' +
+                                      '<div class="large-10 columns">' +
+                                        '<label>' +
+                                          '<input type="checkbox" class="template_name" checked/> ' +
+                                          template.name + '&emsp;<span style="color: #999">' + template.uuid + '</span>' +
+                                        '</label>' +
+                                        '<div class="large-12 columns vcenter_template_response">'+
+                                        '</div>'+
+                                      '</div>' +
+                                      '<div class="large-2 columns vcenter_template_result">'+
+                                      '</div>'+
+                                    '</div>'+
+                                    '<div class="vcenter_templates">'+
+                                    '</div>'+
+                                  '</div>').appendTo($(".content", templates_container))
 
-                              $(".template_name", trow).data("template_name", template.name)
-                              $(".template_name", trow).data("one_template", template.one)
-                            });
-                          },
-                          error: function(response){
+                                $(".template_name", trow).data("template_name", template.name)
+                                $(".template_name", trow).data("one_template", template.one)
+                              });
+                            },
+                            error: function(response){
+                              templates_container.html("");
                               onError({}, OpenNebula.Error(response));
-                          }
-                      });
+                            }
+                        });
+                      } else {
+                        templates_container.html("");
+                      }
                     })
                   });
                 }
               });
           },
           error: function(response){
-              onError({}, OpenNebula.Error(response));
+            $(".vcenter_clusters", $create_host_dialog).html('')
+            onError({}, OpenNebula.Error(response));
           }
       });
 
       return false;
     })
+
+
+    $("#import_vcenter_clusters", $create_host_dialog).on("click", function(){
+      $(this).hide();
+
+      var cluster_id = $('#host_cluster_id .resource_list_select', $create_host_dialog).val();
+      if (!cluster_id) cluster_id = "-1";
+
+      $.each($(".cluster_name:checked", $create_host_dialog), function(){
+        console.log($(this).data("cluster_name"));
+
+        var context = $(this).closest(".vcenter_cluster");
+        $(".vcenter_host_result:not(.success)", context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>');
+
+        var host_json = {
+            "host": {
+                "name": $(this).data("cluster_name"),
+                "vm_mad": "vcenter",
+                "vnm_mad": "dummy",
+                "im_mad": "vcenter",
+                "cluster_id": cluster_id
+            }
+        };
+
+        OpenNebula.Host.create({
+            timeout: true,
+            data: host_json,
+            success: function (cluster_context){
+                return function(request, response) {
+                    $(".vcenter_host_result", cluster_context).addClass("success").html(
+                        '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                          '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                        '</span>');
+
+                    $(".vcenter_host_response", cluster_context).html('<p style="font-size:12px" class="running-color">'+
+                          tr("Host created successfully")+' ID:'+response.HOST.ID+
+                        '</p>');
+
+                    var template_raw =
+                      "VCENTER_USER=\"" + $("#vcenter_user", $create_host_dialog).val() + "\"\n" +
+                      "VCENTER_PASSWORD=\"" + $("#vcenter_password", $create_host_dialog).val() + "\"\n" +
+                      "VCENTER_HOST=\"" + $("#vcenter_host", $create_host_dialog).val() + "\"\n";
+
+                    Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+
+                    $.each($(".template_name:checked", cluster_context), function(){
+                      console.log($(this).data("one_template"));
+
+                      var template_context = $(this).closest(".vcenter_template");
+
+                      $(".vcenter_template_result:not(.success)", template_context).html(
+                          '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                          '</span>');
+
+                      var template_json = {
+                        "vmtemplate": {
+                          "template_raw": $(this).data("one_template")
+                        }
+                      };
+
+                      OpenNebula.Template.create({
+                          timeout: true,
+                          data: template_json,
+                          success: function(request, response) {
+                            $(".vcenter_template_result", template_context).addClass("success").html(
+                                '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                  '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                                '</span>');
+
+                            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">'+
+                                  tr("Template created successfully")+' ID:'+response.VMTEMPLATE.ID+
+                                '</p>');
+                          },
+                          error: function (request, error_json){
+                              $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                                    '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                                  '</span>');
+
+                              $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                                    (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                                  '</p>');
+                          }
+                      });
+                    })
+                };
+            }(context),
+            error: function (request, error_json){
+                $(".vcenter_host_result", context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                $(".vcenter_host_response", context).html('<p style="font-size:12px" class="error-color">'+
+                      (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                    '</p>');
+            }
+        });
+      })
+
+      return false
+    });
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
