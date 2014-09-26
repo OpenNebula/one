@@ -1019,7 +1019,6 @@ function setupCreateHostDialog(){
             "X_VCENTER_HOST": $("#vcenter_host", $create_host_dialog).val()
           },
           success: function(response){
-              console.log(response);
               $("#vcenter_user", $create_host_dialog).attr("disabled", "disabled")
               $("#vcenter_password", $create_host_dialog).attr("disabled", "disabled")
               $("#vcenter_host", $create_host_dialog).attr("disabled", "disabled")
@@ -1099,7 +1098,7 @@ function setupCreateHostDialog(){
                             },
                             success: function(response){
                               $(".content", templates_container).html("");
-                              console.log(response);
+
                               $.each(response, function(id, template){
                                 var trow = $('<div class="vcenter_template">' +
                                     '<div class="row">' +
@@ -1152,10 +1151,8 @@ function setupCreateHostDialog(){
       if (!cluster_id) cluster_id = "-1";
 
       $.each($(".cluster_name:checked", $create_host_dialog), function(){
-        console.log($(this).data("cluster_name"));
-
-        var context = $(this).closest(".vcenter_cluster");
-        $(".vcenter_host_result:not(.success)", context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+        var cluster_context = $(this).closest(".vcenter_cluster");
+        $(".vcenter_host_result:not(.success)", cluster_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
               '<i class="fa fa-cloud fa-stack-2x"></i>'+
               '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
             '</span>');
@@ -1173,70 +1170,69 @@ function setupCreateHostDialog(){
         OpenNebula.Host.create({
             timeout: true,
             data: host_json,
-            success: function (cluster_context){
-                return function(request, response) {
-                    $(".vcenter_host_result", cluster_context).addClass("success").html(
-                        '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
-                          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                          '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
-                        '</span>');
+            success: function(request, response) {
+              OpenNebula.Helper.clear_cache("HOST");
 
-                    $(".vcenter_host_response", cluster_context).html('<p style="font-size:12px" class="running-color">'+
-                          tr("Host created successfully")+' ID:'+response.HOST.ID+
-                        '</p>');
+              $(".vcenter_host_result", cluster_context).addClass("success").html(
+                  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                  '</span>');
 
-                    var template_raw =
-                      "VCENTER_USER=\"" + $("#vcenter_user", $create_host_dialog).val() + "\"\n" +
-                      "VCENTER_PASSWORD=\"" + $("#vcenter_password", $create_host_dialog).val() + "\"\n" +
-                      "VCENTER_HOST=\"" + $("#vcenter_host", $create_host_dialog).val() + "\"\n";
+              $(".vcenter_host_response", cluster_context).html('<p style="font-size:12px" class="running-color">'+
+                    tr("Host created successfully")+' ID:'+response.HOST.ID+
+                  '</p>');
 
-                    Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+              var template_raw =
+                "VCENTER_USER=\"" + $("#vcenter_user", $create_host_dialog).val() + "\"\n" +
+                "VCENTER_PASSWORD=\"" + $("#vcenter_password", $create_host_dialog).val() + "\"\n" +
+                "VCENTER_HOST=\"" + $("#vcenter_host", $create_host_dialog).val() + "\"\n";
 
-                    $.each($(".template_name:checked", cluster_context), function(){
-                      console.log($(this).data("one_template"));
+              Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
 
-                      var template_context = $(this).closest(".vcenter_template");
+              $.each($(".template_name:checked", cluster_context), function(){
+                var template_context = $(this).closest(".vcenter_template");
 
-                      $(".vcenter_template_result:not(.success)", template_context).html(
+                $(".vcenter_template_result:not(.success)", template_context).html(
+                    '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                var template_json = {
+                  "vmtemplate": {
+                    "template_raw": $(this).data("one_template")
+                  }
+                };
+
+                OpenNebula.Template.create({
+                    timeout: true,
+                    data: template_json,
+                    success: function(request, response) {
+                      OpenNebula.Helper.clear_cache("VMTEMPLATE");
+                      $(".vcenter_template_result", template_context).addClass("success").html(
                           '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
                             '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                            '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
                           '</span>');
 
-                      var template_json = {
-                        "vmtemplate": {
-                          "template_raw": $(this).data("one_template")
-                        }
-                      };
+                      $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">'+
+                            tr("Template created successfully")+' ID:'+response.VMTEMPLATE.ID+
+                          '</p>');
+                    },
+                    error: function (request, error_json){
+                        $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                              '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                            '</span>');
 
-                      OpenNebula.Template.create({
-                          timeout: true,
-                          data: template_json,
-                          success: function(request, response) {
-                            $(".vcenter_template_result", template_context).addClass("success").html(
-                                '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
-                                  '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
-                                '</span>');
-
-                            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">'+
-                                  tr("Template created successfully")+' ID:'+response.VMTEMPLATE.ID+
-                                '</p>');
-                          },
-                          error: function (request, error_json){
-                              $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
-                                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                                    '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
-                                  '</span>');
-
-                              $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
-                                    (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
-                                  '</p>');
-                          }
-                      });
-                    })
-                };
-            }(context),
+                        $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                              (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                            '</p>');
+                    }
+                });
+              })
+            },
             error: function (request, error_json){
                 $(".vcenter_host_result", context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
                       '<i class="fa fa-cloud fa-stack-2x"></i>'+
