@@ -38,7 +38,7 @@ begin
                                              host, 
                                              snapshot_name)
 rescue Exception => e
-    STDERR.puts "Snapshot of VM #{deploy_id} on host #{host} could not be  " +
+    STDERR.puts "Snapshot of VM #{deploy_id} on host #{host} could not be " +
                 "reverted due to \"#{e.message}\""
     exit -1
 end
