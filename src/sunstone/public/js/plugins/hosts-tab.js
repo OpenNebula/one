@@ -181,10 +181,6 @@ var host_actions = {
         call : OpenNebula.Host.create,
         callback : function(request, response) {
             // Reset the create wizard
-            $create_host_dialog.foundation('reveal', 'close');
-            $create_host_dialog.empty();
-            setupCreateHostDialog();
-
             addHostElement(request, response);
             notifyCustom(tr("Host created"), " ID: " + response.HOST.ID, false);
         },
@@ -467,12 +463,13 @@ function hostElements(){
     return getSelectedNodes(dataTable_hosts);
 }
 
-function generateCPUProgressBar(host) {
-    var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
+function generateCPUProgressBar(host, host_share_flag) {
+    var host_share = host_share_flag ? host : host.HOST_SHARE;
+    var max_cpu = parseInt(host_share.MAX_CPU);
 
     var info_str;
 
-    var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
+    var allocated_cpu = parseInt(host_share.CPU_USAGE);
 
     if (max_cpu > 0) {
         var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
@@ -483,7 +480,7 @@ function generateCPUProgressBar(host) {
 
     var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
 
-    var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
+    var real_cpu = parseInt(host_share.USED_CPU);
 
     if (max_cpu > 0) {
         var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
@@ -500,11 +497,12 @@ function generateCPUProgressBar(host) {
     }
 }
 
-function generateMEMProgressBar(host){
+function generateMEMProgressBar(host, host_share_flag) {
+    var host_share = host_share_flag ? host : host.HOST_SHARE;
     // Generate MEM progress bars
-    var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
+    var max_mem = parseInt(host_share.MAX_MEM);
 
-    var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
+    var allocated_mem = parseInt(host_share.MEM_USAGE);
 
     if (max_mem > 0) {
         var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
@@ -515,7 +513,7 @@ function generateMEMProgressBar(host){
 
     var pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
 
-    var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
+    var real_mem = parseInt(host_share.USED_MEM);
 
     if (max_mem > 0) {
         var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
@@ -895,12 +893,59 @@ function updateHostInfo(request,host){
           </div>'
     }
 
+    var esx_info_tab = {
+        title: tr("ESX"),
+        icon: "fa-hdd-o",
+        content : '<div id="datatable_host_esx_info_div" class="row">\
+          <div class="large-12 columns">\
+            <table id="datatable_host_esx" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("Hostname") + '</th>\
+                  <th>' + tr("Status") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbody_host_esx">\
+              </tbody>\
+            </table>\
+          </div>\
+          </div>'
+    }
+
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
 
+    if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+      Sunstone.updateInfoPanelTab("host_info_panel","host_esx_tab",esx_info_tab);
+    }
+
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
+
+    if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+      var dataTable_esx_hosts = $("#datatable_host_esx",main_tabs_context).dataTable({
+            "bSortClasses" : false,
+            "bDeferRender": true
+      });
+
+      var host_list_array = [];
+      $.each(host_info.TEMPLATE.HOST, function(){
+        // TODO HOST (esx) keys should match HOST_SHARE keys (FREECPU vs FREE_CPU | TOTAL vs MAX)
+        //var cpu_bars = generateCPUProgressBar(this, true);
+        //var mem_bars = generateMEMProgressBar(this, true);
+        host_list_array.push([
+            this.HOSTNAME,
+            //cpu_bars.real,
+            //cpu_bars.allocated,
+            //mem_bars.real,
+            //mem_bars.allocated,
+            this.STATE
+        ]);
+      });
+      dataTable_esx_hosts.fnAddData(host_list_array);
+      delete host_info.TEMPLATE.HOST;
+    }
 
     var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
         "bSortClasses" : false,
@@ -1189,6 +1234,7 @@ function setupCreateHostDialog(){
                 "VCENTER_HOST=\"" + $("#vcenter_host", $create_host_dialog).val() + "\"\n";
 
               Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+              addHostElement(request, response);
 
               $.each($(".template_name:checked", cluster_context), function(){
                 var template_context = $(this).closest(".vcenter_template");
@@ -1312,6 +1358,10 @@ function setupCreateHostDialog(){
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
+    $create_host_dialog.foundation('reveal', 'close');
+    $create_host_dialog.empty();
+    setupCreateHostDialog();
+
     var cluster_id = $('#host_cluster_id .resource_list_select',$('div#create_host_dialog')).val();
     if (!cluster_id) cluster_id = "-1";
 
