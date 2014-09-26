@@ -39,7 +39,7 @@ vm.info
 lcm_state = vm.lcm_state_str
 
 begin
-    puts VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state)
+    VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state)
 rescue Exception => e
     STDERR.puts "Cancel of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""
