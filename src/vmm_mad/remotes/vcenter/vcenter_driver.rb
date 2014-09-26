@@ -560,6 +560,8 @@ class VCenterVm
         vm          = connection.find_vm_template(deploy_id)
 
         vm.CreateSnapshot_Task(snapshot_hash).wait_for_completion
+
+        return snapshot_name
     end
 
     ############################################################################
@@ -583,7 +585,7 @@ class VCenterVm
             :removeChildren => true
         }
 
-        vm.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
+        snapshot.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
     end
 
     ############################################################################
@@ -606,7 +608,7 @@ class VCenterVm
             :_this => snapshot
         }
 
-        vm.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
+        snapshot.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
     end
 
     ########################################################################

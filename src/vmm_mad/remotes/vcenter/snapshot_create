@@ -34,8 +34,8 @@ snapshot_name = ARGV[1]
 host          = ARGV[3]
 
 begin
-    VCenterDriver::VCenterVm.create_snapshot(deploy_id, 
-                                                  host, 
+    puts VCenterDriver::VCenterVm.create_snapshot(deploy_id,
+                                                  host,
                                                   snapshot_name)
 rescue Exception => e
     STDERR.puts "Snapshot of VM #{deploy_id} on host #{host} failed " +
