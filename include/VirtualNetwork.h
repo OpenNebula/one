@@ -304,6 +304,12 @@ public:
     int reserve_addr_by_mac(VirtualNetwork *rvnet, unsigned int rsize,
         unsigned int ar_id, const string& mac, string& error_str);
 
+    /**
+     * Returns true if this VNET is a reservation
+     * @return true if this VNET is a reservation
+     */
+    bool is_reservation() const;
+
     // *************************************************************************
     // Formatting & Helper functions
     // *************************************************************************
