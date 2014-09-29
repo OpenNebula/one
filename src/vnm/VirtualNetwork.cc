@@ -245,7 +245,7 @@ int VirtualNetwork::replace_template(
         return -1;
     }
 
-    if (keep_restricted)
+    if (keep_restricted && is_reservation())
     {
         new_tmpl->remove_restricted();
 
@@ -686,6 +686,8 @@ int VirtualNetwork::update_ar(
         return -1;
     }
 
+    keep_restricted = keep_restricted && is_reservation();
+
     return ar_pool.update_ar(tmp_ars, keep_restricted, error_msg);
 }
 
@@ -988,4 +990,9 @@ int VirtualNetwork::reserve_addr_by_mac(VirtualNetwork *rvnet,
     }
 
     return 0;
+}
+
+bool VirtualNetwork::is_reservation() const
+{
+    return parent_vid != -1;
 }
