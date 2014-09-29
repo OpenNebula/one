@@ -357,7 +357,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
             validity_str = case etime
                 when nil  then ""
-                when "-1" then "not expires"
+                when "-1" then "forever"
                 else "not after #{Time.at(etime.to_i)}"
             end
 
