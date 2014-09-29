@@ -682,6 +682,7 @@ class VCenterVm
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
+              "HYPERVISOR = \"vcenter\"\n"\
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
               "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
