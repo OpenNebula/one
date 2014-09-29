@@ -901,7 +901,8 @@ opts = GetoptLong.new(
     [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--parallel'    '-p', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 hypervisor      = ''
@@ -909,6 +910,7 @@ retries         = 0
 threads         = 15
 shell           = 'bash'
 local_actions   = {}
+single_host     = true
 
 begin
     opts.each do |opt, arg|
@@ -921,6 +923,8 @@ begin
                 local_actions=OpenNebulaDriver.parse_actions_list(arg)
             when '--shell'
                 shell   = arg
+            when '--parallel'
+                single_host = false
         end
     end
 rescue Exception => e
@@ -937,6 +941,7 @@ exec_driver = ExecDriver.new(hypervisor,
                 :concurrency => threads,
                 :retries => retries,
                 :local_actions => local_actions,
-                :shell => shell)
+                :shell => shell,
+                :single_host => single_host)
 
 exec_driver.start_driver
