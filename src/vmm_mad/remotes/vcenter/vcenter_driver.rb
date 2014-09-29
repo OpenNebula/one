@@ -359,12 +359,12 @@ class VCenterHost < ::OpenNebula::Host
             host_info << "HOSTNAME=\""  << h.name.to_s  << "\","
             host_info << "MODELNAME=\"" << hw.cpuModel.to_s  << "\","
             host_info << "CPUSPEED="    << hw.cpuMhz.to_s    << ","
-            host_info << "TOTALCPU="    << total_cpu.to_s << ","
-            host_info << "USEDCPU="     << used_cpu.to_s  << ","
-            host_info << "FREECPU="     << free_cpu.to_s << ","
-            host_info << "TOTALMEMORY=" << total_memory.to_s << ","
-            host_info << "USEDMEMORY="  << used_memory.to_s  << ","
-            host_info << "FREEMEMORY="  << free_memory.to_s
+            host_info << "MAX_CPU="    << total_cpu.to_s << ","
+            host_info << "USED_CPU="     << used_cpu.to_s  << ","
+            host_info << "FREE_CPU="     << free_cpu.to_s << ","
+            host_info << "MAX_MEMORY=" << total_memory.to_s << ","
+            host_info << "USED_MEMORY="  << used_memory.to_s  << ","
+            host_info << "FREE_MEMORY="  << free_memory.to_s
             host_info << "]"
         }
 
