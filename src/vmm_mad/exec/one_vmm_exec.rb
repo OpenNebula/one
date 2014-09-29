@@ -902,7 +902,7 @@ opts = GetoptLong.new(
     [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
     [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--parallel'    '-p', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--parallel'    '-p', GetoptLong::NO_ARGUMENT ]
 )
 
 hypervisor      = ''
