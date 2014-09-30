@@ -48,7 +48,7 @@ var create_host_tmpl =
     </div>\
   </div>\
   <div class="row">\
-    <div class="large-6 columns">\
+    <div class="large-6 columns" id="name_container">\
       <label for="name">' + tr("Hostname")  + '</label>\
       <input type="text" name="name" id="name" />\
     </div>\
@@ -469,27 +469,33 @@ function generateCPUProgressBar(host, host_share_flag) {
 
     var info_str;
 
-    var allocated_cpu = parseInt(host_share.CPU_USAGE);
+    var pb_allocated_cpu
+    if (host_share.CPU_USAGE) {
+      var allocated_cpu = parseInt(host_share.CPU_USAGE);
 
-    if (max_cpu > 0) {
-        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
-        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
-    } else {
-        info_str = "";
+      if (max_cpu > 0) {
+          var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
+          info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+      } else {
+          info_str = "";
+      }
+
+      pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
     }
 
-    var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
+    var pb_real_cpu 
+    if (host_share.USED_CPU) {
+      var real_cpu = parseInt(host_share.USED_CPU);
 
-    var real_cpu = parseInt(host_share.USED_CPU);
+      if (max_cpu > 0) {
+          var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
+          info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+      } else {
+          info_str = "";
+      }
 
-    if (max_cpu > 0) {
-        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
-        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
-    } else {
-        info_str = "";
+      pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
     }
-
-    var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
 
     return {
       real: pb_real_cpu,
@@ -502,27 +508,33 @@ function generateMEMProgressBar(host, host_share_flag) {
     // Generate MEM progress bars
     var max_mem = parseInt(host_share.MAX_MEM);
 
-    var allocated_mem = parseInt(host_share.MEM_USAGE);
+    var pb_allocated_mem;
+    if (host_share.MEM_USAGE) {
+      var allocated_mem = parseInt(host_share.MEM_USAGE);
 
-    if (max_mem > 0) {
-        var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
-        info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
-    } else {
-        info_str = humanize_size(allocated_mem) + ' / -';
+      if (max_mem > 0) {
+          var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
+          info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+      } else {
+          info_str = humanize_size(allocated_mem) + ' / -';
+      }
+
+      pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
     }
 
-    var pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
+    var pb_real_mem;
+    if (host_share.USED_MEM) {
+      var real_mem = parseInt(host_share.USED_MEM);
 
-    var real_mem = parseInt(host_share.USED_MEM);
+      if (max_mem > 0) {
+          var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+          info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+      } else {
+          info_str = humanize_size(real_mem) + ' / -';
+      }
 
-    if (max_mem > 0) {
-        var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
-        info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
-    } else {
-        info_str = humanize_size(real_mem) + ' / -';
+      pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
     }
-
-    var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
     return {
       real: pb_real_mem,
@@ -903,6 +915,8 @@ function updateHostInfo(request,host){
                 <tr>\
                   <th>' + tr("Hostname") + '</th>\
                   <th>' + tr("Status") + '</th>\
+                  <th>' + tr("Real CPU") + '</th>\
+                  <th>' + tr("Real Memory") + '</th>\
                 </tr>\
               </thead>\
               <tbody id="tbody_host_esx">\
@@ -931,16 +945,15 @@ function updateHostInfo(request,host){
 
       var host_list_array = [];
       $.each(host_info.TEMPLATE.HOST, function(){
-        // TODO HOST (esx) keys should match HOST_SHARE keys (FREECPU vs FREE_CPU | TOTAL vs MAX)
-        //var cpu_bars = generateCPUProgressBar(this, true);
-        //var mem_bars = generateMEMProgressBar(this, true);
+
+        var cpu_bars = generateCPUProgressBar(this, true);
+        var mem_bars = generateMEMProgressBar(this, true);
+
         host_list_array.push([
             this.HOSTNAME,
-            //cpu_bars.real,
-            //cpu_bars.allocated,
-            //mem_bars.real,
-            //mem_bars.allocated,
-            this.STATE
+            this.STATE,
+            cpu_bars.real,
+            mem_bars.real
         ]);
       });
       dataTable_esx_hosts.fnAddData(host_list_array);
@@ -1027,19 +1040,19 @@ function setupCreateHostDialog(){
       if (this.value == "custom") {
         $(".vcenter_credentials", $create_host_dialog).hide();
         $("#vnm_mads", $create_host_dialog).show();
-        $("#name", $create_host_dialog).show();
+        $("#name_container", $create_host_dialog).show();
         $("#create_host_submit", $create_host_dialog).show();
         $(".drivers", $create_host_dialog).show();
       } else if (this.value == "vcenter") {
         $("#vnm_mads", $create_host_dialog).hide();
-        $("#name", $create_host_dialog).hide();
+        $("#name_container", $create_host_dialog).hide();
         $(".vcenter_credentials", $create_host_dialog).show();
         $("#create_host_submit", $create_host_dialog).hide();
         $(".drivers", $create_host_dialog).hide();
       } else {
         $(".vcenter_credentials", $create_host_dialog).hide();
         $("#vnm_mads", $create_host_dialog).show();
-        $("#name", $create_host_dialog).show();
+        $("#name_container", $create_host_dialog).show();
         $("#create_host_submit", $create_host_dialog).show();
         $(".drivers", $create_host_dialog).hide();
       }
