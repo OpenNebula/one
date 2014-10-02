@@ -128,7 +128,8 @@ module Instance
                 end
             }
         else
-            template_pool = TemplatePool.new(@client)
+            user_flag = OpenNebula::Pool::INFO_ALL
+            template_pool = TemplatePool.new(@client, user_flag)
             rc = template_pool.info
             if OpenNebula::is_error?(rc)
                 return rc
