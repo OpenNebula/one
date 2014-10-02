@@ -174,6 +174,10 @@ var Sunstone = {
 
         setTimeout(function() {
             if (reset) {
+                if (!action) {
+                    action = $("#"+form_name+"_wizard", context).attr("action")
+                }
+
                 $("#"+form_name+"_wizard", context).remove();
                 $("#"+form_name+"_advanced", context).remove();
             }
