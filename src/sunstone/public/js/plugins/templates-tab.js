@@ -776,8 +776,8 @@ function generate_capacity_tab_content() {
         '<div id="template_name_form"  class="large-6 columns vm_param">'+
           '<label  for="NAME">'+tr("Name")+'\
             <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
-          </label>'+
-          '<input type="text" id="NAME" name="name" required/>'+
+          <input type="text" id="NAME" name="name" required/></label>'+
+          ''+
         '</div>'+
         '<div  id="template_hypervisor_form" class="large-6 columns">'+
           '<label>'+tr("Hypervisor")+'</label>'+
@@ -824,7 +824,7 @@ function generate_capacity_tab_content() {
           '<label  for="vcenter_template_uuid">'+tr("vCenter Template UUID")+'\
             <span class="tip">'+tr("")+'</span>\
           </label>'+
-          '<input type="text" id="vcenter_template_uuid" name="name" required/>'+
+          '<input type="text" id="vcenter_template_uuid" name="name"/>'+
         '</div>'+
       '</div>'+
       '<br>'+
@@ -3969,10 +3969,10 @@ function initialize_create_template_dialog(dialog) {
     //$('button',dialog).button();
 
     //Process form
-    $('#create_template_form_wizard',dialog).on('invalid', function () {
+    $('#create_template_form_wizard',dialog).on('invalid.fndtn.abide', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_template_form", $("#templates-tab"));
-    }).on('valid', function() {
+    }).on('valid.fndtn.abide', function() {
         if ($('#create_template_form_wizard',dialog).attr("action") == "create") {
           var vm_json = build_template(this);
           vm_json = {vmtemplate: vm_json};
@@ -3990,10 +3990,10 @@ function initialize_create_template_dialog(dialog) {
         }
     });
 
-    $('#create_template_form_advanced',dialog).on('invalid', function () {
+    $('#create_template_form_advanced',dialog).on('invalid.fndtn.abide', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_template_form", $("#templates-tab"));
-    }).on('valid', function() {
+    }).on('valid.fndtn.abide', function() {
       if ($('#create_template_form_advanced',dialog).attr("action") == "create") {
         var template = $('textarea#template',this).val();
 
