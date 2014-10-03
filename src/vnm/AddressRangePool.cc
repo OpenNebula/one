@@ -81,7 +81,10 @@ int AddressRangePool::add_ar(AddressRange * ar)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRangePool::update_ar(vector<Attribute *> ars, string& error_msg)
+int AddressRangePool::update_ar(
+        vector<Attribute *>     ars,
+        bool                    keep_restricted,
+        string&                 error_msg)
 {
     vector<Attribute *>::iterator               it;
     map<unsigned int, AddressRange *>::iterator ar_it;
@@ -115,7 +118,7 @@ int AddressRangePool::update_ar(vector<Attribute *> ars, string& error_msg)
             return -1;
         }
 
-        return ar_it->second->update_attributes(va, error_msg);
+        return ar_it->second->update_attributes(va, keep_restricted, error_msg);
     }
 
     error_msg = "Wrong AR definition. AR vector attribute is missing.";
@@ -225,7 +228,8 @@ int AddressRangePool::rm_ar(unsigned int ar_id, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& AddressRangePool::to_xml(string& sstream, bool extended) const
+string& AddressRangePool::to_xml(string& sstream, bool extended,
+    const vector<int>& vms, const vector<int>& vnets) const
 {
     if (extended)
     {
@@ -236,7 +240,7 @@ string& AddressRangePool::to_xml(string& sstream, bool extended) const
 
         for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
         {
-            it->second->to_xml(oss);
+            it->second->to_xml(oss, vms, vnets);
         }
 
         oss << "</AR_POOL>";

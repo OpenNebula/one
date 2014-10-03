@@ -776,24 +776,25 @@ function generate_capacity_tab_content() {
         '<div id="template_name_form"  class="large-6 columns vm_param">'+
           '<label  for="NAME">'+tr("Name")+'\
             <span class="tip">'+tr("Name that the VM will get for description purposes.")+'</span>\
-          </label>'+
-          '<input type="text" id="NAME" name="name" required/>'+
+          <input type="text" id="NAME" name="name" required/></label>'+
+          ''+
         '</div>'+
         '<div  id="template_hypervisor_form" class="large-6 columns">'+
           '<label>'+tr("Hypervisor")+'</label>'+
           '<input type="radio" name="hypervisor" value="kvm" id="kvmRadio"><label for="kvmRadio">'+tr("KVM")+'</label>'+
           '<input type="radio" name="hypervisor" value="vmware" id="vmwareRadio"><label for="vmwareRadio">'+tr("VMware")+'</label>'+
           '<input type="radio" name="hypervisor" value="xen" id="xenRadio"><label for="xenRadio">'+tr("Xen")+'</label>'+
+          '<input type="radio" name="hypervisor" value="vcenter" id="vcenterRadio"><label for="vcenterRadio">'+tr("vCenter")+'</label>'+
         '</div>'+
       '</div>'+
       '<div class="row vm_param">'+
-        '<div class="large-8 columns">'+
+        '<div class="large-6 columns">'+
           '<label  for="DESCRIPTION">'+tr("Description")+'\
             <span class="tip">'+tr("Description of the template")+'</span>\
           </label>'+
           '<textarea type="text" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>'+
         '</div>'+
-        '<div class="large-4 columns">'+
+        '<div class="large-6 columns">'+
           '<div class="row">'+
             '<div class="large-6 columns">'+
               '<label  for="LOGO">'+tr("Logo")+'\
@@ -816,6 +817,14 @@ function generate_capacity_tab_content() {
             '</div>'+
             '<br>'+
           '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row hypervisor only_vcenter" style="display: none;">'+
+        '<div class="large-6 columns">'+
+          '<label  for="vcenter_template_uuid">'+tr("vCenter Template UUID")+'\
+            <span class="tip">'+tr("")+'</span>\
+          </label>'+
+          '<input type="text" id="vcenter_template_uuid" name="name"/>'+
         '</div>'+
       '</div>'+
       '<br>'+
@@ -2038,15 +2047,15 @@ function wizard_tab_dd(){
     }
 
     if (Config.isTemplateCreationTabEnabled('storage')){
-        str += "<dd><a href='#storageTab'><i class='fa fa-tasks'></i><br>"+tr("Storage")+"</a></dd>";
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen'><a href='#storageTab'><i class='fa fa-tasks'></i><br>"+tr("Storage")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('network')){
-        str += "<dd><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen'><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('os_booting')){
-        str += "<dd><a href='#osTab'><i class='fa fa-power-off'></i><br>"+tr("OS Booting")+"</a></dd>";
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen'><a href='#osTab'><i class='fa fa-power-off'></i><br>"+tr("OS Booting")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('input_output')){
@@ -2054,7 +2063,7 @@ function wizard_tab_dd(){
     }
 
     if (Config.isTemplateCreationTabEnabled('context')){
-        str += "<dd><a href='#contextTab'><i class='fa fa-folder'></i><br>"+tr("Context")+"</a></dd>";
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen'><a href='#contextTab'><i class='fa fa-folder'></i><br>"+tr("Context")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
@@ -2542,8 +2551,8 @@ function wizard_tab_content(){
           '<div class="row">'+
             '<div class="large-12 columns text-center">'+
                 '<input type="radio" name="graphics_type" ID="radioVncType" value="VNC"><label for="radioVncType"> VNC  </label>'+
-                '<input type="radio" name="graphics_type" ID="radioSdlType" value="SDL"><label for="radioSdlType"> SDL </label>'+
-                '<input type="radio" name="graphics_type" ID="radioSpiceType" value="SPICE"><label for="radioSpiceType"> SPICE </label>'+
+                '<input type="radio" name="graphics_type" ID="radioSdlType" value="SDL" class="hypervisor only_kvm only_vmware only_xen" ><label class="hypervisor only_kvm only_vmware only_xen"  for="radioSdlType"> SDL </label>'+
+                '<input type="radio" name="graphics_type" ID="radioSpiceType" value="SPICE" class="hypervisor only_kvm only_vmware only_xen" ><label  class="hypervisor only_kvm only_vmware only_xen" for="radioSpiceType"> SPICE </label>'+
             '</div>'+
           '</div>'+
           '<br>'+
@@ -2563,14 +2572,14 @@ function wizard_tab_content(){
               '</label>'+
               '<input type="text" id="PORT" name="port" />'+
             '</div>'+
-            '<div class="large-6 columns">'+
+            '<div class="large-6 columns hypervisor only_kvm only_vmware only_xen">'+
               '<label for="KEYMAP">'+tr("Keymap")+
                 '<span class="tip">'+tr("Keyboard configuration locale to use in the VNC/SPICE display")+'</span>'+
               '</label>'+
               '<input type="text" id="KEYMAP" name="keymap" />'+
             '</div>'+
           '</div>'+
-          '<div class="row vm_param">'+
+          '<div class="row hypervisor only_kvm only_vmware only_xen">'+
             '<div class="large-12 columns">'+
               '<label for="PASSWD">'+tr("Password")+
                 '<span class="tip">'+tr("Password for the VNC/SPICE server")+'</span>'+
@@ -2580,7 +2589,7 @@ function wizard_tab_content(){
           '</div>'+
         '</fieldset>'+
       '</div>'+
-      '<div class="large-6 columns inputs">'+
+      '<div class="large-6 columns inputs hypervisor only_kvm only_vmware only_xen">'+
         '<fieldset>'+
           '<legend>'+tr("Inputs")+'</legend>'+
           '<div class="row">'+
@@ -2905,7 +2914,7 @@ function wizard_tab_content(){
                     '</div>'+
                 '</div>'+
               '</fieldset>'+
-              '<fieldset>'+
+              '<fieldset class="hypervisor only_kvm only_vmware only_xen">'+
                 '<legend>'+tr("Datastore Requirements")+'</legend>'+
                 '<div class="row vm_param">'+
                     '<div class="large-12 columns">'+
@@ -2943,7 +2952,7 @@ function wizard_tab_content(){
                   '</div>'+
                 '</div>'+
               '</fieldset>'+
-              '<fieldset class="ds_rank">'+
+              '<fieldset class="ds_rank hypervisor only_kvm only_vmware only_xen">'+
                 '<legend>'+tr("Datastore Rank")+'</legend>'+
                 '<div class="row">'+
                   '<div class="large-12 columns text-center">'+
@@ -2986,7 +2995,7 @@ function wizard_tab_content(){
     '<div id="rawTab" class="wizard_tab content">'+
       '<div class="row">'+
         '<div class="large-12 columns">'+
-        '<fieldset>'+
+        '<fieldset class="hypervisor only_xen only_kvm only_vmware">'+
           '<legend>'+tr("RAW data")+'</legend>'+
           '<div class="row">'+
             '<div class="large-4 columns">'+
@@ -3960,10 +3969,10 @@ function initialize_create_template_dialog(dialog) {
     //$('button',dialog).button();
 
     //Process form
-    $('#create_template_form_wizard',dialog).on('invalid', function () {
+    $('#create_template_form_wizard',dialog).on('invalid.fndtn.abide', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_template_form", $("#templates-tab"));
-    }).on('valid', function() {
+    }).on('valid.fndtn.abide', function() {
         if ($('#create_template_form_wizard',dialog).attr("action") == "create") {
           var vm_json = build_template(this);
           vm_json = {vmtemplate: vm_json};
@@ -3981,10 +3990,10 @@ function initialize_create_template_dialog(dialog) {
         }
     });
 
-    $('#create_template_form_advanced',dialog).on('invalid', function () {
+    $('#create_template_form_advanced',dialog).on('invalid.fndtn.abide', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_template_form", $("#templates-tab"));
-    }).on('valid', function() {
+    }).on('valid.fndtn.abide', function() {
       if ($('#create_template_form_advanced',dialog).attr("action") == "create") {
         var template = $('textarea#template',this).val();
 
@@ -4023,7 +4032,14 @@ function build_template(dialog){
     addSectionJSON(vm_json,$('#capacityTab',dialog));
     vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
     vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
-    vm_json["HYPERVISOR"] = $('input[name="hypervisor"]:checked', $('#capacityTab',dialog)).val();
+    var hypervisor =  $('input[name="hypervisor"]:checked', $('#capacityTab',dialog)).val();
+    vm_json["HYPERVISOR"] = hypervisor;
+    if (hypervisor == "vcenter") {
+      vm_json["PUBLIC_CLOUD"] = {
+        "TYPE": "vcenter",
+        "VM_TEMPLATE": $("#vcenter_template_uuid", dialog).val()
+      }
+    }
 
     //
     // OS
@@ -4097,7 +4113,10 @@ function build_template(dialog){
 
     // HYBRID
 
-    vm_json["PUBLIC_CLOUD"] = [];
+    if ($.isEmptyObject(vm_json["PUBLIC_CLOUD"])) {
+      vm_json["PUBLIC_CLOUD"] = [];
+    }
+
     vm_json["EC2"] = [];
 
     $('.provider',dialog).each(function(){
@@ -4418,16 +4437,21 @@ var fillTemplatePopUp = function(template, dialog){
     //
 
     function fillProviderTab(provider, provider_type){
+      if (provider_type == "vcenter") {
+        $("#vcenter_template_uuid", dialog).val(provider["VM_TEMPLATE"])
+      } else {
         if (number_of_providers > 0) {
             $("#tf_btn_hybrid", dialog).trigger("click");
         }
+
+        number_of_providers++;
+      }
 
         var context = $(".provider", dialog).last();
 
         $("input.hybridRadio[value='"+provider_type+"']", context).trigger("click");
 
         autoFillInputs(provider, context);
-        number_of_providers++;
     }
 
     var number_of_providers = 0;
@@ -4441,7 +4465,7 @@ var fillTemplatePopUp = function(template, dialog){
             });
         }
         else if (providers instanceof Object) {
-            fillProviderTab(providers, this.TYPE.toLowerCase());
+            fillProviderTab(providers, providers.TYPE.toLowerCase());
         }
 
         delete template.PUBLIC_CLOUD

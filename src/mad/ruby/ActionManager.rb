@@ -112,7 +112,7 @@ class ActionManager
             end
 
             arity=@actions[aname][:method].arity
-            
+
             if arity < 0
                 # Last parameter is an array
                 arity = -arity - 1
@@ -145,7 +145,7 @@ class ActionManager
             else
                 thread = nil
             end
-            
+
             if thread
                 thread.kill
 
@@ -173,17 +173,17 @@ class ActionManager
             }
         end
     end
-    
-private
-    
+
+    protected
+
     def delete_running_action(action_id)
         @action_running.delete(action_id)
     end
-    
+
     def get_runable_action
         @action_queue.shift
     end
-    
+
     def empty_queue
         @action_queue.size==0
     end
@@ -228,13 +228,13 @@ if __FILE__ == $0
             @am.register_action(:SLEEP,method("sleep_action"))
 #            @am.register_action(:SLEEP,Proc.new{|s,i| p s ; sleep(s)})
             @am.register_action(:NOP,method("nop_action"))
-            
+
             def @am.get_runable_action
                 action = super
                 puts "getting: #{action.inspect}"
                 action
             end
-            
+
             def @am.delete_running_action(action_id)
                 puts "deleting: #{action_id}"
                 super(action_id)
@@ -250,7 +250,7 @@ if __FILE__ == $0
         def nop_action
             p " - Just an action"
         end
-        
+
     end
 
     s = Sample.new
@@ -264,7 +264,7 @@ if __FILE__ == $0
         }
 
         s.am.trigger_action(:SLEEP,301,5,301)
-      
+
         s.am.cancel_action(301)
 
         s.am.trigger_action(:FINALIZE,0)

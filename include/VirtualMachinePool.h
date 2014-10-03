@@ -123,6 +123,17 @@ public:
     int get_pending(
         vector<int>&    oids);
 
+    /**
+     *  Gets the IDs of VMs matching the given SQL where string.
+     *    @param oids a vector that contains the IDs
+     *    @param where SQL clause
+     *    @return 0 on success
+     */
+    int search(vector<int>& oids, const string& where)
+    {
+        return PoolSQL::search(oids, VirtualMachine::table, where);
+    };
+
     //--------------------------------------------------------------------------
     // Virtual Machine DB access functions
     //--------------------------------------------------------------------------

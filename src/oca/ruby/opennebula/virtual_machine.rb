@@ -202,9 +202,9 @@ module OpenNebula
         # @return [String] The USER_TEMPLATE
         def user_template_xml
             if NOKOGIRI
-                @xml.xpath('TEMPLATE').to_s
+                @xml.xpath('USER_TEMPLATE').to_s
             else
-                @xml.elements['TEMPLATE'].to_s
+                @xml.elements['USER_TEMPLATE'].to_s
             end
         end
 
@@ -224,7 +224,11 @@ module OpenNebula
         def deploy(host_id, enforce=false, ds_id=-1)
             enforce ||= false
             ds_id ||= -1
-            return call(VM_METHODS[:deploy], @pe_id, host_id.to_i, enforce, ds_id.to_i)
+            return call(VM_METHODS[:deploy],
+                        @pe_id,
+                        host_id.to_i,
+                        enforce,
+                        ds_id.to_i)
         end
 
         # Shutdowns an already deployed VM
@@ -585,6 +589,11 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
+        end
+
+        # Returns the deploy_id of the VirtualMachine (numeric value)
+        def deploy_id
+            self['DEPLOY_ID']
         end
 
     private

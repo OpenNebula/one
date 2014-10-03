@@ -75,11 +75,13 @@ public:
      *  Updates the given address ranges
      *    @param ars vector of address ranges as VectorAttributes obtained from
      *    template in the form AR = [...]. Only one AR is processed.
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
      *    @param error_msg If the action fails, this message contains
      *    the reason.
      *    @return 0 on success
      */
-    int update_ar(vector<Attribute *> ars, string& error_msg);
+    int update_ar(vector<Attribute *> ars, bool keep_restricted, string& error_msg);
 
     /**
      *  Allocates a new *empty* address range. It is not added to the pool as it
@@ -316,9 +318,14 @@ public:
      *  Generate a XML representation of the Address Range Pool
      *    @param sstream where the ARPool is written
      *    @param extended true to include lease information
+     *    @param vm_ids list of VM the user can access VNET usage info from.
+     *      A vector containing just -1 means all VMs.
+     *    @param vnet_ids list of VNET the user can access reservation info from.
+     *      A vector containing just -1 means all VNETs.
      *    @return the string with the XML
      */
-    string& to_xml(string& sstream, bool extended) const;
+    string& to_xml(string& sstream, bool extended, const vector<int>& vms,
+        const vector<int>& vnets) const;
 
 private:
     /**

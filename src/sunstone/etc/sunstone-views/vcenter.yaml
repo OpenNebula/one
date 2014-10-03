@@ -1,0 +1,460 @@
+small_logo: images/opennebula-sunstone-v4.0-small.png
+provision_logo: images/one_small_logo.png
+enabled_tabs:
+    dashboard-tab: true
+    system-tab: true
+    users-tab: true
+    groups-tab: true
+    acls-tab: true
+    vresources-tab: true
+    vms-tab: true
+    templates-tab: true
+    images-tab: false
+    files-tab: false
+    infra-tab: true
+    clusters-tab: true
+    hosts-tab: true
+    datastores-tab: false
+    vnets-tab: false
+    marketplace-tab: true
+    oneflow-dashboard: true
+    oneflow-services: true
+    oneflow-templates: true
+    support-tab: true
+    doc-tab: true
+    community-tab: true
+    enterprise-tab: true
+    zones-tab: true
+autorefresh: true
+tabs:
+    dashboard-tab:
+        panel_tabs:
+        actions:
+            Dashboard.refresh: false
+            Sunstone.toggle_top: false
+        widgets_three_per_row:
+            - storage
+            - users
+            - network
+        widgets_two_per_row:
+#            - user_quotas
+#            - group_quotas
+        widgets_one_per_row:
+            - vms
+            - hosts
+        widgets_one_footer:
+#            - accounting
+    system-tab:
+        panel_tabs:
+        actions:
+    users-tab:
+        panel_tabs:
+            user_info_tab: true
+            user_quotas_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Group
+            - 4         # Auth driver
+            - 5         # VMs
+            - 6         # Memory
+            - 7         # CPU
+            #- 8         # Group ID
+            #- 9         # Hidden User Data
+        actions:
+            User.refresh: true
+            User.create_dialog: true
+            User.update_password: true
+            User.quotas_dialog: true
+            User.chgrp: true
+            User.addgroup: true
+            User.delgroup: true
+            User.chauth: true
+            User.delete: true
+    groups-tab:
+        panel_tabs:
+            group_quotas_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Users
+            - 4         # VMs
+            - 5         # Memory
+            - 6         # CPU
+        actions:
+            Group.refresh: true
+            Group.create_dialog: true
+            Group.quotas_dialog: true
+            Group.delete: true
+    acls-tab:
+        panel_tabs:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Applies to
+            - 3         # Affected resources
+            - 4         # Resource ID / Owned by
+            - 5         # Allowed operations
+            - 6         # Zone
+            #- 7         # ACL String
+        actions:
+            Acl.refresh: true
+            Acl.create_dialog: true
+            Acl.delete: true
+    vresources-tab:
+        panel_tabs:
+        actions:
+    vms-tab:
+        panel_tabs:
+            vm_info_tab: true
+            vm_capacity_tab: true
+            vm_hotplugging_tab: false
+            vm_network_tab: false
+            vm_snapshot_tab: true
+            vm_placement_tab: true
+            vm_actions_tab: true
+            vm_template_tab: true
+            vm_log_tab: true
+        table_columns:
+            - 0       # Checkbox
+            - 1       # ID
+            - 2       # Owner
+            - 3       # Group
+            - 4       # Name
+            - 5       # Status
+            #- 6       # Used CPU
+            #- 7       # Used Memory
+            - 8       # Host
+            - 9       # IPs
+            #- 10      # Start Time
+            - 11      # VNC
+        actions:
+            VM.refresh: true
+            VM.create_dialog: true
+            VM.chown: true
+            VM.chgrp: true
+            VM.chmod: true
+            VM.deploy: true
+            VM.migrate: false
+            VM.migrate_live: false
+            VM.hold: true
+            VM.release: true
+            VM.suspend: true
+            VM.resume: true
+            VM.stop: true
+            VM.recover: true
+            VM.boot: true
+            VM.reboot: true
+            VM.reboot_hard: true
+            VM.poweroff: true
+            VM.poweroff_hard: true
+            VM.undeploy: true
+            VM.undeploy_hard: true
+            VM.shutdown: true
+            VM.shutdown_hard: true
+            VM.delete: true
+            VM.delete_recreate: true
+            VM.resize: true
+            VM.attachdisk: true
+            VM.detachdisk: true
+            VM.saveas: false
+            VM.attachnic: false
+            VM.detachnic: false
+            VM.snapshot_create: true
+            VM.snapshot_revert: true
+            VM.snapshot_delete: true
+            VM.resched: true
+            VM.unresched: true
+    templates-tab:
+        panel_tabs:
+            template_info_tab: true
+            template_template_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Registration time
+        actions:
+            Template.refresh: true
+            Template.create_dialog: true
+            Template.update_dialog: true
+            Template.instantiate_vms: true
+            Template.chown: true
+            Template.chgrp: true
+            Template.chmod: true
+            Template.clone_dialog: true
+            Template.delete: true
+        template_creation_tabs:
+            general: true
+            storage: true
+            network: true
+            os_booting: true
+            features: true
+            input_output: true
+            context: true
+            scheduling: true
+            other: true
+    images-tab:
+        panel_tabs:
+            image_info_tab: true
+            image_vms_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Datastore
+            #- 6         # Size
+            - 7        # Type
+            #- 8         # Registration time
+            #- 9        # Persistent
+            - 10        # Status
+            - 11        # #VMs
+            #- 12       # Target
+        actions:
+            Image.refresh: true
+            Image.create_dialog: true
+            Image.chown: true
+            Image.chgrp: true
+            Image.chmod: true
+            Image.enable: true
+            Image.disable: true
+            Image.persistent: true
+            Image.nonpersistent: true
+            Image.clone_dialog: true
+            Image.delete: true
+    files-tab:
+        panel_tabs:
+            file_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Datastore
+            #- 6         # Size
+            - 7        # Type
+            #- 8         # Registration time
+            #- 9        # Persistent
+            - 10        # Status
+            #- 11        # #VMs
+            #- 12       # Target
+        actions:
+            File.refresh: true
+            File.create_dialog: true
+            File.chown: true
+            File.chgrp: true
+            File.chmod: true
+            File.enable: true
+            File.disable: true
+            File.delete: true
+    infra-tab:
+        panel_tabs:
+        actions:
+    clusters-tab:
+        panel_tabs:
+            cluster_info_tab: true
+            cluster_host_tab: true
+            cluster_vnet_tab: true
+            cluster_datastore_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Hosts
+            - 4         # VNets
+            - 5         # Datastores
+        actions:
+            Cluster.refresh: true
+            Cluster.create_dialog: true
+            Cluster.update_dialog: true
+            Cluster.delete: true
+    hosts-tab:
+        panel_tabs:
+            host_info_tab: true
+            host_monitoring_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Cluster
+            - 4         # RVMs
+            #- 5         # Real CPU
+            - 6         # Allocated CPU
+            #- 7         # Real MEM
+            - 8         # Allocated MEM
+            - 9         # Status
+            #- 10        # IM MAD
+            #- 11        # VM MAD
+            #- 12        # Last monitored on
+        actions:
+            Host.refresh: true
+            Host.create_dialog: true
+            Host.addtocluster: true
+            Host.enable: true
+            Host.disable: true
+            Host.delete: true
+    datastores-tab:
+        panel_tabs:
+            datastore_info_tab: true
+            datastore_image_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Capacity
+            - 6         # Cluster
+            #- 7         # Basepath
+            #- 8         # TM
+            #- 9         # DS
+            - 10        # Type
+        actions:
+            Datastore.refresh: true
+            Datastore.create_dialog: true
+            Datastore.addtocluster: true
+            Datastore.chown: true
+            Datastore.chgrp: true
+            Datastore.chmod: true
+            Datastore.delete: true
+    vnets-tab:
+        panel_tabs:
+            vnet_info_tab: true
+            vnet_ar_list_tab: true
+            vnet_leases_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Reservation
+            - 6         # Cluster
+            #- 7         # Bridge
+            - 8         # Leases
+            #- 9         # VLAN ID
+        actions:
+            Network.refresh: true
+            Network.create_dialog: true
+            Network.addtocluster: true
+            Network.chown: true
+            Network.chgrp: true
+            Network.chmod: true
+            Network.delete: true
+            Network.hold_lease: true
+            Network.release_lease: true
+            Network.add_ar: true
+            Network.remove_ar: true
+            Network.update_ar: true
+    marketplace-tab:
+        panel_tabs:
+            marketplace_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            #- 1         # ID
+            - 2         # Name
+            - 3         # Publisher
+            - 4         # Hypervisor
+            - 5         # Arch
+            - 6         # Format
+            #- 7         # Tags
+        actions:
+            Marketplace.refresh: true
+            Marketplace.import: true
+    oneflow-dashboard:
+        panel_tabs:
+        table_columns:
+        actions:
+    oneflow-services:
+        panel_tabs:
+            service_info_tab: true
+            service_roles_tab: true
+            service_log_tab: true
+        panel_tabs_actions:
+            service_roles_tab:
+                Role.scale: true
+                Role.hold: true
+                Role.release: true
+                Role.suspend: true
+                Role.resume: true
+                Role.stop: true
+                Role.boot: true
+                Role.reboot: true
+                Role.reboot_hard: true
+                Role.poweroff: true
+                Role.poweroff_hard: true
+                Role.shutdown: true
+                Role.shutdown_hard: true
+                Role.delete: true
+                Role.delete_recreate: true
+                RoleVM.hold: true
+                RoleVM.release: true
+                RoleVM.suspend: true
+                RoleVM.resume: true
+                RoleVM.stop: true
+                RoleVM.boot: true
+                RoleVM.reboot: true
+                RoleVM.reboot_hard: true
+                RoleVM.poweroff: true
+                RoleVM.poweroff_hard: true
+                RoleVM.undeploy: true
+                RoleVM.undeploy_hard: true
+                RoleVM.shutdown: true
+                RoleVM.shutdown_hard: true
+                RoleVM.delete: true
+                RoleVM.delete_recreate: true
+                RoleVM.resched: true
+                RoleVM.unresched: true
+                RoleVM.recover: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # State
+        actions:
+            Service.refresh: true
+            Service.chown: true
+            Service.chgrp: true
+            Service.chmod: true
+            Service.shutdown: true
+            Service.recover: true
+            Service.delete: true
+    oneflow-templates:
+        panel_tabs:
+            service_template_info_tab: true
+            service_template_roles_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+        actions:
+            ServiceTemplate.refresh: true
+            ServiceTemplate.create_dialog: true
+            ServiceTemplate.instantiate: true
+            ServiceTemplate.chown: true
+            ServiceTemplate.chgrp: true
+            ServiceTemplate.chmod: true
+            ServiceTemplate.delete: true
+    zones-tab:
+        panel_tabs:
+            zone_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Endpoint
+        actions:
+            Zone.refresh: true
+            Zone.create_dialog: true
+            Zone.delete: true

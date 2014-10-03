@@ -20,6 +20,7 @@
 #include "NebulaUtil.h"
 
 #include <arpa/inet.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -199,12 +200,20 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int AddressRange::update_attributes(VectorAttribute *vup, string& error_msg)
+int AddressRange::update_attributes(
+        VectorAttribute *   vup,
+        bool                keep_restricted,
+        string&             error_msg)
 {
     /* --------------- Do not allow to modify a reservation ------- */
 
     int pid;
     bool is_reservation = (get_attribute("PARENT_NETWORK_AR_ID", pid) == 0);
+
+    if (keep_restricted)
+    {
+        remove_restricted(vup);
+    }
 
     /* --------------- Copy non-update attributes ----------------- */
 
@@ -237,6 +246,14 @@ int AddressRange::update_attributes(VectorAttribute *vup, string& error_msg)
                 attr->vector_value("PARENT_NETWORK_AR_ID"));
     }
 
+    /* ----------------- restricted attributes ----------------- */
+
+    if (keep_restricted)
+    {
+        remove_all_except_restricted(attr);
+
+        vup->merge(attr, true);
+    }
 
     /* ----------------- update known attributes ----------------- */
 
@@ -336,10 +353,14 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::to_xml(ostringstream &oss) const
+void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
+        const vector<int>& vns) const
 {
     const map<string,string>&          ar_attrs = attr->value();
     map<string,string>::const_iterator it;
+
+    bool all_vms = (vms.size() == 1 && vms[0] == -1);
+    bool all_vns = (vns.size() == 1 && vns[0] == -1);
 
     oss << "<AR>";
 
@@ -363,13 +384,43 @@ void AddressRange::to_xml(ostringstream &oss) const
     else
     {
         map<unsigned int, long long>::const_iterator it;
+
         VectorAttribute lease("LEASE");
+        bool            is_in;
 
         oss << "<LEASES>";
 
         for (it = allocated.begin(); it != allocated.end(); it++)
         {
             lease.clear();
+
+            is_in = false;
+
+            if (it->second & PoolObjectSQL::VM)
+            {
+                int vmid = it->second & 0x00000000FFFFFFFFLL;
+
+                if (all_vms || (find(vms.begin(),vms.end(),vmid) != vms.end()))
+                {
+                    lease.replace("VM", vmid);
+                    is_in = true;
+                }
+            }
+            else if (it->second & PoolObjectSQL::NET)
+            {
+                int vnid = it->second & 0x00000000FFFFFFFFLL;
+
+                if (all_vns || (find(vns.begin(),vns.end(),vnid) != vns.end()))
+                {
+                    lease.replace("VNET", vnid);
+                    is_in = true;
+                }
+            }
+
+            if (!is_in)
+            {
+                continue;
+            }
 
             set_mac(it->first, &lease);
 
@@ -381,19 +432,6 @@ void AddressRange::to_xml(ostringstream &oss) const
             if (type & 0x00000004)
             {
                 set_ip6(it->first, &lease);
-            }
-
-            if (it->second & PoolObjectSQL::VM)
-            {
-                int vmid = it->second & 0x00000000FFFFFFFFLL;
-
-                lease.replace("VM", vmid);
-            }
-            else if (it->second & PoolObjectSQL::NET)
-            {
-                int vnid = it->second & 0x00000000FFFFFFFFLL;
-
-                lease.replace("VNET", vnid);
             }
 
             lease.to_xml(oss);
@@ -1318,3 +1356,44 @@ void AddressRange::set_restricted_attributes(
         restricted_attributes.insert(one_util::toupper(attr_s));
     }
 };
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::remove_restricted(VectorAttribute* va)
+{
+    set<string>::const_iterator it;
+    size_t pos;
+
+    for (it=restricted_attributes.begin(); it!=restricted_attributes.end(); it++)
+    {
+        pos = it->find("AR/");
+
+        if (pos != string::npos)
+        {
+            va->remove( it->substr(pos+3) );
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::remove_all_except_restricted(VectorAttribute* va)
+{
+    map<string,string>::iterator it;
+    map<string,string> vals = va->value();
+
+    ostringstream oss;
+
+    for(it = vals.begin(); it != vals.end(); it++)
+    {
+        oss.str("");
+        oss << "AR/" << it->first;
+
+        if (restricted_attributes.count(oss.str()) == 0)
+        {
+            va->remove(it->first);
+        }
+    }
+}

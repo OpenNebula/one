@@ -19,6 +19,7 @@
 #include "VirtualNetworkPool.h"
 #include "VirtualNetworkTemplate.h"
 #include "AddressRange.h"
+#include "PoolObjectAuth.h"
 
 #include "NebulaLog.h"
 
@@ -67,6 +68,20 @@ VirtualNetwork::~VirtualNetwork()
     delete obj_template;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
+{
+    PoolObjectSQL::get_permissions(auths);
+
+    if (parent_vid != -1)
+    {
+        auths.disable_cluster_acl = true;
+        auths.disable_all_acl     = true;
+    }
+}
+
 /* ************************************************************************** */
 /* Virtual Network :: Database Access Functions                               */
 /* ************************************************************************** */
@@ -74,13 +89,13 @@ VirtualNetwork::~VirtualNetwork()
 const char * VirtualNetwork::table    = "network_pool";
 
 const char * VirtualNetwork::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid";
+        "oid, name, body, uid, gid, owner_u, group_u, other_u, cid, pid";
 
 const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
     " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
     " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
     " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
-    " cid INTEGER, UNIQUE(name,uid))";
+    " cid INTEGER, pid INTEGER, UNIQUE(name,uid))";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -206,7 +221,8 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::replace_template(const string& tmpl_str, string& error_str)
+int VirtualNetwork::replace_template(
+        const string& tmpl_str, bool keep_restricted, string& error_str)
 {
     string new_bridge;
     bool   b_vlan;
@@ -227,6 +243,19 @@ int VirtualNetwork::replace_template(const string& tmpl_str, string& error_str)
     {
         delete new_tmpl;
         return -1;
+    }
+
+    if (keep_restricted && is_reservation())
+    {
+        new_tmpl->remove_restricted();
+
+        if (obj_template != 0)
+        {
+            obj_template->remove_all_except_restricted();
+
+            string aux_error;
+            new_tmpl->merge(obj_template, aux_error);
+        }
     }
 
     delete obj_template;
@@ -325,7 +354,8 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
         <<          owner_u     << ","
         <<          group_u     << ","
         <<          other_u     << ","
-        <<          cluster_id  << ")";
+        <<          cluster_id  << ","
+        <<          parent_vid  << ")";
 
     rc = db->exec(oss);
 
@@ -361,39 +391,25 @@ error_common:
 
 string& VirtualNetwork::to_xml(string& xml) const
 {
-    return to_xml_extended(xml,false);
+    const vector<int> empty;
+
+    return to_xml_extended(xml,false, empty, empty);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_xml64(string &xml64, bool extended)
+string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
+        const vector<int>& vnets) const
 {
-    string *str64;
-
-    to_xml_extended(xml64, extended);
-
-    str64 = one_util::base64_encode(xml64);
-
-    xml64 = *str64;
-
-    delete str64;
-
-    return xml64;
+    return to_xml_extended(xml,true, vms, vnets);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_xml_extended(string& xml) const
-{
-    return to_xml_extended(xml,true);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
+string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
+    const vector<int>& vms, const vector<int>& vnets) const
 {
     ostringstream   os;
 
@@ -445,7 +461,7 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended) const
 
     os  << obj_template->to_xml(template_xml);
 
-    os  << ar_pool.to_xml(leases_xml, extended);
+    os  << ar_pool.to_xml(leases_xml, extended, vms, vnets);
 
     os << "</VNET>";
 
@@ -683,7 +699,10 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
+int VirtualNetwork::update_ar(
+        VirtualNetworkTemplate* ars_tmpl,
+        bool                    keep_restricted,
+        string&                 error_msg)
 {
     vector<Attribute *> tmp_ars;
 
@@ -694,7 +713,9 @@ int VirtualNetwork::update_ar(VirtualNetworkTemplate * ars_tmpl, string& error_m
         return -1;
     }
 
-    return ar_pool.update_ar(tmp_ars, error_msg);
+    keep_restricted = keep_restricted && is_reservation();
+
+    return ar_pool.update_ar(tmp_ars, keep_restricted, error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -996,4 +1017,9 @@ int VirtualNetwork::reserve_addr_by_mac(VirtualNetwork *rvnet,
     }
 
     return 0;
+}
+
+bool VirtualNetwork::is_reservation() const
+{
+    return parent_vid != -1;
 }

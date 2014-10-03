@@ -30,5 +30,6 @@ groups:
         - vdcadmin
         - user
         - cloud
+        - vcenter
 default:
     - cloud

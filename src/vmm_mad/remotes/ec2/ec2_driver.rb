@@ -327,10 +327,16 @@ class EC2Driver
 
         vms_info = "VM_POLL=YES\n"
 
-        usedcpu = 0
+        #
+        # Add information for running VMs (running and pending).
+        #
+        usedcpu    = 0
         usedmemory = 0
+
         begin
             AWS.ec2.instances.each do |i|
+                next if i.status != :pending && i.status != :running
+
                 poll_data=parse_poll(i)
 
                 one_id = i.tags['ONE_ID']

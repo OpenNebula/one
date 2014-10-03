@@ -38,6 +38,7 @@ public class User extends PoolElement{
     private static final String QUOTA           = METHOD_PREFIX + "quota";
     private static final String ADDGROUP        = METHOD_PREFIX + "addgroup";
     private static final String DELGROUP        = METHOD_PREFIX + "delgroup";
+    private static final String LOGIN           = METHOD_PREFIX + "login";
 
     /**
      * Creates a new User representation.
@@ -221,6 +222,24 @@ public class User extends PoolElement{
         return client.call(QUOTA, id, quota_template);
     }
 
+    /**
+     * Sets the LOGIN_TOKEN for the user
+     *
+     * @param username of the user
+     * @param token the login token, if empty OpenNebula will
+     *   generate one
+     * @param expire valid period of the token in secs. If <= 0
+     *   the token will be reset
+     * @return token in case of success, Error otherwise
+     */
+    public static OneResponse login(Client client,
+                                    String username,
+                                    String token,
+                                    int expire)
+    {
+        return client.call(LOGIN, username, token, expire);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -350,6 +369,20 @@ public class User extends PoolElement{
     public OneResponse setQuota(String quota_template)
     {
         return setQuota(client, id, quota_template);
+    }
+
+    /**
+     * Sets the LOGIN_TOKEN for the user. The method info() must be called before.
+     *
+     * @param token the login token, if empty OpenNebula will
+     *   generate one
+     * @param expire valid period of the token in secs. If <= 0
+     *   the token will be reset
+     * @return token in case of success, Error otherwise
+     */
+    public OneResponse login(String token, int expire)
+    {
+        return client.call(LOGIN, getName(), token, expire);
     }
 
     // =================================

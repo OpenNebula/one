@@ -222,7 +222,7 @@ const bool AclManager::authorize(
 
     long long resource_gid_req;
 
-    if ( obj_perms.gid >= 0 )
+    if ((obj_perms.gid >= 0) && (!obj_perms.disable_group_acl))
     {
         resource_gid_req = obj_perms.obj_type |
                            AclRule::GROUP_ID |
@@ -235,7 +235,7 @@ const bool AclManager::authorize(
 
     long long resource_cid_req;
 
-    if ( obj_perms.cid >= 0 )
+    if ((obj_perms.cid >= 0) && (!obj_perms.disable_cluster_acl))
     {
         resource_cid_req = obj_perms.obj_type |
                            AclRule::CLUSTER_ID |
@@ -246,7 +246,17 @@ const bool AclManager::authorize(
         resource_cid_req = AclRule::NONE_ID;
     }
 
-    long long resource_all_req  = obj_perms.obj_type | AclRule::ALL_ID;
+    long long resource_all_req ;
+
+    if (!obj_perms.disable_all_acl)
+    {
+        resource_all_req = obj_perms.obj_type | AclRule::ALL_ID;
+    }
+    else
+    {
+        resource_all_req = AclRule::NONE_ID;
+    }
+
     long long rights_req        = op;
 
     long long resource_oid_mask = obj_perms.obj_type |
@@ -907,6 +917,9 @@ void AclManager::reverse_search(int                       uid,
                                 const set<int>&           user_groups,
                                 PoolObjectSQL::ObjectType obj_type,
                                 AuthRequest::Operation    op,
+                                bool                      disable_all_acl,
+                                bool                      disable_cluster_acl,
+                                bool                      disable_group_acl,
                                 bool&                     all,
                                 vector<int>&              oids,
                                 vector<int>&              gids,
@@ -999,30 +1012,29 @@ void AclManager::reverse_search(int                       uid,
                 NebulaLog::log("ACL",Log::DDEBUG,oss);
 
                 // Rule grants permission for all objects of this type
-                if ( ( it->second->resource & resource_all_req ) == resource_all_req )
+                if ((!disable_all_acl) &&
+                    ((it->second->resource & resource_all_req) == resource_all_req))
                 {
                     all = true;
                     break;
                 }
-
                 // Rule grants permission for all objects of a group
-                if ( ( it->second->resource & resource_gid_mask ) == resource_gid_req )
+                else if ((!disable_group_acl) &&
+                         ((it->second->resource & resource_gid_mask) == resource_gid_req))
                 {
                     gids.push_back(it->second->resource_id());
                 }
-
-                // Rule grants permission for an individual object
-                else if ( ( it->second->resource & resource_oid_mask ) == resource_oid_req )
-                {
-                    oids.push_back(it->second->resource_id());
-                }
-
                 // Rule grants permission for all objects of a cluster
-                if ( ( it->second->resource & resource_cid_mask ) == resource_cid_req )
+                else if ((!disable_cluster_acl) &&
+                         ((it->second->resource & resource_cid_mask) == resource_cid_req))
                 {
                     cids.push_back(it->second->resource_id());
                 }
-
+                // Rule grants permission for an individual object
+                else if ((it->second->resource & resource_oid_mask) == resource_oid_req)
+                {
+                    oids.push_back(it->second->resource_id());
+                }
             }
         }
 

@@ -327,7 +327,7 @@ tabs:
             Datastore.delete: false
     vnets-tab:
         panel_tabs:
-            vnet_info_tab: false
+            vnet_info_tab: true
             vnet_ar_list_tab: true
             vnet_leases_tab: true
         table_columns:
@@ -353,7 +353,7 @@ tabs:
             Network.release_lease: true
             Network.add_ar: false
             Network.remove_ar: true
-            Network.update_ar: false
+            Network.update_ar: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true

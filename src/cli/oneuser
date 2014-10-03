@@ -121,7 +121,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :name  => "time",
         :large => "--time x",
         :format => Integer,
-        :description => "Token duration in seconds, defaults to 3600 (1 h)"
+        :description => "Token duration in seconds, defaults to 36000 (10 h). "\
+                        "To reset the token set time to 0." \
+                        "To generate a non-expiring token use -1"\
+                        " (not valid for ssh and x509 tokens). "\
     }
 
     DRIVER={
@@ -131,8 +134,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Driver to autehnticate this user"
     }
 
+    FORCE = {
+        :name   => "force",
+        :large  => "--force" ,
+        :description => "Force one_auth file rewrite"
+    }
+
     create_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
-    login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME]
+    login_options  = [SSH, X509, X509_PROXY, KEY, CERT, PROXY, TIME, FORCE]
 
     ########################################################################
     # Formatters for arguments
@@ -206,7 +215,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     quota_desc = <<-EOT.unindent
-        Set the quota limits for the user. If a path is not provided the editor 
+        Set the quota limits for the user. If a path is not provided the editor
         will be launched to modify the current quotas.
     EOT
 
@@ -311,17 +320,31 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     login_desc = <<-EOT.unindent
-        Creates the Login token for authentication
-        Examples:
+        Creates the login token for authentication. The token can be used
+        together with any authentication driver. The token will be stored in
+        $HOME/.one/one_auth, and can be used subsequently to authenticate with
+        oned through API, CLI or Sunstone.
+
+        Example, request a valid token for a generic driver (e.g. core auth, LDAP...):
+          oneuser login my_user --time 3600
+
+        Example, generate and set a token for SSH based authentication:
           oneuser login my_user --ssh --key /tmp/id_rsa --time 72000
+
+        Example, same using X509 certificates:
           oneuser login my_user --x509 --cert /tmp/my_cert.pem
                                 --key /tmp/my_key.pk --time 72000
+
+        Example, now with a X509 proxy certificate
           oneuser login my_user --x509_proxy --proxy /tmp/my_cert.pem
                                 --time 72000
     EOT
 
     command :login, login_desc, :username, :options=>login_options do
-        OneUserHelper.login(args[0], options)
+
+        options[:time] ||= 36000
+
+        helper.login(args[0], options)
     end
 
     key_desc = <<-EOT.unindent

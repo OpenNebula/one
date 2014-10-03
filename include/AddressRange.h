@@ -116,8 +116,14 @@ public:
     /**
      *  Builds an extended XML representation of the AR to send it back to
      *  clients
+     *    @param oss stream to write the XML
+     *    @param vm_ids list of VM the user can access VNET usage info from.
+     *      A vector containing just -1 means all VMs.
+     *    @param vnet_ids list of VNET the user can access reservation info from.
+     *      A vector containing just -1 means all VNETs.
      */
-    void to_xml(ostringstream &oss) const;
+    void to_xml(ostringstream &oss, const vector<int>& vms,
+        const vector<int>& vnets) const;
 
     // *************************************************************************
     // Address allocation functions
@@ -311,13 +317,18 @@ public:
      *    the reason.
      *    @return 0 on success
      */
-    int update_attributes(VectorAttribute *vup, string& error_msg);
+    int update_attributes(
+            VectorAttribute *   vup,
+            bool                keep_restricted,
+            string&             error_msg);
 
     /*
      *  add_ar from AddressRangePool needs to access the internal representation
      *  of the AR to include it in the ARPool template.
      */
     friend int AddressRangePool::add_ar(AddressRange * ar);
+
+    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
 
 private:
     /* ---------------------------------------------------------------------- */
@@ -424,7 +435,15 @@ private:
     /* ---------------------------------------------------------------------- */
     bool check(string& rs_attr) const;
 
-    static void set_restricted_attributes(vector<const Attribute *>& rattrs);
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted(VectorAttribute* va);
+
+    /**
+     * Deletes all the attributes, except the restricted ones
+     */
+    void remove_all_except_restricted(VectorAttribute* va);
 
     /* ---------------------------------------------------------------------- */
     /* Address Range data                                                     */

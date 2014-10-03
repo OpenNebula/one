@@ -33,7 +33,8 @@ module OpenNebula
             :delgroup => "user.delgroup",
             :update   => "user.update",
             :chauth   => "user.chauth",
-            :quota    => "user.quota"
+            :quota    => "user.quota",
+            :login    => "user.login"
         }
 
         SELF      = -1
@@ -183,6 +184,19 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        # Sets the LOGIN_TOKEN for the user
+        #
+        # @param username [String] of the user
+        # @param token [String] the login token, if empty OpenNebula will
+        #   generate one
+        # @param expire [String] valid period of the token in secs. If <= 0
+        #   the token will be reset
+        # @return [String, OpenNebula::Error] token in case of success, Error
+        #   otherwise
+        def login(username, token, expire)
+            return @client.call(USER_METHODS[:login], username, token, expire)
         end
 
         #######################################################################
