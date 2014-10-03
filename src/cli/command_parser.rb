@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'optparse'
+require 'optparse/time'
 require 'pp'
 
 class String
@@ -27,6 +28,17 @@ class String
         self.gsub!(/^ {#{spaces}}/, '')
     end
 end
+
+if RUBY_VERSION > '1.8.7'
+    OptionParser.accept(Time) do |s,|
+        begin
+            (Time.strptime(s, "%m/%d/%Y %H:%M:%S")) if s
+        rescue
+            raise OptionParser::InvalidArgument, s
+        end
+    end
+end
+
 
 module CommandParser
     OPTIONS = [
