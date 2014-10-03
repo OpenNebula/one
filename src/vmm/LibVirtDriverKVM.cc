@@ -142,6 +142,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     string  mac        = "";
     string  bridge     = "";
+    string  bridge_ovs = "";
     string  script     = "";
     string  model      = "";
     string  ip         = "";
@@ -721,13 +722,14 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        bridge = nic->vector_value("BRIDGE");
-        mac    = nic->vector_value("MAC");
-        target = nic->vector_value("TARGET");
-        script = nic->vector_value("SCRIPT");
-        model  = nic->vector_value("MODEL");
-        ip     = nic->vector_value("IP");
-        filter = nic->vector_value("FILTER");
+        bridge     = nic->vector_value("BRIDGE");
+        bridge_ovs = nic->vector_value("BRIDGE_OVS");
+        mac        = nic->vector_value("MAC");
+        target     = nic->vector_value("TARGET");
+        script     = nic->vector_value("SCRIPT");
+        model      = nic->vector_value("MODEL");
+        ip         = nic->vector_value("IP");
+        filter     = nic->vector_value("FILTER");
 
         if ( bridge.empty() )
         {
@@ -736,12 +738,21 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             file << "\t\t<interface type='bridge'>" << endl;
-            file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
-        }
 
-        if ( vm->get_vnm_mad() == "ovswitch" )
-        {
-            file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
+            string * the_bridge = &bridge;
+
+            if ( vm->get_vnm_mad() == "ovswitch" )
+            {
+
+                if ( !bridge_ovs.empty() )
+                {
+                    the_bridge = &bridge_ovs;
+                }
+
+                file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
+            }
+
+            file << "\t\t\t<source bridge='" << *the_bridge << "'/>" << endl;
         }
 
         if( !mac.empty() )
