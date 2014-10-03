@@ -37,6 +37,7 @@ var create_vn_tmpl =
           <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
           <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Configuration")+'</a></dd>\
           <dd><a href="#vnetCreateARTab"><i class="fa fa-align-justify"></i><br>'+tr("Addresses")+'</a></dd>\
+          <dd><a href="#vnetCreateSecurityTab"><i class="fa fa-shield"></i><br>'+tr("Security")+'</a></dd>\
           <dd><a href="#vnetCreateContextTab"><i class="fa fa-folder"></i><br>'+tr("Context")+'</a></dd>\
         </dl>\
         <div id="vnet_create_tabs_content" class="tabs-content">\
@@ -137,6 +138,9 @@ var create_vn_tmpl =
                 </div>\
               </div>\
             </div>\
+          </div>\
+          <div class="content" id="vnetCreateSecurityTab">\
+            '+generateSecurityGroupTableSelect("vnet_create")+'\
           </div>\
           <div class="content" id="vnetCreateContextTab">\
             <div class="row">\
@@ -1253,6 +1257,8 @@ function setupCreateVNetDialog() {
     //Initialize shown options
     $('#network_mode',dialog).trigger("change");
 
+    setupSecurityGroupTableSelect(dialog, "vnet_create", {"multiple_choice": true});
+
     setupCustomTags($("#vnetCreateContextTab", dialog));
 
     //Handle submission of the easy mode
@@ -1265,6 +1271,9 @@ function setupCreateVNetDialog() {
         retrieveWizardFields($("#vnetCreateGeneralTab", dialog), network_json);
         retrieveWizardFields($("#vnetCreateBridgeTab", dialog), network_json);
         retrieveWizardFields($("#vnetCreateContextTab", dialog), network_json);
+
+        var secgroups = retrieveSecurityGroupTableSelect(dialog, "vnet_create");
+        network_json["SECURITY_GROUPS"] = secgroups.join(",");
 
         retrieveCustomTags($("#vnetCreateContextTab", dialog), network_json);
 
@@ -1322,6 +1331,8 @@ function setupCreateVNetDialog() {
 function popUpCreateVnetDialog() {
     $create_vn_dialog.foundation().foundation('reveal', 'open');
 
+    refreshSecurityGroupTableSelect($create_vn_dialog, "vnet_create");
+
     $("input#name",$create_vn_dialog).focus();
 }
 
@@ -1347,7 +1358,7 @@ function add_ar_tab(ar_id, dialog) {
 
 function generate_ar_tab_content(str_ar_tab_id){
     var html =
-    '<div class="row">\
+    '<div class="row" name="str_ar_tab_id" str_ar_tab_id="'+str_ar_tab_id+'">\
       <div class="large-12 columns">\
         <input wizard_field="TYPE" type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip4" value="IP4"/><label for="'+str_ar_tab_id+'_ar_type_ip4">'+tr("IPv4")+'</label>\
         <input wizard_field="TYPE" type="radio" name="'+str_ar_tab_id+'_ar_type" id="'+str_ar_tab_id+'_ar_type_ip4_6" value="IP4_6"/><label for="'+str_ar_tab_id+'_ar_type_ip4_6">'+tr("IPv4/6")+'</label>\
@@ -1390,20 +1401,35 @@ function generate_ar_tab_content(str_ar_tab_id){
         </label>\
         <input wizard_field="ULA_PREFIX" type="text" name="ULA_PREFIX" id="'+str_ar_tab_id+'_ula_prefix"/>\
       </div>\
-    </div>\
-    <div class="row">\
-      <hr>\
-      <div class="large-12 columns">\
-        <span>' + tr("Custom attributes") + '</span>\
-        <br>\
-        <br>\
+    </div>'+
+    generateAdvancedSection({
+      title: tr("Advanced Options"),
+      html_id: 'advanced_vnet_create_ar',
+      content:'<div class="row">\
+        <div class="large-12 columns">\
+          <span>' + tr("Custom attributes") + '</span>\
+          <br>\
+          <br>\
+        </div>\
       </div>\
-    </div>\
-    <div class="row" id="'+str_ar_tab_id+'_custom_tags">\
-      <div class="12 columns">'+
-        customTagsHtml()+
-      '</div>\
-    </div>';
+      <div class="row" id="'+str_ar_tab_id+'_custom_tags">\
+        <div class="12 columns">'+
+          customTagsHtml()+
+        '</div>\
+      </div>\
+      <div class="row">\
+        <br>\
+        <br>\
+        <hr>\
+        <div class="large-12 columns">\
+          <span>' + tr("Security Groups") + '</span>\
+          <br>\
+          <br>\
+        </div>\
+      </div>\
+      <div class="row" id="'+str_ar_tab_id+'_security_groups">\
+        '+generateSecurityGroupTableSelect("vnet_create_ar_"+str_ar_tab_id)+'\
+      </div>'});
 
     return html;
 }
@@ -1439,6 +1465,11 @@ function setup_ar_tab_content(ar_section, str_ar_tab_id) {
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).change();
 
     setupCustomTags($('#'+str_ar_tab_id+'_custom_tags',ar_section));
+
+    setupSecurityGroupTableSelect(ar_section, "vnet_create_ar_"+str_ar_tab_id,
+        {"multiple_choice": true});
+
+    refreshSecurityGroupTableSelect(ar_section, "vnet_create_ar_"+str_ar_tab_id);
 
     setupTips(ar_section);
 }
@@ -1479,6 +1510,12 @@ function retrieve_ar_tab_data(ar_section){
     }
 
     retrieveCustomTags(ar_section, data);
+
+    var str_ar_tab_id = $('div[name="str_ar_tab_id"]', ar_section).attr("str_ar_tab_id");
+
+    var secgroups = retrieveSecurityGroupTableSelect(ar_section,
+                            "vnet_create_ar_"+str_ar_tab_id);
+    data["SECURITY_GROUPS"] = secgroups.join(",");
 
     return data
 }

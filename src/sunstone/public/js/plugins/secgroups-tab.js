@@ -465,7 +465,7 @@ function securityGroupElements(){
     return getSelectedNodes(dataTable_security_groups);
 }
 
-function security_groupElementArray(element_json){
+function securityGroupElementArray(element_json){
 
     var element = element_json.SECURITY_GROUP;
 
@@ -481,7 +481,7 @@ function security_groupElementArray(element_json){
 //callback for an action affecting a security_group element
 function updateSecurityGroupElement(request, element_json){
     var id = element_json.SECURITY_GROUP.ID;
-    var element = security_groupElementArray(element_json);
+    var element = securityGroupElementArray(element_json);
     updateSingleElement(element,dataTable_security_groups,'#security_group_'+id);
 }
 
@@ -494,7 +494,7 @@ function deleteSecurityGroupElement(req){
 //call back for actions creating a security_group element
 function addSecurityGroupElement(request,element_json){
     var id = element_json.SECURITY_GROUP.ID;
-    var element = security_groupElementArray(element_json);
+    var element = securityGroupElementArray(element_json);
     addElement(element,dataTable_security_groups);
 }
 
@@ -504,7 +504,7 @@ function updateSecurityGroupsView (request,list){
 
     $.each(list,function(){
         //Grab table data from the list
-        list_array.push(security_groupElementArray(this));
+        list_array.push(securityGroupElementArray(this));
     });
 
     updateView(list_array,dataTable_security_groups);

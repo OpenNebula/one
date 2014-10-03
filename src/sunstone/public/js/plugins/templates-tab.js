@@ -1786,6 +1786,12 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
             '</label>'+
           '</div>'+
         '</div>'+
+      '</fieldset>'+
+      '<fieldset>'+
+        '<legend>'+tr("Security Groups")+'</legend>'+
+        '<div name="str_nic_tab_id" str_nic_tab_id="'+str_nic_tab_id+'">'+
+          generateSecurityGroupTableSelect("vm_create_nic_"+str_nic_tab_id)+
+        '</div>'+
       '</fieldset>'});
 
     $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
@@ -1814,6 +1820,13 @@ function retrieve_nic_tab_data(context){
     if ($("#icmp_type", context).is(":checked")) {
         data["ICMP"] = "drop"
     }
+
+    var str_nic_tab_id = $('div[name="str_nic_tab_id"]', context).attr("str_nic_tab_id");
+
+    var secgroups = retrieveSecurityGroupTableSelect(context,
+                        "vm_create_nic_"+str_nic_tab_id);
+
+    data["SECURITY_GROUPS"] = secgroups.join(",");
 
     return data
 }
@@ -1906,6 +1919,11 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
         $('#NETWORK_UID', nic_section).val("");
         return true;
     });
+
+    setupSecurityGroupTableSelect(nic_section, "vm_create_nic_"+str_nic_tab_id,
+                                    {"multiple_choice": true});
+
+    refreshSecurityGroupTableSelect(nic_section, "vm_create_nic_"+str_nic_tab_id);
 
     setupTips(nic_section);
 }
