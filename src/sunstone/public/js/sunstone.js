@@ -6126,14 +6126,14 @@ function setupResourceTableSelect(section, context_id, options) {
             if( ids[row_id] ){
                 delete ids[row_id];
 
-                $("td", row).removeClass('markrow');
+                $("td", row).removeClass('markrowchecked');
                 $('input.check_item', row).removeAttr('checked');
 
                 $('#selected_ids_row_'+context_id+' span[row_id="'+row_id+'"]', section).remove();
             } else {
                 ids[row_id] = true;
 
-                $("td", row).addClass('markrow');
+                $("td", row).addClass('markrowchecked');
                 $('input.check_item', row).attr('checked','checked');
 
                 $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
