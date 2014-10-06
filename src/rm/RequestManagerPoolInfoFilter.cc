@@ -460,7 +460,7 @@ void VirtualNetworkPoolInfo::request_execute(
     string  where_vnets, where_reserv;
     ostringstream where_string;
 
-    where_filter(att, filter_flag, start_id, end_id, "pid == -1", "", false,
+    where_filter(att, filter_flag, start_id, end_id, "pid = -1", "", false,
         false, false, where_vnets);
 
     where_filter(att, filter_flag, -1, -1, "pid != -1", "", true, true, false,
