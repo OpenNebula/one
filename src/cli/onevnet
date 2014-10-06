@@ -112,9 +112,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Adds an address range to the Virtual Network
     EOT
 
-    command :addar, addar_desc, :vnetid, :options=>STD_OPTIONS + [OneVNetHelper::SIZE,
-        OneVNetHelper::MAC, OneVNetHelper::IP, OneVNetHelper::IP6_GLOBAL,
-        OneVNetHelper::IP6_ULA ] do
+    command :addar, addar_desc, :vnetid,
+            :options => STD_OPTIONS + OneVNetHelper::ADDAR_OPTIONS do
         helper.perform_action(args[0],options,"lease added") do |vn|
             ar = "AR = [ "
 
@@ -143,6 +142,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             ar << ", MAC = " << options[:mac] if options[:mac]
             ar << ", GLOBAL_PREFIX = " << options[:ip6_global] if options[:ip6_global]
             ar << ", ULA_PREFIX = " << options[:ip6_ula] if options[:ip6_ula]
+            ar << ", GATEWAY = " << options[:gateway] if options[:gateway]
+            ar << ", NETMASK = " << options[:netmask] if options[:netmask]
+            ar << ", VLAN = YES" if options[:vlan]
+            ar << ", VLAN_ID = " << options[:vlanid] if options[:vlanid]
 
             ar << "]"
 
