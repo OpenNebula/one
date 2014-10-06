@@ -64,6 +64,11 @@ private:
 
     static vector<string> restricted_attributes;
 
+    bool has_restricted()
+    {
+        return restricted_attributes.size() > 0;
+    };
+
     /**
      * Stores the attributes as restricted, these attributes will be used in
      * VirtualMachineTemplate::check
