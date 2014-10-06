@@ -760,11 +760,18 @@ function updateHostInfo(request,host){
     var stripped_host_template = {};
     var unshown_values         = {};
 
-    for (key in host_info.TEMPLATE)
-        if(!key.match(/HOST/))
-            stripped_host_template[key]=host_info.TEMPLATE[key];
-        else
-            unshown_values[key]=host_info.TEMPLATE[key];
+    if (host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+    {
+      stripped_host_template = host_info.TEMPLATE;
+    }
+    else
+    {
+      for (key in host_info.TEMPLATE)
+          if(!key.match(/HOST/))
+              stripped_host_template[key]=host_info.TEMPLATE[key];
+          else
+              unshown_values[key]=host_info.TEMPLATE[key];
+    }
 
     //Information tab
     var info_tab = {
