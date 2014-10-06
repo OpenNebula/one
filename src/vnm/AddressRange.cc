@@ -210,7 +210,7 @@ int AddressRange::update_attributes(
     int pid;
     bool is_reservation = (get_attribute("PARENT_NETWORK_AR_ID", pid) == 0);
 
-    if (keep_restricted)
+    if (keep_restricted && restricted_set)
     {
         remove_restricted(vup);
     }
@@ -248,7 +248,7 @@ int AddressRange::update_attributes(
 
     /* ----------------- restricted attributes ----------------- */
 
-    if (keep_restricted)
+    if (keep_restricted && restricted_set)
     {
         remove_all_except_restricted(attr);
 

@@ -236,7 +236,7 @@ void Template::set(Attribute * attr)
 /* -------------------------------------------------------------------------- */
 
 int Template::replace(const string& name, const string& value)
-{     
+{
     pair<multimap<string, Attribute *>::iterator,
          multimap<string, Attribute *>::iterator>   index;
 
@@ -255,7 +255,7 @@ int Template::replace(const string& name, const string& value)
         attributes.erase(index.first, index.second);
     }
 
-    SingleAttribute * sattr = new SingleAttribute(name,value);    
+    SingleAttribute * sattr = new SingleAttribute(name,value);
 
     attributes.insert(make_pair(sattr->name(), sattr));
 
@@ -868,6 +868,14 @@ void Template::remove_restricted()
 
 void Template::remove_all_except_restricted()
 {}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool Template::has_restricted()
+{
+    return false;
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
