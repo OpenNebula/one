@@ -65,14 +65,20 @@ class SunstoneViews
         onec = $cloud_auth.client(user_name)
         user = OpenNebula::User.new_with_id(OpenNebula::User::SELF, onec)
 
-        user.info
-
         available = Array.new
+
+        rc = user.info
+        if OpenNebula.is_error?(rc)
+            return available
+        end
 
         user.groups.each { |gid|
             group = OpenNebula::Group.new_with_id(gid, onec)
 
-            group.info
+            rc = group.info
+            if OpenNebula.is_error?(rc)
+                return available.uniq
+            end
 
             if group["TEMPLATE/SUNSTONE_VIEWS"]
                 views_array = group["TEMPLATE/SUNSTONE_VIEWS"].split(",")
