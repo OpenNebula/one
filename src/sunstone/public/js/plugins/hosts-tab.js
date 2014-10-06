@@ -756,6 +756,16 @@ function updateHostInfo(request,host){
     var cpu_bars = generateCPUProgressBar(host_info);
     var mem_bars = generateMEMProgressBar(host_info);
 
+    // Get rid of the unwanted (for show) HOST keys
+    var stripped_host_template = {};
+    var unshown_values         = {};
+
+    for (key in host_info.TEMPLATE)
+        if(!key.match(/HOST/))
+            stripped_host_template[key]=host_info.TEMPLATE[key];
+        else
+            unshown_values[key]=host_info.TEMPLATE[key];
+
     //Information tab
     var info_tab = {
         title : tr("Info"),
@@ -832,10 +842,11 @@ function updateHostInfo(request,host){
         </div>\
         <div class="row">\
           <div class="large-9 columns">'
-          + insert_extended_template_table(host_info.TEMPLATE,
+          + insert_extended_template_table(stripped_host_template,
                                            "Host",
                                            host_info.ID,
-                                           "Attributes") +
+                                           "Attributes",
+                                           unshown_values) +
           '</div>\
         </div>\
       </div>'
