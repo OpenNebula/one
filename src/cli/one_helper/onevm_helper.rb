@@ -404,11 +404,41 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end if !options[:all]
         end
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC")
+        if vm.has_elements?("/VM/USER_TEMPLATE/HYPERVISOR")
+            vm_information = vm.to_hash['VM']
+            hybridvisor    = vm_information['USER_TEMPLATE']['HYPERVISOR'].to_s
+            isHybrid       = %w{vcenter ec2 azure softlayer}.include? hybridvisor
+
+            if isHybrid
+                vm_tmplt = vm_information['TEMPLATE']
+                nic =   {"NETWORK" => "-",
+                           "IP" => "-",
+                           "MAC"=> "-",
+                           "VLAN"=>"no",
+                           "BRIDGE"=>"-"}
+
+                case hybridvisor
+                    when "vcenter"
+                        nic.IP = vm_tmplt['GUEST_IP'] if vm_tmplt['GUEST_IP']
+                    when "ec2"
+                        nic.IP = vm_tmplt['GUEST_IP'] if vm_tmplt['IP_ADDRESS']
+                    when "azure"
+                        nic.IP = vm_tmplt['GUEST_IP'] if vm_tmplt['IPADDRESS']
+                    when "softlayer"
+                        nic.IP = vm_tmplt['GUEST_IP'] if vm_tmplt['PRIMARYIPADDRESS']
+                    else
+                        isHybrid = false
+                end
+
+                vm_nics = [nic]
+            end
+        end
+
+        if vm.has_elements?("/VM/TEMPLATE/NIC") || vm_nics
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
 
-            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten if !vm_nics
 
             nic_default = {"NETWORK" => "-",
                            "IP" => "-",
