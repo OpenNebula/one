@@ -29,6 +29,7 @@ function initialize_create_security_group_dialog(dialog){
                         <option value="TCP">'+tr("TCP")+'</option>\
                         <option value="UDP">'+tr("UDP")+'</option>\
                         <option value="ICMP">'+tr("ICMP")+'</option>\
+                        <option value="IPSEC">'+tr("IPsec")+'</option>\
                     </select>\
                 </td>\
                 <td>\

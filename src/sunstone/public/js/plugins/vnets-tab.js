@@ -1428,7 +1428,7 @@ function generate_ar_tab_content(str_ar_tab_id){
         </div>\
       </div>\
       <div class="row" id="'+str_ar_tab_id+'_security_groups">\
-        '+generateSecurityGroupTableSelect("vnet_create_ar_"+str_ar_tab_id)+'\
+        '+generateSecurityGroupTableSelect(str_ar_tab_id)+'\
       </div>'});
 
     return html;
@@ -1466,10 +1466,10 @@ function setup_ar_tab_content(ar_section, str_ar_tab_id) {
 
     setupCustomTags($('#'+str_ar_tab_id+'_custom_tags',ar_section));
 
-    setupSecurityGroupTableSelect(ar_section, "vnet_create_ar_"+str_ar_tab_id,
+    setupSecurityGroupTableSelect(ar_section, str_ar_tab_id,
         {"multiple_choice": true});
 
-    refreshSecurityGroupTableSelect(ar_section, "vnet_create_ar_"+str_ar_tab_id);
+    refreshSecurityGroupTableSelect(ar_section, str_ar_tab_id);
 
     setupTips(ar_section);
 }
@@ -1513,8 +1513,7 @@ function retrieve_ar_tab_data(ar_section){
 
     var str_ar_tab_id = $('div[name="str_ar_tab_id"]', ar_section).attr("str_ar_tab_id");
 
-    var secgroups = retrieveSecurityGroupTableSelect(ar_section,
-                            "vnet_create_ar_"+str_ar_tab_id);
+    var secgroups = retrieveSecurityGroupTableSelect(ar_section, str_ar_tab_id);
     data["SECURITY_GROUPS"] = secgroups.join(",");
 
     return data
@@ -1555,6 +1554,15 @@ function fill_ar_tab_data(ar_json, ar_section){
     delete ar_json["AR_ID"];
     delete ar_json["USED_LEASES"];
     delete ar_json["LEASES"];
+
+    if (ar_json["SECURITY_GROUPS"] != undefined &&
+        ar_json["SECURITY_GROUPS"].length != 0){
+
+        var secgroups = ar_json["SECURITY_GROUPS"].split(",");
+        selectSecurityGroupTableSelect(ar_section, "update_ar", secgroups);
+
+        delete ar_json["SECURITY_GROUPS"];
+    }
 
     fillCustomTags(ar_section, ar_json);
 
@@ -1663,6 +1671,9 @@ function setupLeasesOps(){
 
 function popUpAddAR(id){
     $('#vnet_id',$add_ar_dialog).text(id);
+
+    refreshSecurityGroupTableSelect($add_ar_dialog, "add_ar");
+
     $add_ar_dialog.foundation().foundation('reveal', 'open');
 }
 
@@ -1723,6 +1734,8 @@ function setupAddARDialog(){
 function popUpUpdateAR(id, ar){
     $('#vnet_id',$update_ar_dialog).text(id);
     $('#ar_id',$update_ar_dialog).text(ar.AR_ID);
+
+    refreshSecurityGroupTableSelect($update_ar_dialog, "update_ar");
 
     fill_ar_tab_data($.extend({}, ar), $update_ar_dialog);
 

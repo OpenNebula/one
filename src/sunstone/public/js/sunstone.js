@@ -6021,6 +6021,12 @@ function retrieveSecurityGroupTableSelect(section, context_id){
     return retrieveResourceTableSelect(section, context_id);
 }
 
+// Clears the current selection, and selects the given IDs
+// ids must be a single ID, or an array of IDs for options.multiple_choice
+function selectSecurityGroupTableSelect(section, context_id, ids){
+    return selectResourceTableSelect(section, context_id, ids);
+}
+
 function generateResourceTableSelect(context_id, columns, options){
     if (!options.select_resource){
         options.select_resource = tr("Please select a resource from the list");
@@ -6082,6 +6088,23 @@ function setupResourceTableSelect(section, context_id, options) {
 
     if (options.name_index == undefined){
         options.name_index = 1;
+    }
+
+    if (options.dataTable_options == undefined){
+        options.dataTable_options = {};
+    }
+
+    if(options.multiple_choice){
+        options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            var row_id = aData[options.id_index];
+
+            var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+            if ( ids[row_id] ){
+                $("td", nRow).addClass('markrowchecked');
+                $('input.check_item', this).attr('checked','checked');
+            }
+        };
     }
 
     var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
@@ -6152,7 +6175,7 @@ function setupResourceTableSelect(section, context_id, options) {
             return true;
         };
 
-        $('#datatable_'+context_id+' tbody', section).delegate("tr", "click", function(e){
+        $('#datatable_'+context_id+' tbody', section).on("click", "tr", function(e){
             row_click(this);
         });
 
@@ -6198,7 +6221,12 @@ function setupResourceTableSelect(section, context_id, options) {
 }
 
 function resetResourceTableSelect(section, context_id, options) {
-    var dataTable_select = $('#datatable_'+context_id, section)
+
+    // TODO: do for multiple_choice
+
+    // TODO: works for more than one page?
+
+    var dataTable_select = $('#datatable_'+context_id, section);
 
     $("td.markrow", dataTable_select).removeClass('markrow');
     $('tbody input.check_item', dataTable_select).removeAttr('checked');
@@ -6235,6 +6263,56 @@ function retrieveResourceTableSelect(section, context_id){
 // Clicks the refresh button
 function refreshResourceTableSelect(section, context_id){
     $('#refresh_button_'+context_id, section).click();
+}
+
+function selectResourceTableSelect(section, context_id, ids){
+    var options = $('#selected_ids_row_'+context_id, section).data("options");
+
+    if(options.multiple_choice){
+        var data_ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+        data_ids = {};
+
+        $('#selected_ids_row_'+context_id+' span[row_id]', section).remove();
+
+        var dataTable_select = $('#datatable_'+context_id, section).dataTable();
+
+        $.each(ids, function(index, row_id){
+            if(isNaN(row_id)){
+                return true;
+            }
+
+            data_ids[row_id] = true;
+
+            var row_name = ""+row_id;
+
+            // TODO: improve preformance, linear search. Needed to get the
+            // name of the resource in the label. If function getName() was
+            // indexed in the cache, it could be used here
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_name = row[options.name_index];
+                    return false;
+                }
+            });
+
+            $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+        });
+
+        $('#selected_ids_row_'+context_id, section).data("ids", data_ids);
+
+        if ($.isEmptyObject(data_ids)){
+            $('#selected_resource_multiple_'+context_id, section).hide();
+            $('#select_resource_multiple_'+context_id, section).show();
+        } else {
+            $('#selected_resource_multiple_'+context_id, section).show();
+            $('#select_resource_multiple_'+context_id, section).hide();
+        }
+
+        $('.alert-box', section).hide();
+    }
+
+    refreshResourceTableSelect(section, context_id);
 }
 
 //==============================================================================
