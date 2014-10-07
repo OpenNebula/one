@@ -30,6 +30,14 @@ function loadVNC(){
 }
 loadVNC();
 
+function calculate_isHybrid(vm_info){
+    return vm_info.USER_TEMPLATE.HYPERVISOR &&
+       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer")
+}
+
 var VNCstates=[
   tr("RUNNING"),
   tr("SHUTDOWN"),
@@ -968,7 +976,9 @@ function str_start_time(vm){
 // Return the IP or several IPs of a VM
 function ip_str(vm){
 
-    if (vm.USER_TEMPLATE.HYPERVISOR)
+    var isHybrid = calculate_isHybrid(vm);
+
+    if (isHybrid)
     {
         switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase())
         {
@@ -2078,6 +2088,9 @@ function hotpluggingOps(){
 }
 
 function printNics(vm_info){
+
+   var isHybrid = calculate_isHybrid(vm_info);
+
    var html ='<form id="tab_network_form" vmid="'+vm_info.ID+'" >\
       <div class="row">\
       <div class="large-12 columns">\
@@ -2095,7 +2108,7 @@ function printNics(vm_info){
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       // If VM is not RUNNING, then we forget about the attach nic form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && !isHybrid){
         html += '\
            <button id="attach_nic" class="button tiny success right radius" >'+tr("Attach nic")+'</button>'
       } else {
@@ -2111,10 +2124,45 @@ function printNics(vm_info){
 
 
     var nics = []
-    if ($.isArray(vm_info.TEMPLATE.NIC))
-        nics = vm_info.TEMPLATE.NIC
-    else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
-        nics = [vm_info.TEMPLATE.NIC]
+
+    if (isHybrid)
+    {
+        nic         = {};
+        nic.NIC_ID  = 0;
+        nic.ATTACH  = "NO";
+        nic.NETWORK = "-";
+        nic.MAC     = "-";
+
+        switch(vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase())
+        {
+            case "vcenter":
+                nic.IP = vm_info.TEMPLATE.GUEST_IP?vm_info.TEMPLATE.GUEST_IP:"--";
+                break;
+            case "ec2":
+                nic.IP = vm_info.TEMPLATE.IP_ADDRESS?vm_info.TEMPLATE.IP_ADDRESS:"--";
+                break;
+            case "azure":
+                nic.IP = vm_info.TEMPLATE.IPADDRESS?vm_info.TEMPLATE.IPADDRESS:"--";
+                break;
+            case "softlayer":
+                nic.IP = vm_info.TEMPLATE.PRIMARYIPADDRESS?vm_info.TEMPLATE.PRIMARYIPADDRESS:"--";
+                break;
+            default:
+                nic.IP = "--";
+        }
+
+        nics = [nic];
+
+    }
+    else
+    {
+        if ($.isArray(vm_info.TEMPLATE.NIC))
+            nics = vm_info.TEMPLATE.NIC
+        else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
+            nics = [vm_info.TEMPLATE.NIC]
+    }
+
+
 
     if (!nics.length){
         html += '\
@@ -2166,7 +2214,11 @@ function printNics(vm_info){
             </tbody>\
           </table>\
         </div>\
-        </div>\
+        </div>';
+
+  if (!isHybrid)
+  {
+    html += '\
         <div class="row">\
             <div class="large-6 columns">\
               <div class="row text-center">\
@@ -2222,6 +2274,7 @@ function printNics(vm_info){
             </div>\
         </div>\
       </form>';
+    }
 
     return html;
 }
