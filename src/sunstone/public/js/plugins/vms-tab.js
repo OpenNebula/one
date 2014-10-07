@@ -967,30 +967,54 @@ function str_start_time(vm){
 
 // Return the IP or several IPs of a VM
 function ip_str(vm){
-    var nic = vm.TEMPLATE.NIC;
 
-    if (nic == undefined){
-        return '--';
+    if (vm.USER_TEMPLATE.HYPERVISOR)
+    {
+        switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase())
+        {
+            case "vcenter":
+                ip = vm.TEMPLATE.GUEST_IP?vm.TEMPLATE.GUEST_IP:"--";
+                break;
+            case "ec2":
+                ip = vm.TEMPLATE.IP_ADDRESS?vm.TEMPLATE.IP_ADDRESS:"--";
+                break;
+            case "azure":
+                ip = vm.TEMPLATE.IPADDRESS?vm.TEMPLATE.IPADDRESS:"--";
+                break;
+            case "softlayer":
+                ip = vm.TEMPLATE.PRIMARYIPADDRESS?vm.TEMPLATE.PRIMARYIPADDRESS:"--";
+                break;
+            default:
+                ip = "--";
+        }
     }
+    else
+    {
+        var nic = vm.TEMPLATE.NIC;
 
-    if (!$.isArray(nic)){
-        nic = [nic];
+        if (nic == undefined){
+            return '--';
+        }
+
+        if (!$.isArray(nic)){
+            nic = [nic];
+        }
+
+        ip = '';
+        $.each(nic, function(index,value){
+            if (value.IP){
+                ip += value.IP+'<br />';
+            }
+
+            if (value.IP6_GLOBAL){
+                ip += value.IP6_GLOBAL+'<br />';
+            }
+
+            if (value.IP6_ULA){
+                ip += value.IP6_ULA+'<br />';
+            }
+        });
     }
-
-    ip = '';
-    $.each(nic, function(index,value){
-        if (value.IP){
-            ip += value.IP+'<br />';
-        }
-
-        if (value.IP6_GLOBAL){
-            ip += value.IP6_GLOBAL+'<br />';
-        }
-
-        if (value.IP6_ULA){
-            ip += value.IP6_ULA+'<br />';
-        }
-    });
 
     return ip;
 };
