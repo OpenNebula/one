@@ -28,6 +28,12 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)
         @locking = false
+
+        @vm.nics.each do |nic|
+            if nic[:bridge_ovs] && !nic[:bridge_ovs].empty?
+                nic[:bridge] = nic[:bridge_ovs]
+            end
+        end
     end
 
     def activate

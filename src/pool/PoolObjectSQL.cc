@@ -184,7 +184,7 @@ int PoolObjectSQL::replace_template(
         return -1;
     }
 
-    if (keep_restricted)
+    if (keep_restricted && new_tmpl->has_restricted())
     {
         new_tmpl->remove_restricted();
 

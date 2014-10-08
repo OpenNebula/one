@@ -502,7 +502,8 @@ function setLogin(){
         OpenNebula.Auth.logout({
           success: function(){
             window.location.href = "login";
-          }
+          },
+          error: onError
         });
 
         return false;

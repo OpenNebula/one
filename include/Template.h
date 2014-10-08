@@ -390,6 +390,11 @@ public:
       */
      virtual void remove_all_except_restricted();
 
+     /**
+      *  @return true if the template defines one or more restricted attributes
+      */
+     virtual bool has_restricted();
+
 protected:
     /**
      *  The template attributes

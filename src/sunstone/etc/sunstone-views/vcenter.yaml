@@ -111,7 +111,7 @@ tabs:
             vm_info_tab: true
             vm_capacity_tab: true
             vm_hotplugging_tab: false
-            vm_network_tab: false
+            vm_network_tab: true
             vm_snapshot_tab: true
             vm_placement_tab: true
             vm_actions_tab: true
