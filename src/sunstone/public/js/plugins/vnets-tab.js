@@ -782,6 +782,12 @@ function updateVNetworkInfo(request,vn){
         content: ar_list_tab_content(vn_info)
     };
 
+    var sg_tab = {
+        title : tr("Security"),
+        icon: "fa-shield",
+        content: sg_list_tab_content(vn_info)
+    };
+
     var leases_tab = {
         title: tr("Leases"),
         icon: "fa-list-ul",
@@ -791,6 +797,7 @@ function updateVNetworkInfo(request,vn){
 
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_ar_list_tab",ar_tab);
+    Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_sg_list_tab",sg_tab);
     Sunstone.updateInfoPanelTab("vnet_info_panel","vnet_leases_tab",leases_tab);
 
     Sunstone.popUpInfoPanel("vnet_info_panel", "vnets-tab");
@@ -831,8 +838,12 @@ function updateVNetworkInfo(request,vn){
 
         $("#ar_show_info", $("#vnet_info_panel")).html(ar_show_info(vn_info, id));
 
+        setup_ar_show_info($("#ar_show_info", $("#vnet_info_panel")), vn_info, id);
+
         return false;
     });
+
+    setup_sg_list_tab_content(vn_info);
 
     var leases_dataTable = $("#leases_datatable",$("#vnet_info_panel")).dataTable({
         "bSortClasses" : false,
@@ -1040,6 +1051,11 @@ function ar_show_info(vn_info, ar_id){
     delete ar["LEASES"];
     delete ar["PARENT_NETWORK_AR_ID"];
 
+    var do_secgroups = (ar.SECURITY_GROUPS != undefined &&
+                        ar.SECURITY_GROUPS.length != 0);
+
+    delete ar["SECURITY_GROUPS"];
+
     html +=
           '</tbody>\
         </table>';
@@ -1058,13 +1074,96 @@ function ar_show_info(vn_info, ar_id){
     });
 
     html +=
-      '</div>\
+          '</tbody>\
+        </table>\
+      </div>\
     </div>';
+
+    if (do_secgroups){
+        html +=
+        '<div class="row collapse">\
+          <div class="large-12 columns">\
+            <table class="dataTable extended_table">\
+              <thead>\
+                <tr><th>'+tr("Security Groups")+'</th></tr>\
+              </thead>\
+              <tbody/>\
+            </table>\
+          </div>\
+          <div class="large-12 columns">'+
+            generateSecurityGroupTableSelect("ar_show_info")+
+          '</div>\
+        </div>';
+    }
 
     return html;
 }
 
-// Prints the lis of leases depending on the Vnet TYPE
+function setup_ar_show_info(section, vn_info, ar_id){
+    var ar = get_ar(vn_info, ar_id);
+
+    if(ar == undefined){
+        return "";
+    }
+
+    if (ar.SECURITY_GROUPS != undefined &&
+        ar.SECURITY_GROUPS.length != 0){
+    
+        var secgroups = ar.SECURITY_GROUPS.split(",");
+    
+        var opts = {
+            read_only: true,
+            fixed_ids: secgroups
+        }
+
+        setupSecurityGroupTableSelect(section, "ar_show_info", opts);
+
+        refreshSecurityGroupTableSelect(section, "ar_show_info");
+    }
+}
+
+function sg_list_tab_content(vn_info){
+
+    var html =
+    '<form id="sg_list_form" vnid="'+vn_info.ID+'">';
+
+    html +=
+        '<div class="row collapse">\
+          <div class="large-12 columns">';
+
+    html += '<span class="right">';
+
+    html += '</span></div></div>';
+
+    html += '<div class="row collapse">\
+        '+generateSecurityGroupTableSelect("sg_list")+'\
+      </div>\
+    </form>';
+
+    return html;
+}
+
+function setup_sg_list_tab_content(vn_info){
+
+    var secgroups = [];
+
+    if (vn_info.TEMPLATE.SECURITY_GROUPS != undefined &&
+        vn_info.TEMPLATE.SECURITY_GROUPS.length != 0){
+    
+        secgroups = vn_info.TEMPLATE.SECURITY_GROUPS.split(",");
+    }
+
+    var opts = {
+        read_only: true,
+        fixed_ids: secgroups
+    }
+
+    setupSecurityGroupTableSelect($("#vnet_info_panel"), "sg_list", opts);
+
+    refreshSecurityGroupTableSelect($("#vnet_info_panel"), "sg_list");
+}
+
+// Prints the list of leases depending on the Vnet TYPE
 // It adds the "add lease", "hold lease" fields, and each lease comes with
 // hold, release buttons etc. Listeners in setupLeasesOps()
 function printLeases(vn_info){

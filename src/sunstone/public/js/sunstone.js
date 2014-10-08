@@ -5941,6 +5941,10 @@ function generateSecurityGroupTableSelect(context_id){
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which vnets to show
 // opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
 function setupSecurityGroupTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5963,6 +5967,14 @@ function setupSecurityGroupTableSelect(section, context_id, opts){
         opts.multiple_choice = false;
     }
 
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -5979,6 +5991,8 @@ function setupSecurityGroupTableSelect(section, context_id, opts){
         },
 
         "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
 
         "id_index": 1,
         "name_index": 4,
@@ -5986,22 +6000,44 @@ function setupSecurityGroupTableSelect(section, context_id, opts){
         "update_fn": function(datatable){
             OpenNebula.SecurityGroup.list({
                 timeout: true,
-                success: function (request, secgroups_list){
-                    var secgroup_list_array = [];
+                success: function (request, resource_list){
+                    var list_array = [];
 
-                    $.each(secgroups_list,function(){
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
+                    $.each(resource_list,function(){
                         var add = true;
 
                         if(opts.filter_fn){
                             add = opts.filter_fn(this.SECURITY_GROUP);
                         }
 
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.SECURITY_GROUP.ID]);
+                        }
+
                         if(add){
-                            secgroup_list_array.push(securityGroupElementArray(this));
+                            list_array.push(securityGroupElementArray(this));
+
+                            delete fixed_ids_map[this.SECURITY_GROUP.ID];
                         }
                     });
 
-                    updateView(secgroup_list_array, datatable);
+                    var n_columns = 5; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
+                    });
+
+                    updateView(list_array, datatable);
                 },
                 error: onError
             });
@@ -6121,7 +6157,9 @@ function setupResourceTableSelect(section, context_id, options) {
 
     dataTable_select.fnSort( [ [options.id_index, config['user_config']['table_order']] ] );
 
-    if(options.multiple_choice){
+    if (options.read_only){
+        $('#selected_ids_row_'+context_id, section).hide();
+    } else if(options.multiple_choice){
         $('#selected_resource_'+context_id, section).hide();
         $('#select_resource_'+context_id, section).hide();
 
@@ -6134,7 +6172,9 @@ function setupResourceTableSelect(section, context_id, options) {
 
     $('#selected_ids_row_'+context_id, section).data("options", options);
 
-    if(options.multiple_choice){
+    if(options.read_only){
+
+    } else if(options.multiple_choice){
         $('#selected_ids_row_'+context_id, section).data("ids", {});
 
         function row_click(row){
