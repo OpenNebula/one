@@ -345,6 +345,7 @@ tabs:
         actions:
             Network.refresh: true
             Network.create_dialog: true
+            Network.update_dialog: true
             Network.addtocluster: true
             Network.chown: true
             Network.chgrp: true

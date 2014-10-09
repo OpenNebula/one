@@ -167,9 +167,15 @@ var Sunstone = {
 
         var form_obj = SunstoneCfg["form_panels"][form_name];
 
+        $(".reset_button", context).show();
+
         if (action) {
             $(".right-form-title", context).text(form_obj["actions"][action]["title"]);
             $(".submit_button", context).text(form_obj["actions"][action]["submit_text"]);
+
+            if (form_obj["actions"][action]["reset_button"] == false) {
+                $(".reset_button", context).hide();
+            }
         }
 
         setTimeout(function() {
@@ -787,7 +793,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 
                 "<span id='"+custom_id+"form_buttons' class='only-right-form' style='display: none'>"+
                     '<span id="'+custom_id+'reset_button" class="left" style="margin-left: 10px;">'+
-                        '<a class="button small secondary radius" href="submit">'+tr("Reset")+'</a>'+
+                        '<a class="button small secondary radius reset_button" href="submit">'+tr("Reset")+'</a>'+
                     '</span>'+
                     '<span id="'+custom_id+'submit_button" class="left" style="margin-left: 10px;">'+
                         '<a class="button small success radius submit_button" href="submit">'+tr("Create")+'</a>'+
@@ -5547,6 +5553,33 @@ function retrieveWizardFields(dialog, template_json){
     });
 }
 
+function fillWizardFields(dialog, template_json){
+    var fields = $('[wizard_field]',dialog);
+
+    fields.each(function(){
+        var field = $(this);
+        var field_name = field.attr('wizard_field');
+        if (template_json[field_name]){
+            switch(field.attr("type")){
+            case "radio":
+                var checked = (field.val() == template_json[field_name]);
+
+                field.prop("checked", checked );
+
+                if(checked){
+                    field.change();
+                }
+                break;
+            default:
+                field.val(escapeDoubleQuotes(htmlDecode(template_json[field_name])));
+                field.change();
+            }
+        }
+    });
+}
+
+
+
 //==============================================================================
 // Resource tables with "please select" mechanism
 //==============================================================================
@@ -6146,10 +6179,10 @@ function setupResourceTableSelect(section, context_id, options) {
 
     var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
 
-    $('#refresh_button_'+context_id).die();
+    $('#refresh_button_'+context_id, section).die();
 
-    $('#refresh_button_'+context_id).live('click', function(){
-        options.update_fn($('table[id=datatable_'+context_id+']').dataTable());
+    $('#refresh_button_'+context_id, section).live('click', function(){
+        options.update_fn($('table[id=datatable_'+context_id+']', section).dataTable());
     });
 
     $('#'+context_id+'_search', section).keyup(function(){
