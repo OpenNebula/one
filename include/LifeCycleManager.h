@@ -55,6 +55,7 @@ public:
         MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused while active */
         MONITOR_DONE,     /**< Sent by the VMM when a Host cannot be monitored*/
         MONITOR_POWEROFF, /**< Sent by the VMM when a VM is not found */
+        MONITOR_POWERON,  /**< Sent by the VMM when a VM is found again */
         PROLOG_SUCCESS,   /**< Sent by the TM when the prolog phase succeeds  */
         PROLOG_FAILURE,   /**< Sent by the TM when the prolog phase fails     */
         EPILOG_SUCCESS,   /**< Sent by the TM when the epilog phase succeeds  */
@@ -199,6 +200,8 @@ private:
     void monitor_done_action(int vid);
 
     void monitor_poweroff_action(int vid);
+
+    void monitor_poweron_action(int vid);
 
     void prolog_success_action(int vid);
 
