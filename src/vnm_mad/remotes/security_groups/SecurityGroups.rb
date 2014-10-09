@@ -79,8 +79,8 @@ class Rule
         @rule[:protocol].downcase.to_sym rescue nil
     end
 
-    def type
-        @rule[:type].downcase.to_sym rescue nil
+    def rule_type
+        @rule[:rule_type].downcase.to_sym rescue nil
     end
 
     def range
@@ -104,8 +104,8 @@ class Rule
             valid = false
         end
 
-        if !type || ![:inbound, :outbound].include?(type)
-            error_message << "Invalid type: #{type}"
+        if !rule_type || ![:inbound, :outbound].include?(rule_type)
+            error_message << "Invalid rule_type: #{rule_type}"
             valid = false
         end
 
@@ -137,15 +137,15 @@ class Rule
 end
 
 class SecurityGroup
-    def initialize(vm, nic, sg)
+    def initialize(vm, nic, sg_id, rules)
         @vm  = vm
         @nic = nic
-        @sg  = sg[:security_group]
+        @sg_id = sg_id
 
         @rules = []
         @invalid_rules = []
 
-        [@sg[:rule]].flatten.compact.each do |rule|
+        rules.each do |rule|
             @rules << Rule.new(rule)
         end
     end
@@ -158,12 +158,12 @@ end
 class SecurityGroupIPTables < SecurityGroup
     # RULE_CLASS = IPTablesRule
 
-    def initialize(vm, nic, sg)
-        super(vm, nic, sg)
+    def initialize(vm, nic, sg_id, rules)
+        super
+
         @commands = Commands.new
 
-        sg_id = @sg[:security_group_id]
-        chain = "one-sg-#{sg_id}"
+        chain = "one-sg-#{@sg_id}"
 
         vm_id  = @vm['ID']
         nic_id = @nic[:nic_id]
@@ -171,8 +171,8 @@ class SecurityGroupIPTables < SecurityGroup
         @chain_in     = "one-#{vm_id}-#{nic_id}-i"
         @chain_out    = "one-#{vm_id}-#{nic_id}-o"
 
-        @chain_sg_in  = "one-#{vm_id}-#{nic_id}-#{sg_id}-i"
-        @chain_sg_out = "one-#{vm_id}-#{nic_id}-#{sg_id}-o"
+        @chain_sg_in  = "one-#{vm_id}-#{nic_id}-#{@sg_id}-i"
+        @chain_sg_out = "one-#{vm_id}-#{nic_id}-#{@sg_id}-o"
     end
 
     def bootstrap
@@ -195,7 +195,7 @@ class SecurityGroupIPTables < SecurityGroup
         @rules.each do |rule|
             if !rule.range && !rule.net
                 # T1 - protocol
-                if rule.type == :inbound
+                if rule.rule_type == :inbound
                     chain = @chain_sg_in
                 else
                     chain = @chain_sg_out
@@ -205,7 +205,7 @@ class SecurityGroupIPTables < SecurityGroup
 
             elsif rule.range && !rule.net
                 # T2 - port range
-                if rule.type == :inbound
+                if rule.rule_type == :inbound
                     chain = @chain_sg_in
                 else
                     chain = @chain_sg_out
@@ -214,7 +214,7 @@ class SecurityGroupIPTables < SecurityGroup
 
             elsif !rule.range && rule.net
                 # T3 - net
-                if rule.type == :inbound
+                if rule.rule_type == :inbound
                     chain = @chain_sg_in
                     dir = "src"
                 else
@@ -232,7 +232,7 @@ class SecurityGroupIPTables < SecurityGroup
 
             elsif rule.range && rule.net
                 # T4 - net && port range
-                if rule.type == :inbound
+                if rule.rule_type == :inbound
                     chain = @chain_sg_in
                     dir = "src,dst"
                 else
@@ -273,8 +273,8 @@ class OpenNebulaSGError < StandardError
 end
 
 class OpenNebulaSG < OpenNebulaNetwork
-    DRIVER = "fw"
-    XPATH_FILTER =  "TEMPLATE/NIC[SECURITY_GROUP_POOL/SECURITY_GROUP)]"
+    DRIVER = "sg"
+    XPATH_FILTER =  "TEMPLATE/NIC[SECURITY_GROUPS]"
     SECURITY_GROUP_CLASS = SecurityGroupIPTables
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
@@ -288,6 +288,23 @@ class OpenNebulaSG < OpenNebulaNetwork
         lock
 
         vm_id = @vm['ID']
+
+        security_group_rules = {}
+
+        @vm.vm_root.elements.each('TEMPLATE/SECURITY_GROUP_RULE') do |r|
+            security_group_rule = {}
+
+            r.elements.each do |e|
+                key = e.name.downcase.to_sym
+                security_group_rule[key] = e.text
+            end
+
+            id = security_group_rule[:security_group_id]
+
+            security_group_rules[id] = [] if security_group_rules[id].nil?
+
+            security_group_rules[id] << security_group_rule
+        end
 
         @vm.nics.each do |nic|
             commands = Commands.new
@@ -316,12 +333,12 @@ class OpenNebulaSG < OpenNebulaNetwork
                 raise OpenNebulaSGError.new(:bootstrap, e)
             end
 
-            # Flatten nic[:security_group_pool]
-            # it can be a Hash or an Array of Hashes for more than one
-            security_groups = [nic[:security_group_pool]].flatten.compact
+            sg_ids = nic[:security_groups].split(",")
 
-            security_groups.each do |sg|
-                sg = SECURITY_GROUP_CLASS.new(@vm, nic, sg)
+            sg_ids.each do |sg_id|
+                rules = security_group_rules[sg_id]
+
+                sg = SECURITY_GROUP_CLASS.new(@vm, nic, sg_id, rules)
 
                 sg.bootstrap
                 sg.process_rules
