@@ -679,17 +679,15 @@ void VirtualMachineManagerDriver::process_poll(
             break;
 
         case 'e': //Failed
-            vm->log("VMM", Log::INFO, "VM running but monitor state is ERROR.");
+            vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
 
             lcm->trigger(LifeCycleManager::MONITOR_FAILURE, vm->get_oid());
             break;
 
-        case 'd': //The VM was not found
-            vm->log("VMM", Log::INFO, "VM running but it was not found."
-                    " Boot and delete actions available or try to"
-                    " recover it manually");
+        case 'd': //The VM was powered-off
+            vm->log("VMM",Log::INFO,"VM running but monitor state is POWEROFF");
 
-            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
+            lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, vm->get_oid());
             break;
     }
 }
