@@ -1826,7 +1826,9 @@ function retrieve_nic_tab_data(context){
     var secgroups = retrieveSecurityGroupTableSelect(context,
                         "vm_create_nic_"+str_nic_tab_id);
 
-    data["SECURITY_GROUPS"] = secgroups.join(",");
+    if (secgroups != undefined && secgroups.length != 0){
+        data["SECURITY_GROUPS"] = secgroups.join(",");
+    }
 
     return data
 }
@@ -1860,6 +1862,18 @@ function fill_nic_tab_data(template_json, context){
     if (template_json["ICMP"]){
         var field = $("#icmp_type", context);
         $("#icmp_type", context).attr('checked','checked');
+    }
+
+    var str_nic_tab_id = $("div[str_nic_tab_id]", context).attr("str_nic_tab_id");
+
+    if (template_json["SECURITY_GROUPS"] != undefined &&
+        template_json["SECURITY_GROUPS"].length != 0){
+
+        var secgroups = template_json["SECURITY_GROUPS"].split(",");
+
+        selectSecurityGroupTableSelect(context, "vm_create_nic_"+str_nic_tab_id, secgroups);
+    } else {
+        refreshSecurityGroupTableSelect(context, "vm_create_nic_"+str_nic_tab_id);
     }
 }
 
@@ -3179,7 +3193,7 @@ function add_nic_tab(nic_id, dialog) {
   var str_nic_tab_id  = 'nic' + nic_id;
   var str_datatable_id = 'datatable_template_networks' + nic_id;
 
-  var html_tab_content = '<div id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab content">'+
+  var html_tab_content = '<div id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab content" str_nic_tab_id="'+str_nic_tab_id+'">'+
       generate_nic_tab_content(str_nic_tab_id, str_datatable_id) +
     '</div>'
 
