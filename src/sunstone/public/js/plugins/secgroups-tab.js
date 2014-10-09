@@ -85,7 +85,7 @@ function generate_json_security_group_from_form(dialog) {
         var rule = {};
 
         rule["PROTOCOL"] = $(".security_group_rule_protocol", $(this)).val();
-        rule["TYPE"] = $(".security_group_rule_type", $(this)).val();
+        rule["RULE_TYPE"] = $(".security_group_rule_type", $(this)).val();
         rule["RANGE"] = $(".security_group_rule_range", $(this)).val();
         rule["NETWORK"] = $(".security_group_rule_network", $(this)).val();
         rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", $(this)).val();
