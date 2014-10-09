@@ -117,6 +117,10 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "MONITOR_POWEROFF";
         break;
 
+    case MONITOR_POWERON:
+        aname = "MONITOR_POWERON";
+        break;
+
     case PROLOG_SUCCESS:
         aname = "PROLOG_SUCCESS";
         break;
@@ -341,6 +345,10 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "MONITOR_POWEROFF")
     {
         monitor_poweroff_action(vid);
+    }
+    else if (action == "MONITOR_POWERON")
+    {
+        monitor_poweron_action(vid);
     }
     else if (action == "PROLOG_SUCCESS")
     {

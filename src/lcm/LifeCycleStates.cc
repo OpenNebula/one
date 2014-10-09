@@ -1320,6 +1320,45 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void  LifeCycleManager::monitor_poweron_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    //This event should be ignored if the VM is not POWEROFF
+    if ( vm->get_state() == VirtualMachine::POWEROFF )
+    {
+            time_t the_time = time(0);
+
+            vm->set_state(VirtualMachine::ACTIVE);
+
+            vm->set_state(VirtualMachine::RUNNING);
+
+            vm->cp_history();
+
+            vmpool->update(vm);
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is RUNNING");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::failure_action(VirtualMachine * vm)
 {
     Nebula&             nd = Nebula::instance();
