@@ -208,6 +208,8 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->set_running_stime(the_time);
 
+        vm->set_last_poll(0);
+
         vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
@@ -274,6 +276,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
         time_t  the_time = time(0);
 
         vm->set_running_stime(the_time);
+
+        vm->set_last_poll(0);
 
         vmpool->update_history(vm);
 
@@ -382,6 +386,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_stime(the_time);
 
         vm->set_running_stime(the_time);
+
+        vm->set_last_poll(0);
 
         vmpool->update_history(vm);
 
@@ -712,6 +718,8 @@ void  LifeCycleManager::prolog_success_action(int vid)
     vm->set_prolog_etime(the_time);
 
     vm->set_running_stime(the_time);
+
+    vm->set_last_poll(0);
 
     vmpool->update_history(vm);
 
@@ -1347,6 +1355,8 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
             vm->set_stime(the_time);
 
             vm->set_running_stime(the_time);
+
+            vm->set_last_poll(0);
 
             vmpool->update_history(vm);
 

@@ -612,6 +612,8 @@ void  LifeCycleManager::restore_action(int vid)
 
         vm->set_stime(the_time);
 
+        vm->set_last_poll(0);
+
         vm->set_running_stime(the_time);
 
         vmpool->update_history(vm);
@@ -745,6 +747,8 @@ void  LifeCycleManager::restart_action(int vid)
             vmpool->update(vm);
 
             vm->set_stime(the_time);
+
+            vm->set_last_poll(0);
 
             vm->set_running_stime(the_time);
 

@@ -194,8 +194,6 @@ void MonitorThread::do_message()
         return;
     }
 
-    time_t prev_last_monitor = host->get_last_monitored();
-
     rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds,
                 reserved_cpu, reserved_mem);
 
@@ -241,7 +239,7 @@ void MonitorThread::do_message()
             // 3.- It has been monitored at least once
             if (vm->hasHistory() &&
                 vm->get_lcm_state() == VirtualMachine::RUNNING &&
-                prev_last_monitor <= vm->get_last_poll() )
+                vm->get_last_poll() != 0)
             {
                 lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
             }
