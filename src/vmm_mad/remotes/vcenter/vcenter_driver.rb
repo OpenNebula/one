@@ -646,7 +646,7 @@ class VCenterVm
         @guest_state    = @vm.guest.guestState
         @vmware_tools   = @vm.guest.toolsRunningStatus
         @vmtools_ver    = @vm.guest.toolsVersion
-        @vmtools_verst  = @vm.guest.toolsVersionStatus 
+        @vmtools_verst  = @vm.guest.toolsVersionStatus
 
 
     end
@@ -697,7 +697,11 @@ class VCenterVm
 private
 
     ########################################################################
-    #  Converts the VI string state to OpenNebula state convention
+    # Converts the VI string state to OpenNebula state convention
+    # Guest states are:
+    # - poweredOff   The virtual machine is currently powered off.
+    # - poweredOn    The virtual machine is currently powered on.
+    # - suspended    The virtual machine is currently suspended.
     ########################################################################
     def state_to_c(state)
         case state
@@ -705,14 +709,16 @@ private
                 'a'
             when 'suspended'
                 'p'
-            else
+            when 'poweredOff'
                 'd'
+            else
+                '-'
         end
     end
 
     ########################################################################
     #  Clone a vCenter VM Template and leaves it powered on
-    ########################################################################    
+    ########################################################################
     def self.clone_vm(xml_text)
 
         xml = REXML::Document.new xml_text
@@ -770,8 +776,8 @@ private
         end
 
         if vnc_port
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig => 
-                     [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"}, 
+            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig =>
+                     [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"},
                       {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text},
                       {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}])
             rc.ReconfigVM_Task(:spec => spec).wait_for_completion
