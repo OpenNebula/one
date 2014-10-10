@@ -18,7 +18,9 @@
 #define _NEBULA_UTIL_H_
 
 #include <string>
+#include <sstream>
 #include <vector>
+#include <set>
 
 namespace one_util
 {
@@ -86,13 +88,67 @@ namespace one_util
             bool clean_empty=true);
 
     /**
-     * Joins the strings with the given delimiter
+     * Splits a string, using the given delimiter
      *
-     * @param v vector with the strings to join
+     * @param st string to split
+     * @param delim delimiter character
+     * @param result where the result will be saved
+     * @param clean_empty true to clean empty split parts.
+     *  Example for st "a::b:c"
+     *      clean_empty true will return ["a", "b", "c"]
+     *      clean_empty fase will return ["a", "", "b", "c"]
+     */
+    template <class T>
+    void split(
+            const std::string& st,
+            char delim,
+            std::set<T>& result,
+            bool clean_empty=true)
+    {
+        T elem;
+        std::vector<std::string>::const_iterator it;
+
+        std::vector<std::string> strings = split(st, delim, clean_empty);
+
+        for (it = strings.begin(); it != strings.end(); it++)
+        {
+            std::istringstream iss(*it);
+            iss >> elem;
+
+            if ( iss.fail() )
+            {
+                continue;
+            }
+
+            result.insert(elem);
+        }
+    }
+
+    /**
+     * Joins the given element with the delimiter
+     *
+     * @param first iterator
+     * @param last iterator
      * @param delim delimiter character
      * @return the joined strings
      */
-    std::string join(const std::vector<std::string>& v, char delim);
+    template <class Iterator>
+    std::string join(Iterator first, Iterator last, char delim)
+    {
+        std::ostringstream oss;
+
+        for(Iterator it = first; it != last; it++)
+        {
+            if (it != first)
+            {
+                oss << delim;
+            }
+
+            oss << *it;
+        }
+
+        return oss.str();
+    }
 };
 
 #endif /* _NEBULA_UTIL_H_ */

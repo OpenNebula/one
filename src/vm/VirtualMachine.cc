@@ -2774,25 +2774,9 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 
 set<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
 {
-    int         secgroup_id;
-    set<int>    result;
-    vector<string>::const_iterator it;
+    set<int> result;
 
-    vector<string> secgroups =
-            one_util::split(nic->vector_value("SECURITY_GROUPS"), ',');
-
-    for (it = secgroups.begin(); it != secgroups.end(); it++)
-    {
-        istringstream iss(*it);
-        iss >> secgroup_id;
-
-        if ( iss.fail() )
-        {
-            continue;
-        }
-
-        result.insert(secgroup_id);
-    }
+    one_util::split(nic->vector_value("SECURITY_GROUPS"), ',', result);
 
     return result;
 }
@@ -2806,15 +2790,21 @@ int VirtualMachine::get_security_groups(
         vector<VectorAttribute*>    &rules,
         string                      &error_str)
 {
-    set<int>::const_iterator it;
+    set<int>::const_iterator sg_it;
     set<int> secgroups = nic_security_groups(nic);
+
+    vector<VectorAttribute*>::iterator rule_it;
 
     SecurityGroup*      sgroup;
     SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();
 
-    for (it = secgroups.begin(); it != secgroups.end(); it++)
+    int                 vnet_id;
+    VirtualNetwork*     vnet;
+    VirtualNetworkPool* vnet_pool = Nebula::instance().get_vnpool();
+
+    for (sg_it = secgroups.begin(); sg_it != secgroups.end(); sg_it++)
     {
-        sgroup = sgroup_pool->get(*it, true);
+        sgroup = sgroup_pool->get(*sg_it, true);
 
         if (sgroup == 0)
         {

@@ -241,20 +241,3 @@ vector<string> one_util::split(const string& st, char delim, bool clean_empty)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-string one_util::join(const vector<string>& v, char delim)
-{
-    ostringstream oss;
-
-    for(vector<string>::const_iterator it = v.begin(); it != v.end(); it++)
-    {
-        if (it != v.begin())
-        {
-            oss << delim;
-        }
-
-        oss << *it;
-    }
-
-    return oss.str();
-}
