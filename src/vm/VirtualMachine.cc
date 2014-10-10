@@ -2823,12 +2823,39 @@ int VirtualMachine::get_security_groups(
 
         sgroup->add_vm(vm_id);
 
-        vector<VectorAttribute*> sgroup_rules = sgroup->get_rules();
-        rules.insert(rules.end(), sgroup_rules.begin(), sgroup_rules.end());
-
         sgroup_pool->update(sgroup);
 
         sgroup->unlock();
+
+        vector<VectorAttribute*> sgroup_rules = sgroup->get_rules();
+
+        for (rule_it = sgroup_rules.begin(); rule_it != sgroup_rules.end(); rule_it++)
+        {
+            VectorAttribute* rule = *rule_it;
+
+            if ( rule->vector_value("NETWORK_ID", vnet_id) != -1 )
+            {
+                vnet = vnet_pool->get(vnet_id, true);
+
+                if (vnet == 0)
+                {
+                    continue;
+                }
+
+                vector<VectorAttribute*> vnet_rules;
+                vnet->process_security_rule(rule, vnet_rules);
+
+                delete rule;
+
+                rules.insert(rules.end(), vnet_rules.begin(), vnet_rules.end());
+
+                vnet->unlock();
+            }
+            else
+            {
+                rules.push_back(*rule_it);
+            }
+        }
     }
 
     // TODO: error handling

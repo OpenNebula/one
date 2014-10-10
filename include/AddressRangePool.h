@@ -224,6 +224,18 @@ public:
     int free_addr_by_range(unsigned int arid, PoolObjectSQL::ObjectType ot,
             int obid, const string& mac, unsigned int rsize);
 
+    /**
+     * From a Security Group rule that uses this vnet, creates a new rule
+     * copy for each AR.
+     *
+     * @param rule original rule
+     * @param new_rules vector where the new rules will be placed. Rules must
+     * be deleted by the caller
+     */
+    void process_security_rule(
+            VectorAttribute *        rule,
+            vector<VectorAttribute*> &new_rules);
+
     // *************************************************************************
     // Address reservation
     // *************************************************************************

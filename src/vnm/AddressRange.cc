@@ -1070,6 +1070,24 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
     return freed;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::process_security_rule(
+        VectorAttribute *        rule)
+{
+    string attrs [] = {"AR_ID", "TYPE", "SIZE", "MAC", "IP"};
+
+    for ( int i = 0; i < 5; i++ )
+    {
+        string st = attr->vector_value(attrs[i].c_str());
+
+        if ( st != "" )
+        {
+            rule->replace(attrs[i], st);
+        }
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

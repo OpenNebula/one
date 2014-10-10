@@ -255,6 +255,18 @@ public:
             int                     vid,
             const vector<string>&   inherit_attrs);
 
+    /**
+     * From a Security Group rule that uses this vnet, creates a new rule
+     * copy for each AR.
+     *
+     * @param rule original rule
+     * @param new_rules vector where the new rules will be placed. Rules must
+     * be deleted by the caller
+     */
+    void process_security_rule(
+            VectorAttribute *        rule,
+            vector<VectorAttribute*> &new_rules);
+
     // *************************************************************************
     // Network Reservation functions
     // *************************************************************************

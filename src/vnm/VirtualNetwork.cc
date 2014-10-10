@@ -642,6 +642,16 @@ int VirtualNetwork::nic_attribute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualNetwork::process_security_rule(
+        VectorAttribute *        rule,
+        vector<VectorAttribute*> &new_rules)
+{
+    ar_pool.process_security_rule(rule, new_rules);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualNetwork::add_var(vector<Attribute *> &var, string& error_msg)
 {
     for (vector<Attribute *>::iterator it=var.begin(); it!=var.end(); it++)

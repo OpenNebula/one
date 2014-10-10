@@ -216,6 +216,13 @@ public:
     int free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
         const string& mac, unsigned int rsize);
 
+    /**
+     * Adds the relevant AR definition attributes to the Security Group rule
+     *
+     * @param rule rule to modify
+     */
+    void process_security_rule(VectorAttribute * rule);
+
     // *************************************************************************
     // Address Reservation
     // *************************************************************************

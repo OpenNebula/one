@@ -674,3 +674,23 @@ int AddressRangePool::reserve_addr_by_mac(int vid, unsigned int rsize,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void AddressRangePool::process_security_rule(
+        VectorAttribute *        rule,
+        vector<VectorAttribute*> &new_rules)
+{
+    map<unsigned int, AddressRange *>::iterator it;
+
+    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    {
+        VectorAttribute* new_rule = new VectorAttribute(
+                                    "SECURITY_GROUP_RULE", rule->value());
+
+        it->second->process_security_rule(new_rule);
+
+        new_rules.push_back(new_rule);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
