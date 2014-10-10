@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
-require 'optparse/time'
 
 class AcctHelper < OpenNebulaHelper::OneHelper
     START_TIME = {

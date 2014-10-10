@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
-require 'optparse/time'
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
