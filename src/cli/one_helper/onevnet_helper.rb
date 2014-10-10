@@ -82,6 +82,36 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 #        :description => "Number of addresses to reserve"
 #    }
 
+    GATEWAY = [
+        :name       => "gateway",
+        :large      => "--gateway ip",
+        :format     => String,
+        :description=> "IP of the gateway"
+    ]
+
+    NETMASK = [
+        :name       => "netmask",
+        :large      => "--netmask mask",
+        :format     => String,
+        :description=> "Netmask in dot notation"
+    ]
+
+    VLAN = [
+        :name       => "vlan",
+        :large      => "--vlan",
+        :description=> "Use network isolation"
+    ]
+
+    VLAN_ID = [
+        :name       => "vlanid",
+        :large      => "--vlanid id",
+        :format     => String,
+        :description=> "VLAN ID assigned"
+    ]
+
+    ADDAR_OPTIONS = [
+        SIZE, MAC, IP, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VLAN, VLAN_ID ]
+
     def self.rname
         "VNET"
     end

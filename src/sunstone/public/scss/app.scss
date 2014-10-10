@@ -272,7 +272,7 @@ select {
   margin-bottom: 5px;
 
   input {
-    margin-top: -10px !important;
+    //margin-top: -10px !important;
   }
 }
 
@@ -940,7 +940,7 @@ hr {
 }
 
 .accordion_advanced {
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     &>a {
       padding: 10px 20px;
       font-size: 13px;
@@ -1068,4 +1068,35 @@ hr {
   color: #999;
 }
 
+#li_support-tab {
+  background: #efefef;
+  border-radius: 3px;
+  padding: 5px 0px;
+  margin-top: 30px;
+  //text-align: center !important;
 
+  .support_title {
+    color: #333;
+  }
+  .support_info {
+    margin-top: 10px;
+    width: 100%;
+  }
+  .support_pending {
+    color: #777;
+  }
+  .support_open {
+    color: #777;
+  }
+  .support_button {
+    margin-top: 15px;
+  }
+  .support_connect {
+    margin-top: 10px;
+    width: 100%;
+    color: #777;
+  }
+  .support_connect_button {
+    margin-top: 15px;
+  }
+}

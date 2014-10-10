@@ -479,3 +479,15 @@ tabs:
             Zone.refresh: true
             Zone.create_dialog: true
             Zone.delete: true
+    support-tab:
+        panel_tabs:
+            support_info_tab: true
+        table_columns:
+            #- 0         # Checkbox
+            - 1         # ID
+            - 2         # Subject
+            - 3         # Created at
+            - 4         # Status
+        actions:
+            Support.refresh: true
+            Support.create_dialog: true

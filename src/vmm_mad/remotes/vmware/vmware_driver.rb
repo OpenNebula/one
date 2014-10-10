@@ -162,39 +162,6 @@ class VMwareDriver
     end
 
     # ------------------------------------------------------------------------ #
-    # Monitor a VM                                                             #
-    # ------------------------------------------------------------------------ #
-    def poll(deploy_id)
-        rc, info = do_action("virsh -c #{@uri} --readonly dominfo #{deploy_id}")
-
-        return "STATE=d" if rc == false
-
-        state = ""
-
-        info.split('\n').each{ |line|
-            mdata = line.match("^State: (.*)")
-
-            if mdata
-                state = mdata[1].strip
-                break
-            end
-        }
-
-        case state
-            when "running","blocked","shutdown","dying"
-                state_short = 'a'
-            when "paused"
-                state_short = 'p'
-            when "crashed"
-                state_short = 'c'
-            else
-                state_short = 'd'
-        end
-
-        return "STATE=#{state_short}"
-    end
-
-    # ------------------------------------------------------------------------ #
     # Restore a VM from a previously saved checkpoint                          #
     # ------------------------------------------------------------------------ #
     def restore(checkpoint)
@@ -221,9 +188,12 @@ class VMwareDriver
         # this it is needed to change also [1]
         #
         # [1] $ONE_LOCATION/lib/remotes/vmm/vmware/checkpoint
-
-        rc, info = do_action(
-            "virsh -c #{@uri} snapshot-revert #{deploy_id} checkpoint")
+        rc = false
+        2.times {
+            rc, info = do_action(
+                "virsh -c #{@uri} snapshot-revert #{deploy_id} checkpoint")
+            break if rc == true
+        }
 
         exit info if rc == false
 
@@ -358,7 +328,7 @@ class VMwareDriver
     # Undefines a domain in the ESX hypervisor
     def undefine_domain(id)
         if @vcenter and !@vcenter.empty? and @datacenter and !@datacenter.empty?
-            undefine_uri = 
+            undefine_uri =
                   "vpx://#{@vcenter}/#{@datacenter}/#{@host}/?no_verify=1"
         else
             undefine_uri = @uri

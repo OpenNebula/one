@@ -213,8 +213,6 @@ void MonitorThread::do_message()
 
     NebulaLog::log("InM", Log::DEBUG, oss);
 
-    time_t last_monitored = host->get_last_monitored();
-
     host->unlock();
 
     //--------------------------------------------------------------------------
@@ -235,9 +233,13 @@ void MonitorThread::do_message()
                 continue;
             }
 
+            // Move the VM to power off if it is not reported by the Host and:
+            // 1.- It has a history record
+            // 2.- It is supposed to be in RUNNING state
+            // 3.- It has been monitored at least once
             if (vm->hasHistory() &&
                 vm->get_lcm_state() == VirtualMachine::RUNNING &&
-                (vm->get_running_stime() + 2*monitor_interval) < last_monitored)
+                vm->get_last_poll() != 0)
             {
                 lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
             }

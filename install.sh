@@ -1563,7 +1563,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/secgroups-tab.js"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
-  src/sunstone/routes/vcenter.rb"
+  src/sunstone/routes/vcenter.rb \
+  src/sunstone/routes/support.rb"
 
 # begin bower
 

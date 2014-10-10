@@ -299,6 +299,10 @@ private
 
     ########################################################################
     #  Converts the VI string state to OpenNebula state convention
+    #  Guest states are:
+    #   - poweredOff   The virtual machine is currently powered off.
+    #   - poweredOn    The virtual machine is currently powered on.
+    #   - suspended    The virtual machine is currently suspended.
     ########################################################################
     def state_to_c(state)
         case state
@@ -306,8 +310,10 @@ private
                 'a'
             when 'suspended'
                 'p'
-            else
+            when 'poweredOff'
                 'd'
+            else
+                '-'
         end
     end
 end

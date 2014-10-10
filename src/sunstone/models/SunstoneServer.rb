@@ -21,7 +21,7 @@ include OpenNebulaJSON
 
 require 'OpenNebulaVNC'
 require 'OpenNebulaJSON/JSONUtils'
-include JSONUtils
+#include JSONUtils
 
 require 'SunstoneMarketplace'
 

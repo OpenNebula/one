@@ -259,12 +259,19 @@ module KVM
     # Translate libvirt state to Opennebula monitor state
     #  @param state [String] libvirt state
     #  @return [String] OpenNebula state
+    #
+    # Libvirt states for the guest are
+    #  * 'running' state refers to guests which are currently active on a CPU.
+    #  * 'blocked' not running or runnable (waiting on I/O or in a sleep mode).
+    #  * 'paused' after virsh suspend.
+    #  * 'shutdown' guest in the process of shutting down.
+    #  * 'dying' the domain has not completely shutdown or crashed.
+    #  * 'crashed' guests have failed while running and are no longer running.
+    #
     def self.get_state(state)
         case state.gsub('-', '')
-            when *%w{running blocked shutdown dying idle}
+            when *%w{running blocked shutdown dying idle paused}
                 'a'
-            when 'paused'
-                'd'
             when 'crashed'
                 'e'
             else
@@ -349,12 +356,18 @@ module XEN
     # Returns an OpenNebula state from the Xen status
     # @param state [String] with the Xen status
     # @return [String] OpenNebula monitor state
+    #
+    # Xentop states are:
+    #  'd' – domain is dying
+    #  's' – domain shutting down
+    #  'b' – blocked domain
+    #  'c' – domain crashed
+    #  'p' – domain paused
+    #  'r' – domain is actively ruining on one of the CPU
     def self.get_state(state)
         case state.gsub('-', '')[-1..-1]
-        when *%w{r b s d}
+        when *%w{r b s d p}
             'a'
-        when 'p'
-            'd'
         when 'c'
             'e'
         else

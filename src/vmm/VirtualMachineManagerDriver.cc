@@ -614,27 +614,24 @@ void VirtualMachineManagerDriver::process_poll(
     VirtualMachinePool* vmpool = ne.get_vmpool();
 
     /* ---------------------------------------------------------------------- */
-    /* Parse VM info and update VM                                            */
+    /* Parse VM info                                                          */
     /* ---------------------------------------------------------------------- */
-
-    if (vm->get_state() != VirtualMachine::ACTIVE)
-    {
-        return;
-    }
 
     rc = parse_vm_info(monitor_str, cpu, memory, net_tx, net_rx, state, custom);
 
-    if (rc == -1)
+    if (rc == -1) //Parse error, ignore this monitor data
     {
-        oss << "Error parsing monitoring information: " << monitor_str;
+        oss << "Ignoring monitoring information, parse error."
+            << " Monitor information was: "
+            << monitor_str;
+
         NebulaLog::log("VMM", Log::ERROR, oss);
 
         vm->set_template_error_message(oss.str());
+
         vm->log("VMM", Log::ERROR, oss);
 
         vmpool->update(vm);
-
-        lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
 
         return;
     }
@@ -642,20 +639,31 @@ void VirtualMachineManagerDriver::process_poll(
     oss << "VM " << vm->get_oid() << " successfully monitored: " << monitor_str;
     NebulaLog::log("VMM", Log::DEBUG, oss);
 
-    vm->update_info(memory, cpu, net_tx, net_rx, custom);
+    /* ---------------------------------------------------------------------- */
+    /* Update VM info only for VMs in ACTIVE                                  */
+    /* ---------------------------------------------------------------------- */
 
-    vmpool->update(vm);
+    if (vm->get_state() == VirtualMachine::ACTIVE)
+    {
+        vm->update_info(memory, cpu, net_tx, net_rx, custom);
 
-    vmpool->update_history(vm);
+        vmpool->update(vm);
 
-    vmpool->update_monitoring(vm);
+        vmpool->update_history(vm);
+
+        vmpool->update_monitoring(vm);
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Process the VM state from the monitoring info                          */
     /* ---------------------------------------------------------------------- */
 
-    if (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-        vm->get_lcm_state() != VirtualMachine::UNKNOWN)
+    bool process_state = vm->get_state() == VirtualMachine::POWEROFF || (
+        vm->get_state() == VirtualMachine::ACTIVE && (
+            vm->get_lcm_state() == VirtualMachine::RUNNING ||
+            vm->get_lcm_state() == VirtualMachine::UNKNOWN));
+
+    if (!process_state)
     {
         return;
     }
@@ -670,6 +678,12 @@ void VirtualMachineManagerDriver::process_poll(
                 vm->set_state(VirtualMachine::RUNNING);
                 vmpool->update(vm);
             }
+            else if ( vm->get_state() == VirtualMachine::POWEROFF )
+            {
+                vm->log("VMM", Log::INFO, "VM found again, state is RUNNING");
+
+                lcm->trigger(LifeCycleManager::MONITOR_POWERON, vm->get_oid());
+            }
             break;
 
         case 'p': // It's paused
@@ -679,17 +693,15 @@ void VirtualMachineManagerDriver::process_poll(
             break;
 
         case 'e': //Failed
-            vm->log("VMM", Log::INFO, "VM running but monitor state is ERROR.");
+            vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
 
             lcm->trigger(LifeCycleManager::MONITOR_FAILURE, vm->get_oid());
             break;
 
-        case 'd': //The VM was not found
-            vm->log("VMM", Log::INFO, "VM running but it was not found."
-                    " Boot and delete actions available or try to"
-                    " recover it manually");
+        case 'd': //The VM was powered-off
+            vm->log("VMM",Log::INFO,"VM running but monitor state is POWEROFF");
 
-            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
+            lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, vm->get_oid());
             break;
     }
 }
