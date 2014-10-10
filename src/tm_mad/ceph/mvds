@@ -59,14 +59,20 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
 # No need to copy back to datastore no cloned images
 if [ "$CLONE" = "NO" ]; then
     exit 0
+fi
+
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
 fi
 
 # cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
@@ -82,7 +88,7 @@ log "Dumping $RBD_DST to $DST"
 DUMP_CMD=$(cat <<EOF
     set -e
 
-    RBD_FORMAT=\$(rbd info $RBD_DST | sed -n 's/.*format: // p')
+    RBD_FORMAT=\$($RBD info $RBD_DST | sed -n 's/.*format: // p')
 
     if [ "\${RBD_FORMAT}" = "2" ]; then
         $RBD flatten $RBD_DST
