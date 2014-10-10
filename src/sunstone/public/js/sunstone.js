@@ -256,7 +256,7 @@ var Sunstone = {
             }
 
             tab=tabs[panel_tab_name];
-            var dd = $('<dd><a href="#'+panel_tab_name+'"><i class="fa '+tab.icon+'"></i><br>'+tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
+            var dd = $('<dd><a href="#'+panel_tab_name+'">'+ (tab.icon ? '<i class="fa '+tab.icon+'"></i><br>' : '') + tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
             //$('ul', dl_tabs).append('<div id="'+panel_tab_name+'"><li id="'+panel_tab_name+'Tab">'+tab.content+'</li></div>');
             var li = $('<div id="'+panel_tab_name+'" class="content">'+tab.content+'</div>').appendTo($('.tabs-content', dl_tabs));
 
@@ -582,7 +582,7 @@ function insertTab(tab_name){
         }
 
         if (tab_info.buttons) {
-            tab_content_str += '<div class="row">\
+            tab_content_str += '<div class="row actions_row">\
               <div class="small-12 large-12 columns">\
                 <div class="action_blocks">\
                 </div>\
