@@ -233,6 +233,15 @@ class VIVm
         @vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
+    ############################################################################
+    # Resets a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)
+    ############################################################################
+    def reset
+        @vm.ResetVM_Task.wait_for_completion
+    end    
+
     ########################################################################
     #  Initialize the vm monitor information
     ########################################################################
