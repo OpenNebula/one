@@ -21,7 +21,7 @@ DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
 
 GROUPS={
     :quota      => [SQLITE, 'sequel'],
-    :sunstone   => ['json', 'rack', 'sinatra', 'thin', SQLITE],
+    :sunstone   => ['json', 'rack', 'sinatra', 'thin', 'zendesk_api', SQLITE],
     :cloud      => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :hybrid     => %w{softlayer_api configparser azure},
     :auth_ldap  => 'net-ldap',
