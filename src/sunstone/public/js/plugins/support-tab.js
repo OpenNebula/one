@@ -232,7 +232,7 @@ var support_tab = {
       '<br>'+
       '<div class="row">'+
         '<div class="large-6 columns">'+
-          '<a href="http://docs.opennebula.org/4.8/" target="_blank">'+
+          '<a href="http://docs.opennebula.org/4.10/" target="_blank">'+
             '<span class="fa-stack fa-2x" style="color: #cfcfcf;">'+
                '<i class="fa fa-circle fa-stack-2x"></i>'+
                '<i class="fa fa-book fa-stack-1x fa-inverse"></i>'+
@@ -324,7 +324,7 @@ Sunstone.addInfoPanel("support_info_panel", support_info_panel);
 //Sunstone.addMainTab('enterprise-tab',enterprise_tab);
 //
 //$(document).on("click", "#li_doc-tab a", function(){
-//    window.open("http://docs.opennebula.org/4.8/");
+//    window.open("http://docs.opennebula.org/4.10/");
 //    return false;
 //})
 //
