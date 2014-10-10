@@ -39,10 +39,21 @@ function initialize_create_security_group_dialog(dialog){
                     </select>\
                 </td>\
                 <td>\
+                    <select class="security_group_rule_range_sel">\
+                        <option value="ALL">'+tr("All")+'</option>\
+                        <option value="RANGE">'+tr("Range")+'</option>\
+                    </select>\
                     <input class="security_group_rule_range" type="text"/>\
                 </td>\
                 <td>\
+                    <select class="security_group_rule_network_sel">\
+                        <option value="ANY">'+tr("Any")+'</option>\
+                        <option value="NETWORK">'+tr("Network")+'</option>\
+                        <option value="VNET">'+tr("Virtual Network")+'</option>\
+                    </select>\
                     <input class="security_group_rule_network" type="text"/>\
+                    <div name="vnet_select" class="vnet_select">\
+                    </div>\
                 </td>\
                 <td>\
                     <input class="security_group_rule_icmp_type" type="text"/>\
@@ -51,6 +62,41 @@ function initialize_create_security_group_dialog(dialog){
                     <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
                 </td>\
             </tr>');
+
+        //Initialize shown options
+        $('select',$(".security_group_rules tbody", dialog).children("tr").last()).trigger("change");
+    });
+
+    dialog.on("change", '.security_group_rule_network_sel', function(){
+        var td = $(this).parent("td");
+        switch ($(this).val()) {
+        case "ANY":
+            $('.security_group_rule_network',td).hide();
+            $('.vnet_select',td).hide();
+            break;
+        case "NETWORK":
+            $('.security_group_rule_network',td).show();
+            $('.vnet_select',td).hide();
+            break;
+        case "VNET":
+            $('.security_group_rule_network',td).hide();
+            $('.vnet_select',td).show();
+
+            insertSelectOptions('div.vnet_select', td, "Network", null, true);
+            break;
+        };
+    });
+
+    dialog.on("change", '.security_group_rule_range_sel', function(){
+        var td = $(this).parent("td");
+        switch ($(this).val()) {
+        case "ALL":
+            $('.security_group_rule_range',td).hide();
+            break;
+        case "RANGE":
+            $('.security_group_rule_range',td).show();
+            break;
+        };
     });
 
     $(".add_security_group_rule", dialog).trigger("click");
@@ -59,6 +105,8 @@ function initialize_create_security_group_dialog(dialog){
         var tr = $(this).closest('tr');
         tr.remove();
     });
+
+    dialog.foundation();
 
     $('#create_security_group_form_wizard',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
@@ -70,8 +118,6 @@ function initialize_create_security_group_dialog(dialog){
             return false;
         }
     });
-
-    dialog.foundation();
 }
 
 function generate_json_security_group_from_form(dialog) {
@@ -86,8 +132,29 @@ function generate_json_security_group_from_form(dialog) {
 
         rule["PROTOCOL"] = $(".security_group_rule_protocol", $(this)).val();
         rule["RULE_TYPE"] = $(".security_group_rule_type", $(this)).val();
-        rule["RANGE"] = $(".security_group_rule_range", $(this)).val();
-        rule["NETWORK"] = $(".security_group_rule_network", $(this)).val();
+
+        switch ($('.security_group_rule_range_sel', $(this)).val()) {
+        case "ALL":
+            // TODO
+            break;
+        case "RANGE":
+            rule["RANGE"] = $(".security_group_rule_range", $(this)).val();
+            break;
+        }
+
+        switch ($('.security_group_rule_network_sel', $(this)).val()) {
+        case "ANY":
+            // TODO
+            break;
+        case "NETWORK":
+            rule["NETWORK"] = $('.security_group_rule_network', $(this)).val();
+            break;
+        case "VNET":
+            // TODO: detect if select is "please select"
+            rule["NETWORK_ID"] = $('div.vnet_select .resource_list_select',$(this)).val();
+            break;
+        }
+
         rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", $(this)).val();
 
         rules.push(rule);
@@ -260,7 +327,7 @@ var security_group_actions = {
     "SecurityGroup.create_dialog" : {
         type: "custom",
         call: function(){
-          Sunstone.popUpFormPanel("create_security_group_form", "secgroups-tab", "create", false);
+          Sunstone.popUpFormPanel("create_security_group_form", "secgroups-tab", "create", true);
         }
     },
 
