@@ -188,7 +188,7 @@ class VMwareDriver
         # this it is needed to change also [1]
         #
         # [1] $ONE_LOCATION/lib/remotes/vmm/vmware/checkpoint
-
+        rc = false
         2.times {
             rc, info = do_action(
                 "virsh -c #{@uri} snapshot-revert #{deploy_id} checkpoint")
