@@ -50,7 +50,6 @@ var support_actions = {
         type: "list",
         call: OpenNebula.Support.list,
         callback: function(req, list, res){
-            console.log(list)
             $(".support_info").show();
             $(".support_connect").hide();
             $(".actions_row", "#support-tab").show();
@@ -376,7 +375,6 @@ function updateSupportInfo(request, response){
 
     if (response["REQUEST"]["comments"]) {
         $.each(response["REQUEST"]["comments"], function(index, comment){
-            console.log(comment)
             html += generateAdvancedSection({
                 title: '<span style="width: 100%;">' + (comment["author_id"] == 21231023 ? "OpenNebula Support Team" : "Me") + '  <span style="color: #999;"> - '+ comment["created_at"] + '</span></span>',
                 html_id: 'advanced_comment_' + response["REQUEST"]["id"] + index,
@@ -509,12 +507,14 @@ $(document).ready(function(){
           dataType: "json",
           data: JSON.stringify(data),
           success: function(){
-            console.log("success")
             $("#support-tabrefresh_buttons > a").trigger("click");
           },
           error: function(response){
-            console.log("error")
-            notifyError("Support credentials are incorrect")
+            if (response.status=="401") {
+              notifyError("Support credentials are incorrect")
+            } else {
+              notifyError(response.responseText)
+            }
           }
         });
 
