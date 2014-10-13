@@ -530,6 +530,7 @@ $(document).ready(function(){
       onlyOneCheckboxListener(dataTable_support);
       infoListenerSupport(dataTable_support);
 
+      show_support_connect();
       Sunstone.runAction('Support.list');
 
       support_interval_function = setInterval(function(){
