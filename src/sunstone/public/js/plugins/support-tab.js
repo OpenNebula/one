@@ -280,7 +280,7 @@ var support_tab = {
                '<i class="fa fa-book fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
-            '<span>'+tr("Documentation")+'</span>'+
+            tr("Documentation")+
           '</a>'+
         '</div>'+
         '<div class="large-6 columns">'+
@@ -290,7 +290,7 @@ var support_tab = {
                '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
-            '<span>'+tr("Community")+'</span>'+
+            tr("Community")+
           '</a>'+
         '</div>'+
       '</div>'+

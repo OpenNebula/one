@@ -329,6 +329,15 @@ select {
 .totals-info {
   span {
     color: #777;
+
+  }
+
+  a {
+    color: #777 !important;
+
+    &:hover {
+      color: #0098c3 !important
+    }
   }
 
   small {
