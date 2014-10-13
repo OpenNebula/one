@@ -211,3 +211,12 @@ post '/support/credentials' do
 
 	[201, ""]
 end
+
+delete '/support/credentials' do
+	check_zendesk_api_gem
+
+	session["zendesk_email"] = nil
+	session["zendesk_password"] = nil
+
+	[201, ""]
+end

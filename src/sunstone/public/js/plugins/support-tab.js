@@ -14,6 +14,8 @@
 // limitations under the License.                                           //
 //------------------------------------------------------------------------- //
 
+var support_interval_function;
+
 var create_support_request_wizard_html =
  '<form data-abide="ajax" id="create_support_request_form_wizard" class="custom creation">' +
     '<div class="row">' +
@@ -59,6 +61,10 @@ var support_actions = {
             updateView(list, dataTable_support);
         },
         error: function(request, error_json) {
+            if (error_json.error.http_status=="401") {
+              clearInterval(support_interval_function);
+            }
+
             $(".support_info").hide();
             $("#dataTable_support_wrapper").hide();
             $(".support_connect").show();
@@ -75,6 +81,12 @@ var support_actions = {
             waitingNodes(dataTable_support);
             Sunstone.runAction("Support.list");
           }
+        },
+        error: function(request, error_json) {
+            $(".support_info").hide();
+            $("#dataTable_support_wrapper").hide();
+            $(".support_connect").show();
+            $(".actions_row", "#support-tab").hide();
         }
     },
     "Support.show" : {
@@ -86,7 +98,12 @@ var support_actions = {
                 updateSupportInfo(request, response);
             }
         },
-        error: onError
+        error: function(request, error_json) {
+            $(".support_info").hide();
+            $("#dataTable_support_wrapper").hide();
+            $(".support_connect").show();
+            $(".actions_row", "#support-tab").hide();
+        }
     },
     "Support.create" : {
         type: "create",
@@ -105,7 +122,10 @@ var support_actions = {
           $(".support_info").hide();
           $(".support_connect").show();
 
-          onError(request, response);
+          $(".support_info").hide();
+          $("#dataTable_support_wrapper").hide();
+          $(".support_connect").show();
+          $(".actions_row", "#support-tab").hide();
         }
 
     },
@@ -132,9 +152,34 @@ var support_actions = {
         error: function(request, response){
           popFormDialog("create_template_form", $("#templates-tab"));
 
-          onError(request, response);
+
+          $(".support_info").hide();
+          $("#dataTable_support_wrapper").hide();
+          $(".support_connect").show();
+          $(".actions_row", "#support-tab").hide();
         }
     },
+
+    "Support.signout" : {
+      type: "single",
+      call: function() {
+        $.ajax({
+          url: 'support/credentials',
+          type: "DELETE",
+          dataType: "json",
+          success: function(){
+            $("#support-tabrefresh_buttons > a").trigger("click");
+          },
+          error: function(response){
+            if (response.status=="401") {
+              notifyError("Support credentials are incorrect")
+            } else {
+              notifyError(response.responseText)
+            }
+          }
+        });
+      }
+    }
 }
 
 var support_buttons = {
@@ -144,10 +189,16 @@ var support_buttons = {
         text: '<i class="fa fa-refresh fa fa-lg">',
         alwaysActive: true
     },
+    "Support.signout" : {
+        type: "action",
+        layout: "main",
+        text: "Sign out of Commercial Support",
+        alwaysActive: true
+    },
     "Support.create_dialog" : {
         type: "create_dialog",
         layout: "create",
-        text: tr('Submit a Request')
+        text: "Submit a Request"
     }
 };
 
@@ -489,7 +540,7 @@ $(document).ready(function(){
 
       Sunstone.runAction('Support.list');
 
-      setInterval(function(){
+      support_interval_function = setInterval(function(){
         Sunstone.runAction('Support.list');
       }, top_interval);
 
@@ -512,6 +563,10 @@ $(document).ready(function(){
           data: JSON.stringify(data),
           success: function(){
             $("#support-tabrefresh_buttons > a").trigger("click");
+
+            support_interval_function = setInterval(function(){
+              Sunstone.runAction('Support.list');
+            }, top_interval);
           },
           error: function(response){
             if (response.status=="401") {

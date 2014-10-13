@@ -1873,6 +1873,7 @@ var OpenNebula = {
         },
         "list" : function(params){
             params.cache_name = "REQUEST";
+            OpenNebula.Helper.clear_cache(params.cache_name);
             OpenNebula.Action.list(
                 params, 
                 OpenNebula.Support.resource, 
