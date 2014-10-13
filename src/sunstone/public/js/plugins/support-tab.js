@@ -47,15 +47,26 @@ var create_support_request_wizard_html =
     '</div>' +
   '</form>';
 
+function show_support_connect() {
+  $(".support_info").hide();
+  $("#dataTable_support_wrapper").hide();
+  $(".support_connect").show();
+  $(".actions_row", "#support-tab").hide();
+}
+
+function show_support_list() {
+  $(".support_info").show();
+  $(".support_connect").hide();
+  $(".actions_row", "#support-tab").show();
+  $("#dataTable_support_wrapper").show();
+}
+
 var support_actions = {
     "Support.list" : {
         type: "list",
         call: OpenNebula.Support.list,
         callback: function(req, list, res){
-            $(".support_info").show();
-            $(".support_connect").hide();
-            $(".actions_row", "#support-tab").show();
-            $("#dataTable_support_wrapper").show();
+            show_support_list();
             $(".support_open_value").text(res.open_requests);
             $(".support_pending_value").text(res.pending_requests);
             updateView(list, dataTable_support);
@@ -65,10 +76,7 @@ var support_actions = {
               clearInterval(support_interval_function);
             }
 
-            $(".support_info").hide();
-            $("#dataTable_support_wrapper").hide();
-            $(".support_connect").show();
-            $(".actions_row", "#support-tab").hide();
+            show_support_connect();
         }
     },
     "Support.refresh" : {
@@ -83,10 +91,7 @@ var support_actions = {
           }
         },
         error: function(request, error_json) {
-            $(".support_info").hide();
-            $("#dataTable_support_wrapper").hide();
-            $(".support_connect").show();
-            $(".actions_row", "#support-tab").hide();
+            show_support_connect();
         }
     },
     "Support.show" : {
@@ -99,10 +104,7 @@ var support_actions = {
             }
         },
         error: function(request, error_json) {
-            $(".support_info").hide();
-            $("#dataTable_support_wrapper").hide();
-            $(".support_connect").show();
-            $(".actions_row", "#support-tab").hide();
+            show_support_connect();
         }
     },
     "Support.create" : {
@@ -119,13 +121,7 @@ var support_actions = {
         error: function(request, response){
           popFormDialog("create_support_request_form", $("#support-tab"));
           $("a[href=back]", $("#support-tab")).trigger("click");
-          $(".support_info").hide();
-          $(".support_connect").show();
-
-          $(".support_info").hide();
-          $("#dataTable_support_wrapper").hide();
-          $(".support_connect").show();
-          $(".actions_row", "#support-tab").hide();
+          show_support_connect();
         }
 
     },
@@ -151,12 +147,7 @@ var support_actions = {
         },
         error: function(request, response){
           popFormDialog("create_template_form", $("#templates-tab"));
-
-
-          $(".support_info").hide();
-          $("#dataTable_support_wrapper").hide();
-          $(".support_connect").show();
-          $(".actions_row", "#support-tab").hide();
+          show_support_connect();
         }
     },
 
@@ -168,6 +159,7 @@ var support_actions = {
           type: "DELETE",
           dataType: "json",
           success: function(){
+            show_support_connect();
             $("#support-tabrefresh_buttons > a").trigger("click");
           },
           error: function(response){
@@ -262,7 +254,7 @@ var support_tab = {
                 '<input id="support_password" type="password"></input>' +
             '</div>'+
             '<div class="large-12 columns">'+
-                '<button class="button right radius success" type="submit">'+ tr("Sign in") + '</button>' +
+                '<button class="button right radius success submit_support_credentials_button" type="submit">'+ tr("Sign in") + '</button>' +
             '</div>'+
             '<div class="large-12 columns text-center">'+
                 '<p>' + tr("or") + '</p>' +
@@ -551,6 +543,9 @@ $(document).ready(function(){
       })
 
       $("#support_credentials_form").on("submit", function(){
+        $(".submit_support_credentials_button").attr("disabled", "disabled");
+        $(".submit_support_credentials_button").html('<i class="fa fa-spinner fa-spin"></i>');
+
         var data = {
           email : $("#support_email", this).val(),
           password : $("#support_password", this).val()
@@ -562,11 +557,16 @@ $(document).ready(function(){
           dataType: "json",
           data: JSON.stringify(data),
           success: function(){
+            $(".submit_support_credentials_button").removeAttr("disabled");
+            $(".submit_support_credentials_button").html('Sign in');
+
             $("#support-tabrefresh_buttons > a").trigger("click");
 
             support_interval_function = setInterval(function(){
               Sunstone.runAction('Support.list');
             }, top_interval);
+
+            show_support_list();
           },
           error: function(response){
             if (response.status=="401") {
@@ -574,6 +574,9 @@ $(document).ready(function(){
             } else {
               notifyError(response.responseText)
             }
+
+            $(".submit_support_credentials_button").removeAttr("disabled");
+            $(".submit_support_credentials_button").html('Sign in');
           }
         });
 
