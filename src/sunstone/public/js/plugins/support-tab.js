@@ -489,6 +489,10 @@ $(document).ready(function(){
 
       Sunstone.runAction('Support.list');
 
+      setInterval(function(){
+        Sunstone.runAction('Support.list');
+      }, top_interval);
+
       $(".support_button").on("click", function(){
         $("#li_support-tab > a").trigger("click");
         $(".create_dialog_button", "#support-tab").trigger("click");
