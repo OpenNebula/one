@@ -27,7 +27,7 @@ module OpenNebulaJSON
             end
         end
 
-        def parse_json(json_str, root_element)
+        def self.parse_json(json_str, root_element)
             begin
                 hash = JSON.parse(json_str)
             rescue Exception => e
@@ -39,6 +39,10 @@ module OpenNebulaJSON
             else
                 return OpenNebula::Error.new("Error parsing JSON: Wrong resource type")
             end
+        end
+
+        def parse_json(json_str, root_element)
+            JSONUtils.parse_json(json_str, root_element)
         end
 
         def parse_json_sym(json_str, root_element)
