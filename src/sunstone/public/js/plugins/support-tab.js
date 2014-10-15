@@ -20,28 +20,28 @@ var create_support_request_wizard_html =
  '<form data-abide="ajax" id="create_support_request_form_wizard" class="custom creation">' +
     '<div class="row">' +
       '<div class="large-6 columns">' +
-        '<label for="subject">' + tr("Subject") + '</label>' +
+        '<label for="subject">Subject</label>' +
         '<input id="subject" type="text" required></input>' +
       '</div>' +
       '<div class="large-6 columns">' +
-        '<label for="opennebula_version">' + tr("OpenNebula Version") + '</label>' +
+        '<label for="opennebula_version">OpenNebula Version</label>' +
         '<input id="opennebula_version" type="text" required></input>' +
       '</div>' +
     '</div>' +
     '<div class="row">' +
       '<div class="large-12 columns">' +
-        '<label for="description">' + tr("Description") + '</label>' +
-        '<textarea id="description" rows="5" placeholder="'+tr("Please enter the details of your request. A member of our support staff will respond as soon as possible.") + '" required></textarea>' +
+        '<label for="description">Description</label>' +
+        '<textarea id="description" rows="5" placeholder="Please enter the details of your request. A member of our support staff will respond as soon as possible." required></textarea>' +
       '</div>' +
     '</div>' +
     '<div class="row">' +
       '<div class="large-12 columns">' +
-        '<label for="severity">' + tr("Subject") + '</label>' +
+        '<label for="severity">Subject</label>' +
         '<select id="severity" name="severity">'+
-            '<option value="severity_1">'+tr("Severity 1. Product Error: Catastrophic problem in running production systems")+'</option>'+
-            '<option value="severity_2">'+tr("Severity 2. Product Error: High-impact problem in running production systems")+'</option>'+
-            '<option value="severity_3">'+tr("Severity 3. Product Error: Low impact problem on a running production system ")+'</option>'+
-            '<option value="severity_4" selected>'+tr("Severity 4. Usage, Design, Configuration, or Integration Question")+'</option>'+
+            '<option value="severity_1">Severity 1. Product Error: Catastrophic problem in running production systems</option>'+
+            '<option value="severity_2">Severity 2. Product Error: High-impact problem in running production systems</option>'+
+            '<option value="severity_3">Severity 3. Product Error: Low impact problem on a running production system </option>'+
+            '<option value="severity_4" selected>Severity 4. Usage, Design, Configuration, or Integration Question</option>'+
         '</select>'+
       '</div>' +
     '</div>' +
@@ -195,72 +195,72 @@ var support_buttons = {
 };
 
 var support_tab = {
-    //title: '<i class="fa fa-lg fa-fw fa-support"></i>&emsp;'+tr("Support"),
+    //title: '<i class="fa fa-lg fa-fw fa-support"></i>&emsp;Support"),
     title: 
-    '<span class="support_title"><i class="fa fa-lg fa-fw fa-support"></i> ' + tr("Support") + '</span>' +
+    '<span class="support_title"><i class="fa fa-lg fa-fw fa-support"></i> Support</span>' +
     '<br>'+
     '<div class="support_info" style="display: none;">'+
       '<span class="support_open">Open</span><span class="label secondary right support_open_value">-</span>'+
       '<br>'+
       '<span class="support_pending">Pending</span><span class="label right support_pending_value">-</span>'+
       '<br>'+
-      '<button class="button tiny success radius support_button">'+tr("Submit a Request")+'</button>'+
+      '<button class="button tiny success radius support_button">Submit a Request</button>'+
     '</div>'+
     '<div class="support_connect" style="display: none;">'+
       '<span class="">Not connected</span>'+
       '<br>'+
-      '<button class="button tiny success radius support_connect_button">'+tr("Sign in")+'</button>'+
+      '<button class="button tiny success radius support_connect_button">Sign in</button>'+
     '</div>',
     table: '<table id="dataTable_support" class="datatable twelve support_info">\
         <thead>\
           <tr>\
             <th class="check"></th>\
-            <th>'+tr("ID")+'</th>\
-            <th>'+tr("Subject")+'</th>\
-            <th>'+tr("Requested")+'</th>\
-            <th>'+tr("Status")+'</th>\
+            <th>ID</th>\
+            <th>Subject</th>\
+            <th>Requested</th>\
+            <th>Status</th>\
           </tr>\
         </thead>\
         <tbody id="tbodysupport">\
         </tbody>\
       </table>',
     buttons: support_buttons,
-    search_input: '<input id="support_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-support"></i> '+tr("Commercial Support Requests"),
-    info_header: '<i class="fa fa-fw fa-support"></i> '+tr("Commercial Support Request"),
+    search_input: '<input id="support_search" type="text" placeholder="Search" />',
+    list_header: '<i class="fa fa-fw fa-support"></i> Commercial Support Requests',
+    info_header: '<i class="fa fa-fw fa-support"></i> Commercial Support Request',
     subheader: '<div class="row text-left support_connect">'+
         '<div class="large-6 columns" style="font-">'+
-          '<p>'+tr("The Support Subscription provides expert integration and production support on supported platforms and include:")+'</p>'+
+          '<p>The Support Subscription provides expert integration and production support on supported platforms and include:</p>'+
           '<ul class="fa-ul" style="font-size: 14px;">'+
-            '<li><i class="fa-li fa fa-check"></i>'+tr("Problem diagnosis, resolution and bug fixing")+'</li>'+
-            '<li><i class="fa-li fa fa-check"></i>'+tr("Solving unexpected problems when using, installing or configuring the software")+'</li>'+
-            '<li><i class="fa-li fa fa-check"></i>'+tr("Guidance about tuning for optimal and scalable performance in your environment")+'</li>'+
-            '<li><i class="fa-li fa fa-check"></i>'+tr("Answering “how to” questions related to standard and intended product usage")+'</li>'+
-            '<li><i class="fa-li fa fa-check"></i>'+tr("Offering hints about how to go around missing features")+'</li>'+
-            '<li><i class="fa-li fa fa-check"></i>'+tr("Answering questions about product adaptation and integration")+'</li>'+
+            '<li><i class="fa-li fa fa-check"></i>Problem diagnosis, resolution and bug fixing</li>'+
+            '<li><i class="fa-li fa fa-check"></i>Solving unexpected problems when using, installing or configuring the software</li>'+
+            '<li><i class="fa-li fa fa-check"></i>Guidance about tuning for optimal and scalable performance in your environment</li>'+
+            '<li><i class="fa-li fa fa-check"></i>Answering “how to” questions related to standard and intended product usage</li>'+
+            '<li><i class="fa-li fa fa-check"></i>Offering hints about how to go around missing features</li>'+
+            '<li><i class="fa-li fa fa-check"></i>Answering questions about product adaptation and integration</li>'+
           '</ul>'+
-          '<p>'+ tr("For more info on support subcriptions") + ', <a href="http://c12g.com/support/" target="_blank">'+tr("click here")+'</a></p>' +
+          '<p>For more info on support subcriptions, <a href="http://opennebula.systems/support/" target="_blank">click here</a></p>' +
         '</div>'+
         '<div class="large-6 columns" style="padding: 0px 50px;">'+
           '<fieldset>'+
-          '<legend>'+tr("Commercial Support")+"</legend>"+
+          '<legend>Commercial Support</legend>'+
           '<form id="support_credentials_form">'+
             '<div class="large-12 columns">'+
-                '<label for="support_email">' + tr("Email") + '</label>' +
+                '<label for="support_email">Email</label>' +
                 '<input id="support_email" type="text"></input>' +
             '</div>'+
             '<div class="large-12 columns">'+
-                '<label for="support_password">' + tr("Password") + '</label>' +
+                '<label for="support_password">Password</label>' +
                 '<input id="support_password" type="password"></input>' +
             '</div>'+
             '<div class="large-12 columns">'+
-                '<button class="button right radius success submit_support_credentials_button" type="submit">'+ tr("Sign in") + '</button>' +
+                '<button class="button right radius success submit_support_credentials_button" type="submit">Sign in</button>' +
             '</div>'+
             '<div class="large-12 columns text-center">'+
-                '<p>' + tr("or") + '</p>' +
+                '<p>or</p>' +
             '</div>'+
             '<div class="large-12 columns">'+
-                '<a  href="http://c12g.com/buy/" target="_blank" class="button large-12 radius">'+ tr("Get an account") + '</a>' +
+                '<a  href="http://opennebula.systems/buy/" target="_blank" class="button large-12 radius" style="color: #fff !important">Get an account</a>' +
             '</div>'+
           '</form>'+
           '</fieldset>'+
@@ -268,7 +268,7 @@ var support_tab = {
       '</div>'+
       '<div class="row">'+
         '<div class="large-12 columns text-left">'+
-          '<h3 class="subheader"><i class="fa fa-fw fa-info-circle"></i> '+tr("Additional Help Resources")+"</h3>"+
+          '<h3 class="subheader"><i class="fa fa-fw fa-info-circle"></i> Additional Help Resources</h3>'+
         '</div>'+
       '</div>'+
       '<br>'+
@@ -280,7 +280,7 @@ var support_tab = {
                '<i class="fa fa-book fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
-            tr("Documentation")+
+            "Documentation"+
           '</a>'+
         '</div>'+
         '<div class="large-6 columns">'+
@@ -290,18 +290,18 @@ var support_tab = {
                '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
-            tr("Community")+
+            "Community"+
           '</a>'+
         '</div>'+
       '</div>'+
       '<br>'+
-      '<p class="text-center" style="font-size: 14px; color: #999;">'+ tr("This tab can be disabled in the sunstone views configuration files") + '</p>',
+      '<p class="text-center" style="font-size: 14px; color: #999;">This tab can be disabled in the sunstone views configuration files</p>',
     forms: {
       "create_support_request_form": {
         actions: {
           create: {
-            title: tr("Submit a Request"),
-            submit_text: tr("Submit")
+            title: "Submit a Request",
+            submit_text: "Submit"
           }
         },
         wizard_html: create_support_request_wizard_html,
@@ -397,15 +397,15 @@ function updateSupportInfo(request, response){
         <div class="large-6 columns">\
         <table id="info_marketplace_table" class="dataTable">\
             <thead>\
-              <tr><th colspan="2">'+tr("Information")+'</th></tr>\
+              <tr><th colspan="2">Information</th></tr>\
             </thead>\
             <tbody>\
               <tr>\
-                <td class="key_td">' + tr("Requested") + '</td>\
+                <td class="key_td">Requested</td>\
                 <td class="value_td">'+response["REQUEST"]['created_at']+'</td>\
               </tr>\
               <tr>\
-                <td class="key_td">' + tr("Status") + '</td>\
+                <td class="key_td">Status</td>\
                 <td class="value_td">'+response["REQUEST"]['status']+'</td>\
               </tr>\
               <tr>\
@@ -419,7 +419,7 @@ function updateSupportInfo(request, response){
     if (response["REQUEST"]["comments"]) {
         $.each(response["REQUEST"]["comments"], function(index, comment){
             html += generateAdvancedSection({
-                title: '<span style="width: 100%;">' + (comment["author_id"] == 21231023 ? "OpenNebula Support Team" : "Me") + '  <span style="color: #999;"> - '+ comment["created_at"] + '</span></span>',
+                title: '<span style="width: 100%;">' + (comment["author_id"] == 21231023 ? "OpenNebula Support Team" : 'Me') + ' <span style="color: #999;"> - '+ comment["created_at"] + '</span></span>',
                 html_id: 'advanced_comment_' + response["REQUEST"]["id"] + index,
                 content: '<div class="row">\
                     <div class="large-12 columns comment" style="font-size: 14px !important;">'+$("<div/>").html(comment["html_body"]).text()+'</div>\
@@ -431,12 +431,12 @@ function updateSupportInfo(request, response){
     html += '<form id="submit_support_comment">\
       <div class="row">\
         <div class="large-12 columns">\
-            <textarea class="comment" placeholder="'+tr("Add a comment to this request") + '" rows="4"></textarea>\
+            <textarea class="comment" placeholder="Add a comment to this request" rows="4"></textarea>\
         </div>\
       </div>\
       <div class="row">\
         <div class="large-12 columns">\
-            <button class="button right radius success" type="submit">'+ tr("Submit") + '</button>\
+            <button class="button right radius success" type="submit">Submit</button>\
         </div>\
       </div>\
       </form>';
