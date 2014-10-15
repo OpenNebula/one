@@ -1513,6 +1513,31 @@ function updateVMInfo(request,vm){
 
     // Enable / disable vnc button
     $(".vnc-right-info").prop("disabled", !enableVnc(vm_info));
+
+    var nic_dt_data = $("#vms-tab").data("nic_dt_data");
+
+    // Setup and fill nics
+    var nics_table = $("#tab_network_form .nics_table", $info_panel).DataTable({
+        "bDeferRender": true,
+        "data": nic_dt_data,
+        "columns": [
+            {
+                "class":          'open-control',
+                "orderable":      false,
+                "data":           null,
+                "defaultContent": '<span class="fa fa-fw fa-chevron-down"></span>'
+            },
+            { "data": "NIC_ID" },
+            { "data": "NETWORK" },
+            { "data": "IP" },
+            { "data": "MAC" },
+            { "data": "IP6_ULA" },
+            { "data": "IP6_GLOBAL" },
+            { "data": "ACTIONS" }
+        ]
+    });
+
+    $("#tab_network_form .nics_table", $info_panel).dataTable().fnSort( [ [1,'asc'] ] );
 }
 
 function updateVMDisksInfo(request,vm){
@@ -2094,9 +2119,10 @@ function printNics(vm_info){
    var html ='<form id="tab_network_form" vmid="'+vm_info.ID+'" >\
       <div class="row">\
       <div class="large-12 columns">\
-         <table class="info_table dataTable extended_table">\
+         <table class="nics_table no-hover info_table dataTable extended_table">\
            <thead>\
              <tr>\
+                <th></th>\
                 <th>'+tr("ID")+'</th>\
                 <th>'+tr("Network")+'</th>\
                 <th>'+tr("IP")+'</th>\
@@ -2120,8 +2146,11 @@ function printNics(vm_info){
     html += '</th>\
               </tr>\
            </thead>\
-           <tbody>';
-
+           <tbody>\
+           </tbody>\
+          </table>\
+        </div>\
+      </div>';
 
     var nics = []
 
@@ -2171,6 +2200,7 @@ function printNics(vm_info){
           </tr>';
     }
     else {
+        var nic_dt_data = [];
 
         for (var i = 0; i < nics.length; i++){
             var nic = nics[i];
@@ -2185,7 +2215,7 @@ function printNics(vm_info){
                ( //
                 nic.ATTACH == "YES")
                ) {
-              actions = 'attach/detach in progress'
+              actions = tr("attach/detach in progress")
             }
             else {
               actions = '';
@@ -2197,24 +2227,35 @@ function printNics(vm_info){
               }
             }
 
-            html += '\
-              <tr nic_id="'+(nic.NIC_ID)+'">\
-                <td>' + nic.NIC_ID + '</td>\
-                <td>' + nic.NETWORK + '</td>\
-                <td>' + (nic.IP ? nic.IP : "--") + '</td>\
-                <td>' + nic.MAC + '</td>\
-                <td>' + (nic.IP6_ULA ? nic.IP6_ULA : "--") +'</td>\
-                <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\
-                <td>' + actions + '</td>\
-            </tr>';
-        }
-    }
+            var secgroups = [];
 
-    html += '\
-            </tbody>\
-          </table>\
-        </div>\
-        </div>';
+            var nic_secgroups = {};
+            if (nic.SECURITY_GROUPS != undefined){
+                $.each(nic.SECURITY_GROUPS.split(","), function(){
+                    nic_secgroups[this] = true;
+                });
+            }
+
+            $.each(vm_info.TEMPLATE.SECURITY_GROUP_RULE, function(){
+                if ( nic_secgroups[this.SECURITY_GROUP_ID] ){
+                    secgroups.push(this);
+                }
+            });
+
+            nic_dt_data.push({
+                NIC_ID : nic.NIC_ID,
+                NETWORK : nic.NETWORK,
+                IP : (nic.IP ? nic.IP : "--"),
+                MAC : nic.MAC,
+                IP6_ULA : (nic.IP6_ULA ? nic.IP6_ULA : "--"),
+                IP6_GLOBAL : (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--"),
+                ACTIONS : actions,
+                SECURITY_GROUP_RULES : secgroups
+            });
+        }
+
+        $("#vms-tab").data("nic_dt_data", nic_dt_data);
+    }
 
   if (!isHybrid)
   {
@@ -2357,6 +2398,55 @@ function setup_vm_network_tab(){
           return false;
       });
     }
+
+    // Add event listener for opening and closing each NIC row details
+    $('#vms-tab').on('click', '#tab_network_form .nics_table td.open-control', function () {
+        var row = $(this).closest('table').DataTable().row( $(this).closest('tr') );
+ 
+        if ( row.child.isShown() ) {
+            row.child.hide();
+            $(this).children("span").addClass('fa-chevron-down');
+            $(this).children("span").removeClass('fa-chevron-up');
+        }
+        else {
+            var html = '<div style="padding-left: 30px;">\
+              <table class="extended_table dataTable">\
+                <thead>\
+                  <tr>\
+                    <th colspan="2">'+tr("Security Group")+'</th>\
+                    <th>'+tr("Protocol")+'</th>\
+                    <th>'+tr("Type")+'</th>\
+                    <th>'+tr("Range")+'</th>\
+                    <th>'+tr("Network")+'</th>\
+                    <th>'+tr("ICMP Type")+'</th>\
+                  </tr>\
+                <thead>\
+                <tbody>';
+
+            function td(attr){
+                return '<td>'+ (attr ? attr : '') +'</td>';
+            }
+
+            $.each(row.data().SECURITY_GROUP_RULES, function(index, elem){
+                var new_tr = '<tr>'+
+                  td(this.SECURITY_GROUP_ID)+
+                  td(this.SECURITY_GROUP_NAME)+
+                  td(this.PROTOCOL)+
+                  td(this.RULE_TYPE)+
+                  td(this.RANGE)+
+                  '<td>'+"TODO"+'</td>\
+                  <td>'+"TODO"+'</td>\
+                </tr>'
+
+                html += new_tr;
+            });
+
+            row.child( html ).show();
+            $(this).children("span").removeClass('fa-chevron-down');
+            $(this).children("span").addClass('fa-chevron-up');
+        }
+    } );
+
 }
 
 function printCapacity(vm_info){

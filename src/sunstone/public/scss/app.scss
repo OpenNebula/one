@@ -143,17 +143,24 @@ table.dataTable {
     }
 }
 
+table:not(.no-hover) {
 
-tr.odd:hover td:not(.dataTables_empty) {
-    background-color: #2ba6cb !important;
-    cursor: pointer;
-    color: #FFF !important;
+    tr.odd:hover td:not(.dataTables_empty) {
+        background-color: #2ba6cb !important;
+        cursor: pointer;
+        color: #FFF !important;
+    }
+
+    tr.even:hover td:not(.dataTables_empty) {
+        background-color: #2ba6cb !important;
+        cursor: pointer;
+        color: #FFF !important;
+    }
 }
 
-tr.even:hover td:not(.dataTables_empty) {
-    background-color: #2ba6cb !important;
+td.open-control:hover {
     cursor: pointer;
-    color: #FFF !important;
+
 }
 
 input.search {
