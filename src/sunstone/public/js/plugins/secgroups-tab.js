@@ -21,92 +21,110 @@
 function initialize_create_security_group_dialog(dialog){
     setupTips(dialog);
 
-    $(".add_security_group_rule", dialog).on("click", function(){
-        $(".security_group_rules tbody").append(
-            '<tr>\
-                <td>\
-                    <select class="security_group_rule_protocol">\
-                        <option value="TCP">'+tr("TCP")+'</option>\
-                        <option value="UDP">'+tr("UDP")+'</option>\
-                        <option value="ICMP">'+tr("ICMP")+'</option>\
-                        <option value="IPSEC">'+tr("IPsec")+'</option>\
-                    </select>\
-                </td>\
-                <td>\
-                    <select class="security_group_rule_type">\
-                        <option value="inbound">'+tr("Inbound")+'</option>\
-                        <option value="outbound">'+tr("Outbound")+'</option>\
-                    </select>\
-                </td>\
-                <td>\
-                    <select class="security_group_rule_range_sel">\
-                        <option value="ALL">'+tr("All")+'</option>\
-                        <option value="RANGE">'+tr("Range")+'</option>\
-                    </select>\
-                    <input class="security_group_rule_range" type="text"/>\
-                </td>\
-                <td>\
-                    <select class="security_group_rule_network_sel">\
-                        <option value="ANY">'+tr("Any")+'</option>\
-                        <option value="NETWORK">'+tr("Network")+'</option>\
-                        <option value="VNET">'+tr("Virtual Network")+'</option>\
-                    </select>\
-                    <input class="security_group_rule_network" type="text"/>\
-                    <div name="vnet_select" class="vnet_select">\
-                    </div>\
-                </td>\
-                <td>\
-                    <input class="security_group_rule_icmp_type" type="text"/>\
-                </td>\
-                <td>\
-                    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
-                </td>\
-            </tr>');
-
-        //Initialize shown options
-        $('select',$(".security_group_rules tbody", dialog).children("tr").last()).trigger("change");
-    });
-
     dialog.on("change", '.security_group_rule_network_sel', function(){
-        var td = $(this).parent("td");
         switch ($(this).val()) {
         case "ANY":
-            $('.security_group_rule_network',td).hide();
-            $('.vnet_select',td).hide();
+            $('.security_group_rule_network',dialog).hide();
+            $('.vnet_select',dialog).hide();
             break;
         case "NETWORK":
-            $('.security_group_rule_network',td).show();
-            $('.vnet_select',td).hide();
+            $('.security_group_rule_network',dialog).show();
+            $('.vnet_select',dialog).hide();
             break;
         case "VNET":
-            $('.security_group_rule_network',td).hide();
-            $('.vnet_select',td).show();
+            $('.security_group_rule_network',dialog).hide();
+            $('.vnet_select',dialog).show();
 
-            insertSelectOptions('div.vnet_select', td, "Network", null, true);
+            refreshVNetTableSelect(dialog, "new_sg_rule");
+
             break;
         };
     });
 
     dialog.on("change", '.security_group_rule_range_sel', function(){
-        var td = $(this).parent("td");
         switch ($(this).val()) {
         case "ALL":
-            $('.security_group_rule_range',td).hide();
+            $('.security_group_rule_range', dialog).hide();
             break;
         case "RANGE":
-            $('.security_group_rule_range',td).show();
+            $('.security_group_rule_range', dialog).show();
             break;
         };
     });
 
-    $(".add_security_group_rule", dialog).trigger("click");
+    $(".add_security_group_rule", dialog).on("click", function(){
+        var rule = {};
+
+        rule["PROTOCOL"] = $(".security_group_rule_protocol", dialog).val();
+        rule["RULE_TYPE"] = $(".security_group_rule_type", dialog).val();
+
+        switch ($('.security_group_rule_range_sel', dialog).val()) {
+        case "ALL":
+            // TODO
+            break;
+        case "RANGE":
+            rule["RANGE"] = $(".security_group_rule_range input", dialog).val();
+            break;
+        }
+
+        switch ($('.security_group_rule_network_sel', dialog).val()) {
+        case "ANY":
+            // TODO
+            break;
+        case "NETWORK":
+            rule["NETWORK"] = $('.security_group_rule_network', dialog).val();
+            break;
+        case "VNET":
+            rule["NETWORK_ID"] = retrieveVNetTableSelect(dialog, "new_sg_rule");
+            break;
+        }
+
+        rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", dialog).val();
+
+
+        // TODO: create generic method to show rules table
+
+        function td(attr){
+            return '<td>'+ (attr ? attr : '') +'</td>';
+        }
+
+        $(".security_group_rules tbody").append(
+            '<tr>'+
+              td(rule.PROTOCOL)+
+              td(rule.RULE_TYPE)+
+              td(rule.RANGE)+
+              '<td>'+"TODO"+'</td>\
+              <td>'+"TODO"+'</td>\
+              <td>\
+                  <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+              </td>\
+            </tr>');
+
+        // Add data to tr element
+        $(".security_group_rules tbody").children("tr").last().data("rule", rule);
+
+        // Reset new rule fields
+        $('#new_rule_wizard select option', dialog).prop('selected', function() {
+            return this.defaultSelected;
+        });
+
+        $('#new_rule_wizard select', dialog).trigger("change");
+
+        $('#new_rule_wizard input', dialog).val("");
+
+        resetResourceTableSelect(dialog, "new_sg_rule");
+    });
 
     dialog.on("click", ".security_group_rules i.remove-tab", function(){
         var tr = $(this).closest('tr');
         tr.remove();
     });
 
+    setupVNetTableSelect(dialog, "new_sg_rule");
+
     dialog.foundation();
+
+    $('#new_rule_wizard select', dialog).trigger("change");
 
     $('#create_security_group_form_wizard',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
@@ -127,37 +145,7 @@ function generate_json_security_group_from_form(dialog) {
     var rules =  [];
 
     $(".security_group_rules tbody tr").each(function(){
-        // TODO: if (x & y & z empty){} else do nothing
-        var rule = {};
-
-        rule["PROTOCOL"] = $(".security_group_rule_protocol", $(this)).val();
-        rule["RULE_TYPE"] = $(".security_group_rule_type", $(this)).val();
-
-        switch ($('.security_group_rule_range_sel', $(this)).val()) {
-        case "ALL":
-            // TODO
-            break;
-        case "RANGE":
-            rule["RANGE"] = $(".security_group_rule_range", $(this)).val();
-            break;
-        }
-
-        switch ($('.security_group_rule_network_sel', $(this)).val()) {
-        case "ANY":
-            // TODO
-            break;
-        case "NETWORK":
-            rule["NETWORK"] = $('.security_group_rule_network', $(this)).val();
-            break;
-        case "VNET":
-            // TODO: detect if select is "please select"
-            rule["NETWORK_ID"] = $('div.vnet_select .resource_list_select',$(this)).val();
-            break;
-        }
-
-        rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", $(this)).val();
-
-        rules.push(rule);
+        rules.push($(this).data("rule"));
     });
 
     var security_group_json =
@@ -257,17 +245,93 @@ function popUpSecurityGroupCloneDialog(){
 var create_security_group_wizard_html =
 '<form data-abide="ajax" id="create_security_group_form_wizard" action="">\
   <div class="row">\
-    <div class="large-6 columns">\
+    <div class="medium-4 columns">\
       <label for="security_group_name">'+tr("Security Group Name")+':</label>\
       <input type="text" name="security_group_name" id="security_group_name" />\
     </div>\
-  </div>\
-  <div class="row">\
-    <div class="large-6 columns">\
+    <div class="medium-8 columns">\
       <label for="security_group_description">'+tr("Description")+'\
         <span class="tip">'+tr("Description for the Security Group")+'</span>\
       </label>\
       <textarea type="text" id="security_group_description" name="security_group_description" style="height: 70px;"/>\
+    </div>\
+  </div>\
+  <hr/>\
+  <div class="row" id="new_rule_wizard">\
+    <div class="medium-4 columns">\
+      <label>'+tr("Protocol")+'\
+        <span class="tip">'+tr("TODO")+'</span>\
+      </label>\
+      <select class="security_group_rule_protocol">\
+        <option value="TCP" selected="selected">'+tr("TCP")+'</option>\
+        <option value="UDP">'+tr("UDP")+'</option>\
+        <option value="ICMP">'+tr("ICMP")+'</option>\
+        <option value="IPSEC">'+tr("IPsec")+'</option>\
+      </select>\
+      <label>'+tr("Type")+'\
+        <span class="tip">'+tr("TODO")+'</span>\
+      </label>\
+      <select class="security_group_rule_type">\
+        <option value="inbound" selected="selected">'+tr("Inbound")+'</option>\
+        <option value="outbound">'+tr("Outbound")+'</option>\
+      </select>\
+      <label>'+tr("ICMP Type")+'\
+        <span class="tip">'+tr("TODO")+'</span>\
+      </label>\
+      <input class="security_group_rule_icmp_type" type="text"/>\
+    </div>\
+    <div class="medium-8 columns">\
+      <div class="row">\
+        <div class="small-6 columns">\
+          <label>'+tr("Range")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_range_sel">\
+            <option value="ALL" selected="selected">'+tr("All")+'</option>\
+            <option value="RANGE">'+tr("Range")+'</option>\
+          </select>\
+        </div>\
+        <div class="small-6 columns security_group_rule_range">\
+          <label>'+tr("Iptables range")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <input type="text"/>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="small-6 columns">\
+          <label>'+tr("Network")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_network_sel">\
+            <option value="ANY" selected="selected">'+tr("Any")+'</option>\
+            <option value="NETWORK">'+tr("Network")+'</option>\
+            <option value="VNET">'+tr("Virtual Network")+'</option>\
+          </select>\
+        </div>\
+      </div>\
+      <div class="row security_group_rule_network">\
+        <div class="small-6 columns">\
+          <label>'+tr("IP Start")+':\
+            <span class="tip">'+tr("First IP address")+'</span>\
+          </label>\
+          <input class="security_group_rule_first_ip" type="text"/>\
+        </div>\
+        <div class="small-6 columns">\
+          <label>'+tr("Size")+':\
+            <span class="tip">'+tr("Number of addresses in the range")+'</span>\
+          </label>\
+          <input class="security_group_rule_size" type="text"/>\
+        </div>\
+      </div>\
+      <div class="row vnet_select">\
+        '+generateVNetTableSelect("new_sg_rule")+'\
+      </div>\
+    </div>\
+  </div>\
+  <div class="row">\
+    <div class="medium-8 small-centered columns">\
+      <a type="button" class="add_security_group_rule button small small-12 secondary radius"><i class="fa fa-angle-double-down"></i> '+tr("Add Rule")+'</a>\
     </div>\
   </div>\
   <div class="row">\
@@ -290,13 +354,6 @@ var create_security_group_wizard_html =
         </thead>\
         <tbody>\
         </tbody>\
-        <tfoot>\
-          <tr>\
-            <td colspan="6">\
-              <a type="button" class="add_security_group_rule button small large-12 secondary radius"><i class="fa fa-plus"></i> '+tr("Add another Rule")+'</a>\
-            </td>\
-          </tr>\
-        </tfoot>\
       </table>\
     </div>\
   </div>\

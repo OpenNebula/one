@@ -5675,6 +5675,16 @@ function setupVNetTableSelect(section, context_id, opts){
     return setupResourceTableSelect(section, context_id, options);
 }
 
+// Clicks the refresh button
+function refreshVNetTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveVNetTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
 function generateTemplateTableSelect(context_id){
 
     var columns = [
