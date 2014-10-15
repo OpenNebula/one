@@ -14,6 +14,8 @@
 // limitations under the License.                                           //
 //------------------------------------------------------------------------- //
 
+var support_interval_function;
+
 var create_support_request_wizard_html =
  '<form data-abide="ajax" id="create_support_request_form_wizard" class="custom creation">' +
     '<div class="row">' +
@@ -45,25 +47,36 @@ var create_support_request_wizard_html =
     '</div>' +
   '</form>';
 
+function show_support_connect() {
+  $(".support_info").hide();
+  $("#dataTable_support_wrapper").hide();
+  $(".support_connect").show();
+  $(".actions_row", "#support-tab").hide();
+}
+
+function show_support_list() {
+  $(".support_info").show();
+  $(".support_connect").hide();
+  $(".actions_row", "#support-tab").show();
+  $("#dataTable_support_wrapper").show();
+}
+
 var support_actions = {
     "Support.list" : {
         type: "list",
         call: OpenNebula.Support.list,
         callback: function(req, list, res){
-            console.log(list)
-            $(".support_info").show();
-            $(".support_connect").hide();
-            $(".actions_row", "#support-tab").show();
-            $("#dataTable_support_wrapper").show();
+            show_support_list();
             $(".support_open_value").text(res.open_requests);
             $(".support_pending_value").text(res.pending_requests);
             updateView(list, dataTable_support);
         },
         error: function(request, error_json) {
-            $(".support_info").hide();
-            $("#dataTable_support_wrapper").hide();
-            $(".support_connect").show();
-            $(".actions_row", "#support-tab").hide();
+            if (error_json.error.http_status=="401") {
+              clearInterval(support_interval_function);
+            }
+
+            show_support_connect();
         }
     },
     "Support.refresh" : {
@@ -76,6 +89,9 @@ var support_actions = {
             waitingNodes(dataTable_support);
             Sunstone.runAction("Support.list");
           }
+        },
+        error: function(request, error_json) {
+            show_support_connect();
         }
     },
     "Support.show" : {
@@ -87,7 +103,9 @@ var support_actions = {
                 updateSupportInfo(request, response);
             }
         },
-        error: onError
+        error: function(request, error_json) {
+            show_support_connect();
+        }
     },
     "Support.create" : {
         type: "create",
@@ -103,10 +121,7 @@ var support_actions = {
         error: function(request, response){
           popFormDialog("create_support_request_form", $("#support-tab"));
           $("a[href=back]", $("#support-tab")).trigger("click");
-          $(".support_info").hide();
-          $(".support_connect").show();
-
-          onError(request, response);
+          show_support_connect();
         }
 
     },
@@ -132,10 +147,31 @@ var support_actions = {
         },
         error: function(request, response){
           popFormDialog("create_template_form", $("#templates-tab"));
-
-          onError(request, response);
+          show_support_connect();
         }
     },
+
+    "Support.signout" : {
+      type: "single",
+      call: function() {
+        $.ajax({
+          url: 'support/credentials',
+          type: "DELETE",
+          dataType: "json",
+          success: function(){
+            show_support_connect();
+            $("#support-tabrefresh_buttons > a").trigger("click");
+          },
+          error: function(response){
+            if (response.status=="401") {
+              notifyError("Support credentials are incorrect")
+            } else {
+              notifyError(response.responseText)
+            }
+          }
+        });
+      }
+    }
 }
 
 var support_buttons = {
@@ -145,10 +181,16 @@ var support_buttons = {
         text: '<i class="fa fa-refresh fa fa-lg">',
         alwaysActive: true
     },
+    "Support.signout" : {
+        type: "action",
+        layout: "main",
+        text: "Sign out of Commercial Support",
+        alwaysActive: true
+    },
     "Support.create_dialog" : {
         type: "create_dialog",
         layout: "create",
-        text: tr('Submit a Request')
+        text: "Submit a Request"
     }
 };
 
@@ -212,7 +254,7 @@ var support_tab = {
                 '<input id="support_password" type="password"></input>' +
             '</div>'+
             '<div class="large-12 columns">'+
-                '<button class="button right radius success" type="submit">'+ tr("Sign in") + '</button>' +
+                '<button class="button right radius success submit_support_credentials_button" type="submit">'+ tr("Sign in") + '</button>' +
             '</div>'+
             '<div class="large-12 columns text-center">'+
                 '<p>' + tr("or") + '</p>' +
@@ -238,7 +280,7 @@ var support_tab = {
                '<i class="fa fa-book fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
-            '<span>'+tr("Documentation")+'</span>'+
+            tr("Documentation")+
           '</a>'+
         '</div>'+
         '<div class="large-6 columns">'+
@@ -248,7 +290,7 @@ var support_tab = {
                '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
             '</span>'+
             '<br>'+
-            '<span>'+tr("Community")+'</span>'+
+            tr("Community")+
           '</a>'+
         '</div>'+
       '</div>'+
@@ -376,7 +418,6 @@ function updateSupportInfo(request, response){
 
     if (response["REQUEST"]["comments"]) {
         $.each(response["REQUEST"]["comments"], function(index, comment){
-            console.log(comment)
             html += generateAdvancedSection({
                 title: '<span style="width: 100%;">' + (comment["author_id"] == 21231023 ? "OpenNebula Support Team" : "Me") + '  <span style="color: #999;"> - '+ comment["created_at"] + '</span></span>',
                 html_id: 'advanced_comment_' + response["REQUEST"]["id"] + index,
@@ -489,7 +530,12 @@ $(document).ready(function(){
       onlyOneCheckboxListener(dataTable_support);
       infoListenerSupport(dataTable_support);
 
+      show_support_connect();
       Sunstone.runAction('Support.list');
+
+      support_interval_function = setInterval(function(){
+        Sunstone.runAction('Support.list');
+      }, top_interval);
 
       $(".support_button").on("click", function(){
         $("#li_support-tab > a").trigger("click");
@@ -498,6 +544,9 @@ $(document).ready(function(){
       })
 
       $("#support_credentials_form").on("submit", function(){
+        $(".submit_support_credentials_button").attr("disabled", "disabled");
+        $(".submit_support_credentials_button").html('<i class="fa fa-spinner fa-spin"></i>');
+
         var data = {
           email : $("#support_email", this).val(),
           password : $("#support_password", this).val()
@@ -509,12 +558,26 @@ $(document).ready(function(){
           dataType: "json",
           data: JSON.stringify(data),
           success: function(){
-            console.log("success")
+            $(".submit_support_credentials_button").removeAttr("disabled");
+            $(".submit_support_credentials_button").html('Sign in');
+
             $("#support-tabrefresh_buttons > a").trigger("click");
+
+            support_interval_function = setInterval(function(){
+              Sunstone.runAction('Support.list');
+            }, top_interval);
+
+            show_support_list();
           },
           error: function(response){
-            console.log("error")
-            notifyError("Support credentials are incorrect")
+            if (response.status=="401") {
+              notifyError("Support credentials are incorrect")
+            } else {
+              notifyError(response.responseText)
+            }
+
+            $(".submit_support_credentials_button").removeAttr("disabled");
+            $(".submit_support_credentials_button").html('Sign in');
           }
         });
 

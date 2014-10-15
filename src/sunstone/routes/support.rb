@@ -14,7 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'zendesk_api'
+begin 
+  	require 'zendesk_api'
+rescue LoadError
+	STDERR.puts "[OpenNebula Support] Missing zendesk_api gem"
+	ZENDESK_API_GEM = false
+else
+	ZENDESK_API_GEM = true
+end
 
 helpers do
 	def zendesk_client
@@ -98,9 +105,17 @@ helpers do
 
 		return one_zrequest
 	end
+
+	def check_zendesk_api_gem
+		if !ZENDESK_API_GEM
+			error 500, "zendesk_api gem missing, it requires ruby >= 1.9.3"
+		end
+	end
 end
 
 get '/support/request' do
+	check_zendesk_api_gem
+
 	zrequests = zendesk_client.requests({:status => "open,pending"})
 	
 	open_requests = 0
@@ -128,6 +143,8 @@ get '/support/request' do
 end
 
 get '/support/request/:id' do
+	check_zendesk_api_gem
+
 	zrequest = zendesk_client.requests.find(:id => params[:id])
 	# TODO check error
 	one_zrequest = {
@@ -138,9 +155,9 @@ get '/support/request/:id' do
 end
 
 post '/support/request' do
+	check_zendesk_api_gem
+
 	body_hash = JSON.parse(@request_body)
-	pp body_hash
-	STDOUT.flush
 	zrequest = zendesk_client.requests.create({
 	    :subject => body_hash['subject'], 
 	    :comment => { :value => body_hash['description'] },
@@ -154,6 +171,8 @@ post '/support/request' do
 end
 
 post '/support/request/:id/action' do
+	check_zendesk_api_gem
+
 	body_hash = JSON.parse(@request_body)
 	if body_hash["action"]["params"]['comment']
 		comment_value = body_hash["action"]["params"]['comment']['value']
@@ -178,6 +197,8 @@ end
 
 
 post '/support/credentials' do
+	check_zendesk_api_gem
+
 	body_hash = JSON.parse(@request_body)
 	if body_hash["email"].nil? || body_hash["password"].nil?
 		error 401, "Zendesk credentials not provided"
@@ -187,6 +208,15 @@ post '/support/credentials' do
 	session["zendesk_password"] = body_hash["password"] 
 
 	zendesk_client
+
+	[201, ""]
+end
+
+delete '/support/credentials' do
+	check_zendesk_api_gem
+
+	session["zendesk_email"] = nil
+	session["zendesk_password"] = nil
 
 	[201, ""]
 end

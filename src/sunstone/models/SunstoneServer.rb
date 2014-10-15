@@ -138,14 +138,14 @@ class SunstoneServer < CloudServer
     #
     ############################################################################
     def upload(template, file_path)
-        image_hash = parse_json(template, 'image')
+        image_hash = JSONUtils.parse_json(template, 'image')
         if OpenNebula.is_error?(image_hash)
             return [500, image_hash.to_json]
         end
 
         image_hash['PATH'] = file_path
 
-        ds_id = parse_json(template, 'ds_id')
+        ds_id = JSONUtils.parse_json(template, 'ds_id')
         if OpenNebula.is_error?(ds_id)
             return [500, ds_id.to_json]
         end
