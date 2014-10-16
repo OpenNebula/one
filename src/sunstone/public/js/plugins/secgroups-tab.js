@@ -21,6 +21,14 @@
 function initialize_create_security_group_dialog(dialog){
     setupTips(dialog);
 
+    dialog.on("change", '.security_group_rule_protocol', function(){
+        if ( $(this).val() == "ICMP" ){
+            $('.icmp_type_wrapper', dialog).show();
+        } else {
+            $('.icmp_type_wrapper', dialog).hide();
+        }
+    });
+
     dialog.on("change", '.security_group_rule_network_sel', function(){
         switch ($(this).val()) {
         case "ANY":
@@ -80,7 +88,9 @@ function initialize_create_security_group_dialog(dialog){
             break;
         }
 
-        rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", dialog).val();
+        if (rule["PROTOCOL"] == "ICMP" ){
+            rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", dialog).val();
+        }
 
         var text = sg_rule_to_st(rule);
 
@@ -326,74 +336,78 @@ var create_security_group_wizard_html =
     </div>\
   </div>\
   <hr/>\
-  <div class="row" id="new_rule_wizard">\
-    <div class="medium-4 columns">\
-      <label>'+tr("Protocol")+'\
-        <span class="tip">'+tr("TODO")+'</span>\
-      </label>\
-      <select class="security_group_rule_protocol">\
-        <option value="TCP" selected="selected">'+tr("TCP")+'</option>\
-        <option value="UDP">'+tr("UDP")+'</option>\
-        <option value="ICMP">'+tr("ICMP")+'</option>\
-        <option value="IPSEC">'+tr("IPsec")+'</option>\
-      </select>\
-      <label>'+tr("Type")+'\
-        <span class="tip">'+tr("TODO")+'</span>\
-      </label>\
-      <select class="security_group_rule_type">\
-        <option value="inbound" selected="selected">'+tr("Inbound")+'</option>\
-        <option value="outbound">'+tr("Outbound")+'</option>\
-      </select>\
-      <label>'+tr("ICMP Type")+'\
-        <span class="tip">'+tr("TODO")+'</span>\
-      </label>\
-      <input class="security_group_rule_icmp_type" type="text"/>\
+  <div class="row collapse" id="new_rule_wizard">\
+    <div class="row">\
+      <div class="medium-4 columns">\
+        <label>'+tr("Type")+'\
+          <span class="tip">'+tr("TODO")+'</span>\
+        </label>\
+        <select class="security_group_rule_type">\
+          <option value="inbound" selected="selected">'+tr("Inbound")+'</option>\
+          <option value="outbound">'+tr("Outbound")+'</option>\
+        </select>\
+      </div>\
+      <div class="medium-4 columns">\
+        <label>'+tr("Protocol")+'\
+          <span class="tip">'+tr("TODO")+'</span>\
+        </label>\
+        <select class="security_group_rule_protocol">\
+          <option value="TCP" selected="selected">'+tr("TCP")+'</option>\
+          <option value="UDP">'+tr("UDP")+'</option>\
+          <option value="ICMP">'+tr("ICMP")+'</option>\
+          <option value="IPSEC">'+tr("IPsec")+'</option>\
+        </select>\
+      </div>\
+      <div class="medium-4 columns icmp_type_wrapper">\
+        <label>'+tr("ICMP Type")+'\
+          <span class="tip">'+tr("TODO")+'</span>\
+        </label>\
+        <input class="security_group_rule_icmp_type" type="text"/>\
+      </div>\
     </div>\
-    <div class="medium-8 columns">\
-      <div class="row">\
-        <div class="small-6 columns">\
-          <label>'+tr("Range")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
-          </label>\
-          <select class="security_group_rule_range_sel">\
-            <option value="ALL" selected="selected">'+tr("All")+'</option>\
-            <option value="RANGE">'+tr("Range")+'</option>\
-          </select>\
-        </div>\
-        <div class="small-6 columns security_group_rule_range">\
-          <label>'+tr("Iptables range")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
-          </label>\
-          <input type="text"/>\
-        </div>\
+    <div class="row">\
+      <div class="medium-4 columns">\
+        <label>'+tr("Range")+'\
+          <span class="tip">'+tr("TODO")+'</span>\
+        </label>\
+        <select class="security_group_rule_range_sel">\
+          <option value="ALL" selected="selected">'+tr("All")+'</option>\
+          <option value="RANGE">'+tr("Range")+'</option>\
+        </select>\
       </div>\
-      <div class="row">\
-        <div class="small-6 columns">\
-          <label>'+tr("Network")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
-          </label>\
-          <select class="security_group_rule_network_sel">\
-            <option value="ANY" selected="selected">'+tr("Any")+'</option>\
-            <option value="NETWORK">'+tr("Network")+'</option>\
-            <option value="VNET">'+tr("Virtual Network")+'</option>\
-          </select>\
-        </div>\
+      <div class="medium-4 columns end security_group_rule_range">\
+        <label>'+tr("Iptables range")+'\
+          <span class="tip">'+tr("TODO")+'</span>\
+        </label>\
+        <input type="text"/>\
       </div>\
-      <div class="row security_group_rule_network">\
-        <div class="small-6 columns">\
-          <label for="security_group_rule_first_ip">'+tr("IP Start")+':\
-            <span class="tip">'+tr("First IP address")+'</span>\
-          </label>\
-          <input id="security_group_rule_first_ip" type="text"/>\
-        </div>\
-        <div class="small-6 columns">\
-          <label for="security_group_rule_size">'+tr("Size")+':\
-            <span class="tip">'+tr("Number of addresses in the range")+'</span>\
-          </label>\
-          <input id="security_group_rule_size" type="text"/>\
-        </div>\
+    </div>\
+    <div class="row">\
+      <div class="medium-4 columns">\
+        <label>'+tr("Network")+'\
+          <span class="tip">'+tr("TODO")+'</span>\
+        </label>\
+        <select class="security_group_rule_network_sel">\
+          <option value="ANY" selected="selected">'+tr("Any")+'</option>\
+          <option value="NETWORK">'+tr("Network")+'</option>\
+          <option value="VNET">'+tr("Virtual Network")+'</option>\
+        </select>\
       </div>\
-      <div class="row vnet_select">\
+      <div class="medium-4 columns security_group_rule_network">\
+        <label for="security_group_rule_first_ip">'+tr("IP Start")+':\
+          <span class="tip">'+tr("First IP address")+'</span>\
+        </label>\
+        <input id="security_group_rule_first_ip" type="text"/>\
+      </div>\
+      <div class="medium-4 columns security_group_rule_network">\
+        <label for="security_group_rule_size">'+tr("Size")+':\
+          <span class="tip">'+tr("Number of addresses in the range")+'</span>\
+        </label>\
+        <input id="security_group_rule_size" type="text"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="small-12 columns vnet_select">\
         '+generateVNetTableSelect("new_sg_rule")+'\
         </br>\
       </div>\
@@ -401,7 +415,7 @@ var create_security_group_wizard_html =
   </div>\
   <div class="row">\
     <div class="medium-8 small-centered columns">\
-      <a type="button" class="add_security_group_rule button small small-12 secondary radius"><i class="fa fa-angle-double-down"></i> '+tr("Add Rule")+'</a>\
+      <a type="button" class="add_security_group_rule button small small-12 radius"><i class="fa fa-angle-double-down"></i> '+tr("Add Rule")+'</a>\
     </div>\
   </div>\
   <div class="row">\
