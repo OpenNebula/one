@@ -99,7 +99,11 @@ function initialize_create_security_group_dialog(dialog){
         }
 
         if (rule["PROTOCOL"] == "ICMP" ){
-            rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", dialog).val();
+            var icmp_type_val = $(".security_group_rule_icmp_type", dialog).val();
+
+            if (icmp_type_val != ""){
+                rule["ICMP_TYPE"] = icmp_type_val;
+            }
         }
 
         var text = sg_rule_to_st(rule);
