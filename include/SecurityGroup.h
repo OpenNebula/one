@@ -50,7 +50,7 @@ public:
      */
     Template * clone_template() const
     {
-        return new Template(obj_template);
+        return new Template(*obj_template);
     };
 
     /* ---------------------------------------------------------------------- */
