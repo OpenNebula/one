@@ -82,7 +82,7 @@ function initialize_create_security_group_dialog(dialog){
 
         rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", dialog).val();
 
-        var text = rule_to_st(rule);
+        var text = sg_rule_to_st(rule);
 
         $(".security_group_rules tbody", dialog).append(
             '<tr>\
@@ -213,7 +213,7 @@ function fillSecurityGroupUpdateFormPanel(sg, dialog){
     }
 
     $.each(rules, function(){
-        var text = rule_to_st(this);
+        var text = sg_rule_to_st(this);
 
         $(".security_group_rules tbody", dialog).append(
             '<tr>\
@@ -229,130 +229,6 @@ function fillSecurityGroupUpdateFormPanel(sg, dialog){
 
         $(".security_group_rules tbody", dialog).children("tr").last().data("rule", this);
     });
-}
-
-function icmp_to_st(icmp_type){
-    switch( parseInt(icmp_type) ){
-        case 0:   return "0: Echo Reply";
-        case 3:   return "3: Destination Unreachable";
-        case 4:   return "4: Source Quench";
-        case 5:   return "5: Redirect";
-        case 6:   return "6: Alternate Host Address";
-        case 8:   return "8: Echo";
-        case 9:   return "9: Router Advertisement";
-        case 10:  return "10: Router Solicitation";
-        case 11:  return "11: Time Exceeded";
-        case 12:  return "12: Parameter Problem";
-        case 13:  return "13: Timestamp";
-        case 14:  return "14: Timestamp Reply";
-        case 15:  return "15: Information Request";
-        case 16:  return "16: Information Reply";
-        case 17:  return "17: Address Mask Request";
-        case 18:  return "18: Address Mask Reply";
-        case 30:  return "30: Traceroute";
-        case 31:  return "31: Datagram Conversion Error";
-        case 32:  return "32: Mobile Host Redirect";
-        case 33:  return "33: IPv6 Where-Are-You";
-        case 34:  return "34: IPv6 I-Am-Here";
-        case 35:  return "35: Mobile Registration Request";
-        case 36:  return "36: Mobile Registration Reply";
-        case 37:  return "37: Domain Name Request";
-        case 38:  return "38: Domain Name Reply";
-        case 39:  return "39: SKIP";
-        case 40:  return "40: Photuris";
-        case 41:  return "41: ICMP messages utilized by experimental mobility protocols such as Seamoby";
-        case 253: return "253: RFC3692-style Experiment 1";
-        case 254: return "254: RFC3692-style Experiment 2";
-        default:  return "" + icmp_type;
-    }
-}
-
-/*
-Returns an object with the human readable attributes of the rule. List of attributes:
-PROTOCOL
-RULE_TYPE
-ICMP_TYPE
-RANGE
-NETWORK
-*/
-function rule_to_st(rule){
-    var text = {};
-
-    if(rule.PROTOCOL != undefined){
-        switch(rule.PROTOCOL.toUpperCase()){
-        case "TCP":
-            text["PROTOCOL"] = tr("TCP");
-            break;
-        case "UDP":
-            text["PROTOCOL"] = tr("UDP");
-            break;
-        case "ICMP":
-            text["PROTOCOL"] = tr("ICMP");
-            break;
-        case "IPSEC":
-            text["PROTOCOL"] = tr("IPsec");
-            break;
-        default:
-            text["PROTOCOL"] = "";
-        }
-    } else {
-        text["PROTOCOL"] = "";
-    }
-
-    if(rule.RULE_TYPE != undefined){
-        switch(rule.RULE_TYPE.toUpperCase()){
-        case "OUTBOUND":
-            text["RULE_TYPE"] = tr("Outbound");
-            break;
-        case "INBOUND":
-            text["RULE_TYPE"] = tr("Inbound");
-            break;
-        default:
-            text["RULE_TYPE"] = "";
-        }
-    } else {
-        text["RULE_TYPE"] = "";
-    }
-
-    if(rule.ICMP_TYPE != undefined){
-        text["ICMP_TYPE"] = icmp_to_st(rule.ICMP_TYPE);
-    } else {
-        text["ICMP_TYPE"] = "";
-    }
-
-    if(rule.RANGE != undefined && rule.RANGE != ""){
-        text["RANGE"] = rule.RANGE;
-    } else {
-        text["RANGE"] = tr("All");
-    } 
-
-    var network = "";
-
-    if(rule.NETWORK_ID != undefined && rule.NETWORK_ID != ""){
-        network += (tr("Virtual Network") + " " + rule.NETWORK_ID);
-    }
-
-    if(rule.SIZE != undefined && rule.SIZE != ""){
-        if(network != ""){
-            network += ":<br>";
-        }
- 
-        if(rule.IP != undefined && rule.IP != ""){
-            network += tr("Start") + ": " + rule.IP + ", ";
-        } else if(rule.MAC != undefined && rule.MAC != ""){
-            network += tr("Start") + ": " + rule.MAC + ", ";
-        }
-
-        network += tr("Size") + ": " + rule.SIZE;
-    }
-
-    if(network == ""){
-        network = tr("Any");
-    }
-
-    text["NETWORK"] = network;
-
-    return text;
 }
 
 // Security Group clone dialog
@@ -995,7 +871,7 @@ function insert_sg_rules_table(sg){
     }
 
     $.each(rules, function(){
-        var text = rule_to_st(this);
+        var text = sg_rule_to_st(this);
         html +=
           '<tr>\
             <td>'+text.PROTOCOL+'</td>\

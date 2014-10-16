@@ -2424,7 +2424,7 @@ function setup_vm_network_tab(){
                 <tbody>';
 
             $.each(row.data().SECURITY_GROUP_RULES, function(index, elem){
-                var rule_st = rule_to_st(this);
+                var rule_st = sg_rule_to_st(this);
 
                 var new_tr = '<tr>\
                   <td>'+this.SECURITY_GROUP_ID+'</td>\
