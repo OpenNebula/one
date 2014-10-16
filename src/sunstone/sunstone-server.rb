@@ -58,6 +58,8 @@ require 'sinatra'
 require 'erb'
 require 'yaml'
 require 'securerandom'
+require 'tmpdir'
+require 'fileutils'
 
 require 'CloudAuth'
 require 'SunstoneServer'
@@ -500,25 +502,62 @@ end
 ##############################################################################
 post '/upload' do
     tmpfile = nil
-    rackinput = request.env['rack.input']
 
-    if (rackinput.class == Tempfile)
-        tmpfile = rackinput
-    elsif rackinput.respond_to?('read')
-        tmpfile = Tempfile.open('sunstone-upload')
-        tmpfile.write(rackinput.read)
-        tmpfile.flush
-    else
-        logger.error { "Unexpected rackinput class #{rackinput.class}" }
-        [500, ""]
-    end
+    name = params[:tempfile]
 
-    if tmpfile.size == 0
+    if !name
         [500, OpenNebula::Error.new("There was a problem uploading the file, " \
                 "please check the permissions on the file").to_json]
     else
-        @SunstoneServer.upload(params[:img], tmpfile.path)
+        tmpfile = File.join(Dir.tmpdir, name)
+        res = @SunstoneServer.upload(params[:img], tmpfile)
+        FileUtils.rm(tmpfile)
+        res
     end
+end
+
+post '/upload_chunk' do
+    info = env['rack.request.form_hash']
+    chunk_number = info['resumableChunkNumber'].to_i - 1
+    chunk_size = info['resumableChunkSize'].to_i
+    chunk_current_size = info['resumableCurrentChunkSize'].to_i
+    chunk_start = chunk_number * chunk_size
+    chunk_end = chunk_start + chunk_current_size - 1
+    identifier = info['']
+    size = info['resumableTotalSize'].to_i
+
+    file_name = info['resumableIdentifier']
+    file_path = File.join(Dir.tmpdir, file_name)
+
+    tmpfile=info['file'][:tempfile]
+
+    begin
+        chunk = tmpfile.read
+    rescue => e
+        STDERR.puts e.backtrace
+        return [500, OpenNebula::Error.new("Could not read the uploaded " \
+                                           "chunk.".to_json)]
+    end
+
+    if File.exist? file_path
+        mode = "r+"
+    else
+        mode = "w"
+    end
+
+    begin
+        open(file_path, mode) do |f|
+            f.seek(chunk_start)
+            f.write_nonblock(chunk)
+        end
+        tmpfile.unlink
+    rescue => e
+        STDERR.puts e.backtrace
+        return [500, OpenNebula::Error.new("Can not write to the temporary" \
+                                           " image file").to_json]
+    end
+
+    ""
 end
 
 ##############################################################################
