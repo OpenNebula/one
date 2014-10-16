@@ -711,6 +711,15 @@ function updateVNetworksView(request, network_list){
 function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
 
+    stripped_vn_template = $.extend({}, vn_info.TEMPLATE);
+    delete stripped_vn_template["SECURITY_GROUPS"];
+
+    var hidden_values = {};
+
+    if (vn_info.TEMPLATE.SECURITY_GROUPS != undefined){
+        hidden_values.SECURITY_GROUPS = vn_info.TEMPLATE.SECURITY_GROUPS;
+    }
+
     var reservation_row = '';
 
     if(vn_info.PARENT_NETWORK_ID.length > 0){
@@ -765,10 +774,11 @@ function updateVNetworkInfo(request,vn){
       </div>\
       <div class="row">\
         <div class="large-9 columns">' +
-            insert_extended_template_table(vn_info.TEMPLATE,
+            insert_extended_template_table(stripped_vn_template,
                                                        "Network",
                                                        vn_info.ID,
-                                                       "Attributes") +
+                                                       "Attributes",
+                                                       hidden_values) +
         '</div>\
       </div>';
 
