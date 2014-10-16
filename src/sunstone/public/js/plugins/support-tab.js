@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------- //
 
 var support_interval_function;
-
+var $upload_support_file;
 var create_support_request_wizard_html =
  '<form data-abide="ajax" id="create_support_request_form_wizard" class="custom creation">' +
     '<div class="row">' +
@@ -171,6 +171,12 @@ var support_actions = {
           }
         });
       }
+    },
+    "Support.upload" : {
+      type: "single",
+      call: function() {
+        $upload_support_file.foundation("reveal", "open");
+      }
     }
 }
 
@@ -181,10 +187,17 @@ var support_buttons = {
         text: '<i class="fa fa-refresh fa fa-lg">',
         alwaysActive: true
     },
+    "Support.upload" : {
+        type: "action",
+        layout: "main",
+        text: '<i class="fa fa-cloud-upload" style="color: rgb(111, 111, 111)"/> '+tr("Upload a file"),
+        custom_classes: "only-right-info"
+    },
     "Support.signout" : {
         type: "action",
         layout: "main",
-        text: "Sign out of Commercial Support",
+        text: '<i class="fa fa-sign-out fa fa-lg">',
+        tip: "Sign out of Commercial Support",
         alwaysActive: true
     },
     "Support.create_dialog" : {
@@ -310,6 +323,105 @@ var support_tab = {
     }
 }
 
+function setup_upload_support_file_dialog() {
+  dialogs_context.append('<div id="upload_support_file"></div>');
+  $upload_support_file = $('#upload_support_file',dialogs_context);
+  var dialog = $upload_support_file;
+
+  dialog.html('\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <h3 class="subheader">'+tr("Upload File")+'</h3>\
+      </div>\
+    </div>\
+    <form id="upload_support_file_form">\
+      <div class="row">\
+        <div id="support_file-uploader" class="large-12 columns text-center">\
+          <input id="support_file-uploader-input" type="file"/>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <button class="button right radius success upload_support_file_form_button" type="submit" disabled>Upload</button>\
+        </div>\
+      </div>\
+    </form>\
+    <a class="close-reveal-modal">&#215;</a>\
+  ');
+
+  dialog.addClass("reveal-modal").attr("data-reveal", "");
+  $vnc_dialog.foundation();
+
+    var uploader = new Resumable({
+        target: '/upload_chunk',
+        chunkSize: 10*1024*1024,
+        maxFiles: 1,
+        testChunks: false,
+        query: {
+            csrftoken: csrftoken
+        }
+    });
+
+    uploader.assignBrowse($('#support_file-uploader-input'));
+
+    var fileName = '';
+    var file_input = false;
+
+    uploader.on('fileAdded', function(file){
+        $(".upload_support_file_form_button").removeAttr("disabled");
+        fileName = file.fileName;
+        file_input = fileName;
+    });
+
+    uploader.on('uploadStart', function() {
+        $(".upload_support_file_form_button").attr("disabled", "disabled");
+        $('.support_upload_progress_bars').append('<div id="'+fileName+'progressBar" class="row" style="margin-bottom:10px">\
+          <div id="'+fileName+'-info" class="large-2 columns dataTables_info">\
+            '+tr("Uploading...")+'\
+          </div>\
+          <div class="large-10 columns">\
+            <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+              <span class="meter" style="width:0%"></span>\
+            </div>\
+            <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
+          </div>\
+        </div>');
+    });
+
+    uploader.on('progress', function() {
+        $('span.meter', $('div[id="'+fileName+'progressBar"]')).css('width', uploader.progress()*100.0+'%')
+    });
+
+    uploader.on('fileSuccess', function(file) {
+        $('div[id="'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
+        $.ajax({
+            url: '/support/request/' + $("#submit_support_comment").data("request_id") + '/upload',
+            type: "POST",
+            data: {
+                csrftoken: csrftoken,
+                file: fileName,
+                tempfile: file.uniqueIdentifier
+            },
+            success: function(){
+                notifyMessage("File uploaded correctly");
+                $('div[id="'+fileName+'progressBar"]').remove();
+                Sunstone.runAction("Support.refresh");
+                $upload_support_file.foundation('reveal', 'close');
+            },
+            error: function(response){
+                onError({}, OpenNebula.Error(response));
+                $('div[id="'+fileName+'progressBar"]').remove();
+            }
+        });
+    });
+
+    $("#upload_support_file_form").on("submit", function(){
+      uploader.upload();
+      $upload_support_file.foundation("reveal", "close")
+      return false;
+    })
+}
+
 function initialize_create_support_request_dialog() {
     $('#create_support_request_form_wizard').foundation();
 
@@ -428,6 +540,11 @@ function updateSupportInfo(request, response){
         })
     }
 
+    html += '<div class="row">\
+        <div class="large-12 columns support_upload_progress_bars">\
+        </div>\
+      </div>';
+
     html += '<form id="submit_support_comment">\
       <div class="row">\
         <div class="large-12 columns">\
@@ -498,6 +615,8 @@ $(document).ready(function(){
     var tab_name = 'support-tab';
 
     if (Config.isTabEnabled(tab_name)) {
+      setup_upload_support_file_dialog();
+
       dataTable_support = $("#dataTable_support", main_tabs_context).dataTable({
         "bSortClasses" : false,
         "bDeferRender": true,
