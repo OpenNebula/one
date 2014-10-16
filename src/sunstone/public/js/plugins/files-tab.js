@@ -624,7 +624,7 @@ function setupCreateFileDialog(){
 
     var file_obj;
 
-    var uploader = new Resumable({
+    var file_uploader = new Resumable({
         target: '/upload_chunk',
         chunkSize: 10*1024*1024,
         maxFiles: 1,
@@ -634,17 +634,17 @@ function setupCreateFileDialog(){
         }
     });
 
-    uploader.assignBrowse($('#files_file-uploader-input',dialog)[0]);
+    file_uploader.assignBrowse($('#files_file-uploader-input',dialog)[0]);
 
     var fileName = '';
     var file_input = false;
 
-    uploader.on('fileAdded', function(file){
+    file_uploader.on('fileAdded', function(file){
         fileName = file.fileName;
         file_input = fileName;
     });
 
-    uploader.on('uploadStart', function() {
+    file_uploader.on('uploadStart', function() {
         $('#files_upload_progress_bars').append('<div id="files-'+fileName+'-progressBar" class="row" style="margin-bottom:10px">\
           <div id="files-'+fileName+'-info" class="large-2 columns dataTables_info">\
             '+tr("Uploading...")+'\
@@ -658,29 +658,29 @@ function setupCreateFileDialog(){
         </div>');
     });
 
-    uploader.on('progress', function() {
-        $('span.meter', $('div[id="files-'+fileName+'-progressBar"]')).css('width', uploader.progress()*100.0+'%')
+    file_uploader.on('progress', function() {
+        $('span.meter', $('div[id="files-'+fileName+'-progressBar"]')).css('width', file_uploader.progress()*100.0+'%')
     });
 
-    uploader.on('fileSuccess', function(file) {
+    file_uploader.on('fileSuccess', function(file) {
         $('div[id="files-'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
         $.ajax({
             url: '/upload',
             type: "POST",
             data: {
                 csrftoken: csrftoken,
-                img : JSON.stringify(img_obj),
+                img : JSON.stringify(file_obj),
                 file: fileName,
                 tempfile: file.uniqueIdentifier
             },
             success: function(){
-                notifyMessage("Image uploaded correctly");
-                $('div[id="file-'+fileName+'-progressBar"]').remove();
-                Sunstone.runAction("Image.refresh");
+                notifyMessage("File uploaded correctly");
+                $('div[id="files-'+fileName+'-progressBar"]').remove();
+                Sunstone.runAction("File.refresh");
             },
             error: function(response){
                 onError({}, OpenNebula.Error(response));
-                $('div[id="file-'+fileName+'-progressBar"]').remove();
+                $('div[id="files-'+fileName+'-progressBar"]').remove();
             }
         });
     });
@@ -728,7 +728,7 @@ function setupCreateFileDialog(){
             $create_file_dialog.empty();
             setupCreateFileDialog();
 
-            uploader._onInputChange(file_input);
+            file_uploader.upload();
         } else {
             Sunstone.runAction("File.create", file_obj);
         };
