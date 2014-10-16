@@ -436,6 +436,7 @@ function updateSupportInfo(request, response){
       </div>\
       <div class="row">\
         <div class="large-12 columns">\
+            <input id="solved" type="checkbox"><label for="solved">Please consider this request resolved</label>\
             <button class="button right radius success" type="submit">Submit</button>\
         </div>\
       </div>\
@@ -456,7 +457,8 @@ function updateSupportInfo(request, response){
         var request_json = {
             "comment" : {
                 "value" : $(".comment", this).val()
-            }
+            },
+            "solved" : $("#solved:checked", this).length > 0 ? true : false
         }
 
         Sunstone.runAction("Support.update", request_id, request_json);

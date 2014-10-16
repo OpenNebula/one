@@ -186,6 +186,7 @@ post '/support/request/:id/action' do
 	# TODO check error
 
 	zrequest.comment = {"value" => body_hash["action"]["params"]['comment']['value']}
+	zrequest.solved = true if body_hash["action"]["params"]["solved"]
 	zrequest.save!
 
 	one_zrequest = {
