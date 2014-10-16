@@ -22,10 +22,20 @@ function initialize_create_security_group_dialog(dialog){
     setupTips(dialog);
 
     dialog.on("change", '.security_group_rule_protocol', function(){
-        if ( $(this).val() == "ICMP" ){
-            $('.icmp_type_wrapper', dialog).show();
-        } else {
+        switch ($(this).val()) {
+        case "TCP":
+        case "UDP":
+            $('.range_row', dialog).show();
             $('.icmp_type_wrapper', dialog).hide();
+            break;
+        case "ICMP":
+            $('.range_row', dialog).hide();
+            $('.icmp_type_wrapper', dialog).show();
+            break;
+        case "IPSEC":
+            $('.range_row', dialog).hide();
+            $('.icmp_type_wrapper', dialog).hide();
+            break;
         }
     });
 
@@ -134,7 +144,7 @@ function initialize_create_security_group_dialog(dialog){
 
     $('#create_security_group_form_wizard',dialog).on('invalid', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
-        popFormDialog("create_security_group_form", $("#secgroup-tab"));
+        popFormDialog("create_security_group_form", $("#secgroups-tab"));
     }).on('valid', function() {
 
         security_group_json = generate_json_security_group_from_form(this);
@@ -161,7 +171,7 @@ function initialize_create_security_group_dialog(dialog){
 
     $('#create_security_group_form_advanced',dialog).on('invalid.fndtn.abide', function () {
         notifyError(tr("One or more required fields are missing or malformed."));
-        popFormDialog("create_security_group_form", $("#secgroup-tab"));
+        popFormDialog("create_security_group_form", $("#secgroups-tab"));
     }).on('valid.fndtn.abide', function() {
         if ($('#create_security_group_form_advanced',dialog).attr("action") == "create") {
 
@@ -326,7 +336,7 @@ var create_security_group_wizard_html =
   <div class="row">\
     <div class="medium-4 columns">\
       <label for="security_group_name">'+tr("Security Group Name")+':</label>\
-      <input type="text" name="security_group_name" id="security_group_name" />\
+      <input required type="text" name="security_group_name" id="security_group_name"/>\
     </div>\
     <div class="medium-8 columns">\
       <label for="security_group_description">'+tr("Description")+'\
@@ -362,10 +372,42 @@ var create_security_group_wizard_html =
         <label>'+tr("ICMP Type")+'\
           <span class="tip">'+tr("TODO")+'</span>\
         </label>\
-        <input class="security_group_rule_icmp_type" type="text"/>\
+        <select class="security_group_rule_icmp_type">\
+          <option value="" selected="selected">'+tr("All")+'</option>\
+          <option value = "0">'+"0: Echo Reply"+'</option>\
+          <option value = "3">'+"3: Destination Unreachable"+'</option>\
+          <option value = "4">'+"4: Source Quench"+'</option>\
+          <option value = "5">'+"5: Redirect"+'</option>\
+          <option value = "6">'+"6: Alternate Host Address"+'</option>\
+          <option value = "8">'+"8: Echo"+'</option>\
+          <option value = "9">'+"9: Router Advertisement"+'</option>\
+          <option value = "10">'+"10: Router Solicitation"+'</option>\
+          <option value = "11">'+"11: Time Exceeded"+'</option>\
+          <option value = "12">'+"12: Parameter Problem"+'</option>\
+          <option value = "13">'+"13: Timestamp"+'</option>\
+          <option value = "14">'+"14: Timestamp Reply"+'</option>\
+          <option value = "15">'+"15: Information Request"+'</option>\
+          <option value = "16">'+"16: Information Reply"+'</option>\
+          <option value = "17">'+"17: Address Mask Request"+'</option>\
+          <option value = "18">'+"18: Address Mask Reply"+'</option>\
+          <option value = "30">'+"30: Traceroute"+'</option>\
+          <option value = "31">'+"31: Datagram Conversion Error"+'</option>\
+          <option value = "32">'+"32: Mobile Host Redirect"+'</option>\
+          <option value = "33">'+"33: IPv6 Where-Are-You"+'</option>\
+          <option value = "34">'+"34: IPv6 I-Am-Here"+'</option>\
+          <option value = "35">'+"35: Mobile Registration Request"+'</option>\
+          <option value = "36">'+"36: Mobile Registration Reply"+'</option>\
+          <option value = "37">'+"37: Domain Name Request"+'</option>\
+          <option value = "38">'+"38: Domain Name Reply"+'</option>\
+          <option value = "39">'+"39: SKIP"+'</option>\
+          <option value = "40">'+"40: Photuris"+'</option>\
+          <option value = "41">'+"41: ICMP messages utilized by experimental mobility protocols such as Seamoby"+'</option>\
+          <option value = "253">'+"253: RFC3692-style Experiment 1"+'</option>\
+          <option value = "254">'+"254: RFC3692-style Experiment 2"+'</option>\
+        </select>\
       </div>\
     </div>\
-    <div class="row">\
+    <div class="row range_row">\
       <div class="medium-4 columns">\
         <label>'+tr("Range")+'\
           <span class="tip">'+tr("TODO")+'</span>\
