@@ -2423,19 +2423,17 @@ function setup_vm_network_tab(){
                 <thead>\
                 <tbody>';
 
-            function td(attr){
-                return '<td>'+ (attr ? attr : '') +'</td>';
-            }
-
             $.each(row.data().SECURITY_GROUP_RULES, function(index, elem){
-                var new_tr = '<tr>'+
-                  td(this.SECURITY_GROUP_ID)+
-                  td(this.SECURITY_GROUP_NAME)+
-                  td(this.PROTOCOL)+
-                  td(this.RULE_TYPE)+
-                  td(this.RANGE)+
-                  '<td>'+"TODO"+'</td>\
-                  <td>'+"TODO"+'</td>\
+                var rule_st = rule_to_st(this);
+
+                var new_tr = '<tr>\
+                  <td>'+this.SECURITY_GROUP_ID+'</td>\
+                  <td>'+this.SECURITY_GROUP_NAME+'</td>\
+                  <td>'+rule_st.PROTOCOL+'</td>\
+                  <td>'+rule_st.RULE_TYPE+'</td>\
+                  <td>'+rule_st.RANGE+'</td>\
+                  <td>'+rule_st.NETWORK+'</td>\
+                  <td>'+rule_st.ICMP_TYPE+'</td>\
                 </tr>'
 
                 html += new_tr;

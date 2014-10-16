@@ -72,7 +72,8 @@ function initialize_create_security_group_dialog(dialog){
             // TODO
             break;
         case "NETWORK":
-            rule["NETWORK"] = $('.security_group_rule_network', dialog).val();
+            rule["IP"] = $('#security_group_rule_first_ip', dialog).val();
+            rule["SIZE"] = $('#security_group_rule_size', dialog).val();
             break;
         case "VNET":
             rule["NETWORK_ID"] = retrieveVNetTableSelect(dialog, "new_sg_rule");
@@ -88,13 +89,15 @@ function initialize_create_security_group_dialog(dialog){
             return '<td>'+ (attr ? attr : '') +'</td>';
         }
 
+        var text = rule_to_st(rule);
+
         $(".security_group_rules tbody").append(
-            '<tr>'+
-              td(rule.PROTOCOL)+
-              td(rule.RULE_TYPE)+
-              td(rule.RANGE)+
-              '<td>'+"TODO"+'</td>\
-              <td>'+"TODO"+'</td>\
+            '<tr>\
+              <td>'+text.PROTOCOL+'</td>\
+              <td>'+text.RULE_TYPE+'</td>\
+              <td>'+text.RANGE+'</td>\
+              <td>'+text.NETWORK+'</td>\
+              <td>'+text.ICMP_TYPE+'</td>\
               <td>\
                   <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
               </td>\
@@ -161,6 +164,129 @@ function generate_json_security_group_from_form(dialog) {
     return security_group_json;
 }
 
+function icmp_to_st(icmp_type){
+    switch( parseInt(icmp_type) ){
+        case 0:   return "0: Echo Reply";
+        case 3:   return "3: Destination Unreachable";
+        case 4:   return "4: Source Quench";
+        case 5:   return "5: Redirect";
+        case 6:   return "6: Alternate Host Address";
+        case 8:   return "8: Echo";
+        case 9:   return "9: Router Advertisement";
+        case 10:  return "10: Router Solicitation";
+        case 11:  return "11: Time Exceeded";
+        case 12:  return "12: Parameter Problem";
+        case 13:  return "13: Timestamp";
+        case 14:  return "14: Timestamp Reply";
+        case 15:  return "15: Information Request";
+        case 16:  return "16: Information Reply";
+        case 17:  return "17: Address Mask Request";
+        case 18:  return "18: Address Mask Reply";
+        case 30:  return "30: Traceroute";
+        case 31:  return "31: Datagram Conversion Error";
+        case 32:  return "32: Mobile Host Redirect";
+        case 33:  return "33: IPv6 Where-Are-You";
+        case 34:  return "34: IPv6 I-Am-Here";
+        case 35:  return "35: Mobile Registration Request";
+        case 36:  return "36: Mobile Registration Reply";
+        case 37:  return "37: Domain Name Request";
+        case 38:  return "38: Domain Name Reply";
+        case 39:  return "39: SKIP";
+        case 40:  return "40: Photuris";
+        case 41:  return "41: ICMP messages utilized by experimental mobility protocols such as Seamoby";
+        case 253: return "253: RFC3692-style Experiment 1";
+        case 254: return "254: RFC3692-style Experiment 2";
+        default:  return "" + icmp_type;
+    }
+}
+
+/*
+Returns an object with the human readable attributes of the rule. List of attributes:
+PROTOCOL
+RULE_TYPE
+ICMP_TYPE
+RANGE
+NETWORK
+*/
+function rule_to_st(rule){
+    var text = {};
+
+    if(rule.PROTOCOL != undefined){
+        switch(rule.PROTOCOL.toUpperCase()){
+        case "TCP":
+            text["PROTOCOL"] = tr("TCP");
+            break;
+        case "UDP":
+            text["PROTOCOL"] = tr("UDP");
+            break;
+        case "ICMP":
+            text["PROTOCOL"] = tr("ICMP");
+            break;
+        case "IPSEC":
+            text["PROTOCOL"] = tr("IPsec");
+            break;
+        default:
+            text["PROTOCOL"] = "";
+        }
+    } else {
+        text["PROTOCOL"] = "";
+    }
+
+    if(rule.RULE_TYPE != undefined){
+        switch(rule.RULE_TYPE.toUpperCase()){
+        case "OUTBOUND":
+            text["RULE_TYPE"] = tr("Outbound");
+            break;
+        case "INBOUND":
+            text["RULE_TYPE"] = tr("Inbound");
+            break;
+        default:
+            text["RULE_TYPE"] = "";
+        }
+    } else {
+        text["RULE_TYPE"] = "";
+    }
+
+    if(rule.ICMP_TYPE != undefined){
+        text["ICMP_TYPE"] = icmp_to_st(rule.ICMP_TYPE);
+    } else {
+        text["ICMP_TYPE"] = "";
+    }
+
+    if(rule.RANGE != undefined && rule.RANGE != ""){
+        text["RANGE"] = rule.RANGE;
+    } else {
+        text["RANGE"] = tr("All");
+    } 
+
+    var network = "";
+
+    if(rule.NETWORK_ID != undefined && rule.NETWORK_ID != ""){
+        network += (tr("Virtual Network") + " " + rule.NETWORK_ID);
+    }
+
+    if(rule.SIZE != undefined && rule.SIZE != ""){
+        if(network != ""){
+            network += ":<br>";
+        }
+ 
+        if(rule.IP != undefined && rule.IP != ""){
+            network += tr("Start") + ": " + rule.IP + ", ";
+        } else if(rule.MAC != undefined && rule.MAC != ""){
+            network += tr("Start") + ": " + rule.MAC + ", ";
+        }
+
+        network += tr("Size") + ": " + rule.SIZE;
+    }
+
+    if(network == ""){
+        network = tr("Any");
+    }
+
+    text["NETWORK"] = network;
+
+    return text;
+}
 
 // Security Group clone dialog
 function setupSecurityGroupCloneDialog(){
@@ -312,20 +438,21 @@ var create_security_group_wizard_html =
       </div>\
       <div class="row security_group_rule_network">\
         <div class="small-6 columns">\
-          <label>'+tr("IP Start")+':\
+          <label for="security_group_rule_first_ip">'+tr("IP Start")+':\
             <span class="tip">'+tr("First IP address")+'</span>\
           </label>\
-          <input class="security_group_rule_first_ip" type="text"/>\
+          <input id="security_group_rule_first_ip" type="text"/>\
         </div>\
         <div class="small-6 columns">\
-          <label>'+tr("Size")+':\
+          <label for="security_group_rule_size">'+tr("Size")+':\
             <span class="tip">'+tr("Number of addresses in the range")+'</span>\
           </label>\
-          <input class="security_group_rule_size" type="text"/>\
+          <input id="security_group_rule_size" type="text"/>\
         </div>\
       </div>\
       <div class="row vnet_select">\
         '+generateVNetTableSelect("new_sg_rule")+'\
+        </br>\
       </div>\
     </div>\
   </div>\
@@ -339,16 +466,11 @@ var create_security_group_wizard_html =
       <table class="security_group_rules policies_table dataTable">\
         <thead>\
           <tr>\
-            <th>'+tr("Protocol")+'\
-            </th>\
-            <th>'+tr("Type")+'\
-            </th>\
-            <th>'+tr("Range")+'\
-            </th>\
-            <th>'+tr("Network")+'\
-            </th>\
-            <th>'+tr("ICMP Type")+'\
-            </th>\
+            <th>'+tr("Protocol")+'</th>\
+            <th>'+tr("Type")+'</th>\
+            <th>'+tr("Range")+'</th>\
+            <th>'+tr("Network")+'</th>\
+            <th>'+tr("ICMP Type")+'</th>\
             <th style="width:3%"></th>\
           </tr>\
         </thead>\
@@ -641,6 +763,11 @@ function updateSecurityGroupInfo(request,security_group){
     security_group_info     = security_group.SECURITY_GROUP;
     security_group_template = security_group_info.TEMPLATE;
 
+    stripped_security_group_template = $.extend({}, security_group_info.TEMPLATE);
+    delete stripped_security_group_template["RULE"];
+
+    var hidden_values = {RULE: security_group_info.TEMPLATE.RULE};
+
     //Information tab
     var info_tab = {
         title : tr("Info"),
@@ -676,11 +803,23 @@ function updateSecurityGroupInfo(request,security_group){
         '</div>\
         </div>\
         <div class="row">\
+          <div class="large-9 columns">\
+            <table class="dataTable extended_table">\
+              <thead>\
+                <tr>\
+                  <th>'+tr("Rules")+'</th>\
+                </tr>\
+              </thead>\
+            </table>'
+            + insert_sg_rules_table(security_group_info) +
+         '</div>\
+        <div class="row">\
           <div class="large-9 columns">'
-                  + insert_extended_template_table(security_group_template,
+                  + insert_extended_template_table(stripped_security_group_template,
                                            "SecurityGroup",
                                            security_group_info.ID,
-                                           "Attributes") +
+                                           tr("Attributes"),
+                                           hidden_values) +
          '</div>\
         </div>'
     }
@@ -691,6 +830,51 @@ function updateSecurityGroupInfo(request,security_group){
     Sunstone.popUpInfoPanel("security_group_info_panel", "secgroups-tab");
 
     setPermissionsTable(security_group_info,'');
+}
+
+function insert_sg_rules_table(sg){
+    var html = 
+      '<table class="policies_table dataTable">\
+        <thead>\
+          <tr>\
+            <th>'+tr("Protocol")+'</th>\
+            <th>'+tr("Type")+'</th>\
+            <th>'+tr("Range")+'</th>\
+            <th>'+tr("Network")+'</th>\
+            <th>'+tr("ICMP Type")+'</th>\
+          </tr>\
+        </thead>\
+        <tbody>';
+
+    var rules = sg.TEMPLATE.RULE;
+
+    if (!rules) //empty
+    {
+        rules = [];
+    }
+    else if (rules.constructor != Array) //>1 lease
+    {
+        rules = [rules];
+    }
+
+    $.each(rules, function(){
+        var text = rule_to_st(this);
+        html +=
+          '<tr>\
+            <td>'+text.PROTOCOL+'</td>\
+            <td>'+text.RULE_TYPE+'</td>\
+            <td>'+text.RANGE+'</td>\
+            <td>'+text.NETWORK+'</td>\
+            <td>'+text.ICMP_TYPE+'</td>\
+          </tr>'
+    });
+
+
+    html +=
+        '</tbody>\
+      </table>';
+
+    return html;
 }
 
 //This is executed after the sunstone.js ready() is run.
