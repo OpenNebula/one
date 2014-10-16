@@ -368,6 +368,7 @@ tabs:
         actions:
             SecurityGroup.refresh: true
             SecurityGroup.create_dialog: true
+            SecurityGroup.update_dialog: true
             SecurityGroup.chown: true
             SecurityGroup.chgrp: true
             SecurityGroup.chmod: true

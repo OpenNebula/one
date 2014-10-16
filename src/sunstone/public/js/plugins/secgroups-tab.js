@@ -84,7 +84,7 @@ function initialize_create_security_group_dialog(dialog){
 
         var text = rule_to_st(rule);
 
-        $(".security_group_rules tbody").append(
+        $(".security_group_rules tbody", dialog).append(
             '<tr>\
               <td>'+text.PROTOCOL+'</td>\
               <td>'+text.RULE_TYPE+'</td>\
@@ -97,7 +97,7 @@ function initialize_create_security_group_dialog(dialog){
             </tr>');
 
         // Add data to tr element
-        $(".security_group_rules tbody").children("tr").last().data("rule", rule);
+        $(".security_group_rules tbody", dialog).children("tr").last().data("rule", rule);
 
         // Reset new rule fields
         $('#new_rule_wizard select option', dialog).prop('selected', function() {
@@ -126,9 +126,25 @@ function initialize_create_security_group_dialog(dialog){
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_security_group_form", $("#secgroup-tab"));
     }).on('valid', function() {
+
+        security_group_json = generate_json_security_group_from_form(this);
+
         if ($('#create_security_group_form_wizard',dialog).attr("action") == "create") {
-            security_group_json = generate_json_security_group_from_form(this);
+
+            var security_group_json = {
+                "security_group" : security_group_json
+            };
+
             Sunstone.runAction("SecurityGroup.create",security_group_json);
+            return false;
+        } else if ($('#create_security_group_form_wizard',dialog).attr("action") == "update") {
+            delete security_group_json["NAME"];
+
+            Sunstone.runAction(
+                "SecurityGroup.update",
+                sg_to_update_id,
+                convert_template_to_string(security_group_json));
+
             return false;
         }
     });
@@ -145,11 +161,9 @@ function initialize_create_security_group_dialog(dialog){
             return false;
 
         } else if ($('#create_security_group_form_advanced',dialog).attr("action") == "update") {
-            // TODO
+            var template_raw = $('textarea#template',dialog).val();
 
-            //var template_raw = $('textarea#template',dialog).val();
-
-            //Sunstone.runAction("SecurityGroup.update",sg_to_update_id,template_raw);
+            Sunstone.runAction("SecurityGroup.update",sg_to_update_id,template_raw);
             return false;
         }
     });
@@ -165,17 +179,56 @@ function generate_json_security_group_from_form(dialog) {
         rules.push($(this).data("rule"));
     });
 
-    var security_group_json =
-    { 
-        "security_group" :
-        {
-            "name" : name,
-            "description": description,
-            "rule" : rules
-        }
+    var security_group_json = {
+        "NAME" : name,
+        "DESCRIPTION": description,
+        "RULE" : rules
     };
 
     return security_group_json;
+}
+
+function fillSecurityGroupUpdateFormPanel(sg, dialog){
+
+    // Populates the Avanced mode Tab
+    $('#template',dialog).val(convert_template_to_string(sg.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+
+    $('#security_group_name',dialog).val(
+        escapeDoubleQuotes(htmlDecode( sg.NAME ))).
+        prop("disabled", true);
+
+    $('#security_group_description', dialog).val(
+        escapeDoubleQuotes(htmlDecode( sg.TEMPLATE.DESCRIPTION ))
+    );
+
+    var rules = sg.TEMPLATE.RULE;
+
+    if (!rules) //empty
+    {
+        rules = [];
+    }
+    else if (rules.constructor != Array) //>1 rule
+    {
+        rules = [rules];
+    }
+
+    $.each(rules, function(){
+        var text = rule_to_st(this);
+
+        $(".security_group_rules tbody", dialog).append(
+            '<tr>\
+              <td>'+text.PROTOCOL+'</td>\
+              <td>'+text.RULE_TYPE+'</td>\
+              <td>'+text.RANGE+'</td>\
+              <td>'+text.NETWORK+'</td>\
+              <td>'+text.ICMP_TYPE+'</td>\
+              <td>\
+                  <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+              </td>\
+            </tr>');
+
+        $(".security_group_rules tbody", dialog).children("tr").last().data("rule", this);
+    });
 }
 
 function icmp_to_st(icmp_type){
@@ -586,6 +639,52 @@ var security_group_actions = {
         notify:true
     },
 
+    "SecurityGroup.update_dialog" : {
+        type: "custom",
+        call: function(){
+            var selected_nodes = securityGroupElements();
+            if ( selected_nodes.length != 1 ) {
+                notifyMessage("Please select one (and just one) Security Group to update.");
+                return false;
+            }
+
+            var resource_id = ""+selected_nodes[0];
+            Sunstone.runAction("SecurityGroup.show_to_update", resource_id);
+        }
+    },
+
+    "SecurityGroup.show_to_update" : {
+        type: "single",
+        call: OpenNebula.SecurityGroup.show,
+        callback: function(request, response) {
+            // TODO: global var, better use jquery .data
+            sg_to_update_id = response.SECURITY_GROUP.ID;
+
+            Sunstone.popUpFormPanel("create_security_group_form", "secgroups-tab", "create", true);
+
+            Sunstone.popUpFormPanel("create_security_group_form", "secgroups-tab", "update", true, function(context){
+                fillSecurityGroupUpdateFormPanel(response.SECURITY_GROUP, context);
+            });
+        },
+        error: onError
+    },
+
+    "SecurityGroup.update" : {
+        type: "single",
+        call: OpenNebula.SecurityGroup.update,
+        callback: function(request, response){
+            $("a[href=back]", $("#secgroups-tab")).trigger("click");
+            popFormDialog("create_security_group_form", $("#secgroups-tab"));
+
+            notifyMessage(tr("Security Group updated correctly"));
+        },
+        error: function(request, response){
+            popFormDialog("create_security_group_form", $("#secgroups-tab"));
+
+            onError(request, response);
+        }
+    },
+
     "SecurityGroup.update_template" : {  // Update template
         type: "single",
         call: OpenNebula.SecurityGroup.update,
@@ -658,7 +757,11 @@ var security_group_buttons = {
         type: "create_dialog",
         layout: "create"
     },
-
+    "SecurityGroup.update_dialog" : {
+        type: "action",
+        layout: "main",
+        text: tr("Update")
+    },
     "SecurityGroup.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -713,10 +816,15 @@ var security_groups_tab = {
     forms: {
       "create_security_group_form": {
         actions: {
-          create: {
-            title: tr("Create Security Group"),
-            submit_text: tr("Create")
-          }
+            create: {
+                title: tr("Create Security Group"),
+                submit_text: tr("Create")
+            },
+            update: {
+                title: tr("Update Security Group"),
+                submit_text: tr("Update"),
+                reset_button: false
+            }
         },
         wizard_html: create_security_group_wizard_html,
         advanced_html: create_security_group_advanced_html,
@@ -881,7 +989,7 @@ function insert_sg_rules_table(sg){
     {
         rules = [];
     }
-    else if (rules.constructor != Array) //>1 lease
+    else if (rules.constructor != Array) //>1 rule
     {
         rules = [rules];
     }
