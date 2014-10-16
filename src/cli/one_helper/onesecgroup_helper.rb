@@ -88,6 +88,65 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
 
             puts str % [e,  mask]
         }
+
+        puts
+
+        CLIHelper.print_header(str_h1 % ["RULES"], false)
+
+        if !secgroup.to_hash['SECURITY_GROUP']['TEMPLATE']['RULE'].nil?
+            rule_list = [secgroup.to_hash['SECURITY_GROUP']['TEMPLATE']['RULE']].flatten
+        end
+
+        CLIHelper::ShowTable.new(nil, self) do
+            column :TYPE, "", :left, :size=>8 do |d|
+                d["RULE_TYPE"]
+            end
+
+            column :PROTOCOL, "", :left, :size=>8 do |d|
+                d["PROTOCOL"]
+            end
+
+            column :ICMP_TYPE, "", :left, :size=>9 do |d|
+                d["ICMP_TYPE"]
+            end
+
+            column :NETWORK, "", :left, :donottruncate, :size=>35 do |d|
+                network = ""
+                if(!d["NETWORK_ID"].nil? && d["NETWORK_ID"] != "")
+                    network += "VNet " + d["NETWORK_ID"]
+                end
+
+                if(!d["SIZE"].nil? && d["SIZE"] != "")
+                    if(network != "")
+                        network += ": "
+                    end
+
+                    if(!d["IP"].nil? && d["IP"] != "")
+                        network += "Start: " + d["IP"] + ", "
+                    elsif(!d["MAC"] != undefined && d["MAC"] != "")
+                        network += "Start: " + d["MAC"] + ", "
+                    end
+
+                    network += "Size: " + d["SIZE"]
+                end
+
+                if(network == "")
+                    network = "Any"
+                end
+
+                network += " "
+                network
+            end
+
+            column :RANGE, "", :left, :donottruncate, :size=>16 do |d|
+                d["RANGE"]
+            end
+        end.show(rule_list, {})
+
+        while secgroup.has_elements?("/SECURITY_GROUP/TEMPLATE/RULE")
+            secgroup.delete_element("/SECURITY_GROUP/TEMPLATE/RULE")
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "TEMPLATE CONTENTS",false)
