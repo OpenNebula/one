@@ -27,9 +27,14 @@ module OpenNebulaJSON
                 return secgroup_hash
             end
 
-            template = template_to_str(secgroup_hash)
+            if secgroup_hash['security_group_raw']
+                template = secgroup_hash['security_group_raw']
+            else
+                template = template_to_str(secgroup_hash)
+            end
 
             self.allocate(template)
+
         end
 
         def perform_action(template_json)

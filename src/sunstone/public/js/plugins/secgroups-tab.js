@@ -82,13 +82,6 @@ function initialize_create_security_group_dialog(dialog){
 
         rule["ICMP_TYPE"] = $(".security_group_rule_icmp_type", dialog).val();
 
-
-        // TODO: create generic method to show rules table
-
-        function td(attr){
-            return '<td>'+ (attr ? attr : '') +'</td>';
-        }
-
         var text = rule_to_st(rule);
 
         $(".security_group_rules tbody").append(
@@ -136,6 +129,27 @@ function initialize_create_security_group_dialog(dialog){
         if ($('#create_security_group_form_wizard',dialog).attr("action") == "create") {
             security_group_json = generate_json_security_group_from_form(this);
             Sunstone.runAction("SecurityGroup.create",security_group_json);
+            return false;
+        }
+    });
+
+    $('#create_security_group_form_advanced',dialog).on('invalid.fndtn.abide', function () {
+        notifyError(tr("One or more required fields are missing or malformed."));
+        popFormDialog("create_security_group_form", $("#secgroup-tab"));
+    }).on('valid.fndtn.abide', function() {
+        if ($('#create_security_group_form_advanced',dialog).attr("action") == "create") {
+
+            var template = $('textarea#template',dialog).val();
+            var security_group_json = {security_group: {security_group_raw: template}};
+            Sunstone.runAction("SecurityGroup.create",security_group_json);
+            return false;
+
+        } else if ($('#create_security_group_form_advanced',dialog).attr("action") == "update") {
+            // TODO
+
+            //var template_raw = $('textarea#template',dialog).val();
+
+            //Sunstone.runAction("SecurityGroup.update",sg_to_update_id,template_raw);
             return false;
         }
     });
@@ -481,6 +495,21 @@ var create_security_group_wizard_html =
   </div>\
 </form>';
 
+var create_security_group_advanced_html =
+ '<form data-abide="ajax" id="create_security_group_form_advanced" class="custom creation">' +
+    '<div class="row">' +
+      '<div class="large-12 columns">' +
+        '<p>'+tr("Write the Security Group template here")+'</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="row">' +
+      '<div class="large-12 columns">' +
+        '<textarea id="template" rows="15" required></textarea>' +
+      '</div>' +
+    '</div>' +
+  '</form>';
+
+
 var dataTable_security_groups;
 var $create_security_group_dialog;
 
@@ -690,7 +719,7 @@ var security_groups_tab = {
           }
         },
         wizard_html: create_security_group_wizard_html,
-//        advanced_html: create_security_group_advanced_html,
+        advanced_html: create_security_group_advanced_html,
         setup: initialize_create_security_group_dialog
       }
     }
