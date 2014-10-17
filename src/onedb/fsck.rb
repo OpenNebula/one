@@ -23,7 +23,7 @@ require 'nokogiri'
 
 module OneDBFsck
     VERSION = "4.6.0"
-    LOCAL_VERSION = "4.9.80"
+    LOCAL_VERSION = "4.9.85"
 
     def check_db_version()
         db_version = read_db_version()
@@ -134,7 +134,7 @@ EOT
 
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
-            "datastore_pool", "document_pool", "zone_pool"]
+            "datastore_pool", "document_pool", "zone_pool", "secgroup_pool"]
 
         federated_tables = ["group_pool", "user_pool", "acl", "zone_pool"]
 
