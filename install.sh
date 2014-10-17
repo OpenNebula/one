@@ -327,7 +327,6 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale/zh_CN \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/crypto-js \
-               $SUNSTONE_LOCATION/public/vendor/fileuploader \
                $SUNSTONE_LOCATION/public/vendor/noVNC \
                $SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js \
                $SUNSTONE_LOCATION/public/vendor/4.0 \
@@ -339,6 +338,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/css \
                $SUNSTONE_LOCATION/public/vendor/4.0/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/vendor/4.0/jgrowl \
+               $SUNSTONE_LOCATION/public/vendor/4.0/resumablejs \
                $SUNSTONE_LOCATION/public/vendor/4.0/foundation \
                $SUNSTONE_LOCATION/public/vendor/4.0/modernizr \
                $SUNSTONE_LOCATION/public/vendor/4.0/nouislider \
@@ -509,13 +509,13 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
-    SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER:$SUNSTONE_LOCATION/public/vendor/fileuploader
     SUNSTONE_PUBLIC_VENDOR_NOVNC:$SUNSTONE_LOCATION/public/vendor/noVNC
     SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET:$SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js
     SUNSTONE_PUBLIC_NEW_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/4.0/flot
     SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES:$SUNSTONE_LOCATION/public/vendor/4.0/foundation_datatables
     SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL:$SUNSTONE_LOCATION/public/vendor/4.0/jgrowl
+    SUNSTONE_PUBLIC_NEW_VENDOR_RESUMABLEJS:$SUNSTONE_LOCATION/public/vendor/4.0/resumablejs
     SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY:$SUNSTONE_LOCATION/public/vendor/4.0/
     SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION:$SUNSTONE_LOCATION/public/vendor/4.0/foundation
     SUNSTONE_PUBLIC_NEW_VENDOR_MODERNIZR:$SUNSTONE_LOCATION/public/vendor/4.0/modernizr
@@ -1589,6 +1589,9 @@ SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
     src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.css"
 
 
+SUNSTONE_PUBLIC_NEW_VENDOR_RESUMABLEJS="\
+    src/sunstone/public/bower_components/resumablejs/resumable.js"
+
 SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION_DATATABLES="\
     src/sunstone/public/bower_components/foundation-datatables/integration/foundation/dataTables.foundation.js"
 
@@ -1650,12 +1653,6 @@ src/sunstone/public/vendor/crypto-js/sha1-min.js \
 src/sunstone/public/vendor/crypto-js/core-min.js \
 src/sunstone/public/vendor/crypto-js/enc-base64-min.js \
 src/sunstone/public/vendor/crypto-js/NEW-BSD-LICENSE.txt"
-
-
-SUNSTONE_PUBLIC_VENDOR_FILEUPLOADER="\
-src/sunstone/public/vendor/fileuploader/NOTICE \
-src/sunstone/public/vendor/fileuploader/fileuploader.js"
-
 
 SUNSTONE_PUBLIC_VENDOR_XML2JSON="\
 src/sunstone/public/vendor/xml2json/NOTICE \

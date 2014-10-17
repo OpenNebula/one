@@ -822,7 +822,7 @@ function generate_capacity_tab_content() {
       '<div class="row hypervisor only_vcenter" style="display: none;">'+
         '<div class="large-6 columns">'+
           '<label  for="vcenter_template_uuid">'+tr("vCenter Template UUID")+'\
-            <span class="tip">'+tr("")+'</span>\
+            <span class="tip"></span>\
           </label>'+
           '<input type="text" id="vcenter_template_uuid" name="name"/>'+
         '</div>'+
@@ -4818,30 +4818,6 @@ var fillTemplatePopUp = function(template, dialog){
             var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
 
             update_datatable_template_hosts(dataTable_template_hosts, function(){
-//                dataTable_template_hosts.unbind('draw');
-//
-//                var rows = dataTable_template_hosts.fnGetNodes();
-//
-//                for (var j=0;j<rows.length;j++) {
-//                    var current_row = $(rows[j]);
-//                    var row_id = $(rows[j]).find("td:eq(1)").html();
-//
-//                    var in_array = $.inArray(row_id, hosts)
-//                    if (in_array != -1) {
-//                        hosts.splice(in_array, 1);
-//                        // TBD check if all the hosts were clicked
-//                        rows[j].click();
-//                    }
-//                }
-//
-//                if (hosts.length != 0) {
-//                    var alert = '<div class="alert-box alert">'+
-//tr('The following HOSTs: [') + hosts.join(', ') + '] ' + tr(" do not exist any more") +
-//'  <a href="" class="close">&times;</a>'+
-//'</div>';
-//
-//                    $("#datatable_template_hosts_wrapper", req_section).append(alert);
-//                }
             });
         }
 
@@ -4851,30 +4827,6 @@ var fillTemplatePopUp = function(template, dialog){
             var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
 
             update_datatable_template_clusters(dataTable_template_clusters, function(){
-//               dataTable_template_clusters.unbind('draw');
-
-//               var rows = dataTable_template_clusters.fnGetNodes();
-
-//               for (var j=0;j<rows.length;j++) {
-//                   var current_row = $(rows[j]);
-//                   var row_id = $(rows[j]).find("td:eq(1)").html();
-
-//                   var in_array = $.inArray(row_id, clusters)
-//                   if (in_array != -1) {
-//                       clusters.splice(in_array, 1);
-//                       // TBD check if all the clusters were clicked
-//                       rows[j].click();
-//                   }
-//               }
-
-//               if (clusters.length != 0) {
-//                   var alert = '<div class="alert-box alert">'+
-//r('The following CLUSTERs: [') + clusters.join(', ') + '] ' + tr("do not exist any more") +
-//  <a href="" class="close">&times;</a>'+
-//</div>';
-
-//                   $("#datatable_template_clusters_wrapper", req_section).append(alert);
-//               }
             });
         }
 

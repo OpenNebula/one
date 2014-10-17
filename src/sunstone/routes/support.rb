@@ -186,6 +186,7 @@ post '/support/request/:id/action' do
 	# TODO check error
 
 	zrequest.comment = {"value" => body_hash["action"]["params"]['comment']['value']}
+	zrequest.solved = true if body_hash["action"]["params"]["solved"]
 	zrequest.save!
 
 	one_zrequest = {
@@ -195,6 +196,38 @@ post '/support/request/:id/action' do
 	[201, JSON.pretty_generate(one_zrequest)]
 end
 
+
+post '/support/request/:id/upload' do
+	check_zendesk_api_gem
+
+    tmpfile = nil
+
+    name = params[:tempfile]
+
+    if !name
+        [500, OpenNebula::Error.new("There was a problem uploading the file, " \
+                "please check the permissions on the file").to_json]
+    else
+        tmpfile = File.join(Dir.tmpdir, name)
+
+		zrequest = zendesk_client.requests.find(:id => params[:id])
+		# TODO check error
+
+		comment = ZendeskAPI::Request::Comment.new(zendesk_client, {"value" => name})
+		comment.uploads << tmpfile
+
+		zrequest.comment = comment
+		zrequest.save
+
+		one_zrequest = {
+			"REQUEST" => zrequest_to_one(zrequest)
+		}
+
+        FileUtils.rm(tmpfile)
+	
+		[201, JSON.pretty_generate(one_zrequest)]
+    end
+end
 
 post '/support/credentials' do
 	check_zendesk_api_gem

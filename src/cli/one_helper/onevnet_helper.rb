@@ -294,7 +294,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP"]||"-"
             end
 
-            column :IP6_GLOBAL, "", :size=>31 do |d|
+            column :IP6_GLOBAL, "", :donottruncate, :size=>31 do |d|
                     d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})
