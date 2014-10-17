@@ -299,7 +299,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :vnetid,
-            :options=>OpenNebulaHelper::XML do
+            :options=>[OpenNebulaHelper::XML, OneVNetHelper::SHOW_AR] do
         helper.show_resource(args[0],options)
     end
 
