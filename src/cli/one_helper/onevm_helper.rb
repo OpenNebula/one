@@ -433,6 +433,20 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
+        sg_nics = []
+
+        if (vm.has_elements?("/VM/TEMPLATE/NIC/SECURITY_GROUPS"))
+            sg_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+
+            sg_nics.each do |nic|
+                sg = nic["SECURITY_GROUPS"]
+
+                if sg.nil?
+                    next
+                end
+            end
+        end
+
         if vm.has_elements?("/VM/TEMPLATE/NIC") || vm_nics
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
@@ -531,6 +545,88 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             while vm.has_elements?("/VM/TEMPLATE/NIC")
                 vm.delete_element("/VM/TEMPLATE/NIC")
+            end if !options[:all]
+        end
+
+        while vm.has_elements?("/VM/TEMPLATE/NIC")
+            vm.delete_element("/VM/TEMPLATE/NIC")
+        end if !options[:all]
+
+        if vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE")
+            puts
+            CLIHelper.print_header(str_h1 % "SECURITY",false)
+            puts
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :NIC_ID, "", :size=>6 do |d|
+                    d["NIC_ID"]
+                end
+
+                column :NETWORK, "", :left, :size=>25 do |d|
+                    d["NETWORK"]
+                end
+
+                column :SECURITY_GROUPS, "", :left, :size=>47 do |d|
+                    d["SECURITY_GROUPS"]
+                end
+            end.show(sg_nics,{})
+
+            puts
+
+            CLIHelper.print_header(str_h1 % "SECURITY GROUP   TYPE     PROTOCOL NETWORK                       RANGE          ",false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :ID, "", :size=>4 do |d|
+                    d["SECURITY_GROUP_ID"]
+                end
+
+                column :NAME, "", :left, :size=>11 do |d|
+                    d["SECURITY_GROUP_NAME"]
+                end
+
+                column :" ", "", :left, :size=>8 do |d|
+                    d["RULE_TYPE"]
+                end
+
+                column :"  ", "", :left, :size=>8 do |d|
+                    protocol = d["PROTOCOL"]
+
+                    if(protocol.upcase == "ICMP")
+                        icmp = d["ICMP_TYPE"].nil? ? "" : "-#{d["ICMP_TYPE"]}"
+                        protocol += icmp
+                    end
+
+                    protocol
+                end
+
+                column :VNET, "", :size=>4 do |d|
+                    d["NETWORK_ID"]
+                end
+
+                column :START, "", :left, :donottruncate, :size=>17 do |d|
+                    network = ""
+
+                    if(!d["IP"].nil? && d["IP"] != "")
+                        network = d["IP"]
+                    elsif(!d["MAC"].nil? && d["MAC"] != "")
+                        network = d["MAC"]
+                    end
+
+                    network
+                end
+
+                column :SIZE, "", :left, :donottruncate, :size=>6 do |d|
+                    d["SIZE"]
+                end
+
+                column :"   ", "", :left, :donottruncate, :size=>15 do |d|
+                    d["RANGE"]
+                end
+
+            end.show([vm.to_hash['VM']['TEMPLATE']['SECURITY_GROUP_RULE']].flatten, {})
+
+            while vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE")
+                vm.delete_element("/VM/TEMPLATE/SECURITY_GROUP_RULE")
             end if !options[:all]
         end
 
