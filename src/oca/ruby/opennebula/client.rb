@@ -17,6 +17,7 @@
 require 'xmlrpc/client'
 require 'bigdecimal'
 require 'stringio'
+require 'openssl'
 
 
 module OpenNebula
@@ -135,6 +136,8 @@ module OpenNebula
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
 
+            @async = true
+
             timeout=nil
             timeout=options[:timeout] if options[:timeout]
 
@@ -143,6 +146,25 @@ module OpenNebula
 
             @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
             @server.http_header_extra = {'accept-encoding' => 'identity'}
+
+            http = @server.instance_variable_get("@http")
+
+            if options['cert_dir'] || ENV['ONE_CERT_DIR']
+                @async = false
+                cert_dir = options['cert_dir'] || ENV['ONE_CERT_DIR']
+                cert_files = Dir["#{cert_dir}/*"]
+
+                cert_store = OpenSSL::X509::Store.new
+                cert_store.set_default_paths
+                cert_files.each {|cert| cert_store.add_file(cert) }
+
+                http.cert_store = cert_store
+            end
+
+            if options['disable_ssl_verify'] || ENV['ONE_DISABLE_SSL_VERIFY']
+                @async = false
+                http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+            end
 
             if defined?(OxStreamParser)
                 @server.set_parser(OxStreamParser.new)
@@ -155,7 +177,11 @@ module OpenNebula
 
         def call(action, *args)
             begin
-                response = @server.call_async("one."+action, @one_auth, *args)
+                if @async
+                    response = @server.call_async("one."+action, @one_auth, *args)
+                else
+                    response = @server.call("one."+action, @one_auth, *args)
+                end
 
                 if response[0] == false
                     Error.new(response[1], response[2])
