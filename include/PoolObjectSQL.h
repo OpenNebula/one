@@ -693,6 +693,17 @@ protected:
     virtual void set_template_error_message(const string& name, const string& message);
 
     /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    virtual int post_update_template(string& error)
+    {
+        return 0;
+    };
+
+    /**
      *  The object's unique ID
      */
     int     oid;

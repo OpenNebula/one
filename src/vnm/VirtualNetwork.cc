@@ -221,46 +221,10 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::replace_template(
-        const string& tmpl_str, bool keep_restricted, string& error_str)
+int VirtualNetwork::post_update_template(string& error)
 {
     string new_bridge;
     bool   b_vlan;
-
-    /* ---------------------------------------------------------------------- */
-    /* Parse & Update VirtualNetwork Template                                 */
-    /* ---------------------------------------------------------------------- */
-
-    Template * new_tmpl  = new VirtualNetworkTemplate;
-
-    if ( new_tmpl == 0 )
-    {
-        error_str = "Cannot allocate a new template";
-        return -1;
-    }
-
-    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
-    {
-        delete new_tmpl;
-        return -1;
-    }
-
-    if (keep_restricted && is_reservation())
-    {
-        new_tmpl->remove_restricted();
-
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
-        }
-    }
-
-    delete obj_template;
-
-    obj_template = new_tmpl;
 
     /* ---------------------------------------------------------------------- */
     /* Update Configuration Attributes (class & template)                     */

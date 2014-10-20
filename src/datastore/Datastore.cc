@@ -581,11 +581,10 @@ int Datastore::from_xml(const string& xml)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
-int Datastore::replace_template(
-        const string& tmpl_str, bool keep_restricted, string& error_str)
+int Datastore::post_update_template(string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
@@ -596,38 +595,12 @@ int Datastore::replace_template(
     Image::DiskType new_disk_type;
 
     DatastoreType new_ds_type;
-    Template *    new_tmpl  = new DatastoreTemplate;
-
-    if ( new_tmpl == 0 )
-    {
-        error_str = "Cannot allocate a new template";
-        return -1;
-    }
-
-    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
-    {
-        delete new_tmpl;
-        return -1;
-    }
-
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
-        }
-    }
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
     /* ---------------------------------------------------------------------- */
 
-    new_tmpl->get("TYPE", s_ds_type);
+    get_template_attribute("TYPE", s_ds_type);
 
     if (!s_ds_type.empty())
     {
@@ -637,12 +610,6 @@ int Datastore::replace_template(
     {
         new_ds_type = type;
     }
-
-    /* --- Update the Datastore template --- */
-
-    delete obj_template;
-
-    obj_template = new_tmpl;
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */

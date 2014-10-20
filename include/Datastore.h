@@ -164,17 +164,6 @@ public:
             const vector<string>&   inherit_attrs);
 
     /**
-     *  Replace template for this object. Object should be updated
-     *  after calling this method
-     *    @param tmpl_str new contents
-     *    @param keep_restricted If true, the restricted attributes of the
-     *    current template will override the new template
-     *    @param error string describing the error if any
-     *    @return 0 on success
-     */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
-
-    /**
      *  Set monitor information for the Datastore
      *    @param total_mb
      *    @param free_mb
@@ -336,6 +325,14 @@ private:
     }
 
     int set_tm_mad(string &tm_mad, string &error_str);
+
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(string& error);
 };
 
 #endif /*DATASTORE_H_*/
