@@ -26,6 +26,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         :description => "ID of the address range"
     }
 
+    SHOW_AR = {
+        :name => "show_ar",
+        :large => "--show-ar",
+        :description => "Show also AR templates"
+    }
+
     MAC = {
         :name => "mac",
         :short => "-m mac",
@@ -163,6 +169,19 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         table
     end
 
+    def show_ar(vn, ar_id)
+        CLIHelper.print_header("%-80s" % ["TEMPLATE FOR AR #{ar_id}"], false)
+
+        begin
+            template = vn.template_like_str("AR_POOL/AR[AR_ID=#{ar_id}]")
+        rescue
+            STDERR.puts "Can not get template for AR #{ar_id}"
+            return
+        end
+
+        puts template
+    end
+
     private
 
     def factory(id=nil)
@@ -179,6 +198,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_resource(vn, options = {})
+        vn_hash = vn.to_hash
+
         str_h1="%-80s"
         CLIHelper.print_header(str_h1 %
             ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
@@ -217,8 +238,8 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false)
 
-        if !vn.to_hash['VNET']['AR_POOL']['AR'].nil?
-            arlist = [vn.to_hash['VNET']['AR_POOL']['AR']].flatten
+        if !vn_hash['VNET']['AR_POOL']['AR'].nil?
+            arlist = [vn_hash['VNET']['AR_POOL']['AR']].flatten
         end
 
         CLIHelper::ShowTable.new(nil, self) do
@@ -255,12 +276,16 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts
         CLIHelper.print_header(str_h1 % ["LEASES"], false)
 
-        if !vn.to_hash['VNET']['AR_POOL']['AR'].nil?
-            lease_list = [vn.to_hash['VNET']['AR_POOL']['AR']].flatten
+        ar_list = []
+
+        if !vn_hash['VNET']['AR_POOL']['AR'].nil?
+            lease_list = [vn_hash['VNET']['AR_POOL']['AR']].flatten
             leases     = Array.new
 
             lease_list.each do |ar|
                 id = ar['AR_ID']
+                ar_list << id
+
                 if ar['LEASES'] && !ar['LEASES']['LEASE'].nil?
                     lease = [ar['LEASES']['LEASE']].flatten
                     lease.each do |l|
@@ -298,5 +323,12 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})
+
+        if options[:show_ar]
+            ar_list.each do |ar_id|
+                puts
+                show_ar(vn, ar_id)
+            end
+        end
     end
 end

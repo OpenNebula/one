@@ -112,42 +112,48 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Adds an address range to the Virtual Network
     EOT
 
-    command :addar, addar_desc, :vnetid,
+    command :addar, addar_desc, :vnetid, [:file, nil],
             :options => STD_OPTIONS + OneVNetHelper::ADDAR_OPTIONS do
         helper.perform_action(args[0],options,"lease added") do |vn|
-            ar = "AR = [ "
-
-            if options[:ip]
-                if options[:ip6_global] || options[:ip6_ula]
-                    ar << "TYPE=\"IP4_6\""
-                else
-                    ar << "TYPE=\"IP4\""
-                end
+            if args[1]
+                ar = File.read(args[1])
             else
-                if options[:ip6_global] || options[:ip6_ula]
-                    ar << "TYPE=\"IP6\""
+                ar = "AR = [ "
+
+                if options[:ip]
+                    if options[:ip6_global] || options[:ip6_ula]
+                        ar << "TYPE=\"IP4_6\""
+                    else
+                        ar << "TYPE=\"IP4\""
+                    end
                 else
-                    ar << "TYPE=\"ETHER\""
+                    if options[:ip6_global] || options[:ip6_ula]
+                        ar << "TYPE=\"IP6\""
+                    else
+                        ar << "TYPE=\"ETHER\""
+                    end
                 end
+
+                if options[:size]
+                    ar << ", SIZE = " << options[:size]
+                else
+                    STDERR.puts "Address range needs to specify size (-s size)"
+                    exit -1
+                end
+
+                ar << ", IP = " << options[:ip] if options[:ip]
+                ar << ", MAC = " << options[:mac] if options[:mac]
+                ar << ", GLOBAL_PREFIX = " <<
+                      options[:ip6_global] if options[:ip6_global]
+                ar << ", ULA_PREFIX = " <<
+                      options[:ip6_ula] if options[:ip6_ula]
+                ar << ", GATEWAY = " << options[:gateway] if options[:gateway]
+                ar << ", MASK = " << options[:netmask] if options[:netmask]
+                ar << ", VLAN = YES" if options[:vlan]
+                ar << ", VLAN_ID = " << options[:vlanid] if options[:vlanid]
+
+                ar << "]"
             end
-
-            if options[:size]
-                ar << ", SIZE = " << options[:size]
-            else
-                STDERR.puts "Address range needs to specify size (-s size)"
-                exit -1
-            end
-
-            ar << ", IP = " << options[:ip] if options[:ip]
-            ar << ", MAC = " << options[:mac] if options[:mac]
-            ar << ", GLOBAL_PREFIX = " << options[:ip6_global] if options[:ip6_global]
-            ar << ", ULA_PREFIX = " << options[:ip6_ula] if options[:ip6_ula]
-            ar << ", GATEWAY = " << options[:gateway] if options[:gateway]
-            ar << ", MASK = " << options[:netmask] if options[:netmask]
-            ar << ", VLAN = YES" if options[:vlan]
-            ar << ", VLAN_ID = " << options[:vlanid] if options[:vlanid]
-
-            ar << "]"
 
             vn.add_ar(ar)
         end
@@ -299,7 +305,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :vnetid,
-            :options=>OpenNebulaHelper::XML do
+            :options=>[OpenNebulaHelper::XML, OneVNetHelper::SHOW_AR] do
         helper.show_resource(args[0],options)
     end
 
