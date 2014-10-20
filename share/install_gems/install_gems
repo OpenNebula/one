@@ -27,7 +27,7 @@ GROUPS={
     :auth_ldap  => 'net-ldap',
     :vmware     => %w{builder trollop},
     :oneflow    => %w{sinatra json treetop parse-cron},
-    :ec2_hybrid => 'aws-sdk',
+    :ec2_hybrid => 'aws-sdk --version "= 1.33"',
     :oca        => 'ox'
 }
 
