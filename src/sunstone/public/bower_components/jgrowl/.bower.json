@@ -33,7 +33,6 @@
     "commit": "96834582e66d6c9f3729b57676ef3fda8ebfe6bd"
   },
   "_source": "git://github.com/stanlemon/jGrowl.git",
-  "_target": "~1.3.0",
-  "_originalSource": "jgrowl",
-  "_direct": true
+  "_target": "*",
+  "_originalSource": "jgrowl"
 }

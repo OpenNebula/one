@@ -18,7 +18,6 @@
     "commit": "312a7570f6dfeff00d9c0ce6f6263160b84ee652"
   },
   "_source": "git://github.com/krzysu/flot.tooltip.git",
-  "_target": "~0.8.4",
-  "_originalSource": "flot.tooltip",
-  "_direct": true
+  "_target": "*",
+  "_originalSource": "flot.tooltip"
 }
