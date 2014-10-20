@@ -2110,14 +2110,14 @@ function wizard_tab_content(){
           '</dl>'+
           '<div class="tabs-content vertical" id="template_create_network_tabs_content">'+
           '</div>'+
-          //'<div class="row">'+
-          //  '<div class="large-6 columns">'+
-          //    '<label for="DEFAULT_MODEL">'+tr("Default model")+
-          //      '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
-          //    '</label>'+
-          //    '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
-          //  '</div>'+
-          //'</div>'+
+          '<div class="row">'+
+            '<div class="large-6 columns">'+
+              '<label for="DEFAULT_MODEL">'+tr("Default model")+
+                '<span class="tip">'+tr("Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif.")+'</span>'+
+              '</label>'+
+              '<input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>'+
+            '</div>'+
+          '</div>'+
         '</div>';
     }
     if (Config.isTemplateCreationTabEnabled('os_booting')){
