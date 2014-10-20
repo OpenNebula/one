@@ -594,11 +594,14 @@ int Datastore::post_update_template(string& error_str)
 
     Image::DiskType new_disk_type;
 
+    DatastoreType old_ds_type;
     DatastoreType new_ds_type;
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
     /* ---------------------------------------------------------------------- */
+
+    old_ds_type = type;
 
     get_template_attribute("TYPE", s_ds_type);
 
@@ -627,6 +630,36 @@ int Datastore::post_update_template(string& error_str)
     replace_template_attribute("TYPE", type_to_str(type));
 
     /* ---------------------------------------------------------------------- */
+    /* Set the TM_MAD of the Datastore (class & template)                     */
+    /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("TM_MAD", new_tm_mad);
+
+    if ( !new_tm_mad.empty() )
+    {
+        // System DS are monitored by the TM mad, reset information
+        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
+        {
+            update_monitor(0, 0, 0);
+        }
+
+        if (set_tm_mad(new_tm_mad, error_str) != 0)
+        {
+            replace_template_attribute("TM_MAD", tm_mad);
+
+            type = old_ds_type;
+
+            return -1;
+        }
+
+        tm_mad = new_tm_mad;
+    }
+    else
+    {
+        replace_template_attribute("TM_MAD", tm_mad);
+    }
+
+    /* ---------------------------------------------------------------------- */
     /* Set the DISK_TYPE (class & template)                                   */
     /* ---------------------------------------------------------------------- */
 
@@ -651,12 +684,11 @@ int Datastore::post_update_template(string& error_str)
         disk_type = Image::FILE;
     }
 
-    get_template_attribute("DS_MAD", new_ds_mad);
-    get_template_attribute("TM_MAD", new_tm_mad);
-
     /* ---------------------------------------------------------------------- */
     /* Set the DS_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("DS_MAD", new_ds_mad);
 
     if ( type == SYSTEM_DS )
     {
@@ -677,32 +709,6 @@ int Datastore::post_update_template(string& error_str)
             // DS are monitored by the DS mad, reset information
             update_monitor(0, 0, 0);
         }
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Set the TM_MAD of the Datastore (class & template)                     */
-    /* ---------------------------------------------------------------------- */
-
-    if ( !new_tm_mad.empty() )
-    {
-        // System DS are monitored by the TM mad, reset information
-        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
-        {
-            update_monitor(0, 0, 0);
-        }
-
-        if (set_tm_mad(new_tm_mad, error_str) != 0)
-        {
-            replace_template_attribute("TM_MAD", tm_mad);
-
-            return -1;
-        }
-
-        tm_mad = new_tm_mad;
-    }
-    else
-    {
-        replace_template_attribute("TM_MAD", tm_mad);
     }
 
     /* ---------------------------------------------------------------------- */
