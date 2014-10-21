@@ -5973,10 +5973,10 @@ function setupResourceTableSelect(section, context_id, options) {
 
     var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
 
-    $('#refresh_button_'+context_id).die();
+    $('#refresh_button_'+context_id, section).die();
 
-    $('#refresh_button_'+context_id).live('click', function(){
-        options.update_fn($('table[id=datatable_'+context_id+']').dataTable());
+    $('#refresh_button_'+context_id, section).live('click', function(){
+        options.update_fn($('table[id=datatable_'+context_id+']', section).dataTable());
     });
 
     $('#'+context_id+'_search', section).keyup(function(){
