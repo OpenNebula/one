@@ -6120,7 +6120,7 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
         var separator = "";
 
         $.each(network_attrs, function(index, vnet_attr){
-            var unique_id = "user_input_"+vnet_attr.name;
+            var unique_id = "user_input_"+( vnet_attr.name.replace(/ /g, "_") );
 
             $(".instantiate_user_inputs", div).append(
               '<div class="row">'+

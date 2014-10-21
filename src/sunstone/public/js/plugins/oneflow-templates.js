@@ -1265,7 +1265,7 @@ function initialize_create_service_template_dialog(dialog){
             $(".vm_template_contents", role_section).val("");
 
             $.each(selected_networks, function(){
-                $(".service_network_checkbox[value="+this+"]", role_section).attr('checked', true).change();
+                $(".service_network_checkbox[value='"+this+"']", role_section).attr('checked', true).change();
             });
         });
     }
@@ -1621,7 +1621,7 @@ function fillUpUpdateServiceTemplateDialog(response, dialog){
                     var reg = new RegExp("\\$"+$(this).val()+"\\b");
 
                     if(reg.exec(value.vm_template_contents) != null){
-                        $(".service_network_checkbox[value="+$(this).val()+"]", context).attr('checked', true).change();
+                        $(".service_network_checkbox[value='"+$(this).val()+"']", context).attr('checked', true).change();
                     }
                 }
             });
