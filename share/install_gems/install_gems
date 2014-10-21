@@ -234,9 +234,9 @@ def help
 end
 
 def get_gems(packages)
-    (packages.map do |package|
+    ([$nokogiri]+packages.map do |package|
         GROUPS[package.to_sym]
-    end+[$nokogiri]).flatten.uniq-installed_gems
+    end).flatten.uniq-installed_gems
 end
 
 def detect_distro
