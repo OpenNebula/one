@@ -163,7 +163,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         # authentication token for the user
         #-----------------------------------------------------------------------
         token        = auth.login_token(username, options[:time])
-        login_client = OpenNebula::Client.new("#{username}:#{token}")
+        login_client = OpenNebula::Client.new("#{username}:#{token}",
+                                              nil,
+                                              :sync => true)
 
         user = OpenNebula::User.new(User.build_xml, login_client)
 
