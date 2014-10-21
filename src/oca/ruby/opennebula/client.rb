@@ -106,6 +106,14 @@ module OpenNebula
         #   defaults to 30
         # @option params [String] :http_proxy HTTP proxy string used for
         #  connecting to the endpoint; defaults to no proxy
+        # @option params [Boolean] :sync Use only one http connection for
+        #  all calls. It should not be used for multithreaded programs.
+        #  It's the only mode that can be used with :cert_dir and
+        #  :disable_ssl_verify
+        # @option params [String] :cert_dir Extra directory where to import
+        #  trusted issuer certificates. Use with :sync = true
+        # @option params [String] :disable_ssl_verify Disable SSL certificate
+        #  verification. Use only for testing and with :sync = true
         #
         # @return [OpenNebula::Client]
         def initialize(secret=nil, endpoint=nil, options={})
@@ -136,7 +144,7 @@ module OpenNebula
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
 
-            @async = true
+            @async = !options[:sync]
 
             timeout=nil
             timeout=options[:timeout] if options[:timeout]
@@ -149,9 +157,10 @@ module OpenNebula
 
             http = @server.instance_variable_get("@http")
 
-            if options['cert_dir'] || ENV['ONE_CERT_DIR']
-                @async = false
-                cert_dir = options['cert_dir'] || ENV['ONE_CERT_DIR']
+            if options[:cert_dir] || ENV['ONE_CERT_DIR']
+                STDERR.puts "SSL options don't work in async mode" if @async
+
+                cert_dir = options[:cert_dir] || ENV['ONE_CERT_DIR']
                 cert_files = Dir["#{cert_dir}/*"]
 
                 cert_store = OpenSSL::X509::Store.new
@@ -161,8 +170,9 @@ module OpenNebula
                 http.cert_store = cert_store
             end
 
-            if options['disable_ssl_verify'] || ENV['ONE_DISABLE_SSL_VERIFY']
-                @async = false
+            if options[:disable_ssl_verify] || ENV['ONE_DISABLE_SSL_VERIFY']
+                STDERR.puts "SSL options don't work in async mode" if @async
+
                 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
             end
 
