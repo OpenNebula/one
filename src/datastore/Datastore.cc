@@ -645,8 +645,6 @@ int Datastore::post_update_template(string& error_str)
 
         if (set_tm_mad(new_tm_mad, error_str) != 0)
         {
-            replace_template_attribute("TM_MAD", tm_mad);
-
             type = old_ds_type;
 
             return -1;
