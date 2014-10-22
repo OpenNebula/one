@@ -5213,6 +5213,14 @@ function fillAccounting(div, req, response, no_table) {
             var t = times[i];
             var t_next = times[i+1];
 
+            // To stack values properly, flot needs an entry for all
+            // the time slots
+            if(serie[t] == undefined){
+                serie[t] = {};
+                serie[t].CPU_HOURS = 0;
+                serie[t].MEM_HOURS = 0;
+            }
+
             if( (history.ETIME*1000 > t || history.ETIME == 0) &&
                 (history.STIME != 0 && history.STIME*1000 <= t_next) ) {
 
@@ -5227,12 +5235,6 @@ function fillAccounting(div, req, response, no_table) {
                 }
 
                 var n_hours = (etime - stime) / 1000 / 60 / 60;
-
-                if(serie[t] == undefined){
-                    serie[t] = {};
-                    serie[t].CPU_HOURS = 0;
-                    serie[t].MEM_HOURS = 0;
-                }
 
                 // --- cpu ---
 
