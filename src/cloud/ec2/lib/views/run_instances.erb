@@ -1,6 +1,6 @@
 <RunInstancesResponse xmlns="http://ec2.amazonaws.com/doc/<%= erb_version %>/">
   <requestId><%= @request_id %></requestId>
-  <reservationId></reservationId>
+  <reservationId>default</reservationId>
   <ownerId><%= erb_user_name %></ownerId>
   <groupSet>
     <item>
@@ -11,7 +11,7 @@
     <% erb_vms.each { |vm| %>
     <item>
       <%= render_instance_id(vm) %>
-      <imageId><%= params['ImageId'] %></imageId>
+      <imageId><%= vm['USER_TEMPLATE/IMAGE_ID'] %></imageId>
       <instanceState><%= render_state(vm) %></instanceState>
       <% if vm.has_elements?("TEMPLATE/NIC/IP") %>
       <% ips_str = vm.retrieve_elements("TEMPLATE/NIC/IP").join(', ') %>
@@ -24,15 +24,18 @@
       <% else %>
       <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
       <% end %>
-      <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
-      <instanceType><%= params['InstanceType'] %></instanceType>
+      <instanceType><%= vm['USER_TEMPLATE/INSTANCE_TYPE'] %></instanceType>
       <%= render_launch_time(vm) %>
       <placement>
         <availabilityZone>default</availabilityZone>
       </placement>
+      <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
+      <kernelId>eki-EA801065</kernelId>
+      <ramdiskId>eri-1FEE1144</ramdiskId>
       <monitoring>
-        <enabled>true</enabled>
+        <state>disabled</state>
       </monitoring>
+      <clientToken><%= vm['USER_TEMPLATE/EC2_CLIENT_TOKEN'] %></clientToken>
     </item>
     <% } %>
   </instancesSet>

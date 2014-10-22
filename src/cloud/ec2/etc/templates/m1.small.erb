@@ -26,4 +26,4 @@ CONTEXT = [ EC2_USER_DATA="<%= erb_vm_info[:user_data] %>" ]
 <% elsif erb_vm_info[:public_key] %>
 CONTEXT = [ EC2_PUBLIC_KEY="<%= erb_vm_info[:public_key] %>", EC2_KEYNAME ="<%= erb_vm_info[:key_name] %>" ]
 <% end %>
- 
+
