@@ -5396,8 +5396,8 @@ function fillAccounting(div, req, response, no_table) {
                 }
             });
 
-            cpu_row[1] = cpu_total;
-            mem_row[1] = mem_total;
+            cpu_row[1] = (cpu_total * 100).toFixed() / 100;
+            mem_row[1] = (mem_total * 100).toFixed() / 100;
 
             cpu_dataTable_data.push(cpu_row);
             mem_dataTable_data.push(mem_row);
