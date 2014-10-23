@@ -1077,7 +1077,7 @@ function setup_capacity_inputs(capacity_section) {
     vcpu_slider.val(0);
 }
 
-function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
+function generate_disk_tab_content(str_disk_tab_id){
   var html = '<div class="row">'+
         '<div class="large-12 columns">'+
           '<input id="'+str_disk_tab_id+'radioImage" type="radio" name="'+str_disk_tab_id+'" value="image" checked> <label for="'+str_disk_tab_id+'radioImage">'+tr("Image")+'</label>'+
@@ -1085,45 +1085,7 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
         '</div>'+
       '</div>'+
         '<div id="disk_type" class="vm_param image">'+
-          '<div class="row collapse">'+
-            '<div class="large-8 columns">' +
-               '<button id="refresh_template_images_table_button_class'+str_disk_tab_id+'" type="button" class="refresh button small radius secondary"><i class="fa fa-refresh" /></button>' +
-            '</div>' +
-            '<div class="large-4 columns">'+
-              '<input id="'+str_disk_tab_id+'_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
-            '</div>'+
-          '</div>'+
-          '<table id="'+str_datatable_id+'" class="datatable twelve">'+
-            '<thead>'+
-              '<tr>'+
-                '<th></th>'+
-                '<th>'+tr("ID")+'</th>'+
-                '<th>'+tr("Owner")+'</th>'+
-                '<th>'+tr("Group")+'</th>'+
-                '<th>'+tr("Name")+'</th>'+
-                '<th>'+tr("Datastore")+'</th>'+
-                '<th>'+tr("Size")+'</th>'+
-                '<th>'+tr("Type")+'</th>'+
-                '<th>'+tr("Registration time")+'</th>'+
-                '<th>'+tr("Persistent")+'</th>'+
-                '<th>'+tr("Status")+'</th>'+
-                '<th>'+tr("#VMS")+'</th>'+
-                '<th>'+tr("Target")+'</th>'+
-              '</tr>'+
-            '</thead>'+
-            '<tbody id="tbodyimages">'+
-            '</tbody>'+
-          '</table>'+
-          '<br>'+
-          '<div id="selected_image" class="vm_param kvm_opt xen_opt vmware_opt">'+
-            '<span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>'+
-            '<span id="image_selected" class="radius secondary label " style="display: none;">'+tr("You selected the following image: ")+
-            '</span>'+
-            '<span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>'+
-            '<div class="alert-box alert" style="display: none;">'+
-            tr("The image you specified cannot be selected in the table") +
-            '</div>'+
-          '</div>'+
+          generateImageTableSelect(str_disk_tab_id)+
           '<br>'+
           generateAdvancedSection({
             title: tr("Advanced Options"),
@@ -1359,11 +1321,6 @@ function generate_disk_tab_content(str_disk_tab_id, str_datatable_id){
           '</div>'})+
     '</div>';
 
-    $("#refresh_template_images_table_button_class"+str_disk_tab_id).die();
-    $("#refresh_template_images_table_button_class"+str_disk_tab_id).live('click', function(){
-        update_datatable_template_images($('table[id='+str_datatable_id+']').dataTable());
-    });
-
     return html;
 }
 
@@ -1411,28 +1368,6 @@ function update_datatable_template_clusters(datatable, fnDrawCallback) {
   });
 }
 
-function update_datatable_template_images(datatable, fnDrawCallback) {
-    if (fnDrawCallback) {
-        datatable.unbind('draw');
-        datatable.on('draw', fnDrawCallback);
-    }
-
-    OpenNebula.Image.list({
-        timeout: true,
-        success: function (request, images_list){
-            var image_list_array = [];
-
-            $.each(images_list,function(){
-              var image_element_array = imageElementArray(this);
-              if (image_element_array)
-                    image_list_array.push(image_element_array);
-            });
-
-            updateView(image_list_array, datatable);
-        }
-    });
-}
-
 function update_datatable_template_files(datatable, fnDrawCallback) {
     if (fnDrawCallback) {
         datatable.unbind('draw');
@@ -1455,7 +1390,7 @@ function update_datatable_template_files(datatable, fnDrawCallback) {
     });
 }
 
-function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id) {
+function setup_disk_tab_content(disk_section, str_disk_tab_id) {
           // Select Image or Volatile disk. The div is hidden depending on the selection, and the
     // vm_param class is included to be computed when the template is generated.
     $("input[name='"+str_disk_tab_id+"']", disk_section).change(function(){
@@ -1569,60 +1504,21 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
         }
     });
 
-    var dataTable_template_images = $('#'+str_datatable_id, disk_section).dataTable({
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [0,2,3,6,9,8,12]}
-        ],
-        "bSortClasses" : false,
-        "bDeferRender": true,
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            var datatable = this;
-            $.each(nodes, function(){
-                var data = datatable.fnGetData(this);
-                if (data[1] == $('#IMAGE_ID', disk_section).val() ||
-                     (data[4] == $('#IMAGE', disk_section).val() && data[2] == $('#IMAGE_UNAME', disk_section).val()) ) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
-    });
+    var opts = {
+        select_callback: function(aData, options){
+            // If the image is selected by Id, avoid overwriting it with name+uname
+            if( $('#IMAGE_ID', disk_section).val() != aData[options.id_index] ){
+                $('#IMAGE_ID', disk_section).val("");
+                $('#IMAGE', disk_section).val( aData[options.name_index] );
+                $('#IMAGE_UNAME', disk_section).val( aData[options.uname_index] );
+                $('#IMAGE_UID', disk_section).val("");
+            }
+        }
+    }
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_images(dataTable_template_images);
+    setupImageTableSelect(disk_section, str_disk_tab_id, opts);
 
-    $('#'+str_disk_tab_id+'_search', disk_section).keyup(function(){
-      dataTable_template_images.fnFilter( $(this).val() );
-    })
-
-    dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-    $('#'+str_datatable_id + '  tbody', disk_section).delegate("tr", "click", function(e){
-        dataTable_template_images.unbind("draw");
-        var aData = dataTable_template_images.fnGetData(this);
-
-        $("td.markrow", disk_section).removeClass('markrow');
-        $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
-
-        $('#image_selected', disk_section).show();
-        $('#select_image', disk_section).hide();
-        $('.alert-box', disk_section).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#IMAGE_NAME', disk_section).text(aData[4]);
-        $('#IMAGE_ID', disk_section).val("");
-        $('#IMAGE', disk_section).val(aData[4]);
-        $('#IMAGE_UNAME', disk_section).val(aData[2]);
-        $('#IMAGE_UID', disk_section).val("");
-        return true;
-    });
+    refreshImageTableSelect(disk_section, str_disk_tab_id);
 
     setupTips(disk_section);
 }
@@ -2996,11 +2892,10 @@ function setup_storage_tab_content(storage_section) {
 
 function add_disk_tab(disk_id, dialog) {
     var str_disk_tab_id  = 'disk' + disk_id;
-    var str_datatable_id = 'datatable_template_images' + disk_id;
 
     // Append the new div containing the tab and add the tab to the list
     var html_tab_content = '<div id="'+str_disk_tab_id+'Tab" class="disk wizard_internal_tab content">'+
-      generate_disk_tab_content(str_disk_tab_id, str_datatable_id) +
+      generate_disk_tab_content(str_disk_tab_id) +
     '</div>'
     $(html_tab_content).appendTo($("#template_create_storage_tabs_content", dialog));
 
@@ -3015,7 +2910,7 @@ function add_disk_tab(disk_id, dialog) {
     $("a", a).trigger("click");
 
     var disk_section = $('#' +str_disk_tab_id+'Tab', dialog);
-    setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
+    setup_disk_tab_content(disk_section, str_disk_tab_id)
 }
 
 /**************************************************************************
@@ -4185,36 +4080,26 @@ var fillTemplatePopUp = function(template, dialog){
             var disk_image_id = disk.IMAGE_ID
             var disk_image = disk.IMAGE
             var disk_image_uname = disk.IMAGE_UNAME
-            // TODO updateView should not be required. Currently the dataTable
-            //  is filled twice.
-            update_datatable_template_images(dataTable_template_images, function(){
-                //dataTable_template_images.unbind('draw');
+            var disk_image_uid = disk.IMAGE_UID
 
-                if (disk_image_id || (disk_image && disk_image_uname)) {
-                    var clicked = false
-                    var data = dataTable_template_images.fnGetData();
-                    $.each(data, function(){
-                        if (this[1] == disk_image_id || (this[2] == disk_image_uname && this[4] == disk_image)) {
-                            clicked = true;
-                            $(".alert-box", disk_section).hide();
-                            $('#image_selected', disk_section).show();
-                            $('#select_image', disk_section).hide();
-                            $('#IMAGE_NAME', disk_section).text(this[4]);
-                            if(disk_image_id) $('#IMAGE_ID', disk_section).val(this[1]);
-                            if(disk_image_uname) $('#IMAGE_UNAME', disk_section).val(this[2]);
-                            if(disk_image) $('#IMAGE', disk_section).val(this[4]);
-                        }
-                    })
+            $('#IMAGE_ID',      disk_section).val( disk_image_id );
+            $('#IMAGE',         disk_section).val( disk_image );
+            $('#IMAGE_UNAME',   disk_section).val( disk_image_uname );
+            $('#IMAGE_UID',     disk_section).val( disk_image_uid );
 
-                    if (!clicked) {
-                        $(".alert-box", disk_section).show();
-                    }
-                } else {
-                    $(".alert-box", disk_section).show();
+            if (disk_image_id != undefined){
+                var opts = {
+                    ids : disk_image_id
                 }
 
-            })
+                selectImageTableSelect(disk_section, str_disk_tab_id, opts);
+            } else if (disk_image != undefined && disk_image_uname != undefined){
+                var opts = {
+                    names : {name: disk_image, uname: disk_image_uname}
+                }
 
+                selectImageTableSelect(disk_section, str_disk_tab_id, opts);
+            }
         }
         else {
             $('input#'+str_disk_tab_id+'radioVolatile', disk_section).click();
