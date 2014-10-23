@@ -5581,7 +5581,7 @@ function generateVNetTableSelect(context_id){
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
 function setupVNetTableSelect(section, context_id, opts){
 
@@ -5690,7 +5690,7 @@ function generateTemplateTableSelect(context_id){
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
 function setupTemplateTableSelect(section, context_id, opts){
 
@@ -5788,7 +5788,7 @@ function generateHostTableSelect(context_id){
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
 function setupHostTableSelect(section, context_id, opts){
 
@@ -5885,7 +5885,7 @@ function generateDatastoreTableSelect(context_id){
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
 function setupDatastoreTableSelect(section, context_id, opts){
 
@@ -5953,6 +5953,123 @@ function setupDatastoreTableSelect(section, context_id, opts){
     };
 
     return setupResourceTableSelect(section, context_id, options);
+}
+
+
+function generateImageTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Datastore"),
+        tr("Size"),
+        tr("Type"),
+        tr("Registration time"),
+        tr("Persistent"),
+        tr("Status"),
+        tr("#VMS"),
+        tr("Target")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+        "select_resource": tr("Please select an image from the list"),
+        "you_selected": tr("You selected the following image:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+function setupImageTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('images-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0,1] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Image.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.IMAGE);
+                        }
+
+                        if(add){
+                            list_array.push(imageElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshImageTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveImageTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectImageTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
 }
 
 function generateResourceTableSelect(context_id, columns, options){
