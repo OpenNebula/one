@@ -6032,9 +6032,14 @@ function setupImageTableSelect(section, context_id, opts){
                     var list_array = [];
 
                     $.each(resource_list,function(){
-                        var add = true;
+                        var image = this.IMAGE;
 
-                        if(opts.filter_fn){
+                        // KERNEL || RAMDISK || CONTEXT
+                        var add = ( image.TYPE != "3" &&
+                                    image.TYPE != "4" &&
+                                    image.TYPE != "5" )
+
+                        if(add && opts.filter_fn){
                             add = opts.filter_fn(this.IMAGE);
                         }
 
