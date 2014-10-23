@@ -5645,6 +5645,16 @@ function setupVNetTableSelect(section, context_id, opts){
     return setupResourceTableSelect(section, context_id, options);
 }
 
+// Clicks the refresh button
+function refreshVNetTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveVNetTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
 function generateTemplateTableSelect(context_id){
 
     var columns = [
@@ -5960,9 +5970,11 @@ function generateResourceTableSelect(context_id, columns, options){
       </div>\
     </div>\
     <div class="row">\
-      <div class="large-12 columns">\
+      <div class="large-12 columns" id="selected_ids_row_'+context_id+'">\
         <span id="select_resource_'+context_id+'" class="radius secondary label">'+options.select_resource+'</span>\
         <span id="selected_resource_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected+'</span>\
+        <span id="select_resource_multiple_'+context_id+'" class="radius secondary label" style="display: none;">'+options.select_resource_multiple+'</span>\
+        <span id="selected_resource_multiple_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected_multiple+'</span>\
         <input id="selected_resource_id_'+context_id+'" type="text"/>\
         <span id="selected_resource_name_'+context_id+'" class="radius label" type="text"></span>\
       </div>\
@@ -5981,6 +5993,23 @@ function setupResourceTableSelect(section, context_id, options) {
         options.name_index = 1;
     }
 
+    if (options.dataTable_options == undefined){
+        options.dataTable_options = {};
+    }
+
+    if(options.multiple_choice){
+        options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            var row_id = aData[options.id_index];
+
+            var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+            if ( ids[row_id] ){
+                $("td", nRow).addClass('markrowchecked');
+                $('input.check_item', this).attr('checked','checked');
+            }
+        };
+    }
+
     var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
 
     $('#refresh_button_'+context_id, section).die();
@@ -5995,37 +6024,116 @@ function setupResourceTableSelect(section, context_id, options) {
 
     dataTable_select.fnSort( [ [options.id_index, config['user_config']['table_order']] ] );
 
+    if (options.read_only){
+        $('#selected_ids_row_'+context_id, section).hide();
+    } else if(options.multiple_choice){
+        $('#selected_resource_'+context_id, section).hide();
+        $('#select_resource_'+context_id, section).hide();
+
+        $('#selected_resource_multiple_'+context_id, section).hide();
+        $('#select_resource_multiple_'+context_id, section).show();
+    }
+
     $('#selected_resource_id_'+context_id, section).hide();
     $('#selected_resource_name_'+context_id, section).hide();
 
-    $('#datatable_'+context_id+' tbody', section).delegate("tr", "click", function(e){
-        dataTable_select.unbind("draw");
-        var aData = dataTable_select.fnGetData(this);
+    $('#selected_ids_row_'+context_id, section).data("options", options);
 
-        $("td.markrow", dataTable_select).removeClass('markrow');
-        $('tbody input.check_item', dataTable_select).removeAttr('checked');
+    if(options.read_only){
 
-        $('#selected_resource_'+context_id, section).show();
-        $('#select_resource_'+context_id, section).hide();
-        $('.alert-box', section).hide();
+    } else if(options.multiple_choice){
+        $('#selected_ids_row_'+context_id, section).data("ids", {});
 
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
+        function row_click(row){
+            dataTable_select.unbind("draw");
+            var aData = dataTable_select.fnGetData(row);
 
-        $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]).change();
-        $('#selected_resource_id_'+context_id, section).hide();
+            var row_id = aData[options.id_index];
+            var row_name = aData[options.name_index];
 
-        $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
-        $('#selected_resource_name_'+context_id, section).show();
+            var ids = $('#selected_ids_row_'+context_id, section).data("ids");
 
-        return true;
-    });
+            if( ids[row_id] ){
+                delete ids[row_id];
+
+                $("td", row).removeClass('markrowchecked');
+                $('input.check_item', row).removeAttr('checked');
+
+                $('#selected_ids_row_'+context_id+' span[row_id="'+row_id+'"]', section).remove();
+            } else {
+                ids[row_id] = true;
+
+                $("td", row).addClass('markrowchecked');
+                $('input.check_item', row).attr('checked','checked');
+
+                $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+            }
+
+            if ($.isEmptyObject(ids)){
+                $('#selected_resource_multiple_'+context_id, section).hide();
+                $('#select_resource_multiple_'+context_id, section).show();
+            } else {
+                $('#selected_resource_multiple_'+context_id, section).show();
+                $('#select_resource_multiple_'+context_id, section).hide();
+            }
+           
+            $('.alert-box', section).hide();
+
+            return true;
+        };
+
+        $('#datatable_'+context_id+' tbody', section).on("click", "tr", function(e){
+            row_click(this);
+        });
+
+        $(section).on("click", '#selected_ids_row_'+context_id+' span.fa.fa-times', function() {
+            var row_id = $(this).parent("span").attr('row_id');
+
+            // TODO: improve preformance, linear search
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_click(dataTable_select.fnGetNodes(index));
+                    return false;
+                }
+            });
+
+        });
+    }
+    else{
+        $('#datatable_'+context_id+' tbody', section).delegate("tr", "click", function(e){
+            dataTable_select.unbind("draw");
+            var aData = dataTable_select.fnGetData(this);
+
+            $("td.markrow", dataTable_select).removeClass('markrow');
+            $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+            $('#selected_resource_'+context_id, section).show();
+            $('#select_resource_'+context_id, section).hide();
+            $('.alert-box', section).hide();
+
+            $("td", this).addClass('markrow');
+            $('input.check_item', this).attr('checked','checked');
+
+            $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]).change();
+            $('#selected_resource_id_'+context_id, section).hide();
+
+            $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
+            $('#selected_resource_name_'+context_id, section).show();
+
+            return true;
+        });
+    }
 
     setupTips(section);
 }
 
 function resetResourceTableSelect(section, context_id, options) {
-    var dataTable_select = $('#datatable_'+context_id, section)
+
+    // TODO: do for multiple_choice
+
+    // TODO: works for more than one page?
+
+    var dataTable_select = $('#datatable_'+context_id, section);
 
     $("td.markrow", dataTable_select).removeClass('markrow');
     $('tbody input.check_item', dataTable_select).removeAttr('checked');
@@ -6038,6 +6146,80 @@ function resetResourceTableSelect(section, context_id, options) {
 
     $('#selected_resource_'+context_id, section).hide();
     $('#select_resource_'+context_id, section).show();
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveResourceTableSelect(section, context_id){
+    var options = $('#selected_ids_row_'+context_id, section).data("options");
+
+    if(options.multiple_choice){
+        var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+        var arr = [];
+
+        $.each(ids, function(key, val){
+            arr.push(key);
+        });
+
+        return arr;
+    } else {
+        return $('#selected_resource_id_'+context_id, section).val();
+    }
+}
+
+// Clicks the refresh button
+function refreshResourceTableSelect(section, context_id){
+    $('#refresh_button_'+context_id, section).click();
+}
+
+function selectResourceTableSelect(section, context_id, ids){
+    var options = $('#selected_ids_row_'+context_id, section).data("options");
+
+    if(options.multiple_choice){
+        var data_ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+        data_ids = {};
+
+        $('#selected_ids_row_'+context_id+' span[row_id]', section).remove();
+
+        var dataTable_select = $('#datatable_'+context_id, section).dataTable();
+
+        $.each(ids, function(index, row_id){
+            if(isNaN(row_id)){
+                return true;
+            }
+
+            data_ids[row_id] = true;
+
+            var row_name = ""+row_id;
+
+            // TODO: improve preformance, linear search. Needed to get the
+            // name of the resource in the label. If function getName() was
+            // indexed in the cache, it could be used here
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_name = row[options.name_index];
+                    return false;
+                }
+            });
+
+            $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+        });
+
+        $('#selected_ids_row_'+context_id, section).data("ids", data_ids);
+
+        if ($.isEmptyObject(data_ids)){
+            $('#selected_resource_multiple_'+context_id, section).hide();
+            $('#select_resource_multiple_'+context_id, section).show();
+        } else {
+            $('#selected_resource_multiple_'+context_id, section).show();
+            $('#select_resource_multiple_'+context_id, section).hide();
+        }
+
+        $('.alert-box', section).hide();
+    }
+
+    refreshResourceTableSelect(section, context_id);
 }
 
 //==============================================================================
