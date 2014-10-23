@@ -1455,29 +1455,6 @@ function update_datatable_template_files(datatable, fnDrawCallback) {
     });
 }
 
-function update_datatable_template_networks(datatable, fnDrawCallback) {
-    if (fnDrawCallback) {
-        datatable.unbind('draw');
-        datatable.on('draw', fnDrawCallback);
-    }
-
-    OpenNebula.Network.list({
-      timeout: true,
-      success: function (request, networks_list){
-          var network_list_array = [];
-
-          $.each(networks_list,function(){
-             network_list_array.push(vNetworkElementArray(this));
-          });
-
-          updateView(network_list_array, datatable);
-      },
-      error: onError
-    });
-}
-
-
-
 function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id) {
           // Select Image or Volatile disk. The div is hidden depending on the selection, and the
     // vm_param class is included to be computed when the template is generated.
@@ -1651,47 +1628,9 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id, str_datatable_id)
 }
 
 
-function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
+function generate_nic_tab_content(str_nic_tab_id){
   var html = '<div class="row">'+
-    '<div class="large-8 columns">' +
-       '<button id="refresh_template_nic_table_button_class'+str_nic_tab_id+'" type="button" class="button small radius secondary refresh"><i class="fa fa-refresh" /></button>' +
-    '</div>' +
-    '<div class="large-4 columns">'+
-      '<input id="'+str_nic_tab_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-12 columns">'+
-      '<table id="'+str_datatable_id+'" class="datatable twelve">'+
-        '<thead>'+
-          '<tr>'+
-            '<th></th>'+
-            '<th>'+tr("ID")+'</th>'+
-            '<th>'+tr("Owner")+'</th>'+
-            '<th>'+tr("Group")+'</th>'+
-            '<th>'+tr("Name")+'</th>'+
-            '<th>'+tr("Reservation")+'</th>'+
-            '<th>'+tr("Cluster")+'</th>'+
-            '<th>'+tr("Bridge")+'</th>'+
-            '<th>'+tr("Leases")+'</th>'+
-            '<th>'+tr("VLAN ID")+'</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody id="tbodynetworks">'+
-        '</tbody>'+
-      '</table>'+
-      '</div>'+
-    '</div>'+
-    '<div id="selected_network" class="vm_param kvm_opt xen_opt vmware_opt row">'+
-      '<div class="large-12 columns">'+
-        '<span id="select_network" class="radius secondary label">'+tr("Please select a network from the list")+'</span>'+
-        '<span id="network_selected" class="radius secondary label" style="display: none;">'+tr("You selected the following network:")+'</span>'+
-        '<span class="radius label" type="text" id="NETWORK_NAME" name="network"></span>'+
-        '<div class="alert-box alert"  style="display: none;">'+
-          tr("The network you specified cannot be selected in the table") +
-        '</div>'+
-      '</div>'+
-    '</div>'+
+    generateVNetTableSelect(str_nic_tab_id)+
     '<br>'+
     generateAdvancedSection({
       title: tr("Advanced Options"),
@@ -1788,12 +1727,6 @@ function generate_nic_tab_content(str_nic_tab_id, str_datatable_id){
         '</div>'+
       '</fieldset>'});
 
-    $("#refresh_template_nic_table_button_class"+str_nic_tab_id).die();
-
-    $("#refresh_template_nic_table_button_class"+str_nic_tab_id).live('click', function(){
-        update_datatable_template_networks($('table[id='+str_datatable_id+']').dataTable());
-    });
-
     return html;
 }
 
@@ -1850,62 +1783,23 @@ function fill_nic_tab_data(template_json, context){
     }
 }
 
-function setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id) {
-    var dataTable_template_networks = $('#'+str_datatable_id, nic_section).dataTable({
-      "bAutoWidth":false,
-      "iDisplayLength": 4,
-      "sDom" : '<"H">t<"F"p>',
-      "bRetrieve": true,
-      "bSortClasses" : false,
-      "bDeferRender": true,
-      "aoColumnDefs": [
-          { "sWidth": "35px", "aTargets": [0,1] },
-          { "bVisible": false, "aTargets": [0,7]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var datatable = this;
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                var data = datatable.fnGetData(this);
-                if (data[1] == $('#NETWORK_ID', nic_section).val() ||
-                     (data[4] == $('#NETWORK', nic_section).val() && data[2] == $('#NETWORK_UNAME', nic_section).val()) ) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
-    });
+function setup_nic_tab_content(nic_section, str_nic_tab_id) {
 
-    // Retrieve the networks to fill the datatable
-    update_datatable_template_networks(dataTable_template_networks);
+    var opts = {
+        select_callback: function(aData, options){
+            // If the net is selected by Id, avoid overwriting it with name+uname
+            if( $('#NETWORK_ID', nic_section).val() != aData[options.id_index] ){
+                $('#NETWORK_ID', nic_section).val("");
+                $('#NETWORK', nic_section).val( aData[options.name_index] );
+                $('#NETWORK_UNAME', nic_section).val( aData[options.uname_index] );
+                $('#NETWORK_UID', nic_section).val("");
+            }
+        }
+    }
 
-    $('#'+str_nic_tab_id+'_search', nic_section).keyup(function(){
-      dataTable_template_networks.fnFilter( $(this).val() );
-    })
+    setupVNetTableSelect(nic_section, str_nic_tab_id, opts);
 
-    dataTable_template_networks.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-    $('#'+str_datatable_id + '  tbody', nic_section).delegate("tr", "click", function(e){
-        dataTable_template_networks.unbind("draw");
-        var aData = dataTable_template_networks.fnGetData(this);
-
-        $("td.markrow", nic_section).removeClass('markrow');
-        $('tbody input.check_item', dataTable_template_networks).removeAttr('checked');
-
-        $('#image_selected', nic_section).show();
-        $('#select_image', nic_section).hide();
-        $('.alert-box', nic_section).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#NETWORK_NAME', nic_section).text(aData[4]);
-        $('#NETWORK_ID', nic_section).val("");
-        $('#NETWORK', nic_section).val(aData[4]);
-        $('#NETWORK_UNAME', nic_section).val(aData[2]);
-        $('#NETWORK_UID', nic_section).val("");
-        return true;
-    });
+    refreshVNetTableSelect(nic_section, str_nic_tab_id);
 
     setupTips(nic_section);
 }
@@ -3159,10 +3053,9 @@ function setup_network_tab_content(network_section) {
 
 function add_nic_tab(nic_id, dialog) {
   var str_nic_tab_id  = 'nic' + nic_id;
-  var str_datatable_id = 'datatable_template_networks' + nic_id;
 
   var html_tab_content = '<div id="'+str_nic_tab_id+'Tab" class="nic wizard_internal_tab content">'+
-      generate_nic_tab_content(str_nic_tab_id, str_datatable_id) +
+      generate_nic_tab_content(str_nic_tab_id) +
     '</div>'
 
   // Append the new div containing the tab and add the tab to the list
@@ -3177,7 +3070,7 @@ function add_nic_tab(nic_id, dialog) {
   $("a", a).trigger("click");
 
   var nic_section = $('#' + str_nic_tab_id + 'Tab', dialog);
-  setup_nic_tab_content(nic_section, str_nic_tab_id, str_datatable_id)
+  setup_nic_tab_content(nic_section, str_nic_tab_id);
 }
 
 /**************************************************************************
@@ -4370,33 +4263,26 @@ var fillTemplatePopUp = function(template, dialog){
         var nic_network_id = nic.NETWORK_ID
         var nic_network = nic.NETWORK
         var nic_network_uname = nic.NETWORK_UNAME
-        // TODO updateView should not be required. Currently the dataTable
-        //  is filled twice.
-        update_datatable_template_networks(dataTable_template_networks, function(){
+        var nic_network_uid = nic.NETWORK_UID
 
-            if (nic_network_id || (nic_network && nic_network_uname)) {
-                var clicked = false
-                var data = dataTable_template_networks.fnGetData();
-                $.each(data, function(){
-                    if (this[1] == nic_network_id || (this[4] == nic_network && this[2] == nic_network_uname)) {
-                        clicked = true;
-                        $('.alert-box', nic_section).hide();
-                        $('#network_selected', nic_section).show();
-                        $('#select_network', nic_section).hide();
-                        $('#NETWORK_NAME', nic_section).text(this[4]);
-                        if (nic_network_id) $('#NETWORK_ID', nic_section).val(this[1]);
-                        if (nic_network) $('#NETWORK', nic_section).val(this[4]);
-                        if (nic_network_uname) $('#NETWORK_UNAME', nic_section).val(this[2]);
-                    }
-                })
+        $('#NETWORK_ID', nic_section).val( nic_network_id );
+        $('#NETWORK', nic_section).val( nic_network );
+        $('#NETWORK_UNAME', nic_section).val( nic_network_uname );
+        $('#NETWORK_UID', nic_section).val( nic_network_uid );
 
-                if (!clicked) {
-                    $('.alert-box', nic_section).show();
-                }
-            } else {
-                $('.alert-box', nic_section).show();
+        if (nic_network_id != undefined){
+            var opts = {
+                ids : nic_network_id
             }
-        })
+
+            selectVNetTableSelect(nic_section, str_nic_tab_id, opts);
+        } else if (nic_network != undefined && nic_network_uname != undefined){
+            var opts = {
+                names : {name: nic_network, uname: nic_network_uname}
+            }
+
+            selectVNetTableSelect(nic_section, str_nic_tab_id, opts);
+        }
 
         autoFillInputs(nic, nic_section);
 
