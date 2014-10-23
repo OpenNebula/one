@@ -5572,6 +5572,7 @@ function generateVNetTableSelect(context_id){
     var options = {
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
         "select_resource": tr("Please select a network from the list"),
         "you_selected": tr("You selected the following network:")
     };
@@ -5581,6 +5582,7 @@ function generateVNetTableSelect(context_id){
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which vnets to show
+// opts.select_callback(aData, options): function called after a row is selected
 function setupVNetTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5616,6 +5618,7 @@ function setupVNetTableSelect(section, context_id, opts){
 
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
 
         "update_fn": function(datatable){
             OpenNebula.Network.list({
@@ -5639,7 +5642,9 @@ function setupVNetTableSelect(section, context_id, opts){
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
@@ -5653,6 +5658,13 @@ function refreshVNetTableSelect(section, context_id){
 // Returns an ID, or an array of IDs for opts.multiple_choice
 function retrieveVNetTableSelect(section, context_id){
     return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectVNetTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
 }
 
 function generateTemplateTableSelect(context_id){
@@ -5669,6 +5681,7 @@ function generateTemplateTableSelect(context_id){
     var options = {
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
         "select_resource": tr("Please select a template from the list"),
         "you_selected": tr("You selected the following template:")
     };
@@ -5678,6 +5691,7 @@ function generateTemplateTableSelect(context_id){
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which vnets to show
+// opts.select_callback(aData, options): function called after a row is selected
 function setupTemplateTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5713,6 +5727,7 @@ function setupTemplateTableSelect(section, context_id, opts){
 
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
 
         "update_fn": function(datatable){
             OpenNebula.Template.list({
@@ -5736,7 +5751,9 @@ function setupTemplateTableSelect(section, context_id, opts){
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
@@ -5772,6 +5789,7 @@ function generateHostTableSelect(context_id){
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which vnets to show
+// opts.select_callback(aData, options): function called after a row is selected
 function setupHostTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5830,7 +5848,9 @@ function setupHostTableSelect(section, context_id, opts){
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
@@ -5856,6 +5876,7 @@ function generateDatastoreTableSelect(context_id){
     var options = {
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
         "select_resource": tr("Please select a datastore from the list"),
         "you_selected": tr("You selected the following datastore:")
     };
@@ -5865,6 +5886,7 @@ function generateDatastoreTableSelect(context_id){
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which vnets to show
+// opts.select_callback(aData, options): function called after a row is selected
 function setupDatastoreTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5901,6 +5923,7 @@ function setupDatastoreTableSelect(section, context_id, opts){
 
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
 
         "update_fn": function(datatable){
             OpenNebula.Datastore.list({
@@ -5924,7 +5947,9 @@ function setupDatastoreTableSelect(section, context_id, opts){
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
@@ -5997,6 +6022,10 @@ function setupResourceTableSelect(section, context_id, options) {
         options.dataTable_options = {};
     }
 
+    if (options.select_callback == undefined){
+        options.select_callback = function(aData, options){};
+    }
+
     if(options.multiple_choice){
         options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             var row_id = aData[options.id_index];
@@ -6006,6 +6035,23 @@ function setupResourceTableSelect(section, context_id, options) {
             if ( ids[row_id] ){
                 $("td", nRow).addClass('markrowchecked');
                 $('input.check_item', this).attr('checked','checked');
+            } else {
+                $("td", nRow).removeClass('markrowchecked');
+                $('input.check_item', this).removeAttr('checked');
+            }
+        };
+    } else {
+        options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            var row_id = aData[options.id_index];
+
+            var selected_id = $('#selected_resource_id_'+context_id, section).val();
+
+            if ( row_id == selected_id ){
+                $("td", nRow).addClass('markrow');
+                $('input.check_item', this).attr('checked','checked');
+            } else {
+                $("td", nRow).removeClass('markrow');
+                $('input.check_item', this).removeAttr('checked');
             }
         };
     }
@@ -6067,6 +6113,8 @@ function setupResourceTableSelect(section, context_id, options) {
                 $('input.check_item', row).attr('checked','checked');
 
                 $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+
+                options.select_callback(aData, options);
             }
 
             if ($.isEmptyObject(ids)){
@@ -6120,6 +6168,8 @@ function setupResourceTableSelect(section, context_id, options) {
             $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
             $('#selected_resource_name_'+context_id, section).show();
 
+            options.select_callback(aData, options);
+
             return true;
         });
     }
@@ -6172,7 +6222,7 @@ function refreshResourceTableSelect(section, context_id){
     $('#refresh_button_'+context_id, section).click();
 }
 
-function selectResourceTableSelect(section, context_id, ids){
+function selectResourceTableSelect(section, context_id, opts){
     var options = $('#selected_ids_row_'+context_id, section).data("options");
 
     if(options.multiple_choice){
@@ -6184,7 +6234,13 @@ function selectResourceTableSelect(section, context_id, ids){
 
         var dataTable_select = $('#datatable_'+context_id, section).dataTable();
 
-        $.each(ids, function(index, row_id){
+        if (opts.ids == undefined){
+            opts.ids = [];
+        }
+
+        // TODO: {name, uname} support for multiple_choice
+
+        $.each(opts.ids, function(index, row_id){
             if(isNaN(row_id)){
                 return true;
             }
@@ -6217,6 +6273,56 @@ function selectResourceTableSelect(section, context_id, ids){
         }
 
         $('.alert-box', section).hide();
+    } else {
+        var dataTable_select = $('#datatable_'+context_id, section).dataTable();
+
+        $("td.markrow", dataTable_select).removeClass('markrow');
+        $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+        $('#selected_resource_'+context_id, section).show();
+        $('#select_resource_'+context_id, section).hide();
+        $('.alert-box', section).hide();
+
+        var row_id = undefined;
+        var row_name = "";
+
+        if (opts.ids != undefined){
+
+            row_id = opts.ids;
+
+            row_name = ""+row_id;
+
+            // TODO: improve preformance, linear search. Needed to get the
+            // name of the resource in the label. If function getName() was
+            // indexed in the cache, it could be used here
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_name = row[options.name_index];
+                    return false;
+                }
+            });
+        } else if (opts.names != undefined){
+            row_name = opts.names.name;
+            var row_uname = opts.names.uname;
+
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.name_index] == row_name &&
+                   row[options.uname_index] == row_uname){
+
+                    row_id = row[options.id_index];
+                    return false;
+                }
+            });
+        }
+
+//        $("td", this).addClass('markrow');
+//        $('input.check_item', this).attr('checked','checked');
+
+        $('#selected_resource_id_'+context_id, section).val( row_id ).change();
+        $('#selected_resource_id_'+context_id, section).hide();
+
+        $('#selected_resource_name_'+context_id, section).text( row_name ).change();
+        $('#selected_resource_name_'+context_id, section).show();
     }
 
     refreshResourceTableSelect(section, context_id);
