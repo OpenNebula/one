@@ -1149,7 +1149,7 @@ function updateVMachinesView(request, vmachine_list){
       tr("REAL CPU USAGE"),
       "40px",
       "14px",
-      {"percentage": usage, "str": (total_real_cpu + " / " + total_allocated_cpu/100)})
+      {"percentage": usage, "str": (total_real_cpu + " / " + total_allocated_cpu)})
     );
 
     usage = 0;
