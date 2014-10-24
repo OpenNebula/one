@@ -6565,6 +6565,8 @@ function selectResourceTableSelect(section, context_id, opts){
         }
 
         $('.alert-box', section).hide();
+
+        dataTable_select.fnDraw();
     } else {
         var dataTable_select = $('#datatable_'+context_id, section).dataTable();
 
