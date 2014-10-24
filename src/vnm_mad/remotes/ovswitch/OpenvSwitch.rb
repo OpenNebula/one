@@ -55,7 +55,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
             end
 
             # Prevent ARP Cache Poisoning
-            arp_cache_poisoning if CONF[:arp_cache_poisoning]
+            arp_cache_poisoning if CONF[:arp_cache_poisoning] && @nic[:ip]
 
             # Prevent Mac-spoofing
             mac_spoofing
