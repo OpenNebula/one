@@ -6426,9 +6426,9 @@ function retrieveSecurityGroupTableSelect(section, context_id){
 }
 
 // Clears the current selection, and selects the given IDs
-// ids must be a single ID, or an array of IDs for options.multiple_choice
-function selectSecurityGroupTableSelect(section, context_id, ids){
-    return selectResourceTableSelect(section, context_id, ids);
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+function selectSecurityGroupTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
 }
 
 function generateResourceTableSelect(context_id, columns, options){

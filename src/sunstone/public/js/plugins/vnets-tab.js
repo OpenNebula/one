@@ -1462,7 +1462,12 @@ function fillVNetUpdateFormPanel(vnet, dialog){
         vnet.TEMPLATE["SECURITY_GROUPS"].length != 0){
 
         var secgroups = vnet.TEMPLATE["SECURITY_GROUPS"].split(",");
-        selectSecurityGroupTableSelect($("#vnetCreateSecurityTab", dialog), "vnet_create", secgroups);
+
+        selectSecurityGroupTableSelect(
+                $("#vnetCreateSecurityTab", dialog),
+                "vnet_create",
+                { ids: secgroups });
+
     } else {
         refreshSecurityGroupTableSelect(dialog, "vnet_create");
     }
@@ -1693,7 +1698,8 @@ function fill_ar_tab_data(ar_json, ar_section){
         ar_json["SECURITY_GROUPS"].length != 0){
 
         var secgroups = ar_json["SECURITY_GROUPS"].split(",");
-        selectSecurityGroupTableSelect(ar_section, "update_ar", secgroups);
+
+        selectSecurityGroupTableSelect(ar_section, "update_ar", {ids: secgroups});
     }
 
     delete ar_json["SECURITY_GROUPS"];

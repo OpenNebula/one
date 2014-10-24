@@ -1700,7 +1700,11 @@ function fill_nic_tab_data(template_json, context){
 
         var secgroups = template_json["SECURITY_GROUPS"].split(",");
 
-        selectSecurityGroupTableSelect(context, "vm_create_nic_"+str_nic_tab_id, secgroups);
+        selectSecurityGroupTableSelect(
+            context,
+            "vm_create_nic_"+str_nic_tab_id,
+            {ids: secgroups});
+
     } else {
         refreshSecurityGroupTableSelect(context, "vm_create_nic_"+str_nic_tab_id);
     }
