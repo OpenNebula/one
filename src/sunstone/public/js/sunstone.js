@@ -5576,7 +5576,9 @@ function generateVNetTableSelect(context_id){
         "name_index": 4,
         "uname_index": 2,
         "select_resource": tr("Please select a network from the list"),
-        "you_selected": tr("You selected the following network:")
+        "you_selected": tr("You selected the following network:"),
+        "select_resource_multiple": tr("Please select one or more networks from the list"),
+        "you_selected_multiple": tr("You selected the following networks:")
     };
 
     return generateResourceTableSelect(context_id, columns, options);
@@ -5585,6 +5587,11 @@ function generateVNetTableSelect(context_id){
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
 function setupVNetTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5603,6 +5610,18 @@ function setupVNetTableSelect(section, context_id, opts){
         opts.bVisible = config;
     }
 
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -5618,6 +5637,10 @@ function setupVNetTableSelect(section, context_id, opts){
             ]
         },
 
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
         "id_index": 1,
         "name_index": 4,
         "uname_index": 2,
@@ -5628,6 +5651,8 @@ function setupVNetTableSelect(section, context_id, opts){
                 success: function (request, networks_list){
                     var network_list_array = [];
 
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
                     $.each(networks_list,function(){
                         var add = true;
 
@@ -5635,9 +5660,29 @@ function setupVNetTableSelect(section, context_id, opts){
                             add = opts.filter_fn(this.VNET);
                         }
 
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.VNET.ID]);
+                        }
+
                         if(add){
                             network_list_array.push(vNetworkElementArray(this));
+
+                            delete fixed_ids_map[this.VNET.ID];
                         }
+                    });
+
+                    var n_columns = 10; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
                     });
 
                     updateView(network_list_array, datatable);
