@@ -661,6 +661,8 @@ function updateClusterInfo(request,cluster){
     cluster_info     = cluster.CLUSTER;
     cluster_template = cluster_info.TEMPLATE;
 
+    $(".resource-info-header", $("#clusters-tab")).html(cluster_info.NAME);
+
     //Information tab
     var info_tab = {
         title : tr("Info"),

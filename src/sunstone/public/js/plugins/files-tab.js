@@ -463,6 +463,9 @@ function updateFilesView(request, files_list){
 // Callback to update the information panel tabs and pop it up
 function updateFileInfo(request,file){
     var file_info = file.IMAGE;
+
+    $(".resource-info-header", $("#files-tab")).html(file_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",

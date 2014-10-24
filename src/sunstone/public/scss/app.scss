@@ -67,27 +67,25 @@
 }
 
 .left-content {
-  padding-top: 31px;
+  padding-top: 40px;
   padding-left: 20px;
 }
 
 .left-header {
-  margin-bottom: 10px !important;
-
-  img  {
-    height: 30px;
-    width: 140px;
-  }
 }
 
 .right-content {
-  padding-top: 20px;
-  padding-left: 30px;
-  padding-right: 20px;
+  padding-top: 10px;
+  padding-left: 50px;
+  padding-right: 50px;
 }
 
 .right-info {
   margin-top: 15px;
+}
+
+#menu {
+  margin-top: 10px;
 }
 
 .log-tab {
@@ -206,7 +204,7 @@ input.search {
     .topTab {
 
         a {
-            color: #555 !important;
+            color: #333 !important;
         }
 
         margin-top: 10px;
@@ -250,8 +248,18 @@ input.search {
     }
 }
 
-.header-title {
-  margin-bottom: 20px;
+.header-row {
+  margin-bottom: 20px !important;
+  margin-top: 25px !important;
+
+  .resource-id {
+    color: #999;
+    display: none;
+  }
+
+  .resource-info-header {
+    color: #777;
+  }
 }
 
 // action block
@@ -492,7 +500,7 @@ fieldset {
 
     dd:not(.active) {
       a {
-        color: #999 !important;
+        color: #777 !important;
         background: #fff;
 
         &:hover {
@@ -1078,7 +1086,7 @@ hr {
 }
 
 #li_support-tab {
-  background: #efefef;
+  background: #f7f7f7;
   border-radius: 3px;
   padding: 5px 0px;
   margin-top: 30px;

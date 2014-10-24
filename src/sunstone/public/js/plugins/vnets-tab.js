@@ -705,6 +705,8 @@ function updateVNetworksView(request, network_list){
 function updateVNetworkInfo(request,vn){
     var vn_info = vn.VNET;
 
+    $(".resource-info-header", $("#vnets-tab")).html(vn_info.NAME);
+
     var reservation_row = '';
 
     if(vn_info.PARENT_NETWORK_ID.length > 0){

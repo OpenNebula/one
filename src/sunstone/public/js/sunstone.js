@@ -560,23 +560,24 @@ function insertTab(tab_name){
         tab_content_str = '<div id="'+tab_name+'" class="tab" style="display:none;">';
 
         if (tab_info.list_header || tab_info.info_header) {
-            tab_content_str += '<div class="row">\
+            tab_content_str += '<div class="row header-row">\
               <div class="large-12 columns">\
-                <h3 class="subheader header-title only-right-list">\
+                <h2 class="subheader header-title only-right-list">\
                   <span class="header-resource">' +
                     tab_info.list_header +
                   '</span>\
-                </h3>\
-                <h3 class="subheader header-title only-right-info" hidden>\
+                </h2>\
+                <h2 class="subheader header-title only-right-info" hidden>\
                   <span class="header-resource">' +
                     tab_info.info_header +
                   '</span>&emsp;\
-                  <span class="resource-id"></span>\
-                </h3>\
-                <h3 class="subheader header-title only-right-form" hidden>\
+                  <span class="resource-id"></span>&emsp;\
+                  <span class="resource-info-header"></span>\
+                </h2>\
+                <h2 class="subheader header-title only-right-form" hidden>\
                   <span class="right-form-title">' +
                   '</span>\
-                </h3>\
+                </h2>\
               </div>\
             </div>'
         }
@@ -627,7 +628,7 @@ function insertTab(tab_name){
         tab_content_str += '<div class="right-info" hidden>'
         tab_content_str += '</div>'
 
-        tab_content_str += '<div class="large-10 small-12 right-form" hidden>'+
+        tab_content_str += '<div class="large-12 small-12 right-form" hidden>'+
             '<div class="loadingForm">'+
               '<br>'+
               '<br>'+
@@ -4496,6 +4497,9 @@ function showElement(tabname, info_action, element_id){
         return false;
     }
 
+    $(".resource-id", context).html(element_id);
+    $(".resource-info-header", context).text("");
+
     showTab(tabname);
 
     var context = $('#'+tabname);
@@ -4504,7 +4508,6 @@ function showElement(tabname, info_action, element_id){
     var res = SunstoneCfg['tabs'][tabname]['resource'];
 
     Sunstone.runAction(info_action,element_id);
-    $(".resource-id", context).html(element_id);
     //enable action buttons
     $('.top_button, .list_button', context).attr('disabled', false);
 }
@@ -6413,7 +6416,7 @@ function setupResourceTableSelect(section, context_id, options) {
                 $('#selected_resource_multiple_'+context_id, section).show();
                 $('#select_resource_multiple_'+context_id, section).hide();
             }
-           
+
             $('.alert-box', section).hide();
 
             return true;

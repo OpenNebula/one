@@ -1703,6 +1703,9 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id) {
 // Callback to update the information panel tabs and pop it up
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
+
+    $(".resource-info-header", $("#templates-tab")).html(template_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",

@@ -607,6 +607,9 @@ function updateImagesView(request, images_list){
 // Callback to update the information panel tabs and pop it up
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
+
+    $(".resource-info-header", $("#images-tab")).html(img_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",

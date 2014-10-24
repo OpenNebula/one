@@ -304,6 +304,8 @@ function updateZoneInfo(request,zone){
     zone_info     = zone.ZONE;
     zone_template = zone_info.TEMPLATE;
 
+    $(".resource-info-header", $("#zones-tab")).html(zone_info.NAME);
+
     //Information tab
     var info_tab = {
         title : tr("Info"),

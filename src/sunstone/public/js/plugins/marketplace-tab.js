@@ -409,6 +409,8 @@ function updateMarketInfo(request,app){
     var url = app.links.download.href;
     url = url.replace(/\/download$/, '');
 
+    $(".resource-info-header", $("#marketplace-tab")).html(app.name);
+
     var files_table = '<table id="info_marketplace_table2" class="dataTable">\
          <thead>\
            <tr><th colspan="2">'+tr("Images")+'</th></tr>\

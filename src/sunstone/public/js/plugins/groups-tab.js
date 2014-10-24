@@ -652,6 +652,8 @@ function fromJSONtoProvidersTable(group_info){
 function updateGroupInfo(request,group){
     var info = group.GROUP;
 
+    $(".resource-info-header", $("#groups-tab")).html(info.NAME);
+
     var info_tab = {
           title: tr("Info"),
           icon: "fa-info-circle",

@@ -718,6 +718,8 @@ function updateServiceTemplatesView(request, service_templates_list){
 function updateServiceTemplateInfo(request,elem){
     var elem_info = elem.DOCUMENT;
 
+    $(".resource-info-header", $("#oneflow-templates")).html(elem_info.NAME);
+
     var network_configuration = "";
     if (elem_info.TEMPLATE.BODY['custom_attrs']) {
         network_configuration +=
