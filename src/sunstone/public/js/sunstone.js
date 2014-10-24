@@ -6516,6 +6516,8 @@ function selectResourceTableSelect(section, context_id, opts){
     var options = $('#selected_ids_row_'+context_id, section).data("options");
 
     if(options.multiple_choice){
+        refreshResourceTableSelect(section, context_id);
+
         var data_ids = $('#selected_ids_row_'+context_id, section).data("ids");
 
         data_ids = {};
@@ -6613,9 +6615,9 @@ function selectResourceTableSelect(section, context_id, opts){
 
         $('#selected_resource_name_'+context_id, section).text( row_name ).change();
         $('#selected_resource_name_'+context_id, section).show();
-    }
 
-    refreshResourceTableSelect(section, context_id);
+        refreshResourceTableSelect(section, context_id);
+    }
 }
 
 //==============================================================================
