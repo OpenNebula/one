@@ -1402,7 +1402,9 @@ function updateView(item_list,dataTable){
         }
     });
 
-    if (dataTable) {
+    // dataTable.fnSettings is undefined when the table has been detached from
+    // the DOM
+    if (dataTable && dataTable.fnSettings()) {
         var dTable_settings = dataTable.fnSettings();
         var prev_start = dTable_settings._iDisplayStart;
 
@@ -5781,7 +5783,9 @@ function generateHostTableSelect(context_id){
         "id_index": 1,
         "name_index": 2,
         "select_resource": tr("Please select a Host from the list"),
-        "you_selected": tr("You selected the following Host:")
+        "you_selected": tr("You selected the following Host:"),
+        "select_resource_multiple": tr("Please select one or more hosts from the list"),
+        "you_selected_multiple": tr("You selected the following hosts:")
     };
 
     return generateResourceTableSelect(context_id, columns, options);
@@ -5790,6 +5794,11 @@ function generateHostTableSelect(context_id){
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
 function setupHostTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5808,6 +5817,18 @@ function setupHostTableSelect(section, context_id, opts){
         opts.bVisible = config;
     }
 
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -5823,6 +5844,10 @@ function setupHostTableSelect(section, context_id, opts){
             ]
         },
 
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
         "id_index": 1,
         "name_index": 2,
 
@@ -5832,6 +5857,8 @@ function setupHostTableSelect(section, context_id, opts){
                 success: function (request, resource_list){
                     var list_array = [];
 
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
                     $.each(resource_list,function(){
                         var add = true;
 
@@ -5839,9 +5866,29 @@ function setupHostTableSelect(section, context_id, opts){
                             add = opts.filter_fn(this.HOST);
                         }
 
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.HOST.ID]);
+                        }
+
                         if(add){
                             list_array.push(hostElementArray(this));
+
+                            delete fixed_ids_map[this.HOST.ID];
                         }
+                    });
+
+                    var n_columns = 13; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
                     });
 
                     updateView(list_array, datatable);
@@ -5856,6 +5903,22 @@ function setupHostTableSelect(section, context_id, opts){
     return setupResourceTableSelect(section, context_id, options);
 }
 
+// Clicks the refresh button
+function refreshHostTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveHostTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectHostTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
 
 function generateDatastoreTableSelect(context_id){
 
@@ -6212,9 +6275,8 @@ function setupResourceTableSelect(section, context_id, options) {
     } else if(options.multiple_choice){
         $('#selected_ids_row_'+context_id, section).data("ids", {});
 
-        function row_click(row){
+        function row_click(row, aData){
             dataTable_select.unbind("draw");
-            var aData = dataTable_select.fnGetData(row);
 
             var row_id = aData[options.id_index];
             var row_name = aData[options.name_index];
@@ -6253,7 +6315,8 @@ function setupResourceTableSelect(section, context_id, options) {
         };
 
         $('#datatable_'+context_id+' tbody', section).on("click", "tr", function(e){
-            row_click(this);
+            var aData = dataTable_select.fnGetData(this);
+            row_click(this, aData);
         });
 
         $(section).on("click", '#selected_ids_row_'+context_id+' span.fa.fa-times', function() {
@@ -6262,7 +6325,7 @@ function setupResourceTableSelect(section, context_id, options) {
             // TODO: improve preformance, linear search
             $.each(dataTable_select.fnGetData(), function(index, row){
                 if(row[options.id_index] == row_id){
-                    row_click(dataTable_select.fnGetNodes(index));
+                    row_click(dataTable_select.fnGetNodes(index), row);
                     return false;
                 }
             });
