@@ -284,8 +284,6 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_state(VirtualMachine::BOOT);
 
-        vm->delete_snapshots();
-
         map<string, string> empty;
 
         vm->update_info(0, 0, -1, -1, empty);

@@ -926,66 +926,70 @@ function initialize_create_image_dialog(dialog) {
 
     var img_obj;
 
-    var uploader = new Resumable({
-        target: '/upload_chunk',
-        chunkSize: 10*1024*1024,
-        maxFiles: 1,
-        testChunks: false,
-        query: {
-            csrftoken: csrftoken
-        }
-    });
+    if (getInternetExplorerVersion() > -1) {
+      $("#upload_image").attr("disabled", "disabled");
+    } else {
+      var uploader = new Resumable({
+          target: '/upload_chunk',
+          chunkSize: 10*1024*1024,
+          maxFiles: 1,
+          testChunks: false,
+          query: {
+              csrftoken: csrftoken
+          }
+      });
 
-    uploader.assignBrowse($('#file-uploader-input',dialog));
+      uploader.assignBrowse($('#file-uploader-input',dialog));
 
-    var fileName = '';
-    var file_input = false;
+      var fileName = '';
+      var file_input = false;
 
-    uploader.on('fileAdded', function(file){
-        fileName = file.fileName;
-        file_input = fileName;
-    });
+      uploader.on('fileAdded', function(file){
+          fileName = file.fileName;
+          file_input = fileName;
+      });
 
-    uploader.on('uploadStart', function() {
-        $('#upload_progress_bars').append('<div id="'+fileName+'progressBar" class="row" style="margin-bottom:10px">\
-          <div id="'+fileName+'-info" class="large-2 columns dataTables_info">\
-            '+tr("Uploading...")+'\
-          </div>\
-          <div class="large-10 columns">\
-            <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
-              <span class="meter" style="width:0%"></span>\
+      uploader.on('uploadStart', function() {
+          $('#upload_progress_bars').append('<div id="'+fileName+'progressBar" class="row" style="margin-bottom:10px">\
+            <div id="'+fileName+'-info" class="large-2 columns dataTables_info">\
+              '+tr("Uploading...")+'\
             </div>\
-            <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
-          </div>\
-        </div>');
-    });
+            <div class="large-10 columns">\
+              <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+                <span class="meter" style="width:0%"></span>\
+              </div>\
+              <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
+            </div>\
+          </div>');
+      });
 
-    uploader.on('progress', function() {
-        $('span.meter', $('div[id="'+fileName+'progressBar"]')).css('width', uploader.progress()*100.0+'%')
-    });
+      uploader.on('progress', function() {
+          $('span.meter', $('div[id="'+fileName+'progressBar"]')).css('width', uploader.progress()*100.0+'%')
+      });
 
-    uploader.on('fileSuccess', function(file) {
-        $('div[id="'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
-        $.ajax({
-            url: '/upload',
-            type: "POST",
-            data: {
-                csrftoken: csrftoken,
-                img : JSON.stringify(img_obj),
-                file: fileName,
-                tempfile: file.uniqueIdentifier
-            },
-            success: function(){
-                notifyMessage("Image uploaded correctly");
-                $('div[id="'+fileName+'progressBar"]').remove();
-                Sunstone.runAction("Image.refresh");
-            },
-            error: function(response){
-                onError({}, OpenNebula.Error(response));
-                $('div[id="'+fileName+'progressBar"]').remove();
-            }
-        });
-    });
+      uploader.on('fileSuccess', function(file) {
+          $('div[id="'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
+          $.ajax({
+              url: '/upload',
+              type: "POST",
+              data: {
+                  csrftoken: csrftoken,
+                  img : JSON.stringify(img_obj),
+                  file: fileName,
+                  tempfile: file.uniqueIdentifier
+              },
+              success: function(){
+                  notifyMessage("Image uploaded correctly");
+                  $('div[id="'+fileName+'progressBar"]').remove();
+                  Sunstone.runAction("Image.refresh");
+              },
+              error: function(response){
+                  onError({}, OpenNebula.Error(response));
+                  $('div[id="'+fileName+'progressBar"]').remove();
+              }
+          });
+      });
+    }
 
     $('#create_image',dialog).submit(function(){
         $create_image_dialog = dialog;

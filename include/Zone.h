@@ -44,17 +44,6 @@ public:
      */
     int from_xml(const string &xml_str);
 
-    /**
-     *  Replace template for this object. Object should be updated
-     *  after calling this method
-     *    @param tmpl_str new contents
-     *    @param keep_restricted If true, the restricted attributes of the
-     *    current template will override the new template
-     *    @param error string describing the error if any
-     *    @return 0 on success
-     */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
-
 private:
 
     // -------------------------------------------------------------------------
@@ -126,6 +115,14 @@ private:
     {
         return new Template;
     }
+
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(string& error);
 };
 
 #endif /*ZONE_H_*/

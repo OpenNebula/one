@@ -183,6 +183,10 @@ var host_actions = {
             // Reset the create wizard
             addHostElement(request, response);
             notifyCustom(tr("Host created"), " ID: " + response.HOST.ID, false);
+
+            if (request.request.data[0].host.vm_mad != "vcenter") {
+              $create_host_dialog.foundation('reveal', 'close');
+            }
         },
         error : onError
     },
@@ -483,7 +487,7 @@ function generateCPUProgressBar(host, host_share_flag) {
       pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
     }
 
-    var pb_real_cpu 
+    var pb_real_cpu
     if (host_share.USED_CPU) {
       var real_cpu = parseInt(host_share.USED_CPU);
 

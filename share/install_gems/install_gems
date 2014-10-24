@@ -27,7 +27,7 @@ GROUPS={
     :auth_ldap  => 'net-ldap',
     :vmware     => %w{builder trollop},
     :oneflow    => %w{sinatra json treetop parse-cron},
-    :ec2_hybrid => 'aws-sdk',
+    :ec2_hybrid => 'aws-sdk --version "= 1.33"',
     :oca        => 'ox'
 }
 
@@ -234,9 +234,9 @@ def help
 end
 
 def get_gems(packages)
-    (packages.map do |package|
+    ([$nokogiri]+packages.map do |package|
         GROUPS[package.to_sym]
-    end+[$nokogiri]).flatten.uniq-installed_gems
+    end).flatten.uniq-installed_gems
 end
 
 def detect_distro

@@ -740,8 +740,8 @@ function updateServiceTemplateInfo(request,elem){
               case "vnet_id":
                 network_configuration +=
                    '<tr>\
-                     <td class="key_td">'+htmlDecode(attrs.name)+'</td>\
-                     <td class="value_td">'+htmlDecode(attrs.description)+'</td>\
+                     <td class="key_td">'+attrs.name+'</td>\
+                     <td class="value_td">'+attrs.description+'</td>\
                    </tr>'
 
                 var roles_using_net = [];
@@ -788,7 +788,7 @@ function updateServiceTemplateInfo(request,elem){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Description")+'</td>\
-             <td class="value_td">'+(htmlDecode(elem_info.TEMPLATE.BODY.description)||"-")+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.description||"-")+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Strategy")+'</td>\
@@ -796,7 +796,7 @@ function updateServiceTemplateInfo(request,elem){
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Shutdown action")+'</td>\
-             <td class="value_td">'+elem_info.TEMPLATE.BODY.shutdown_action+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.shutdown_action||"-")+'</td>\
            </tr>\
            <tr>\
              <td class="key_td">'+tr("Ready Status Gate")+'</td>\
@@ -1265,7 +1265,7 @@ function initialize_create_service_template_dialog(dialog){
             $(".vm_template_contents", role_section).val("");
 
             $.each(selected_networks, function(){
-                $(".service_network_checkbox[value="+this+"]", role_section).attr('checked', true).change();
+                $(".service_network_checkbox[value='"+this+"']", role_section).attr('checked', true).change();
             });
         });
     }
@@ -1621,7 +1621,7 @@ function fillUpUpdateServiceTemplateDialog(response, dialog){
                     var reg = new RegExp("\\$"+$(this).val()+"\\b");
 
                     if(reg.exec(value.vm_template_contents) != null){
-                        $(".service_network_checkbox[value="+$(this).val()+"]", context).attr('checked', true).change();
+                        $(".service_network_checkbox[value='"+$(this).val()+"']", context).attr('checked', true).change();
                     }
                 }
             });
@@ -1843,6 +1843,10 @@ function setupInstantiateServiceTemplateDialog(){
             tmp_json = {};
 
             retrieveWizardFields($("#"+div_id, dialog), tmp_json);
+
+            $.each(role.elasticity_policies, function(i, pol){
+                pol.expression = htmlDecode(pol.expression);
+            });
 
             role.user_inputs_values = tmp_json;
 

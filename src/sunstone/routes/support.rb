@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-begin 
+begin
   	require 'zendesk_api'
 rescue LoadError
 	STDERR.puts "[OpenNebula Support] Missing zendesk_api gem"
@@ -108,7 +108,7 @@ helpers do
 
 	def check_zendesk_api_gem
 		if !ZENDESK_API_GEM
-			error 500, "zendesk_api gem missing, it requires ruby >= 1.9.3"
+			error 500, "zendesk_api gem missing"
 		end
 	end
 end
@@ -117,7 +117,7 @@ get '/support/request' do
 	check_zendesk_api_gem
 
 	zrequests = zendesk_client.requests({:status => "open,pending"})
-	
+
 	open_requests = 0
 	pending_requests = 0
 	one_zrequests = {
@@ -159,7 +159,7 @@ post '/support/request' do
 
 	body_hash = JSON.parse(@request_body)
 	zrequest = zendesk_client.requests.create({
-	    :subject => body_hash['subject'], 
+	    :subject => body_hash['subject'],
 	    :comment => { :value => body_hash['description'] },
 	    :custom_fields => [
 	      {:id => 391197, :value => body_hash['severity']},
@@ -192,7 +192,7 @@ post '/support/request/:id/action' do
 	one_zrequest = {
 		"REQUEST" => zrequest_to_one(zrequest)
 	}
-	
+
 	[201, JSON.pretty_generate(one_zrequest)]
 end
 
@@ -224,7 +224,7 @@ post '/support/request/:id/upload' do
 		}
 
         FileUtils.rm(tmpfile)
-	
+
 		[201, JSON.pretty_generate(one_zrequest)]
     end
 end
@@ -237,8 +237,8 @@ post '/support/credentials' do
 		error 401, "Zendesk credentials not provided"
 	end
 
-	session["zendesk_email"] = body_hash["email"] 
-	session["zendesk_password"] = body_hash["password"] 
+	session["zendesk_email"] = body_hash["email"]
+	session["zendesk_password"] = body_hash["password"]
 
 	zendesk_client
 

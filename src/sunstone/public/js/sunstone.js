@@ -1408,7 +1408,9 @@ function updateView(item_list,dataTable){
         }
     });
 
-    if (dataTable) {
+    // dataTable.fnSettings is undefined when the table has been detached from
+    // the DOM
+    if (dataTable && dataTable.fnSettings()) {
         var dTable_settings = dataTable.fnSettings();
         var prev_start = dTable_settings._iDisplayStart;
 
@@ -4919,6 +4921,14 @@ function accountingGraphs(div, opt){
     $("#acct_start_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
 
     //--------------------------------------------------------------------------
+    // Init end time to today
+    //--------------------------------------------------------------------------
+
+    d = new Date();
+
+    $("#acct_end_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
+
+    //--------------------------------------------------------------------------
     // VM owner: all, group, user
     //--------------------------------------------------------------------------
 
@@ -5226,6 +5236,14 @@ function fillAccounting(div, req, response, no_table) {
             var t = times[i];
             var t_next = times[i+1];
 
+            // To stack values properly, flot needs an entry for all
+            // the time slots
+            if(serie[t] == undefined){
+                serie[t] = {};
+                serie[t].CPU_HOURS = 0;
+                serie[t].MEM_HOURS = 0;
+            }
+
             if( (history.ETIME*1000 > t || history.ETIME == 0) &&
                 (history.STIME != 0 && history.STIME*1000 <= t_next) ) {
 
@@ -5240,12 +5258,6 @@ function fillAccounting(div, req, response, no_table) {
                 }
 
                 var n_hours = (etime - stime) / 1000 / 60 / 60;
-
-                if(serie[t] == undefined){
-                    serie[t] = {};
-                    serie[t].CPU_HOURS = 0;
-                    serie[t].MEM_HOURS = 0;
-                }
 
                 // --- cpu ---
 
@@ -5399,8 +5411,8 @@ function fillAccounting(div, req, response, no_table) {
                 }
             });
 
-            cpu_row[1] = cpu_total;
-            mem_row[1] = mem_total;
+            cpu_row[1] = (cpu_total * 100).toFixed() / 100;
+            mem_row[1] = (mem_total * 100).toFixed() / 100;
 
             cpu_dataTable_data.push(cpu_row);
             mem_dataTable_data.push(mem_row);
@@ -5579,7 +5591,6 @@ function fillWizardFields(dialog, template_json){
 }
 
 
-
 //==============================================================================
 // Resource tables with "please select" mechanism
 //==============================================================================
@@ -5602,15 +5613,24 @@ function generateVNetTableSelect(context_id){
     var options = {
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
         "select_resource": tr("Please select a network from the list"),
-        "you_selected": tr("You selected the following network:")
+        "you_selected": tr("You selected the following network:"),
+        "select_resource_multiple": tr("Please select one or more networks from the list"),
+        "you_selected_multiple": tr("You selected the following networks:")
     };
 
     return generateResourceTableSelect(context_id, columns, options);
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
 function setupVNetTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5629,6 +5649,18 @@ function setupVNetTableSelect(section, context_id, opts){
         opts.bVisible = config;
     }
 
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -5644,14 +5676,21 @@ function setupVNetTableSelect(section, context_id, opts){
             ]
         },
 
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
 
         "update_fn": function(datatable){
             OpenNebula.Network.list({
                 timeout: true,
                 success: function (request, networks_list){
                     var network_list_array = [];
+
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
 
                     $.each(networks_list,function(){
                         var add = true;
@@ -5660,16 +5699,38 @@ function setupVNetTableSelect(section, context_id, opts){
                             add = opts.filter_fn(this.VNET);
                         }
 
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.VNET.ID]);
+                        }
+
                         if(add){
                             network_list_array.push(vNetworkElementArray(this));
+
+                            delete fixed_ids_map[this.VNET.ID];
                         }
+                    });
+
+                    var n_columns = 10; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
                     });
 
                     updateView(network_list_array, datatable);
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
@@ -5683,6 +5744,13 @@ function refreshVNetTableSelect(section, context_id){
 // Returns an ID, or an array of IDs for opts.multiple_choice
 function retrieveVNetTableSelect(section, context_id){
     return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectVNetTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
 }
 
 function generateTemplateTableSelect(context_id){
@@ -5699,6 +5767,7 @@ function generateTemplateTableSelect(context_id){
     var options = {
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
         "select_resource": tr("Please select a template from the list"),
         "you_selected": tr("You selected the following template:")
     };
@@ -5707,7 +5776,8 @@ function generateTemplateTableSelect(context_id){
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
 function setupTemplateTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5743,6 +5813,7 @@ function setupTemplateTableSelect(section, context_id, opts){
 
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
 
         "update_fn": function(datatable){
             OpenNebula.Template.list({
@@ -5766,7 +5837,9 @@ function setupTemplateTableSelect(section, context_id, opts){
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
@@ -5794,14 +5867,22 @@ function generateHostTableSelect(context_id){
         "id_index": 1,
         "name_index": 2,
         "select_resource": tr("Please select a Host from the list"),
-        "you_selected": tr("You selected the following Host:")
+        "you_selected": tr("You selected the following Host:"),
+        "select_resource_multiple": tr("Please select one or more hosts from the list"),
+        "you_selected_multiple": tr("You selected the following hosts:")
     };
 
     return generateResourceTableSelect(context_id, columns, options);
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
 function setupHostTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5820,6 +5901,18 @@ function setupHostTableSelect(section, context_id, opts){
         opts.bVisible = config;
     }
 
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -5835,6 +5928,10 @@ function setupHostTableSelect(section, context_id, opts){
             ]
         },
 
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
         "id_index": 1,
         "name_index": 2,
 
@@ -5844,6 +5941,8 @@ function setupHostTableSelect(section, context_id, opts){
                 success: function (request, resource_list){
                     var list_array = [];
 
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
                     $.each(resource_list,function(){
                         var add = true;
 
@@ -5851,21 +5950,59 @@ function setupHostTableSelect(section, context_id, opts){
                             add = opts.filter_fn(this.HOST);
                         }
 
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.HOST.ID]);
+                        }
+
                         if(add){
                             list_array.push(hostElementArray(this));
+
+                            delete fixed_ids_map[this.HOST.ID];
                         }
+                    });
+
+                    var n_columns = 13; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
                     });
 
                     updateView(list_array, datatable);
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
 }
 
+// Clicks the refresh button
+function refreshHostTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveHostTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectHostTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
 
 function generateDatastoreTableSelect(context_id){
 
@@ -5886,15 +6023,24 @@ function generateDatastoreTableSelect(context_id){
     var options = {
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
         "select_resource": tr("Please select a datastore from the list"),
-        "you_selected": tr("You selected the following datastore:")
+        "you_selected": tr("You selected the following datastore:"),
+        "select_resource_multiple": tr("Please select one or more datastores from the list"),
+        "you_selected_multiple": tr("You selected the following datastores:")
     };
 
     return generateResourceTableSelect(context_id, columns, options);
 }
 
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
-// opts.filter_fn: boolean function to filter which vnets to show
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
 function setupDatastoreTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -5913,6 +6059,18 @@ function setupDatastoreTableSelect(section, context_id, opts){
         opts.bVisible = config;
     }
 
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -5929,14 +6087,21 @@ function setupDatastoreTableSelect(section, context_id, opts){
             ]
         },
 
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
         "id_index": 1,
         "name_index": 4,
+        "uname_index": 2,
 
         "update_fn": function(datatable){
             OpenNebula.Datastore.list({
                 timeout: true,
                 success: function (request, resource_list){
                     var list_array = [];
+
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
 
                     $.each(resource_list,function(){
                         var add = true;
@@ -5945,8 +6110,148 @@ function setupDatastoreTableSelect(section, context_id, opts){
                             add = opts.filter_fn(this.DATASTORE);
                         }
 
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.DATASTORE.ID]);
+                        }
+
                         if(add){
                             list_array.push(datastoreElementArray(this));
+
+                            delete fixed_ids_map[this.DATASTORE.ID];
+                        }
+                    });
+
+                    var n_columns = 11; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshDatastoreTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveDatastoreTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+function selectDatastoreTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
+function generateImageTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Datastore"),
+        tr("Size"),
+        tr("Type"),
+        tr("Registration time"),
+        tr("Persistent"),
+        tr("Status"),
+        tr("#VMS"),
+        tr("Target")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+        "select_resource": tr("Please select an image from the list"),
+        "you_selected": tr("You selected the following image:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+function setupImageTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('images-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0,1] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Image.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var image = this.IMAGE;
+
+                        // KERNEL || RAMDISK || CONTEXT
+                        var add = ( image.TYPE != "3" &&
+                                    image.TYPE != "4" &&
+                                    image.TYPE != "5" )
+
+                        if(add && opts.filter_fn){
+                            add = opts.filter_fn(this.IMAGE);
+                        }
+
+                        if(add){
+                            list_array.push(imageElementArray(this));
                         }
                     });
 
@@ -5954,10 +6259,29 @@ function setupDatastoreTableSelect(section, context_id, opts){
                 },
                 error: onError
             });
-        }
+        },
+
+        "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshImageTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveImageTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectImageTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
 }
 
 function generateSecurityGroupTableSelect(context_id){
@@ -6174,6 +6498,10 @@ function setupResourceTableSelect(section, context_id, options) {
         options.dataTable_options = {};
     }
 
+    if (options.select_callback == undefined){
+        options.select_callback = function(aData, options){};
+    }
+
     if(options.multiple_choice){
         options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
             var row_id = aData[options.id_index];
@@ -6183,6 +6511,23 @@ function setupResourceTableSelect(section, context_id, options) {
             if ( ids[row_id] ){
                 $("td", nRow).addClass('markrowchecked');
                 $('input.check_item', this).attr('checked','checked');
+            } else {
+                $("td", nRow).removeClass('markrowchecked');
+                $('input.check_item', this).removeAttr('checked');
+            }
+        };
+    } else {
+        options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            var row_id = aData[options.id_index];
+
+            var selected_id = $('#selected_resource_id_'+context_id, section).val();
+
+            if ( row_id == selected_id ){
+                $("td", nRow).addClass('markrow');
+                $('input.check_item', this).attr('checked','checked');
+            } else {
+                $("td", nRow).removeClass('markrow');
+                $('input.check_item', this).removeAttr('checked');
             }
         };
     }
@@ -6221,9 +6566,8 @@ function setupResourceTableSelect(section, context_id, options) {
     } else if(options.multiple_choice){
         $('#selected_ids_row_'+context_id, section).data("ids", {});
 
-        function row_click(row){
+        function row_click(row, aData){
             dataTable_select.unbind("draw");
-            var aData = dataTable_select.fnGetData(row);
 
             var row_id = aData[options.id_index];
             var row_name = aData[options.name_index];
@@ -6244,6 +6588,8 @@ function setupResourceTableSelect(section, context_id, options) {
                 $('input.check_item', row).attr('checked','checked');
 
                 $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+
+                options.select_callback(aData, options);
             }
 
             if ($.isEmptyObject(ids)){
@@ -6260,7 +6606,8 @@ function setupResourceTableSelect(section, context_id, options) {
         };
 
         $('#datatable_'+context_id+' tbody', section).on("click", "tr", function(e){
-            row_click(this);
+            var aData = dataTable_select.fnGetData(this);
+            row_click(this, aData);
         });
 
         $(section).on("click", '#selected_ids_row_'+context_id+' span.fa.fa-times', function() {
@@ -6269,7 +6616,7 @@ function setupResourceTableSelect(section, context_id, options) {
             // TODO: improve preformance, linear search
             $.each(dataTable_select.fnGetData(), function(index, row){
                 if(row[options.id_index] == row_id){
-                    row_click(dataTable_select.fnGetNodes(index));
+                    row_click(dataTable_select.fnGetNodes(index), row);
                     return false;
                 }
             });
@@ -6296,6 +6643,8 @@ function setupResourceTableSelect(section, context_id, options) {
 
             $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
             $('#selected_resource_name_'+context_id, section).show();
+
+            options.select_callback(aData, options);
 
             return true;
         });
@@ -6349,10 +6698,12 @@ function refreshResourceTableSelect(section, context_id){
     $('#refresh_button_'+context_id, section).click();
 }
 
-function selectResourceTableSelect(section, context_id, ids){
+function selectResourceTableSelect(section, context_id, opts){
     var options = $('#selected_ids_row_'+context_id, section).data("options");
 
     if(options.multiple_choice){
+        refreshResourceTableSelect(section, context_id);
+
         var data_ids = $('#selected_ids_row_'+context_id, section).data("ids");
 
         data_ids = {};
@@ -6361,7 +6712,13 @@ function selectResourceTableSelect(section, context_id, ids){
 
         var dataTable_select = $('#datatable_'+context_id, section).dataTable();
 
-        $.each(ids, function(index, row_id){
+        if (opts.ids == undefined){
+            opts.ids = [];
+        }
+
+        // TODO: {name, uname} support for multiple_choice
+
+        $.each(opts.ids, function(index, row_id){
             if(isNaN(row_id)){
                 return true;
             }
@@ -6394,10 +6751,61 @@ function selectResourceTableSelect(section, context_id, ids){
         }
 
         $('.alert-box', section).hide();
-    }
+    } else {
+        var dataTable_select = $('#datatable_'+context_id, section).dataTable();
 
-    refreshResourceTableSelect(section, context_id);
+        $("td.markrow", dataTable_select).removeClass('markrow');
+        $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+        $('#selected_resource_'+context_id, section).show();
+        $('#select_resource_'+context_id, section).hide();
+        $('.alert-box', section).hide();
+
+        var row_id = undefined;
+        var row_name = "";
+
+        if (opts.ids != undefined){
+
+            row_id = opts.ids;
+
+            row_name = ""+row_id;
+
+            // TODO: improve preformance, linear search. Needed to get the
+            // name of the resource in the label. If function getName() was
+            // indexed in the cache, it could be used here
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_name = row[options.name_index];
+                    return false;
+                }
+            });
+        } else if (opts.names != undefined){
+            row_name = opts.names.name;
+            var row_uname = opts.names.uname;
+
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.name_index] == row_name &&
+                   row[options.uname_index] == row_uname){
+
+                    row_id = row[options.id_index];
+                    return false;
+                }
+            });
+        }
+
+//        $("td", this).addClass('markrow');
+//        $('input.check_item', this).attr('checked','checked');
+
+        $('#selected_resource_id_'+context_id, section).val( row_id ).change();
+        $('#selected_resource_id_'+context_id, section).hide();
+
+        $('#selected_resource_name_'+context_id, section).text( row_name ).change();
+        $('#selected_resource_name_'+context_id, section).show();
+
+        refreshResourceTableSelect(section, context_id);
+    }
 }
+
 
 //==============================================================================
 // VM & Service user inputs
@@ -6489,7 +6897,7 @@ function generateInstantiateUserInputs(div, user_inputs, opts) {
         var separator = "";
 
         $.each(network_attrs, function(index, vnet_attr){
-            var unique_id = "user_input_"+vnet_attr.name;
+            var unique_id = "user_input_"+( vnet_attr.name.replace(/ /g, "_") );
 
             $(".instantiate_user_inputs", div).append(
               '<div class="row">'+
@@ -6692,4 +7100,22 @@ function sg_rule_to_st(rule){
     text["NETWORK"] = network;
 
     return text;
+}
+
+//==============================================================================
+// Internet Explorer
+//==============================================================================
+
+function getInternetExplorerVersion(){
+// Returns the version of Internet Explorer or a -1
+// (indicating the use of another browser).
+    var rv = -1; // Return value assumes failure.
+    if (navigator.appName == 'Microsoft Internet Explorer')
+    {
+        var ua = navigator.userAgent;
+        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat( RegExp.$1 );
+    }
+    return rv;
 }

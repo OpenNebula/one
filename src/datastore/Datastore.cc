@@ -581,11 +581,10 @@ int Datastore::from_xml(const string& xml)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
-int Datastore::replace_template(
-        const string& tmpl_str, bool keep_restricted, string& error_str)
+int Datastore::post_update_template(string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
@@ -595,39 +594,16 @@ int Datastore::replace_template(
 
     Image::DiskType new_disk_type;
 
+    DatastoreType old_ds_type;
     DatastoreType new_ds_type;
-    Template *    new_tmpl  = new DatastoreTemplate;
-
-    if ( new_tmpl == 0 )
-    {
-        error_str = "Cannot allocate a new template";
-        return -1;
-    }
-
-    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
-    {
-        delete new_tmpl;
-        return -1;
-    }
-
-    if (keep_restricted)
-    {
-        new_tmpl->remove_restricted();
-
-        if (obj_template != 0)
-        {
-            obj_template->remove_all_except_restricted();
-
-            string aux_error;
-            new_tmpl->merge(obj_template, aux_error);
-        }
-    }
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
     /* ---------------------------------------------------------------------- */
 
-    new_tmpl->get("TYPE", s_ds_type);
+    old_ds_type = type;
+
+    get_template_attribute("TYPE", s_ds_type);
 
     if (!s_ds_type.empty())
     {
@@ -637,12 +613,6 @@ int Datastore::replace_template(
     {
         new_ds_type = type;
     }
-
-    /* --- Update the Datastore template --- */
-
-    delete obj_template;
-
-    obj_template = new_tmpl;
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
@@ -658,6 +628,34 @@ int Datastore::replace_template(
     }
 
     replace_template_attribute("TYPE", type_to_str(type));
+
+    /* ---------------------------------------------------------------------- */
+    /* Set the TM_MAD of the Datastore (class & template)                     */
+    /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("TM_MAD", new_tm_mad);
+
+    if ( !new_tm_mad.empty() )
+    {
+        // System DS are monitored by the TM mad, reset information
+        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
+        {
+            update_monitor(0, 0, 0);
+        }
+
+        if (set_tm_mad(new_tm_mad, error_str) != 0)
+        {
+            type = old_ds_type;
+
+            return -1;
+        }
+
+        tm_mad = new_tm_mad;
+    }
+    else
+    {
+        replace_template_attribute("TM_MAD", tm_mad);
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Set the DISK_TYPE (class & template)                                   */
@@ -684,12 +682,11 @@ int Datastore::replace_template(
         disk_type = Image::FILE;
     }
 
-    get_template_attribute("DS_MAD", new_ds_mad);
-    get_template_attribute("TM_MAD", new_tm_mad);
-
     /* ---------------------------------------------------------------------- */
     /* Set the DS_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("DS_MAD", new_ds_mad);
 
     if ( type == SYSTEM_DS )
     {
@@ -710,32 +707,6 @@ int Datastore::replace_template(
             // DS are monitored by the DS mad, reset information
             update_monitor(0, 0, 0);
         }
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Set the TM_MAD of the Datastore (class & template)                     */
-    /* ---------------------------------------------------------------------- */
-
-    if ( !new_tm_mad.empty() )
-    {
-        // System DS are monitored by the TM mad, reset information
-        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
-        {
-            update_monitor(0, 0, 0);
-        }
-
-        if (set_tm_mad(new_tm_mad, error_str) != 0)
-        {
-            replace_template_attribute("TM_MAD", tm_mad);
-
-            return -1;
-        }
-
-        tm_mad = new_tm_mad;
-    }
-    else
-    {
-        replace_template_attribute("TM_MAD", tm_mad);
     }
 
     /* ---------------------------------------------------------------------- */

@@ -38,9 +38,6 @@ VMWAREID=`$SUDO vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`
 
 ATTACH_PARAMS="$VMWAREID $DISK_PATH $CONTROLLER_NUMBER $TARGET_NUMBER $DATASTORE"
 
-exec_and_log "$SUDO vim-cmd vmsvc/device.diskaddexisting $ATTACH_PARAMS 2>&1 \
-             |grep  \"Reconfigure failed\" 1>&2" \
-    	     "Could not attach $SOURCE ($TARGET) to $DEPLOYID"
-
- 
+exec_and_log "$SUDO vim-cmd vmsvc/device.diskaddexisting $ATTACH_PARAMS" \
+             "Could not attach $SOURCE ($TARGET) to $DEPLOYID"
 

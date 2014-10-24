@@ -130,10 +130,10 @@ var support_actions = {
         type: "custom",
         call: function(){
           Sunstone.popUpFormPanel(
-            "create_support_request_form", 
-            "support-tab", 
-            "create", 
-            false, 
+            "create_support_request_form",
+            "support-tab",
+            "create",
+            false,
             function(context){});
         }
     },
@@ -209,7 +209,7 @@ var support_buttons = {
 
 var support_tab = {
     //title: '<i class="fa fa-lg fa-fw fa-support"></i>&emsp;Support"),
-    title: 
+    title:
     '<span class="support_title"><i class="fa fa-lg fa-fw fa-support"></i> Support</span>' +
     '<br>'+
     '<div class="support_info" style="display: none;">'+
@@ -352,6 +352,10 @@ function setup_upload_support_file_dialog() {
   dialog.addClass("reveal-modal").attr("data-reveal", "");
   $vnc_dialog.foundation();
 
+  if (getInternetExplorerVersion() > -1) {
+    $(".upload_support_file_form_button").text("Uploading files through IE is not supported");
+    $(".upload_support_file_form_button").attr("disabled", "disabled");
+  } else {
     var uploader = new Resumable({
         target: '/upload_chunk',
         chunkSize: 10*1024*1024,
@@ -420,6 +424,7 @@ function setup_upload_support_file_dialog() {
       $upload_support_file.foundation("reveal", "close")
       return false;
     })
+  }
 }
 
 function initialize_create_support_request_dialog() {

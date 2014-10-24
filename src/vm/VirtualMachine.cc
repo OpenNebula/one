@@ -1683,9 +1683,6 @@ int VirtualMachine::get_disk_images(string& error_str)
 
     vector<Attribute*>::iterator it;
 
-    // -------------------------------------------------------------------------
-    // The context is the first of the cdroms
-    // -------------------------------------------------------------------------
     num_context = user_obj_template->remove("CONTEXT", context_disks);
     num_disks   = user_obj_template->remove("DISK", disks);
 
@@ -1702,35 +1699,6 @@ int VirtualMachine::get_disk_images(string& error_str)
     if ( num_disks > 20 )
     {
         goto error_max_disks;
-    }
-
-    if ( num_context > 0 )
-    {
-        disk = dynamic_cast<VectorAttribute * >(context_disks[0]);
-
-        if ( disk != 0 )
-        {
-            target = disk->vector_value("TARGET");
-
-            if ( !target.empty() )
-            {
-                used_targets.insert(target);
-            }
-            else
-            {
-                dev_prefix = disk->vector_value("DEV_PREFIX");
-
-                if ( dev_prefix.empty() )
-                {
-                    dev_prefix = ipool->default_cdrom_dev_prefix();
-                }
-
-                cdrom_disks.push(make_pair(dev_prefix, disk));
-            }
-
-            // Disk IDs are 0..num-1, context disk is is num
-            disk->replace("DISK_ID", num_disks);
-        }
     }
 
     // -------------------------------------------------------------------------
@@ -1802,6 +1770,41 @@ int VirtualMachine::get_disk_images(string& error_str)
             error_str = oss.str();
 
             goto error_common;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // The context is the last of the cdroms
+    // -------------------------------------------------------------------------
+    if ( num_context > 0 )
+    {
+        disk = dynamic_cast<VectorAttribute * >(context_disks[0]);
+
+        if ( disk != 0 )
+        {
+            target = disk->vector_value("TARGET");
+
+            if ( !target.empty() )
+            {
+                if (  used_targets.insert(target).second == false )
+                {
+                    goto error_duplicated_target;
+                }
+            }
+            else
+            {
+                dev_prefix = disk->vector_value("DEV_PREFIX");
+
+                if ( dev_prefix.empty() )
+                {
+                    dev_prefix = ipool->default_cdrom_dev_prefix();
+                }
+
+                cdrom_disks.push(make_pair(dev_prefix, disk));
+            }
+
+            // Disk IDs are 0..num-1, context disk is is num
+            disk->replace("DISK_ID", num_disks);
         }
     }
 

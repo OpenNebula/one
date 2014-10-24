@@ -37,13 +37,12 @@
             <availabilityZone>default</availabilityZone>
           </placement>
           <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
-
           <kernelId>eki-EA801065</kernelId>
           <ramdiskId>eri-1FEE1144</ramdiskId>
           <monitoring>
-            <state>false</state>
+            <state>disabled</state>
           </monitoring>
-
+          <clientToken><%= vm['USER_TEMPLATE/EC2_CLIENT_TOKEN'] %></clientToken>
         </item>
         <% end %>
         <% end %>
