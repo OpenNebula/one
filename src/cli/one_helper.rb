@@ -370,7 +370,7 @@ EOT
                     endpoint=options[:endpoint]
                 end
 
-                @@client=OpenNebula::Client.new(secret, endpoint)
+                @@client=OpenNebula::Client.new(secret, endpoint, :sync => true)
             end
         end
 
