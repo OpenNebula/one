@@ -158,7 +158,7 @@ module OpenNebula
             http = @server.instance_variable_get("@http")
 
             if options[:cert_dir] || ENV['ONE_CERT_DIR']
-                STDERR.puts "SSL options don't work in async mode" if @async
+                raise "SSL options don't work in async mode" if @async
 
                 cert_dir = options[:cert_dir] || ENV['ONE_CERT_DIR']
                 cert_files = Dir["#{cert_dir}/*"]
@@ -171,7 +171,7 @@ module OpenNebula
             end
 
             if options[:disable_ssl_verify] || ENV['ONE_DISABLE_SSL_VERIFY']
-                STDERR.puts "SSL options don't work in async mode" if @async
+                raise "SSL options don't work in async mode" if @async
 
                 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
             end
