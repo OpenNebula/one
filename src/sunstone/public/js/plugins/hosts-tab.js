@@ -766,7 +766,7 @@ function updateHostInfo(request,host){
     var stripped_host_template = {};
     var unshown_values         = {};
 
-    if (host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+    if (host_info.TEMPLATE.HYPERVISOR && host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
     {
       stripped_host_template = host_info.TEMPLATE;
     }
