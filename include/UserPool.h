@@ -145,6 +145,7 @@ public:
      *   @return false if authn failed, true otherwise
      */
     bool authenticate(const string& session,
+                      string&       password,
                       int&          uid,
                       int&          gid,
                       string&       uname,
@@ -221,6 +222,7 @@ private:
      */
     bool authenticate_internal(User *        user,
                                const string& token,
+                               string&       password,
                                int&          user_id,
                                int&          group_id,
                                string&       uname,
@@ -233,6 +235,7 @@ private:
      */
     bool authenticate_server(User *        user,
                              const string& token,
+                             string&       password,
                              int&          user_id,
                              int&          group_id,
                              string&       uname,
@@ -246,6 +249,7 @@ private:
      */
     bool authenticate_external(const string&    username,
                                const string&    token,
+                               string&          password,
                                int&             user_id,
                                int&             group_id,
                                string&          uname,

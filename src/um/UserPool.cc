@@ -415,6 +415,7 @@ int UserPool::update_quotas(User * user)
 
 bool UserPool::authenticate_internal(User *        user,
                                      const string& token,
+                                     string&       password,
                                      int&          user_id,
                                      int&          group_id,
                                      string&       uname,
@@ -426,7 +427,6 @@ bool UserPool::authenticate_internal(User *        user,
 
     ostringstream oss;
 
-    string password;
     string auth_driver;
     string username;
 
@@ -527,6 +527,8 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    password = "";
+
     group_ids.clear();
 
     uname = "";
@@ -542,6 +544,7 @@ auth_failure:
 
 bool UserPool::authenticate_server(User *        user,
                                    const string& token,
+                                   string&       password,
                                    int&          user_id,
                                    int&          group_id,
                                    string&       uname,
@@ -586,6 +589,8 @@ bool UserPool::authenticate_server(User *        user,
     {
         goto auth_failure_user;
     }
+
+    password = user->get_password();
 
     user_id  = user->oid;
     group_id = user->gid;
@@ -663,6 +668,8 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    password = "";
+
     group_ids.clear();
 
     uname = "";
@@ -678,6 +685,7 @@ auth_failure:
 
 bool UserPool::authenticate_external(const string&  username,
                                      const string&  token,
+                                     string&        password,
                                      int&           user_id,
                                      int&           group_id,
                                      string&        uname,
@@ -855,6 +863,8 @@ bool UserPool::authenticate_external(const string&  username,
 
     uname = mad_name;
 
+    password = mad_pass;
+
     umask = User::get_default_umask();
 
     return true;
@@ -881,6 +891,8 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    password = "";
+
     group_ids.clear();
 
     uname = "";
@@ -895,6 +907,7 @@ auth_failure:
 /* -------------------------------------------------------------------------- */
 
 bool UserPool::authenticate(const string& session,
+                            string&       password,
                             int&          user_id,
                             int&          group_id,
                             string&       uname,
@@ -924,19 +937,19 @@ bool UserPool::authenticate(const string& session,
 
         if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
         {
-            ar = authenticate_server(user, token, user_id, group_id, uname,
-                gname, group_ids, umask);
+            ar = authenticate_server(user, token, password, user_id, group_id,
+                uname, gname, group_ids, umask);
         }
         else
         {
-            ar = authenticate_internal(user, token, user_id, group_id, uname,
-                gname, group_ids, umask);
+            ar = authenticate_internal(user, token, password, user_id, group_id,
+                uname, gname, group_ids, umask);
         }
     }
     else
     {
-        ar = authenticate_external(username, token, user_id, group_id, uname,
-            gname, group_ids, umask);
+        ar = authenticate_external(username, token, password, user_id, group_id,
+            uname, gname, group_ids, umask);
     }
 
    return ar;

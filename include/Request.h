@@ -57,6 +57,25 @@ public:
         INTERNAL       = 0x2000,
     };
 
+    /**
+     *  Sets the format string to log xml-rpc method calls. The format string
+     *  interprets the following sequences:
+     *    %i -- request id
+     *    %m -- method name
+     *    %u -- user id
+     *    %U -- user name
+     *    %l -- param list
+     *    %p -- user password
+     *    %g -- group id
+     *    %G -- group name
+     *    %a -- auth token
+     *    %% -- %
+     */
+    static void set_call_log_format(const string& log_format)
+    {
+        format_str = log_format;
+    }
+
 protected:
 
     /* ---------------------------------------------------------------------*/
@@ -72,6 +91,8 @@ protected:
 
         string uname;             /**< name of the user */
         string gname;             /**< name of the user's group */
+
+        string password;          /**< password of the user */
 
         set<int> group_ids;       /**< set of user's group ids */
 
@@ -92,6 +113,8 @@ protected:
             uname = ra.uname;
             gname = ra.gname;
 
+            password = ra.password;
+
             session  = ra.session;
             retval   = ra.retval;
 
@@ -102,6 +125,8 @@ protected:
         {
             uid = _uid;
             gid = _gid;
+
+            password = "";
 
             uname = "";
             gname = "";
@@ -122,6 +147,8 @@ protected:
     AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
 
     set<int> hidden_params;
+
+    static string format_str;
 
     /* -------------------- Constructors ---------------------------------- */
 

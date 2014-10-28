@@ -41,6 +41,8 @@
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
 
+#include "Request.h"
+
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -49,6 +51,31 @@
 #include <fcntl.h>
 #include <string.h>
 #include <cstring>
+
+
+RequestManager::RequestManager(
+        int _port,
+        int _max_conn,
+        int _max_conn_backlog,
+        int _keepalive_timeout,
+        int _keepalive_max_conn,
+        int _timeout,
+        const string _xml_log_file,
+        const string call_log_format):
+            port(_port),
+            socket_fd(-1),
+            max_conn(_max_conn),
+            max_conn_backlog(_max_conn_backlog),
+            keepalive_timeout(_keepalive_timeout),
+            keepalive_max_conn(_keepalive_max_conn),
+            timeout(_timeout),
+            xml_log_file(_xml_log_file)
+{
+    Request::set_call_log_format(call_log_format);
+
+    am.addListener(this);
+};
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
