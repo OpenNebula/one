@@ -34,8 +34,12 @@ module X509CloudAuth
             end
 
             # Password should be DN with whitespace removed.
-            username = get_username(
-                OpenNebula::X509Auth.escape_dn(cert.subject.to_s))
+            username = get_username(OpenNebula::X509Auth.escape_dn(
+                cert.subject.to_s))
+
+            # For proxy certificates look at the issuer
+            username = get_username(OpenNebula::X509Auth.escape_dn(
+                cert.issuer.to_s)) if username.nil?
 
             return username if username
 
