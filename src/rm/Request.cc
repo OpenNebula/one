@@ -82,7 +82,14 @@ void Request::log_method_invoked(
 
     for (unsigned int i=1; i<paramList.size(); i++)
     {
-        log_xmlrpc_param(paramList[i], oss, i);
+        if ( hidden_params.count(i) == 1 )
+        {
+            oss << ", ****";
+        }
+        else
+        {
+            log_xmlrpc_value(paramList[i], oss);
+        }
     }
 
     NebulaLog::log("ReM",Log::DEBUG, oss);
@@ -130,17 +137,6 @@ void Request::log_result(
 
         NebulaLog::log("ReM",Log::ERROR, oss);
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Request::log_xmlrpc_param(
-        const xmlrpc_c::value&  v,
-        ostringstream&          oss,
-        const int&              index)
-{
-    log_xmlrpc_value(v, oss);
 }
 
 /* -------------------------------------------------------------------------- */

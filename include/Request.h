@@ -121,6 +121,8 @@ protected:
     PoolObjectSQL::ObjectType auth_object;/**< Auth object for the request */
     AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
 
+    set<int> hidden_params;
+
     /* -------------------- Constructors ---------------------------------- */
 
     Request(const string& mn,
@@ -129,6 +131,8 @@ protected:
     {
         _signature = signature;
         _help      = help;
+
+        hidden_params.clear();
     };
 
     virtual ~Request(){};
@@ -340,18 +344,6 @@ protected:
      */
     virtual void log_result(
             const RequestAttributes&    att);
-
-    /**
-     * Formats and adds a xmlrpc_c::value input parameter to oss.
-     *
-     * @param v value to format
-     * @param oss stream to write v
-     * @param index parameter index
-     */
-    virtual void log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index);
 
     /**
      * Formats and adds a xmlrpc_c::value to oss.

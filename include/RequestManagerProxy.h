@@ -41,13 +41,6 @@ private:
     Client *  client;
 
     string    method;
-
-    int hidden_arg;
-
-    void log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index);
 };
 
 #endif

@@ -312,6 +312,8 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_upool();
         auth_object = PoolObjectSQL::USER;
+
+        hidden_params.insert(2); // password argument
     };
 
     ~UserAllocate(){};
@@ -321,11 +323,6 @@ public:
                       int& id,
                       string& error_str,
                       RequestAttributes& att);
-
-    void log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index);
 };
 
 /* ------------------------------------------------------------------------- */
