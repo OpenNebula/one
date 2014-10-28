@@ -328,16 +328,6 @@ protected:
                   bool                      throw_error);
 
     /**
-     * Logs the method invocation, including the arguments
-     *
-     * @param att the specific request attributes
-     * @param paramList list of XML parameters
-     */
-    virtual void log_method_invoked(
-            const RequestAttributes&    att,
-            const xmlrpc_c::paramList&  paramList);
-
-    /**
      * Logs the method result, including the output data or error message
      *
      * @param att the specific request attributes
@@ -356,6 +346,16 @@ protected:
             ostringstream&          oss);
 
 private:
+
+    /**
+     * Logs the method invocation, including the arguments
+     *
+     * @param att the specific request attributes
+     * @param paramList list of XML parameters
+     */
+    void log_method_invoked(
+            const RequestAttributes&    att,
+            const xmlrpc_c::paramList&  paramList);
 
     /* ------------- Functions to manage user and group quotas -------------- */
 
