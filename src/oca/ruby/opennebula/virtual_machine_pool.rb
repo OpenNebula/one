@@ -27,7 +27,8 @@ module OpenNebula
         VM_POOL_METHODS = {
             :info       => "vmpool.info",
             :monitoring => "vmpool.monitoring",
-            :accounting => "vmpool.accounting"
+            :accounting => "vmpool.accounting",
+            :showback   => "vmpool.showback"
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -160,6 +161,28 @@ module OpenNebula
         # @return [String] VM monitoring data, in XML
         def monitoring_xml(filter_flag=INFO_ALL)
             return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
+        end
+
+        # Retrieves the showback data for all the VMs in the pool, in XML
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_time Start date and time to take into account,
+        #   if no start_time is required use -1
+        # @option params [Integer] :end_time End date and time to take into account,
+        #   if no end_time is required use -1
+        def showback_xml(filter_flag=INFO_ALL, options={})
+
+            filter_flag ||= INFO_ALL
+            options[:start_time] ||= -1
+            options[:end_time] ||= -1
+
+            return @client.call(VM_POOL_METHODS[:showback],
+                        filter_flag,
+                        options[:start_time],
+                        options[:end_time])
         end
 
         # Retrieves the accounting data for all the VMs in the pool

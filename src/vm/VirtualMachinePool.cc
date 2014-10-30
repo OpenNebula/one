@@ -354,6 +354,44 @@ int VirtualMachinePool::dump_acct(ostringstream& oss,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachinePool::dump_showback(ostringstream& oss,
+                                      const string&  where,
+                                      int            time_start,
+                                      int            time_end)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT " << VirtualMachine::showback_table << ".body FROM "
+        << VirtualMachine::showback_table
+        << " INNER JOIN " << VirtualMachine::table
+        << " WHERE vmid=oid";
+
+    if ( !where.empty() )
+    {
+        cmd << " AND " << where;
+    }
+
+    if ( time_start != -1 || time_end != -1 )
+    {
+        if ( time_start != -1 )
+        {
+            cmd << " AND (etime > " << time_start << " OR  etime = 0)";
+        }
+
+        if ( time_end != -1 )
+        {
+            cmd << " AND stime < " << time_end;
+        }
+    }
+
+    cmd << " ORDER BY year,month,vmid";
+
+    return PoolSQL::dump(oss, "SHOWBACK_RECORDS", cmd);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachinePool::clean_expired_monitoring()
 {
     if ( _monitor_expiration == 0 )

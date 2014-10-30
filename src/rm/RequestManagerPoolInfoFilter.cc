@@ -165,6 +165,50 @@ void VirtualMachinePoolAccounting::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void VirtualMachinePoolShowback::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int time_start  = xmlrpc_c::value_int(paramList.getInt(2));
+    int time_end    = xmlrpc_c::value_int(paramList.getInt(3));
+
+    ostringstream oss;
+    string        where;
+    int           rc;
+
+    if ( filter_flag < MINE )
+    {
+        failure_response(XML_RPC_API,
+                request_error("Incorrect filter_flag",""),
+                att);
+        return;
+    }
+
+    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
+
+    // TODO debug: this will be a separate xml-rpc call
+    (static_cast<VirtualMachinePool *>(pool))->calculate_showback();
+
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_showback(oss,
+                                                              where,
+                                                              time_start,
+                                                              time_end);
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void VirtualMachinePoolMonitoring::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)

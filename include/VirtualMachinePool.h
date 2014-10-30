@@ -231,6 +231,19 @@ public:
                   int            time_end);
 
     /**
+     *  Dumps the VM showback information in XML format. A filter can be also
+     *  added to the query as well as a time frame.
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *
+     *  @return 0 on success
+     */
+    int dump_showback(ostringstream& oss,
+                      const string&  where,
+                      int            time_start,
+                      int            time_end);
+
+    /**
      *  Dumps the VM monitoring information entries in XML format. A filter
      *  can be also added to the query.
      *
