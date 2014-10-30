@@ -298,6 +298,11 @@ private:
      * True or false whether to submit new VM on HOLD or not
      */
     static bool _submit_on_hold;
+
+    /**
+     * Callback used in calculate_showback
+     */
+    int min_stime_cb(void * _min_stime, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

@@ -455,6 +455,18 @@ int VirtualMachinePool::dump_monitoring(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachinePool::min_stime_cb(void * _min_stime, int num, char **values, char **names)
+{
+    if ( num == 0 || values == 0 || values[0] == 0 )
+    {
+        return -1;
+    }
+
+    *static_cast<int*>(_min_stime) = atoi(values[0]);
+
+    return 0;
+}
+
 void VirtualMachinePool::calculate_showback()
 {
     vector<xmlNodePtr>              nodes;
@@ -488,14 +500,26 @@ void VirtualMachinePool::calculate_showback()
     // Set start and end times for the window to process
     //--------------------------------------------------------------------------
 
-    // TODO: min and max: from params, or absolute from SQL min(stime) from history
-    start_time = 1405395340;
+    // TODO: init from params?
+    start_time = time(0);
     end_time = time(0);
+
+    // Set start time to the lowest stime from the history records
+
+    set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::min_stime_cb),
+                 static_cast<void *>(&start_time));
+
+    oss << "SELECT MIN(stime) FROM " << History::table;
+
+    rc = db->exec(oss, this);
+
+    unset_callback();
 
     //--------------------------------------------------------------------------
     // Get accounting history records
     //--------------------------------------------------------------------------
 
+    oss.str("");
     rc = dump_acct(oss, "", start_time, end_time);
 
     ObjectXML xml(oss.str());
