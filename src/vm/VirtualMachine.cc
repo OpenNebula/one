@@ -115,6 +115,16 @@ const char * VirtualMachine::monit_db_bootstrap = "CREATE TABLE IF NOT EXISTS "
     "vm_monitoring (vmid INTEGER, last_poll INTEGER, body MEDIUMTEXT, "
     "PRIMARY KEY(vmid, last_poll))";
 
+
+const char * VirtualMachine::showback_table = "vm_showback";
+
+const char * VirtualMachine::showback_db_names = "vmid, year, month, body";
+
+const char * VirtualMachine::showback_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS vm_showback "
+    "(vmid INTEGER, year INTEGER, month INTEGER, body MEDIUMTEXT, "
+    "PRIMARY KEY(vmid, year, month))";
+
 const char * VirtualMachine::NO_NIC_DEFAULTS[] = {"NETWORK_ID", "NETWORK",
     "NETWORK_UID", "NETWORK_UNAME"};
 

@@ -260,6 +260,12 @@ public:
         return dump_monitoring(oss, filter.str());
     }
 
+    /**
+     * Processes all the history records, and stores the monthly cost for each
+     * VM
+     */
+    void calculate_showback();
+
 private:
     /**
      *  Factory method to produce VM objects

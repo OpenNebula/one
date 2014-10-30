@@ -413,3 +413,210 @@ int VirtualMachinePool::dump_monitoring(
 
     return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::calculate_showback()
+{
+    vector<xmlNodePtr>              nodes;
+    vector<xmlNodePtr>::iterator    node_it;
+
+    vector<time_t>                  showback_slots;
+    vector<time_t>::iterator        slot_it;
+
+    // map<vid, map<month, total_cost> >
+    map<int, map<time_t, float> >           vm_cost;
+    map<int, map<time_t, float> >::iterator vm_it;
+    map<time_t, float>::iterator            vm_month_it;
+
+    time_t          start_time;
+    time_t          end_time;
+
+    int             rc;
+    ostringstream   oss;
+    ostringstream   body;
+    char *          sql_body;
+
+    int     vid;
+    int     h_stime;
+    int     h_etime;
+    float   cpu_cost;
+    float   mem_cost;
+    float   cpu;
+    int     mem;
+
+    //--------------------------------------------------------------------------
+    // Set start and end times for the window to process
+    //--------------------------------------------------------------------------
+
+    // TODO: min and max: from params, or absolute from SQL min(stime) from history
+    start_time = 1405395340;
+    end_time = time(0);
+
+    //--------------------------------------------------------------------------
+    // Get accounting history records
+    //--------------------------------------------------------------------------
+
+    rc = dump_acct(oss, "", start_time, end_time);
+
+    ObjectXML xml(oss.str());
+
+    //--------------------------------------------------------------------------
+    // Create the monthly time slots
+    //--------------------------------------------------------------------------
+
+    // Reset stime to 1st of month, 00:00
+    tm tmp_tm = *localtime(&start_time);
+
+    tmp_tm.tm_sec  = 0;
+    tmp_tm.tm_min  = 0;
+    tmp_tm.tm_hour = 0;
+    tmp_tm.tm_mday = 1;
+
+    time_t tmp_t = mktime(&tmp_tm);
+
+    while(tmp_t < end_time)
+    {
+        showback_slots.push_back(tmp_t);
+
+        tmp_tm.tm_mon++;
+        tmp_t = mktime(&tmp_tm);
+    }
+
+    //--------------------------------------------------------------------------
+    // Process the history records
+    //--------------------------------------------------------------------------
+
+    rc = xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
+
+    for ( node_it = nodes.begin(); node_it != nodes.end(); node_it++ )
+    {
+        ObjectXML history(*node_it);
+
+        history.xpath(vid,      "/HISTORY/OID", -1);
+
+        history.xpath(h_stime,  "/HISTORY/STIME", 0);
+        history.xpath(h_etime,  "/HISTORY/ETIME", 0);
+
+        history.xpath(cpu,      "/HISTORY/VM/TEMPLATE/CPU", 0);
+        history.xpath(mem,      "/HISTORY/VM/TEMPLATE/MEMORY", 0);
+
+        // TODO: cpu/mem cost should be moved to TEMPLATE
+        history.xpath(cpu_cost, "/HISTORY/VM/USER_TEMPLATE/CPU_COST", 0);
+        history.xpath(mem_cost, "/HISTORY/VM/USER_TEMPLATE/MEMORY_COST", 0);
+
+        // TODO debug
+        /*=====================================================================
+        ostringstream st;
+
+        int seq;
+        history.xpath(seq, "/HISTORY/SEQ", -1);
+
+        st << "VM " << vid << " SEQ " << seq << endl
+            << "h_stime   " << h_stime << endl
+            << "h_etime   " << h_etime << endl
+            << "cpu_cost  " << cpu_cost << endl
+            << "mem_cost  " << mem_cost << endl
+            << "cpu       " << cpu << endl
+            << "mem       " << mem;
+
+        NebulaLog::log("SHOWBACK", Log::DEBUG, st);
+        //====================================================================*/
+
+        for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
+        {
+            time_t t      = *slot_it;
+            time_t t_next = *(slot_it+1);
+
+            if( (h_etime > t || h_etime == 0) &&
+                (h_stime != 0 && h_stime <= t_next) ) {
+
+                time_t stime = t;
+                if(h_stime != 0){
+                    stime = (t < h_stime) ? h_stime : t; //max(t, h_stime);
+                }
+
+                time_t etime = t_next;
+                if(h_etime != 0){
+                    etime = (t_next < h_etime) ? t_next : h_etime; //min(t_next, h_etime);
+                }
+
+                int n_hours = difftime(etime, stime) / 60 / 60;
+
+                int cost = 0;
+
+                cost += cpu_cost * cpu * n_hours;
+                cost += mem_cost * mem * n_hours;
+
+                // Add to vm time slot.
+                map<time_t, float>& total_cost = vm_cost[vid];
+
+                if(total_cost.count(t) == 0)
+                {
+                    total_cost[t] = 0;
+                }
+
+                total_cost[t] += cost;
+            }
+        }
+    }
+
+    xml.free_nodes(nodes);
+
+    // Write to DB
+
+    for ( vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
+    {
+        map<time_t, float>& total_cost = vm_it->second;
+
+        for ( vm_month_it = total_cost.begin(); vm_month_it != total_cost.end(); vm_month_it++ )
+        {
+            tm tmp_tm = *localtime(&vm_month_it->first);
+
+            body.str("");
+
+            // TODO: truncate float values to 2 decimals?
+
+            body << "<SHOWBACK>"
+                    << "<VMID>"     << vm_it->first             << "</VMID>"
+                    << "<YEAR>"     << tmp_tm.tm_year + 1900    << "</YEAR>"
+                    << "<MONTH>"    << tmp_tm.tm_mon + 1        << "</MONTH>"
+                    << "<COST>"     << vm_month_it->second      << "</COST>"
+                << "</SHOWBACK>";
+
+            oss.str("");
+
+            sql_body =  db->escape_str(body.str().c_str());
+
+            if ( sql_body == 0 )
+            {
+                // TODO
+            }
+
+            oss << "REPLACE INTO " << VirtualMachine::showback_table
+                << " ("<< VirtualMachine::showback_db_names <<") VALUES ("
+                <<          vm_it->first            << ","
+                <<          tmp_tm.tm_year + 1900   << ","
+                <<          tmp_tm.tm_mon + 1       << ","
+                << "'" <<   sql_body                << "')";
+
+            db->free_str(sql_body);
+
+            rc = db->exec(oss);
+
+
+            // TODO: debug
+            /*=================================================================
+            ostringstream st;
+
+            st << "VM " << vm_it->first
+                << " cost for Y " << tmp_tm.tm_year + 1900
+                << " M " << tmp_tm.tm_mon + 1
+                << " COST " << vm_month_it->second << " €";
+
+            NebulaLog::log("SHOWBACK", Log::DEBUG, st);
+            //================================================================*/
+        }
+    }
+}
