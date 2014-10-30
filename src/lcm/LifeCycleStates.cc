@@ -45,6 +45,8 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->set_state(VirtualMachine::PROLOG_MIGRATE);
 
+        vm->delete_snapshots();
+
         map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
 
@@ -83,6 +85,8 @@ void  LifeCycleManager::save_success_action(int vid)
         //----------------------------------------------------
         //                SUSPENDED STATE
         //----------------------------------------------------
+
+        vm->delete_snapshots();
 
         map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
@@ -292,6 +296,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
         vm->set_state(VirtualMachine::RUNNING);
+
+        vm->delete_snapshots();
 
         vmpool->update(vm);
 
@@ -543,6 +549,8 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //                POWEROFF STATE
         //----------------------------------------------------
 
+        vm->delete_snapshots();
+
         map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
 
@@ -569,6 +577,8 @@ void  LifeCycleManager::shutdown_success_action(int vid)
         //----------------------------------------------------
 
         vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+        vm->delete_snapshots();
 
         map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
@@ -1030,6 +1040,8 @@ void  LifeCycleManager::cancel_success_action(int vid)
 
         vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
 
+        vm->delete_snapshots();
+
         map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
 
@@ -1055,6 +1067,8 @@ void  LifeCycleManager::cancel_success_action(int vid)
         //                POWEROFF STATE
         //----------------------------------------------------
         map<string, string> empty;
+
+        vm->delete_snapshots();
 
         vm->update_info(0, 0, -1, -1, empty);
 
@@ -1191,6 +1205,8 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->set_resched(false);
 
+        vm->delete_snapshots();
+
         map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
 
@@ -1280,6 +1296,8 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
 
         Nebula&             nd = Nebula::instance();
         DispatchManager *   dm = nd.get_dm();
+
+        vm->delete_snapshots();
 
         vm->update_info(0, 0, -1, -1, empty);
 
