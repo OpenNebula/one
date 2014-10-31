@@ -537,6 +537,8 @@ function updateUsersView(request,users_list,quotas_list){
 function updateUserInfo(request,user){
     var info = user.USER;
 
+    $(".resource-info-header", $("#users-tab")).html(info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",

@@ -1739,6 +1739,9 @@ function setup_nic_tab_content(nic_section, str_nic_tab_id) {
 // Callback to update the information panel tabs and pop it up
 function updateTemplateInfo(request,template){
     var template_info = template.VMTEMPLATE;
+
+    $(".resource-info-header", $("#templates-tab")).html(template_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",
@@ -2570,7 +2573,7 @@ function wizard_tab_content(){
                 '<input type="text" id="KEY" name="key" />'+
               '</div>'+
               '<div class="large-6 columns">'+
-                '<input type="text" id="VALUE" name="value" />'+
+                '<textarea type="text" id="VALUE" name="value" />'+
               '</div>'+
               '<div class="large-2 columns">'+
                   '<button type="button" class="button secondary radius small" id="add_context">'+tr("Add")+'</button>'+
@@ -2859,7 +2862,7 @@ function wizard_tab_content(){
               '<input type="text" id="KEY" name="key" />'+
             '</div>'+
             '<div class="large-6 columns">'+
-              '<input type="text" id="VALUE" name="value" />'+
+              '<textarea type="text" id="VALUE" name="value" />'+
             '</div>'+
             '<div class="large-2 columns">'+
                 '<button type="button" class="button secondary small radius" id="add_context">'+tr("Add")+'</button>'+
@@ -3219,10 +3222,10 @@ function setup_context_tab_content(context_section) {
         cell1.appendChild(element1);
 
         var cell2 = row.insertCell(1);
-        var element2 = document.createElement("input");
+        var element2 = document.createElement("textarea");
         element2.id = "VALUE";
         element2.type = "text";
-        element2.value = $('input#VALUE', $('#contextTab')).val()
+        element2.value = $('textarea#VALUE', $('#contextTab')).val()
         cell2.appendChild(element2);
 
         var cell3 = row.insertCell(2);
@@ -4552,7 +4555,7 @@ var fillTemplatePopUp = function(template, dialog){
               cell1.appendChild(element1);
 
               var cell2 = row.insertCell(1);
-              var element2 = document.createElement("input");
+              var element2 = document.createElement("textarea");
               element2.id = "VALUE";
               element2.type = "text";
               element2.value = escapeDoubleQuotes(htmlDecode(value));
@@ -4690,7 +4693,7 @@ var fillTemplatePopUp = function(template, dialog){
         cell1.appendChild(element1);
 
         var cell2 = row.insertCell(1);
-        var element2 = document.createElement("input");
+        var element2 = document.createElement("textarea");
         element2.id = "VALUE";
         element2.type = "text";
         element2.value = htmlDecode(value);

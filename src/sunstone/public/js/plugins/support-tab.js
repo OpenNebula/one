@@ -493,7 +493,7 @@ Sunstone.addInfoPanel("support_info_panel", support_info_panel);
 //})
 //
 //$(document).on("click", "#li_enterprise-tab a", function(){
-//    window.open("http://c12g.com/support/");
+//    window.open("http://opennebula.systems/support/");
 //    return false;
 //})
 

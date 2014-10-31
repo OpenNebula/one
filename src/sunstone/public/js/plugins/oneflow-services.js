@@ -912,6 +912,8 @@ function updateServiceVMInfo(vmachine_list){
 function updateServiceInfo(request,elem){
     var elem_info = elem.DOCUMENT;
 
+    $(".resource-info-header", $("#oneflow-services")).html(elem_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",

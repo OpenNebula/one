@@ -650,6 +650,8 @@ function updateDatastoreInfo(request,ds){
     datastore_name = info.NAME;
     datastore_type = info.TYPE;
 
+    $(".resource-info-header", $("#datastores-tab")).html(info.NAME);
+
     switch(info.TYPE)
         {
           case '0':

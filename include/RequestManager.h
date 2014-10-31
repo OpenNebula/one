@@ -49,20 +49,10 @@ public:
             int _keepalive_timeout,
             int _keepalive_max_conn,
             int _timeout,
-            const string _xml_log_file):
-                port(_port),
-                socket_fd(-1),
-                max_conn(_max_conn),
-                max_conn_backlog(_max_conn_backlog),
-                keepalive_timeout(_keepalive_timeout),
-                keepalive_max_conn(_keepalive_max_conn),
-                timeout(_timeout),
-                xml_log_file(_xml_log_file)
-    {
-        am.addListener(this);
-    };
+            const string _xml_log_file,
+            const string call_log_format);
 
-    ~RequestManager(){}; 
+    ~RequestManager(){};
 
     /**
      *  This functions starts the associated listener thread (XML server), and

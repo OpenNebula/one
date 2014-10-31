@@ -82,23 +82,6 @@ int UserChangePassword::user_action(int     user_id,
 }
 
 /* -------------------------------------------------------------------------- */
-
-void UserChangePassword::log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index)
-{
-    if ( index == 2 )   // password argument
-    {
-        oss << ", ****";
-    }
-    else
-    {
-        Request::log_xmlrpc_param(v, oss, index);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int UserChangeAuth::user_action(int     user_id,
@@ -143,23 +126,6 @@ int UserChangeAuth::user_action(int     user_id,
     user->unlock();
 
     return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void UserChangeAuth::log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index)
-{
-    if ( index == 3 )   // password argument
-    {
-        oss << ", ****";
-    }
-    else
-    {
-        Request::log_xmlrpc_param(v, oss, index);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -472,4 +438,3 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
     success_response(token, att);
 }
-

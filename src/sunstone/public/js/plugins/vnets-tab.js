@@ -720,6 +720,8 @@ function updateVNetworkInfo(request,vn){
         hidden_values.SECURITY_GROUPS = vn_info.TEMPLATE.SECURITY_GROUPS;
     }
 
+    $(".resource-info-header", $("#vnets-tab")).html(vn_info.NAME);
+
     var reservation_row = '';
 
     if(vn_info.PARENT_NETWORK_ID.length > 0){

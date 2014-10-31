@@ -220,6 +220,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  TIMEOUT
 #  RPC_LOG
 #  MESSAGE_SIZE
+#  LOG_CALL_FORMAT
 #*******************************************************************************
 */
     // MAX_CONN
@@ -262,6 +263,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "1073741824";
 
     attribute = new SingleAttribute("MESSAGE_SIZE",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //LOG_CALL_FORMAT
+    value = "Req:%i UID:%u %m invoked %l";
+
+    attribute = new SingleAttribute("LOG_CALL_FORMAT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 /*
 #*******************************************************************************

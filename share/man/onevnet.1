@@ -40,6 +40,7 @@
  \-n, \-\-numeric             Do not translate user and group IDs
  \-k, \-\-kilobytes           Show units in kilobytes
  \-\-describe                Describe list columns
+ \-\-show\-ar                 Show also AR templates
  \-a, \-\-append              Append new attributes to the current template
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
@@ -59,7 +60,7 @@ create \fIfile\fR Creates a new Virtual Network from the given template file val
 delete \fIrange|vnetid_list\fR Deletes the given Virtual Network
 .
 .IP "\(bu" 4
-addar \fIvnetid\fR Adds an address range to the Virtual Network valid options: verbose, help, version, user, password, endpoint, size, mac, ip, ip6_global, ip6_ula, gateway, netmask, vlan, vlanid
+addar \fIvnetid\fR [\fIfile\fR] Adds an address range to the Virtual Network valid options: verbose, help, version, user, password, endpoint, size, mac, ip, ip6_global, ip6_ula, gateway, netmask, vlan, vlanid
 .
 .IP "\(bu" 4
 addleases \fIvnetid\fR \fIip\fR [\fImac\fR] (DEPRECATED, use addar) Adds a lease to the Virtual Network
@@ -95,7 +96,7 @@ chmod \fIrange|vnetid_list\fR \fIoctet\fR Changes the Virtual Network permission
 list [\fIfilterflag\fR] Lists Virtual Networks in the pool valid options: list, delay, filter, csv, xml, numeric, kilobytes, describe
 .
 .IP "\(bu" 4
-show \fIvnetid\fR Shows information for the given Virtual Network valid options: xml
+show \fIvnetid\fR Shows information for the given Virtual Network valid options: xml, show_ar
 .
 .IP "\(bu" 4
 update \fIvnetid\fR [\fIfile\fR] Update the template contents\. If a path is not provided the editor will be launched to modify the current content\. valid options: append
@@ -140,7 +141,7 @@ ar_id Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.9\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.10\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

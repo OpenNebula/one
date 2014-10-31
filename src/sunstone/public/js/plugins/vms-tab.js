@@ -925,7 +925,7 @@ var vms_tab = {
     parentTab: 'vresources-tab',
     search_input: '<input id="vms_search" type="text" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Machines"),
-    info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Machine"),
+    info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("VM"),
     subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
         <span class="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
@@ -1341,6 +1341,7 @@ function updateVMInfo(request,vm){
         else
             unshown_values[key]=vm_info.USER_TEMPLATE[key];
 
+    $(".resource-info-header", $("#vms-tab")).html(vm_info.NAME);
 
     var info_tab = {
         title : tr("Info"),

@@ -757,6 +757,8 @@ function insert_datastores_capacity_table(host_share) {
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
+    $(".resource-info-header", $("#hosts-tab")).html(host_info.NAME);
+
     var cpu_bars = generateCPUProgressBar(host_info);
     var mem_bars = generateMEMProgressBar(host_info);
 
@@ -764,7 +766,7 @@ function updateHostInfo(request,host){
     var stripped_host_template = {};
     var unshown_values         = {};
 
-    if (host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+    if (host_info.TEMPLATE.HYPERVISOR && host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
     {
       stripped_host_template = host_info.TEMPLATE;
     }

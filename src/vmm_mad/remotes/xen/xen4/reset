@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
@@ -14,49 +16,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+source $(dirname $0)/xenrc
+source $(dirname $0)/../../scripts_common.sh
 
-begin # require 'rubygems'
-    require 'rubygems'
-rescue Exception
-end
+deploy_id=$1
 
-require 'digest/sha1'
-require 'rexml/document'
-require 'pp'
-
-require 'opennebula/xml_utils'
-require 'opennebula/client'
-require 'opennebula/error'
-require 'opennebula/virtual_machine'
-require 'opennebula/virtual_machine_pool'
-require 'opennebula/virtual_network'
-require 'opennebula/virtual_network_pool'
-require 'opennebula/image'
-require 'opennebula/image_pool'
-require 'opennebula/user'
-require 'opennebula/user_pool'
-require 'opennebula/host'
-require 'opennebula/host_pool'
-require 'opennebula/template'
-require 'opennebula/template_pool'
-require 'opennebula/group'
-require 'opennebula/group_pool'
-require 'opennebula/acl'
-require 'opennebula/acl_pool'
-require 'opennebula/datastore'
-require 'opennebula/datastore_pool'
-require 'opennebula/cluster'
-require 'opennebula/cluster_pool'
-require 'opennebula/document'
-require 'opennebula/document_pool'
-require 'opennebula/zone'
-require 'opennebula/zone_pool'
-require 'opennebula/security_group'
-require 'opennebula/security_group_pool'
-require 'opennebula/system'
-
-module OpenNebula
-
-    # OpenNebula version
-    VERSION = '4.10.0'
-end
+exec_and_log "$XM_REBOOT -F $deploy_id" "Could not reset domain $deploy_id"

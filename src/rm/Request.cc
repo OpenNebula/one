@@ -19,6 +19,8 @@
 
 #include "PoolObjectAuth.h"
 
+string Request::format_str;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -37,6 +39,7 @@ void Request::execute(
     UserPool* upool = nd.get_upool();
 
     bool authenticated = upool->authenticate(att.session,
+                                             att.password,
                                              att.uid,
                                              att.gid,
                                              att.uname,
@@ -67,22 +70,75 @@ void Request::log_method_invoked(
 {
     ostringstream oss;
 
-    oss << "Req:" << att.req_id << " UID:";
-
-    if ( att.uid != -1 )
+    for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
     {
-        oss << att.uid;
-    }
-    else
-    {
-        oss << "-";
-    }
+        if (format_str[j] != '%')
+        {
+            oss << format_str[j];
+        }
+        else
+        {
+            char mod = format_str[j+1];
 
-    oss << " " << method_name << " invoked";
+            switch(mod)
+            {
+                case '%':
+                    oss << "%";
+                break;
 
-    for (unsigned int i=1; i<paramList.size(); i++)
-    {
-        log_xmlrpc_param(paramList[i], oss, i);
+                case 'i':
+                    oss << att.req_id;
+                break;
+
+                case 'u':
+                    oss << att.uid;
+                break;
+
+                case 'U':
+                    oss << att.uname;
+                break;
+
+                case 'g':
+                    oss << att.gid;
+                break;
+
+                case 'G':
+                    oss << att.gname;
+                break;
+
+                case 'p':
+                    oss << att.password;
+                break;
+
+                case 'a':
+                    oss << att.session;
+                break;
+
+                case 'm':
+                    oss << method_name;
+                break;
+
+                case 'l':
+                    for (unsigned int i=1; i<paramList.size(); i++)
+                    {
+                        if ( hidden_params.count(i) == 1 )
+                        {
+                            oss << ", ****";
+                        }
+                        else
+                        {
+                            log_xmlrpc_value(paramList[i], oss);
+                        }
+                    }
+                break;
+
+                default:
+                    oss << format_str[j] << format_str[j+1];
+                break;
+            }
+
+            j = j+1;
+        }
     }
 
     NebulaLog::log("ReM",Log::DEBUG, oss);
@@ -130,17 +186,6 @@ void Request::log_result(
 
         NebulaLog::log("ReM",Log::ERROR, oss);
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void Request::log_xmlrpc_param(
-        const xmlrpc_c::value&  v,
-        ostringstream&          oss,
-        const int&              index)
-{
-    log_xmlrpc_value(v, oss);
 }
 
 /* -------------------------------------------------------------------------- */
