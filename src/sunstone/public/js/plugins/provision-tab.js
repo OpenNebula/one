@@ -6530,6 +6530,11 @@ $(document).ready(function(){
         }
 
         var role_template = $(this).data("opennebula");
+
+        $.each(role_template.elasticity_policies, function(i, pol){
+            pol.expression = htmlDecode(pol.expression);
+        });
+
         roles.push($.extend(role_template, {
           "cardinality": $(".cardinality_value", $(this)).text(),
           "user_inputs_values": user_inputs_values
