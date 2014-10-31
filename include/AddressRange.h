@@ -522,6 +522,13 @@ private:
      *  The restricted attributes from oned.conf
      */
     static set<string> restricted_attributes;
+
+    /**
+     *  Attributes to be process for Security Group rules
+     */
+    const static char * SG_RULE_ATTRIBUTES[];
+
+    const static int  NUM_SG_RULE_ATTRIBUTES;
 };
 
 #endif

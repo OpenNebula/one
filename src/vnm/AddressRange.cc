@@ -1073,18 +1073,25 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+const char * AddressRange::SG_RULE_ATTRIBUTES[] = {
+    "AR_ID",
+    "TYPE",
+    "SIZE",
+    "MAC",
+    "IP"};
+
+const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 5;
+
 void AddressRange::process_security_rule(
         VectorAttribute *        rule)
 {
-    string attrs [] = {"AR_ID", "TYPE", "SIZE", "MAC", "IP"};
-
-    for ( int i = 0; i < 5; i++ )
+    for ( int i = 0; i < NUM_SG_RULE_ATTRIBUTES; i++ )
     {
-        string st = attr->vector_value(attrs[i].c_str());
+        string st = attr->vector_value(SG_RULE_ATTRIBUTES[i]);
 
         if ( st != "" )
         {
-            rule->replace(attrs[i], st);
+            rule->replace(SG_RULE_ATTRIBUTES[i], st);
         }
     }
 }
