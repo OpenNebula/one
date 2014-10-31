@@ -968,20 +968,26 @@ function updateHostInfo(request,host){
       });
 
       var host_list_array = [];
-      $.each(host_info.TEMPLATE.HOST, function(){
 
-        var cpu_bars = generateCPUProgressBar(this, true);
-        var mem_bars = generateMEMProgressBar(this, true);
+      if (host_info.TEMPLATE.HOST) {
+        if (!(host_info.TEMPLATE.HOST instanceof Array)) {
+          host_list_array = [host_info.TEMPLATE.HOST];
+        } else if (host_info.TEMPLATE.HOST instanceof Array) {
+          $.each(host_info.TEMPLATE.HOST, function(){
 
-        host_list_array.push([
-            this.HOSTNAME,
-            this.STATE,
-            cpu_bars.real,
-            mem_bars.real
-        ]);
-      });
-      dataTable_esx_hosts.fnAddData(host_list_array);
-      delete host_info.TEMPLATE.HOST;
+            var cpu_bars = generateCPUProgressBar(this, true);
+            var mem_bars = generateMEMProgressBar(this, true);
+
+            host_list_array.push([
+                this.HOSTNAME,
+                this.STATE,
+                cpu_bars.real,
+                mem_bars.real
+            ]);
+          });
+        dataTable_esx_hosts.fnAddData(host_list_array);
+        delete host_info.TEMPLATE.HOST;
+      }
     }
 
     var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
