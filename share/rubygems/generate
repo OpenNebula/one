@@ -37,6 +37,7 @@ Gem::Specification.new do |s|
   s.description = "$(DESCRIPTION)"
   s.authors     = ["OpenNebula"]
   s.email       = 'contact@opennebula.org'
+  s.license     = 'Apache-2.0'
   s.files       = [
 $(FILES)
   ]
