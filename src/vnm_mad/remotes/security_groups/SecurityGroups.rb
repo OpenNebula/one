@@ -517,6 +517,7 @@ class OpenNebulaSG < OpenNebulaNetwork
             begin
                 commands.run!
             rescue Exception => e
+                unlock
                 raise OpenNebulaSGError.new(:bootstrap, e)
             end
 
@@ -533,6 +534,7 @@ class OpenNebulaSG < OpenNebulaNetwork
                 begin
                     sg.run!
                 rescue Exception => e
+                    unlock
                     raise OpenNebulaSGError.new(:security_groups, e)
                 end
             end
