@@ -974,7 +974,6 @@ function updateHostInfo(request,host){
           host_list_array = [host_info.TEMPLATE.HOST];
         } else if (host_info.TEMPLATE.HOST instanceof Array) {
           $.each(host_info.TEMPLATE.HOST, function(){
-
             var cpu_bars = generateCPUProgressBar(this, true);
             var mem_bars = generateMEMProgressBar(this, true);
 
@@ -985,6 +984,8 @@ function updateHostInfo(request,host){
                 mem_bars.real
             ]);
           });
+        }
+
         dataTable_esx_hosts.fnAddData(host_list_array);
         delete host_info.TEMPLATE.HOST;
       }
