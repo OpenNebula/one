@@ -26,4 +26,21 @@ template64 = ARGV[0]
 deploy_id  = ARGV[1]
 
 sg = OpenNebulaSG.from_base64(template64, deploy_id)
-exit sg.activate
+
+begin
+    sg.activate
+rescue OpenNebulaSGError => e
+    OpenNebula.log_error(e.error.message)
+
+    case e.stage
+    when :bootstrap, :security_groups
+        OpenNebula.log_info("Deactivating security groups for #{deploy_id}.")
+        sg.deactivate
+    when :deactivate
+        OpenNebula.log_error("Error deactivating security group rules for #{deploy_id}. Please verify manually.")
+    end
+    exit 1
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    exit 1
+end
