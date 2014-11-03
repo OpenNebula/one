@@ -971,8 +971,10 @@ function updateHostInfo(request,host){
 
       if (host_info.TEMPLATE.HOST) {
         if (!(host_info.TEMPLATE.HOST instanceof Array)) {
-          host_list_array = [host_info.TEMPLATE.HOST];
-        } else if (host_info.TEMPLATE.HOST instanceof Array) {
+          host_info.TEMPLATE.HOST = [host_info.TEMPLATE.HOST];
+        }
+
+        if (host_info.TEMPLATE.HOST instanceof Array) {
           $.each(host_info.TEMPLATE.HOST, function(){
             var cpu_bars = generateCPUProgressBar(this, true);
             var mem_bars = generateMEMProgressBar(this, true);
