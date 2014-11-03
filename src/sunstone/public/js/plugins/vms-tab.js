@@ -1535,7 +1535,16 @@ function updateVMInfo(request,vm){
             { "data": "IP6_ULA" },
             { "data": "IP6_GLOBAL" },
             { "data": "ACTIONS" }
-        ]
+        ],
+
+        "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+
+            if (aData.SECURITY_GROUP_RULES == undefined ||
+                aData.SECURITY_GROUP_RULES.length == 0){
+
+                $("td.open-control", nRow).html("").removeClass('open-control');
+            }
+        }
     });
 
     $("#tab_network_form .nics_table", $info_panel).dataTable().fnSort( [ [1,'asc'] ] );
@@ -2237,11 +2246,13 @@ function printNics(vm_info){
                 });
             }
 
-            $.each(vm_info.TEMPLATE.SECURITY_GROUP_RULE, function(){
-                if ( nic_secgroups[this.SECURITY_GROUP_ID] ){
-                    secgroups.push(this);
-                }
-            });
+            if (vm_info.TEMPLATE.SECURITY_GROUP_RULE != undefined){
+                $.each(vm_info.TEMPLATE.SECURITY_GROUP_RULE, function(){
+                    if ( nic_secgroups[this.SECURITY_GROUP_ID] ){
+                        secgroups.push(this);
+                    }
+                });
+            }
 
             nic_dt_data.push({
                 NIC_ID : nic.NIC_ID,
