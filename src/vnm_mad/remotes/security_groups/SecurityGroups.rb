@@ -259,7 +259,13 @@ class Rule
 
     # Getters
     def protocol
-        @rule[:protocol].downcase.to_sym rescue nil
+        p = @rule[:protocol].downcase.to_sym rescue nil
+
+        if p == :ipsec
+            :esp
+        else
+            p
+        end
     end
 
     def rule_type
@@ -283,7 +289,7 @@ class Rule
         valid = true
         error_message = []
 
-        if !protocol || ![:tcp, :udp, :icmp].include?(protocol)
+        if !protocol || ![:tcp, :udp, :icmp, :esp].include?(protocol)
             error_message << "Invalid protocol: #{protocol}"
             valid = false
         end
@@ -295,6 +301,11 @@ class Rule
 
         if range && !range.match(/^(?:(?:\d+|\d+:\d+),)*(?:\d+|\d+:\d+)$/)
             error_message << "Invalid range: #{range}"
+            valid = false
+        end
+
+        if range && protocol == :esp
+            error_message << "IPSEC does not support port ranges"
             valid = false
         end
 
