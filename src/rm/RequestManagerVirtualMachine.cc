@@ -2219,3 +2219,31 @@ void VirtualMachineRecover::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachinePoolCalculateShowback::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int time_start  = xmlrpc_c::value_int(paramList.getInt(1));
+    int time_end    = xmlrpc_c::value_int(paramList.getInt(2));
+
+    ostringstream oss;
+    string        where;
+    int           rc;
+
+    // TODO: do a better auth? allow any user in the oneadmin group?
+    if ( att.uid != 0 )
+    {
+        failure_response(AUTHORIZATION,
+                         authorization_error("Action reserved for oneadmin only", att),
+                         att);
+        return;
+    }
+
+    (static_cast<VirtualMachinePool *>(pool))->calculate_showback(time_start, time_end);
+
+    // TODO: return value?
+    success_response("", att);
+
+    return;
+}

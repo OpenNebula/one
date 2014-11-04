@@ -852,6 +852,44 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     end
 
+    START_TIME = {
+        :name   => "start_time",
+        :short  => "-s TIME",
+        :large  => "--start TIME" ,
+        :description => "Start date for the showback data to process",
+        :format => Time
+    }
+
+    END_TIME = {
+        :name   => "end_time",
+        :short  => "-e TIME",
+        :large  => "--end TIME" ,
+        :description => "End date for the showback data to process",
+        :format => Time
+    }
+
+    calculate_showback_desc = <<-EOT.unindent
+        Development command to calculate showback data
+    EOT
+
+    command :"calculate-showback", calculate_showback_desc, :options =>
+            [START_TIME, END_TIME] do
+
+        start_time  = options[:start_time] ? options[:start_time].to_i : -1
+        end_time    = options[:end_time] ? options[:end_time].to_i : -1
+
+        rc = OpenNebula::VirtualMachinePool.new(helper.client).calculate_showback(start_time, end_time)
+
+        if OpenNebula.is_error?(rc)
+            warn rc.message
+            exit -1
+        else
+            puts rc
+            exit 0
+        end
+
+    end
+
     # Deprecated commands
 
     deprecated_command(:attachdisk, 'disk-attach')

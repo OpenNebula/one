@@ -187,10 +187,6 @@ void VirtualMachinePoolShowback::request_execute(
 
     where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
 
-    // TODO debug: this will be a separate xml-rpc call
-    (static_cast<VirtualMachinePool *>(pool))->calculate_showback();
-
-
     rc = (static_cast<VirtualMachinePool *>(pool))->dump_showback(oss,
                                                               where,
                                                               time_start,

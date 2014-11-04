@@ -467,7 +467,7 @@ int VirtualMachinePool::min_stime_cb(void * _min_stime, int num, char **values, 
     return 0;
 }
 
-void VirtualMachinePool::calculate_showback()
+void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
 {
     vector<xmlNodePtr>              nodes;
     vector<xmlNodePtr>::iterator    node_it;
@@ -479,9 +479,6 @@ void VirtualMachinePool::calculate_showback()
     map<int, map<time_t, float> >           vm_cost;
     map<int, map<time_t, float> >::iterator vm_it;
     map<time_t, float>::iterator            vm_month_it;
-
-    time_t          start_time;
-    time_t          end_time;
 
     int             rc;
     ostringstream   oss;
@@ -500,20 +497,26 @@ void VirtualMachinePool::calculate_showback()
     // Set start and end times for the window to process
     //--------------------------------------------------------------------------
 
-    // TODO: init from params?
-    start_time = time(0);
-    end_time = time(0);
+    if (end_time == -1)
+    {
+        end_time = time(0);
+    }
 
-    // Set start time to the lowest stime from the history records
+    if (start_time == -1)
+    {
+        start_time = time(0);
 
-    set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::min_stime_cb),
-                 static_cast<void *>(&start_time));
+        // Set start time to the lowest stime from the history records
 
-    oss << "SELECT MIN(stime) FROM " << History::table;
+        set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::min_stime_cb),
+                     static_cast<void *>(&start_time));
 
-    rc = db->exec(oss, this);
+        oss << "SELECT MIN(stime) FROM " << History::table;
 
-    unset_callback();
+        rc = db->exec(oss, this);
+
+        unset_callback();
+    }
 
     //--------------------------------------------------------------------------
     // Get accounting history records

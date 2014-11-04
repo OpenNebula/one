@@ -25,10 +25,11 @@ module OpenNebula
 
 
         VM_POOL_METHODS = {
-            :info       => "vmpool.info",
-            :monitoring => "vmpool.monitoring",
-            :accounting => "vmpool.accounting",
-            :showback   => "vmpool.showback"
+            :info               => "vmpool.info",
+            :monitoring         => "vmpool.monitoring",
+            :accounting         => "vmpool.accounting",
+            :showback           => "vmpool.showback",
+            :calculate_showback => "vmpool.calculateshowback"
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -183,6 +184,23 @@ module OpenNebula
                         filter_flag,
                         options[:start_time],
                         options[:end_time])
+        end
+
+        # Processes all the history records, and stores the monthly cost for
+        # each VM
+        #
+        # @param [Integer]
+        # @param [Integer] start_time Time to start processing. This date will
+        # be reset to the first day of the month, at 00:00
+        # @param [Integer] end_time Time to stop processing. The data will
+        # actually be processed up to the month before this date.
+        def calculate_showback(start_time, end_time)
+            start_time ||= -1
+            end_time   ||= -1
+
+            return @client.call(VM_POOL_METHODS[:calculate_showback],
+                        start_time,
+                        end_time)
         end
 
         # Retrieves the accounting data for all the VMs in the pool
