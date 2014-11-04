@@ -2,7 +2,7 @@
 
 require 'pp'
 
-DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca}
+DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca onedb}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
@@ -28,7 +28,8 @@ GROUPS={
     :vmware     => %w{builder trollop},
     :oneflow    => %w{sinatra json treetop parse-cron},
     :ec2_hybrid => 'aws-sdk --version "= 1.33"',
-    :oca        => 'ox'
+    :oca        => 'ox',
+    :onedb      => "mysql"
 }
 
 PACKAGES=GROUPS.keys
@@ -68,20 +69,6 @@ DISTRIBUTIONS={
             'json'      => ['gcc']
         },
         :install_command => 'yum install'
-    },
-    :suse => {
-        :id => [/SUSE/],
-        :dependencies_common => ['ruby-devel', 'make'],
-        :dependencies => {
-            SQLITE      => ['gcc', 'sqlite3-devel'],
-            'mysql'     => ['gcc', 'libmysqlclient-devel'],
-            'curb'      => ['gcc', 'libcurl-devel'],
-            $nokogiri   => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
-            'xmlparser' => ['gcc', 'libexpat-devel'],
-            'thin'      => ['rubygem-rake', 'gcc-c++'],
-            'json'      => ['gcc']
-        },
-        :install_command => 'zypper install'
     }
 }
 
@@ -411,9 +398,6 @@ try_library :rubygems, <<-EOT.unindent
 
         * RHEL/CENTOS
             yum install rubygems
-
-        * SUSE
-            zypper install rubygems
 
         * Specific rubygems package for your distro
 
