@@ -507,8 +507,8 @@ class OpenNebulaSG < OpenNebulaNetwork
             commands.iptables("-N #{chain_out}") # outbound
 
             # Send traffic to the NIC chains
-            commands.iptables("-A FORWARD -m physdev --physdev-out vnet0 --physdev-is-bridged -j #{chain_in}")
-            commands.iptables("-A FORWARD -m physdev --physdev-in  vnet0 --physdev-is-bridged -j #{chain_out}")
+            commands.iptables("-A FORWARD -m physdev --physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}")
+            commands.iptables("-A FORWARD -m physdev --physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}")
 
             # Related, Established
             commands.iptables("-A #{chain_in} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
