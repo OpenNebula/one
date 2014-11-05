@@ -96,8 +96,8 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :description => "Split the output in a table for each VM"
     }
 
-    ACCT_OPTIONS = [START_TIME, END_TIME, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
-
+    ACCT_OPTIONS     = [START_TIME, END_TIME, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
+    SHOWBACK_OPTIONS = [START_TIME, END_TIME, USERFILTER, GROUP, XML, JSON]
 
     ACCT_TABLE = CLIHelper::ShowTable.new("oneacct.yaml", nil) do
         column :UID, "User ID", :size=>4 do |d|
@@ -153,6 +153,51 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
     end
 
+    # TODO: oneacct.yaml
+    SHOWBACK_TABLE = CLIHelper::ShowTable.new("nofile.yaml", nil) do
+        column :UID, "User ID", :size=>4 do |d|
+            d["UID"]
+        end
+
+        column :USER_NAME, "User name", :left, :size=>12 do |d|
+            d["UNAME"]
+        end
+
+        column :GID, "Group ID", :size=>4 do |d|
+            d["GID"]
+        end
+
+        column :GROUP_NAME, "Group name", :left, :size=>12 do |d|
+            d["GNAME"]
+        end
+
+        column :VM_ID, "Virtual Machine ID", :size=>6 do |d|
+            d["VMID"]
+        end
+
+        column :VM_NAME, "Virtual Machine name", :left, :size=>12 do |d|
+            d["VMNAME"]
+        end
+
+        column :MONTH, "Month", :size=>5 do |d|
+            d["MONTH"]
+        end
+
+        column :YEAR, "Year", :size=>5 do |d|
+            d["YEAR"]
+        end
+
+        column :HOURS, "Hours", :size=>5 do |d|
+            d["HOURS"]
+        end
+
+        column :COST, "Cost", :size=>15 do |d|
+            d["COST"]
+        end
+
+        default :USER_NAME, :GROUP_NAME, :VM_ID, :VM_NAME, :MONTH, :YEAR, :HOURS, :COST
+    end
+
     def self.print_start_end_time_header(start_time, end_time)
         print "Showing active history records from "
 
@@ -182,6 +227,14 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         CLIHelper.scr_bold
         CLIHelper.scr_underline
         puts "# User #{user_id}".ljust(80)
+        CLIHelper.scr_restore
+        puts
+    end
+
+    def self.print_month_header(year, month)
+        CLIHelper.scr_bold
+        CLIHelper.scr_underline
+        puts "# Showback for #{month}/#{year}".ljust(80)
         CLIHelper.scr_restore
         puts
     end

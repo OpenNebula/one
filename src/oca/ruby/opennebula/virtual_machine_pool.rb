@@ -164,28 +164,6 @@ module OpenNebula
             return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
         end
 
-        # Retrieves the showback data for all the VMs in the pool, in XML
-        #
-        # @param [Integer] filter_flag Optional filter flag to retrieve all or
-        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
-        #   or user_id
-        # @param [Hash] options
-        # @option params [Integer] :start_time Start date and time to take into account,
-        #   if no start_time is required use -1
-        # @option params [Integer] :end_time End date and time to take into account,
-        #   if no end_time is required use -1
-        def showback_xml(filter_flag=INFO_ALL, options={})
-
-            filter_flag ||= INFO_ALL
-            options[:start_time] ||= -1
-            options[:end_time] ||= -1
-
-            return @client.call(VM_POOL_METHODS[:showback],
-                        filter_flag,
-                        options[:start_time],
-                        options[:end_time])
-        end
-
         # Processes all the history records, and stores the monthly cost for
         # each VM
         #
@@ -324,6 +302,84 @@ module OpenNebula
             xml_str
         end
 
+        # Retrieves the showback data for all the VMs in the pool
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_time Start date and time to take into account,
+        #   if no start_time is required use -1
+        # @option params [Integer] :end_time End date and time to take into account,
+        #   if no end_time is required use -1
+        # @option params [Integer] :group Group id to filter the results
+        # @option params [String] :xpath Xpath expression to filter the results.
+        #    For example: SHOWBACK[COST>0]
+        # @option params [String] :order_by_1 Xpath expression to group the
+        # @option params [String] :order_by_2 Xpath expression to group the
+        #   returned hash. This will be the second level of the hash
+        #
+        # @return [Hash, OpenNebula::Error]
+        #   The first level hash uses the :order_by_1 values as keys, and
+        #   as value a Hash with the :order_by_2 values and the SHOWBACK_RECORDS
+        def showback(filter_flag=INFO_ALL, options={})
+            data_hash = Hash.new
+
+            rc = build_showback(filter_flag, options) do |record|
+                hash = data_hash
+
+                if options[:order_by_1]
+                    id_1 = record[options[:order_by_1]]
+                    data_hash[id_1] ||= Hash.new
+
+                    if options[:order_by_2]
+                        id_2 = record[options[:order_by_2]]
+                        data_hash[id_1][id_2] ||= Hash.new
+
+                        hash = data_hash[id_1][id_2]
+                    else
+                        hash = data_hash[id_1]
+                    end
+                end
+
+                hash["SHOWBACK_RECORDS"] ||= Hash.new
+                hash["SHOWBACK_RECORDS"]["SHOWBACK"] ||= Array.new
+                hash["SHOWBACK_RECORDS"]["SHOWBACK"] << record.to_hash['SHOWBACK']
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            data_hash
+        end
+
+        # Retrieves the showback data for all the VMs in the pool, in xml
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_time Start date and time to take into account,
+        #   if no start_time is required use -1
+        # @option params [Integer] :end_time End date and time to take into account,
+        #   if no end_time is required use -1
+        # @option params [Integer] :group Group id to filter the results
+        # @option params [String] :xpath Xpath expression to filter the results.
+        #    For example: SHOWBACK[COST>10]
+        #
+        # @return [String] the xml representing the showback data
+        def showback_xml(filter_flag=INFO_ALL, options={})
+            xml_str = "<SHOWBACK_RECORDS>\n"
+
+            rc = build_showback(filter_flag, options) do |showback|
+                xml_str << showback.to_xml
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            xml_str << "\n</SHOWBACK_RECORDS>"
+            xml_str
+        end
+
         private
 
         def build_accounting(filter_flag, options, &block)
@@ -355,6 +411,36 @@ module OpenNebula
             end
 
             acct_hash
+        end
+
+        def build_showback(filter_flag, options, &block)
+            xml_str = @client.call(VM_POOL_METHODS[:showback],
+                        filter_flag,
+                        options[:start_time],
+                        options[:end_time])
+
+            return xml_str if OpenNebula.is_error?(xml_str)
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(xml_str, 'SHOWBACK_RECORDS')
+
+            xpath_array = Array.new
+            xpath_array << "SHOWBACK[GID=#{options[:group]}]" if options[:group]
+            xpath_array << options[:xpath] if options[:xpath]
+
+            if xpath_array.empty?
+                xpath_str = "SHOWBACK"
+            else
+                xpath_str = xpath_array.join(' | ')
+            end
+
+            data_hash = Hash.new
+
+            xmldoc.each(xpath_str) do |showback|
+                block.call(showback)
+            end
+
+            data_hash
         end
 
         def info_filter(xml_method, who, start_id, end_id, state)
