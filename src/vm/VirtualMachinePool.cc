@@ -475,10 +475,12 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
     vector<time_t>                  showback_slots;
     vector<time_t>::iterator        slot_it;
 
-    // map<vid, map<month, total_cost> >
-    map<int, map<time_t, float> >           vm_cost;
-    map<int, map<time_t, float> >::iterator vm_it;
-    map<time_t, float>::iterator            vm_month_it;
+    // map<vid, map<month, pair<total_cost, n_hours> > >
+    map<int, map<time_t, pair<float,float> > >            vm_cost;
+    map<int, map<time_t, pair<float, float> > >::iterator vm_it;
+    map<time_t, pair<float,float> >::iterator vm_month_it;
+
+    VirtualMachine* vm;
 
     int             rc;
     ostringstream   oss;
@@ -615,14 +617,15 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
                 cost += mem_cost * mem * n_hours;
 
                 // Add to vm time slot.
-                map<time_t, float>& total_cost = vm_cost[vid];
+                map<time_t, pair<float,float> >& totals = vm_cost[vid];
 
-                if(total_cost.count(t) == 0)
+                if(totals.count(t) == 0)
                 {
-                    total_cost[t] = 0;
+                    totals[t] = make_pair(0,0);
                 }
 
-                total_cost[t] += cost;
+                totals[t].first  += cost;
+                totals[t].second += n_hours;
             }
         }
     }
@@ -633,10 +636,30 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
 
     for ( vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
     {
-        map<time_t, float>& total_cost = vm_it->second;
+        map<time_t, pair<float,float> >& totals = vm_it->second;
 
-        for ( vm_month_it = total_cost.begin(); vm_month_it != total_cost.end(); vm_month_it++ )
+        for ( vm_month_it = totals.begin(); vm_month_it != totals.end(); vm_month_it++ )
         {
+            int vmid = vm_it->first;
+
+            vm = get(vmid, true);
+
+            int uid = 0;
+            int gid = 0;
+            string uname = "";
+            string gname = "";
+
+            if (vm != 0)
+            {
+                uid = vm->get_uid();
+                gid = vm->get_gid();
+
+                uname = vm->get_uname();
+                gname = vm->get_gname();
+
+                vm->unlock();
+            }
+
             tm tmp_tm = *localtime(&vm_month_it->first);
 
             body.str("");
@@ -644,10 +667,15 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
             // TODO: truncate float values to 2 decimals?
 
             body << "<SHOWBACK>"
-                    << "<VMID>"     << vm_it->first             << "</VMID>"
+                    << "<VMID>"     << vmid                     << "</VMID>"
+                    << "<UID>"      << uid                      << "</UID>"
+                    << "<GID>"      << gid                      << "</GID>"
+                    << "<UNAME>"    << uname                    << "</UNAME>"
+                    << "<GNAME>"    << gname                    << "</GNAME>"
                     << "<YEAR>"     << tmp_tm.tm_year + 1900    << "</YEAR>"
                     << "<MONTH>"    << tmp_tm.tm_mon + 1        << "</MONTH>"
-                    << "<COST>"     << vm_month_it->second      << "</COST>"
+                    << "<COST>"     << vm_month_it->second.first  << "</COST>"
+                    << "<HOURS>"    << vm_month_it->second.second << "</HOURS>"
                 << "</SHOWBACK>";
 
             oss.str("");
@@ -678,7 +706,8 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
             st << "VM " << vm_it->first
                 << " cost for Y " << tmp_tm.tm_year + 1900
                 << " M " << tmp_tm.tm_mon + 1
-                << " COST " << vm_month_it->second << " €";
+                << " COST " << vm_month_it->second.first << " €"
+                << " HOURS " << vm_month_it->second.second;
 
             NebulaLog::log("SHOWBACK", Log::DEBUG, st);
             //================================================================*/
