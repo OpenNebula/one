@@ -648,6 +648,7 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
             int gid = 0;
             string uname = "";
             string gname = "";
+            string vmname = "";
 
             if (vm != 0)
             {
@@ -656,6 +657,8 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
 
                 uname = vm->get_uname();
                 gname = vm->get_gname();
+
+                vmname = vm->get_name();
 
                 vm->unlock();
             }
@@ -668,6 +671,7 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
 
             body << "<SHOWBACK>"
                     << "<VMID>"     << vmid                     << "</VMID>"
+                    << "<VMNAME>"   << vmname                   << "</VMNAME>"
                     << "<UID>"      << uid                      << "</UID>"
                     << "<GID>"      << gid                      << "</GID>"
                     << "<UNAME>"    << uname                    << "</UNAME>"
