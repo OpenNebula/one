@@ -581,12 +581,12 @@ int VirtualNetwork::nic_attribute(
     //  Copy the security group IDs
     //--------------------------------------------------------------------------
 
-    one_util::split(nic->vector_value("SECURITY_GROUPS"), ',', nic_sgroups);
+    one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', nic_sgroups);
 
     obj_template->get("SECURITY_GROUPS", st_sgroups);
 
     set<int> vnet_sgroups;
-    one_util::split(st_sgroups, ',', vnet_sgroups);
+    one_util::split_unique(st_sgroups, ',', vnet_sgroups);
 
     nic_sgroups.insert(vnet_sgroups.begin(), vnet_sgroups.end());
 
@@ -595,7 +595,7 @@ int VirtualNetwork::nic_attribute(
         ar_pool.get_attribute("SECURITY_GROUPS", st_sgroups, ar_id);
 
         set<int> ar_sgroups;
-        one_util::split(st_sgroups, ',', ar_sgroups);
+        one_util::split_unique(st_sgroups, ',', ar_sgroups);
 
         nic_sgroups.insert(ar_sgroups.begin(), ar_sgroups.end());
     }

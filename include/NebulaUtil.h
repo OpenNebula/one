@@ -99,7 +99,7 @@ namespace one_util
      *      clean_empty fase will return ["a", "", "b", "c"]
      */
     template <class T>
-    void split(
+    void split_unique(
             const std::string& st,
             char delim,
             std::set<T>& result,

@@ -2779,7 +2779,7 @@ set<int> VirtualMachine::nic_security_groups(VectorAttribute const * nic)
 {
     set<int> result;
 
-    one_util::split(nic->vector_value("SECURITY_GROUPS"), ',', result);
+    one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', result);
 
     return result;
 }
