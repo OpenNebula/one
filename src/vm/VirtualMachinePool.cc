@@ -472,7 +472,31 @@ int VirtualMachinePool::min_stime_cb(void * _min_stime, int num, char **values, 
     return 0;
 }
 
-void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
+// TODO: DEBUG
+//==============================================================================
+
+string put_time(tm tmp_tm)
+{
+    ostringstream oss;
+
+    oss << tmp_tm.tm_mday << "/" << tmp_tm.tm_mon+1 << "/" << tmp_tm.tm_year+1900
+        << " " << tmp_tm.tm_hour << ":" << tmp_tm.tm_min << ":" << tmp_tm.tm_sec;
+
+    return oss.str();
+}
+
+string put_time(time_t t)
+{
+    tm tmp_tm = *localtime(&t);
+    return put_time(tmp_tm);
+}
+//==============================================================================
+
+void VirtualMachinePool::calculate_showback(
+        int start_month,
+        int start_year,
+        int end_month,
+        int end_year)
 {
     vector<xmlNodePtr>              nodes;
     vector<xmlNodePtr>::iterator    node_it;
@@ -492,6 +516,7 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
     ostringstream   body;
     char *          sql_body;
 
+    tm      tmp_tm;
     int     vid;
     int     h_stime;
     int     h_etime;
@@ -500,19 +525,33 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
     float   cpu;
     int     mem;
 
+    // TODO: debug
+    //=================================================================
+    ostringstream debug;
+    //=================================================================
+
     //--------------------------------------------------------------------------
     // Set start and end times for the window to process
     //--------------------------------------------------------------------------
 
-    if (end_time == -1)
+    time_t start_time = time(0);
+    time_t end_time = time(0);
+
+    if (start_month != -1 && start_year != -1)
     {
-        end_time = time(0);
+        // First day of the given month
+        tmp_tm.tm_sec  = 0;
+        tmp_tm.tm_min  = 0;
+        tmp_tm.tm_hour = 0;
+        tmp_tm.tm_mday = 1;
+        tmp_tm.tm_mon  = start_month - 1;
+        tmp_tm.tm_year = start_year - 1900;
+        tmp_tm.tm_isdst = -1;
+
+        start_time = mktime(&tmp_tm);
     }
-
-    if (start_time == -1)
+    else
     {
-        start_time = time(0);
-
         // Set start time to the lowest stime from the history records
 
         set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::min_stime_cb),
@@ -523,6 +562,25 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
         rc = db->exec(oss, this);
 
         unset_callback();
+    }
+
+    if (end_month != -1 && end_year != -1)
+    {
+        // First day of the next month
+        tmp_tm.tm_sec  = 0;
+        tmp_tm.tm_min  = 0;
+        tmp_tm.tm_hour = 0;
+        tmp_tm.tm_mday = 1;
+        tmp_tm.tm_mon  = end_month;
+        tmp_tm.tm_year = end_year - 1900;
+        tmp_tm.tm_isdst = -1;
+
+        time_t end_time_tmp = mktime(&tmp_tm);
+
+        if (end_time_tmp < end_time)
+        {
+            end_time = end_time_tmp;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -539,12 +597,13 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
     //--------------------------------------------------------------------------
 
     // Reset stime to 1st of month, 00:00
-    tm tmp_tm = *localtime(&start_time);
+    tmp_tm = *localtime(&start_time);
 
     tmp_tm.tm_sec  = 0;
     tmp_tm.tm_min  = 0;
     tmp_tm.tm_hour = 0;
     tmp_tm.tm_mday = 1;
+    tmp_tm.tm_isdst = -1;
 
     time_t tmp_t = mktime(&tmp_tm);
 
@@ -552,9 +611,29 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
     {
         showback_slots.push_back(tmp_t);
 
+        tmp_tm.tm_sec  = 0;
+        tmp_tm.tm_min  = 0;
+        tmp_tm.tm_hour = 0;
+        tmp_tm.tm_mday = 1;
         tmp_tm.tm_mon++;
+        tmp_tm.tm_isdst = -1;
+
         tmp_t = mktime(&tmp_tm);
     }
+
+    // Extra slot that won't be used. Is needed only to calculate the time
+    // for the second-to-last slot
+    showback_slots.push_back(end_time);
+
+    // TODO: debug
+    //*=================================================================
+    for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end(); slot_it++ )
+    {
+        debug.str("");
+        debug << "Slot: " << put_time(*slot_it);
+        NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
+    }
+    //================================================================*/
 
     //--------------------------------------------------------------------------
     // Process the history records
@@ -580,12 +659,11 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
 
         // TODO debug
         /*=====================================================================
-        ostringstream st;
-
         int seq;
         history.xpath(seq, "/HISTORY/SEQ", -1);
 
-        st << "VM " << vid << " SEQ " << seq << endl
+        debug.str("");
+        debug << "VM " << vid << " SEQ " << seq << endl
             << "h_stime   " << h_stime << endl
             << "h_etime   " << h_etime << endl
             << "cpu_cost  " << cpu_cost << endl
@@ -593,7 +671,7 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
             << "cpu       " << cpu << endl
             << "mem       " << mem;
 
-        NebulaLog::log("SHOWBACK", Log::DEBUG, st);
+        NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
         //====================================================================*/
 
         for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
@@ -614,9 +692,9 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
                     etime = (t_next < h_etime) ? t_next : h_etime; //min(t_next, h_etime);
                 }
 
-                int n_hours = difftime(etime, stime) / 60 / 60;
+                float n_hours = difftime(etime, stime) / 60 / 60;
 
-                int cost = 0;
+                float cost = 0;
 
                 cost += cpu_cost * cpu * n_hours;
                 cost += mem_cost * mem * n_hours;
@@ -668,11 +746,12 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
                 vm->unlock();
             }
 
-            tm tmp_tm = *localtime(&vm_month_it->first);
+            tmp_tm = *localtime(&vm_month_it->first);
 
             body.str("");
 
-            // TODO: truncate float values to 2 decimals?
+            string cost  = one_util::float_to_str(vm_month_it->second.first);
+            string hours = one_util::float_to_str(vm_month_it->second.second);
 
             body << "<SHOWBACK>"
                     << "<VMID>"     << vmid                     << "</VMID>"
@@ -683,8 +762,8 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
                     << "<GNAME>"    << gname                    << "</GNAME>"
                     << "<YEAR>"     << tmp_tm.tm_year + 1900    << "</YEAR>"
                     << "<MONTH>"    << tmp_tm.tm_mon + 1        << "</MONTH>"
-                    << "<COST>"     << vm_month_it->second.first  << "</COST>"
-                    << "<HOURS>"    << vm_month_it->second.second << "</HOURS>"
+                    << "<COST>"     << cost                     << "</COST>"
+                    << "<HOURS>"    << hours                    << "</HOURS>"
                 << "</SHOWBACK>";
 
             oss.str("");
@@ -709,16 +788,16 @@ void VirtualMachinePool::calculate_showback(time_t start_time, time_t end_time)
 
 
             // TODO: debug
-            /*=================================================================
-            ostringstream st;
+            //*=================================================================
+            debug.str("");
 
-            st << "VM " << vm_it->first
+            debug << "VM " << vm_it->first
                 << " cost for Y " << tmp_tm.tm_year + 1900
                 << " M " << tmp_tm.tm_mon + 1
-                << " COST " << vm_month_it->second.first << " €"
-                << " HOURS " << vm_month_it->second.second;
+                << " COST " << cost << " €"
+                << " HOURS " << hours;
 
-            NebulaLog::log("SHOWBACK", Log::DEBUG, st);
+            NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
             //================================================================*/
         }
     }

@@ -167,18 +167,22 @@ module OpenNebula
         # Processes all the history records, and stores the monthly cost for
         # each VM
         #
-        # @param [Integer]
-        # @param [Integer] start_time Time to start processing. This date will
-        # be reset to the first day of the month, at 00:00
-        # @param [Integer] end_time Time to stop processing. The data will
-        # actually be processed up to the month before this date.
-        def calculate_showback(start_time, end_time)
-            start_time ||= -1
-            end_time   ||= -1
+        #  @param [Integer] start_month First month (+year) to process. January is 1.
+        #  Use -1 to unset
+        #  @param [Integer] start_year First year (+month) to process. e.g. 2014.
+        #  Use -1 to unset
+        #  @param [Integer] end_month Last month (+year) to process. January is 1.
+        #  Use -1 to unset
+        #  @param [Integer] end_year Last year (+month) to process. e.g. 2014.
+        #  Use -1 to unset
+        def calculate_showback(start_month, start_year, end_month, end_year)
+            start_month ||= -1
+            start_year  ||= -1
+            end_month   ||= -1
+            end_year    ||= -1
 
             return @client.call(VM_POOL_METHODS[:calculate_showback],
-                        start_time,
-                        end_time)
+                                start_month, start_year, end_month, end_year)
         end
 
         # Retrieves the accounting data for all the VMs in the pool

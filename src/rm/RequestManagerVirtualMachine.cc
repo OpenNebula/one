@@ -2224,8 +2224,10 @@ void VirtualMachinePoolCalculateShowback::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
 {
-    int time_start  = xmlrpc_c::value_int(paramList.getInt(1));
-    int time_end    = xmlrpc_c::value_int(paramList.getInt(2));
+    int start_month = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_year  = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_month   = xmlrpc_c::value_int(paramList.getInt(3));
+    int end_year    = xmlrpc_c::value_int(paramList.getInt(4));
 
     ostringstream oss;
     string        where;
@@ -2240,7 +2242,8 @@ void VirtualMachinePoolCalculateShowback::request_execute(
         return;
     }
 
-    (static_cast<VirtualMachinePool *>(pool))->calculate_showback(time_start, time_end);
+    (static_cast<VirtualMachinePool *>(pool))->calculate_showback(
+                                start_month, start_year, end_month, end_year);
 
     // TODO: return value?
     success_response("", att);

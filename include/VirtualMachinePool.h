@@ -286,14 +286,20 @@ public:
     /**
      * Processes all the history records, and stores the monthly cost for each
      * VM
-     * @param start_time Time to start processing. This date will be reset to
-     * the first day of the month, at 00:00
-     * @param end_time Time to stop processing. The data will actually be
-     * processed up to the month before this date.
+     *  @param start_month First month (+year) to process. January is 1.
+     *  Use -1 to unset
+     *  @param start_year First year (+month) to process. e.g. 2014.
+     *  Use -1 to unset
+     *  @param end_month Last month (+year) to process. January is 1.
+     *  Use -1 to unset
+     *  @param end_year Last year (+month) to process. e.g. 2014.
+     *  Use -1 to unset
      */
     void calculate_showback(
-            time_t start_time,
-            time_t end_time);
+                int start_month,
+                int start_year,
+                int end_month,
+                int end_year);
 
 private:
     /**

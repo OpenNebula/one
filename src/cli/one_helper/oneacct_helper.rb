@@ -187,7 +187,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             d["YEAR"]
         end
 
-        column :HOURS, "Hours", :size=>5 do |d|
+        column :HOURS, "Hours", :size=>6 do |d|
             d["HOURS"]
         end
 
