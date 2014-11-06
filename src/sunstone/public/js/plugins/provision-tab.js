@@ -825,9 +825,10 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '<div class="row">'+
     '<div class="large-12 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 34%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
-        '<dd style="width: 33%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
-        '<dd style="width: 33%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+        '<dd class="active" style="width: 25%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        '<dd style="width: 25%;"><a href="#provision_info_showback"><i class="fa fa-fw fa-lg fa-money"/>&emsp;'+ tr("Showback") +'</a></dd>'+
+        '<dd style="width: 25%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
+        '<dd style="width: 25%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
@@ -836,6 +837,12 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
     '<div class="content" id="provision_info_acct">'+
       '<div class="row">'+
         '<div id="provision_user_info_acct_div" class="large-9 large-centered columns">'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="content" id="provision_info_showback">'+
+      '<div class="row">'+
+        '<div id="provision_user_info_showback_div" class="large-12 large-centered columns">'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -2715,6 +2722,10 @@ function show_provision_user_info_callback(request, response) {
     $("#provision_user_info_acct_div"),
       { fixed_user: info.ID,
         fixed_group_by: "vm" });
+
+  showbackGraphs(
+    $("#provision_user_info_showback_div"),
+      { fixed_user: info.ID});
 }
 
 

@@ -446,6 +446,13 @@ get '/vm/accounting' do
     @SunstoneServer.get_vm_accounting(params)
 end
 
+##############################################################################
+# Showback
+##############################################################################
+
+get '/vm/showback' do
+    @SunstoneServer.get_vm_showback(params)
+end
 
 ##############################################################################
 # Marketplace

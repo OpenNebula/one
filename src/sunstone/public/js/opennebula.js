@@ -639,6 +639,31 @@ var OpenNebula = {
                 }
             });
         },
+
+        "showback": function(params, resource, path){
+            var callback = params.success;
+            var callback_error = params.error;
+            var data = params.data;
+
+            var method = "showback";
+            var request = OpenNebula.Helper.request(resource,method, data);
+
+            var url = path ? path : resource.toLowerCase() + "/showback";
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: data,
+                dataType: "json",
+                success: function(response){
+                    return callback ? callback(request, response) : null;
+                },
+                error: function(response){
+                    return callback_error ?
+                        callback_error(request, OpenNebula.Error(response)) : null;
+                }
+            });
+        }
     },
 
     "Auth": {
@@ -1045,6 +1070,9 @@ var OpenNebula = {
         "accounting": function(params){
             OpenNebula.Action.accounting(params,OpenNebula.VM.resource);
         },
+        "showback": function(params){
+            OpenNebula.Action.showback(params,OpenNebula.VM.resource);
+        }
     },
 
     "Group": {
@@ -1859,8 +1887,8 @@ var OpenNebula = {
         "path"     : 'support/request',
         "create": function(params){
             OpenNebula.Action.create(
-                params, 
-                OpenNebula.Support.resource, 
+                params,
+                OpenNebula.Support.resource,
                 OpenNebula.Support.path);
         },
         "update": function(params){
@@ -1875,15 +1903,15 @@ var OpenNebula = {
             params.cache_name = "REQUEST";
             OpenNebula.Helper.clear_cache(params.cache_name);
             OpenNebula.Action.list(
-                params, 
-                OpenNebula.Support.resource, 
+                params,
+                OpenNebula.Support.resource,
                 OpenNebula.Support.path)
         },
         "show" : function(params){
             OpenNebula.Action.show(
-                params, 
-                OpenNebula.Support.resource, 
-                false, 
+                params,
+                OpenNebula.Support.resource,
+                false,
                 OpenNebula.Support.path)
         }
     }
