@@ -152,12 +152,28 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         end
 
         filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
-        start_time  = options[:start_time] ? options[:start_time].to_i : -1
-        end_time    = options[:end_time] ? options[:end_time].to_i : -1
+
+        start_month = -1
+        start_year  = -1
+
+        if (options[:start_time])
+            start_month = options[:start_time].month
+            start_year  = options[:start_time].year
+        end
+
+        end_month = -1
+        end_year  = -1
+
+        if (options[:end_time])
+            end_month = options[:end_time].month
+            end_year  = options[:end_time].year
+        end
 
         common_opts = {
-            :start_time => start_time,
-            :end_time   => end_time,
+            :start_month => start_month,
+            :start_year  => start_year,
+            :end_month   => end_month,
+            :end_year    => end_year,
             :group      => options[:group],
             :xpath      => options[:xpath]
         }
@@ -201,10 +217,6 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
                 AcctHelper::SHOWBACK_TABLE.show(a, options)
                 exit(0)
-            end
-
-            if ( start_time != -1 or end_time != -1 )
-                AcctHelper.print_start_end_time_header(start_time, end_time)
             end
 
             data_hash.each { |year, value|

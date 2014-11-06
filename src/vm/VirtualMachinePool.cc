@@ -356,8 +356,10 @@ int VirtualMachinePool::dump_acct(ostringstream& oss,
 
 int VirtualMachinePool::dump_showback(ostringstream& oss,
                                       const string&  where,
-                                      int            time_start,
-                                      int            time_end)
+                                      int            start_month,
+                                      int            start_year,
+                                      int            end_month,
+                                      int            end_year)
 {
     ostringstream cmd;
 
@@ -371,16 +373,19 @@ int VirtualMachinePool::dump_showback(ostringstream& oss,
         cmd << " AND " << where;
     }
 
-    if ( time_start != -1 || time_end != -1 )
+    if ( (start_month != -1 && start_year != -1) ||
+         (end_month != -1 && end_year != -1) )
     {
-        if ( time_start != -1 )
+        if (start_month != -1 && start_year != -1)
         {
-            cmd << " AND (etime > " << time_start << " OR  etime = 0)";
+            cmd << " AND (year > " << start_year <<
+                   " OR  (year = " << start_year << " AND month >= " << start_month << ") )";
         }
 
-        if ( time_end != -1 )
+        if (end_month != -1 && end_year != -1)
         {
-            cmd << " AND stime < " << time_end;
+            cmd << " AND (year < " << end_year <<
+                   " OR  (year = " << end_year << " AND month <= " << end_month << ") )";
         }
     }
 

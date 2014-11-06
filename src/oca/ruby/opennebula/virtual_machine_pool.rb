@@ -308,10 +308,14 @@ module OpenNebula
         #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
         #   or user_id
         # @param [Hash] options
-        # @option params [Integer] :start_time Start date and time to take into account,
-        #   if no start_time is required use -1
-        # @option params [Integer] :end_time End date and time to take into account,
-        #   if no end_time is required use -1
+        # @option params [Integer] :start_month First month (+year) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :start_month First year (+month) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :end_month Last month (+year) to take
+        #   into account, if no end time is required use -1
+        # @option params [Integer] :end_month Last year (+month) to take
+        #   into account, if no end time is required use -1
         # @option params [Integer] :group Group id to filter the results
         # @option params [String] :xpath Xpath expression to filter the results.
         #    For example: SHOWBACK[COST>0]
@@ -358,10 +362,14 @@ module OpenNebula
         #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
         #   or user_id
         # @param [Hash] options
-        # @option params [Integer] :start_time Start date and time to take into account,
-        #   if no start_time is required use -1
-        # @option params [Integer] :end_time End date and time to take into account,
-        #   if no end_time is required use -1
+        # @option params [Integer] :start_month First month (+year) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :start_month First year (+month) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :end_month Last month (+year) to take
+        #   into account, if no end time is required use -1
+        # @option params [Integer] :end_month Last year (+month) to take
+        #   into account, if no end time is required use -1
         # @option params [Integer] :group Group id to filter the results
         # @option params [String] :xpath Xpath expression to filter the results.
         #    For example: SHOWBACK[COST>10]
@@ -416,8 +424,10 @@ module OpenNebula
         def build_showback(filter_flag, options, &block)
             xml_str = @client.call(VM_POOL_METHODS[:showback],
                         filter_flag,
-                        options[:start_time],
-                        options[:end_time])
+                        options[:start_month],
+                        options[:start_year],
+                        options[:end_month],
+                        options[:end_year])
 
             return xml_str if OpenNebula.is_error?(xml_str)
 

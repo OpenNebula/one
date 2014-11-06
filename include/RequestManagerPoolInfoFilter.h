@@ -158,7 +158,7 @@ public:
     VirtualMachinePoolShowback():
         RequestManagerPoolInfoFilter("VirtualMachinePoolShowback",
                                      "Returns the virtual machine showback records",
-                                     "A:siii")
+                                     "A:siiiii")
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();

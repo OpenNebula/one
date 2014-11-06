@@ -235,13 +235,23 @@ public:
      *  added to the query as well as a time frame.
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param start_month First month (+year) to include. January is 1.
+     *  Use -1 to unset
+     *  @param start_year First year (+month) to include. e.g. 2014.
+     *  Use -1 to unset
+     *  @param end_month Last month (+year) to include. January is 1.
+     *  Use -1 to unset
+     *  @param end_year Last year (+month) to include. e.g. 2014.
+     *  Use -1 to unset
      *
      *  @return 0 on success
      */
     int dump_showback(ostringstream& oss,
                       const string&  where,
-                      int            time_start,
-                      int            time_end);
+                      int            start_month,
+                      int            start_year,
+                      int            end_month,
+                      int            end_year);
 
     /**
      *  Dumps the VM monitoring information entries in XML format. A filter
