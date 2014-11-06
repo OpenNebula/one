@@ -213,7 +213,11 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             end
 
             if options[:csv]
-                a = data_hash['SHOWBACK_RECORDS']['SHOWBACK']
+                a = Array.new
+
+                if data_hash['SHOWBACK_RECORDS']
+                    a = data_hash['SHOWBACK_RECORDS']['SHOWBACK']
+                end
 
                 AcctHelper::SHOWBACK_TABLE.show(a, options)
                 exit(0)

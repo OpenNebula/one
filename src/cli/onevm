@@ -834,24 +834,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    showback_desc = <<-EOT.unindent
-        Development command to get raw showback data
-    EOT
-
-    command :showback, showback_desc, [:filterflag, nil] do
-
-        rc = OpenNebula::VirtualMachinePool.new(helper.client).showback_xml(args[0])
-
-        if OpenNebula.is_error?(rc)
-            warn rc.message
-            exit -1
-        else
-            puts rc
-            exit 0
-        end
-
-    end
-
     START_TIME = {
         :name   => "start_time",
         :short  => "-s TIME",
