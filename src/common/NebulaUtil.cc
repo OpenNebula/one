@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <math.h>
 
 using namespace std;
 
@@ -237,4 +238,25 @@ vector<string> one_util::split(const string& st, char delim, bool clean_empty)
     }
 
     return parts;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string one_util::float_to_str(const float &num)
+{
+    ostringstream oss;
+
+    if ( num == ceil(num) )
+    {
+        oss.precision(0);
+    }
+    else
+    {
+        oss.precision(2);
+    }
+
+    oss << fixed << num;
+
+    return oss.str();
 }
