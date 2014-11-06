@@ -184,8 +184,10 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         else
 
             order_by = Hash.new
-            order_by[:order_by_1] = 'YEAR'
-            order_by[:order_by_2] = 'MONTH'
+            if !options[:csv]
+                order_by[:order_by_1] = 'YEAR'
+                order_by[:order_by_2] = 'MONTH'
+            end
 
             data_hash = pool.showback(filter_flag,
                                         common_opts.merge(order_by))
@@ -195,16 +197,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             end
 
             if options[:csv]
-                a = Array.new
-                data_hash.each do |user_id, value|
-                    value['SHOWBACK_RECORDS']['SHOWBACK'].each do |l|
-                        l['UID']=user_id
-                        a << l
-                    end
-                end
-
-                cols = AcctHelper::SHOWBACK_TABLE.default_columns
-                AcctHelper::SHOWBACK_TABLE.default(:UID, *cols)
+                a = data_hash['SHOWBACK_RECORDS']['SHOWBACK']
 
                 AcctHelper::SHOWBACK_TABLE.show(a, options)
                 exit(0)
@@ -216,8 +209,6 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
             data_hash.each { |year, value|
                 value.each { |month, showback_array|
-
-
                     AcctHelper.print_month_header(year, month)
 
                     array = showback_array['SHOWBACK_RECORDS']['SHOWBACK']
