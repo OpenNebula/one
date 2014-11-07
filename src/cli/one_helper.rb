@@ -411,8 +411,8 @@ EOT
             def self.get_password
                 print "Password: "
                 system("stty", "-echo")
-                @@password=gets.chop
                 begin
+                    @@password = STDIN.gets.chop
                     return @@password
                 ensure
                     system("stty", "echo")
