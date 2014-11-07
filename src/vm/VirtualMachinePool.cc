@@ -653,9 +653,8 @@ void VirtualMachinePool::calculate_showback(
         history.xpath(cpu,      "/HISTORY/VM/TEMPLATE/CPU", 0);
         history.xpath(mem,      "/HISTORY/VM/TEMPLATE/MEMORY", 0);
 
-        // TODO: cpu/mem cost should be moved to TEMPLATE
-        history.xpath(cpu_cost, "/HISTORY/VM/USER_TEMPLATE/CPU_COST", 0);
-        history.xpath(mem_cost, "/HISTORY/VM/USER_TEMPLATE/MEMORY_COST", 0);
+        history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", 0);
+        history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", 0);
 
         // TODO debug
         /*=====================================================================

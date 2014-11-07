@@ -337,6 +337,32 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     }
 
     // ------------------------------------------------------------------------
+    // Check the cost attributes
+    // ------------------------------------------------------------------------
+
+    if ( user_obj_template->get("CPU_COST", fvalue) == true )
+    {
+        if ( fvalue < 0 )
+        {
+            goto error_cpu_cost;
+        }
+
+        user_obj_template->erase("CPU_COST");
+        obj_template->add("CPU_COST", fvalue);
+    }
+
+    if ( user_obj_template->get("MEMORY_COST", fvalue) == true )
+    {
+        if ( fvalue < 0 )
+        {
+            goto error_memory_cost;
+        }
+
+        user_obj_template->erase("MEMORY_COST");
+        obj_template->add("MEMORY_COST", fvalue);
+    }
+
+    // ------------------------------------------------------------------------
     // Check the OS attribute
     // ------------------------------------------------------------------------
 
@@ -456,6 +482,14 @@ error_vcpu:
 
 error_memory:
     error_str = "MEMORY attribute must be a positive integer value.";
+    goto error_common;
+
+error_cpu_cost:
+    error_str = "CPU_COST attribute must be a positive float or integer value.";
+    goto error_common;
+
+error_memory_cost:
+    error_str = "MEMORY_COST attribute must be a positive float or integer value.";
     goto error_common;
 
 error_os:
