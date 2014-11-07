@@ -1,0 +1,50 @@
+--- 
+:UID:
+  :desc: User ID
+  :size: 4
+
+:USER_NAME:
+  :desc: User name
+  :size: 12
+
+:GID:
+  :desc: Group ID
+  :size: 4
+
+:GROUP_NAME:
+  :desc: Group name
+  :size: 12
+
+:VM_ID:
+  :desc: Virtual Machine ID
+  :size: 6
+
+:VM_NAME:
+  :desc: Virtual Machine name
+  :size: 12
+
+:MONTH:
+  :desc: Month
+  :size: 5
+
+:YEAR:
+  :desc: Year
+  :size: 5
+
+:HOURS:
+  :desc: Hours
+  :size: 6
+
+:COST:
+  :desc: Cost
+  :size: 15
+
+:default:
+- :USER_NAME
+- :GROUP_NAME
+- :VM_ID
+- :VM_NAME
+- :MONTH
+- :YEAR
+- :HOURS
+- :COST

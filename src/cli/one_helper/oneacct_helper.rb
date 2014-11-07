@@ -153,8 +153,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
     end
 
-    # TODO: oneacct.yaml
-    SHOWBACK_TABLE = CLIHelper::ShowTable.new("nofile.yaml", nil) do
+    SHOWBACK_TABLE = CLIHelper::ShowTable.new("oneshowback.yaml", nil) do
         column :UID, "User ID", :size=>4 do |d|
             d["UID"]
         end

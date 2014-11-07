@@ -33,7 +33,7 @@ require 'one_helper/oneacct_helper'
 require 'json'
 
 cmd = CommandParser::CmdParser.new(ARGV) do
-    usage "`oneacct` [<options>]"
+    usage "`oneshowback` [<options>]"
     description ""
     version OpenNebulaHelper::ONE_VERSION
 
@@ -43,32 +43,47 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
-    option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
+    option AcctHelper::SHOWBACK_OPTIONS + CommandParser::OPTIONS +
         [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
         OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
         if options[:describe]
-            AcctHelper::ACCT_TABLE.describe_columns
+            AcctHelper::SHOWBACK_TABLE.describe_columns
             exit(0)
         end
 
         filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
-        start_time  = options[:start_time] ? options[:start_time].to_i : -1
-        end_time    = options[:end_time] ? options[:end_time].to_i : -1
+
+        start_month = -1
+        start_year  = -1
+
+        if (options[:start_time])
+            start_month = options[:start_time].month
+            start_year  = options[:start_time].year
+        end
+
+        end_month = -1
+        end_year  = -1
+
+        if (options[:end_time])
+            end_month = options[:end_time].month
+            end_year  = options[:end_time].year
+        end
 
         common_opts = {
-            :start_time => start_time,
-            :end_time   => end_time,
-            :host       => options[:host],
+            :start_month => start_month,
+            :start_year  => start_year,
+            :end_month   => end_month,
+            :end_year    => end_year,
             :group      => options[:group],
             :xpath      => options[:xpath]
         }
 
-        pool   = OpenNebula::VirtualMachinePool.new(helper.client)
+        pool = OpenNebula::VirtualMachinePool.new(helper.client)
 
         if options[:json] || options[:xml]
-            xml_str = pool.accounting_xml(filter_flag, common_opts)
+            xml_str = pool.showback_xml(filter_flag, common_opts)
             if OpenNebula.is_error?(xml_str)
                 puts xml_str.message
                 exit -1
@@ -76,7 +91,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
             if options[:json]
                 xmldoc = XMLElement.new
-                xmldoc.initialize_xml(xml_str, 'HISTORY_RECORDS')
+                xmldoc.initialize_xml(xml_str, 'SHOWBACK_RECORDS')
 
                 puts JSON.pretty_generate(xmldoc.to_hash)
             elsif options[:xml]
@@ -85,56 +100,40 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
             exit_code 0
         else
-            order_by = Hash.new
-            order_by[:order_by_1] = 'VM/UID'
 
-            if options[:split] && !options[:csv]
-                order_by[:order_by_2] = 'VM/ID'
+            order_by = Hash.new
+            if !options[:csv]
+                order_by[:order_by_1] = 'YEAR'
+                order_by[:order_by_2] = 'MONTH'
             end
 
-            acct_hash = pool.accounting(filter_flag,
+            data_hash = pool.showback(filter_flag,
                                         common_opts.merge(order_by))
-            if OpenNebula.is_error?(acct_hash)
-                puts acct_hash.message
+            if OpenNebula.is_error?(data_hash)
+                puts data_hash.message
                 exit -1
             end
 
             if options[:csv]
-                a=Array.new
-                acct_hash.each do |user_id, value|
-                    value['HISTORY_RECORDS']['HISTORY'].each do |l|
-                        l['UID']=user_id
-                        a << l
-                    end
+                a = Array.new
+
+                if data_hash['SHOWBACK_RECORDS']
+                    a = data_hash['SHOWBACK_RECORDS']['SHOWBACK']
                 end
 
-                cols=AcctHelper::ACCT_TABLE.default_columns
-                AcctHelper::ACCT_TABLE.default(:UID, *cols)
-
-                AcctHelper::ACCT_TABLE.show(a, options)
+                AcctHelper::SHOWBACK_TABLE.show(a, options)
                 exit(0)
             end
 
-            if ( start_time != -1 or end_time != -1 )
-                AcctHelper.print_start_end_time_header(start_time, end_time)
-            end
+            data_hash.each { |year, value|
+                value.each { |month, showback_array|
+                    AcctHelper.print_month_header(year, month)
 
-            acct_hash.each { |user_id, value|
-                AcctHelper.print_user_header(user_id)
-
-                if options[:split]
-                    # Use one table for each VM
-                    value.each { |vm_id, history_array|
-                        array = history_array['HISTORY_RECORDS']['HISTORY']
-                        AcctHelper::ACCT_TABLE.show(array, options)
-                        puts
-                    }
-                else
-                    # Use the same table for all the VMs
-                    array = value['HISTORY_RECORDS']['HISTORY']
-                    AcctHelper::ACCT_TABLE.show(array, options)
+                    array = showback_array['SHOWBACK_RECORDS']['SHOWBACK']
+                    AcctHelper::SHOWBACK_TABLE.show(array, options)
                     puts
-                end
+                }
+
             }
 
             exit_code 0
