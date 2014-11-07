@@ -734,10 +734,17 @@ function updateGroupInfo(request,group){
         content: '<div id="group_accounting"></div>'
     };
 
+    var showback_tab = {
+        title: tr("Showback"),
+        icon: "fa-money",
+        content: '<div id="group_showback"></div>'
+    };
+
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_providers_tab",providers_tab);
-    Sunstone.updateInfoPanelTab("group_info_panel","group_accouning_tab",accounting_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_accounting_tab",accounting_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_showback_tab",showback_tab);
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){
@@ -752,6 +759,10 @@ function updateGroupInfo(request,group){
         $("#group_accounting","#group_info_panel"),
         {   fixed_group: info.ID,
             init_group_by: "user" });
+
+    showbackGraphs(
+        $("#group_showback","#group_info_panel"),
+        {   fixed_group: info.ID });
 
     setupQuotasPanel(info,
         "#group_info_panel",

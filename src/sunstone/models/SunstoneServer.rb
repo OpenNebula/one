@@ -395,12 +395,16 @@ class SunstoneServer < CloudServer
         pool = VirtualMachinePool.new(@client)
 
         filter_flag = options[:userfilter] ? options[:userfilter].to_i : VirtualMachinePool::INFO_ALL
-        start_time  = options[:start_time] ? options[:start_time].to_i : -1
-        end_time    = options[:end_time]   ? options[:end_time].to_i : -1
+        start_month  = options[:start_month] ? options[:start_month].to_i : -1
+        start_year  = options[:start_year] ? options[:start_year].to_i : -1
+        end_month    = options[:end_month]   ? options[:end_month].to_i : -1
+        end_year    = options[:end_year]   ? options[:end_year].to_i : -1
 
         acct_options = {
-            :start_time => start_time,
-            :end_time   => end_time,
+            :start_month => start_month,
+            :start_year => start_year,
+            :end_month   => end_month,
+            :end_year   => end_year,
             :group      => options[:group]
         }
 

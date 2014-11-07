@@ -4771,14 +4771,6 @@ function showbackGraphs(div, opt){
 
     div.html(
     '<div class="row">\
-      <div id="showback_start_time_container" class="left columns">\
-        <label for="showback_start_time">'+tr("Start time")+'</label>\
-        <input id="showback_start_time" type="date" placeholder="2013/12/30"/>\
-      </div>\
-      <div id="showback_end_time_container" class="left columns">\
-        <label for="showback_end_time">'+tr("End time")+'</label>\
-        <input id="showback_end_time" type="date" placeholder="'+tr("Today")+'"/>\
-      </div>\
       <div id="showback_owner_container" class="left columns">\
         <label for="showback_owner">' +  tr("Filter") + '</label>\
         <div class="row">\
@@ -4794,11 +4786,10 @@ function showbackGraphs(div, opt){
           </div>\
         </div>\
       </div>\
-      <div id="showback_button_container" class="left columns" style="margin-top: 15px">\
-        <button class="button radius success large-12" id="showback_submit" type="button">'+tr("Get Showback")+'</button>\
+      <div id="showback_button_container" class="left columns">\
+        <button class="button radius success right" id="showback_submit" type="button">'+tr("Get Showback")+'</button>\
       </div>\
     </div>\
-    <br>\
     <div id="showback_placeholder">\
       <div class="row">\
         <div class="large-8 large-centered columns">\
@@ -4836,6 +4827,7 @@ function showbackGraphs(div, opt){
             <tbody id="tbody_showback_datatable">\
             </tbody>\
           </table>\
+          <span class="label secondary radius showback_select_a_row">'+tr("Select a row to get detailed information of the month")+'</span>\
         </div>\
         <div class="large-6 columns">\
           <div class="large-12 columns centered graph" id="showback_graph" style="height: 200px;">\
@@ -4852,6 +4844,7 @@ function showbackGraphs(div, opt){
               <tr>\
                 <th>'+tr("ID")+'</th>\
                 <th>'+tr("Name")+'</th>\
+                <th>'+tr("Owner")+'</th>\
                 <th>'+tr("Hours")+'</th>\
                 <th>'+tr("Cost")+'</th>\
               </tr>\
@@ -4866,29 +4859,6 @@ function showbackGraphs(div, opt){
     if (opt == undefined){
         opt = {};
     }
-
-    //--------------------------------------------------------------------------
-    // Set column width
-    //--------------------------------------------------------------------------
-
-    var n_columns = 3; // start, end time, button
-
-    if (opt.fixed_user == undefined && opt.fixed_group == undefined){
-        n_columns += 1;     //acct_owner_container
-    }
-
-    if (n_columns > 4){
-        // In this case the first row will have 4 inputs, and the
-        // get accounting button will overflow to the second row
-        n_columns = 4;
-    }
-
-    var width = parseInt(12 / n_columns);
-
-    $("#showback_start_time_container", div).addClass("large-"+width);
-    $("#showback_end_time_container",   div).addClass("large-"+width);
-    $("#showback_owner_container",      div).addClass("large-"+width);
-    $("#showback_button_container",     div).addClass("large-"+width);
 
     //--------------------------------------------------------------------------
     // VM owner: all, group, user
@@ -4925,17 +4895,15 @@ function showbackGraphs(div, opt){
         "iDisplayLength": 6,
         "sDom": "t<'row collapse'<'small-6 columns'><'small-6 columns'p>>",
         "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ['_all'] },
             { "bVisible": false, "aTargets": [0,1,2]}
         ]
     });
 
+    showback_dataTable.fnSort( [ [0, "desc"] ] );
+
     showback_vms_dataTable = $("#showback_vms_datatable",div).dataTable({
         "bSortClasses" : false,
-        "bDeferRender": true,
-        "aoColumnDefs": [
-            { "bSortable": false, "aTargets": ['_all'] },
-        ]
+        "bDeferRender": true
     });
 
     showback_dataTable.on("click", "tr", function(){
@@ -4948,6 +4916,7 @@ function showbackGraphs(div, opt){
 
         $("#showback_vms_title").text($months[month] + " " + year + " " + tr("VMs"))
         $(".showback_vms_table").show();
+        $(".showback_select_a_row").hide();
     })
 
     //--------------------------------------------------------------------------
@@ -4955,41 +4924,7 @@ function showbackGraphs(div, opt){
     //--------------------------------------------------------------------------
 
     $("#showback_submit", div).on("click", function(){
-        var start_time = -1;
-        var end_time = -1;
-
-        var v = $("#showback_start_time", div).val();
-        if (v != ""){
-            start_time = Date.parse(v+' UTC');
-
-            if (isNaN(start_time)){
-                notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
-                return false;
-            }
-
-            // ms to s
-            start_time = start_time / 1000;
-        }
-
-        var v = $("#showback_end_time", div).val();
-        if (v != ""){
-
-            end_time = Date.parse(v+' UTC');
-
-            if (isNaN(end_time)){
-                notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
-                return false;
-            }
-
-            // ms to s
-            end_time = end_time / 1000;
-        }
-
-        var options = {
-            "start_time": start_time,
-            "end_time": end_time
-        };
-
+        var options = {};
         if (opt.fixed_user != undefined){
             options.userfilter = opt.fixed_user;
         } else if (opt.fixed_group != undefined){
@@ -5018,7 +4953,6 @@ function showbackGraphs(div, opt){
         OpenNebula.VM.showback({
     //        timeout: true,
             success: function(req, response){
-                console.log(response)
                 fillShowback(div, req, response);
             },
             error: onError,
@@ -5053,8 +4987,8 @@ function fillShowback(div, req, response) {
             }
         }
 
-        vms_per_date[showback.YEAR][showback.MONTH].VMS.push([showback.VMID, showback.VMNAME, showback.HOURS, showback.COST]);
-        vms_per_date[showback.YEAR][showback.MONTH].TOTAL += parseInt(showback.COST);
+        vms_per_date[showback.YEAR][showback.MONTH].VMS.push([showback.VMID, showback.VMNAME, showback.UNAME, showback.HOURS, showback.COST]);
+        vms_per_date[showback.YEAR][showback.MONTH].TOTAL += parseFloat(showback.COST);
     });
 
     var series = []
@@ -5062,7 +4996,7 @@ function fillShowback(div, req, response) {
     $.each(vms_per_date, function(year, months){
         $.each(months, function(month, value){
             series.push([""+year+month, year, month, $months[month] + " " + year, value.TOTAL])
-            showback_data.push([(new Date(year, month)), value.TOTAL])
+            showback_data.push([(new Date(year, month)), value.TOTAL.toFixed(2) ])
         })
     })
 
@@ -5095,17 +5029,23 @@ function fillShowback(div, req, response) {
             show: false
         },
         series: {
-            lines: {
+            bars: {
                 show: true,
                 lineWidth: 0,
+                barWidth: 24 * 60 * 60 * 1000 * 20,
                 fill: true,
-                align: "center"
+                align: "left"
             }
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#efefef"
+            borderColor: "#efefef",
+            hoverable: true
         }
+        //tooltip: true,
+        //tooltipOpts: {
+        //    content: "%x"
+        //}
     };
 
     var showback_plot = $.plot($("#showback_graph", div), showback_plot_series, options);

@@ -312,11 +312,11 @@ module OpenNebula
         #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
         #   or user_id
         # @param [Hash] options
-        # @option params [Integer] :start_month First month (+year) to take
+        # @option params [Integer] :start_year First month (+year) to take
         #   into account, if no start time is required use -1
         # @option params [Integer] :start_month First year (+month) to take
         #   into account, if no start time is required use -1
-        # @option params [Integer] :end_month Last month (+year) to take
+        # @option params [Integer] :end_year Last month (+year) to take
         #   into account, if no end time is required use -1
         # @option params [Integer] :end_month Last year (+month) to take
         #   into account, if no end time is required use -1
@@ -366,11 +366,11 @@ module OpenNebula
         #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
         #   or user_id
         # @param [Hash] options
-        # @option params [Integer] :start_month First month (+year) to take
+        # @option params [Integer] :start_year First month (+year) to take
         #   into account, if no start time is required use -1
         # @option params [Integer] :start_month First year (+month) to take
         #   into account, if no start time is required use -1
-        # @option params [Integer] :end_month Last month (+year) to take
+        # @option params [Integer] :end_year Last month (+year) to take
         #   into account, if no end time is required use -1
         # @option params [Integer] :end_month Last year (+month) to take
         #   into account, if no end time is required use -1

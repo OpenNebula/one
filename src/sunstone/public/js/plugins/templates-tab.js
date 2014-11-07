@@ -827,7 +827,6 @@ function generate_capacity_tab_content() {
           '<input type="text" id="vcenter_template_uuid" name="name"/>'+
         '</div>'+
       '</div>'+
-      '<br>'+
     generate_capacity_inputs();
 
     return html;
@@ -839,51 +838,69 @@ function generate_capacity_inputs() {
         '<input type="hidden" id="MEMORY" name="memory" />'+
     '</div>'+
     '<div class="row">'+
-        '<div class="large-2 columns">'+
-          '<label class="inline" for="MEMORY">'+tr("Memory")+'\
-            <span class="tip right">'+tr("Amount of RAM required for the VM, in Megabytes.")+'</span>\
+        '<div class="large-7 columns">'+
+          '<label class="" for="MEMORY">'+tr("Memory")+'\
+            <span class="tip ">'+tr("Amount of RAM required for the VM, in Megabytes.")+'</span>\
           </label>'+
-        '</div>'+
-        '<div class="large-6 columns">'+
-          '<div id="memory_slider" class="large-7 columns">'+
+          '<div class="large-8 columns">'+
+            '<div id="memory_slider" class="large-7 columns">'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<div class="large-2 columns">'+
-          '<input type="text" id="MEMORY_TMP" name="memory_tmp" size="4" />'+
-        '</div>'+
-        '<div class="large-2 columns">'+
-          '<select id="memory_unit" name="MEMORY_UNIT">'+
-              '<option value="MB">'+tr("MB")+'</option>'+
-              '<option value="GB">'+tr("GB")+'</option>'+
-          '</select>'+
-        '</div>'+
-    '</div>'+
-    '<div class="row">'+
-        '<div class="large-2 columns">'+
-          '<label class="inline" for="CPU">'+tr("CPU")+'\
-            <span class="tip right">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</span>\
-          </label>'+
-        '</div>'+
-        '<div class="large-8 columns">'+
-          '<div id="cpu_slider">'+
+          '<div class="large-2 columns">'+
+            '<input type="text" id="MEMORY_TMP" name="memory_tmp" size="4" />'+
+          '</div>'+
+          '<div class="large-2 columns">'+
+            '<select id="memory_unit" name="MEMORY_UNIT">'+
+                '<option value="MB">'+tr("MB")+'</option>'+
+                '<option value="GB">'+tr("GB")+'</option>'+
+            '</select>'+
           '</div>'+
         '</div>'+
         '<div class="large-2 columns vm_param">'+
-          '<input type="text" id="CPU" name="cpu"/>'+
+          '<label  for="MEMORY_COST">'+tr("Cost")+'\
+            <span class="tip">'+tr("Cost of each MB per hour")+'</span>\
+          </label>'+
+          '<input type="text" id="MEMORY_COST" name="name"/>'+
+        '</div>'+
+        '<div class="large-3 columns">'+
+        '</div>'+
+    '</div>'+
+    '<div class="row">'+
+        '<div class="large-7 columns">'+
+          '<label class="" for="CPU">'+tr("CPU")+'\
+            <span class="tip">'+tr("Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")+'</span>\
+          </label>'+
+          '<div class="large-10 columns">'+
+            '<div id="cpu_slider">'+
+            '</div>'+
+          '</div>'+
+          '<div class="large-2 columns vm_param">'+
+            '<input type="text" id="CPU" name="cpu"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-2 columns vm_param">'+
+          '<label  for="CPU_COST">'+tr("Cost")+'\
+            <span class="tip">'+tr("Cost of each CPU per hour")+'</span>\
+          </label>'+
+          '<input type="text" id="CPU_COST" name="name"/>'+
+        '</div>'+
+        '<div class="large-3 columns">'+
         '</div>'+
     '</div>'+
     '<div class="row">' +
-      '<div class="large-2 columns">'+
-        '<label class="inline" for="VCPU">'+tr("VCPU")+'\
-          <span class="tip right">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
+      '<div class="large-7 columns">'+
+        '<label class="" for="VCPU">'+tr("VCPU")+'\
+          <span class="tip">'+tr("Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")+'</span>\
         </label>'+
-      '</div>'+
-      '<div class="large-8 columns">'+
-        '<div id="vcpu_slider">'+
+        '<div class="large-10 columns">'+
+          '<div id="vcpu_slider">'+
+          '</div>'+
+        '</div>'+
+        '<div class="large-2 columns vm_param">'+
+          '<input type="text" id="VCPU" name="vcpu"/>'+
         '</div>'+
       '</div>'+
-      '<div class="large-2 columns vm_param">'+
-        '<input type="text" id="VCPU" name="vcpu"/>'+
+      '<div class="large-5 columns">'+
       '</div>'+
     '</div>'
 

@@ -361,15 +361,6 @@ function setupConfigDialog() {
     });
 }
 
-function tr(str){
-    var tmp = locale[str];
-    if ( tmp == null || tmp == "" ) {
-        //console.debug("Missing translation: "+str);
-        tmp = str;
-    }
-    return tmp;
-};
-
 function updateUserConfigInfo(request,user_json) {
     var info = user_json.USER;
 

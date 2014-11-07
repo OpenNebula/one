@@ -1210,6 +1210,21 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
             '<span class="left">'+
+              tr("VDC Showback")+
+            '</span>'+
+          '</h3>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div  id="provision_info_vdc_group_showback" class="large-10 large-centered columns">'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-11 large-centered columns">'+
+          '<h3 class="subheader text-right">'+
+            '<span class="left">'+
               tr("VDC Quotas")+
             '</span>'+
           '</h3>'+
@@ -2007,17 +2022,22 @@ function generate_provision_instance_type_accordion(context, capacity) {
     '<div class="row">'+
       '<div class="large-12 large-centered columns">'+
         '<div class="row text-center">'+
-          '<div class="large-6 columns">'+
+          '<div class="large-4 columns">'+
             '<span class="cpu_value" style="color: #777; font-size:60px">'+capacity.CPU+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("CPU")+'</span>'+
           '</div>'+
-          '<div class="large-6 columns">'+
+          '<div class="large-4 columns">'+
             '<span class="memory_value" style="color: #777; font-size:60px">'+memory_value+'</span>'+
             ' '+
             '<span class="memory_unit" style="color: #777; font-size:30px">'+memory_unit+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("MEMORY")+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns provision_create_template_cost_div hidden">'+
+            '<span class="cost_value" style="color: #777; font-size:60px"></span>'+
+            '<br>'+
+            '<span style="color: #999;">'+tr("COST")+' / ' + tr("HOUR") + '</span>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -2060,6 +2080,25 @@ function generate_provision_instance_type_accordion(context, capacity) {
       '</div>'+
     '</div>'+
     '<br>');
+
+  var cost = 0;
+  if (capacity.CPU_COST || capacity.MEMORY_COST) {
+    $(".provision_create_template_cost_div").show();
+
+    if (capacity.CPU && capacity.CPU_COST) {
+      cost += capacity.CPU * capacity.CPU_COST
+      $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+    }
+
+    if (capacity.MEMORY && capacity.MEMORY_COST) {
+      cost += capacity.MEMORY * capacity.MEMORY_COST
+      $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+    }
+
+    $(".cost_value").html(cost);
+  } else {
+    $(".provision_create_template_cost_div").hide();
+  }
 
   provision_instance_type_accordion_id += 1;
 
@@ -2152,6 +2191,18 @@ function generate_provision_instance_type_accordion(context, capacity) {
 
     $(".memory_value", context).html(memory_value);
     $(".memory_unit", context).html(memory_unit);
+
+    var cost = 0;
+
+    if ($(".cost_value").data("CPU_COST")) {
+      cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+    }
+
+    if ($(".cost_value").data("MEMORY_COST")) {
+      cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
+    }
+
+    $(".cost_value").html(cost);
 
     $('.accordion a', context).first().trigger("click");
   })
@@ -2775,6 +2826,10 @@ function show_provision_group_info_callback(request, response) {
     $("#provision_info_vdc_group_acct", context),
     {   fixed_group: info.ID,
         init_group_by: "user" });
+
+  showbackGraphs(
+    $("#provision_info_vdc_group_showback", context),
+    {   fixed_group: info.ID });
 
   $("#acct_placeholder", context).hide();
 }
@@ -5081,6 +5136,9 @@ function setup_provision_user_info(context) {
               '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="'+tr("User Accounting")+'" style="margin-right: 10px">'+
                 '<i class="fa fa-bar-chart-o fa-lg"></i>'+
               '</span>'+
+              '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="'+tr("User Showback")+'" style="margin-right: 10px">'+
+                '<i class="fa fa-money fa-lg"></i>'+
+              '</span>'+
             '</li>'+
             '<li class="provision-bullet-item text-left">'+
             '</li>')
@@ -5214,6 +5272,19 @@ function setup_provision_user_info(context) {
     $(".provision_vdc_info_container", context).prepend(
       '<h2 class="subheader">'+
         $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Accounting")+
+      '</h2>')
+  })
+
+  context.on("click", ".provision_vdc_user_info_show_showback", function(){
+    $(".provision_vdc_info_container", context).html("");
+
+    showbackGraphs(
+      $(".provision_vdc_info_container", context),
+        { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id")});
+
+    $(".provision_vdc_info_container", context).prepend(
+      '<h2 class="subheader">'+
+        $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Showback")+
       '</h2>')
   })
 
