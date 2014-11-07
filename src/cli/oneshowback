@@ -33,7 +33,10 @@ require 'one_helper/oneacct_helper'
 require 'json'
 
 cmd = CommandParser::CmdParser.new(ARGV) do
-    usage "`oneshowback` [<options>]"
+
+    @formats = Hash.new
+
+    usage "`oneshowback` <command> [<options>]"
     description ""
     version OpenNebulaHelper::ONE_VERSION
 
@@ -43,11 +46,11 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
-    option AcctHelper::SHOWBACK_OPTIONS + CommandParser::OPTIONS +
+    command :list, "Returns the showback records", :options =>
+        AcctHelper::SHOWBACK_OPTIONS + CommandParser::OPTIONS +
         [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
-        OpenNebulaHelper::CLIENT_OPTIONS
+        OpenNebulaHelper::CLIENT_OPTIONS do
 
-    main do
         if options[:describe]
             AcctHelper::SHOWBACK_TABLE.describe_columns
             exit(0)
@@ -138,5 +141,38 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
             exit_code 0
         end
+    end
+
+    command :"calculate", "Calculates the showback records", :options =>
+            [AcctHelper::START_TIME_SHOWBACK, AcctHelper::START_TIME_SHOWBACK] do
+
+
+        start_month = -1
+        start_year  = -1
+
+        if (options[:start_time])
+            start_month = options[:start_time].month
+            start_year  = options[:start_time].year
+        end
+
+        end_month = -1
+        end_year  = -1
+
+        if (options[:end_time])
+            end_month = options[:end_time].month
+            end_year  = options[:end_time].year
+        end
+
+        rc = OpenNebula::VirtualMachinePool.new(helper.client).
+                calculate_showback(start_month, start_year, end_month, end_year)
+
+        if OpenNebula.is_error?(rc)
+            warn rc.message
+            exit -1
+        else
+            puts rc
+            exit_code 0
+        end
+
     end
 end
