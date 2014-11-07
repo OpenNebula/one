@@ -528,6 +528,7 @@ void VirtualMachinePool::calculate_showback(
     // TODO: debug
     //=================================================================
     ostringstream debug;
+    time_t debug_t_0 = time(0);
     //=================================================================
 
     //--------------------------------------------------------------------------
@@ -591,6 +592,13 @@ void VirtualMachinePool::calculate_showback(
     rc = dump_acct(oss, "", start_time, end_time);
 
     ObjectXML xml(oss.str());
+    oss.str("");
+
+
+    // TODO: debug
+    //=================================================================
+    time_t debug_t_1 = time(0);
+    //=================================================================
 
     //--------------------------------------------------------------------------
     // Create the monthly time slots
@@ -626,7 +634,7 @@ void VirtualMachinePool::calculate_showback(
     showback_slots.push_back(end_time);
 
     // TODO: debug
-    //*=================================================================
+    /*=================================================================
     for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end(); slot_it++ )
     {
         debug.str("");
@@ -714,7 +722,18 @@ void VirtualMachinePool::calculate_showback(
 
     xml.free_nodes(nodes);
 
+    // TODO: debug
+    //=================================================================
+    time_t debug_t_2 = time(0);
+    //=================================================================
+
     // Write to DB
+
+    oss.str("");
+    oss << "REPLACE INTO " << VirtualMachine::showback_table
+        << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
+
+    int n_entries = 0;
 
     for ( vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
     {
@@ -765,8 +784,6 @@ void VirtualMachinePool::calculate_showback(
                     << "<HOURS>"    << hours                    << "</HOURS>"
                 << "</SHOWBACK>";
 
-            oss.str("");
-
             sql_body =  db->escape_str(body.str().c_str());
 
             if ( sql_body == 0 )
@@ -774,20 +791,41 @@ void VirtualMachinePool::calculate_showback(
                 // TODO
             }
 
-            oss << "REPLACE INTO " << VirtualMachine::showback_table
-                << " ("<< VirtualMachine::showback_db_names <<") VALUES ("
-                <<          vm_it->first            << ","
+            if (n_entries == 0)
+            {
+                oss.str("");
+                oss << "REPLACE INTO " << VirtualMachine::showback_table
+                    << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
+            }
+            else
+            {
+                oss << ",";
+            }
+
+            oss << " (" <<  vm_it->first            << ","
                 <<          tmp_tm.tm_year + 1900   << ","
                 <<          tmp_tm.tm_mon + 1       << ","
-                << "'" <<   sql_body                << "')";
+                << "'"  <<  sql_body                << "')";
 
             db->free_str(sql_body);
 
-            rc = db->exec(oss);
+            n_entries++;
 
+            // To avoid the oss to grow indefinitely, flush contents
+            if (n_entries == 1000)
+            {
+                rc = db->exec(oss);
+
+                if (rc != 0)
+                {
+                    // TODO
+                }
+
+                n_entries = 0;
+            }
 
             // TODO: debug
-            //*=================================================================
+            /*=================================================================
             debug.str("");
 
             debug << "VM " << vm_it->first
@@ -800,4 +838,31 @@ void VirtualMachinePool::calculate_showback(
             //================================================================*/
         }
     }
+
+    if (n_entries > 0)
+    {
+        rc = db->exec(oss);
+
+        if (rc != 0)
+        {
+            // TODO
+        }
+    }
+
+    // TODO: debug
+    /*=================================================================
+    time_t debug_t_3 = time(0);
+
+    debug.str("");
+    debug << "Time to dump acct to mem: " << debug_t_1 - debug_t_0;
+    NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
+
+    debug.str("");
+    debug << "Time to process numbers:  " << debug_t_2 - debug_t_1;
+    NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
+
+    debug.str("");
+    debug << "Time to write to db:      " << debug_t_3 - debug_t_2;
+    NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
+    //================================================================*/
 }
