@@ -17,7 +17,7 @@ DISK = [ IMAGE_ID   = <%= erb_vm_info[:img_id] %> ]
 NIC=[NETWORK_ID=<EC2-VNET-ID>]
 
 IMAGE_ID = <%= erb_vm_info[:ec2_img_id] %>
-INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>
+EC2_INSTANCE_TYPE = <%= erb_vm_info[:instance_type ]%>
 
 <% if erb_vm_info[:user_data] && erb_vm_info[:public_key] %>
 CONTEXT = [ EC2_USER_DATA="<%= erb_vm_info[:user_data] %>", EC2_PUBLIC_KEY="<%= erb_vm_info[:public_key] %>", EC2_KEYNAME ="<%= erb_vm_info[:key_name] %>" ]
