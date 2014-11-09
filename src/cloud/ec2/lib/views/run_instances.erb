@@ -24,7 +24,7 @@
       <% else %>
       <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
       <% end %>
-      <instanceType><%= vm['USER_TEMPLATE/INSTANCE_TYPE'] %></instanceType>
+      <instanceType><%= vm['USER_TEMPLATE/EC2_INSTANCE_TYPE'] %></instanceType>
       <%= render_launch_time(vm) %>
       <placement>
         <availabilityZone>default</availabilityZone>
