@@ -1090,6 +1090,12 @@ public:
      */
     static long long get_volatile_disk_size(Template * tmpl);
 
+    /**
+     * Returns a set of the security group IDs in use in this VM
+     * @param sgs a set of security group IDs
+     */
+    void get_security_groups(set<int>& sgs) const;
+
     // ------------------------------------------------------------------------
     // Context related functions
     // ------------------------------------------------------------------------
@@ -1280,6 +1286,7 @@ public:
      * Setups the new NIC attribute to be attached to the VM.
      *
      * @param vm_id Id of the VM where this nic will be attached
+     * @param vm_sgs the securty group ids already present in the VM
      * @param new_nic New NIC vector attribute, obtained from get_attach_nic_info
      * @param rules Security Group rules will be added at the end of this
      * vector. If not used, the VectorAttributes must be freed by the calling
@@ -1291,6 +1298,7 @@ public:
      */
     static int set_up_attach_nic(
                             int                      vm_id,
+                            set<int>&                vm_sgs,
                             VectorAttribute *        new_nic,
                             vector<VectorAttribute*> &rules,
                             int                      max_nic_id,
@@ -1681,34 +1689,30 @@ private:
      * Acquires the security groups of this NIC
      *
      * @param vm_id Virtual Machine oid
-     * @param nic NIC to get the security groups from
+     * @param sgs security group ID set
      * @param rules Security Group rules will be added at the end of this vector
-     * @param error_str Returns the error reason, if any
-     * @return 0 on success, -1 otherwise
      */
-    static int get_security_groups(
-            int                         vm_id,
-            VectorAttribute const *     nic,
-            vector<VectorAttribute*>    &rules,
-            string                      &error_str);
+    static void get_security_group_rules(int vm_id, set<int>& sgs,
+        vector<VectorAttribute*> &rules);
 
     /**
      * Releases the security groups of this NIC
      *
      * @param vm_id Virtual Machine oid
      * @param nic NIC to release the security groups
-     * @param error_str Returns the error reason, if any
      * @return 0 on success, -1 otherwise
      */
-    static int release_security_groups(
-            int vm_id, VectorAttribute const * nic, string &error_str);
+    static void release_security_groups(int vm_id, VectorAttribute const * nic);
 
     /**
      * Returns a set of the security group IDs of this NIC
      * @param nic NIC to get the security groups from
-     * @return a set of security group IDs
+     * @param sgs a set of security group IDs
      */
-    static set<int> nic_security_groups(VectorAttribute const * nic);
+    static void get_security_groups(VectorAttribute const * nic, set<int>& sgs)
+    {
+        one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', sgs);
+    }
 
     /**
      *  Get all disk images for this Virtual Machine
@@ -1716,8 +1720,6 @@ private:
      *  @return 0 if success
      */
     int get_disk_images(string &error_str);
-
-
 
 protected:
 

@@ -1359,6 +1359,8 @@ int DispatchManager::attach_nic(
     int oid;
     int rc;
 
+    set<int> vm_sgs;
+
     VectorAttribute *        nic;
     vector<VectorAttribute*> sg_rules;
 
@@ -1400,6 +1402,8 @@ int DispatchManager::attach_nic(
         return -1;
     }
 
+    vm->get_security_groups(vm_sgs);
+
     vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
     vm->set_resched(false);
@@ -1412,6 +1416,7 @@ int DispatchManager::attach_nic(
     vm->unlock();
 
     rc = VirtualMachine::set_up_attach_nic(oid,
+                                    vm_sgs,
                                     nic,
                                     sg_rules,
                                     max_nic_id,
