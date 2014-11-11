@@ -4893,7 +4893,7 @@ function showbackGraphs(div, opt){
         "bSortClasses" : false,
         "bDeferRender": true,
         "iDisplayLength": 6,
-        "sDom": "t<'row collapse'<'small-6 columns'><'small-6 columns'p>>",
+        "sDom": "t<'row collapse'<'small-12 columns'p>>",
         "aoColumnDefs": [
             { "bVisible": false, "aTargets": [0,1,2]}
         ]
