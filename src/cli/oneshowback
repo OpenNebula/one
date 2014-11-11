@@ -144,7 +144,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     end
 
     command :"calculate", "Calculates the showback records", :options =>
-            [AcctHelper::START_TIME_SHOWBACK, AcctHelper::START_TIME_SHOWBACK] do
+            [AcctHelper::START_TIME_SHOWBACK, AcctHelper::END_TIME_SHOWBACK] do
 
 
         start_month = -1
