@@ -122,9 +122,12 @@ get '/support/request' do
 	pending_requests = 0
 	one_zrequests = {
 		"REQUEST_POOL" => {
-			"REQUEST" => []
 		}
 	}
+
+	if zrequests.size > 0
+		one_zrequests["REQUEST_POOL"]["REQUEST"] = []
+	end
 
 	zrequests.each { |zrequest|
 		if zrequest.status == "pending"
