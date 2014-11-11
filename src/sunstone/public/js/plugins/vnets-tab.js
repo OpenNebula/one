@@ -1216,7 +1216,7 @@ function setupCreateVNetDialog() {
             $('select#vlan,label[for="vlan"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
 
-            $('input#phydev',$create_vn_dialog).attr('required', '');
+            $('input#phydev',$create_vn_dialog).removeAttr('required');
             $('input#bridge',$create_vn_dialog).removeAttr('required');
             break;
         case "ebtables":
