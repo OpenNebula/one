@@ -1056,12 +1056,6 @@ public:
     // Network Leases & Disk Images
     // ------------------------------------------------------------------------
     /**
-     *  Get all network leases for this Virtual Machine
-     *  @return 0 if success
-     */
-    int get_network_leases(string &error_str);
-
-    /**
      *  Releases all network leases taken by this Virtual Machine
      */
     void release_network_leases();
@@ -1075,46 +1069,6 @@ public:
      * @return 0 on success, -1 otherwise
      */
     static int release_network_leases(VectorAttribute const * nic, int vmid);
-
-    /**
-     * Acquires the security groups of this NIC
-     *
-     * @param vm_id Virtual Machine oid
-     * @param nic NIC to get the security groups from
-     * @param rules Security Group rules will be added at the end of this vector
-     * @param error_str Returns the error reason, if any
-     * @return 0 on success, -1 otherwise
-     */
-    static int get_security_groups(
-            int                         vm_id,
-            VectorAttribute const *     nic,
-            vector<VectorAttribute*>    &rules,
-            string                      &error_str);
-
-    /**
-     * Releases the security groups of this NIC
-     *
-     * @param vm_id Virtual Machine oid
-     * @param nic NIC to release the security groups
-     * @param error_str Returns the error reason, if any
-     * @return 0 on success, -1 otherwise
-     */
-    static int release_security_groups(
-            int vm_id, VectorAttribute const * nic, string &error_str);
-
-    /**
-     * Returns a set of the security group IDs of this NIC
-     * @param nic NIC to get the security groups from
-     * @return a set of security group IDs
-     */
-    static set<int> nic_security_groups(VectorAttribute const * nic);
-
-    /**
-     *  Get all disk images for this Virtual Machine
-     *  @param error_str Returns the error reason, if any
-     *  @return 0 if success
-     */
-    int get_disk_images(string &error_str);
 
     /**
      *  Releases all disk images taken by this Virtual Machine
@@ -1244,7 +1198,7 @@ public:
      *    @param image_id id of the image being saved
      *    @return IMAGE_ID on success, -1 otherwise
      */
-    int get_disk_hot_info(int& image_id, int& disk_id, string& source);
+    //int get_disk_hot_info(int& image_id, int& disk_id, string& source);
 
     /**
      * Generate a DISK attribute to be attached to the VM.
@@ -1713,6 +1667,56 @@ private:
      * @param nic NIC to process
      */
     void merge_nic_defaults(VectorAttribute* nic);
+
+    // -------------------------------------------------------------------------
+    // NIC & DISK Management Helpers
+    // -------------------------------------------------------------------------
+    /**
+     *  Get all network leases for this Virtual Machine
+     *  @return 0 if success
+     */
+    int get_network_leases(string &error_str);
+
+    /**
+     * Acquires the security groups of this NIC
+     *
+     * @param vm_id Virtual Machine oid
+     * @param nic NIC to get the security groups from
+     * @param rules Security Group rules will be added at the end of this vector
+     * @param error_str Returns the error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int get_security_groups(
+            int                         vm_id,
+            VectorAttribute const *     nic,
+            vector<VectorAttribute*>    &rules,
+            string                      &error_str);
+
+    /**
+     * Releases the security groups of this NIC
+     *
+     * @param vm_id Virtual Machine oid
+     * @param nic NIC to release the security groups
+     * @param error_str Returns the error reason, if any
+     * @return 0 on success, -1 otherwise
+     */
+    static int release_security_groups(
+            int vm_id, VectorAttribute const * nic, string &error_str);
+
+    /**
+     * Returns a set of the security group IDs of this NIC
+     * @param nic NIC to get the security groups from
+     * @return a set of security group IDs
+     */
+    static set<int> nic_security_groups(VectorAttribute const * nic);
+
+    /**
+     *  Get all disk images for this Virtual Machine
+     *  @param error_str Returns the error reason, if any
+     *  @return 0 if success
+     */
+    int get_disk_images(string &error_str);
+
 
 
 protected:
