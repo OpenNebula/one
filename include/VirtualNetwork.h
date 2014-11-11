@@ -449,6 +449,11 @@ private:
     int     parent_vid;
 
     /**
+     *  Security Groups
+     */
+    set<int> security_groups;
+
+    /**
      *  The Address Range Pool
      */
     AddressRangePool ar_pool;

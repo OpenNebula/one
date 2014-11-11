@@ -225,6 +225,7 @@ int VirtualNetwork::post_update_template(string& error)
 {
     string new_bridge;
     bool   b_vlan;
+    string sg_str;
 
     /* ---------------------------------------------------------------------- */
     /* Update Configuration Attributes (class & template)                     */
@@ -232,6 +233,7 @@ int VirtualNetwork::post_update_template(string& error)
     /*  - VLAN_ID                                                             */
     /*  - VLAN                                                                */
     /*  - BRIDGE                                                              */
+    /*  - SECURITY_GROUPS                                                     */
     /* ---------------------------------------------------------------------- */
     erase_template_attribute("PHYDEV", phydev);
 
@@ -262,6 +264,12 @@ int VirtualNetwork::post_update_template(string& error)
     }
 
     add_template_attribute("BRIDGE", bridge);
+
+    security_groups.clear();
+
+    obj_template->get("SECURITY_GROUPS", sg_str);
+
+    one_util::split_unique(sg_str, ',', security_groups);
 
     return 0;
 }
@@ -478,6 +486,13 @@ int VirtualNetwork::from_xml(const string &xml_str)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    //Security groups internal attribute (from /VNET/TEMPLATE/SECURITY_GROUPS)
+    string sg_str;
+
+    obj_template->get("SECURITY_GROUPS", sg_str);
+
+    one_util::split_unique(sg_str, ',', security_groups);
+
     // Address Range Pool
     ObjectXML::get_nodes("/VNET/AR_POOL", content);
 
@@ -486,7 +501,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
         return -1;
     }
 
-    // Virtual Network template
+    // Address Ranges of the Virtual Network
     rc += ar_pool.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
@@ -510,9 +525,8 @@ int VirtualNetwork::nic_attribute(
     string inherit_val;
     vector<string>::const_iterator it;
 
-    set<int>    nic_sgroups;
-    string      st_sgroups;
-    int         ar_id;
+    set<int> nic_sgs;
+    int      ar_id;
 
     //--------------------------------------------------------------------------
     //  Set default values from the Virtual Network
@@ -581,26 +595,19 @@ int VirtualNetwork::nic_attribute(
     //  Copy the security group IDs
     //--------------------------------------------------------------------------
 
-    one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', nic_sgroups);
+    one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', nic_sgs);
 
-    obj_template->get("SECURITY_GROUPS", st_sgroups);
-
-    set<int> vnet_sgroups;
-    one_util::split_unique(st_sgroups, ',', vnet_sgroups);
-
-    nic_sgroups.insert(vnet_sgroups.begin(), vnet_sgroups.end());
+    nic_sgs.insert(security_groups.begin(), security_groups.end());
 
     if (nic->vector_value("AR_ID", ar_id) == 0)
     {
-        ar_pool.get_attribute("SECURITY_GROUPS", st_sgroups, ar_id);
+        const set<int> ar_sgs = ar_pool.get_security_groups(ar_id);
 
-        set<int> ar_sgroups;
-        one_util::split_unique(st_sgroups, ',', ar_sgroups);
-
-        nic_sgroups.insert(ar_sgroups.begin(), ar_sgroups.end());
+        nic_sgs.insert(ar_sgs.begin(), ar_sgs.end());
     }
 
-    nic->replace("SECURITY_GROUPS", one_util::join(nic_sgroups.begin(), nic_sgroups.end(), ','));
+    nic->replace("SECURITY_GROUPS",
+        one_util::join(nic_sgs.begin(), nic_sgs.end(), ','));
 
     return rc;
 }

@@ -329,6 +329,15 @@ public:
             bool                keep_restricted,
             string&             error_msg);
 
+    /**
+     *  Get the security groups for this AR.
+     *    @return a reference to the security group set
+     */
+    const set<int>& get_security_groups() const
+    {
+        return security_groups;
+    }
+
     /*
      *  add_ar from AddressRangePool needs to access the internal representation
      *  of the AR to include it in the ARPool template.
@@ -489,6 +498,11 @@ private:
      *  Binary representation of the IPv6 address site unicast prefix
      */
     unsigned int ula6[2];
+
+    /**
+     *  Security Group IDs for this Address Range
+     */
+    set<int> security_groups;
 
     /**
      *  The Address Range attributes as a Template VectorAttribute. This is

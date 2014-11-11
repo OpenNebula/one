@@ -175,6 +175,19 @@ int AddressRange::from_vattr(VectorAttribute *vattr, string& error_msg)
         vattr->replace("VLAN", "YES");
     }
 
+    /* ------------------------- Security Groups ---------------------------- */
+
+    value = vattr->vector_value("SECURITY_GROUPS");
+
+    if (value.empty())
+    {
+        security_groups.clear();
+    }
+    else
+    {
+        one_util::split_unique(value, ',', security_groups);
+    }
+
     /* ------------------------ AR Internal Data ---------------------------- */
 
     vattr->replace("AR_ID", id);
@@ -304,6 +317,15 @@ int AddressRange::update_attributes(
 
     vup->replace("GLOBAL_PREFIX", new_global);
     vup->replace("ULA_PREFIX", new_ula);
+
+    string value = vup->vector_value("SECURITY_GROUPS");
+
+    security_groups.clear();
+
+    if (!value.empty())
+    {
+        one_util::split_unique(value, ',', security_groups);
+    }
 
     /* Replace with the new attributes */
 
@@ -1082,8 +1104,7 @@ const char * AddressRange::SG_RULE_ATTRIBUTES[] = {
 
 const int  AddressRange::NUM_SG_RULE_ATTRIBUTES = 5;
 
-void AddressRange::process_security_rule(
-        VectorAttribute *        rule)
+void AddressRange::process_security_rule(VectorAttribute * rule)
 {
     for ( int i = 0; i < NUM_SG_RULE_ATTRIBUTES; i++ )
     {

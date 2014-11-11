@@ -2801,6 +2801,8 @@ int VirtualMachine::get_security_groups(
     SecurityGroup*      sgroup;
     SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();
 
+    vector<VectorAttribute*> sgroup_rules;
+
     int                 vnet_id;
     VirtualNetwork*     vnet;
     VirtualNetworkPool* vnet_pool = Nebula::instance().get_vnpool();
@@ -2818,9 +2820,9 @@ int VirtualMachine::get_security_groups(
 
         sgroup_pool->update(sgroup);
 
-        sgroup->unlock();
+        sgroup->get_rules(sgroup_rules);
 
-        vector<VectorAttribute*> sgroup_rules = sgroup->get_rules();
+        sgroup->unlock();
 
         for (rule_it = sgroup_rules.begin(); rule_it != sgroup_rules.end(); rule_it++)
         {

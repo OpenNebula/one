@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 #include <libxml/parser.h>
 
@@ -325,6 +326,12 @@ public:
      *    @return 0 on success
      */
     int get_attribute(const char * name, int& value, int ar_id) const;
+
+    /**
+     *  Gets a reference to a the security group set of an AR
+     *    @return a reference to the security group set or empty set if error
+     */
+    const set<int>& get_security_groups(int ar_id) const;
 
     /**
      *  Generate a XML representation of the Address Range Pool
