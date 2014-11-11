@@ -5873,6 +5873,59 @@ $(document).ready(function(){
     // Create VM
     //
 
+    function appendTemplateCard(aData, tableID) {
+      var data = aData.VMTEMPLATE;
+      var logo;
+
+      if (data.TEMPLATE.LOGO) {
+        logo = '<span class="provision-logo" href="#">'+
+            '<img  src="'+data.TEMPLATE.LOGO+'">'+
+          '</span>';
+      } else {
+        logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
+          '<i class="fa fa-fw fa-file-text-o"/>'+
+        '</span>';
+      }
+
+      var li = $('<li>'+
+          '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
+            '<li class="provision-title" title="'+data.NAME+'">'+
+              data.NAME+
+            '</li>'+
+            '<li style="height: 85px" class="provision-bullet-item">'+
+              logo +
+            '</li>'+
+            '<li class="provision-description">'+
+              (data.TEMPLATE.DESCRIPTION || '...')+
+            '</li>'+
+          '</ul>'+
+        '</li>').appendTo($("#"+tableID+'_ul'));
+
+      $(".provision-pricing-table", li).data("opennebula", aData);
+    }
+
+    function initializeTemplateCards(context, tableID) {
+      // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+      if (context.$('tr', {"filter": "applied"} ).length == 0) {
+        context.html('<div class="text-center">'+
+          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+          '</span>'+
+          '<br>'+
+          '<br>'+
+          '<span style="font-size: 18px; color: #999">'+
+            tr("There are no templates available")+
+          '</span>'+
+          '</div>');
+      } else {
+        $('#'+tableID+'_table').html(
+          '<ul id="'+tableID+'_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+      }
+
+      return true;
+    }
+
     provision_system_templates_datatable = $('#provision_system_templates_table').dataTable({
       "iDisplayLength": 6,
       "sDom" : '<"H">t<"F"lp>',
@@ -5886,55 +5939,10 @@ $(document).ready(function(){
           { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  }
       ],
       "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no templates available")+
-            '</span>'+
-            '</div>');
-        } else {
-          $("#provision_system_templates_table").html('<ul id="provision_system_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
+        initializeTemplateCards(this, "provision_system_templates")
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.VMTEMPLATE;
-        var logo;
-
-        if (data.TEMPLATE.LOGO) {
-          logo = '<span class="provision-logo" href="#">'+
-              '<img  src="'+data.TEMPLATE.LOGO+'">'+
-            '</span>';
-        } else {
-          logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
-            '<i class="fa fa-fw fa-file-text-o"/>'+
-          '</span>';
-        }
-
-        var li = $('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
-              '<li class="provision-title" title="'+data.NAME+'">'+
-                data.NAME+
-              '</li>'+
-              '<li style="height: 85px" class="provision-bullet-item">'+
-                logo +
-              '</li>'+
-              '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
-              '</li>'+
-            '</ul>'+
-          '</li>').appendTo($("#provision_system_templates_ul"));
-
-        $(".provision-pricing-table", li).data("opennebula", aData);
-
+        appendTemplateCard(aData, "provision_system_templates");
         return nRow;
       }
     });
@@ -5954,55 +5962,10 @@ $(document).ready(function(){
           { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
       ],
       "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no templates available. Please contact your cloud administrator")+
-            '</span>'+
-            '</div>');
-        } else {
-          $("#provision_vdc_templates_table").html('<ul id="provision_vdc_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
+        initializeTemplateCards(this, "provision_vdc_templates")
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.VMTEMPLATE;
-        var logo;
-
-        if (data.TEMPLATE.LOGO) {
-          logo = '<span class="provision-logo" href="#">'+
-              '<img  src="'+data.TEMPLATE.LOGO+'">'+
-            '</span>';
-        } else {
-          logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
-            '<i class="fa fa-fw fa-file-text-o"/>'+
-          '</span>';
-        }
-
-        var li = ('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
-              '<li class="provision-title" title="'+data.NAME+'">'+
-                data.NAME+
-              '</li>'+
-              '<li style="height: 85px" class="provision-bullet-item">'+
-                logo +
-              '</li>'+
-              '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
-              '</li>'+
-            '</ul>'+
-          '</li>').appendTo($("#provision_vdc_templates_ul"));
-
-        $(".provision-pricing-table", li).data("opennebula", aData);
-
+        appendTemplateCard(aData, "provision_vdc_templates");
         return nRow;
       }
     });
@@ -6022,56 +5985,10 @@ $(document).ready(function(){
           { "mDataProp": "VMTEMPLATE.PERMISSIONS.GROUP_U" }
       ],
       "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              tr("There are no templates available. Please contact your cloud administrator")+
-            '</span>'+
-            '</div>');
-        } else {
-          $("#provision_saved_templates_table").html('<ul id="provision_saved_templates_ul" class="large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-
-        return true;
+        initializeTemplateCards(this, "provision_saved_templates")
       },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.VMTEMPLATE;
-
-        var logo;
-
-        if (data.TEMPLATE.LOGO) {
-          logo = '<span class="provision-logo" href="#">'+
-              '<img  src="'+data.TEMPLATE.LOGO+'">'+
-            '</span>';
-        } else {
-          logo = '<span style="color: #bfbfbf; font-size: 60px;">'+
-            '<i class="fa fa-fw fa-file-text-o"/>'+
-          '</span>';
-        }
-
-        var li = $('<li>'+
-            '<ul class="provision-pricing-table hoverable only-one" opennebula_id="'+data.ID+'">'+
-              '<li class="provision-title" title="'+data.NAME+'">'+
-                data.NAME+
-              '</li>'+
-              '<li style="height: 85px" class="provision-bullet-item">'+
-                logo +
-              '</li>'+
-              '<li class="provision-description">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
-              '</li>'+
-            '</ul>'+
-          '</li>').appendTo($("#provision_saved_templates_ul"));
-
-        $(".provision-pricing-table", li).data("opennebula", aData);
-
+        appendTemplateCard(aData, "provision_saved_templates");
         return nRow;
       }
     });
