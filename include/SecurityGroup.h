@@ -96,7 +96,7 @@ public:
      *
      * @return a group of vector attributes
      */
-    vector<VectorAttribute*> get_rules() const;
+     void get_rules(vector<VectorAttribute*>& result) const;
 
 private:
 

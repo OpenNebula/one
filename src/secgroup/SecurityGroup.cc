@@ -259,12 +259,10 @@ int SecurityGroup::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-vector<VectorAttribute*> SecurityGroup::get_rules() const
+void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 {
     vector<const Attribute*>::const_iterator it;
     vector<const Attribute*> rules;
-
-    vector<VectorAttribute*> result;
 
     get_template_attribute("RULE", rules);
 
@@ -285,6 +283,4 @@ vector<VectorAttribute*> SecurityGroup::get_rules() const
 
         result.push_back(new_rule);
     }
-
-    return result;
 }
