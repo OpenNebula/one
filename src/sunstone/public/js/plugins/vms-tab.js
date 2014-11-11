@@ -237,6 +237,7 @@ var vm_actions = {
             if (Sunstone.rightInfoVisible(tab)) {
                 // individual view
                 updateVMInfo(request, response);
+                $(".right-info-tabs > dd.active > a", "#vms-tab").trigger("click");
             }
 
             // datatable row
