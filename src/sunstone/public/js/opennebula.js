@@ -1779,7 +1779,7 @@ var OpenNebula = {
                                             OpenNebula.Role.path);
         },
         "update" : function(params){
-            request = OpenNebula.Helper.request(OpenNebula.Role.resource, "update", params.data.id);
+            var request = OpenNebula.Helper.request(OpenNebula.Role.resource, "update", params.data.id);
 
             $.ajax({
                 url: OpenNebula.Role.path + "/" + params.data.id,
@@ -1787,10 +1787,10 @@ var OpenNebula = {
                 dataType: "json",
                 data: JSON.stringify(params.data.extra_param),
                 success: function(response){
-                    return roleCallback(request, response);
+                    return params.success ? params.success(request, response) : null;
                 },
                 error: function(response){
-                    return onError(request, OpenNebula.Error(response));
+                    return params.error ? params.error(request, OpenNebula.Error(res)) : null;
                 }
             });
         }
@@ -1859,8 +1859,8 @@ var OpenNebula = {
         "path"     : 'support/request',
         "create": function(params){
             OpenNebula.Action.create(
-                params, 
-                OpenNebula.Support.resource, 
+                params,
+                OpenNebula.Support.resource,
                 OpenNebula.Support.path);
         },
         "update": function(params){
@@ -1875,15 +1875,15 @@ var OpenNebula = {
             params.cache_name = "REQUEST";
             OpenNebula.Helper.clear_cache(params.cache_name);
             OpenNebula.Action.list(
-                params, 
-                OpenNebula.Support.resource, 
+                params,
+                OpenNebula.Support.resource,
                 OpenNebula.Support.path)
         },
         "show" : function(params){
             OpenNebula.Action.show(
-                params, 
-                OpenNebula.Support.resource, 
-                false, 
+                params,
+                OpenNebula.Support.resource,
+                false,
                 OpenNebula.Support.path)
         }
     }
