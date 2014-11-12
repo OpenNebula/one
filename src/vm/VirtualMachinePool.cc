@@ -492,11 +492,12 @@ string put_time(time_t t)
 }
 //==============================================================================
 
-void VirtualMachinePool::calculate_showback(
+int VirtualMachinePool::calculate_showback(
         int start_month,
         int start_year,
         int end_month,
-        int end_year)
+        int end_year,
+        string &error_str)
 {
     vector<xmlNodePtr>              nodes;
     vector<xmlNodePtr>::iterator    node_it;
@@ -788,7 +789,8 @@ void VirtualMachinePool::calculate_showback(
 
             if ( sql_body == 0 )
             {
-                // TODO
+                error_str = "Error creating XML body.";
+                return -1;
             }
 
             if (n_entries == 0)
@@ -818,7 +820,8 @@ void VirtualMachinePool::calculate_showback(
 
                 if (rc != 0)
                 {
-                    // TODO
+                    error_str = "Error writing to DB.";
+                    return -1;
                 }
 
                 n_entries = 0;
@@ -845,7 +848,8 @@ void VirtualMachinePool::calculate_showback(
 
         if (rc != 0)
         {
-            // TODO
+            error_str = "Error writing to DB.";
+            return -1;
         }
     }
 
@@ -865,4 +869,6 @@ void VirtualMachinePool::calculate_showback(
     debug << "Time to write to db:      " << debug_t_3 - debug_t_2;
     NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
     //================================================================*/
+
+    return 0;
 }

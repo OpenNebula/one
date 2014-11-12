@@ -294,12 +294,16 @@ public:
      *  Use -1 to unset
      *  @param end_year Last year (+month) to process. e.g. 2014.
      *  Use -1 to unset
+     *  @param error_str Returns the error reason, if any
+     *
+     *  @return 0 on success
      */
-    void calculate_showback(
+    int calculate_showback(
                 int start_month,
                 int start_year,
                 int end_month,
-                int end_year);
+                int end_year,
+                string &error_str);
 
 private:
     /**

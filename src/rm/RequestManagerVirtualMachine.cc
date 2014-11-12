@@ -2232,6 +2232,7 @@ void VirtualMachinePoolCalculateShowback::request_execute(
     ostringstream oss;
     string        where;
     int           rc;
+    string        error_str;
 
     // TODO: do a better auth? allow any user in the oneadmin group?
     if ( att.uid != 0 )
@@ -2242,10 +2243,17 @@ void VirtualMachinePoolCalculateShowback::request_execute(
         return;
     }
 
-    (static_cast<VirtualMachinePool *>(pool))->calculate_showback(
-                                start_month, start_year, end_month, end_year);
+    rc = (static_cast<VirtualMachinePool *>(pool))->calculate_showback(
+                    start_month, start_year, end_month, end_year, error_str);
 
-    // TODO: return value?
+    if (rc != 0)
+    {
+        failure_response(AUTHORIZATION,
+                         request_error(error_str, ""),
+                         att);
+        return;
+    }
+
     success_response("", att);
 
     return;
