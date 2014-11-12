@@ -4906,7 +4906,7 @@ function showbackGraphs(div, opt){
         "bDeferRender": true
     });
 
-    showback_dataTable.on("click", "tr", function(){
+    showback_dataTable.on("click", "tbody tr", function(){
         var cells = showback_dataTable.fnGetData(this);
         var year = cells[1];
         var month = cells[2];
