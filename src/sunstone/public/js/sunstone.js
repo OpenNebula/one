@@ -4995,7 +4995,7 @@ function fillShowback(div, req, response) {
     var showback_data = [];
     $.each(vms_per_date, function(year, months){
         $.each(months, function(month, value){
-            series.push([(new Date(year, month-1)).getTime(), year, month, $months[month-1] + " " + year, value.TOTAL])
+            series.push([(new Date(year, month-1)).getTime(), year, month, $months[month-1] + " " + year, value.TOTAL.toFixed(2)])
             showback_data.push([(new Date(year, month-1)), value.TOTAL.toFixed(2) ])
         })
     })
