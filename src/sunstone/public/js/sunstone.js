@@ -4914,9 +4914,9 @@ function showbackGraphs(div, opt){
         showback_vms_dataTable.fnClearTable();
         showback_vms_dataTable.fnAddData(showback_dataTable.data("vms_per_date")[year][month].VMS)
 
-        $("#showback_vms_title").text($months[month-1] + " " + year + " " + tr("VMs"))
-        $(".showback_vms_table").show();
-        $(".showback_select_a_row").hide();
+        $("#showback_vms_title", div).text($months[month-1] + " " + year + " " + tr("VMs"))
+        $(".showback_vms_table", div).show();
+        $(".showback_select_a_row", div).hide();
     })
 
     //--------------------------------------------------------------------------
