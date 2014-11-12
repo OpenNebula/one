@@ -4559,7 +4559,7 @@ function setup_info_flow(context) {
     var role = $(this).closest(".provision_role_ul").data('role');
     var vms = []
 
-    if (role.nodes.length > 0) {
+    if (role.nodes && role.nodes.length > 0) {
       $.each(role.nodes, function(index, node){
         vms.push(node.vm_info);
       })
