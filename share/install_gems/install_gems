@@ -12,9 +12,11 @@ end
 
 if !defined?(RUBY_VERSION) || RUBY_VERSION < '1.9.0'
     $nokogiri='nokogiri --version "< 1.6.0"'
+    LDAP='net-ldap --version "< 0.9"'
 else
     $nokogiri='nokogiri'
     DEFAULT = DEFAULT_PRE + %w{hybrid}
+    LDAP='net-ldap'
 end
 
 DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
@@ -24,7 +26,7 @@ GROUPS={
     :sunstone   => ['json', 'rack', 'sinatra', 'thin', 'zendesk_api', SQLITE],
     :cloud      => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
     :hybrid     => %w{softlayer_api configparser azure},
-    :auth_ldap  => 'net-ldap',
+    :auth_ldap  => LDAP,
     :vmware     => %w{builder trollop},
     :oneflow    => %w{sinatra json treetop parse-cron},
     :ec2_hybrid => 'aws-sdk --version "= 1.33"',
@@ -35,7 +37,7 @@ GROUPS={
 PACKAGES=GROUPS.keys
 
 GEM_TEST={
-    'net-ldap' => 'net/ldap'
+    LDAP => 'net/ldap'
 }
 
 DISTRIBUTIONS={
