@@ -2803,18 +2803,17 @@ void VirtualMachine::get_security_group_rules(int id, set<int>& secgroups,
 {
     set<int>::iterator sg_it;
 
+    SecurityGroup*     sgroup;
+    SecurityGroupPool* sgroup_pool = Nebula::instance().get_secgrouppool();
+
     vector<VectorAttribute*>::iterator rule_it;
-
-    SecurityGroup*      sgroup;
-    SecurityGroupPool*  sgroup_pool = Nebula::instance().get_secgrouppool();
-
     vector<VectorAttribute*> sgroup_rules;
 
     int                 vnet_id;
     VirtualNetwork*     vnet;
     VirtualNetworkPool* vnet_pool = Nebula::instance().get_vnpool();
 
-    for (sg_it = secgroups.begin(); sg_it != secgroups.end(); sg_it++)
+    for (sg_it = secgroups.begin(); sg_it != secgroups.end(); sg_it++, sgroup_rules.clear())
     {
         sgroup = sgroup_pool->get(*sg_it, true);
 
