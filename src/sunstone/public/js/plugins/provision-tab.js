@@ -4414,7 +4414,7 @@ function generate_provision_templates_list(context, opts) {
 }
 
 function setup_info_flow(context) {
-  function update_provision_flow_info(flow_id, context) {
+  function update_provision_flow_info(flow_id, context, role_id) {
     $(".provision_info_flow_name", context).text("");
     $(".provision_info_flow", context).css('visibility', 'hidden');
     $(".provision_info_flow_loading", context).fadeIn();
@@ -4531,6 +4531,9 @@ function setup_info_flow(context) {
               '</li>').appendTo($(".provision_roles_ul", context));
 
               $(".provision_role_ul", li).data("role", role);
+              if (role_id && role_id == role.name) {
+                $(".provision_role_vms_button", li).trigger("click");
+              }
           });
         }
 
@@ -4557,6 +4560,7 @@ function setup_info_flow(context) {
       '</div>');
 
     var role = $(this).closest(".provision_role_ul").data('role');
+    $(".provision_info_flow", context).data("role_id", role.name);
     var vms = []
 
     if (role.nodes && role.nodes.length > 0) {
@@ -4570,9 +4574,9 @@ function setup_info_flow(context) {
       {
         title: role.name + ' ' + tr("VMs"),
         active: true,
-        refresh: true,
+        refresh: false,
         create: false,
-        filter: true,
+        filter: false,
         data: vms
       });
   })
@@ -4754,7 +4758,8 @@ function setup_info_flow(context) {
 
   context.on("click", ".provision_refresh_info", function(){
     var flow_id = $(".provision_info_flow", context).attr("flow_id");
-    update_provision_flow_info(flow_id, context);
+    var role_id = $(".provision_info_flow", context).data("role_id");
+    update_provision_flow_info(flow_id, context, role_id);
     //$(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
     return false;
   });
