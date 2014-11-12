@@ -4663,7 +4663,7 @@ function setup_info_flow(context) {
       },
       success: function(request, response){
         OpenNebula.Helper.clear_cache("SERVICE");
-        update_provision_flow_info(flow_id, context);
+        $(".provision_refresh_info", context).trigger("click");
       },
       error: onError
     })
