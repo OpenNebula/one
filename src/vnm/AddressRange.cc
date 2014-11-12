@@ -364,6 +364,15 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
 
     rc += attr_to_allocated(vattr->vector_value("ALLOCATED"));
 
+    value = vattr->vector_value("SECURITY_GROUPS");
+
+    security_groups.clear();
+
+    if (!value.empty())
+    {
+        one_util::split_unique(value, ',', security_groups);
+    }
+
     if (type == NONE)
     {
         rc = -1;
