@@ -4817,7 +4817,7 @@ function showbackGraphs(div, opt){
           <table id="showback_datatable" class="datatable twelve">\
             <thead>\
               <tr>\
-                <th>'+tr("dateint")+'</th>\
+                <th>dateint</th>\
                 <th>'+tr("Year")+'</th>\
                 <th>'+tr("Month")+'</th>\
                 <th>'+tr("Date")+'</th>\
@@ -4914,7 +4914,7 @@ function showbackGraphs(div, opt){
         showback_vms_dataTable.fnClearTable();
         showback_vms_dataTable.fnAddData(showback_dataTable.data("vms_per_date")[year][month].VMS)
 
-        $("#showback_vms_title").text($months[month] + " " + year + " " + tr("VMs"))
+        $("#showback_vms_title").text($months[month-1] + " " + year + " " + tr("VMs"))
         $(".showback_vms_table").show();
         $(".showback_select_a_row").hide();
     })
@@ -4995,8 +4995,8 @@ function fillShowback(div, req, response) {
     var showback_data = [];
     $.each(vms_per_date, function(year, months){
         $.each(months, function(month, value){
-            series.push([""+year+month, year, month, $months[month] + " " + year, value.TOTAL])
-            showback_data.push([(new Date(year, month)), value.TOTAL.toFixed(2) ])
+            series.push([""+year+month, year, month, $months[month-1] + " " + year, value.TOTAL])
+            showback_data.push([(new Date(year, month-1)), value.TOTAL.toFixed(2) ])
         })
     })
 
