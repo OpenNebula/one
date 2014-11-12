@@ -2769,6 +2769,7 @@ function show_provision_group_info_callback(request, response) {
 }
 
 function show_provision_create_vm() {
+  OpenNebula.Helper.clear_cache("VMTEMPLATE");
   update_provision_templates_datatable(provision_system_templates_datatable);
   provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
 
