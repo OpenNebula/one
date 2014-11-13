@@ -6804,3 +6804,63 @@ function getInternetExplorerVersion(){
     }
     return rv;
 }
+
+// Return true if the VM has a hybrid section
+function calculate_isHybrid(vm_info){
+    return vm_info.USER_TEMPLATE.HYPERVISOR &&
+       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer")
+}
+
+// Return the IP or several IPs of a VM
+function ip_str(vm, divider){
+    var divider = divider || "<br>"
+    var isHybrid = calculate_isHybrid(vm);
+    var nic = vm.TEMPLATE.NIC;
+
+    if (nic == undefined) {
+        if (isHybrid) {
+            switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase()) {
+                case "vcenter":
+                    ip = vm.TEMPLATE.GUEST_IP?vm.TEMPLATE.GUEST_IP:"--";
+                    break;
+                case "ec2":
+                    ip = vm.TEMPLATE.IP_ADDRESS?vm.TEMPLATE.IP_ADDRESS:"--";
+                    break;
+                case "azure":
+                    ip = vm.TEMPLATE.IPADDRESS?vm.TEMPLATE.IPADDRESS:"--";
+                    break;
+                case "softlayer":
+                    ip = vm.TEMPLATE.PRIMARYIPADDRESS?vm.TEMPLATE.PRIMARYIPADDRESS:"--";
+                    break;
+                default:
+                    ip = "--";
+            }
+        } else {
+            return '--';
+        }
+    } else {
+        if (!$.isArray(nic)){
+            nic = [nic];
+        }
+
+        ip = '';
+        $.each(nic, function(index,value){
+            if (value.IP){
+                ip += value.IP+divider;
+            }
+
+            if (value.IP6_GLOBAL){
+                ip += value.IP6_GLOBAL+divider;
+            }
+
+            if (value.IP6_ULA){
+                ip += value.IP6_ULA+divider;
+            }
+        });
+    }
+
+    return ip;
+};
