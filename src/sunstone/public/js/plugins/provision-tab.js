@@ -3324,23 +3324,7 @@ function get_provision_disk_image(data) {
 }
 
 function get_provision_ips(data) {
-  var nics = []
-  if ($.isArray(data.TEMPLATE.NIC))
-      nics = data.TEMPLATE.NIC
-  else if (!$.isEmptyObject(data.TEMPLATE.NIC))
-      nics = [data.TEMPLATE.NIC]
-
-  if (nics.length > 0) {
-    var ips = [];
-    $.each(nics, function(index, nic){
-      if (nic.IP)
-        ips.push(nic.IP);
-    })
-
-    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + ips.join(', ');
-  } else {
-    return '<i class="fa fa-fw fa-lg fa-globe"></i> -';
-  }
+  return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + ip_str(data, " - ");
 }
 
 // @params
