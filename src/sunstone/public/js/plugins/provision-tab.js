@@ -1763,9 +1763,9 @@ var povision_actions = {
         Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
           "VM" : {
             "VOLATILE_SIZE":"-1",
-            "VMS": $("#provision_rvms_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
-            "MEMORY": $("#provision_memory_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
-            "CPU": $("#provision_cpu_quota_input").val()||QUOTA_LIMIT_UNLIMITED}
+            "VMS": $(".provision_rvms_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
+            "MEMORY": $(".provision_memory_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
+            "CPU": $(".provision_cpu_quota_input").val()||QUOTA_LIMIT_UNLIMITED}
           });
       },
       error: onError
