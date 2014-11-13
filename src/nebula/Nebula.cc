@@ -473,7 +473,6 @@ void Nebula::start(bool bootstrap_only)
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
         zonepool= new ZonePool(db, is_federation_slave());
-        secgrouppool = new SecurityGroupPool(db);
 
         nebula_configuration->get("VM_HOOK", vm_hooks);
         nebula_configuration->get("HOST_HOOK",  host_hooks);
@@ -548,6 +547,8 @@ void Nebula::start(bool bootstrap_only)
 
         default_user_quota.select();
         default_group_quota.select();
+
+        secgrouppool = new SecurityGroupPool(db);
     }
     catch (exception&)
     {

@@ -15,6 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "SecurityGroupPool.h"
+#include "User.h"
+#include "Nebula.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -24,6 +27,45 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
     {
+        // Build the default default security group
+        string default_sg =
+            "NAME=default\n"
+            "DESCRIPTION=\"The default security group is added to every "
+            "network. Use it to add default filter rules for your networks. "
+            "You may remove this security group from any network by "
+            "updating its properties.\"\n"
+            "RULE=[RULE_TYPE=OUTBOUND,PROTOCOL=ALL]";
+
+        Nebula& nd         = Nebula::instance();
+        UserPool * upool   = nd.get_upool();
+        User *    oneadmin = upool->get(0, false);
+
+        string error;
+
+        Template * default_tmpl = new Template;
+        char * error_parse;
+
+        default_tmpl->parse(default_sg, &error_parse);
+
+        SecurityGroup * secgroup = new SecurityGroup(
+                oneadmin->get_uid(),
+                oneadmin->get_gid(),
+                oneadmin->get_uname(),
+                oneadmin->get_gname(),
+                oneadmin->get_umask(),
+                default_tmpl);
+
+        secgroup->set_permissions(1,1,1,1,0,0,1,0,0,error);
+
+        if (PoolSQL::allocate(secgroup, error) < 0)
+        {
+            ostringstream oss;
+            oss << "Error trying to create default security group: " << error;
+            NebulaLog::log("SGROUP", Log::ERROR, oss);
+
+            throw runtime_error(oss.str());
+        }
+
         // The first 100 IDs are reserved for system Security Groups.
         // Regular ones start from ID 100
 
