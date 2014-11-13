@@ -15,6 +15,8 @@
 /* ------------------------------------------------------------------------ */
 
 #include "SecurityGroup.h"
+#include "NebulaUtil.h"
+#include <arpa/inet.h>
 
 /* ------------------------------------------------------------------------ */
 
@@ -65,11 +67,31 @@ SecurityGroup::~SecurityGroup()
 
 int SecurityGroup::insert(SqlDB *db, string& error_str)
 {
+    vector<const Attribute*>::const_iterator it;
+    vector<const Attribute*> rules;
+
     erase_template_attribute("NAME",name);
 
     if (name.empty())
     {
         goto error_name;
+    }
+
+    get_template_attribute("RULE", rules);
+
+    for ( it = rules.begin(); it != rules.end(); it++ )
+    {
+        const VectorAttribute* rule = dynamic_cast<const VectorAttribute*>(*it);
+
+        if (rule == 0)
+        {
+            goto error_format;
+        }
+
+        if (!isValidRule(rule, error_str))
+        {
+            goto error_valid;
+        }
     }
 
     if ( insert_replace(db, false, error_str) != 0 )
@@ -83,6 +105,11 @@ error_name:
     error_str = "No NAME in template for Security Group.";
     goto error_common;
 
+error_format:
+    error_str = "RULE has to be defined as a vector attribute.";
+    goto error_common;
+
+error_valid:
 error_db:
 error_common:
     return -1;
@@ -283,4 +310,137 @@ void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 
         result.push_back(new_rule);
     }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) const
+{
+    string value, ip, proto;
+
+    unsigned int ivalue;
+
+    int id;
+
+    // -------------------------------------------------------------------------
+    // Check PROTOCOL and extensions
+    //    - RANGE for TCP and UDP
+    //    - ICMP_TYPE for ICMP
+    // -------------------------------------------------------------------------
+    proto = rule->vector_value("PROTOCOL");
+
+    one_util::toupper(proto);
+
+    if ( proto != "TCP" && proto != "UDP" && proto != "ICMP" && proto != "IPSEC"
+        && proto != "ALL")
+    {
+        error = "Wrong PROTOCOL in rule. Valid options: TCP, UDP, ICMP, IPSEC,"
+            " ALL.";
+        return false;
+    }
+
+    value = rule->vector_value("RANGE");
+
+    if (!value.empty() && proto != "TCP" && proto != "UDP")
+    {
+        error = "RANGE is supported only for TCP and UDP protocols.";
+        return false;
+    }
+
+    value = rule->vector_value("ICMP_TYPE");
+
+    if (!value.empty())
+    {
+        if (proto != "ICMP")
+        {
+            error = "ICMP_TYPE is supported only for ICMP protocol.";
+            return false;
+        }
+
+        if (rule->vector_value("ICMP_TYPE", ivalue) != 0)
+        {
+            error = "Wrong ICMP_TYPE, it must be integer";
+            return false;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // RULE_TYPE
+    // -------------------------------------------------------------------------
+
+    value = rule->vector_value("RULE_TYPE");
+
+    one_util::toupper(value);
+
+    if ( value != "INBOUND" && value != "OUTBOUND" )
+    {
+        error = "Wrong RULE_TYPE in rule. Valid options: INBOUND, OUTBOUND.";
+        return false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Check IP, SIZE and NETWORK_ID
+    // -------------------------------------------------------------------------
+
+    ip = rule->vector_value("IP");
+
+    if (!ip.empty()) //Target as IP & SIZE
+    {
+        struct in_addr ip_addr;
+
+        if (rule->vector_value("SIZE", ivalue) != 0)
+        {
+            error = "Wrong or empty SIZE.";
+            return false;
+        }
+
+        if (inet_pton(AF_INET, ip.c_str(), static_cast<void*>(&ip_addr)) != 1)
+        {
+            error = "Wrong format for IP value.";
+            return false;
+        }
+    }
+    else //Target is ANY or NETWORK_ID
+    {
+        value = rule->vector_value("NETWORK_ID");
+
+        if (!value.empty() && rule->vector_value("NETWORK_ID", id) != 0)
+        {
+            error = "Wrong NETWORK_ID.";
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SecurityGroup::post_update_template(string& error)
+{
+    vector<const Attribute*>::const_iterator it;
+    vector<const Attribute*> rules;
+
+    get_template_attribute("RULE", rules);
+
+    for ( it = rules.begin(); it != rules.end(); it++ )
+    {
+        const VectorAttribute* rule = dynamic_cast<const VectorAttribute*>(*it);
+
+        if (rule == 0)
+        {
+            error = "RULE has to be defined as a vector attribute.";
+            return -1;
+        }
+
+        if (!isValidRule(rule, error))
+        {
+            return -1;
+        }
+    }
+
+    return 0;
 }

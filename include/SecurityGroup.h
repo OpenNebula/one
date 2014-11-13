@@ -119,6 +119,21 @@ private:
 
     ~SecurityGroup();
 
+    /**
+     *  Check that a rule is valid
+     *    @param rule as a VectorAttribute
+     *    @param error describing the problem if any
+     *    @return true if the rule is valid
+     */
+    bool isValidRule(const VectorAttribute * rule, string& error) const;
+
+    /**
+     * Checks the new rules
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(string& error);
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
