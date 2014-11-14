@@ -50,6 +50,23 @@ module VCenterDriver
 class VIClient
     attr_reader :vim, :one, :root, :cluster, :user, :pass, :host
 
+    def get_entities(entities=[], folder, type)
+        return nil if folder == []
+        folder.childEntity.each do |child|
+            name, junk = child.to_s.split('(')
+
+            case name
+            when "Folder"
+                get_entities(entities, child, type)
+            when type
+                entities.push(child)
+            end
+        end
+
+        return entities
+    end
+
+
     ############################################################################
     # Initializr the VIClient, and creates an OpenNebula client. The parameters
     # are obtained from the associated OpenNebula host
@@ -74,9 +91,10 @@ class VIClient
 
         initialize_vim(connection)
 
-        @root.childEntity.each {|dc|
-            ccrs = dc.hostFolder.childEntity.grep(
-                RbVmomi::VIM::ClusterComputeResource)
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each {|dc|
+            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
 
             next if ccrs.nil?
 
@@ -118,7 +136,7 @@ class VIClient
     # @param uuid [String] the UUID of the VM or VM Template
     ########################################################################
     def find_vm_template(uuid)
-        vms = @dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+        vms = get_entities(@dc.vmFolder, 'VirtualMachine')
 
         return vms.find do |v|
             begin
@@ -157,9 +175,10 @@ class VIClient
     def vm_templates
         vm_templates = {}
 
-        @root.childEntity.each { |dc|
+        datacenters = get_entities(@root, 'Datacenter')
 
-            vms = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+        datacenters.each { |dc|
+            vms = get_entities(dc.vmFolder, 'VirtualMachine')
 
             tmp = vms.select { |v| v.config.template == true }
 
