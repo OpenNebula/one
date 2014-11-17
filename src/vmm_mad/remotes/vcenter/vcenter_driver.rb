@@ -156,11 +156,10 @@ class VIClient
     def hierarchy
         vc_hosts = {}
 
-        @root.childEntity.each { |dc|
+        datacenters = get_entities(@root, 'Datacenter')
 
-            ccrs = dc.hostFolder.childEntity.grep(
-                RbVmomi::VIM::ClusterComputeResource)
-
+        datacenters.each { |dc|
+            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
             vc_hosts[dc.name] = ccrs.collect { |c| c.name }
         }
 
