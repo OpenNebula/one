@@ -147,6 +147,17 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // -----------------------------------------------------------
+    // Load the OpenNebula master key and keep it in memory
+    // -----------------------------------------------------------
+
+    rc = nebula_configuration->load_key();
+
+    if ( rc != 0 )
+    {
+        throw runtime_error("Could not load nebula master key file.");
+    }
+
+    // -----------------------------------------------------------
     // Initialize the XML library
     // -----------------------------------------------------------
     xmlInitParser();
