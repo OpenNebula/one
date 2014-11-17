@@ -120,7 +120,13 @@ class VIClient
     def find_vm_template(uuid)
         vms = @dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
 
-        return vms.find{ |v| v.config && v.config.uuid == uuid }
+        return vms.find do |v|
+            begin
+                v.config && v.config.uuid == uuid
+            rescue ManagedObjectNotFound
+                false
+            end
+        end
     end
 
     ########################################################################
