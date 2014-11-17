@@ -1356,7 +1356,7 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
 
             vm->set_running_stime(the_time);
 
-            vm->set_last_poll(0);
+            vm->set_last_poll(the_time);
 
             vmpool->update_history(vm);
 
