@@ -674,6 +674,9 @@ function popUpCreateAclDialog(){
     insertSelectOptions('div#belonging_to', dialog, "Group", null, true);
     insertSelectOptions('#in_cluster',dialog, "Cluster", null, true);
 
+    // Delete cluster -1 option
+    $('#in_cluster select option[value="-1"]',dialog).remove();
+
     insertSelectOptions('div#zones_applies', dialog, "Zone", "*", false,
                         '<option value="*">'+tr("All")+'</option>');
 
