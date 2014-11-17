@@ -91,7 +91,7 @@ void RequestManagerDelete::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( rc != 0 )
     {
-        failure_response(INTERNAL,
+        failure_response(ACTION,
             request_error("Cannot delete "+object_name(auth_object),error_msg),
             att);
         return;
