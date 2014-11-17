@@ -198,10 +198,37 @@ var create_datastore_tmpl =
               <input type="text" name="ceph_host" id="ceph_host" />\
           </div>\
           <div class="large-6 columns">\
+              <label for="ceph_user">' + tr("Ceph User") +
+                '<span class="tip">'+tr("The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph user must exist before using the drivers. Required for Libvirt 1.x when cephx is enabled .")+'</span>'+
+              '</label>\
+              <input type="text" name="ceph_user" id="ceph_user" />\
+          </div>\
+          <div class="large-6 columns">\
               <label for="ceph_secret">' + tr("Ceph Secret") +
                 '<span class="tip">'+tr("A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
               '</label>\
               <input type="text" name="ceph_secret" id="ceph_secret" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="rbd_format">' + tr("RBD Format") +
+                '<span class="tip">'+tr("By default RBD Format 1 will be used, with no snapshotting support. If RBD_FORMAT=2 is specified then when instantiating non-persistent images the Ceph driver will perform rbd snap instead of rbd copy.")+'</span>'+
+              '</label>\
+              <input type="text" name="rbd_format" id="rbd_format" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="staging_dir">' + tr("Staging Dir") +
+                '<span class="tip">'+tr("Default path for image operations in the OpenNebula Ceph frontend.")+'</span>'+
+              '</label>\
+              <input type="text" name="staging_dir" id="staging_dir" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="limit_transfer_bw">' + tr("Transfer BW Limit") +
+                '<span class="tip">'+tr("Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used.")+'</span>'+
+              '</label>\
+              <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />\
+          </div>\
+          <div class="large-6 columns">\
+            <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" /><label for="no_decompress">' + tr("Do not try to untar or decompress") + '</label>\
           </div>\
         </div>\
         <div class="reveal-footer">\
@@ -804,6 +831,11 @@ function hide_all(context)
     $('label[for="pool_name"],input#pool_name',context).parent().hide();
     $('label[for="ceph_host"],input#ceph_host',context).parent().hide();
     $('label[for="ceph_secret"],input#ceph_secret',context).parent().hide();
+    $('label[for="ceph_user"],input#ceph_user',context).parent().hide();
+    $('label[for="rbd_format"],input#rbd_format',context).parent().hide();
+    $('label[for="staging_dir"],input#staging_dir',context).parent().hide();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw',context).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress',context).parent().hide();
     $('select#ds_mad').removeAttr('disabled');
     $('select#tm_mad').removeAttr('disabled');
     $('select#tm_mad').children('option').each(function() {
@@ -906,6 +938,11 @@ function setupCreateDatastoreDialog(){
         var pool_name       = $('#pool_name',context).val();
         var ceph_host       = $('#ceph_host',context).val();
         var ceph_secret     = $('#ceph_secret',context).val();
+        var ceph_user       = $('#ceph_user',context).val();
+        var rbd_format      = $('#rbd_format',context).val();
+        var staging_dir     = $('#staging_dir',context).val();
+        var limit_transfer_bw = $('#limit_transfer_bw',context).val();
+        var no_decompress   = $('#no_decompress',context).is(':checked');
 
 
         if (!name){
@@ -969,6 +1006,21 @@ function setupCreateDatastoreDialog(){
 
         if (ceph_secret)
             ds_obj.datastore.ceph_secret = ceph_secret;
+
+        if (ceph_user)
+            ds_obj.datastore.ceph_user = ceph_user;
+
+        if (rbd_format)
+            ds_obj.datastore.rbd_format = rbd_format;
+
+        if (staging_dir)
+            ds_obj.datastore.staging_dir = staging_dir;
+
+        if (limit_transfer_bw)
+            ds_obj.datastore.limit_transfer_bw = limit_transfer_bw;
+
+        if (no_decompress)
+            ds_obj.datastore.no_decompress = "YES";
 
         // Sanitize dialog
         $('#ds_use_ssh').prop('checked', false);
@@ -1069,6 +1121,11 @@ function select_ceph(){
     $('label[for="pool_name"],input#pool_name').parent().fadeIn();
     $('label[for="ceph_host"],input#ceph_host').parent().fadeIn();
     $('label[for="ceph_secret"],input#ceph_secret').parent().fadeIn();
+    $('label[for="ceph_user"],input#ceph_user').parent().fadeIn();
+    $('label[for="rbd_format"],input#rbd_format').parent().fadeIn();
+    $('label[for="staging_dir"],input#staging_dir').parent().fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
     $('select#disk_type').val('RBD');
     $('select#disk_type').attr('disabled', 'disabled');
     $('input#safe_dirs').removeAttr('disabled');
