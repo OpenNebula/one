@@ -159,7 +159,7 @@ class VIClient
 
         @root.childEntity.each { |dc|
 
-            vms = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+            vms = vms(dc.vmFolder)
 
             tmp = vms.select { |v| v.config.template == true }
 
@@ -180,6 +180,23 @@ class VIClient
         }
 
         return vm_templates
+    end
+
+    def vms(allvms = [], folder)
+        folder.childEntity.each do |x|
+            name, junk = x.to_s.split('(')
+
+            case name
+            when "Folder"
+                vms(allvms,x)
+            when "VirtualMachine"
+                allvms.push(x)
+            else
+                puts "# Unrecognized Entity " + x.to_s
+            end
+        end
+
+        return allvms
     end
 
     def self.translate_hostname(hostname)
