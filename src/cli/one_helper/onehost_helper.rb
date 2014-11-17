@@ -16,6 +16,7 @@
 
 require 'one_helper'
 require 'one_helper/onevm_helper'
+require 'rubygems'
 
 class OneHostHelper < OpenNebulaHelper::OneHelper
     TEMPLATE_XPATH  = '//HOST/TEMPLATE'
@@ -178,6 +179,12 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             exit(-1)
         end
 
+        begin
+            current_version = Gem::Version.new(current_version)
+        rescue
+            STDERR.puts "VERSION file is malformed, use semantic versioning."
+        end
+
         cluster_id = options[:cluster]
 
         # Get remote_dir (implies oneadmin group)
@@ -218,8 +225,17 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
             host_version=host['TEMPLATE/VERSION']
 
+            begin
+                host_version = Gem::Version.new(host_version)
+            rescue
+            end
+
             if !options[:force]
-                next if host_version && host_version >= current_version
+                begin
+                    next if host_version && host_version >= current_version
+                rescue
+                    STDERR.puts "Error comparing versions for host #{host['NAME']}."
+                end
             end
 
             puts "* Adding #{host['NAME']} to upgrade"
