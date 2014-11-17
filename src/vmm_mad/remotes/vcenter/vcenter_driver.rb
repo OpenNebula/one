@@ -39,6 +39,7 @@ $: << LIB_LOCATION+'/ruby'
 require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
+require 'base64'
 
 module VCenterDriver
 
@@ -770,6 +771,8 @@ private
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
+        context = xml.root.elements["//TEMPLATE/CONTEXT"]
+
         connection  = VIClient.new(hid)
 
         vc_template = connection.find_vm_template(uuid)
@@ -799,11 +802,26 @@ private
             vnc_listen = vnc_listen.text
         end
 
+        config_array = []
+
         if vnc_port
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig =>
+            config_array +=
                      [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"},
                       {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text},
-                      {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}])
+                      {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}]
+        end
+
+        if context
+            # Remove <CONTEXT> (9) and </CONTEXT>\n (11)
+            context_text = Base64.encode64(context.to_s[9..-11])
+            config_array += 
+                     [{:key=>"guestinfo.opennebula.context", 
+                       :value=>context_text}]
+        end
+
+        if config_array != []
+            spec_hash = {:extraConfig =>config_array}
+            spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
             rc.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
 
