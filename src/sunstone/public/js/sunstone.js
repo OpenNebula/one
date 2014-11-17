@@ -4767,7 +4767,7 @@ function accountingGraphs(div, opt){
       </div>\
       <div id="acct_end_time_container" class="left columns">\
         <label for="acct_end_time">'+tr("End time")+'</label>\
-        <input id="acct_end_time" type="date" placeholder=""2013-12-30""/>\
+        <input id="acct_end_time" type="date" placeholder="2013-12-30"/>\
       </div>\
       <div id="acct_group_by_container" class="left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
