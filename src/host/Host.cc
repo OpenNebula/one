@@ -663,3 +663,36 @@ int Host::from_xml(const string& xml)
 
     return 0;
 }
+
+
+int Host::post_update_template(string& error)
+{
+
+    string vcenter_password;
+
+    erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
+
+    if (!vcenter_password.empty())
+    {
+        Nebula& nd = Nebula::instance();
+        string  one_key;
+        string  * encrypted;
+
+        nd.get_configuration_attribute("ONE_KEY", one_key);
+
+        if (!one_key.empty())
+        {
+            encrypted = one_util::aes256cbc_encrypt(vcenter_password, one_key);
+
+            add_template_attribute("VCENTER_PASSWORD", *encrypted);
+
+            delete encrypted;
+        }
+        else
+        {
+            add_template_attribute("VCENTER_PASSWORD", vcenter_password);
+        }
+    }
+
+    return 0;
+};

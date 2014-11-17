@@ -154,6 +154,13 @@ public:
 
     ~OpenNebulaTemplate(){};
 
+    /**
+     *  Read or Generate the master key file to encrypt DB data when needed
+     *  this key is added to the configuration of OpenNebula and can be obtained
+     *  through one.system.config
+     */
+    int load_key();
+
 private:
     /**
      *  Name for the configuration file, oned.conf

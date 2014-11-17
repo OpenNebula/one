@@ -40,6 +40,7 @@ require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
 require 'base64'
+require 'openssl'
 
 module VCenterDriver
 
@@ -85,10 +86,26 @@ class VIClient
             raise "Error getting host information: #{rc.message}"
         end
 
+        password = @one_host["TEMPLATE/VCENTER_PASSWORD"]
+
+        if !@token.nil?
+            begin
+                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+
+                cipher.decrypt
+                cipher.key = @token
+
+                password =  cipher.update(Base64::decode64(password))
+                password << cipher.final
+            rescue
+                raise "Error decrypting vCenter password"
+            end
+        end
+
         connection = {
             :host     => @one_host["TEMPLATE/VCENTER_HOST"],
             :user     => @one_host["TEMPLATE/VCENTER_USER"],
-            :password => @one_host["TEMPLATE/VCENTER_PASSWORD"]
+            :password => password
         }
 
         initialize_vim(connection)
@@ -216,7 +233,16 @@ class VIClient
     ############################################################################
     def initialize_one
         begin
-            @one = ::OpenNebula::Client.new()
+            @one   = ::OpenNebula::Client.new()
+            system = ::OpenNebula::System.new(@one)
+
+            config = system.get_configuration()
+
+            if ::OpenNebula.is_error?(config)
+                raise "Error getting oned configuration : #{rc.message}"
+            end
+
+            @token = config["ONE_KEY"]
         rescue Exception => e
             raise "Error initializing OpenNebula client: #{e.message}"
         end
