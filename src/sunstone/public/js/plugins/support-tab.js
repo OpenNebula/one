@@ -118,10 +118,14 @@ var support_actions = {
           //addTemplateElement(request, response);
           //notifyCustom(tr("Request created"), " ID: " + response.VMTEMPLATE.ID, false)
         },
-        error: function(request, response){
+        error: function(request, error_json){
           popFormDialog("create_support_request_form", $("#support-tab"));
-          $("a[href=back]", $("#support-tab")).trigger("click");
-          show_support_connect();
+          if (error_json.error.http_status=="403") {
+            notifyError(error_json.error.message);
+          } else {
+            $("a[href=back]", $("#support-tab")).trigger("click");
+            show_support_connect();
+          }
         }
 
     },
