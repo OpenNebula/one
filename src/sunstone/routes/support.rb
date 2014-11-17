@@ -174,7 +174,6 @@ post '/support/request' do
 	if zrequest.save
 		[201, JSON.pretty_generate(zrequest_to_one(zrequest))]
 	else
-		logger.error(zrequest.errors)
 		[403, Error.new(zrequest.errors["base"][0]["description"]).to_json]
 	end
 end
