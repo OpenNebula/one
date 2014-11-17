@@ -1930,19 +1930,19 @@ function setupAttachDiskDialog(){
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
           </div>' +
-          generate_disk_tab_content("attach_disk", "attach_disk") +
+          generate_disk_tab_content("attach_disk") +
           '<div class="reveal-footer">\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
           </div>\
           </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form></div>')
+    </form></div>');
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
-    setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
+    setup_disk_tab_content(dialog, "attach_disk");
 
     $('#attach_disk_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).text();
@@ -1975,6 +1975,7 @@ function setupAttachDiskDialog(){
 
 function popUpAttachDiskDialog(vm_id){
     $('#vm_id',$attach_disk_dialog).text(vm_id);
+    refreshImageTableSelect($attach_disk_dialog, "attach_disk");
     $attach_disk_dialog.foundation().foundation('reveal', 'open');
 }
 
@@ -2262,6 +2263,7 @@ function setupAttachNicDialog(){
 
 function popUpAttachNicDialog(vm_id){
     $('#vm_id',$attach_nic_dialog).text(vm_id);
+    refreshImageTableSelect($attach_nic_dialog, "attach_nic");
     $attach_nic_dialog.foundation().foundation('reveal', 'open');
 }
 
