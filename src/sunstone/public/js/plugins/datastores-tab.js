@@ -959,7 +959,7 @@ function setupCreateDatastoreDialog(){
             ds_obj.datastore.gluster_host = gluster_host;
 
         if (gluster_volume)
-            ds_obj.datastore.gluster_host = gluster_volume;
+            ds_obj.datastore.gluster_volume = gluster_volume;
 
         if (pool_name)
             ds_obj.datastore.pool_name = pool_name;
