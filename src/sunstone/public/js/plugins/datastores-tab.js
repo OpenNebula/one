@@ -172,35 +172,37 @@ var create_datastore_tmpl =
             <input type="text" name="limit_mb" id="limit_mb" />\
           </div>\
         </div>\
-        <div class="large-6 columns">\
-            <label for="gluster_host">' + tr("Gluster Host") +
-              '<span class="tip">'+tr("Host and port of one (and only one) Gluster server (host:port)")+'</span>'+
-            '</label>\
-            <input type="text" name="gluster_host" id="gluster_host" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="gluster_volume">' + tr("Gluster Volume") +
-              '<span class="tip">'+tr("Gluster volume to use for the datastore")+'</span>'+
-            '</label>\
-            <input type="text" name="gluster_volume" id="gluster_volume" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="pool_name">' + tr("Pool Name") +
-              '<span class="tip">'+tr("The OpenNebula Ceph pool name. Defaults to \"one\" (this pool must exist before using the drivers).")+'</span>'+
-            '</label>\
-            <input type="text" name="pool_name" id="pool_name" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="ceph_host">' + tr("Ceph Host") +
-              '<span class="tip">'+tr("Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
-            '</label>\
-            <input type="text" name="ceph_host" id="ceph_host" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="ceph_secret">' + tr("Ceph Secret") +
-              '<span class="tip">'+tr("A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
-            '</label>\
-            <input type="text" name="ceph_secret" id="ceph_secret" />\
+        <div class="row">\
+          <div class="large-6 columns">\
+              <label for="gluster_host">' + tr("Gluster Host") +
+                '<span class="tip">'+tr("Host and port of one (and only one) Gluster server (host:port)")+'</span>'+
+              '</label>\
+              <input type="text" name="gluster_host" id="gluster_host" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="gluster_volume">' + tr("Gluster Volume") +
+                '<span class="tip">'+tr("Gluster volume to use for the datastore")+'</span>'+
+              '</label>\
+              <input type="text" name="gluster_volume" id="gluster_volume" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="pool_name">' + tr("Pool Name") +
+                '<span class="tip">'+tr("The OpenNebula Ceph pool name. Defaults to 'one' (this pool must exist before using the drivers).")+'</span>'+
+              '</label>\
+              <input type="text" name="pool_name" id="pool_name" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="ceph_host">' + tr("Ceph Host") +
+                '<span class="tip">'+tr("Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
+              '</label>\
+              <input type="text" name="ceph_host" id="ceph_host" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="ceph_secret">' + tr("Ceph Secret") +
+                '<span class="tip">'+tr("A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
+              '</label>\
+              <input type="text" name="ceph_secret" id="ceph_secret" />\
+          </div>\
         </div>\
         <div class="reveal-footer">\
           <div class="form_buttons">\
