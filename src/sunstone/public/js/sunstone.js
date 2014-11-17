@@ -4763,11 +4763,11 @@ function accountingGraphs(div, opt){
     '<div class="row">\
       <div id="acct_start_time_container" class="left columns">\
         <label for="acct_start_time">'+tr("Start time")+'</label>\
-        <input id="acct_start_time" type="date" placeholder="2013/12/30"/>\
+        <input id="acct_start_time" type="date" placeholder="2013-06-30"/>\
       </div>\
       <div id="acct_end_time_container" class="left columns">\
         <label for="acct_end_time">'+tr("End time")+'</label>\
-        <input id="acct_end_time" type="date" placeholder="'+tr("Today")+'"/>\
+        <input id="acct_end_time" type="date" placeholder=""2013-12-30""/>\
       </div>\
       <div id="acct_group_by_container" class="left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
@@ -4961,6 +4961,10 @@ function accountingGraphs(div, opt){
     //--------------------------------------------------------------------------
     // Submit request
     //--------------------------------------------------------------------------
+    function dateFromString(str) {
+      var a = $.map(str.split(/[^0-9]/), function(s) { return parseInt(s, 10) });
+      return Date.UTC(a[0], a[1]-1 || 0, a[2] || 1, a[3] || 0, a[4] || 0, a[5] || 0, a[6] || 0);
+    }
 
     $("#acct_submit", div).on("click", function(){
         var start_time = -1;
@@ -4971,7 +4975,8 @@ function accountingGraphs(div, opt){
             notifyError(tr("Time range start is mandatory"));
             return false;
         }else{
-            start_time = Date.parse(v+' UTC');
+            start_time = dateFromString(v)
+            //start_time = Date.parse(v+' UTC');
 
             if (isNaN(start_time)){
                 notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
@@ -4984,8 +4989,7 @@ function accountingGraphs(div, opt){
 
         var v = $("#acct_end_time", div).val();
         if (v != ""){
-
-            end_time = Date.parse(v+' UTC');
+            end_time = dateFromString(v)
 
             if (isNaN(end_time)){
                 notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
@@ -5053,7 +5057,7 @@ function fillAccounting(div, req, response, no_table) {
 
     // start_time is mandatory
     var start = new Date(options.start_time * 1000);
-    start.setHours(0,0,0,0);
+    start.setUTCHours(0,0,0,0);
 
     var end = new Date();
 
