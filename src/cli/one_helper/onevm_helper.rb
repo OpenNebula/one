@@ -423,7 +423,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     when "ec2"
                         nic["IP"] = vm_tmplt['IP_ADDRESS'] if vm_tmplt['IP_ADDRESS']
                     when "azure"
-                        nic["IP"]P = vm_tmplt['IPADDRESS'] if vm_tmplt['IPADDRESS']
+                        nic["IP"] = vm_tmplt['IPADDRESS'] if vm_tmplt['IPADDRESS']
                     when "softlayer"
                         nic["IP"] = vm_tmplt['PRIMARYIPADDRESS'] if vm_tmplt['PRIMARYIPADDRESS']
                     else
