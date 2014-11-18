@@ -419,13 +419,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                 case hybridvisor
                     when "vcenter"
-                        nic.IP = vm_tmplt['GUEST_IP'] if vm_tmplt['GUEST_IP']
+                        nic["IP"] = vm_tmplt['GUEST_IP'] if vm_tmplt['GUEST_IP']
                     when "ec2"
-                        nic.IP = vm_tmplt['IP_ADDRESS'] if vm_tmplt['IP_ADDRESS']
+                        nic["IP"] = vm_tmplt['IP_ADDRESS'] if vm_tmplt['IP_ADDRESS']
                     when "azure"
-                        nic.IP = vm_tmplt['IPADDRESS'] if vm_tmplt['IPADDRESS']
+                        nic["IP"]P = vm_tmplt['IPADDRESS'] if vm_tmplt['IPADDRESS']
                     when "softlayer"
-                        nic.IP = vm_tmplt['PRIMARYIPADDRESS'] if vm_tmplt['PRIMARYIPADDRESS']
+                        nic["IP"] = vm_tmplt['PRIMARYIPADDRESS'] if vm_tmplt['PRIMARYIPADDRESS']
                     else
                         isHybrid = false
                 end
