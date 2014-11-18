@@ -2320,7 +2320,7 @@ function generate_provision_network_table(context, nic, vnet_attr){
   update_provision_networks_datatable(provision_networks_datatable);
 }
 
-function generate_provision_network_accordion(context){
+function generate_provision_network_accordion(context, hide_add_button){
   context.off();
   context.html(
     '<br>'+
@@ -2341,7 +2341,7 @@ function generate_provision_network_accordion(context){
         '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
         '</dl>'+
         '<br>'+
-        '<a class="button large-12 medium radius secondary provision_add_network_interface" style="padding: 1rem; color: #555">'+
+        '<a class="button large-12 medium radius secondary provision_add_network_interface" style="padding: 1rem; color: #555; ' + (hide_add_button ? 'display:none;' : '') + '">'+
           tr("Add another Network Interface")+
         '</a>'+
       '</div>'+
@@ -6295,7 +6295,7 @@ $(document).ready(function(){
 
           if (network_attrs.length > 0) {
             generate_provision_network_accordion(
-              $(".provision_network_selector", context));
+              $(".provision_network_selector", context), true);
 
             $.each(network_attrs, function(index, vnet_attr){
               generate_provision_network_table(
