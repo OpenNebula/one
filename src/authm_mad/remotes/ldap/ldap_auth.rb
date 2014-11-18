@@ -47,7 +47,8 @@ class OpenNebula::LdapAuth
             :mapping_timeout    => 300,
             :mapping_filename   => 'server1.yaml',
             :mapping_key        => 'GROUP_DN',
-            :mapping_default    => 1
+            :mapping_default    => 1,
+            :attributes         => [ "memberOf" ]
         }.merge(options)
 
         ops={}
@@ -123,6 +124,7 @@ class OpenNebula::LdapAuth
         begin
             result=@ldap.search(
                 :base => @options[:base],
+                :attributes => @options[:attributes],
                 :filter => "#{@options[:user_field]}=#{name}")
 
             if result && result.first
@@ -146,6 +148,7 @@ class OpenNebula::LdapAuth
     def is_in_group?(user, group)
         result=@ldap.search(
                     :base   => group,
+                    :attributes => @options[:group_field],
                     :filter => "(#{@options[:group_field]}=#{user.first})")
 
         if result && result.first
@@ -183,7 +186,7 @@ class OpenNebula::LdapAuth
         end
 
         groups.delete(false)
-        groups.compact
+        groups.compact.uniq
     end
 end
 
