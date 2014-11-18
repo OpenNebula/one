@@ -25,7 +25,6 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
-$: << "../../vmm/vcenter/"
 
 require 'vcenter_driver'
 

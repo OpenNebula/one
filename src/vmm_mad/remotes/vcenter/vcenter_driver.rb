@@ -239,7 +239,7 @@ class VIClient
             config = system.get_configuration()
 
             if ::OpenNebula.is_error?(config)
-                raise "Error getting oned configuration : #{rc.message}"
+                raise "Error getting oned configuration : #{config.message}"
             end
 
             @token = config["ONE_KEY"]
