@@ -1881,6 +1881,7 @@ function setupInstantiateServiceTemplateDialog(){
             }
         }
 
+        $instantiate_service_template_dialog.empty();
         $instantiate_service_template_dialog.foundation('reveal', 'close')
         return false;
     });
