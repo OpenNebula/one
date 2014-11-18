@@ -784,15 +784,15 @@ private
 
         clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
             :location => relocate_spec,
-            :powerOn  => true,
+            :powerOn  => false,
             :template => false)
 
-        rc = vc_template.CloneVM_Task(
+        vm = vc_template.CloneVM_Task(
             :folder => vc_template.parent,
             :name   => "one-#{vmid}",
             :spec   => clone_spec).wait_for_completion
 
-        vm_uuid = rc.config.uuid
+        vm_uuid = vm.config.uuid
 
         vnc_port   = xml.root.elements["/VM/TEMPLATE/GRAPHICS/PORT"]
         vnc_listen = xml.root.elements["/VM/TEMPLATE/GRAPHICS/LISTEN"]
@@ -814,17 +814,24 @@ private
 
         if context
             # Remove <CONTEXT> (9) and </CONTEXT>\n (11)
-            context_text = Base64.encode64(context.to_s[9..-11])
-            config_array += 
-                     [{:key=>"guestinfo.opennebula.context", 
+            context_text = ""
+            context.elements.each{|context_element|
+                context_text += context_element.name + "=" +
+                                context_element.text + "\n"
+            }
+            context_text = Base64.encode64(context_text.chop)
+            config_array +=
+                     [{:key=>"guestinfo.opennebula.context",
                        :value=>context_text}]
         end
 
         if config_array != []
             spec_hash = {:extraConfig =>config_array}
             spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-            rc.ReconfigVM_Task(:spec => spec).wait_for_completion
+            vm.ReconfigVM_Task(:spec => spec).wait_for_completion
         end
+
+        vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid
     end
