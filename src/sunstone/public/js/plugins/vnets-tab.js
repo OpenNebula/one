@@ -1666,10 +1666,12 @@ function setupAddARDialog(){
     setup_ar_tab_content(dialog, "add_ar")
 
     $('#submit_ar_reset_button').click(function(){
+        var vnet_id = $('#vnet_id', $add_ar_dialog).text();
+
         $add_ar_dialog.html("");
         setupAddARDialog();
 
-        popUpAddAR();
+        popUpAddAR(vnet_id);
     });
 
     $('#add_ar_form',dialog).on('invalid', function () {
