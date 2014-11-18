@@ -52,14 +52,15 @@ module VCenterDriver
 class VIClient
     attr_reader :vim, :one, :root, :cluster, :user, :pass, :host
 
-    def get_entities(entities=[], folder, type)
+    def get_entities(folder, type, entities=[])
         return nil if folder == []
+
         folder.childEntity.each do |child|
             name, junk = child.to_s.split('(')
 
             case name
             when "Folder"
-                get_entities(entities, child, type)
+                get_entities(child, type, entities)
             when type
                 entities.push(child)
             end
