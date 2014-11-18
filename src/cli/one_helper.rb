@@ -370,7 +370,16 @@ EOT
                     endpoint=options[:endpoint]
                 end
 
-                @@client=OpenNebula::Client.new(secret, endpoint, :sync => true)
+                # This breaks the CLI SSL support for Ruby 1.8.7, but is necessary
+                # in order to do template updates, otherwise you get the broken pipe
+                # error (bug #3341)
+                if RUBY_VERSION < '1.9'
+                    sync = false
+                else
+                    sync = true
+                end
+
+                @@client=OpenNebula::Client.new(secret, endpoint, :sync => sync)
             end
         end
 

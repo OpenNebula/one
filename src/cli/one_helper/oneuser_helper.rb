@@ -162,10 +162,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         # Authenticate with oned using the token/passwd and set/generate the
         # authentication token for the user
         #-----------------------------------------------------------------------
+
+        # This breaks the CLI SSL support for Ruby 1.8.7, but is necessary
+        # in order to do template updates, otherwise you get the broken pipe
+        # error (bug #3341)
+        if RUBY_VERSION < '1.9'
+            sync = false
+        else
+            sync = true
+        end
+
         token        = auth.login_token(username, options[:time])
         login_client = OpenNebula::Client.new("#{username}:#{token}",
                                               nil,
-                                              :sync => true)
+                                              :sync => sync)
 
         user = OpenNebula::User.new(User.build_xml, login_client)
 
