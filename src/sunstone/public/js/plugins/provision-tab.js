@@ -1921,10 +1921,10 @@ function generate_custom_attrs(context, custom_attrs) {
   }
 }
 
-function generate_cardinality_selector(context, role_template) {
+function generate_cardinality_selector(context, role_template, template_json) {
   context.off();
   var min_vms = (role_template.min_vms||1);
-  var max_vms = (role_template.max_vms||100);
+  var max_vms = (role_template.max_vms||20);
 
   context.html(
     '<br>'+
@@ -1944,32 +1944,59 @@ function generate_cardinality_selector(context, role_template) {
     '<div class="row">'+
       '<div class="large-12 columns">'+
         '<div class="row">'+
-          '<div class="large-5 text-center columns">'+
-            '<span class="cardinality_value" style="color: #777; font-size:60px">'+role_template.cardinality+'</span>'+
+          '<div class="large-2 text-center columns">'+
+            '<span class="cardinality_value" style="color: #777; font-size:40px">'+role_template.cardinality+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("VMs")+'</span>'+
           '</div>'+
-          '<div class="large-7 columns">'+
-          '<div class="cardinality_slider_div">'+
-            '<span class="" style="color: #777;">'+tr("Change cardinality")+'</span>'+
-            '<br>'+
-            '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
-              '<span class="range-slider-handle"></span>'+
-              '<span class="range-slider-active-segment"></span>'+
-              '<input type="hidden">'+
+          '<div class="large-6 columns">'+
+            '<div class="cardinality_slider_div">'+
+              '<span class="" style="color: #777;">'+tr("Change cardinality")+'</span>'+
+              '<br>'+
+              '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
+                '<span class="range-slider-handle"></span>'+
+                '<span class="range-slider-active-segment"></span>'+
+                '<input type="hidden">'+
+              '</div>'+
+              '<span class="left" style="color: #999;">'+min_vms+'</span>'+
+              '<span class="right" style="color: #999;">'+max_vms+'</span>'+
             '</div>'+
-            '<span class="left" style="color: #999;">'+min_vms+'</span>'+
-            '<span class="right" style="color: #999;">'+max_vms+'</span>'+
+            '<div class="cardinality_no_slider_div">'+
+              '<br>'+
+              '<br>'+
+              '<span class="" style="color: #999;">'+tr("The cardinality for this role cannot be changed")+'</span>'+
+            '</div>'+
           '</div>'+
-          '<div class="cardinality_no_slider_div">'+
+          '<div class="large-4 columns text-center provision_create_service_cost_div hidden">'+
+            '<span class="cost_value" style="color: #777; font-size:40px"></span>'+
             '<br>'+
-            '<br>'+
-            '<span class="" style="color: #999;">'+tr("The cardinality for this role cannot be changed")+'</span>'+
-          '</div>'+
+            '<span style="color: #999;">'+tr("COST")+' / ' + tr("HOUR") + '</span>'+
           '</div>'+
         '</div>'+
       '</div>'+
     '</div>');
+
+    var capacity = template_json.VMTEMPLATE.TEMPLATE;
+    var cost = 0;
+    if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
+      $(".provision_create_service_cost_div").show();
+
+      if (capacity.CPU && capacity.CPU_COST) {
+        cost += capacity.CPU * capacity.CPU_COST
+        $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+      }
+
+      if (capacity.MEMORY && capacity.MEMORY_COST) {
+        cost += capacity.MEMORY * capacity.MEMORY_COST
+        $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+      }
+
+      $(".provision_create_service_cost_div", context).data("cost", cost)
+      var cost_value = cost*parseInt(role_template.cardinality);
+      $(".cost_value").html(cost_value.toFixed(2));
+    } else {
+      $(".provision_create_service_cost_div").hide();
+    }
 
     if (max_vms > min_vms) {
       $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
@@ -1981,9 +2008,9 @@ function generate_cardinality_selector(context, role_template) {
 
       $( ".cardinality_slider", context).on('change', function(){
         $(".cardinality_value",context).html($(this).attr('data-slider'))
+        var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
+        $(".cost_value").html(cost_value.toFixed(2));
       });
-
-
     } else {
       $( ".cardinality_slider_div", context).hide();
       $( ".cardinality_no_slider_div", context).show();
@@ -6528,26 +6555,17 @@ $(document).ready(function(){
           var template_id = role.vm_template;
           var role_html_id = "#provision_create_flow_role_"+index;
 
-          generate_cardinality_selector(
-            $(".provision_cardinality_selector", context),
-            role);
-
           OpenNebula.Template.show({
             data : {
                 id: template_id
             },
             success: function(request,template_json){
               var role_context = $(role_html_id)
-              //var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-              //var nics = []
-              //if ($.isArray(template_nic))
-              //    nics = template_nic
-              //else if (!$.isEmptyObject(template_nic))
-              //    nics = [template_nic]
-//
-              //generate_provision_instance_type_accordion(
-              //  $(".provision_capacity_selector", role_context),
-              //  template_json.VMTEMPLATE.TEMPLATE);
+
+              generate_cardinality_selector(
+                $(".provision_cardinality_selector", context),
+                role,
+                template_json);
 
               if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
                 generate_custom_attrs(
