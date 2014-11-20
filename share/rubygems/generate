@@ -62,7 +62,8 @@ GEM_DESCRIPTION={
         :description => 'Libraries needed to talk to OpenNebula',
         :dependencies => [
             'nokogiri',
-            'json'
+            'json',
+            'rbvmomi'
         ]
     },
 
