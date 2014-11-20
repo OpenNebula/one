@@ -53,7 +53,7 @@ Config = {
     },
 
     "isFeatureEnabled": function(feature_name){
-      if (config['features'] && config['features'][feature_name]) {
+      if (config['view']['features'] && config['view']['features'][feature_name]) {
         return true;
       } else {
         return false;
