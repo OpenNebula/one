@@ -144,6 +144,7 @@ function create_group_tmpl(dialog_name){
               <th/>\
               <th>'+tr("VMs")+'</th>\
               <th>'+tr("VNets")+'</th>\
+              <th>'+tr("Security Groups")+'</th>\
               <th>'+tr("Images")+'</th>\
               <th>'+tr("Templates")+'</th>\
               <th>'+tr("Documents")+'<span class="tip">'+tr("Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked.")+'</span></th>\
@@ -153,6 +154,7 @@ function create_group_tmpl(dialog_name){
                 <th>'+tr("Users")+'</th>\
                 <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
                 <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
+                <td><input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP"></input></td>\
                 <td><input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"></input></td>\
                 <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
                 <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
@@ -162,6 +164,7 @@ function create_group_tmpl(dialog_name){
                 <th>'+tr("Admins")+'</th>\
                 <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
                 <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
+                <td><input type="checkbox" id="group_admin_res_sg" name="group_admin_res_sg" class="resource_cb" value="SECGROUP"></input></td>\
                 <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
                 <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
                 <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\

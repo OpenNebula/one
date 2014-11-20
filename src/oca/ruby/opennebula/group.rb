@@ -37,7 +37,7 @@ module OpenNebula
         SELF = -1
 
         # Default resource ACL's for group users (create)
-        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT"
+        GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP"
         ALL_CLUSTERS_IN_ZONE = 10
 
         # The default view for group and group admins, must be defined in
