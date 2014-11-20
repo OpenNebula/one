@@ -7048,6 +7048,9 @@ function sg_rule_to_st(rule){
         case "IPSEC":
             text["PROTOCOL"] = tr("IPsec");
             break;
+        case "ALL":
+            text["PROTOCOL"] = tr("All");
+            break;
         default:
             text["PROTOCOL"] = "";
         }

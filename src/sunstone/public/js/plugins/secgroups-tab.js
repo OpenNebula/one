@@ -33,6 +33,7 @@ function initialize_create_security_group_dialog(dialog){
             $('.icmp_type_wrapper', dialog).show();
             break;
         case "IPSEC":
+        case "ALL":
             $('.range_row', dialog).hide();
             $('.icmp_type_wrapper', dialog).hide();
             break;
@@ -370,6 +371,7 @@ var create_security_group_wizard_html =
           <option value="UDP">'+tr("UDP")+'</option>\
           <option value="ICMP">'+tr("ICMP")+'</option>\
           <option value="IPSEC">'+tr("IPsec")+'</option>\
+          <option value="ALL">'+tr("All")+'</option>\
         </select>\
       </div>\
       <div class="medium-4 columns icmp_type_wrapper">\
