@@ -24,7 +24,7 @@ else
     RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
 end
 
-$: << "../../vmm/vcenter/"
+$: << RUBY_LIB_LOCATION
 
 require 'vcenter_driver'
 

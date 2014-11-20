@@ -39,6 +39,8 @@ $: << LIB_LOCATION+'/ruby'
 require 'rbvmomi'
 require 'yaml'
 require 'opennebula'
+require 'base64'
+require 'openssl'
 
 module VCenterDriver
 
@@ -49,6 +51,24 @@ module VCenterDriver
 ################################################################################
 class VIClient
     attr_reader :vim, :one, :root, :cluster, :user, :pass, :host
+
+    def get_entities(folder, type, entities=[])
+        return nil if folder == []
+
+        folder.childEntity.each do |child|
+            name, junk = child.to_s.split('(')
+
+            case name
+            when "Folder"
+                get_entities(child, type, entities)
+            when type
+                entities.push(child)
+            end
+        end
+
+        return entities
+    end
+
 
     ############################################################################
     # Initializr the VIClient, and creates an OpenNebula client. The parameters
@@ -66,17 +86,34 @@ class VIClient
             raise "Error getting host information: #{rc.message}"
         end
 
+        password = @one_host["TEMPLATE/VCENTER_PASSWORD"]
+
+        if !@token.nil?
+            begin
+                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+
+                cipher.decrypt
+                cipher.key = @token
+
+                password =  cipher.update(Base64::decode64(password))
+                password << cipher.final
+            rescue
+                raise "Error decrypting vCenter password"
+            end
+        end
+
         connection = {
             :host     => @one_host["TEMPLATE/VCENTER_HOST"],
             :user     => @one_host["TEMPLATE/VCENTER_USER"],
-            :password => @one_host["TEMPLATE/VCENTER_PASSWORD"]
+            :password => password
         }
 
         initialize_vim(connection)
 
-        @root.childEntity.each {|dc|
-            ccrs = dc.hostFolder.childEntity.grep(
-                RbVmomi::VIM::ClusterComputeResource)
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each {|dc|
+            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
 
             next if ccrs.nil?
 
@@ -118,9 +155,15 @@ class VIClient
     # @param uuid [String] the UUID of the VM or VM Template
     ########################################################################
     def find_vm_template(uuid)
-        vms = @dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+        vms = get_entities(@dc.vmFolder, 'VirtualMachine')
 
-        return vms.find{ |v| v.config.uuid == uuid }
+        return vms.find do |v|
+            begin
+                v.config && v.config.uuid == uuid
+            rescue ManagedObjectNotFound
+                false
+            end
+        end
     end
 
     ########################################################################
@@ -132,11 +175,10 @@ class VIClient
     def hierarchy
         vc_hosts = {}
 
-        @root.childEntity.each { |dc|
+        datacenters = get_entities(@root, 'Datacenter')
 
-            ccrs = dc.hostFolder.childEntity.grep(
-                RbVmomi::VIM::ClusterComputeResource)
-
+        datacenters.each { |dc|
+            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
             vc_hosts[dc.name] = ccrs.collect { |c| c.name }
         }
 
@@ -151,9 +193,10 @@ class VIClient
     def vm_templates
         vm_templates = {}
 
-        @root.childEntity.each { |dc|
+        datacenters = get_entities(@root, 'Datacenter')
 
-            vms = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine)
+        datacenters.each { |dc|
+            vms = get_entities(dc.vmFolder, 'VirtualMachine')
 
             tmp = vms.select { |v| v.config.template == true }
 
@@ -190,7 +233,16 @@ class VIClient
     ############################################################################
     def initialize_one
         begin
-            @one = ::OpenNebula::Client.new()
+            @one   = ::OpenNebula::Client.new()
+            system = ::OpenNebula::System.new(@one)
+
+            config = system.get_configuration()
+
+            if ::OpenNebula.is_error?(config)
+                raise "Error getting oned configuration : #{config.message}"
+            end
+
+            @token = config["ONE_KEY"]
         rescue Exception => e
             raise "Error initializing OpenNebula client: #{e.message}"
         end
@@ -746,6 +798,8 @@ private
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
+        context = xml.root.elements["//TEMPLATE/CONTEXT"]
+
         connection  = VIClient.new(hid)
 
         vc_template = connection.find_vm_template(uuid)
@@ -756,15 +810,15 @@ private
 
         clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
             :location => relocate_spec,
-            :powerOn  => true,
+            :powerOn  => false,
             :template => false)
 
-        rc = vc_template.CloneVM_Task(
+        vm = vc_template.CloneVM_Task(
             :folder => vc_template.parent,
             :name   => "one-#{vmid}",
             :spec   => clone_spec).wait_for_completion
 
-        vm_uuid = rc.config.uuid
+        vm_uuid = vm.config.uuid
 
         vnc_port   = xml.root.elements["/VM/TEMPLATE/GRAPHICS/PORT"]
         vnc_listen = xml.root.elements["/VM/TEMPLATE/GRAPHICS/LISTEN"]
@@ -775,13 +829,35 @@ private
             vnc_listen = vnc_listen.text
         end
 
+        config_array = []
+
         if vnc_port
-            spec = RbVmomi::VIM.VirtualMachineConfigSpec(:extraConfig =>
+            config_array +=
                      [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"},
                       {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text},
-                      {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}])
-            rc.ReconfigVM_Task(:spec => spec).wait_for_completion
+                      {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}]
         end
+
+        if context
+            # Remove <CONTEXT> (9) and </CONTEXT>\n (11)
+            context_text = ""
+            context.elements.each{|context_element|
+                context_text += context_element.name + "=" +
+                                context_element.text + "\n"
+            }
+            context_text = Base64.encode64(context_text.chop)
+            config_array +=
+                     [{:key=>"guestinfo.opennebula.context",
+                       :value=>context_text}]
+        end
+
+        if config_array != []
+            spec_hash = {:extraConfig =>config_array}
+            spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+            vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+        end
+
+        vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid
     end

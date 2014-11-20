@@ -52,7 +52,6 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :description => "Group name or id to filter the results",
         :format => String,
         :proc => lambda { |o, options|
-            puts o
             OpenNebulaHelper.rname_to_id(o, "GROUP")
         }
     }

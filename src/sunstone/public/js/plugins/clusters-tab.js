@@ -74,13 +74,9 @@ function setupCreateClusterDialog(){
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var opts = {
-        multiple_choice: true
-    };
-
-    setupHostTableSelect(dialog, "cluster_wizard_hosts", opts);
-    setupVNetTableSelect(dialog, "cluster_wizard_vnets", opts);
-    setupDatastoreTableSelect(dialog, "cluster_wizard_datastores", opts);
+    setupHostTableSelect(dialog, "cluster_wizard_hosts", {multiple_choice: true});
+    setupVNetTableSelect(dialog, "cluster_wizard_vnets", {multiple_choice: true});
+    setupDatastoreTableSelect(dialog, "cluster_wizard_datastores", {multiple_choice: true});
 
     // Handle the Create button
     $('#create_cluster_submit').click(function(){

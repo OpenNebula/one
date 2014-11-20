@@ -642,10 +642,8 @@ function buildUserJSON(dialog){
 
     if (driver == 'custom'){
         driver = $('input[name="custom_auth"]', dialog).val();
-    }
-
-    if (!user_name.length || !user_password.length){
-        return false;
+    } else if (driver == "ldap") {
+        user_password = "-"
     }
 
     var user_json = { "user" :
@@ -669,6 +667,16 @@ function setupCreateUserDialog(){
     //dialog.addClass("reveal-modal").attr("data-reveal", "");
 
     //$('button',dialog).button();
+
+    $('#driver', dialog).change(function(){
+        if ($(this).val() == "ldap"){
+            $('#pass',dialog).hide();
+            $('label[for="pass"]',dialog).hide();
+        } else {
+            $('#pass',dialog).show();
+            $('label[for="pass"]',dialog).show();
+        };
+    });
 
     setupCustomAuthDialog(dialog);
 

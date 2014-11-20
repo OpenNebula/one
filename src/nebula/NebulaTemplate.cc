@@ -15,6 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 #include "NebulaTemplate.h"
+#include "NebulaUtil.h"
+
+#include <unistd.h>
+#include <sys/stat.h>
+
+#include <fstream>
 
 using namespace std;
 
@@ -361,3 +367,69 @@ void OpenNebulaTemplate::set_conf_default()
     conf_default.insert(make_pair(attribute->name(),attribute));
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int OpenNebulaTemplate::load_key()
+{
+    string keyfile = var_location + "/.one/one_key";
+    string key;
+
+    if (access(keyfile.c_str(), F_OK) == 0) //Key file exists
+    {
+        ifstream ifile;
+
+        ifile.open(keyfile.c_str(), ios::in);
+
+        if ( !ifile.is_open() )
+        {
+            cout << "Could not create OpenNebula keyfile: " << keyfile;
+            return -1;
+        }
+
+        ifile >> key;
+
+        ifile.close();
+    }
+    else
+    {
+        string dirpath = var_location + "/.one";
+
+        if (access(dirpath.c_str(), F_OK) != 0)
+        {
+            if (mkdir(dirpath.c_str(), S_IRWXU) == -1)
+            {
+                cout << "Could not create directory: " << dirpath << endl;
+                return -1;
+            }
+        }
+
+        ofstream ofile;
+
+        ofile.open(keyfile.c_str(), ios::out | ios::trunc);
+
+        if ( !ofile.is_open() )
+        {
+            cout << "Could not create OpenNebula keyfile: " << keyfile;
+            return -1;
+        }
+
+        key = one_util::random_password();
+
+        ofile << key << endl;
+
+        ofile.close();
+
+        if (chmod(keyfile.c_str(), S_IRUSR | S_IWUSR) != 0)
+        {
+            cout << "Could not set access mode to: " << keyfile << endl;
+            return -1;
+        }
+    }
+
+
+    SingleAttribute * attribute = new SingleAttribute("ONE_KEY", key);
+    attributes.insert(make_pair(attribute->name(),attribute));
+
+    return 0;
+}

@@ -1390,7 +1390,12 @@ function initialize_create_service_template_dialog(dialog){
     }).on('valid', function() {
         if ($('#create_service_template_form_advanced',dialog).attr("action") == "create") {
             var json_template = $("#template", this).val();
-            Sunstone.runAction("ServiceTemplate.create", JSON.parse(json_template) );
+            try {
+                Sunstone.runAction("ServiceTemplate.create", JSON.parse(json_template) );
+            } catch(e) {
+                popFormDialog("create_service_template_form", $("#oneflow-templates"));
+                notifyError(e);
+            }
             return false;
         } else if ($('#create_service_template_form_advanced',dialog).attr("action") == "update") {
             var json_template = $("#template", this).val();
@@ -1881,6 +1886,7 @@ function setupInstantiateServiceTemplateDialog(){
             }
         }
 
+        $instantiate_service_template_dialog.empty();
         $instantiate_service_template_dialog.foundation('reveal', 'close')
         return false;
     });

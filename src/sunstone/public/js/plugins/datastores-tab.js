@@ -127,24 +127,12 @@ var create_datastore_tmpl =
             '</label>\
             <input type="text" name="safe_dirs" id="safe_dirs" />\
           </div>\
-        </div>\
-        <div class="row">\
           <div class="large-12 columns">\
             <label for="restricted_dirs">' + tr("Restricted Directories") +
               '<span class="tip">'+tr("Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME).")+'</span>'+
             '</label>\
             <input type="text" name="restricted_dirs" id="restricted_dirs" />\
           </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-            <label for="bridge_list">' + tr("Host Bridge List") +
-              '<span class="tip">'+tr("Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore.")+'</span>'+
-            '</label>\
-            <input type="text" name="bridge_list" id="bridge_list" />\
-          </div>\
-        </div>\
-        <div class="row">\
           <div class="large-6 columns">\
             <label for="base_path">' + tr("Base Path") +
               '<span class="tip">'+tr("When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores).")+'</span>'+
@@ -152,18 +140,10 @@ var create_datastore_tmpl =
             <input type="text" name="base_path" id="base_path" />\
           </div>\
           <div class="large-6 columns">\
-            <input id="ds_use_ssh" type="checkbox" name="ds_use_ssh" value="YES" /><label for="ds_use_ssh">' + tr("Use SSH for Datastore Manager") + '</label>\
-          </div>\
-          <div class="large-6 columns">\
-            <input id="tm_use_ssh" type="checkbox" name="tm_use_ssh" value="YES" /><label class="inline" for="tm_use_ssh">' + tr("Use SSH for Transfer Manager") + '</label>\
-          </div>\
-          <div class="large-6 columns">\
-            <label for="base_iqn">' + tr("Base IQN") + '</label>\
-            <input type="text" name="base_iqn" id="base_iqn" />\
-          </div>\
-          <div class="large-6 columns">\
-            <label for="vg_name">' + tr("Volume Group Name") + '</label>\
-            <input type="text" name="vg_name" id="vg_name" />\
+              <label for="limit_transfer_bw">' + tr("Transfer BW Limit") +
+                '<span class="tip">'+tr("Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used.")+'</span>'+
+              '</label>\
+              <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />\
           </div>\
           <div class="large-6 columns">\
             <label for="limit_mb">' + tr("Limit") +
@@ -171,36 +151,76 @@ var create_datastore_tmpl =
             '</label>\
             <input type="text" name="limit_mb" id="limit_mb" />\
           </div>\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="gluster_host">' + tr("Gluster Host") +
-              '<span class="tip">'+tr("Host and port of one (and only one) Gluster server (host:port)")+'</span>'+
+          <div class="large-12 columns">\
+            <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" /><label for="no_decompress">' + tr("Do not try to untar or decompress") + '</label>\
+          </div>\
+          <div class="large-12 columns">\
+            <input id="datastore_capacity_check" type="checkbox" name="datastore_capacity_check" value="YES" /><label for="datastore_capacity_check">' + tr("Check available capacity of the datastore before creating a new image") + '</label>\
+          </div>\
+          <div class="large-12 columns">\
+            <label for="bridge_list">' + tr("Host Bridge List") +
+              '<span class="tip">'+tr("Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore.")+'</span>'+
             '</label>\
-            <input type="text" name="gluster_host" id="gluster_host" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="gluster_volume">' + tr("Gluster Volume") +
-              '<span class="tip">'+tr("Gluster volume to use for the datastore")+'</span>'+
-            '</label>\
-            <input type="text" name="gluster_volume" id="gluster_volume" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="pool_name">' + tr("Pool Name") +
-              '<span class="tip">'+tr("The OpenNebula Ceph pool name. Defaults to \"one\" (this pool must exist before using the drivers).")+'</span>'+
-            '</label>\
-            <input type="text" name="pool_name" id="pool_name" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="ceph_host">' + tr("Ceph Host") +
-              '<span class="tip">'+tr("Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
-            '</label>\
-            <input type="text" name="ceph_host" id="ceph_host" />\
-        </div>\
-        <div class="large-6 columns">\
-            <label for="ceph_secret">' + tr("Ceph Secret") +
-              '<span class="tip">'+tr("A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
-            '</label>\
-            <input type="text" name="ceph_secret" id="ceph_secret" />\
+            <input type="text" name="bridge_list" id="bridge_list" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="ds_tmp_dir">' + tr("DS Tmp Dir") +
+                '<span class="tip">'+tr("Path in the OpenNebula front-end to be used as a buffer to stage in files in vmfs datastores.")+'</span>'+
+              '</label>\
+              <input type="text" name="ds_tmp_dir" id="ds_tmp_dir" />\
+          </div>\
+          <div class="large-6 columns">\
+            <label for="vg_name">' + tr("Volume Group Name") + '</label>\
+            <input type="text" name="vg_name" id="vg_name" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="gluster_host">' + tr("Gluster Host") +
+                '<span class="tip">'+tr("Host and port of one (and only one) Gluster server (host:port)")+'</span>'+
+              '</label>\
+              <input type="text" name="gluster_host" id="gluster_host" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="gluster_volume">' + tr("Gluster Volume") +
+                '<span class="tip">'+tr("Gluster volume to use for the datastore")+'</span>'+
+              '</label>\
+              <input type="text" name="gluster_volume" id="gluster_volume" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="pool_name">' + tr("Pool Name") +
+                '<span class="tip">'+tr("The OpenNebula Ceph pool name. Defaults to 'one' (this pool must exist before using the drivers).")+'</span>'+
+              '</label>\
+              <input type="text" name="pool_name" id="pool_name" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="ceph_host">' + tr("Ceph Host") +
+                '<span class="tip">'+tr("Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
+              '</label>\
+              <input type="text" name="ceph_host" id="ceph_host" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="ceph_user">' + tr("Ceph User") +
+                '<span class="tip">'+tr("The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph user must exist before using the drivers. Required for Libvirt 1.x when cephx is enabled .")+'</span>'+
+              '</label>\
+              <input type="text" name="ceph_user" id="ceph_user" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="ceph_secret">' + tr("Ceph Secret") +
+                '<span class="tip">'+tr("A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled).")+'</span>'+
+              '</label>\
+              <input type="text" name="ceph_secret" id="ceph_secret" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="rbd_format">' + tr("RBD Format") +
+                '<span class="tip">'+tr("By default RBD Format 2 will be used. If RBD_FORMAT=2 is specified then when instantiating non-persistent images the Ceph driver will perform rbd snap instead of rbd copy.")+'</span>'+
+              '</label>\
+              <input type="text" name="rbd_format" id="rbd_format" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="staging_dir">' + tr("Staging Dir") +
+                '<span class="tip">'+tr("Default path for image operations in the OpenNebula Ceph frontend.")+'</span>'+
+              '</label>\
+              <input type="text" name="staging_dir" id="staging_dir" />\
+          </div>\
         </div>\
         <div class="reveal-footer">\
           <div class="form_buttons">\
@@ -788,20 +808,23 @@ function hide_all(context)
 {
     // Hide all the options that depends on datastore type
     // and reset the selects
-    $('label[for="ds_use_ssh"],input#ds_use_ssh',context).hide();
-    $('label[for="tm_use_ssh"],input#tm_use_ssh',context).hide();
 
     $('input#image_ds_type').attr('checked', 'true');
     $('input[name=ds_type]').removeAttr('disabled', 'disabled');
 
-    $('label[for="bridge_list"],input#bridge_list',context).parent().parent().hide();
-    $('label[for="base_iqn"],input#base_iqn',context).hide();
+    $('label[for="bridge_list"],input#bridge_list',context).parent().hide();
+    $('label[for="ds_tmp_dir"],input#ds_tmp_dir',context).parent().hide();
     $('label[for="vg_name"],input#vg_name',context).hide();
     $('label[for="gluster_host"],input#gluster_host',context).parent().hide();
     $('label[for="gluster_volume"],input#gluster_volume',context).parent().hide();
     $('label[for="pool_name"],input#pool_name',context).parent().hide();
     $('label[for="ceph_host"],input#ceph_host',context).parent().hide();
     $('label[for="ceph_secret"],input#ceph_secret',context).parent().hide();
+    $('label[for="ceph_user"],input#ceph_user',context).parent().hide();
+    $('label[for="rbd_format"],input#rbd_format',context).parent().hide();
+    $('label[for="staging_dir"],input#staging_dir',context).parent().hide();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw',context).parent().hide();
+    $('label[for="no_decompress"],input#no_decompress',context).parent().hide();
     $('select#ds_mad').removeAttr('disabled');
     $('select#tm_mad').removeAttr('disabled');
     $('select#tm_mad').children('option').each(function() {
@@ -890,13 +913,16 @@ function setupCreateDatastoreDialog(){
         var tm_mad          = $('#tm_mad',context).val();
         tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]').val() : tm_mad;
         var type            = $('#disk_type',context).val();
+
         var safe_dirs       = $('#safe_dirs',context).val();
         var base_path       = $('#base_path',context).val();
         var restricted_dirs = $('#restricted_dirs',context).val();
+        var limit_transfer_bw = $('#limit_transfer_bw',context).val();
+        var datastore_capacity_check = $('#datastore_capacity_check',context).is(':checked');
+        var no_decompress   = $('#no_decompress',context).is(':checked');
+
         var bridge_list     = $('#bridge_list',context).val();
-        var ds_use_ssh      = $('#ds_use_ssh',context).is(':checked');
-        var tm_use_ssh      = $('#tm_use_ssh',context).is(':checked');
-        var base_iqn        = $('#base_iqn',context).val();
+        var ds_tmp_dir     = $('#ds_tmp_dir',context).val();
         var vg_name         = $('#vg_name',context).val();
         var limit_mb        = $('#limit_mb',context).val();
         var gluster_host    = $('#gluster_host',context).val();
@@ -904,6 +930,9 @@ function setupCreateDatastoreDialog(){
         var pool_name       = $('#pool_name',context).val();
         var ceph_host       = $('#ceph_host',context).val();
         var ceph_secret     = $('#ceph_secret',context).val();
+        var ceph_user       = $('#ceph_user',context).val();
+        var rbd_format      = $('#rbd_format',context).val();
+        var staging_dir     = $('#staging_dir',context).val();
 
 
         if (!name){
@@ -935,17 +964,20 @@ function setupCreateDatastoreDialog(){
         if (restricted_dirs)
             ds_obj.datastore.restricted_dirs = restricted_dirs;
 
+        if (limit_transfer_bw)
+            ds_obj.datastore.limit_transfer_bw = limit_transfer_bw;
+
+        if (no_decompress)
+            ds_obj.datastore.no_decompress = "YES";
+
+        if (datastore_capacity_check)
+            ds_obj.datastore.datastore_capacity_check = "YES";
+
         if (bridge_list)
             ds_obj.datastore.bridge_list = bridge_list;
 
-        if (ds_use_ssh)
-            ds_obj.datastore.ds_use_ssh = "YES";
-
-        if (tm_use_ssh)
-            ds_obj.datastore.tm_use_ssh = "YES";
-
-        if (base_iqn)
-            ds_obj.datastore.base_iqn = base_iqn;
+        if (ds_tmp_dir)
+            ds_obj.datastore.ds_tmp_dir = ds_tmp_dir;
 
         if (vg_name)
             ds_obj.datastore.vg_name = vg_name;
@@ -957,7 +989,7 @@ function setupCreateDatastoreDialog(){
             ds_obj.datastore.gluster_host = gluster_host;
 
         if (gluster_volume)
-            ds_obj.datastore.gluster_host = gluster_volume;
+            ds_obj.datastore.gluster_volume = gluster_volume;
 
         if (pool_name)
             ds_obj.datastore.pool_name = pool_name;
@@ -968,9 +1000,14 @@ function setupCreateDatastoreDialog(){
         if (ceph_secret)
             ds_obj.datastore.ceph_secret = ceph_secret;
 
-        // Sanitize dialog
-        $('#ds_use_ssh').prop('checked', false);
-        $('#tm_use_ssh').prop('checked', false);
+        if (ceph_user)
+            ds_obj.datastore.ceph_user = ceph_user;
+
+        if (rbd_format)
+            ds_obj.datastore.rbd_format = rbd_format;
+
+        if (staging_dir)
+            ds_obj.datastore.staging_dir = staging_dir;
 
         Sunstone.runAction("Datastore.create",ds_obj);
         return false;
@@ -1033,6 +1070,9 @@ function select_filesystem(){
     });
     $('select#disk_type').val('file');
     $('select#disk_type').attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
     $('input#safe_dirs').removeAttr('disabled');
     $('select#disk_type').removeAttr('disabled');
     $('input#base_path').removeAttr('disabled');
@@ -1041,13 +1081,15 @@ function select_filesystem(){
 }
 
 function select_vmware_vmfs(){
-    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
-    $('label[for="ds_use_ssh"],input#ds_use_ssh').fadeIn();
-    $('label[for="tm_use_ssh"],input#tm_use_ssh').fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
+    $('label[for="ds_tmp_dir"],input#ds_tmp_dir').parent().fadeIn();
     $('select#ds_mad').val('vmfs');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('vmfs');
     $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
     $('select#disk_type').val('file');
     $('select#disk_type').attr('disabled', 'disabled');
     $('input#safe_dirs').removeAttr('disabled');
@@ -1063,10 +1105,16 @@ function select_ceph(){
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('ceph');
     $('select#tm_mad').attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
     $('label[for="pool_name"],input#pool_name').parent().fadeIn();
     $('label[for="ceph_host"],input#ceph_host').parent().fadeIn();
     $('label[for="ceph_secret"],input#ceph_secret').parent().fadeIn();
+    $('label[for="ceph_user"],input#ceph_user').parent().fadeIn();
+    $('label[for="rbd_format"],input#rbd_format').parent().fadeIn();
+    $('label[for="staging_dir"],input#staging_dir').parent().fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
     $('select#disk_type').val('RBD');
     $('select#disk_type').attr('disabled', 'disabled');
     $('input#safe_dirs').removeAttr('disabled');
@@ -1082,8 +1130,11 @@ function select_block_lvm(){
     $('select#tm_mad').attr('disabled', 'disabled');
     $('input#image_ds_type').attr('checked', 'true');
     $('input[name=ds_type]').attr('disabled', 'disabled');
-    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
+    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
     $('label[for="vg_name"],input#vg_name').fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
     $('select#disk_type').val('block');
     $('select#disk_type').attr('disabled', 'disabled');
     $('input#safe_dirs').removeAttr('disabled');
@@ -1099,6 +1150,9 @@ function select_fs_lvm(){
     $('select#tm_mad').attr('disabled', 'disabled');
     $('input#image_ds_type').attr('checked', 'true');
     $('input[name=ds_type]').attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
     $('select#disk_type').val('block');
     $('select#disk_type').attr('disabled', 'disabled');
     $('input#safe_dirs').removeAttr('disabled');
@@ -1126,6 +1180,9 @@ function select_gluster(){
     $('select#disk_type').attr('disabled', 'disabled');
     $('label[for="gluster_host"],input#gluster_host').parent().fadeIn();
     $('label[for="gluster_volume"],input#gluster_volume').parent().fadeIn();
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
     $('input#safe_dirs').removeAttr('disabled');
     $('input#base_path').removeAttr('disabled');
     $('input#limit_mb').removeAttr('disabled');
@@ -1141,6 +1198,9 @@ function select_devices(){
     $('input[name=ds_type]').attr('disabled', 'disabled');
     $('select#disk_type').val('block');
     $('select#disk_type').attr('disabled', 'disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().hide();
+    $('label[for="no_decompress"],input#no_decompress').parent().hide();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().hide();
     $('input#safe_dirs').attr('disabled', 'disabled');
     $('input#base_path').attr('disabled', 'disabled');
     $('input#limit_mb').attr('disabled', 'disabled');
@@ -1156,6 +1216,9 @@ function select_custom(){
     $('input#base_path').removeAttr('disabled');
     $('input#limit_mb').removeAttr('disabled');
     $('input#restricted_dirs').removeAttr('disabled');
+    $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
+    $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
+    $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
 }
 
 function popUpCreateDatastoreDialog(){

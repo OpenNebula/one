@@ -122,9 +122,12 @@ get '/support/request' do
 	pending_requests = 0
 	one_zrequests = {
 		"REQUEST_POOL" => {
-			"REQUEST" => []
 		}
 	}
+
+	if zrequests.size > 0
+		one_zrequests["REQUEST_POOL"]["REQUEST"] = []
+	end
 
 	zrequests.each { |zrequest|
 		if zrequest.status == "pending"
@@ -158,16 +161,21 @@ post '/support/request' do
 	check_zendesk_api_gem
 
 	body_hash = JSON.parse(@request_body)
-	zrequest = zendesk_client.requests.create({
-	    :subject => body_hash['subject'],
-	    :comment => { :value => body_hash['description'] },
-	    :custom_fields => [
-	      {:id => 391197, :value => body_hash['severity']},
-	      {:id => 391130, :value => body_hash['opennebula_version']}
-	    ]
-	  })
 
-	[201, JSON.pretty_generate(zrequest_to_one(zrequest))]
+	zrequest = ticket = ZendeskAPI::Request.new(zendesk_client, {
+		    :subject => body_hash['subject'],
+		    :comment => { :value => body_hash['description'] },
+		    :custom_fields => [
+		      {:id => 391197, :value => body_hash['severity']},
+		      {:id => 391130, :value => body_hash['opennebula_version']}
+		    ]
+		  })
+
+	if zrequest.save
+		[201, JSON.pretty_generate(zrequest_to_one(zrequest))]
+	else
+		[403, Error.new(zrequest.errors["base"][0]["description"]).to_json]
+	end
 end
 
 post '/support/request/:id/action' do

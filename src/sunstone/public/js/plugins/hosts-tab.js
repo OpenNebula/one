@@ -210,6 +210,7 @@ var host_actions = {
             updateHostElement(request, response);
             if (Sunstone.rightInfoVisible($("#hosts-tab"))) {
                 updateHostInfo(request, response);
+                $(".right-info-tabs > dd.active > a", "#hosts-tab").trigger("click");
             }
         },
         error: onError
@@ -968,20 +969,29 @@ function updateHostInfo(request,host){
       });
 
       var host_list_array = [];
-      $.each(host_info.TEMPLATE.HOST, function(){
 
-        var cpu_bars = generateCPUProgressBar(this, true);
-        var mem_bars = generateMEMProgressBar(this, true);
+      if (host_info.TEMPLATE.HOST) {
+        if (!(host_info.TEMPLATE.HOST instanceof Array)) {
+          host_info.TEMPLATE.HOST = [host_info.TEMPLATE.HOST];
+        }
 
-        host_list_array.push([
-            this.HOSTNAME,
-            this.STATE,
-            cpu_bars.real,
-            mem_bars.real
-        ]);
-      });
-      dataTable_esx_hosts.fnAddData(host_list_array);
-      delete host_info.TEMPLATE.HOST;
+        if (host_info.TEMPLATE.HOST instanceof Array) {
+          $.each(host_info.TEMPLATE.HOST, function(){
+            var cpu_bars = generateCPUProgressBar(this, true);
+            var mem_bars = generateMEMProgressBar(this, true);
+
+            host_list_array.push([
+                this.HOSTNAME,
+                this.STATE,
+                cpu_bars.real,
+                mem_bars.real
+            ]);
+          });
+        }
+
+        dataTable_esx_hosts.fnAddData(host_list_array);
+        delete host_info.TEMPLATE.HOST;
+      }
     }
 
     var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
@@ -1033,8 +1043,10 @@ function updateHostInfo(request,host){
 
     //pop up panel while we retrieve the graphs
 
-    Sunstone.runAction("Host.monitor",host_info.ID,
-        {monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"});
+    $("[href='#host_monitoring_tab']").on("click", function(){
+      Sunstone.runAction("Host.monitor",host_info.ID,
+          {monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"});
+    });
 }
 
 //Prepares the host creation dialog

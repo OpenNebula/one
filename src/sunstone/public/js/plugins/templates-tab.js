@@ -1892,7 +1892,7 @@ function wizard_tab_dd(){
     }
 
     if (Config.isTemplateCreationTabEnabled('context')){
-        str += "<dd class='hypervisor only_kvm only_vmware only_xen'><a href='#contextTab'><i class='fa fa-folder'></i><br>"+tr("Context")+"</a></dd>";
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen only_vcenter'><a href='#contextTab'><i class='fa fa-folder'></i><br>"+tr("Context")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('scheduling')){
