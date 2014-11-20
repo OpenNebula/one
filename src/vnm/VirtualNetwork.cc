@@ -211,7 +211,13 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     }
     else
     {
+        set<int> sgs;
+
         sg_str.append(",0");
+
+        one_util::split_unique(sg_str, ',', sgs);
+
+        sg_str = one_util::join(sgs.begin(), sgs.end(), ',');
     }
 
     add_template_attribute("SECURITY_GROUPS", sg_str);
