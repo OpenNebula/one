@@ -413,12 +413,12 @@ var create_security_group_wizard_html =
     </div>\
     <div class="row range_row">\
       <div class="medium-4 columns">\
-        <label>'+tr("Range")+'\
+        <label>'+tr("Port range")+'\
           <span class="tip">'+tr("TODO")+'</span>\
         </label>\
         <select class="security_group_rule_range_sel">\
           <option value="ALL" selected="selected">'+tr("All")+'</option>\
-          <option value="RANGE">'+tr("Range")+'</option>\
+          <option value="RANGE">'+tr("Port range")+'</option>\
         </select>\
       </div>\
       <div class="medium-4 columns end security_group_rule_range">\
@@ -471,7 +471,7 @@ var create_security_group_wizard_html =
           <tr>\
             <th>'+tr("Protocol")+'</th>\
             <th>'+tr("Type")+'</th>\
-            <th>'+tr("Range")+'</th>\
+            <th>'+tr("Port Range")+'</th>\
             <th>'+tr("Network")+'</th>\
             <th>'+tr("ICMP Type")+'</th>\
             <th style="width:3%"></th>\
@@ -912,7 +912,7 @@ function insert_sg_rules_table(sg){
           <tr>\
             <th>'+tr("Protocol")+'</th>\
             <th>'+tr("Type")+'</th>\
-            <th>'+tr("Range")+'</th>\
+            <th>'+tr("Port Range")+'</th>\
             <th>'+tr("Network")+'</th>\
             <th>'+tr("ICMP Type")+'</th>\
           </tr>\
