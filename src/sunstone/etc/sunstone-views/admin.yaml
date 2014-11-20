@@ -26,6 +26,8 @@ enabled_tabs:
     enterprise-tab: true
     zones-tab: true
 autorefresh: true
+features:
+    showback: true
 tabs:
     dashboard-tab:
         panel_tabs:

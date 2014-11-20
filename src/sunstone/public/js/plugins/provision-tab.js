@@ -825,10 +825,10 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '<div class="row">'+
     '<div class="large-12 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 25%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
-        '<dd style="width: 25%;"><a href="#provision_info_showback"><i class="fa fa-fw fa-lg fa-money"/>&emsp;'+ tr("Showback") +'</a></dd>'+
-        '<dd style="width: 25%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
-        '<dd style="width: 25%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+        '<dd class="active" style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        (Config.isFeatureEnabled("showback") ? '<dd style="width: 25%;"><a href="#provision_info_showback"><i class="fa fa-fw fa-lg fa-money"/>&emsp;'+ tr("Showback") +'</a></dd>' : '') +
+        '<dd style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
+        '<dd style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
@@ -840,12 +840,12 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div class="content" id="provision_info_showback">'+
+    (Config.isFeatureEnabled("showback") ? '<div class="content" id="provision_info_showback">'+
       '<div class="row">'+
         '<div id="provision_user_info_showback_div" class="large-12 large-centered columns">'+
         '</div>'+
       '</div>'+
-    '</div>'+
+    '</div>' : '')+
     '<div class="content" id="provision_info_quotas">'+
       '<div class="row">'+
         '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns quotas">'+
@@ -1206,7 +1206,7 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '</div>'+
       '</div>'+
       '<br>'+
-      '<div class="row">'+
+      (Config.isFeatureEnabled("showback") ? '<div class="row">'+
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
             '<span class="left">'+
@@ -1220,7 +1220,7 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '<div  id="provision_info_vdc_group_showback" class="large-10 large-centered columns">'+
         '</div>'+
       '</div>'+
-      '<br>'+
+      '<br>' : '') +
       '<div class="row">'+
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
@@ -2082,7 +2082,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
     '<br>');
 
   var cost = 0;
-  if (capacity.CPU_COST || capacity.MEMORY_COST) {
+  if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
     $(".provision_create_template_cost_div").show();
 
     if (capacity.CPU && capacity.CPU_COST) {
@@ -2192,17 +2192,19 @@ function generate_provision_instance_type_accordion(context, capacity) {
     $(".memory_value", context).html(memory_value);
     $(".memory_unit", context).html(memory_unit);
 
-    var cost = 0;
+    if (Config.isFeatureEnabled("showback")) {
+      var cost = 0;
 
-    if ($(".cost_value").data("CPU_COST")) {
-      cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+      if ($(".cost_value").data("CPU_COST")) {
+        cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+      }
+
+      if ($(".cost_value").data("MEMORY_COST")) {
+        cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
+      }
+
+      $(".cost_value").html(cost);
     }
-
-    if ($(".cost_value").data("MEMORY_COST")) {
-      cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
-    }
-
-    $(".cost_value").html(cost);
 
     $('.accordion a', context).first().trigger("click");
   })
@@ -2774,9 +2776,12 @@ function show_provision_user_info_callback(request, response) {
       { fixed_user: info.ID,
         fixed_group_by: "vm" });
 
-  showbackGraphs(
-    $("#provision_user_info_showback_div"),
-      { fixed_user: info.ID});
+
+  if (Config.isFeatureEnabled("showback")) {
+    showbackGraphs(
+      $("#provision_user_info_showback_div"),
+        { fixed_user: info.ID});
+  }
 }
 
 
@@ -2827,9 +2832,11 @@ function show_provision_group_info_callback(request, response) {
     {   fixed_group: info.ID,
         init_group_by: "user" });
 
-  showbackGraphs(
-    $("#provision_info_vdc_group_showback", context),
-    {   fixed_group: info.ID });
+  if (Config.isFeatureEnabled("showback")) {
+    showbackGraphs(
+      $("#provision_info_vdc_group_showback", context),
+      {   fixed_group: info.ID });
+  }
 
   $("#acct_placeholder", context).hide();
 }
@@ -5136,9 +5143,9 @@ function setup_provision_user_info(context) {
               '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="'+tr("User Accounting")+'" style="margin-right: 10px">'+
                 '<i class="fa fa-bar-chart-o fa-lg"></i>'+
               '</span>'+
-              '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="'+tr("User Showback")+'" style="margin-right: 10px">'+
+              (Config.isFeatureEnabled("showback") ? '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="'+tr("User Showback")+'" style="margin-right: 10px">'+
                 '<i class="fa fa-money fa-lg"></i>'+
-              '</span>'+
+              '</span>' : '') +
             '</li>'+
             '<li class="provision-bullet-item text-left">'+
             '</li>')
@@ -5275,18 +5282,20 @@ function setup_provision_user_info(context) {
       '</h2>')
   })
 
-  context.on("click", ".provision_vdc_user_info_show_showback", function(){
-    $(".provision_vdc_info_container", context).html("");
+  if (Config.isFeatureEnabled("showback")) { 
+    context.on("click", ".provision_vdc_user_info_show_showback", function(){
+      $(".provision_vdc_info_container", context).html("");
 
-    showbackGraphs(
-      $(".provision_vdc_info_container", context),
-        { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id")});
+      showbackGraphs(
+        $(".provision_vdc_info_container", context),
+          { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id")});
 
-    $(".provision_vdc_info_container", context).prepend(
-      '<h2 class="subheader">'+
-        $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Showback")+
-      '</h2>')
-  })
+      $(".provision_vdc_info_container", context).prepend(
+        '<h2 class="subheader">'+
+          $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Showback")+
+        '</h2>')
+    })
+  };
 
   context.on("click", ".provision_vdc_user_delete_confirm_button", function(){
     $(".provision_vdc_user_confirm_action", context).html(

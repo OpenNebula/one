@@ -856,14 +856,17 @@ function generate_capacity_inputs() {
             '</select>'+
           '</div>'+
         '</div>'+
-        '<div class="large-2 columns vm_param">'+
-          '<label  for="MEMORY_COST">'+tr("Cost")+'\
-            <span class="tip">'+tr("Cost of each MB per hour")+'</span>\
-          </label>'+
-          '<input type="text" id="MEMORY_COST" name="name"/>'+
-        '</div>'+
-        '<div class="large-3 columns">'+
-        '</div>'+
+        (Config.isFeatureEnabled("showback") ? 
+          '<div class="large-2 columns vm_param">'+
+            '<label  for="MEMORY_COST">'+tr("Cost")+'\
+              <span class="tip">'+tr("Cost of each MB per hour")+'</span>\
+            </label>'+
+            '<input type="text" id="MEMORY_COST" name="name"/>'+
+          '</div>'+
+          '<div class="large-3 columns">'+
+          '</div>' : 
+          '<div class="large-5 columns">'+
+          '</div>' ) +
     '</div>'+
     '<div class="row">'+
         '<div class="large-7 columns">'+
@@ -878,14 +881,17 @@ function generate_capacity_inputs() {
             '<input type="text" id="CPU" name="cpu"/>'+
           '</div>'+
         '</div>'+
-        '<div class="large-2 columns vm_param">'+
-          '<label  for="CPU_COST">'+tr("Cost")+'\
-            <span class="tip">'+tr("Cost of each CPU per hour")+'</span>\
-          </label>'+
-          '<input type="text" id="CPU_COST" name="name"/>'+
-        '</div>'+
-        '<div class="large-3 columns">'+
-        '</div>'+
+        (Config.isFeatureEnabled("showback") ? 
+          '<div class="large-2 columns vm_param">'+
+            '<label  for="CPU_COST">'+tr("Cost")+'\
+              <span class="tip">'+tr("Cost of each CPU per hour")+'</span>\
+            </label>'+
+            '<input type="text" id="CPU_COST" name="name"/>'+
+          '</div>'+
+          '<div class="large-3 columns">'+
+          '</div>' : 
+          '<div class="large-5 columns">'+
+          '</div>' ) +
     '</div>'+
     '<div class="row">' +
       '<div class="large-7 columns">'+

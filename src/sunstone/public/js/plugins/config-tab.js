@@ -31,6 +31,7 @@ Config = {
       var enabled = config['view']['enabled_tabs'][tab_name];
       return enabled;
     },
+
     "isTabActionEnabled": function(tab_name, action_name, panel_name){
       var enabled;
       if (panel_name) {
@@ -46,6 +47,14 @@ Config = {
       if (config['view']['tabs'][tab_name]) {
         var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
         return enabled;
+      } else {
+        return false;
+      }
+    },
+
+    "isFeatureEnabled": function(feature_name){
+      if (config['features'] && config['features'][feature_name]) {
+        return true;
       } else {
         return false;
       }

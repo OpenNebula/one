@@ -25,6 +25,8 @@ enabled_tabs:
     community-tab: false
     enterprise-tab: false
 autorefresh: true
+features:
+    showback: true
 tabs:
     dashboard-tab:
         panel_tabs:
