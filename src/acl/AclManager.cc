@@ -91,7 +91,8 @@ AclManager::AclManager(
                     PoolObjectSQL::NET |
                     PoolObjectSQL::IMAGE |
                     PoolObjectSQL::TEMPLATE |
-                    PoolObjectSQL::DOCUMENT,
+                    PoolObjectSQL::DOCUMENT |
+                    PoolObjectSQL::SECGROUP,
                  AuthRequest::CREATE,
                  AclRule::INDIVIDUAL_ID |
                      zone_id,
