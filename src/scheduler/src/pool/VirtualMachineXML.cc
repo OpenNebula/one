@@ -315,7 +315,7 @@ void VirtualMachineXML::init_storage_usage()
 
     system_ds_usage = 0;
 
-    vm_template->remove("DISK", disks);
+    int num = vm_template->remove("DISK", disks);
 
     for (it=disks.begin(); it != disks.end(); it++)
     {
@@ -372,6 +372,11 @@ void VirtualMachineXML::init_storage_usage()
                 system_ds_usage += size;
             } // else st == NONE
         }
+    }
+
+    for (int i = 0; i < num ; i++)
+    {
+        delete disks[i];
     }
 }
 

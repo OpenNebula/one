@@ -105,7 +105,11 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     vector<Attribute *> ars;
     ostringstream       ose;
 
+    string sg_str;
+
     bool b_vlan;
+
+    int rc, num_ars;
 
     //--------------------------------------------------------------------------
     // VirtualNetwork Attributes from the template
@@ -182,12 +186,35 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     // Get the Address Ranges
     //--------------------------------------------------------------------------
 
-    remove_template_attribute("AR", ars);
+    num_ars = remove_template_attribute("AR", ars);
+    rc      = add_var(ars, error_str);
 
-    if (add_var(ars, error_str) != 0)
+    for (int i=0; i < num_ars; i++)
+    {
+        delete ars[i];
+    }
+
+    if ( rc != 0)
     {
         goto error_ar;
     }
+
+    //--------------------------------------------------------------------------
+    // Add default Security Group
+    //--------------------------------------------------------------------------
+
+    erase_template_attribute("SECURITY_GROUPS", sg_str);
+
+    if (sg_str.empty())
+    {
+        sg_str = "0";
+    }
+    else
+    {
+        sg_str.append(",0");
+    }
+
+    add_template_attribute("SECURITY_GROUPS", sg_str);
 
     //--------------------------------------------------------------------------
     // Insert the Virtual Network

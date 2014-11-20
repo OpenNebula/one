@@ -649,7 +649,7 @@ int VirtualMachine::parse_defaults(string& error_str)
     if ( num > 1 )
     {
         error_str = "Only one NIC_DEFAULT attribute can be defined.";
-        return -1;
+        goto error_cleanup;
     }
 
     vatt = dynamic_cast<VectorAttribute *>(attr[0]);
@@ -657,7 +657,7 @@ int VirtualMachine::parse_defaults(string& error_str)
     if ( vatt == 0 )
     {
         error_str = "Wrong format for NIC_DEFAULT attribute.";
-        return -1;
+        goto error_cleanup;
     }
 
     for (int i=0; i < NUM_NO_NIC_DEFAULTS; i++)
@@ -677,6 +677,15 @@ int VirtualMachine::parse_defaults(string& error_str)
     obj_template->set(vatt);
 
     return 0;
+
+error_cleanup:
+
+    for (int i = 0; i < num ; i++)
+    {
+        delete attr[i];
+    }
+
+    return -1;
 }
 
 
@@ -2598,10 +2607,7 @@ void VirtualMachine::delete_active_snapshot()
 
         if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            if (obj_template->remove(snap) != 0)
-            {
-                delete snap;
-            }
+            delete obj_template->remove(snap);
 
             return;
         }

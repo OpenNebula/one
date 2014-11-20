@@ -501,7 +501,7 @@ public:
     }
 
     /**
-     *  Removes an Image attribute
+     *  Removes an attribute
      *    @param name of the attribute
      */
     int remove_template_attribute(const string& name)
