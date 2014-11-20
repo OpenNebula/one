@@ -16,6 +16,7 @@ enabled_tabs:
     hosts-tab: true
     datastores-tab: false
     vnets-tab: false
+    secgroups-tab: false
     marketplace-tab: false
     oneflow-dashboard: true
     oneflow-services: true
@@ -355,6 +356,24 @@ tabs:
             Network.add_ar: true
             Network.remove_ar: true
             Network.update_ar: true
+    secgroups-tab:
+        panel_tabs:
+            security_group_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+        actions:
+            SecurityGroup.refresh: true
+            SecurityGroup.create_dialog: true
+            SecurityGroup.update_dialog: true
+            SecurityGroup.chown: true
+            SecurityGroup.chgrp: true
+            SecurityGroup.chmod: true
+            SecurityGroup.clone_dialog: true
+            SecurityGroup.delete: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true

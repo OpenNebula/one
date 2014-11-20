@@ -374,7 +374,6 @@ tabs:
             SecurityGroup.chmod: true
             SecurityGroup.clone_dialog: true
             SecurityGroup.delete: true
-
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true
