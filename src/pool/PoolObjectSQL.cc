@@ -20,7 +20,7 @@
 #include "Nebula.h"
 #include "Clusterable.h"
 
-const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$";
+const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -167,9 +167,11 @@ void PoolObjectSQL::clear_template_error_message()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
+int PoolObjectSQL::replace_template(
+        const string& tmpl_str, bool keep_restricted, string& error)
 {
-    Template * new_tmpl  = get_new_template();
+    Template * old_tmpl = 0;
+    Template * new_tmpl = get_new_template();
 
     if ( new_tmpl == 0 )
     {
@@ -183,9 +185,43 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
         return -1;
     }
 
+    if (obj_template != 0)
+    {
+        old_tmpl = new Template(*obj_template);
+    }
+
+    if (keep_restricted && new_tmpl->has_restricted())
+    {
+        new_tmpl->remove_restricted();
+
+        if (obj_template != 0)
+        {
+            obj_template->remove_all_except_restricted();
+
+            string aux_error;
+            new_tmpl->merge(obj_template, aux_error);
+        }
+    }
+
     delete obj_template;
 
     obj_template = new_tmpl;
+
+    if (post_update_template(error) == -1)
+    {
+        delete obj_template;
+
+        if (old_tmpl != 0)
+        {
+            obj_template = old_tmpl;
+        }
+        else
+        {
+            obj_template = 0;
+        }
+
+        return -1;
+    }
 
     return 0;
 }
@@ -193,9 +229,11 @@ int PoolObjectSQL::replace_template(const string& tmpl_str, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::append_template(const string& tmpl_str, string& error)
+int PoolObjectSQL::append_template(
+        const string& tmpl_str, bool keep_restricted, string& error)
 {
-    Template * new_tmpl  = get_new_template();
+    Template * old_tmpl = 0;
+    Template * new_tmpl = get_new_template();
 
     if ( new_tmpl == 0 )
     {
@@ -209,14 +247,37 @@ int PoolObjectSQL::append_template(const string& tmpl_str, string& error)
         return -1;
     }
 
+    if (keep_restricted)
+    {
+        new_tmpl->remove_restricted();
+    }
+
     if ( obj_template != 0 )
     {
+        old_tmpl = new Template(*obj_template);
+
         obj_template->merge(new_tmpl, error);
         delete new_tmpl;
     }
     else
     {
         obj_template = new_tmpl;
+    }
+
+    if (post_update_template(error) == -1)
+    {
+        delete obj_template;
+
+        if (old_tmpl != 0)
+        {
+            obj_template = old_tmpl;
+        }
+        else
+        {
+            obj_template = 0;
+        }
+
+        return -1;
     }
 
     return 0;

@@ -22,7 +22,7 @@ KEYS = [:MISC , :NET , :LVM , :ISCSI , :OVS , :XEN]
 
 CMDS = {
     :MISC  => %w(dd mkfs sync),
-    :NET   => %w(brctl ebtables iptables ip vconfig),
+    :NET   => %w(brctl ebtables iptables ip),
     :LVM   => %w(lvcreate lvremove lvrename lvs vgdisplay),
     :ISCSI => %w(iscsiadm tgt-admin tgtadm),
     :OVS   => %w(ovs-ofctl ovs-vsctl),

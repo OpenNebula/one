@@ -211,7 +211,6 @@ void VirtualMachineManager::trigger(Actions action, int _vid)
 void VirtualMachineManager::do_action(const string &action, void * arg)
 {
     int vid;
-    ostringstream os;
 
     if ( arg == 0)
     {
@@ -1002,8 +1001,6 @@ error_common:
 void VirtualMachineManager::cleanup_action(
     int vid, bool cancel_previous)
 {
-    int rc;
-
     VirtualMachine * vm;
     ostringstream    os;
 
@@ -1044,11 +1041,21 @@ void VirtualMachineManager::cleanup_action(
         m_net_drv  = vm->get_previous_vnm_mad();
     }
 
-    rc = nd.get_tm()->epilog_delete_commands(vm, os, false, false);
-
-    if ( rc != 0 )
+    if (!vm->get_host_is_cloud())
     {
-        goto error_common;
+        int rc = nd.get_tm()->epilog_delete_commands(vm, os, false, false);
+
+        if ( rc != 0 )
+        {
+            os.str("");
+            os << "cleanup_action canceled";
+
+            goto error_common;
+        }
+    }
+    else
+    {
+        os.str("");
     }
 
     // Invoke driver method
@@ -1086,6 +1093,7 @@ error_driver:
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
 
+    vm->log("VMM", Log::ERROR, os);
     vm->unlock();
     return;
 }
@@ -1133,6 +1141,9 @@ void VirtualMachineManager::cleanup_previous_action(
 
     if ( rc != 0 )
     {
+        os.str("");
+        os << "cleanup_action canceled";
+
         goto error_common;
     }
 
@@ -1171,6 +1182,7 @@ error_driver:
 error_common:
     (nd.get_lcm())->trigger(LifeCycleManager::CLEANUP_FAILURE, vid);
 
+    vm->log("VMM", Log::ERROR, os);
     vm->unlock();
     return;
 }

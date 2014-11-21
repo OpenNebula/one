@@ -168,7 +168,7 @@ void get_network_attribute(VirtualMachine * vm,
 
     VirtualNetworkPool * vnpool = nd.get_vnpool();
     VirtualNetwork  *    vn;
-    int                  vnet_id = -1;
+    int                  ar_id, vnet_id = -1;
 
     int num;
     vector<const Attribute *> attrs;
@@ -198,12 +198,12 @@ void get_network_attribute(VirtualMachine * vm,
 
         if ( net->vector_value(net_name.c_str()) == net_value )
         {
-            string        vnet_id_str = net->vector_value("NETWORK_ID");
-            istringstream iss(vnet_id_str);
+            if (net->vector_value("NETWORK_ID", vnet_id) != 0)
+            {
+                vnet_id = -1;
+            }
 
-            iss >> vnet_id;
-
-            if (iss.fail())
+            if (net->vector_value("AR_ID", ar_id) != 0)
             {
                 vnet_id = -1;
             }
@@ -229,11 +229,11 @@ void get_network_attribute(VirtualMachine * vm,
 
     if (attr_name == "TEMPLATE")
     {
-        attr_value = vn->to_xml64(attr_value, true);
+        attr_value = vn->to_xml64(attr_value);
     }
     else
     {
-        vn->get_template_attribute(attr_name.c_str(),attr_value);
+        vn->get_template_attribute(attr_name.c_str(), attr_value, ar_id);
     }
 
     vn->unlock();
@@ -306,7 +306,7 @@ void insert_single(VirtualMachine * vm,
 
         parsed << vm->get_name();
     }
-    else 
+    else
     {
 
         vm->get_template_attribute(name.c_str(),value);

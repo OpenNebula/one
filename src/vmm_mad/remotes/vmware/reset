@@ -27,11 +27,17 @@ end
 $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
-require 'vmware_driver'
+require 'vi_driver'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
-vmware_drv = VMwareDriver.new(host)
-
-vmware_drv.reset(deploy_id)
+begin
+    VIDriver::initialize(host, false)
+    vivm = VIDriver::VIVm.new(deploy_id, nil)
+    vivm.reset
+rescue Exception => e
+    STDERR.puts "Reset of VM #{deploy_id} on host #{host} failed " +
+                "due to \"#{e.message}\""
+    exit -1
+end

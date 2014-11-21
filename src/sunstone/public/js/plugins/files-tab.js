@@ -57,9 +57,9 @@ var create_file_tmpl ='<div class="row">\
                         '</span>'+
                       '</label>\
                        <select name="file_type" id="file_type">\
+                            <option value="CONTEXT">'+tr("Context")+'</option>\
                             <option value="KERNEL">'+tr("Kernel")+'</option>\
                             <option value="RAMDISK">'+tr("Ramdisk")+'</option>\
-                            <option value="CONTEXT">'+tr("Context")+'</option>\
                        </select>\
                     </div>\
                   </div>\
@@ -93,11 +93,12 @@ var create_file_tmpl ='<div class="row">\
                </div>\
                <div class="row">\
                   <div id="files_file-uploader" class="large-12 columns text-center">\
+                    <input id="files_file-uploader-input" type="file"/>\
                   </div>\
                </div>\
             </fieldset>\
             <div class="form_buttons">\
-              <button class="button success radius right" id="create_file_submit" type="button" value="file/create">'+tr("Create")+'</button>\
+              <button class="button success radius right" id="create_file_submit" type="submit" value="file/create">'+tr("Create")+'</button>\
               <button id="wizard_file_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
         </div>\
@@ -126,6 +127,7 @@ var create_file_tmpl ='<div class="row">\
 
 var dataTable_files;
 var $create_file_dialog;
+var size_files = 0;
 
 var file_actions = {
 
@@ -461,6 +463,9 @@ function updateFilesView(request, files_list){
 // Callback to update the information panel tabs and pop it up
 function updateFileInfo(request,file){
     var file_info = file.IMAGE;
+
+    $(".resource-info-header", $("#files-tab")).html(file_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",
@@ -622,76 +627,73 @@ function setupCreateFileDialog(){
 
     var file_obj;
 
-    // Upload is handled by FileUploader vendor plugin
-    var uploader = new qq.FileUploaderBasic({
-        button: $('#files_file-uploader',$create_file_dialog)[0],
-        action: 'upload',
-        multiple: false,
-        params: {},
-        sizeLimit: 0,
-        showMessage: function(message){
-            //notifyMessage(message);
-        },
-        onSubmit: function(id, fileName){
-            //set url params
-            //since the body is the upload, we need the pass
-            //the file info here
-            uploader.setParams({
-                img : JSON.stringify(file_obj),
-                file: fileName
-            });
-            //we pop up an upload progress dialog
-            var pos_top = $(window).height() - 120;
-            var pos_left = 220;
 
-            $('#files_upload_progress_bars').append('<div id="files'+id+'progressBar" class="row" style="margin-bottom:10px">\
-              <div class="large-2 columns dataTables_info">\
-                '+tr("Uploading...")+'\
+    if (getInternetExplorerVersion() > -1) {
+      $("#file_uploader").attr("disabled", "disabled");
+    } else {
+      var file_uploader = new Resumable({
+          target: '/upload_chunk',
+          chunkSize: 10*1024*1024,
+          maxFiles: 1,
+          testChunks: false,
+          query: {
+              csrftoken: csrftoken
+          }
+      });
+
+      file_uploader.assignBrowse($('#files_file-uploader-input',dialog)[0]);
+
+      var fileName = '';
+      var file_input = false;
+
+      file_uploader.on('fileAdded', function(file){
+          fileName = file.fileName;
+          file_input = fileName;
+      });
+
+      file_uploader.on('uploadStart', function() {
+          $('#files_upload_progress_bars').append('<div id="files-'+fileName+'-progressBar" class="row" style="margin-bottom:10px">\
+            <div id="files-'+fileName+'-info" class="large-2 columns dataTables_info">\
+              '+tr("Uploading...")+'\
+            </div>\
+            <div class="large-10 columns">\
+              <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+                <span class="meter" style="width:0%"></span>\
               </div>\
-              <div class="large-10 columns">\
-                <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
-                  <span class="meter" style="width:0%"></span>\
-                </div>\
-                <div class="progress-text" style="margin-left:15px">'+id+' '+fileName+'</div>\
-              </div>\
-            </div>');
+              <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
+            </div>\
+          </div>');
+      });
 
-            $('#files'+id+'cancel_upload').click(function(){
-              uploader.cancel();
-            })
-        },
-        onProgress: function(id, fileName, loaded, total){
-            //update upload dialog with current progress
-            $('span.meter', $('#files'+id+'progressBar')).css('width', Math.floor(loaded*100/total)+'%')
-        },
-        onComplete: function(id, fileName, responseJSON){
+      file_uploader.on('progress', function() {
+          $('span.meter', $('div[id="files-'+fileName+'-progressBar"]')).css('width', file_uploader.progress()*100.0+'%')
+      });
 
-            if (uploader._handler._xhrs[id] &&
-                uploader._handler._xhrs[id].status == 500) {
+      file_uploader.on('fileSuccess', function(file) {
+          $('div[id="files-'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
+          $.ajax({
+              url: '/upload',
+              type: "POST",
+              data: {
+                  csrftoken: csrftoken,
+                  img : JSON.stringify(file_obj),
+                  file: fileName,
+                  tempfile: file.uniqueIdentifier
+              },
+              success: function(){
+                  notifyMessage("File uploaded correctly");
+                  $('div[id="files-'+fileName+'-progressBar"]').remove();
+                  Sunstone.runAction("File.refresh");
+              },
+              error: function(response){
+                  onError({}, OpenNebula.Error(response));
+                  $('div[id="files-'+fileName+'-progressBar"]').remove();
+              }
+          });
+      });
+    }
 
-                onError({}, JSON.parse(uploader._handler._xhrs[id].response) )
-                $('#files'+id+'progressBar').remove();
-            } else {
-                notifyMessage("File uploaded correctly");
-                Sunstone.runAction("File.list");
-                $('#files'+id+'progressBar').remove();
-            }
-
-            //Inform complete upload, destroy upload dialog, refresh file list
-
-            $('div#pb_dialog').foundation('reveal', 'close')
-            return false;
-        },
-        onCancel: function(id, fileName){
-        }
-    });
-
-    var file_input = false;
-    uploader._button._options.onChange = function(input) {
-        file_input = input;  return false;
-    };
-
-    $('#create_file_submit',dialog).click(function(){
+    $('#create_file_form_easy',dialog).submit(function(){
         var upload = false;
 
         var ds_id = $('#file_datastore .resource_list_select',dialog).val();
@@ -734,7 +736,7 @@ function setupCreateFileDialog(){
             $create_file_dialog.empty();
             setupCreateFileDialog();
 
-            uploader._onInputChange(file_input);
+            file_uploader.upload();
         } else {
             Sunstone.runAction("File.create", file_obj);
         };

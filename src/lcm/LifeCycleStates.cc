@@ -208,6 +208,8 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->set_running_stime(the_time);
 
+        vm->set_last_poll(0);
+
         vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to save VM state while migrating."
@@ -274,6 +276,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
         time_t  the_time = time(0);
 
         vm->set_running_stime(the_time);
+
+        vm->set_last_poll(0);
 
         vmpool->update_history(vm);
 
@@ -382,6 +386,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_stime(the_time);
 
         vm->set_running_stime(the_time);
+
+        vm->set_last_poll(0);
 
         vmpool->update_history(vm);
 
@@ -712,6 +718,8 @@ void  LifeCycleManager::prolog_success_action(int vid)
     vm->set_prolog_etime(the_time);
 
     vm->set_running_stime(the_time);
+
+    vm->set_last_poll(0);
 
     vmpool->update_history(vm);
 
@@ -1058,10 +1066,10 @@ void  LifeCycleManager::cancel_success_action(int vid)
         //----------------------------------------------------
         //                POWEROFF STATE
         //----------------------------------------------------
+        map<string, string> empty;
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
         vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
@@ -1263,6 +1271,100 @@ void  LifeCycleManager::monitor_done_action(int vid)
     vm->unlock();
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::monitor_poweroff_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    //This event should be ignored if the VM is not RUNNING
+    if ( vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        //----------------------------------------------------
+        //                POWEROFF STATE
+        //----------------------------------------------------
+        map<string, string> empty;
+        time_t              the_time = time(0);
+
+        Nebula&             nd = Nebula::instance();
+        DispatchManager *   dm = nd.get_dm();
+
+        vm->delete_snapshots();
+
+        vm->update_info(0, 0, -1, -1, empty);
+
+        vm->set_resched(false);
+
+        vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
+
+        vmpool->update(vm);
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_vm_info();
+
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        //----------------------------------------------------
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void  LifeCycleManager::monitor_poweron_action(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    //This event should be ignored if the VM is not POWEROFF
+    if ( vm->get_state() == VirtualMachine::POWEROFF )
+    {
+            time_t the_time = time(0);
+
+            vm->set_state(VirtualMachine::ACTIVE);
+
+            vm->set_state(VirtualMachine::RUNNING);
+
+            vm->cp_history();
+
+            vmpool->update(vm);
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vm->set_last_poll(the_time);
+
+            vmpool->update_history(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is RUNNING");
+    }
+
+    vm->unlock();
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

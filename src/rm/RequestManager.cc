@@ -41,6 +41,8 @@
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
 
+#include "Request.h"
+
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -49,6 +51,31 @@
 #include <fcntl.h>
 #include <string.h>
 #include <cstring>
+
+
+RequestManager::RequestManager(
+        int _port,
+        int _max_conn,
+        int _max_conn_backlog,
+        int _keepalive_timeout,
+        int _keepalive_max_conn,
+        int _timeout,
+        const string _xml_log_file,
+        const string call_log_format):
+            port(_port),
+            socket_fd(-1),
+            max_conn(_max_conn),
+            max_conn_backlog(_max_conn_backlog),
+            keepalive_timeout(_keepalive_timeout),
+            keepalive_max_conn(_keepalive_max_conn),
+            timeout(_timeout),
+            xml_log_file(_xml_log_file)
+{
+    Request::set_call_log_format(call_log_format);
+
+    am.addListener(this);
+};
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -276,10 +303,13 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
 
     // VirtualNetwork Methods
-    xmlrpc_c::methodPtr vn_addleases(new VirtualNetworkAddLeases());
-    xmlrpc_c::methodPtr vn_rmleases(new VirtualNetworkRemoveLeases());
+    xmlrpc_c::methodPtr vn_add_ar(new VirtualNetworkAddAddressRange());
+    xmlrpc_c::methodPtr vn_rm_ar(new VirtualNetworkRmAddressRange());
+    xmlrpc_c::methodPtr vn_free_ar(new VirtualNetworkFreeAddressRange());
+    xmlrpc_c::methodPtr vn_update_ar(new VirtualNetworkUpdateAddressRange());
     xmlrpc_c::methodPtr vn_hold(new VirtualNetworkHold());
     xmlrpc_c::methodPtr vn_release(new VirtualNetworkRelease());
+    xmlrpc_c::methodPtr vn_reserve(new VirtualNetworkReserve());
 
     // Update Template Methods
     xmlrpc_c::methodPtr image_update(new ImageUpdateTemplate());
@@ -485,8 +515,11 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.groupquota.update", group_set_default_quota);
 
     /* Network related methods*/
-    RequestManagerRegistry.addMethod("one.vn.addleases", vn_addleases);
-    RequestManagerRegistry.addMethod("one.vn.rmleases", vn_rmleases);
+    RequestManagerRegistry.addMethod("one.vn.reserve", vn_reserve);
+    RequestManagerRegistry.addMethod("one.vn.add_ar", vn_add_ar);
+    RequestManagerRegistry.addMethod("one.vn.rm_ar", vn_rm_ar);
+    RequestManagerRegistry.addMethod("one.vn.update_ar", vn_update_ar);
+    RequestManagerRegistry.addMethod("one.vn.free_ar", vn_free_ar);
     RequestManagerRegistry.addMethod("one.vn.hold", vn_hold);
     RequestManagerRegistry.addMethod("one.vn.release", vn_release);
     RequestManagerRegistry.addMethod("one.vn.allocate", vn_allocate);
@@ -509,6 +542,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * user_add_group_pt;
     xmlrpc_c::method * user_del_group_pt;
     xmlrpc_c::method * user_change_auth_pt;
+    xmlrpc_c::method * user_login_pt;
 
     if (nebula.is_federation_slave())
     {
@@ -520,6 +554,7 @@ void RequestManager::register_xml_methods()
         user_add_group_pt       = new RequestManagerProxy("one.user.addgroup");
         user_del_group_pt       = new RequestManagerProxy("one.user.delgroup");
         user_change_auth_pt     = new RequestManagerProxy("one.user.chauth");
+        user_login_pt           = new RequestManagerProxy("one.user.login");
 
         static_cast<RequestManagerProxy*>(user_allocate_pt)->hide_argument(2);
         static_cast<RequestManagerProxy*>(user_change_password_pt)->hide_argument(2);
@@ -535,6 +570,7 @@ void RequestManager::register_xml_methods()
         user_add_group_pt       = new UserAddGroup();
         user_del_group_pt       = new UserDelGroup();
         user_change_auth_pt     = new UserChangeAuth();
+        user_login_pt           = new UserLogin();
     }
 
     xmlrpc_c::methodPtr user_allocate(user_allocate_pt);
@@ -545,6 +581,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr user_add_group(user_add_group_pt);
     xmlrpc_c::methodPtr user_del_group(user_del_group_pt);
     xmlrpc_c::methodPtr user_change_auth(user_change_auth_pt);
+    xmlrpc_c::methodPtr user_login(user_login_pt);
 
     xmlrpc_c::methodPtr user_info(new UserInfo());
     xmlrpc_c::methodPtr user_set_quota(new UserSetQuota());
@@ -562,6 +599,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.user.delgroup", user_del_group);
     RequestManagerRegistry.addMethod("one.user.chauth", user_change_auth);
     RequestManagerRegistry.addMethod("one.user.quota", user_set_quota);
+    RequestManagerRegistry.addMethod("one.user.login", user_login);
 
     RequestManagerRegistry.addMethod("one.userpool.info", userpool_info);
 

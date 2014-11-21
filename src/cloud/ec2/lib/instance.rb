@@ -61,6 +61,33 @@ module Instance
     TERMINATED_INSTANCES_EXPIRATION_TIME = 900
 
     def run_instances(params)
+        erb_user_name = params['AWSAccessKeyId']
+        erb_version = params['Version']
+        erb_vms = Array.new
+
+        if params['ClientToken']
+            user_flag = OpenNebula::Pool::INFO_ALL
+            vm_pool = VirtualMachinePool.new(@client, user_flag)
+            rc = vm_pool.info
+            if OpenNebula::is_error?(rc)
+                return rc
+            end
+
+            vm_id = vm_pool["VM/USER_TEMPLATE[EC2_CLIENT_TOKEN=\'#{params['ClientToken']}\']/../ID"]
+            if vm_id
+                instance = VirtualMachine.new(VirtualMachine.build_xml(vm_id), @client)
+                rc = instance.info
+                if OpenNebula::is_error?(rc)
+                    return rc
+                end
+
+                erb_vms << instance
+
+                response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
+                return response.result(binding), 200
+            end
+        end
+
         # Get the image
         img = nil
         if params['ImageId'] =~ /ami\-(.+)/
@@ -82,11 +109,13 @@ module Instance
             # Get the instance type and path
             if params['InstanceType'] != nil
                 instance_type_name = params['InstanceType']
-                instance_type      = @config[:instance_types][instance_type_name.to_sym]
+            else
+                instance_type_name = "m1.small"
+            end
 
-                if instance_type != nil
-                    path = @config[:template_location] + "/#{instance_type[:template]}"
-                end
+            instance_type = @config[:instance_types][instance_type_name.to_sym]
+            if instance_type != nil
+                path = @config[:template_location] + "/#{instance_type[:template]}"
             end
 
             # Build the VM
@@ -102,8 +131,9 @@ module Instance
 
             template      = ERB.new(File.read(erb_vm_info[:template]))
             template_text = template.result(binding)
-
-            erb_vms = Array.new
+            if params["ClientToken"]
+                template_text += "\nEC2_CLIENT_TOKEN=\"#{params['ClientToken']}\""
+            end
 
             min_count = params['MinCount'] || 1
             max_count = params['MaxCount'] || min_count
@@ -128,7 +158,8 @@ module Instance
                 end
             }
         else
-            template_pool = TemplatePool.new(@client)
+            user_flag = OpenNebula::Pool::INFO_ALL
+            template_pool = TemplatePool.new(@client, user_flag)
             rc = template_pool.info
             if OpenNebula::is_error?(rc)
                 return rc
@@ -173,10 +204,11 @@ module Instance
                 merge_info.delete("CONTEXT")
             end
 
-            template_str = template_to_str(merge_info)
-            vm_id =
+            if params['ClientToken']
+                merge_info['EC2_CLIENT_TOKEN'] = params['ClientToken']
+            end
 
-            erb_vms = Array.new
+            template_str = template_to_str(merge_info)
 
             min_count = params['MinCount'] || 1
             max_count = params['MaxCount'] || min_count
@@ -200,9 +232,6 @@ module Instance
                 end
             }
         end
-
-        erb_user_name = params['AWSAccessKeyId']
-        erb_version = params['Version']
 
         response = ERB.new(File.read(@config[:views]+"/run_instances.erb"))
         return response.result(binding), 200

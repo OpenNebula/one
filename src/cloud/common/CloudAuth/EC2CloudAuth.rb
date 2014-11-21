@@ -50,7 +50,7 @@ module EC2CloudAuth
 
         digest_generator = OpenSSL::Digest::Digest.new(digest)
         digest = OpenSSL::HMAC.digest(digest_generator, secret_key, req_desc)
-        b64sig = Base64.b64encode(digest)
+        b64sig = Base64.encode64(digest)
         return b64sig.strip
     end
 

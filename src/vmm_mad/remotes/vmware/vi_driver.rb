@@ -233,6 +233,15 @@ class VIVm
         @vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 
+    ############################################################################
+    # Resets a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param hostname name of the host (equals the vCenter cluster)
+    ############################################################################
+    def reset
+        @vm.ResetVM_Task.wait_for_completion
+    end    
+
     ########################################################################
     #  Initialize the vm monitor information
     ########################################################################
@@ -299,6 +308,10 @@ private
 
     ########################################################################
     #  Converts the VI string state to OpenNebula state convention
+    #  Guest states are:
+    #   - poweredOff   The virtual machine is currently powered off.
+    #   - poweredOn    The virtual machine is currently powered on.
+    #   - suspended    The virtual machine is currently suspended.
     ########################################################################
     def state_to_c(state)
         case state
@@ -306,8 +319,10 @@ private
                 'a'
             when 'suspended'
                 'p'
-            else
+            when 'poweredOff'
                 'd'
+            else
+                '-'
         end
     end
 end

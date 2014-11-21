@@ -21,7 +21,7 @@ require 'tmpdir'
 
 
 DEFAULTS={
-    :version => "4.6.0",
+    :version => "4.10.0",
     :date => Time.now.strftime("%Y-%m-%d"),
     :dependencies => []
 }
@@ -37,6 +37,7 @@ Gem::Specification.new do |s|
   s.description = "$(DESCRIPTION)"
   s.authors     = ["OpenNebula"]
   s.email       = 'contact@opennebula.org'
+  s.license     = 'Apache-2.0'
   s.files       = [
 $(FILES)
   ]
@@ -61,7 +62,8 @@ GEM_DESCRIPTION={
         :description => 'Libraries needed to talk to OpenNebula',
         :dependencies => [
             'nokogiri',
-            'json'
+            'json',
+            'rbvmomi'
         ]
     },
 

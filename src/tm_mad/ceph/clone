@@ -58,20 +58,27 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onevm show -x $VM_ID| $XPATH  \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT)
+        XPATH_ELEMENTS[i++]="$element"
+        done < <(onevm show -x $VM_ID| $XPATH  \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
 
-RBD_FORMAT="${XPATH_ELEMENTS[j++]}"
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
+
 
 #-------------------------------------------------------------------------------
 # Clone the image
 #-------------------------------------------------------------------------------
 
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
+fi
+ 
 CLONE_CMD=$(cat <<EOF
     set -e
 
-    if [ "$RBD_FORMAT" = "2" ]; then
+    RBD_FORMAT=\$($RBD info $SRC_PATH | sed -n 's/.*format: // p')   
+
+    if [ "\$RBD_FORMAT" = "2" ]; then
         $RBD snap create "$SRC_PATH@$RBD_SNAP"
         $RBD snap protect "$SRC_PATH@$RBD_SNAP"
         $RBD clone "$SRC_PATH@$RBD_SNAP" $RBD_DST
@@ -82,5 +89,5 @@ EOF
 )
 
 ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
-        "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
+                 "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
 exit 0

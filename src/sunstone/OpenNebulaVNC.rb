@@ -129,8 +129,15 @@ class OpenNebulaVNC
             return false
         end
 
-        File.open(@lock_file, "w") do |f|
-            f.write(pid.to_s)
+        begin
+            File.open(@lock_file, "w") do |f|
+                f.write(pid.to_s)
+            end
+        rescue Exception => e
+            @logger.error e.message
+            Process.kill('-KILL', pid)
+
+            return false
         end
 
         sleep 1
@@ -165,9 +172,13 @@ class OpenNebulaVNC
         end
 
         # Proxy data
-        host     = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
-        vnc_port = vm_resource['TEMPLATE/GRAPHICS/PORT']
-        vnc_pw = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+        host       = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
+        vnc_port   = vm_resource['TEMPLATE/GRAPHICS/PORT']
+        vnc_pw     = vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+
+        if vm_resource['TEMPLATE/ESX_HOST'] # It is behind a vCenter
+            host       = vm_resource['TEMPLATE/ESX_HOST']
+        end
 
         # Generate token random_str: host:port
         random_str = rand(36**20).to_s(36) #random string a-z0-9 length 20
@@ -302,9 +313,9 @@ if RUBY_VERSION<'1.9'
             command=args[0..-2]
 
             # Close stdin and point out and err to log file
-            $stdin.close
             $stdout.reopen(VNC_LOG, "a")
             $stderr.reopen(VNC_LOG, "a")
+            $stdin.close
 
             # Detach process from the parent
             Process.setsid

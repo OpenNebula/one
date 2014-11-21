@@ -83,9 +83,21 @@ begin
     end
 
     if ldap.authenticate(user_name, secret)
+        groups = ldap.get_groups
+        if groups.empty?
+            if !server_conf[:mapping_default]
+                STDERR.puts "User does not belong to a mapped group"
+                authenticated = false
+                break
+            else
+                groups = [server_conf[:mapping_default]]
+            end
+        end
+
+        group_list = groups.join(' ')
         escaped_user=URI_PARSER.escape(user)
         escaped_secret=URI_PARSER.escape(user_name)
-        puts "ldap #{escaped_user} #{escaped_secret}"
+        puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
         authenticated=true
         break
     else

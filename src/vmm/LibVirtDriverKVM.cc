@@ -103,20 +103,34 @@ int LibVirtDriver::deployment_description_kvm(
     const VectorAttribute * disk;
     const VectorAttribute * context;
 
-    string  type       = "";
-    string  target     = "";
-    string  bus        = "";
-    string  ro         = "";
-    string  driver     = "";
-    string  cache      = "";
-    string  disk_io    = "";
-    string  source     = "";
-    string  clone      = "";
-    string  ceph_host  = "";
-    string  ceph_secret= "";
-    string  ceph_user  = "";
-    string  gluster_host   = "";
-    string  gluster_volume = "";
+    string  type            = "";
+    string  target          = "";
+    string  bus             = "";
+    string  ro              = "";
+    string  driver          = "";
+    string  cache           = "";
+    string  disk_io         = "";
+    string  source          = "";
+    string  clone           = "";
+    string  ceph_host       = "";
+    string  ceph_secret     = "";
+    string  ceph_user       = "";
+    string  gluster_host    = "";
+    string  gluster_volume  = "";
+
+    string  total_bytes_sec = "";
+    string  read_bytes_sec  = "";
+    string  write_bytes_sec = "";
+    string  total_iops_sec  = "";
+    string  read_iops_sec   = "";
+    string  write_iops_sec  = "";
+
+    string  default_total_bytes_sec = "";
+    string  default_read_bytes_sec  = "";
+    string  default_write_bytes_sec = "";
+    string  default_total_iops_sec  = "";
+    string  default_read_iops_sec   = "";
+    string  default_write_iops_sec  = "";
 
     int     disk_id;
     string  default_driver          = "";
@@ -128,6 +142,7 @@ int LibVirtDriver::deployment_description_kvm(
 
     string  mac        = "";
     string  bridge     = "";
+    string  bridge_ovs = "";
     string  script     = "";
     string  model      = "";
     string  ip         = "";
@@ -367,21 +382,29 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
-    get_default("DISK","DRIVER",default_driver);
+    get_default("DISK", "DRIVER", default_driver);
 
     if (default_driver.empty())
     {
         default_driver = "raw";
     }
 
-    get_default("DISK","CACHE",default_driver_cache);
+    get_default("DISK", "CACHE", default_driver_cache);
 
     if (default_driver_cache.empty())
     {
        default_driver_cache = "default";
     }
 
-    get_default("DISK","IO",default_driver_disk_io);
+    get_default("DISK", "IO", default_driver_disk_io);
+
+    get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
+    get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
+    get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
+    get_default("DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
+    get_default("DISK", "READ_IOPS_SEC", default_read_iops_sec);
+    get_default("DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+
     // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK",attrs);
@@ -395,19 +418,58 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        type        = disk->vector_value("TYPE");
-        target      = disk->vector_value("TARGET");
-        ro          = disk->vector_value("READONLY");
-        driver      = disk->vector_value("DRIVER");
-        cache       = disk->vector_value("CACHE");
-        disk_io     = disk->vector_value("IO");
-        source      = disk->vector_value("SOURCE");
-        clone       = disk->vector_value("CLONE");
-        ceph_host   = disk->vector_value("CEPH_HOST");
-        ceph_secret = disk->vector_value("CEPH_SECRET");
-        ceph_user   = disk->vector_value("CEPH_USER");
+        type            = disk->vector_value("TYPE");
+        target          = disk->vector_value("TARGET");
+        ro              = disk->vector_value("READONLY");
+        driver          = disk->vector_value("DRIVER");
+        cache           = disk->vector_value("CACHE");
+        disk_io         = disk->vector_value("IO");
+        source          = disk->vector_value("SOURCE");
+        clone           = disk->vector_value("CLONE");
+
+        ceph_host       = disk->vector_value("CEPH_HOST");
+        ceph_secret     = disk->vector_value("CEPH_SECRET");
+        ceph_user       = disk->vector_value("CEPH_USER");
+
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
+
+        total_bytes_sec = disk->vector_value("TOTAL_BYTES_SEC");
+        read_bytes_sec  = disk->vector_value("READ_BYTES_SEC");
+        write_bytes_sec = disk->vector_value("WRITE_BYTES_SEC");
+        total_iops_sec  = disk->vector_value("TOTAL_IOPS_SEC");
+        read_iops_sec   = disk->vector_value("READ_IOPS_SEC");
+        write_iops_sec  = disk->vector_value("WRITE_IOPS_SEC");
+
+        if ( total_bytes_sec.empty() && !default_total_bytes_sec.empty())
+        {
+            total_bytes_sec = default_total_bytes_sec;
+        }
+
+        if ( read_bytes_sec.empty() && !default_read_bytes_sec.empty())
+        {
+            read_bytes_sec = default_read_bytes_sec;
+        }
+
+        if ( write_bytes_sec.empty() && !default_write_bytes_sec.empty())
+        {
+            write_bytes_sec = default_write_bytes_sec;
+        }
+
+        if ( total_iops_sec.empty() && !default_total_iops_sec.empty())
+        {
+            total_iops_sec = default_total_iops_sec;
+        }
+
+        if ( read_iops_sec.empty() && !default_read_iops_sec.empty())
+        {
+            read_iops_sec = default_read_iops_sec;
+        }
+
+        if ( write_iops_sec.empty() && !default_write_iops_sec.empty())
+        {
+            write_iops_sec = default_write_iops_sec;
+        }
 
         disk->vector_value_str("DISK_ID", disk_id);
 
@@ -572,7 +634,56 @@ int LibVirtDriver::deployment_description_kvm(
             file << " io='" << default_driver_disk_io << "'";
         }
 
-        file << "/>" << endl << "\t\t</disk>" << endl;
+        file << "/>" << endl;
+
+        // ---- I/O Options  ----
+
+        if (!(total_bytes_sec.empty() && read_bytes_sec.empty() &&
+              write_bytes_sec.empty() && total_iops_sec.empty() &&
+              read_iops_sec.empty() && write_iops_sec.empty()))
+        {
+            file << "\t\t\t<iotune>" << endl;
+
+            if ( !total_bytes_sec.empty() )
+            {
+                file << "\t\t\t\t<total_bytes_sec>" << total_bytes_sec
+                     << "</total_bytes_sec>" << endl;
+            }
+
+            if ( !read_bytes_sec.empty() )
+            {
+                file << "\t\t\t\t<read_bytes_sec>" << read_bytes_sec
+                     << "</read_bytes_sec>" << endl;
+            }
+
+            if ( !write_bytes_sec.empty() )
+            {
+                file << "\t\t\t\t<write_bytes_sec>" << write_bytes_sec
+                     << "</write_bytes_sec>" << endl;
+            }
+
+            if ( !total_iops_sec.empty() )
+            {
+                file << "\t\t\t\t<total_iops_sec>" << total_iops_sec
+                     << "</total_iops_sec>" << endl;
+            }
+
+            if ( !read_iops_sec.empty() )
+            {
+                file << "\t\t\t\t<read_iops_sec>" << read_iops_sec
+                     << "</read_iops_sec>" << endl;
+            }
+
+            if ( !write_iops_sec.empty() )
+            {
+                file << "\t\t\t\t<write_iops_sec>" << write_iops_sec
+                     << "</write_iops_sec>" << endl;
+            }
+
+            file << "\t\t\t</iotune>" << endl;
+        }
+
+        file << "\t\t</disk>" << endl;
     }
 
     attrs.clear();
@@ -631,13 +742,14 @@ int LibVirtDriver::deployment_description_kvm(
             continue;
         }
 
-        bridge = nic->vector_value("BRIDGE");
-        mac    = nic->vector_value("MAC");
-        target = nic->vector_value("TARGET");
-        script = nic->vector_value("SCRIPT");
-        model  = nic->vector_value("MODEL");
-        ip     = nic->vector_value("IP");
-        filter = nic->vector_value("FILTER");
+        bridge     = nic->vector_value("BRIDGE");
+        bridge_ovs = nic->vector_value("BRIDGE_OVS");
+        mac        = nic->vector_value("MAC");
+        target     = nic->vector_value("TARGET");
+        script     = nic->vector_value("SCRIPT");
+        model      = nic->vector_value("MODEL");
+        ip         = nic->vector_value("IP");
+        filter     = nic->vector_value("FILTER");
 
         if ( bridge.empty() )
         {
@@ -646,12 +758,21 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             file << "\t\t<interface type='bridge'>" << endl;
-            file << "\t\t\t<source bridge='" << bridge << "'/>" << endl;
-        }
 
-        if ( vm->get_vnm_mad() == "ovswitch" )
-        {
-            file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
+            string * the_bridge = &bridge;
+
+            if ( vm->get_vnm_mad() == "ovswitch" )
+            {
+
+                if ( !bridge_ovs.empty() )
+                {
+                    the_bridge = &bridge_ovs;
+                }
+
+                file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
+            }
+
+            file << "\t\t\t<source bridge='" << *the_bridge << "'/>" << endl;
         }
 
         if( !mac.empty() )

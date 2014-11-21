@@ -140,15 +140,18 @@ public:
      *   @param uname of the user if authN succeeded "" otherwise
      *   @param gname of the group if authN succeeded "" otherwise
      *   @param group_ids the user groups if authN succeeded, is empty otherwise
+     *   @param umask of the user, 0 otherwise
      *
      *   @return false if authn failed, true otherwise
      */
     bool authenticate(const string& session,
+                      string&       password,
                       int&          uid,
                       int&          gid,
                       string&       uname,
                       string&       gname,
-                      set<int>&     group_ids);
+                      set<int>&     group_ids,
+                      int&          umask);
     /**
      * Returns whether the operations described in a authorization request are
      * authorized ot not.
@@ -219,22 +222,26 @@ private:
      */
     bool authenticate_internal(User *        user,
                                const string& token,
+                               string&       password,
                                int&          user_id,
                                int&          group_id,
                                string&       uname,
                                string&       gname,
-                               set<int>&     group_ids);
+                               set<int>&     group_ids,
+                               int&          umask);
 
     /**
      *  Function to authenticate internal users using a server driver
      */
     bool authenticate_server(User *        user,
                              const string& token,
+                             string&       password,
                              int&          user_id,
                              int&          group_id,
                              string&       uname,
                              string&       gname,
-                             set<int>&     group_ids);
+                             set<int>&     group_ids,
+                             int&          umask);
 
 
     /**
@@ -242,11 +249,13 @@ private:
      */
     bool authenticate_external(const string&    username,
                                const string&    token,
+                               string&          password,
                                int&             user_id,
                                int&             group_id,
                                string&          uname,
                                string&          gname,
-                               set<int>&        group_ids);
+                               set<int>&        group_ids,
+                               int&             umask);
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User

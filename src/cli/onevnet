@@ -47,6 +47,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
 
     CREATE_OPTIONS = [OneClusterHelper::CLUSTER]
+    STD_OPTIONS = CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
     ########################################################################
     # Formatters for arguments
@@ -69,6 +70,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     set :format, :filterflag, OneVNetHelper.filterflag_to_i_desc do |arg|
         helper.filterflag_to_i(arg)
+    end
+
+    set :format, :ar_id, "Integer" do |arg|
+        format_int(arg)
     end
 
     ########################################################################
@@ -103,8 +108,59 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    addar_desc = <<-EOT.unindent
+        Adds an address range to the Virtual Network
+    EOT
+
+    command :addar, addar_desc, :vnetid, [:file, nil],
+            :options => STD_OPTIONS + OneVNetHelper::ADDAR_OPTIONS do
+        helper.perform_action(args[0],options,"lease added") do |vn|
+            if args[1]
+                ar = File.read(args[1])
+            else
+                ar = "AR = [ "
+
+                if options[:ip]
+                    if options[:ip6_global] || options[:ip6_ula]
+                        ar << "TYPE=\"IP4_6\""
+                    else
+                        ar << "TYPE=\"IP4\""
+                    end
+                else
+                    if options[:ip6_global] || options[:ip6_ula]
+                        ar << "TYPE=\"IP6\""
+                    else
+                        ar << "TYPE=\"ETHER\""
+                    end
+                end
+
+                if options[:size]
+                    ar << ", SIZE = " << options[:size]
+                else
+                    STDERR.puts "Address range needs to specify size (-s size)"
+                    exit -1
+                end
+
+                ar << ", IP = " << options[:ip] if options[:ip]
+                ar << ", MAC = " << options[:mac] if options[:mac]
+                ar << ", GLOBAL_PREFIX = " <<
+                      options[:ip6_global] if options[:ip6_global]
+                ar << ", ULA_PREFIX = " <<
+                      options[:ip6_ula] if options[:ip6_ula]
+                ar << ", GATEWAY = " << options[:gateway] if options[:gateway]
+                ar << ", MASK = " << options[:netmask] if options[:netmask]
+                ar << ", VLAN = YES" if options[:vlan]
+                ar << ", VLAN_ID = " << options[:vlanid] if options[:vlanid]
+
+                ar << "]"
+            end
+
+            vn.add_ar(ar)
+        end
+    end
+
     addleases_desc = <<-EOT.unindent
-        Adds a lease to the Virtual Network
+        (DEPRECATED, use addar) Adds a lease to the Virtual Network
     EOT
 
     command :addleases, addleases_desc, :vnetid, :ip, [:mac, nil] do
@@ -113,8 +169,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    rmar_desc = <<-EOT.unindent
+        Removes an address range from the Virtual Network
+    EOT
+
+    command :rmar, rmar_desc, :vnetid, :ar_id do
+        helper.perform_action(args[0],options,"address range removed") do |vn|
+            vn.rm_ar(args[1])
+        end
+    end
+
     rmleases_desc = <<-EOT.unindent
-        Removes a lease from the Virtual Network
+        (DEPRECATED, use rmar) Removes a lease from the Virtual Network
     EOT
 
     command :rmleases, rmleases_desc, :vnetid, :ip do
@@ -123,13 +189,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    free_desc = <<-EOT.unindent
+        Frees a reserved address range from the Virtual Network
+    EOT
+
+    command :free, free_desc, :vnetid, :ar_id do
+        helper.perform_action(args[0],options,"address range freed") do |vn|
+            vn.free(args[1])
+        end
+    end
+
     hold_desc = <<-EOT.unindent
         Holds a Virtual Network lease, marking it as used
     EOT
 
-    command :hold, hold_desc, :vnetid, :ip do
+    command :hold, hold_desc, :vnetid, :ip,
+        :options=>STD_OPTIONS + [OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease on hold") do |vn|
-            vn.hold(args[1])
+            ar = options[:address_range] || -1
+
+            vn.hold(args[1], ar)
         end
     end
 
@@ -137,11 +216,47 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Releases a Virtual Network lease on hold
     EOT
 
-    command :release, release_desc, :vnetid, :ip do
+    command :release, release_desc, :vnetid, :ip,
+        :options=>STD_OPTIONS + [OneVNetHelper::AR] do
         helper.perform_action(args[0],options,"lease released") do |vn|
-            vn.release(args[1])
+            ar  = options[:address_range] || -1
+
+            vn.release(args[1], ar)
         end
     end
+
+    reserve_desc = <<-EOT.unindent
+        Reserve addresses from the Virtual Network. A new virtual network will
+        be created to hold the reservation. Optionally the reservation can be
+        put on an exisiting VNET, as long as it contains a valid reservation
+        from the same VNET
+    EOT
+
+    command :reserve, reserve_desc, :vnetid, [:vnetid, nil],
+        :options=>STD_OPTIONS + [OneVNetHelper::AR, OneVNetHelper::NAME,
+            OneVNetHelper::SIZE, OneVNetHelper::MAC, OneVNetHelper::IP] do
+        helper.perform_action(args[0],options,"reservation made") do |vn|
+            size = options[:size] || -1
+            name = options[:name] || -1
+
+            addr = nil
+            addr = options[:mac] if options[:mac]
+            addr = options[:ip] if options[:ip]
+
+            if size == -1
+                STDERR.puts "Specify a size (-s size) for the reservation"
+                exit -1
+            end
+
+            if name == -1 && args[1].nil?
+                STDERR.puts "Specify a name (-n name) for the reservation"
+                exit -1
+            end
+
+            vn.reserve(name, size, options[:address_range], addr, args[1])
+        end
+    end
+
 
     chgrp_desc = <<-EOT.unindent
         Changes the Virtual Network group
@@ -190,7 +305,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :vnetid,
-            :options=>OpenNebulaHelper::XML do
+            :options=>[OpenNebulaHelper::XML, OneVNetHelper::SHOW_AR] do
         helper.show_resource(args[0],options)
     end
 
@@ -209,6 +324,36 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             end
 
             obj.update(str, options[:append])
+        end
+    end
+
+    update_ar_desc = <<-EOT.unindent
+        Update Address Range variables. SIZE, IP, MAC and TYPE cannot be updated
+    EOT
+
+    command :updatear, update_ar_desc, :vnetid, :ar_id, [:file, nil] do
+        helper.perform_action(args[0],options,"modified") do |obj|
+            rc = obj.info
+
+            if OpenNebula.is_error?(rc)
+                puts rc.message
+                exit -1
+            end
+
+            obj.delete_element("AR_POOL/AR[AR_ID!=#{args[1]}]")
+            obj.delete_element("AR_POOL/AR/LEASES")
+            obj.delete_element("AR_POOL/AR/USED_LEASES")
+
+            if obj.template_like_str("AR_POOL").empty?
+                puts "Address Range #{args[1]} does not exit for "<<
+                    "Virtual Network #{args[0]}"
+                exit -1
+            end
+
+            str = OpenNebulaHelper.update_template_helper(false, args[0], obj,
+                args[2], "AR_POOL", false)
+
+            obj.update_ar(str)
         end
     end
 

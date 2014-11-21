@@ -191,7 +191,10 @@ class OneDB
             return 0
 
         rescue Exception => e
+            puts
             puts e.message
+            puts e.backtrace.join("\n")
+            puts
 
             puts
             puts "The database will be restored"
@@ -285,7 +288,10 @@ class OneDB
 
                 return 0
             rescue Exception => e
+                puts
                 puts e.message
+                puts e.backtrace.join("\n")
+                puts
 
                 puts "Error running fsck version #{ret[:version]}"
                 puts "The database will be restored"
@@ -413,7 +419,10 @@ is preserved.
 
                 return 0
             rescue Exception => e
+                puts
                 puts e.message
+                puts e.backtrace.join("\n")
+                puts
 
                 puts "Error running slave import"
                 puts "The databases will be restored"

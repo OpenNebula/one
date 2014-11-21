@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEUSER" "1" "April 2014" "" "oneuser(1) -- manages OpenNebula users"
+.TH "ONEUSER" "1" "October 2014" "" "oneuser(1) -- manages OpenNebula users"
 .
 .SH "NAME"
 \fBoneuser\fR
@@ -24,7 +24,11 @@
  \-a, \-\-append              Append new attributes to the current template
  \-\-x509_proxy              x509 Auth system based on x509 proxy certificates
  \-\-proxy path_to_user_proxy_pem Path to the user proxy certificate
- \-\-time x                  Token duration in seconds, defaults to 3600 (1 h)
+ \-\-time x                  Token duration in seconds, defaults to 36000 (10
+                           h)\. To reset the token set time to 0\.To generate
+                           a non\-expiring token use \-1 (not valid for ssh
+                           and x509 tokens)\.
+ \-\-force                   Force one_auth file rewrite
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
  \-f, \-\-filter x,y,z        Filter data\. An array is specified with
@@ -75,7 +79,31 @@ be unset
 
 .
 .IP "\(bu" 4
-login \fIusername\fR Creates the Login token for authentication Examples: oneuser login my_user \-\-ssh \-\-key /tmp/id_rsa \-\-time 72000 oneuser login my_user \-\-x509 \-\-cert /tmp/my_cert\.pem \-\-key /tmp/my_key\.pk \-\-time 72000 oneuser login my_user \-\-x509_proxy \-\-proxy /tmp/my_cert\.pem \-\-time 72000 valid options: ssh, x509, x509_proxy, key, cert, proxy, time
+login \fIusername\fR Creates the login token for authentication\. The token can be used together with any authentication driver\. The token will be stored in $HOME/\.one/one_auth, and can be used subsequently to authenticate with oned through API, CLI or Sunstone\.
+.
+.IP "" 4
+.
+.nf
+
+Example, request a valid token for a generic driver (e\.g\. core auth, LDAP\.\.\.):
+  oneuser login my_user \-\-time 3600
+
+Example, generate and set a token for SSH based authentication:
+  oneuser login my_user \-\-ssh \-\-key /tmp/id_rsa \-\-time 72000
+
+Example, same using X509 certificates:
+  oneuser login my_user \-\-x509 \-\-cert /tmp/my_cert\.pem
+                        \-\-key /tmp/my_key\.pk \-\-time 72000
+
+Example, now with a X509 proxy certificate
+  oneuser login my_user \-\-x509_proxy \-\-proxy /tmp/my_cert\.pem
+                        \-\-time 72000
+valid options: ssh, x509, x509_proxy, key, cert, proxy, time, force
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 key DEPRECATED, use login to generate auth files\.
@@ -148,7 +176,7 @@ password User password
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.6\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.10\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

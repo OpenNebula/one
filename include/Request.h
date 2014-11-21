@@ -57,6 +57,25 @@ public:
         INTERNAL       = 0x2000,
     };
 
+    /**
+     *  Sets the format string to log xml-rpc method calls. The format string
+     *  interprets the following sequences:
+     *    %i -- request id
+     *    %m -- method name
+     *    %u -- user id
+     *    %U -- user name
+     *    %l -- param list
+     *    %p -- user password
+     *    %g -- group id
+     *    %G -- group name
+     *    %a -- auth token
+     *    %% -- %
+     */
+    static void set_call_log_format(const string& log_format)
+    {
+        format_str = log_format;
+    }
+
 protected:
 
     /* ---------------------------------------------------------------------*/
@@ -73,10 +92,14 @@ protected:
         string uname;             /**< name of the user */
         string gname;             /**< name of the user's group */
 
-        set<int> group_ids;      /**< set of user's group ids */
+        string password;          /**< password of the user */
+
+        set<int> group_ids;       /**< set of user's group ids */
 
         string session;           /**< Session from ONE XML-RPC API */
         int    req_id;            /**< Request ID for log messages */
+
+        int umask;                /**< User umask for new objects */
 
         xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
 
@@ -90,8 +113,12 @@ protected:
             uname = ra.uname;
             gname = ra.gname;
 
+            password = ra.password;
+
             session  = ra.session;
             retval   = ra.retval;
+
+            umask = ra.umask;
         };
 
         RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -99,8 +126,12 @@ protected:
             uid = _uid;
             gid = _gid;
 
+            password = "";
+
             uname = "";
             gname = "";
+
+            umask = 0;
 
             session  = ra.session;
             retval   = ra.retval;
@@ -115,6 +146,10 @@ protected:
     PoolObjectSQL::ObjectType auth_object;/**< Auth object for the request */
     AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
 
+    set<int> hidden_params;
+
+    static string format_str;
+
     /* -------------------- Constructors ---------------------------------- */
 
     Request(const string& mn,
@@ -123,6 +158,8 @@ protected:
     {
         _signature = signature;
         _help      = help;
+
+        hidden_params.clear();
     };
 
     virtual ~Request(){};
@@ -318,34 +355,12 @@ protected:
                   bool                      throw_error);
 
     /**
-     * Logs the method invocation, including the arguments
-     *
-     * @param att the specific request attributes
-     * @param paramList list of XML parameters
-     */
-    virtual void log_method_invoked(
-            const RequestAttributes&    att,
-            const xmlrpc_c::paramList&  paramList);
-
-    /**
      * Logs the method result, including the output data or error message
      *
      * @param att the specific request attributes
      */
     virtual void log_result(
             const RequestAttributes&    att);
-
-    /**
-     * Formats and adds a xmlrpc_c::value input parameter to oss.
-     *
-     * @param v value to format
-     * @param oss stream to write v
-     * @param index parameter index
-     */
-    virtual void log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index);
 
     /**
      * Formats and adds a xmlrpc_c::value to oss.
@@ -358,6 +373,16 @@ protected:
             ostringstream&          oss);
 
 private:
+
+    /**
+     * Logs the method invocation, including the arguments
+     *
+     * @param att the specific request attributes
+     * @param paramList list of XML parameters
+     */
+    void log_method_invoked(
+            const RequestAttributes&    att,
+            const xmlrpc_c::paramList&  paramList);
 
     /* ------------- Functions to manage user and group quotas -------------- */
 

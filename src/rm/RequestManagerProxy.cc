@@ -70,23 +70,7 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
 
 void RequestManagerProxy::hide_argument(int arg)
 {
-    hidden_arg = arg;
+    hidden_params.insert(arg);
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
-void RequestManagerProxy::log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index)
-{
-    if (index == hidden_arg)
-    {
-        oss << ", ****";
-    }
-    else
-    {
-        Request::log_xmlrpc_param(v, oss, index);
-    }
-}

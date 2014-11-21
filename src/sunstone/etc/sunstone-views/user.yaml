@@ -1,4 +1,5 @@
 small_logo: images/opennebula-sunstone-v4.0-small.png
+provision_logo: images/one_small_logo.png
 enabled_tabs:
     dashboard-tab: true
     system-tab: false
@@ -19,6 +20,10 @@ enabled_tabs:
     oneflow-dashboard: true
     oneflow-services: true
     oneflow-templates: true
+    support-tab: false
+    doc-tab: false
+    community-tab: false
+    enterprise-tab: false
 autorefresh: true
 tabs:
     dashboard-tab:
@@ -38,6 +43,7 @@ tabs:
         widgets_one_per_row:
             - vms
         widgets_one_footer:
+            - accounting
     system-tab:
         panel_tabs:
         actions:
@@ -126,7 +132,6 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: true
-            VM.easy_provision: false
             VM.chown: false
             VM.chgrp: false
             VM.chmod: true
@@ -175,7 +180,6 @@ tabs:
         actions:
             Template.refresh: true
             Template.create_dialog: true
-            Template.easy_provision: false
             Template.update_dialog: true
             Template.instantiate_vms: true
             Template.chown: false
@@ -192,6 +196,8 @@ tabs:
             input_output: true
             context: true
             scheduling: false
+            hybrid: true
+            other: true
     images-tab:
         panel_tabs:
             image_info_tab: true
@@ -321,7 +327,8 @@ tabs:
             Datastore.delete: false
     vnets-tab:
         panel_tabs:
-            vnet_info_tab: false
+            vnet_info_tab: true
+            vnet_ar_list_tab: true
             vnet_leases_tab: true
         table_columns:
             - 0         # Checkbox
@@ -329,10 +336,11 @@ tabs:
             - 2         # Owner
             - 3         # Group
             - 4         # Name
-            - 5         # Cluster
-            - 6         # Type
+            - 5         # Reservation
+            - 6         # Cluster
             #- 7         # Bridge
             - 8         # Leases
+            #- 9         # VLAN ID
         actions:
             Network.refresh: true
             Network.create_dialog: false
@@ -340,11 +348,12 @@ tabs:
             Network.chown: false
             Network.chgrp: false
             Network.chmod: true
-            Network.delete: false
-            Network.addleases: false
-            Network.hold_lease: false
-            Network.remove_lease: false
-            Network.release_lease: false
+            Network.delete: true
+            Network.hold_lease: true
+            Network.release_lease: true
+            Network.add_ar: false
+            Network.remove_ar: true
+            Network.update_ar: true
     marketplace-tab:
         panel_tabs:
             marketplace_info_tab: true
@@ -438,3 +447,15 @@ tabs:
             ServiceTemplate.chgrp: false
             ServiceTemplate.chmod: true
             ServiceTemplate.delete: true
+    support-tab:
+        panel_tabs:
+            support_info_tab: true
+        table_columns:
+            #- 0         # Checkbox
+            - 1         # ID
+            - 2         # Subject
+            - 3         # Created at
+            - 4         # Status
+        actions:
+            Support.refresh: true
+            Support.create_dialog: true

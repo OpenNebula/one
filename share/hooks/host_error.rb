@@ -16,16 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-####################################################
+##############################################################################
 # Script to implement host failure tolerance
 #   It can be set to
-#           -r recreate VMs running in the host
+#           -m migrate VMs to another host. Only for images in shared storage
+#           -r recreate VMs running in the host. State will be lost.
 #           -d delete VMs running in the host
 #   Additional flags
 #           -f force resubmission of suspended VMs
 #           -p <n> avoid resubmission if host comes
 #                  back after n monitoring cycles
-####################################################
+##############################################################################
+
+##############################################################################
+# WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+#
+# This script needs to fence the error host to prevent split brain VMs. You
+# may use any fence mechanism and invoke it around L105, using host_name
+#
+# WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
+#############################################################################
 
 ONE_LOCATION=ENV["ONE_LOCATION"]
 
@@ -55,6 +65,7 @@ force  = "n"  # By default, don't recreate/delete suspended VMs
 repeat = nil  # By default, don't wait for monitorization cycles"
 
 opts = GetoptLong.new(
+            ['--migrate',  '-m',GetoptLong::NO_ARGUMENT],
             ['--delete',   '-d',GetoptLong::NO_ARGUMENT],
             ['--recreate', '-r',GetoptLong::NO_ARGUMENT],
             ['--force',    '-f',GetoptLong::NO_ARGUMENT],
@@ -64,6 +75,8 @@ opts = GetoptLong.new(
 begin
     opts.each do |opt, arg|
         case opt
+            when '--migrate'
+                mode="-m"
             when '--delete'
                 mode="-d"
             when '--recreate'
@@ -94,7 +107,7 @@ host_name = host.name
 if repeat
     # Retrieve host monitor interval
     monitor_interval = nil
-    File.read(CONFIG_FILE).each{|line|
+    File.readlines(CONFIG_FILE).each{|line|
          monitor_interval = line.split("=").last.to_i if /MONITORING_INTERVAL/=~line
     }
     # Sleep through the desired number of monitor interval
@@ -124,6 +137,8 @@ if vm_ids_array
             vm.delete(true)
         elsif mode == "-d"
             vm.delete
+        elsif mode == "-m"
+            vm.resched
         end
     end
 end

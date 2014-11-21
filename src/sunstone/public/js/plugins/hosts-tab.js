@@ -20,84 +20,143 @@ var HOST_HISTORY_LENGTH = 40;
 
 var create_host_tmpl =
 '<div class="row">\
-    <div class="large-12 columns">\
-      <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
-    </div>\
+  <div class="large-12 columns">\
+    <h3 id="create_cluster_header" class="subheader">'+tr("Create Host")+'</h3>\
   </div>\
-  <div class="reveal-body">\
+</div>\
+<div class="reveal-body">\
   <form id="create_host_form" action="" class="">\
   <div class="row">\
-      <div class="large-6 columns">\
-          <label for="name">' + tr("Hostname")  + '</label>\
-          <input type="text" name="name" id="name" />\
+    <div class="large-6 columns">\
+        <label for="host_type">' +  tr("Type") + '</label>\
+        <select id="host_type_mad" name="host_type">\
+              <option value="kvm">' + tr("KVM") + '</option>\
+              <option value="xen">' + tr("XEN") + '</option>\
+              <option value="vmware">' + tr("VMware") + '</option>\
+              <option value="vcenter">' + tr("vCenter") + '</option>\
+              <option value="az">' + tr("Microsoft Azure") + '</option>\
+              <option value="ec2">' + tr("Amazon EC2") + '</option>\
+              <option value="sl">' + tr("IBM Softlayer") + '</option>\
+              <option value="dummy">' + tr("Dummy") + '</option>\
+              <option value="custom">' + tr("Custom") + '</option>\
+        </select>\
+    </div>\
+    <div class="large-6 columns" id="cluster_select">\
+      <label for="host_cluster_id">' + tr("Cluster") + '</label>\
+      <div id="host_cluster_id" name="host_cluster_id">\
       </div>\
-      <div class="large-6 columns" id="cluster_select">\
-          <label for="host_cluster_id">' + tr("Cluster") + '</label>\
-          <div id="host_cluster_id" name="host_cluster_id">\
-          </div>\
-      </div>\
+    </div>\
   </div>\
-  <fieldset>\
-    <legend>'+tr("Drivers")+'</legend>\
   <div class="row">\
-      <div class="large-6 columns">\
-    <div class="manager clear row" id="vmm_mads">\
-      <div class="large-12 columns">\
-          <label for="vmm">' +  tr("Virtualization") + '</label>\
-          <select id="vmm_mad" name="vmm">\
-                <option value="kvm">' + tr("KVM") + '</option>\
-                <option value="xen">' + tr("XEN") + '</option>\
-                <option value="vmware">' + tr("VMware") + '</option>\
-                <option value="ec2">' + tr("EC2") + '</option>\
-                <option value="dummy">' + tr("Dummy") + '</option>\
-                <option value="custom">' + tr("Custom") + '</option>\
-          </select>\
-      </div>\
-      <div class="large-12 columns">\
-          <label>' + tr("Custom VMM_MAD") + '</label>\
-          <input type="text" name="custom_vmm_mad" />\
-      </div>\
+    <div class="large-6 columns" id="name_container">\
+      <label for="name">' + tr("Hostname")  + '</label>\
+      <input type="text" name="name" id="name" />\
     </div>\
-    <div class="manager clear row" id="im_mads">\
-      <div class="large-12 columns">\
-          <label for="im">' +  tr("Information") + '</label>\
-          <select id="im_mad" name="im">\
-               <option value="kvm">' + tr("KVM") + '</option>\
-               <option value="xen">' + tr("XEN") + '</option>\
-               <option value="vmware">' + tr("VMware") + '</option>\
-               <option value="ec2">' + tr("EC2") + '</option>\
-               <option value="dummy">' + tr("Dummy") + '</option>\
+    <div class="large-6 columns">\
+      <div class="manager clear row" id="vnm_mads">\
+        <div class="large-12 columns">\
+            <label for="vn">' +  tr("Networking") + '</label>\
+            <select id="vnm_mad" name="vn">\
+               <option value="dummy">' + tr("Default (dummy)") +'</option>\
+               <option value="fw">'+tr("Firewall")+'</option>\
+               <option value="802.1Q">'+tr("802.1Q")+'</option>\
+               <option value="ebtables">'+tr("ebtables")+'</option>\
+               <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
+               <option value="vmware">'+tr("VMware")+'</option>\
                <option value="custom">' + tr("Custom") + '</option>\
-          </select>\
-      </div>\
-      <div class="large-12 columns">\
-          <label>' + tr("Custom IM_MAD") + ':</label>\
-          <input type="text" name="custom_im_mad" />\
-      </div>\
-    </div>\
-      </div>\
-      <div class="large-6 columns">\
-    <div class="manager clear row" id="vnm_mads">\
-      <div class="large-12 columns">\
-          <label for="vn">' +  tr("Networking") + '</label>\
-          <select id="vnm_mad" name="vn">\
-             <option value="dummy">' + tr("Default (dummy)") +'</option>\
-             <option value="fw">'+tr("Firewall")+'</option>\
-             <option value="802.1Q">'+tr("802.1Q")+'</option>\
-             <option value="ebtables">'+tr("ebtables")+'</option>\
-             <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
-             <option value="vmware">'+tr("VMware")+'</option>\
-             <option value="custom">' + tr("Custom") + '</option>\
-           </select>\
-      </div>\
-      <div class="large-12 columns">\
-          <label>' + tr("Custom VNM_MAD") + '</label>\
-          <input type="text" name="custom_vnm_mad" />\
+             </select>\
+        </div>\
+        <div class="large-12 columns">\
+            <label>' + tr("Custom VNM_MAD") + '</label>\
+            <input type="text" name="custom_vnm_mad" />\
+        </div>\
       </div>\
     </div>\
+  </div>\
+  <div class="drivers">\
+    <fieldset>\
+      <legend>'+tr("Drivers")+'</legend>\
+      <div class="row">\
+        <div class="large-6 columns">\
+          <div class="manager clear row" id="vmm_mads">\
+            <div class="large-12 columns">\
+                <label for="vmm">' +  tr("Virtualization") + '</label>\
+                <select id="vmm_mad" name="vmm">\
+                      <option value="kvm">' + tr("KVM") + '</option>\
+                      <option value="xen">' + tr("XEN") + '</option>\
+                      <option value="vmware">' + tr("VMware") + '</option>\
+                      <option value="vcenter">' + tr("vCenter") + '</option>\
+                      <option value="az">' + tr("Microsoft Azure") + '</option>\
+                      <option value="ec2">' + tr("Amazon EC2") + '</option>\
+                      <option value="sl">' + tr("IBM Softlayer") + '</option>\
+                      <option value="dummy">' + tr("Dummy") + '</option>\
+                      <option value="custom">' + tr("Custom") + '</option>\
+                </select>\
+            </div>\
+            <div class="large-12 columns">\
+                <label>' + tr("Custom VMM_MAD") + '</label>\
+                <input type="text" name="custom_vmm_mad" />\
+            </div>\
+          </div>\
+        </div>\
+        <div class="large-6 columns">\
+          <div class="manager clear row" id="im_mads">\
+            <div class="large-12 columns">\
+                <label for="im">' +  tr("Information") + '</label>\
+                <select id="im_mad" name="im">\
+                     <option value="kvm">' + tr("KVM") + '</option>\
+                     <option value="xen">' + tr("XEN") + '</option>\
+                     <option value="vmware">' + tr("VMware") + '</option>\
+                     <option value="vcenter">' + tr("vCenter") + '</option>\
+                      <option value="az">' + tr("Microsoft Azure") + '</option>\
+                      <option value="ec2">' + tr("Amazon EC2") + '</option>\
+                      <option value="sl">' + tr("IBM Softlayer") + '</option>\
+                     <option value="dummy">' + tr("Dummy") + '</option>\
+                     <option value="custom">' + tr("Custom") + '</option>\
+                </select>\
+            </div>\
+            <div class="large-12 columns">\
+                <label>' + tr("Custom IM_MAD") + ':</label>\
+                <input type="text" name="custom_im_mad" />\
+            </div>\
+          </div>\
+        </div>\
       </div>\
-    </div>\
-  </fieldset>\
+    </fieldset>\
+  </div>\
+  <div class="row vcenter_credentials hidden">\
+    <fieldset>\
+      <legend>'+tr("vCenter")+'</legend>\
+      <div class="row">\
+        <div class="large-6 columns">\
+          <label for="vcenter_user">' + tr("User")  + '</label>\
+          <input type="text" name="vcenter_user" id="vcenter_user" />\
+        </div>\
+        <div class="large-6 columns">\
+          <label for="vcenter_host">' + tr("Hostname")  + '</label>\
+          <input type="text" name="vcenter_host" id="vcenter_host" />\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-6 columns">\
+          <label for="vcenter_password">' + tr("Password")  + '</label>\
+          <input type="password" name="vcenter_password" id="vcenter_password" />\
+        </div>\
+        <div class="large-6 columns">\
+          <br>\
+          <a class="button radius small right" id="get_vcenter_clusters">'+tr("Get vCenter Clusters")+'</a>\
+        </div>\
+      </div>\
+      <div class="vcenter_clusters">\
+      </div>\
+      <div class="row import_vcenter_clusters_div hidden">\
+        <div class="large-12 columns">\
+          <br>\
+          <a class="button radius small right success" id="import_vcenter_clusters">'+tr("Import vCenter Clusters and Templates")+'</a>\
+        </div>\
+      </div>\
+    </fieldset>\
+  </div>\
   <br>\
   <div class="form_buttons row">\
       <button id="wizard_host_reset_button" class="button secondary radius" type="reset" value="reset">' + tr("Reset") + '</button>\
@@ -109,6 +168,10 @@ var create_host_tmpl =
 
 var dataTable_hosts;
 var $create_host_dialog;
+var on_hosts = 0;
+var off_hosts = 0;
+var error_hosts = 0;
+
 
 //Setup actions
 var host_actions = {
@@ -118,12 +181,12 @@ var host_actions = {
         call : OpenNebula.Host.create,
         callback : function(request, response) {
             // Reset the create wizard
-            $create_host_dialog.foundation('reveal', 'close');
-            $create_host_dialog.empty();
-            setupCreateHostDialog();
-
             addHostElement(request, response);
             notifyCustom(tr("Host created"), " ID: " + response.HOST.ID, false);
+
+            if (request.request.data[0].host.vm_mad != "vcenter") {
+              $create_host_dialog.foundation('reveal', 'close');
+            }
         },
         error : onError
     },
@@ -147,6 +210,7 @@ var host_actions = {
             updateHostElement(request, response);
             if (Sunstone.rightInfoVisible($("#hosts-tab"))) {
                 updateHostInfo(request, response);
+                $(".right-info-tabs > dd.active > a", "#hosts-tab").trigger("click");
             }
         },
         error: onError
@@ -240,19 +304,45 @@ var host_actions = {
             var host = params.data.id;
 
             if (cluster == -1){
-                //get cluster name
-                var current_cluster = getValue(host,1,3,dataTable_hosts);
-                //get cluster id
-                current_cluster = getValue(current_cluster,
-                                           2,1,dataTable_clusters);
-                if (!current_cluster) return;
-                Sunstone.runAction("Cluster.delhost",current_cluster,host)
+                OpenNebula.Host.show({
+                    data : {
+                        id: host
+                    },
+                    success: function (request, host_info){
+                        var current_cluster = host_info.HOST.CLUSTER_ID;
+
+                        if(current_cluster != -1){
+                            OpenNebula.Cluster.delhost({
+                                data: {
+                                    id: current_cluster,
+                                    extra_param: host
+                                },
+                                success: function(){
+                                    OpenNebula.Helper.clear_cache("HOST");
+                                    Sunstone.runAction('Host.show',host);
+                                },
+                                error: onError
+                            });
+                        } else {
+                            OpenNebula.Helper.clear_cache("HOST");
+                            Sunstone.runAction('Host.show',host);
+                        }
+                    },
+                    error: onError
+                });
+            } else {
+                OpenNebula.Cluster.addhost({
+                    data: {
+                        id: cluster,
+                        extra_param: host
+                    },
+                    success: function(){
+                        OpenNebula.Helper.clear_cache("HOST");
+                        Sunstone.runAction('Host.show',host);
+                    },
+                    error: onError
+                });
             }
-            else
-                Sunstone.runAction("Cluster.addhost",cluster,host);
-        },
-        callback: function(request) {
-            Sunstone.runAction('Host.show',request.request.data[0]);
         },
         elements: hostElements
     },
@@ -378,32 +468,39 @@ function hostElements(){
     return getSelectedNodes(dataTable_hosts);
 }
 
-function generateCPUProgressBar(host) {
-    var max_cpu = parseInt(host.HOST_SHARE.MAX_CPU);
+function generateCPUProgressBar(host, host_share_flag) {
+    var host_share = host_share_flag ? host : host.HOST_SHARE;
+    var max_cpu = parseInt(host_share.MAX_CPU);
 
     var info_str;
 
-    var allocated_cpu = parseInt(host.HOST_SHARE.CPU_USAGE);
+    var pb_allocated_cpu
+    if (host_share.CPU_USAGE) {
+      var allocated_cpu = parseInt(host_share.CPU_USAGE);
 
-    if (max_cpu > 0) {
-        var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
-        info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
-    } else {
-        info_str = "";
+      if (max_cpu > 0) {
+          var ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
+          info_str = allocated_cpu + ' / ' + max_cpu + ' (' + ratio_allocated_cpu + '%)';
+      } else {
+          info_str = "";
+      }
+
+      pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
     }
 
-    var pb_allocated_cpu = quotaBarHtml(allocated_cpu, max_cpu, info_str);
+    var pb_real_cpu
+    if (host_share.USED_CPU) {
+      var real_cpu = parseInt(host_share.USED_CPU);
 
-    var real_cpu = parseInt(host.HOST_SHARE.USED_CPU);
+      if (max_cpu > 0) {
+          var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
+          info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
+      } else {
+          info_str = "";
+      }
 
-    if (max_cpu > 0) {
-        var ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
-        info_str = real_cpu + ' / ' + max_cpu + ' (' + ratio_real_cpu + '%)';
-    } else {
-        info_str = "";
+      pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
     }
-
-    var pb_real_cpu = quotaBarHtml(real_cpu, max_cpu, info_str);
 
     return {
       real: pb_real_cpu,
@@ -411,31 +508,38 @@ function generateCPUProgressBar(host) {
     }
 }
 
-function generateMEMProgressBar(host){
+function generateMEMProgressBar(host, host_share_flag) {
+    var host_share = host_share_flag ? host : host.HOST_SHARE;
     // Generate MEM progress bars
-    var max_mem = parseInt(host.HOST_SHARE.MAX_MEM);
+    var max_mem = parseInt(host_share.MAX_MEM);
 
-    var allocated_mem = parseInt(host.HOST_SHARE.MEM_USAGE);
+    var pb_allocated_mem;
+    if (host_share.MEM_USAGE) {
+      var allocated_mem = parseInt(host_share.MEM_USAGE);
 
-    if (max_mem > 0) {
-        var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
-        info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
-    } else {
-        info_str = humanize_size(allocated_mem) + ' / -';
+      if (max_mem > 0) {
+          var ratio_allocated_mem = Math.round((allocated_mem / max_mem) * 100);
+          info_str = humanize_size(allocated_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_allocated_mem + '%)';
+      } else {
+          info_str = humanize_size(allocated_mem) + ' / -';
+      }
+
+      pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
     }
 
-    var pb_allocated_mem = quotaBarHtml(allocated_mem, max_mem, info_str);
+    var pb_real_mem;
+    if (host_share.USED_MEM) {
+      var real_mem = parseInt(host_share.USED_MEM);
 
-    var real_mem = parseInt(host.HOST_SHARE.USED_MEM);
+      if (max_mem > 0) {
+          var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+          info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
+      } else {
+          info_str = humanize_size(real_mem) + ' / -';
+      }
 
-    if (max_mem > 0) {
-        var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
-        info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem) + ' (' + ratio_real_mem + '%)';
-    } else {
-        info_str = humanize_size(real_mem) + ' / -';
+      pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
     }
-
-    var pb_real_mem = quotaBarHtml(real_mem, max_mem, info_str);
 
     return {
       real: pb_real_mem,
@@ -541,7 +645,7 @@ function updateHostsView (request,host_list){
         ratio_allocated_cpu = Math.round((allocated_cpu / max_cpu) * 100);
         info_str = allocated_cpu + ' / ' + max_cpu ;
     } else {
-        info_str = "";
+        info_str = "- / -";
     }
 
     //$("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
@@ -559,7 +663,7 @@ function updateHostsView (request,host_list){
         ratio_real_cpu = Math.round((real_cpu / max_cpu) * 100);
         info_str = real_cpu + ' / ' + max_cpu;
     } else {
-        info_str = "";
+        info_str = "- / -";
     }
 
     //$("#dash_host_real_cpu").html(usageBarHtml(real_cpu, max_cpu, info_str, true));
@@ -590,8 +694,9 @@ function updateHostsView (request,host_list){
       {"percentage": ratio_allocated_mem, "str": info_str })
     );
 
+    var ratio_real_mem = 0;
     if (max_mem > 0) {
-        var ratio_real_mem = Math.round((real_mem / max_mem) * 100);
+        ratio_real_mem = Math.round((real_mem / max_mem) * 100);
         info_str = humanize_size(real_mem) + ' / ' + humanize_size(max_mem);
     } else {
         info_str = humanize_size(real_mem) + ' / -';
@@ -653,8 +758,27 @@ function insert_datastores_capacity_table(host_share) {
 function updateHostInfo(request,host){
     var host_info = host.HOST;
 
+    $(".resource-info-header", $("#hosts-tab")).html(host_info.NAME);
+
     var cpu_bars = generateCPUProgressBar(host_info);
     var mem_bars = generateMEMProgressBar(host_info);
+
+    // Get rid of the unwanted (for show) HOST keys
+    var stripped_host_template = {};
+    var unshown_values         = {};
+
+    if (host_info.TEMPLATE.HYPERVISOR && host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+    {
+      stripped_host_template = host_info.TEMPLATE;
+    }
+    else
+    {
+      for (key in host_info.TEMPLATE)
+          if(!key.match(/HOST/))
+              stripped_host_template[key]=host_info.TEMPLATE[key];
+          else
+              unshown_values[key]=host_info.TEMPLATE[key];
+    }
 
     //Information tab
     var info_tab = {
@@ -732,10 +856,11 @@ function updateHostInfo(request,host){
         </div>\
         <div class="row">\
           <div class="large-9 columns">'
-          + insert_extended_template_table(host_info.TEMPLATE,
+          + insert_extended_template_table(stripped_host_template,
                                            "Host",
                                            host_info.ID,
-                                           "Attributes") +
+                                           "Attributes",
+                                           unshown_values) +
           '</div>\
         </div>\
       </div>'
@@ -805,12 +930,69 @@ function updateHostInfo(request,host){
           </div>'
     }
 
+    var esx_info_tab = {
+        title: tr("ESX"),
+        icon: "fa-hdd-o",
+        content : '<div id="datatable_host_esx_info_div" class="row">\
+          <div class="large-12 columns">\
+            <table id="datatable_host_esx" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("Hostname") + '</th>\
+                  <th>' + tr("Status") + '</th>\
+                  <th>' + tr("Real CPU") + '</th>\
+                  <th>' + tr("Real Memory") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbody_host_esx">\
+              </tbody>\
+            </table>\
+          </div>\
+          </div>'
+    }
+
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
 
+    if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+      Sunstone.updateInfoPanelTab("host_info_panel","host_esx_tab",esx_info_tab);
+    }
+
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
+
+    if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+      var dataTable_esx_hosts = $("#datatable_host_esx",main_tabs_context).dataTable({
+            "bSortClasses" : false,
+            "bDeferRender": true
+      });
+
+      var host_list_array = [];
+
+      if (host_info.TEMPLATE.HOST) {
+        if (!(host_info.TEMPLATE.HOST instanceof Array)) {
+          host_info.TEMPLATE.HOST = [host_info.TEMPLATE.HOST];
+        }
+
+        if (host_info.TEMPLATE.HOST instanceof Array) {
+          $.each(host_info.TEMPLATE.HOST, function(){
+            var cpu_bars = generateCPUProgressBar(this, true);
+            var mem_bars = generateMEMProgressBar(this, true);
+
+            host_list_array.push([
+                this.HOSTNAME,
+                this.STATE,
+                cpu_bars.real,
+                mem_bars.real
+            ]);
+          });
+        }
+
+        dataTable_esx_hosts.fnAddData(host_list_array);
+        delete host_info.TEMPLATE.HOST;
+      }
+    }
 
     var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
         "bSortClasses" : false,
@@ -861,8 +1043,10 @@ function updateHostInfo(request,host){
 
     //pop up panel while we retrieve the graphs
 
-    Sunstone.runAction("Host.monitor",host_info.ID,
-        {monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"});
+    $("[href='#host_monitoring_tab']").on("click", function(){
+      Sunstone.runAction("Host.monitor",host_info.ID,
+          {monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"});
+    });
 }
 
 //Prepares the host creation dialog
@@ -876,6 +1060,289 @@ function setupCreateHostDialog(){
 
     $create_host_dialog.addClass("reveal-modal medium").attr("data-reveal", "");
     $create_host_dialog.foundation()
+
+    $("#wizard_host_reset_button", $create_host_dialog).on("click", function(){
+      $('#create_host_dialog').html("");
+      setupCreateHostDialog();
+      popUpCreateHostDialog();
+    })
+
+    $(".drivers", $create_host_dialog).hide();
+
+    $("#host_type_mad", $create_host_dialog).on("change", function(){
+      $("#vmm_mad", $create_host_dialog).val(this.value).change();
+      $("#im_mad", $create_host_dialog).val(this.value).change();
+
+      if (this.value == "custom") {
+        $(".vcenter_credentials", $create_host_dialog).hide();
+        $("#vnm_mads", $create_host_dialog).show();
+        $("#name_container", $create_host_dialog).show();
+        $("#create_host_submit", $create_host_dialog).show();
+        $(".drivers", $create_host_dialog).show();
+      } else if (this.value == "vcenter") {
+        $("#vnm_mads", $create_host_dialog).hide();
+        $("#name_container", $create_host_dialog).hide();
+        $(".vcenter_credentials", $create_host_dialog).show();
+        $("#create_host_submit", $create_host_dialog).hide();
+        $(".drivers", $create_host_dialog).hide();
+      } else {
+        $(".vcenter_credentials", $create_host_dialog).hide();
+        $("#vnm_mads", $create_host_dialog).show();
+        $("#name_container", $create_host_dialog).show();
+        $("#create_host_submit", $create_host_dialog).show();
+        $(".drivers", $create_host_dialog).hide();
+      }
+    })
+
+    $("#get_vcenter_clusters", $create_host_dialog).on("click", function(){
+      // TODO notify if credentials empty
+      $(".vcenter_clusters", $create_host_dialog).html(
+        '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+        '</span>')
+
+      $.ajax({
+          url: '/vcenter',
+          type: "GET",
+          data: {timeout: false},
+          dataType: "json",
+          headers: {
+            "X_VCENTER_USER": $("#vcenter_user", $create_host_dialog).val(),
+            "X_VCENTER_PASSWORD": $("#vcenter_password", $create_host_dialog).val(),
+            "X_VCENTER_HOST": $("#vcenter_host", $create_host_dialog).val()
+          },
+          success: function(response){
+              $("#vcenter_user", $create_host_dialog).attr("disabled", "disabled")
+              $("#vcenter_password", $create_host_dialog).attr("disabled", "disabled")
+              $("#vcenter_host", $create_host_dialog).attr("disabled", "disabled")
+              $("#get_vcenter_clusters", $create_host_dialog).hide();
+              $(".import_vcenter_clusters_div", $create_host_dialog).show();
+
+              var vcenter_container = $(".vcenter_clusters", $create_host_dialog);
+              vcenter_container.html("");
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<p style="color: #999">' + tr("Please select the vCenter Clusters to be imported to OpenNebula. Each vCenter Cluster will be included as a new OpenNebula Host") + '</p>' +
+                  '</div>' +
+                '</div>').appendTo(vcenter_container)
+
+              $.each(response, function(datacenter_name, clusters){
+                $('<div class="row">' +
+                    '<div class="large-12 columns">' +
+                      '<h5>' +
+                        datacenter_name + ' ' + tr("Clusters") +
+                      '</h5>' +
+                    '</div>' +
+                  '</div>').appendTo(vcenter_container)
+
+                if (clusters.length == 0) {
+                    $('<div class="row">' +
+                        '<div class="large-12 columns">' +
+                          '<label>' +
+                            tr("No clusters found in this DataCenter") +
+                          '</label>' +
+                        '</div>' +
+                      '</div>').appendTo(vcenter_container)
+                } else {
+                  $.each(clusters, function(id, cluster_name){
+                    var row = $('<div class="vcenter_cluster">' +
+                        '<div class="row">' +
+                          '<div class="large-10 columns">' +
+                            '<label>' +
+                              '<input type="checkbox" class="cluster_name"/> ' +
+                              cluster_name +
+                            '</label>' +
+                            '<div class="large-12 columns vcenter_host_response">'+
+                            '</div>'+
+                          '</div>' +
+                          '<div class="large-2 columns vcenter_host_result">'+
+                          '</div>'+
+                        '</div>'+
+                        '<div class="vcenter_templates">'+
+                        '</div>'+
+                      '</div>').appendTo(vcenter_container)
+
+                    $(".cluster_name", row).data("cluster_name", cluster_name)
+                    $(".cluster_name", row).data("datacenter_name", datacenter_name)
+                    $(".cluster_name", row).on("change", function(){
+                      var templates_container = $(".vcenter_templates", $(this).closest(".vcenter_cluster"));
+                      if ($(this).is(":checked")) {
+                        var path = '/vcenter/' + $(this).data("datacenter_name") + '/cluster/' + $(this).data("cluster_name");
+                        templates_container.html(generateAdvancedSection({
+                          html_id: path,
+                          title: tr("Templates"),
+                          content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                          '</span>'
+                        }))
+
+                        $('a', templates_container).trigger("click")
+
+                        $.ajax({
+                            url: path,
+                            type: "GET",
+                            data: {timeout: false},
+                            dataType: "json",
+                            headers: {
+                              "X_VCENTER_USER": $("#vcenter_user", $create_host_dialog).val(),
+                              "X_VCENTER_PASSWORD": $("#vcenter_password", $create_host_dialog).val(),
+                              "X_VCENTER_HOST": $("#vcenter_host", $create_host_dialog).val()
+                            },
+                            success: function(response){
+                              $(".content", templates_container).html("");
+
+                              $.each(response, function(id, template){
+                                var trow = $('<div class="vcenter_template">' +
+                                    '<div class="row">' +
+                                      '<div class="large-10 columns">' +
+                                        '<label>' +
+                                          '<input type="checkbox" class="template_name" checked/> ' +
+                                          template.name + '&emsp;<span style="color: #999">' + template.uuid + '</span>' +
+                                        '</label>' +
+                                        '<div class="large-12 columns vcenter_template_response">'+
+                                        '</div>'+
+                                      '</div>' +
+                                      '<div class="large-2 columns vcenter_template_result">'+
+                                      '</div>'+
+                                    '</div>'+
+                                    '<div class="vcenter_templates">'+
+                                    '</div>'+
+                                  '</div>').appendTo($(".content", templates_container))
+
+                                $(".template_name", trow).data("template_name", template.name)
+                                $(".template_name", trow).data("one_template", template.one)
+                              });
+                            },
+                            error: function(response){
+                              templates_container.html("");
+                              onError({}, OpenNebula.Error(response));
+                            }
+                        });
+                      } else {
+                        templates_container.html("");
+                      }
+                    })
+                  });
+                }
+              });
+          },
+          error: function(response){
+            $(".vcenter_clusters", $create_host_dialog).html('')
+            onError({}, OpenNebula.Error(response));
+          }
+      });
+
+      return false;
+    })
+
+
+    $("#import_vcenter_clusters", $create_host_dialog).on("click", function(){
+      $(this).hide();
+
+      var cluster_id = $('#host_cluster_id .resource_list_select', $create_host_dialog).val();
+      if (!cluster_id) cluster_id = "-1";
+
+      $.each($(".cluster_name:checked", $create_host_dialog), function(){
+        var cluster_context = $(this).closest(".vcenter_cluster");
+        $(".vcenter_host_result:not(.success)", cluster_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>');
+
+        var host_json = {
+            "host": {
+                "name": $(this).data("cluster_name"),
+                "vm_mad": "vcenter",
+                "vnm_mad": "dummy",
+                "im_mad": "vcenter",
+                "cluster_id": cluster_id
+            }
+        };
+
+        OpenNebula.Host.create({
+            timeout: true,
+            data: host_json,
+            success: function(request, response) {
+              OpenNebula.Helper.clear_cache("HOST");
+
+              $(".vcenter_host_result", cluster_context).addClass("success").html(
+                  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                  '</span>');
+
+              $(".vcenter_host_response", cluster_context).html('<p style="font-size:12px" class="running-color">'+
+                    tr("Host created successfully")+' ID:'+response.HOST.ID+
+                  '</p>');
+
+              var template_raw =
+                "VCENTER_USER=\"" + $("#vcenter_user", $create_host_dialog).val() + "\"\n" +
+                "VCENTER_PASSWORD=\"" + $("#vcenter_password", $create_host_dialog).val() + "\"\n" +
+                "VCENTER_HOST=\"" + $("#vcenter_host", $create_host_dialog).val() + "\"\n";
+
+              Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+              addHostElement(request, response);
+
+              $.each($(".template_name:checked", cluster_context), function(){
+                var template_context = $(this).closest(".vcenter_template");
+
+                $(".vcenter_template_result:not(.success)", template_context).html(
+                    '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                var template_json = {
+                  "vmtemplate": {
+                    "template_raw": $(this).data("one_template")
+                  }
+                };
+
+                OpenNebula.Template.create({
+                    timeout: true,
+                    data: template_json,
+                    success: function(request, response) {
+                      OpenNebula.Helper.clear_cache("VMTEMPLATE");
+                      $(".vcenter_template_result", template_context).addClass("success").html(
+                          '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                            '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                            '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                          '</span>');
+
+                      $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">'+
+                            tr("Template created successfully")+' ID:'+response.VMTEMPLATE.ID+
+                          '</p>');
+                    },
+                    error: function (request, error_json){
+                        $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                              '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                            '</span>');
+
+                        $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                              (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                            '</p>');
+                    }
+                });
+              })
+            },
+            error: function (request, error_json){
+                $(".vcenter_host_result", context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                $(".vcenter_host_response", context).html('<p style="font-size:12px" class="error-color">'+
+                      (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                    '</p>');
+            }
+        });
+      })
+
+      return false
+    });
 
     // Show custom driver input only when custom is selected in selects
     $('input[name="custom_vmm_mad"],'+
@@ -940,13 +1407,17 @@ function setupCreateHostDialog(){
 
 //Open creation dialogs
 function popUpCreateHostDialog(){
+    $create_host_dialog.foundation('reveal', 'close');
+    $create_host_dialog.empty();
+    setupCreateHostDialog();
+
     var cluster_id = $('#host_cluster_id .resource_list_select',$('div#create_host_dialog')).val();
     if (!cluster_id) cluster_id = "-1";
 
     insertSelectOptions('#host_cluster_id',$('div#create_host_dialog'), "Cluster", cluster_id, false);
 
-    $('div#create_host_dialog').foundation('reveal', 'open');
-    $("input#name",$('div#create_host_dialog')).focus();
+    $("#create_host_dialog").foundation('reveal', 'open');
+    $("input#name",$("#create_host_dialog")).focus();
     return false;
 }
 

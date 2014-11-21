@@ -370,7 +370,16 @@ EOT
                     endpoint=options[:endpoint]
                 end
 
-                @@client=OpenNebula::Client.new(secret, endpoint)
+                # This breaks the CLI SSL support for Ruby 1.8.7, but is necessary
+                # in order to do template updates, otherwise you get the broken pipe
+                # error (bug #3341)
+                if RUBY_VERSION < '1.9'
+                    sync = false
+                else
+                    sync = true
+                end
+
+                @@client=OpenNebula::Client.new(secret, endpoint, :sync => sync)
             end
         end
 
@@ -411,8 +420,8 @@ EOT
             def self.get_password
                 print "Password: "
                 system("stty", "-echo")
-                @@password=gets.chop
                 begin
+                    @@password = STDIN.gets.chop
                     return @@password
                 ensure
                     system("stty", "echo")
@@ -821,7 +830,7 @@ EOT
         return update_template_helper(true, id, resource, path, xpath)
     end
 
-    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath)
+    def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath, update=true)
         unless path
             require 'tempfile'
 
@@ -829,11 +838,13 @@ EOT
             path = tmp.path
 
             if !append
-                rc = resource.info
+                if update
+                    rc = resource.info
 
-                if OpenNebula.is_error?(rc)
-                    puts rc.message
-                    exit -1
+                    if OpenNebula.is_error?(rc)
+                        puts rc.message
+                        exit -1
+                    end
                 end
 
                 tmp << resource.template_like_str(xpath)

@@ -2,8 +2,7 @@
 
 require 'pp'
 
-
-DEFAULT=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca}
+DEFAULT_PRE=%w{sunstone quota cloud auth_ldap vmware oneflow ec2_hybrid oca onedb}
 
 if defined?(RUBY_VERSION) && RUBY_VERSION>="1.8.7"
     SQLITE='sqlite3'
@@ -13,25 +12,35 @@ end
 
 if !defined?(RUBY_VERSION) || RUBY_VERSION < '1.9.0'
     $nokogiri='nokogiri --version "< 1.6.0"'
+    LDAP='net-ldap --version "< 0.9"'
+    ZENDESK_API='zendesk_api --version "< 1.5"'
 else
     $nokogiri='nokogiri'
+    DEFAULT = DEFAULT_PRE + %w{hybrid}
+    LDAP='net-ldap'
+    ZENDESK_API='zendesk_api'
 end
 
+DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
+
 GROUPS={
-    :quota => [SQLITE, 'sequel'],
-    :sunstone => ['json', 'rack', 'sinatra', 'thin', SQLITE],
-    :cloud => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
-    :auth_ldap => 'net-ldap',
-    :vmware => %w{builder trollop},
-    :oneflow => %w{sinatra json treetop parse-cron},
-    :ec2_hybrid => 'aws-sdk',
-    :oca => 'ox'
+    :quota      => [SQLITE, 'sequel'],
+    :sunstone   => ['json', 'rack', 'sinatra', 'thin', ZENDESK_API, SQLITE],
+    :cloud      => %w{amazon-ec2 rack sinatra thin uuidtools curb json},
+    :hybrid     => %w{softlayer_api configparser azure},
+    :auth_ldap  => LDAP,
+    :vmware     => %w{builder trollop},
+    :oneflow    => %w{sinatra json treetop parse-cron},
+    :ec2_hybrid => 'aws-sdk --version "= 1.33"',
+    :oca        => 'ox',
+    :onedb      => "mysql"
 }
 
 PACKAGES=GROUPS.keys
 
 GEM_TEST={
-    'net-ldap' => 'net/ldap'
+    LDAP => 'net/ldap',
+    ZENDESK_API => 'zendesk_api'
 }
 
 DISTRIBUTIONS={
@@ -65,20 +74,6 @@ DISTRIBUTIONS={
             'json'      => ['gcc']
         },
         :install_command => 'yum install'
-    },
-    :suse => {
-        :id => [/SUSE/],
-        :dependencies_common => ['ruby-devel', 'make'],
-        :dependencies => {
-            SQLITE      => ['gcc', 'sqlite3-devel'],
-            'mysql'     => ['gcc', 'libmysqlclient-devel'],
-            'curb'      => ['gcc', 'libcurl-devel'],
-            $nokogiri   => %w{rubygem-rake gcc rubygem-rake libxml2-devel libxslt-devel},
-            'xmlparser' => ['gcc', 'libexpat-devel'],
-            'thin'      => ['rubygem-rake', 'gcc-c++'],
-            'json'      => ['gcc']
-        },
-        :install_command => 'zypper install'
     }
 }
 
@@ -231,9 +226,9 @@ def help
 end
 
 def get_gems(packages)
-    (packages.map do |package|
+    ([$nokogiri]+packages.map do |package|
         GROUPS[package.to_sym]
-    end+[$nokogiri]).flatten.uniq-installed_gems
+    end).flatten.uniq-installed_gems
 end
 
 def detect_distro
@@ -408,9 +403,6 @@ try_library :rubygems, <<-EOT.unindent
 
         * RHEL/CENTOS
             yum install rubygems
-
-        * SUSE
-            zypper install rubygems
 
         * Specific rubygems package for your distro
 

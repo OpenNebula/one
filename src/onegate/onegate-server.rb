@@ -42,11 +42,16 @@ $: << RUBY_LIB_LOCATION+'/cloud'
 require 'rubygems'
 require 'sinatra'
 require 'yaml'
+require 'json'
 
 require 'CloudAuth'
 require 'CloudServer'
 
 require 'opennebula'
+require 'opennebula/oneflow_client'
+
+USER_AGENT = 'GATE'
+
 include OpenNebula
 
 begin
@@ -76,6 +81,8 @@ end
 
 set :cloud_auth, $cloud_auth
 
+$flow_client = Service::Client.new(:user_agent => USER_AGENT)
+
 helpers do
     def authenticate(env, params)
         begin
@@ -92,7 +99,206 @@ helpers do
             return $cloud_auth.client(result)
         end
     end
+
+    def flow_client(client)
+        split_array = client.one_auth.split(':')
+
+        Service::Client.new(
+                :url        => settings.config[:oneflow_server],
+                :user_agent => USER_AGENT,
+                :username   => split_array.shift,
+                :password   => split_array.join(':'))
+    end
+
+    def get_vm(vm_id, client)
+        vm = VirtualMachine.new_with_id(vm_id, client)
+        rc = vm.info
+
+        if OpenNebula.is_error?(rc)
+            logger.error {"VMID:#{vm_id} vm.info error: #{rc.message}"}
+            halt 404, rc.message
+        end
+
+        vm
+    end
+
+    def get_service(service_id, client)
+        if service_id.nil? || !service_id.match(/^\d+$/)
+            error_msg = "Empty or invalid SERVICE_ID"
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        service = flow_client(client).get("/service/#{service_id}")
+
+        if CloudClient::is_error?(service)
+            error_msg = "Service #{service_id} not found"
+            logger.error {error_msg}
+            halt 404, error_msg
+        end
+
+        service.body
+    end
 end
+
+NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC)
+USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE)
+
+def build_vm_hash(vm_hash)
+    nics = []
+
+    if vm_hash["TEMPLATE"]["NIC"]
+        [vm_hash["TEMPLATE"]["NIC"]].flatten.each do |nic|
+            nics << nic.select{|k,v| NIC_VALID_KEYS.include?(k)}
+        end
+    end
+
+    {
+        "VM" => {
+            "NAME"          => vm_hash["NAME"],
+            "ID"            => vm_hash["ID"],
+            "USER_TEMPLATE" => vm_hash["USER_TEMPLATE"].select {|k,v|
+                                    !USER_TEMPLATE_INVALID_KEYS.include?(k)
+                                },
+            "TEMPLATE"  => {
+                "NIC" => nics
+            }
+        }
+    }
+end
+
+def build_service_hash(service_hash)
+    roles = service_hash["DOCUMENT"]["TEMPLATE"]["BODY"]["roles"]
+
+    if roles.nil?
+        return nil
+    end
+
+    service_info = {
+        "name"  => service_hash["DOCUMENT"]["NAME"],
+        "id"    => service_hash["DOCUMENT"]["ID"],
+        "roles" => []
+    }
+
+    roles.each do |role|
+        role_info = {
+            "name"        => role["name"],
+            "cardinality" => role["cardinality"],
+            "state"       => role["state"],
+            "nodes"       => []
+        }
+
+        if (nodes = role["nodes"])
+            nodes.each do |vm|
+                vm_deploy_id = vm["deploy_id"].to_i
+                vm_info      = vm["vm_info"]["VM"]
+                vm_running   = vm["running"]
+
+                role_info["nodes"] << {
+                    "deploy_id" => vm_deploy_id,
+                    "running"   => vm["running"],
+                    "vm_info"   => build_vm_hash(vm_info)
+                }
+            end
+        end
+
+        service_info["roles"] << role_info
+    end
+
+    {
+        "SERVICE" => service_info
+    }
+end
+
+get '/' do
+    client = authenticate(request.env, params)
+    halt 401, "Not authorized" if client.nil?
+
+    protocol = request.env["rack.url_scheme"]
+    host     = request.env["HTTP_HOST"]
+
+    base_uri = "#{protocol}://#{host}"
+
+    response = {
+        "vm_info"      => "#{base_uri}/vm",
+        "service_info" => "#{base_uri}/service"
+    }
+
+    [200, response.to_json]
+end
+
+put '/vm' do
+    client = authenticate(request.env, params)
+
+    halt 401, "Not authorized" if client.nil?
+
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
+
+    vm = get_vm(vm_id, client)
+
+    rc = vm.update(request.body.read, true)
+
+    if OpenNebula.is_error?(rc)
+        logger.error {"VMID:#{vm_id} vm.update error: #{rc.message}"}
+        halt 500, rc.message
+    end
+
+    [200, ""]
+end
+
+get '/vm' do
+    client = authenticate(request.env, params)
+
+    halt 401, "Not authorized" if client.nil?
+
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
+
+    vm = get_vm(vm_id, client)
+
+    response = build_vm_hash(vm.to_hash["VM"])
+
+    [200, response.to_json]
+end
+
+get '/service' do
+    client = authenticate(request.env, params)
+
+    halt 401, "Not authorized" if client.nil?
+
+    vm_id = request.env['HTTP_X_ONEGATE_VMID'].to_i
+
+    vm = get_vm(vm_id, client)
+
+    service_id = vm['USER_TEMPLATE/SERVICE_ID']
+    service = get_service(service_id, client)
+
+    service_hash = JSON.parse(service)
+
+    response = build_service_hash(service_hash) rescue nil
+
+    if response.nil?
+        error_msg = "VMID:#{vm_id} Service #{service_id} is empty."
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
+    # Check that the user has not spoofed the Service_ID
+    service_vm_ids = response["SERVICE"]["roles"].collect do |r|
+                        r["nodes"].collect{|n| n["deploy_id"]}
+                     end.flatten rescue []
+
+    if service_vm_ids.empty? || !service_vm_ids.include?(vm_id)
+        error_msg = "VMID:#{vm_id} Service #{service_id} does not contain VM."
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
+    [200, response.to_json]
+end
+
+#############
+# DEPRECATED
+#############
 
 put '/vm/:id' do
     client = authenticate(request.env, params)

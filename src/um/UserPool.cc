@@ -415,17 +415,18 @@ int UserPool::update_quotas(User * user)
 
 bool UserPool::authenticate_internal(User *        user,
                                      const string& token,
+                                     string&       password,
                                      int&          user_id,
                                      int&          group_id,
                                      string&       uname,
                                      string&       gname,
-                                     set<int>&     group_ids)
+                                     set<int>&     group_ids,
+                                     int&          umask)
 {
     bool result = false;
 
     ostringstream oss;
 
-    string password;
     string auth_driver;
     string username;
 
@@ -440,16 +441,24 @@ bool UserPool::authenticate_internal(User *        user,
 
     group_ids = user->get_groups();
 
-    uname  = user->name;
-    gname  = user->gname;
+    uname = user->name;
+    gname = user->gname;
 
     auth_driver = user->auth_driver;
 
-    result = user->valid_session(token);
+    //Check if token is a login token
+    result = user->login_token.is_valid(token);
+
+    if (!result) //Not a login token check if the token is a session token
+    {
+        result = user->session.is_valid(token);
+    }
+
+    umask = user->get_umask();
 
     user->unlock();
 
-    if (result)
+    if (result) //Good either a valid session or login_token
     {
         return true;
     }
@@ -491,7 +500,7 @@ bool UserPool::authenticate_internal(User *        user,
 
     if (user != 0)
     {
-        user->set_session(token, _session_expiration_time);
+        user->session.set(token, _session_expiration_time);
         user->unlock();
     }
 
@@ -518,10 +527,14 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    password = "";
+
     group_ids.clear();
 
     uname = "";
     gname = "";
+
+    umask = 0;
 
     return false;
 }
@@ -531,11 +544,13 @@ auth_failure:
 
 bool UserPool::authenticate_server(User *        user,
                                    const string& token,
+                                   string&       password,
                                    int&          user_id,
                                    int&          group_id,
                                    string&       uname,
                                    string&       gname,
-                                   set<int>&     group_ids)
+                                   set<int>&     group_ids,
+                                   int&          umask)
 {
     bool result = false;
 
@@ -575,6 +590,8 @@ bool UserPool::authenticate_server(User *        user,
         goto auth_failure_user;
     }
 
+    password = user->get_password();
+
     user_id  = user->oid;
     group_id = user->gid;
 
@@ -583,7 +600,9 @@ bool UserPool::authenticate_server(User *        user,
     uname  = user->name;
     gname  = user->gname;
 
-    result = user->valid_session(second_token);
+    result = user->session.is_valid(second_token);
+
+    umask = user->get_umask();
 
     user->unlock();
 
@@ -615,7 +634,7 @@ bool UserPool::authenticate_server(User *        user,
 
     if (user != 0)
     {
-        user->set_session(second_token, _session_expiration_time);
+        user->session.set(second_token, _session_expiration_time);
         user->unlock();
     }
 
@@ -649,10 +668,14 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    password = "";
+
     group_ids.clear();
 
     uname = "";
     gname = "";
+
+    umask = 0;
 
     return false;
 }
@@ -662,11 +685,13 @@ auth_failure:
 
 bool UserPool::authenticate_external(const string&  username,
                                      const string&  token,
+                                     string&        password,
                                      int&           user_id,
                                      int&           group_id,
                                      string&        uname,
                                      string&        gname,
-                                     set<int>&      group_ids)
+                                     set<int>&      group_ids,
+                                     int&           umask)
 {
     ostringstream oss;
     istringstream is;
@@ -675,10 +700,18 @@ bool UserPool::authenticate_external(const string&  username,
     string mad_name;
     string mad_pass;
     string error_str;
+    string tmp_str;
 
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
+    GroupPool *   gpool = nd.get_gpool();
 
+    User*   user;
+    Group*  group;
+
+    int     gid = -1;
+
+    set<int>::iterator it;
     set<int> empty_set;
 
     AuthRequest ar(-1,empty_set);
@@ -703,6 +736,11 @@ bool UserPool::authenticate_external(const string&  username,
 
     user_id = -1;
 
+    //--------------------------------------------------------------------------
+    // Parse driver response format is:
+    // <driver> <username> <passwd> [gid...]
+    //--------------------------------------------------------------------------
+
     if ( is.good() )
     {
         is >> driver_name >> ws;
@@ -715,15 +753,69 @@ bool UserPool::authenticate_external(const string&  username,
 
     if ( !is.fail() )
     {
-        getline(is, mad_pass);
+        is >> mad_pass >> ws;
+    }
+
+    while ( is.good() )
+    {
+        int tmp_gid;
+
+        is >> tmp_gid >> ws;
+
+        if ( is.fail() )
+        {
+            error_str = "One or more group IDs are malformed";
+            goto auth_failure_user;
+        }
+
+        if ( gpool->get(tmp_gid, false) == 0 )
+        {
+            error_str = "One or more group IDs do not exist";
+            goto auth_failure_user;
+        }
+
+        if ( gid == -1 ) //Keep the first id for primary group
+        {
+            gid = tmp_gid;
+        }
+
+        group_ids.insert(tmp_gid);
+    }
+
+    //--------------------------------------------------------------------------
+    // Create the user, and set primary group
+    //--------------------------------------------------------------------------
+
+    if ( gid == -1 )
+    {
+        group_id = GroupPool::USERS_ID;
+        gname    = GroupPool::USERS_NAME;
+
+        group_ids.insert( group_id );
+    }
+    else
+    {
+        group_id = gid;
+
+        group = gpool->get(group_id, true);
+
+        if( group == 0 )
+        {
+            error_str = "Primary Group no longer exist";
+            goto auth_failure_user;
+        }
+
+        gname = group->get_name();
+
+        group->unlock();
     }
 
     if ( !is.fail() )
     {
         allocate(&user_id,
-                 GroupPool::USERS_ID,
+                 group_id,
                  mad_name,
-                 GroupPool::USERS_NAME,
+                 gname,
                  mad_pass,
                  driver_name,
                  true,
@@ -735,11 +827,45 @@ bool UserPool::authenticate_external(const string&  username,
         goto auth_failure_user;
     }
 
-    group_id = GroupPool::USERS_ID;
-    group_ids.insert( GroupPool::USERS_ID );
+    //--------------------------------------------------------------------------
+    // Add the user to the secondary groups
+    //--------------------------------------------------------------------------
+
+    user = get(user_id,true);
+
+    if ( user == 0 )
+    {
+        error_str = "User object could not be retrieved";
+        goto auth_failure_user;
+    }
+
+    for(it = ++group_ids.begin(); it != group_ids.end(); it++)
+    {
+        group = gpool->get(*it, true);
+
+        if( group == 0 ) //Secondary group no longer exists
+        {
+            continue;
+        }
+
+        group->add_user(user_id);
+
+        gpool->update(group);
+
+        group->unlock();
+
+        user->add_group(*it);
+    }
+
+    update(user);
+
+    user->unlock();
 
     uname = mad_name;
-    gname = GroupPool::USERS_NAME;
+
+    password = mad_pass;
+
+    umask = User::get_default_umask();
 
     return true;
 
@@ -765,10 +891,14 @@ auth_failure:
     user_id  = -1;
     group_id = -1;
 
+    password = "";
+
     group_ids.clear();
 
     uname = "";
     gname = "";
+
+    umask = 0;
 
     return false;
 }
@@ -777,11 +907,13 @@ auth_failure:
 /* -------------------------------------------------------------------------- */
 
 bool UserPool::authenticate(const string& session,
+                            string&       password,
                             int&          user_id,
                             int&          group_id,
                             string&       uname,
                             string&       gname,
-                            set<int>&     group_ids)
+                            set<int>&     group_ids,
+                            int&          umask)
 {
     User * user = 0;
     string username;
@@ -805,16 +937,19 @@ bool UserPool::authenticate(const string& session,
 
         if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
         {
-            ar = authenticate_server(user,token,user_id,group_id,uname,gname,group_ids);
+            ar = authenticate_server(user, token, password, user_id, group_id,
+                uname, gname, group_ids, umask);
         }
         else
         {
-            ar = authenticate_internal(user,token,user_id,group_id,uname,gname,group_ids);
+            ar = authenticate_internal(user, token, password, user_id, group_id,
+                uname, gname, group_ids, umask);
         }
     }
     else
     {
-        ar = authenticate_external(username,token,user_id,group_id,uname,gname,group_ids);
+        ar = authenticate_external(username, token, password, user_id, group_id,
+            uname, gname, group_ids, umask);
     }
 
    return ar;

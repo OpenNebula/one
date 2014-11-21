@@ -27,7 +27,14 @@ int RequestManagerUpdateTemplate::replace_template(
         const RequestAttributes &att,
         string &error_str)
 {
-    return object->replace_template(tmpl, error_str);
+    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    {
+        return object->replace_template(tmpl, true, error_str);
+    }
+    else
+    {
+        return object->replace_template(tmpl, false, error_str);
+    }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -39,49 +46,13 @@ int RequestManagerUpdateTemplate::append_template(
         const RequestAttributes &att,
         string &error_str)
 {
-    return object->append_template(tmpl, error_str);
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-int VirtualMachineUpdateTemplate::replace_template(
-        PoolObjectSQL * object,
-        const string & tmpl,
-        const RequestAttributes & att,
-        string & error_str)
-{
-    VirtualMachine* vm = static_cast<VirtualMachine*>(object);
-
     if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
     {
-        return vm->replace_template(tmpl, true, error_str);
+        return object->append_template(tmpl, true, error_str);
     }
     else
     {
-        return vm->replace_template(tmpl, false, error_str);
-    }
-
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-int VirtualMachineUpdateTemplate::append_template(
-        PoolObjectSQL * object,
-        const string & tmpl,
-        const RequestAttributes & att,
-        string & error_str)
-{
-    VirtualMachine* vm = static_cast<VirtualMachine*>(object);
-
-    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
-    {
-        return vm->append_template(tmpl, true, error_str);
-    }
-    else
-    {
-        return vm->append_template(tmpl, false, error_str);
+        return object->append_template(tmpl, false, error_str);
     }
 }
 

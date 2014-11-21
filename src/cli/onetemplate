@@ -185,6 +185,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         number = options[:multiple] || 1
+        user_inputs = nil
+
         number.times do |i|
             exit_code=helper.perform_action(args[0], options,
                                             "instantiated") do |t|
@@ -194,11 +196,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 on_hold = options[:hold] != nil
 
                 extra_template = ""
+                rc = t.info
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts rc.message
+                    exit(-1)
+                end
 
                 if args[1]
                     extra_template = File.read(args[1])
                 elsif options[:userdata]
-                    t.info
                     if t.has_elements?('TEMPLATE/EC2')
                         t.add_element(
                             'TEMPLATE/EC2',
@@ -217,6 +224,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
                     extra_template = res.last
                 end
+
+                user_inputs = helper.get_user_inputs(t.to_hash) unless user_inputs
+
+                extra_template << "\n" << user_inputs
 
                 res = t.instantiate(name, on_hold, extra_template)
 

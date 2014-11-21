@@ -126,6 +126,19 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     def format_pool(options)
         config_file = self.class.table_conf
 
+        # Get cluster names to use later in list
+        cluster_pool = OpenNebula::ClusterPool.new(@client)
+        rc = cluster_pool.info
+
+        cluster_names = {}
+        cluster_names["-1"] = "default"
+
+        if !OpenNebula.is_error?(rc)
+            cluster_pool.each do |c|
+                cluster_names[c["ID"]] = c["NAME"]
+            end
+        end
+
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
                 d["ID"]
@@ -168,6 +181,23 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     if %w{ACTIVE SUSPENDED POWEROFF}.include? state_str
                         d['HISTORY_RECORDS']['HISTORY']['HOSTNAME']
                     end
+                end
+            end
+
+            column :CLUSTER, "Cluster where the VM is running", :left,
+                    :size=> 10 do |d|
+                if d["HISTORY_RECORDS"]["HISTORY"]
+                    history = [d["HISTORY_RECORDS"]["HISTORY"]].flatten
+                    cluster_id = history.last["CID"]
+                    cluster = cluster_names[cluster_id]
+
+                    if !cluster
+                        cluster_id
+                    else
+                        cluster
+                    end
+                else
+                    "NONE"
                 end
             end
 
@@ -236,6 +266,28 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         str_h1="%-80s"
         str="%-20s: %-20s"
 
+        cluster = nil
+
+        if %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
+            cluster_id = vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID']
+        else
+            cluster_id = nil
+        end
+
+        if cluster_id
+            if cluster_id == "-1"
+                cluster = "default"
+            else
+                clu = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml(cluster_id), @client)
+                rc = clu.info
+                if OpenNebula.is_error?(rc)
+                    cluster = "ERROR"
+                else
+                    cluster = clu["NAME"]
+                end
+            end
+        end
+
         CLIHelper.print_header(
             str_h1 % "VIRTUAL MACHINE #{vm['ID']} INFORMATION")
         puts str % ["ID", vm.id.to_s]
@@ -248,9 +300,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts str % ["HOST",
             vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']] if
                 %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
-        puts str % ["CLUSTER ID", 
-            vm['/VM/HISTORY_RECORDS/HISTORY[last()]/CID'] ] if 
-                %w{ACTIVE SUSPENDED POWEROFF}.include? vm.state_str
+        puts str % ["CLUSTER ID", cluster_id ] if cluster_id
+        puts str % ["CLUSTER", cluster ] if cluster
         puts str % ["START TIME",
             OpenNebulaHelper.time_to_str(vm['/VM/STIME'])]
         puts str % ["END TIME",
@@ -353,11 +404,41 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end if !options[:all]
         end
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC")
+        if vm.has_elements?("/VM/USER_TEMPLATE/HYPERVISOR")
+            vm_information = vm.to_hash['VM']
+            hybridvisor    = vm_information['USER_TEMPLATE']['HYPERVISOR'].to_s
+            isHybrid       = %w{vcenter ec2 azure softlayer}.include? hybridvisor
+
+            if isHybrid
+                vm_tmplt = vm_information['TEMPLATE']
+                nic =   {"NETWORK" => "-",
+                           "IP" => "-",
+                           "MAC"=> "-",
+                           "VLAN"=>"no",
+                           "BRIDGE"=>"-"}
+
+                case hybridvisor
+                    when "vcenter"
+                        nic["IP"] = vm_tmplt['GUEST_IP'] if vm_tmplt['GUEST_IP']
+                    when "ec2"
+                        nic["IP"] = vm_tmplt['IP_ADDRESS'] if vm_tmplt['IP_ADDRESS']
+                    when "azure"
+                        nic["IP"] = vm_tmplt['IPADDRESS'] if vm_tmplt['IPADDRESS']
+                    when "softlayer"
+                        nic["IP"] = vm_tmplt['PRIMARYIPADDRESS'] if vm_tmplt['PRIMARYIPADDRESS']
+                    else
+                        isHybrid = false
+                end
+
+                vm_nics = [nic]
+            end
+        end
+
+        if vm.has_elements?("/VM/TEMPLATE/NIC") || vm_nics
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
 
-            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten if !vm_nics
 
             nic_default = {"NETWORK" => "-",
                            "IP" => "-",
@@ -380,8 +461,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     array_id += 1
                 end
 
-                if nic.has_key?("IP6_SITE")
-                    ip6_link = {"IP"           => nic.delete("IP6_SITE"),
+                if nic.has_key?("IP6_ULA")
+                    ip6_link = {"IP"           => nic.delete("IP6_ULA"),
                                 "CLI_DONE"     => true,
                                 "DOUBLE_ENTRY" => true}
                     vm_nics.insert(array_id+1,ip6_link)

@@ -29,6 +29,8 @@ TARGET="$3"
 TARGET_INDEX="$4"
 DRV_ACTION="$5"
 
+ATTACH_FILE="$SOURCE.attach"
+
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
 unset i j XPATH_ELEMENTS
@@ -37,20 +39,26 @@ DISK_XPATH="/VMM_DRIVER_ACTION_DATA/VM/TEMPLATE/DISK[ATTACH='YES']"
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     $DISK_XPATH/DRIVER \
+done < <($XPATH     /VMM_DRIVER_ACTION_DATA/VM/ID \
+                    $DISK_XPATH/DRIVER \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
                     $DISK_XPATH/CACHE \
                     $DISK_XPATH/SOURCE \
+                    $DISK_XPATH/DISK_ID \
+                    $DISK_XPATH/CLONE \
                     $DISK_XPATH/CEPH_HOST \
                     $DISK_XPATH/CEPH_SECRET \
                     $DISK_XPATH/CEPH_USER)
 
+VMID="${XPATH_ELEMENTS[j++]}"
 DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
 TYPE="${XPATH_ELEMENTS[j++]}"
 READONLY="${XPATH_ELEMENTS[j++]}"
 CACHE="${XPATH_ELEMENTS[j++]}"
 IMG_SRC="${XPATH_ELEMENTS[j++]}"
+DISK_ID="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_HOST="${XPATH_ELEMENTS[j++]}"
 CEPH_SECRET="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
@@ -72,7 +80,6 @@ rbd)
     TYPE_SOURCE="protocol"
     TYPE_XML="network"
     SOURCE="rbd"
-    SOURCE_ARGS="name='$IMG_SRC'"
     DEVICE="disk"
     ;;
 sheepdog)
@@ -82,6 +89,12 @@ sheepdog)
     SOURCE_ARGS="name='$IMG_SRC'"
     DEVICE="disk"
 
+
+    if [ "$CLONE" = "YES" ]; then
+        SOURCE_ARGS="name='${IMG_SRC}-${VMID}-${DISK_ID}'"
+    else
+        SOURCE_ARGS="name='${IMG_SRC}'"
+    fi
 
     for host in $CEPH_HOST ; do
         BCK_IFS=$IFS
@@ -127,8 +140,6 @@ if [ "$READONLY" = "YES" ]; then
 else
     READONLY=""
 fi
-
-ATTACH_FILE="$SOURCE.attach"
 
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>

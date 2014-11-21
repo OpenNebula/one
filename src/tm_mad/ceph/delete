@@ -67,17 +67,23 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/PERSISTENT \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
 
 SRC="${XPATH_ELEMENTS[j++]}"
-PERSISTENT="${XPATH_ELEMENTS[j++]}"
-RBD_FORMAT="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
-# Exit if persistent
-[ -n "$PERSISTENT" ] && exit 0
+# No need to delete no cloned images
+if [ "$CLONE" = "NO" ]; then
+    exit 0
+fi
 
-# non persistent, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
+fi
+
+# cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
 RBD_SNAP="${VM_ID}-${DISK_ID}"
 
@@ -93,9 +99,11 @@ log "Deleting $DST_PATH"
 DELETE_CMD=$(cat <<EOF
     set -e
 
+    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+
     $RBD rm $RBD_SRC
 
-    if [ "$RBD_FORMAT" = "2" ]; then
+    if [ "\$RBD_FORMAT" = "2" ]; then
         $RBD snap unprotect $SRC@$RBD_SNAP
         $RBD snap rm $SRC@$RBD_SNAP
     fi
@@ -103,6 +111,6 @@ EOF
 )
 
 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-                    "Error deleting $RBD_SRC in $DST_HOST"
+                 "Error deleting $RBD_SRC in $DST_HOST"
 
 exit 0

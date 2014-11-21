@@ -38,6 +38,10 @@ MonitorThreadPool * MonitorThread::mthpool;
 
 ClusterPool * MonitorThread::cpool;
 
+VirtualMachinePool * MonitorThread::vmpool;
+
+time_t MonitorThread::monitor_interval;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -73,7 +77,7 @@ void MonitorThread::do_message()
     }
 
     // -------------------------------------------------------------------------
-    // Monitoring Error
+    // Monitoring Error. VMs running on the host are moved to UNKNOWN
     // -------------------------------------------------------------------------
     if (result != "SUCCESS")
     {
@@ -211,6 +215,10 @@ void MonitorThread::do_message()
 
     host->unlock();
 
+    //--------------------------------------------------------------------------
+    // Process VM information if any. VMs not reported by the hypervisor are
+    // moved to the POWEROFF state.
+    //--------------------------------------------------------------------------
     if (vm_poll)
     {
         set<int>::iterator         its;
@@ -218,7 +226,25 @@ void MonitorThread::do_message()
 
         for (its = lost.begin(); its != lost.end(); its++)
         {
-            lcm->trigger(LifeCycleManager::MONITOR_DONE, *its);
+            VirtualMachine * vm = vmpool->get(*its, true);
+
+            if (vm == 0)
+            {
+                continue;
+            }
+
+            // Move the VM to power off if it is not reported by the Host and:
+            // 1.- It has a history record
+            // 2.- It is supposed to be in RUNNING state
+            // 3.- It has been monitored at least once
+            if (vm->hasHistory() &&
+                vm->get_lcm_state() == VirtualMachine::RUNNING &&
+                vm->get_last_poll() != 0)
+            {
+                lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
+            }
+
+            vm->unlock();
         }
 
         for (itm = found.begin(); itm != found.end(); itm++)
@@ -242,6 +268,11 @@ MonitorThreadPool::MonitorThreadPool(int max_thr):concurrent_threads(max_thr),
     MonitorThread::lcm    = Nebula::instance().get_lcm();
 
     MonitorThread::cpool  = Nebula::instance().get_clpool();
+
+    MonitorThread::vmpool = Nebula::instance().get_vmpool();
+
+    Nebula::instance().get_configuration_attribute("MONITORING_INTERVAL",
+        MonitorThread::monitor_interval);
 
     MonitorThread::mthpool= this;
 

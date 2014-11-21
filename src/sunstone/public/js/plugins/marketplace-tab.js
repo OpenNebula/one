@@ -23,11 +23,8 @@ var market_actions = {
         type: "list",
         call: OpenNebula.Marketplace.list,
         callback: function(req,res){
-            //data can be added to the table directly, without further
-            //processing
             updateView(res.appliances,dataTable_marketplace);
-        },
-        error: onError
+        }
     },
     "Marketplace.refresh" : {
         type: "custom",
@@ -107,7 +104,7 @@ var market_actions = {
                         '<div class="large-2 columns market_image_result">'+
                         '</div>'+
                     '</div>'+
-                    '<div class="large-10 large-centered columns market_image_response">'+
+                    '<div class="large-10 columns market_image_response">'+
                     '</div>'+
                 '</div>').appendTo($("#market_import_dialog_content"));
             })
@@ -135,7 +132,7 @@ var market_actions = {
                         '<div class="large-2 columns market_template_result">'+
                         '</div>'+
                     '</div>'+
-                    '<div class="large-10 large-centered columns market_template_response">'+
+                    '<div class="large-10 columns market_template_response">'+
                     '</div>'+
                 '</div>').appendTo($("#market_import_dialog_content"));
             }
@@ -364,6 +361,11 @@ var marketplace_tab = {
     list_header: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+tr("OpenNebula Marketplace"),
     info_header: '<i class="fa fa-fw fa-shopping-cart"></i>&emsp;'+tr("Appliance"),
     subheader: '<span/> <small></small>&emsp;',
+    content:   '<div class="row marketplace_error_message" hidden>\
+        <div class="small-6 columns small-centered text-center">\
+            <div class="alert-box alert radius">'+tr("Cannot connect to OpenNebula Marketplace")+'</div>\
+        </div>\
+    </div>',
     table: '<table id="datatable_marketplace" class="datatable twelve">\
       <thead>\
         <tr>\
@@ -406,6 +408,8 @@ function marketplaceElements(){
 function updateMarketInfo(request,app){
     var url = app.links.download.href;
     url = url.replace(/\/download$/, '');
+
+    $(".resource-info-header", $("#marketplace-tab")).html(app.name);
 
     var files_table = '<table id="info_marketplace_table2" class="dataTable">\
          <thead>\

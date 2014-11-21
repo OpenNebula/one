@@ -20,6 +20,7 @@
 #include "Nebula.h"
 #include "PoolObjectAuth.h"
 #include "AuthManager.h"
+#include "AddressRange.h"
 #include <sstream>
 #include <ctype.h>
 
@@ -35,6 +36,7 @@ VirtualNetworkPool::VirtualNetworkPool(
     SqlDB *                             db,
     const string&                       prefix,
     int                                 __default_size,
+    vector<const Attribute *>&          restricted_attrs,
     vector<const Attribute *>           hook_mads,
     const string&                       remotes_location,
     const vector<const Attribute *>&    _inherit_attrs):
@@ -73,14 +75,17 @@ VirtualNetworkPool::VirtualNetworkPool(
     _mac_prefix <<= 8;
     _mac_prefix += tmp;
 
-   register_hooks(hook_mads, remotes_location);
+    VirtualNetworkTemplate::set_restricted_attributes(restricted_attrs);
+    AddressRange::set_restricted_attributes(restricted_attrs);
 
-   for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
-   {
-       const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
+    register_hooks(hook_mads, remotes_location);
 
-       inherit_attrs.push_back(sattr->value());
-   }
+    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    {
+        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
+
+        inherit_attrs.push_back(sattr->value());
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -92,6 +97,7 @@ int VirtualNetworkPool::allocate (
     const string&  uname,
     const string&  gname,
     int            umask,
+    int            pvid,
     VirtualNetworkTemplate * vn_template,
     int *          oid,
     int            cluster_id,
@@ -105,11 +111,11 @@ int VirtualNetworkPool::allocate (
 
     ostringstream oss;
 
-    vn = new VirtualNetwork(uid, gid, uname, gname, umask,
+    vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
                             cluster_id, cluster_name, vn_template);
 
     // Check name
-    vn->get_template_attribute("NAME", name);
+    vn->PoolObjectSQL::get_template_attribute("NAME", name);
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {

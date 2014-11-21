@@ -23,7 +23,7 @@ require 'nokogiri'
 
 module OneDBFsck
     VERSION = "4.6.0"
-    LOCAL_VERSION = "4.5.80"
+    LOCAL_VERSION = "4.9.80"
 
     def check_db_version()
         db_version = read_db_version()
@@ -226,7 +226,7 @@ EOT
                     e.add_child(doc.create_element("ID")).content = user_gid.to_s
                 }
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
 
             doc.root.xpath("GROUPS/ID").each { |e|
@@ -242,7 +242,7 @@ EOT
 
                 user_gids.add user_gid.to_i
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
 
             user_gids.each do |secondary_gid|
@@ -253,7 +253,7 @@ EOT
                         e.xpath("ID[.=#{secondary_gid}]").each{|x| x.remove}
                     }
 
-                    users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                    users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
                 else
                     group[secondary_gid] << row[:oid]
                 end
@@ -264,7 +264,7 @@ EOT
                     "User #{row[:oid]} is in group #{gid}, but the DB "<<
                     "table has GID column #{row[:gid]}")
 
-                users_fix[row[:oid]] = {:body => doc.to_s, :gid => user_gid}
+                users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
         end
 
@@ -317,7 +317,7 @@ EOT
                     error_found = true
                 end
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 if !db_version[:is_slave]
                     # commit
@@ -402,7 +402,7 @@ EOT
                             e.text = ""
                         end
 
-                        hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        hosts_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         if cluster_name != cluster_entry[:name]
                             log_error("Host #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -411,7 +411,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            hosts_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                            hosts_fix[row[:oid]] = {:body => doc.root.to_s, :cid => cluster_id}
                         end
 
                         cluster_entry[:hosts] << row[:oid]
@@ -450,7 +450,7 @@ EOT
                             e.text = ""
                         end
 
-                        datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        datastores_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         cluster_entry[:datastores] << row[:oid]
 
@@ -461,7 +461,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            datastores_fix[row[:oid]] = {:body => doc.to_s, :cid => cluster_id}
+                            datastores_fix[row[:oid]] = {:body => doc.root.to_s, :cid => cluster_id}
                         end
                     end
                 end
@@ -498,7 +498,7 @@ EOT
                             e.text = ""
                         end
 
-                        vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                        vnets_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                     else
                         if cluster_name != cluster_entry[:name]
                             log_error("VNet #{row[:oid]} has a wrong name for cluster #{cluster_id}, #{cluster_name}. It will be changed to #{cluster_entry[:name]}")
@@ -507,7 +507,7 @@ EOT
                                 e.text = cluster_entry[:name]
                             end
 
-                            vnets_fix[row[:oid]] = {:body => doc.to_s, :cid => -1}
+                            vnets_fix[row[:oid]] = {:body => doc.root.to_s, :cid => -1}
                         end
 
                         cluster_entry[:vnets] << row[:oid]
@@ -589,7 +589,7 @@ EOT
                 end
 
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:cluster_pool_new].insert(row)
@@ -620,8 +620,6 @@ EOT
             datastore[row[:oid]] = {:name => row[:name], :images => []}
         end
 
-        ds_1_name = datastore[1][:name]
-
         images_fix = {}
 
         @db.fetch("SELECT oid,body FROM image_pool") do |row|
@@ -634,19 +632,12 @@ EOT
                 ds_entry = datastore[ds_id]
 
                 if ds_entry.nil?
-                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. It will be moved to the Datastore #{ds_1_name} (1), but it is probably unusable anymore")
-
-                    doc.root.each_element('DATASTORE_ID') do |e|
-                        e.text = "1"
-                    end
-
-                    doc.root.each_element('DATASTORE') do |e|
-                        e.text = ds_1_name
-                    end
-
-                    images_fix[row[:oid]] = doc.to_s
-
-                    datastore[1][:images] << row[:oid]
+                    log_error("Image #{row[:oid]} has datastore #{ds_id}, but it does not exist. The image is probably unusable, and needs to be deleted manually:\n"<<
+                        "  * The image contents should be deleted manually:\n"<<
+                        "    #{doc.root.get_text('SOURCE')}\n"<<
+                        "  * The DB entry can be then deleted with the command:\n"<<
+                        "    DELETE FROM image_pool WHERE oid=#{row[:oid]};\n"<<
+                        "  * Run fsck again.\n")
                 else
                     if ds_name != ds_entry[:name]
                         log_error("Image #{row[:oid]} has a wrong name for datastore #{ds_id}, #{ds_name}. It will be changed to #{ds_entry[:name]}")
@@ -655,7 +646,7 @@ EOT
                             e.text = ds_entry[:name]
                         end
 
-                        images_fix[row[:oid]] = doc.to_s
+                        images_fix[row[:oid]] = doc.root.to_s
                     end
 
                     ds_entry[:images] << row[:oid]
@@ -701,7 +692,7 @@ EOT
                 end
 
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:datastore_pool_new].insert(row)
@@ -768,8 +759,7 @@ EOT
 
             counters[:vnet][row[:oid]] = {
                 :type           => doc.root.get_text('TYPE').to_s.to_i,
-                :total_leases   => 0,
-                :leases         => {}
+                :ar_leases      => {}
             }
         end
 
@@ -808,12 +798,20 @@ EOT
                         log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
                             "but it does not exist")
                     else
-                        counters[:vnet][net_id][:leases][e.at_xpath('IP').text] =
+=begin
+                        ar_id_e = e.at_xpath('AR_ID')
+                        ar_id = ar_id_e.nil? ? -1 : ar_id_e.text.to_i
+
+                        if counters[:vnet][net_id][:ar_leases][ar_id].nil?
+                            counters[:vnet][net_id][:ar_leases][ar_id] = []
+                        end
+
+                        counters[:vnet][net_id][:ar_leases][ar_id] <<
                             [
                                 e.at_xpath('MAC').text,                 # MAC
-                                "1",                                    # USED
                                 vm_doc.root.at_xpath('ID').text.to_i    # VID
                             ]
+=end
                     end
                 end
             end
@@ -955,7 +953,7 @@ EOT
                     end
                 }
 
-                row[:body] = host_doc.to_s
+                row[:body] = host_doc.root.to_s
 
                 # commit
                 @db[:host_pool_new].insert(row)
@@ -1091,7 +1089,7 @@ EOT
                     end
                 }
 
-                row[:body] = doc.to_s
+                row[:body] = doc.root.to_s
 
                 # commit
                 @db[:image_pool_new].insert(row)
@@ -1101,167 +1099,6 @@ EOT
         # Rename table
         @db.run("DROP TABLE image_pool")
         @db.run("ALTER TABLE image_pool_new RENAME TO image_pool")
-
-        log_time()
-
-        ########################################################################
-        # VNet
-        #
-        # LEASES
-        ########################################################################
-
-        @db.run "CREATE TABLE leases_new (oid INTEGER, ip BIGINT, body MEDIUMTEXT, PRIMARY KEY(oid,ip));"
-
-        @db.transaction do
-            @db[:leases].each do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
-
-                used = (doc.root.at_xpath('USED').text == "1")
-                vid  = doc.root.at_xpath('VID').text.to_i
-
-                ip_str = IPAddr.new(row[:ip], Socket::AF_INET).to_s
-
-                vnet_structure = counters[:vnet][row[:oid]]
-
-                if vnet_structure.nil?
-                    log_error("Table leases contains the lease #{ip_str} "<<
-                        "for VNet #{row[:oid]}, but it does not exit")
-
-                    next
-                end
-
-                ranged = vnet_structure[:type] == 0
-
-                counter_mac, counter_used, counter_vid =
-                    vnet_structure[:leases][ip_str]
-
-                vnet_structure[:leases].delete(ip_str)
-
-                insert = true
-
-                if used && (vid != -1) # Lease used by a VM
-                    if counter_mac.nil?
-                        log_error(
-                            "VNet #{row[:oid]} has used lease #{ip_str} "<<
-                            "(VM #{vid}) \tbut it is free")
-
-                        if ranged
-                            insert = false
-                        end
-
-                        doc.root.at_xpath("USED").content = "0"
-
-                        doc.root.at_xpath("VID").content = "-1"
-
-                        row[:body] = doc.root.to_s
-
-                    elsif vid != counter_vid
-                        log_error(
-                            "VNet #{row[:oid]} has used lease #{ip_str} "<<
-                            "(VM #{vid}) \tbut it used by VM #{counter_vid}")
-
-                        doc.root.at_xpath("VID").content = counter_vid.to_s
-
-                        row[:body] = doc.root.to_s
-                    end
-                else # Lease is free or on hold (used=1, vid=-1)
-                    if !counter_mac.nil?
-                        if used
-                            log_error(
-                                "VNet #{row[:oid]} has lease on hold #{ip_str} "<<
-                                "\tbut it is used by VM #{counter_vid}")
-                        else
-                            log_error(
-                                "VNet #{row[:oid]} has free lease #{ip_str} "<<
-                                "\tbut it is used by VM #{counter_vid}")
-                        end
-
-                        doc.root.at_xpath("USED").content = "1"
-
-                        doc.root.at_xpath("VID").content = counter_vid.to_s
-
-                        row[:body] = doc.root.to_s
-                    end
-                end
-
-                if (doc.root.at_xpath('USED').text == "1")
-                    vnet_structure[:total_leases] += 1
-                end
-
-                # commit
-                @db[:leases_new].insert(row) if insert
-            end
-        end
-
-        log_time()
-
-        # Now insert all the leases left in the hash, i.e. used by a VM in
-        # vm_pool, but not in the leases table. This will only happen in
-        # ranged networks
-        @db.transaction do
-            counters[:vnet].each do |net_id,vnet_structure|
-                vnet_structure[:leases].each do |ip,array|
-                    mac,used,vid = array
-
-                    ip_i = IPAddr.new(ip, Socket::AF_INET).to_i
-
-                    # TODO: MAC_PREFIX is now hardcoded to "02:00"
-                    body = "<LEASE><IP>#{ip_i}</IP><MAC_PREFIX>512</MAC_PREFIX><MAC_SUFFIX>#{ip_i}</MAC_SUFFIX><USED>#{used}</USED><VID>#{vid}</VID></LEASE>"
-
-                    log_error("VNet #{net_id} has free lease #{ip} \tbut it is used by VM #{vid}")
-
-                    vnet_structure[:total_leases] += 1
-
-                    @db[:leases_new].insert(
-                        :oid        => net_id,
-                        :ip         => ip_i,
-                        :body       => body)
-                end
-            end
-        end
-
-
-        # Rename table
-        @db.run("DROP TABLE leases")
-        @db.run("ALTER TABLE leases_new RENAME TO leases")
-
-        log_time()
-
-        ########################################################################
-        # VNet
-        #
-        # VNET/TOTAL_LEASES
-        ########################################################################
-
-        # Create a new empty table where we will store the new calculated values
-        @db.run "CREATE TABLE network_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
-
-        @db.transaction do
-            @db[:network_pool].each do |row|
-                doc = Document.new(row[:body])
-
-                oid = row[:oid]
-
-                total_leases = counters[:vnet][oid][:total_leases]
-
-                # rewrite running_vms
-                doc.root.each_element("TOTAL_LEASES") {|e|
-                    if e.text != total_leases.to_s
-                        log_error("VNet #{oid} TOTAL_LEASES has #{e.text} \tis\t#{total_leases}")
-                        e.text = total_leases
-                    end
-                }
-
-                row[:body] = doc.to_s
-
-                # commit
-                @db[:network_pool_new].insert(row)
-            end
-        end
-
-        # Rename table
-        @db.run("DROP TABLE network_pool")
-        @db.run("ALTER TABLE network_pool_new RENAME TO network_pool")
 
         log_time()
 

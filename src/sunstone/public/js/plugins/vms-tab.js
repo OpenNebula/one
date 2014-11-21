@@ -18,9 +18,15 @@
 var INCLUDE_URI = "vendor/noVNC/";
 var VM_HISTORY_LENGTH = 40;
 
+// Only one vnc request is allowed
+var vnc_lock = false;
+
 function loadVNC(){
-    var script = '<script src="vendor/noVNC/vnc.js"></script>';
-    document.write(script);
+    // Load supporting scripts
+        "use strict";
+    Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
+                       "keysymdef.js", "keyboard.js", "input.js", "display.js",
+                       "jsunzip.js", "rfb.js"]);
 }
 loadVNC();
 
@@ -50,7 +56,7 @@ var netUsage = {
 var create_vm_tmpl ='\
 <div class="row">\
   <div class="large-12 columns">\
-    <h3 id="create_vnet_header" class="subheader">'+tr("Create Virtual Machine")+'</h3>\
+    <h3 class="subheader">'+tr("Create Virtual Machine")+'</h3>\
   </div>\
 </div>\
 <div class="reveal-body">\
@@ -58,116 +64,40 @@ var create_vm_tmpl ='\
     <fieldset>\
       <legend>'+tr("Step 1: Specify a name and the number of instances")+'</legend>\
       <div class="row">\
-        <div class="large-6 columns">\
-            <label for="vm_name">'+tr("VM Name")+'\
+        <div class="large-5 columns">\
+            <label for="create_vm_name">'+tr("VM Name")+'\
               <span class="tip">'+tr("Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them")+'.</span>\
             </label>\
-            <input type="text" name="vm_name" id="vm_name" />\
+            <input type="text" name="create_vm_name" id="create_vm_name" />\
         </div>\
-        <div class="large-6 columns">\
-            <label for="vm_n_times">'+tr("Number of instances")+':\
+        <div class="large-4 columns">\
+            <label for="create_vm_n_times">'+tr("Number of instances")+':\
               <span class="tip">'+tr("Number of Virtual Machines that will be created using this template")+'.</span>\
             </label>\
-            <input type="text" name="vm_n_times" id="vm_n_times" value="1">\
+            <input type="text" name="create_vm_n_times" id="create_vm_n_times" value="1">\
+        </div>\
+        <div class="large-3 columns">\
+            <input type="checkbox" name="create_vm_hold" id="create_vm_hold"/>\
+            <label for="create_vm_hold">'+tr("Hold")+'\
+              <span class="tip">' + tr("Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually.") +'</span>\
+            </label>\
         </div>\
       </div>\
     </fieldset>\
     <fieldset>\
       <legend>'+tr("Step 2: Select a template")+'</legend>\
-      <div class="row">\
-        <div class="large-8 columns">\
-           <button id="refresh_template_templates_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-        </div>\
-        <div class="large-4 columns">\
-          <input id="template_templates_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-        </div>\
-      </div>\
-      <div class="row">\
-        <div class="large-12 columns">\
-          <table id="template_templates_table" class="datatable twelve">\
-            <thead>\
-              <tr>\
-                <th></th>\
-                <th>'+tr("ID")+'</th>\
-                <th>'+tr("Owner")+'</th>\
-                <th>'+tr("Group")+'</th>\
-                <th>'+tr("Name")+'</th>\
-                <th>'+tr("Registration time")+'</th>\
-              </tr>\
-            </thead>\
-            <tbody id="tbodytemplates">\
-            </tbody>\
-          </table>\
-        </div>\
-      </div>\
-      <div class="row hidden">\
-        <div class="large-12 columns">\
-          <label class="right inline" for="TEMPLATE_ID">'+tr("TEMPLATE_ID")+':</label>\
-          <input type="text" id="TEMPLATE_ID" name="TEMPLATE_ID"/>\
-        </div>\
-      </div>\
-      <div id="selected_template" class="vm_param row">\
-        <div class="large-12 columns">\
-          <span id="select_template" class="radius secondary label">'+tr("Please select a template from the list")+'</span>\
-          <span id="template_selected" class="radius secondary label hidden">'+tr("You selected the following template:")+'</span>\
-          <span class="radius label" type="text" id="TEMPLATE_NAME" name="template"></span>\
-        </div>\
-      </div>\
+      '+generateTemplateTableSelect("vm_create")+'\
     </fieldset>\
-    <div id="select_image_step">\
+    <div id="create_vm_inputs_step">\
       <fieldset>\
-        <legend>'+tr("Step 3: Select an operating system")+'</legend>\
-        <div class="row collapse">\
-          <div class="large-8 columns">\
-             <button id="refresh_template_images_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-4 columns">\
-            <input id="template_images_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
+        <legend>'+tr("Step 3: Fill the required inputs")+'</legend>\
+        <div id="create_vm_user_inputs">\
         </div>\
-        <div class="row">\
-          <div class="large-12 columns">\
-            <table id="template_images_table" class="datatable twelve">\
-              <thead>\
-                <tr>\
-                  <th></th>\
-                  <th>'+tr("ID")+'</th>\
-                  <th>'+tr("Owner")+'</th>\
-                  <th>'+tr("Group")+'</th>\
-                  <th>'+tr("Name")+'</th>\
-                  <th>'+tr("Datastore")+'</th>\
-                  <th>'+tr("Size")+'</th>\
-                  <th>'+tr("Type")+'</th>\
-                  <th>'+tr("Registration time")+'</th>\
-                  <th>'+tr("Persistent")+'</th>\
-                  <th>'+tr("Status")+'</th>\
-                  <th>'+tr("#VMS")+'</th>\
-                  <th>'+tr("Target")+'</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyimages">\
-              </tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row hidden">\
-          <div class="large-12 columns">\
-            <label class="right inline" for="IMAGE_ID">'+tr("IMAGE_ID")+':</label>\
-            <input type="text" id="IMAGE_ID" name="IMAGE_ID"/>\
-          </div>\
-        </div>\
-        <div id="selected_image" class="vm_param row">\
-          <div class="large-12 columns">\
-            <span id="select_image" class="radius secondary label">'+tr("Please select an image from the list")+'</span>\
-            <span id="image_selected" class="radius secondary label hidden">'+tr("You selected the following image:")+'</span>\
-            <span class="radius label" type="text" id="IMAGE_NAME" name="image"></span>\
-          </div>\
-        </div>\
-      </div>\
-    </fieldset>\
+      </fieldset>\
+    </div>\
     <div class="form_buttons reveal-footer">\
       <div class="form_buttons">\
-         <button class="button radius right success" id="instantiate_vm_tenplate_proceed" value="Template.instantiate_vms">'+tr("Create")+'</button>\
+         <button class="button radius right success" id="create_vm_template_proceed" value="Template.instantiate_vms">'+tr("Create")+'</button>\
       </div>\
     </div>\
     <a class="close-reveal-modal">&#215;</a>\
@@ -185,53 +115,7 @@ var deploy_vm_tmpl ='\
     <div class="row">\
       <fieldset>\
         <legend>'+tr("Select a Host")+'</legend>\
-        <div class="row collapse">\
-          <div class="large-8 columns">\
-             <button id="refresh_deploy_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-4 columns">\
-            <input id="deploy_hosts_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <div class="row collapse">\
-          <div class="large-12 columns">\
-            <table id="deploy_datatable_hosts" class="datatable twelve">\
-              <thead>\
-                <tr>\
-                  <th></th>\
-                  <th>' + tr("ID") + '</th>\
-                  <th>' + tr("Name") + '</th>\
-                  <th>' + tr("Cluster") + '</th>\
-                  <th>' + tr("RVMs") + '</th>\
-                  <th>' + tr("Real CPU") + '</th>\
-                  <th>' + tr("Allocated CPU") + '</th>\
-                  <th>' + tr("Real MEM") + '</th>\
-                  <th>' + tr("Allocated MEM") + '</th>\
-                  <th>' + tr("Status") + '</th>\
-                  <th>' + tr("IM MAD") + '</th>\
-                  <th>' + tr("VM MAD") + '</th>\
-                  <th>' + tr("Last monitored on") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody id="tbodyhosts">\
-              </tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row hidden">\
-          <div class="large-12 columns">\
-            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
-            <input type="text" id="HOST_ID" name="HOST_ID"/>\
-          </div>\
-        </div>\
-        <br>\
-        <div id="selected_host" class="vm_param row">\
-          <div class="large-12 columns">\
-            <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
-            <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
-            <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
-          </div>\
-        </div>\
+        '+generateHostTableSelect("deploy_vm")+'\
       </fieldset>\
     </div>\
     <dl class="accordion" id="advanced_toggle" data-accordion>\
@@ -249,51 +133,7 @@ var deploy_vm_tmpl ='\
             <br>\
             <fieldset>\
               <legend>'+tr("Select a datastore")+'</legend>\
-              <div class="row collapse">\
-                <div class="large-9 columns">\
-                   <button id="refresh_deploy_datastores_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-                </div>\
-                <div class="large-3 columns">\
-                  <input id="deploy_datastores_table_search" type="text" class="search" placeholder="'+tr("Search")+'"/>\
-                </div>\
-              </div>\
-              <table id="deploy_datatable_datastores" class="datatable twelve">\
-                <thead>\
-                  <tr>\
-                    <th></th>\
-                    <th>'+tr("ID")+'</th>\
-                    <th>'+tr("Owner")+'</th>\
-                    <th>'+tr("Group")+'</th>\
-                    <th>'+tr("Name")+'</th>\
-                    <th>'+tr("Capacity")+'</th>\
-                    <th>'+tr("Cluster")+'</th>\
-                    <th>'+tr("Basepath")+'</th>\
-                    <th>'+tr("TM MAD")+'</th>\
-                    <th>'+tr("DS MAD")+'</th>\
-                    <th>'+tr("Type")+'</th>\
-                  </tr>\
-                </thead>\
-                <tbody id="tbodydatastores">\
-                </tbody>\
-              </table>\
-              <div class="row hidden">\
-                <div class="large-4 columns">\
-                  <label class="right inline" for="DATASTORE_ID">'+tr("DATASTORE_ID")+':</label>\
-                </div>\
-                <div class="large-6 columns">\
-                  <input type="text" id="DATASTORE_ID" name="DATASTORE_ID"/>\
-                </div>\
-                <div class="large-2 columns">\
-                  <div class="tip">\
-                  </div>\
-                </div>\
-              </div>\
-              <br>\
-              <div id="selected_datastore" class="vm_param kvm_opt xen_opt vmware_opt">\
-                <span id="select_datastore" class="radius secondary label">'+tr("Please select a datastore from the list")+'</span>\
-                <span id="datastore_selected" class="radius secondary label hidden">'+tr("You selected the following datastore:")+'</span>\
-                <span class="radius label" type="text" id="DATASTORE_NAME" name="datastore"></span>\
-              </div>\
+              '+generateDatastoreTableSelect("deploy_vm_ds")+'\
             </fieldset>\
           </div>\
     <div class="form_buttons reveal-footer">\
@@ -320,52 +160,7 @@ var migrate_vm_tmpl ='\
       <fieldset>\
         <legend>'+tr("Select a Host")+'</legend>\
         <div class="row collapse">\
-          <div class="large-9 columns">\
-             <button id="refresh_migrate_hosts_table_button_class" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
-          </div>\
-          <div class="large-3 columns">\
-            <input id="migrate_hosts_table_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
-          </div>\
-        </div>\
-        <table id="migrate_datatable_hosts" class="datatable twelve">\
-          <thead>\
-            <tr>\
-              <th></th>\
-              <th>' + tr("ID") + '</th>\
-              <th>' + tr("Name") + '</th>\
-              <th>' + tr("Cluster") + '</th>\
-              <th>' + tr("RVMs") + '</th>\
-              <th>' + tr("Real CPU") + '</th>\
-              <th>' + tr("Allocated CPU") + '</th>\
-              <th>' + tr("Real MEM") + '</th>\
-              <th>' + tr("Allocated MEM") + '</th>\
-              <th>' + tr("Status") + '</th>\
-              <th>' + tr("IM MAD") + '</th>\
-              <th>' + tr("VM MAD") + '</th>\
-              <th>' + tr("Last monitored on") + '</th>\
-            </tr>\
-          </thead>\
-          <tbody id="tbodyhosts">\
-          </tbody>\
-        </table>\
-        <div class="row hidden">\
-          <div class="large-4 columns">\
-            <label class="right inline" for="HOST_ID">'+tr("HOST_ID")+':</label>\
-          </div>\
-          <div class="large-6 columns">\
-            <input type="text" id="HOST_ID" name="HOST_ID"/>\
-          </div>\
-          <div class="large-2 columns">\
-            <div class="tip">\
-            </div>\
-          </div>\
-        </div>\
-        <br>\
-        <div id="selected_host" class="vm_param kvm_opt xen_opt vmware_opt">\
-          <span id="select_host" class="radius secondary label">'+tr("Please select a Host from the list")+'</span>\
-          <span id="host_selected" class="radius secondary label hidden">'+tr("You selected the following Host:")+'</span>\
-          <span class="radius label" type="text" id="HOST_NAME" name="host"></span>\
-        </div>\
+        '+generateHostTableSelect("migrate_vm")+'\
       </fieldset>\
     </div>\
     <br>\
@@ -414,14 +209,7 @@ var vm_actions = {
     "VM.create_dialog" : {
         type: "custom",
         call: function(){
-          popUpCreateVMDialog(false);
-        }
-    },
-
-    "VM.easy_provision" : {
-        type: "custom",
-        call: function(){
-          popUpCreateVMDialog(true);
+          popUpCreateVMDialog();
         }
     },
 
@@ -441,6 +229,7 @@ var vm_actions = {
             if (Sunstone.rightInfoVisible(tab)) {
                 // individual view
                 updateVMInfo(request, response);
+                $(".right-info-tabs > dd.active > a", "#vms-tab").trigger("click");
             }
 
             // datatable row
@@ -753,7 +542,10 @@ var vm_actions = {
         type: "single",
         call: OpenNebula.VM.startvnc,
         callback: vncCallback,
-        error: onError,
+        error: function(req, resp){
+            onError(req, resp);
+            vnc_lock = false;
+        },
         notify: true
     },
 
@@ -948,12 +740,6 @@ var vm_buttons = {
         layout: "create",
         alwaysActive: true
     },
-    "VM.easy_provision" : {
-        type: "action",
-        layout: "create",
-        text: tr("Launch"),
-        alwaysActive: true
-    },
     "VM.chown" : {
         type: "confirm_with_select",
         text: tr("Change owner"),
@@ -962,7 +748,6 @@ var vm_buttons = {
         tip: tr("Select the new owner")+":",
         condition: mustBeAdmin
     },
-
     "VM.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
@@ -1132,8 +917,8 @@ var vms_tab = {
     tabClass: 'subTab',
     parentTab: 'vresources-tab',
     search_input: '<input id="vms_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machines"),
-    info_header: '<i class="fa fa-fw fa-cloud"></i>&emsp;'+tr("Virtual Machine"),
+    list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Machines"),
+    info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("VM"),
     subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
         <span class="active_vms"/> <small>'+tr("ACTIVE")+'</small>&emsp;\
         <span class="off_vms"/> <small>'+tr("OFF")+'</small>&emsp;\
@@ -1178,22 +963,6 @@ function vmShow(req) {
 // Returns a human readable running time for a VM
 function str_start_time(vm){
     return pretty_time(vm.STIME);
-};
-
-
-// Return the IP or several IPs of a VM
-function ip_str(vm){
-    var nic = vm.TEMPLATE.NIC;
-    var ip = '--';
-    if ($.isArray(nic)) {
-        ip = '';
-        $.each(nic, function(index,value){
-            ip += value.IP+'<br />';
-        });
-    } else if (nic && nic.IP) {
-        ip = nic.IP;
-    };
-    return ip;
 };
 
 // Returns an array formed by the information contained in the vm_json
@@ -1316,7 +1085,7 @@ function updateVMachinesView(request, vmachine_list){
       tr("REAL CPU USAGE"),
       "40px",
       "14px",
-      {"percentage": usage, "str": (total_real_cpu + " / " + total_allocated_cpu/100)})
+      {"percentage": usage, "str": (total_real_cpu + " / " + total_allocated_cpu)})
     );
 
     usage = 0;
@@ -1508,6 +1277,7 @@ function updateVMInfo(request,vm){
         else
             unshown_values[key]=vm_info.USER_TEMPLATE[key];
 
+    $(".resource-info-header", $("#vms-tab")).html(vm_info.NAME);
 
     var info_tab = {
         title : tr("Info"),
@@ -1655,9 +1425,20 @@ function updateVMInfo(request,vm){
 
     //Pop up the info panel and asynchronously get vm_log and stats
     Sunstone.popUpInfoPanel("vm_info_panel", "vms-tab");
-    Sunstone.runAction("VM.log",vm_info.ID);
-    Sunstone.runAction("VM.monitor",vm_info.ID,
-        { monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"});
+
+    $("[href='#vm_capacity_tab']").on("click", function(){
+        Sunstone.runAction("VM.monitor",vm_info.ID,
+        { monitor_resources : "CPU,MEMORY"});
+    })
+
+    $("[href='#vm_network_tab']").on("click", function(){
+        Sunstone.runAction("VM.monitor",vm_info.ID,
+        { monitor_resources : "NET_TX,NET_RX"});
+    })
+
+    $("[href='#vm_log_tab']").on("click", function(){
+        Sunstone.runAction("VM.log",vm_info.ID);
+    })
 
     var $info_panel = $('div#vm_info_panel');
     var $hotplugging_tab = $('div#vm_hotplugging_tab', $info_panel);
@@ -1734,8 +1515,8 @@ function printActionsTable(vm_info)
                               </select>\
               </td>\
              <td>\
-                <input id="date_input" class="jdpicker" type="text" placeholder="2013/12/30"/>\
-                <input id="time_input" type="text" placeholder="12:30"/>\
+                <input id="date_input" type="date" placeholder="2013/12/30"/>\
+                <input id="time_input" type="time" placeholder="12:30"/>\
              </td>\
              <td>\
                 <button id="submit_scheduling_action" class="button small secondary radius" >' + tr("Add") +'</button>\
@@ -1743,7 +1524,6 @@ function printActionsTable(vm_info)
              <td colspan=2></td>\
            </tr>');
 
-        $("#date_input").jdPicker();
         return false;
     });
 
@@ -2150,19 +1930,19 @@ function setupAttachDiskDialog(){
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
           </div>' +
-          generate_disk_tab_content("attach_disk", "attach_disk") +
+          generate_disk_tab_content("attach_disk") +
           '<div class="reveal-footer">\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
           </div>\
           </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form></div>')
+    </form></div>');
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
-    setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
+    setup_disk_tab_content(dialog, "attach_disk");
 
     $('#attach_disk_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).text();
@@ -2195,6 +1975,7 @@ function setupAttachDiskDialog(){
 
 function popUpAttachDiskDialog(vm_id){
     $('#vm_id',$attach_disk_dialog).text(vm_id);
+    refreshImageTableSelect($attach_disk_dialog, "attach_disk");
     $attach_disk_dialog.foundation().foundation('reveal', 'open');
 }
 
@@ -2245,6 +2026,9 @@ function hotpluggingOps(){
 }
 
 function printNics(vm_info){
+
+   var isHybrid = calculate_isHybrid(vm_info);
+
    var html ='<form id="tab_network_form" vmid="'+vm_info.ID+'" >\
       <div class="row">\
       <div class="large-12 columns">\
@@ -2255,14 +2039,14 @@ function printNics(vm_info){
                 <th>'+tr("Network")+'</th>\
                 <th>'+tr("IP")+'</th>\
                 <th>'+tr("MAC")+'</th>\
-                <th>'+tr("IPv6 Site")+'</th>\
+                <th>'+tr("IPv6 ULA")+'</th>\
                 <th>'+tr("IPv6 Global")+'</th>\
                 <th colspan="">'+tr("Actions")+'</th>\
                 <th>';
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       // If VM is not RUNNING, then we forget about the attach nic form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && !isHybrid){
         html += '\
            <button id="attach_nic" class="button tiny success right radius" >'+tr("Attach nic")+'</button>'
       } else {
@@ -2278,10 +2062,45 @@ function printNics(vm_info){
 
 
     var nics = []
-    if ($.isArray(vm_info.TEMPLATE.NIC))
-        nics = vm_info.TEMPLATE.NIC
-    else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
-        nics = [vm_info.TEMPLATE.NIC]
+
+    if (isHybrid)
+    {
+        nic         = {};
+        nic.NIC_ID  = 0;
+        nic.ATTACH  = "NO";
+        nic.NETWORK = "-";
+        nic.MAC     = "-";
+
+        switch(vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase())
+        {
+            case "vcenter":
+                nic.IP = vm_info.TEMPLATE.GUEST_IP?vm_info.TEMPLATE.GUEST_IP:"--";
+                break;
+            case "ec2":
+                nic.IP = vm_info.TEMPLATE.IP_ADDRESS?vm_info.TEMPLATE.IP_ADDRESS:"--";
+                break;
+            case "azure":
+                nic.IP = vm_info.TEMPLATE.IPADDRESS?vm_info.TEMPLATE.IPADDRESS:"--";
+                break;
+            case "softlayer":
+                nic.IP = vm_info.TEMPLATE.PRIMARYIPADDRESS?vm_info.TEMPLATE.PRIMARYIPADDRESS:"--";
+                break;
+            default:
+                nic.IP = "--";
+        }
+
+        nics = [nic];
+
+    }
+    else
+    {
+        if ($.isArray(vm_info.TEMPLATE.NIC))
+            nics = vm_info.TEMPLATE.NIC
+        else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
+            nics = [vm_info.TEMPLATE.NIC]
+    }
+
+
 
     if (!nics.length){
         html += '\
@@ -2320,9 +2139,9 @@ function printNics(vm_info){
               <tr nic_id="'+(nic.NIC_ID)+'">\
                 <td>' + nic.NIC_ID + '</td>\
                 <td>' + nic.NETWORK + '</td>\
-                <td>' + nic.IP + '</td>\
+                <td>' + (nic.IP ? nic.IP : "--") + '</td>\
                 <td>' + nic.MAC + '</td>\
-                <td>' + (nic.IP6_SITE ? nic.IP6_SITE : "--") +'</td>\
+                <td>' + (nic.IP6_ULA ? nic.IP6_ULA : "--") +'</td>\
                 <td>' + (nic.IP6_GLOBAL ? nic.IP6_GLOBAL : "--") +'</td>\
                 <td>' + actions + '</td>\
             </tr>';
@@ -2333,7 +2152,11 @@ function printNics(vm_info){
             </tbody>\
           </table>\
         </div>\
-        </div>\
+        </div>';
+
+  if (!isHybrid)
+  {
+    html += '\
         <div class="row">\
             <div class="large-6 columns">\
               <div class="row text-center">\
@@ -2389,6 +2212,7 @@ function printNics(vm_info){
             </div>\
         </div>\
       </form>';
+    }
 
     return html;
 }
@@ -2439,6 +2263,7 @@ function setupAttachNicDialog(){
 
 function popUpAttachNicDialog(vm_id){
     $('#vm_id',$attach_nic_dialog).text(vm_id);
+    refreshImageTableSelect($attach_nic_dialog, "attach_nic");
     $attach_nic_dialog.foundation().foundation('reveal', 'open');
 }
 
@@ -2522,12 +2347,8 @@ function printCapacity(vm_info){
               </div>\
               <div class="row">\
                 <div class="large-12 columns">\
-                  <div class="large-10 columns centered graph vm_cpu_graph" style="height: 100px;">\
+                  <div class="large-12 columns centered graph vm_cpu_graph" style="height: 100px;">\
                   </div>\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="large-10 columns centered" id="vm_cpu_legend">\
                 </div>\
               </div>\
             </div>\
@@ -2536,11 +2357,7 @@ function printCapacity(vm_info){
                 <h3 class="subheader"><small>'+tr("REAL MEMORY")+'</small></h3>\
               </div>\
               <div class="row">\
-                <div class="large-10 columns centered graph vm_memory_graph" style="height: 100px;">\
-                </div>\
-              </div>\
-              <div class="row graph_legend">\
-                <div class="large-10 columns centered" id="vm_memory_legend">\
+                <div class="large-12 columns centered graph vm_memory_graph" style="height: 100px;">\
                 </div>\
               </div>\
             </div>\
@@ -2576,7 +2393,7 @@ function setupResizeCapacityDialog(){
                   '</label>\
           </div>\
           </div>' +
-          generate_capacity_tab_content() +
+          generate_capacity_inputs() +
           '<div class="reveal-footer">\
           <div class="form_buttons">\
               <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">'+tr("Resize")+'</button>\
@@ -2588,9 +2405,7 @@ function setupResizeCapacityDialog(){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
-    $("#template_name_form", dialog).hide();
-
-    setup_capacity_tab_content(dialog);
+    setup_capacity_inputs(dialog);
 
     $('#resize_capacity_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).text();
@@ -2847,7 +2662,7 @@ function setup_vm_snapshot_tab(){
 
 // Sets up the create-template dialog and all the processing associated to it,
 // which is a lot.
-function setupCreateVMDialog(include_select_image){
+function setupCreateVMDialog(){
 
     dialogs_context.append('<div id="create_vm_dialog"  class="reveal-modal large max-height"" data-reveal></div>');
     //Insert HTML in place
@@ -2857,133 +2672,62 @@ function setupCreateVMDialog(include_select_image){
     $(document).foundation();
     //dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var dataTable_template_templates = $('#template_templates_table', dialog).dataTable({
-        "bSortClasses": false,
-        "bDeferRender": true,
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-            { "sWidth": "35px", "aTargets": [0,1] },
-            { "bVisible": false, "aTargets": [0,2,3,5]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                if ($(this).find("td:eq(0)").html() == $('#TEMPLATE_ID', dialog).val()) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
+    $("#create_vm_template_proceed", dialog).attr("disabled", "disabled");
+    $("#create_vm_inputs_step", dialog).hide();
+
+    setupTemplateTableSelect(dialog, "vm_create");
+
+    $('#refresh_button_vm_create', dialog).click();
+
+    $("#selected_resource_id_vm_create", dialog).on("change", function(){
+        var template_id = $(this).val();
+
+        $("#create_vm_inputs_step", dialog).hide();
+        $("#create_vm_user_inputs", dialog).empty();
+
+        OpenNebula.Template.show({
+            data : {
+                id: template_id
+            },
+            timeout: true,
+            success: function (request, template_json){
+                $("#create_vm_inputs_step", dialog).hide();
+                $("#create_vm_user_inputs", dialog).empty();
+
+                var has_inputs = generateVMTemplateUserInputs(
+                    $("#create_vm_user_inputs", dialog),
+                    template_json,
+                    {text_header: ""});
+
+                if(has_inputs){
+                    $("#create_vm_inputs_step", dialog).show();
                 }
-            })
-          }
-    });
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_templates(dataTable_template_templates);
-
-    $('#template_templates_table_search', dialog).keyup(function(){
-      dataTable_template_templates.fnFilter( $(this).val() );
-    })
-
-    dataTable_template_templates.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-    $('#template_templates_table tbody', dialog).delegate("tr", "click", function(e){
-        var aData = dataTable_template_templates.fnGetData(this);
-
-        $("td.markrow", dataTable_template_templates).removeClass('markrow');
-        $('tbody input.check_item', dataTable_template_templates).removeAttr('checked');
-
-        $('#template_selected', dialog).show();
-        $('#select_template', dialog).hide();
-        $('.alert-box', dialog).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#TEMPLATE_NAME', dialog).text(aData[4]);
-        $('#TEMPLATE_ID', dialog).val(aData[1]);
-        return true;
-    });
-
-    $("#refresh_template_templates_table_button_class").die();
-    $("#refresh_template_templates_table_button_class").live('click', function(){
-        update_datatable_template_templates($('#template_templates_table').dataTable());
-    });
-
-    if (include_select_image) {
-      $("#select_image_step", dialog).show();
-      var dataTable_template_images = $('#template_images_table', dialog).dataTable({
-          "bSortClasses": false,
-          "bDeferRender": true,
-          "iDisplayLength": 4,
-          "bAutoWidth":false,
-          "sDom" : '<"H">t<"F"p>',
-          "aoColumnDefs": [
-              { "sWidth": "35px", "aTargets": [0,1] },
-              { "bVisible": false, "aTargets": [0,2,3,7,8,5,9,12]}
-          ],
-            "fnDrawCallback": function(oSettings) {
-              var nodes = this.fnGetNodes();
-              $.each(nodes, function(){
-                  if ($(this).find("td:eq(0)").html() == $('#IMAGE_ID', dialog).val()) {
-                      $("td", this).addClass('markrow');
-                      $('input.check_item', this).attr('checked','checked');
-                  }
-              })
+                $("#create_vm_template_proceed", dialog).removeAttr("disabled");
+            },
+            error: function(request,error_json, container){
+                onError(request,error_json, container);
             }
-      });
-
-      // Retrieve the images to fill the datatable
-      update_datatable_template_images(dataTable_template_images);
-
-      $('#template_images_table_search', dialog).keyup(function(){
-        dataTable_template_images.fnFilter( $(this).val() );
-      })
-
-      dataTable_template_images.fnSort( [ [1,config['user_config']['table_order']] ] );
-
-      $('#template_images_table tbody', dialog).delegate("tr", "click", function(e){
-          var aData = dataTable_template_images.fnGetData(this);
-
-          $("td.markrow", dataTable_template_images).removeClass('markrow');
-          $('tbody input.check_item', dataTable_template_images).removeAttr('checked');
-
-          $('#image_selected', dialog).show();
-          $('#select_image', dialog).hide();
-          $('.alert-box', dialog).hide();
-
-          $("td", this).addClass('markrow');
-          $('input.check_item', this).attr('checked','checked');
-
-          $('#IMAGE_NAME', dialog).text(aData[4]);
-          $('#IMAGE_ID', dialog).val(aData[1]);
-          return true;
-      });
-
-      $("#refresh_template_images_table_button_class").die();
-      $("#refresh_template_images_table_button_class").live('click', function(){
-          update_datatable_template_images($('#template_images_table').dataTable());
-      });
-    } else {
-      $("#select_image_step", dialog).hide();
-    }
+        });
+    });
 
     setupTips(dialog);
 
     $('#create_vm_form',dialog).submit(function(){
-        var vm_name = $('#vm_name',this).val();
-        var template_id = $('#TEMPLATE_ID',this).val();
-        var n_times = $('#vm_n_times',this).val();
+        var vm_name = $('#create_vm_name',this).val();
+        var template_id = $("#selected_resource_id_vm_create", this).val();
+        var n_times = $('#create_vm_n_times',this).val();
         var n_times_int=1;
+        var hold = $('#create_vm_hold',this).prop("checked");
 
         if (!template_id.length){
             notifyError(tr("You have not selected a template"));
             return false;
-        };
+        }
 
         if (n_times.length){
             n_times_int=parseInt(n_times,10);
-        };
+        }
 
         var extra_msg = "";
         if (n_times_int > 1) {
@@ -2992,35 +2736,32 @@ function setupCreateVMDialog(include_select_image){
 
         notifySubmit("Template.instantiate",template_id, extra_msg);
 
-        var extra_info = {};
-        if ($("#IMAGE_ID", this).val()) {
-          image_id = $("#IMAGE_ID", this).val();
-          extra_info['template'] = {
-            'disk': {
-              'image_id': image_id
-            }
-          }
-        }
+        var extra_info = {
+            'hold': hold
+        };
+
+        var tmp_json = {};
+        retrieveWizardFields($(this), tmp_json);
+
+        extra_info['template'] = tmp_json;
 
         if (!vm_name.length){ //empty name use OpenNebula core default
             for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = "";
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-            };
-        }
-        else
-        {
+            }
+        } else {
           if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
               for (var i=0; i< n_times_int; i++){
                 extra_info['vm_name'] = vm_name;
                 Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
+              }
           } else { //wildcard present: replace wildcard
               for (var i=0; i< n_times_int; i++){
                   extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
                   Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-              };
-          };
+              }
+          }
         }
 
         setTimeout(function(){
@@ -3032,8 +2773,8 @@ function setupCreateVMDialog(include_select_image){
 }
 
 // Open creation dialog
-function popUpCreateVMDialog(include_select_image){
-    setupCreateVMDialog(include_select_image);
+function popUpCreateVMDialog(){
+    setupCreateVMDialog();
     $create_vm_dialog.foundation().foundation('reveal', 'open');
     $("input#vm_name",$create_vm_dialog).focus();
 }
@@ -3053,112 +2794,15 @@ function setupDeployVMDialog(){
     dialog.html(deploy_vm_tmpl);
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var dataTable_deploy_hosts = $('#deploy_datatable_hosts', dialog).dataTable({
-        "bSortClasses": false,
-        "bDeferRender": true,
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check",5,6,7,8] },
-              { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
-              { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                if ($(this).find("td:eq(0)").html() == $('#HOST_ID', dialog).val()) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
-    });
+    setupHostTableSelect(dialog, "deploy_vm");
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_hosts(dataTable_deploy_hosts);
+    // Show system DS only
+    setupDatastoreTableSelect(dialog, "deploy_vm_ds",
+        { filter_fn: function(ds){ return ds.TYPE == 1; } }
+    );
 
-    $('#deploy_hosts_table_search', dialog).keyup(function(){
-      dataTable_deploy_hosts.fnFilter( $(this).val() );
-    })
-
-    $('#deploy_datatable_hosts tbody', dialog).delegate("tr", "click", function(e){
-        var aData = dataTable_deploy_hosts.fnGetData(this);
-
-        $("td.markrow", dataTable_deploy_hosts).removeClass('markrow');
-        $('tbody input.check_item', dataTable_deploy_hosts).removeAttr('checked');
-
-        $('#host_selected', dialog).show();
-        $('#select_host', dialog).hide();
-        $('.alert-box', dialog).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#HOST_NAME', dialog).text(aData[2]);
-        $('#HOST_ID', dialog).val(aData[1]);
-        return true;
-    });
-
-    $("#refresh_deploy_hosts_table_button_class").die();
-    $("#refresh_deploy_hosts_table_button_class").live('click', function(){
-        update_datatable_template_hosts($('#deploy_datatable_hosts').dataTable());
-    });
-
-
-    var dataTable_deploy_datastores = $('#deploy_datatable_datastores', dialog).dataTable({
-      "bSortClasses": false,
-      "bDeferRender": true,
-      "iDisplayLength": 4,
-      "bAutoWidth":false,
-      "sDom" : '<"H">t<"F"p>',
-      "aoColumnDefs": [
-          { "sWidth": "35px", "aTargets": [0,1] },
-          { "bVisible": false, "aTargets": [0,5,7,8,9,10] }
-      ],
-        "fnDrawCallback": function(oSettings) {
-          var nodes = this.fnGetNodes();
-          $.each(nodes, function(){
-              if ($(this).find("td:eq(0)").html() == $('#DATASTORE_ID', dialog).val()) {
-                  $("td", this).addClass('markrow');
-                  $('input.check_item', this).attr('checked','checked');
-              }
-          })
-        }
-    });
-
-    // Retrieve the images to fill the datatable
-    update_datatable_template_datastores(dataTable_deploy_datastores);
-
-    $('#deploy_datastores_table_search', dialog).keyup(function(){
-    dataTable_deploy_datastores.fnFilter( $(this).val() );
-    })
-
-    $('#deploy_datatable_datastores tbody', dialog).delegate("tr", "click", function(e){
-      var aData = dataTable_deploy_datastores.fnGetData(this);
-
-      $("td.markrow", dataTable_deploy_datastores).removeClass('markrow');
-      $('tbody input.check_item', dataTable_deploy_datastores).removeAttr('checked');
-
-      $('#datastore_selected', dialog).show();
-      $('#select_datastore', dialog).hide();
-      $('.alert-box', dialog).hide();
-
-      $("td", this).addClass('markrow');
-      $('input.check_item', this).attr('checked','checked');
-
-      $('#DATASTORE_NAME', dialog).text(aData[4]);
-      $('#DATASTORE_ID', dialog).val(aData[1]);
-      return true;
-    });
-
-    $("#refresh_deploy_datastores_table_button_class").die();
-    $("#refresh_deploy_datastores_table_button_class").live('click', function(){
-      update_datatable_template_datastores($('#deploy_datatable_datastores').dataTable());
-    });
-
-    dataTable_deploy_datastores.fnFilter("system",10);
-
+    $('#refresh_button_deploy_vm', dialog).click();
+    $('#refresh_button_deploy_vm_ds', dialog).click();
 
     $('#advanced_deploy', dialog).hide();
     $('#advanced_toggle',dialog).click(function(){
@@ -3171,14 +2815,14 @@ function setupDeployVMDialog(){
     $('#deploy_vm_form',dialog).submit(function(){
         var extra_info = {};
 
-        if ($('#HOST_ID', dialog).val()) {
-            extra_info['host_id'] = $('#HOST_ID', dialog).val();
+        if ($("#selected_resource_id_deploy_vm", dialog).val()) {
+            extra_info['host_id'] = $("#selected_resource_id_deploy_vm", dialog).val();
         } else {
             notifyError(tr("You have not selected a host"));
             return false;
         }
 
-        extra_info['ds_id'] = $('#DATASTORE_ID', dialog).val() || -1
+        extra_info['ds_id'] = $("#selected_resource_id_deploy_vm_ds", dialog).val() || -1
         extra_info['enforce'] = $("#enforce", this).is(":checked") ? true : false
 
         //notifySubmit("Template.instantiate",template_id, extra_msg);
@@ -3200,62 +2844,42 @@ function setupMigrateVMDialog(live){
     dialog.html(migrate_vm_tmpl);
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    var dataTable_migrate_hosts = $('#migrate_datatable_hosts', dialog).dataTable({
-        "bSortClasses": false,
-        "bDeferRender": true,
-        "iDisplayLength": 4,
-        "bAutoWidth":false,
-        "sDom" : '<"H">t<"F"p>',
-        "aoColumnDefs": [
-              { "bSortable": false, "aTargets": ["check",5,6,7,8] },
-              { "sWidth": "35px", "aTargets": [0] }, //check, ID, RVMS, Status,
-              { "bVisible": false, "aTargets": [3,5,7,10,11,12]}
-        ],
-          "fnDrawCallback": function(oSettings) {
-            var nodes = this.fnGetNodes();
-            $.each(nodes, function(){
-                if ($(this).find("td:eq(0)").html() == $('#HOST_ID', dialog).val()) {
-                    $("td", this).addClass('markrow');
-                    $('input.check_item', this).attr('checked','checked');
-                }
-            })
-          }
+    $.each(getSelectedNodes(dataTable_vMachines), function(){
+        var vm_id = ""+this;
+
+        OpenNebula.VM.show({
+            data : {
+                id: vm_id
+            },
+            timeout: true,
+            success: function (request, vm_json){
+
+                var vm = vm_json.VM;
+                var state = OpenNebula.Helper.resource_state("vm",vm.STATE);
+
+                if (state == tr("ACTIVE") || state == tr("SUSPENDED") || state == tr("POWEROFF")){
+                    var hostname = "";
+
+                    if (vm.HISTORY_RECORDS.HISTORY.constructor == Array){
+                        hostname = vm.HISTORY_RECORDS.HISTORY[vm.HISTORY_RECORDS.HISTORY.length-1].HOSTNAME;
+                    } else {
+                        hostname = vm.HISTORY_RECORDS.HISTORY.HOSTNAME;
+                    };
+
+                    $("#current_hosts_of_vms").append(
+                        '<span class="radius secondary label">'+
+                        tr("VM")+' ['+ vm.ID + '] ' +
+                        tr("is currently running on Host") +
+                        ' [' + hostname + ']</span><br>'
+                    );
+                };
+            }
+        });
     });
 
-    $('tbody input.check_item:checked',dataTable_vMachines).each(function(){
-        var data = dataTable_vMachines.fnGetData( $(this).closest('tr')[0] );
-        $("#current_hosts_of_vms").append('<span class="radius secondary label">'+tr("VM")+' ['+$(this).val() + '] ' + tr("is currently running on Host") + ' [' + data[8] + ']</span><br>')
-    });
+    setupHostTableSelect(dialog, "migrate_vm");
 
-    // Retrieve the images to fill the datatable
-    update_datatable_template_hosts(dataTable_migrate_hosts);
-
-    $('#migrate_hosts_table_search', dialog).keyup(function(){
-      dataTable_migrate_hosts.fnFilter( $(this).val() );
-    })
-
-    $('#migrate_datatable_hosts tbody', dialog).delegate("tr", "click", function(e){
-        var aData = dataTable_migrate_hosts.fnGetData(this);
-
-        $("td.markrow", dataTable_migrate_hosts).removeClass('markrow');
-        $('tbody input.check_item', dataTable_migrate_hosts).removeAttr('checked');
-
-        $('#host_selected', dialog).show();
-        $('#select_host', dialog).hide();
-        $('.alert-box', dialog).hide();
-
-        $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked','checked');
-
-        $('#HOST_NAME', dialog).text(aData[2]);
-        $('#HOST_ID', dialog).val(aData[1]);
-        return true;
-    });
-
-    $("#refresh_migrate_hosts_table_button_class").die();
-    $("#refresh_migrate_hosts_table_button_class").live('click', function(){
-        update_datatable_template_hosts($('#migrate_datatable_hosts').dataTable());
-    });
+    $('#refresh_button_migrate_vm', dialog).click();
 
     $('#advanced_migrate', dialog).hide();
     $('#advanced_migrate_toggle',dialog).click(function(){
@@ -3268,16 +2892,14 @@ function setupMigrateVMDialog(live){
     $('#migrate_vm_form',dialog).submit(function(){
         var extra_info = {};
 
-        if ($('#HOST_ID', dialog).val()) {
-            extra_info['host_id'] = $('#HOST_ID', dialog).val();
+        if ($("#selected_resource_id_migrate_vm", dialog).val()) {
+            extra_info['host_id'] = $("#selected_resource_id_migrate_vm", dialog).val();
         } else {
             notifyError(tr("You have not selected a host"));
             return false;
         }
 
         extra_info['enforce'] = $("#enforce", this).is(":checked") ? true : false
-
-        //notifySubmit("Template.instantiate",template_id, extra_msg);
 
         $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
           if (live) {
@@ -3389,15 +3011,27 @@ function setupVNC(){
         var id = $(this).attr('vm_id');
 
         //Ask server for connection params
-        Sunstone.runAction("VM.startvnc_action",id);
-        return false;
+        if (!vnc_lock) {
+            vnc_lock = true
+            Sunstone.runAction("VM.startvnc_action",id);
+            return false;
+        } else {
+            notifyError(tr("VNC Connection in progress"))
+            return false;
+        }
     });
 }
 
 // Open vnc window
 function popUpVnc(){
     $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
-        Sunstone.runAction("VM.startvnc_action", elem);
+        if (!vnc_lock) {
+            vnc_lock = true
+            Sunstone.runAction("VM.startvnc_action", elem);
+        } else {
+            notifyError(tr("VNC Connection in progress"))
+            return false;
+        }
     });
 }
 
@@ -3427,6 +3061,7 @@ function vncCallback(request,response){
     $("#open_in_a_new_window").attr('href', url)
     rfb.connect(proxy_host, proxy_port, pw, path);
     $vnc_dialog.foundation("reveal", "open");
+    vnc_lock = false;
 
     $vnc_dialog.off("closed");
     $vnc_dialog.on("closed", function () {

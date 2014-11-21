@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerInfo.h"
+#include "RequestManagerPoolInfoFilter.h"
 
 using namespace std;
 
@@ -47,15 +48,15 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     object = pool->get(oid,true);
 
-    if ( object == 0 )                             
-    {                                            
+    if ( object == 0 )
+    {
         failure_response(NO_EXISTS,
                 get_error(object_name(auth_object),oid),
                 att);
         return;
-    }    
+    }
 
-    to_xml(object, str);
+    to_xml(att, object, str);
 
     object->unlock();
 
@@ -64,3 +65,41 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
     return;
 }
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
+    string& str)
+{
+    vector<int> vms;
+    vector<int> vnets;
+
+    string where_vnets;
+    string where_vms;
+
+    bool all_reservations = RequestManagerPoolInfoFilter::use_filter(att,
+            PoolObjectSQL::NET, true, true, false, "(pid != -1)", where_vnets);
+
+    bool all_vms = RequestManagerPoolInfoFilter::use_filter(att,
+            PoolObjectSQL::VM, false, false, false, "", where_vms);
+
+    if ( all_reservations == true )
+    {
+        vnets.push_back(-1);
+    }
+    else
+    {
+        Nebula::instance().get_vnpool()->search(vnets, where_vnets);
+    }
+
+    if ( all_vms == true )
+    {
+        vms.push_back(-1);
+    }
+    else
+    {
+        Nebula::instance().get_vmpool()->search(vms, where_vms);
+    }
+
+    static_cast<VirtualNetwork*>(object)->to_xml_extended(str, vms, vnets);
+};

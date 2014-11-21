@@ -1,12 +1,12 @@
 NAME    = "Blue LAN"
-TYPE    = FIXED
 
 BRIDGE  = vbr1
 
-LEASES  = [IP=130.10.0.1]
-LEASES  = [IP=130.10.0.2, MAC=50:20:20:20:20:21]
-LEASES  = [IP=130.10.0.3]
-LEASES  = [IP=130.10.0.4]
+AR = [
+    IP = 130.10.0.1,
+    TYPE = IP4,
+    SIZE = 4
+]
 
 # Custom Attributes to be used in Context
 GATEWAY = 130.10.0.1

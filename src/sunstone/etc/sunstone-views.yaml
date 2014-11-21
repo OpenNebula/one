@@ -22,11 +22,13 @@ available_tabs:
     - oneflow-services
     - oneflow-templates
     - provision-tab
+    - support-tab
 groups:
     oneadmin:
         - admin
         - vdcadmin
         - user
         - cloud
+        - vcenter
 default:
     - cloud

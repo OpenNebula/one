@@ -230,41 +230,27 @@ void ImageClone::request_execute(
     string name     = xmlrpc_c::value_string(paramList.getString(2));
 
     long long       avail, size;
-    int             rc, new_id, ds_id, umask;
-    string          error_str, ds_name, ds_data;
+    int             rc, new_id, ds_id_orig, ds_id = -1;
+    string          error_str, ds_name, ds_data, ds_mad;
     bool            ds_check;
 
     Image::DiskType disk_type;
-    PoolObjectAuth  perms, ds_perms;
+    PoolObjectAuth  perms, ds_perms, ds_perms_orig;
 
     ImageTemplate * tmpl;
     Template        img_usage;
     Image *         img;
     Datastore *     ds;
-    User *          user;
 
     Nebula&  nd = Nebula::instance();
 
     DatastorePool * dspool = nd.get_dspool();
     ImagePool *     ipool  = static_cast<ImagePool *>(pool);
-    UserPool *      upool  = nd.get_upool();
 
-    // ------------------------- Get user's umask ------------------------------
-
-    user = upool->get(att.uid, true);
-
-    if ( user == 0 )
+    if (paramList.size() > 3)
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER), att.uid),
-                att);
-
-        return;
+        ds_id = xmlrpc_c::value_int(paramList.getInt(3));
     }
-
-    umask = user->get_umask();
-
-    user->unlock();
 
     // ------------------------- Get source Image info -------------------------
 
@@ -300,13 +286,18 @@ void ImageClone::request_execute(
 
     img->get_permissions(perms);
 
-    ds_id   = img->get_ds_id();
-    ds_name = img->get_ds_name();
-    size    = img->get_size();
+    if (ds_id == -1) //Target Datastore not set, use the current one
+    {
+        ds_id = img->get_ds_id();
+    }
+
+    ds_id_orig = img->get_ds_id();
+
+    size = img->get_size();
 
     img->unlock();
 
-    // ------------------------- Get Datastore info ----------------------------
+    // ----------------------- Get target Datastore info -----------------------
 
     ds = dspool->get(ds_id, true);
 
@@ -320,15 +311,14 @@ void ImageClone::request_execute(
         return;
     }
 
-    if ( ds->get_type() == Datastore::FILE_DS )
+    if ( ds->get_type() != Datastore::IMAGE_DS )
     {
-        failure_response(ACTION, "Clone not supported for FILE_DS Datastores",
-            att);
-
-        delete tmpl;
+        failure_response(ACTION,
+            request_error("Clone only supported for IMAGE_DS Datastores",""),att);
 
         ds->unlock();
 
+        delete tmpl;
         return;
     }
 
@@ -339,8 +329,50 @@ void ImageClone::request_execute(
     ds->to_xml(ds_data);
 
     ds_check = ds->get_avail_mb(avail);
+    ds_name  = ds->get_name();
+    ds_mad   = ds->get_ds_mad();
 
     ds->unlock();
+
+    if (ds_id != ds_id_orig) //check same DS_MAD
+    {
+        ds = dspool->get(ds_id_orig, true);
+
+        if (ds == 0)
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE),ds_id_orig),att);
+
+            delete tmpl;
+            return;
+        }
+
+        if (ds->get_type() != Datastore::IMAGE_DS)
+        {
+            failure_response(ACTION, request_error(
+                "Clone only supported for IMAGE_DS Datastores",""), att);
+
+            ds->unlock();
+
+            delete tmpl;
+            return;
+        }
+
+        if (ds->get_ds_mad() != ds_mad)
+        {
+            failure_response(ACTION, request_error(
+                "Clone only supported to same DS_MAD Datastores",""), att);
+
+            ds->unlock();
+
+            delete tmpl;
+            return;
+        }
+
+        ds->get_permissions(ds_perms_orig);
+
+        ds->unlock();
+    }
 
     // ------------- Set authorization request ---------------------------------
 
@@ -349,7 +381,8 @@ void ImageClone::request_execute(
 
     if (ds_check && (size > avail))
     {
-        failure_response(ACTION, "Not enough space in datastore", att);
+        failure_response(ACTION,
+            request_error("Not enough space in datastore",""), att);
 
         delete tmpl;
         return;
@@ -367,6 +400,11 @@ void ImageClone::request_execute(
         ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str); // CREATE IMAGE
 
         ar.add_auth(AuthRequest::USE, ds_perms); // USE DATASTORE
+
+        if (ds_id != ds_id_orig) // USE (original) DATASTORE
+        {
+            ar.add_auth(AuthRequest::USE, ds_perms_orig); // USE DATASTORE
+        }
 
         if (UserPool::authorize(ar) == -1)
         {
@@ -391,7 +429,7 @@ void ImageClone::request_execute(
                          att.gid,
                          att.uname,
                          att.gname,
-                         umask,
+                         att.umask,
                          tmpl,
                          ds_id,
                          ds_name,

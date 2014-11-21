@@ -695,9 +695,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // Get information about the system DS to use (tm_mad)
     // ------------------------------------------------------------------------
 
-    if (is_public_cloud)
-    {
-        ds_id = -1;
+    if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
+    {                    // by VirtualMachine::get_host_is_cloud()
+        ds_id  = -1;
+        tm_mad = "";
     }
     else
     {
@@ -774,10 +775,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
     }
-
-
-
-
 
     // ------------------------------------------------------------------------
     // Add a new history record and deploy the VM
@@ -885,7 +882,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     if((vm->get_state()     != VirtualMachine::ACTIVE)  ||
-       (vm->get_lcm_state() != VirtualMachine::RUNNING) ||
+       (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+        vm->get_lcm_state() != VirtualMachine::UNKNOWN) ||
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
         failure_response(ACTION,
@@ -1005,7 +1003,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (live == true)
+    if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
         dm->live_migrate(vm);
     }
@@ -1029,7 +1027,6 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     ImagePool *     ipool  = nd.get_ipool();
     DatastorePool * dspool = nd.get_dspool();
-    UserPool *      upool  = nd.get_upool();
     VMTemplatePool* tpool  = nd.get_tpool();
 
     int    id          = xmlrpc_c::value_int(paramList.getInt(1));
@@ -1060,24 +1057,6 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     string driver;
     string target;
     string dev_prefix;
-
-    // -------------------------------------------------------------------------
-    // Get user's umask
-    // -------------------------------------------------------------------------
-    User * user = upool->get(att.uid, true);
-
-    if ( user == 0 )
-    {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::USER), att.uid),
-                att);
-
-        return;
-    }
-
-    int umask = user->get_umask();
-
-    user->unlock();
 
     // -------------------------------------------------------------------------
     // Prepare and check the VM/DISK to be saved_as
@@ -1310,7 +1289,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
                              att.gid,
                              att.uname,
                              att.gname,
-                             umask,
+                             att.umask,
                              itemplate,
                              ds_id,
                              ds_name,
@@ -1423,7 +1402,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     //Allocate the template
 
-    rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname, umask,
+    rc = tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
                 tmpl, &ntid, error_str);
 
     if (rc < 0)

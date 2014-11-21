@@ -137,17 +137,6 @@ class VMwareDriver
     end
 
     # ------------------------------------------------------------------------ #
-    # Reset a running VM                                                       #
-    # ------------------------------------------------------------------------ #
-    def reset(deploy_id)
-        rc, info = do_action("virsh -c #{@uri} reset #{deploy_id}")
-
-        exit info if rc == false
-
-        OpenNebula.log_debug("Domain #{deploy_id} successfully reseted.")
-    end
-
-    # ------------------------------------------------------------------------ #
     # Migrate                                                                  #
     # ------------------------------------------------------------------------ #
     def migrate(deploy_id, dst_host, src_host)
@@ -159,39 +148,6 @@ class VMwareDriver
         rc, info = do_action(mgr_cmd)
 
         exit info if rc == false
-    end
-
-    # ------------------------------------------------------------------------ #
-    # Monitor a VM                                                             #
-    # ------------------------------------------------------------------------ #
-    def poll(deploy_id)
-        rc, info = do_action("virsh -c #{@uri} --readonly dominfo #{deploy_id}")
-
-        return "STATE=d" if rc == false
-
-        state = ""
-
-        info.split('\n').each{ |line|
-            mdata = line.match("^State: (.*)")
-
-            if mdata
-                state = mdata[1].strip
-                break
-            end
-        }
-
-        case state
-            when "running","blocked","shutdown","dying"
-                state_short = 'a'
-            when "paused"
-                state_short = 'p'
-            when "crashed"
-                state_short = 'c'
-            else
-                state_short = 'd'
-        end
-
-        return "STATE=#{state_short}"
     end
 
     # ------------------------------------------------------------------------ #
@@ -221,9 +177,12 @@ class VMwareDriver
         # this it is needed to change also [1]
         #
         # [1] $ONE_LOCATION/lib/remotes/vmm/vmware/checkpoint
-
-        rc, info = do_action(
-            "virsh -c #{@uri} snapshot-revert #{deploy_id} checkpoint")
+        rc = false
+        2.times {
+            rc, info = do_action(
+                "virsh -c #{@uri} snapshot-revert #{deploy_id} checkpoint")
+            break if rc == true
+        }
 
         exit info if rc == false
 
@@ -358,7 +317,7 @@ class VMwareDriver
     # Undefines a domain in the ESX hypervisor
     def undefine_domain(id)
         if @vcenter and !@vcenter.empty? and @datacenter and !@datacenter.empty?
-            undefine_uri = 
+            undefine_uri =
                   "vpx://#{@vcenter}/#{@datacenter}/#{@host}/?no_verify=1"
         else
             undefine_uri = @uri
@@ -375,7 +334,7 @@ class VMwareDriver
         if rc == false
             OpenNebula.log_error("Error undefining domain #{id}")
             OpenNebula.log_error("Domain #{id} has to be undefined manually")
-            return info
+            return rc
         end
 
         return 0
@@ -429,11 +388,22 @@ class VMwareDriver
         # Append the raw datavmx to vmx file
         metadata   = REXML::XPath.first(dfile_hash, "/domain/metadata/datavmx")
 
-        return if metadata.nil?
-        return if metadata.text.nil?
-        return if metadata.text.strip.empty?
+        if metadata.nil? || metadata.text.nil? || metadata.text.strip.empty?
+            metadata = ''
+        else
+            metadata = metadata.text
+        end
 
-        metadata = metadata.text
+        if !@reserve_memory
+            mem_txt = REXML::XPath.first(dfile_hash, "/domain/memory").text
+            mem     = mem_txt.to_i/1024
+
+            metadata << "\\nsched.mem.min = \"#{mem}\""
+            metadata << "\\nsched.mem.shares = \"normal\""
+            metadata << "\\nsched.mem.pin = \"TRUE\""
+        end
+
+        return if metadata.strip.empty?
 
         # Get the ds_id for system_ds from the first disk
         disk   = REXML::XPath.first(dfile_hash, "/domain//disk/source")
@@ -446,15 +416,6 @@ class VMwareDriver
         # Reconstruct path to vmx & add metadata
         path_to_vmx =  "\$(find /vmfs/volumes/#{ds_id}/#{vm_id}/"
         path_to_vmx << " -name #{name}.vmx)"
-
-        if !@reserve_memory
-            mem_txt = REXML::XPath.first(dfile_hash, "/domain/memory").text
-            mem     = mem_txt.to_i/1024
-
-            metadata << "\\nsched.mem.min = \"#{mem}\""
-            metadata << "\\nsched.mem.shares = \"normal\""
-            metadata << "\\nsched.mem.pin = \"TRUE\""
-        end
 
         metadata.gsub!("\\n","\n")
 

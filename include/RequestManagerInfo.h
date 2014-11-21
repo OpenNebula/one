@@ -45,7 +45,8 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void to_xml(PoolObjectSQL * object, string& str)
+    virtual void to_xml(RequestAttributes& att, PoolObjectSQL * object,
+        string& str)
     {
         object->to_xml(str);
     };
@@ -60,7 +61,7 @@ public:
     VirtualMachineInfo():
         RequestManagerInfo("VirtualMachineInfo",
                            "Returns virtual machine instance information")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
@@ -70,10 +71,9 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(PoolObjectSQL * object, string& str)
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str)
     {
-        VirtualMachine * vm = static_cast<VirtualMachine *>(object);
-        vm->to_xml_extended(str);
+        static_cast<VirtualMachine *>(object)->to_xml_extended(str);
     };
 };
 
@@ -86,7 +86,7 @@ public:
     TemplateInfo():
         RequestManagerInfo("TemplateInfo",
                            "Returns virtual machine template information")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
@@ -105,7 +105,7 @@ public:
     VirtualNetworkInfo():
         RequestManagerInfo("VirtualNetworkInfo",
                            "Returns virtual network information")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -115,11 +115,7 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(PoolObjectSQL * object, string& str)
-    {
-        VirtualNetwork * vn = static_cast<VirtualNetwork*>(object);
-        vn->to_xml_extended(str);
-    };
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -131,7 +127,7 @@ public:
     ImageInfo():
         RequestManagerInfo("ImageInfo",
                            "Returns image information")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;
@@ -150,7 +146,7 @@ public:
     HostInfo():
         RequestManagerInfo("HostInfo",
                            "Returns host information")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_hpool();
         auth_object = PoolObjectSQL::HOST;
@@ -178,10 +174,9 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(PoolObjectSQL * object, string& str)
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str)
     {
-        Group * group = static_cast<Group*>(object);
-        group->to_xml_extended(str);
+        static_cast<Group*>(object)->to_xml_extended(str);
     };
 };
 
@@ -204,10 +199,9 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    void to_xml(PoolObjectSQL * object, string& str)
+    void to_xml(RequestAttributes& att, PoolObjectSQL * object, string& str)
     {
-        User * user = static_cast<User*>(object);
-        user->to_xml_extended(str);
+        static_cast<User*>(object)->to_xml_extended(str);
     };
 };
 

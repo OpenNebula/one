@@ -36,6 +36,7 @@ public:
     VirtualNetworkPool(SqlDB *                          db,
                        const string&                    str_mac_prefix,
                        int                              default_size,
+                       vector<const Attribute *>&       restricted_attrs,
                        vector<const Attribute *>        hook_mads,
                        const string&                    remotes_location,
                        const vector<const Attribute *>& _inherit_attrs);
@@ -62,6 +63,7 @@ public:
         const string&               uname,
         const string&               gname,
         int                         umask,
+        int                         parent_vid,
         VirtualNetworkTemplate *    vn_template,
         int *                       oid,
         int                         cluster_id,
@@ -166,6 +168,17 @@ public:
         return _default_size;
     };
 
+    /**
+     *  Gets the IDs of VNETs matching the given SQL where string.
+     *    @param oids a vector that contains the IDs
+     *    @param where SQL clause
+     *    @return 0 on success
+     */
+    int search(vector<int>& oids, const string& where)
+    {
+        return PoolSQL::search(oids, VirtualNetwork::table, where);
+    };
+
 private:
     /**
      *  Holds the system-wide MAC prefix
@@ -188,7 +201,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        return new VirtualNetwork(-1,-1,"","",0,-1,"",0);
+        return new VirtualNetwork(-1,-1,"","",0,-1,-1,"",0);
     };
 
     /**

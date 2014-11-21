@@ -147,6 +147,17 @@ void Nebula::start(bool bootstrap_only)
     }
 
     // -----------------------------------------------------------
+    // Load the OpenNebula master key and keep it in memory
+    // -----------------------------------------------------------
+
+    rc = nebula_configuration->load_key();
+
+    if ( rc != 0 )
+    {
+        throw runtime_error("Could not load nebula master key file.");
+    }
+
+    // -----------------------------------------------------------
     // Initialize the XML library
     // -----------------------------------------------------------
     xmlInitParser();
@@ -214,6 +225,8 @@ void Nebula::start(bool bootstrap_only)
             }
         }
     }
+
+    Log::set_zone_id(zone_id);
 
     // -----------------------------------------------------------
     // Database
@@ -461,6 +474,7 @@ void Nebula::start(bool bootstrap_only)
 
         vector<const Attribute *> vm_restricted_attrs;
         vector<const Attribute *> img_restricted_attrs;
+        vector<const Attribute *> vnet_restricted_attrs;
 
         vector<const Attribute *> inherit_image_attrs;
         vector<const Attribute *> inherit_datastore_attrs;
@@ -479,6 +493,7 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_RESTRICTED_ATTR", vm_restricted_attrs);
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
+        nebula_configuration->get("VNET_RESTRICTED_ATTR", vnet_restricted_attrs);
 
         nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
         nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_datastore_attrs);
@@ -508,6 +523,7 @@ void Nebula::start(bool bootstrap_only)
         vnpool = new VirtualNetworkPool(db,
                                         mac_prefix,
                                         size,
+                                        vnet_restricted_attrs,
                                         vnet_hooks,
                                         remotes_location,
                                         inherit_vnet_attrs);
@@ -804,7 +820,7 @@ void Nebula::start(bool bootstrap_only)
         int  keepalive_max_conn;
         int  timeout;
         bool rpc_log;
-
+        string log_call_format;
         string rpc_filename = "";
 
         nebula_configuration->get("PORT", rm_port);
@@ -814,6 +830,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("KEEPALIVE_MAX_CONN", keepalive_max_conn);
         nebula_configuration->get("TIMEOUT", timeout);
         nebula_configuration->get("RPC_LOG", rpc_log);
+        nebula_configuration->get("LOG_CALL_FORMAT", log_call_format);
 
         if (rpc_log)
         {
@@ -821,7 +838,8 @@ void Nebula::start(bool bootstrap_only)
         }
 
         rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
-            keepalive_timeout, keepalive_max_conn, timeout, rpc_filename);
+            keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
+            log_call_format);
     }
     catch (bad_alloc&)
     {

@@ -327,10 +327,16 @@ class EC2Driver
 
         vms_info = "VM_POLL=YES\n"
 
-        usedcpu = 0
+        #
+        # Add information for running VMs (running and pending).
+        #
+        usedcpu    = 0
         usedmemory = 0
+
         begin
             AWS.ec2.instances.each do |i|
+                next if i.status != :pending && i.status != :running
+
                 poll_data=parse_poll(i)
 
                 one_id = i.tags['ONE_ID']
@@ -404,10 +410,8 @@ private
             if all_ec2_elements.size == 1
                 ec2 = all_ec2_elements[0]
             else
-                STDERR.puts(
-                    "Cannot find EC2 element in deployment file "<<
-                    "#{local_dfile} or couldn't find any EC2 site matching "<<
-                    "one of the template.")
+                STDERR.puts("Cannot find EC2 element in deployment file or no" \
+                    "EC2 site matching in the template.")
                 exit(-1)
             end
         end

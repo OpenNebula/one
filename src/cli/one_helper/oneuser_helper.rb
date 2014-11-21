@@ -17,7 +17,17 @@
 require 'one_helper'
 require 'one_helper/onequota_helper'
 
+# Interface for OpenNebula generated tokens.
+class TokenAuth
+    def login_token(username, expire)
+        return OpenNebulaHelper::OneHelper.get_password
+    end
+end
+
 class OneUserHelper < OpenNebulaHelper::OneHelper
+
+    ONE_AUTH     = ENV['HOME']+'/.one/one_auth'
+
     def self.rname
         "USER"
     end
@@ -90,7 +100,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         return 0, auth.password
     end
 
-    def self.login(username, options)
+    ############################################################################
+    # Generates a token and stores it in ONE_AUTH path as defined in this class
+    ############################################################################
+    def login(username, options)
+
+        #-----------------------------------------------------------------------
+        # Init the associated Authentication class to generate the token.
+        #-----------------------------------------------------------------------
         case options[:driver]
         when OpenNebula::User::SSH_AUTH
             require 'opennebula/ssh_auth'
@@ -102,6 +119,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
+
         when OpenNebula::User::X509_AUTH
             require 'opennebula/x509_auth'
 
@@ -116,6 +134,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue Exception => e
                 return -1, e.message
             end
+
         when OpenNebula::User::X509_PROXY_AUTH
             require 'opennebula/x509_auth'
 
@@ -134,15 +153,59 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             rescue => e
                 return -1, e.message
             end
+
         else
-            return -1, "You have to specify an Auth method"
+            auth = TokenAuth.new() #oned generated token
         end
 
-        options[:time] ||= 3600
+        #-----------------------------------------------------------------------
+        # Authenticate with oned using the token/passwd and set/generate the
+        # authentication token for the user
+        #-----------------------------------------------------------------------
 
-        auth.login(username, options[:time])
+        # This breaks the CLI SSL support for Ruby 1.8.7, but is necessary
+        # in order to do template updates, otherwise you get the broken pipe
+        # error (bug #3341)
+        if RUBY_VERSION < '1.9'
+            sync = false
+        else
+            sync = true
+        end
 
-        return 0, 'export ONE_AUTH=' << auth.class::LOGIN_PATH
+        token        = auth.login_token(username, options[:time])
+        login_client = OpenNebula::Client.new("#{username}:#{token}",
+                                              nil,
+                                              :sync => sync)
+
+        user = OpenNebula::User.new(User.build_xml, login_client)
+
+        token_oned = user.login(username, token, options[:time])
+
+        return -1, token_oned.message if OpenNebula.is_error?(token_oned)
+
+        #-----------------------------------------------------------------------
+        # Check that ONE_AUTH target can be written
+        #-----------------------------------------------------------------------
+        if File.file?(ONE_AUTH) && !options[:force]
+                return 0, "File #{ONE_AUTH} exists, use --force to overwrite."\
+                "\nAuthentication Token is:\n#{username}:#{token_oned}"
+        end
+
+        #-----------------------------------------------------------------------
+        # Store the token in ONE_AUTH.
+        #-----------------------------------------------------------------------
+        begin
+            FileUtils.mkdir_p(File.dirname(ONE_AUTH))
+        rescue Errno::EEXIST
+        end
+
+        file = File.open(ONE_AUTH, "w")
+        file.write("#{username}:#{token_oned}")
+        file.close
+
+        File.chmod(0600, ONE_AUTH)
+
+        return 0, ''
     end
 
     def format_pool(options)
@@ -190,12 +253,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["VMS"]
 
-                    if limit == "-1"
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/VMS")
-                        limit = "0" if limit.nil? || limit == ""
+                        if limit.nil? || limit == ""
+                            limit = OneQuotaHelper::LIMIT_UNLIMITED
+                        end
                     end
 
-                    "%3d / %3d" % [q['VM_QUOTA']['VM']["VMS_USED"], limit]
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%3d /   -" % [q['VM_QUOTA']['VM']["VMS_USED"]]
+                    else
+                        "%3d / %3d" % [q['VM_QUOTA']['VM']["VMS_USED"], limit]
+                    end
 
                 rescue NoMethodError
                     "-"
@@ -207,13 +276,21 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["MEMORY"]
 
-                    if limit == "-1"
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/MEMORY")
-                        limit = "0" if limit.nil? || limit == ""
+                        if limit.nil? || limit == ""
+                            limit = OneQuotaHelper::LIMIT_UNLIMITED
+                        end
                     end
 
-                    "%7s / %7s" % [OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
-                    OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%7s /       -" % [
+                            OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M")]
+                    else
+                        "%7s / %7s" % [
+                            OpenNebulaHelper.unit_to_str(q['VM_QUOTA']['VM']["MEMORY_USED"].to_i,{},"M"),
+                            OpenNebulaHelper.unit_to_str(limit.to_i,{},"M")]
+                    end
 
                 rescue NoMethodError
                     "-"
@@ -225,12 +302,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                     q = quotas[d['ID']]
                     limit = q['VM_QUOTA']['VM']["CPU"]
 
-                    if limit == "-1"
+                    if limit == OneQuotaHelper::LIMIT_DEFAULT
                         limit = pool_default_quotas("VM_QUOTA/VM/CPU")
-                        limit = "0" if limit.nil? || limit == ""
+                        if limit.nil? || limit == ""
+                            limit = OneQuotaHelper::LIMIT_UNLIMITED
+                        end
                     end
 
-                    "%3.1f / %3.1f" % [q['VM_QUOTA']['VM']["CPU_USED"], limit]
+                    if limit == OneQuotaHelper::LIMIT_UNLIMITED
+                        "%3.1f /   -" % [q['VM_QUOTA']['VM']["CPU_USED"]]
+                    else
+                        "%3.1f / %3.1f" % [q['VM_QUOTA']['VM']["CPU_USED"], limit]
+                    end
 
                 rescue NoMethodError
                     "-"
@@ -278,6 +361,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         puts str % ["SECONDARY GROUPS", groups.join(',') ] if groups.size > 1
         puts str % ["PASSWORD",    user['PASSWORD']]
         puts str % ["AUTH_DRIVER", user['AUTH_DRIVER']]
+
+        if !user['LOGIN_TOKEN/TOKEN'].nil?
+            puts str % ["LOGIN_TOKEN", user['LOGIN_TOKEN/TOKEN']]
+
+            etime = user['LOGIN_TOKEN/EXPIRATION_TIME']
+
+            validity_str = case etime
+                when nil  then ""
+                when "-1" then "forever"
+                else "not after #{Time.at(etime.to_i)}"
+            end
+
+            puts str % ["TOKEN VALIDITY", validity_str ]
+        end
 
         puts str % ["ENABLED",
             OpenNebulaHelper.boolean_to_str(user['ENABLED'])]

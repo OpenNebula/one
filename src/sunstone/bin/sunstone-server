@@ -82,6 +82,14 @@ start()
 
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
+
+  if [ "$?" != "0" ]; then
+    echo "Error creating lock file" 1>&2
+
+    $NOVNC_SERVER stop
+    exit 1
+  fi
+
   ruby $SUNSTONE_SERVER > $SUNSTONE_LOG 2>$SUNSTONE_LOG_ERROR &
   LASTPID=$!
 

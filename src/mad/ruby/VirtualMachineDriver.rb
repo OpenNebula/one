@@ -77,7 +77,8 @@ class VirtualMachineDriver < OpenNebulaDriver
     # @option options [Boolean] :threaded (true) enables or disables threads
     def initialize(directory, options={})
         @options={
-            :threaded => true
+            :threaded    => true,
+            :single_host => true
         }.merge!(options)
 
         super(directory, @options)
@@ -214,8 +215,17 @@ class VirtualMachineDriver < OpenNebulaDriver
     end
 
 private
+
     # Interface to handle the pending events from the ActionManager Interface
     def delete_running_action(action_id)
+        if @options[:single_host]
+            delete_running_action_single_host(action_id)
+        else
+            super(action_id)
+        end
+    end
+
+    def delete_running_action_single_host(action_id)
         action=@action_running[action_id]
         if action
             @hosts.delete(action[:host])
@@ -224,6 +234,14 @@ private
     end
 
     def get_first_runable
+        if @options[:single_host]
+            get_first_runable_single_host
+        else
+            super
+        end
+    end
+
+    def get_first_runable_single_host
         action_index=nil
         @action_queue.each_with_index do |action, index|
             if !action.keys.include?(:host)
@@ -255,6 +273,14 @@ private
     end
 
     def get_runable_action
+        if @options[:single_host]
+            get_runable_action_single_host
+        else
+            super
+        end
+    end
+
+    def get_runable_action_single_host
         action_index=get_first_runable
 
         if action_index
@@ -272,6 +298,14 @@ private
     end
 
     def empty_queue
+        if @options[:single_host]
+            empty_queue_single_host
+        else
+            super
+        end
+    end
+
+    def empty_queue_single_host
         get_first_runable==nil
     end
 end

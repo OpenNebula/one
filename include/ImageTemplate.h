@@ -43,6 +43,22 @@ public:
         return Template::check(rs_attr, restricted_attributes);
     };
 
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted()
+    {
+        Template::remove_restricted(restricted_attributes);
+    };
+
+    /**
+     * Deletes all the attributes, except the restricted ones
+     */
+    void remove_all_except_restricted()
+    {
+        Template::remove_all_except_restricted(restricted_attributes);
+    };
+
     bool is_saving()
     {
         string saving;
@@ -91,6 +107,11 @@ private:
 
     static string saving_attribute;
     static string saving_hot_attribute;
+
+    bool has_restricted()
+    {
+        return restricted_attributes.size() > 0;
+    };
 
     /**
      * Stores the attributes as restricted, these attributes will be used in

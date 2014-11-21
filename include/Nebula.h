@@ -372,7 +372,7 @@ public:
      */
     static string code_version()
     {
-        return "4.6.0"; // bump version
+        return "4.10.0"; // bump version
     }
 
     /**
@@ -390,7 +390,7 @@ public:
      */
     static string local_db_version()
     {
-        return "4.5.80";
+        return "4.9.80";
     }
 
     /**
@@ -452,9 +452,7 @@ public:
     };
 
     /**
-     *  Gets a configuration attribute for oned
-     *    @param name of the attribute
-     *    @param value of the attribute
+     *  Gets a configuration attribute for oned (long long version)
      */
     void get_configuration_attribute(
         const char * name,
@@ -463,6 +461,16 @@ public:
         string _name(name);
 
         nebula_configuration->Template::get(_name, value);
+    };
+
+    /**
+     *  Gets a configuration attribute for oned (time_t version)
+     */
+    void get_configuration_attribute(
+        const char * name,
+        time_t& value) const
+    {
+        nebula_configuration->get(name, value);
     };
 
     /**

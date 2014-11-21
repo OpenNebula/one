@@ -64,13 +64,16 @@ class Validator
     # @param [Hash] opts the options to validate a body
     # @option opts [Boolean] :default_values Set default values if the schema
     #   specifies it (if true)
-    # @option opts [Booblean] :delete_extra_properties If the body contains properties
+    # @option opts [Boolean] :delete_extra_properties If the body contains properties
     #   not specified in the schema delete them from the body (if true)
     #   or raise an exception (if false)
+    # @option opts [Boolean] :allow_extra_properties Allow properties
+    #   not specified in the schema
     def initialize(opts={})
         @opts = {
             :default_values => true,
-            :delete_extra_properties => false
+            :delete_extra_properties => false,
+            :allow_extra_properties => false
         }.merge(opts)
     end
 
@@ -121,6 +124,7 @@ class Validator
         when :string  then validate_string(body, schema, key)
         when :integer then validate_integer(body, schema, key)
         when :null    then validate_null(body, schema, key)
+        when :boolean then validate_boolean(body, schema, key)
         else raise SchemaException, "type #{schema[:type]} is not a valid type"
         end
     end
@@ -191,8 +195,12 @@ class Validator
                     body.delete(key)
                 }
             else
-                raise ParseException, "KEY: #{new_body.keys.join(', ')} not"\
-                    " allowed; SCHEMA: #{schema_object}"
+                if @opts[:allow_extra_properties]
+                    return body
+                else
+                    raise ParseException, "KEY: #{new_body.keys.join(', ')} not"\
+                        " allowed; SCHEMA: #{schema_object}"
+                end
             end
         end
 
@@ -315,6 +323,36 @@ class Validator
         end
     end
 
+    # Validate an boolean type
+    #
+    # @param [Object] body to be validated
+    # @param [Hash] schema_boolean of the object to validate the body
+    # @param [String] schema_key of the body that will be validated in this step
+    #
+    # @return [nil]
+    #
+    # @raise [ParseException] if the body is not a boolean
+    #
+    # @example Validate array
+    #   schema = {
+    #       :type => :boolean
+    #   }
+    #
+    #   body = true
+    #
+    #   Validator.validate_boolean(body, schema)
+    #   #=> nil
+    #
+    #
+    def validate_boolean(body, schema_boolean, schema_key)
+        if body != true && body != false
+            raise ParseException, "KEY: '#{schema_key}' is not allowed;"\
+                " SCHEMA: #{schema_boolean}"
+        end
+
+        body
+    end
+
     # Validate an string type
     #
     # @param [String] body to be validated
@@ -339,6 +377,7 @@ class Validator
     # @note Schema options supported
     #   :format
     #   :enum
+    #   :regex
     #
     def validate_string(body, schema_string, schema_key)
         if body.instance_of?(String)
@@ -346,6 +385,8 @@ class Validator
                 check_format(body, schema_string, schema_key)
             elsif schema_string[:enum]
                 check_enum(body, schema_string, schema_key)
+            elsif schema_string[:regex]
+                check_regex(body, schema_string, schema_key)
             else
                 body
             end
@@ -428,6 +469,40 @@ class Validator
         else
             raise ParseException, "KEY: '#{schema_key}' must be one of"\
                 " #{schema_string[:enum].join(', ')}; SCHEMA: #{schema_string}"
+        end
+    end
+
+    # Validate an string regex
+    #
+    # @param [String] body_value to be validated
+    # @param [Hash] schema_string of the object to validate the body
+    # @param [String] schema_key of the body that will be validated in this step
+    #
+    # @return [String] The modified body
+    #
+    # @raise [ParseException] if the body does not meet the schema definition
+    #
+    # @example Validate array
+    #   schema = {
+    #       :type => :string,
+    #       :regex =>  /^\w+$/
+    #   }
+    #
+    #   body = "juan"
+    #
+    #   Validator.check_regex(body, schema)
+    #   #=> "juan"
+    #
+    # @note The parameter body will be modified
+    # @note Schema options supported
+    #   :enum
+    #
+    def check_regex(body_value, schema_string, schema_key)
+        if schema_string[:regex] =~ body_value
+            body_value
+        else
+            raise ParseException, "KEY: '#{schema_key}' malformed; "\
+                "SCHEMA: #{schema_string}"
         end
     end
 end

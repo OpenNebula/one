@@ -43,13 +43,18 @@ panel_extended = false;
 var top_interval = 10000; //ms
 var top_interval_ids = {};
 
+// global definitions
+var QUOTA_LIMIT_DEFAULT   = "-1";
+var QUOTA_LIMIT_UNLIMITED = "-2";
+
 //Sunstone configuration is formed by predifined "actions", main tabs
 //and "info_panels". Each tab has "content" and "buttons". Each
 //"info_panel" has "tabs" with "content".
 var SunstoneCfg = {
     "actions" : {},
      "tabs" : {},
-     "info_panels" : {}
+     "info_panels" : {},
+     "form_panels" : {}
 };
 
 var language_options = '<option value="en_US">English (en_US)</option>\
@@ -135,6 +140,12 @@ var Sunstone = {
          }
     },
 
+    "addFormPanel" : function(tab_id, form_name, form_obj){
+        SunstoneCfg["form_panels"][form_name]=form_obj;
+
+        var context = $(".right-form", $('#'+tab_id));
+    },
+
     //Adds a new info panel
     "addInfoPanel" : function(panel_name, panel_obj){
         SunstoneCfg["info_panels"][panel_name]=panel_obj;
@@ -150,9 +161,74 @@ var Sunstone = {
         delete SunstoneCfg["info_panels"][panel_name];
     },
 
+    "popUpFormPanel" : function(form_name, selected_tab, action, reset, initialize_func){
+        var context = $("#"+selected_tab);
+        popFormDialogLoading(context);
+
+        var form_obj = SunstoneCfg["form_panels"][form_name];
+
+        if (action) {
+            $(".right-form-title", context).text(form_obj["actions"][action]["title"]);
+            $(".submit_button", context).text(form_obj["actions"][action]["submit_text"]);
+        }
+
+        setTimeout(function() {
+            if (reset) {
+                if (!action) {
+                    action = $("#"+form_name+"_wizard", context).attr("action")
+                }
+
+                $("#"+form_name+"_wizard", context).remove();
+                $("#"+form_name+"_advanced", context).remove();
+            }
+
+            if ($("#"+form_name+"_wizard", context).length == 0) {
+                $("#advancedForms", context).append(form_obj.advanced_html);
+                $("#wizardForms", context).append(form_obj.wizard_html);
+
+                form_obj.setup(context)
+            }
+
+            if (initialize_func){
+                initialize_func(context);
+            }
+
+            if (action) {
+                $("#"+form_name+"_wizard", context).attr("action", action);
+                $("#"+form_name+"_advanced", context).attr("action", action);
+            }
+
+            popFormDialog(form_name, context);
+
+        },13)
+
+    },
+
+    "submitFormPanel" : function(form_name, selected_tab){
+        var context = $("#"+selected_tab);
+        popFormDialogLoading(context);
+
+        if ($("#wizardForms.active", context).length > 0) {
+            $("#"+form_name+"_wizard", context).submit();
+        } else if ($("#advancedForms.active", context).length > 0) {
+            $("#"+form_name+"_advanced", context).submit();
+        }
+
+        // Success callbalck must include:
+        //    $("a[href=back]", $("#"+selected_tab)).trigger("click");
+        //    popFormDialog(form_name, $("#"+selected_tab));
+        // Error callback must include:
+        //    popFormDialog(form_name, $("#"+selected_tab));
+    },
+
     //Makes an info panel content pop up in the screen.
     "popUpInfoPanel" : function(panel_name, selected_tab){
         popDialog(Sunstone.getInfoPanelHTML(panel_name, selected_tab), $("#"+selected_tab));
+    },
+
+    "getFormPanelHTML" : function(form_name, selected_tab){
+        //$("#"+form_name, $("#dialogs")).detach();
+        return formElement;
     },
 
     //Generates and returns the HTML div element for an info panel, with
@@ -163,13 +239,9 @@ var Sunstone = {
             var active_tab_href = active_tab.attr('href');
         }
 
-        var dl_tabs = $('<div id="'+panel_name+'">\
-            <div class="row">\
-                <div class="large-12 columns">\
-                    <dl class="tabs right-info-tabs text-center" data-tab>\
-                    </dl>\
-                </div>\
-            </div>\
+        var dl_tabs = $('<div id="'+panel_name+'" class="bordered-tabs">\
+            <dl class="tabs right-info-tabs text-center" data-tab>\
+            </dl>\
             <div class="tabs-content"></div>\
             </div>\
         </div>');
@@ -184,7 +256,7 @@ var Sunstone = {
             }
 
             tab=tabs[panel_tab_name];
-            var dd = $('<dd><a href="#'+panel_tab_name+'"><i class="fa '+tab.icon+'"></i><br>'+tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
+            var dd = $('<dd><a href="#'+panel_tab_name+'">'+ (tab.icon ? '<i class="fa '+tab.icon+'"></i><br>' : '') + tab.title+'</a></dd>').appendTo($('dl',dl_tabs));
             //$('ul', dl_tabs).append('<div id="'+panel_tab_name+'"><li id="'+panel_tab_name+'Tab">'+tab.content+'</li></div>');
             var li = $('<div id="'+panel_tab_name+'" class="content">'+tab.content+'</div>').appendTo($('.tabs-content', dl_tabs));
 
@@ -430,7 +502,8 @@ function setLogin(){
         OpenNebula.Auth.logout({
           success: function(){
             window.location.href = "login";
-          }
+          },
+          error: onError
         });
 
         return false;
@@ -487,47 +560,41 @@ function insertTab(tab_name){
         tab_content_str = '<div id="'+tab_name+'" class="tab" style="display:none;">';
 
         if (tab_info.list_header || tab_info.info_header) {
-            tab_content_str += '<div class="row">\
+            tab_content_str += '<div class="row header-row">\
               <div class="large-12 columns">\
-                <h3 class="subheader header-title only-right-list">\
+                <h2 class="subheader header-title only-right-list">\
                   <span class="header-resource">' +
                     tab_info.list_header +
                   '</span>\
-                </h3>\
-                <h3 class="subheader header-title only-right-info" hidden>\
+                </h2>\
+                <h2 class="subheader header-title only-right-info" hidden>\
                   <span class="header-resource">' +
                     tab_info.info_header +
                   '</span>&emsp;\
-                  <span class="resource-id"></span>\
-                </h3>\
+                  <span class="resource-id"></span>&emsp;\
+                  <span class="resource-info-header"></span>\
+                </h2>\
+                <h2 class="subheader header-title only-right-form" hidden>\
+                  <span class="right-form-title">' +
+                  '</span>\
+                </h2>\
               </div>\
             </div>'
         }
-/*
-        if (tab_info.search_input) {
-            tab_content_str += '<div class="row header-info">\
-              <div class="large-3 columns right">' +
-                tab_info.search_input +
-              '</div>\
-              <div class="large-9 columns">' +
-                  (tab_info.subheader ? tab_info.subheader : "") +
-              '</div>\
-            </div>'
-        }
-*/
+
         if (tab_info.buttons) {
-            tab_content_str += '<div class="row">\
-              <div class="small-9 large-9 columns">\
+            tab_content_str += '<div class="row actions_row">\
+              <div class="small-12 large-12 columns">\
                 <div class="action_blocks">\
                 </div>\
-              </div>\
-              <div class="small-3 large-3 columns only-right-list">'
+              <div class="small-3 large-3 columns only-right-list" style="margin-top: 2px">'
 
             if (tab_info.search_input) {
                 tab_content_str += tab_info.search_input;
             }
 
             tab_content_str += '</div>\
+              </div>\
             </div>'
         }
 
@@ -561,7 +628,25 @@ function insertTab(tab_name){
         tab_content_str += '<div class="right-info" hidden>'
         tab_content_str += '</div>'
 
-        tab_content_str += '</div>';
+        tab_content_str += '<div class="large-12 small-12 right-form" hidden>'+
+            '<div class="loadingForm">'+
+              '<br>'+
+              '<br>'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<br>'+
+            '</div>'+
+            '<div class="tabs-content tabs-contentForm  ">' +
+                '<div class="content active" id="wizardForms">' +
+                '</div>' +
+                '<div class="content" id="advancedForms">' +
+                '</div>'+
+            '</div>'+
+        '</div>';
+
         main_tabs_context.append(tab_content_str);
     }
 
@@ -583,6 +668,12 @@ function insertTab(tab_name){
     if (showOnTop){
         $('div#header ul#menutop_ul').append('<li id="top_'+tab_name+'">'+tab_info.title+'</li>');
     };
+
+    if (tab_info.forms) {
+        $.each(tab_info.forms, function(key, value){
+            Sunstone.addFormPanel(tab_name, key, value)
+        })
+    }
 };
 
 function hideSubTabs(){
@@ -628,10 +719,10 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
         var buttons_row = $('<div class="text-center">'+
                   '<span class="left">'+
 
-                    '<span id="'+custom_id+'refresh_buttons">'+
+                    '<span id="'+custom_id+'refresh_buttons" class="only-right-info only-right-list">'+
                     '</span>'+
 
-                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info">'+
+                    (custom_context ? '' : '<span id="'+custom_id+'back_button" class="only-right-info only-right-form">'+
                         '<a class="button small radius" href="back"><i class="fa fa-arrow-left"></i>&emsp;&emsp;<i class="fa fa-list"></i></a>'+
                     '</span>')+
 
@@ -639,60 +730,74 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                     '</span>'+
                   '</span>'+
 
-                  '<span>'+
+
+                  '<span class="right" style="margin-left: 20px">'+
+                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='only-right-info only-right-list top_button small  secondary button dropdown radius'>"+
+                        "<i class='fa fa-user'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"user_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='only-right-info only-right-list top_button small  button alert dropdown radius'>"+
+                        "<i class='fa fa-trash-o'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"vmsdelete_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    "<span id='"+custom_id+"delete_buttons' class='only-right-info only-right-list'>"+
+                    "</span>"+
+                  "</span>"+
+
+                  '<span class="right">'+
                     '<span id="'+custom_id+'vmsplay_buttons">'+
                     '</span>'+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmspause_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-pause'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmspause_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmspause_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsstop_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-stop'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsstop_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsstop_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsrepeat_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-repeat'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsrepeat_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
 
-                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='top_button small  button secondary dropdown radius'>"+
+                    "<a href='#' data-dropdown='"+custom_id+"vmsplanification_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>"+
                         "<i class='fa fa-th-list'/>"+
                     "</a>"+
-                    "<ul id='"+custom_id+"vmsplanification_buttons' class='f-dropdown' data-dropdown-content>"+
+                    "<ul id='"+custom_id+"vmsplanification_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
+                    "</ul>"+
+
+                    '<span id="'+custom_id+'main_buttons" class="only-right-info only-right-list">'+
+                    "</span>"+
+
+                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'> " +
+                        "<i class='fa fa-ellipsis-v'/>"+
+                    "</a>"+
+                    "<ul id='"+custom_id+"more_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content>"+
                     "</ul>"+
                   '</span>'+
 
-                  '<span class="right">'+
-                    '<span id="'+custom_id+'main_buttons">'+
-                    "</span>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"more_buttons' class='top_button small  button secondary dropdown radius'> " +
-                        "<i class='fa fa-ellipsis-v'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"more_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"user_buttons' class='top_button small  secondary button dropdown radius'>"+
-                        "<i class='fa fa-user'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"user_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<a href='#' data-dropdown='"+custom_id+"vmsdelete_buttons' class='top_button small  button alert dropdown radius'>"+
-                        "<i class='fa fa-trash-o'/>"+
-                    "</a>"+
-                    "<ul id='"+custom_id+"vmsdelete_buttons' class='f-dropdown' data-dropdown-content>"+
-                    "</ul>"+
-
-                    "<span id='"+custom_id+"delete_buttons'>"+
-                    "</span>"+
-                  "</span>"+
+                "<span id='"+custom_id+"form_buttons' class='only-right-form' style='display: none'>"+
+                    '<span id="'+custom_id+'reset_button" class="left" style="margin-left: 10px;">'+
+                        '<a class="button small secondary radius" href="submit">'+tr("Reset")+'</a>'+
+                    '</span>'+
+                    '<span id="'+custom_id+'submit_button" class="left" style="margin-left: 10px;">'+
+                        '<a class="button small success radius submit_button" href="submit">'+tr("Create")+'</a>'+
+                    '</span>'+
+                    '<dl class="tabs right wizard_tabs" data-tab style="margin-left: 10px;">' +
+                      '<dd id="wizard_mode" class="active"><a style="padding: 0.3rem 1rem;" href="#wizardForms">'+tr("Wizard")+'</a></dd>' +
+                      '<dd id="advanced_mode"><a style="padding: 0.3rem 1rem;" id="advanced_mode_a" href="#advancedForms">'+tr("Advanced")+'</a></dd>' +
+                    '</dl>' +
+                "</span>"+
         "</div>");
 
         //for every button defined for this tab...
@@ -729,17 +834,17 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 str_class.push(button.custom_classes);
             }
 
-            var context;
+            var button_context;
             var text;
             switch (button.layout) {
             case "create":
-                context = $("#"+custom_id+"create_buttons", buttons_row);
+                button_context = $("#"+custom_id+"create_buttons", buttons_row);
                 text = button.text ? '<i class="fa fa-plus"/>  ' + button.text : '<i class="fa fa-plus"/>';
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "refresh":
-                context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                button_context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<span class="fa-stack">'+
                     '<i class="fa fa-refresh fa-stack-lg" style="font-size: 1.5em"></i>'+
                     //'<i class="fa fa-play fa-stack-1x"></i>'+
@@ -748,7 +853,7 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 button_code = '<a class="'+str_class.join(' ')+'" href="'+button_name+'" style="padding-left: 5px">'+text+'</a>';
                 break;
             case "top":
-                context = $("#"+custom_id+"refresh_buttons", buttons_row);
+                button_context = $("#"+custom_id+"refresh_buttons", buttons_row);
                 text = '<span class="fa-stack">'+
                     '<i class="fa fa-refresh fa-stack-2x" style="color: #dfdfdf"></i>'+
                     '<i class="fa fa-play fa-stack-1x"></i>'+
@@ -757,66 +862,66 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
                 button_code = '<a class="'+str_class.join(' ')+'" style="padding-left:0px; margin-right: 20px">'+text+'</a>';
                 break;
             case "main":
-                context = $("#"+custom_id+"main_buttons", buttons_row);
+                button_context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmsplay_buttons":
-                context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsplay_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             case "vmspause_buttons":
-                context = $("#"+custom_id+"vmspause_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmspause_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsstop_buttons":
-                context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsstop_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsrepeat_buttons":
-                context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsrepeat_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsdelete_buttons":
-                context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsdelete_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "vmsplanification_buttons":
-                context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
+                button_context = $("#"+custom_id+"vmsplanification_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "more_select":
-                context = $("#"+custom_id+"more_buttons", buttons_row);
+                button_context = $("#"+custom_id+"more_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "user_select":
-                context = $("#"+custom_id+"user_buttons", buttons_row);
+                button_context = $("#"+custom_id+"user_buttons", buttons_row);
                 text = button.text;
                 button_code = '<li><a class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</a></li>';
                 break;
             case "del":
-                context = $("#"+custom_id+"delete_buttons", buttons_row);
+                button_context = $("#"+custom_id+"delete_buttons", buttons_row);
                 text = '<i class=" fa fa-trash-o"/> ';
                 str_class.push("alert", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
             default:
-                context = $("#"+custom_id+"main_buttons", buttons_row);
+                button_context = $("#"+custom_id+"main_buttons", buttons_row);
                 text = button.text;
                 str_class.push("secondary", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
             }
 
-            context.append(button_code);
+            button_context.append(button_code);
         }//for each button in tab
         //$('.top_button',action_block).button();
         //$('.top_button',action_block).addClass("secondary small button")
@@ -859,6 +964,20 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
         $('.top_button, .list_button',action_block).attr('disabled', true);
         $('.create_dialog_button',action_block).attr('disabled', false);
         $('.alwaysActive',action_block).attr('disabled', false);
+
+        $('#'+custom_id+'reset_button', action_block).on("click", function(){
+            var form_name = $(".right-form", context).attr("form_name");
+            Sunstone.popUpFormPanel(form_name, tab_name, null, true)
+
+            return false;
+        })
+
+        $('#'+custom_id+'submit_button', action_block).on("click", function(){
+            var form_name = $(".right-form", context).attr("form_name");
+            Sunstone.submitFormPanel(form_name, tab_name);
+
+            return false;
+        })
 
     $(document).foundation();
     }//if tab exists
@@ -1244,7 +1363,6 @@ function tableCheckboxesListener(dataTable, custom_context){
         else
         {
             $(this).parents('tr').children().removeClass('markrowchecked');
-            $(this).parents('tr').children().removeClass('markrowselected');
         }
 
         recountCheckboxes(datatable, context);
@@ -1254,9 +1372,22 @@ function tableCheckboxesListener(dataTable, custom_context){
 // Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,dataTable){
-    var selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[1]).html();
-    if (!selected_row_id) selected_row_id = $($('td.markrowselected',dataTable.fnGetNodes())[0]).html();
+    var selected_row_id = null;
     var checked_row_ids = new Array();
+
+    var row_id_index = dataTable.attr("row_id");
+
+    if(row_id_index != undefined){
+        $.each($(dataTable.fnGetNodes()), function(){
+            if($('td.markrow',this).length!=0)
+            {
+                var aData = dataTable.fnGetData(this);
+
+                selected_row_id = aData[row_id_index];
+
+            }
+        });
+    }
 
     $.each($(dataTable.fnGetNodes()), function(){
         if($('td.markrowchecked',this).length!=0)
@@ -1272,12 +1403,17 @@ function updateView(item_list,dataTable){
         }
     });
 
-    if (dataTable) {
+    // dataTable.fnSettings is undefined when the table has been detached from
+    // the DOM
+    if (dataTable && dataTable.fnSettings()) {
         var dTable_settings = dataTable.fnSettings();
         var prev_start = dTable_settings._iDisplayStart;
 
         dataTable.fnClearTable(false);
-        dataTable.fnAddData(item_list, false);
+
+        if (item_list.length > 0) {
+            dataTable.fnAddData(item_list, false);
+        }
 
         var new_start = prev_start;
 
@@ -1293,12 +1429,15 @@ function updateView(item_list,dataTable){
         dataTable.fnDraw(true);
     };
 
-    if(selected_row_id)
+    if(selected_row_id != undefined)
     {
         $.each($(dataTable.fnGetNodes()),function(){
-            if($($('td',this)[1]).html()==selected_row_id)
+
+            var aData = dataTable.fnGetData(this);
+
+            if(aData[row_id_index] == selected_row_id)
             {
-                $('td',this)[2].click();
+                $('td',this)[0].click();
             }
         });
     }
@@ -1727,7 +1866,7 @@ function getSelectedNodes(dataTable, force_datatable){
 
 // TODO: Too many arguments. Change to use a params object
 function insertSelectOptions(id, context, resource, init_val, empty_value,
-    extra_options, filter_att, filter_val){
+    extra_options, filter_att, filter_val, trigger_change_init_val, only_name){
 
     $(id, context).html('<i class="fa fa-spinner fa-spin"></i>');
 
@@ -1771,8 +1910,11 @@ function insertSelectOptions(id, context, resource, init_val, empty_value,
                 }
 
                 if (add){
-                    select_str +='<option elem_id="'+id+'" value="'+id+'">'+
-                                    id+': '+name+'</option>';
+                    select_str +='<option elem_id="'+id+'" value="'+id+'">'
+                    if (!only_name) {
+                        select_str += id+': '
+                    }
+                    select_str += name+'</option>';
                 }
             });
 
@@ -1782,6 +1924,9 @@ function insertSelectOptions(id, context, resource, init_val, empty_value,
 
             if (init_val){
                 $(id+" .resource_list_select", context).val(init_val);
+                if (trigger_change_init_val) {
+                    $(id+" .resource_list_select", context).change();
+                }
             }
         },
         error: onError
@@ -1832,7 +1977,7 @@ function plot_graph(response, info) {
 
         var data = response.monitoring[attribute];
 
-        if(info.derivative == true) {
+        if(info.derivative == true && data) {
             derivative(data);
         }
 
@@ -1858,15 +2003,16 @@ function plot_graph(response, info) {
             tickFormatter: function(val,axis){
                 return pretty_time_axis(val, info.show_date);
             },
-            color: "#999",
+            color: "#efefef",
             size: 8
         },
-        yaxis : { labelWidth: 50,
-                  tickFormatter: function(val, axis) {
+        yaxis : {
+                tickFormatter: function(val, axis) {
                       return humanize(val, info.convert_from_bytes, info.y_sufix);
                   },
                   min: 0,
-                color: "#999",
+                color: "#efefef",
+
                 size: 8
                 },
         series: {
@@ -1876,7 +2022,7 @@ function plot_graph(response, info) {
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#cfcfcf"
+            borderColor: "#efefef"
         }
     };
 
@@ -1907,7 +2053,9 @@ function plot_totals(response, info) {
 
                     var data = response[id][attribute];
 
-                    derivative(data);
+                    if (data) {
+                        derivative(data);
+                    }
                 }
             }
 
@@ -2137,241 +2285,602 @@ function setPermissionsTable(resource,context){
 
 var Quotas = {
     "vms" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var vms_bar = quotaBar(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var vms_bar;
+
+        if (!empty_quotas){
+            vms_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.VMS_USED,
                 info.VM_QUOTA.VM.VMS,
-                default_quotas.VM_QUOTA.VM.VMS);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("VMs") + '</legend><div>'+vms_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.VMS,
+                { quota_name: "VM_VMS"});
         } else {
-            return '';
+            vms_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.VMS,
+                { quota_name: "VM_VMS"});
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("VMs") + '</legend>\
+            <div>'+vms_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
     "cpu" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var cpu_bar = quotaBarFloat(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var cpu_bar;
+
+        if (!empty_quotas){
+            cpu_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.CPU_USED,
                 info.VM_QUOTA.VM.CPU,
-                default_quotas.VM_QUOTA.VM.CPU);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("CPU") + '</legend><div>'+cpu_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.CPU,
+                {   is_float: true,
+                    quota_name: "VM_CPU"
+                });
         } else {
-            return '';
+            cpu_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.CPU,
+                {   is_float: true,
+                    quota_name: "VM_CPU"
+                });
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("CPU") + '</legend>\
+            <div>'+cpu_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
     "memory" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var memory_bar = quotaBarMB(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var memory_bar;
+
+        if (!empty_quotas){
+            memory_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.MEMORY_USED,
                 info.VM_QUOTA.VM.MEMORY,
-                default_quotas.VM_QUOTA.VM.MEMORY);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("Memory") + '</legend><div>'+memory_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.MEMORY,
+                {   mb: true,
+                    quota_name: "VM_MEMORY"
+                });
         } else {
-            return '';
+            memory_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.MEMORY,
+                {   mb: true,
+                    quota_name: "VM_MEMORY"
+                });
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("Memory") + '</legend>\
+            <div>'+memory_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
     "volatile_size" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.VM_QUOTA)){
-            var volatile_bar = quotaBarMB(
+        var empty_quotas = $.isEmptyObject(info.VM_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset>';
+        }
+
+        var volatile_bar;
+
+        if (!empty_quotas){
+            volatile_bar = editableQuotaBar(
                 info.VM_QUOTA.VM.VOLATILE_SIZE_USED,
                 info.VM_QUOTA.VM.VOLATILE_SIZE,
-                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE);
-
-            var quotas_tab_html =
-            '<fieldset><legend>' + tr("Volatile disks") + '</legend><div>'+volatile_bar+'</div><br></fieldset>'
-
-            return quotas_tab_html;
+                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE,
+                {   mb: true,
+                    quota_name: "VM_VOLATILE_SIZE"
+                });
         } else {
-            return '';
+            volatile_bar = editableQuotaBar(
+                0,
+                QUOTA_LIMIT_DEFAULT,
+                default_quotas.VM_QUOTA.VM.VOLATILE_SIZE,
+                {   mb: true,
+                    quota_name: "VM_VOLATILE_SIZE"
+                });
         }
+
+        quotas_tab_html +=
+            '<legend>' + tr("Volatile disks") + '</legend>\
+            <div>'+volatile_bar+'</div>\
+            <br>\
+            </fieldset>'
+
+        return quotas_tab_html;
     },
-    "datastore" : function(info, default_quotas) {
-        if (!$.isEmptyObject(info.DATASTORE_QUOTA)){
-            var quotas_tab_html =
-            '<fieldset style="padding: 5px 15px">\
-                <legend>'+tr("Datastore")+'</legend>\
-                <table class="quota_table extended_table">\
-                <thead>\
-                    <tr>\
-                        <th style="width:16%">'+tr("ID")+'</th>\
-                        <th style="width:42%">'+tr("Images")+'</th>\
-                        <th style="width:42%">'+tr("Size")+'</th>\
-                    </tr>\
-                </thead>\
-                <tbody>';
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
+    // for the "add new quota" buttons will be set.
+    "datastore" : function(info, default_quotas, opts) {
+        var empty_quotas = $.isEmptyObject(info.DATASTORE_QUOTA);
 
-            var ds_quotas = [];
+        var quotas_tab_html = "";
 
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px; display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px">';
+        }
+
+        quotas_tab_html +=
+            '<legend>'+tr("Datastore")+'</legend>\
+            <table class="quota_table extended_table ds_quota_table">\
+            <thead>\
+                <tr>\
+                    <th style="width:16%">'+tr("ID")+'</th>\
+                    <th style="width:42%">'+tr("Images")+'</th>\
+                    <th style="width:42%">'+tr("Size")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var ds_quotas = [];
+
+        if (!empty_quotas){
             if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
                 ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
             else if (info.DATASTORE_QUOTA.DATASTORE.ID)
                 ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
+        }
 
-            for (var i=0; i < ds_quotas.length; i++){
+        for (var i=0; i < ds_quotas.length; i++){
 
-                var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
+            var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_quotas[i].ID]
 
-                if (default_ds_quotas == undefined){
-                    default_ds_quotas = {
-                        "IMAGES"    : "0",
-                        "SIZE"      : "0"
-                    }
+            if (default_ds_quotas == undefined){
+                default_ds_quotas = {
+                    "IMAGES"    : QUOTA_LIMIT_UNLIMITED,
+                    "SIZE"      : QUOTA_LIMIT_UNLIMITED
                 }
-
-                var img_bar = quotaBar(
-                    ds_quotas[i].IMAGES_USED,
-                    ds_quotas[i].IMAGES,
-                    default_ds_quotas.IMAGES);
-
-                var size_bar = quotaBarMB(
-                    ds_quotas[i].SIZE_USED,
-                    ds_quotas[i].SIZE,
-                    default_ds_quotas.SIZE);
-
-                quotas_tab_html +=
-                '<tr>\
-                    <td>'+ds_quotas[i].ID+'</td>\
-                    <td>'+img_bar+'</td>\
-                    <td>'+size_bar+'</td>\
-                </tr>';
             }
 
+            var img_bar = editableQuotaBar(
+                ds_quotas[i].IMAGES_USED,
+                ds_quotas[i].IMAGES,
+                default_ds_quotas.IMAGES,
+                { quota_name: "DS_IMAGES" });
+
+            var size_bar = editableQuotaBar(
+                ds_quotas[i].SIZE_USED,
+                ds_quotas[i].SIZE,
+                default_ds_quotas.SIZE,
+                {   mb: true,
+                    quota_name: "DS_SIZE"
+                });
+
             quotas_tab_html +=
-                    '</tbody>\
-                </table>\
-            </fieldset>';
-
-            return quotas_tab_html;
-        } else {
-            return '';
+            '<tr class="ds_quota_tr" quota_id="'+ds_quotas[i].ID+'">\
+                <td>'+ds_quotas[i].ID+'</td>\
+                <td>'+img_bar+'</td>\
+                <td>'+size_bar+'</td>\
+            </tr>';
         }
-    },
-    "image" : function(info, default_quotas) {
-        if (!$.isEmptyObject(info.IMAGE_QUOTA)){
-            var quotas_tab_html =
-            '<fieldset style="padding: 5px 15px">\
-                <legend>'+tr("Image")+'</legend>\
-                <table class="quota_table extended_table">\
-                <thead>\
-                    <tr>\
-                        <th style="width:16%">'+tr("ID")+'</th>\
-                        <th style="width:84%">'+tr("Running VMs")+'</th>\
+
+        quotas_tab_html +=
+                '</tbody>\
+                <tfoot>\
+                    <tr class="editable_quota" style="display: none">\
+                        <td colspan="3">\
+                            <a type="button" \
+                              class="button small radius small-12" \
+                              id="ds_add_quota_btn"><i class="fa fa-plus"></i>\
+                              '+tr("Add a new quota")+'\
+                            </a>\
+                        </td>\
                     </tr>\
-                </thead>\
-                <tbody>';
+                </tfoot>\
+            </table>\
+            <div class="">\
+            </div>\
+        </fieldset>';
 
-            var img_quotas = [];
+        if (!opts) opts = {};
 
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #ds_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #ds_add_quota_btn", function(){
+
+                $(".ds_quota_table tbody", $(opts.parent_id_str)).append(
+                    '<tr class="ds_quota_tr" quota_id="-1">\
+                        <td class="ds_select" colspan="3"></td>\
+                        <td class="img_bar"></td>\
+                        <td class="size_bar"></td>\
+                    </tr>');
+
+                insertSelectOptions(
+                    'td.ds_select',
+                    $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last(),
+                    "Datastore",
+                    null, true);
+
+                $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last().off(
+                    "change", ".resource_list_select");
+
+                $(".ds_quota_table tbody tr", $(opts.parent_id_str)).last().on(
+                    "change", ".resource_list_select", function(){
+
+                    $(this).parents("td").attr("colspan", "1");
+
+                    var ds_id = $(this).val();
+                    var tr = $(this).parents("tr");
+                    tr.attr("quota_id", ds_id);
+
+                    var default_ds_quotas = default_quotas.DATASTORE_QUOTA[ds_id];
+
+                    if (default_ds_quotas == undefined){
+                        default_ds_quotas = {
+                            "IMAGES"    : QUOTA_LIMIT_UNLIMITED,
+                            "SIZE"      : QUOTA_LIMIT_UNLIMITED
+                        }
+                    }
+
+                    var img_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_ds_quotas.IMAGES,
+                        { quota_name: "DS_IMAGES" });
+
+                    var size_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_ds_quotas.SIZE,
+                        {   mb: true,
+                            quota_name: "DS_SIZE"
+                        });
+
+                    $("td.img_bar", tr).html(img_bar);
+                    $("td.size_bar", tr).html(size_bar);
+
+                    $(".editable_quota", tr).show();
+                    $(".non_editable_quota", tr).hide();
+
+                    $.each($("input", tr), function(){
+                        initQuotaInputValue(this);
+                    });
+                });
+
+                return false;
+            });
+        }
+
+        return quotas_tab_html;
+    },
+
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
+    // for the "add new quota" buttons will be set.
+    "image" : function(info, default_quotas, opts) {
+        var empty_quotas = $.isEmptyObject(info.IMAGE_QUOTA);
+
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px; display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px">';
+        }
+
+        quotas_tab_html +=
+            '<legend>'+tr("Image")+'</legend>\
+            <table class="quota_table extended_table image_quota_table">\
+            <thead>\
+                <tr>\
+                    <th style="width:16%">'+tr("ID")+'</th>\
+                    <th style="width:84%">'+tr("Running VMs")+'</th>\
+                </tr>\
+            </thead>\
+            <tbody>';
+
+        var img_quotas = [];
+
+        if (!empty_quotas){
             if ($.isArray(info.IMAGE_QUOTA.IMAGE))
                 img_quotas = info.IMAGE_QUOTA.IMAGE;
             else if (info.IMAGE_QUOTA.IMAGE.ID)
                 img_quotas = [info.IMAGE_QUOTA.IMAGE];
+        }
 
-            for (var i=0; i < img_quotas.length; i++){
+        for (var i=0; i < img_quotas.length; i++){
 
-                var default_img_quotas = default_quotas.IMAGE_QUOTA[img_quotas[i].ID]
+            var default_img_quotas = default_quotas.IMAGE_QUOTA[img_quotas[i].ID]
 
-                if (default_img_quotas == undefined){
-                    default_img_quotas = {
-                        "RVMS"  : "0"
-                    }
+            if (default_img_quotas == undefined){
+                default_img_quotas = {
+                    "RVMS"  : QUOTA_LIMIT_UNLIMITED
                 }
-
-                var rvms_bar = quotaBar(
-                    img_quotas[i].RVMS_USED,
-                    img_quotas[i].RVMS,
-                    default_img_quotas.RVMS);
-
-                quotas_tab_html +=
-                '<tr>\
-                    <td>'+img_quotas[i].ID+'</td>\
-                    <td>'+rvms_bar+'</td>\
-                </tr>';
             }
 
+            var rvms_bar = editableQuotaBar(
+                img_quotas[i].RVMS_USED,
+                img_quotas[i].RVMS,
+                default_img_quotas.RVMS,
+                { quota_name: "IMAGE_RVMS"});
+
             quotas_tab_html +=
-                    '</tbody>\
-                </table>\
-            </fieldset>';
-
-            return quotas_tab_html;
-        } else {
-            return '';
+            '<tr class="image_quota_tr" quota_id="'+img_quotas[i].ID+'">\
+                <td>'+img_quotas[i].ID+'</td>\
+                <td>'+rvms_bar+'</td>\
+            </tr>';
         }
+
+        quotas_tab_html +=
+                '</tbody>\
+                <tfoot>\
+                    <tr class="editable_quota" style="display: none">\
+                        <td colspan="2">\
+                            <a type="button" \
+                              class="button small radius small-12" \
+                              id="image_add_quota_btn"><i class="fa fa-plus"></i>\
+                              '+tr("Add a new quota")+'\
+                            </a>\
+                        </td>\
+                    </tr>\
+                </tfoot>\
+            </table>\
+        </fieldset>';
+
+        if (!opts) opts = {};
+
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #image_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #image_add_quota_btn", function(){
+
+                $(".image_quota_table tbody", $(opts.parent_id_str)).append(
+                    '<tr class="image_quota_tr" quota_id="-1">\
+                        <td class="image_select" colspan="2"></td>\
+                        <td class="rvms_bar"></td>\
+                    </tr>');
+
+                insertSelectOptions(
+                    'td.image_select',
+                    $(".image_quota_table tbody tr", $(opts.parent_id_str)).last(),
+                    "Image",
+                    null, true);
+
+                $(".image_quota_table tbody tr", $(opts.parent_id_str)).last().off(
+                    "change", ".resource_list_select");
+
+                $(".image_quota_table tbody tr", $(opts.parent_id_str)).last().on(
+                    "change", ".resource_list_select", function(){
+
+                    $(this).parents("td").attr("colspan", "1");
+
+                    var image_id = $(this).val();
+                    var tr = $(this).parents("tr");
+                    tr.attr("quota_id", image_id);
+
+                    var default_img_quotas = default_quotas.IMAGE_QUOTA[image_id];
+
+                    if (default_img_quotas == undefined){
+                        default_img_quotas = {
+                            "RVMS"  : QUOTA_LIMIT_UNLIMITED
+                        }
+                    }
+
+                    var rvms_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_img_quotas.RVMS,
+                        { quota_name: "IMAGE_RVMS"});
+
+                    $("td.rvms_bar", tr).html(rvms_bar);
+
+                    $(".editable_quota", tr).show();
+                    $(".non_editable_quota", tr).hide();
+
+                    $.each($("input", tr), function(){
+                        initQuotaInputValue(this);
+                    });
+                });
+
+                return false;
+            });
+        }
+
+        return quotas_tab_html;
     },
-    "network" : function(info, default_quotas){
-        if (!$.isEmptyObject(info.NETWORK_QUOTA)){
-            var quotas_tab_html =
-            '<fieldset style="padding: 5px 15px">\
-                <legend>'+tr("Network")+'</legend>\
-                <table class="quota_table extended_table">\
-                    <thead>\
-                        <tr>\
-                            <th style="width:16%">'+tr("ID")+'</th>\
-                            <th style="width:84%">'+tr("Leases")+'</th>\
-                        </tr>\
-                    </thead>\
-                    <tbody>';
 
-            var net_quotas = [];
+    // opts.parent_id_str: optional. Example: "#user_info_panel". If set, the listeners
+    // for the "add new quota" buttons will be set.
+    "network" : function(info, default_quotas, opts){
+        var empty_quotas = $.isEmptyObject(info.NETWORK_QUOTA);
 
+        var quotas_tab_html = "";
+
+        if (empty_quotas){
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px; display: none" class="editable_quota">';
+        } else {
+            quotas_tab_html +=
+            '<fieldset style="padding: 5px 15px">';
+        }
+
+        quotas_tab_html +=
+            '<legend>'+tr("Network")+'</legend>\
+            <table class="quota_table extended_table network_quota_table">\
+                <thead>\
+                    <tr>\
+                        <th style="width:16%">'+tr("ID")+'</th>\
+                        <th style="width:84%">'+tr("Leases")+'</th>\
+                    </tr>\
+                </thead>\
+                <tbody>';
+
+        var net_quotas = [];
+
+        if (!empty_quotas){
             if ($.isArray(info.NETWORK_QUOTA.NETWORK))
                 net_quotas = info.NETWORK_QUOTA.NETWORK;
             else if (info.NETWORK_QUOTA.NETWORK.ID)
                 net_quotas = [info.NETWORK_QUOTA.NETWORK];
+        }
 
-            for (var i=0; i < net_quotas.length; i++){
+        for (var i=0; i < net_quotas.length; i++){
 
-                var default_net_quotas = default_quotas.NETWORK_QUOTA[net_quotas[i].ID]
+            var default_net_quotas = default_quotas.NETWORK_QUOTA[net_quotas[i].ID]
 
-                if (default_net_quotas == undefined){
-                    default_net_quotas = {
-                        "LEASES" : "0"
-                    }
+            if (default_net_quotas == undefined){
+                default_net_quotas = {
+                    "LEASES" : QUOTA_LIMIT_UNLIMITED
                 }
-
-                var leases_bar = quotaBar(
-                    net_quotas[i].LEASES_USED,
-                    net_quotas[i].LEASES,
-                    default_net_quotas.LEASES);
-
-                quotas_tab_html +=
-                '<tr>\
-                    <td>'+net_quotas[i].ID+'</td>\
-                    <td>'+leases_bar+'</td>\
-                </tr>';
             }
 
-            quotas_tab_html +=
-                    '</tbody>\
-                </table>\
-            </fieldset>';
+            var leases_bar = editableQuotaBar(
+                net_quotas[i].LEASES_USED,
+                net_quotas[i].LEASES,
+                default_net_quotas.LEASES,
+                { quota_name: "NETWORK_LEASES" });
 
-            return quotas_tab_html;
-        } else {
-            return '';
+            quotas_tab_html +=
+            '<tr class="network_quota_tr" quota_id="'+net_quotas[i].ID+'">\
+                <td>'+net_quotas[i].ID+'</td>\
+                <td>'+leases_bar+'</td>\
+            </tr>';
         }
+
+        quotas_tab_html +=
+                '</tbody>\
+                <tfoot>\
+                    <tr class="editable_quota" style="display: none">\
+                        <td colspan="2">\
+                            <a type="button" \
+                              class="button small radius small-12" \
+                              id="network_add_quota_btn"><i class="fa fa-plus"></i>\
+                              '+tr("Add a new quota")+'\
+                            </a>\
+                        </td>\
+                    </tr>\
+                </tfoot>\
+            </table>\
+        </fieldset>';
+
+        if (!opts) opts = {};
+
+        if (opts.parent_id_str){
+            $(document).off("click", opts.parent_id_str+" #network_add_quota_btn");
+            $(document).on("click", opts.parent_id_str+" #network_add_quota_btn", function(){
+
+                $(".network_quota_table tbody", $(opts.parent_id_str)).append(
+                    '<tr class="network_quota_tr" quota_id="-1">\
+                        <td class="network_select" colspan="2"></td>\
+                        <td class="leases_bar"></td>\
+                    </tr>');
+
+                insertSelectOptions(
+                    'td.network_select',
+                    $(".network_quota_table tbody tr", $(opts.parent_id_str)).last(),
+                    "Network",
+                    null, true);
+
+                $(".network_quota_table tbody tr", $(opts.parent_id_str)).last().off(
+                    "change", ".resource_list_select");
+
+                $(".network_quota_table tbody tr", $(opts.parent_id_str)).last().on(
+                    "change", ".resource_list_select", function(){
+
+                    $(this).parents("td").attr("colspan", "1");
+
+                    var network_id = $(this).val();
+                    var tr = $(this).parents("tr");
+                    tr.attr("quota_id", network_id);
+
+                    var default_net_quotas = default_quotas.NETWORK_QUOTA[network_id];
+
+                    if (default_net_quotas == undefined){
+                        default_net_quotas = {
+                            "LEASES" : QUOTA_LIMIT_UNLIMITED
+                        }
+                    }
+
+                    var leases_bar = editableQuotaBar(
+                        0,
+                        QUOTA_LIMIT_DEFAULT,
+                        default_net_quotas.LEASES,
+                        { quota_name: "NETWORK_LEASES" });
+
+                    $("td.leases_bar", tr).html(leases_bar);
+
+                    $(".editable_quota", tr).show();
+                    $(".non_editable_quota", tr).hide();
+
+                    $.each($("input", tr), function(){
+                        initQuotaInputValue(this);
+                    });
+                });
+
+                return false;
+            });
+        }
+
+        return quotas_tab_html;
     },
     "default_quotas" : function(default_quotas){
         // Initialize the VM_QUOTA to unlimited if it does not exist
         if ($.isEmptyObject(default_quotas.VM_QUOTA)){
             default_quotas.VM_QUOTA = {
                 "VM" : {
-                    "VMS"           : "0",
-                    "MEMORY"        : "0",
-                    "CPU"           : "0",
-                    "VOLATILE_SIZE" : "0"
+                    "VMS"           : QUOTA_LIMIT_UNLIMITED,
+                    "MEMORY"        : QUOTA_LIMIT_UNLIMITED,
+                    "CPU"           : QUOTA_LIMIT_UNLIMITED,
+                    "VOLATILE_SIZE" : QUOTA_LIMIT_UNLIMITED
                 }
             }
         }
@@ -2430,54 +2939,285 @@ var Quotas = {
         return default_quotas;
     }
 }
+
+function emptyQuotas(resource_info){
+    return ($.isEmptyObject(resource_info.VM_QUOTA) &&
+            $.isEmptyObject(resource_info.DATASTORE_QUOTA) &&
+            $.isEmptyObject(resource_info.IMAGE_QUOTA) &&
+            $.isEmptyObject(resource_info.NETWORK_QUOTA) );
+}
+
+function initQuotasPanel(resource_info, default_quotas, parent_id_str, edit_enabled){
+    var vms_quota = Quotas.vms(resource_info, default_quotas);
+    var cpu_quota = Quotas.cpu(resource_info, default_quotas);
+    var memory_quota = Quotas.memory(resource_info, default_quotas);
+    var volatile_size_quota = Quotas.volatile_size(resource_info, default_quotas);
+
+    var image_quota = Quotas.image(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var network_quota = Quotas.network(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var datastore_quota = Quotas.datastore(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var quotas_html;
+
+    quotas_html = '<div class="quotas">';
+
+    if (edit_enabled) {
+        quotas_html +=
+        '<div class="row">\
+          <div class="large-12 columns">\
+            <span class="right">\
+              <button class="button secondary small radius" id="edit_quotas_button">\
+                <span class="fa fa-pencil-square-o"></span> '+tr("Edit")+'\
+              </button>\
+              <button class="button alert small radius" id="cancel_quotas_button" style="display: none">\
+                '+tr("Cancel")+'\
+              </button>\
+              <button class="button success small radius" id="submit_quotas_button" style="display: none">\
+                '+tr("Apply")+'\
+              </button>\
+            </span>\
+          </div>\
+        </div>';
+    }
+
+    if (emptyQuotas(resource_info)) {
+        quotas_html +=
+        '<div class="row non_editable_quota">\
+          <div class="large-8 large-centered columns">\
+            <div class="text-center">\
+              <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+                <i class="fa fa-cloud fa-stack-2x"></i>\
+                <i class="fa fa-align-left fa-stack-1x fa-inverse"></i>\
+              </span>\
+              <br>\
+              <p style="font-size: 18px; color: #999">\
+                '+tr("There are no quotas defined")+'\
+              </p>\
+            </div>\
+          </div>\
+        </div>';
+    }
+
+    quotas_html +=
+        '<div class="row">\
+          <div class="large-6 columns">' + vms_quota + '</div>\
+          <div class="large-6 columns">' + cpu_quota + '</div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">' + memory_quota + '</div>\
+          <div class="large-6 columns">' + volatile_size_quota+ '</div>\
+        </div>\
+        <br><br>\
+        <div class="row">\
+          <div class="large-6 columns">' + image_quota + '</div>\
+          <div class="large-6 columns right">' + network_quota + '</div>\
+        </div>\
+        <br><br>\
+        <div class="row">\
+          <div class="large-12 columns">' + datastore_quota + '</div>\
+        </div>\
+      </div>';
+
+    return quotas_html;
+}
+
+function input_val(input){
+    switch(input.attr("quota_mode")) {
+        case "edit":
+            return input.val();
+        case "default":
+            return QUOTA_LIMIT_DEFAULT;
+        case "unlimited":
+            return QUOTA_LIMIT_UNLIMITED;
+    }
+}
+
+function initQuotaInputValue(input){
+    switch($(input).val()) {
+        case QUOTA_LIMIT_DEFAULT:
+            $(input).parents(".quotabar_container").find(".quotabar_default_btn").click();
+            break;
+        case QUOTA_LIMIT_UNLIMITED:
+            $(input).parents(".quotabar_container").find(".quotabar_unlimited_btn").click();
+            break;
+        default:
+            break;
+    }
+}
+
+function quotasPanelEditAction(parent_container){
+    $("#edit_quotas_button", parent_container).hide();
+    $("#cancel_quotas_button", parent_container).show();
+    $("#submit_quotas_button", parent_container).show();
+
+    $.each($("div.quotabar_container input", parent_container), function(){
+        initQuotaInputValue(this);
+    });
+
+    $(".editable_quota", parent_container).show();
+    $(".non_editable_quota", parent_container).hide();
+
+    return false;
+}
+
+function setupQuotasBarButtons(resource_info, parent_container){
+    parent_container.off("click", ".quotabar_edit_btn");
+    parent_container.on("click",  ".quotabar_edit_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        if(input.attr("quota_mode") != "edit"){
+            input.attr("quota_mode", "edit");
+            input.attr("disabled", false);
+            input.val( input.attr("quota_limit") >= 0 ? input.attr("quota_limit") : "0" );
+        }
+
+        return false;
+    });
+
+    parent_container.off("click", ".quotabar_default_btn");
+    parent_container.on("click",  ".quotabar_default_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        var default_value = input.attr("quota_default");
+
+        if (default_value == QUOTA_LIMIT_UNLIMITED) {
+            default_value = "∞";
+        }
+
+        input.val( tr("Default") + " (" + default_value + ")" );
+        input.attr("quota_mode", "default");
+        input.attr("disabled", "disabled");
+
+        return false;
+    });
+
+    parent_container.off("click", ".quotabar_unlimited_btn");
+    parent_container.on("click",  ".quotabar_unlimited_btn", function() {
+        var input = $(this).parents(".quotabar_container").find("input");
+
+        input.val(tr("Unlimited"));
+        input.attr("quota_mode", "unlimited");
+        input.attr("disabled", "disabled");
+
+        return false;
+    });
+}
+
+function retrieveQuotasValues(parent_container){
+    var obj = {};
+
+    obj["VM"] = {
+        "CPU"           : input_val( $("div[quota_name=VM_CPU] input", parent_container) ),
+        "MEMORY"        : input_val( $("div[quota_name=VM_MEMORY] input", parent_container) ),
+        "VMS"           : input_val( $("div[quota_name=VM_VMS] input", parent_container) ),
+        "VOLATILE_SIZE" : input_val( $("div[quota_name=VM_VOLATILE_SIZE] input", parent_container) )
+    };
+
+    $.each($("tr.image_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["IMAGE"] == undefined) {
+                obj["IMAGE"] = [];
+            }
+
+            obj["IMAGE"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "RVMS"  : input_val( $("div[quota_name=IMAGE_RVMS] input", this) )
+            });
+        }
+    });
+
+    $.each($("tr.network_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["NETWORK"] == undefined) {
+                obj["NETWORK"] = [];
+            }
+
+            obj["NETWORK"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "LEASES": input_val( $("div[quota_name=NETWORK_LEASES] input", this) )
+            });
+        }
+    });
+
+    $.each($("tr.ds_quota_tr", parent_container), function(){
+        if($(this).attr("quota_id") != "-1"){
+            if (obj["DATASTORE"] == undefined) {
+                obj["DATASTORE"] = [];
+            }
+
+            obj["DATASTORE"].push({
+                "ID"    : $(this).attr("quota_id"),
+                "IMAGES": input_val( $("div[quota_name=DS_IMAGES] input", this) ),
+                "SIZE"  : input_val( $("div[quota_name=DS_SIZE] input", this) )
+            });
+        }
+    });
+
+    return obj;
+}
+
+function setupQuotasPanel(resource_info, parent_id_str, edit_enabled, resource_name){
+    if (edit_enabled) {
+        $(parent_id_str).off("click", "#edit_quotas_button");
+        $(parent_id_str).on("click",  "#edit_quotas_button", function() {
+            return quotasPanelEditAction($(parent_id_str));
+        });
+
+        $(parent_id_str).off("click", "#cancel_quotas_button");
+        $(parent_id_str).on("click",  "#cancel_quotas_button", function() {
+            Sunstone.runAction(resource_name+".show", resource_info.ID);
+            return false;
+        });
+
+        $(parent_id_str).off("click", "#submit_quotas_button");
+        $(parent_id_str).on("click",  "#submit_quotas_button", function() {
+            var obj = retrieveQuotasValues($(parent_id_str));
+            Sunstone.runAction(resource_name+".set_quota", [resource_info.ID], obj);
+
+            return false;
+        });
+
+        setupQuotasBarButtons(resource_info, $(parent_id_str));
+    }
+}
+
+function quotas_tmpl(){
+    return '<div class="row">\
+        <div class="large-12 columns">\
+          <dl class="tabs right-info-tabs text-center" data-tab>\
+               <dd class="active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+tr("VM")+'</a></dd>\
+               <dd><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+tr("Datastore")+'</a></dd>\
+               <dd><a href="#image_quota"><i class="fa fa-upload"></i><br>'+tr("Image")+'</a></dd>\
+               <dd><a href="#network_quota"><i class="fa fa-globe"></i><br>'+tr("VNet")+'</a></dd>\
+          </dl>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="tabs-content">\
+          <div id="vm_quota" class="content active">\
+          </div>\
+          <div id="datastore_quota" class="content">\
+          </div>\
+          <div id="image_quota" class="content">\
+          </div>\
+          <div id="network_quota" class="content">\
+          </div>\
+        </div>\
+      </div>';
+}
+
 // Sets up a dialog to edit and update user and group quotas
 // Called from user/group plugins
 function setupQuotasDialog(dialog){
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
 
-    $('#add_quota_button',dialog).click(function(){
-        var sel = $('.tabs-content div.content.active',dialog).attr("id");
-        var fields = $('div#'+sel+' input,div#'+sel+' select',dialog);
-        var json = {};
-
-        for (var i = 0; i < fields.length; i++){
-            var field = $(fields[i]);
-            var name = field.attr('name');
-            var value = field.val();
-            if (name == 'ID' && !value.length){
-                notifyError(tr("Please select an element"));
-                return false;
-            };
-            if (!value) value = -1;
-            json[name] = value;
-        };
-
-        json['TYPE'] = sel.split("_quota")[0].toUpperCase();
-
-        if (json['TYPE'] == "VM" &&
-            $('.current_quotas table tbody tr.vm_quota', dialog).length){
-            notifyError("Only 1 VM quota is allowed")
-            return false;
-        }
-
-
-        var tr = quotaListItem(json)
-        $('.current_quotas table tbody',dialog).append($(tr).hide().fadeIn());
-        return false;
-    });
-
     $('form', dialog).submit(function(){
-        var obj = {};
-        $('table tbody tr',this).each(function(){
-            var json = JSON.parse($(this).attr('quota'));
-            var type = json['TYPE'];
-            delete json['TYPE'];
-            if (typeof obj[type.toUpperCase()] == "undefined") {
-                obj[type.toUpperCase()] = [];
-            }
-            obj[type.toUpperCase()].push(json);
-        });
-
+        var obj = retrieveQuotasValues(dialog);
         var action = $('div.form_buttons button',this).val();
         var sel_elems = SunstoneCfg["actions"][action].elements();
         Sunstone.runAction(action,sel_elems,obj);
@@ -2486,25 +3226,53 @@ function setupQuotasDialog(dialog){
     });
 }
 
-function popUpQuotasDialog(dialog, resource, sel_elems){
-    insertSelectOptions("#image_quota select",      dialog, "Image",    null, true);
-    insertSelectOptions("#network_quota select",    dialog, "Network",  null, true);
-    insertSelectOptions("#datastore_quota select",  dialog, "Datastore",null, true);
-
-    $('table tbody',dialog).empty();
-    //If only one user is selected we fecth the user's quotas, otherwise we do nothing.
+function popUpQuotasDialog(dialog, resource, sel_elems, default_quotas, parent_id_str){
+    //If only one user is selected we fecth the user's quotas
     if (sel_elems.length == 1){
         var id = sel_elems[0];
         Sunstone.runAction(resource + '.fetch_quotas',id);
-    };
-
-    $('input[value="vm"]', dialog).click();
-
-    dialog.foundation().foundation('reveal', 'open');
-
-    $("input[name='VMS']",dialog).focus();
+    } else {
+        // More than one, populate with '0' usage
+        populateQuotasDialog({}, default_quotas, parent_id_str, dialog);
+    }
 }
 
+function populateQuotasDialog(resource_info, default_quotas, parent_id_str, dialog){
+    var vms_quota = Quotas.vms(resource_info, default_quotas);
+    var cpu_quota = Quotas.cpu(resource_info, default_quotas);
+    var memory_quota = Quotas.memory(resource_info, default_quotas);
+    var volatile_size_quota = Quotas.volatile_size(resource_info, default_quotas);
+
+    var image_quota = Quotas.image(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var network_quota = Quotas.network(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    var datastore_quota = Quotas.datastore(
+        resource_info, default_quotas, {parent_id_str: parent_id_str});
+
+    $(parent_id_str+" #vm_quota").html(
+        '<div class="large-6 columns">' + vms_quota + '</div>\
+        <div class="large-6 columns">' + cpu_quota + '</div>\
+        <div class="large-6 columns">' + memory_quota + '</div>\
+        <div class="large-6 columns">' + volatile_size_quota+ '</div>');
+
+    $(parent_id_str+" #datastore_quota").html(
+        '<div class="large-12 columns">' + datastore_quota + '</div>');
+
+    $(parent_id_str+" #image_quota").html(
+        '<div class="large-12 columns">' + image_quota + '</div>');
+
+    $(parent_id_str+" #network_quota").html(
+        '<div class="large-12 columns">' + network_quota + '</div>');
+
+    setupQuotasBarButtons(resource_info, dialog);
+
+    quotasPanelEditAction(dialog);
+
+    dialog.foundation().foundation('reveal', 'open');
+}
 
 //Action to be performed when an edit quota icon is clicked.
 function setupQuotaIcons(){
@@ -2537,100 +3305,6 @@ function setupQuotaIcons(){
         tr.fadeOut(function(){$(this).remove()});
         return false;
     });
-}
-
-// Returns an object with quota information in form of list items
-function parseQuotas(elem, formatter_f){
-    var quotas = [];
-    var results = {
-        VM : "",
-        DATASTORE : "",
-        IMAGE : "",
-        NETWORK : ""
-    }
-    //max 1 vm quota
-    if (!$.isEmptyObject(elem.VM_QUOTA)){
-        elem.VM_QUOTA.VM.TYPE = 'VM'
-        quotas.push(elem.VM_QUOTA.VM)
-    }
-
-    var ds_arr = []
-    if ($.isArray(elem.DATASTORE_QUOTA.DATASTORE)){
-        ds_arr = elem.DATASTORE_QUOTA.DATASTORE
-    } else if (!$.isEmptyObject(elem.DATASTORE_QUOTA)){
-        ds_arr = [elem.DATASTORE_QUOTA.DATASTORE]
-    }
-
-    for (var i = 0; i < ds_arr.length; i++){
-        ds_arr[i].TYPE = 'DATASTORE';
-        quotas.push(ds_arr[i]);
-    }
-
-    var im_arr = []
-    if ($.isArray(elem.IMAGE_QUOTA.IMAGE)){
-        im_arr = elem.IMAGE_QUOTA.IMAGE
-    } else if (!$.isEmptyObject(elem.IMAGE_QUOTA)){
-        im_arr = [elem.IMAGE_QUOTA.IMAGE]
-    }
-
-    for (var i = 0; i < im_arr.length; i++){
-        im_arr[i].TYPE = 'IMAGE';
-        quotas.push(im_arr[i]);
-    }
-
-    var vn_arr = []
-    if ($.isArray(elem.NETWORK_QUOTA.NETWORK)){
-        vn_arr = elem.NETWORK_QUOTA.NETWORK
-    } else if (!$.isEmptyObject(elem.NETWORK_QUOTA)){
-        vn_arr = [elem.NETWORK_QUOTA.NETWORK]
-    }
-
-    for (var i = 0; i < vn_arr.length; i++){
-        vn_arr[i].TYPE = 'NETWORK';
-        quotas.push(vn_arr[i]);
-    }
-
-    for (var i = 0; i < quotas.length; i++){
-        var tr = formatter_f(quotas[i]);
-        results[quotas[i].TYPE] += tr;
-    }
-    return results;
-}
-
-//Receives a quota json object. Returns a nice string out of it.
-function quotaListItem(quota_json){
-    var value = JSON.stringify(quota_json)
-    var str = '<tr quota=\''+value+'\' ';
-
-    if (quota_json.TYPE == "VM")
-        str += ' class="vm_quota" ';
-
-    str += '><td>'+
-        quota_json.TYPE+
-        '</td><td style="width:100%;">';
-    switch(quota_json.TYPE){
-    case "VM":
-        str +=  'VMs: ' + quota_json.VMS + (quota_json.VMS_USED ? ' (' + quota_json.VMS_USED + '). ' : ". ") + '<br>' +
-               'Memory: ' + quota_json.MEMORY + (quota_json.MEMORY_USED ? ' MB (' + quota_json.MEMORY_USED + ' MB). ' : " MB. ") + '<br>' +
-               'CPU: ' + quota_json.CPU +  (quota_json.CPU_USED ? ' (' + quota_json.CPU_USED + '). ' : ". ") + '<br>' +
-               'Volatile disks: ' + quota_json.VOLATILE_SIZE + (quota_json.VOLATILE_SIZE_USED ? ' MB (' + quota_json.VOLATILE_SIZE_USED + ' MB). ' : " MB. ");
-        break;
-    case "DATASTORE":
-        str +=  'ID/Name: ' + getDatastoreName(quota_json.ID) + '. ' + '<br>' +
-               'Size: ' + quota_json.SIZE +  (quota_json.SIZE_USED ? ' MB (' + quota_json.SIZE_USED + ' MB). ' : " MB. ") + '<br>' +
-               'Images: ' + quota_json.IMAGES +  (quota_json.IMAGES_USED ? ' (' + quota_json.IMAGES_USED + '). ' : ".");
-        break;
-    case "IMAGE":
-        str +=  'ID/Name: ' + getImageName(quota_json.ID) + '. ' + '<br>' +
-               'RVMs: ' + quota_json.RVMS +  (quota_json.RVMS_USED ? ' (' + quota_json.RVMS_USED + '). ' : ". ");
-        break;
-    case "NETWORK":
-        str +=  'ID/Name: ' + getVNetName(quota_json.ID) + '. ' + '<br>' +
-               'Leases: ' + quota_json.LEASES +  (quota_json.LEASES_USED ? ' (' + quota_json.LEASES_USED + '). ': ". ");
-        break;
-    }
-    str += '</td><td><button class="quota_edit_icon radius tiny"><i class="fa fa-pencil"></i></button></td></tr>';
-    return str;
 }
 
 /* Returns the code of a jquery progress bar
@@ -3478,6 +4152,99 @@ function insert_group_dropdown(resource_type, resource_id, group_value, group_id
  * Helpers for quotas
  */
 
+/*
+ * opts.is_float : true to parse quota_limit and default_limit as floats instead of int
+ * opts.mb : true if the quota is in MB
+ * opts.quota_name : string to identify the quota widget
+ */
+function editableQuotaBar(usage, quota_limit, default_limit, opts){
+
+    if (!opts) opts = {};
+    if (!opts.quota_name) opts.quota_name = "";
+
+    var limit;
+
+    if (opts.is_float){
+        usage = parseFloat(usage, 10);
+        limit = quotaFloatLimit(quota_limit, default_limit);
+    } else {
+        usage = parseInt(usage, 10);
+        limit = quotaIntLimit(quota_limit, default_limit);
+    }
+
+    percentage = 0;
+
+    if (limit > 0){
+        percentage = Math.floor((usage / limit) * 100);
+
+        if (percentage > 100){
+            percentage = 100;
+        }
+    } else if (limit == 0 && usage > 0){
+        percentage = 100;
+    }
+
+    var info_str;
+
+    if (opts.mb){
+        info_str = humanize_size(usage * 1024)+' / '
+            +((limit >= 0) ? humanize_size(limit * 1024) : '-')
+    } else {
+        info_str = usage+' / '+((limit >= 0) ? limit : '-');
+    }
+
+    html =
+    '<div class="quotabar_container" quota_name="'+opts.quota_name+'">\
+      <div class="row collapse editable_quota" style="font-size: 12px; display: none">\
+        <div class="small-2 columns">\
+          <label style="font-size: 12px; margin: 0px" class="inline right">'+ usage + ' /&nbsp;</label>\
+        </div>';
+
+
+    if (opts.mb){
+        html +=
+        '<div class="small-4 columns">';
+    }else{
+        html +=
+        '<div class="small-5 columns">';
+    }
+
+    html +=
+          '<input type="text" style="font-size: 12px; margin: 0px" quota_mode="edit" quota_limit="'+quota_limit+'" quota_default="'+default_limit+'" value="'+quota_limit+'"/>\
+        </div>';
+
+    if (opts.mb){
+        html +=
+        '<div class="small-1 columns">\
+          <span style="font-size: 12px; height: 2.0625rem !important; line-height: 2.0625rem !important;" class="postfix">MB</span>\
+        </div>';
+    }
+
+    html +=
+        '<div class="small-5 columns">\
+          <ul class="button-group">\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_edit_btn"><span class="fa fa-pencil"></span></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_default_btn"><span class="fa fa-file-o"></span></a></li>\
+            <li><a style="font-size: 1em; margin: 0px" class="button tiny secondary quotabar_unlimited_btn"><strong>&infin;</strong></a></li>\
+          </ul>\
+        </div>\
+      </div>\
+      <div class="row collapse non_editable_quota">\
+        <div class="large-12 columns">\
+          <div class="progress-text right" style="font-size: 12px">\
+            '+info_str+'\
+          </div>\
+          <br>\
+          <div class="progress radius" style="height: 10px; margin-bottom:0px">\
+            <span class="meter" style="width: '
+              +percentage+'%" />\
+          </div>\
+        </div>\
+      </div>\
+    </div>';
+    return html;
+}
+
 function quotaBar(usage, limit, default_limit, not_html){
     var int_usage = parseInt(usage, 10);
     var int_limit = quotaIntLimit(limit, default_limit);
@@ -3489,7 +4256,7 @@ function quotaBarMB(usage, limit, default_limit, not_html){
     var int_limit = quotaIntLimit(limit, default_limit);
 
     info_str = humanize_size(int_usage * 1024)+' / '
-            +((int_limit > 0) ? humanize_size(int_limit * 1024) : '-')
+            +((int_limit >= 0) ? humanize_size(int_limit * 1024) : '-')
 
     return quotaBarHtml(int_usage, int_limit, info_str, not_html);
 }
@@ -3509,9 +4276,11 @@ function quotaBarHtml(usage, limit, info_str, not_html){
         if (percentage > 100){
             percentage = 100;
         }
+    } else if (limit == 0 && usage > 0){
+        percentage = 100;
     }
 
-    info_str = info_str || ( usage+' / '+((limit > 0) ? limit : '-') );
+    info_str = info_str || ( usage+' / '+((limit >= 0) ? limit : '-') );
 
     if (not_html) {
         return {
@@ -3561,7 +4330,7 @@ function quotaIntLimit(limit, default_limit){
     i_limit = parseInt(limit, 10);
     i_default_limit = parseInt(default_limit, 10);
 
-    if (i_limit == -1){
+    if (limit == QUOTA_LIMIT_DEFAULT){
         i_limit = i_default_limit;
     }
 
@@ -3577,7 +4346,7 @@ function quotaFloatLimit(limit, default_limit){
     f_limit = parseFloat(limit, 10);
     f_default_limit = parseFloat(default_limit, 10);
 
-    if (f_limit == -1){
+    if (f_limit == parseFloat(QUOTA_LIMIT_DEFAULT, 10)){
         f_limit = f_default_limit;
     }
 
@@ -3590,6 +4359,8 @@ function quotaFloatLimit(limit, default_limit){
 }
 
 function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota){
+    var percentage = quota.percentage > 100 ? 100 : quota.percentage;
+
     return '<div class="row">'+
           '<div class="large-12 columns text-center" style="margin-bottom: 5px">'+
             '<span id="'+html_tag+'_percentage" style="font-size:'+font_large_size+';">'+quota.percentage+'</span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
@@ -3598,7 +4369,7 @@ function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quot
         '<div class="row">'+
           '<div class="large-12 columns text-center">'+
             '<div class="progress large radius">'+
-            '  <span id="'+html_tag+'_meter" class="meter" style="width: '+quota.percentage+'%"></span>'+
+            '  <span id="'+html_tag+'_meter" class="meter" style="width: '+percentage+'%"></span>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -3621,16 +4392,37 @@ function hideDialog(){
 function popDialog(content, context){
     $(".right-info", context).html(content);
     context.foundation();
-    //innerLayout.open("south");
 }
 
 function popDialogLoading(context){
     $(".right-list", context).hide();
+    $(".right-form", context).hide();
     $(".right-info", context).show();
     $(".only-right-list", context).hide();
+    $(".only-right-form", context).hide();
     $(".only-right-info", context).show();
     var loading = '<div style="margin-top:'+Math.round($("#dialog").height()/6)+'px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
     popDialog(loading, context);
+}
+
+function popFormDialog(form_name, context){
+    //$(".right-form", context).html(content);
+    $(".loadingForm", context).hide();
+    $(".tabs-contentForm", context).show();
+    $(".right-form", context).attr("form_name", form_name)
+    context.foundation();
+}
+
+function popFormDialogLoading(context){
+    $(".right-list", context).hide();
+    $(".right-info", context).hide();
+    $(".right-form", context).show();
+    $(".only-right-list", context).hide();
+    $(".only-right-info", context).hide();
+    $(".only-right-form", context).show();
+
+    $(".tabs-contentForm", context).hide();
+    $(".loadingForm", context).show();
 }
 
 function showTab(tabname,highlight_tab){
@@ -3679,10 +4471,12 @@ function showTab(tabname,highlight_tab){
     //show tab
     $(".tab").hide();
     tab.show();
-    $(".right-list", tab).show();
     $(".right-info", tab).hide();
-    $(".only-right-list", tab).show();
+    $(".right-form", tab).hide();
+    $(".right-list", tab).show();
     $(".only-right-info", tab).hide();
+    $(".only-right-form", tab).hide();
+    $(".only-right-list", tab).show();
 
     recountCheckboxes($(".dataTable", tab).first());
 
@@ -3703,6 +4497,9 @@ function showElement(tabname, info_action, element_id){
         return false;
     }
 
+    $(".resource-id", context).html(element_id);
+    $(".resource-info-header", context).text("");
+
     showTab(tabname);
 
     var context = $('#'+tabname);
@@ -3711,7 +4508,6 @@ function showElement(tabname, info_action, element_id){
     var res = SunstoneCfg['tabs'][tabname]['resource'];
 
     Sunstone.runAction(info_action,element_id);
-    $(".resource-id", context).html(element_id);
     //enable action buttons
     $('.top_button, .list_button', context).attr('disabled', false);
 }
@@ -3775,6 +4571,17 @@ $(document).ready(function(){
     info_panels_context = $('div#info_panels');
 
 
+    $(document).on("click", ".accordion_advanced > a", function() {
+        if ($(this).hasClass("active")){
+            $(this).removeClass("active");
+        } else {
+            $(this).addClass("active");
+        }
+
+        $(this).closest(".accordion_advanced").children(".content").toggle();
+
+        return false;
+    })
 
     //Insert the tabs in the DOM and their buttons.
     insertTabs();
@@ -3954,15 +4761,15 @@ function accountingGraphs(div, opt){
 
     div.html(
     '<div class="row">\
-      <div class="large-4 left columns">\
+      <div id="acct_start_time_container" class="left columns">\
         <label for="acct_start_time">'+tr("Start time")+'</label>\
-        <input id="acct_start_time" type="text" placeholder="2013/12/30"/>\
+        <input id="acct_start_time" type="date" placeholder="2013-06-30"/>\
       </div>\
-      <div class="large-4 left columns">\
+      <div id="acct_end_time_container" class="left columns">\
         <label for="acct_end_time">'+tr("End time")+'</label>\
-        <input id="acct_end_time" type="text" placeholder="'+tr("Today")+'"/>\
+        <input id="acct_end_time" type="date" placeholder="2013-12-30"/>\
       </div>\
-      <div id="acct_group_by_container" class="large-4 left columns">\
+      <div id="acct_group_by_container" class="left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
         <select id="acct_group_by" name="acct_group_by">\
           <option value="user">' + tr("User") + '</option>\
@@ -3970,26 +4777,26 @@ function accountingGraphs(div, opt){
           <option value="vm">' + tr("VM") + '</option>\
         </select>\
       </div>\
-    </div>\
-    <div class="row" id="acct_owner">\
-      <div class="large-4 text-center columns large-offset-4">\
-        <input id="acct_owner_all"   type="radio" name="acct_owner" value="acct_owner_all" checked/><label for="acct_owner_all">' + tr("All") + '</label>\
-        <input id="acct_owner_group" type="radio" name="acct_owner" value="acct_owner_group" /><label for="acct_owner_group">' + tr("Group") + '</label>\
-        <input id="acct_owner_user"  type="radio" name="acct_owner" value="acct_owner_user" /><label for="acct_owner_user">' + tr("User") + '</label>\
+      <div id="acct_owner_container" class="left columns">\
+        <label for="acct_owner">' +  tr("Filter") + '</label>\
+        <div class="row">\
+          <div class="large-5 columns">\
+            <select id="acct_owner" name="acct_owner">\
+              <option value="acct_owner_all">' + tr("All") + '</option>\
+              <option value="acct_owner_group">' + tr("Group") + '</option>\
+              <option value="acct_owner_user">' + tr("User") + '</option>\
+            </select>\
+          </div>\
+          <div class="large-7 columns">\
+            <div id="acct_owner_select"/>\
+          </div>\
+        </div>\
       </div>\
-      <div class="large-4 columns">\
-        <div id="acct_owner_select"/>\
+      <div id="acct_button_container" class="left columns" style="margin-top: 15px">\
+        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get Accounting")+'</button>\
       </div>\
     </div>\
     <br>\
-    <div class="row">\
-      <div class="large-6 large-centered columns">\
-        <button class="button radius success large-12" id="acct_submit" type="button">'+tr("Get accounting info")+'</button>\
-      </div>\
-    </div>\
-    <br>\
-    <div class="row">\
-    </div>\
     <div id="acct_placeholder">\
       <div class="row">\
         <div class="large-8 large-centered columns">\
@@ -4027,7 +4834,7 @@ function accountingGraphs(div, opt){
           </div>\
         </div>\
       </div>\
-      <div class="row">\
+      <div class="row acct_table">\
         <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>\
         </div>\
@@ -4043,7 +4850,7 @@ function accountingGraphs(div, opt){
           </table>\
         </div>\
       </div>\
-      <div class="row">\
+      <div class="row acct_table">\
         <div class="large-12 columns graph_legend">\
           <h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>\
         </div>\
@@ -4066,6 +4873,34 @@ function accountingGraphs(div, opt){
     }
 
     //--------------------------------------------------------------------------
+    // Set column width
+    //--------------------------------------------------------------------------
+
+    var n_columns = 3; // start, end time, button
+
+    if (opt.fixed_user == undefined && opt.fixed_group == undefined){
+        n_columns += 1;     //acct_owner_container
+    }
+
+    if(opt.fixed_group_by == undefined){
+        n_columns += 1;     //acct_group_by_container
+    }
+
+    if (n_columns > 4){
+        // In this case the first row will have 4 inputs, and the
+        // get accounting button will overflow to the second row
+        n_columns = 4;
+    }
+
+    var width = parseInt(12 / n_columns);
+
+    $("#acct_start_time_container", div).addClass("large-"+width);
+    $("#acct_end_time_container",   div).addClass("large-"+width);
+    $("#acct_group_by_container",   div).addClass("large-"+width);
+    $("#acct_owner_container",      div).addClass("large-"+width);
+    $("#acct_button_container",     div).addClass("large-"+width);
+
+    //--------------------------------------------------------------------------
     // Init start time to 1st of last month
     //--------------------------------------------------------------------------
     var d = new Date();
@@ -4073,31 +4908,24 @@ function accountingGraphs(div, opt){
     d.setDate(1);
     d.setMonth(d.getMonth() - 1);
 
-    $("#acct_start_time", div).val(d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate());
+    $("#acct_start_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
+
+    //--------------------------------------------------------------------------
+    // Init end time to today
+    //--------------------------------------------------------------------------
+
+    d = new Date();
+
+    $("#acct_end_time", div).val(d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
 
     //--------------------------------------------------------------------------
     // VM owner: all, group, user
     //--------------------------------------------------------------------------
 
     if (opt.fixed_user != undefined || opt.fixed_group != undefined){
-      $("#acct_owner", div).hide();
-/*
-        $("input[name='acct_owner']", div).attr("disabled", "disabled");
-
-        $("#acct_owner_select", div).show();
-
-        if(opt.fixed_user != undefined){
-            var text = tr("User") +" " + opt.fixed_user;
-            $("input[value='acct_owner_user']", div).attr("checked", "checked");
-        } else {
-            var text = tr("Group") + " " + opt.fixed_group;
-            $("input[value='acct_owner_group']", div).attr("checked", "checked");
-        }
-
-        $("#acct_owner_select", div).text(text);
-*/
+        $("#acct_owner_container", div).hide();
     } else {
-        $("input[name='acct_owner']", div).change(function(){
+        $("select#acct_owner", div).change(function(){
             var value = $(this).val();
 
             switch (value){
@@ -4133,6 +4961,10 @@ function accountingGraphs(div, opt){
     //--------------------------------------------------------------------------
     // Submit request
     //--------------------------------------------------------------------------
+    function dateFromString(str) {
+      var a = $.map(str.split(/[^0-9]/), function(s) { return parseInt(s, 10) });
+      return Date.UTC(a[0], a[1]-1 || 0, a[2] || 1, a[3] || 0, a[4] || 0, a[5] || 0, a[6] || 0);
+    }
 
     $("#acct_submit", div).on("click", function(){
         var start_time = -1;
@@ -4143,7 +4975,8 @@ function accountingGraphs(div, opt){
             notifyError(tr("Time range start is mandatory"));
             return false;
         }else{
-            start_time = Date.parse(v+' UTC');
+            start_time = dateFromString(v)
+            //start_time = Date.parse(v+' UTC');
 
             if (isNaN(start_time)){
                 notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
@@ -4156,8 +4989,7 @@ function accountingGraphs(div, opt){
 
         var v = $("#acct_end_time", div).val();
         if (v != ""){
-
-            end_time = Date.parse(v+' UTC');
+            end_time = dateFromString(v)
 
             if (isNaN(end_time)){
                 notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
@@ -4180,7 +5012,7 @@ function accountingGraphs(div, opt){
         } else {
             var select_val = $("#acct_owner_select .resource_list_select", div).val();
 
-            switch ($("input[name='acct_owner']:checked", div).val()){
+            switch ($("select#acct_owner", div).val()){
             case "acct_owner_all":
                 break;
 
@@ -4198,10 +5030,15 @@ function accountingGraphs(div, opt){
             }
         }
 
+        var no_table = false;
+        if (opt["no_table"] == true) {
+            no_table = true;
+        }
+
         OpenNebula.VM.accounting({
     //        timeout: true,
             success: function(req, response){
-                fillAccounting(div, req, response);
+                fillAccounting(div, req, response, no_table);
             },
             error: onError,
             data: options
@@ -4220,6 +5057,7 @@ function fillAccounting(div, req, response, no_table) {
 
     // start_time is mandatory
     var start = new Date(options.start_time * 1000);
+    start.setUTCHours(0,0,0,0);
 
     var end = new Date();
 
@@ -4251,20 +5089,19 @@ function fillAccounting(div, req, response, no_table) {
         xaxis : {
             mode: "time",
             timeformat: "%y/%m/%d",
-            color: "#999",
+            color: "#efefef",
             size: 8,
             ticks: 4,
             minTickSize: [1, "day"]
         },
-        yaxis : { labelWidth: 50,
-                  min: 0,
-                color: "#999",
+        yaxis : { min: 0,
+                color: "#efefef",
                 size: 8
                 },
         series: {
             bars: {
                 show: true,
-                lineWidth: 1,
+                lineWidth: 0,
                 fill: true,
                 barWidth: 24*60*60*1000 * 0.8,
                 align: "center"
@@ -4276,7 +5113,7 @@ function fillAccounting(div, req, response, no_table) {
         },
         grid: {
             borderWidth: 1,
-            borderColor: "#cfcfcf",
+            borderColor: "#efefef",
             hoverable: true
         },
         tooltip: true,
@@ -4393,6 +5230,14 @@ function fillAccounting(div, req, response, no_table) {
             var t = times[i];
             var t_next = times[i+1];
 
+            // To stack values properly, flot needs an entry for all
+            // the time slots
+            if(serie[t] == undefined){
+                serie[t] = {};
+                serie[t].CPU_HOURS = 0;
+                serie[t].MEM_HOURS = 0;
+            }
+
             if( (history.ETIME*1000 > t || history.ETIME == 0) &&
                 (history.STIME != 0 && history.STIME*1000 <= t_next) ) {
 
@@ -4407,12 +5252,6 @@ function fillAccounting(div, req, response, no_table) {
                 }
 
                 var n_hours = (etime - stime) / 1000 / 60 / 60;
-
-                if(serie[t] == undefined){
-                    serie[t] = {};
-                    serie[t].CPU_HOURS = 0;
-                    serie[t].MEM_HOURS = 0;
-                }
 
                 // --- cpu ---
 
@@ -4473,7 +5312,9 @@ function fillAccounting(div, req, response, no_table) {
     // Init dataTables
     //--------------------------------------------------------------------------
 
-    if (!no_table){
+    if (no_table) {
+        $(".acct_table").hide();
+    } else {
         $("#acct_cpu_datatable",div).dataTable().fnClearTable();
         $("#acct_cpu_datatable",div).dataTable().fnDestroy();
 
@@ -4564,8 +5405,8 @@ function fillAccounting(div, req, response, no_table) {
                 }
             });
 
-            cpu_row[1] = cpu_total;
-            mem_row[1] = mem_total;
+            cpu_row[1] = (cpu_total * 100).toFixed() / 100;
+            mem_row[1] = (mem_total * 100).toFixed() / 100;
 
             cpu_dataTable_data.push(cpu_row);
             mem_dataTable_data.push(mem_row);
@@ -4587,10 +5428,1443 @@ function fillAccounting(div, req, response, no_table) {
             ]
         });
 
-        acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
-        acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        if (cpu_dataTable_data.length > 0) {
+            acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
+        }
+
+        if (mem_dataTable_data.length > 0) {
+            acct_mem_dataTable.fnAddData(mem_dataTable_data);
+        }
     }
 
     $("#acct_placeholder", div).hide();
     $("#acct_content", div).show();
 }
+
+function customTagsHtml(){
+    return '<div class="row">\
+      <div class="large-4 columns">\
+        <input type="text" id="KEY" name="key" />\
+      </div>\
+      <div class="large-6 columns">\
+        <input type="text" id="VALUE" name="value" />\
+      </div>\
+      <div class="large-2 columns">\
+        <button type="button" class="button secondary small radius" id="add_custom">'+tr("Add")+'</button>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="custom_tags" class="dataTable policies_table">\
+          <thead>\
+            <tr>\
+              <th>'+tr("KEY")+'</th>\
+              <th>'+tr("VALUE")+'</th>\
+              <th></th>\
+            </tr>\
+          </thead>\
+          <tbody id="tbodyinput">\
+            <tr>\
+            </tr>\
+            <tr>\
+            </tr>\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>';
+}
+
+// div is the container div of customTagsHtml(), eg
+// setupCustomTags($("#vnetCreateContextTab", dialog));
+function setupCustomTags(div){
+    $('#add_custom', div).click(function() {
+        var table = $('#custom_tags', div)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = $('input#KEY', div).val()
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = $('input#VALUE', div).val()
+        cell2.appendChild(element2);
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    });
+
+    div.on("click", "i.remove-tab", function() {
+        $(this).closest("tr").remove()
+    });
+}
+
+// div is the container div of customTagsHtml()
+// template_json is where the key:values will be stored
+// retrieveCustomTags($('#vnetCreateContextTab', $create_vn_dialog), network_json);
+function retrieveCustomTags(div, template_json){
+    $('#custom_tags tr', div).each(function(){
+        if ($('#KEY', $(this)).val()) {
+            template_json[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val();
+        }
+    });
+}
+
+// div is the container div of customTagsHtml()
+// template_json are the key:values that will be put into the table
+function fillCustomTags(div, template_json){
+    $.each(template_json, function(key, value){
+        var table = $('#custom_tags', div)[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+
+        var cell1 = row.insertCell(0);
+        var element1 = document.createElement("input");
+        element1.id = "KEY";
+        element1.type = "text";
+        element1.value = htmlDecode(key);
+        cell1.appendChild(element1);
+
+        var cell2 = row.insertCell(1);
+        var element2 = document.createElement("input");
+        element2.id = "VALUE";
+        element2.type = "text";
+        element2.value = htmlDecode(value);
+        cell2.appendChild(element2);
+
+
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    });
+}
+
+// TODO: other types: radio, checkbox
+
+function retrieveWizardFields(dialog, template_json){
+    var fields = $('[wizard_field]',dialog);
+
+    fields.each(function(){
+        var field = $(this);
+
+        if (field.prop('wizard_field_disabled') != true && field.val() != null && field.val().length){
+            var field_name = field.attr('wizard_field');
+            template_json[field_name] = field.val();
+        }
+    });
+}
+
+//==============================================================================
+// Resource tables with "please select" mechanism
+//==============================================================================
+
+function generateVNetTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Reservation"),
+        tr("Cluster"),
+        tr("Bridge"),
+        tr("Leases"),
+        tr("VLAN_ID")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+        "select_resource": tr("Please select a network from the list"),
+        "you_selected": tr("You selected the following network:"),
+        "select_resource_multiple": tr("Please select one or more networks from the list"),
+        "you_selected_multiple": tr("You selected the following networks:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
+function setupVNetTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('vnets-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0,1] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Network.list({
+                timeout: true,
+                success: function (request, networks_list){
+                    var network_list_array = [];
+
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
+                    $.each(networks_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.VNET);
+                        }
+
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.VNET.ID]);
+                        }
+
+                        if(add){
+                            network_list_array.push(vNetworkElementArray(this));
+
+                            delete fixed_ids_map[this.VNET.ID];
+                        }
+                    });
+
+                    var n_columns = 10; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
+                    });
+
+                    updateView(network_list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshVNetTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveVNetTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectVNetTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
+function generateTemplateTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Registration time")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+        "select_resource": tr("Please select a template from the list"),
+        "you_selected": tr("You selected the following template:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+function setupTemplateTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('templates-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Template.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.VMTEMPLATE);
+                        }
+
+                        if(add){
+                            list_array.push(templateElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+function generateHostTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Name"),
+        tr("Cluster"),
+        tr("RVMs"),
+        tr("Real CPU"),
+        tr("Allocated CPU"),
+        tr("Real MEM"),
+        tr("Allocated MEM"),
+        tr("Status"),
+        tr("IM MAD"),
+        tr("VM MAD"),
+        tr("Last monitored on")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 2,
+        "select_resource": tr("Please select a Host from the list"),
+        "you_selected": tr("You selected the following Host:"),
+        "select_resource_multiple": tr("Please select one or more hosts from the list"),
+        "you_selected_multiple": tr("You selected the following hosts:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
+function setupHostTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('hosts-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
+        "id_index": 1,
+        "name_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Host.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.HOST);
+                        }
+
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.HOST.ID]);
+                        }
+
+                        if(add){
+                            list_array.push(hostElementArray(this));
+
+                            delete fixed_ids_map[this.HOST.ID];
+                        }
+                    });
+
+                    var n_columns = 13; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshHostTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveHostTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectHostTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
+function generateDatastoreTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Capacity"),
+        tr("Cluster"),
+        tr("Basepath"),
+        tr("TM MAD"),
+        tr("DS MAD"),
+        tr("Type")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+        "select_resource": tr("Please select a datastore from the list"),
+        "you_selected": tr("You selected the following datastore:"),
+        "select_resource_multiple": tr("Please select one or more datastores from the list"),
+        "you_selected_multiple": tr("You selected the following datastores:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
+function setupDatastoreTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('datastores-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "sWidth": "250px", "aTargets": [5] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Datastore.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.DATASTORE);
+                        }
+
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.DATASTORE.ID]);
+                        }
+
+                        if(add){
+                            list_array.push(datastoreElementArray(this));
+
+                            delete fixed_ids_map[this.DATASTORE.ID];
+                        }
+                    });
+
+                    var n_columns = 11; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshDatastoreTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveDatastoreTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+function selectDatastoreTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
+function generateImageTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Owner"),
+        tr("Group"),
+        tr("Name"),
+        tr("Datastore"),
+        tr("Size"),
+        tr("Type"),
+        tr("Registration time"),
+        tr("Persistent"),
+        tr("Status"),
+        tr("#VMS"),
+        tr("Target")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+        "select_resource": tr("Please select an image from the list"),
+        "you_selected": tr("You selected the following image:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+function setupImageTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('images-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0,1] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "id_index": 1,
+        "name_index": 4,
+        "uname_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Image.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    $.each(resource_list,function(){
+                        var image = this.IMAGE;
+
+                        // KERNEL || RAMDISK || CONTEXT
+                        var add = ( image.TYPE != "3" &&
+                                    image.TYPE != "4" &&
+                                    image.TYPE != "5" )
+
+                        if(add && opts.filter_fn){
+                            add = opts.filter_fn(this.IMAGE);
+                        }
+
+                        if(add){
+                            list_array.push(imageElementArray(this));
+                        }
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshImageTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveImageTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectImageTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
+function generateResourceTableSelect(context_id, columns, options){
+    if (!options.select_resource){
+        options.select_resource = tr("Please select a resource from the list");
+    }
+
+    if (!options.you_selected){
+        options.you_selected = tr("You selected the following resource:");
+    }
+
+    if (options.id_index == undefined){
+        options.id_index = 0;
+    }
+
+    var thead = '<thead><tr>';
+
+    $.each(columns, function(){
+        thead += '<th>'+this+'</th>'
+    });
+
+    thead += '</tr></thead>';
+
+    var html =
+    '<div class="row">\
+      <div class="large-8 columns">\
+         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+      </div>\
+      <div class="large-4 columns">\
+        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns">\
+        <table id="datatable_'+context_id+'" class="datatable twelve" row_id="'+options.id_index+'">\
+          '+thead+'\
+          <tbody id="tbody_datatable_'+context_id+'">\
+          </tbody>\
+        </table>\
+      </div>\
+    </div>\
+    <div class="row">\
+      <div class="large-12 columns" id="selected_ids_row_'+context_id+'">\
+        <span id="select_resource_'+context_id+'" class="radius secondary label">'+options.select_resource+'</span>\
+        <span id="selected_resource_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected+'</span>\
+        <span id="select_resource_multiple_'+context_id+'" class="radius secondary label" style="display: none;">'+options.select_resource_multiple+'</span>\
+        <span id="selected_resource_multiple_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected_multiple+'</span>\
+        <input id="selected_resource_id_'+context_id+'" type="text"/>\
+        <span id="selected_resource_name_'+context_id+'" class="radius label" type="text"></span>\
+      </div>\
+    </div>';
+
+    return html;
+}
+
+function setupResourceTableSelect(section, context_id, options) {
+
+    if (options.id_index == undefined){
+        options.id_index = 0;
+    }
+
+    if (options.name_index == undefined){
+        options.name_index = 1;
+    }
+
+    if (options.dataTable_options == undefined){
+        options.dataTable_options = {};
+    }
+
+    if (options.select_callback == undefined){
+        options.select_callback = function(aData, options){};
+    }
+
+    if(options.multiple_choice){
+        options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            var row_id = aData[options.id_index];
+
+            var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+            if ( ids[row_id] ){
+                $("td", nRow).addClass('markrowchecked');
+                $('input.check_item', this).attr('checked','checked');
+            } else {
+                $("td", nRow).removeClass('markrowchecked');
+                $('input.check_item', this).removeAttr('checked');
+            }
+        };
+    } else {
+        options.dataTable_options.fnRowCallback = function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            var row_id = aData[options.id_index];
+
+            var selected_id = $('#selected_resource_id_'+context_id, section).val();
+
+            if ( row_id == selected_id ){
+                $("td", nRow).addClass('markrow');
+                $('input.check_item', this).attr('checked','checked');
+            } else {
+                $("td", nRow).removeClass('markrow');
+                $('input.check_item', this).removeAttr('checked');
+            }
+        };
+    }
+
+    var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
+
+    $('#refresh_button_'+context_id, section).off("click");
+
+    section.on('click', '#refresh_button_'+context_id, function(){
+        options.update_fn($('table[id=datatable_'+context_id+']', section).dataTable());
+    });
+
+    $('#'+context_id+'_search', section).keyup(function(){
+        dataTable_select.fnFilter( $(this).val() );
+    })
+
+    dataTable_select.fnSort( [ [options.id_index, config['user_config']['table_order']] ] );
+
+    if (options.read_only){
+        $('#selected_ids_row_'+context_id, section).hide();
+    } else if(options.multiple_choice){
+        $('#selected_resource_'+context_id, section).hide();
+        $('#select_resource_'+context_id, section).hide();
+
+        $('#selected_resource_multiple_'+context_id, section).hide();
+        $('#select_resource_multiple_'+context_id, section).show();
+    }
+
+    $('#selected_resource_id_'+context_id, section).hide();
+    $('#selected_resource_name_'+context_id, section).hide();
+
+    $('#selected_ids_row_'+context_id, section).data("options", options);
+
+    if(options.read_only){
+
+    } else if(options.multiple_choice){
+        $('#selected_ids_row_'+context_id, section).data("ids", {});
+
+        function row_click(row, aData){
+            dataTable_select.unbind("draw");
+
+            var row_id = aData[options.id_index];
+            var row_name = aData[options.name_index];
+
+            var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+            if( ids[row_id] ){
+                delete ids[row_id];
+
+                $("td", row).removeClass('markrowchecked');
+                $('input.check_item', row).removeAttr('checked');
+
+                $('#selected_ids_row_'+context_id+' span[row_id="'+row_id+'"]', section).remove();
+            } else {
+                ids[row_id] = true;
+
+                $("td", row).addClass('markrowchecked');
+                $('input.check_item', row).attr('checked','checked');
+
+                $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+
+                options.select_callback(aData, options);
+            }
+
+            if ($.isEmptyObject(ids)){
+                $('#selected_resource_multiple_'+context_id, section).hide();
+                $('#select_resource_multiple_'+context_id, section).show();
+            } else {
+                $('#selected_resource_multiple_'+context_id, section).show();
+                $('#select_resource_multiple_'+context_id, section).hide();
+            }
+
+            $('.alert-box', section).hide();
+
+            return true;
+        };
+
+        $('#datatable_'+context_id+' tbody', section).on("click", "tr", function(e){
+            var aData = dataTable_select.fnGetData(this);
+            row_click(this, aData);
+        });
+
+        $(section).on("click", '#selected_ids_row_'+context_id+' span.fa.fa-times', function() {
+            var row_id = $(this).parent("span").attr('row_id');
+
+            // TODO: improve preformance, linear search
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_click(dataTable_select.fnGetNodes(index), row);
+                    return false;
+                }
+            });
+
+        });
+    }
+    else{
+        $('#datatable_'+context_id+' tbody', section).delegate("tr", "click", function(e){
+            dataTable_select.unbind("draw");
+            var aData = dataTable_select.fnGetData(this);
+
+            $("td.markrow", dataTable_select).removeClass('markrow');
+            $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+            $('#selected_resource_'+context_id, section).show();
+            $('#select_resource_'+context_id, section).hide();
+            $('.alert-box', section).hide();
+
+            $("td", this).addClass('markrow');
+            $('input.check_item', this).attr('checked','checked');
+
+            $('#selected_resource_id_'+context_id, section).val(aData[options.id_index]).change();
+            $('#selected_resource_id_'+context_id, section).hide();
+
+            $('#selected_resource_name_'+context_id, section).text(aData[options.name_index]).change();
+            $('#selected_resource_name_'+context_id, section).show();
+
+            options.select_callback(aData, options);
+
+            return true;
+        });
+    }
+
+    setupTips(section);
+}
+
+function resetResourceTableSelect(section, context_id, options) {
+
+    // TODO: do for multiple_choice
+
+    // TODO: works for more than one page?
+
+    var dataTable_select = $('#datatable_'+context_id, section);
+
+    $("td.markrow", dataTable_select).removeClass('markrow');
+    $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+    $('#'+context_id+'_search', section).val("").trigger("keyup");
+    $('#refresh_button_'+context_id).click();
+
+    $('#selected_resource_id_'+context_id, section).val("").hide();
+    $('#selected_resource_name_'+context_id, section).text("").hide();
+
+    $('#selected_resource_'+context_id, section).hide();
+    $('#select_resource_'+context_id, section).show();
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveResourceTableSelect(section, context_id){
+    var options = $('#selected_ids_row_'+context_id, section).data("options");
+
+    if(options.multiple_choice){
+        var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+        var arr = [];
+
+        $.each(ids, function(key, val){
+            arr.push(key);
+        });
+
+        return arr;
+    } else {
+        return $('#selected_resource_id_'+context_id, section).val();
+    }
+}
+
+// Clicks the refresh button
+function refreshResourceTableSelect(section, context_id){
+    $('#refresh_button_'+context_id, section).click();
+}
+
+function selectResourceTableSelect(section, context_id, opts){
+    var options = $('#selected_ids_row_'+context_id, section).data("options");
+
+    if(options.multiple_choice){
+        refreshResourceTableSelect(section, context_id);
+
+        var data_ids = $('#selected_ids_row_'+context_id, section).data("ids");
+
+        data_ids = {};
+
+        $('#selected_ids_row_'+context_id+' span[row_id]', section).remove();
+
+        var dataTable_select = $('#datatable_'+context_id, section).dataTable();
+
+        if (opts.ids == undefined){
+            opts.ids = [];
+        }
+
+        // TODO: {name, uname} support for multiple_choice
+
+        $.each(opts.ids, function(index, row_id){
+            if(isNaN(row_id)){
+                return true;
+            }
+
+            data_ids[row_id] = true;
+
+            var row_name = ""+row_id;
+
+            // TODO: improve preformance, linear search. Needed to get the
+            // name of the resource in the label. If function getName() was
+            // indexed in the cache, it could be used here
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_name = row[options.name_index];
+                    return false;
+                }
+            });
+
+            $('#selected_ids_row_'+context_id, section).append('<span row_id="'+row_id+'" class="radius label">'+row_name+' <span class="fa fa-times blue"></span></span> ');
+        });
+
+        $('#selected_ids_row_'+context_id, section).data("ids", data_ids);
+
+        if ($.isEmptyObject(data_ids)){
+            $('#selected_resource_multiple_'+context_id, section).hide();
+            $('#select_resource_multiple_'+context_id, section).show();
+        } else {
+            $('#selected_resource_multiple_'+context_id, section).show();
+            $('#select_resource_multiple_'+context_id, section).hide();
+        }
+
+        $('.alert-box', section).hide();
+
+        dataTable_select.fnDraw();
+    } else {
+        var dataTable_select = $('#datatable_'+context_id, section).dataTable();
+
+        $("td.markrow", dataTable_select).removeClass('markrow');
+        $('tbody input.check_item', dataTable_select).removeAttr('checked');
+
+        $('#selected_resource_'+context_id, section).show();
+        $('#select_resource_'+context_id, section).hide();
+        $('.alert-box', section).hide();
+
+        var row_id = undefined;
+        var row_name = "";
+
+        if (opts.ids != undefined){
+
+            row_id = opts.ids;
+
+            row_name = ""+row_id;
+
+            // TODO: improve preformance, linear search. Needed to get the
+            // name of the resource in the label. If function getName() was
+            // indexed in the cache, it could be used here
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.id_index] == row_id){
+                    row_name = row[options.name_index];
+                    return false;
+                }
+            });
+        } else if (opts.names != undefined){
+            row_name = opts.names.name;
+            var row_uname = opts.names.uname;
+
+            $.each(dataTable_select.fnGetData(), function(index, row){
+                if(row[options.name_index] == row_name &&
+                   row[options.uname_index] == row_uname){
+
+                    row_id = row[options.id_index];
+                    return false;
+                }
+            });
+        }
+
+//        $("td", this).addClass('markrow');
+//        $('input.check_item', this).attr('checked','checked');
+
+        $('#selected_resource_id_'+context_id, section).val( row_id ).change();
+        $('#selected_resource_id_'+context_id, section).hide();
+
+        $('#selected_resource_name_'+context_id, section).text( row_name ).change();
+        $('#selected_resource_name_'+context_id, section).show();
+
+        refreshResourceTableSelect(section, context_id);
+    }
+}
+
+//==============================================================================
+// VM & Service user inputs
+//==============================================================================
+
+// It will replace the div's html with a row for each USER_INPUTS
+// opts.text_header: header text for the text & password inputs
+// opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
+function generateVMTemplateUserInputs(div, template_json, opts) {
+    return generateInstantiateUserInputs(
+        div, template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS, opts);
+}
+
+// It will replace the div's html with a row for each USER_INPUTS
+// opts.text_header: header text for the text & password inputs
+// opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
+function generateServiceTemplateUserInputs(div, template_json, opts) {
+    return generateInstantiateUserInputs(
+        div, template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs, opts);
+}
+
+// It will replace the div's html with a row for each USER_INPUTS
+// opts.text_header: header text for the text & password inputs
+// opts.network_header: header text for the network inputs
+// returns true if at least one input was inserted
+function generateInstantiateUserInputs(div, user_inputs, opts) {
+
+    div.empty();
+
+    if(user_inputs == undefined){
+        return false;
+    }
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.text_header == undefined){
+        opts.text_header = tr("Custom Attributes");
+    }
+
+    if(opts.network_header == undefined){
+        opts.network_header = tr("Network");
+    }
+
+    var network_attrs = [];
+    var text_attrs = [];
+
+    $.each(user_inputs, function(key, value){
+        var parts = value.split("|");
+        // 0 mandatory; 1 type; 2 desc;
+        var attrs = {
+            "name": key,
+            "mandatory": parts[0],
+            "type": parts[1],
+            "description": parts[2],
+        }
+
+        switch (parts[1]) {
+            case "vnet_id":
+                network_attrs.push(attrs)
+                break;
+            case "text":
+                text_attrs.push(attrs)
+                break;
+            case "password":
+                text_attrs.push(attrs)
+                break;
+        }
+    });
+
+    if (network_attrs.length > 0) {
+        if(opts.network_header.length > 0){
+            div.append(
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader">'+
+                  opts.network_header+
+                '</h3>'+
+              '</div>'+
+            '</div>');
+        }
+
+        div.append('<div class="instantiate_user_inputs"/>');
+
+        var separator = "";
+
+        $.each(network_attrs, function(index, vnet_attr){
+            var unique_id = "user_input_"+( vnet_attr.name.replace(/ /g, "_") );
+
+            $(".instantiate_user_inputs", div).append(
+              '<div class="row">'+
+                '<div class="large-12 large-centered columns">'+
+                  separator+
+                  '<h5>' +
+                    htmlDecode(vnet_attr.description) +
+                  '</h5>'+
+                  generateVNetTableSelect(unique_id)+
+                '</div>'+
+              '</div>');
+
+            separator = "<hr/>";
+
+            setupVNetTableSelect(div, unique_id);
+
+            $('#refresh_button_'+unique_id).click();
+
+            $("input#selected_resource_id_"+unique_id, div).attr(
+                "wizard_field", vnet_attr.name);
+
+            $("input#selected_resource_id_"+unique_id, div).attr("required", "")
+        });
+    }
+
+    if (text_attrs.length > 0) {
+        if(opts.text_header.length > 0){
+            div.append(
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<h3 class="subheader">'+
+                  opts.text_header+
+                '</h3>'+
+              '</div>'+
+            '</div>');
+        }
+
+        div.append('<div class="instantiate_user_inputs"/>');
+
+        $.each(text_attrs, function(index, custom_attr){
+          $(".instantiate_user_inputs", div).append(
+            '<div class="row">'+
+              '<div class="large-12 large-centered columns">'+
+                '<label>' +
+                  htmlDecode(custom_attr.description) +
+                  '<input type="'+custom_attr.type+'" wizard_field="'+custom_attr.name+'" required/>'+
+                '</label>'+
+              '</div>'+
+            '</div>');
+        });
+    }
+
+    return (network_attrs.length > 0 || text_attrs.length > 0);
+}
+
+/*
+    opts.title string to be shown
+    opts.html_id unique identifier
+    opts.content html to be shown when clicking in the element
+*/
+function generateAdvancedSection(opts){
+    return '<div class="accordion_advanced">'+
+        '<a href="#'+opts.html_id+'">'+
+            '<i class="fa fa-fw fa-chevron-down"/>'+
+            '<i class="fa fa-fw fa-chevron-up"/>'+
+            opts.title+
+        '</a>\
+        <div id="'+opts.html_id+'" class="content hidden">'+
+            opts.content +
+        '</div>'+
+    '</div>';
+}
+
+
+function getInternetExplorerVersion(){
+// Returns the version of Internet Explorer or a -1
+// (indicating the use of another browser).
+    var rv = -1; // Return value assumes failure.
+    if (navigator.appName == 'Microsoft Internet Explorer')
+    {
+        var ua = navigator.userAgent;
+        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat( RegExp.$1 );
+    }
+    return rv;
+}
+
+// Return true if the VM has a hybrid section
+function calculate_isHybrid(vm_info){
+    return vm_info.USER_TEMPLATE.HYPERVISOR &&
+       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer")
+}
+
+// Return the IP or several IPs of a VM
+function ip_str(vm, divider){
+    var divider = divider || "<br>"
+    var isHybrid = calculate_isHybrid(vm);
+    var nic = vm.TEMPLATE.NIC;
+
+    if (nic == undefined) {
+        if (isHybrid) {
+            switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase()) {
+                case "vcenter":
+                    ip = vm.TEMPLATE.GUEST_IP?vm.TEMPLATE.GUEST_IP:"--";
+                    break;
+                case "ec2":
+                    ip = vm.TEMPLATE.IP_ADDRESS?vm.TEMPLATE.IP_ADDRESS:"--";
+                    break;
+                case "azure":
+                    ip = vm.TEMPLATE.IPADDRESS?vm.TEMPLATE.IPADDRESS:"--";
+                    break;
+                case "softlayer":
+                    ip = vm.TEMPLATE.PRIMARYIPADDRESS?vm.TEMPLATE.PRIMARYIPADDRESS:"--";
+                    break;
+                default:
+                    ip = "--";
+            }
+        } else {
+            return '--';
+        }
+    } else {
+        if (!$.isArray(nic)){
+            nic = [nic];
+        }
+
+        ip = '';
+        $.each(nic, function(index,value){
+            if (value.IP){
+                ip += value.IP+divider;
+            }
+
+            if (value.IP6_GLOBAL){
+                ip += value.IP6_GLOBAL+divider;
+            }
+
+            if (value.IP6_ULA){
+                ip += value.IP6_ULA+divider;
+            }
+        });
+    }
+
+    return ip;
+};

@@ -380,6 +380,21 @@ public:
      */
      int merge(const Template * from_tmpl, string& error_str);
 
+     /**
+      * Deletes all restricted attributes
+      */
+     virtual void remove_restricted();
+
+     /**
+      * Deletes all the attributes, except the restricted ones
+      */
+     virtual void remove_all_except_restricted();
+
+     /**
+      *  @return true if the template defines one or more restricted attributes
+      */
+     virtual bool has_restricted();
+
 protected:
     /**
      *  The template attributes
@@ -418,6 +433,16 @@ protected:
      *    @return true if a restricted attribute is found in the template
      */
     bool check(string& rs_attr, const vector<string> &restricted_attributes);
+
+    /**
+     * Deletes all restricted attributes
+     */
+    void remove_restricted(const vector<string> &restricted_attributes);
+
+    /**
+     * Deletes all the attributes, except the restricted ones
+     */
+    void remove_all_except_restricted(const vector<string> &restricted_attributes);
 
     /**
      * Updates the xml root element name

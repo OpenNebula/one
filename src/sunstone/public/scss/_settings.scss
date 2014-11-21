@@ -52,7 +52,7 @@ $body-font-family: "Open Sans", sans-serif;
 
 // We use these as default colors throughout
 //$primary-color: #2ba6cb;
-$primary-color: #0099c3;
+$primary-color: #0098c3;
 $secondary-color: #f7f7f7;
 // $alert-color: #f04124;
 // $success-color: #43AC6A;
@@ -220,12 +220,12 @@ $h3-font-size: rem-calc(24);
 // $accordion-navigation-padding: rem-calc(16);
 $accordion-navigation-bg-color: #f7f7f7  ;
 // $accordion-navigation-hover-bg-color: scale-color($accordion-navigation-bg-color, $lightness: -5%);
-$accordion-navigation-active-bg-color: #fff;
+//$accordion-navigation-active-bg-color: #fff;
 $accordion-navigation-font-color: #333;
 // $accordion-navigation-font-size: rem-calc(16);
 // $accordion-navigation-font-family: $body-font-family;
 
-// $accordion-content-padding: $column-gutter/2;
+$accordion-content-padding: 0px 10px;
 // $accordion-content-active-bg-color: #fff;
 
 // Alert Boxes
@@ -330,7 +330,7 @@ $button-margin-bottom: rem-calc(5);
 // $button-font-sml: rem-calc(13);
 // $button-font-med: rem-calc(16);
 // $button-font-lrg: rem-calc(20);
-// $button-font-weight: bold;
+$button-font-weight: normal;
 // $button-font-align: center;
 
 // We use these to control various hover effects.
@@ -339,7 +339,7 @@ $button-margin-bottom: rem-calc(5);
 // We use these to control button border styles.
 $button-border-width: 0px;
 $button-border-style: solid;
-
+$secondary-button-border-color: #efefef;
 // We use this to set the default radius used throughout the core.
 // $button-radius: $global-radius;
 // $button-round: $global-rounded;
@@ -787,7 +787,7 @@ $panel-border-color: #dfdfdf;
 // $include-html-pricing-classes: $include-html-classes;
 
 // We use this to control the border color
-$price-table-border: 0px;
+$price-table-border: 1px;
 
 // We use this to control the bottom margin of the pricing table
 $price-table-margin-bottom: rem-calc(0);
@@ -898,7 +898,7 @@ $reveal-close-font-size: rem-calc(24);
 // We use these to control list styles.
 // $side-nav-list-type: none;
 // $side-nav-list-position: inside;
-// $side-nav-list-margin: rem-calc(0 0 7 0);
+$side-nav-list-margin: rem-calc(0 0 0 0);
 
 // We use these to control link styles.
 // $side-nav-link-color: $primary-color;
@@ -1193,3 +1193,39 @@ $tooltip-font-size: rem-calc(14);
 //
 
 // $include-html-visibility-classes: $include-html-classes;
+
+
+
+//
+// RANGE SLIDER
+//
+
+// $include-html-range-slider-classes: $include-html-classes;
+
+// These variabels define the slider bar styles
+// $range-slider-bar-width: 100%;
+$range-slider-bar-height: rem-calc(12);
+
+// ¡$range-slider-bar-border-width: 1px;
+// $range-slider-bar-border-style: solid;
+$range-slider-bar-border-color: #bfbfbf;
+// $range-slider-radius: $global-radius;
+// $range-slider-round: $global-rounded;
+$range-slider-bar-bg-color: #fff;
+
+// Vertical bar styles
+// $range-slider-vertical-bar-width: rem-calc(16);
+// $range-slider-vertical-bar-height: rem-calc(200);
+
+// These variabels define the slider handle styles
+// $range-slider-handle-width: rem-calc(32);
+// $range-slider-handle-height: rem-calc(22);
+// $range-slider-handle-position-top: rem-calc(-5);
+// $range-slider-handle-bg-color: $primary-color;
+// $range-slider-handle-border-width: 1px;
+// $range-slider-handle-border-style: solid;
+// $range-slider-handle-border-color: none;
+// $range-slider-handle-radius: $global-radius;
+// $range-slider-handle-round: $global-rounded;
+// $range-slider-handle-bg-hover-color: scale-color($primary-color, $lightness: -12%);
+// $range-slider-handle-cursor: pointer;

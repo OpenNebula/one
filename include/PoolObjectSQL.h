@@ -476,6 +476,20 @@ public:
     }
 
     /**
+     *  Removes an attribute from the template. The attributes are returned, and
+     *  MUST be freed by the calling funtion
+     *    @param name of the attribute
+     *    @param values a vector containing a pointer to the attributes
+     *    @return the number of attributes removed
+     */
+    int remove_template_attribute(
+        const string&        name,
+        vector<Attribute *>& values)
+    {
+        return obj_template->remove(name, values);
+    }
+
+    /**
      *  Generates a XML string for the template of the Object
      *    @param xml the string to store the XML description.
      */
@@ -547,24 +561,31 @@ public:
     /**
      *  Replace template for this object. Object should be updated
      *  after calling this method
-     *    @param tmpl string representation of the template
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
      */
-    virtual int replace_template(const string& tmpl_str, string& error);
+    virtual int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     /**
      *  Append new attributes to this object's template. Object should be updated
      *  after calling this method
-     *    @param tmpl string representation of the template
+     *    @param tmpl_str new contents
+     *    @param keep_restricted If true, the restricted attributes of the
+     *    current template will override the new template
+     *    @param error string describing the error if any
+     *    @return 0 on success
      */
-    virtual int append_template(const string& tmpl_str, string& error);
-
+    virtual int append_template(const string& tmpl_str, bool keep_restricted, string& error);
 
     /**
      *  Fills a auth class to perform an authZ/authN request based on the object
      *  attributes
      *    @param auths to be filled
      */
-    void get_permissions(PoolObjectAuth& auths);
+    virtual void get_permissions(PoolObjectAuth& auths);
 
 protected:
 
@@ -670,6 +691,17 @@ protected:
      *    @param message Message string
      */
     virtual void set_template_error_message(const string& name, const string& message);
+
+    /**
+     * Child classes can process the new template set with replace_template or
+     * append_template with this method
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    virtual int post_update_template(string& error)
+    {
+        return 0;
+    };
 
     /**
      *  The object's unique ID

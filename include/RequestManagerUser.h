@@ -38,7 +38,6 @@ protected:
         pool        = nd.get_upool();
 
         auth_object = PoolObjectSQL::USER;
-
     };
 
     ~RequestManagerUser(){};
@@ -68,6 +67,7 @@ public:
                            "A:sis")
     {
         auth_op = AuthRequest::MANAGE;
+        hidden_params.insert(2); // password argument
     };
 
     ~UserChangePassword(){};
@@ -75,11 +75,6 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     string&                    err);
-
-    void log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -94,6 +89,7 @@ public:
                            "A:siss")
     {
         auth_op = AuthRequest::ADMIN;
+        hidden_params.insert(3); // new password argument
     };
 
     ~UserChangeAuth(){};
@@ -101,11 +97,6 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     string&                    err);
-
-    void log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -127,6 +118,30 @@ public:
     int user_action(int                        user_id,
                     xmlrpc_c::paramList const& _paramList,
                     string&                    err);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class UserLogin : public Request
+{
+public:
+    UserLogin(): Request("UserLogin", "A:sssi", "Generates or sets a login token")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_upool();
+
+        auth_object = PoolObjectSQL::USER;
+        auth_op     = AuthRequest::MANAGE;
+
+        hidden_params.insert(2); // password argument
+    };
+
+    virtual ~UserLogin(){};
+
+    void request_execute(
+            xmlrpc_c::paramList const&  _paramList,
+            RequestAttributes&          att);
 };
 
 /* ------------------------------------------------------------------------- */

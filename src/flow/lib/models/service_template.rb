@@ -24,7 +24,8 @@ module OpenNebula
             :properties => {
                 'name' => {
                     :type => :string,
-                    :required => true
+                    :required => true,
+                    :regex => /^\w+$/
                 },
                 'cardinality' => {
                     :type => :integer,
@@ -164,6 +165,16 @@ module OpenNebula
                     :type => :array,
                     :items => ROLE_SCHEMA,
                     :required => true
+                },
+                'custom_attrs' => {
+                    :type => :object,
+                    :properties => {
+                    },
+                    :required => false
+                },
+                'ready_status_gate' => {
+                    :type => :boolean,
+                    :required => false
                 }
             }
         }
@@ -198,7 +209,8 @@ module OpenNebula
         def self.validate(template)
             validator = Validator::Validator.new(
                 :default_values => true,
-                :delete_extra_properties => false
+                :delete_extra_properties => false,
+                :allow_extra_properties => true
             )
 
             validator.validate!(template, SCHEMA)
@@ -303,7 +315,7 @@ module OpenNebula
                             raise Validator::ParseException,
                             "Role '#{role['name']}', scheduled policy ##{index} needs to define either "<<
                             "'start_time' or 'recurrence'"
-                        end                       
+                        end
                     end
                 end
             end

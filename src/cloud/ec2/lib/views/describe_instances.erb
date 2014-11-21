@@ -31,19 +31,18 @@
           <keyName><%= vm['TEMPLATE/CONTEXT/EC2_KEYNAME'] %></keyName>
           <% end %>
           <productCodes/>
-          <instanceType><%= vm['USER_TEMPLATE/INSTANCE_TYPE'] %></instanceType>
+          <instanceType><%= vm['USER_TEMPLATE/EC2_INSTANCE_TYPE'] %></instanceType>
           <%= render_launch_time(vm) %>
           <placement>
             <availabilityZone>default</availabilityZone>
           </placement>
           <amiLaunchIndex><%= vm.id %></amiLaunchIndex>
-
           <kernelId>eki-EA801065</kernelId>
           <ramdiskId>eri-1FEE1144</ramdiskId>
           <monitoring>
-            <state>false</state>
+            <state>disabled</state>
           </monitoring>
-
+          <clientToken><%= vm['USER_TEMPLATE/EC2_CLIENT_TOKEN'] %></clientToken>
         </item>
         <% end %>
         <% end %>

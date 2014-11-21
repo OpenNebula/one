@@ -82,23 +82,6 @@ int UserChangePassword::user_action(int     user_id,
 }
 
 /* -------------------------------------------------------------------------- */
-
-void UserChangePassword::log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index)
-{
-    if ( index == 2 )   // password argument
-    {
-        oss << ", ****";
-    }
-    else
-    {
-        Request::log_xmlrpc_param(v, oss, index);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int UserChangeAuth::user_action(int     user_id,
@@ -143,23 +126,6 @@ int UserChangeAuth::user_action(int     user_id,
     user->unlock();
 
     return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void UserChangeAuth::log_xmlrpc_param(
-            const xmlrpc_c::value&  v,
-            ostringstream&          oss,
-            const int&              index)
-{
-    if ( index == 3 )   // password argument
-    {
-        oss << ", ****";
-    }
-    else
-    {
-        Request::log_xmlrpc_param(v, oss, index);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -386,4 +352,89 @@ int UserDelGroup::secondary_group_action(
     group->unlock();
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
+                    RequestAttributes& att)
+{
+    string uname = xmlrpc_c::value_string(paramList.getString(1));
+    string token = xmlrpc_c::value_string(paramList.getString(2));
+    time_t valid = xmlrpc_c::value_int(paramList.getInt(3));
+
+    User * user;
+    string error_str;
+
+    PoolObjectAuth perms;
+
+    if (att.uid != 0)
+    {
+        user = static_cast<UserPool *>(pool)->get(uname,true);
+
+        if ( user == 0 )
+        {
+            failure_response(NO_EXISTS,
+                    get_error(object_name(auth_object),-1),
+                    att);
+
+            return;
+        }
+
+        user->get_permissions(perms);
+
+        user->unlock();
+
+
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(auth_op, perms);
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    user = static_cast<UserPool *>(pool)->get(uname,true);
+
+    if ( user == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),-1),
+                att);
+
+        return;
+    }
+
+    if (valid == 0) //Reset token
+    {
+        user->login_token.reset();
+
+        token = "";
+    }
+    else if (valid > 0 || valid == -1)
+    {
+        token = user->login_token.set(token, valid);
+    }
+    else
+    {
+        failure_response(XML_RPC_API,
+            request_error("Wrong valid period for token",""), att);
+
+        user->unlock();
+
+        return;
+    }
+
+    pool->update(user);
+
+    user->unlock();
+
+    success_response(token, att);
 }

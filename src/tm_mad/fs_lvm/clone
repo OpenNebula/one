@@ -78,6 +78,7 @@ CLONE_CMD=$(cat <<EOF
 
     $SUDO $LVCREATE -L${SIZE}B -n $LV_NAME $VG_NAME
     $SUDO $DD if="$SRC_PATH" of="$DEV" bs=64k
+    rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"
 EOF
 )

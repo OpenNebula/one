@@ -463,6 +463,13 @@ public:
         return new HostTemplate;
     }
 
+
+    /**
+     *  Executed after an update operation to process the new template
+     *    - encrypt VCENTER_PASSWORD attribute.
+     */
+    int post_update_template(string& error);
+
 private:
 
     // -------------------------------------------------------------------------

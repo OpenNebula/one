@@ -49,6 +49,7 @@ protected:
 
     virtual int leases_action(VirtualNetwork * vn,
                               VirtualNetworkTemplate * tmpl,
+                              RequestAttributes& att,
                               string& error_str) = 0;
     /* -------------------------------------------------------------------- */
 
@@ -58,39 +59,108 @@ protected:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualNetworkAddLeases : public RequestManagerVirtualNetwork
+class VirtualNetworkAddAddressRange: public RequestManagerVirtualNetwork
 {
 public:
-    VirtualNetworkAddLeases():
-        RequestManagerVirtualNetwork("VirtualNetworkAddLeases",
-                                     "Adds leases to a virtual network"){};
-    ~VirtualNetworkAddLeases(){};
+    VirtualNetworkAddAddressRange():
+        RequestManagerVirtualNetwork("VirtualNetworkAddAddressRange",
+                                     "Adds address ranges to a virtual network")
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
+
+    ~VirtualNetworkAddAddressRange(){};
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
-        return vn->add_leases(tmpl, error_str);
+        return vn->add_ar(tmpl, error_str);
     }
 };
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualNetworkRemoveLeases : public RequestManagerVirtualNetwork
+class VirtualNetworkRmAddressRange : public Request
 {
 public:
-    VirtualNetworkRemoveLeases():
-        RequestManagerVirtualNetwork("VirtualNetworkRemoveLeases",
-                                     "Removes leases from a virtual network"){};
-    ~VirtualNetworkRemoveLeases(){};
+    VirtualNetworkRmAddressRange(
+      const string& name = "VirtualNetworkRmAddressRange",
+      const string& sign = "A:sii",
+      const string& help = "Removes an address range from a virtual network")
+        : Request(name, sign, help)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::ADMIN;
+    };
+
+    virtual ~VirtualNetworkRmAddressRange(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkFreeAddressRange : public VirtualNetworkRmAddressRange
+{
+public:
+    VirtualNetworkFreeAddressRange():VirtualNetworkRmAddressRange(
+      "VirtualNetworkFreeAddressRange",
+      "A:sii",
+      "Frees a reserved address range from a virtual network")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::MANAGE;
+    };
+
+    ~VirtualNetworkFreeAddressRange(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att)
+    {
+        VirtualNetworkRmAddressRange::request_execute(_paramList, att);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkUpdateAddressRange: public RequestManagerVirtualNetwork
+{
+public:
+    VirtualNetworkUpdateAddressRange():
+        RequestManagerVirtualNetwork("VirtualNetworkUpdateAddressRange",
+          "Updates address ranges to a virtual network")
+    {
+        auth_op = AuthRequest::MANAGE;
+    };
+
+    ~VirtualNetworkUpdateAddressRange(){};
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
-                      string& error_str) 
+                      RequestAttributes& att,
+                      string& error_str)
     {
-        return vn->remove_leases(tmpl, error_str);
-    }
+        if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+        {
+            return vn->update_ar(tmpl, true, error_str);
+        }
+        else
+        {
+            return vn->update_ar(tmpl, false, error_str);
+        }
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -106,6 +176,7 @@ public:
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
         return vn->hold_leases(tmpl, error_str);
@@ -125,12 +196,34 @@ public:
 
     int leases_action(VirtualNetwork * vn,
                       VirtualNetworkTemplate * tmpl,
+                      RequestAttributes& att,
                       string& error_str)
     {
         return vn->free_leases(tmpl, error_str);
     }
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkReserve: public Request
+{
+public:
+    VirtualNetworkReserve():Request("VirtualNetworkReserve", "A:sis",
+      "Reserve network addresses")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vnpool();
+
+        auth_object = PoolObjectSQL::NET;
+        auth_op     = AuthRequest::USE;
+    };
+
+    ~VirtualNetworkReserve(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

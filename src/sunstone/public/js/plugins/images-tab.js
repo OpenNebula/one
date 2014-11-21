@@ -98,6 +98,7 @@ var create_image_tmpl ='<div class="row create_image_header">\
                </div>\
                <div class="row">\
                   <div id="file-uploader" class="large-12 columns text-center">\
+                    <input id="file-uploader-input" type="file"/>\
                   </div>\
                </div>\
                <div class="img_size row">\
@@ -172,10 +173,10 @@ var create_image_tmpl ='<div class="row create_image_header">\
                       </div>\
                       <div class="row">\
                         <div class="large-12 columns">\
-                          <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_image_button" value="add_custom_image_var">\
+                          <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_image_button" type="button" value="add_custom_image_var">\
                            '+tr("Add")+'\
                           </button>\
-                          <button class="add_remove_button secondary button small radius" id="remove_custom_var_image_button" value="remove_custom_image_var">\
+                          <button class="add_remove_button secondary button small radius" id="remove_custom_var_image_button" type="button" value="remove_custom_image_var">\
                            '+tr("Remove selected")+'\
                           </button>\
                         </div>\
@@ -195,7 +196,7 @@ var create_image_tmpl ='<div class="row create_image_header">\
               </div>\
           </div>\
             <div class="form_buttons">\
-              <button class="button success radius right" id="create_image_submit" type="button" value="image/create">'+tr("Create")+'</button>\
+              <button class="button success radius right" id="create_image_submit" type="submit" value="image/create">'+tr("Create")+'</button>\
               <button id="wizard_image_reset_button"  class="button secondary radius" type="reset" value="reset">'+tr("Reset")+'</button>\
             </div>\
         </div>\
@@ -606,6 +607,9 @@ function updateImagesView(request, images_list){
 // Callback to update the information panel tabs and pop it up
 function updateImageInfo(request,img){
     var img_info = img.IMAGE;
+
+    $(".resource-info-header", $("#images-tab")).html(img_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",
@@ -891,7 +895,6 @@ function initialize_create_image_dialog(dialog) {
 
     $('#path_image',dialog).click();
 
-
     $('#add_custom_var_image_button', dialog).click(
         function(){
             var name = $('#custom_var_image_name',dialog).val();
@@ -926,62 +929,72 @@ function initialize_create_image_dialog(dialog) {
 
     var img_obj;
 
-    // Upload is handled by FileUploader vendor plugin
-    var uploader = new qq.FileUploaderBasic({
-        button: $('#file-uploader',dialog)[0],
-        action: 'upload',
-        multiple: false,
-        params: {},
-        sizeLimit: 0,
-        showMessage: function(message){
-            //notifyMessage(message);
-        },
-        onSubmit: function(id, fileName){
-            uploader.setParams({
-                img : JSON.stringify(img_obj),
-                file: fileName
-            });
+    if (getInternetExplorerVersion() > -1) {
+      $("#upload_image").attr("disabled", "disabled");
+    } else {
+      var uploader = new Resumable({
+          target: '/upload_chunk',
+          chunkSize: 10*1024*1024,
+          maxFiles: 1,
+          testChunks: false,
+          query: {
+              csrftoken: csrftoken
+          }
+      });
 
-            $('#upload_progress_bars').append('<div id="'+id+'progressBar" class="row" style="margin-bottom:10px">\
-              <div class="large-2 columns dataTables_info">\
-                '+tr("Uploading...")+'\
+      uploader.assignBrowse($('#file-uploader-input',dialog));
+
+      var fileName = '';
+      var file_input = false;
+
+      uploader.on('fileAdded', function(file){
+          fileName = file.fileName;
+          file_input = fileName;
+      });
+
+      uploader.on('uploadStart', function() {
+          $('#upload_progress_bars').append('<div id="'+fileName+'progressBar" class="row" style="margin-bottom:10px">\
+            <div id="'+fileName+'-info" class="large-2 columns dataTables_info">\
+              '+tr("Uploading...")+'\
+            </div>\
+            <div class="large-10 columns">\
+              <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
+                <span class="meter" style="width:0%"></span>\
               </div>\
-              <div class="large-10 columns">\
-                <div id="upload_progress_container" class="progress nine radius" style="height:25px !important">\
-                  <span class="meter" style="width:0%"></span>\
-                </div>\
-                <div class="progress-text" style="margin-left:15px">'+id+' '+fileName+'</div>\
-              </div>\
-            </div>');
-        },
-        onProgress: function(id, fileName, loaded, total){
-            $('span.meter', $('#'+id+'progressBar')).css('width', Math.floor(loaded*100/total)+'%')
-        },
-        onComplete: function(id, fileName, responseJSON){
+              <div class="progress-text" style="margin-left:15px">'+fileName+'</div>\
+            </div>\
+          </div>');
+      });
 
-            if (uploader._handler._xhrs[id] &&
-                uploader._handler._xhrs[id].status == 500) {
+      uploader.on('progress', function() {
+          $('span.meter', $('div[id="'+fileName+'progressBar"]')).css('width', uploader.progress()*100.0+'%')
+      });
 
-                onError({}, JSON.parse(uploader._handler._xhrs[id].response) )
-                $('#'+id+'progressBar').remove();
-            } else {
-                notifyMessage("Image uploaded correctly");
-                $('#'+id+'progressBar').remove();
-                Sunstone.runAction("Image.list");
-            }
+      uploader.on('fileSuccess', function(file) {
+          $('div[id="'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
+          $.ajax({
+              url: '/upload',
+              type: "POST",
+              data: {
+                  csrftoken: csrftoken,
+                  img : JSON.stringify(img_obj),
+                  file: fileName,
+                  tempfile: file.uniqueIdentifier
+              },
+              success: function(){
+                  notifyMessage("Image uploaded correctly");
+                  $('div[id="'+fileName+'progressBar"]').remove();
+                  Sunstone.runAction("Image.refresh");
+              },
+              error: function(response){
+                  onError({}, OpenNebula.Error(response));
+                  $('div[id="'+fileName+'progressBar"]').remove();
+              }
+          });
+      });
+    }
 
-            return false;
-        },
-        onCancel: function(id, fileName){
-        }
-    });
-
-    var file_input = false;
-    uploader._button._options.onChange = function(input) {
-        file_input = input;  return false;
-    };
-
-    $('#create_image_submit',dialog).click(function(){
+    $('#create_image',dialog).submit(function(){
         $create_image_dialog = dialog;
 
         var exit = false;
@@ -1063,7 +1076,8 @@ function initialize_create_image_dialog(dialog) {
             dialog.empty();
             setupCreateImageDialog();
 
-            uploader._onInputChange(file_input);
+            //uploader._onInputChange(file_input);
+            uploader.upload();
         } else {
             Sunstone.runAction("Image.create", img_obj);
         };
@@ -1145,22 +1159,32 @@ function setupImageCloneDialog(){
 
     //Put HTML in place
 
-    var html = '<div class="row">\
-  <h3 id="create_vnet_header" class="subheader">'+tr("Clone Image")+'</h3>\
+    var html =
+'<div class="row">\
+  <h3 class="subheader">'+tr("Clone Image")+'</h3>\
 </div>\
 <form>\
   <div class="row">\
-    <div class="large-12 columns">\
-      <div class="clone_one"></div>\
-      <div class="clone_several">'+tr("Several image are selected, please choose prefix to name the new copies")+':</div>\
-      <br>\
+    <div class="columns large-12">\
+      <label class="clone_one">'+tr("Name")+':</label>\
+      <label class="clone_several">'+tr("Several images are selected, please choose a prefix to name the new copies")+':</label>\
+      <input type="text" name="image_clone_name"></input>\
     </div>\
   </div>\
   <div class="row">\
-    <div class="columns large-12">\
-      <label class="clone_one">'+tr("Name")+':</label>\
-      <label class="clone_several">'+tr("Prefix")+':</label>\
-      <input type="text" name="name"></input>\
+    <div class="large-12 columns">\
+      <dl class="accordion" id="image_clone_advanced_toggle" data-accordion>\
+        <dd><a href="#image_clone_advanced"> '+tr("Advanced options")+'</a></dd>\
+      </dl>\
+      <div id="image_clone_advanced" class="row collapse content">\
+        <br>\
+        <div class="large-12 columns">\
+          <span>'+tr("You can select a different target datastore")+'</span>\
+          <br/>\
+          <br/>\
+        </div>\
+        '+generateDatastoreTableSelect("image_clone")+'\
+      </div>\
     </div>\
   </div>\
   <div class="form_buttons row">\
@@ -1171,23 +1195,46 @@ function setupImageCloneDialog(){
 ';
 
     dialog.html(html);
-    dialog.addClass("reveal-modal").attr("data-reveal", "");
+    dialog.addClass("reveal-modal large").attr("data-reveal", "");
+
+    // TODO: Show DS with the same ds mad only
+    setupDatastoreTableSelect(dialog, "image_clone",
+        { filter_fn: function(ds){ return ds.TYPE == 0; } }
+    );
+
+    $('#image_clone_advanced_toggle',dialog).click(function(){
+        $('#image_clone_advanced',dialog).toggle();
+        return false;
+    });
 
     $('form',dialog).submit(function(){
-        var name = $('input', this).val();
+        var name = $('input[name="image_clone_name"]', this).val();
         var sel_elems = imageElements();
+
         if (!name || !sel_elems.length)
             notifyError('A name or prefix is needed!');
+
+        var extra_info = {};
+
+        if( $("#selected_resource_id_image_clone", dialog).val().length > 0 ){
+            extra_info['target_ds'] =
+                $("#selected_resource_id_image_clone", dialog).val();
+        }
+
         if (sel_elems.length > 1){
-            for (var i=0; i< sel_elems.length; i++)
+            for (var i=0; i< sel_elems.length; i++){
                 //If we are cloning several images we
                 //use the name as prefix
+                extra_info['name'] = name+getImageName(sel_elems[i]);
                 Sunstone.runAction('Image.clone',
                                    sel_elems[i],
-                                   name+getImageName(sel_elems[i]));
+                                   extra_info);
+            }
         } else {
-            Sunstone.runAction('Image.clone',sel_elems[0],name)
-        };
+            extra_info['name'] = name;
+            Sunstone.runAction('Image.clone',sel_elems[0],extra_info)
+        }
+
         dialog.foundation('reveal', 'close')
         setTimeout(function(){
             Sunstone.runAction('Image.refresh');
@@ -1203,16 +1250,19 @@ function popUpImageCloneDialog(){
     if (sel_elems.length > 1){
         $('.clone_one',dialog).hide();
         $('.clone_several',dialog).show();
-        $('input',dialog).val('Copy of ');
+        $('input[name="image_clone_name"]',dialog).val('Copy of ');
     }
     else {
         $('.clone_one',dialog).show();
         $('.clone_several',dialog).hide();
-        $('input',dialog).val('Copy of '+getImageName(sel_elems[0]));
+        $('input[name="image_clone_name"]',dialog).val('Copy of '+getImageName(sel_elems[0]));
     };
 
+    $('#image_clone_advanced', dialog).hide();
+    resetResourceTableSelect(dialog, "image_clone");
+
     $(dialog).foundation().foundation('reveal', 'open');
-    $("input[name='name']",dialog).focus();
+    $("input[name='image_clone_name']",dialog).focus();
 }
 
 //The DOM is ready at this point

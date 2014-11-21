@@ -35,6 +35,11 @@
   :size: 10
   :left: true
 
+:CLUSTER:
+  :desc: Cluster where the VM is running
+  :size: 10
+  :left: true
+
 :TIME: 
   :desc: Time since the VM was submitted
   :size: 10

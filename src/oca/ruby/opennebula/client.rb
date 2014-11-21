@@ -17,6 +17,7 @@
 require 'xmlrpc/client'
 require 'bigdecimal'
 require 'stringio'
+require 'openssl'
 
 
 module OpenNebula
@@ -105,6 +106,14 @@ module OpenNebula
         #   defaults to 30
         # @option params [String] :http_proxy HTTP proxy string used for
         #  connecting to the endpoint; defaults to no proxy
+        # @option params [Boolean] :sync Use only one http connection for
+        #  all calls. It should not be used for multithreaded programs.
+        #  It's the only mode that can be used with :cert_dir and
+        #  :disable_ssl_verify
+        # @option params [String] :cert_dir Extra directory where to import
+        #  trusted issuer certificates. Use with :sync = true
+        # @option params [String] :disable_ssl_verify Disable SSL certificate
+        #  verification. Use only for testing and with :sync = true
         #
         # @return [OpenNebula::Client]
         def initialize(secret=nil, endpoint=nil, options={})
@@ -113,8 +122,10 @@ module OpenNebula
             elsif ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and
                     File.file?(ENV["ONE_AUTH"])
                 @one_auth = File.read(ENV["ONE_AUTH"])
-            elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+            elsif ENV["HOME"] and File.file?(ENV["HOME"]+"/.one/one_auth")
                 @one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+            elsif File.file?("/var/lib/one/.one/one_auth")
+                @one_auth = File.read("/var/lib/one/.one/one_auth")
             else
                 raise "ONE_AUTH file not present"
             end
@@ -125,11 +136,15 @@ module OpenNebula
                 @one_endpoint = endpoint
             elsif ENV["ONE_XMLRPC"]
                 @one_endpoint = ENV["ONE_XMLRPC"]
-            elsif File.exists?(ENV['HOME']+"/.one/one_endpoint")
+            elsif ENV['HOME'] and File.exists?(ENV['HOME']+"/.one/one_endpoint")
                 @one_endpoint = File.read(ENV['HOME']+"/.one/one_endpoint")
+            elsif File.exists?("/var/lib/one/.one/one_endpoint")
+                @one_endpoint = File.read("/var/lib/one/.one/one_endpoint")
             else
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
+
+            @async = !options[:sync]
 
             timeout=nil
             timeout=options[:timeout] if options[:timeout]
@@ -138,6 +153,28 @@ module OpenNebula
             http_proxy=options[:http_proxy] if options[:http_proxy]
 
             @server = XMLRPC::Client.new2(@one_endpoint, http_proxy, timeout)
+            @server.http_header_extra = {'accept-encoding' => 'identity'}
+
+            http = @server.instance_variable_get("@http")
+
+            if options[:cert_dir] || ENV['ONE_CERT_DIR']
+                raise "SSL options don't work in async mode" if @async
+
+                cert_dir = options[:cert_dir] || ENV['ONE_CERT_DIR']
+                cert_files = Dir["#{cert_dir}/*"]
+
+                cert_store = OpenSSL::X509::Store.new
+                cert_store.set_default_paths
+                cert_files.each {|cert| cert_store.add_file(cert) }
+
+                http.cert_store = cert_store
+            end
+
+            if options[:disable_ssl_verify] || ENV['ONE_DISABLE_SSL_VERIFY']
+                raise "SSL options don't work in async mode" if @async
+
+                http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+            end
 
             if defined?(OxStreamParser)
                 @server.set_parser(OxStreamParser.new)
@@ -150,7 +187,11 @@ module OpenNebula
 
         def call(action, *args)
             begin
-                response = @server.call_async("one."+action, @one_auth, *args)
+                if @async
+                    response = @server.call_async("one."+action, @one_auth, *args)
+                else
+                    response = @server.call("one."+action, @one_auth, *args)
+                end
 
                 if response[0] == false
                     Error.new(response[1], response[2])

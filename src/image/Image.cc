@@ -353,9 +353,9 @@ string& Image::to_xml(string& xml) const
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
             "<PERSISTENT>"     << persistent_img  << "</PERSISTENT>"  <<
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
-            "<SOURCE>"         << source          << "</SOURCE>"      <<
-            "<PATH>"           << path            << "</PATH>"        <<
-            "<FSTYPE>"         << fs_type         << "</FSTYPE>"      <<
+            "<SOURCE><![CDATA["<< source          << "]]></SOURCE>"   <<
+            "<PATH><![CDATA["  << path            << "]]></PATH>"     <<
+            "<FSTYPE><![CDATA["<< fs_type         << "]]></FSTYPE>"   <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<

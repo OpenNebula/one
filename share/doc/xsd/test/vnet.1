@@ -1,5 +1,4 @@
 NAME    = "R"
-TYPE    = RANGED
 
 BRIDGE  = vbr1
 
@@ -7,3 +6,27 @@ NETWORK_ADDRESS = 10.10.10.0
 NETWORK_MASK    = 255.255.255.0
 
 CUSTOM = ABC
+
+AR = [
+    IP = 130.10.0.10,
+    TYPE = IP4,
+    SIZE = 20
+]
+
+AR = [
+    IP = 10.10.10.10,
+    GLOBAL_PREFIX = 2004:a128::,
+    TYPE = IP4_6,
+    SIZE = 20
+]
+
+AR = [
+    ULA_PREFIX = fd12:33a:df34:1a::,
+    TYPE = IP6,
+    SIZE = 20
+]
+
+AR = [
+    TYPE = ETHER,
+    SIZE = 20
+]

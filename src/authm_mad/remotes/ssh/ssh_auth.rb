@@ -26,8 +26,6 @@ module OpenNebula; end
 # as auth method is defined. It also holds some helper methods to be used
 # by oneauth command
 class OpenNebula::SshAuth
-    LOGIN_PATH = ENV['HOME']+'/.one/one_ssh'
-
     # Initialize SshAuth object
     #
     # @param [Hash] default options for path
@@ -66,35 +64,13 @@ class OpenNebula::SshAuth
         @public_key_rsa = OpenSSL::PKey::RSA.new(Base64::decode64(@public_key))
     end
 
-    # Creates the login file for ssh authentication at ~/.one/one_ssh.
+    # Creates a login token for ssh authentication.
     # By default it is valid for 1 hour but it can be changed to any number
     # of seconds with expire parameter (in seconds)
-    def login(user, expire=3600)
+    def login_token(user, expire=3600)
         expire ||= 3600
 
-        # Init proxy file path and creates ~/.one directory if needed
-        proxy_dir = File.dirname(LOGIN_PATH)
-
-        begin
-            FileUtils.mkdir_p(proxy_dir)
-        rescue Errno::EEXIST
-        end
-
-        # Generate security token
-        time = Time.now.to_i + expire.to_i
-
-        secret_plain   = "#{user}:#{time}"
-        secret_crypted = encrypt(secret_plain)
-
-        proxy = "#{user}:#{secret_crypted}"
-
-        file = File.open(LOGIN_PATH, "w")
-        file.write(proxy)
-        file.close
-
-        File.chmod(0600,LOGIN_PATH)
-
-        secret_crypted
+        return encrypt("#{user}:#{Time.now.to_i + expire.to_i}")
     end
 
     # Returns a valid password string to create a user using this auth driver.

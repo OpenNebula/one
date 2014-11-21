@@ -68,6 +68,11 @@ Datastore::Datastore(
     group_u = 1;
 }
 
+Datastore::~Datastore()
+{
+    delete obj_template;
+};
+
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
@@ -477,25 +482,25 @@ string& Datastore::to_xml(string& xml) const
     ObjectCollection::to_xml(collection_xml);
 
     oss <<
-    "<DATASTORE>"    <<
-        "<ID>"          << oid          << "</ID>"          <<
-        "<UID>"         << uid          << "</UID>"         <<
-        "<GID>"         << gid          << "</GID>"         <<
-        "<UNAME>"       << uname        << "</UNAME>"       <<
-        "<GNAME>"       << gname        << "</GNAME>"       <<
-        "<NAME>"        << name         << "</NAME>"        <<
-        perms_to_xml(perms_xml)                             <<
-        "<DS_MAD>"      << ds_mad       << "</DS_MAD>"      <<
-        "<TM_MAD>"      << tm_mad       << "</TM_MAD>"      <<
-        "<BASE_PATH>"   << base_path    << "</BASE_PATH>"   <<
-        "<TYPE>"        << type         << "</TYPE>"        <<
-        "<DISK_TYPE>"   << disk_type    << "</DISK_TYPE>"   <<
-        "<CLUSTER_ID>"  << cluster_id   << "</CLUSTER_ID>"  <<
-        "<CLUSTER>"     << cluster      << "</CLUSTER>"     <<
-        "<TOTAL_MB>"    << total_mb     << "</TOTAL_MB>"    <<
-        "<FREE_MB>"     << free_mb      << "</FREE_MB>"    <<
-        "<USED_MB>"     << used_mb      << "</USED_MB>"    <<
-        collection_xml  <<
+    "<DATASTORE>"               <<
+        "<ID>"                  << oid          << "</ID>"          <<
+        "<UID>"                 << uid          << "</UID>"         <<
+        "<GID>"                 << gid          << "</GID>"         <<
+        "<UNAME>"               << uname        << "</UNAME>"       <<
+        "<GNAME>"               << gname        << "</GNAME>"       <<
+        "<NAME>"                << name         << "</NAME>"        <<
+        perms_to_xml(perms_xml) <<
+        "<DS_MAD><![CDATA["     << ds_mad       << "]]></DS_MAD>"   <<
+        "<TM_MAD><![CDATA["     << tm_mad       << "]]></TM_MAD>"   <<
+        "<BASE_PATH><![CDATA["  << base_path    << "]]></BASE_PATH>"<<
+        "<TYPE>"                << type         << "</TYPE>"        <<
+        "<DISK_TYPE>"           << disk_type    << "</DISK_TYPE>"   <<
+        "<CLUSTER_ID>"          << cluster_id   << "</CLUSTER_ID>"  <<
+        "<CLUSTER>"             << cluster      << "</CLUSTER>"     <<
+        "<TOTAL_MB>"            << total_mb     << "</TOTAL_MB>"    <<
+        "<FREE_MB>"             << free_mb      << "</FREE_MB>"     <<
+        "<USED_MB>"             << used_mb      << "</USED_MB>"     <<
+        collection_xml          <<
         obj_template->to_xml(template_xml)                  <<
     "</DATASTORE>";
 
@@ -577,10 +582,10 @@ int Datastore::from_xml(const string& xml)
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
-int Datastore::replace_template(const string& tmpl_str, string& error_str)
+int Datastore::post_update_template(string& error_str)
 {
     string new_ds_mad;
     string new_tm_mad;
@@ -590,26 +595,16 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
 
     Image::DiskType new_disk_type;
 
+    DatastoreType old_ds_type;
     DatastoreType new_ds_type;
-    Template *    new_tmpl  = new DatastoreTemplate;
-
-    if ( new_tmpl == 0 )
-    {
-        error_str = "Cannot allocate a new template";
-        return -1;
-    }
-
-    if ( new_tmpl->parse_str_or_xml(tmpl_str, error_str) != 0 )
-    {
-        delete new_tmpl;
-        return -1;
-    }
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
     /* ---------------------------------------------------------------------- */
 
-    new_tmpl->get("TYPE", s_ds_type);
+    old_ds_type = type;
+
+    get_template_attribute("TYPE", s_ds_type);
 
     if (!s_ds_type.empty())
     {
@@ -619,12 +614,6 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     {
         new_ds_type = type;
     }
-
-    /* --- Update the Datastore template --- */
-
-    delete obj_template;
-
-    obj_template = new_tmpl;
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
@@ -640,6 +629,34 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
     }
 
     replace_template_attribute("TYPE", type_to_str(type));
+
+    /* ---------------------------------------------------------------------- */
+    /* Set the TM_MAD of the Datastore (class & template)                     */
+    /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("TM_MAD", new_tm_mad);
+
+    if ( !new_tm_mad.empty() )
+    {
+        // System DS are monitored by the TM mad, reset information
+        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
+        {
+            update_monitor(0, 0, 0);
+        }
+
+        if (set_tm_mad(new_tm_mad, error_str) != 0)
+        {
+            type = old_ds_type;
+
+            return -1;
+        }
+
+        tm_mad = new_tm_mad;
+    }
+    else
+    {
+        replace_template_attribute("TM_MAD", tm_mad);
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Set the DISK_TYPE (class & template)                                   */
@@ -666,12 +683,11 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
         disk_type = Image::FILE;
     }
 
-    get_template_attribute("DS_MAD", new_ds_mad);
-    get_template_attribute("TM_MAD", new_tm_mad);
-
     /* ---------------------------------------------------------------------- */
     /* Set the DS_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
+
+    get_template_attribute("DS_MAD", new_ds_mad);
 
     if ( type == SYSTEM_DS )
     {
@@ -692,32 +708,6 @@ int Datastore::replace_template(const string& tmpl_str, string& error_str)
             // DS are monitored by the DS mad, reset information
             update_monitor(0, 0, 0);
         }
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Set the TM_MAD of the Datastore (class & template)                     */
-    /* ---------------------------------------------------------------------- */
-
-    if ( !new_tm_mad.empty() )
-    {
-        // System DS are monitored by the TM mad, reset information
-        if ( type == SYSTEM_DS && new_tm_mad != tm_mad )
-        {
-            update_monitor(0, 0, 0);
-        }
-
-        if (set_tm_mad(new_tm_mad, error_str) != 0)
-        {
-            replace_template_attribute("TM_MAD", tm_mad);
-
-            return -1;
-        }
-
-        tm_mad = new_tm_mad;
-    }
-    else
-    {
-        replace_template_attribute("TM_MAD", tm_mad);
     }
 
     /* ---------------------------------------------------------------------- */

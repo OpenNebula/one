@@ -657,11 +657,11 @@ var service_actions = {
         type: "list",
         call: OpenNebula.Service.list,
         callback: function(request, service_list) {
-            $("#oneflow-services #error_message").hide();
+            $(".flow_error_message").hide();
             updateServicesView(request, service_list);
         },
         error: function(request, error_json) {
-            onError(request, error_json, $("#oneflow-services #error_message"));
+            onError(request, error_json, $(".flow_error_message"));
         }
     },
 
@@ -687,10 +687,10 @@ var service_actions = {
         call: function () {
             var tab = dataTable_services.parents(".tab");
             if (Sunstone.rightInfoVisible(tab)) {
-                selected_row_role_id = $($('td.markrowselected',servicerolesDataTable.fnGetNodes())[1]).html();
                 checked_row_rolevm_ids = new Array();
 
                 if (typeof(serviceroleVMsDataTable) !== 'undefined') {
+                    selected_row_role_id = $($('td.markrowchecked',servicerolesDataTable.fnGetNodes())[1]).html();
                     $.each($(serviceroleVMsDataTable.fnGetNodes()), function(){
                        if($('td.markrowchecked',this).length!=0)
                        {
@@ -820,10 +820,10 @@ var services_tab = {
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',
     search_input: '<input id="services_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-code-fork fa fa-rotate-90"></i>&emsp;'+tr("OneFlow - Services"),
-    info_header: '<i class="fa fa-fw fa-code-fork fa fa-rotate-90"></i>&emsp;'+tr("OneFlow - Service"),
+    list_header: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+tr("OneFlow - Services"),
+    info_header: '<i class="fa fa-fw fa-cubes"></i>&emsp;'+tr("OneFlow - Service"),
     subheader: '<span/> <small></small>&emsp;',
-    content:   '<div class="row" id="error_message" hidden>\
+    content:   '<div class="row flow_error_message" id="" hidden>\
         <div class="small-6 columns small-centered text-center">\
             <div class="alert-box alert radius">'+tr("Cannot connect to OneFlow server")+'</div>\
         </div>\
@@ -912,6 +912,8 @@ function updateServiceVMInfo(vmachine_list){
 function updateServiceInfo(request,elem){
     var elem_info = elem.DOCUMENT;
 
+    $(".resource-info-header", $("#oneflow-services")).html(elem_info.NAME);
+
     var info_tab = {
         title : tr("Info"),
         icon: "fa-info-circle",
@@ -941,6 +943,10 @@ function updateServiceInfo(request,elem){
            <tr>\
              <td class="key_td">'+tr("State")+'</td>\
              <td class="value_td">'+ OpenNebula.Service.state(elem_info.TEMPLATE.BODY.state) +'</td>\
+           </tr>\
+           <tr>\
+             <td class="key_td">'+tr("Ready Status Gate")+'</td>\
+             <td class="value_td">'+(elem_info.TEMPLATE.BODY.ready_status_gate ? "yes" : "no")+'</td>\
            </tr>\
          </table>' +
        '</div>\
@@ -1103,13 +1109,13 @@ function updateServiceInfo(request,elem){
 
                 if(last_selected_row_role) {
                     last_selected_row_role.children().each(function(){
-                        $(this).removeClass('markrowselected');
+                        $(this).removeClass('markrowchecked');
                     });
                 }
 
                 last_selected_row_role = $(this);
                 $(this).children().each(function(){
-                    $(this).addClass('markrowselected');
+                    $(this).addClass('markrowchecked');
                 });
             }
         });
@@ -1150,6 +1156,7 @@ function updateServiceInfo(request,elem){
                     <table id="datatable_service_vms_'+role.name+'" class="dataTable twelve ">\
                       <thead>\
                         <tr>\
+                          <th></th>\
                           <th></th>\
                           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
                           <th>'+tr("ID")+'</th>\
@@ -1309,9 +1316,9 @@ function updateServiceInfo(request,elem){
                 "bSortClasses": false,
                 "bDeferRender": true,
                 "aoColumnDefs": [
-                    { "bSortable": false, "aTargets": [0,1,7,8,10,12] },
-                    { "sWidth": "35px", "aTargets": [0,1] },
-                    { "bVisible": false, "aTargets": [7,8,11]}
+                    { "bSortable": false, "aTargets": [0,1,8,9,11,13] },
+                    { "sWidth": "35px", "aTargets": [0,1,2] },
+                    { "bVisible": false, "aTargets": [8,9,12]}
                 ]
             });
 
@@ -1328,13 +1335,24 @@ function updateServiceInfo(request,elem){
                         info.push("");
                     }
 
+                    if (elem_info.TEMPLATE.BODY.ready_status_gate) {
+                        if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
+                            info.push('<span data-tooltip class="has-tip" title="'+tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+
+                        } else {
+                            info.push('<span data-tooltip class="has-tip" title="'+tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+                        }
+                    } else {
+                        info.push("");
+                    }
+
                     if (vm_info) {
                       vms.push(info.concat(vMachineElementArray(vm_info)));
                     } else {
                         empty_arr = [
                             '<input class="check_item" type="checkbox" id="vm_'+this.deploy_id+'" name="selected_items" value="'+this.deploy_id+'"/>',
                             this.deploy_id,
-                            '', '', '', '', '', '', '', '', '', '' ];
+                            '', '', '', '', '', '', '', '', '', '', "-" ];
 
                         vms.push(info.concat(empty_arr));
                     }
@@ -1366,7 +1384,7 @@ function updateServiceInfo(request,elem){
                     var aData = serviceroleVMsDataTable.fnGetData(this);
                     if (!aData) return true;
 
-                    var id = $(aData[1]).val();
+                    var id = $(aData[2]).val();
                     if (!id) return true;
 
                     showElement("vms-tab", "VM.show", id);
