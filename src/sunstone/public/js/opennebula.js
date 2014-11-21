@@ -1790,7 +1790,7 @@ var OpenNebula = {
                     return params.success ? params.success(request, response) : null;
                 },
                 error: function(response){
-                    return params.error ? params.error(request, OpenNebula.Error(res)) : null;
+                    return params.error ? params.error(request, OpenNebula.Error(response)) : null;
                 }
             });
         }
