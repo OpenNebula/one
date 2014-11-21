@@ -5070,11 +5070,11 @@ function accountingGraphs(div, opt){
     '<div class="row">\
       <div id="acct_start_time_container" class="left columns">\
         <label for="acct_start_time">'+tr("Start time")+'</label>\
-        <input id="acct_start_time" type="date" placeholder="2013/12/30"/>\
+        <input id="acct_start_time" type="date" placeholder="2013-06-30"/>\
       </div>\
       <div id="acct_end_time_container" class="left columns">\
         <label for="acct_end_time">'+tr("End time")+'</label>\
-        <input id="acct_end_time" type="date" placeholder="'+tr("Today")+'"/>\
+        <input id="acct_end_time" type="date" placeholder="2013-12-30"/>\
       </div>\
       <div id="acct_group_by_container" class="left columns">\
         <label for="acct_group_by">' +  tr("Group by") + '</label>\
@@ -5268,6 +5268,10 @@ function accountingGraphs(div, opt){
     //--------------------------------------------------------------------------
     // Submit request
     //--------------------------------------------------------------------------
+    function dateFromString(str) {
+      var a = $.map(str.split(/[^0-9]/), function(s) { return parseInt(s, 10) });
+      return Date.UTC(a[0], a[1]-1 || 0, a[2] || 1, a[3] || 0, a[4] || 0, a[5] || 0, a[6] || 0);
+    }
 
     $("#acct_submit", div).on("click", function(){
         var start_time = -1;
@@ -5278,7 +5282,8 @@ function accountingGraphs(div, opt){
             notifyError(tr("Time range start is mandatory"));
             return false;
         }else{
-            start_time = Date.parse(v+' UTC');
+            start_time = dateFromString(v)
+            //start_time = Date.parse(v+' UTC');
 
             if (isNaN(start_time)){
                 notifyError(tr("Time range start is not a valid date. It must be YYYY/MM/DD"));
@@ -5291,8 +5296,7 @@ function accountingGraphs(div, opt){
 
         var v = $("#acct_end_time", div).val();
         if (v != ""){
-
-            end_time = Date.parse(v+' UTC');
+            end_time = dateFromString(v)
 
             if (isNaN(end_time)){
                 notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
@@ -5360,7 +5364,7 @@ function fillAccounting(div, req, response, no_table) {
 
     // start_time is mandatory
     var start = new Date(options.start_time * 1000);
-    start.setHours(0,0,0,0);
+    start.setUTCHours(0,0,0,0);
 
     var end = new Date();
 
@@ -6658,9 +6662,9 @@ function setupResourceTableSelect(section, context_id, options) {
 
     var dataTable_select = $('#datatable_'+context_id, section).dataTable(options.dataTable_options);
 
-    $('#refresh_button_'+context_id, section).die();
+    $('#refresh_button_'+context_id, section).off("click");
 
-    $('#refresh_button_'+context_id, section).live('click', function(){
+    section.on('click', '#refresh_button_'+context_id, function(){
         options.update_fn($('table[id=datatable_'+context_id+']', section).dataTable());
     });
 
@@ -7111,3 +7115,63 @@ function getInternetExplorerVersion(){
     }
     return rv;
 }
+
+// Return true if the VM has a hybrid section
+function calculate_isHybrid(vm_info){
+    return vm_info.USER_TEMPLATE.HYPERVISOR &&
+       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer")
+}
+
+// Return the IP or several IPs of a VM
+function ip_str(vm, divider){
+    var divider = divider || "<br>"
+    var isHybrid = calculate_isHybrid(vm);
+    var nic = vm.TEMPLATE.NIC;
+
+    if (nic == undefined) {
+        if (isHybrid) {
+            switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase()) {
+                case "vcenter":
+                    ip = vm.TEMPLATE.GUEST_IP?vm.TEMPLATE.GUEST_IP:"--";
+                    break;
+                case "ec2":
+                    ip = vm.TEMPLATE.IP_ADDRESS?vm.TEMPLATE.IP_ADDRESS:"--";
+                    break;
+                case "azure":
+                    ip = vm.TEMPLATE.IPADDRESS?vm.TEMPLATE.IPADDRESS:"--";
+                    break;
+                case "softlayer":
+                    ip = vm.TEMPLATE.PRIMARYIPADDRESS?vm.TEMPLATE.PRIMARYIPADDRESS:"--";
+                    break;
+                default:
+                    ip = "--";
+            }
+        } else {
+            return '--';
+        }
+    } else {
+        if (!$.isArray(nic)){
+            nic = [nic];
+        }
+
+        ip = '';
+        $.each(nic, function(index,value){
+            if (value.IP){
+                ip += value.IP+divider;
+            }
+
+            if (value.IP6_GLOBAL){
+                ip += value.IP6_GLOBAL+divider;
+            }
+
+            if (value.IP6_ULA){
+                ip += value.IP6_ULA+divider;
+            }
+        });
+    }
+
+    return ip;
+};

@@ -631,7 +631,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb \
-                src/sunstone/OpenNebulaVNC.rb"
+                src/sunstone/OpenNebulaVNC.rb \
+                src/vmm_mad/remotes/vcenter/vcenter_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -784,8 +785,7 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/reset \
                          src/vmm_mad/remotes/vcenter/save \
                          src/vmm_mad/remotes/vcenter/poll \
-                         src/vmm_mad/remotes/vcenter/shutdown \
-                         src/vmm_mad/remotes/vcenter/vcenter_driver.rb"
+                         src/vmm_mad/remotes/vcenter/shutdown"
 
 #------------------------------------------------------------------------------
 # VMM Driver EC2 scripts, to be installed under $REMOTES_LOCATION/vmm/ec2

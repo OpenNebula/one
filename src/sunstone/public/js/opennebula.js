@@ -1807,7 +1807,7 @@ var OpenNebula = {
                                             OpenNebula.Role.path);
         },
         "update" : function(params){
-            request = OpenNebula.Helper.request(OpenNebula.Role.resource, "update", params.data.id);
+            var request = OpenNebula.Helper.request(OpenNebula.Role.resource, "update", params.data.id);
 
             $.ajax({
                 url: OpenNebula.Role.path + "/" + params.data.id,
@@ -1815,10 +1815,10 @@ var OpenNebula = {
                 dataType: "json",
                 data: JSON.stringify(params.data.extra_param),
                 success: function(response){
-                    return roleCallback(request, response);
+                    return params.success ? params.success(request, response) : null;
                 },
                 error: function(response){
-                    return onError(request, OpenNebula.Error(response));
+                    return params.error ? params.error(request, OpenNebula.Error(res)) : null;
                 }
             });
         }

@@ -30,14 +30,6 @@ function loadVNC(){
 }
 loadVNC();
 
-function calculate_isHybrid(vm_info){
-    return vm_info.USER_TEMPLATE.HYPERVISOR &&
-       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer")
-}
-
 var VNCstates=[
   tr("RUNNING"),
   tr("SHUTDOWN"),
@@ -237,6 +229,7 @@ var vm_actions = {
             if (Sunstone.rightInfoVisible(tab)) {
                 // individual view
                 updateVMInfo(request, response);
+                $(".right-info-tabs > dd.active > a", "#vms-tab").trigger("click");
             }
 
             // datatable row
@@ -970,63 +963,6 @@ function vmShow(req) {
 // Returns a human readable running time for a VM
 function str_start_time(vm){
     return pretty_time(vm.STIME);
-};
-
-
-// Return the IP or several IPs of a VM
-function ip_str(vm){
-
-    var isHybrid = calculate_isHybrid(vm);
-
-    if (isHybrid)
-    {
-        switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase())
-        {
-            case "vcenter":
-                ip = vm.TEMPLATE.GUEST_IP?vm.TEMPLATE.GUEST_IP:"--";
-                break;
-            case "ec2":
-                ip = vm.TEMPLATE.IP_ADDRESS?vm.TEMPLATE.IP_ADDRESS:"--";
-                break;
-            case "azure":
-                ip = vm.TEMPLATE.IPADDRESS?vm.TEMPLATE.IPADDRESS:"--";
-                break;
-            case "softlayer":
-                ip = vm.TEMPLATE.PRIMARYIPADDRESS?vm.TEMPLATE.PRIMARYIPADDRESS:"--";
-                break;
-            default:
-                ip = "--";
-        }
-    }
-    else
-    {
-        var nic = vm.TEMPLATE.NIC;
-
-        if (nic == undefined){
-            return '--';
-        }
-
-        if (!$.isArray(nic)){
-            nic = [nic];
-        }
-
-        ip = '';
-        $.each(nic, function(index,value){
-            if (value.IP){
-                ip += value.IP+'<br />';
-            }
-
-            if (value.IP6_GLOBAL){
-                ip += value.IP6_GLOBAL+'<br />';
-            }
-
-            if (value.IP6_ULA){
-                ip += value.IP6_ULA+'<br />';
-            }
-        });
-    }
-
-    return ip;
 };
 
 // Returns an array formed by the information contained in the vm_json
@@ -1994,19 +1930,19 @@ function setupAttachDiskDialog(){
                   <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>\
               </div>\
           </div>' +
-          generate_disk_tab_content("attach_disk", "attach_disk") +
+          generate_disk_tab_content("attach_disk") +
           '<div class="reveal-footer">\
           <div class="form_buttons">\
               <button class="button radius right success" id="attach_disk_button" type="submit" value="VM.attachdisk">'+tr("Attach")+'</button>\
           </div>\
           </div>\
       <a class="close-reveal-modal">&#215;</a>\
-    </form></div>')
+    </form></div>');
 
     dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
     setupTips(dialog);
 
-    setup_disk_tab_content(dialog, "attach_disk", "attach_disk")
+    setup_disk_tab_content(dialog, "attach_disk");
 
     $('#attach_disk_form',dialog).submit(function(){
         var vm_id = $('#vm_id', this).text();
@@ -2039,6 +1975,7 @@ function setupAttachDiskDialog(){
 
 function popUpAttachDiskDialog(vm_id){
     $('#vm_id',$attach_disk_dialog).text(vm_id);
+    refreshImageTableSelect($attach_disk_dialog, "attach_disk");
     $attach_disk_dialog.foundation().foundation('reveal', 'open');
 }
 
@@ -2326,6 +2263,7 @@ function setupAttachNicDialog(){
 
 function popUpAttachNicDialog(vm_id){
     $('#vm_id',$attach_nic_dialog).text(vm_id);
+    refreshImageTableSelect($attach_nic_dialog, "attach_nic");
     $attach_nic_dialog.foundation().foundation('reveal', 'open');
 }
 

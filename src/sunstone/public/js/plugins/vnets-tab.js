@@ -1216,12 +1216,12 @@ function setupCreateVNetDialog() {
             $('select#vlan,label[for="vlan"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
 
-            $('input#phydev',$create_vn_dialog).attr('required', '');
+            $('input#phydev',$create_vn_dialog).removeAttr('required');
             $('input#bridge',$create_vn_dialog).removeAttr('required');
             break;
         case "ebtables":
             $('input#bridge,label[for="bridge"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
-            $('input#phydev,label[for="phydev"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
+            $('input#phydev,label[for="phydev"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
             $('select#vlan,label[for="vlan"]',$create_vn_dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',$create_vn_dialog).hide().prop('wizard_field_disabled', true);
 
@@ -1666,10 +1666,12 @@ function setupAddARDialog(){
     setup_ar_tab_content(dialog, "add_ar")
 
     $('#submit_ar_reset_button').click(function(){
+        var vnet_id = $('#vnet_id', $add_ar_dialog).text();
+
         $add_ar_dialog.html("");
         setupAddARDialog();
 
-        popUpAddAR();
+        popUpAddAR(vnet_id);
     });
 
     $('#add_ar_form',dialog).on('invalid', function () {
