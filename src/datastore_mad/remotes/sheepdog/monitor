@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to monitor the free and used space of a datastore
+###############################################################################
+
+# -------- Set up the environment to source common tools & conf ------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    LIB_LOCATION=/usr/lib/one
+else
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+. $LIB_LOCATION/sh/scripts_common.sh
+
+DRIVER_PATH=$(dirname $0)
+source ${DRIVER_PATH}/../libfs.sh
+source ${DRIVER_PATH}/sheepdog.conf
+
+# -------- Get datastore arguments from OpenNebula core ------------
+
+DRV_ACTION=$1
+ID=$2
+
+XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
+
+BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+
+HOST=`get_destination_host`
+
+if [ -z "$HOST" ]; then
+    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
+    exit -1
+fi
+
+# ------------ Compute datastore usage -------------
+
+MONITOR_SCRIPT=$(cat <<EOF
+$DOG node info -r | $AWK '{
+    if (\$1 == "Total") {
+
+        print "TOTAL_MB=" int(\$2/1024/1024)
+        print "USED_MB=" int(\$3/1024/1024)
+        print "FREE_MB=" int(\$4/1024/1024)
+
+    }
+}'
+EOF
+)
+
+MONITOR_DATA=$(ssh_monitor_and_log $HOST "$MONITOR_SCRIPT" 2>&1 | tee -a /tmp/mon.log )
+MONITOR_STATUS=$?
+
+if [ "$MONITOR_STATUS" = "0" ]; then
+    echo "$MONITOR_DATA" | tr ' ' '\n'
+else
+    echo "$MONITOR_DATA"
+    exit $MONITOR_STATUS
+fi
+

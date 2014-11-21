@@ -277,6 +277,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/vmfs \
           $VAR_LOCATION/remotes/tm/lvm \
           $VAR_LOCATION/remotes/tm/ceph \
+          $VAR_LOCATION/remotes/tm/sheepdog \
           $VAR_LOCATION/remotes/tm/dev \
           $VAR_LOCATION/remotes/hooks \
           $VAR_LOCATION/remotes/hooks/ft \
@@ -286,6 +287,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/datastore/vmfs \
           $VAR_LOCATION/remotes/datastore/lvm \
           $VAR_LOCATION/remotes/datastore/ceph \
+          $VAR_LOCATION/remotes/datastore/sheepdog \
           $VAR_LOCATION/remotes/datastore/dev \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
@@ -437,6 +439,7 @@ INSTALL_FILES=(
     TM_VMFS_FILES:$VAR_LOCATION/remotes/tm/vmfs
     TM_LVM_FILES:$VAR_LOCATION/remotes/tm/lvm
     TM_CEPH_FILES:$VAR_LOCATION/remotes/tm/ceph
+    TM_SHEEPDOG_FILES:$VAR_LOCATION/remotes/tm/sheepdog
     TM_DEV_FILES:$VAR_LOCATION/remotes/tm/dev
     TM_DUMMY_FILES:$VAR_LOCATION/remotes/tm/dummy
     DATASTORE_DRIVER_COMMON_SCRIPTS:$VAR_LOCATION/remotes/datastore/
@@ -445,6 +448,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_VMFS_SCRIPTS:$VAR_LOCATION/remotes/datastore/vmfs
     DATASTORE_DRIVER_LVM_SCRIPTS:$VAR_LOCATION/remotes/datastore/lvm
     DATASTORE_DRIVER_CEPH_SCRIPTS:$VAR_LOCATION/remotes/datastore/ceph
+    DATASTORE_DRIVER_SHEEPDOG_SCRIPTS:$VAR_LOCATION/remotes/datastore/sheepdog
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
@@ -976,6 +980,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 #   - VMWARE TM, $VAR_LOCATION/tm/vmware
 #   - LVM TM, $VAR_LOCATION/tm/lvm
 #   - CEPH TM, $VAR_LOCATION/tm/ceph
+#   - SHEEPDOG TM, $VAR_LOCATION/tm/sheepdog
 #   - DEV TM, $VAR_LOCATION/tm/dev
 #-------------------------------------------------------------------------------
 
@@ -1068,6 +1073,15 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/postmigrate \
                  src/tm_mad/ceph/delete"
 
+TM_SHEEPDOG_FILES="src/tm_mad/sheepdog/clone \
+                 src/tm_mad/sheepdog/ln \
+                 src/tm_mad/sheepdog/mv \
+                 src/tm_mad/sheepdog/mvds \
+                 src/tm_mad/sheepdog/cpds \
+                 src/tm_mad/sheepdog/premigrate \
+                 src/tm_mad/sheepdog/postmigrate \
+                 src/tm_mad/sheepdog/delete"
+
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
                  src/tm_mad/dev/mv \
@@ -1126,6 +1140,14 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/monitor \
                          src/datastore_mad/remotes/ceph/clone \
                          src/datastore_mad/remotes/ceph/ceph.conf"
+
+DATASTORE_DRIVER_SHEEPDOG_SCRIPTS="src/datastore_mad/remotes/sheepdog/cp \
+                         src/datastore_mad/remotes/sheepdog/mkfs \
+                         src/datastore_mad/remotes/sheepdog/stat \
+                         src/datastore_mad/remotes/sheepdog/rm \
+                         src/datastore_mad/remotes/sheepdog/monitor \
+                         src/datastore_mad/remotes/sheepdog/clone \
+                         src/datastore_mad/remotes/sheepdog/sheepdog.conf"
 
 DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/mkfs \

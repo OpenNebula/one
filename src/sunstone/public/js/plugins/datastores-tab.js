@@ -45,6 +45,7 @@ var create_datastore_tmpl =
               <option value="block_lvm">' + tr("Block LVM") + '</option>\
               <option value="fs_lvm">' + tr("FS LVM") + '</option>\
               <option value="ceph">' + tr("Ceph") + '</option>\
+              <option value="sheepdog">' + tr("Sheepdog") + '</option>\
               <option value="gluster">' + tr("Gluster") + '</option>\
               <option value="dev">' + tr("Devices") + '</option>\
               <option value="custom">' + tr("Custom") + '</option>\
@@ -80,6 +81,7 @@ var create_datastore_tmpl =
                   <option value="lvm">' + tr("LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
+                  <option value="sheepdog">' + tr("Sheepdog") + '</option>\
                   <option value="dev">' + tr("Devices") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
                 </select>\
@@ -98,6 +100,7 @@ var create_datastore_tmpl =
                   <option value="fs_lvm">' + tr("FS LVM") + '</option>\
                   <option value="vmfs">' + tr("VMFS") + '</option>\
                   <option value="ceph">' + tr("Ceph") + '</option>\
+                  <option value="sheepdog">' + tr("Sheepdog") + '</option>\
                   <option value="dev">' + tr("Devices") + '</option>\
                   <option value="custom">' + tr("Custom") + '</option>\
                 </select>\
@@ -116,6 +119,7 @@ var create_datastore_tmpl =
               <option value="file">' + tr("File") + '</option>\
               <option value="block">' + tr("Block") + '</option>\
               <option value="RBD">' + tr("RBD") + '</option>\
+              <option value="Sheepdog">' + tr("Sheepdog") + '</option>\
               <option value="gluster">' + tr("Gluster") + '</option>\
             </select>\
           </div>\
@@ -890,6 +894,9 @@ function setupCreateDatastoreDialog(){
           case 'ceph':
             select_ceph();
             break;
+          case 'sheepdog':
+            select_sheepdog();
+            break;
           case 'gluster':
             select_gluster();
             break;
@@ -1121,6 +1128,18 @@ function select_ceph(){
     $('input#base_path').removeAttr('disabled');
     $('input#limit_mb').removeAttr('disabled');
     $('input#restricted_dirs').removeAttr('disabled');
+}
+
+function select_sheepdog(){
+    $('input#image_ds_type').attr('checked', 'true');
+    $('input[name=ds_type]').attr('disabled', 'disabled');
+    $('select#ds_mad').val('sheepdog');
+    $('select#ds_mad').attr('disabled', 'disabled');
+    $('select#tm_mad').val('sheepdog');
+    $('select#tm_mad').attr('disabled', 'disabled');
+    $('label[for="bridge_list"],input#bridge_list').parent().parent().fadeIn();
+    $('select#disk_type').val('Sheepdog');
+    $('select#disk_type').attr('disabled', 'disabled');
 }
 
 function select_block_lvm(){

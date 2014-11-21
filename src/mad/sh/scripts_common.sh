@@ -39,6 +39,7 @@ MKSWAP=mkswap
 QEMU_IMG=qemu-img
 RADOS=rados
 RBD=rbd
+DOG=dog
 READLINK=readlink
 RM=rm
 SCP=scp

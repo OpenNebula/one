@@ -528,6 +528,26 @@ int LibVirtDriver::deployment_description_kvm(
                      << "\t\t\t</auth>" << endl;
             }
         }
+	else if ( type == "SHEEPDOG" || type == "SHEEPDOG_CDROM" )
+	{
+            if (type == "SHEEPDOG")
+            {
+                file << "\t\t<disk type='network' device='disk'>" << endl;
+            }
+            else
+            {
+                file << "\t\t<disk type='network' device='cdrom'>" << endl;
+            }
+
+            file << "\t\t\t<source protocol='sheepdog' name='" << source;
+
+            if ( clone == "YES" )
+            {
+                file << "-" << vm->get_oid() << "-" << disk_id;
+            }
+
+	    file << "'/>" << endl;
+        }
         else if ( type == "GLUSTER" || type == "GLUSTER_CDROM" )
         {
             if ( type == "GLUSTER" )

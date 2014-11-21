@@ -81,6 +81,14 @@ rbd)
     TYPE_XML="network"
     SOURCE="rbd"
     DEVICE="disk"
+    ;;
+sheepdog)
+    TYPE_SOURCE="protocol"
+    TYPE_XML="network"
+    SOURCE="sheepdog"
+    SOURCE_ARGS="name='$IMG_SRC'"
+    DEVICE="disk"
+
 
     if [ "$CLONE" = "YES" ]; then
         SOURCE_ARGS="name='${IMG_SRC}-${VMID}-${DISK_ID}'"
