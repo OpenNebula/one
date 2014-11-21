@@ -5188,7 +5188,7 @@ function setup_provision_user_info(context) {
         '<a href="#" class="close" style="top: 20px">&times;</a>'+
       '</div>');
 
-      context.on("click", "#provision_vdc_user_change_password_button", function(){
+      context.on("click", ".provision_vdc_user_change_password_button", function(){
         var button = $(this);
         button.attr("disabled", "disabled");
         var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
