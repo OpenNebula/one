@@ -2395,7 +2395,7 @@ function wizard_tab_content(){
               '<input type="text" id="KEYMAP" name="keymap" />'+
             '</div>'+
           '</div>'+
-          '<div class="row hypervisor only_kvm only_vmware only_xen">'+
+          '<div class="row vm_param hypervisor only_kvm only_vmware only_xen">'+
             '<div class="large-12 columns">'+
               '<label for="PASSWD">'+tr("Password")+
                 '<span class="tip">'+tr("Password for the VNC/SPICE server")+'</span>'+
