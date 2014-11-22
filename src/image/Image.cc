@@ -610,6 +610,10 @@ int Image::disk_attribute(  VectorAttribute *       disk,
                     new_disk_type = RBD_CDROM;
                     break;
 
+		case SHEEPDOG:
+		    new_disk_type = SHEEPDOG_CDROM;
+		    break;
+
                 case GLUSTER:
                     new_disk_type = GLUSTER_CDROM;
                     break;
@@ -783,6 +787,10 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     else if (s_disk_type == "RBD")
     {
         type = Image::RBD;
+    }
+    else if (s_disk_type == "SHEEPDOG")
+    {
+        type = Image::SHEEPDOG;
     }
     else if (s_disk_type == "GLUSTER")
     {
