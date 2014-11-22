@@ -82,6 +82,8 @@ public:
         RBD_CDROM     = 4, /** < CEPH RBD CDROM disk */
         GLUSTER       = 5, /** < Gluster Block Device */
         GLUSTER_CDROM = 6, /** < Gluster CDROM Device Device */
+        SHEEPDOG      = 7, /** < Sheepdog Block Device */
+        SHEEPDOG_CDROM = 8, /** < Sheepdog CDROM Device Device */
         NONE          = 255 /** < No disk type, error situation */
     };
 
@@ -101,6 +103,8 @@ public:
             case RBD_CDROM:         return "RBD_CDROM" ; break;
             case GLUSTER:           return "GLUSTER" ; break;
             case GLUSTER_CDROM:     return "GLUSTER_CDROM" ; break;
+            case SHEEPDOG:	    return "SHEEPDOG" ; break;
+            case SHEEPDOG_CDROM:    return "SHEEPDOG_CDROM" ; break;
             default:                return "";
         }
     };
