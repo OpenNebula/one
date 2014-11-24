@@ -119,7 +119,7 @@ class OneDB
 
         else
             puts "Shared: #{ret[:version]}"
-            puts "Local:  #{ret[:version]}"
+            puts "Local:  #{ret[:local_version]}"
         end
 
         return 0
