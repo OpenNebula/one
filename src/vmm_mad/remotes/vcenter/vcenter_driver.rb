@@ -219,6 +219,35 @@ class VIClient
         return vm_templates
     end
 
+    ########################################################################
+    # Builds a hash with the Datacenter / CCR Networks for this VCenter
+    # @return [Hash] in the form
+    #   { dc_name [String] => Networks [Array] }
+    ########################################################################
+    def vcenter_networks
+        vcenter_networks = {}
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+            networks = get_entities(dc.networkFolder, 'Network')
+           
+            one_nets = []
+
+            networks.each { |n|
+
+                one_nets << {
+                    :name => n.name,
+                    :bridge => n.name
+                }
+            }
+
+            vcenter_networks[dc.name] = one_nets
+        }
+
+        return vcenter_networks
+    end    
+
     def self.translate_hostname(hostname)
         host_pool = OpenNebula::HostPool.new(::OpenNebula::Client.new())
         rc        = host_pool.info

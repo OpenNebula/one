@@ -214,4 +214,87 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         exit 0
     end
+
+    network_desc = <<-EOT.unindent
+        Import vCenter networks into OpenNebula
+    EOT
+
+    command :networks, network_desc, :options=>[ VCENTER, USER, PASS ] do
+        if  options[:vuser].nil? ||
+            options[:vpass].nil? ||
+            options[:vcenter].nil?
+            STDERR.puts "vCenter connection parameters are mandatory to import"\
+                        " vCenter networks:\n"\
+                        "\t --vcenter vCenter hostname\n"\
+                        "\t --vuser username to login in vcenter\n"\
+                        "\t --vpass password for the user"
+            exit -1
+        end
+
+        begin
+            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
+
+            vc = VCenterDriver::VIClient.new_connection(
+                    :user     => options[:vuser],
+                    :password => options[:vpass],
+                    :host     => options[:vcenter])
+
+            STDOUT.print "done!\n\n"
+
+            STDOUT.print "Looking for vCenter networks..."
+
+            rs = vc.vcenter_networks
+
+            STDOUT.print "done!\n"
+
+            rs.each {|dc, tmps|
+                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
+
+                next if STDIN.gets.strip.downcase != 'y'
+
+                if tmps.empty?
+                    STDOUT.print "    No Networks found in #{dc}...\n\n"
+                    next
+                end
+
+                tmps.each{ |n|
+                    STDOUT.print "\n  * Network found:\n"\
+                                 "      - Name   : #{n[:name]}\n"\
+                                 "    Import this Network [y/n]? "
+
+                    next if STDIN.gets.strip.downcase != 'y'
+
+                    STDOUT.print "    How many VMs are you planning to fit [255]? "
+
+                    size = STDIN.gets.strip
+
+                    size = "255" if size.to_i.to_s != size
+
+                    one_vn = ::OpenNebula::VirtualNetwork.new(
+                                ::OpenNebula::Template.build_xml, vc.one)
+
+                    vnet_template = "NAME=\"#{n[:name]}\"\n" +
+                                    "BRIDGE=\"#{n[:name]}\"\n" +
+                                    "AR=[\n" +
+                                    " TYPE = \"ETHER\"\n," +
+                                    " SIZE = \"#{size.to_i}\"\n]"
+
+                    rc = one_vn.allocate(vnet_template)
+
+                    if ::OpenNebula.is_error?(rc)
+                        STDOUT.puts "    Error creating virtual network: " +
+                                    " #{rc.message}\n"
+                    else
+                        STDOUT.puts "    OpenNebula virtual network " + 
+                                    "#{one_vn.id} created with size #{size}!\n"
+                    end
+                }
+            }
+        rescue Exception => e
+            STDOUT.puts "error: #{e.message}"
+            exit -1
+        end
+
+        exit 0
+    end
 end
