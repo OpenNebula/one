@@ -124,6 +124,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_host       = "";
     string  ceph_secret     = "";
     string  ceph_user       = "";
+    string  sheepdog_host   = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
 
@@ -443,6 +444,7 @@ int LibVirtDriver::deployment_description_kvm(
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
 
+        sheepdog_host   = disk->vector_value("SHEEPDOG_HOST");
         total_bytes_sec = disk->vector_value("TOTAL_BYTES_SEC");
         read_bytes_sec  = disk->vector_value("READ_BYTES_SEC");
         write_bytes_sec = disk->vector_value("WRITE_BYTES_SEC");
@@ -554,8 +556,7 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
-
-	    file << "'/>" << endl;
+	    do_network_hosts(file, sheepdog_host, "tcp");
         }
         else if ( type == "GLUSTER" || type == "GLUSTER_CDROM" )
         {
