@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -16,5 +16,30 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-SCRIPT_NAME=$(basename $0)
-echo "Action $SCRIPT_NAME not supported" 1>&2
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(__FILE__)
+
+require 'vcenter_driver'
+
+deploy_id = ARGV[0]
+mac       = ARGV[1]
+host      = ARGV[3]
+
+
+begin
+    VCenterDriver::VCenterVm.detach_nic(deploy_id,
+                                        mac,
+                                        host)
+rescue Exception => e
+    STDERR.puts "Detach NIC for VM #{deploy_id} on host #{host} failed " +
+                "due to \"#{e.message}\""
+    exit -1
+end

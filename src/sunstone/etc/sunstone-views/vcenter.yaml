@@ -15,7 +15,7 @@ enabled_tabs:
     clusters-tab: true
     hosts-tab: true
     datastores-tab: false
-    vnets-tab: false
+    vnets-tab: true
     secgroups-tab: false
     marketplace-tab: false
     oneflow-dashboard: true
@@ -169,8 +169,8 @@ tabs:
             VM.attachdisk: true
             VM.detachdisk: true
             VM.saveas: false
-            VM.attachnic: false
-            VM.detachnic: false
+            VM.attachnic: true
+            VM.detachnic: true
             VM.snapshot_create: true
             VM.snapshot_revert: true
             VM.snapshot_delete: true

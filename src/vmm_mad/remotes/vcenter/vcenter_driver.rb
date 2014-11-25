@@ -663,6 +663,54 @@ class VCenterVm
         snapshot.RevertToSnapshot_Task(revert_snapshot_hash).wait_for_completion
     end
 
+    ############################################################################
+    # Attach NIC to a VM
+    #  @param deploy_id vcenter identifier of the VM
+    #  @param mac MAC address of the NIC to be attached
+    #  @param bridge name of the Network in vCenter
+    #  @param model model of the NIC to be attached
+    #  @param host hostname of the ESX where the VM is running
+    ############################################################################
+    def self.attach_nic(deploy_id, mac, bridge, model, host)
+        hid         = VIClient::translate_hostname(host)
+        connection  = VIClient.new(hid)
+
+        vm          = connection.find_vm_template(deploy_id)
+
+        spec_hash   = calculate_addnic_spec(vm, mac, bridge, model)
+
+        spec        = RbVmomi::VIM.VirtualMachineConfigSpec({:deviceChange => 
+                                                              [spec_hash]})
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end
+
+    ############################################################################
+    # Detach NIC from a VM
+    ############################################################################
+    def self.detach_nic(deploy_id, mac, host)
+        hid         = VIClient::translate_hostname(host)
+        connection  = VIClient.new(hid)
+
+        vm   = connection.find_vm_template(deploy_id)
+
+        nic  = vm.config.hardware.device.find { |d|
+                (d.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard) &&
+                (d.macAddress ==  mac)
+             }
+
+        raise "Could not find NIC with mac address #{mac}" if nic.nil?
+
+        spec = {
+            :deviceChange => [
+                :operation => :remove,
+                :device => nic
+            ]
+        }
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    end    
+
     ########################################################################
     #  Initialize the vm monitor information
     ########################################################################
@@ -769,6 +817,65 @@ private
     end
 
     ########################################################################
+    # Returns the spec to reconfig a VM and add a NIC
+    ########################################################################
+    def self.calculate_addnic_spec(vm, mac, bridge, model)
+        network     = vm.runtime.host.network.select{|n| n.name==bridge}
+
+        if network.empty?
+            raise "Network #{bridge} not found in host #{vm.runtime.host.name}"
+        else
+            network = network[0]
+        end
+
+        card_num    = 1 # start in one, we want the next avaliable id
+
+        vm.config.hardware.device.each{ |dv|
+            if dv.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard
+                card_num = card_num + 1
+            end
+        } 
+
+        model = model.nil? ? nil : model.downcase
+
+        nic_card = case model
+                        when "virtuale1000"
+                            RbVmomi::VIM::VirtualE1000
+                        when "virtuale1000e"
+                            RbVmomi::VIM::VirtualE1000e
+                        when "virtualpcnet32"
+                            RbVmomi::VIM::VirtualPCNet32
+                        when "virtualsriovethernetcard"
+                            RbVmomi::VIM::VirtualSriovEthernetCard
+                        when "virtualvmxnetm"
+                            RbVmomi::VIM::VirtualVmxnetm
+                        when "virtualvmxnet2"
+                            RbVmomi::VIM::VirtualVmxnet2
+                        when "virtualvmxnet3"
+                            RbVmomi::VIM::VirtualVmxnet3
+                        else # If none matches, use VirtualE1000
+                            RbVmomi::VIM::VirtualE1000
+                   end
+
+        backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
+                                :deviceName => bridge,
+                                :network => network)
+
+        return {:operation => :add,
+                :device => nic_card.new(
+                            :key => 0, 
+                            :deviceInfo => {
+                                :label => "net" + card_num.to_s,
+                                :summary => bridge
+                            },
+                            :backing => backing,
+                            :addressType => mac ? 'manual' : 'generated',
+                            :macAddress  => mac
+                           )
+               }
+    end
+
+    ########################################################################
     #  Clone a vCenter VM Template and leaves it powered on
     ########################################################################
     def self.clone_vm(xml_text)
@@ -784,7 +891,7 @@ private
             !type.nil? && type.text.downcase == "vcenter"
         }
 
-        raise "Cannot find VCenter element in VM template." if template.nil?
+        raise "Cannot find vCenter element in VM template." if template.nil?
 
         uuid = template.elements["VM_TEMPLATE"]
 
@@ -829,7 +936,8 @@ private
             vnc_listen = vnc_listen.text
         end
 
-        config_array = []
+        config_array     = []
+        context_vnc_spec = {}
 
         if vnc_port
             config_array +=
@@ -852,7 +960,27 @@ private
         end
 
         if config_array != []
-            spec_hash = {:extraConfig =>config_array}
+            context_vnc_spec = {:extraConfig =>config_array}
+        end
+
+        # Take care of the NIC section, build the reconfig hash
+        nics     = xml.root.get_elements("//TEMPLATE/NIC")
+        nic_spec = {}
+
+        if !nics.nil?
+            nic_array = []
+            nics.each{|nic|
+               mac    = nic.elements["MAC"].text
+               bridge = nic.elements["BRIDGE"].text
+               model  = nic.elements["MODEL"] ? nic.elements["MODEL"].text : nil
+               nic_array << calculate_addnic_spec(vm, mac, bridge, model)
+            }
+
+            nic_spec = {:deviceChange => nic_array}
+        end
+
+        if !context_vnc_spec.empty? or !nic_spec.empty?
+            spec_hash = context_vnc_spec.merge(nic_spec)
             spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
             vm.ReconfigVM_Task(:spec => spec).wait_for_completion
         end

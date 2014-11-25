@@ -1219,7 +1219,8 @@ VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
                   src/vmm_mad/exec/vmm_exec_xen3.conf \
                   src/vmm_mad/exec/vmm_exec_xen4.conf \
-                  src/vmm_mad/exec/vmm_exec_vmware.conf"
+                  src/vmm_mad/exec/vmm_exec_vmware.conf \
+                  src/vmm_mad/exec/vmm_exec_vcenter.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm

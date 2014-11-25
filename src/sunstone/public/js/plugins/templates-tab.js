@@ -2461,6 +2461,10 @@ function setup_disk_tab_content(disk_section, str_disk_tab_id) {
     size_input.val(10);
     update_final_size_input();
 
+    if (Config.isTemplateCreationTabEnabled('network')){
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen only_vcenter'><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
+    }
+
     // init::start is ignored for some reason
     size_slider.val(1000);
 
