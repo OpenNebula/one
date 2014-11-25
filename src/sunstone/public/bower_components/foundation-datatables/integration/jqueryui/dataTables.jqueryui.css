@@ -343,7 +343,7 @@ div.DTTT_container {
   padding: 3px 10px;
   border: 1px solid #d0d0d0;
   background-color: #fff;
-  color: #333 !important;
+  color: #333;
   cursor: pointer;
 }
 
@@ -353,7 +353,7 @@ div.DTTT_container {
 }
 
 .DTTT_disabled {
-  color: #999 !important;
+  color: #999;
 }
 
 table.DTTT_selectable tbody tr {
@@ -378,7 +378,7 @@ div.DTTT_collection a.DTTT_button {
 }
 
 div.DTTT_collection_background {
-  background: url(../images/background.png) repeat top left;
+  background: black;
   z-index: 2001;
 }
 

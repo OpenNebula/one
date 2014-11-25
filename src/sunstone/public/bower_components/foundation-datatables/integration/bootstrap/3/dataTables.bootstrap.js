@@ -1,4 +1,4 @@
-/*! DataTables Bootstrap integration
+/*! DataTables Bootstrap 3 integration
  * ©2011-2014 SpryMedia Ltd - datatables.net/license
  */
 
@@ -19,9 +19,9 @@ var factory = function( $, DataTable ) {
 /* Set the defaults for DataTables initialisation */
 $.extend( true, DataTable.defaults, {
 	dom:
-		"<'row'<'col-xs-6'l><'col-xs-6'f>r>"+
-		"t"+
-		"<'row'<'col-xs-6'i><'col-xs-6'p>>",
+		"<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+		"<'row'<'col-sm-12'tr>>" +
+		"<'row'<'col-sm-6'i><'col-sm-6'p>>",
 	renderer: 'bootstrap'
 } );
 
@@ -45,7 +45,7 @@ DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, bu
 		var i, ien, node, button;
 		var clickHandler = function ( e ) {
 			e.preventDefault();
-			if ( e.data.action !== 'ellipsis' ) {
+			if ( !$(e.currentTarget).hasClass('disabled') ) {
 				api.page( e.data.action ).draw( false );
 			}
 		};

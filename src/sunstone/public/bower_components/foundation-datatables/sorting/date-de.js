@@ -1,15 +1,18 @@
 /**
- * This sorting plug-in for DataTables will correctly sort data in date time
- * format typically used in Germany - `dd.mm.YYYY HH:mm`.
+ * This sorting plug-in for DataTables will correctly sort data in date time or date
+ * format typically used in Germany:
+ * date and time:`dd.mm.YYYY HH:mm`
+ * just date:`dd.mm.YYYY`.
  *
- *  @name Date / time (dd.mm.YYYY HH:mm)
- *  @summary Sort date / time in the format `dd.mm.YYYY HH:mm`.
+ *  @name Date (dd.mm.YYYY) or date and time (dd.mm.YYYY HH:mm)
+ *  @summary Sort date / time in the format `dd.mm.YYYY HH:mm` or `dd.mm.YYYY`.
  *  @author [Ronny Vedrilla](http://www.ambient-innovation.com)
  *
  *  @example
  *    $('#example').dataTable( {
  *       columnDefs: [
- *         { type: 'de_datetime', targets: 0 }
+ *         { type: 'de_datetime', targets: 0 },
+ *         { type: 'de_date', targets: 1 }
  *       ]
  *    } );
  */
@@ -54,6 +57,44 @@
 			var deTimeb = deDateb[1].split(':');
 			deDateb = deDateb[0].split('.');
 			y = (deDateb[2] + deDateb[1] + deDateb[0] + deTimeb[0] + deTimeb[1]) * 1;
+		} else {
+			y = Infinity;
+		}
+		var z = ((x < y) ? 1 : ((x > y) ? -1 : 0));
+		return z;
+	},
+
+	"de_date-asc": function ( a, b ) {
+		var x, y;
+		if ($.trim(a) !== '') {
+			var deDatea = $.trim(a).split('.');
+			x = (deDatea[2] + deDatea[1] + deDatea[0]) * 1;
+		} else {
+			x = Infinity; // = l'an 1000 ...
+		}
+
+		if ($.trim(b) !== '') {
+			var deDateb = $.trim(b).split('.');
+			y = (deDateb[2] + deDateb[1] + deDateb[0]) * 1;
+		} else {
+			y = Infinity;
+		}
+		var z = ((x < y) ? -1 : ((x > y) ? 1 : 0));
+		return z;
+	},
+
+	"de_date-desc": function ( a, b ) {
+		var x, y;
+		if ($.trim(a) !== '') {
+			var deDatea = $.trim(a).split('.');
+			x = (deDatea[2] + deDatea[1] + deDatea[0]) * 1;
+		} else {
+			x = Infinity;
+		}
+
+		if ($.trim(b) !== '') {
+			var deDateb = $.trim(b).split('.');
+			y = (deDateb[2] + deDateb[1] + deDateb[0]) * 1;
 		} else {
 			y = Infinity;
 		}

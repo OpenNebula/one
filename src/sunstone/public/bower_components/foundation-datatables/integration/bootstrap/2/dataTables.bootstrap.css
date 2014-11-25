@@ -1,5 +1,4 @@
 div.dataTables_length label {
-	float: left;
 	text-align: left;
 }
 
@@ -7,8 +6,17 @@ div.dataTables_length select {
 	width: 75px;
 }
 
+div.dataTables_filter {
+	text-align: right;
+}
+
 div.dataTables_filter label {
-	float: right;
+	text-align: left;
+}
+
+div.dataTables_filter input {
+	margin-left: 0.5em;
+	display: inline-block;
 }
 
 div.dataTables_info {
@@ -16,8 +24,21 @@ div.dataTables_info {
 }
 
 div.dataTables_paginate {
-	float: right;
+	text-align: right;
 	margin: 0;
+}
+
+div.dataTables_paginate div.pagination {
+	margin: 0;
+}
+
+@media screen and (max-width: 767px) {
+	div.dataTables_length,
+	div.dataTables_filter,
+	div.dataTables_info,
+	div.dataTables_paginate {
+		text-align: center;
+	}
 }
 
 table.table {

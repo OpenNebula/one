@@ -9,7 +9,7 @@
  * accented characters will no longer match. The second example below shows
  * how the function can be used to remove accents from the search input as well,
  * to mitigate this problem.
- * 
+ *
  *  @summary Replace accented characters with unaccented counterparts
  *  @name Accent neutralise
  *  @author Allan Jardine
@@ -39,6 +39,13 @@ jQuery.fn.DataTable.ext.type.search.string = function ( data ) {
         '' :
         typeof data === 'string' ?
             data
+                .replace( /έ/g, 'ε')
+                .replace( /ύ/g, 'υ')
+                .replace( /ό/g, 'ο')
+                .replace( /ώ/g, 'ω')
+                .replace( /ά/g, 'α')
+                .replace( /ί/g, 'ι')
+                .replace( /ή/g, 'η')
                 .replace( /\n/g, ' ' )
                 .replace( /á/g, 'a' )
                 .replace( /é/g, 'e' )
@@ -51,6 +58,7 @@ jQuery.fn.DataTable.ext.type.search.string = function ( data ) {
                 .replace( /è/g, 'e' )
                 .replace( /ï/g, 'i' )
                 .replace( /ü/g, 'u' )
-                .replace( /ç/g, 'c' ) :
+                .replace( /ç/g, 'c' )
+                .replace( /ì/g, 'i' ) :
             data;
 };
