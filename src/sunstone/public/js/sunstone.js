@@ -1827,8 +1827,6 @@ function getValue(filter_str,filter_col,value_col,dataTable){
 //Replaces all class"tip" divs with an information icon that
 //displays the tip information on mouseover.
 function setupTips(context, position){
-
-    $('ui-dialog').css('z-index', '1000')
     //For each tip in this context
     $('.tip',context).each(function(){
         var obj = $(this);
@@ -6276,7 +6274,7 @@ function generateResourceTableSelect(context_id, columns, options){
     var html =
     '<div class="row">\
       <div class="large-8 columns">\
-         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+         <a id="refresh_button_'+context_id+'" href="#" class="button small radius secondary"><i class="fa fa-refresh" /></a>\
       </div>\
       <div class="large-4 columns">\
         <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -6359,6 +6357,7 @@ function setupResourceTableSelect(section, context_id, options) {
 
     section.on('click', '#refresh_button_'+context_id, function(){
         options.update_fn($('table[id=datatable_'+context_id+']', section).dataTable());
+        return false;
     });
 
     $('#'+context_id+'_search', section).keyup(function(){
