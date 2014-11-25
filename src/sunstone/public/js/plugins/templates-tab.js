@@ -1844,7 +1844,7 @@ function wizard_tab_dd(){
     }
 
     if (Config.isTemplateCreationTabEnabled('network')){
-        str += "<dd class='hypervisor only_kvm only_vmware only_xen'><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
+        str += "<dd class='hypervisor only_kvm only_vmware only_xen only_vcenter'><a href='#networkTab'><i class='fa fa-globe'></i><br>"+tr("Network")+"</a></dd>";
     }
 
     if (Config.isTemplateCreationTabEnabled('os_booting')){
