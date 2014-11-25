@@ -389,36 +389,19 @@ var create_security_group_wizard_html =
           </label>\
           <select class="security_group_rule_icmp_type">\
             <option value="" selected="selected">'+tr("All")+'</option>\
-            <option value = "0">'+"0: Echo Reply"+'</option>\
+            <option value = "0">'+"0/0: Echo Reply (pong)"+'</option>\
             <option value = "3">'+"3: Destination Unreachable"+'</option>\
-            <option value = "4">'+"4: Source Quench"+'</option>\
+            <option value = "4">'+"4/0: Source Quench"+'</option>\
             <option value = "5">'+"5: Redirect"+'</option>\
-            <option value = "6">'+"6: Alternate Host Address"+'</option>\
-            <option value = "8">'+"8: Echo"+'</option>\
-            <option value = "9">'+"9: Router Advertisement"+'</option>\
-            <option value = "10">'+"10: Router Solicitation"+'</option>\
+            <option value = "8">'+"8/0: Echo Request (ping)"+'</option>\
+            <option value = "9">'+"9/0: Router Advertisement"+'</option>\
+            <option value = "10">'+"10/0: Router Solicitation"+'</option>\
             <option value = "11">'+"11: Time Exceeded"+'</option>\
             <option value = "12">'+"12: Parameter Problem"+'</option>\
-            <option value = "13">'+"13: Timestamp"+'</option>\
-            <option value = "14">'+"14: Timestamp Reply"+'</option>\
-            <option value = "15">'+"15: Information Request"+'</option>\
-            <option value = "16">'+"16: Information Reply"+'</option>\
-            <option value = "17">'+"17: Address Mask Request"+'</option>\
-            <option value = "18">'+"18: Address Mask Reply"+'</option>\
-            <option value = "30">'+"30: Traceroute"+'</option>\
-            <option value = "31">'+"31: Datagram Conversion Error"+'</option>\
-            <option value = "32">'+"32: Mobile Host Redirect"+'</option>\
-            <option value = "33">'+"33: IPv6 Where-Are-You"+'</option>\
-            <option value = "34">'+"34: IPv6 I-Am-Here"+'</option>\
-            <option value = "35">'+"35: Mobile Registration Request"+'</option>\
-            <option value = "36">'+"36: Mobile Registration Reply"+'</option>\
-            <option value = "37">'+"37: Domain Name Request"+'</option>\
-            <option value = "38">'+"38: Domain Name Reply"+'</option>\
-            <option value = "39">'+"39: SKIP"+'</option>\
-            <option value = "40">'+"40: Photuris"+'</option>\
-            <option value = "41">'+"41: ICMP messages utilized by experimental mobility protocols such as Seamoby"+'</option>\
-            <option value = "253">'+"253: RFC3692-style Experiment 1"+'</option>\
-            <option value = "254">'+"254: RFC3692-style Experiment 2"+'</option>\
+            <option value = "13">'+"13/0: Timestamp Request"+'</option>\
+            <option value = "14">'+"14/0: Timestamp Reply"+'</option>\
+            <option value = "17">'+"17/0: Address Mask Request"+'</option>\
+            <option value = "18">'+"18/0: Address Mask Reply"+'</option>\
           </select>\
         </div>\
       </div>\
@@ -918,7 +901,7 @@ function updateSecurityGroupInfo(request,security_group){
 }
 
 function insert_sg_rules_table(sg){
-    var html = 
+    var html =
       '<table class="policies_table dataTable">\
         <thead>\
           <tr>\
