@@ -1814,6 +1814,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onedatastore.1.gz \
         share/man/onecluster.1.gz \
         share/man/onezone.1.gz \
+        share/man/onevcenter.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/econe-allocate-address.1.gz \

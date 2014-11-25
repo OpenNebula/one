@@ -60,6 +60,7 @@ env.Man('onevm')
 env.Man('onevnet')
 env.Man('onegroup')
 env.Man('onezone')
+env.Man('onevcenter')
 
 env.Man('oneflow')
 env.Man('oneflow-template')
