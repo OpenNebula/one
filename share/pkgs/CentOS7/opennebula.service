@@ -1,0 +1,25 @@
+[Unit]
+Description=OpenNebula Cloud Controller Daemon
+After=syslog.target
+After=network.target
+After=remote-fs.target
+After=mariadb.service
+Before=opennebula-scheduler.service
+BindTo=opennebula-scheduler.service
+
+[Service]
+Type=simple
+Group=oneadmin
+User=oneadmin
+
+# Start daemon in forground mode, when starting as forking process the
+# daemon shuts down without obvious reason.
+ExecStart=/usr/bin/oned -f
+# Log file location must exist
+ExecStartPre=/bin/mkdir -p /var/log/one
+ExecStartPre=/bin/chown oneadmin:oneadmin /var/log/one
+ExecStop=/bin/kill -TERM $MAINPID
+PIDFile=/var/run/one/oned.pid
+
+[Install]
+WantedBy=multi-user.target

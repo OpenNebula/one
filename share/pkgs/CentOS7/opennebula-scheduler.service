@@ -1,0 +1,20 @@
+[Unit]
+Description=OpenNebula Cloud Scheduler Daemon
+After=syslog.target
+After=network.target
+After=remote-fs.target
+After=opennebula.service
+BindTo=opennebula.service
+
+[Service]
+Type=simple
+Group=oneadmin
+User=oneadmin
+
+ExecStart=/usr/bin/mm_sched
+ExecStop=/bin/kill -TERM $MAINPID
+PIDFile=/var/run/one/sched.pid
+
+[Install]
+WantedBy=multi-user.target
+
