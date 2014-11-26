@@ -6793,6 +6793,77 @@ function generateAdvancedSection(opts){
     '</div>';
 }
 
+/*
+    Insert a select input with an optionally text input for custom values
+
+    @param opts.id key of the OpenNebula Template
+    @param opts.label name to be shown as label
+    @param opts.tooltip 
+    @param opts.options array of options for the select
+    @param opts.custom boolean, provide a text input for a custom value (default: false)
+    @return {string}
+*/
+function generateValueSelect(opts){
+    var str = '<div class="custom_select_container row collapse">'+
+            '<label for="' + opts.id + '_select">'+ opts.label +
+              '<span data-tooltip class="has-tip" title="' + opts.tooltip + '"><i class="fa fa-question-circle"></i></span>' +
+            '</label>';
+
+    str += '<div class="custom_select_input_div vm_param columns hidden">';
+    str += '<input id="' + opts.id + '" type="text" class="custom_select_input"/>';
+    str += '</div>';
+
+    str += '<div class="custom_select_div large-12 columns">'+ 
+            '<select name="' + opts.id + '_select" class="custom_select">';
+
+    str += '<option id="" name="" value=""></option>';
+
+    $.each(opts.options, function(index, option){
+        str += '<option value="' + option + '">' + option + '</option>';
+    });
+
+    if (opts.custom) {
+        str += '<option class="custom_option" value="custom">...</option>';
+
+    }
+
+    str += '</select>';
+    str += '</div>';
+
+    $(document).on("change", ".custom_select_input", function(){
+        var select = $(".custom_select", $(this).closest(".custom_select_container"));
+        select.val($(this).val());
+        if (select.val() == null) {
+            select.val("custom");
+        }
+        select.change();
+    });
+
+    $(document).on("change", ".custom_select", function(){
+        var container = $(this).closest(".custom_select_container");
+        if ($(this).val() == "custom") {
+            $(this).addClass("postfix");
+            $(".custom_select_input", container).focus();
+
+            $(".custom_select_input_div", container).show();
+            $(".custom_select_input_div", container).addClass("large-10");
+            $(".custom_select_div", container).addClass("large-2");
+            $(".custom_select_div", container).removeClass("large-12");
+        } else {
+            $(this).removeClass("postfix");
+            $(".custom_select_input", container).val($(this).val());
+
+            $(".custom_select_input_div", container).hide();
+            $(".custom_select_input_div", container).removeClass("large-10");
+            $(".custom_select_div", container).removeClass("large-2");
+            $(".custom_select_div", container).addClass("large-12");
+        }
+    });
+
+    str += '</div>';
+
+    return str;
+}
 
 function getInternetExplorerVersion(){
 // Returns the version of Internet Explorer or a -1
