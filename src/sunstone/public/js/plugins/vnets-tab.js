@@ -133,6 +133,11 @@ var create_vnet_wizard_html =
           </div>\
           <div class="content" id="vnetCreateSecurityTab">\
             '+generateSecurityGroupTableSelect("vnet_create")+'\
+            <div class="row" id="default_sg_warning">\
+              <div class="large-12 columns">\
+                <span class="radius secondary label"><i class="fa fa-warning"/> '+tr("The default Security Group 0 is automatically added to new Virtual Networks")+'</span>\
+              </div>\
+            </div>\
           </div>\
           <div class="content" id="vnetCreateContextTab">\
             <div class="row">\
@@ -225,6 +230,7 @@ var vnet_actions = {
             Sunstone.popUpFormPanel("create_vnet_form", "vnets-tab", "create", true, function(context){
                 refreshSecurityGroupTableSelect(context, "vnet_create");
 
+                $("#default_sg_warning").show();
                 $("input#name",context).focus();
             });
         }
@@ -427,6 +433,8 @@ var vnet_actions = {
 
             Sunstone.popUpFormPanel("create_vnet_form", "vnets-tab", "update", true, function(context){
                 fillVNetUpdateFormPanel(response.VNET, context);
+
+                $("#default_sg_warning").hide();
             });
         },
         error: onError
