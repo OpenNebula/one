@@ -129,7 +129,7 @@ class VIClient
 
     ########################################################################
     # Initialize a VIConnection based just on the VIM parameters. The
-    # OpenNebula client is also initilialize
+    # OpenNebula client is also initilialized
     ########################################################################
     def self.new_connection(user_opts)
 
@@ -165,6 +165,23 @@ class VIClient
             end
         end
     end
+
+    ########################################################################
+    # Searches the associated vmFolder of the DataCenter for the current
+    # connection. Returns a RbVmomi::VIM::VirtualMachine or nil if not found
+    # @param vm_name [String] the UUID of the VM or VM Template
+    ########################################################################
+    def find_vm(vm_name)
+        vms = get_entities(@dc.vmFolder, 'VirtualMachine')
+
+        return vms.find do |v|
+            begin
+                v.name == vm_name
+            rescue ManagedObjectNotFound
+                false
+            end
+        end
+    end    
 
     ########################################################################
     # Builds a hash with the DataCenter / ClusterComputeResource hierarchy
@@ -217,6 +234,63 @@ class VIClient
         }
 
         return vm_templates
+    end
+
+    ########################################################################
+    # Builds a hash with the Datacenter / CCR (Distributed)Networks 
+    # for this VCenter
+    # @return [Hash] in the form
+    #   { dc_name [String] => Networks [Array] }
+    ########################################################################
+    def vcenter_networks
+        vcenter_networks = {}
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+            networks = get_entities(dc.networkFolder, 'Network' )
+            one_nets = []
+
+            networks.each { |n|
+                one_nets << {:name => n.name,
+                             :bridge => n.name,
+                             :type => "Port Group"}
+            }
+
+            vcenter_networks[dc.name] = one_nets
+
+            networks = get_entities(dc.networkFolder,
+                                    'DistributedVirtualPortgroup' )
+            one_nets = []
+
+            networks.each { |n|
+                one_net = {:name => n.name,
+                           :bridge => n.name,
+                           :type=> "Distributed Port Group"}
+
+                vlan = n.config.defaultPortConfig.vlan.vlanId
+
+                if vlan != 0
+                    if vlan.is_a? Array
+                        vlan_str = ""
+                        vlan.each{|v|
+                            vlan_str += v.start + ".." + v.end + ","
+                        }
+                        vlan_str.chop!
+                    else
+                        vlan_str = vlan.to_s
+                    end
+
+                    one_net[:vlan] = vlan_str
+                end
+
+                one_nets <<  one_net
+            }
+
+            vcenter_networks[dc.name] += one_nets
+        }
+
+        return vcenter_networks
     end
 
     def self.translate_hostname(hostname)
@@ -820,7 +894,9 @@ private
     # Returns the spec to reconfig a VM and add a NIC
     ########################################################################
     def self.calculate_addnic_spec(vm, mac, bridge, model)
+        model       = model.nil? ? nil : model.downcase
         network     = vm.runtime.host.network.select{|n| n.name==bridge}
+        backing     = nil
 
         if network.empty?
             raise "Network #{bridge} not found in host #{vm.runtime.host.name}"
@@ -835,8 +911,6 @@ private
                 card_num = card_num + 1
             end
         } 
-
-        model = model.nil? ? nil : model.downcase
 
         nic_card = case model
                         when "virtuale1000"
@@ -857,9 +931,19 @@ private
                             RbVmomi::VIM::VirtualE1000
                    end
 
-        backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
-                                :deviceName => bridge,
-                                :network => network)
+        if network.class == RbVmomi::VIM::Network
+            backing = RbVmomi::VIM.VirtualEthernetCardNetworkBackingInfo(
+                        :deviceName => bridge,
+                        :network => network)
+        else
+            port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
+                        :switchUuid => 
+                                network.config.distributedVirtualSwitch.uuid,
+                        :portgroupKey => network.key)
+            backing = 
+              RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
+                 :port => port)
+        end
 
         return {:operation => :add,
                 :device => nic_card.new(
@@ -920,10 +1004,22 @@ private
             :powerOn  => false,
             :template => false)
 
-        vm = vc_template.CloneVM_Task(
-            :folder => vc_template.parent,
-            :name   => "one-#{vmid}",
-            :spec   => clone_spec).wait_for_completion
+        begin
+            vm = vc_template.CloneVM_Task(
+                :folder => vc_template.parent,
+                :name   => "one-#{vmid}",
+                :spec   => clone_spec).wait_for_completion
+        rescue Exception => e
+            if e.message.start_with?('DuplicateName')
+               vm = connection.find_vm("one-#{vmid}")
+               vm.Destroy_Task.wait_for_completion
+               vm = vc_template.CloneVM_Task(
+                                    :folder => vc_template.parent,
+                                    :name   => "one-#{vmid}",
+                                    :spec   => clone_spec).wait_for_completion
+            end
+        end
+
 
         vm_uuid = vm.config.uuid
 
