@@ -3,9 +3,8 @@ Description=OpenNebula Web UI Server
 After=syslog.target
 After=network.target
 After=opennebula.service
-#After=one_scheduler.service
-#BindTo=one.service
-#!ConditionFileExists=/var/lock/one/.sunstone.lock
+After=opennebula-novnc.service
+BindTo=opennebula-novnc.service
 
 [Service]
 Type=simple
@@ -13,7 +12,6 @@ Group=oneadmin
 User=oneadmin
 
 ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
-#ExecStop=/bin/kill -INT $MAINPID
 PIDFile=/var/run/one/sunstone.pid
 
 [Install]
