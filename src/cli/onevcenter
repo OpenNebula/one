@@ -258,13 +258,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 end
 
                 tmps.each{ |n|
-                    STDOUT.print "\n  * Network found:\n"\
-                                 "      - Name   : #{n[:name]}\n"\
-                                 "    Import this Network [y/n]? "
+                    print_str =  "\n  * Network found:\n"\
+                                 "      - Name    : #{n[:name]}\n"\
+                                 "      - Type    : #{n[:type]}\n"
+                    print_str += "      - VLAN ID : #{n[:vlan]}\n" if n[:vlan]
+                    print_str += "    Import this Network [y/n]? "
+
+                    STDOUT.print print_str
 
                     next if STDIN.gets.strip.downcase != 'y'
 
-                    STDOUT.print "    How many VMs are you planning to fit [255]? "
+                    STDOUT.print "    How many VMs are you planning"\
+                                 " to fit into this network [255]? "
 
                     size = STDIN.gets.strip
 
@@ -273,11 +278,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     one_vn = ::OpenNebula::VirtualNetwork.new(
                                 ::OpenNebula::Template.build_xml, vc.one)
 
-                    vnet_template = "NAME=\"#{n[:name]}\"\n" +
-                                    "BRIDGE=\"#{n[:name]}\"\n" +
-                                    "AR=[\n" +
-                                    " TYPE = \"ETHER\"\n," +
-                                    " SIZE = \"#{size.to_i}\"\n]"
+                    vnet_template =  "NAME=\"#{n[:name]}\"\n" +
+                                     "BRIDGE=\"#{n[:name]}\"\n" +
+                                     "VCENTER_TYPE=\"#{n[:type]}\"" +
+                                     "AR=[\n" +
+                                     " TYPE = \"ETHER\"\n," +
+                                     " SIZE = \"#{size.to_i}\"\n]"
+
+                    vnet_template += "VLAN=\"YES\"\nVLAN_ID=#{n[:vlan]}" if n[:vlan]
 
                     rc = one_vn.allocate(vnet_template)
 
