@@ -2234,11 +2234,10 @@ void VirtualMachinePoolCalculateShowback::request_execute(
     int           rc;
     string        error_str;
 
-    // TODO: do a better auth? allow any user in the oneadmin group?
-    if ( att.uid != 0 )
+    if ( att.gid != 0 )
     {
         failure_response(AUTHORIZATION,
-                         authorization_error("Action reserved for oneadmin only", att),
+                         authorization_error("Action reserved for group 0 only", att),
                          att);
         return;
     }

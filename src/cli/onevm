@@ -834,22 +834,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    START_TIME = {
-        :name   => "start_time",
-        :short  => "-s TIME",
-        :large  => "--start TIME" ,
-        :description => "Start date for the showback data to process",
-        :format => Time
-    }
-
-    END_TIME = {
-        :name   => "end_time",
-        :short  => "-e TIME",
-        :large  => "--end TIME" ,
-        :description => "End date for the showback data to process",
-        :format => Time
-    }
-
     # Deprecated commands
 
     deprecated_command(:attachdisk, 'disk-attach')

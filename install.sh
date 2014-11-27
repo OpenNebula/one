@@ -1461,7 +1461,7 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneflow \
                src/cli/oneflow-template \
                src/cli/oneacct \
-               src/cli/oneshowback.rb"
+               src/cli/oneshowback"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \

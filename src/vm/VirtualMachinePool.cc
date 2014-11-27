@@ -472,10 +472,11 @@ int VirtualMachinePool::min_stime_cb(void * _min_stime, int num, char **values, 
     return 0;
 }
 
-// TODO: DEBUG
-//==============================================================================
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-string put_time(tm tmp_tm)
+#ifdef SBDEBUG
+static string put_time(tm tmp_tm)
 {
     ostringstream oss;
 
@@ -485,12 +486,14 @@ string put_time(tm tmp_tm)
     return oss.str();
 }
 
-string put_time(time_t t)
+static string put_time(time_t t)
 {
     tm tmp_tm = *localtime(&t);
     return put_time(tmp_tm);
 }
-//==============================================================================
+#endif
+
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachinePool::calculate_showback(
         int start_month,
@@ -526,18 +529,19 @@ int VirtualMachinePool::calculate_showback(
     float   cpu;
     int     mem;
 
-    // TODO: debug
-    //=================================================================
+#ifdef SBDEBUG
     ostringstream debug;
     time_t debug_t_0 = time(0);
-    //=================================================================
+#endif
 
     //--------------------------------------------------------------------------
     // Set start and end times for the window to process
     //--------------------------------------------------------------------------
 
+    tzset();
+
     time_t start_time = time(0);
-    time_t end_time = time(0);
+    time_t end_time   = time(0);
 
     if (start_month != -1 && start_year != -1)
     {
@@ -593,20 +597,17 @@ int VirtualMachinePool::calculate_showback(
     rc = dump_acct(oss, "", start_time, end_time);
 
     ObjectXML xml(oss.str());
-    oss.str("");
 
-
-    // TODO: debug
-    //=================================================================
+#ifdef SBDEBUG
     time_t debug_t_1 = time(0);
-    //=================================================================
+#endif
 
     //--------------------------------------------------------------------------
     // Create the monthly time slots
     //--------------------------------------------------------------------------
 
     // Reset stime to 1st of month, 00:00
-    tmp_tm = *localtime(&start_time);
+    localtime_r(&start_time, &tmp_tm);
 
     tmp_tm.tm_sec  = 0;
     tmp_tm.tm_min  = 0;
@@ -634,15 +635,14 @@ int VirtualMachinePool::calculate_showback(
     // for the second-to-last slot
     showback_slots.push_back(end_time);
 
-    // TODO: debug
-    /*=================================================================
+#ifdef SBDDEBUG
     for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end(); slot_it++ )
     {
         debug.str("");
         debug << "Slot: " << put_time(*slot_it);
         NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
     }
-    //================================================================*/
+#endif
 
     //--------------------------------------------------------------------------
     // Process the history records
@@ -665,8 +665,7 @@ int VirtualMachinePool::calculate_showback(
         history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", 0);
         history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", 0);
 
-        // TODO debug
-        /*=====================================================================
+#ifdef SBDDEBUG
         int seq;
         history.xpath(seq, "/HISTORY/SEQ", -1);
 
@@ -680,7 +679,7 @@ int VirtualMachinePool::calculate_showback(
             << "mem       " << mem;
 
         NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
-        //====================================================================*/
+#endif
 
         for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
         {
@@ -723,10 +722,9 @@ int VirtualMachinePool::calculate_showback(
 
     xml.free_nodes(nodes);
 
-    // TODO: debug
-    //=================================================================
+#ifdef SBDEBUG
     time_t debug_t_2 = time(0);
-    //=================================================================
+#endif
 
     // Write to DB
 
@@ -765,7 +763,7 @@ int VirtualMachinePool::calculate_showback(
                 vm->unlock();
             }
 
-            tmp_tm = *localtime(&vm_month_it->first);
+            localtime_r(&vm_month_it->first, &tmp_tm);
 
             body.str("");
 
@@ -827,8 +825,7 @@ int VirtualMachinePool::calculate_showback(
                 n_entries = 0;
             }
 
-            // TODO: debug
-            /*=================================================================
+#ifdef SBDDEBUG
             debug.str("");
 
             debug << "VM " << vm_it->first
@@ -838,7 +835,7 @@ int VirtualMachinePool::calculate_showback(
                 << " HOURS " << hours;
 
             NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
-            //================================================================*/
+#endif            
         }
     }
 
@@ -853,8 +850,7 @@ int VirtualMachinePool::calculate_showback(
         }
     }
 
-    // TODO: debug
-    /*=================================================================
+#ifdef SBDEBUG
     time_t debug_t_3 = time(0);
 
     debug.str("");
@@ -868,7 +864,7 @@ int VirtualMachinePool::calculate_showback(
     debug.str("");
     debug << "Time to write to db:      " << debug_t_3 - debug_t_2;
     NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
-    //================================================================*/
+#endif
 
     return 0;
 }
