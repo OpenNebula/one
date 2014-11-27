@@ -25,9 +25,11 @@ module OpenNebula
 
 
         VM_POOL_METHODS = {
-            :info       => "vmpool.info",
-            :monitoring => "vmpool.monitoring",
-            :accounting => "vmpool.accounting"
+            :info               => "vmpool.info",
+            :monitoring         => "vmpool.monitoring",
+            :accounting         => "vmpool.accounting",
+            :showback           => "vmpool.showback",
+            :calculate_showback => "vmpool.calculateshowback"
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -162,6 +164,27 @@ module OpenNebula
             return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
         end
 
+        # Processes all the history records, and stores the monthly cost for
+        # each VM
+        #
+        #  @param [Integer] start_month First month (+year) to process. January is 1.
+        #  Use -1 to unset
+        #  @param [Integer] start_year First year (+month) to process. e.g. 2014.
+        #  Use -1 to unset
+        #  @param [Integer] end_month Last month (+year) to process. January is 1.
+        #  Use -1 to unset
+        #  @param [Integer] end_year Last year (+month) to process. e.g. 2014.
+        #  Use -1 to unset
+        def calculate_showback(start_month, start_year, end_month, end_year)
+            start_month ||= -1
+            start_year  ||= -1
+            end_month   ||= -1
+            end_year    ||= -1
+
+            return @client.call(VM_POOL_METHODS[:calculate_showback],
+                                start_month, start_year, end_month, end_year)
+        end
+
         # Retrieves the accounting data for all the VMs in the pool
         #
         # @param [Integer] filter_flag Optional filter flag to retrieve all or
@@ -283,6 +306,92 @@ module OpenNebula
             xml_str
         end
 
+        # Retrieves the showback data for all the VMs in the pool
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_year First month (+year) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :start_month First year (+month) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :end_year Last month (+year) to take
+        #   into account, if no end time is required use -1
+        # @option params [Integer] :end_month Last year (+month) to take
+        #   into account, if no end time is required use -1
+        # @option params [Integer] :group Group id to filter the results
+        # @option params [String] :xpath Xpath expression to filter the results.
+        #    For example: SHOWBACK[COST>0]
+        # @option params [String] :order_by_1 Xpath expression to group the
+        # @option params [String] :order_by_2 Xpath expression to group the
+        #   returned hash. This will be the second level of the hash
+        #
+        # @return [Hash, OpenNebula::Error]
+        #   The first level hash uses the :order_by_1 values as keys, and
+        #   as value a Hash with the :order_by_2 values and the SHOWBACK_RECORDS
+        def showback(filter_flag=INFO_ALL, options={})
+            data_hash = Hash.new
+
+            rc = build_showback(filter_flag, options) do |record|
+                hash = data_hash
+
+                if options[:order_by_1]
+                    id_1 = record[options[:order_by_1]]
+                    data_hash[id_1] ||= Hash.new
+
+                    if options[:order_by_2]
+                        id_2 = record[options[:order_by_2]]
+                        data_hash[id_1][id_2] ||= Hash.new
+
+                        hash = data_hash[id_1][id_2]
+                    else
+                        hash = data_hash[id_1]
+                    end
+                end
+
+                hash["SHOWBACK_RECORDS"] ||= Hash.new
+                hash["SHOWBACK_RECORDS"]["SHOWBACK"] ||= Array.new
+                hash["SHOWBACK_RECORDS"]["SHOWBACK"] << record.to_hash['SHOWBACK']
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            data_hash
+        end
+
+        # Retrieves the showback data for all the VMs in the pool, in xml
+        #
+        # @param [Integer] filter_flag Optional filter flag to retrieve all or
+        #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE
+        #   or user_id
+        # @param [Hash] options
+        # @option params [Integer] :start_year First month (+year) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :start_month First year (+month) to take
+        #   into account, if no start time is required use -1
+        # @option params [Integer] :end_year Last month (+year) to take
+        #   into account, if no end time is required use -1
+        # @option params [Integer] :end_month Last year (+month) to take
+        #   into account, if no end time is required use -1
+        # @option params [Integer] :group Group id to filter the results
+        # @option params [String] :xpath Xpath expression to filter the results.
+        #    For example: SHOWBACK[COST>10]
+        #
+        # @return [String] the xml representing the showback data
+        def showback_xml(filter_flag=INFO_ALL, options={})
+            xml_str = "<SHOWBACK_RECORDS>\n"
+
+            rc = build_showback(filter_flag, options) do |showback|
+                xml_str << showback.to_xml
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            xml_str << "\n</SHOWBACK_RECORDS>"
+            xml_str
+        end
+
         private
 
         def build_accounting(filter_flag, options, &block)
@@ -314,6 +423,38 @@ module OpenNebula
             end
 
             acct_hash
+        end
+
+        def build_showback(filter_flag, options, &block)
+            xml_str = @client.call(VM_POOL_METHODS[:showback],
+                        filter_flag,
+                        options[:start_month],
+                        options[:start_year],
+                        options[:end_month],
+                        options[:end_year])
+
+            return xml_str if OpenNebula.is_error?(xml_str)
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(xml_str, 'SHOWBACK_RECORDS')
+
+            xpath_array = Array.new
+            xpath_array << "SHOWBACK[GID=#{options[:group]}]" if options[:group]
+            xpath_array << options[:xpath] if options[:xpath]
+
+            if xpath_array.empty?
+                xpath_str = "SHOWBACK"
+            else
+                xpath_str = xpath_array.join(' | ')
+            end
+
+            data_hash = Hash.new
+
+            xmldoc.each(xpath_str) do |showback|
+                block.call(showback)
+            end
+
+            data_hash
         end
 
         def info_filter(xml_method, who, start_id, end_id, state)

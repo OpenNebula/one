@@ -2219,3 +2219,41 @@ void VirtualMachineRecover::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachinePoolCalculateShowback::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int start_month = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_year  = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_month   = xmlrpc_c::value_int(paramList.getInt(3));
+    int end_year    = xmlrpc_c::value_int(paramList.getInt(4));
+
+    ostringstream oss;
+    string        where;
+    int           rc;
+    string        error_str;
+
+    if ( att.gid != 0 )
+    {
+        failure_response(AUTHORIZATION,
+                         authorization_error("Action reserved for group 0 only", att),
+                         att);
+        return;
+    }
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->calculate_showback(
+                    start_month, start_year, end_month, end_year, error_str);
+
+    if (rc != 0)
+    {
+        failure_response(AUTHORIZATION,
+                         request_error(error_str, ""),
+                         att);
+        return;
+    }
+
+    success_response("", att);
+
+    return;
+}

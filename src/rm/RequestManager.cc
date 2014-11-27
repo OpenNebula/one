@@ -302,6 +302,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
     xmlrpc_c::methodPtr vm_pool_monitoring(new VirtualMachinePoolMonitoring());
 
+    xmlrpc_c::methodPtr vm_pool_showback(new VirtualMachinePoolShowback());
+    xmlrpc_c::methodPtr vm_pool_calculate_showback(new VirtualMachinePoolCalculateShowback());
+
     // VirtualNetwork Methods
     xmlrpc_c::methodPtr vn_add_ar(new VirtualNetworkAddAddressRange());
     xmlrpc_c::methodPtr vn_rm_ar(new VirtualNetworkRmAddressRange());
@@ -438,6 +441,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
     RequestManagerRegistry.addMethod("one.vmpool.monitoring", vm_pool_monitoring);
+    RequestManagerRegistry.addMethod("one.vmpool.showback", vm_pool_showback);
+    RequestManagerRegistry.addMethod("one.vmpool.calculateshowback", vm_pool_calculate_showback);
 
     /* VM Template related methods*/
     RequestManagerRegistry.addMethod("one.template.update", template_update);

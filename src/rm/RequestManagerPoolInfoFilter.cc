@@ -165,6 +165,50 @@ void VirtualMachinePoolAccounting::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void VirtualMachinePoolShowback::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_month = xmlrpc_c::value_int(paramList.getInt(2));
+    int start_year  = xmlrpc_c::value_int(paramList.getInt(3));
+    int end_month   = xmlrpc_c::value_int(paramList.getInt(4));
+    int end_year    = xmlrpc_c::value_int(paramList.getInt(5));
+
+    ostringstream oss;
+    string        where;
+    int           rc;
+
+    if ( filter_flag < MINE )
+    {
+        failure_response(XML_RPC_API,
+                request_error("Incorrect filter_flag",""),
+                att);
+        return;
+    }
+
+    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_showback(oss,
+                                                              where,
+                                                              start_month,
+                                                              start_year,
+                                                              end_month,
+                                                              end_year);
+    if ( rc != 0 )
+    {
+        failure_response(INTERNAL,request_error("Internal Error",""), att);
+        return;
+    }
+
+    success_response(oss.str(), att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void VirtualMachinePoolMonitoring::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)

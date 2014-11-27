@@ -1,0 +1,178 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION=ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
+require 'command_parser'
+require 'one_helper/oneacct_helper'
+
+require 'json'
+
+cmd = CommandParser::CmdParser.new(ARGV) do
+
+    @formats = Hash.new
+
+    usage "`oneshowback` <command> [<options>]"
+    description ""
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper=OpenNebulaHelper::OneHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
+    command :list, "Returns the showback records", :options =>
+        AcctHelper::SHOWBACK_OPTIONS + CommandParser::OPTIONS +
+        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
+        OpenNebulaHelper::CLIENT_OPTIONS do
+
+        if options[:describe]
+            AcctHelper::SHOWBACK_TABLE.describe_columns
+            exit(0)
+        end
+
+        filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
+
+        start_month = -1
+        start_year  = -1
+
+        if (options[:start_time])
+            start_month = options[:start_time].month
+            start_year  = options[:start_time].year
+        end
+
+        end_month = -1
+        end_year  = -1
+
+        if (options[:end_time])
+            end_month = options[:end_time].month
+            end_year  = options[:end_time].year
+        end
+
+        common_opts = {
+            :start_month => start_month,
+            :start_year  => start_year,
+            :end_month   => end_month,
+            :end_year    => end_year,
+            :group      => options[:group],
+            :xpath      => options[:xpath]
+        }
+
+        pool = OpenNebula::VirtualMachinePool.new(helper.client)
+
+        if options[:json] || options[:xml]
+            xml_str = pool.showback_xml(filter_flag, common_opts)
+            if OpenNebula.is_error?(xml_str)
+                puts xml_str.message
+                exit -1
+            end
+
+            if options[:json]
+                xmldoc = XMLElement.new
+                xmldoc.initialize_xml(xml_str, 'SHOWBACK_RECORDS')
+
+                puts JSON.pretty_generate(xmldoc.to_hash)
+            elsif options[:xml]
+                puts xml_str
+            end
+
+            exit_code 0
+        else
+
+            order_by = Hash.new
+            if !options[:csv]
+                order_by[:order_by_1] = 'YEAR'
+                order_by[:order_by_2] = 'MONTH'
+            end
+
+            data_hash = pool.showback(filter_flag,
+                                        common_opts.merge(order_by))
+            if OpenNebula.is_error?(data_hash)
+                puts data_hash.message
+                exit -1
+            end
+
+            if options[:csv]
+                a = Array.new
+
+                if data_hash['SHOWBACK_RECORDS']
+                    a = data_hash['SHOWBACK_RECORDS']['SHOWBACK']
+                end
+
+                AcctHelper::SHOWBACK_TABLE.show(a, options)
+                exit(0)
+            end
+
+            data_hash.each { |year, value|
+                value.each { |month, showback_array|
+                    AcctHelper.print_month_header(year, month)
+
+                    array = showback_array['SHOWBACK_RECORDS']['SHOWBACK']
+                    AcctHelper::SHOWBACK_TABLE.show(array, options)
+                    puts
+                }
+
+            }
+
+            exit_code 0
+        end
+    end
+
+    command :"calculate", "Calculates the showback records", :options =>
+            [AcctHelper::START_TIME_SHOWBACK, AcctHelper::END_TIME_SHOWBACK] do
+
+
+        start_month = -1
+        start_year  = -1
+
+        if (options[:start_time])
+            start_month = options[:start_time].month
+            start_year  = options[:start_time].year
+        end
+
+        end_month = -1
+        end_year  = -1
+
+        if (options[:end_time])
+            end_month = options[:end_time].month
+            end_year  = options[:end_time].year
+        end
+
+        rc = OpenNebula::VirtualMachinePool.new(helper.client).
+                calculate_showback(start_month, start_year, end_month, end_year)
+
+        if OpenNebula.is_error?(rc)
+            warn rc.message
+            exit -1
+        else
+            puts rc
+            exit_code 0
+        end
+
+    end
+end

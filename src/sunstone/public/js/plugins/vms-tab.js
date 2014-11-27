@@ -2304,13 +2304,15 @@ function printCapacity(vm_info){
 
     html += '\
       <div class="row">\
-        <div class="large-6 columns">\
+        <div class="large-9 columns">\
            <table class="info_table dataTable extended_table">\
              <thead>\
                <tr>\
                   <th>'+tr("CPU")+'</th>\
                   <th>'+tr("VCPU")+'</th>\
                   <th>'+tr("MEMORY")+'</th>\
+                  <th>'+tr("Cost / CPU")+'</th>\
+                  <th>'+tr("Cost / MByte")+'</th>\
                   <th></th>\
                 </tr>\
              </thead>\
@@ -2319,6 +2321,8 @@ function printCapacity(vm_info){
                   <td id="cpu_info">' + vm_info.TEMPLATE.CPU + '</td>\
                   <td id="vcpu_info">' + (vm_info.TEMPLATE.VCPU ? vm_info.TEMPLATE.VCPU : '-') + '</td>\
                   <td id="memory_info" one_value="'+vm_info.TEMPLATE.MEMORY+'">' + humanize_size_from_mb(vm_info.TEMPLATE.MEMORY) + '</td>\
+                  <td id="cpu_cost_info">' + (vm_info.TEMPLATE.CPU_COST ? vm_info.TEMPLATE.CPU_COST : '-') + '</td>\
+                  <td id="memory_cost_info" >' + (vm_info.TEMPLATE.MEMORY_COST ? vm_info.TEMPLATE.MEMORY_COST : '-') + '</td>\
                   <td>';
 
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {

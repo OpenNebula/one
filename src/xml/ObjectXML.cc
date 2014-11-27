@@ -188,6 +188,39 @@ int ObjectXML::xpath(int& value, const char * xpath_expr, const int& def)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int ObjectXML::xpath(float& value, const char * xpath_expr, const float& def)
+{
+    vector<string> values;
+    int rc = 0;
+
+    values = (*this)[xpath_expr];
+
+    if (values.empty() == true)
+    {
+        value = def;
+        rc = -1;
+    }
+    else
+    {
+        istringstream iss;
+
+        iss.str(values[0]);
+
+        iss >> dec >> value;
+
+        if (iss.fail() == true)
+        {
+            value = def;
+            rc    = -1;
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int ObjectXML::xpath(unsigned int& value, const char * xpath_expr,
                      const unsigned int& def)
 {

@@ -70,7 +70,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         if options[:json] || options[:xml]
             xml_str = pool.accounting_xml(filter_flag, common_opts)
             if OpenNebula.is_error?(xml_str)
-                puts acct_hash.message
+                puts xml_str.message
                 exit -1
             end
 

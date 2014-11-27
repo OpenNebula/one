@@ -31,6 +31,7 @@ Config = {
       var enabled = config['view']['enabled_tabs'][tab_name];
       return enabled;
     },
+
     "isTabActionEnabled": function(tab_name, action_name, panel_name){
       var enabled;
       if (panel_name) {
@@ -46,6 +47,14 @@ Config = {
       if (config['view']['tabs'][tab_name]) {
         var enabled = config['view']['tabs'][tab_name]['panel_tabs'][panel_tab_name];
         return enabled;
+      } else {
+        return false;
+      }
+    },
+
+    "isFeatureEnabled": function(feature_name){
+      if (config['view']['features'] && config['view']['features'][feature_name]) {
+        return true;
       } else {
         return false;
       }
@@ -360,15 +369,6 @@ function setupConfigDialog() {
         }
     });
 }
-
-function tr(str){
-    var tmp = locale[str];
-    if ( tmp == null || tmp == "" ) {
-        //console.debug("Missing translation: "+str);
-        tmp = str;
-    }
-    return tmp;
-};
 
 function updateUserConfigInfo(request,user_json) {
     var info = user_json.USER;

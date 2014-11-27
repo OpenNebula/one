@@ -18,19 +18,35 @@ require 'one_helper'
 require 'optparse/time'
 
 class AcctHelper < OpenNebulaHelper::OneHelper
-    START_TIME = {
+    START_TIME_ACCT = {
         :name   => "start_time",
         :short  => "-s TIME",
         :large  => "--start TIME" ,
-        :description => "Start date and time to take into account",
+        :description => "First day of the data to retrieve",
         :format => Time
     }
 
-    END_TIME = {
+    END_TIME_ACCT = {
         :name   => "end_time",
         :short  => "-e TIME",
         :large  => "--end TIME" ,
-        :description => "End date and time",
+        :description => "Last day of the data to retrieve",
+        :format => Time
+    }
+
+    START_TIME_SHOWBACK = {
+        :name   => "start_time",
+        :short  => "-s TIME",
+        :large  => "--start TIME" ,
+        :description => "First month of the data",
+        :format => Time
+    }
+
+    END_TIME_SHOWBACK = {
+        :name   => "end_time",
+        :short  => "-e TIME",
+        :large  => "--end TIME" ,
+        :description => "Last month of the data",
         :format => Time
     }
 
@@ -95,8 +111,8 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :description => "Split the output in a table for each VM"
     }
 
-    ACCT_OPTIONS = [START_TIME, END_TIME, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
-
+    ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
+    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP, XML, JSON]
 
     ACCT_TABLE = CLIHelper::ShowTable.new("oneacct.yaml", nil) do
         column :UID, "User ID", :size=>4 do |d|
@@ -152,6 +168,50 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX
     end
 
+    SHOWBACK_TABLE = CLIHelper::ShowTable.new("oneshowback.yaml", nil) do
+        column :UID, "User ID", :size=>4 do |d|
+            d["UID"]
+        end
+
+        column :USER_NAME, "User name", :left, :size=>12 do |d|
+            d["UNAME"]
+        end
+
+        column :GID, "Group ID", :size=>4 do |d|
+            d["GID"]
+        end
+
+        column :GROUP_NAME, "Group name", :left, :size=>12 do |d|
+            d["GNAME"]
+        end
+
+        column :VM_ID, "Virtual Machine ID", :size=>6 do |d|
+            d["VMID"]
+        end
+
+        column :VM_NAME, "Virtual Machine name", :left, :size=>12 do |d|
+            d["VMNAME"]
+        end
+
+        column :MONTH, "Month", :size=>5 do |d|
+            d["MONTH"]
+        end
+
+        column :YEAR, "Year", :size=>5 do |d|
+            d["YEAR"]
+        end
+
+        column :HOURS, "Hours", :size=>6 do |d|
+            d["HOURS"]
+        end
+
+        column :COST, "Cost", :size=>15 do |d|
+            d["COST"]
+        end
+
+        default :USER_NAME, :GROUP_NAME, :VM_ID, :VM_NAME, :MONTH, :YEAR, :HOURS, :COST
+    end
+
     def self.print_start_end_time_header(start_time, end_time)
         print "Showing active history records from "
 
@@ -181,6 +241,14 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         CLIHelper.scr_bold
         CLIHelper.scr_underline
         puts "# User #{user_id}".ljust(80)
+        CLIHelper.scr_restore
+        puts
+    end
+
+    def self.print_month_header(year, month)
+        CLIHelper.scr_bold
+        CLIHelper.scr_underline
+        puts "# Showback for #{month}/#{year}".ljust(80)
         CLIHelper.scr_restore
         puts
     end

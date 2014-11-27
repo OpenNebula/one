@@ -591,6 +591,7 @@ BIN_FILES="src/nebula/oned \
            src/scheduler/src/sched/mm_sched \
            src/cli/onevm \
            src/cli/oneacct \
+           src/cli/oneshowback \
            src/cli/onehost \
            src/cli/onevnet \
            src/cli/oneuser \
@@ -1180,7 +1181,8 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/4.5.80_to_4.6.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
-                            src/onedb/local/4.7.80_to_4.9.80.rb"
+                            src/onedb/local/4.7.80_to_4.9.80.rb \
+                            src/onedb/local/4.9.80_to_4.11.80.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -1458,7 +1460,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/onezone \
                src/cli/oneflow \
                src/cli/oneflow-template \
-               src/cli/oneacct"
+               src/cli/oneacct \
+               src/cli/oneshowback"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1471,7 +1474,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onedatastore.yaml \
                 src/cli/etc/onecluster.yaml \
                 src/cli/etc/onezone.yaml \
-                src/cli/etc/oneacct.yaml"
+                src/cli/etc/oneacct.yaml \
+                src/cli/etc/oneshowback.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1802,6 +1806,7 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
 #-----------------------------------------------------------------------------
 
 MAN_FILES="share/man/oneacct.1.gz \
+        share/man/oneshowback.1.gz \
         share/man/oneacl.1.gz \
         share/man/onehost.1.gz \
         share/man/oneimage.1.gz \

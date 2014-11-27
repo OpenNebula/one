@@ -363,4 +363,29 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VirtualMachinePoolCalculateShowback : public RequestManagerVirtualMachine
+{
+public:
+
+    VirtualMachinePoolCalculateShowback():
+        RequestManagerVirtualMachine("VirtualMachinePoolCalculateShowback",
+                                     "Processes all the history records, and stores the monthly cost for each VM",
+                                     "A:sii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
+    ~VirtualMachinePoolCalculateShowback(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 #endif

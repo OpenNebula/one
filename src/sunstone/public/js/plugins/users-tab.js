@@ -607,9 +607,24 @@ function updateUserInfo(request,user){
         content: '<div id="user_accounting"></div>'
     };
 
+
     Sunstone.updateInfoPanelTab("user_info_panel","user_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("user_info_panel","user_quotas_tab",quotas_tab);
-    Sunstone.updateInfoPanelTab("user_info_panel","user_accouning_tab",accounting_tab);
+    Sunstone.updateInfoPanelTab("user_info_panel","user_accounting_tab",accounting_tab);
+
+    if (Config.isFeatureEnabled("showback")) {
+        var showback_tab = {
+            title: tr("Showback"),
+            icon: "fa-money",
+            content: '<div id="user_showback"></div>'
+        };
+
+        Sunstone.updateInfoPanelTab("user_info_panel","user_showback_tab",showback_tab);
+        
+        showbackGraphs(
+            $("#user_showback","#user_info_panel"),
+            { fixed_user: info.ID });
+    }
     //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
     Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
 

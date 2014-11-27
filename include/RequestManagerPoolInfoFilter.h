@@ -151,6 +151,31 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachinePoolShowback : public RequestManagerPoolInfoFilter
+{
+public:
+
+    VirtualMachinePoolShowback():
+        RequestManagerPoolInfoFilter("VirtualMachinePoolShowback",
+                                     "Returns the virtual machine showback records",
+                                     "A:siiiii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vmpool();
+        auth_object = PoolObjectSQL::VM;
+    };
+
+    ~VirtualMachinePoolShowback(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualMachinePoolMonitoring : public RequestManagerPoolInfoFilter
 {
 public:

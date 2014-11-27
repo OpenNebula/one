@@ -231,6 +231,29 @@ public:
                   int            time_end);
 
     /**
+     *  Dumps the VM showback information in XML format. A filter can be also
+     *  added to the query as well as a time frame.
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param start_month First month (+year) to include. January is 1.
+     *  Use -1 to unset
+     *  @param start_year First year (+month) to include. e.g. 2014.
+     *  Use -1 to unset
+     *  @param end_month Last month (+year) to include. January is 1.
+     *  Use -1 to unset
+     *  @param end_year Last year (+month) to include. e.g. 2014.
+     *  Use -1 to unset
+     *
+     *  @return 0 on success
+     */
+    int dump_showback(ostringstream& oss,
+                      const string&  where,
+                      int            start_month,
+                      int            start_year,
+                      int            end_month,
+                      int            end_year);
+
+    /**
      *  Dumps the VM monitoring information entries in XML format. A filter
      *  can be also added to the query.
      *
@@ -260,6 +283,28 @@ public:
         return dump_monitoring(oss, filter.str());
     }
 
+    /**
+     * Processes all the history records, and stores the monthly cost for each
+     * VM
+     *  @param start_month First month (+year) to process. January is 1.
+     *  Use -1 to unset
+     *  @param start_year First year (+month) to process. e.g. 2014.
+     *  Use -1 to unset
+     *  @param end_month Last month (+year) to process. January is 1.
+     *  Use -1 to unset
+     *  @param end_year Last year (+month) to process. e.g. 2014.
+     *  Use -1 to unset
+     *  @param error_str Returns the error reason, if any
+     *
+     *  @return 0 on success
+     */
+    int calculate_showback(
+                int start_month,
+                int start_year,
+                int end_month,
+                int end_year,
+                string &error_str);
+
 private:
     /**
      *  Factory method to produce VM objects
@@ -279,6 +324,11 @@ private:
      * True or false whether to submit new VM on HOLD or not
      */
     static bool _submit_on_hold;
+
+    /**
+     * Callback used in calculate_showback
+     */
+    int min_stime_cb(void * _min_stime, int num, char **values, char **names);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

@@ -25,6 +25,8 @@ enabled_tabs:
     community-tab: false
     enterprise-tab: false
 autorefresh: true
+features:
+    showback: true
 tabs:
     dashboard-tab:
         panel_tabs:
@@ -51,6 +53,8 @@ tabs:
         panel_tabs:
             user_info_tab: true
             user_quotas_tab: true
+            user_accounting_tab: true
+            user_showback_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -73,7 +77,11 @@ tabs:
             User.delete: true
     groups-tab:
         panel_tabs:
+            group_info_tab: true
             group_quotas_tab: true
+            group_providers_tab: true
+            group_accounting_tab: true
+            group_shoback_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

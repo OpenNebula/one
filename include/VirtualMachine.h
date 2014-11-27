@@ -1517,10 +1517,12 @@ private:
         ostringstream oss_vm(VirtualMachine::db_bootstrap);
         ostringstream oss_monit(VirtualMachine::monit_db_bootstrap);
         ostringstream oss_hist(History::db_bootstrap);
+        ostringstream oss_showback(VirtualMachine::showback_db_bootstrap);
 
         rc =  db->exec(oss_vm);
         rc += db->exec(oss_monit);
         rc += db->exec(oss_hist);
+        rc += db->exec(oss_showback);
 
         return rc;
     };
@@ -1713,6 +1715,12 @@ protected:
     static const char * monit_db_names;
 
     static const char * monit_db_bootstrap;
+
+    static const char * showback_table;
+
+    static const char * showback_db_names;
+
+    static const char * showback_db_bootstrap;
 
     /**
      *  Reads the Virtual Machine (identified with its OID) from the database.
