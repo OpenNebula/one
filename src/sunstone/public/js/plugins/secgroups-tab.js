@@ -22,36 +22,40 @@ function initialize_create_security_group_dialog(dialog){
     setupTips(dialog);
 
     dialog.on("change", '.security_group_rule_protocol', function(){
+        $('.range_row', dialog).hide();
+        $('.range_row input', dialog).removeAttr('required');
+
+        $('.icmp_type_wrapper', dialog).hide();
+
         switch ($(this).val()) {
         case "TCP":
         case "UDP":
             $('.range_row', dialog).show();
-            $('.icmp_type_wrapper', dialog).hide();
+            $(".range_row select", dialog).trigger("change");
             break;
         case "ICMP":
-            $('.range_row', dialog).hide();
             $('.icmp_type_wrapper', dialog).show();
             break;
         case "IPSEC":
         case "ALL":
-            $('.range_row', dialog).hide();
-            $('.icmp_type_wrapper', dialog).hide();
             break;
         }
     });
 
     dialog.on("change", '.security_group_rule_network_sel', function(){
+        $('.security_group_rule_network',dialog).hide();
+        $('div.security_group_rule_network input',dialog).removeAttr('required');
+
+        $('.vnet_select',dialog).hide();
+
         switch ($(this).val()) {
         case "ANY":
-            $('.security_group_rule_network',dialog).hide();
-            $('.vnet_select',dialog).hide();
             break;
         case "NETWORK":
             $('.security_group_rule_network',dialog).show();
-            $('.vnet_select',dialog).hide();
+            $('div.security_group_rule_network input',dialog).attr('required', '');
             break;
         case "VNET":
-            $('.security_group_rule_network',dialog).hide();
             $('.vnet_select',dialog).show();
 
             refreshVNetTableSelect(dialog, "new_sg_rule");
@@ -64,14 +68,18 @@ function initialize_create_security_group_dialog(dialog){
         switch ($(this).val()) {
         case "ALL":
             $('.security_group_rule_range', dialog).hide();
+            $(".security_group_rule_range input", dialog).removeAttr('required');
             break;
         case "RANGE":
             $('.security_group_rule_range', dialog).show();
+            $(".security_group_rule_range input", dialog).attr('required', '');
             break;
         };
     });
 
-    $(".add_security_group_rule", dialog).on("click", function(){
+    $('#rules_form_wizard',dialog).on('invalid', function () {
+//        notifyError(tr("One or more required fields are missing or malformed."));
+    }).on('valid', function() {
         var rule = {};
 
         rule["PROTOCOL"] = $(".security_group_rule_protocol", dialog).val();
@@ -79,7 +87,6 @@ function initialize_create_security_group_dialog(dialog){
 
         switch ($('.security_group_rule_range_sel', dialog).val()) {
         case "ALL":
-            // TODO
             break;
         case "RANGE":
             rule["RANGE"] = $(".security_group_rule_range input", dialog).val();
@@ -88,7 +95,6 @@ function initialize_create_security_group_dialog(dialog){
 
         switch ($('.security_group_rule_network_sel', dialog).val()) {
         case "ANY":
-            // TODO
             break;
         case "NETWORK":
             rule["IP"] = $('#security_group_rule_first_ip', dialog).val();
@@ -337,154 +343,158 @@ function popUpSecurityGroupCloneDialog(){
 
 
 var create_security_group_wizard_html =
-'<form data-abide="ajax" id="create_security_group_form_wizard" action="">\
-  <div class="row">\
-    <div class="medium-4 columns">\
-      <label for="security_group_name">'+tr("Security Group Name")+':</label>\
-      <input required type="text" name="security_group_name" id="security_group_name"/>\
-    </div>\
-    <div class="medium-8 columns">\
-      <label for="security_group_description">'+tr("Description")+'\
-        <span class="tip">'+tr("Description for the Security Group")+'</span>\
-      </label>\
-      <textarea type="text" id="security_group_description" name="security_group_description" style="height: 70px;"/>\
-    </div>\
-  </div>\
-  <hr/>\
-  <div class="row collapse" id="new_rule_wizard">\
+'<div id="create_security_group_form_wrapper">\
+  <form data-abide="ajax" id="create_security_group_form_wizard" action="">\
     <div class="row">\
       <div class="medium-4 columns">\
-        <label>'+tr("Type")+'\
-          <span class="tip">'+tr("TODO")+'</span>\
-        </label>\
-        <select class="security_group_rule_type">\
-          <option value="inbound" selected="selected">'+tr("Inbound")+'</option>\
-          <option value="outbound">'+tr("Outbound")+'</option>\
-        </select>\
+        <label for="security_group_name">'+tr("Security Group Name")+':</label>\
+        <input required type="text" name="security_group_name" id="security_group_name"/>\
       </div>\
-      <div class="medium-4 columns">\
-        <label>'+tr("Protocol")+'\
-          <span class="tip">'+tr("TODO")+'</span>\
+      <div class="medium-8 columns">\
+        <label for="security_group_description">'+tr("Description")+'\
+          <span class="tip">'+tr("Description for the Security Group")+'</span>\
         </label>\
-        <select class="security_group_rule_protocol">\
-          <option value="TCP" selected="selected">'+tr("TCP")+'</option>\
-          <option value="UDP">'+tr("UDP")+'</option>\
-          <option value="ICMP">'+tr("ICMP")+'</option>\
-          <option value="IPSEC">'+tr("IPsec")+'</option>\
-          <option value="ALL">'+tr("All")+'</option>\
-        </select>\
-      </div>\
-      <div class="medium-4 columns icmp_type_wrapper">\
-        <label>'+tr("ICMP Type")+'\
-          <span class="tip">'+tr("TODO")+'</span>\
-        </label>\
-        <select class="security_group_rule_icmp_type">\
-          <option value="" selected="selected">'+tr("All")+'</option>\
-          <option value = "0">'+"0: Echo Reply"+'</option>\
-          <option value = "3">'+"3: Destination Unreachable"+'</option>\
-          <option value = "4">'+"4: Source Quench"+'</option>\
-          <option value = "5">'+"5: Redirect"+'</option>\
-          <option value = "6">'+"6: Alternate Host Address"+'</option>\
-          <option value = "8">'+"8: Echo"+'</option>\
-          <option value = "9">'+"9: Router Advertisement"+'</option>\
-          <option value = "10">'+"10: Router Solicitation"+'</option>\
-          <option value = "11">'+"11: Time Exceeded"+'</option>\
-          <option value = "12">'+"12: Parameter Problem"+'</option>\
-          <option value = "13">'+"13: Timestamp"+'</option>\
-          <option value = "14">'+"14: Timestamp Reply"+'</option>\
-          <option value = "15">'+"15: Information Request"+'</option>\
-          <option value = "16">'+"16: Information Reply"+'</option>\
-          <option value = "17">'+"17: Address Mask Request"+'</option>\
-          <option value = "18">'+"18: Address Mask Reply"+'</option>\
-          <option value = "30">'+"30: Traceroute"+'</option>\
-          <option value = "31">'+"31: Datagram Conversion Error"+'</option>\
-          <option value = "32">'+"32: Mobile Host Redirect"+'</option>\
-          <option value = "33">'+"33: IPv6 Where-Are-You"+'</option>\
-          <option value = "34">'+"34: IPv6 I-Am-Here"+'</option>\
-          <option value = "35">'+"35: Mobile Registration Request"+'</option>\
-          <option value = "36">'+"36: Mobile Registration Reply"+'</option>\
-          <option value = "37">'+"37: Domain Name Request"+'</option>\
-          <option value = "38">'+"38: Domain Name Reply"+'</option>\
-          <option value = "39">'+"39: SKIP"+'</option>\
-          <option value = "40">'+"40: Photuris"+'</option>\
-          <option value = "41">'+"41: ICMP messages utilized by experimental mobility protocols such as Seamoby"+'</option>\
-          <option value = "253">'+"253: RFC3692-style Experiment 1"+'</option>\
-          <option value = "254">'+"254: RFC3692-style Experiment 2"+'</option>\
-        </select>\
+        <textarea type="text" id="security_group_description" name="security_group_description" style="height: 70px;"/>\
       </div>\
     </div>\
-    <div class="row range_row">\
-      <div class="medium-4 columns">\
-        <label>'+tr("Port range")+'\
-          <span class="tip">'+tr("TODO")+'</span>\
-        </label>\
-        <select class="security_group_rule_range_sel">\
-          <option value="ALL" selected="selected">'+tr("All")+'</option>\
-          <option value="RANGE">'+tr("Port range")+'</option>\
-        </select>\
+    <hr/>\
+  </form>\
+  <form data-abide="ajax" id="rules_form_wizard" action="">\
+    <div class="row collapse" id="new_rule_wizard">\
+      <div class="row">\
+        <div class="medium-4 columns">\
+          <label>'+tr("Type")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_type">\
+            <option value="inbound" selected="selected">'+tr("Inbound")+'</option>\
+            <option value="outbound">'+tr("Outbound")+'</option>\
+          </select>\
+        </div>\
+        <div class="medium-4 columns">\
+          <label>'+tr("Protocol")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_protocol">\
+            <option value="TCP" selected="selected">'+tr("TCP")+'</option>\
+            <option value="UDP">'+tr("UDP")+'</option>\
+            <option value="ICMP">'+tr("ICMP")+'</option>\
+            <option value="IPSEC">'+tr("IPsec")+'</option>\
+            <option value="ALL">'+tr("All")+'</option>\
+          </select>\
+        </div>\
+        <div class="medium-4 columns icmp_type_wrapper">\
+          <label>'+tr("ICMP Type")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_icmp_type">\
+            <option value="" selected="selected">'+tr("All")+'</option>\
+            <option value = "0">'+"0: Echo Reply"+'</option>\
+            <option value = "3">'+"3: Destination Unreachable"+'</option>\
+            <option value = "4">'+"4: Source Quench"+'</option>\
+            <option value = "5">'+"5: Redirect"+'</option>\
+            <option value = "6">'+"6: Alternate Host Address"+'</option>\
+            <option value = "8">'+"8: Echo"+'</option>\
+            <option value = "9">'+"9: Router Advertisement"+'</option>\
+            <option value = "10">'+"10: Router Solicitation"+'</option>\
+            <option value = "11">'+"11: Time Exceeded"+'</option>\
+            <option value = "12">'+"12: Parameter Problem"+'</option>\
+            <option value = "13">'+"13: Timestamp"+'</option>\
+            <option value = "14">'+"14: Timestamp Reply"+'</option>\
+            <option value = "15">'+"15: Information Request"+'</option>\
+            <option value = "16">'+"16: Information Reply"+'</option>\
+            <option value = "17">'+"17: Address Mask Request"+'</option>\
+            <option value = "18">'+"18: Address Mask Reply"+'</option>\
+            <option value = "30">'+"30: Traceroute"+'</option>\
+            <option value = "31">'+"31: Datagram Conversion Error"+'</option>\
+            <option value = "32">'+"32: Mobile Host Redirect"+'</option>\
+            <option value = "33">'+"33: IPv6 Where-Are-You"+'</option>\
+            <option value = "34">'+"34: IPv6 I-Am-Here"+'</option>\
+            <option value = "35">'+"35: Mobile Registration Request"+'</option>\
+            <option value = "36">'+"36: Mobile Registration Reply"+'</option>\
+            <option value = "37">'+"37: Domain Name Request"+'</option>\
+            <option value = "38">'+"38: Domain Name Reply"+'</option>\
+            <option value = "39">'+"39: SKIP"+'</option>\
+            <option value = "40">'+"40: Photuris"+'</option>\
+            <option value = "41">'+"41: ICMP messages utilized by experimental mobility protocols such as Seamoby"+'</option>\
+            <option value = "253">'+"253: RFC3692-style Experiment 1"+'</option>\
+            <option value = "254">'+"254: RFC3692-style Experiment 2"+'</option>\
+          </select>\
+        </div>\
       </div>\
-      <div class="medium-4 columns end security_group_rule_range">\
-        <label>'+tr("Iptables range")+'\
-          <span class="tip">'+tr("TODO")+'</span>\
-        </label>\
-        <input type="text"/>\
+      <div class="row range_row">\
+        <div class="medium-4 columns">\
+          <label>'+tr("Port range")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_range_sel">\
+            <option value="ALL" selected="selected">'+tr("All")+'</option>\
+            <option value="RANGE">'+tr("Port range")+'</option>\
+          </select>\
+        </div>\
+        <div class="medium-4 columns end security_group_rule_range">\
+          <label>'+tr("Iptables range")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <input type="text" placeholder="22,53,80:90,110,1024:65535"/>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="medium-4 columns">\
+          <label>'+tr("Network")+'\
+            <span class="tip">'+tr("TODO")+'</span>\
+          </label>\
+          <select class="security_group_rule_network_sel">\
+            <option value="ANY" selected="selected">'+tr("Any")+'</option>\
+            <option value="NETWORK">'+tr("Network")+'</option>\
+            <option value="VNET">'+tr("Virtual Network")+'</option>\
+          </select>\
+        </div>\
+        <div class="medium-4 columns security_group_rule_network">\
+          <label for="security_group_rule_first_ip">'+tr("IP Start")+':\
+            <span class="tip">'+tr("First IP address")+'</span>\
+          </label>\
+          <input id="security_group_rule_first_ip" type="text" placeholder="192.168.10.1"/>\
+        </div>\
+        <div class="medium-4 columns security_group_rule_network">\
+          <label for="security_group_rule_size">'+tr("Size")+':\
+            <span class="tip">'+tr("Number of addresses in the range")+'</span>\
+          </label>\
+          <input id="security_group_rule_size" type="text" placeholder="254"/>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="small-12 columns vnet_select">\
+          '+generateVNetTableSelect("new_sg_rule")+'\
+          </br>\
+        </div>\
       </div>\
     </div>\
     <div class="row">\
-      <div class="medium-4 columns">\
-        <label>'+tr("Network")+'\
-          <span class="tip">'+tr("TODO")+'</span>\
-        </label>\
-        <select class="security_group_rule_network_sel">\
-          <option value="ANY" selected="selected">'+tr("Any")+'</option>\
-          <option value="NETWORK">'+tr("Network")+'</option>\
-          <option value="VNET">'+tr("Virtual Network")+'</option>\
-        </select>\
-      </div>\
-      <div class="medium-4 columns security_group_rule_network">\
-        <label for="security_group_rule_first_ip">'+tr("IP Start")+':\
-          <span class="tip">'+tr("First IP address")+'</span>\
-        </label>\
-        <input id="security_group_rule_first_ip" type="text"/>\
-      </div>\
-      <div class="medium-4 columns security_group_rule_network">\
-        <label for="security_group_rule_size">'+tr("Size")+':\
-          <span class="tip">'+tr("Number of addresses in the range")+'</span>\
-        </label>\
-        <input id="security_group_rule_size" type="text"/>\
+      <div class="medium-8 small-centered columns">\
+        <button type="submit" class="add_security_group_rule button small small-12 radius"><i class="fa fa-angle-double-down"></i> '+tr("Add Rule")+'</button>\
       </div>\
     </div>\
     <div class="row">\
-      <div class="small-12 columns vnet_select">\
-        '+generateVNetTableSelect("new_sg_rule")+'\
-        </br>\
+      <div class="large-12 columns">\
+        <table class="security_group_rules policies_table dataTable">\
+          <thead>\
+            <tr>\
+              <th>'+tr("Protocol")+'</th>\
+              <th>'+tr("Type")+'</th>\
+              <th>'+tr("Port Range")+'</th>\
+              <th>'+tr("Network")+'</th>\
+              <th>'+tr("ICMP Type")+'</th>\
+              <th style="width:3%"></th>\
+            </tr>\
+          </thead>\
+          <tbody>\
+          </tbody>\
+        </table>\
       </div>\
     </div>\
-  </div>\
-  <div class="row">\
-    <div class="medium-8 small-centered columns">\
-      <a type="button" class="add_security_group_rule button small small-12 radius"><i class="fa fa-angle-double-down"></i> '+tr("Add Rule")+'</a>\
-    </div>\
-  </div>\
-  <div class="row">\
-    <div class="large-12 columns">\
-      <table class="security_group_rules policies_table dataTable">\
-        <thead>\
-          <tr>\
-            <th>'+tr("Protocol")+'</th>\
-            <th>'+tr("Type")+'</th>\
-            <th>'+tr("Port Range")+'</th>\
-            <th>'+tr("Network")+'</th>\
-            <th>'+tr("ICMP Type")+'</th>\
-            <th style="width:3%"></th>\
-          </tr>\
-        </thead>\
-        <tbody>\
-        </tbody>\
-      </table>\
-    </div>\
-  </div>\
-</form>';
+  </form>\
+</div>';
 
 var create_security_group_advanced_html =
  '<form data-abide="ajax" id="create_security_group_form_advanced" class="custom creation">' +

@@ -184,8 +184,8 @@ var Sunstone = {
                     action = $("#"+form_name+"_wizard", context).attr("action")
                 }
 
-                $("#"+form_name+"_wizard", context).remove();
-                $("#"+form_name+"_advanced", context).remove();
+                $("#advancedForms", context).empty();
+                $("#wizardForms", context).empty();
             }
 
             if ($("#"+form_name+"_wizard", context).length == 0) {
