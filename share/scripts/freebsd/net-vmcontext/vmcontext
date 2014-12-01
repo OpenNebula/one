@@ -1,0 +1,141 @@
+#!/bin/sh
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+#
+# Opennebula network contextualization initscript for FreeBSD
+# Copy to /etc/rc.d as vmcontext
+
+# PROVIDE: vmcontext
+# REQUIRE: FILESYSTEMS
+# BEFORE:  netif hostname
+
+. /etc/rc.subr
+. /etc/network.subr
+
+name="vmcontext"
+start_cmd="vmcontext_start"
+stop_cmd=":"
+
+# Gets IP address from a given MAC
+mac2ip() {
+	local mac=$1
+
+	ip_a=$( let 0x`echo $mac | cut -d: -f 3` )
+	ip_b=$( let 0x`echo $mac | cut -d: -f 4` )
+	ip_c=$( let 0x`echo $mac | cut -d: -f 5` )
+	ip_d=$( let 0x`echo $mac | cut -d: -f 6` )
+
+	echo "$ip_a.$ip_b.$ip_c.$ip_d"
+}
+
+# Gets the network part of an IP
+get_network() {
+	local IP=$1
+
+	echo ${IP} | cut -d'.' -f1,2,3
+}
+
+get_interfaces() {
+	local i mac
+	local IFCMD="/sbin/ifconfig"
+
+	for i in `${IFCMD} -l 2>/dev/null`; do
+		case "${i%%[0-9]*}" in
+			ipfw|ppp|sl|lp|faith|fwe|fwip|plip|pfsync|pflog|tun|vboxnet|lo)
+				continue
+			;;
+			*)
+				mac=`${IFCMD} ${i} 2>/dev/null| /usr/bin/awk '/ether / {print $2}'`
+				[ -n "${mac}" ] && echo "${i}-${mac}"
+			;;
+		esac
+	done
+}
+
+get_dev() {
+	echo $1 | cut -d'-' -f 1
+}
+
+get_mac() {
+	echo $1 | cut -d'-' -f 2
+}
+
+gen_hosts() {
+	NETWORK=$1
+	echo "127.0.0.1 localhost"
+	for n in `seq -w 01 99`; do
+		n2=`echo $n | sed 's/^0*//'`
+		echo ${NETWORK}.$n2 cluster${n}
+	done
+}
+
+gen_exports() {
+	NETWORK=$1
+	echo "/images -network ${NETWORK}.0/24"
+}
+
+gen_hostname() {
+	MAC=$1
+	NUM=`mac2ip $MAC | cut -d'.' -f4`
+	NUM2=`echo 000000$NUM | sed 's/.*\(..\)/\1/'`
+	sysrc -q hostname="cluster${NUM2}" > /dev/null
+}
+
+gen_interface() {
+	DEV_MAC=$1
+	local default="${2}"
+
+	DEV=`get_dev $DEV_MAC`
+	MAC=`get_mac $DEV_MAC`
+	IP=`mac2ip $MAC`
+	NETWORK=`get_network $IP`
+
+	[ -z "${DEV}" ] && return 0
+
+	sysrc -q ifconfig_${DEV}="inet ${IP} netmask 255.255.255.0" > /dev/null
+
+	# detect for first interface
+	[ "${default}" = "0" ] && sysrc -q defaultrouter="${NETWORK}.1" > /dev/null
+
+	echo ""
+}
+
+vmcontext_start() {
+	local IFACES i num
+
+	echo -n "Starting the Opennebula contextualization network"
+	IFACES=`get_interfaces`
+
+	num=0
+
+	for i in $IFACES; do
+		MASTER_DEV_MAC=$i
+		DEV=`get_dev $i`
+		MAC=`get_mac $i`
+		IP=`mac2ip $MAC`
+		NETWORK=`get_network $IP`
+		# gen_hosts $NETWORK > /etc/hosts
+		# gen_exports $NETWORK  > /etc/exports
+
+		gen_hostname $MAC
+		gen_interface $i ${num}
+		num=$(( num + 1 ))
+	done
+}
+
+load_rc_config $name
+run_rc_command "$1"
+
