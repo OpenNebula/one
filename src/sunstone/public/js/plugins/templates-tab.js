@@ -710,7 +710,7 @@ if (Config.isTemplateCreationTabEnabled('context')){
                     '<th colspan="4" style="font-size: 16px !important">'+
                       '<i class="fa fa-lg fa-fw fa-cogs off-color"/>'+
                       ''+tr("User Inputs")+''+
-                      '<span class="tip">'+tr("These attributes must be provided by the user when a new VM is intantatiated using this template. They will be included in the VM context")+'</span>'+
+                      '<span class="tip">'+tr("These attributes must be provided by the user when a new VM is instantiated using this template. They will be included in the VM context")+'</span>'+
                     '</th>'+
                   '</tr>'+
                 '</thead>'+

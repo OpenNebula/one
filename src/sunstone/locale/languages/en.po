@@ -5057,8 +5057,8 @@ msgid "VALUE"
 msgstr "VALUE"
 
 #: ../public/js/plugins/templates-tab.js:2782
-msgid "These attributes must be provided by the user when a new VM is intantatiated using this template. They will be included in the VM context"
-msgstr "These attributes must be provided by the user when a new VM is intantatiated using this template. They will be included in the VM context"
+msgid "These attributes must be provided by the user when a new VM is instantiated using this template. They will be included in the VM context"
+msgstr "These attributes must be provided by the user when a new VM is instantiated using this template. They will be included in the VM context"
 
 #: ../public/js/plugins/templates-tab.js:2802
 msgid "Add another attribute"

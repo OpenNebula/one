@@ -5063,7 +5063,7 @@ msgid "VALUE"
 msgstr "Значение"
 
 #: ../public/js/plugins/templates-tab.js:2782
-msgid "These attributes must be provided by the user when a new VM is intantatiated using this template. They will be included in the VM context"
+msgid "These attributes must be provided by the user when a new VM is instantiated using this template. They will be included in the VM context"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2802
