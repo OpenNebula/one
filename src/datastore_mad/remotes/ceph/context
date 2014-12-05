@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# context context.sh file1 file2 ... fileN host:remote_system_ds/disk.i vmid 0
+#   - context.sh file are the contents of the context ISO
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - 0 is the target datastore (system)
+
+ARGV=("$@")
+
+DS_ID="${ARGV[$(($#-1))]}"
+VM_ID="${ARGV[$(($#-2))]}"
+DST="${ARGV[$(($#-3))]}"
+SRC=("${ARGV[@]:0:$(($#-3))}")
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+. $TMCOMMON
+
+function exit_error
+{
+    error_message "$ERROR"
+    rm -rf $ISO_DIR > /dev/null 2>&1
+    exit -1
+}
+
+#-------------------------------------------------------------------------------
+# Set dst path and dirs
+#-------------------------------------------------------------------------------
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+DST_DIR=`dirname $DST_PATH`
+
+#-------------------------------------------------------------------------------
+# Create DST path
+#-------------------------------------------------------------------------------
+
+ssh_make_path $DST_HOST $DST_DIR
+
+#-------------------------------------------------------------------------------
+# Build the Context Block device (locally) and copy it remotely
+#-------------------------------------------------------------------------------
+log "Generating context block device at $DST"
+
+VM_ID=`basename $DST_DIR`
+ISO_DIR="$DS_DIR/.isofiles/$VM_ID"
+ISO_FILE="$ISO_DIR/$VM_ID.iso"
+
+exec_and_set_error "mkdir -p $ISO_DIR" \
+    "Could not create tmp dir to make context dev"
+[ -n "$ERROR" ] && exit_error
+
+for f in "${SRC[@]}"; do
+    case "$f" in
+    http://*)
+        exec_and_set_error "$WGET -P $ISO_DIR $f" "Error downloading $f"
+        ;;
+    *)
+        if echo "$f" | grep -q ':'; then
+            target=$(echo "$f"|cut -d':' -f2-)
+            target="'$target'"
+            f=$(echo "$f"|cut -d':' -f1)
+        else
+            target=""
+        fi
+
+        exec_and_set_error "cp -R $f $ISO_DIR/$target" \
+            "Error copying $f to $ISO_DIR"
+        ;;
+    esac
+
+    [ -n "$ERROR" ] && exit_error
+done
+
+exec_and_set_error "$MKISOFS -o $ISO_FILE -V CONTEXT -J -R $ISO_DIR" \
+    "Error creating iso fs"
+[ -n "$ERROR" ] && exit_error
+
+exec_and_set_error "rbd create -p one -s 2048 $VM_ID-context" "Error creating rbd $VM_ID-context"
+[ -n "$ERROR" ] && exit_error
+
+exec_and_set_error "sudo rbd map -p one $VM_ID-context" "Error mapping rbd $VM_ID-context"
+[ -n "$ERROR" ] && exit_error
+
+exec_and_set_error "sudo dd if=$ISO_FILE of=`sudo rbd showmapped |grep $VM_ID-context| awk {'print $5'}`" "Error dd'ing temporary iso on $VM_ID-context"
+[ -n "$ERROR" ] && exit_error
+
+exec_and_set_error "sudo rbd unmap `sudo rbd showmapped |grep $VM_ID-context| awk {'print $5'}`" "Error unmapping $VM_ID-context"
+[ -n "$ERROR" ] && exit_error
+
+#exec_and_set_error "$SCP $ISO_FILE $DST" "Error copying context ISO to $DST"
+#[ -n "$ERROR" ] && exit_error
+
+# Creates symbolic link to add a .iso suffix, needed for VMware CDROMs
+ssh_exec_and_log $DST_HOST "$LN -sf $DST_PATH $DST_PATH.iso" "Error creating ISO symbolic link"
+
+
+
+rm -rf $ISO_DIR > /dev/null 2>&1
+
+exit 0

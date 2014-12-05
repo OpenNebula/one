@@ -682,6 +682,27 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !target.empty() )
         {
+          if ( context->vector_value("CEPH_CONTEXT") == "true" )
+          {
+            file << "\t\t<disk type='network' device='cdrom'>" << endl;
+            file << "\t\t\t<source protocol='rbd' name='one/" << vm->get_oid() << "-context";
+            do_network_hosts(file, ceph_host, "");
+
+            if ( !ceph_secret.empty() && !ceph_user.empty())
+            {
+              file << "\t\t\t<auth username='"<< ceph_user <<"'>" << endl
+              << "\t\t\t\t<secret type='ceph' uuid='"
+              << ceph_secret <<"'/>" << endl
+              << "\t\t\t</auth>" << endl;
+            }
+
+            file << "\t\t\t<target dev='" << target << "'/>" << endl;
+            file << "\t\t\t<readonly/>" << endl;
+            file << "\t\t\t<driver name='qemu' type='raw'/>" << endl;
+            file << "\t\t</disk>" << endl;
+          }
+          else
+          {
             file << "\t\t<disk type='file' device='cdrom'>" << endl;
 
             file << "\t\t\t<source file='" << vm->get_remote_system_dir()
@@ -693,6 +714,7 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t\t<driver name='qemu' type='raw'/>" << endl;
 
             file << "\t\t</disk>" << endl;
+          }
         }
         else
         {

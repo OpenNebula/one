@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/>
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+
+DST=$1
+VM_ID=$2
+DS_ID=$3
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+source $TMCOMMON
+source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+#-------------------------------------------------------------------------------
+# Process destination
+#-------------------------------------------------------------------------------
+
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+
+#-------------------------------------------------------------------------------
+# Delete and exit if directory
+#-------------------------------------------------------------------------------
+
+if [ `is_disk $DST_PATH` -eq 0 ]; then
+    # Directory
+    log "Deleting $DST_PATH"
+    ssh_exec_and_log "$DST_HOST" "rm -rf $DST_PATH" "Error deleting $DST_PATH"
+    exit 0
+fi
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+
+SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
+
+# No need to delete no cloned images
+if [ "$CLONE" = "NO" ]; then
+    exit 0
+fi
+
+# cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
+RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
+RBD_SNAP="${VM_ID}-${DISK_ID}"
+RBD_CONTEXT="one/${VM_ID}-context"
+
+#-------------------------------------------------------------------------------
+# Delete the device
+#-------------------------------------------------------------------------------
+
+log "Deleting $DST_PATH"
+
+# Note that this command, as opposed to the rest of $RBD commands in this set of
+# drivers, is executed in the worker node and not in the CEPH frontend.
+
+DELETE_CMD=$(cat <<EOF
+    set -e
+
+    RBD_FORMAT=\$(rbd info $RBD_SRC | sed -n 's/.*format: // p')
+
+    $RBD rm $RBD_SRC
+    $RBD rm $RBD_CONTEXT
+
+    if [ "\$RBD_FORMAT" = "2" ]; then
+        $RBD snap unprotect $SRC@$RBD_SNAP
+        $RBD snap rm $SRC@$RBD_SNAP
+    fi
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+                 "Error deleting $RBD_SRC in $DST_HOST"
+
+exit 0
+
