@@ -193,6 +193,7 @@ var $create_vm_dialog;
 var $deploy_vm_dialog;
 var $migrate_vm_dialog;
 var $vnc_dialog;
+var $spice_dialog;
 var rfb;
 
 var vm_actions = {
@@ -545,6 +546,17 @@ var vm_actions = {
         error: function(req, resp){
             onError(req, resp);
             vnc_lock = false;
+        },
+        notify: true
+    },
+
+    "VM.startspice_action" : {
+        type: "single",
+        call: OpenNebula.VM.startvnc,
+        callback: spiceCallback,
+        error: function(req, resp){
+            onError(req, resp);
+            spice_lock = false;
         },
         notify: true
     },
@@ -3026,6 +3038,58 @@ function setupVNC(){
     });
 }
 
+
+//setups VNC application
+function setupSPICE(){
+
+    //Append to DOM
+    dialogs_context.append('<div id="spice_dialog" style="width:auto; max-width:70%"></div>');
+    $spice_dialog = $('#spice_dialog',dialogs_context);
+    var dialog = $spice_dialog;
+
+    dialog.html('\
+  <div class="row">\
+    <div class="large-12 columns">\
+      <h3 class="subheader" id="spice_dialog">'+tr("SPICE")+' \
+          <span id="vnc_buttons">\
+            <a id="open_in_a_new_window_spice" href="" target="_blank" title="'+tr("Open in a new window")+'">\
+              <i class="fa fa-external-link detach-spice-icon"/>\
+            </a>\
+          </span>\
+      </h3>\
+    </div>\
+  </div>\
+  <div class="reveal-body" style="width:100%; overflow-x:overlay">\
+    <div id="spice-area">\
+        <div id="spice-screen" class="spice-screen"></div>\
+    </div>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+');
+
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+
+    $spice_dialog.foundation();
+
+    $("#open_in_a_new_window_spice", dialog).on("click", function(){
+      $spice_dialog.foundation('reveal', 'close');
+    });
+
+    $('.spice').live("click",function(){
+        var id = $(this).attr('vm_id');
+
+        //Ask server for connection params
+        if (!vnc_lock) {
+            spice_lock = true
+            Sunstone.runAction("VM.startspice_action",id);
+            return false;
+        } else {
+            notifyError(tr("SPICE Connection in progress"))
+            return false;
+        }
+    });
+}
+
 // Open vnc window
 function popUpVnc(){
     $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
@@ -3073,6 +3137,78 @@ function vncCallback(request,response){
     });
 }
 
+function spiceCallback(request,response){
+    var host = null, port = null;
+    var sc;
+
+    function spice_error(e) {
+        disconnect();
+    }
+
+    function disconnect() {
+        if (sc) {
+            sc.stop();
+        }
+    }
+
+    function agent_connected(sc)
+    {
+        window.addEventListener('resize', handle_resize);
+        window.spice_connection = this;
+
+        resize_helper(this);
+    }
+
+    var host, port, password, scheme = "ws://", uri, token, vm_name;
+
+    if (config['user_config']['vnc_wss'] == "yes") {
+        scheme = "wss://";
+    }
+
+    host = window.location.hostname;
+    port = config['system_config']['vnc_proxy_port'];
+    password = response["password"];
+    token = response["token"];
+    vm_name = response["vm_name"];
+
+    if ((!host) || (!port)) {
+        console.log("must specify host and port in URL");
+        return;
+    }
+
+    if (sc) {
+        sc.stop();
+    }
+
+    uri = scheme + host + ":" + port + "?token=" + token;
+
+    try {
+        sc = new SpiceMainConn({uri: uri, screen_id: "spice-screen", dump_id: "debug-div",
+                    message_id: "", password: password, onerror: spice_error, onagent: agent_connected });
+    }
+    catch (e) {
+        alert(e.toString());
+        disconnect();
+    }
+
+    var url = "spice?";
+    url += "host=" + host;
+    url += "&port=" + port;
+    url += "&token=" + token;
+    url += "&password=" + password;
+    url += "&encrypt=" + config['user_config']['vnc_wss'];
+    url += "&title=" + vm_name;
+
+    $("#open_in_a_new_window_spice").attr('href', url)
+    $spice_dialog.foundation("reveal", "open");
+    spice_lock = false;
+
+    $spice_dialog.off("closed");
+    $spice_dialog.on("closed", function () {
+      disconnect();
+    });
+}
+
 // returns true if the vnc button should be enabled
 function enableVnc(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
@@ -3080,7 +3216,17 @@ function enableVnc(vm){
 
     return (graphics &&
         graphics.TYPE &&
-        graphics.TYPE.toLowerCase() == "vnc" &&
+        graphics.TYPE.toLowerCase() == "vnc"  &&
+        $.inArray(state, VNCstates)!=-1);
+}
+
+function enableSPICE(vm){
+    var graphics = vm.TEMPLATE.GRAPHICS;
+    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+
+    return (graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == "spice" &&
         $.inArray(state, VNCstates)!=-1);
 }
 
@@ -3089,6 +3235,10 @@ function vncIcon(vm){
 
     if (enableVnc(vm)){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
+        gr_icon += '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/>';
+    }
+    else if (enableSPICE(vm)){
+        gr_icon = '<a class="spice" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/>';
     }
     else {
@@ -3138,6 +3288,7 @@ $(document).ready(function(){
       Sunstone.runAction("VM.list");
 
       setupVNC();
+      setupSPICE();
       hotpluggingOps();
       setup_vm_network_tab();
       setup_vm_capacity_tab();

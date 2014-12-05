@@ -277,7 +277,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc).include?(request.path)
+    unless %w(/ /login /vnc /spice).include?(request.path)
         halt 401 unless authorized? && valid_csrftoken?
     end
 
@@ -351,6 +351,15 @@ get '/vnc' do
         erb :login
     else
         erb :vnc
+    end
+end
+
+get '/spice' do
+    content_type 'text/html', :charset => 'utf-8'
+    if !authorized?
+        erb :login
+    else
+        erb :spice
     end
 end
 
