@@ -34,7 +34,8 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
             "network. Use it to add default filter rules for your networks. "
             "You may remove this security group from any network by "
             "updating its properties.\"\n"
-            "RULE=[RULE_TYPE=OUTBOUND,PROTOCOL=ALL]";
+            "RULE=[RULE_TYPE=OUTBOUND,PROTOCOL=ALL]\n"
+            "RULE=[RULE_TYPE=INBOUND,PROTOCOL=ALL]";
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
