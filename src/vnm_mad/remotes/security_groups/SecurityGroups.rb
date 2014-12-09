@@ -14,10 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# TODO: remove
-require 'rubygems'
-require 'pp'
-
 ################################################################################
 # IP and NETMASK Library
 ################################################################################
@@ -205,9 +201,6 @@ end
 # SecurityGroups and Rules
 ################################################################################
 
-# TODO: remove
-require 'colorator'
-
 class CommandsError < StandardError; end
 
 class Commands
@@ -236,13 +229,7 @@ class Commands
 
         @commands.each{|c|
 
-            # TODO: remove
-            puts "=> #{c}".green
-
-            c_out = `#{c}`
-            puts c_out if !c_out.empty?
-
-            out << c_out
+            out << `#{c}`
 
             if !$?.success?
                 clear!
