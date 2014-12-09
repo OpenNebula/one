@@ -17,8 +17,7 @@
 class OpenNebulaFirewall < OpenNebulaNetwork
     DRIVER = "fw"
 
-    XPATH_FILTER =  "TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|" <<
-                    "BLACK_PORTS_TCP|BLACK_PORTS_UDP]"
+    XPATH_FILTER =  OpenNebulaNetwork::FW_ATTRS
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)

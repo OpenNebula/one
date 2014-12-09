@@ -134,6 +134,9 @@ end
 class OpenNebulaNetwork
     attr_reader :hypervisor, :vm
 
+    FW_ATTRS =  "TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|" <<
+                "BLACK_PORTS_TCP|BLACK_PORTS_UDP]"
+
     def self.from_base64(vm_64, deploy_id = nil, hypervisor = nil)
         vm_xml =  Base64::decode64(vm_64)
         self.new(vm_xml, deploy_id, hypervisor)
@@ -202,5 +205,19 @@ class OpenNebulaNetwork
         end
 
         bridges
+    end
+
+    # Returns true if the template contains the deprecated firewall attributes:
+    # - ICMP
+    # - WHITE_PORTS_TCP
+    # - WHITE_PORTS_UDP
+    # - BLACK_PORTS_TCP
+    # - BLACK_PORTS_UDP
+    #
+    # @return Boolean
+    def self.has_fw_attrs?(vm_64)
+        vm_xml =  Base64::decode64(vm_64)
+        vm_root = REXML::Document.new(vm_xml).root
+        !vm_root.elements[FW_ATTRS].nil?
     end
 end
