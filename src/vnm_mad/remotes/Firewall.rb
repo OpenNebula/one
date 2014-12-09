@@ -143,7 +143,24 @@ class OpenNebulaFirewall < OpenNebulaNetwork
     end
 
     def tap_to_chain(tap, chain)
-        rule "-A FORWARD -m physdev --physdev-out #{tap} -j #{chain}"
+        iptables_out = `#{COMMANDS[:iptables]} -n -v --line-numbers -L FORWARD`
+
+        # Insert the rule on top of the 'opennebula' chain if it exists, so it
+        # doesn't conflict with the security groups driver
+        index = nil
+        iptables_out.lines.each do |line|
+            fields = line.split
+            if fields.include?("opennebula") && fields.include?("--physdev-is-bridged")
+                index = fields[0]
+                break
+            end
+        end
+
+        if index
+            rule "-I FORWARD #{index} -m physdev --physdev-out #{tap} -j #{chain}"
+        else
+            rule "-A FORWARD -m physdev --physdev-out #{tap} -j #{chain}"
+        end
     end
 
     def new_chain(chain)
