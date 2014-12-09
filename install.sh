@@ -934,6 +934,8 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
                src/vnm_mad/remotes/OpenNebulaNetwork.conf \
                src/vnm_mad/remotes/Firewall.rb \
+               src/vnm_mad/remotes/SecurityGroups.rb \
+               src/vnm_mad/remotes/IPNetmask.rb \
                src/vnm_mad/remotes/OpenNebulaNic.rb"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
@@ -971,8 +973,7 @@ NETWORK_VMWARE_FILES="src/vnm_mad/remotes/vmware/clean \
 
 NETWORK_SG_FILES="src/vnm_mad/remotes/security_groups/clean \
                     src/vnm_mad/remotes/security_groups/post \
-                    src/vnm_mad/remotes/security_groups/pre \
-                    src/vnm_mad/remotes/security_groups/SecurityGroups.rb"
+                    src/vnm_mad/remotes/security_groups/pre"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands

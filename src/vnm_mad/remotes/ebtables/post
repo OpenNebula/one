@@ -19,16 +19,44 @@
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
+require 'OpenNebulaNetwork'
 require 'Ebtables'
+require 'SecurityGroups'
 require 'Firewall'
 
 template64 = ARGV[0]
 deploy_id  = ARGV[1]
 
 onevlan = EbtablesVLAN.from_base64(template64, deploy_id)
-
 onevlan.activate
 
-fw = OpenNebulaFirewall.from_base64(template64, deploy_id)
+if OpenNebulaNetwork.has_fw_attrs?(template64)
+    fw = OpenNebulaFirewall.from_base64(template64, deploy_id)
+    fw.activate
+else
+    sg = OpenNebulaSG.from_base64(template64, deploy_id)
+    begin
+        sg.activate
+    rescue OpenNebulaSGError => e
+        error = e.error
+        stage = e.stage
 
-fw.activate
+        OpenNebula.log_error(error.message)
+        OpenNebula.log_error(error.backtrace)
+
+        case stage
+        when :bootstrap, :security_groups
+            OpenNebula.log_info("Deactivating security groups for #{deploy_id}.")
+
+            sg.deactivate
+        when :deactivate
+            OpenNebula.log_error("Error deactivating security group rules for #{deploy_id}. Please verify manually.")
+        end
+        exit 1
+    rescue Exception => error
+        OpenNebula.log_error(error.message)
+        OpenNebula.log_error(error.backtrace)
+        exit 1
+    end
+end
+

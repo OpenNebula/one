@@ -23,5 +23,4 @@ require 'OpenNebulaNetwork'
 require 'Firewall'
 
 fw = OpenNebulaFirewall.from_base64(ARGV[0])
-
 fw.deactivate

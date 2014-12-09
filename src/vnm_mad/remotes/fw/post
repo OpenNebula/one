@@ -26,5 +26,4 @@ template64 = ARGV[0]
 deploy_id  = ARGV[1]
 
 fw = OpenNebulaFirewall.from_base64(template64, deploy_id)
-
 fw.activate

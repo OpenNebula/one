@@ -21,6 +21,14 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenNebulaNetwork'
 require 'SecurityGroups'
+require 'Firewall'
 
-sg = OpenNebulaSG.from_base64(ARGV[0])
-sg.deactivate
+template64 = ARGV[0]
+
+if OpenNebulaNetwork.has_fw_attrs?(template64)
+    fw = OpenNebulaFirewall.from_base64(template64)
+    fw.deactivate
+else
+    sg = OpenNebulaSG.from_base64(template64)
+    sg.deactivate
+end
