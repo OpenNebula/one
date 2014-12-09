@@ -20,6 +20,7 @@ var VM_HISTORY_LENGTH = 40;
 
 // Only one vnc request is allowed
 var vnc_lock = false;
+var spice_lock = false;
 
 function loadVNC(){
     // Load supporting scripts
@@ -539,6 +540,13 @@ var vm_actions = {
         }
     },
 
+    "VM.startspice" : {
+        type: "custom",
+        call: function(){
+          popUpSPICE();
+        }
+    },
+
     "VM.startvnc_action" : {
         type: "single",
         call: OpenNebula.VM.startvnc,
@@ -915,6 +923,12 @@ var vm_buttons = {
         text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("VNC"),
         custom_classes: "only-right-info vnc-right-info",
         tip: tr("VNC")
+    },
+    "VM.startspice" : {
+        type: "action",
+        text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("SPICE"),
+        custom_classes: "only-right-info spice-right-info",
+        tip: tr("SPICE")
     }
 }
 
@@ -1461,7 +1475,17 @@ function updateVMInfo(request,vm){
     setPermissionsTable(vm_info,'');
 
     // Enable / disable vnc button
-    $(".vnc-right-info").prop("disabled", !enableVnc(vm_info));
+    if (!enableVnc(vm_info)) {
+        $(".vnc-right-info").hide();
+    } else {
+        $(".vnc-right-info").show();
+    }
+
+    if (!enableSPICE(vm_info)) {
+        $(".spice-right-info").hide();
+    } else {
+        $(".spice-right-info").show();
+    }
 }
 
 function updateVMDisksInfo(request,vm){
@@ -3098,6 +3122,19 @@ function popUpVnc(){
             Sunstone.runAction("VM.startvnc_action", elem);
         } else {
             notifyError(tr("VNC Connection in progress"))
+            return false;
+        }
+    });
+}
+
+// Open vnc window
+function popUpSPICE(){
+    $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
+        if (!spice_lock) {
+            spice_lock = true
+            Sunstone.runAction("VM.startspice_action", elem);
+        } else {
+            notifyError(tr("SPICE Connection in progress"))
             return false;
         }
     });
