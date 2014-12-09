@@ -5565,7 +5565,11 @@ function retrieveWizardFields(dialog, template_json){
     fields.each(function(){
         var field = $(this);
 
-        if (field.prop('wizard_field_disabled') != true && field.val() != null && field.val().length){
+        if (  field.prop('wizard_field_disabled') != true &&
+              field.val() != null && field.val().length &&
+              (field.attr("type") != "checkbox" || field.prop( "checked" ))
+            ){
+
             var field_name = field.attr('wizard_field');
             template_json[field_name] = field.val();
         }
@@ -5582,6 +5586,16 @@ function fillWizardFields(dialog, template_json){
             switch(field.attr("type")){
             case "radio":
                 var checked = (field.val() == template_json[field_name]);
+
+                field.prop("checked", checked );
+
+                if(checked){
+                    field.change();
+                }
+                break;
+            case "checkbox":
+                var checked = (field.val().toUpperCase() ==
+                                template_json[field_name].toUpperCase());
 
                 field.prop("checked", checked );
 

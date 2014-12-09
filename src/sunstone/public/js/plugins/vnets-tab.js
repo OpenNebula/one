@@ -49,6 +49,24 @@ var create_vnet_wizard_html =
           <div class="content" id="vnetCreateBridgeTab">\
             <div class="row">\
               <div class="large-6 columns">\
+                <label for="mac_spoofing">\
+                  <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />\
+                  '+tr("Filter MAC spoofing")+'\
+                  <span class="tip">'+tr("TODO")+'</span>\
+                </label>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="ip_spoofing">\
+                  <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />\
+                  '+tr("Filter IP spoofing")+'\
+                  <span class="tip">'+tr("TODO")+'</span>\
+                </label>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
                   <label for="bridge">'+tr("Bridge")+':\
                     <span class="tip">'+tr("Name of the physical bridge in the physical host where the VM should connect its network interface")+'</span>\
                   </label>\
