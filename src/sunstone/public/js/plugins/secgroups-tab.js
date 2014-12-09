@@ -364,7 +364,7 @@ var create_security_group_wizard_html =
       <div class="row">\
         <div class="medium-4 columns">\
           <label>'+tr("Type")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
+            <span class="tip">'+tr("Defines the direction of the rule.")+'</span>\
           </label>\
           <select class="security_group_rule_type">\
             <option value="inbound" selected="selected">'+tr("Inbound")+'</option>\
@@ -373,7 +373,7 @@ var create_security_group_wizard_html =
         </div>\
         <div class="medium-4 columns">\
           <label>'+tr("Protocol")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
+            <span class="tip">'+tr("Defines the protocol of the rule.")+'</span>\
           </label>\
           <select class="security_group_rule_protocol">\
             <option value="TCP" selected="selected">'+tr("TCP")+'</option>\
@@ -385,7 +385,7 @@ var create_security_group_wizard_html =
         </div>\
         <div class="medium-4 columns icmp_type_wrapper">\
           <label>'+tr("ICMP Type")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
+            <span class="tip">'+tr("Specific ICMP type of the rule. If a type has multiple codes, it includes all the codes within.")+'</span>\
           </label>\
           <select class="security_group_rule_icmp_type">\
             <option value="" selected="selected">'+tr("All")+'</option>\
@@ -408,7 +408,7 @@ var create_security_group_wizard_html =
       <div class="row range_row">\
         <div class="medium-4 columns">\
           <label>'+tr("Port range")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
+            <span class="tip">'+tr("Selects whether to apply this TCP or UDP rule to all the ports or just a specific set.")+'</span>\
           </label>\
           <select class="security_group_rule_range_sel">\
             <option value="ALL" selected="selected">'+tr("All")+'</option>\
@@ -417,7 +417,7 @@ var create_security_group_wizard_html =
         </div>\
         <div class="medium-4 columns end security_group_rule_range">\
           <label>'+tr("Iptables range")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
+            <span class="tip">'+tr("A Port Range to filter specific ports. Uses the iptables port syntax: port[,port|,port:port]...")+'</span>\
           </label>\
           <input type="text" placeholder="22,53,80:90,110,1024:65535"/>\
         </div>\
@@ -425,7 +425,7 @@ var create_security_group_wizard_html =
       <div class="row">\
         <div class="medium-4 columns">\
           <label>'+tr("Network")+'\
-            <span class="tip">'+tr("TODO")+'</span>\
+            <span class="tip">'+tr("Any: apply this rule to any connection regardless of its source or destination. Network: Apply this rule only to a custome define network range. Virtual Network: Apply this rule only to connections with origin or destination in one of the already define VNETs.")+'</span>\
           </label>\
           <select class="security_group_rule_network_sel">\
             <option value="ANY" selected="selected">'+tr("Any")+'</option>\
