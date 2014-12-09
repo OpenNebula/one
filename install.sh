@@ -326,6 +326,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/locale/zh_CN \
                $SUNSTONE_LOCATION/public/vendor \
                $SUNSTONE_LOCATION/public/vendor/crypto-js \
+               $SUNSTONE_LOCATION/public/vendor/spice \
                $SUNSTONE_LOCATION/public/vendor/noVNC \
                $SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js \
                $SUNSTONE_LOCATION/public/vendor/4.0 \
@@ -507,6 +508,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_VENDOR_CRYPTOJS:$SUNSTONE_LOCATION/public/vendor/crypto-js
+    SUNSTONE_PUBLIC_VENDOR_SPICE:$SUNSTONE_LOCATION/public/vendor/spice
     SUNSTONE_PUBLIC_VENDOR_NOVNC:$SUNSTONE_LOCATION/public/vendor/noVNC
     SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET:$SUNSTONE_LOCATION/public/vendor/noVNC/web-socket-js
     SUNSTONE_PUBLIC_NEW_VENDOR_FLOT:$SUNSTONE_LOCATION/public/vendor/4.0/flot
@@ -1627,6 +1629,36 @@ SUNSTONE_PUBLIC_VENDOR_NOVNC_WEBSOCKET="\
     src/sunstone/public/bower_components/no-vnc/include/web-socket-js/web_socket.js \
     src/sunstone/public/bower_components/no-vnc/include/web-socket-js/swfobject.js \
     src/sunstone/public/bower_components/no-vnc/include/web-socket-js/WebSocketMain.swf"
+
+SUNSTONE_PUBLIC_VENDOR_SPICE="\
+    src/sunstone/public/bower_components/spice-html5/spicearraybuffer.js \
+    src/sunstone/public/bower_components/spice-html5/enums.js \
+    src/sunstone/public/bower_components/spice-html5/atKeynames.js \
+    src/sunstone/public/bower_components/spice-html5/utils.js \
+    src/sunstone/public/bower_components/spice-html5/png.js \
+    src/sunstone/public/bower_components/spice-html5/lz.js \
+    src/sunstone/public/bower_components/spice-html5/quic.js \
+    src/sunstone/public/bower_components/spice-html5/bitmap.js \
+    src/sunstone/public/bower_components/spice-html5/spicedataview.js \
+    src/sunstone/public/bower_components/spice-html5/spicetype.js \
+    src/sunstone/public/bower_components/spice-html5/spicemsg.js \
+    src/sunstone/public/bower_components/spice-html5/wire.js \
+    src/sunstone/public/bower_components/spice-html5/spiceconn.js \
+    src/sunstone/public/bower_components/spice-html5/display.js \
+    src/sunstone/public/bower_components/spice-html5/main.js \
+    src/sunstone/public/bower_components/spice-html5/inputs.js \
+    src/sunstone/public/bower_components/spice-html5/webm.js \
+    src/sunstone/public/bower_components/spice-html5/playback.js \
+    src/sunstone/public/bower_components/spice-html5/simulatecursor.js \
+    src/sunstone/public/bower_components/spice-html5/cursor.js \
+    src/sunstone/public/bower_components/spice-html5/thirdparty/jsbn.js \
+    src/sunstone/public/bower_components/spice-html5/thirdparty/rsa.js \
+    src/sunstone/public/bower_components/spice-html5/thirdparty/prng4.js \
+    src/sunstone/public/bower_components/spice-html5/thirdparty/rng.js \
+    src/sunstone/public/bower_components/spice-html5/thirdparty/sha1.js \
+    src/sunstone/public/bower_components/spice-html5/ticket.js \
+    src/sunstone/public/bower_components/spice-html5/resize.js \
+    src/sunstone/public/bower_components/spice-html5/spice.css"
 
 # end bower
 
