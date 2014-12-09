@@ -433,7 +433,7 @@ class SecurityGroup
 
         rules.each do |rule|
             @rules << Rule.new(rule)
-        end
+        end if rules
     end
 end
 
@@ -554,7 +554,7 @@ class SecurityGroupIPTables < SecurityGroup
 
             commands.iptables "-N #{GLOBAL_CHAIN}"
             commands.iptables "-A FORWARD -m physdev --physdev-is-bridged -j #{GLOBAL_CHAIN}"
-            commands.iptables "-A #{GLOBAL_CHAIN} -j DROP"
+            commands.iptables "-A #{GLOBAL_CHAIN} -j ACCEPT"
 
             commands.run!
         end
