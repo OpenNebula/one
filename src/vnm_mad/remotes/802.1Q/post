@@ -20,38 +20,15 @@ $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenNebulaNetwork'
-require 'SecurityGroups'
-require 'Firewall'
 
 template64 = ARGV[0]
 deploy_id  = ARGV[1]
 
-if OpenNebulaNetwork.has_fw_attrs?(template64)
-    fw = OpenNebulaFirewall.from_base64(template64, deploy_id)
-    fw.activate
-else
-    sg = OpenNebulaSG.from_base64(template64, deploy_id)
-    begin
-        sg.activate
-    rescue OpenNebulaSGError => e
-        error = e.error
-        stage = e.stage
-
-        OpenNebula.log_error(error.message)
-        OpenNebula.log_error(error.backtrace)
-
-        case stage
-        when :bootstrap, :security_groups
-            OpenNebula.log_info("Deactivating security groups for #{deploy_id}.")
-
-            sg.deactivate
-        when :deactivate
-            OpenNebula.log_error("Error deactivating security group rules for #{deploy_id}. Please verify manually.")
-        end
-        exit 1
-    rescue Exception => error
-        OpenNebula.log_error(error.message)
-        OpenNebula.log_error(error.backtrace)
-        exit 1
-    end
+begin
+    filter_driver = OpenNebulaNetwork.filter_driver(template64, deploy_id)
+    filter_driver.activate
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
 end

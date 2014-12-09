@@ -18,9 +18,10 @@ $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), '..')
 
 require 'rexml/document'
-require 'OpenNebulaNic'
 require 'base64'
 require 'yaml'
+
+require 'OpenNebulaNic'
 
 require 'scripts_common'
 
@@ -134,12 +135,19 @@ end
 class OpenNebulaNetwork
     attr_reader :hypervisor, :vm
 
-    FW_ATTRS =  "TEMPLATE/NIC[ICMP|WHITE_PORTS_TCP|WHITE_PORTS_UDP|" <<
-                "BLACK_PORTS_TCP|BLACK_PORTS_UDP]"
-
     def self.from_base64(vm_64, deploy_id = nil, hypervisor = nil)
         vm_xml =  Base64::decode64(vm_64)
         self.new(vm_xml, deploy_id, hypervisor)
+    end
+
+    def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil)
+        vm_xml =  Base64::decode64(vm_64)
+
+        if self.has_fw_attrs?(vm_xml)
+            OpenNebulaFirewall.new(vm_xml, deploy_id, hypervisor)
+        else
+            OpenNebulaSG.new(vm_xml, deploy_id, hypervisor)
+        end
     end
 
     def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
@@ -206,6 +214,24 @@ class OpenNebulaNetwork
 
         bridges
     end
+end
+
+# Dynamic factory method for the filter class
+require 'Firewall'
+require 'SecurityGroups'
+class OpenNebulaNetwork
+    # Returns a filter object based on the contents of the template
+    #
+    # @return OpenNebulaFirewall or OpenNebulaSG object
+    def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil)
+        vm_xml =  Base64::decode64(vm_64)
+
+        if self.has_fw_attrs?(vm_xml)
+            OpenNebulaFirewall.new(vm_xml, deploy_id, hypervisor)
+        else
+            OpenNebulaSG.new(vm_xml, deploy_id, hypervisor)
+        end
+    end
 
     # Returns true if the template contains the deprecated firewall attributes:
     # - ICMP
@@ -215,9 +241,8 @@ class OpenNebulaNetwork
     # - BLACK_PORTS_UDP
     #
     # @return Boolean
-    def self.has_fw_attrs?(vm_64)
-        vm_xml =  Base64::decode64(vm_64)
+    def self.has_fw_attrs?(vm_xml)
         vm_root = REXML::Document.new(vm_xml).root
-        !vm_root.elements[FW_ATTRS].nil?
+        !vm_root.elements[OpenNebulaFirewall::XPATH_FILTER].nil?
     end
 end

@@ -20,15 +20,14 @@ $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenNebulaNetwork'
-require 'SecurityGroups'
-require 'Firewall'
 
 template64 = ARGV[0]
 
-if OpenNebulaNetwork.has_fw_attrs?(template64)
-    fw = OpenNebulaFirewall.from_base64(template64)
-    fw.deactivate
-else
-    sg = OpenNebulaSG.from_base64(template64)
-    sg.deactivate
+begin
+    filter_driver = OpenNebulaNetwork.filter_driver(template64)
+    filter_driver.deactivate
+rescue Exception => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
 end

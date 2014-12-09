@@ -514,14 +514,6 @@ end
 # OpenNebula Firewall with Security Groups Based on IPTables (KVM and Xen)
 ################################################################################
 
-class OpenNebulaSGError < StandardError
-    attr_reader :stage, :error
-    def initialize(stage, error = nil)
-        @stage = stage
-        @error = error
-    end
-end
-
 class OpenNebulaSG < OpenNebulaNetwork
     DRIVER = "sg"
     XPATH_FILTER =  "TEMPLATE/NIC"
@@ -578,7 +570,8 @@ class OpenNebulaSG < OpenNebulaNetwork
                     sg.run!
                 rescue Exception => e
                     unlock
-                    raise OpenNebulaSGError.new(:security_groups, e)
+                    deactivate
+                    raise e
                 end
             end
 
@@ -596,7 +589,7 @@ class OpenNebulaSG < OpenNebulaNetwork
                 SECURITY_GROUP_CLASS.nic_deactivate(@vm, nic)
             end
         rescue Exception => e
-            raise OpenNebulaSGError.new(:deactivate, e)
+            raise e
         ensure
             unlock
         end
