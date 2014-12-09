@@ -397,12 +397,12 @@ class SecurityGroupIPTables < SecurityGroup
         commands.iptables"-I #{GLOBAL_CHAIN} -m physdev --physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
 
         # Mac-spofing
-        if nic[:filter_mac_spoofing]
+        if nic[:filter_mac_spoofing] == "YES"
             commands.iptables"-A #{chain_out} -m mac ! --mac-source #{nic[:mac]} -j DROP"
         end
 
         # IP-spofing
-        if nic[:filter_ip_spoofing]
+        if nic[:filter_ip_spoofing] == "YES"
             commands.iptables"-A #{chain_out} ! --source #{nic[:ip]} -j DROP"
         end
 
@@ -562,8 +562,8 @@ class OpenNebulaSG < OpenNebulaNetwork
         # Process the rules
         @vm.nics.each do |nic|
             next if nic[:security_groups].nil? \
-                && nic[:filter_mac_spoofing].nil? \
-                && nic[:filter_ip_spoofing].nil?
+                && nic[:filter_mac_spoofing] != "YES" \
+                && nic[:filter_ip_spoofing]  != "YES"
 
 
             SECURITY_GROUP_CLASS.nic_pre(@vm, nic)
