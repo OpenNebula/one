@@ -20,8 +20,6 @@ $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
 require 'OpenNebulaNetwork'
-require 'SecurityGroups'
-require 'Firewall'
 
 template64 = ARGV[0]
 
