@@ -254,9 +254,7 @@ class VIClient
             networks.each { |n|
                 vnet_template =  "NAME=\"#{n[:name]}\"\n" +
                                  "BRIDGE=\"#{n[:name]}\"\n" +
-                                 "VCENTER_TYPE=\"Port Group\"" +
-                                 "AR=[\n" +
-                                 " TYPE = \"ETHER\"\n,"
+                                 "VCENTER_TYPE=\"Port Group\""
 
                 one_nets << {:name => n.name,
                              :bridge => n.name,
@@ -270,9 +268,7 @@ class VIClient
             networks.each { |n|
                 vnet_template =  "NAME=\"#{n[:name]}\"\n" +
                      "BRIDGE=\"#{n[:name]}\"\n" +
-                     "VCENTER_TYPE=\"Distributed Port Group\"" +
-                     "AR=[\n" +
-                     " TYPE = \"ETHER\"\n,"
+                     "VCENTER_TYPE=\"Distributed Port Group\""
 
                 vlan     = n.config.defaultPortConfig.vlan.vlanId
                 vlan_str = ""
@@ -288,18 +284,19 @@ class VIClient
                     end
                 end
 
+                if !vlan_str.empty?
+                    vnet_template = "VLAN=\"YES\"\nVLAN_ID=#{vlan_str}\n" +
+                                    vnet_template
+                end
+
                 one_net = {:name => n.name,
                            :bridge => n.name,
                            :type => "Distributed Port Group",
                            :one => vnet_template}
 
-                if !vlan_str.empty?
-                    one_net[:vlan] = vlan_str
-                    vnet_template = "VLAN=\"YES\"\nVLAN_ID=#{one_net[:vlan]}" +
-                                    vnet_template
-                end
+                one_net[:vlan] = vlan_str if !vlan_str.empty?
 
-                one_nets <<  one_net
+                one_nets << one_net
             }
 
             vcenter_networks[dc.name] = one_nets
