@@ -278,15 +278,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     one_vn = ::OpenNebula::VirtualNetwork.new(
                                 ::OpenNebula::Template.build_xml, vc.one)
 
-                    vnet_template =  "NAME=\"#{n[:name]}\"\n" +
-                                     "BRIDGE=\"#{n[:name]}\"\n" +
-                                     "VCENTER_TYPE=\"#{n[:type]}\"" +
-                                     "AR=[\n" +
-                                     " TYPE = \"ETHER\"\n," +
-                                     " SIZE = \"#{size.to_i}\"\n]"
-
-                    vnet_template += "VLAN=\"YES\"\nVLAN_ID=#{n[:vlan]}" if n[:vlan]
-
+                    vnet_template =  n[:one] + 
+                                 " SIZE = \"#{size.to_i}\"\n]"
+                    
                     rc = one_vn.allocate(vnet_template)
 
                     if ::OpenNebula.is_error?(rc)
