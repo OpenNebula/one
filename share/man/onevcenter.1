@@ -1,0 +1,54 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "ONEVCENTER" "1" "November 2014" "" "onevcenter(1) -- vCenter import tool"
+.
+.SH "NAME"
+\fBonevcenter\fR
+.
+.SH "SYNOPSIS"
+\fBonevcenter\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
+.
+.SH "OPTIONS"
+.
+.nf
+
+ \-\-vcenter vCenter         The vCenter hostname
+ \-\-vuser username          The username to interact with vCenter
+ \-\-vpass password          The password for the user
+ \-h, \-\-help                Show this message
+ \-V, \-\-version             Show version and copyright information
+ \-\-user name               User name used to connect to OpenNebula
+ \-\-password password       Password to authenticate with OpenNebula
+ \-\-endpoint endpoint       URL of OpenNebula xmlrpc frontend
+.
+.fi
+.
+.SH "COMMANDS"
+.
+.IP "\(bu" 4
+hosts Import vCenter clusters as OpenNebula hosts valid options: vcenter, vuser, vpass
+.
+.IP "\(bu" 4
+templates Import vCenter VM Templates into OpenNebula valid options: vcenter, vuser, vpass
+.
+.IP "" 0
+.
+.SH "ARGUMENT FORMATS"
+.
+.IP "\(bu" 4
+file Path to a file
+.
+.IP "\(bu" 4
+range List of id\'s in the form 1,8\.\.15
+.
+.IP "\(bu" 4
+text String
+.
+.IP "" 0
+.
+.SH "LICENSE"
+OpenNebula 4\.10\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+.
+.P
+Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

@@ -30,6 +30,14 @@ module Migrator
         init_log_time()
 
         ########################################################################
+        # Showback
+        ########################################################################
+
+        @db.run "CREATE TABLE vm_showback (vmid INTEGER, year INTEGER, month INTEGER, body MEDIUMTEXT, PRIMARY KEY(vmid, year, month));"
+
+        log_time()
+
+        ########################################################################
         # Security Groups
         ########################################################################
 

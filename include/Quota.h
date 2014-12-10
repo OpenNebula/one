@@ -207,15 +207,6 @@ protected:
      */
     void cleanup_quota(const string& qid);
 
-    /**
-     * Creates a string from the given float, using fixed notation. If the
-     * number has any decimals, they will be truncated to 2.
-     *
-     * @param num
-     * @return
-     */
-    string float_to_str(const float &num);
-
 private:
     /**
      *  Creates an empty quota based on the given attribute. The attribute va

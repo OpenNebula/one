@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Quota.h"
-#include <math.h>
+#include "NebulaUtil.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -79,7 +79,7 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
 
     total += num;
 
-    attr->replace(va_name, float_to_str(total));
+    attr->replace(va_name, one_util::float_to_str(total));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -395,7 +395,7 @@ int Quota::update_limits(
             return -1;
         }
 
-        quota->replace(metrics[i], float_to_str(limit_f));
+        quota->replace(metrics[i], one_util::float_to_str(limit_f));
     }
 
     return 0;
@@ -431,7 +431,7 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
             return 0;
         }
 
-        limits.insert(make_pair(metrics[i], float_to_str(limit_f)));
+        limits.insert(make_pair(metrics[i], one_util::float_to_str(limit_f)));
         limits.insert(make_pair(metrics_used, "0"));
     }
 
@@ -443,25 +443,4 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
     }
 
     return new VectorAttribute(template_name,limits);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string Quota::float_to_str(const float &num)
-{
-    ostringstream oss;
-
-    if ( num == ceil(num) )
-    {
-        oss.precision(0);
-    }
-    else
-    {
-        oss.precision(2);
-    }
-
-    oss << fixed << num;
-
-    return oss.str();
 }

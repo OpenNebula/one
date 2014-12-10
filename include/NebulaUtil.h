@@ -149,6 +149,15 @@ namespace one_util
 
         return oss.str();
     }
+
+    /**
+     * Creates a string from the given float, using fixed notation. If the
+     * number has any decimals, they will be truncated to 2.
+     *
+     * @param num
+     * @return
+     */
+    std::string float_to_str(const float &num);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

@@ -48,6 +48,7 @@ env.Man('econe-terminate-instances')
 env.Man('econe-upload')
 
 env.Man('oneacct')
+env.Man('oneshowback')
 env.Man('oneacl')
 env.Man('onecluster')
 env.Man('onedatastore')
@@ -60,6 +61,7 @@ env.Man('onevm')
 env.Man('onevnet')
 env.Man('onegroup')
 env.Man('onezone')
+env.Man('onevcenter')
 
 # TODO
 #env.Man('onesecgroup')

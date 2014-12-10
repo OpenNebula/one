@@ -22,7 +22,7 @@ module OpenNebula
     # and the factory method.
     #
     # @example
-    #   require 'opennebuña/document_pool'
+    #   require 'opennebula/document_pool'
     #
     #   module OpenNebula
     #       class CustomObjectPool < DocumentPool

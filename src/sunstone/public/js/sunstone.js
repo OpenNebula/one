@@ -47,6 +47,19 @@ var top_interval_ids = {};
 var QUOTA_LIMIT_DEFAULT   = "-1";
 var QUOTA_LIMIT_UNLIMITED = "-2";
 
+function tr(str){
+    var tmp = locale[str];
+    if ( tmp == null || tmp == "" ) {
+        //console.debug("Missing translation: "+str);
+        tmp = str;
+    }
+    return tmp;
+};
+var $months = new Array(
+        tr("January"),tr("February"),tr("March"),tr("April"),tr("May"),
+        tr("June"),tr("July"),tr("August"),tr("September"),tr("October"),
+        tr("November"),tr("December"));
+
 //Sunstone configuration is formed by predifined "actions", main tabs
 //and "info_panels". Each tab has "content" and "buttons". Each
 //"info_panel" has "tabs" with "content".
@@ -1208,11 +1221,7 @@ function pretty_time_runtime(time){
 
 function _format_date(unix_timestamp) {
   var difference_in_seconds = (Math.round((new Date()).getTime() / 1000)) - unix_timestamp,
-      current_date = new Date(unix_timestamp * 1000), minutes, hours,
-      months = new Array(
-        'January','February','March','April','May',
-        'June','July','August','September','October',
-        'November','December');
+      current_date = new Date(unix_timestamp * 1000), minutes, hours;
 
   if(difference_in_seconds < 60) {
     return difference_in_seconds + "s" + " ago";
@@ -1224,9 +1233,9 @@ function _format_date(unix_timestamp) {
     return hours + "h" + " ago";
   } else if (difference_in_seconds > 60*60*24){
     if(current_date.getYear() !== new Date().getYear())
-      return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3) + " " + _fourdigits(current_date.getYear());
+      return current_date.getDay() + " " + $months[current_date.getMonth()].substr(0,3) + " " + _fourdigits(current_date.getYear());
     else {
-        return current_date.getDay() + " " + months[current_date.getMonth()].substr(0,3);
+        return current_date.getDay() + " " + $months[current_date.getMonth()].substr(0,3);
     }
   }
 
@@ -1840,8 +1849,6 @@ function getValue(filter_str,filter_col,value_col,dataTable){
 //Replaces all class"tip" divs with an information icon that
 //displays the tip information on mouseover.
 function setupTips(context, position){
-
-    $('ui-dialog').css('z-index', '1000')
     //For each tip in this context
     $('.tip',context).each(function(){
         var obj = $(this);
@@ -4760,6 +4767,304 @@ function time_UTC(time){
     return d.getUTCFullYear() + '/' + (d.getUTCMonth()+1) + '/' + d.getUTCDate();
 }
 
+
+// div is a jQuery selector
+// The following options can be set:
+//   fixed_user     fix an owner user ID
+//   fixed_group    fix an owner group ID
+//   init_group_by  "user", "group", "vm". init the group-by selector
+//   fixed_group_by "user", "group", "vm". set a fixed group-by selector
+function showbackGraphs(div, opt){
+
+    if(div.html() != ""){
+        return false;
+    }
+
+    div.html(
+    '<div class="row">\
+      <div id="showback_owner_container" class="left columns">\
+        <label for="showback_owner">' +  tr("Filter") + '</label>\
+        <div class="row">\
+          <div class="large-5 columns">\
+            <select id="showback_owner" name="showback_owner">\
+              <option value="showback_owner_all">' + tr("All") + '</option>\
+              <option value="showback_owner_group">' + tr("Group") + '</option>\
+              <option value="showback_owner_user">' + tr("User") + '</option>\
+            </select>\
+          </div>\
+          <div class="large-7 columns">\
+            <div id="showback_owner_select"/>\
+          </div>\
+        </div>\
+      </div>\
+      <div id="showback_button_container" class="left columns">\
+        <button class="button radius success right" id="showback_submit" type="button">'+tr("Get Showback")+'</button>\
+      </div>\
+    </div>\
+    <div id="showback_placeholder">\
+      <div class="row">\
+        <div class="large-8 large-centered columns">\
+          <div class="text-center">\
+            <span class="fa-stack fa-5x" style="color: #dfdfdf">\
+              <i class="fa fa-cloud fa-stack-2x"></i>\
+              <i class="fa fa-money fa-stack-1x fa-inverse"></i>\
+            </span>\
+            <div id="showback_no_data" class="hidden">\
+              <br>\
+              <p style="font-size: 18px; color: #999">'+
+              tr("There are no showback records")+
+              '</p>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <div id="showback_content" class="hidden">\
+      <div class="row showback_table">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader">'+tr("Showback")+'</h3>\
+        </div>\
+        <div class="large-6 columns" style="overflow:auto">\
+          <table id="showback_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>dateint</th>\
+                <th>'+tr("Year")+'</th>\
+                <th>'+tr("Month")+'</th>\
+                <th>'+tr("Date")+'</th>\
+                <th>'+tr("Cost")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_showback_datatable">\
+            </tbody>\
+          </table>\
+          <span class="label secondary radius showback_select_a_row">'+tr("Select a row to get detailed information of the month")+'</span>\
+        </div>\
+        <div class="large-6 columns">\
+          <div class="large-12 columns centered graph" id="showback_graph" style="height: 200px;">\
+          </div>\
+        </div>\
+      </div>\
+      <div class="row showback_vms_table hidden">\
+        <div class="large-12 columns graph_legend">\
+          <h3 class="subheader" id="showback_vms_title">'+tr("VMs")+'</h3>\
+        </div>\
+        <div class="large-12 columns" style="overflow:auto">\
+          <table id="showback_vms_datatable" class="datatable twelve">\
+            <thead>\
+              <tr>\
+                <th>'+tr("ID")+'</th>\
+                <th>'+tr("Name")+'</th>\
+                <th>'+tr("Owner")+'</th>\
+                <th>'+tr("Hours")+'</th>\
+                <th>'+tr("Cost")+'</th>\
+              </tr>\
+            </thead>\
+            <tbody id="tbody_showback_datatable">\
+            </tbody>\
+          </table>\
+        </div>\
+      </div>\
+    </div>');
+
+    if (opt == undefined){
+        opt = {};
+    }
+
+    //--------------------------------------------------------------------------
+    // VM owner: all, group, user
+    //--------------------------------------------------------------------------
+
+    if (opt.fixed_user != undefined || opt.fixed_group != undefined){
+        $("#showback_owner_container", div).hide();
+    } else {
+        $("select#showback_owner", div).change(function(){
+            var value = $(this).val();
+
+            switch (value){
+            case "showback_owner_all":
+                $("#showback_owner_select", div).hide();
+                break;
+
+            case "showback_owner_group":
+                $("#showback_owner_select", div).show();
+                insertSelectOptions("#showback_owner_select", div, "Group");
+                break;
+
+            case "showback_owner_user":
+                $("#showback_owner_select", div).show();
+                insertSelectOptions("#showback_owner_select", div, "User", -1, false,
+                    '<option value="-1">'+tr("<< me >>")+'</option>');
+                break;
+            }
+        });
+    }
+
+    showback_dataTable = $("#showback_datatable",div).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
+        "iDisplayLength": 6,
+        "sDom": "t<'row collapse'<'small-12 columns'p>>",
+        "aoColumnDefs": [
+            { "bVisible": false, "aTargets": [0,1,2]}
+        ]
+    });
+
+    showback_dataTable.fnSort( [ [0, "desc"] ] );
+
+    showback_vms_dataTable = $("#showback_vms_datatable",div).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true
+    });
+
+    showback_dataTable.on("click", "tbody tr", function(){
+        var cells = showback_dataTable.fnGetData(this);
+        var year = cells[1];
+        var month = cells[2];
+
+        showback_vms_dataTable.fnClearTable();
+        showback_vms_dataTable.fnAddData(showback_dataTable.data("vms_per_date")[year][month].VMS)
+
+        $("#showback_vms_title", div).text($months[month-1] + " " + year + " " + tr("VMs"))
+        $(".showback_vms_table", div).show();
+        $(".showback_select_a_row", div).hide();
+    })
+
+    //--------------------------------------------------------------------------
+    // Submit request
+    //--------------------------------------------------------------------------
+
+    $("#showback_submit", div).on("click", function(){
+        var options = {};
+        if (opt.fixed_user != undefined){
+            options.userfilter = opt.fixed_user;
+        } else if (opt.fixed_group != undefined){
+            options.group = opt.fixed_group;
+        } else {
+            var select_val = $("#showback_owner_select .resource_list_select", div).val();
+
+            switch ($("select#showback_owner", div).val()){
+            case "showback_owner_all":
+                break;
+
+            case "showback_owner_group":
+                if(select_val != ""){
+                    options.group = select_val;
+                }
+                break;
+
+            case "showback_owner_user":
+                if(select_val != ""){
+                    options.userfilter = select_val;
+                }
+                break;
+            }
+        }
+
+        OpenNebula.VM.showback({
+    //        timeout: true,
+            success: function(req, response){
+                fillShowback(div, req, response);
+            },
+            error: onError,
+            data: options
+        });
+
+        return false;
+    });
+}
+
+function fillShowback(div, req, response) {
+    $("#showback_no_data", div).hide();
+
+    if(response.SHOWBACK_RECORDS == undefined){
+        $("#showback_placeholder", div).show();
+        $("#showback_content", div).hide();
+
+        $("#showback_no_data", div).show();
+        return false;
+    }
+
+    var vms_per_date = {};
+    $.each(response.SHOWBACK_RECORDS.SHOWBACK, function(index, showback){
+        if (vms_per_date[showback.YEAR] == undefined) {
+            vms_per_date[showback.YEAR] = {}
+        }
+
+        if (vms_per_date[showback.YEAR][showback.MONTH] == undefined) {
+            vms_per_date[showback.YEAR][showback.MONTH] = {
+                "VMS": [],
+                "TOTAL": 0
+            }
+        }
+
+        vms_per_date[showback.YEAR][showback.MONTH].VMS.push([showback.VMID, showback.VMNAME, showback.UNAME, showback.HOURS, showback.COST]);
+        vms_per_date[showback.YEAR][showback.MONTH].TOTAL += parseFloat(showback.COST);
+    });
+
+    var series = []
+    var showback_data = [];
+    $.each(vms_per_date, function(year, months){
+        $.each(months, function(month, value){
+            series.push([(new Date(year, month-1)).getTime(), year, month, $months[month-1] + " " + year, value.TOTAL.toFixed(2)])
+            showback_data.push([(new Date(year, month-1)), value.TOTAL.toFixed(2) ])
+        })
+    })
+
+    showback_dataTable.fnClearTable();
+    if (series.length > 0) {
+        showback_dataTable.data("vms_per_date", vms_per_date)
+        showback_dataTable.fnAddData(series);
+    }
+
+    var showback_plot_series = [];
+    showback_plot_series.push(
+    {
+        label: tr("Showback"),
+        data: showback_data
+    });
+
+    var options = {
+//        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]
+        colors: [ "#2ba6cb", "#707D85", "#AC5A62" ],
+        legend: {
+            show: false
+        },
+        xaxis : {
+            mode: "time",
+            color: "#efefef",
+            size: 8,
+            minTickSize: [1, "month"]
+        },
+        yaxis : {
+            show: false
+        },
+        series: {
+            bars: {
+                show: true,
+                lineWidth: 0,
+                barWidth: 24 * 60 * 60 * 1000 * 20,
+                fill: true,
+                align: "left"
+            }
+        },
+        grid: {
+            borderWidth: 1,
+            borderColor: "#efefef",
+            hoverable: true
+        }
+        //tooltip: true,
+        //tooltipOpts: {
+        //    content: "%x"
+        //}
+    };
+
+    var showback_plot = $.plot($("#showback_graph", div), showback_plot_series, options);
+
+    $("#showback_placeholder", div).hide();
+    $("#showback_content", div).show();
+}
+
 // div is a jQuery selector
 // The following options can be set:
 //   fixed_user     fix an owner user ID
@@ -6476,7 +6781,7 @@ function generateResourceTableSelect(context_id, columns, options){
     var html =
     '<div class="row">\
       <div class="large-8 columns">\
-         <button id="refresh_button_'+context_id+'" type="button" class="button small radius secondary"><i class="fa fa-refresh" /></button>\
+         <a id="refresh_button_'+context_id+'" href="#" class="button small radius secondary"><i class="fa fa-refresh" /></a>\
       </div>\
       <div class="large-4 columns">\
         <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
@@ -6559,6 +6864,7 @@ function setupResourceTableSelect(section, context_id, options) {
 
     section.on('click', '#refresh_button_'+context_id, function(){
         options.update_fn($('table[id=datatable_'+context_id+']', section).dataTable());
+        return false;
     });
 
     $('#'+context_id+'_search', section).keyup(function(){
@@ -7132,6 +7438,81 @@ function sg_rule_to_st(rule){
     text["NETWORK"] = network;
 
     return text;
+}
+
+//==============================================================================
+//==============================================================================
+
+/*
+    Insert a select input with an optionally text input for custom values
+
+    @param opts.id key of the OpenNebula Template
+    @param opts.label name to be shown as label
+    @param opts.tooltip 
+    @param opts.options array of options for the select
+    @param opts.custom boolean, provide a text input for a custom value (default: false)
+    @return {string}
+*/
+function generateValueSelect(opts){
+    var str = '<div class="custom_select_container row collapse">'+
+            '<label for="' + opts.id + '_select">'+ opts.label +
+              '<span data-tooltip class="has-tip" title="' + opts.tooltip + '"><i class="fa fa-question-circle"></i></span>' +
+            '</label>';
+
+    str += '<div class="custom_select_input_div vm_param columns hidden">';
+    str += '<input id="' + opts.id + '" type="text" class="custom_select_input"/>';
+    str += '</div>';
+
+    str += '<div class="custom_select_div large-12 columns">'+ 
+            '<select name="' + opts.id + '_select" class="custom_select">';
+
+    str += '<option id="" name="" value=""></option>';
+
+    $.each(opts.options, function(index, option){
+        str += '<option value="' + option + '">' + option + '</option>';
+    });
+
+    if (opts.custom) {
+        str += '<option class="custom_option" value="custom">...</option>';
+
+    }
+
+    str += '</select>';
+    str += '</div>';
+
+    $(document).on("change", ".custom_select_input", function(){
+        var select = $(".custom_select", $(this).closest(".custom_select_container"));
+        select.val($(this).val());
+        if (select.val() == null) {
+            select.val("custom");
+        }
+        select.change();
+    });
+
+    $(document).on("change", ".custom_select", function(){
+        var container = $(this).closest(".custom_select_container");
+        if ($(this).val() == "custom") {
+            $(this).addClass("postfix");
+            $(".custom_select_input", container).focus();
+
+            $(".custom_select_input_div", container).show();
+            $(".custom_select_input_div", container).addClass("large-10");
+            $(".custom_select_div", container).addClass("large-2");
+            $(".custom_select_div", container).removeClass("large-12");
+        } else {
+            $(this).removeClass("postfix");
+            $(".custom_select_input", container).val($(this).val());
+
+            $(".custom_select_input_div", container).hide();
+            $(".custom_select_input_div", container).removeClass("large-10");
+            $(".custom_select_div", container).removeClass("large-2");
+            $(".custom_select_div", container).addClass("large-12");
+        }
+    });
+
+    str += '</div>';
+
+    return str;
 }
 
 //==============================================================================

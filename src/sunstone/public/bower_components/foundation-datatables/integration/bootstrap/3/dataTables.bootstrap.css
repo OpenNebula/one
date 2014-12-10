@@ -1,35 +1,54 @@
 div.dataTables_length label {
 	font-weight: normal;
-	float: left;
 	text-align: left;
+	white-space: nowrap;
 }
 
 div.dataTables_length select {
 	width: 75px;
+	display: inline-block;
+}
+
+div.dataTables_filter {
+	text-align: right;
 }
 
 div.dataTables_filter label {
 	font-weight: normal;
-	float: right;
+	white-space: nowrap;
+	text-align: left;
 }
 
 div.dataTables_filter input {
-	width: 16em;
+	margin-left: 0.5em;
+	display: inline-block;
 }
 
 div.dataTables_info {
 	padding-top: 8px;
+	white-space: nowrap;
 }
 
 div.dataTables_paginate {
-	float: right;
 	margin: 0;
+	white-space: nowrap;
+	text-align: right;
 }
 
 div.dataTables_paginate ul.pagination {
 	margin: 2px 0;
 	white-space: nowrap;
 }
+
+@media screen and (max-width: 767px) {
+	div.dataTables_length,
+	div.dataTables_filter,
+	div.dataTables_info,
+	div.dataTables_paginate {
+		text-align: center;
+	}
+}
+
 
 table.dataTable td,
 table.dataTable th {
@@ -130,24 +149,24 @@ div.dataTables_scrollHead table.table-bordered {
 /*
  * TableTools styles
  */
-.table tbody tr.active td,
-.table tbody tr.active th {
+.table.dataTable tbody tr.active td,
+.table.dataTable tbody tr.active th {
 	background-color: #08C;
 	color: white;
 }
 
-.table tbody tr.active:hover td,
-.table tbody tr.active:hover th {
+.table.dataTable tbody tr.active:hover td,
+.table.dataTable tbody tr.active:hover th {
 	background-color: #0075b0 !important;
 }
 
-.table tbody tr.active th > a,
-.table tbody tr.active td > a {
+.table.dataTable tbody tr.active th > a,
+.table.dataTable tbody tr.active td > a {
 	color: white;
 }
 
-.table-striped tbody tr.active:nth-child(odd) td,
-.table-striped tbody tr.active:nth-child(odd) th {
+.table-striped.dataTable tbody tr.active:nth-child(odd) td,
+.table-striped.dataTable tbody tr.active:nth-child(odd) th {
 	background-color: #017ebc;
 }
 
@@ -224,10 +243,11 @@ div.dataTables_processing {
     top: 50%;
     left: 50%;
     width: 100%;
-    height: 40px;
+    height: 60px;
     margin-left: -50%;
     margin-top: -25px;
     padding-top: 20px;
+    padding-bottom: 20px;
     text-align: center;
     font-size: 1.2em;
     background-color: white;
@@ -255,6 +275,7 @@ table.DTFC_Cloned tr.even {
  
 div.DTFC_RightHeadWrapper table ,
 div.DTFC_LeftHeadWrapper table {
+	border-bottom: none !important;
     margin-bottom: 0 !important;
     border-top-right-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
@@ -285,6 +306,7 @@ div.DTFC_LeftBodyWrapper tbody tr:first-child td {
 div.DTFC_RightFootWrapper table,
 div.DTFC_LeftFootWrapper table {
     border-top: none;
+    margin-top: 0 !important;
 }
 
 

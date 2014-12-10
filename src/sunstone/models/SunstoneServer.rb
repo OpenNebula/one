@@ -393,6 +393,33 @@ class SunstoneServer < CloudServer
         return [200, rc.to_json]
     end
 
+    def get_vm_showback(options)
+        pool = VirtualMachinePool.new(@client)
+
+        filter_flag = options[:userfilter] ? options[:userfilter].to_i : VirtualMachinePool::INFO_ALL
+        start_month  = options[:start_month] ? options[:start_month].to_i : -1
+        start_year  = options[:start_year] ? options[:start_year].to_i : -1
+        end_month    = options[:end_month]   ? options[:end_month].to_i : -1
+        end_year    = options[:end_year]   ? options[:end_year].to_i : -1
+
+        acct_options = {
+            :start_month => start_month,
+            :start_year => start_year,
+            :end_month   => end_month,
+            :end_year   => end_year,
+            :group      => options[:group]
+        }
+
+        rc = pool.showback(filter_flag, acct_options)
+
+        if OpenNebula.is_error?(rc)
+            error = Error.new(rc.message)
+            return [500, error.to_json]
+        end
+
+        return [200, rc.to_json]
+    end
+
 
     private
 

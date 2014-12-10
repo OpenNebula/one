@@ -825,9 +825,10 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
   '<div class="row">'+
     '<div class="large-12 large-centered columns">'+
       '<dl class="tabs text-center" data-tab style="width: 100%">'+
-        '<dd class="active" style="width: 34%;"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
-        '<dd style="width: 33%;"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
-        '<dd style="width: 33%;"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
+        '<dd class="active" style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ tr("Settings") +'</a></dd>'+
+        (Config.isFeatureEnabled("showback") ? '<dd style="width: 25%;"><a href="#provision_info_showback"><i class="fa fa-fw fa-lg fa-money"/>&emsp;'+ tr("Showback") +'</a></dd>' : '') +
+        '<dd style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ tr("Accounting") +'</a></dd>'+
+        '<dd style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ tr("Quotas") +'</a></dd>'+
       '</dl>'+
       '<br>'+
     '</div>'+
@@ -839,6 +840,12 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
         '</div>'+
       '</div>'+
     '</div>'+
+    (Config.isFeatureEnabled("showback") ? '<div class="content" id="provision_info_showback">'+
+      '<div class="row">'+
+        '<div id="provision_user_info_showback_div" class="large-12 large-centered columns">'+
+        '</div>'+
+      '</div>'+
+    '</div>' : '')+
     '<div class="content" id="provision_info_quotas">'+
       '<div class="row">'+
         '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns quotas">'+
@@ -1199,6 +1206,21 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '</div>'+
       '</div>'+
       '<br>'+
+      (Config.isFeatureEnabled("showback") ? '<div class="row">'+
+        '<div class="large-11 large-centered columns">'+
+          '<h3 class="subheader text-right">'+
+            '<span class="left">'+
+              tr("VDC Showback")+
+            '</span>'+
+          '</h3>'+
+        '</div>'+
+      '</div>'+
+      '<br>'+
+      '<div class="row">'+
+        '<div  id="provision_info_vdc_group_showback" class="large-10 large-centered columns">'+
+        '</div>'+
+      '</div>'+
+      '<br>' : '') +
       '<div class="row">'+
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
@@ -1899,10 +1921,10 @@ function generate_custom_attrs(context, custom_attrs) {
   }
 }
 
-function generate_cardinality_selector(context, role_template) {
+function generate_cardinality_selector(context, role_template, template_json) {
   context.off();
   var min_vms = (role_template.min_vms||1);
-  var max_vms = (role_template.max_vms||100);
+  var max_vms = (role_template.max_vms||20);
 
   context.html(
     '<br>'+
@@ -1922,32 +1944,59 @@ function generate_cardinality_selector(context, role_template) {
     '<div class="row">'+
       '<div class="large-12 columns">'+
         '<div class="row">'+
-          '<div class="large-5 text-center columns">'+
-            '<span class="cardinality_value" style="color: #777; font-size:60px">'+role_template.cardinality+'</span>'+
+          '<div class="large-2 text-center columns">'+
+            '<span class="cardinality_value" style="color: #777; font-size:40px">'+role_template.cardinality+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("VMs")+'</span>'+
           '</div>'+
-          '<div class="large-7 columns">'+
-          '<div class="cardinality_slider_div">'+
-            '<span class="" style="color: #777;">'+tr("Change cardinality")+'</span>'+
-            '<br>'+
-            '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
-              '<span class="range-slider-handle"></span>'+
-              '<span class="range-slider-active-segment"></span>'+
-              '<input type="hidden">'+
+          '<div class="large-6 columns">'+
+            '<div class="cardinality_slider_div">'+
+              '<span class="" style="color: #777;">'+tr("Change cardinality")+'</span>'+
+              '<br>'+
+              '<div class="range-slider radius cardinality_slider" data-slider data-options="start: 1; end: 50;">'+
+                '<span class="range-slider-handle"></span>'+
+                '<span class="range-slider-active-segment"></span>'+
+                '<input type="hidden">'+
+              '</div>'+
+              '<span class="left" style="color: #999;">'+min_vms+'</span>'+
+              '<span class="right" style="color: #999;">'+max_vms+'</span>'+
             '</div>'+
-            '<span class="left" style="color: #999;">'+min_vms+'</span>'+
-            '<span class="right" style="color: #999;">'+max_vms+'</span>'+
+            '<div class="cardinality_no_slider_div">'+
+              '<br>'+
+              '<br>'+
+              '<span class="" style="color: #999;">'+tr("The cardinality for this role cannot be changed")+'</span>'+
+            '</div>'+
           '</div>'+
-          '<div class="cardinality_no_slider_div">'+
+          '<div class="large-4 columns text-center provision_create_service_cost_div hidden">'+
+            '<span class="cost_value" style="color: #777; font-size:40px"></span>'+
             '<br>'+
-            '<br>'+
-            '<span class="" style="color: #999;">'+tr("The cardinality for this role cannot be changed")+'</span>'+
-          '</div>'+
+            '<span style="color: #999;">'+tr("COST")+' / ' + tr("HOUR") + '</span>'+
           '</div>'+
         '</div>'+
       '</div>'+
     '</div>');
+
+    var capacity = template_json.VMTEMPLATE.TEMPLATE;
+    var cost = 0;
+    if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
+      $(".provision_create_service_cost_div").show();
+
+      if (capacity.CPU && capacity.CPU_COST) {
+        cost += capacity.CPU * capacity.CPU_COST
+        $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+      }
+
+      if (capacity.MEMORY && capacity.MEMORY_COST) {
+        cost += capacity.MEMORY * capacity.MEMORY_COST
+        $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+      }
+
+      $(".provision_create_service_cost_div", context).data("cost", cost)
+      var cost_value = cost*parseInt(role_template.cardinality);
+      $(".cost_value").html(cost_value.toFixed(2));
+    } else {
+      $(".provision_create_service_cost_div").hide();
+    }
 
     if (max_vms > min_vms) {
       $( ".cardinality_slider", context).attr('data-options', 'start: '+min_vms+'; end: '+max_vms+';')
@@ -1959,9 +2008,9 @@ function generate_cardinality_selector(context, role_template) {
 
       $( ".cardinality_slider", context).on('change', function(){
         $(".cardinality_value",context).html($(this).attr('data-slider'))
+        var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
+        $(".cost_value").html(cost_value.toFixed(2));
       });
-
-
     } else {
       $( ".cardinality_slider_div", context).hide();
       $( ".cardinality_no_slider_div", context).show();
@@ -2000,17 +2049,22 @@ function generate_provision_instance_type_accordion(context, capacity) {
     '<div class="row">'+
       '<div class="large-12 large-centered columns">'+
         '<div class="row text-center">'+
-          '<div class="large-6 columns">'+
+          '<div class="large-4 columns">'+
             '<span class="cpu_value" style="color: #777; font-size:60px">'+capacity.CPU+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("CPU")+'</span>'+
           '</div>'+
-          '<div class="large-6 columns">'+
+          '<div class="large-4 columns">'+
             '<span class="memory_value" style="color: #777; font-size:60px">'+memory_value+'</span>'+
             ' '+
             '<span class="memory_unit" style="color: #777; font-size:30px">'+memory_unit+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("MEMORY")+'</span>'+
+          '</div>'+
+          '<div class="large-4 columns provision_create_template_cost_div hidden">'+
+            '<span class="cost_value" style="color: #777; font-size:60px"></span>'+
+            '<br>'+
+            '<span style="color: #999;">'+tr("COST")+' / ' + tr("HOUR") + '</span>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -2053,6 +2107,25 @@ function generate_provision_instance_type_accordion(context, capacity) {
       '</div>'+
     '</div>'+
     '<br>');
+
+  var cost = 0;
+  if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
+    $(".provision_create_template_cost_div").show();
+
+    if (capacity.CPU && capacity.CPU_COST) {
+      cost += capacity.CPU * capacity.CPU_COST
+      $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+    }
+
+    if (capacity.MEMORY && capacity.MEMORY_COST) {
+      cost += capacity.MEMORY * capacity.MEMORY_COST
+      $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+    }
+
+    $(".cost_value").html(cost);
+  } else {
+    $(".provision_create_template_cost_div").hide();
+  }
 
   provision_instance_type_accordion_id += 1;
 
@@ -2145,6 +2218,20 @@ function generate_provision_instance_type_accordion(context, capacity) {
 
     $(".memory_value", context).html(memory_value);
     $(".memory_unit", context).html(memory_unit);
+
+    if (Config.isFeatureEnabled("showback")) {
+      var cost = 0;
+
+      if ($(".cost_value").data("CPU_COST")) {
+        cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+      }
+
+      if ($(".cost_value").data("MEMORY_COST")) {
+        cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
+      }
+
+      $(".cost_value").html(cost);
+    }
 
     $('.accordion a', context).first().trigger("click");
   })
@@ -2690,6 +2777,13 @@ function show_provision_user_info_callback(request, response) {
     $("#provision_user_info_acct_div"),
       { fixed_user: info.ID,
         fixed_group_by: "vm" });
+
+
+  if (Config.isFeatureEnabled("showback")) {
+    showbackGraphs(
+      $("#provision_user_info_showback_div"),
+        { fixed_user: info.ID});
+  }
 }
 
 
@@ -2714,6 +2808,12 @@ function show_provision_group_info_callback(request, response) {
     $("#provision_info_vdc_group_acct", context),
     {   fixed_group: info.ID,
         init_group_by: "user" });
+
+  if (Config.isFeatureEnabled("showback")) {
+    showbackGraphs(
+      $("#provision_info_vdc_group_showback", context),
+      {   fixed_group: info.ID });
+  }
 
   $("#acct_placeholder", context).hide();
 }
@@ -5010,6 +5110,9 @@ function setup_provision_user_info(context) {
               '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="'+tr("User Accounting")+'" style="margin-right: 10px">'+
                 '<i class="fa fa-bar-chart-o fa-lg"></i>'+
               '</span>'+
+              (Config.isFeatureEnabled("showback") ? '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="'+tr("User Showback")+'" style="margin-right: 10px">'+
+                '<i class="fa fa-money fa-lg"></i>'+
+              '</span>' : '') +
             '</li>'+
             '<li class="provision-bullet-item text-left">'+
             '</li>')
@@ -5146,6 +5249,21 @@ function setup_provision_user_info(context) {
       '</h2>')
   })
 
+  if (Config.isFeatureEnabled("showback")) { 
+    context.on("click", ".provision_vdc_user_info_show_showback", function(){
+      $(".provision_vdc_info_container", context).html("");
+
+      showbackGraphs(
+        $(".provision_vdc_info_container", context),
+          { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id")});
+
+      $(".provision_vdc_info_container", context).prepend(
+        '<h2 class="subheader">'+
+          $(".provision_info_vdc_user", context).attr("uname") + ' ' + tr("Showback")+
+        '</h2>')
+    })
+  };
+
   context.on("click", ".provision_vdc_user_delete_confirm_button", function(){
     $(".provision_vdc_user_confirm_action", context).html(
       '<div data-alert class="alert-box secondary radius">'+
@@ -5188,7 +5306,7 @@ function setup_provision_user_info(context) {
         '<a href="#" class="close" style="top: 20px">&times;</a>'+
       '</div>');
 
-      context.on("click", "#provision_vdc_user_change_password_button", function(){
+      context.on("click", ".provision_vdc_user_change_password_button", function(){
         var button = $(this);
         button.attr("disabled", "disabled");
         var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
@@ -6294,26 +6412,17 @@ $(document).ready(function(){
           var template_id = role.vm_template;
           var role_html_id = "#provision_create_flow_role_"+index;
 
-          generate_cardinality_selector(
-            $(".provision_cardinality_selector", context),
-            role);
-
           OpenNebula.Template.show({
             data : {
                 id: template_id
             },
             success: function(request,template_json){
               var role_context = $(role_html_id)
-              //var template_nic = template_json.VMTEMPLATE.TEMPLATE.NIC
-              //var nics = []
-              //if ($.isArray(template_nic))
-              //    nics = template_nic
-              //else if (!$.isEmptyObject(template_nic))
-              //    nics = [template_nic]
-//
-              //generate_provision_instance_type_accordion(
-              //  $(".provision_capacity_selector", role_context),
-              //  template_json.VMTEMPLATE.TEMPLATE);
+
+              generate_cardinality_selector(
+                $(".provision_cardinality_selector", context),
+                role,
+                template_json);
 
               if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
                 generate_custom_attrs(
