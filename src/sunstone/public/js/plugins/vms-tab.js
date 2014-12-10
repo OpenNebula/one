@@ -2974,11 +2974,11 @@ function setupVNC(){
     <div class="large-12 columns">\
       <h3 class="subheader" id="vnc_dialog">'+tr("VNC")+' \
           <span id="VNC_status">'+tr("Loading")+'</span>\
-          <span id="VNC_buttons">\
-            <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
             <a id="open_in_a_new_window" href="" target="_blank" title="'+tr("Open in a new window")+'">\
               <i class="fa fa-external-link detach-vnc-icon"/>\
             </a>\
+          <span id="VNC_buttons" class="right">\
+            <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
           </span>\
       </h3>\
     </div>\
