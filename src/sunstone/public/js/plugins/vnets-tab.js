@@ -52,7 +52,7 @@ var create_vnet_wizard_html =
                 <label for="mac_spoofing">\
                   <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />\
                   '+tr("Filter MAC spoofing")+'\
-                  <span class="tip">'+tr("TODO")+'</span>\
+                  <span class="tip">'+tr("Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q and Ebtables network drivers.")+'</span>\
                 </label>\
               </div>\
             </div>\
@@ -61,7 +61,7 @@ var create_vnet_wizard_html =
                 <label for="ip_spoofing">\
                   <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />\
                   '+tr("Filter IP spoofing")+'\
-                  <span class="tip">'+tr("TODO")+'</span>\
+                  <span class="tip">'+tr("Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q and Ebtables network drivers.")+'</span>\
                 </label>\
               </div>\
             </div>\
@@ -446,7 +446,7 @@ var vnet_actions = {
         type: "single",
         call: OpenNebula.Network.show,
         callback: function(request, response) {
-            // TODO: global var, better use jquery .data 
+            // TODO: global var, better use jquery .data
             vnet_to_update_id = response.VNET.ID;
 
             Sunstone.popUpFormPanel("create_vnet_form", "vnets-tab", "update", true, function(context){
@@ -1148,9 +1148,9 @@ function setup_ar_show_info(section, vn_info, ar_id){
 
     if (ar.SECURITY_GROUPS != undefined &&
         ar.SECURITY_GROUPS.length != 0){
-    
+
         var secgroups = ar.SECURITY_GROUPS.split(",");
-    
+
         var opts = {
             read_only: true,
             fixed_ids: secgroups
@@ -1189,7 +1189,7 @@ function setup_sg_list_tab_content(vn_info){
 
     if (vn_info.TEMPLATE.SECURITY_GROUPS != undefined &&
         vn_info.TEMPLATE.SECURITY_GROUPS.length != 0){
-    
+
         secgroups = vn_info.TEMPLATE.SECURITY_GROUPS.split(",");
     }
 
