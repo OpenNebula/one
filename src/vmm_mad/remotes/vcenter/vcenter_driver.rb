@@ -252,42 +252,57 @@ class VIClient
             one_nets = []
 
             networks.each { |n|
+                vnet_template =  "NAME=\"#{n[:name]}\"\n" +
+                                 "BRIDGE=\"#{n[:name]}\"\n" +
+                                 "VCENTER_TYPE=\"Port Group\"" +
+                                 "AR=[\n" +
+                                 " TYPE = \"ETHER\"\n,"
+
                 one_nets << {:name => n.name,
                              :bridge => n.name,
-                             :type => "Port Group"}
+                             :type => "Port Group",
+                             :one => vnet_template}
             }
-
-            vcenter_networks[dc.name] = one_nets
 
             networks = get_entities(dc.networkFolder,
                                     'DistributedVirtualPortgroup' )
-            one_nets = []
 
             networks.each { |n|
-                one_net = {:name => n.name,
-                           :bridge => n.name,
-                           :type=> "Distributed Port Group"}
+                vnet_template =  "NAME=\"#{n[:name]}\"\n" +
+                     "BRIDGE=\"#{n[:name]}\"\n" +
+                     "VCENTER_TYPE=\"Distributed Port Group\"" +
+                     "AR=[\n" +
+                     " TYPE = \"ETHER\"\n,"
 
-                vlan = n.config.defaultPortConfig.vlan.vlanId
+                vlan     = n.config.defaultPortConfig.vlan.vlanId
+                vlan_str = ""
 
                 if vlan != 0
                     if vlan.is_a? Array
-                        vlan_str = ""
                         vlan.each{|v|
-                            vlan_str += v.start + ".." + v.end + ","
+                            vlan_str += v.start.to_s + ".." + v.end.to_s + ","
                         }
                         vlan_str.chop!
                     else
                         vlan_str = vlan.to_s
                     end
+                end
 
+                one_net = {:name => n.name,
+                           :bridge => n.name,
+                           :type => "Distributed Port Group",
+                           :one => vnet_template}
+
+                if !vlan_str.empty?
                     one_net[:vlan] = vlan_str
+                    vnet_template = "VLAN=\"YES\"\nVLAN_ID=#{one_net[:vlan]}" +
+                                    vnet_template
                 end
 
                 one_nets <<  one_net
             }
 
-            vcenter_networks[dc.name] += one_nets
+            vcenter_networks[dc.name] = one_nets
         }
 
         return vcenter_networks
