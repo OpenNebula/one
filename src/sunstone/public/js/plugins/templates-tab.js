@@ -1578,51 +1578,6 @@ function generate_nic_tab_content(str_nic_tab_id){
       '</div>'+
       '<br>'+
       '<fieldset>'+
-        '<legend>'+tr("TCP Firewall")+'</legend>'+
-        '<div class="row">'+
-          '<div class="large-12 columns text-center">'+
-            '<input type="radio" class="tcp_type" name="tcp_type" id="'+str_nic_tab_id+'white_tcp_type" value="WHITE_PORTS_TCP"><label for="'+str_nic_tab_id+'white_tcp_type">' + tr("Whitelist") +'</label>'+
-            '<input type="radio" class="tcp_type" name="tcp_type" id="'+str_nic_tab_id+'black_tcp_type" value="BLACK_PORTS_TCP"><label for="'+str_nic_tab_id+'black_tcp_type">' + tr("Blacklist") +'</label>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<label for="TCP_PORTS">'+tr("PORTS")+
-              '<span class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</span>'+
-            '</label>'+
-            '<input type="text" id="TCP_PORTS" name="ports" />'+
-          '</div>'+
-        '</div>'+
-      '</fieldset>'+
-      '<fieldset>'+
-        '<legend>'+tr("UDP Firewall")+'</legend>'+
-        '<div class="row">'+
-          '<div class="large-12 columns text-center">'+
-            '<input type="radio" class="udp_type" name="udp_type" id="'+str_nic_tab_id+'white_udp_type" value="WHITE_PORTS_UDP"><label for="'+str_nic_tab_id+'white_udp_type">' + tr("Whitelist") +'</label>'+
-            '<input type="radio" class="udp_type" name="udp_type" id="'+str_nic_tab_id+'black_udp_type" value="BLACK_PORTS_UDP"><label for="'+str_nic_tab_id+'black_udp_type">' + tr("Blacklist") +'</label>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<label for="UDP_PORTS">'+tr("PORTS")+
-              '<span class="tip">'+tr("A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")+'</span>'+
-            '</label>'+
-            '<input type="text" id="UDP_PORTS" name="ports" />'+
-          '</div>'+
-        '</div>'+
-      '</fieldset>'+
-      '<fieldset>'+
-        '<legend>'+tr("ICMP")+'</legend>'+
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<label>'+
-                '<input type="checkbox" name="icmp_type" value="ICMP" id="icmp_type"> '+
-                tr("Drop")+
-            '</label>'+
-          '</div>'+
-        '</div>'+
-      '</fieldset>'+
-      '<fieldset>'+
         '<legend>'+tr("Security Groups")+'</legend>'+
         '<div name="str_nic_tab_id" str_nic_tab_id="'+str_nic_tab_id+'">'+
           generateSecurityGroupTableSelect("vm_create_nic_"+str_nic_tab_id)+
