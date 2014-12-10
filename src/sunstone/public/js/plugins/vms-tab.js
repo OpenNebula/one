@@ -2974,29 +2974,22 @@ function updateVNCState(rfb, state, oldstate, msg) {
     sb = $D('VNC_status_bar');
     cad = $D('sendCtrlAltDelButton');
     switch (state) {
-    case 'failed':
-    case 'fatal':
-        klass = "VNC_status_error";
-        break;
-    case 'normal':
-        klass = "VNC_status_normal";
-        break;
-    case 'disconnected':
-    case 'loaded':
-        klass = "VNC_status_normal";
-        break;
-    case 'password':
-        klass = "VNC_status_warn";
-        break;
-    default:
-        klass = "VNC_status_warn";
+        case 'failed':       level = "error";  break;
+        case 'fatal':        level = "error";  break;
+        case 'normal':       level = "normal"; break;
+        case 'disconnected': level = "normal"; break;
+        case 'loaded':       level = "normal"; break;
+        default:             level = "warn";   break;
     }
 
-    if (state === "normal") { cad.disabled = false; }
-    else                    { cad.disabled = true; }
+    if (state === "normal") {
+        cad.disabled = false;
+    } else {
+        cad.disabled = true;
+    }
 
     if (typeof(msg) !== 'undefined') {
-        sb.setAttribute("class", klass);
+        sb.setAttribute("class", "noVNC_status_" + level);
         s.innerHTML = msg;
     }
 }
@@ -3146,7 +3139,7 @@ function vncCallback(request,response){
                    'true_color':   true,
                    'local_cursor': true,
                    'shared':       true,
-                   'updateState':  updateVNCState});
+                   'onUpdateState':  updateVNCState});
 
     var proxy_host = window.location.hostname;
     var proxy_port = config['system_config']['vnc_proxy_port'];

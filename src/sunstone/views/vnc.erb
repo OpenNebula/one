@@ -45,12 +45,14 @@ var INCLUDE_URI = "vendor/noVNC/";
 
 <body style="margin: 0px;">
     <div id="noVNC_screen">
+    <div style="background: #f7f7f7; border-bottom: 1px solid #dfdfdf; padding: 10px 0px 15px 0px">
             <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
                 <table border=0 width="100%"><tr>
+                    <td width="1%" ><img src="images/one_small_logo.png" style="height:40px; vertical-align:top; margin-left: 30px"></td>
                     <td><div id="noVNC_status" style="position: relative; height: auto;">
                         Loading
                     </div></td>
-                    <td width="1%"><div id="noVNC_buttons">
+                    <td width="1%" ><div id="noVNC_buttons" style="margin-right: 30px">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
                         <span id="noVNC_xvp_buttons">
@@ -64,6 +66,7 @@ var INCLUDE_URI = "vendor/noVNC/";
                             </div></td>
                 </tr></table>
             </div>
+    </div>
             <canvas id="noVNC_canvas" width="640px" height="20px">
                 Canvas not supported.
             </canvas>
@@ -198,7 +201,7 @@ var INCLUDE_URI = "vendor/noVNC/";
                            'local_cursor': WebUtil.getQueryVar('cursor', true),
                            'shared':       WebUtil.getQueryVar('shared', true),
                            'view_only':    WebUtil.getQueryVar('view_only', false),
-                           'updateState':  updateState,
+                           'onUpdateState':  updateState,
                            'onXvpInit':    xvpInit,
                            'onPasswordRequired':  passwordRequired});
 
