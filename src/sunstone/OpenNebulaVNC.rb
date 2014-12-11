@@ -167,7 +167,7 @@ class OpenNebulaVNC
         end
 
         if vm_resource['TEMPLATE/GRAPHICS/TYPE'].nil? ||
-           vm_resource['TEMPLATE/GRAPHICS/TYPE'].downcase != "vnc"
+           !(["vnc", "spice"].include?(vm_resource['TEMPLATE/GRAPHICS/TYPE'].downcase))
             return error(400,"VM has no VNC configured")
         end
 

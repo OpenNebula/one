@@ -10,6 +10,7 @@
     "foundation-datatables": "https://github.com/DataTables/Plugins.git",
     "flot.tooltip": "latest",
     "no-vnc": "*",
-    "resumablejs": "*"
+    "resumablejs": "*",
+    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5"
   }
 }

@@ -1,0 +1,59 @@
+Medium Tasks:
+
+  . Get the mouse event code out of spicemsg (and make spicemsg
+    *only* about messages)
+
+  . Change the message processing to be able to handle
+    an array of ArrayBuffers so we don't have to 
+    use the combine function, which is presumed slow.
+
+  . Use the 'real' DataView if we have it
+
+  . Consider passing a status change event back to the front end
+    (e.g. indicators for numlock, connection status, all that jazz)
+
+  . Try to further Improve mouse position sends
+      - We now discard motions when we're more than 2 * SPICE_INPUT_MOTION_ACK_BUNCH
+        from an ack, just like the gtk client
+      - Other idea 1: queue them and only send when idle, but collapse first?
+      - Other idea 2: Time limit motion events
+
+  . Shift from the simplistic Makefile to an autoconf based Makefile
+    so we can try to support 'make install' on other systems.
+
+Big Tasks:
+
+  . Shift the code so it doesn't pollute the global namespace; that
+    will make it more usable as an embed or library
+
+  . Generate messages + enums from spice.proto
+
+  . Video:
+    - Need to pick a video codec and get support for it into spice server
+
+  . Explore clipboard
+    - Supporting it may require unpleasant hacks
+
+  . Fully flesh out image type support; plt, glz, and jpeg/alpha are likely
+    to be real work
+
+  . Fix the many limitations of Draw operation support (clipping, masking,
+    scaling, and so on)
+
+  . Implement direct websocket support for the spice server
+
+  . Profile the whole mess
+    - Initial profiling suggests image decompression is the big hog
+
+  . Improve agent support
+
+  . Build a test suite for measuring performance
+    - Latency, bandwidth, packet loss
+    - But how to quantify 'feel'?
+    - Suggestion:  recordmydesktop to capture videos
+        Use something like cxtest to create scripts
+        Do this with varying latency/bandwidth, etc
+        We can play videos side by side
+        And potentially use tool like MSU Video Quality Measurement Tool
+        (SSIM is the concept for measuring how much frames differ)
+    - Key metric - how much cpu / memory / bandwidth per 'active' user

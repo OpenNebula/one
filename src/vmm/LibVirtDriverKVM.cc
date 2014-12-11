@@ -24,12 +24,17 @@
 
 const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
 
+const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
+
+const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
+
 /**
  *  This function generates the <host> element for network disks
  */
 static void do_network_hosts(ofstream& file,
                              const string& cg_host,
-                             const string& transport)
+                             const string& transport,
+                             int   default_port)
 {
     if (cg_host.empty())
     {
@@ -58,6 +63,10 @@ static void do_network_hosts(ofstream& file,
         if (parts.size() > 1)
         {
             file << "' port='" << parts[1];
+        }
+        else if ( default_port != -1 )
+        {
+            file << "' port='" << default_port;
         }
 
         if (!transport.empty())
@@ -518,7 +527,7 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-            do_network_hosts(file, ceph_host, "");
+            do_network_hosts(file, ceph_host, "", CEPH_DEFAULT_PORT);
 
             if ( !ceph_secret.empty() && !ceph_user.empty())
             {
@@ -551,7 +560,7 @@ int LibVirtDriver::deployment_description_kvm(
                 file << one_util::split(source, '/').back();
             }
 
-            do_network_hosts(file, gluster_host, "tcp");
+            do_network_hosts(file, gluster_host, "tcp", GLUSTER_DEFAULT_PORT);
         }
         else if ( type == "CDROM" )
         {

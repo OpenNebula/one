@@ -20,6 +20,7 @@ var VM_HISTORY_LENGTH = 40;
 
 // Only one vnc request is allowed
 var vnc_lock = false;
+var spice_lock = false;
 
 function loadVNC(){
     // Load supporting scripts
@@ -193,6 +194,7 @@ var $create_vm_dialog;
 var $deploy_vm_dialog;
 var $migrate_vm_dialog;
 var $vnc_dialog;
+var $spice_dialog;
 var rfb;
 
 var vm_actions = {
@@ -538,6 +540,13 @@ var vm_actions = {
         }
     },
 
+    "VM.startspice" : {
+        type: "custom",
+        call: function(){
+          popUpSPICE();
+        }
+    },
+
     "VM.startvnc_action" : {
         type: "single",
         call: OpenNebula.VM.startvnc,
@@ -545,6 +554,17 @@ var vm_actions = {
         error: function(req, resp){
             onError(req, resp);
             vnc_lock = false;
+        },
+        notify: true
+    },
+
+    "VM.startspice_action" : {
+        type: "single",
+        call: OpenNebula.VM.startvnc,
+        callback: spiceCallback,
+        error: function(req, resp){
+            onError(req, resp);
+            spice_lock = false;
         },
         notify: true
     },
@@ -903,6 +923,12 @@ var vm_buttons = {
         text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("VNC"),
         custom_classes: "only-right-info vnc-right-info",
         tip: tr("VNC")
+    },
+    "VM.startspice" : {
+        type: "action",
+        text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> '+tr("SPICE"),
+        custom_classes: "only-right-info spice-right-info",
+        tip: tr("SPICE")
     }
 }
 
@@ -938,7 +964,7 @@ var vms_tab = {
             <th>'+tr("Host")+'</th>\
             <th>'+tr("IPs")+'</th>\
             <th>'+tr("Start Time")+'</th>\
-            <th>'+tr("VNC")+'</th>\
+            <th>'+tr("")+'</th>\
           </tr>\
         </thead>\
         <tbody id="tbodyvmachines">\
@@ -1451,9 +1477,21 @@ function updateVMInfo(request,vm){
     // Enable / disable vnc button
     $(".vnc-right-info").prop("disabled", !enableVnc(vm_info));
 
-    var nic_dt_data = $("#vms-tab").data("nic_dt_data");
+    if (!enableVnc(vm_info)) {
+        $(".vnc-right-info").hide();
+    } else {
+        $(".vnc-right-info").show();
+    }
+
+    if (!enableSPICE(vm_info)) {
+        $(".spice-right-info").hide();
+    } else {
+        $(".spice-right-info").show();
+    }
 
     // Setup and fill nics
+    var nic_dt_data = $("#vms-tab").data("nic_dt_data");
+
     var nics_table = $("#tab_network_form .nics_table", $info_panel).DataTable({
         "bDeferRender": true,
         "data": nic_dt_data,
@@ -3037,29 +3075,22 @@ function updateVNCState(rfb, state, oldstate, msg) {
     sb = $D('VNC_status_bar');
     cad = $D('sendCtrlAltDelButton');
     switch (state) {
-    case 'failed':
-    case 'fatal':
-        klass = "VNC_status_error";
-        break;
-    case 'normal':
-        klass = "VNC_status_normal";
-        break;
-    case 'disconnected':
-    case 'loaded':
-        klass = "VNC_status_normal";
-        break;
-    case 'password':
-        klass = "VNC_status_warn";
-        break;
-    default:
-        klass = "VNC_status_warn";
+        case 'failed':       level = "error";  break;
+        case 'fatal':        level = "error";  break;
+        case 'normal':       level = "normal"; break;
+        case 'disconnected': level = "normal"; break;
+        case 'loaded':       level = "normal"; break;
+        default:             level = "warn";   break;
     }
 
-    if (state === "normal") { cad.disabled = false; }
-    else                    { cad.disabled = true; }
+    if (state === "normal") {
+        cad.disabled = false;
+    } else {
+        cad.disabled = true;
+    }
 
     if (typeof(msg) !== 'undefined') {
-        sb.setAttribute("class", klass);
+        sb.setAttribute("class", "noVNC_status_" + level);
         s.innerHTML = msg;
     }
 }
@@ -3077,11 +3108,11 @@ function setupVNC(){
     <div class="large-12 columns">\
       <h3 class="subheader" id="vnc_dialog">'+tr("VNC")+' \
           <span id="VNC_status">'+tr("Loading")+'</span>\
-          <span id="VNC_buttons">\
-            <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
             <a id="open_in_a_new_window" href="" target="_blank" title="'+tr("Open in a new window")+'">\
               <i class="fa fa-external-link detach-vnc-icon"/>\
             </a>\
+          <span id="VNC_buttons" class="right">\
+            <input type=button value="Send CtrlAltDel" id="sendCtrlAltDelButton">\
           </span>\
       </h3>\
     </div>\
@@ -3125,6 +3156,58 @@ function setupVNC(){
     });
 }
 
+
+//setups VNC application
+function setupSPICE(){
+
+    //Append to DOM
+    dialogs_context.append('<div id="spice_dialog" style="width:auto; max-width:70%"></div>');
+    $spice_dialog = $('#spice_dialog',dialogs_context);
+    var dialog = $spice_dialog;
+
+    dialog.html('\
+  <div class="row">\
+    <div class="large-12 columns">\
+      <h3 class="subheader" id="spice_dialog">'+tr("SPICE")+' \
+          <span id="vnc_buttons">\
+            <a id="open_in_a_new_window_spice" href="" target="_blank" title="'+tr("Open in a new window")+'">\
+              <i class="fa fa-external-link detach-spice-icon"/>\
+            </a>\
+          </span>\
+      </h3>\
+    </div>\
+  </div>\
+  <div class="reveal-body" style="width:100%; overflow-x:overlay">\
+    <div id="spice-area">\
+        <div id="spice-screen" class="spice-screen"></div>\
+    </div>\
+  </div>\
+  <a class="close-reveal-modal">&#215;</a>\
+');
+
+    dialog.addClass("reveal-modal large max-height").attr("data-reveal", "");
+
+    $spice_dialog.foundation();
+
+    $("#open_in_a_new_window_spice", dialog).on("click", function(){
+      $spice_dialog.foundation('reveal', 'close');
+    });
+
+    $('.spice').live("click",function(){
+        var id = $(this).attr('vm_id');
+
+        //Ask server for connection params
+        if (!vnc_lock) {
+            spice_lock = true
+            Sunstone.runAction("VM.startspice_action",id);
+            return false;
+        } else {
+            notifyError(tr("SPICE Connection in progress"))
+            return false;
+        }
+    });
+}
+
 // Open vnc window
 function popUpVnc(){
     $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
@@ -3138,13 +3221,26 @@ function popUpVnc(){
     });
 }
 
+// Open vnc window
+function popUpSPICE(){
+    $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
+        if (!spice_lock) {
+            spice_lock = true
+            Sunstone.runAction("VM.startspice_action", elem);
+        } else {
+            notifyError(tr("SPICE Connection in progress"))
+            return false;
+        }
+    });
+}
+
 function vncCallback(request,response){
     rfb = new RFB({'target':       $D('VNC_canvas'),
                    'encrypt':      config['user_config']['vnc_wss'] == "yes",
                    'true_color':   true,
                    'local_cursor': true,
                    'shared':       true,
-                   'updateState':  updateVNCState});
+                   'onUpdateState':  updateVNCState});
 
     var proxy_host = window.location.hostname;
     var proxy_port = config['system_config']['vnc_proxy_port'];
@@ -3172,22 +3268,88 @@ function vncCallback(request,response){
     });
 }
 
-// returns true if the vnc button should be enabled
-function enableVnc(vm){
-    var graphics = vm.TEMPLATE.GRAPHICS;
-    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+function spiceCallback(request,response){
+    var host = null, port = null;
+    var sc;
 
-    return (graphics &&
-        graphics.TYPE &&
-        graphics.TYPE.toLowerCase() == "vnc" &&
-        $.inArray(state, VNCstates)!=-1);
+    function spice_error(e) {
+        disconnect();
+    }
+
+    function disconnect() {
+        if (sc) {
+            sc.stop();
+        }
+    }
+
+    function agent_connected(sc)
+    {
+        window.addEventListener('resize', handle_resize);
+        window.spice_connection = this;
+
+        resize_helper(this);
+    }
+
+    var host, port, password, scheme = "ws://", uri, token, vm_name;
+
+    if (config['user_config']['vnc_wss'] == "yes") {
+        scheme = "wss://";
+    }
+
+    host = window.location.hostname;
+    port = config['system_config']['vnc_proxy_port'];
+    password = response["password"];
+    token = response["token"];
+    vm_name = response["vm_name"];
+
+    if ((!host) || (!port)) {
+        console.log("must specify host and port in URL");
+        return;
+    }
+
+    if (sc) {
+        sc.stop();
+    }
+
+    uri = scheme + host + ":" + port + "?token=" + token;
+
+    try {
+        sc = new SpiceMainConn({uri: uri, screen_id: "spice-screen", dump_id: "debug-div",
+                    message_id: "", password: password, onerror: spice_error, onagent: agent_connected });
+    }
+    catch (e) {
+        alert(e.toString());
+        disconnect();
+    }
+
+    var url = "spice?";
+    url += "host=" + host;
+    url += "&port=" + port;
+    url += "&token=" + token;
+    url += "&password=" + password;
+    url += "&encrypt=" + config['user_config']['vnc_wss'];
+    url += "&title=" + vm_name;
+
+    $("#open_in_a_new_window_spice").attr('href', url)
+    $spice_dialog.foundation("reveal", "open");
+    spice_lock = false;
+
+    $spice_dialog.off("closed");
+    $spice_dialog.on("closed", function () {
+      disconnect();
+    });
 }
+
 
 function vncIcon(vm){
     var gr_icon;
 
     if (enableVnc(vm)){
         gr_icon = '<a class="vnc" href="#" vm_id="'+vm.ID+'">';
+        gr_icon += '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/>';
+    }
+    else if (enableSPICE(vm)){
+        gr_icon = '<a class="spice" href="#" vm_id="'+vm.ID+'">';
         gr_icon += '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/>';
     }
     else {
@@ -3237,6 +3399,7 @@ $(document).ready(function(){
       Sunstone.runAction("VM.list");
 
       setupVNC();
+      setupSPICE();
       hotpluggingOps();
       setup_vm_network_tab();
       setup_vm_capacity_tab();
