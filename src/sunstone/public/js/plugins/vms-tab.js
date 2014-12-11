@@ -964,7 +964,7 @@ var vms_tab = {
             <th>'+tr("Host")+'</th>\
             <th>'+tr("IPs")+'</th>\
             <th>'+tr("Start Time")+'</th>\
-            <th>'+tr("VNC")+'</th>\
+            <th>'+tr("")+'</th>\
           </tr>\
         </thead>\
         <tbody id="tbodyvmachines">\
