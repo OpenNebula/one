@@ -3336,8 +3336,6 @@ function setup_context_tab_content(context_section) {
             </tr>');
     })
 
-    $(".add_service_custom_attr", context_section).trigger("click");
-
     context_section.on("click", ".service_custom_attrs i.remove-tab", function() {
         var tr = $(this).closest('tr');
         tr.remove();
@@ -4449,13 +4447,13 @@ var fillTemplatePopUp = function(template, dialog){
     var user_inputs = template.USER_INPUTS;
     if (user_inputs) {
       $.each(user_inputs, function(key, value){
+        $(".add_service_custom_attr", context_section).trigger("click");
+
         var context = $(".service_custom_attrs tbody tr", context_section).last();
         var parts = value.split("|");
         $(".user_input_name", context).val(key);
         $(".user_input_type", context).val(parts[1]);
         $(".user_input_description", context).val(escapeDoubleQuotes(htmlDecode(parts[2])));
-
-        $(".add_service_custom_attr", context_section).trigger("click");
 
         if (context) {
           delete template.CONTEXT[key];
