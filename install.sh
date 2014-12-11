@@ -1605,7 +1605,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT="\
     src/sunstone/public/bower_components/fontawesome/fonts/FontAwesome.otf"
 
 SUNSTONE_PUBLIC_VENDOR_NOVNC="\
-    src/sunstone/public/bower_components/no-vnc/include/base.css \
+    src/sunstone/public/bower_components/no-vnc/include/novnc-custom.css \
     src/sunstone/public/bower_components/no-vnc/include/base64.js \
     src/sunstone/public/bower_components/no-vnc/include/black.css \
     src/sunstone/public/bower_components/no-vnc/include/blue.css \
@@ -1658,7 +1658,7 @@ SUNSTONE_PUBLIC_VENDOR_SPICE="\
     src/sunstone/public/bower_components/spice-html5/thirdparty/sha1.js \
     src/sunstone/public/bower_components/spice-html5/ticket.js \
     src/sunstone/public/bower_components/spice-html5/resize.js \
-    src/sunstone/public/bower_components/spice-html5/spice.css"
+    src/sunstone/public/bower_components/spice-html5/spice-custom.css"
 
 # end bower
 
