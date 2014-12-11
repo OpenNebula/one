@@ -344,6 +344,7 @@ var OpenNebula = {
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
                 success: function(response){
                     OpenNebula.Helper.clear_cache(cache_name);
 
@@ -576,6 +577,7 @@ var OpenNebula = {
             $.ajax({
                 url: req_path + "/" + id + "/action",
                 type: "POST",
+                contentType: "application/json; charset=utf-8",
                 data: JSON.stringify(action),
                 success: function(){
                     OpenNebula.Helper.clear_cache(cache_name);
@@ -1785,6 +1787,7 @@ var OpenNebula = {
                 url: OpenNebula.Role.path + "/" + params.data.id,
                 type: "PUT",
                 dataType: "json",
+                contentType: "application/json; charset=utf-8",
                 data: JSON.stringify(params.data.extra_param),
                 success: function(response){
                     return params.success ? params.success(request, response) : null;
