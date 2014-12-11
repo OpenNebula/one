@@ -7245,3 +7245,24 @@ function ip_str(vm, divider){
 
     return ip;
 };
+
+// returns true if the vnc button should be enabled
+function enableVnc(vm){
+    var graphics = vm.TEMPLATE.GRAPHICS;
+    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+
+    return (graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == "vnc"  &&
+        $.inArray(state, VNCstates)!=-1);
+}
+
+function enableSPICE(vm){
+    var graphics = vm.TEMPLATE.GRAPHICS;
+    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+
+    return (graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == "spice" &&
+        $.inArray(state, VNCstates)!=-1);
+}

@@ -1,0 +1,10 @@
+#
+# spice-html5 is a Javascript SPICE client
+#
+Alias /spice /usr/share/spice-html5
+<Directory /usr/share/spice-html5>
+    # This page is broadly available, tune here to make it more restricted.
+    Allow from all
+    Satisfy Any
+    DirectoryIndex spice.html
+</Directory>

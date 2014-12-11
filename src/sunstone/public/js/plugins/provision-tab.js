@@ -1319,7 +1319,7 @@ var provision_info_vm =
     '<div class="large-12 large-centered columns">'+
       '<ul class="inline-list provision_action_icons">'+
         '<li>'+
-          '<a href"#" data-tooltip title="Open a VNC console in a new window" class="left button medium radius provision_vnc_button tip-top">'+
+          '<a href"#" data-tooltip title="Open a remote console in a new window" class="left button medium radius provision_vnc_button tip-top">'+
             '<i class="fa fa-fw fa-lg fa-desktop"/> '+
           '</a>'+
           '<a data-tooltip title="You have to boot the Virtual Machine first" class="left button medium radius white provision_vnc_button_disabled tip-top" style="color: #999">'+
@@ -3504,6 +3504,8 @@ function setup_info_vm(context) {
         }
 
         $(".provision_info_vm", context).attr("vm_id", data.ID);
+        $(".provision_info_vm", context).data("vm", data);
+
         $(".provision_info_vm_name", context).text(data.NAME);
 
         $(".provision-pricing-table_vm_info", context).html(
@@ -3915,29 +3917,59 @@ function setup_info_vm(context) {
     var button = $(this);
     button.attr("disabled", "disabled");
     var vm_id = $(".provision_info_vm", context).attr("vm_id");
+    var vm_data = $(".provision_info_vm", context).data("vm");
 
     OpenNebula.VM.startvnc({
       data : {
         id: vm_id
       },
       success: function(request, response){
-        var proxy_host = window.location.hostname;
-        var proxy_port = config['system_config']['vnc_proxy_port'];
-        var pw = response["password"];
-        var token = response["token"];
-        var vm_name = response["vm_name"];
-        var path = '?token='+token;
+        if (enableVnc(vm_data)) {
+          var proxy_host = window.location.hostname;
+          var proxy_port = config['system_config']['vnc_proxy_port'];
+          var pw = response["password"];
+          var token = response["token"];
+          var vm_name = response["vm_name"];
+          var path = '?token='+token;
 
-        var url = "vnc?";
-        url += "host=" + proxy_host;
-        url += "&port=" + proxy_port;
-        url += "&token=" + token;
-        url += "&password=" + pw;
-        url += "&encrypt=" + config['user_config']['vnc_wss'];
-        url += "&title=" + vm_name;
+          var url = "vnc?";
+          url += "host=" + proxy_host;
+          url += "&port=" + proxy_port;
+          url += "&token=" + token;
+          url += "&password=" + pw;
+          url += "&encrypt=" + config['user_config']['vnc_wss'];
+          url += "&title=" + vm_name;
 
-        window.open(url, '', '_blank');
-        button.removeAttr("disabled");
+          window.open(url, '', '_blank');
+          button.removeAttr("disabled");
+        } else if (enableSPICE(vm_data)) {
+          var host, port, password, scheme = "ws://", uri, token, vm_name;
+
+          if (config['user_config']['vnc_wss'] == "yes") {
+              scheme = "wss://";
+          }
+
+          host = window.location.hostname;
+          port = config['system_config']['vnc_proxy_port'];
+          password = response["password"];
+          token = response["token"];
+          vm_name = response["vm_name"];
+
+          uri = scheme + host + ":" + port + "?token=" + token;
+
+          var url = "spice?";
+          url += "host=" + host;
+          url += "&port=" + port;
+          url += "&token=" + token;
+          url += "&password=" + password;
+          url += "&encrypt=" + config['user_config']['vnc_wss'];
+          url += "&title=" + vm_name;
+
+          window.open(url, '', '_blank');
+          button.removeAttr("disabled");
+        } else {
+          notifyError("The remote console is not enabled for this VM")
+        }
       },
       error: function(request, response){
         onError(request, response);
