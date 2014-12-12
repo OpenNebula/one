@@ -594,7 +594,7 @@ function updateUserInfo(request,user){
             </thead>\
          </table>\
         <textarea rows="6" type="text" id="user_ssh_public_key_textarea" name="ssh_public_key" class="hidden"/>\
-        <p id="user_ssh_public_key_text" name="ssh_public_key" style="font-size: 0.875rem; color: #777; padding: 0px 10px; overflow-x:hidden; text-overflow: ellipsis; height: 120px;">'+tr("You can provide a SSH Key for this User clicking on the edit button")+'</p>\
+        <p id="user_ssh_public_key_text" name="ssh_public_key">'+tr("You can provide a SSH Key for this User clicking on the edit button")+'</p>\
        </div>\
      </div>\
      <div class="row">\
@@ -656,11 +656,6 @@ function updateUserInfo(request,user){
         "#user_info_panel",
         Config.isTabActionEnabled("users-tab", "User.quotas_dialog"),
         "User");
-
-    if (ssh_key) {
-        $("#user_ssh_public_key_text", "#user_info_panel").text(ssh_key);
-        $("#user_ssh_public_key_textarea", "#user_info_panel").val(ssh_key);
-    }
 
     $(".user_ssh_public_key_edit", "#user_info_panel").on("click", function(){
         $("#user_ssh_public_key_text", "#user_info_panel").hide();
