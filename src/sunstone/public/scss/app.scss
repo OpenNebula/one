@@ -1117,3 +1117,12 @@ hr {
     margin-top: 15px;
   }
 }
+
+#ssh_pulic_key_text {
+  font-size: 0.875rem; 
+  color: #777; 
+  padding: 0px 10px; 
+  overflow-x:hidden; 
+  text-overflow: 
+  ellipsis; height: 120px;
+}

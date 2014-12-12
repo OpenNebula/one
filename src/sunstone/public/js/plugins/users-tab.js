@@ -537,6 +537,12 @@ function updateUsersView(request,users_list,quotas_list){
 function updateUserInfo(request,user){
     var info = user.USER;
 
+    var ssh_key;
+    if (info.TEMPLATE.SSH_PUBLIC_KEY) {
+        ssh_key = info.TEMPLATE.SSH_PUBLIC_KEY;
+        delete info.TEMPLATE.SSH_PUBLIC_KEY;
+    };
+
     $(".resource-info-header", $("#users-tab")).html(info.NAME);
 
     var info_tab = {
@@ -577,14 +583,27 @@ function updateUserInfo(request,user){
          </table>\
        </div>\
        <div class="large-6 columns">' +
-       '</div>\
+        '<table class="dataTable extended_table" cellpadding="0" cellspacing="0" border="0">\
+            <thead>\
+                <tr>\
+                    <th>' + tr("Public SSH Key") + '</th>\
+                    <th>\
+                        <a class="user_ssh_public_key_edit right" href="#"><i class="fa fa-pencil-square-o"></i></a>\
+                    </th>\
+                </tr>\
+            </thead>\
+         </table>\
+        <textarea rows="6" type="text" id="user_ssh_public_key_textarea" name="ssh_public_key" class="hidden"/>\
+        <p id="user_ssh_public_key_text" name="ssh_public_key" style="font-size: 0.875rem; color: #777; padding: 0px 10px; overflow-x:hidden; text-overflow: ellipsis; height: 120px;">'+tr("You can provide a SSH Key for this User clicking on the edit button")+'</p>\
+       </div>\
      </div>\
      <div class="row">\
           <div class="large-9 columns">'+
                insert_extended_template_table(info.TEMPLATE,
                                               "User",
                                               info.ID,
-                                              tr("Attributes")) +
+                                              tr("Attributes"),
+                                              {SSH_PUBLIC_KEY: ssh_key}) +
        '</div>\
      </div>'
     };
@@ -622,6 +641,43 @@ function updateUserInfo(request,user){
         "#user_info_panel",
         Config.isTabActionEnabled("users-tab", "User.quotas_dialog"),
         "User");
+
+    if (ssh_key) {
+        $("#user_ssh_public_key_text", "#user_info_panel").text(ssh_key);
+        $("#user_ssh_public_key_textarea", "#user_info_panel").val(ssh_key);
+    }
+
+    $(".user_ssh_public_key_edit", "#user_info_panel").on("click", function(){
+        $("#user_ssh_public_key_text", "#user_info_panel").hide();
+        $("#user_ssh_public_key_textarea", "#user_info_panel").show().focus();
+    });
+
+    $("#user_ssh_public_key_textarea", "#user_info_panel").on("change", function(){
+        var user_id = getSelectedNodes(dataTable_users)[0];
+
+        OpenNebula.User.show({
+            data : {
+                id: user_id
+            },
+            success: function(request,user_json){
+              var template = user_json.USER.TEMPLATE;
+
+              template["SSH_PUBLIC_KEY"] = $("#user_ssh_public_key_textarea", "#user_info_panel").val();
+
+              template_str = "";
+              $.each(template,function(key,value){
+                template_str += (key + '=' + '"' + value + '"\n');
+              });
+
+              Sunstone.runAction("User.update_template", user_id, template_str);
+            }
+        })
+    });
+
+    $("#user_ssh_public_key_textarea", "#user_info_panel").on("focusout", function(){
+      $("#user_ssh_public_key_text", "#user_info_panel").show();
+      $("#user_ssh_public_key_textarea", "#user_info_panel").hide();
+    });
 };
 
 // Used also from groups-tabs.js
