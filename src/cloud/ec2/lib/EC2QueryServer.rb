@@ -132,8 +132,12 @@ class EC2QueryServer < CloudServer
     def register_image(params)
         # Get the Image ID
         image_id = params['ImageLocation']
-        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
 
+        if image_id =~ /ami\-(.+)/
+            image_id = $1
+        end
+        
+        image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
         rc = image.info
         if OpenNebula.is_error?(rc)
             return rc
