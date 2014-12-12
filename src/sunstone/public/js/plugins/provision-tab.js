@@ -2028,7 +2028,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
     memory_value = Math.floor(capacity.MEMORY/1024);
     memory_unit = "GB";
   } else {
-    memory_value = capacity.MEMORY;
+    memory_value = (capacity.MEMORY ? capacity.MEMORY : '-');
     memory_unit = "MB";
   }
 
@@ -2050,7 +2050,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
       '<div class="large-12 large-centered columns">'+
         '<div class="row text-center">'+
           '<div class="large-4 columns">'+
-            '<span class="cpu_value" style="color: #777; font-size:60px">'+capacity.CPU+'</span>'+
+            '<span class="cpu_value" style="color: #777; font-size:60px">'+(capacity.CPU ? capacity.CPU : '-')+'</span>'+
             '<br>'+
             '<span style="color: #999;">'+tr("CPU")+'</span>'+
           '</div>'+
