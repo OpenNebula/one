@@ -1438,17 +1438,22 @@ function setupCreateHostDialog(){
                 // Let's build the AR
                 netname = network_name.replace(" ","_")
                 type    = $('.type_select_'+netname, network_context).val();
-                ar_str  = "\nAR=[TYPE=" + type + ","
+                type_str  = ""
+
+                ar_str  = "\nAR=[" 
 
                 switch(type) {
                     case 'ethernet':
+                        type_str = "ETHER";
                         mac = $('.eth_mac_net_'+netname, network_context).val();
                         if (mac)
                         {
                           ar_str += "MAC=" + mac;
                         }
+
                         break;
                     case 'ipv4':
+                        type_str = "IP4";
                         mac = $('.four_mac_net_'+netname, network_context).val();
                         ip = $('.four_ip_net_'+netname, network_context).val();
                         if (mac)
@@ -1465,6 +1470,7 @@ function setupCreateHostDialog(){
                         } 
                         break;
                     case 'ipv6':
+                        type_str = "IP6";
                         mac = $('.six_mac_net_'+netname, network_context).val();
                         gp = $('.six_global_net_'+netname, network_context).val();
                         ula = $('.six_mac_net_'+netname, network_context).val();
@@ -1491,8 +1497,15 @@ function setupCreateHostDialog(){
                         break;
                 }
 
+                comma_or_not = ""
+                if (ar_str.slice(-1) != "[")
+                {
+                  comma_or_not = ","
+                }
 
-                network_tmpl = network_tmpl + ar_str + ' SIZE = "'+ network_size +'"]'
+                ar_str  += comma_or_not + "TYPE=" + type_str
+
+                network_tmpl = network_tmpl + ar_str + ' ,SIZE = "'+ network_size +'"]'
 
                 var vnet_json = {
                   "vnet": {
