@@ -315,7 +315,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                          "[Enter for default]: "
                             up = STDIN.gets.strip
                             ar_str += ",ULA_PREFIX=" + up if !up.empty?
-                        when "E"
+                        when "e"
                             ar_str += "ETHER\""
                             STDOUT.print "    Please input the first MAC "\
                                  "in the range [Enter for default]: "
@@ -337,8 +337,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                 ::OpenNebula::Template.build_xml, vc.one)
 
                     vnet_template =  n[:one] + ar_str
-
-                                        puts vnet_template
                     
                     rc = one_vn.allocate(vnet_template)
 

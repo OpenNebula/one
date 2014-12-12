@@ -1254,14 +1254,23 @@ function setupCreateHostDialog(){
                               $(".content", networks_container).html("");
 
                               $.each(response, function(id, network){
+                                var netname = network.name.replace(" ","_");
+
                                 var trow = $('<div class="vcenter_network">' +
                                     '<div class="row">' +
-                                      '<div class="large-10 columns">' +
-                                        '<label class='+escape(network.name)+'>' +
-                                        '<div><div "large-10 columns"><label class='+escape(network.name)+'>' +
-                                          '<input type="checkbox" class="network_name" checked/> ' +
-                                          network.name + '&emsp;<span style="color: #999">' + network.type + '</span></div>' +
-                                          '<div "large-2 columns"><input style="width: 50px" type="text" class="netsize" value="255"/>' +
+                                      '<div class="large-14 columns">' +
+                                        '<label class='+netname+'>' +
+                                        '<div>'+
+                                          '<div "large-10 columns"><label class='+netname+'>' +
+                                            '<input type="checkbox" class="network_name" checked/> ' +
+                                            network.name + '&emsp;<span style="color: #999">' + network.type + '</span>' + 
+                                          '</div>' +
+                                          '<div><input type="text" class="netsize" value="255"/>' +
+                                           '<select class="type_select_'+netname+'"><option value="ethernet">Ethernet</option>' +
+                                           '<option value="ipv4">ipv4</option><option value="ipv6">ipv6</option></select>' + 
+                                           '<div class="net_options_'+netname+'">MAC (optional) <input type="text" width="50px" class="eth_mac_net_' + netname + '"/></div>'+
+                                          '</div>' +
+                                         '</div>' +
                                         '</label>' +
                                         '<div class="large-12 columns vcenter_network_response">'+
                                         '</div>'+
@@ -1272,6 +1281,27 @@ function setupCreateHostDialog(){
                                     '<div class="vcenter_networks">'+
                                     '</div>'+
                                   '</div>').appendTo($(".content", networks_container))
+
+
+                                $('.type_select_'+netname).live("change",function(){
+                                    type = $(this).val();
+
+                                    net_form_str = ''
+
+                                    switch(type) {
+                                        case 'ethernet':
+                                            net_form_str = 'MAC (optional) <input type="text" width="50px" class="eth_mac_net_' + netname + '"/>';
+                                            break;
+                                        case 'ipv4':
+                                            net_form_str = 'MAC (optional) <input type="text" width="50px" class="four_mac_net_' + netname + '"/> IP <input type="text" width="50px" class="four_ip_net_' + netname + '"/>';
+                                            break;
+                                        case 'ipv6':
+                                            net_form_str = 'MAC (optional) <input type="text" width="50px" class="six_mac_net_' + netname + '"/> GLOBAL PREFIX (optional) <input type="text" width="50px" class="six_global_net_' + netname + '"/> ULA_PREFIX (optional) <input type="text" width="50px" class="six_ula_net_' + netname + '"/>';
+                                            break;
+                                    }
+
+                                    $('.net_options_'+netname,$(this).parent()).html(net_form_str);
+                                });
 
                                 $(".network_name", trow).data("network_name", network.name)
                                 $(".network_name", trow).data("one_network", network.one)
@@ -1405,7 +1435,64 @@ function setupCreateHostDialog(){
                 network_size = $(".netsize", network_context).val();
                 network_tmpl = $(this).data("one_network");
 
-                network_tmpl = network_tmpl + ' SIZE = "'+ network_size +'"]'
+                // Let's build the AR
+                netname = network_name.replace(" ","_")
+                type    = $('.type_select_'+netname, network_context).val();
+                ar_str  = "\nAR=[TYPE=" + type + ","
+
+                switch(type) {
+                    case 'ethernet':
+                        mac = $('.eth_mac_net_'+netname, network_context).val();
+                        if (mac)
+                        {
+                          ar_str += "MAC=" + mac;
+                        }
+                        break;
+                    case 'ipv4':
+                        mac = $('.four_mac_net_'+netname, network_context).val();
+                        ip = $('.four_ip_net_'+netname, network_context).val();
+                        if (mac)
+                        {
+                          ar_str += "MAC=" + mac;
+                          if (ip)
+                          {
+                            ar_str += ","
+                          }
+                        }
+                        if (ip)
+                        {
+                          ar_str += "IP=" + ip;
+                        } 
+                        break;
+                    case 'ipv6':
+                        mac = $('.six_mac_net_'+netname, network_context).val();
+                        gp = $('.six_global_net_'+netname, network_context).val();
+                        ula = $('.six_mac_net_'+netname, network_context).val();
+                        if (mac)
+                        {
+                          ar_str += "MAC=" + mac;
+                          if (gp || ula)
+                          {
+                            ar_str += ","
+                          }
+                        }
+                        if (gp)
+                        {
+                          ar_str += "GLOBAL_PREFIX=" + gp;
+                          if (ula)
+                          {
+                            ar_str += ","
+                          }
+                        }
+                        if (ula)
+                        {
+                          ar_str += "ULA_PREFIX=" + ula;
+                        }
+                        break;
+                }
+
+
+                network_tmpl = network_tmpl + ar_str + ' SIZE = "'+ network_size +'"]'
 
                 var vnet_json = {
                   "vnet": {
