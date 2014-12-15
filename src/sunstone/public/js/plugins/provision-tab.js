@@ -709,81 +709,102 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
   '<br>'+
   '<div class="row">'+
     '<div class="large-8 large-centered columns">'+
-      '<h5 class="subheader text-right">'+
-        '<span class="left">'+
-          tr("Running VMs")+
-        '</span>'+
-      '</h5>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<div class="row collapse">'+
-        '<div class="large-9 small-9 columns">'+
-          '<div class="range-slider radius provision_rvms_quota_slider" data-slider data-options="start: 1; end: 50;">'+
-            '<span class="range-slider-handle"></span>'+
-            '<span class="range-slider-active-segment"></span>'+
-            '<input type="hidden">'+
+      '<dl class="tabs text-center" data-tab style="width: 100%">'+
+        '<dd class="active" style="width: 50%;"><a href="#provision_create_user_default_quota">'+ tr("Default") +'</a></dd>'+
+        '<dd style="width: 50%;"><a href="#provision_create_user_manual_quota">'+ tr("Manual") +'</a></dd>'+
+      '</dl>'+
+      '<div class="tabs-content">'+
+        '<div class="content active" id="provision_create_user_default_quota">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Use the default system quotas set by the cloud adminstrator")+
+              '</span>'+
+            '</div>'+
           '</div>'+
         '</div>'+
-        '<div class="large-2 small-2 columns">'+
-          '<input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-        '</div>'+
-      '</div>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<h5 class="subheader text-right">'+
-        '<span class="left">'+
-          tr("CPU")+
-        '</span>'+
-      '</h5>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<div class="row collapse">'+
-        '<div class="large-9 small-9 columns">'+
-          '<div class="range-slider radius provision_cpu_quota_slider" data-slider data-options="start: 1; end: 50;">'+
-            '<span class="range-slider-handle"></span>'+
-            '<span class="range-slider-active-segment"></span>'+
-            '<input type="hidden">'+
+        '<div class="content" id="provision_create_user_manual_quota">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<h5 class="subheader text-right">'+
+                '<span class="left">'+
+                  tr("Running VMs")+
+                '</span>'+
+              '</h5>'+
+              '<br>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<div class="large-2 small-2 columns">'+
-          '<input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-        '</div>'+
-      '</div>'+
-    '</div>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<h5 class="subheader text-right">'+
-        '<span class="left">'+
-          tr("Memory (GBs)")+
-        '</span>'+
-      '</h5>'+
-      '<br>'+
-    '</div>'+
-  '</div>'+
-  '<div class="vm_param">'+
-      '<input type="hidden" class="provision_memory_quota_input"/>'+
-  '</div>'+
-  '<div class="row">'+
-    '<div class="large-8 large-centered columns">'+
-      '<div class="row collapse">'+
-        '<div class="large-9 small-9 columns">'+
-          '<div class="range-slider radius provision_memory_quota_slider" data-slider data-options="start: 1; end: 50;">'+
-            '<span class="range-slider-handle"></span>'+
-            '<span class="range-slider-active-segment"></span>'+
-            '<input type="hidden">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<div class="row collapse">'+
+                '<div class="large-9 small-9 columns">'+
+                  '<div class="range-slider radius provision_rvms_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+                    '<span class="range-slider-handle"></span>'+
+                    '<span class="range-slider-active-segment"></span>'+
+                    '<input type="hidden">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="large-2 small-2 columns">'+
+                  '<input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<div class="large-2 small-2 columns">'+
-          '<input type="text"  class="provision-input provision_memory_quota_tmp_input"  style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<h5 class="subheader text-right">'+
+                '<span class="left">'+
+                  tr("CPU")+
+                '</span>'+
+              '</h5>'+
+              '<br>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<div class="row collapse">'+
+                '<div class="large-9 small-9 columns">'+
+                  '<div class="range-slider radius provision_cpu_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+                    '<span class="range-slider-handle"></span>'+
+                    '<span class="range-slider-active-segment"></span>'+
+                    '<input type="hidden">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="large-2 small-2 columns">'+
+                  '<input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<h5 class="subheader text-right">'+
+                '<span class="left">'+
+                  tr("Memory (GBs)")+
+                '</span>'+
+              '</h5>'+
+              '<br>'+
+            '</div>'+
+          '</div>'+
+          '<div class="vm_param">'+
+              '<input type="hidden" class="provision_memory_quota_input"/>'+
+          '</div>'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<div class="row collapse">'+
+                '<div class="large-9 small-9 columns">'+
+                  '<div class="range-slider radius provision_memory_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+                    '<span class="range-slider-handle"></span>'+
+                    '<span class="range-slider-active-segment"></span>'+
+                    '<input type="hidden">'+
+                  '</div>'+
+                '</div>'+
+                '<div class="large-2 small-2 columns">'+
+                  '<input type="text"  class="provision-input provision_memory_quota_tmp_input"  style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -1758,15 +1779,19 @@ var povision_actions = {
       type: "create",
       call: OpenNebula.User.create,
       callback: function(request, response) {
+        if ( $("div#provision_create_user_manual_quota",
+             $("#provision_create_user")).hasClass("active") ){
 
-        // TODO if no quota is defined redefine?
-        Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
-          "VM" : {
-            "VOLATILE_SIZE":"-1",
-            "VMS": $(".provision_rvms_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
-            "MEMORY": $(".provision_memory_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
-            "CPU": $(".provision_cpu_quota_input").val()||QUOTA_LIMIT_UNLIMITED}
-          });
+          Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
+            "VM" : {
+              "VOLATILE_SIZE":"-1",
+              "VMS": $(".provision_rvms_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
+              "MEMORY": $(".provision_memory_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
+              "CPU": $(".provision_cpu_quota_input").val()||QUOTA_LIMIT_UNLIMITED}
+            });
+        } else {
+          clear_provision_create_user();
+        }
       },
       error: onError
   },
@@ -1775,19 +1800,7 @@ var povision_actions = {
       type: "multiple",
       call: OpenNebula.User.set_quota,
       callback: function(request) {
-        OpenNebula.Helper.clear_cache("USER");
-        show_provision_user_list(0);
-
-        var context = $("#provision_create_user");
-        $("#username", context).val('');
-        $("#password", context).val('');
-        $(".provision_rvms_quota_input", context).val('');
-        $(".provision_memory_quota_input", context).val('');
-        $(".provision_memory_quota_tmp_input", context).val('');
-        $(".provision_cpu_quota_input", context).val('');
-        $("#repeat_password", context).val('');
-        $(".alert-box-error", context).hide();
-        $(".alert-box-error", context).html("");
+        clear_provision_create_user();
       },
       error: onError
   },
@@ -5606,6 +5619,23 @@ function generate_provision_users_list(context, opts) {
   context.html(provision_list_users(opts));
   setup_provision_users_list(context);
   setup_provision_user_info(context);
+}
+
+// Closes and resets the create user wizard
+function clear_provision_create_user(){
+  OpenNebula.Helper.clear_cache("USER");
+  show_provision_user_list(0);
+
+  var context = $("#provision_create_user");
+  $("#username", context).val('');
+  $("#password", context).val('');
+  $(".provision_rvms_quota_input", context).val('');
+  $(".provision_memory_quota_input", context).val('');
+  $(".provision_memory_quota_tmp_input", context).val('');
+  $(".provision_cpu_quota_input", context).val('');
+  $("#repeat_password", context).val('');
+  $(".alert-box-error", context).hide();
+  $(".alert-box-error", context).html("");
 }
 
 $(document).ready(function(){
