@@ -1258,20 +1258,34 @@ function setupCreateHostDialog(){
 
                                 var trow = $('<div class="vcenter_network">' +
                                     '<div class="row">' +
-                                      '<div class="large-14 columns">' +
-                                        '<label class='+netname+'>' +
-                                        '<div>'+
-                                          '<div "large-10 columns"><label class='+netname+'>' +
+                                      '<div class="large-10 columns">' +
+                                        '<div class="large-12 columns">' +
+                                          '<label>' +
                                             '<input type="checkbox" class="network_name" checked/> ' +
                                             network.name + '&emsp;<span style="color: #999">' + network.type + '</span>' + 
-                                          '</div>' +
-                                          '<div><input type="text" class="netsize" value="255"/>' +
-                                           '<select class="type_select_'+netname+'"><option value="ethernet">Ethernet</option>' +
-                                           '<option value="ipv4">ipv4</option><option value="ipv6">ipv6</option></select>' + 
-                                           '<div class="net_options_'+netname+'">MAC (optional) <input type="text" width="50px" class="eth_mac_net_' + netname + '"/></div>'+
-                                          '</div>' +
-                                         '</div>' +
-                                        '</label>' +
+                                          '</label>' +
+                                        '</div>'+
+                                        '<div class="large-6 columns">'+
+                                          '<label>' + tr("SIZE") +
+                                            '<input type="text" class="netsize" value="255"/>' +
+                                          '</label>' +
+                                        '</div>'+
+                                        '<div class="large-6 columns">'+
+                                          '<label>' + tr("TYPE") +
+                                            '<select class="type_select">'+
+                                              '<option value="ETHER">Ethernet</option>' +
+                                              '<option value="IP4">ipv4</option>'+
+                                              '<option value="IP6">ipv6</option>' + 
+                                            '</select>' + 
+                                          '</label>' +
+                                        '</div>'+
+                                        '<div class="net_options">' +
+                                          '<div class="large-6 columns">'+
+                                            '<label>' + tr("MAC (optional)") + 
+                                              '<input type="text" class="eth_mac_net"/>' + 
+                                            '</label>'+
+                                          '</div>'+
+                                        '</div>'+
                                         '<div class="large-12 columns vcenter_network_response">'+
                                         '</div>'+
                                       '</div>' +
@@ -1283,27 +1297,58 @@ function setupCreateHostDialog(){
                                   '</div>').appendTo($(".content", networks_container))
 
 
-                                $('.type_select_'+netname).live("change",function(){
-                                    type = $(this).val();
+                                $('.type_select').on("change",function(){
+                                    var network_context = $(this).closest(".vcenter_network");
+                                    var type = $(this).val();
 
-                                    net_form_str = ''
+                                    var net_form_str = ''
 
                                     switch(type) {
-                                        case 'ethernet':
-                                            net_form_str = 'MAC (optional) <input type="text" width="50px" class="eth_mac_net_' + netname + '"/>';
+                                        case 'ETHER':
+                                            net_form_str = 
+                                              '<div class="large-6 columns">'+
+                                                '<label>' + tr("MAC (optional)") + 
+                                                  '<input type="text" class="eth_mac_net"/>' + 
+                                                '</label>'+
+                                              '</div>';
                                             break;
-                                        case 'ipv4':
-                                            net_form_str = 'MAC (optional) <input type="text" width="50px" class="four_mac_net_' + netname + '"/> IP <input type="text" width="50px" class="four_ip_net_' + netname + '"/>';
+                                        case 'IP4':
+                                            net_form_str = 
+                                              '<div class="large-6 columns">'+
+                                                '<label>' + tr("IP START") + 
+                                                  '<input type="text" class="four_ip_net"/>' + 
+                                                '</label>'+
+                                              '</div>'+
+                                              '<div class="large-6 columns">'+
+                                                '<label>' + tr("MAC (optional)") + 
+                                                  '<input type="text" class="eth_mac_net"/>' + 
+                                                '</label>'+
+                                              '</div>';
                                             break;
-                                        case 'ipv6':
-                                            net_form_str = 'MAC (optional) <input type="text" width="50px" class="six_mac_net_' + netname + '"/> GLOBAL PREFIX (optional) <input type="text" width="50px" class="six_global_net_' + netname + '"/> ULA_PREFIX (optional) <input type="text" width="50px" class="six_ula_net_' + netname + '"/>';
+                                        case 'IP6':
+                                            net_form_str = 
+                                              '<div class="large-6 columns">'+
+                                                '<label>' + tr("MAC (optional)") + 
+                                                  '<input type="text" class="eth_mac_net"/>' + 
+                                                '</label>'+
+                                              '</div>'+
+                                              '<div class="large-6 columns">'+
+                                                '<label>' + tr("GLOBAL PREFIX (optional)") + 
+                                                  '<input type="text" class="six_global_net"/>' + 
+                                                '</label>'+
+                                              '</div>'+
+                                              '<div class="large-6 columns">'+
+                                                '<label>' + tr("ULA_PREFIX (optional)") + 
+                                                  '<input type="text" class="six_ula_net"/>' + 
+                                                '</label>'+
+                                              '</div>';
                                             break;
                                     }
 
-                                    $('.net_options_'+netname,$(this).parent()).html(net_form_str);
+                                    $('.net_options', network_context).html(net_form_str);
                                 });
 
-                                $(".network_name", trow).data("network_name", network.name)
+                                $(".network_name", trow).data("network_name", netname)
                                 $(".network_name", trow).data("one_network", network.one)
                               });
                             },
@@ -1315,8 +1360,6 @@ function setupCreateHostDialog(){
                       } else {
                         networks_container.html("");
                       }
-
-
                     })
                   });
                 }
@@ -1431,81 +1474,57 @@ function setupCreateHostDialog(){
                       '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
                     '</span>');
 
-                network_name = unescape($(network_context).find('label')[0].className);
-                network_size = $(".netsize", network_context).val();
-                network_tmpl = $(this).data("one_network");
+                var network_size = $(".netsize", network_context).val();
+                var network_tmpl = $(this).data("one_network");
+                var netname      = $(this).data("network_name");
+                var type         = $('.type_select', network_context).val();
 
-                // Let's build the AR
-                netname = network_name.replace(" ","_")
-                type    = $('.type_select_'+netname, network_context).val();
-                type_str  = ""
-
-                ar_str  = "\nAR=[" 
+                var ar_array = [];
+                ar_array.push("TYPE=" + type);
+                ar_array.push("SIZE=" + network_size);
 
                 switch(type) {
-                    case 'ethernet':
-                        type_str = "ETHER";
-                        mac = $('.eth_mac_net_'+netname, network_context).val();
-                        if (mac)
-                        {
-                          ar_str += "MAC=" + mac;
+                    case 'ETHER':
+                        var mac = $('.eth_mac_net', network_context).val();
+
+                        if (mac){
+                          ar_array.push("MAC=" + mac);
                         }
 
                         break;
-                    case 'ipv4':
-                        type_str = "IP4";
-                        mac = $('.four_mac_net_'+netname, network_context).val();
-                        ip = $('.four_ip_net_'+netname, network_context).val();
-                        if (mac)
-                        {
-                          ar_str += "MAC=" + mac;
-                          if (ip)
-                          {
-                            ar_str += ","
-                          }
+                    case 'IP4':
+                        var mac = $('.four_mac_net', network_context).val();
+                        var ip = $('.four_ip_net', network_context).val();
+
+                        if (mac){
+                          ar_array.push("MAC=" + mac);
                         }
-                        if (ip)
-                        {
-                          ar_str += "IP=" + ip;
-                        } 
+                        if (ip) {
+                          ar_array.push("IP=" + ip);
+                        }
+
                         break;
-                    case 'ipv6':
-                        type_str = "IP6";
-                        mac = $('.six_mac_net_'+netname, network_context).val();
-                        gp = $('.six_global_net_'+netname, network_context).val();
-                        ula = $('.six_mac_net_'+netname, network_context).val();
-                        if (mac)
-                        {
-                          ar_str += "MAC=" + mac;
-                          if (gp || ula)
-                          {
-                            ar_str += ","
-                          }
+                    case 'IP6':
+                        var mac = $('.six_mac_net', network_context).val();
+                        var gp = $('.six_global_net', network_context).val();
+                        var ula = $('.six_mac_net', network_context).val();
+
+                        if (mac){
+                          ar_array.push("MAC=" + mac);
                         }
-                        if (gp)
-                        {
-                          ar_str += "GLOBAL_PREFIX=" + gp;
-                          if (ula)
-                          {
-                            ar_str += ","
-                          }
+                        if (gp) {
+                          ar_array.push("GLOBAL_PREFIX=" + gp);
                         }
-                        if (ula)
-                        {
-                          ar_str += "ULA_PREFIX=" + ula;
+                        if (ula){
+                          ar_array.push("ULA_PREFIX=" + ula);
                         }
+
                         break;
                 }
 
-                comma_or_not = ""
-                if (ar_str.slice(-1) != "[")
-                {
-                  comma_or_not = ","
-                }
-
-                ar_str  += comma_or_not + "TYPE=" + type_str
-
-                network_tmpl = network_tmpl + ar_str + ' ,SIZE = "'+ network_size +'"]'
+                network_tmpl += "\nAR=[" 
+                network_tmpl += ar_array.join(",\n")
+                network_tmpl += "]"
 
                 var vnet_json = {
                   "vnet": {
