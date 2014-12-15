@@ -1,0 +1,18 @@
+[Unit]
+Description=OpenNebula Web UI Server
+After=syslog.target
+After=network.target
+After=opennebula.service
+After=opennebula-novnc.service
+BindTo=opennebula-novnc.service
+
+[Service]
+Type=simple
+Group=oneadmin
+User=oneadmin
+
+ExecStart=/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
+PIDFile=/var/run/one/sunstone.pid
+
+[Install]
+WantedBy=multi-user.target
