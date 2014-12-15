@@ -76,6 +76,8 @@ fi
 CLONE_CMD=$(cat <<EOF
     set -e
 
+    $RBD info $RBD_DST > /dev/null 2>&1 && exit 0
+
     RBD_FORMAT=\$($RBD info $SRC_PATH | sed -n 's/.*format: // p')   
 
     if [ "\$RBD_FORMAT" = "2" ]; then
