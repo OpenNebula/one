@@ -5393,81 +5393,102 @@ function setup_provision_user_info(context) {
       '<div data-alert class="alert-box secondary radius">'+
         '<div class="row">'+
           '<div class="large-10 large-centered columns">'+
-            '<h5 class="subheader text-right">'+
-              '<span class="left">'+
-                tr("Running VMs")+
-              '</span>'+
-            '</h5>'+
-            '<br>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-10 large-centered columns">'+
-            '<div class="row collapse">'+
-              '<div class="large-9 small-9 columns">'+
-                '<div class="range-slider radius provision_rvms_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
-                  '<span class="range-slider-handle"></span>'+
-                  '<span class="range-slider-active-segment"></span>'+
-                  '<input type="hidden">'+
+            '<dl class="tabs text-center" data-tab style="width: 100%">'+
+              '<dd class="active" style="width: 50%;"><a style="padding: 0.5rem 1rem" href="#provision_edit_user_default_quota">'+ tr("Default") +'</a></dd>'+
+              '<dd style="width: 50%;"><a style="padding: 0.5rem 1rem" href="#provision_edit_user_manual_quota">'+ tr("Manual") +'</a></dd>'+
+            '</dl>'+
+            '<div class="tabs-content">'+
+              '<div class="content active" id="provision_edit_user_default_quota">'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<span style="font-size: 18px; color: #999">'+
+                      tr("Use the default system quotas set by the cloud adminstrator")+
+                    '</span>'+
+                  '</div>'+
                 '</div>'+
               '</div>'+
-              '<div class="large-2 small-2 columns">'+
-                '<input type="text"  class="provision_rvms_quota_vdc_info_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-10 large-centered columns">'+
-            '<h5 class="subheader text-right">'+
-              '<span class="left">'+
-                tr("CPU")+
-              '</span>'+
-            '</h5>'+
-            '<br>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-10 large-centered columns">'+
-            '<div class="row collapse">'+
-              '<div class="large-9 small-9 columns">'+
-                '<div class="range-slider radius provision_cpu_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
-                  '<span class="range-slider-handle"></span>'+
-                  '<span class="range-slider-active-segment"></span>'+
-                  '<input type="hidden">'+
+              '<div class="content" id="provision_edit_user_manual_quota">'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<h5 class="subheader text-right">'+
+                      '<span class="left">'+
+                        tr("Running VMs")+
+                      '</span>'+
+                    '</h5>'+
+                    '<br>'+
+                  '</div>'+
                 '</div>'+
-              '</div>'+
-              '<div class="large-2 small-2 columns">'+
-                '<input type="text"  class="provision_cpu_quota_vdc_info_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-10 large-centered columns">'+
-            '<h5 class="subheader text-right">'+
-              '<span class="left">'+
-                tr("Memory (GBs)")+
-              '</span>'+
-            '</h5>'+
-            '<br>'+
-          '</div>'+
-        '</div>'+
-        '<div class="vm_param">'+
-            '<input type="hidden" class="provision_memory_quota_vdc_info_input"/>'+
-        '</div>'+
-        '<div class="row">'+
-          '<div class="large-10 large-centered columns">'+
-            '<div class="row collapse">'+
-              '<div class="large-9 small-9 columns">'+
-                '<div class="range-slider radius provision_memory_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
-                  '<span class="range-slider-handle"></span>'+
-                  '<span class="range-slider-active-segment"></span>'+
-                  '<input type="hidden">'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<div class="row collapse">'+
+                      '<div class="large-9 small-9 columns">'+
+                        '<div class="range-slider radius provision_rvms_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                          '<span class="range-slider-handle"></span>'+
+                          '<span class="range-slider-active-segment"></span>'+
+                          '<input type="hidden">'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="large-2 small-2 columns">'+
+                        '<input type="text"  class="provision_rvms_quota_vdc_info_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
                 '</div>'+
-              '</div>'+
-              '<div class="large-2 small-2 columns">'+
-                '<input type="text" class="provision_memory_quota_vdc_info_tmp_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<h5 class="subheader text-right">'+
+                      '<span class="left">'+
+                        tr("CPU")+
+                      '</span>'+
+                    '</h5>'+
+                    '<br>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<div class="row collapse">'+
+                      '<div class="large-9 small-9 columns">'+
+                        '<div class="range-slider radius provision_cpu_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                          '<span class="range-slider-handle"></span>'+
+                          '<span class="range-slider-active-segment"></span>'+
+                          '<input type="hidden">'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="large-2 small-2 columns">'+
+                        '<input type="text"  class="provision_cpu_quota_vdc_info_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<h5 class="subheader text-right">'+
+                      '<span class="left">'+
+                        tr("Memory (GBs)")+
+                      '</span>'+
+                    '</h5>'+
+                    '<br>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="vm_param">'+
+                    '<input type="hidden" class="provision_memory_quota_vdc_info_input"/>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns">'+
+                    '<div class="row collapse">'+
+                      '<div class="large-9 small-9 columns">'+
+                        '<div class="range-slider radius provision_memory_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                          '<span class="range-slider-handle"></span>'+
+                          '<span class="range-slider-active-segment"></span>'+
+                          '<input type="hidden">'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="large-2 small-2 columns">'+
+                        '<input type="text" class="provision_memory_quota_vdc_info_tmp_input provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
               '</div>'+
             '</div>'+
           '</div>'+
@@ -5529,13 +5550,23 @@ function setup_provision_user_info(context) {
       var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
       if (quotas_str) {
         var quotas = JSON.parse(quotas_str);
-        var rvms_quotas = (quotas.VM.VMS == QUOTA_LIMIT_UNLIMITED ? "" : quotas.VM.VMS)
-        var cpu_quotas = (quotas.VM.CPU == QUOTA_LIMIT_UNLIMITED ? "" : quotas.VM.CPU)
-        var memory_quotas = (quotas.VM.MEMORY == QUOTA_LIMIT_UNLIMITED ? "" : Math.floor(quotas.VM.MEMORY/1024))
 
-        provision_rvms_quota_vdc_info_input.val(rvms_quotas).change();
-        provision_cpu_quota_vdc_info_input.val(cpu_quotas).change();
-        provision_memory_quota_vdc_info_tmp_input.val(memory_quotas).change();
+        if ( quotas.VM != undefined &&
+              ( quotas.VM.VMS != QUOTA_LIMIT_DEFAULT ||
+                quotas.VM.CPU != QUOTA_LIMIT_DEFAULT ||
+                quotas.VM.MEMORY != QUOTA_LIMIT_DEFAULT)
+            ) {
+
+          $("a[href='#provision_edit_user_manual_quota'").click();
+
+          var rvms_quotas = (quotas.VM.VMS == QUOTA_LIMIT_UNLIMITED ? "" : quotas.VM.VMS)
+          var cpu_quotas = (quotas.VM.CPU == QUOTA_LIMIT_UNLIMITED ? "" : quotas.VM.CPU)
+          var memory_quotas = (quotas.VM.MEMORY == QUOTA_LIMIT_UNLIMITED ? "" : Math.floor(quotas.VM.MEMORY/1024))
+
+          provision_rvms_quota_vdc_info_input.val(rvms_quotas).change();
+          provision_cpu_quota_vdc_info_input.val(cpu_quotas).change();
+          provision_memory_quota_vdc_info_tmp_input.val(memory_quotas).change();
+        }
       }
   });
 
@@ -5564,15 +5595,25 @@ function setup_provision_user_info(context) {
     button.attr("disabled", "disabled");
     var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
 
+    var vms_limit = QUOTA_LIMIT_DEFAULT;
+    var mem_limit = QUOTA_LIMIT_DEFAULT;
+    var cpu_limit = QUOTA_LIMIT_DEFAULT;
+
+    if ($("div#provision_edit_user_manual_quota",context).hasClass("active") ){
+      vms_limit = $(".provision_rvms_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED;
+      mem_limit = $(".provision_memory_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED;
+      cpu_limit = $(".provision_cpu_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED;
+    }
+
     OpenNebula.User.set_quota({
       data : {
         id: user_id,
         extra_param: {
           "VM" : {
-            "VOLATILE_SIZE":"-1",
-            "VMS": $(".provision_rvms_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED,
-            "MEMORY": $(".provision_memory_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED,
-            "CPU": $(".provision_cpu_quota_vdc_info_input", context).val()||QUOTA_LIMIT_UNLIMITED}
+            "VOLATILE_SIZE": QUOTA_LIMIT_DEFAULT,
+            "VMS":    vms_limit,
+            "MEMORY": mem_limit,
+            "CPU":    cpu_limit}
         }
       },
       success: function(request, response){
