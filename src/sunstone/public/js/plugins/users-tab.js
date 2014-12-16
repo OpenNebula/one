@@ -688,6 +688,11 @@ function updateUserInfo(request,user){
       $("#user_ssh_public_key_text", "#user_info_panel").show();
       $("#user_ssh_public_key_textarea", "#user_info_panel").hide();
     });
+
+    if (ssh_key) {
+        $("#user_ssh_public_key_text", "#user_info_panel").text(ssh_key);
+        $("#user_ssh_public_key_textarea", "#user_info_panel").val(ssh_key);
+    }
 };
 
 // Used also from groups-tabs.js
