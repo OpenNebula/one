@@ -5442,7 +5442,7 @@ function setup_provision_user_info(context) {
           if(mem_limit != QUOTA_LIMIT_UNLIMITED &&
              mem_limit != QUOTA_LIMIT_DEFAULT){
 
-            mem_limit = Math.floor(quotas.VM.MEMORY/1024);
+            mem_limit = quotas.VM.MEMORY/1024;
           }
         }
 
