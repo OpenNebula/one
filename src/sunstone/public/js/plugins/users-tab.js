@@ -439,32 +439,28 @@ function userElements(){
 function userElementArray(user_json){
     var user = user_json.USER;
 
-    var vms = "-";
-    var memory = "-";
-    var cpu = "-";
+    var vms    = '<span class="progress-text right" style="font-size: 12px">-</span>';
+    var memory = '<span class="progress-text right" style="font-size: 12px">-</span>';
+    var cpu    = '<span class="progress-text right" style="font-size: 12px">-</span>';
+
+    initEmptyQuotas(user);
 
     if (!$.isEmptyObject(user.VM_QUOTA)){
 
-        var vms = quotaBar(
+        vms = quotaBar(
             user.VM_QUOTA.VM.VMS_USED,
             user.VM_QUOTA.VM.VMS,
             default_user_quotas.VM_QUOTA.VM.VMS);
 
-        var memory = quotaBarMB(
+        memory = quotaBarMB(
             user.VM_QUOTA.VM.MEMORY_USED,
             user.VM_QUOTA.VM.MEMORY,
             default_user_quotas.VM_QUOTA.VM.MEMORY);
 
-        var cpu = quotaBarFloat(
+        cpu = quotaBarFloat(
             user.VM_QUOTA.VM.CPU_USED,
             user.VM_QUOTA.VM.CPU,
             default_user_quotas.VM_QUOTA.VM.CPU);
-    } else {
-
-        var vms = quotaBar(0, 0, null);
-        var memory = quotaBarMB(0, 0, null);
-        var cpu = quotaBarFloat(0, 0, null);
-
     }
 
     // Build hidden user template

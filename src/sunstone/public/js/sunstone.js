@@ -2967,7 +2967,28 @@ function emptyQuotas(resource_info){
             $.isEmptyObject(resource_info.NETWORK_QUOTA) );
 }
 
+// If the VM quotas are empty, inits the VM counters to 0, and sets the limit
+// to 'default'. It is not applied to oneadmin user/group
+function initEmptyQuotas(resource){
+    if ($.isEmptyObject(resource.VM_QUOTA) && resource.ID != 0){
+        resource.VM_QUOTA = {
+            VM: {
+                VMS         : QUOTA_LIMIT_DEFAULT,
+                VMS_USED    : 0,
+                CPU         : QUOTA_LIMIT_DEFAULT,
+                CPU_USED    : 0,
+                MEMORY      : QUOTA_LIMIT_DEFAULT,
+                MEMORY_USED : 0,
+                VOLATILE_SIZE      : QUOTA_LIMIT_DEFAULT,
+                VOLATILE_SIZE_USED : 0
+            }
+        }
+    }
+}
+
 function initQuotasPanel(resource_info, default_quotas, parent_id_str, edit_enabled){
+    initEmptyQuotas(resource_info);
+
     var vms_quota = Quotas.vms(resource_info, default_quotas);
     var cpu_quota = Quotas.cpu(resource_info, default_quotas);
     var memory_quota = Quotas.memory(resource_info, default_quotas);

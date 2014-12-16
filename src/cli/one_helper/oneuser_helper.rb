@@ -251,6 +251,22 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             column :VMS , "Number of VMS", :size=>9 do |d|
                 begin
                     q = quotas[d['ID']]
+
+                    if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
+                        q['VM_QUOTA']['VM'] = {
+                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"    => "0",
+                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"    => "0",
+                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED" => "0",
+                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VOLATILE_SIZE_USED" => "0"
+                        }
+
+                        quotas[d['ID']] = q
+                    end
+
                     limit = q['VM_QUOTA']['VM']["VMS"]
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
@@ -274,6 +290,22 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             column :MEMORY, "Total memory allocated to user VMs", :size=>17 do |d|
                 begin
                     q = quotas[d['ID']]
+
+                    if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
+                        q['VM_QUOTA']['VM'] = {
+                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"    => "0",
+                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"    => "0",
+                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED" => "0",
+                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VOLATILE_SIZE_USED" => "0"
+                        }
+
+                        quotas[d['ID']] = q
+                    end
+
                     limit = q['VM_QUOTA']['VM']["MEMORY"]
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
@@ -300,6 +332,22 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             column :CPU, "Total CPU allocated to user VMs", :size=>11 do |d|
                 begin
                     q = quotas[d['ID']]
+
+                    if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
+                        q['VM_QUOTA']['VM'] = {
+                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"    => "0",
+                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"    => "0",
+                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED" => "0",
+                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VOLATILE_SIZE_USED" => "0"
+                        }
+
+                        quotas[d['ID']] = q
+                    end
+
                     limit = q['VM_QUOTA']['VM']["CPU"]
 
                     if limit == OneQuotaHelper::LIMIT_DEFAULT
@@ -393,6 +441,6 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         }
 
         helper = OneQuotaHelper.new
-        helper.format_quota(user_hash['USER'], default_quotas)
+        helper.format_quota(user_hash['USER'], default_quotas, user.id)
     end
 end

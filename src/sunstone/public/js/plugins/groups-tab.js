@@ -513,32 +513,28 @@ function groupElementArray(group_json){
         }
     }
 
-    var vms = "-";
-    var memory = "-";
-    var cpu = "-";
+    var vms    = '<span class="progress-text right" style="font-size: 12px">-</span>';
+    var memory = '<span class="progress-text right" style="font-size: 12px">-</span>';
+    var cpu    = '<span class="progress-text right" style="font-size: 12px">-</span>';
+
+    initEmptyQuotas(group);
 
     if (!$.isEmptyObject(group.VM_QUOTA)){
 
-        var vms = quotaBar(
+        vms = quotaBar(
             group.VM_QUOTA.VM.VMS_USED,
             group.VM_QUOTA.VM.VMS,
             default_group_quotas.VM_QUOTA.VM.VMS);
 
-        var memory = quotaBarMB(
+        memory = quotaBarMB(
             group.VM_QUOTA.VM.MEMORY_USED,
             group.VM_QUOTA.VM.MEMORY,
             default_group_quotas.VM_QUOTA.VM.MEMORY);
 
-        var cpu = quotaBarFloat(
+        cpu = quotaBarFloat(
             group.VM_QUOTA.VM.CPU_USED,
             group.VM_QUOTA.VM.CPU,
             default_group_quotas.VM_QUOTA.VM.CPU);
-    } else {
-
-        var vms = quotaBar(0,0,null);
-        var memory = quotaBarMB(0,0,null);
-        var cpu = quotaBarFloat(0,0,null);
-
     }
 
     return [

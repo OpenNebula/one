@@ -189,8 +189,9 @@ class OneQuotaHelper
     #  Outputs formated quota information to stdout
     #  @param qh [Hash] with the quotas for a given resource
     #  @param default_quotas_hash [XMLElement] with the default quota limits
+    #  @param resource_id [Integer] user/group ID
     #
-    def format_quota(qh, default_quotas)
+    def format_quota(qh, default_quotas, resource_id)
         str_h1="%-80s"
 
         puts
@@ -202,6 +203,23 @@ class OneQuotaHelper
         @default_quotas = default_quotas
 
         vm_quotas = [qh['VM_QUOTA']['VM']].flatten
+
+        # This initializes the VM quotas for users/groups that don't have any
+        # resource usage yet. It not applied to oneamdin
+        if vm_quotas[0].nil? && resource_id.to_i != 0
+            limit = LIMIT_DEFAULT
+
+            vm_quotas = [{
+                "VMS"         => limit,
+                "VMS_USED"    => "0",
+                "CPU"         => limit,
+                "CPU_USED"    => "0",
+                "MEMORY"      => limit,
+                "MEMORY_USED" => "0",
+                "VOLATILE_SIZE"      => limit,
+                "VOLATILE_SIZE_USED" => "0"
+            }]
+        end
 
         if !vm_quotas[0].nil?
             CLIHelper::ShowTable.new(nil, self) do
