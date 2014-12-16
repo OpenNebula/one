@@ -925,19 +925,19 @@ private
         } 
 
         nic_card = case model
-                        when "virtuale1000"
+                        when "virtuale1000", "e1000"
                             RbVmomi::VIM::VirtualE1000
-                        when "virtuale1000e"
+                        when "virtuale1000e", "e1000e"
                             RbVmomi::VIM::VirtualE1000e
-                        when "virtualpcnet32"
+                        when "virtualpcnet32", "pcnet32"
                             RbVmomi::VIM::VirtualPCNet32
-                        when "virtualsriovethernetcard"
+                        when "virtualsriovethernetcard", "sriovethernetcard"
                             RbVmomi::VIM::VirtualSriovEthernetCard
-                        when "virtualvmxnetm"
+                        when "virtualvmxnetm", "vmxnetm"
                             RbVmomi::VIM::VirtualVmxnetm
-                        when "virtualvmxnet2"
+                        when "virtualvmxnet2", "vmnet2"
                             RbVmomi::VIM::VirtualVmxnet2
-                        when "virtualvmxnet3"
+                        when "virtualvmxnet3", "vmxnet3"
                             RbVmomi::VIM::VirtualVmxnet3
                         else # If none matches, use VirtualE1000
                             RbVmomi::VIM::VirtualE1000
