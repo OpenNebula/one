@@ -2557,6 +2557,8 @@ function show_provision_dashboard() {
       success: function(request,user_json){
         var user = user_json.USER;
 
+        initEmptyQuotas(user);
+
         if (!$.isEmptyObject(user.VM_QUOTA)){
             var default_user_quotas = Quotas.default_quotas(user.DEFAULT_USER_QUOTAS);
 
@@ -2604,6 +2606,8 @@ function show_provision_dashboard() {
       },
       success: function(request,group_json){
         var group = group_json.GROUP;
+
+        initEmptyQuotas(group);
 
         if (!$.isEmptyObject(group.VM_QUOTA)){
             var default_group_quotas = Quotas.default_quotas(group.DEFAULT_GROUP_QUOTAS);
@@ -5089,6 +5093,9 @@ function setup_provision_user_info(context) {
         $(".provision_info_vdc_user_name", context).text(data.NAME);
 
         $(".provision-pricing-table_user_info", context).html("");
+
+        initEmptyQuotas(data);
+
         if (!$.isEmptyObject(data.VM_QUOTA)){
             var default_user_quotas = Quotas.default_quotas(data.DEFAULT_USER_QUOTAS);
             quotas = quotaBarFloat(
@@ -5580,6 +5587,21 @@ function setup_provision_users_list(context){
 
       if (q != undefined){
           var quota = q.QUOTAS;
+
+          if ($.isEmptyObject(quota.VM_QUOTA)){
+            var limit = (data.ID != 0 ? QUOTA_LIMIT_DEFAULT : QUOTA_LIMIT_UNLIMITED);
+
+            quota.VM_QUOTA = {
+              VM: {
+                VMS         : limit,
+                VMS_USED    : 0,
+                CPU         : limit,
+                CPU_USED    : 0,
+                MEMORY      : limit,
+                MEMORY_USED : 0
+              }
+            }
+          }
 
           if (!$.isEmptyObject(quota.VM_QUOTA)){
               quotas = quotaBarFloat(
