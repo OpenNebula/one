@@ -734,11 +734,18 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
               '<br>'+
             '</div>'+
           '</div>'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
+          '<div class="row provision_rvms_quota">'+
+            '<div class="medium-3 small-12 columns">'+
+              '<select class="provision_quota_select">'+
+                '<option value="edit">'+tr("Manual")+'</option>'+
+                '<option value="unlimited">'+tr("Unlimited")+'</option>'+
+                '<option value="default">'+tr("Default")+'</option>'+
+              '</select>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_edit">'+
               '<div class="row collapse">'+
-                '<div class="large-9 small-9 columns">'+
-                  '<div class="range-slider radius provision_rvms_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+                '<div class="small-9 columns">'+
+                  '<div class="range-slider radius provision_rvms_quota_slider" data-slider data-options="start: 0; end: 50;">'+
                     '<span class="range-slider-handle"></span>'+
                     '<span class="range-slider-active-segment"></span>'+
                     '<input type="hidden">'+
@@ -748,6 +755,16 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
                   '<input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
                 '</div>'+
               '</div>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Unlimited. Group quotas will still apply")+
+              '</span>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Use the default system quotas set by the cloud adminstrator")+
+              '</span>'+
             '</div>'+
           '</div>'+
           '<div class="row">'+
@@ -760,11 +777,18 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
               '<br>'+
             '</div>'+
           '</div>'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
+          '<div class="row provision_cpu_quota">'+
+            '<div class="medium-3 small-12 columns">'+
+              '<select class="provision_quota_select">'+
+                '<option value="edit">'+tr("Manual")+'</option>'+
+                '<option value="unlimited">'+tr("Unlimited")+'</option>'+
+                '<option value="default">'+tr("Default")+'</option>'+
+              '</select>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_edit">'+
               '<div class="row collapse">'+
-                '<div class="large-9 small-9 columns">'+
-                  '<div class="range-slider radius provision_cpu_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+                '<div class="small-9 columns">'+
+                  '<div class="range-slider radius provision_cpu_quota_slider" data-slider data-options="start: 0; end: 50;">'+
                     '<span class="range-slider-handle"></span>'+
                     '<span class="range-slider-active-segment"></span>'+
                     '<input type="hidden">'+
@@ -774,6 +798,16 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
                   '<input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
                 '</div>'+
               '</div>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Unlimited. Group quotas will still apply")+
+              '</span>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Use the default system quotas set by the cloud adminstrator")+
+              '</span>'+
             '</div>'+
           '</div>'+
           '<div class="row">'+
@@ -789,20 +823,37 @@ var provision_create_user = '<form id="provision_create_user" class="hidden sect
           '<div class="vm_param">'+
               '<input type="hidden" class="provision_memory_quota_input"/>'+
           '</div>'+
-          '<div class="row">'+
-            '<div class="large-12 large-centered columns">'+
+          '<div class="row provision_memory_quota">'+
+            '<div class="medium-3 small-12 columns">'+
+              '<select class="provision_quota_select">'+
+                '<option value="edit">'+tr("Manual")+'</option>'+
+                '<option value="unlimited">'+tr("Unlimited")+'</option>'+
+                '<option value="default">'+tr("Default")+'</option>'+
+              '</select>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_edit">'+
               '<div class="row collapse">'+
-                '<div class="large-9 small-9 columns">'+
-                  '<div class="range-slider radius provision_memory_quota_slider" data-slider data-options="start: 1; end: 50;">'+
+                '<div class="small-9 columns">'+
+                  '<div class="range-slider radius provision_memory_quota_slider" data-slider data-options="start: 0; end: 50;">'+
                     '<span class="range-slider-handle"></span>'+
                     '<span class="range-slider-active-segment"></span>'+
                     '<input type="hidden">'+
                   '</div>'+
                 '</div>'+
                 '<div class="large-2 small-2 columns">'+
-                  '<input type="text"  class="provision-input provision_memory_quota_tmp_input"  style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                  '<input type="text"  class="provision-input provision_memory_quota_tmp_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
                 '</div>'+
               '</div>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Unlimited. Group quotas will still apply")+
+              '</span>'+
+            '</div>'+
+            '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
+              '<span style="font-size: 18px; color: #999">'+
+                tr("Use the default system quotas set by the cloud adminstrator")+
+              '</span>'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -1782,12 +1833,35 @@ var povision_actions = {
         if ( $("div#provision_create_user_manual_quota",
              $("#provision_create_user")).hasClass("active") ){
 
+          function retrieve_quota(select, input){
+            switch(select.val()) {
+              case "edit":
+                return input.val();
+              case "default":
+                return QUOTA_LIMIT_DEFAULT;
+              case "unlimited":
+                return QUOTA_LIMIT_UNLIMITED;
+            }
+          }
+
+          var vms_limit = retrieve_quota(
+                $(".provision_rvms_quota select.provision_quota_select"),
+                $(".provision_rvms_quota_input"));
+
+          var cpu_limit = retrieve_quota(
+                $(".provision_cpu_quota select.provision_quota_select"),
+                $(".provision_cpu_quota_input"));
+
+          var mem_limit = retrieve_quota(
+                $(".provision_memory_quota select.provision_quota_select"),
+                $(".provision_memory_quota_input"));
+
           Sunstone.runAction("Provision.User.set_quota", [response.USER.ID], {
             "VM" : {
-              "VOLATILE_SIZE":"-1",
-              "VMS": $(".provision_rvms_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
-              "MEMORY": $(".provision_memory_quota_input").val()||QUOTA_LIMIT_UNLIMITED,
-              "CPU": $(".provision_cpu_quota_input").val()||QUOTA_LIMIT_UNLIMITED}
+              "VOLATILE_SIZE": QUOTA_LIMIT_DEFAULT,
+              "VMS":    vms_limit,
+              "MEMORY": mem_limit,
+              "CPU":    cpu_limit}
             });
         } else {
           clear_provision_create_user();
@@ -5272,7 +5346,7 @@ function setup_provision_user_info(context) {
                   '<div class="large-12 large-centered columns">'+
                     '<div class="row collapse">'+
                       '<div class="large-9 small-9 columns">'+
-                        '<div class="range-slider radius provision_rvms_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                        '<div class="range-slider radius provision_rvms_quota_vdc_info_slider" data-slider data-options="start: 0; end: 50;">'+
                           '<span class="range-slider-handle"></span>'+
                           '<span class="range-slider-active-segment"></span>'+
                           '<input type="hidden">'+
@@ -5298,7 +5372,7 @@ function setup_provision_user_info(context) {
                   '<div class="large-12 large-centered columns">'+
                     '<div class="row collapse">'+
                       '<div class="large-9 small-9 columns">'+
-                        '<div class="range-slider radius provision_cpu_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                        '<div class="range-slider radius provision_cpu_quota_vdc_info_slider" data-slider data-options="start: 0; end: 50;">'+
                           '<span class="range-slider-handle"></span>'+
                           '<span class="range-slider-active-segment"></span>'+
                           '<input type="hidden">'+
@@ -5327,7 +5401,7 @@ function setup_provision_user_info(context) {
                   '<div class="large-12 large-centered columns">'+
                     '<div class="row collapse">'+
                       '<div class="large-9 small-9 columns">'+
-                        '<div class="range-slider radius provision_memory_quota_vdc_info_slider" data-slider data-options="start: 1; end: 50;">'+
+                        '<div class="range-slider radius provision_memory_quota_vdc_info_slider" data-slider data-options="start: 0; end: 50;">'+
                           '<span class="range-slider-handle"></span>'+
                           '<span class="range-slider-active-segment"></span>'+
                           '<input type="hidden">'+
@@ -5670,11 +5744,15 @@ function clear_provision_create_user(){
   var context = $("#provision_create_user");
   $("#username", context).val('');
   $("#password", context).val('');
+  $("#repeat_password", context).val('');
+
+  $("select.provision_quota_select", context).val('edit').change();
+
   $(".provision_rvms_quota_input", context).val('');
   $(".provision_memory_quota_input", context).val('');
   $(".provision_memory_quota_tmp_input", context).val('');
   $(".provision_cpu_quota_input", context).val('');
-  $("#repeat_password", context).val('');
+
   $(".alert-box-error", context).hide();
   $(".alert-box-error", context).html("");
 }
@@ -6505,6 +6583,37 @@ $(document).ready(function(){
     //
 
     var context = $("#provision_create_user");
+
+    // Mode selector, for the 3 sliders
+    $("select.provision_quota_select", context).on('change', function(){
+      var row = $(this).closest(".row");
+
+      switch($(this).val()) {
+        case "edit":
+          $("div.provision_quota_edit", row).show();
+          $("div.provision_quota_default", row).hide();
+          $("div.provision_quota_unlimited", row).hide();
+
+          break;
+
+        case "default":
+          $("div.provision_quota_edit", row).hide();
+          $("div.provision_quota_default", row).show();
+          $("div.provision_quota_unlimited", row).hide();
+
+          break;
+
+        case "unlimited":
+          $("div.provision_quota_edit", row).hide();
+          $("div.provision_quota_default", row).hide();
+          $("div.provision_quota_unlimited", row).show();
+
+          break;
+      }
+
+      return false;
+    });
+
     var provision_rvms_quota_input = $(".provision_rvms_quota_input", context);
 
     $( ".provision_rvms_quota_slider", context).on('change', function(){
