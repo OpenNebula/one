@@ -29,7 +29,7 @@ include OpenNebula
 
 module OneDBImportSlave
     VERSION = "4.6.0"
-    LOCAL_VERSION = "4.5.80"
+    LOCAL_VERSION = "4.9.80"
 
     def check_db_version(master_db_version, slave_db_version)
         if ( master_db_version[:version] != VERSION ||
@@ -247,7 +247,7 @@ EOT
         @slave_db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
         
         @slave_db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
-        @slave_db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
+        @slave_db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, pid INTEGER, UNIQUE(name,uid));"
         
         @slave_db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
         @slave_db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
@@ -864,7 +864,8 @@ EOT
                 :owner_u    => row[:owner_u],
                 :group_u    => row[:group_u],
                 :other_u    => row[:other_u],
-                :cid        => row[:cid])
+                :cid        => row[:cid],
+                :pid        => row[:pid])
         end
 
         db.fetch("SELECT * FROM old_vm_pool") do |row|
