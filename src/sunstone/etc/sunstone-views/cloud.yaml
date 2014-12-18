@@ -6,6 +6,7 @@ tabs:
         panel_tabs:
             users: false
             flows: true
+            templates: true
         actions:
             Template.chmod: false
             Template.delete: true
@@ -15,3 +16,6 @@ tabs:
             vdcquotas: false
             vdcvms: false
             users:  false
+        create_vm:
+            capacity_select: true
+            network_select: true

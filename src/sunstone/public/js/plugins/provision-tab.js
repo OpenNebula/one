@@ -554,14 +554,16 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-        '<div class="provision_capacity_selector">'+
-        '</div>'+
-        '<br>'+
-        '<br>'+
-        '<div class="provision_network_selector">'+
-        '</div>'+
-        '<br>'+
-        '<br>'+
+        (Config.provision.create_vm.isEnabled("capacity_select") ? 
+          '<div class="provision_capacity_selector">'+
+          '</div>'+
+          '<br>'+
+          '<br>' : '') +
+        (Config.provision.create_vm.isEnabled("network_select") ? 
+          '<div class="provision_network_selector">'+
+          '</div>'+
+          '<br>'+
+          '<br>' : '') +
         '<div class="provision_custom_attributes_selector">'+
         '</div>'+
     '</div>'+
@@ -6124,18 +6126,22 @@ $(document).ready(function(){
 
         $(".provision_accordion_template a").first().trigger("click");
 
-        generate_provision_instance_type_accordion(
-          $(".provision_capacity_selector", create_vm_context),
-          template_json.VMTEMPLATE.TEMPLATE);
+        if (Config.provision.create_vm.isEnabled("capacity_select")) {
+          generate_provision_instance_type_accordion(
+            $(".provision_capacity_selector", create_vm_context),
+            template_json.VMTEMPLATE.TEMPLATE);
+        };
 
-        generate_provision_network_accordion(
-          $(".provision_network_selector", create_vm_context));
+        if (Config.provision.create_vm.isEnabled("network_select")) {
+          generate_provision_network_accordion(
+            $(".provision_network_selector", create_vm_context));
 
-        $.each(nics, function(index, nic){
-            generate_provision_network_table(
-              $(".provision_nic_accordion", create_vm_context),
-              nic);
-        })
+          $.each(nics, function(index, nic){
+              generate_provision_network_table(
+                $(".provision_nic_accordion", create_vm_context),
+                nic);
+          })
+        }
 
         if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
           generate_custom_attrs(
