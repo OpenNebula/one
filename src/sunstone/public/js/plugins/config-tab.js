@@ -106,6 +106,15 @@ Config = {
           }
         }
       },
+      "create_vm": {
+        "isEnabled": function(widget) {
+          if (config['view']['tabs']['provision-tab'] && config['view']['tabs']['provision-tab']["create_vm"]){
+            return config['view']['tabs']['provision-tab']['create_vm'][widget];
+          } else {
+            return false;
+          }
+        }
+      },
       "logo": (config['view']["provision_logo"] || "images/one_small_logo.png")
     }
 }
