@@ -252,23 +252,23 @@ class VIClient
             one_nets = []
 
             networks.each { |n|
-                vnet_template =  "NAME=\"#{n[:name]}\"\n" +
-                                 "BRIDGE=\"#{n[:name]}\"\n" +
-                                 "VCENTER_TYPE=\"Port Group\""
-
-                one_nets << {:name => n.name,
-                             :bridge => n.name,
-                             :type => "Port Group",
-                             :one => vnet_template}
+                one_nets << {
+                    :name   => n.name,
+                    :bridge => n.name,
+                    :type   => "Port Group",
+                    :one    => "NAME   = \"#{n[:name]}\"\n" \
+                               "BRIDGE = \"#{n[:name]}\"\n" \
+                               "VCENTER_TYPE = \"Port Group\""
+                }
             }
 
             networks = get_entities(dc.networkFolder,
                                     'DistributedVirtualPortgroup' )
 
             networks.each { |n|
-                vnet_template =  "NAME=\"#{n[:name]}\"\n" +
-                     "BRIDGE=\"#{n[:name]}\"\n" +
-                     "VCENTER_TYPE=\"Distributed Port Group\""
+                vnet_template = "NAME   = \"#{n[:name]}\"\n" \
+                                "BRIDGE = \"#{n[:name]}\"\n" \
+                                "VCENTER_TYPE = \"Distributed Port Group\""
 
                 vlan     = n.config.defaultPortConfig.vlan.vlanId
                 vlan_str = ""
@@ -285,14 +285,14 @@ class VIClient
                 end
 
                 if !vlan_str.empty?
-                    vnet_template = "VLAN=\"YES\"\nVLAN_ID=#{vlan_str}\n" +
-                                    vnet_template
+                    vnet_template << "VLAN=\"YES\"\n" \
+                                     "VLAN_ID=#{vlan_str}\n"
                 end
 
-                one_net = {:name => n.name,
+                one_net = {:name   => n.name,
                            :bridge => n.name,
-                           :type => "Distributed Port Group",
-                           :one => vnet_template}
+                           :type   => "Distributed Port Group",
+                           :one    => vnet_template}
 
                 one_net[:vlan] = vlan_str if !vlan_str.empty?
 
@@ -638,7 +638,7 @@ class VCenterVm
 
     ############################################################################
     # Resets a VM
-    #  @param deploy_id vcenter identifier of the VM
+    #  @param deploy_id vcetranslate_hostnamnter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
     def self.reset(deploy_id, hostname)
@@ -781,9 +781,8 @@ class VCenterVm
         vm   = connection.find_vm_template(deploy_id)
 
         nic  = vm.config.hardware.device.find { |d|
-                (d.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard) &&
-                (d.macAddress ==  mac)
-             }
+                is_nic?(d) && (d.macAddress ==  mac)
+        }
 
         raise "Could not find NIC with mac address #{mac}" if nic.nil?
 
@@ -889,7 +888,7 @@ private
     # - poweredOn    The virtual machine is currently powered on.
     # - suspended    The virtual machine is currently suspended.
     ########################################################################
-    def state_to_c(state)
+    def self.state_to_c(state)
         case state
             when 'poweredOn'
                 'a'
@@ -900,6 +899,13 @@ private
             else
                 '-'
         end
+    end
+
+    ########################################################################
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a network interface
+    ########################################################################
+    def self.is_nic?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
     end
 
     ########################################################################
@@ -916,12 +922,10 @@ private
             network = network[0]
         end
 
-        card_num    = 1 # start in one, we want the next avaliable id
+        card_num = 1 # start in one, we want the next avaliable id
 
         vm.config.hardware.device.each{ |dv|
-            if dv.class.ancestors[1] == RbVmomi::VIM::VirtualEthernetCard
-                card_num = card_num + 1
-            end
+            card_num = card_num + 1 if is_nic?(dv)
         } 
 
         nic_card = case model
@@ -1022,16 +1026,22 @@ private
                 :name   => "one-#{vmid}",
                 :spec   => clone_spec).wait_for_completion
         rescue Exception => e
-            if e.message.start_with?('DuplicateName')
-               vm = connection.find_vm("one-#{vmid}")
-               vm.Destroy_Task.wait_for_completion
-               vm = vc_template.CloneVM_Task(
-                                    :folder => vc_template.parent,
-                                    :name   => "one-#{vmid}",
-                                    :spec   => clone_spec).wait_for_completion
-            end
-        end
 
+            if !e.message.start_with?('DuplicateName')
+                raise "Cannot clone VM Template: #{e.message}"
+            end
+
+            vm = connection.find_vm("one-#{vmid}")
+
+            raise "Cannot clone VM Template" if vm.nil?
+
+            vm.Destroy_Task.wait_for_completion
+            
+            vm = vc_template.CloneVM_Task(
+                :folder => vc_template.parent,
+                :name   => "one-#{vmid}",
+                :spec   => clone_spec).wait_for_completion
+        end
 
         vm_uuid = vm.config.uuid
 
