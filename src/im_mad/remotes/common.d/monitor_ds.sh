@@ -14,7 +14,7 @@ fi
 
 mkdir -p "$DATASTORE_LOCATION"
 
-USED_MB=$(du -sLm $DATASTORE_LOCATION 2>/dev/null | cut -f1)
+USED_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $3}')
 TOTAL_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $2}')
 FREE_MB=$(df -B1M -P $DATASTORE_LOCATION 2>/dev/null | tail -n 1 | awk '{print $4}')
 
@@ -33,7 +33,7 @@ for ds in $dirs; do
 
     dir=$DATASTORE_LOCATION/$ds
 
-    USED_MB=$(du -sLm $dir 2>/dev/null | cut -f1)
+    USED_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $3}')
     TOTAL_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $2}')
     FREE_MB=$(df -B1M -P $dir 2>/dev/null | tail -n 1 | awk '{print $4}')
 
