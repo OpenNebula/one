@@ -1523,12 +1523,13 @@ var provision_info_vm =
           '<a data-tooltip title="You have to boot the Virtual Machine first" class="left button medium radius white provision_vnc_button_disabled tip-top" style="color: #999">'+
             '<i class="fa fa-fw fa-lg fa-desktop"/> '+
           '</a>'+
-          '<a href"#" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="left button medium radius success provision_snapshot_button tip-top">'+
-            '<i class="fa fa-fw fa-lg fa-save"/> '+
-          '</a>'+
-          '<a data-tooltip title="You have to power-off the virtual machine first" class="left button medium radius white provision_snapshot_button_disabled tip-top" style="color: #999">'+
-            '<i class="fa fa-fw fa-lg fa-save"/> '+
-          '</a>'+
+          (Config.isTabPanelEnabled("provision-tab", "templates") ?
+            '<a href"#" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="left button medium radius success provision_snapshot_button tip-top">'+
+              '<i class="fa fa-fw fa-lg fa-save"/> '+
+            '</a>'+
+            '<a data-tooltip title="You have to power-off the virtual machine first" class="left button medium radius white provision_snapshot_button_disabled tip-top" style="color: #999">'+
+              '<i class="fa fa-fw fa-lg fa-save"/> '+
+            '</a>' : '') +
         '</li>'+
         '<li class="right">'+
           '<a href"#" data-tooltip title="Delete" class="button medium radius alert provision_delete_confirm_button tip-top right">'+
@@ -1878,9 +1879,12 @@ var provision_content = provision_dashboard +
   provision_user_info +
   provision_create_vm +
   '<div class="provision_vms_list_section hidden section_content">' +
-  '</div>' +
-  '<div class="provision_templates_list_section hidden section_content">' +
   '</div>';
+
+if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+  provision_content += '<div class="provision_templates_list_section hidden section_content">';
+  provision_content += '</div>';
+}
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_content += provision_manage_vdc;
@@ -1913,11 +1917,14 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
 
 provision_header +=  '<li>'+
       '<a href"#" class="medium off-color provision_vms_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
-    '</li>'+
+    '</li>'
+
+if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+  provision_header +=
     '<li>'+
       '<a href"#" class="medium off-color provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
     '</li>';
-
+}
 
 if (Config.isTabPanelEnabled("provision-tab", "flows")) {
   provision_header +=
@@ -3018,9 +3025,11 @@ function show_provision_create_vm() {
   provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
   provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
 
-  update_provision_templates_datatable(provision_saved_templates_datatable);
-  provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-  provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
+  if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    update_provision_templates_datatable(provision_saved_templates_datatable);
+    provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
+    provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
+  }
 
   $(".provision_accordion_template .selected_template").hide();
   $(".provision_accordion_template .select_template").show();
@@ -3827,33 +3836,69 @@ function setup_info_vm(context) {
     })
   }
 
-  context.on("click", ".provision_snapshot_button", function(){
-    $(".provision_confirm_action:first", context).html(
-      '<div data-alert class="alert-box secondary radius">'+
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
-              tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
-            '<br>'+
-              tr("You can then create a new Virtual Machine using this Template")+
-            '</span>'+
+  if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    context.on("click", ".provision_snapshot_button", function(){
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+            '<div class="large-12 columns">'+
+              '<span style="font-size: 14px; line-height: 20px">'+
+                tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+              '<br>'+
+                tr("You can then create a new Virtual Machine using this Template")+
+              '</span>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-11 large-centered columns">'+
-            '<input type="text" class="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns">'+
+              '<input type="text" class="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-11 large-centered columns">'+
-            '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns">'+
+              '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<a href="#" class="close" style="top: 20px">&times;</a>'+
-      '</div>');
-  });
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+    });
+
+    context.on("click", ".provision_snapshot_create_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+      var context = $(".provision_info_vm[vm_id]");
+
+      var vm_id = context.attr("vm_id");
+      var image_name = $('.provision_snapshot_name', context).val();
+
+      OpenNebula.VM.saveas({
+        data : {
+          id: vm_id,
+          extra_param: {
+            disk_id : "0",
+            image_name : image_name,
+            type: "",
+            clonetemplate: true,
+            hot: true
+          }
+        },
+        success: function(request, response){
+          OpenNebula.Helper.clear_cache("VMTEMPLATE");
+          notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
+          update_provision_vm_info(vm_id, context);
+          button.removeAttr("disabled");
+        },
+        error: function(request, response){
+          onError(request, response);
+          button.removeAttr("disabled");
+        }
+      })
+
+      return false;
+    });
+  }
 
   context.on("click", ".provision_delete_confirm_button", function(){
     $(".provision_confirm_action:first", context).html(
@@ -3953,40 +3998,6 @@ function setup_info_vm(context) {
         '</div>'+
         '<a href="#" class="close" style="top: 20px">&times;</a>'+
       '</div>');
-  });
-
-  context.on("click", ".provision_snapshot_create_button", function(){
-    var button = $(this);
-    button.attr("disabled", "disabled");
-    var context = $(".provision_info_vm[vm_id]");
-
-    var vm_id = context.attr("vm_id");
-    var image_name = $('.provision_snapshot_name', context).val();
-
-    OpenNebula.VM.saveas({
-      data : {
-        id: vm_id,
-        extra_param: {
-          disk_id : "0",
-          image_name : image_name,
-          type: "",
-          clonetemplate: true,
-          hot: true
-        }
-      },
-      success: function(request, response){
-        OpenNebula.Helper.clear_cache("VMTEMPLATE");
-        notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
-        update_provision_vm_info(vm_id, context);
-        button.removeAttr("disabled");
-      },
-      error: function(request, response){
-        onError(request, response);
-        button.removeAttr("disabled");
-      }
-    })
-
-    return false;
   });
 
   context.on("click", ".provision_delete_button", function(){
@@ -5939,7 +5950,11 @@ $(document).ready(function(){
     })
 
     generate_provision_vms_list($(".provision_vms_list_section"), {active: true});
-    generate_provision_templates_list($(".provision_templates_list_section"), {active: true});
+
+    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+      generate_provision_templates_list($(".provision_templates_list_section"), {active: true});
+    }
+
     // TODO check if active
     generate_provision_flows_list($(".provision_flows_list_section"), {active: true});
     generate_provision_users_list($(".provision_users_list_section"), {active: true});
