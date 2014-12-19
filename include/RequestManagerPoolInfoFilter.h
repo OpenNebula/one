@@ -470,6 +470,30 @@ public:
     ~SecurityGroupPoolInfo(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VdcPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    VdcPoolInfo():
+        RequestManagerPoolInfoFilter("VdcPoolInfo",
+                                     "Returns the VDC pool",
+                                     "A:s")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vdcpool();
+        auth_object = PoolObjectSQL::VDC;
+    };
+
+    ~VdcPoolInfo(){};
+
+    /* -------------------------------------------------------------------- */
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

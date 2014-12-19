@@ -66,6 +66,9 @@ env.Man('onevcenter')
 # TODO
 #env.Man('onesecgroup')
 
+# TODO
+#env.Man('onevdc')
+
 env.Man('oneflow')
 env.Man('oneflow-template')
 

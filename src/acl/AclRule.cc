@@ -28,7 +28,7 @@ const long long AclRule::CLUSTER_ID     = 0x0000000800000000LL;
 
 const long long AclRule::NONE_ID        = 0x1000000000000000LL;
 
-const int AclRule::num_pool_objects = 12;
+const int AclRule::num_pool_objects = 13;
 const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::VM,
             PoolObjectSQL::HOST,
@@ -41,7 +41,8 @@ const PoolObjectSQL::ObjectType AclRule::pool_objects[] = {
             PoolObjectSQL::CLUSTER,
             PoolObjectSQL::DOCUMENT,
             PoolObjectSQL::ZONE,
-            PoolObjectSQL::SECGROUP
+            PoolObjectSQL::SECGROUP,
+            PoolObjectSQL::VDC
 };
 
 const int AclRule::num_auth_operations = 4;
@@ -56,15 +57,15 @@ const long long AclRule::INVALID_CLUSTER_OBJECTS =
         PoolObjectSQL::VM | PoolObjectSQL::IMAGE | PoolObjectSQL::USER |
         PoolObjectSQL::TEMPLATE | PoolObjectSQL::GROUP | PoolObjectSQL::ACL |
         PoolObjectSQL::CLUSTER | PoolObjectSQL::DOCUMENT | PoolObjectSQL::ZONE |
-        PoolObjectSQL::SECGROUP;
+        PoolObjectSQL::SECGROUP | PoolObjectSQL::VDC;
 
 const long long AclRule::INVALID_GROUP_OBJECTS =
         PoolObjectSQL::HOST | PoolObjectSQL::GROUP | PoolObjectSQL::CLUSTER |
-        PoolObjectSQL::ZONE;
+        PoolObjectSQL::ZONE | PoolObjectSQL::VDC;
 
 const long long AclRule::FEDERATED_OBJECTS =
         PoolObjectSQL::USER | PoolObjectSQL::GROUP | PoolObjectSQL::ZONE |
-        PoolObjectSQL::ACL;
+        PoolObjectSQL::ACL | PoolObjectSQL::VDC;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -183,8 +184,9 @@ bool AclRule::malformed(string& error_str) const
         oss << "[resource] GROUP(@) selector cannot be applied to "
             << PoolObjectSQL::type_to_str(PoolObjectSQL::HOST) << ", "
             << PoolObjectSQL::type_to_str(PoolObjectSQL::GROUP) << ", "
-            << PoolObjectSQL::type_to_str(PoolObjectSQL::CLUSTER) << " or "
-            << PoolObjectSQL::type_to_str(PoolObjectSQL::ZONE) << " types";
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::CLUSTER) << ", "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::ZONE) << " or "
+            << PoolObjectSQL::type_to_str(PoolObjectSQL::VDC) << " types";
     }
 
     if ( (resource & 0xF00000000LL) == 0 )

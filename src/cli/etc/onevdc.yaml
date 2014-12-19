@@ -1,0 +1,13 @@
+--- 
+:ID: 
+  :desc: ONE identifier for the VDC
+  :size: 5
+
+:NAME: 
+  :desc: Name of the VDC
+  :size: 25
+  :left: true
+
+:default:
+- :ID
+- :NAME

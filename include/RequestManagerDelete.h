@@ -336,6 +336,26 @@ public:
     int drop(int oid, PoolObjectSQL * object, string& error_msg);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VdcDelete: public RequestManagerDelete
+{
+public:
+    VdcDelete():
+        RequestManagerDelete("VdcDelete", "Deletes a VDC")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vdcpool();
+        auth_object = PoolObjectSQL::VDC;
+        auth_op     = AuthRequest::ADMIN;
+    };
+
+    ~VdcDelete(){};
+
+    int drop(int oid, PoolObjectSQL * object, string& error_msg);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

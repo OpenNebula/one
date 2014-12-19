@@ -747,6 +747,40 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.secgrouppool.info",secgpool_info);
 
+    /* Vdc related methods */
+
+    xmlrpc_c::method * vdc_allocate_pt;
+    xmlrpc_c::method * vdc_update_pt;
+    xmlrpc_c::method * vdc_delete_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        vdc_allocate_pt    = new RequestManagerProxy("one.vdc.allocate");
+        vdc_update_pt      = new RequestManagerProxy("one.vdc.update");
+        vdc_delete_pt      = new RequestManagerProxy("one.vdc.delete");
+    }
+    else
+    {
+        vdc_allocate_pt    = new VdcAllocate();
+        vdc_update_pt      = new VdcUpdateTemplate();
+        vdc_delete_pt      = new VdcDelete();
+    }
+
+    xmlrpc_c::methodPtr vdc_allocate(vdc_allocate_pt);
+    xmlrpc_c::methodPtr vdc_update(vdc_update_pt);
+    xmlrpc_c::methodPtr vdc_delete(vdc_delete_pt);
+
+    xmlrpc_c::methodPtr vdc_info(new VdcInfo());
+    xmlrpc_c::methodPtr vdc_rename(new VdcRename());
+    xmlrpc_c::methodPtr vdcpool_info(new VdcPoolInfo());
+
+    RequestManagerRegistry.addMethod("one.vdc.allocate",vdc_allocate);
+    RequestManagerRegistry.addMethod("one.vdc.update",  vdc_update);
+    RequestManagerRegistry.addMethod("one.vdc.delete",  vdc_delete);
+    RequestManagerRegistry.addMethod("one.vdc.info",    vdc_info);
+    RequestManagerRegistry.addMethod("one.vdc.rename",  vdc_rename);
+
+    RequestManagerRegistry.addMethod("one.vdcpool.info",vdcpool_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);
