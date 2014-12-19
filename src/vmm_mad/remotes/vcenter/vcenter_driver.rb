@@ -888,7 +888,7 @@ private
     # - poweredOn    The virtual machine is currently powered on.
     # - suspended    The virtual machine is currently suspended.
     ########################################################################
-    def self.state_to_c(state)
+    def state_to_c(state)
         case state
             when 'poweredOn'
                 'a'
