@@ -674,11 +674,10 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
 var provision_quota_widget = '<div class="row">'+
   '<div class="large-12 large-centered columns">'+
     '<h5 class="subheader text-right">'+
-      '<span class="left">'+
+      '<span class="left" style="margin-bottom: 0.5em">'+
         tr("Running VMs")+
       '</span>'+
     '</h5>'+
-    '<br>'+
   '</div>'+
 '</div>'+
 '<div class="row provision_rvms_quota">'+
@@ -699,13 +698,13 @@ var provision_quota_widget = '<div class="row">'+
         '</div>'+
       '</div>'+
       '<div class="large-2 small-2 columns">'+
-        '<input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '<input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -7px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
       '</div>'+
     '</div>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("Unlimited. Group quotas will still apply")+
+      tr("Unlimited. VDC quotas will still apply")+
     '</span>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
@@ -717,11 +716,10 @@ var provision_quota_widget = '<div class="row">'+
 '<div class="row">'+
   '<div class="large-12 large-centered columns">'+
     '<h5 class="subheader text-right">'+
-      '<span class="left">'+
+      '<span class="left" style="margin-bottom: 0.5em">'+
         tr("CPU")+
       '</span>'+
     '</h5>'+
-    '<br>'+
   '</div>'+
 '</div>'+
 '<div class="row provision_cpu_quota">'+
@@ -742,13 +740,13 @@ var provision_quota_widget = '<div class="row">'+
         '</div>'+
       '</div>'+
       '<div class="large-2 small-2 columns">'+
-        '<input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '<input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -7px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
       '</div>'+
     '</div>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("Unlimited. Group quotas will still apply")+
+      tr("Unlimited. VDC quotas will still apply")+
     '</span>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
@@ -760,11 +758,10 @@ var provision_quota_widget = '<div class="row">'+
 '<div class="row">'+
   '<div class="large-12 large-centered columns">'+
     '<h5 class="subheader text-right">'+
-      '<span class="left">'+
+      '<span class="left" style="margin-bottom: 0.5em">'+
         tr("Memory (GBs)")+
       '</span>'+
     '</h5>'+
-    '<br>'+
   '</div>'+
 '</div>'+
 '<div class="vm_param">'+
@@ -788,13 +785,13 @@ var provision_quota_widget = '<div class="row">'+
         '</div>'+
       '</div>'+
       '<div class="large-2 small-2 columns">'+
-        '<input type="text"  class="provision-input provision_memory_quota_tmp_input" style="margin-top: -17px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+        '<input type="text"  class="provision-input provision_memory_quota_tmp_input" style="margin-top: -7px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
       '</div>'+
     '</div>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("Unlimited. Group quotas will still apply")+
+      tr("Unlimited. VDC quotas will still apply")+
     '</span>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
@@ -814,6 +811,8 @@ function setup_provision_quota_widget(context){
           $("div.provision_quota_edit", row).show();
           $("div.provision_quota_default", row).hide();
           $("div.provision_quota_unlimited", row).hide();
+
+          $("input", row).change();
 
           break;
 
@@ -879,15 +878,20 @@ function setup_provision_quota_widget(context){
         $( ".provision_memory_quota_slider", context).foundation(
                                             'slider', 'set_value', this.value);
     });
+
+    $(".provision_rvms_quota_input", context).val('').change();
+    $(".provision_memory_quota_input", context).val('').change();
+    $(".provision_memory_quota_tmp_input", context).val('').change();
+    $(".provision_cpu_quota_input", context).val('').change();
 }
 
 function reset_provision_quota_widget(context){
   $("select.provision_quota_select", context).val('edit').change();
 
-  $(".provision_rvms_quota_input", context).val('');
-  $(".provision_memory_quota_input", context).val('');
-  $(".provision_memory_quota_tmp_input", context).val('');
-  $(".provision_cpu_quota_input", context).val('');
+  $(".provision_rvms_quota_input", context).val('').change();
+  $(".provision_memory_quota_input", context).val('').change();
+  $(".provision_memory_quota_tmp_input", context).val('').change();
+  $(".provision_cpu_quota_input", context).val('').change();
 }
 
 function retrieve_provision_quota_widget(context){
@@ -6581,6 +6585,14 @@ $(document).ready(function(){
     var context = $("#provision_create_user");
 
     setup_provision_quota_widget(context);
+
+    // Workaround to fix sliders. Apparently the setup fails while they are hidden
+    $('a[href="#provision_create_user_manual_quota"]', context).on("click", function(){
+      $(".provision_rvms_quota_input", context).change();
+      $(".provision_memory_quota_input", context).change();
+      $(".provision_memory_quota_tmp_input", context).change();
+      $(".provision_cpu_quota_input", context).change();
+    });
 
     $("#provision_create_user").submit(function(){
       var context = $(this);
