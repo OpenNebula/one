@@ -261,8 +261,6 @@ int AddressRange::update_attributes(
 
     if (vup->vector_value("SIZE", new_size) == 0)
     {
-        map<unsigned int, long long> itup;
-
         if (is_reservation && new_size != size)
         {
             error_msg = "The SIZE of a reservation cannot be changed.";
@@ -276,6 +274,8 @@ int AddressRange::update_attributes(
 
             return -1;
         }
+
+        next = 0;
     }
     else
     {
