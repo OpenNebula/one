@@ -21,7 +21,7 @@ module VNMNetwork
     # This methods translates an address range to a set of IPv4 networks
     # in CIDR notation
     #   @param ip_start [String] First IP of the range in dot notation
-    #   @param size [String] The number of IPs in the range
+    #   @param size [Fixnum] The number of IPs in the range
     #
     #   @return [Array<String>] The networks in CIDR
     def self.to_nets(ip_start, size)

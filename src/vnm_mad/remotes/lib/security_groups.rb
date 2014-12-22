@@ -100,7 +100,7 @@ module VNMNetwork
         def net
             return [] if @ip.nil? || @size.nil?
 
-            VNMNetwork::to_nets(@ip, @size)
+            VNMNetwork::to_nets(@ip, @size.to_i)
         end
 
         # Expand the ICMP type with associated codes if any 

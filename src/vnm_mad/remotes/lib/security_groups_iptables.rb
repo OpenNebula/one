@@ -111,7 +111,7 @@ module SGIPTables
         #   iptables -A one-3-0-i -m set --match-set one-3-0-1-i-nr src,dst -j RETURN
         #   ipset add -exist one-3-0-1-i-ni 10.0.0.0/24,icmp:8/0
         def process_net_icmp_type(cmds, vars)
-            if rule.rule_type == :inbound
+            if @rule_type == :inbound
                 chain = vars[:chain_in]
                 set = "#{vars[:set_sg_in]}-ni"
                 dir = "src,dst"
@@ -127,7 +127,7 @@ module SGIPTables
             net.each do |n|
                 icmp_type_expand.each do |type_code|
                     cmds.add :ipset, "add -exist #{set} #{n},icmp:#{type_code}"
-                end if rule.icmp_type_expand
+                end
             end
         end
     end
@@ -142,6 +142,10 @@ module SGIPTables
 
             @vars = SGIPTables.vars(@vm, @nic, @sg_id)
         end
+
+        def new_rule(rule)
+            RuleIPTables.new(rule)
+        end 
     end
 
     ############################################################################
