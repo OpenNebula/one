@@ -95,7 +95,7 @@ module SGIPTables
 
             cmds.add :ipset, "create #{set} hash:net,port"
             cmds.add :iptables, "-A #{chain} -m set --match-set" \
-                "#{set} #{dir} -j RETURN"
+                " #{set} #{dir} -j RETURN"
 
             net.each do |n|
                 @range.split(",").each do |r|
