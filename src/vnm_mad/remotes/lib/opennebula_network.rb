@@ -23,11 +23,11 @@ require 'yaml'
 
 require 'one_firewall'
 require 'one_sg'
-require 'lib/vm'
-require 'lib/nic'
-require 'lib/address'
-require 'lib/security_groups'
-require 'lib/security_groups_iptables'
+require 'vm'
+require 'nic'
+require 'address'
+require 'security_groups'
+require 'security_groups_iptables'
 
 require 'scripts_common'
 

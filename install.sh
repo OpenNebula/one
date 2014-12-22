@@ -932,12 +932,16 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 # Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm
 #-------------------------------------------------------------------------------
 
-NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
+NETWORK_FILES="src/vnm_mad/remotes/lib/opennebula_network.rb \
                src/vnm_mad/remotes/OpenNebulaNetwork.conf \
-               src/vnm_mad/remotes/Firewall.rb \
-               src/vnm_mad/remotes/SecurityGroups.rb \
-               src/vnm_mad/remotes/IPNetmask.rb \
-               src/vnm_mad/remotes/OpenNebulaNic.rb"
+               src/vnm_mad/remotes/lib/one_firewall.rb \
+               src/vnm_mad/remotes/lib/one_sg.rb \
+               src/vnm_mad/remotes/lib/address.rb \
+               src/vnm_mad/remotes/lib/command.rb \
+               src/vnm_mad/remotes/lib/command.rb \
+               src/vnm_mad/remotes/lib/security_groups.rb \
+               src/vnm_mad/remotes/lib/security_groups_iptables.rb \
+               src/vnm_mad/remotes/lib/nic.rb"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
