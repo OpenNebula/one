@@ -17,7 +17,7 @@
 module VNMMAD
 
 # This module includes provides the abstractions to implement SecurityGroups
-module SGBase
+module VNMNetwork
 
     ############################################################################
     # Rule supports these (final and relevant) attributes:
@@ -101,7 +101,7 @@ module SGBase
         def net
             return [] if @ip.nil? || @size.nil?
 
-            Address::to_nets(@ip, @size)
+            VNMNetwork::to_nets(@ip, @size)
         end
 
         # Expand the ICMP type with associated codes if any 
@@ -190,7 +190,7 @@ module SGBase
             @rules = []
             @vars  = {}
 
-            @commands = Commands.new
+            @commands = VNMNetwork::Commands.new
 
             rules.each do |rule|
                 @rules << new_rule(rule)

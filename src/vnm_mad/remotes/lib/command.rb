@@ -16,8 +16,7 @@
 
 module VNMMAD
 
-# This module includes functions to execute and manage Network commands.
-module Command
+module VNMNetwork
 
     # Command configuration for common network commands. This CAN be adjust
     # to local installations. Any modification requires to sync the hosts with

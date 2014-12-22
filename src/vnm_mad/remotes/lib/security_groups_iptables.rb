@@ -22,7 +22,7 @@ module SGIPTables
     ############################################################################
     # A Rule implemented with the iptables/ipset Linux kernel facilities
     ############################################################################
-    class RuleIPTables < Rule
+    class RuleIPTables < VNMNetwork::Rule
         ########################################################################
         # Implementation of each rule type
         ########################################################################
@@ -136,7 +136,7 @@ module SGIPTables
     # This class represents a SecurityGroup implemented with iptables/ipset
     # Kernel facilities.
     ############################################################################
-    class SecurityGroupIPTables < SecurityGroup
+    class SecurityGroupIPTables < VNMNetwork::SecurityGroup
         def initialize(vm, nic, sg_id, rules)
             super
 
@@ -157,7 +157,7 @@ module SGIPTables
     #     - :iptables_s 
     #     - :ipset_list
     def self.info
-        commands = Commands.new
+        commands = VNMNetwork::Commands.new
 
         commands << :iptables "-S"
         iptables_s = commands.run!
@@ -188,7 +188,7 @@ module SGIPTables
 
         return if info[:iptables_s].split("\n").include? "-N #{GLOBAL_CHAIN}"
             
-        commands = Commands.new
+        commands = VNMNetwork::Commands.new
 
         commands.iptables "-N #{GLOBAL_CHAIN}"
         commands.iptables "-A FORWARD -m physdev --physdev-is-bridged -j #{GLOBAL_CHAIN}"
@@ -244,7 +244,7 @@ module SGIPTables
     #   IP spoofing 
     #   iptables -A one-3-0-o ! --source 10.0.0.1 -j DROP
     def self.nic_pre(vm, nic)
-        commands = Commands.new
+        commands = VNMNetwork::Commands.new
 
         vars = SGIPTables.vars(vm, nic)
 
@@ -285,7 +285,7 @@ module SGIPTables
         chain_in  = vars[:chain_in]
         chain_out = vars[:chain_out]
 
-        commands = Commands.new
+        commands = VNMNetwork::Commands.new
         commands << :iptables "-A #{chain_in} -j DROP"
         commands << :iptables "-A #{chain_out} -j DROP"
 
@@ -304,7 +304,7 @@ module SGIPTables
         iptables_s        = info[:iptables_s]
         ipset_list        = info[:ipset_list]
 
-        commands = Commands.new
+        commands = VNMNetwork::Commands.new
 
         iptables_forwards.lines.reverse_each do |line|
             fields = line.split

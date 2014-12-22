@@ -16,8 +16,7 @@
 
 module VNMMAD
 
-# The address module provides basic functions to manage IP addresses
-module Address
+module VNMNetwork
 
     # This methods translates an address range to a set of IPv4 networks
     # in CIDR notation
