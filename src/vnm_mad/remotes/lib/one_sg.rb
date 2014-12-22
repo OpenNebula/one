@@ -29,7 +29,7 @@ module VNMMAD
         def initialize(vm, deploy_id = nil, hypervisor = nil)
             super(vm, XPATH_FILTER, deploy_id, hypervisor)
             @locking = true
-            @commands = Commands.new
+            @commands = VNMMAD::VNMNetwork::Commands.new
 
             rules = {}
             @vm.vm_root.elements.each('TEMPLATE/SECURITY_GROUP_RULE') do |r|
@@ -62,14 +62,13 @@ module VNMMAD
                     && nic[:filter_mac_spoofing] != "YES" \
                     && nic[:filter_ip_spoofing]  != "YES"
 
-
                 VNMMAD::SGIPTables.nic_pre(@vm, nic)
 
                 sg_ids = nic[:security_groups].split(",")
 
                 sg_ids.each do |sg_id|
                     rules = @security_group_rules[sg_id]
-                    
+
                     sg = VNMMAD::SGIPTables::SecurityGroupIPTables.new(@vm, nic,
                         sg_id, rules)
 

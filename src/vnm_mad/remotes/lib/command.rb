@@ -62,7 +62,7 @@ module VNMNetwork
                 cmd_str = "#{cmd} #{args.join(' ')}"
             end
             
-            super cmd_str
+            self << cmd_str
         end
 
         # Executes the commands array
