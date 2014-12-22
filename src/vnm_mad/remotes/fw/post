@@ -19,13 +19,13 @@
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
-require 'OpenNebulaNetwork'
+require 'vnmmad'
 
 template64 = ARGV[0]
 deploy_id  = ARGV[1]
 
 begin
-    filter_driver = OpenNebulaNetwork.filter_driver(template64, deploy_id)
+    filter_driver = VNMMAD::OpenNebulaNetwork.filter_driver(template64, deploy_id)
     filter_driver.activate
 rescue Exception => e
     OpenNebula.log_error(e.message)

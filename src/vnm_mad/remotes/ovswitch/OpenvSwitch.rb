@@ -14,9 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebulaNetwork'
+require 'vnmmad'
 
-class OpenvSwitchVLAN < OpenNebulaNetwork
+class OpenvSwitchVLAN < VNMMAD::OpenNebulaNetwork
     DRIVER = "ovswitch"
 
     FIREWALL_PARAMS =  [:black_ports_tcp,
@@ -91,7 +91,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     end
 
     def tag_vlan
-        cmd =  "#{COMMANDS[:ovs_vsctl]} set Port #{@nic[:tap]} "
+        cmd =  "#{VNMMAD::COMMANDS[:ovs_vsctl]} set Port #{@nic[:tap]} "
         cmd << "tag=#{vlan}"
 
         run cmd
@@ -100,7 +100,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     def tag_trunk_vlans
         range = @nic[:vlan_tagged_id]
         if range? range
-            ovs_vsctl_cmd = "#{COMMANDS[:ovs_vsctl]} set Port #{@nic[:tap]}"
+            ovs_vsctl_cmd = "#{VNMMAD::COMMANDS[:ovs_vsctl]} set Port #{@nic[:tap]}"
 
             cmd = "#{ovs_vsctl_cmd} trunks=#{range}"
             run cmd
@@ -159,7 +159,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     def del_flows
         in_port = ""
 
-        dump_flows = "#{COMMANDS[:ovs_ofctl]} dump-flows #{@nic[:bridge]}"
+        dump_flows = "#{VNMMAD::COMMANDS[:ovs_ofctl]} dump-flows #{@nic[:bridge]}"
         `#{dump_flows}`.lines do |flow|
             next unless flow.match("#{@nic[:mac]}")
             flow = flow.split.select{|e| e.match(@nic[:mac])}.first
@@ -175,13 +175,13 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     def add_flow(filter,action,priority=nil)
         priority = (priority.to_s.empty? ? "" : "priority=#{priority},")
 
-        run "#{COMMANDS[:ovs_ofctl]} add-flow " <<
+        run "#{VNMMAD::COMMANDS[:ovs_ofctl]} add-flow " <<
             "#{@nic[:bridge]} #{filter},#{priority}actions=#{action}"
     end
 
     def del_flow(filter)
         filter.gsub!(/priority=(\d+)/,"")
-        run "#{COMMANDS[:ovs_ofctl]} del-flows " <<
+        run "#{VNMMAD::COMMANDS[:ovs_ofctl]} del-flows " <<
             "#{@nic[:bridge]} #{filter}"
     end
 
@@ -192,7 +192,7 @@ class OpenvSwitchVLAN < OpenNebulaNetwork
     def port
         return @nic[:port] if @nic[:port]
 
-        dump_ports = `#{COMMANDS[:ovs_ofctl]} \
+        dump_ports = `#{VNMMAD::COMMANDS[:ovs_ofctl]} \
                       dump-ports #{@nic[:bridge]} #{@nic[:tap]}`
 
         @nic[:port] = dump_ports.scan(/^\s*port\s*(\d+):/).flatten.first

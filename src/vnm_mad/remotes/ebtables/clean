@@ -19,7 +19,6 @@
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
-require 'OpenNebulaNetwork'
 require 'Ebtables'
 
 template64 = ARGV[0]
@@ -27,5 +26,5 @@ template64 = ARGV[0]
 onevlan = EbtablesVLAN.from_base64(template64)
 onevlan.deactivate
 
-filter_driver = OpenNebulaNetwork.filter_driver(template64)
+filter_driver = VNMMAD::OpenNebulaNetwork.filter_driver(template64)
 filter_driver.deactivate
