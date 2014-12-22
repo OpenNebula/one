@@ -77,7 +77,7 @@ module VNMNetwork
             nil
         end
 
-        private:
+        private
 
         # Method to build the associated Hash from a NIC
         #   @param nic_element [REXML] for the NIC

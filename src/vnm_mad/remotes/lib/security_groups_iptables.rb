@@ -26,14 +26,14 @@ module SGIPTables
         ########################################################################
         # Implementation of each rule type
         ########################################################################
-        private: 
+        private
 
         # Implements the :protocol rule. Example:
         #   iptables -A one-3-0-i -p tcp -j RETURN
         def process_protocol(cmds, vars)
             chain = @rule_type == :inbound ? vars[:chain_in] : vars[:chain_out]
 
-            cmds << :iptables "-A #{chain} -p #{@protocol} -j RETURN"
+            cmds.add :iptables, "-A #{chain} -p #{@protocol} -j RETURN"
         end
 
         # Implements the :portrange rule. Example:
@@ -41,7 +41,7 @@ module SGIPTables
         def process_portrange(cmds, vars)
             chain = @rule_type == :inbound ? vars[:chain_in] : vars[:chain_out]
             
-            cmds << :iptables "-A #{chain} -p #{@protocol} -m multiport" \
+            cmds.add :iptables, "-A #{chain} -p #{@protocol} -m multiport" \
                 " --dports #{@range} -j RETURN"
         end
 
@@ -50,7 +50,7 @@ module SGIPTables
         def     process_icmp_type(cmds, vars)
             chain = @rule_type == :inbound ? vars[:chain_in] : vars[:chain_out]
 
-            cmds << :iptables "-A #{chain} -p icmp --icmp-type #{@icmp_type}" \
+            cmds.add :iptables, "-A #{chain} -p icmp --icmp-type #{@icmp_type}" \
                 " -j RETURN"
         end
 
@@ -64,17 +64,17 @@ module SGIPTables
                 set = "#{vars[:set_sg_in]}-#{@protocol}-n"
                 dir = "src"
             else
-                chain = : vars[:chain_out]
+                chain = vars[:chain_out]
                 set = "#{vars[:set_sg_out]}-#{@protocol}-n"
                 dir = "dst"
             end
 
-            cmds << :ipset "create #{set} hash:net"
-            cmds << :iptables "-A #{chain} -p #{@protocol} -m set" \
+            cmds.add :ipset, "create #{set} hash:net"
+            cmds.add :iptables, "-A #{chain} -p #{@protocol} -m set" \
                 " --match-set #{set} #{dir} -j RETURN"
 
             net.each do |n|
-                cmds << :ipset "add -exist #{set} #{n}"
+                cmds.add :ipset, "add -exist #{set} #{n}"
             end
         end
 
@@ -88,20 +88,20 @@ module SGIPTables
                 set = "#{vars[:set_sg_in]}-nr"
                 dir = "src,dst"
             else
-                chain = : vars[:chain_out]
+                chain = vars[:chain_out]
                 set = "#{vars[:set_sg_out]}-nr"
                 dir = "dst,dst"
             end
 
-            cmds << :ipset "create #{set} hash:net,port"
-            cmds << :iptables "-A #{chain} -m set --match-set" \
+            cmds.add :ipset, "create #{set} hash:net,port"
+            cmds.add :iptables, "-A #{chain} -m set --match-set" \
                 "#{set} #{dir} -j RETURN"
 
             net.each do |n|
                 @range.split(",").each do |r|
                     r.gsub!(":","-")
                     net_range = "#{n},#{@protocol}:#{r}"
-                    cmds << :ipset "add -exist #{set} #{net_range}"
+                    cmds.add :ipset, "add -exist #{set} #{net_range}"
                 end
             end
         end
@@ -116,17 +116,17 @@ module SGIPTables
                 set = "#{vars[:set_sg_in]}-ni"
                 dir = "src,dst"
             else
-                chain = : vars[:chain_out]
+                chain = vars[:chain_out]
                 set = "#{vars[:set_sg_out]}-ni"                
                 dir = "dst,dst"
             end
 
-            cmds << :ipset "create #{set} hash:net,port"
-            cmds << :iptables "-A #{chain} -m set --match-set #{set} #{dir} -j RETURN"
+            cmds.add :ipset, "create #{set} hash:net,port"
+            cmds.add :iptables, "-A #{chain} -m set --match-set #{set} #{dir} -j RETURN"
 
             net.each do |n|
                 icmp_type_expand.each do |type_code|
-                    cmds << :ipset "add -exist #{set} #{n},icmp:#{type_code}"
+                    cmds.add :ipset, "add -exist #{set} #{n},icmp:#{type_code}"
                 end if rule.icmp_type_expand
             end
         end
@@ -159,17 +159,17 @@ module SGIPTables
     def self.info
         commands = VNMNetwork::Commands.new
 
-        commands << :iptables "-S"
+        commands.add :iptables, "-S"
         iptables_s = commands.run!
 
         iptables_forwards = ""
 
         if iptables_s.match(/^-N #{GLOBAL_CHAIN}$/)
-            commands.iptables("-L #{GLOBAL_CHAIN} --line-numbers")
+            commands.add :iptables, "-L #{GLOBAL_CHAIN} --line-numbers"
             iptables_forwards = commands.run!    
         end
 
-        commands << :ipset "list -name"
+        commands.add :ipset, "list -name"
         ipset_list = commands.run!
 
         {
@@ -190,9 +190,9 @@ module SGIPTables
             
         commands = VNMNetwork::Commands.new
 
-        commands.iptables "-N #{GLOBAL_CHAIN}"
-        commands.iptables "-A FORWARD -m physdev --physdev-is-bridged -j #{GLOBAL_CHAIN}"
-        commands.iptables "-A #{GLOBAL_CHAIN} -j ACCEPT"
+        commands.add :iptables, "-N #{GLOBAL_CHAIN}"
+        commands.add :iptables, "-A FORWARD -m physdev --physdev-is-bridged -j #{GLOBAL_CHAIN}"
+        commands.add :iptables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
 
         commands.run!
     end
@@ -253,26 +253,26 @@ module SGIPTables
         chain_out = vars[:chain_out]
 
         # create chains
-        commands << :iptables "-N #{chain_in}"  # inbound
-        commands << :iptables "-N #{chain_out}" # outbound
+        commands.add :iptables, "-N #{chain_in}"  # inbound
+        commands.add :iptables, "-N #{chain_out}" # outbound
 
         # Send traffic to the NIC chains
-        commands << :iptables "-I #{GLOBAL_CHAIN} -m physdev --physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
-        commands << :iptables "-I #{GLOBAL_CHAIN} -m physdev --physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
+        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev --physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
+        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev --physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
 
         # Mac-spofing
         if nic[:filter_mac_spoofing] == "YES"
-            commands << :iptables "-A #{chain_out} -m mac ! --mac-source #{nic[:mac]} -j DROP"
+            commands.add :iptables, "-A #{chain_out} -m mac ! --mac-source #{nic[:mac]} -j DROP"
         end
 
         # IP-spofing
         if nic[:filter_ip_spoofing] == "YES"
-            commands << :iptables "-A #{chain_out} ! --source #{nic[:ip]} -j DROP"
+            commands.add :iptables, "-A #{chain_out} ! --source #{nic[:ip]} -j DROP"
         end
 
         # Related, Established
-        commands << :iptables "-A #{chain_in} -m state --state ESTABLISHED,RELATED -j ACCEPT"
-        commands << :iptables "-A #{chain_out} -m state --state ESTABLISHED,RELATED -j ACCEPT"
+        commands.add :iptables, "-A #{chain_in} -m state --state ESTABLISHED,RELATED -j ACCEPT"
+        commands.add :iptables, "-A #{chain_out} -m state --state ESTABLISHED,RELATED -j ACCEPT"
 
         commands.run!
     end
@@ -286,8 +286,8 @@ module SGIPTables
         chain_out = vars[:chain_out]
 
         commands = VNMNetwork::Commands.new
-        commands << :iptables "-A #{chain_in} -j DROP"
-        commands << :iptables "-A #{chain_out} -j DROP"
+        commands.add :iptables, "-A #{chain_in} -j DROP"
+        commands.add :iptables, "-A #{chain_out} -j DROP"
 
         commands.run!
     end
@@ -310,7 +310,7 @@ module SGIPTables
             fields = line.split
             if [chain_in, chain_out].include?(fields[1])
                 n = fields[0]
-                commands << :iptables "-D #{GLOBAL_CHAIN} #{n}"
+                commands.add :iptables, "-D #{GLOBAL_CHAIN} #{n}"
             end
         end
 
@@ -320,13 +320,13 @@ module SGIPTables
                  remove_chains << line.split[1]
             end
         end
-        remove_chains.each {|c| commands << :iptables "-F #{c}" }
-        remove_chains.each {|c| commands << :iptables "-X #{c}" }
+        remove_chains.each {|c| commands.add :iptables, "-F #{c}" }
+        remove_chains.each {|c| commands.add :iptables, "-X #{c}" }
 
         ipset_list.lines.each do |line|
             if line.match(/^#{chain}/)
                 set = line.strip
-                commands << :ipset "destroy #{set}"
+                commands.add :ipset, "destroy #{set}"
             end
         end
 

@@ -46,14 +46,14 @@ module VNMNetwork
     ############################################################################
     class Rule
         # Rule type.
-        TYPES = {
+        TYPES = [
             :protocol,      # Type  1: block the whole protocol
             :portrange,     # Type 2a: block a port range within a protocol 
             :icmp_type,     # Type 2b: block selected icmp types 
             :net,           # Type  3: block a whole protocol for a network
             :net_portrange, # Type 4a: block a port range from a network
             :net_icmp_type  # Type 4b: block selected icmp types from a network 
-        }
+        ]
 
         # Initialize a new rule. 
         def initialize(rule)
@@ -92,7 +92,6 @@ module VNMNetwork
 
                 when :net_icmp_type
                     process_net_icmp_type(cmds, vars)
-                end
             end
         end        
 
@@ -114,7 +113,7 @@ module VNMNetwork
             end
         end
 
-        private:
+        private
 
         # ICMP Codes for each ICMP type
         ICMP_TYPES_EXPANDED = {
@@ -140,7 +139,6 @@ module VNMNetwork
                 return :icmp_type if !@icmp_type.nil?
                 return :portrange if !@range.nil?
                 return :protocol
-                end
             else
                 return :net_icmp_type if !@icmp_type.nil?
                 return :net_portrange if !@range.nil?

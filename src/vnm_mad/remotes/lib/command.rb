@@ -18,6 +18,20 @@ module VNMMAD
 
 module VNMNetwork
 
+    # This module include implementation specific functions. It MUST not be
+    # be used in other VNMAD classes.
+    module Configuration
+        # Return the command to talk to the Xen hypervisor xm or xl for 
+        # Xen 3 and 4
+        def self.get_xen_command
+            if system("ps axuww | grep -v grep | grep '\\bxen\\b'")
+                "sudo xm"
+            else
+                "sudo xl"
+            end
+        end
+    end
+
     # Command configuration for common network commands. This CAN be adjust
     # to local installations. Any modification requires to sync the hosts with
     # onehost sync command.
@@ -41,7 +55,7 @@ module VNMNetwork
         # Adds a new command to the command array 
         #  @param cmd [String] the command, it can be a key defined in COMMANDS
         #  @para args[Array<String>] Arguments for the command
-        def << (cmd, *args)
+        def add (cmd, *args)
             if COMMANDS.keys.include?(cmd.to_sym)
                 cmd_str = "#{COMMANDS[cmd.to_sym]} #{args.join(' ')}"
             else
@@ -65,20 +79,6 @@ module VNMNetwork
             clear
 
             return out
-        end
-    end
-
-    # This module include implementation specific functions. It MUST not be
-    # be used in other VNMAD classes.
-    module Configuration
-        # Return the command to talk to the Xen hypervisor xm or xl for 
-        # Xen 3 and 4
-        def self.get_xen_command
-            if system("ps axuww | grep -v grep | grep '\\bxen\\b'")
-                "sudo xm"
-            else
-                "sudo xl"
-            end
         end
     end
 end

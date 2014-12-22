@@ -14,9 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebulaNetwork'
+require 'vnmmad'
 
-class OpenNebulaHM < OpenNebulaNetwork
+class OpenNebulaHM < VNMMAD::OpenNebulaNetwork
     DRIVER = "802.1Q"
 
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
@@ -34,6 +34,7 @@ class OpenNebulaHM < OpenNebulaNetwork
         lock
 
         vm_id =  @vm['ID']
+
         process do |nic|
             bridge  = nic[:bridge]
             dev     = nic[:phydev]
@@ -71,18 +72,18 @@ class OpenNebulaHM < OpenNebulaNetwork
     end
 
     def create_bridge(bridge)
-        OpenNebula.exec_and_log("#{COMMANDS[:brctl]} addbr #{bridge}")
+        OpenNebula.exec_and_log("#{VNMMAD::COMMANDS[:brctl]} addbr #{bridge}")
         @bridges[bridge] = Array.new
     end
 
     def device_exists?(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        `#{COMMANDS[:ip]} link show #{dev}`
+        `#{VNMMAD::COMMANDS[:ip]} link show #{dev}`
         $?.exitstatus == 0
     end
 
     def create_dev_vlan(dev, vlan)
-        cmd = "#{COMMANDS[:ip]} link add link #{dev}"
+        cmd = "#{VNMMAD::COMMANDS[:ip]} link add link #{dev}"
         cmd << " name #{dev}.#{vlan} type vlan id #{vlan}"
 
         OpenNebula.exec_and_log(cmd)
@@ -96,12 +97,12 @@ class OpenNebulaHM < OpenNebulaNetwork
 
     def attach_brigde_dev(bridge, dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        OpenNebula.exec_and_log("#{COMMANDS[:brctl]} addif #{bridge} #{dev}")
+        OpenNebula.exec_and_log("#{VNMMAD::COMMANDS[:brctl]} addif #{bridge} #{dev}")
         @bridges[bridge] << dev
     end
 
     def ifup(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        OpenNebula.exec_and_log("#{COMMANDS[:ip]} link set #{dev} up")
+        OpenNebula.exec_and_log("#{VNMMAD::COMMANDS[:ip]} link set #{dev} up")
     end
 end

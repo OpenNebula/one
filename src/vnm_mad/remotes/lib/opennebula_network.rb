@@ -14,39 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), '..')
-
-require 'rexml/document'
-require 'base64'
-require 'yaml'
-
-require 'one_firewall'
-require 'one_sg'
-require 'vm'
-require 'nic'
-require 'address'
-require 'security_groups'
-require 'security_groups_iptables'
-
-require 'scripts_common'
-
-include OpenNebula
-
-begin
-    CONF =  YAML.load_file(
-                File.join(File.dirname(__FILE__), "OpenNebulaNetwork.conf")
-            )
-rescue
-    CONF = {
-        :start_vlan => 2
-    }
-end
-
-# Set PATH
-ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"
-
-
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom 
 # virtual network drivers. The VNMAD module includes:
@@ -76,8 +43,8 @@ module VNMMAD
                 @hypervisor = hypervisor
             end
 
-            @vm = VM.new(REXML::Document.new(vm_tpl).root, xpath_filter, 
-                deploy_id, @hypervisor)
+            @vm = VNMNetwork::VM.new(REXML::Document.new(vm_tpl).root, 
+                xpath_filter, deploy_id, @hypervisor)
         end
 
         # Creates a new OpenNebulaNetwork using:
