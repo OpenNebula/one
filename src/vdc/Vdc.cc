@@ -15,8 +15,11 @@
 /* ------------------------------------------------------------------------ */
 
 #include "Vdc.h"
+#include "Nebula.h"
 
-/* ------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+
+const int    Vdc::ALL_RESOURCES = -10;
 
 const char * Vdc::table = "vdc_pool";
 
@@ -183,10 +186,75 @@ string& Vdc::to_xml(string& xml) const
     ostringstream   oss;
     string          template_xml;
 
+    set<pair<int,int> >::const_iterator it;
+    set<int>::const_iterator group_it;
+
     oss <<
     "<VDC>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
+        "<GROUPS>";
+
+    for (group_it = groups.begin(); group_it != groups.end(); group_it++)
+    {
+        oss << "<ID>" << *group_it << "</ID>";
+    }
+
+    oss << "</GROUPS>";
+
+    oss << "<CLUSTERS>";
+
+    for (it = clusters.begin(); it != clusters.end(); it++)
+    {
+        oss <<
+            "<CLUSTER>" <<
+                "<ZONE_ID>"     << it->first    << "</ZONE_ID>"     <<
+                "<CLUSTER_ID>"  << it->second   << "</CLUSTER_ID>"  <<
+            "</CLUSTER>";
+    }
+
+    oss << "</CLUSTERS>";
+
+    oss << "<HOSTS>";
+
+    for (it = hosts.begin(); it != hosts.end(); it++)
+    {
+        oss <<
+            "<HOST>" <<
+                "<ZONE_ID>"     << it->first    << "</ZONE_ID>"     <<
+                "<HOST_ID>"     << it->second   << "</HOST_ID>"     <<
+            "</HOST>";
+    }
+
+    oss << "</HOSTS>";
+
+    oss << "<DATASTORES>";
+
+    for (it = datastores.begin(); it != datastores.end(); it++)
+    {
+        oss <<
+            "<DATASTORE>" <<
+                "<ZONE_ID>"     << it->first    << "</ZONE_ID>"     <<
+                "<DATASTORE_ID>"<< it->second   << "</DATASTORE_ID>"<<
+            "</DATASTORE>";
+    }
+
+    oss << "</DATASTORES>";
+
+    oss << "<VNETS>";
+
+    for (it = vnets.begin(); it != vnets.end(); it++)
+    {
+        oss <<
+            "<VNET>" <<
+                "<ZONE_ID>"     << it->first    << "</ZONE_ID>"     <<
+                "<VNET_ID>"     << it->second   << "</VNET_ID>"     <<
+            "</VNET>";
+    }
+
+    oss << "</VNETS>";
+
+    oss <<
         obj_template->to_xml(template_xml) <<
     "</VDC>";
 
@@ -201,6 +269,7 @@ string& Vdc::to_xml(string& xml) const
 int Vdc::from_xml(const string& xml)
 {
     vector<xmlNodePtr> content;
+    vector<xmlNodePtr>::iterator it;
     int rc = 0;
 
     // Initialize the internal XML object
@@ -224,6 +293,95 @@ int Vdc::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    // Set of Groups
+    ObjectXML::get_nodes("/VDC/GROUPS/ID", content);
+
+    for (it = content.begin(); it != content.end(); it++)
+    {
+        ObjectXML tmp_xml(*it);
+
+        int group_id;
+
+        rc += tmp_xml.xpath(group_id, "/ID", -1);
+
+        groups.insert(group_id);
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Set of Clusters
+    ObjectXML::get_nodes("/VDC/CLUSTERS/CLUSTER", content);
+
+    for (it = content.begin(); it != content.end(); it++)
+    {
+        ObjectXML tmp_xml(*it);
+
+        int zone_id, cluster_id;
+
+        rc += tmp_xml.xpath(zone_id, "/CLUSTER/ZONE_ID", -1);
+        rc += tmp_xml.xpath(cluster_id, "/CLUSTER/CLUSTER_ID", -1);
+
+        clusters.insert(pair<int,int>(zone_id, cluster_id));
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Set of Hosts
+    ObjectXML::get_nodes("/VDC/HOSTS/HOST", content);
+
+    for (it = content.begin(); it != content.end(); it++)
+    {
+        ObjectXML tmp_xml(*it);
+
+        int zone_id, host_id;
+
+        rc += tmp_xml.xpath(zone_id, "/HOST/ZONE_ID", -1);
+        rc += tmp_xml.xpath(host_id, "/HOST/HOST_ID", -1);
+
+        hosts.insert(pair<int,int>(zone_id, host_id));
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Set of Datastores
+    ObjectXML::get_nodes("/VDC/DATASTORES/DATASTORE", content);
+
+    for (it = content.begin(); it != content.end(); it++)
+    {
+        ObjectXML tmp_xml(*it);
+
+        int zone_id, datastore_id;
+
+        rc += tmp_xml.xpath(zone_id, "/DATASTORE/ZONE_ID", -1);
+        rc += tmp_xml.xpath(datastore_id, "/DATASTORE/DATASTORE_ID", -1);
+
+        datastores.insert(pair<int,int>(zone_id, datastore_id));
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Set of VNets
+    ObjectXML::get_nodes("/VDC/VNETS/VNET", content);
+
+    for (it = content.begin(); it != content.end(); it++)
+    {
+        ObjectXML tmp_xml(*it);
+
+        int zone_id, vnet_id;
+
+        rc += tmp_xml.xpath(zone_id, "/VNET/ZONE_ID", -1);
+        rc += tmp_xml.xpath(vnet_id, "/VNET/VNET_ID", -1);
+
+        vnets.insert(pair<int,int>(zone_id, vnet_id));
+    }
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
     if (rc != 0)
     {
         return -1;
@@ -234,6 +392,664 @@ int Vdc::from_xml(const string& xml)
     set_group(0,"");
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::add_group(int group_id, string& error_msg)
+{
+    set<pair<int,int> >::const_iterator it;
+
+    pair<set<int>::iterator,bool> ret;
+
+    ret = groups.insert(group_id);
+
+    if( !ret.second )
+    {
+        ostringstream oss;
+        oss << "Group " << group_id << " is already assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = clusters.begin(); it != clusters.end(); it++)
+    {
+        add_cluster_rules(group_id, it->first, it->second);
+    }
+
+    for (it = hosts.begin(); it != hosts.end(); it++)
+    {
+        add_host_rules(group_id, it->first, it->second);
+    }
+
+    for (it = datastores.begin(); it != datastores.end(); it++)
+    {
+        add_datastore_rules(group_id, it->first, it->second);
+    }
+
+    for (it = vnets.begin(); it != vnets.end(); it++)
+    {
+        add_vnet_rules(group_id, it->first, it->second);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::del_group(int group_id, string& error_msg)
+{
+    set<pair<int,int> >::const_iterator it;
+
+    if( groups.erase(group_id) != 1 )
+    {
+        ostringstream oss;
+        oss << "Group " << group_id << " is not assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = clusters.begin(); it != clusters.end(); it++)
+    {
+        del_cluster_rules(group_id, it->first, it->second);
+    }
+
+    for (it = hosts.begin(); it != hosts.end(); it++)
+    {
+        del_host_rules(group_id, it->first, it->second);
+    }
+
+    for (it = datastores.begin(); it != datastores.end(); it++)
+    {
+        del_datastore_rules(group_id, it->first, it->second);
+    }
+
+    for (it = vnets.begin(); it != vnets.end(); it++)
+    {
+        del_vnet_rules(group_id, it->first, it->second);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::add_cluster(int zone_id, int cluster_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    pair<set<pair<int, int> >::iterator,bool> ret;
+
+    ret = clusters.insert(pair<int,int>(zone_id, cluster_id));
+
+    if( !ret.second )
+    {
+        ostringstream oss;
+        oss << "Cluster " << cluster_id << " from Zone " << zone_id
+            << " is already assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        add_cluster_rules(*it, cluster_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::del_cluster(int zone_id, int cluster_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    if( clusters.erase(pair<int,int>(zone_id, cluster_id)) != 1 )
+    {
+        ostringstream oss;
+        oss << "Cluster " << cluster_id << " from Zone " << zone_id
+            << " is not assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        del_cluster_rules(*it, cluster_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::add_host(int zone_id, int host_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    pair<set<pair<int, int> >::iterator,bool> ret;
+
+    ret = hosts.insert(pair<int,int>(zone_id, host_id));
+
+    if( !ret.second )
+    {
+        ostringstream oss;
+        oss << "Host " << host_id << " from Zone " << zone_id
+            << " is already assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        add_host_rules(*it, host_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::del_host(int zone_id, int host_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    if( hosts.erase(pair<int,int>(zone_id, host_id)) != 1 )
+    {
+        ostringstream oss;
+        oss << "Host " << host_id << " from Zone " << zone_id
+            << " is not assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        del_host_rules(*it, host_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::add_datastore(int zone_id, int datastore_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    pair<set<pair<int, int> >::iterator,bool> ret;
+
+    ret = datastores.insert(pair<int,int>(zone_id, datastore_id));
+
+    if( !ret.second )
+    {
+        ostringstream oss;
+        oss << "Datastore " << datastore_id << " from Zone " << zone_id
+            << " is already assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        add_datastore_rules(*it, datastore_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::del_datastore(int zone_id, int datastore_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    if( datastores.erase(pair<int,int>(zone_id, datastore_id)) != 1 )
+    {
+        ostringstream oss;
+        oss << "Datastore " << datastore_id << " from Zone " << zone_id
+            << " is not assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        del_datastore_rules(*it, datastore_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::add_vnet(int zone_id, int vnet_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    pair<set<pair<int, int> >::iterator,bool> ret;
+
+    ret = vnets.insert(pair<int,int>(zone_id, vnet_id));
+
+    if( !ret.second )
+    {
+        ostringstream oss;
+        oss << "Network " << vnet_id << " from Zone " << zone_id
+            << " is already assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        add_vnet_rules(*it, vnet_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Vdc::del_vnet(int zone_id, int vnet_id, string& error_msg)
+{
+    set<int>::const_iterator it;
+
+    if( vnets.erase(pair<int,int>(zone_id, vnet_id)) != 1 )
+    {
+        ostringstream oss;
+        oss << "Network " << vnet_id << " from Zone " << zone_id
+            << " is not assigned to the VDC " << oid;
+        error_msg = oss.str();
+        return -1;
+    }
+
+    for (it = groups.begin(); it != groups.end(); it++)
+    {
+        del_vnet_rules(*it, vnet_id, zone_id);
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::add_cluster_rules(int group_id, int cluster_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (cluster_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::del_cluster_rules(int group_id, int cluster_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (cluster_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
+    }
+
+    // @<gid> HOST/%<cid> MANAGE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+
+    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::add_host_rules(int group_id, int host_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (host_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::INDIVIDUAL_ID | host_id;
+    }
+
+    // @<gid> HOST/#<hid> MANAGE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::del_host_rules(int group_id, int host_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (host_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::INDIVIDUAL_ID | host_id;
+    }
+
+    // @<gid> HOST/#<hid> MANAGE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::HOST,
+
+            AuthRequest::MANAGE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::add_datastore_rules(int group_id, int ds_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (ds_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::INDIVIDUAL_ID | ds_id;
+    }
+
+    // @<gid> DATASTORE/#<dsid> USE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::del_datastore_rules(int group_id, int ds_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (ds_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::INDIVIDUAL_ID | ds_id;
+    }
+
+    // @<gid> DATASTORE/#<dsid> USE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::DATASTORE,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::add_vnet_rules(int group_id, int vnet_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (vnet_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::INDIVIDUAL_ID | vnet_id;
+    }
+
+    // @<gid> DATASTORE/#<dsid> USE #<zone>
+    rc += aclm->add_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::del_vnet_rules(int group_id, int vnet_id, int zone_id)
+{
+    int rc = 0;
+    string error_msg;
+    long long mask_prefix;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    if (vnet_id == ALL_RESOURCES)
+    {
+        mask_prefix = AclRule::ALL_ID;
+    }
+    else
+    {
+        mask_prefix = AclRule::INDIVIDUAL_ID | vnet_id;
+    }
+
+    // @<gid> DATASTORE/#<dsid> USE #<zid>
+    rc += aclm->del_rule(
+            AclRule::GROUP_ID |
+            group_id,
+
+            mask_prefix |
+            PoolObjectSQL::NET,
+
+            AuthRequest::USE,
+
+            AclRule::INDIVIDUAL_ID |
+            zone_id,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("VDC",Log::ERROR,error_msg);
+    }
 }
 
 /* ------------------------------------------------------------------------ */

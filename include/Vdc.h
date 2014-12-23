@@ -17,6 +17,8 @@
 #ifndef VDC_H_
 #define VDC_H_
 
+#include <set>
+
 #include "PoolObjectSQL.h"
 #include "NebulaLog.h"
 
@@ -44,6 +46,120 @@ public:
      */
     int from_xml(const string &xml_str);
 
+    /**
+     * Adds a Group to the VDC. ACL Rules are updated only for this group.
+     *
+     * @param group_id ID of the group
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_group(int group_id, string& error_msg);
+
+    /**
+     * Deletes a Group from the VDC. ACL Rules are updated only for this group.
+     *
+     * @param group_id ID of the group
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_group(int group_id, string& error_msg);
+
+    /**
+     * Adds a cluster to the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param cluster_id ID of the cluster
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_cluster(int zone_id, int cluster_id, string& error_msg);
+
+    /**
+     * Deletes a cluster from the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param cluster_id ID of the cluster
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_cluster(int zone_id, int cluster_id, string& error_msg);
+
+    /**
+     * Adds a host to the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param host_id ID of the host
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_host(int zone_id, int host_id, string& error_msg);
+
+    /**
+     * Deletes a host from the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param host_id ID of the host
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_host(int zone_id, int host_id, string& error_msg);
+
+    /**
+     * Adds a datastore to the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param datastore_id ID of the datastore
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_datastore(int zone_id, int datastore_id, string& error_msg);
+
+    /**
+     * Deletes a datastore from the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param datastore_id ID of the datastore
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_datastore(int zone_id, int datastore_id, string& error_msg);
+
+    /**
+     * Adds a vnet to the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param vnet_id ID of the vnet
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_vnet(int zone_id, int vnet_id, string& error_msg);
+
+    /**
+     * Deletes a vnet from the VDC
+     *
+     * @param zone_id ID of the zone
+     * @param vnet_id ID of the vnet
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_vnet(int zone_id, int vnet_id, string& error_msg);
+
+    /**
+     * Special ID to refer to all OpenNebula resources, from any cluster
+     * or in cluster none (* in ACL rules).
+     */
+    static const int ALL_RESOURCES;
+
 private:
 
     // -------------------------------------------------------------------------
@@ -59,6 +175,29 @@ private:
     Vdc(int id, Template* vdc_template);
 
     ~Vdc();
+
+    // *************************************************************************
+    // Attributes (Private)
+    // *************************************************************************
+
+    set<int> groups;
+
+    set<pair<int,int> > clusters;
+    set<pair<int,int> > hosts;
+    set<pair<int,int> > datastores;
+    set<pair<int,int> > vnets;
+
+    void add_cluster_rules(int group, int cluster_id, int zone_id);
+    void del_cluster_rules(int group, int cluster_id, int zone_id);
+
+    void add_host_rules(int group, int host_id, int zone_id);
+    void del_host_rules(int group, int host_id, int zone_id);
+
+    void add_datastore_rules(int group, int ds_id, int zone_id);
+    void del_datastore_rules(int group, int ds_id, int zone_id);
+
+    void add_vnet_rules(int group, int vnet_id, int zone_id);
+    void del_vnet_rules(int group, int vnet_id, int zone_id);
 
     // *************************************************************************
     // DataBase implementation (Private)

@@ -43,7 +43,8 @@ source_files=[
     'RequestManagerClone.cc',
     'RequestManagerSystem.cc',
     'RequestManagerRename.cc',
-    'RequestManagerProxy.cc'
+    'RequestManagerProxy.cc',
+    'RequestManagerVdc.cc',
 ]
 
 # Build library
