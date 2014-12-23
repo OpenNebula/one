@@ -827,8 +827,23 @@ function generate_capacity_tab_content() {
           '<input type="text" id="vcenter_template_uuid" name="name"/>'+
         '</div>'+
       '</div>'+
-      '<br>'+
-    generate_capacity_inputs();
+      generate_capacity_inputs()+
+      '<div class="row">'+
+        '<div class="large-6 columns">'+
+          '<input type="checkbox" id="sunstone_capacity_select" name="name"/>'+
+          '<label  for="sunstone_capacity_select">'+tr("Do not allow to change capacity")+'\
+            <span class="tip">'+tr("Users using the cloud view will not be able to select a new capacity for this template") + '</span>\
+          </label>'+
+        '</div>'+
+      '</div>'+
+      '<div class="row">'+
+        '<div class="large-6 columns">'+
+          '<input type="checkbox" id="sunstone_network_select" name="name"/>'+
+          '<label  for="sunstone_network_select">'+tr("Do not allow to modify network configuration")+'\
+            <span class="tip">'+tr("Users using the cloud view will not be able to remove or add new NICs")+'</span>\
+          </label>'+
+        '</div>'+
+      '</div>';
 
     return html;
 }
@@ -3821,6 +3836,19 @@ function build_template(dialog){
     addSectionJSON(vm_json,$('#capacityTab',dialog));
     vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
     vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
+
+    if ($('input#sunstone_capacity_select:checked', $('#capacityTab',dialog))) {
+      vm_json["SUNSTONE_CAPACITY_SELECT"] = "NO"
+    } else {
+      vm_json["SUNSTONE_CAPACITY_SELECT"] = "YES"
+    }
+
+    if ($('input#sunstone_network_select:checked', $('#capacityTab',dialog))) {
+      vm_json["SUNSTONE_NETWORK_SELECT"] = "NO"
+    } else {
+      vm_json["SUNSTONE_NETWORK_SELECT"] = "YES"
+    }
+
     var hypervisor =  $('input[name="hypervisor"]:checked', $('#capacityTab',dialog)).val();
     vm_json["HYPERVISOR"] = hypervisor;
     if (hypervisor == "vcenter") {
@@ -4057,6 +4085,18 @@ var fillTemplatePopUp = function(template, dialog){
     $("#DESCRIPTION", capacity_section).val(escapeDoubleQuotes(htmlDecode(template["DESCRIPTION"])));
     delete template["DESCRIPTION"];
 
+    if (template["SUNSTONE_CAPACITY_SELECT"] && (template["SUNSTONE_CAPACITY_SELECT"].toUpperCase() == "NO")) {
+      $("#sunstone_capacity_select", capacity_section).attr("checked", "checked");
+    }
+
+    delete template["SUNSTONE_CAPACITY_SELECT"];
+
+    if (template["SUNSTONE_NETWORK_SELECT"] && (template["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
+      $("#sunstone_network_select", capacity_section).attr("checked", "checked");
+    }
+
+    delete template["SUNSTONE_NETWORK_SELECT"];
+    
     if (template["HYPERVISOR"]) {
       $("input[name='hypervisor'][value='"+template["HYPERVISOR"]+"']", capacity_section).trigger("click")
       delete template["HYPERVISOR"];
