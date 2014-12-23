@@ -3837,13 +3837,13 @@ function build_template(dialog){
     vm_json["DESCRIPTION"] = $('#DESCRIPTION',$('#capacityTab',dialog)).val();
     vm_json["LOGO"] = $('#LOGO',$('#capacityTab',dialog)).val();
 
-    if ($('input#sunstone_capacity_select:checked', $('#capacityTab',dialog))) {
+    if ($('input#sunstone_capacity_select:checked', $('#capacityTab',dialog)).length > 0) {
       vm_json["SUNSTONE_CAPACITY_SELECT"] = "NO"
     } else {
       vm_json["SUNSTONE_CAPACITY_SELECT"] = "YES"
     }
 
-    if ($('input#sunstone_network_select:checked', $('#capacityTab',dialog))) {
+    if ($('input#sunstone_network_select:checked', $('#capacityTab',dialog)).length > 0) {
       vm_json["SUNSTONE_NETWORK_SELECT"] = "NO"
     } else {
       vm_json["SUNSTONE_NETWORK_SELECT"] = "YES"
