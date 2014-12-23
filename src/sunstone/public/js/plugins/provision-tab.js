@@ -554,16 +554,14 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<br>'+
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
-        (Config.provision.create_vm.isEnabled("capacity_select") ? 
-          '<div class="provision_capacity_selector">'+
-          '</div>'+
-          '<br>'+
-          '<br>' : '') +
-        (Config.provision.create_vm.isEnabled("network_select") ? 
-          '<div class="provision_network_selector">'+
-          '</div>'+
-          '<br>'+
-          '<br>' : '') +
+        '<div class="provision_capacity_selector">'+
+        '</div>'+
+        '<br>'+
+        '<br>' +
+        '<div class="provision_network_selector">'+
+        '</div>'+
+        '<br>'+
+        '<br>' +
         '<div class="provision_custom_attributes_selector">'+
         '</div>'+
     '</div>'+
@@ -2265,6 +2263,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
         '</div>'+
       '</div>'+
     '</div>'+
+    (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
     '<br>'+
     '<br>'+
     '<div class="row">'+
@@ -2301,7 +2300,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
           '</dd>'+
         '</dl>'+
       '</div>'+
-    '</div>'+
+    '</div>' : '' ) +
     '<br>');
 
   var cost = 0;
@@ -2323,118 +2322,120 @@ function generate_provision_instance_type_accordion(context, capacity) {
     $(".provision_create_template_cost_div").hide();
   }
 
-  provision_instance_type_accordion_id += 1;
+  if (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO")) {
+    provision_instance_type_accordion_id += 1;
 
-  var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
-    "iDisplayLength": 6,
-    "sDom" : '<"H">t<"F"lp>',
-    "bSort" : false,
-    "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-    "aoColumnDefs": [
-        { "bVisible": false, "aTargets": ["all"]}
-    ],
-    "aoColumns": [
-        { "mDataProp": "name" }
-    ],
-    "fnPreDrawCallback": function (oSettings) {
-      // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-      if (this.$('tr', {"filter": "applied"} ).length == 0) {
-        this.html('<div class="text-center">'+
-          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-            '<i class="fa fa-cloud fa-stack-2x"></i>'+
-            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-          '</span>'+
-          '<br>'+
-          '<br>'+
-          '<span style="font-size: 18px; color: #999">'+
-            tr("There are no instance_types available. Please contact your cloud administrator")+
-          '</span>'+
-          '</div>');
+    var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "bSort" : false,
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "name" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no instance_types available. Please contact your cloud administrator")+
+            '</span>'+
+            '</div>');
+        } else {
+          $(".provision_instance_types_table", context).html(
+            '<ul class="provision_instance_types_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
+            '</ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData;
+
+        var li = $('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'">'+
+              '<li class="provision-title" title="'+data.name+'">'+
+                data.name+
+              '</li>'+
+              '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
+                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+data.cpu+' - '+
+                  ((data.memory > 1000) ?
+                    (Math.floor(data.memory/1024)+'GB') :
+                    (data.memory+'MB'))+
+                '</span>'+
+                '</span>'+
+              '</li>'+
+              '<li class="provision-description">'+
+                (data.description || '')+
+              '</li>'+
+            '</ul>'+
+          '</li>').appendTo($(".provision_instance_types_ul", context));
+
+        $(".provision-pricing-table", li).data("opennebula", data)
+
+        return nRow;
+      }
+    });
+
+
+    $('.provision-search-input', context).on('keyup',function(){
+      provision_instance_types_datatable.fnFilter( $(this).val() );
+    })
+
+    $('.provision-search-input', context).on('change',function(){
+      provision_instance_types_datatable.fnFilter( $(this).val() );
+    })
+
+    context.on("click", ".provision-pricing-table.only-one" , function(){
+      $(".cpu_value", context).html($(this).attr("cpu"));
+
+      var memory_value;
+      var memory_unit;
+
+      if ($(this).attr("memory") > 1000){
+        memory_value = Math.floor($(this).attr("memory")/1024);
+        memory_unit = "GB";
       } else {
-        $(".provision_instance_types_table", context).html(
-          '<ul class="provision_instance_types_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
-          '</ul>');
+        memory_value = $(this).attr("memory");
+        memory_unit = "MB";
       }
 
-      return true;
-    },
-    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-      var data = aData;
+      $(".memory_value", context).html(memory_value);
+      $(".memory_unit", context).html(memory_unit);
 
-      var li = $('<li>'+
-          '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'">'+
-            '<li class="provision-title" title="'+data.name+'">'+
-              data.name+
-            '</li>'+
-            '<li class="provision-bullet-item">'+
-              '<span style="font-size: 40px">'+
-              '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              '<span style="vertical-align: middle; font-size:14px">'+
-                'x'+data.cpu+' - '+
-                ((data.memory > 1000) ?
-                  (Math.floor(data.memory/1024)+'GB') :
-                  (data.memory+'MB'))+
-              '</span>'+
-              '</span>'+
-            '</li>'+
-            '<li class="provision-description">'+
-              (data.description || '')+
-            '</li>'+
-          '</ul>'+
-        '</li>').appendTo($(".provision_instance_types_ul", context));
+      if (Config.isFeatureEnabled("showback")) {
+        var cost = 0;
 
-      $(".provision-pricing-table", li).data("opennebula", data)
+        if ($(".cost_value").data("CPU_COST")) {
+          cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+        }
 
-      return nRow;
-    }
-  });
+        if ($(".cost_value").data("MEMORY_COST")) {
+          cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
+        }
 
-
-  $('.provision-search-input', context).on('keyup',function(){
-    provision_instance_types_datatable.fnFilter( $(this).val() );
-  })
-
-  $('.provision-search-input', context).on('change',function(){
-    provision_instance_types_datatable.fnFilter( $(this).val() );
-  })
-
-  context.on("click", ".provision-pricing-table.only-one" , function(){
-    $(".cpu_value", context).html($(this).attr("cpu"));
-
-    var memory_value;
-    var memory_unit;
-
-    if ($(this).attr("memory") > 1000){
-      memory_value = Math.floor($(this).attr("memory")/1024);
-      memory_unit = "GB";
-    } else {
-      memory_value = $(this).attr("memory");
-      memory_unit = "MB";
-    }
-
-    $(".memory_value", context).html(memory_value);
-    $(".memory_unit", context).html(memory_unit);
-
-    if (Config.isFeatureEnabled("showback")) {
-      var cost = 0;
-
-      if ($(".cost_value").data("CPU_COST")) {
-        cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+        $(".cost_value").html(cost);
       }
 
-      if ($(".cost_value").data("MEMORY_COST")) {
-        cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
-      }
+      $('.accordion a', context).first().trigger("click");
+    })
 
-      $(".cost_value").html(cost);
-    }
+    $(document).foundation();
 
-    $('.accordion a', context).first().trigger("click");
-  })
-
-  $(document).foundation();
-
-  update_provision_instance_types_datatable(provision_instance_types_datatable);
+    update_provision_instance_types_datatable(provision_instance_types_datatable);
+  }
 }
 
 var provision_nic_accordion_id = 0;
@@ -6295,13 +6296,11 @@ $(document).ready(function(){
 
         $(".provision_accordion_template a").first().trigger("click");
 
-        if (Config.provision.create_vm.isEnabled("capacity_select")) {
-          generate_provision_instance_type_accordion(
-            $(".provision_capacity_selector", create_vm_context),
-            template_json.VMTEMPLATE.TEMPLATE);
-        };
+        generate_provision_instance_type_accordion(
+          $(".provision_capacity_selector", create_vm_context),
+          template_json.VMTEMPLATE.TEMPLATE);
 
-        if (Config.provision.create_vm.isEnabled("network_select")) {
+        if (Config.provision.create_vm.isEnabled("network_select") && (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO")) {
           generate_provision_network_accordion(
             $(".provision_network_selector", create_vm_context));
 
@@ -6310,8 +6309,10 @@ $(document).ready(function(){
                 $(".provision_nic_accordion", create_vm_context),
                 nic);
           })
+        } else {
+          $(".provision_network_selector", create_vm_context).html("");
         }
-
+        
         if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
           generate_custom_attrs(
             $(".provision_custom_attributes_selector", create_vm_context),
