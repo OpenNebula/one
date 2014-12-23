@@ -66,8 +66,40 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "VDC #{vdc['ID']} INFORMATION")
         puts str % ["ID",   vdc.id.to_s]
         puts str % ["NAME", vdc.name]
-        puts
 
+        vdc_hash = vdc.to_hash
+
+        groups = vdc_hash['VDC']['GROUPS']['ID']
+        if(groups != nil)
+            puts
+            #CLIHelper.print_header(str_h1 % "GROUPS", false)
+
+            CLIHelper::ShowTable.new(nil, self) do
+                column :"GROUPS", "", :right, :size=>7 do |d|
+                    d
+                end
+            end.show([groups].flatten, {})
+        end
+
+        ['CLUSTER', 'HOST', 'DATASTORE', 'VNET'].each do |resource|
+            res_array = vdc_hash['VDC']["#{resource}S"][resource]
+            if(res_array != nil)
+                puts
+                CLIHelper.print_header(str_h1 % "#{resource}S", false)
+
+                CLIHelper::ShowTable.new(nil, self) do
+                    column :"ZONE", "", :right, :size=>7 do |d|
+                        d['ZONE_ID']
+                    end
+
+                    column :"#{resource}", "", :right, :size=>9 do |d|
+                        d["#{resource}_ID"] == Vdc::ALL_RESOURCES ? 'ALL' : d["#{resource}_ID"]
+                    end
+                end.show([res_array].flatten, {})
+            end
+        end
+
+        puts
         CLIHelper.print_header(str_h1 % "VDC TEMPLATE", false)
         puts vdc.template_str
     end

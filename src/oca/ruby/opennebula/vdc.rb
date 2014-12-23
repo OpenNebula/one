@@ -23,12 +23,25 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
+        ALL_RESOURCES = "-10"
+
         VDC_METHODS = {
             :info           => "vdc.info",
             :allocate       => "vdc.allocate",
             :update         => "vdc.update",
             :rename         => "vdc.rename",
-            :delete         => "vdc.delete"
+            :delete         => "vdc.delete",
+
+            :add_group      => "vdc.addgroup",
+            :del_group      => "vdc.delgroup",
+            :add_cluster    => "vdc.addcluster",
+            :del_cluster    => "vdc.delcluster",
+            :add_host       => "vdc.addhost",
+            :del_host       => "vdc.delhost",
+            :add_datastore  => "vdc.adddatastore",
+            :del_datastore  => "vdc.deldatastore",
+            :add_vnet       => "vdc.addvnet",
+            :del_vnet       => "vdc.delvnet",
         }
 
         # Creates a Vdc description with just its identifier
@@ -102,6 +115,122 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VDC_METHODS[:rename], @pe_id, name)
+        end
+
+        # Adds a group to this VDC
+        # @param group_id [Integer] Group ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_group(group_id)
+            return call(VDC_METHODS[:add_group], @pe_id, group_id.to_i)
+        end
+
+        # Deletes a group from this VDC
+        # @param group_id [Integer] Group ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_group(group_id)
+            return call(VDC_METHODS[:del_group], @pe_id, group_id.to_i)
+        end
+
+        # Adds a cluster to this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param cluster_id [Integer] Cluster ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_cluster(zone_id, cluster_id)
+            return call(VDC_METHODS[:add_cluster], @pe_id, zone_id.to_i, cluster_id.to_i)
+        end
+
+        # Deletes a cluster from this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param cluster_id [Integer] Cluster ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_cluster(zone_id, cluster_id)
+            return call(VDC_METHODS[:del_cluster], @pe_id, zone_id.to_i, cluster_id.to_i)
+        end
+
+        # Adds a host to this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param host_id [Integer] Host ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_host(zone_id, host_id)
+            return call(VDC_METHODS[:add_host], @pe_id, zone_id.to_i, host_id.to_i)
+        end
+
+        # Deletes a host from this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param host_id [Integer] Host ID        # Adds a host to this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param host_id [Integer] Host ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_host(zone_id, host_id)
+            return call(VDC_METHODS[:add_host], @pe_id, zone_id.to_i, host_id.to_i)
+        end
+
+        # Deletes a host from this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param host_id [Integer] Host ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_host(zone_id, host_id)
+            return call(VDC_METHODS[:del_host], @pe_id, zone_id.to_i, host_id.to_i)
+        end
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_host(zone_id, host_id)
+            return call(VDC_METHODS[:del_host], @pe_id, zone_id.to_i, host_id.to_i)
+        end
+
+        # Adds a datastore to this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param datastore_id [Integer] Datastore ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_datastore(zone_id, datastore_id)
+            return call(VDC_METHODS[:add_datastore], @pe_id, zone_id.to_i, datastore_id.to_i)
+        end
+
+        # Deletes a datastore from this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param datastore_id [Integer] Datastore ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_datastore(zone_id, datastore_id)
+            return call(VDC_METHODS[:del_datastore], @pe_id, zone_id.to_i, datastore_id.to_i)
+        end
+
+        # Adds a vnet to this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param vnet_id [Integer] Vnet ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def add_vnet(zone_id, vnet_id)
+            return call(VDC_METHODS[:add_vnet], @pe_id, zone_id.to_i, vnet_id.to_i)
+        end
+
+        # Deletes a vnet from this VDC
+        # @param zone_id [Integer] Zone ID
+        # @param vnet_id [Integer] Vnet ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def del_vnet(zone_id, vnet_id)
+            return call(VDC_METHODS[:del_vnet], @pe_id, zone_id.to_i, vnet_id.to_i)
         end
     end
 end

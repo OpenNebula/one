@@ -61,6 +61,54 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    end
+
+    set :format, :zoneid, OpenNebulaHelper.rname_to_id_desc("ZONE") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "ZONE")
+    end
+
+    set :format, :clusterid,
+        "#{OpenNebulaHelper.rname_to_id_desc('CLUSTER')}. Can be set to ALL" do |arg|
+
+        if !arg.nil? and arg.class != Fixnum and arg.upcase == "ALL"
+            [0, Vdc::ALL_RESOURCES]
+        else
+            OpenNebulaHelper.rname_to_id(arg, "CLUSTER")
+        end
+    end
+
+    set :format, :hostid,
+        "#{OpenNebulaHelper.rname_to_id_desc('HOST')}. Can be set to ALL" do |arg|
+
+        if !arg.nil? and arg.class != Fixnum and arg.upcase == "ALL"
+            [0, Vdc::ALL_RESOURCES]
+        else
+            OpenNebulaHelper.rname_to_id(arg, "HOST")
+        end
+    end
+
+    set :format, :datastoreid,
+        "#{OpenNebulaHelper.rname_to_id_desc('DATASTORE')}. Can be set to ALL" do |arg|
+
+        if !arg.nil? and arg.class != Fixnum and arg.upcase == "ALL"
+            [0, Vdc::ALL_RESOURCES]
+        else
+            OpenNebulaHelper.rname_to_id(arg, "DATASTORE")
+        end
+    end
+
+    set :format, :vnetid,
+        "#{OpenNebulaHelper.rname_to_id_desc('VNET')}. Can be set to ALL" do |arg|
+
+        if !arg.nil? and arg.class != Fixnum and arg.upcase == "ALL"
+            [0, Vdc::ALL_RESOURCES]
+        else
+            OpenNebulaHelper.rname_to_id(arg, "VNET")
+        end
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -116,6 +164,106 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :delete, delete_desc, [:range, :vdcid_list] do
         helper.perform_actions(args[0],options,"deleted") do |obj|
             obj.delete
+        end
+    end
+
+    add_group_desc = <<-EOT.unindent
+        Adds a Group to the given VDC
+    EOT
+
+    command :addgroup, add_group_desc, [:range, :vdcid_list], :groupid do
+        helper.perform_actions(args[0],options,"group added") do |obj|
+            obj.add_group(args[1].to_i)
+        end
+    end
+
+    del_group_desc = <<-EOT.unindent
+        Deletes a Group from the given VDC
+    EOT
+
+    command :delgroup, del_group_desc, [:range, :vdcid_list], :groupid do
+        helper.perform_actions(args[0],options,"group deleted") do |obj|
+            obj.del_group(args[1].to_i)
+        end
+    end
+
+    add_cluster_desc = <<-EOT.unindent
+        Adds a Cluster (from a specific Zone) to the given VDC
+    EOT
+
+    command :addcluster, add_cluster_desc, [:range, :vdcid_list], :zoneid, :clusterid do
+        helper.perform_actions(args[0],options,"cluster added") do |obj|
+            obj.add_cluster(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    del_cluster_desc = <<-EOT.unindent
+        Deletes a Cluster (from a specific Zone) from the given VDC
+    EOT
+
+    command :delcluster, del_cluster_desc, [:range, :vdcid_list], :zoneid, :clusterid do
+        helper.perform_actions(args[0],options,"cluster deleted") do |obj|
+            obj.del_cluster(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    add_host_desc = <<-EOT.unindent
+        Adds a Host (from a specific Zone) to the given VDC
+    EOT
+
+    command :addhost, add_host_desc, [:range, :vdcid_list], :zoneid, :hostid do
+        helper.perform_actions(args[0],options,"host added") do |obj|
+            obj.add_host(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    del_host_desc = <<-EOT.unindent
+        Deletes a Host (from a specific Zone) from the given VDC
+    EOT
+
+    command :delhost, del_host_desc, [:range, :vdcid_list], :zoneid, :hostid do
+        helper.perform_actions(args[0],options,"host deleted") do |obj|
+            obj.del_host(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    add_datastore_desc = <<-EOT.unindent
+        Adds a Datastore (from a specific Zone) to the given VDC
+    EOT
+
+    command :adddatastore, add_datastore_desc, [:range, :vdcid_list], :zoneid, :datastoreid do
+        helper.perform_actions(args[0],options,"datastore added") do |obj|
+            obj.add_datastore(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    del_datastore_desc = <<-EOT.unindent
+        Deletes a Datastore (from a specific Zone) from the given VDC
+    EOT
+
+    command :deldatastore, del_datastore_desc, [:range, :vdcid_list], :zoneid, :datastoreid do
+        helper.perform_actions(args[0],options,"datastore deleted") do |obj|
+            obj.del_datastore(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    add_vnet_desc = <<-EOT.unindent
+        Adds a Virtual Network (from a specific Zone) to the given VDC
+    EOT
+
+    command :addvnet, add_vnet_desc, [:range, :vdcid_list], :zoneid, :vnetid do
+        helper.perform_actions(args[0],options,"vnet added") do |obj|
+            obj.add_vnet(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    del_vnet_desc = <<-EOT.unindent
+        Deletes a Virtual Network (from a specific Zone) from the given VDC
+    EOT
+
+    command :delvnet, del_vnet_desc, [:range, :vdcid_list], :zoneid, :vnetid do
+        helper.perform_actions(args[0],options,"vnet deleted") do |obj|
+            obj.del_vnet(args[1].to_i, args[2].to_i)
         end
     end
 
