@@ -28,7 +28,7 @@ onevlan = EbtablesVLAN.from_base64(template64, deploy_id)
 onevlan.activate
 
 begin
-    filter_driver = VNMMAD::OpenNebulaNetwork.filter_driver(template64, deploy_id)
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64, deploy_id)
     filter_driver.activate
 rescue Exception => e
     OpenNebula.log_error(e.message)

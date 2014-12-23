@@ -19,7 +19,7 @@ module VNMMAD
     ############################################################################
     # Filter network driver based on simple iptables rules
     ############################################################################
-    class OpenNebulaFirewall < VNMMAD::OpenNebulaNetwork
+    class FWDriver < VNMDriver
         # Driver name
         DRIVER = "fw"
 
@@ -36,11 +36,11 @@ module VNMMAD
         end
 
         # Function to activate the driver in the VM
-        #
         def activate
             lock
 
             vm_id = @vm['ID']
+            
             process do |nic|
                 #:white_ports_tcp => iptables_range
                 #:white_ports_udp => iptables_range
@@ -89,6 +89,7 @@ module VNMMAD
             unlock
         end
 
+        # Method to clean iptables chains
         def deactivate
             lock
 

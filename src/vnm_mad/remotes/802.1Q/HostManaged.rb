@@ -16,7 +16,7 @@
 
 require 'vnmmad'
 
-class OpenNebulaHM < VNMMAD::OpenNebulaNetwork
+class OpenNebulaHM < VNMMAD::VNMDriver
     DRIVER = "802.1Q"
 
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"

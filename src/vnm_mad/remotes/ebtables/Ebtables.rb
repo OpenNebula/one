@@ -16,7 +16,7 @@
 
 require 'vnmmad'
 
-class EbtablesVLAN < VNMMAD::OpenNebulaNetwork
+class EbtablesVLAN < VNMMAD::VNMDriver
     DRIVER = "ebtables"
 
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"

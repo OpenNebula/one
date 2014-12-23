@@ -14,22 +14,21 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula_network'
-
 module VNMMAD
 
     ############################################################################
     # OpenNebula Firewall with Security Groups Based on IPTables (KVM and Xen)
     ############################################################################
-    class OpenNebulaSG < VNMMAD::OpenNebulaNetwork
+    class SGDriver < VNMDriver
 
-        DRIVER = "sg"
-        XPATH_FILTER =  "TEMPLATE/NIC"
+        DRIVER       = "sg"
+        XPATH_FILTER = "TEMPLATE/NIC"
         
+        # Creates a new SG driver and scans SG Rules
         def initialize(vm, deploy_id = nil, hypervisor = nil)
             super(vm, XPATH_FILTER, deploy_id, hypervisor)
-            @locking = true
-            @commands = VNMMAD::VNMNetwork::Commands.new
+            @locking  = true
+            @commands = VNMNetwork::Commands.new
 
             rules = {}
             @vm.vm_root.elements.each('TEMPLATE/SECURITY_GROUP_RULE') do |r|
@@ -49,12 +48,14 @@ module VNMMAD
             @security_group_rules = rules
         end
 
+        # Activate the rules, bootstrap iptables chains and set filter rules for 
+        # each VM NIC
         def activate
             deactivate
             lock
 
             # Global Bootstrap
-            VNMMAD::SGIPTables.global_bootstrap
+            SGIPTables.global_bootstrap
 
             # Process the rules
             @vm.nics.each do |nic|
@@ -62,15 +63,15 @@ module VNMMAD
                     && nic[:filter_mac_spoofing] != "YES" \
                     && nic[:filter_ip_spoofing]  != "YES"
 
-                VNMMAD::SGIPTables.nic_pre(@vm, nic)
+                SGIPTables.nic_pre(@vm, nic)
 
                 sg_ids = nic[:security_groups].split(",")
 
                 sg_ids.each do |sg_id|
                     rules = @security_group_rules[sg_id]
 
-                    sg = VNMMAD::SGIPTables::SecurityGroupIPTables.new(@vm, nic,
-                        sg_id, rules)
+                    sg = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, 
+                        rules)
 
                     begin
                         sg.process_rules
@@ -82,18 +83,19 @@ module VNMMAD
                     end
                 end
 
-                VNMMAD::SGIPTables.nic_post(@vm, nic)
+                SGIPTables.nic_post(@vm, nic)
             end
 
             unlock
         end
 
+        # Clean iptables rules and chains
         def deactivate
             lock
 
             begin
                 @vm.nics.each do |nic|
-                    VNMMAD::SGIPTables.nic_deactivate(@vm, nic)
+                    SGIPTables.nic_deactivate(@vm, nic)
                 end
             rescue Exception => e
                 raise e
@@ -102,5 +104,4 @@ module VNMMAD
             end
         end
     end
-
 end

@@ -27,9 +27,9 @@ require 'nic'
 require 'address'
 require 'security_groups'
 require 'security_groups_iptables'
-require 'opennebula_network'
-require 'one_firewall'
-require 'one_sg'
+require 'vnm_driver'
+require 'fw_driver'
+require 'sg_driver'
 
 require 'scripts_common'
 

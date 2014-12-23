@@ -26,5 +26,5 @@ template64 = ARGV[0]
 onevlan = EbtablesVLAN.from_base64(template64)
 onevlan.deactivate
 
-filter_driver = VNMMAD::OpenNebulaNetwork.filter_driver(template64)
+filter_driver = VNMMAD::VNMDriver.filter_driver(template64)
 filter_driver.deactivate

@@ -17,19 +17,19 @@
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom 
 # virtual network drivers. The VNMAD module includes:
-#   - VNMNetwork with base classes and main functionality
+#   - VNMNetwork with base classes and main functionality to manage Virtual Nets
 #   - SGIPTables a module with a SG implementation based in iptables/ipset
 ################################################################################
 module VNMMAD
 
     ############################################################################
     # Base driver class to implement a Network driver. It relays on two filter
-    # drivers OpenNebulaFirewall and OpenNebulaSG.
+    # drivers FirewallDriver and SGDriver.
     ############################################################################
-    class OpenNebulaNetwork
+    class VNMDriver
         attr_reader :hypervisor, :vm
 
-        # Creates new OpenNebulaNetwork using:
+        # Creates new driver using:
         #   @param vm_tpl [String] XML String from oned
         #   @param xpath_filter [String] to get relevant NICs for the driver
         #   @param deploy_id [String]
@@ -47,7 +47,7 @@ module VNMMAD
                 xpath_filter, deploy_id, @hypervisor)
         end
 
-        # Creates a new OpenNebulaNetwork using:
+        # Creates a new VNDriver using:
         #   @param vm_64 [String] Base64 encoded XML String from oned
         #   @param deploy_id [String]
         #   @param hypervisor [String]
@@ -127,19 +127,19 @@ module VNMMAD
         # @return Boolean
         def self.has_fw_attrs?(vm_xml)
             vm_root = REXML::Document.new(vm_xml).root
-            !vm_root.elements[OpenNebulaFirewall::XPATH_FILTER].nil?
+            !vm_root.elements[FWDriver::XPATH_FILTER].nil?
         end
 
         # Returns a filter object based on the contents of the template
         #
-        # @return OpenNebulaFirewall or OpenNebulaSG object
+        # @return FWDriver or SGDriver object
         def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil)
             vm_xml =  Base64::decode64(vm_64)
 
             if self.has_fw_attrs?(vm_xml)
-                OpenNebulaFirewall.new(vm_xml, deploy_id, hypervisor)
+                FWDriver.new(vm_xml, deploy_id, hypervisor)
             else
-                OpenNebulaSG.new(vm_xml, deploy_id, hypervisor)
+                SGDriver.new(vm_xml, deploy_id, hypervisor)
             end
         end
     end

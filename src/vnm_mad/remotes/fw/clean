@@ -24,7 +24,7 @@ require 'vnmmad'
 template64 = ARGV[0]
 
 begin
-    filter_driver = VNMMAD::OpenNebulaNetwork.filter_driver(template64)
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64)
     filter_driver.deactivate
 rescue Exception => e
     OpenNebula.log_error(e.message)

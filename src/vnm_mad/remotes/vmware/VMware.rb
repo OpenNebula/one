@@ -36,7 +36,7 @@ require 'yaml'
 require 'CommandManager'
 require 'vnmmad'
 
-class OpenNebulaVMware < VNMMAD::OpenNebulaNetwork
+class OpenNebulaVMware < VNMMAD::VNMDriver
     DRIVER = "vmware"
 
     XPATH_FILTER = "TEMPLATE/NIC"

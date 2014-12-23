@@ -16,7 +16,7 @@
 
 require 'vnmmad'
 
-class OpenvSwitchVLAN < VNMMAD::OpenNebulaNetwork
+class OpenvSwitchVLAN < VNMMAD::VNMDriver
     DRIVER = "ovswitch"
 
     FIREWALL_PARAMS =  [:black_ports_tcp,

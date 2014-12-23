@@ -142,5 +142,5 @@ vm_xml=<<EOF
 </VM>
 EOF
 
-one_sg = VNMMAD::OpenNebulaSG.new(vm_xml, "one-0", "test")
+one_sg = VNMMAD::SGDriver.new(vm_xml, "one-0", "test")
 one_sg.activate
