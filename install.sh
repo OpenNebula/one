@@ -947,7 +947,7 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
-                    src/vnm_mad/remotes/802.1Q/HostManaged.rb"
+                    src/vnm_mad/remotes/802.1Q/vlan_driver.rb"
 
 NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \

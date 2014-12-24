@@ -16,13 +16,24 @@
 
 require 'vnmmad'
 
-class OpenNebulaHM < VNMMAD::VNMDriver
-    DRIVER = "802.1Q"
+################################################################################
+# This driver tag VM traffic with a VLAN_ID using 802.1Q protocol. Features:
+#   - Creates a bridge and bind phisycal device if not present
+#   - Creates a tagged interface for the VM dev.vlan_id
+#
+# Once activated the VM will be attached to this bridge 
+################################################################################
+class VLANDriver < VNMMAD::VNMDriver
 
+    # DRIVER name and XPATH for relevant NICs
+    DRIVER       = "802.1Q"
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
+    ############################################################################
+    # Creatges the driver device operations are not locked
+    ############################################################################
     def initialize(vm, deploy_id = nil, hypervisor = nil)
-        super(vm,XPATH_FILTER,deploy_id,hypervisor)
+        super(vm, XPATH_FILTER, deploy_id, hypervisor)
         @locking = false
 
         lock
@@ -30,6 +41,9 @@ class OpenNebulaHM < VNMMAD::VNMDriver
         unlock
     end
 
+    ############################################################################
+    # Activate the driver and creates bridges and tags devices as needed.
+    ############################################################################
     def activate
         lock
 
@@ -66,6 +80,12 @@ class OpenNebulaHM < VNMMAD::VNMDriver
 
         return 0
     end
+
+    ############################################################################
+    # Private interface, methods to manage bridges and VLAN tags through the
+    # brctl and ip commands
+    ############################################################################
+    private
 
     def bridge_exists?(bridge)
         @bridges.keys.include? bridge
