@@ -45,16 +45,23 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/ABSOLUTE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
 
 BASE_PATH="${XPATH_ELEMENTS[0]}"
-BRIDGE_LIST="${XPATH_ELEMENTS[1]}"
+ABSOLUTE_PATH="${XPATH_ELEMENTS[1]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[2]}"
 
 HOST=`get_destination_host`
 
 if [ -z "$HOST" ]; then
     error_message "Datastore template missing 'BRIDGE_LIST' attribute."
     exit -1
+fi
+
+# if ABSOLUTE_PATH is defined in the database template use it instead of auto-generated BASE_PATH
+if [ ! -z "$ABSOLUTE_PATH" ]; then
+  BASE_PATH=$ABSOLUTE_PATH
 fi
 
 # ------------ Compute datastore usage -------------
