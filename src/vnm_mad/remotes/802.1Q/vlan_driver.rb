@@ -92,18 +92,18 @@ class VLANDriver < VNMMAD::VNMDriver
     end
 
     def create_bridge(bridge)
-        OpenNebula.exec_and_log("#{VNMMAD::COMMANDS[:brctl]} addbr #{bridge}")
+        OpenNebula.exec_and_log("#{command(:brctl)} addbr #{bridge}")
         @bridges[bridge] = Array.new
     end
 
     def device_exists?(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        `#{VNMMAD::COMMANDS[:ip]} link show #{dev}`
+        `#{command(:ip)} link show #{dev}`
         $?.exitstatus == 0
     end
 
     def create_dev_vlan(dev, vlan)
-        cmd = "#{VNMMAD::COMMANDS[:ip]} link add link #{dev}"
+        cmd = "#{command(:ip)} link add link #{dev}"
         cmd << " name #{dev}.#{vlan} type vlan id #{vlan}"
 
         OpenNebula.exec_and_log(cmd)
@@ -111,18 +111,20 @@ class VLANDriver < VNMMAD::VNMDriver
 
     def attached_bridge_dev?(bridge, dev, vlan=nil)
         return false if !bridge_exists? bridge
+        
         dev = "#{dev}.#{vlan}" if vlan
         @bridges[bridge].include? dev
     end
 
     def attach_brigde_dev(bridge, dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        OpenNebula.exec_and_log("#{VNMMAD::COMMANDS[:brctl]} addif #{bridge} #{dev}")
+        
+        OpenNebula.exec_and_log("#{command(:brctl)} addif #{bridge} #{dev}")
         @bridges[bridge] << dev
     end
 
     def ifup(dev, vlan=nil)
         dev = "#{dev}.#{vlan}" if vlan
-        OpenNebula.exec_and_log("#{VNMMAD::COMMANDS[:ip]} link set #{dev} up")
+        OpenNebula.exec_and_log("#{command(:ip)} link set #{dev} up")
     end
 end

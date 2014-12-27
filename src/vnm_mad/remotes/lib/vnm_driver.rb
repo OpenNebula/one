@@ -142,5 +142,17 @@ module VNMMAD
                 SGDriver.new(vm_xml, deploy_id, hypervisor)
             end
         end
+
+        # Returns the associated command including sudo and other configuration
+        # attributes
+        def command(cmd)
+            if VNMNetwork::COMMANDS.keys.include?(cmd.to_sym)
+                cmd_str = "#{VNMNetwork::COMMANDS[cmd.to_sym]}"
+            else
+                cmd_str = "#{cmd}"
+            end
+            
+            return cmd_str
+        end
     end
 end

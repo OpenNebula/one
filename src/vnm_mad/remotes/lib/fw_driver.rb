@@ -96,7 +96,7 @@ module VNMMAD
             vm_id =  @vm['ID']
             process do |nic|
                 chain   = "one-#{vm_id}-#{nic[:network_id]}"
-                iptables_out = `#{VNMMAD::COMMANDS[:iptables]} -n -v --line-numbers -L FORWARD`
+                iptables_out = `#{command(:iptables)} -n -v --line-numbers -L FORWARD`
                 if m = iptables_out.match(/.*#{chain}.*/)
                     rule_num = m[0].split(/\s+/)[0]
                     purge_chain(chain, rule_num)
@@ -162,7 +162,7 @@ module VNMMAD
         end
 
         def tap_to_chain(tap, chain)
-            iptables_out = `#{VNMMAD::COMMANDS[:iptables]} -n -v --line-numbers -L FORWARD`
+            iptables_out = `#{command(:iptables)} -n -v --line-numbers -L FORWARD`
 
             # Insert the rule on top of the 'opennebula' chain if it exists, so it
             # doesn't conflict with the security groups driver
@@ -187,13 +187,13 @@ module VNMMAD
         end
 
         def chain_exists?(chain)
-            iptables_nl =`#{VNMMAD::COMMANDS[:iptables]} -nL`
+            iptables_nl =`#{command(:iptables)} -nL`
             chains = iptables_nl.scan(/(one-.*?) .*references/).flatten
             chains.include? chain
         end
 
         def rule(rule)
-            "#{VNMMAD::COMMANDS[:iptables]} #{rule}"
+            "#{command(:iptables)} #{rule}"
         end
     end
 end
