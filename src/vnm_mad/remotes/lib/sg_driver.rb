@@ -59,9 +59,7 @@ module VNMMAD
 
             # Process the rules
             @vm.nics.each do |nic|
-                next if nic[:security_groups].nil? \
-                    && nic[:filter_mac_spoofing] != "YES" \
-                    && nic[:filter_ip_spoofing]  != "YES"
+                next if nic[:security_groups].nil?
 
                 SGIPTables.nic_pre(@vm, nic)
 
