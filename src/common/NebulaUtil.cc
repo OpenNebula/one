@@ -28,6 +28,8 @@
 #include <iomanip>
 #include <algorithm>
 #include <math.h>
+#include <sys/types.h>
+#include <regex.h>
 
 using namespace std;
 
@@ -259,4 +261,25 @@ string one_util::float_to_str(const float &num)
     oss << fixed << num;
 
     return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int one_util::regex_match(const char *pattern, const char *subject)
+{
+    int rc;
+    regex_t re;
+
+    rc = regcomp(&re, pattern, REG_EXTENDED|REG_NOSUB);
+
+    if (rc != 0)
+    {
+        return(rc);
+    }
+
+    rc = regexec(&re, subject, 0, 0, 0);
+    regfree(&re);
+
+    return rc;
 }
