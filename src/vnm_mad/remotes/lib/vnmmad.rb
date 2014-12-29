@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
@@ -17,17 +15,35 @@
 #--------------------------------------------------------------------------- #
 
 $: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), "..")
+$: << File.join(File.dirname(__FILE__), '..')
 
-require 'vnmmad'
+require 'rexml/document'
+require 'base64'
+require 'yaml'
 
-template64 = ARGV[0]
+require 'command'
+require 'vm'
+require 'nic'
+require 'address'
+require 'security_groups'
+require 'security_groups_iptables'
+require 'vnm_driver'
+require 'fw_driver'
+require 'sg_driver'
+
+require 'scripts_common'
+
+include OpenNebula
 
 begin
-    filter_driver = VNMMAD::VNMDriver.filter_driver(template64)
-    filter_driver.deactivate
-rescue Exception => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
-    exit 1
+    CONF =  YAML.load_file(
+                File.join(File.dirname(__FILE__), "OpenNebulaNetwork.conf")
+            )
+rescue
+    CONF = {
+        :start_vlan => 2
+    }
 end
+
+# Set PATH
+ENV['PATH'] = "#{ENV['PATH']}:/bin:/sbin:/usr/bin"

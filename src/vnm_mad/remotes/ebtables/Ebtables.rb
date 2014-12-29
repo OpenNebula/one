@@ -14,9 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'OpenNebulaNetwork'
+require 'vnmmad'
 
-class EbtablesVLAN < OpenNebulaNetwork
+class EbtablesVLAN < VNMMAD::VNMDriver
     DRIVER = "ebtables"
 
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"

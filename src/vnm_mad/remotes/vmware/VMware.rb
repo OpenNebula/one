@@ -34,9 +34,9 @@ $: << RUBY_LIB_LOCATION
 
 require 'yaml'
 require 'CommandManager'
-require 'OpenNebulaNetwork'
+require 'vnmmad'
 
-class OpenNebulaVMware < OpenNebulaNetwork
+class OpenNebulaVMware < VNMMAD::VNMDriver
     DRIVER = "vmware"
 
     XPATH_FILTER = "TEMPLATE/NIC"
