@@ -117,6 +117,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_user       = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
+    string  local_storage   = "";
 
     string  total_bytes_sec = "";
     string  read_bytes_sec  = "";
@@ -494,7 +495,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         one_util::toupper(type);
 
-        if ( type == "BLOCK" )
+        if ( type == "BLOCK" || local_storage == "TRUE" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()

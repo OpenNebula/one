@@ -38,6 +38,7 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 
 DST_HOST=`arg_host $DST`
+DST_PATH=`arg_path $DST`
 
 #-------------------------------------------------------------------------------
 # Compute the destination image name
@@ -50,33 +51,13 @@ RBD_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
 RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
-# Get Image information
-#-------------------------------------------------------------------------------
-
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-unset i j XPATH_ELEMENTS
-
-while IFS= read -r -d '' element; do
-        XPATH_ELEMENTS[i++]="$element"
-        done < <(onevm show -x $VM_ID| $XPATH  \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
-
-CEPH_USER="${XPATH_ELEMENTS[j++]}"
-
-
-#-------------------------------------------------------------------------------
 # Clone the image
 #-------------------------------------------------------------------------------
 
-if [ -n "$CEPH_USER" ]; then
-    RBD="$RBD --id ${CEPH_USER}"
-fi
- 
 CLONE_CMD=$(cat <<EOF
     set -e
 
-    RBD_FORMAT=\$($RBD info $SRC_PATH | sed -n 's/.*format: // p')   
+    RBD_FORMAT=\$(rbd info $SRC_PATH | sed -n 's/.*format: // p')
 
     if [ "\$RBD_FORMAT" = "2" ]; then
         $RBD snap create "$SRC_PATH@$RBD_SNAP"
@@ -88,6 +69,30 @@ CLONE_CMD=$(cat <<EOF
 EOF
 )
 
+if [ "$DST_HOST" == "fras008" ] || [ "$DST_HOST" == "fras009" ]; then
+
+CLONE_CMD=$(cat <<EOF
+    set -e
+
+    RBD_FORMAT=\$(rbd info $SRC_PATH | sed -n 's/.*format: // p')
+
+    if [ "\$RBD_FORMAT" = "2" ]; then
+        $RBD snap create "$SRC_PATH@$RBD_SNAP"
+        $RBD snap protect "$SRC_PATH@$RBD_SNAP"
+        $RBD clone "$SRC_PATH@$RBD_SNAP" $RBD_DST
+    else
+        $RBD copy $SRC_PATH $RBD_DST
+    fi
+    mkdir -p `dirname $DST_PATH`
+    qemu-img convert -O raw "rbd:$SRC_PATH@$RBD_SNAP" "$DST_PATH" 
+EOF
+)
+
+fi
+
+
+
 ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
                  "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
 exit 0
+
