@@ -17,28 +17,25 @@
 require 'vnmmad'
 
 ################################################################################
-# This driver tag VM traffic with a VLAN_ID using 802.1Q protocol. Features:
+# This driver tag VM traffic with a VLAN_ID using VXLAN protocol. Features:
 #   - Creates a bridge and bind phisycal device if not present
 #   - Creates a tagged interface for the VM dev.vlan_id
 #
 # Once activated the VM will be attached to this bridge 
 ################################################################################
-class VLANDriver < VNMMAD::VNMDriver
+class VXLANDriver < VNMMAD::VLANDriver
 
     # DRIVER name and XPATH for relevant NICs
-    DRIVER       = "802.1Q"
+    DRIVER       = "vxlan"
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
     ############################################################################
     # Creatges the driver device operations are not locked
     ############################################################################
     def initialize(vm, deploy_id = nil, hypervisor = nil)
-        super(vm, XPATH_FILTER, deploy_id, hypervisor)
         @locking = false
 
-        lock
-        @bridges = get_interfaces
-        unlock
+        super(vm, XPATH_FILTER, deploy_id, hypervisor)
     end
 
     ############################################################################
@@ -47,33 +44,20 @@ class VLANDriver < VNMMAD::VNMDriver
     def activate
         lock
 
-        vm_id =  @vm['ID']
+        options = Hash.new
 
         process do |nic|
-            bridge  = nic[:bridge]
-            dev     = nic[:phydev]
 
-            if dev
-                if nic[:vlan_id]
-                    vlan = nic[:vlan_id]
-                else
-                    vlan = CONF[:start_vlan] + nic[:network_id].to_i
-                end
+            options.clear
 
-                if !bridge_exists? bridge
-                    create_bridge bridge
-                    ifup bridge
-                end
+            options[:bridge]  = nic[:bridge]
+            options[:phydev]  = nic[:phydev]
+            options[:vlan_id] = nic[:vlan_id]
+            options[:network_id] = nic[:network_id]
 
-                if !device_exists?(dev, vlan)
-                    create_dev_vlan(dev, vlan)
-                    ifup(dev, vlan)
-                end
+            return if options[:phydev].nil?
 
-                if !attached_bridge_dev?(bridge, dev, vlan)
-                    attach_brigde_dev(bridge, dev, vlan)
-                end
-            end
+            set_up_vlan(options)
         end
 
         unlock
@@ -82,49 +66,16 @@ class VLANDriver < VNMMAD::VNMDriver
     end
 
     ############################################################################
-    # Private interface, methods to manage bridges and VLAN tags through the
-    # brctl and ip commands
+    # This function creates and activate a VLAN device
     ############################################################################
-    private
+    def create_vlan_dev(options)
+        mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + options[:vlan_id].to_i
+        mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
 
-    def bridge_exists?(bridge)
-        @bridges.keys.include? bridge
-    end
+        OpenNebula.exec_and_log("#{command(:ip)} link add #{options[:vlan_dev]}"\
+            " type vxlan id #{options[:vlan_id]} group #{mcs}"\
+            " dev #{options[:phydev]}")
 
-    def create_bridge(bridge)
-        OpenNebula.exec_and_log("#{command(:brctl)} addbr #{bridge}")
-        @bridges[bridge] = Array.new
-    end
-
-    def device_exists?(dev, vlan=nil)
-        dev = "#{dev}.#{vlan}" if vlan
-        `#{command(:ip)} link show #{dev}`
-        $?.exitstatus == 0
-    end
-
-    def create_dev_vlan(dev, vlan)
-        cmd = "#{command(:ip)} link add link #{dev}"
-        cmd << " name #{dev}.#{vlan} type vlan id #{vlan}"
-
-        OpenNebula.exec_and_log(cmd)
-    end
-
-    def attached_bridge_dev?(bridge, dev, vlan=nil)
-        return false if !bridge_exists? bridge
-        
-        dev = "#{dev}.#{vlan}" if vlan
-        @bridges[bridge].include? dev
-    end
-
-    def attach_brigde_dev(bridge, dev, vlan=nil)
-        dev = "#{dev}.#{vlan}" if vlan
-        
-        OpenNebula.exec_and_log("#{command(:brctl)} addif #{bridge} #{dev}")
-        @bridges[bridge] << dev
-    end
-
-    def ifup(dev, vlan=nil)
-        dev = "#{dev}.#{vlan}" if vlan
-        OpenNebula.exec_and_log("#{command(:ip)} link set #{dev} up")
+        OpenNebula.exec_and_log("#{command(:ip)} link set #{options[:vlan_dev]} up")
     end
 end
