@@ -39,34 +39,6 @@ class VLANTagDriver < VNMMAD::VLANDriver
     end
 
     ############################################################################
-    # Activate the driver and creates bridges and tags devices as needed.
-    ############################################################################
-    def activate
-        lock
-
-        vm_id   =  @vm['ID']
-        options = Hash.new
-
-        process do |nic|
-
-            options.clear
-
-            options[:bridge]  = nic[:bridge]
-            options[:phydev]  = nic[:phydev]
-            options[:vlan_id] = nic[:vlan_id]
-            options[:network_id] = nic[:network_id]
-
-            return if options[:phydev].nil?
-
-            set_up_vlan(options)
-        end
-
-        unlock
-
-        return 0
-    end
-
-    ############################################################################
     # This function creates and activate a VLAN device
     ############################################################################
     def create_vlan_dev(options)

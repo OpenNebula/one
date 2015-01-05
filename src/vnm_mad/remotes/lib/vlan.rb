@@ -31,17 +31,29 @@ module VNMMAD
             unlock
         end
 
-        # This function needs to be implemented by any VLAN driver to
-        # create the VLAN device. The device MUST be set up by this function
-        # Options is a driver specific hash. It includes
-        #   :vlan_dev the name for the VLAN device
-        #   :phydev Physical Device to bind the VLAN traffic to
-        #   :vlan_id the VLAN ID
-        #   : additional driver specific parameters
-        def create_vlan_dev(options)
-            OpenNebula.log_error("create_vlan_dev function not implemented.")
+        # Activate the driver and creates bridges and tags devices as needed.
+        def activate
+            lock
 
-            exit -1
+            options = Hash.new
+
+            process do |nic|
+
+                options.clear
+
+                options[:bridge]  = nic[:bridge]
+                options[:phydev]  = nic[:phydev]
+                options[:vlan_id] = nic[:vlan_id]
+                options[:network_id] = nic[:network_id]
+
+                return if options[:phydev].nil?
+
+                set_up_vlan(options)
+            end
+
+            unlock
+
+            return 0
         end
 
         # Set ups the VLAN for the VMs. 
@@ -68,7 +80,20 @@ module VNMMAD
 
             @bridges[options[:bridge]] << options[:vlan_dev]
         end
-    
+
+        # This function needs to be implemented by any VLAN driver to
+        # create the VLAN device. The device MUST be set up by this function
+        # Options is a driver specific hash. It includes
+        #   :vlan_dev the name for the VLAN device
+        #   :phydev Physical Device to bind the VLAN traffic to
+        #   :vlan_id the VLAN ID
+        #   : additional driver specific parameters
+        def create_vlan_dev(options)
+            OpenNebula.log_error("create_vlan_dev function not implemented.")
+
+            exit -1
+        end
+            
     private
         # Creates a bridge if it does not exists, and brings it up. 
         # This function IS FINAL, exits if action cannot be completed
