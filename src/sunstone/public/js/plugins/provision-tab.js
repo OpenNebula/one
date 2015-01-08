@@ -4178,7 +4178,7 @@ function setup_provision_vms_list(context, opts) {
       filter = $(this).val();
     }
 
-    provision_vms_datatable.fnFilter( filter, 2 );
+    provision_vms_datatable.fnFilter("^" + filter + "$", 2, true, false);
   })
 
   insertSelectOptions(
@@ -4335,7 +4335,7 @@ function setup_provision_templates_list(context, opts) {
       filter = $(this).val();
     }
 
-    provision_templates_datatable.fnFilter( filter, 3 );
+    provision_templates_datatable.fnFilter("^" + filter + "$", 3, true, false);
   })
 
   insertSelectOptions(
@@ -5054,7 +5054,7 @@ function setup_provision_flows_list(context, opts){
       filter = $(this).val();
     }
 
-    provision_flows_datatable.fnFilter( filter, 2 );
+    provision_flows_datatable.fnFilter("^" + filter + "$", 2, true, false);
   })
 
   insertSelectOptions(
