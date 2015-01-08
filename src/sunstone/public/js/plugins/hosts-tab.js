@@ -152,7 +152,7 @@ var create_host_tmpl =
       <div class="row import_vcenter_clusters_div hidden">\
         <div class="large-12 columns">\
           <br>\
-          <a class="button radius small right success" id="import_vcenter_clusters">'+tr("Import vCenter Clusters and Templates")+'</a>\
+          <a class="button radius small right success" id="import_vcenter_clusters">'+tr("Import")+'</a>\
         </div>\
       </div>\
     </fieldset>\
