@@ -710,7 +710,7 @@ if (Config.isTemplateCreationTabEnabled('context')){
                     '<th colspan="4" style="font-size: 16px !important">'+
                       '<i class="fa fa-lg fa-fw fa-cogs off-color"/>'+
                       ''+tr("User Inputs")+''+
-                      '<span class="tip">'+tr("These attributes must be provided by the user when a new VM is intantatiated using this template. They will be included in the VM context")+'</span>'+
+                      '<span class="tip">'+tr("These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")+'</span>'+
                     '</th>'+
                   '</tr>'+
                 '</thead>'+
@@ -4872,28 +4872,50 @@ function setupInstantiateTemplateDialog(){
     $("#instantiate_vm_template_proceed", dialog).attr("disabled", "disabled");
 
     var selected_nodes = getSelectedNodes(dataTable_templates);
-    var template_id = ""+selected_nodes[0];
 
-    OpenNebula.Template.show({
-        data : {
-            id: template_id
-        },
-        timeout: true,
-        success: function (request, template_json){
+    var selected_nodes = getSelectedNodes(dataTable_templates);
 
-            $("#instantiate_vm_user_inputs", dialog).empty();
+    $("#instantiate_vm_user_inputs", dialog).empty();
 
-            generateVMTemplateUserInputs(
-                $("#instantiate_vm_user_inputs", dialog),
-                template_json);
+    $("#instantiate_vm_user_inputs", dialog).append(
+      '<br>'+
+      '<div class="row">'+
+        '<div class="large-12 large-centered columns">'+
+          '<div class="subheader">'+
+            tr("Templates to be instantiated") +
+          '</div>'+
+          '<ul class="disc list_of_templates">'+
+          '</ul>'+
+        '</div>'+
+      '</div>');
 
-            $("#instantiate_vm_template_proceed", dialog).removeAttr("disabled");
-        },
-        error: function(request,error_json, container){
-            onError(request,error_json, container);
-            $("#instantiate_vm_user_inputs", dialog).empty();
-        }
-    });
+    $.each(selected_nodes, function(index, template_id){
+      OpenNebula.Template.show({
+          data : {
+              id: template_id
+          },
+          timeout: true,
+          success: function (request, template_json){
+              $(".list_of_templates", dialog).append("<li>" + template_json.VMTEMPLATE.NAME + '</li>')
+
+              var inputs_div = $("<div class='template_user_inputs"+template_json.VMTEMPLATE.ID+"'></div>").appendTo(
+                $("#instantiate_vm_user_inputs", dialog));
+
+              generateVMTemplateUserInputs(
+                  inputs_div,
+                  template_json,
+                  {text_header: template_json.VMTEMPLATE.NAME});
+
+              inputs_div.data("opennebula_id", template_json.VMTEMPLATE.ID)
+          },
+          error: function(request,error_json, container){
+              onError(request,error_json, container);
+              $("#instantiate_vm_user_inputs", dialog).empty();
+          }
+      });
+    })
+
+    $("#instantiate_vm_template_proceed", dialog).removeAttr("disabled");
 
     setupTips(dialog);
 
@@ -4907,56 +4929,56 @@ function setupInstantiateTemplateDialog(){
         var hold = $('#hold',this).prop("checked");
 
         var selected_nodes = getSelectedNodes(dataTable_templates);
-        var template_id = ""+selected_nodes[0];
+        $.each(selected_nodes, function(index, template_id){
+          if (n_times.length){
+              n_times_int=parseInt(n_times,10);
+          };
 
-        if (n_times.length){
-            n_times_int=parseInt(n_times,10);
-        };
+          var extra_msg = "";
+          if (n_times_int > 1) {
+              extra_msg = n_times_int+" times";
+          }
 
-        var extra_msg = "";
-        if (n_times_int > 1) {
-            extra_msg = n_times_int+" times";
-        }
+          notifySubmit("Template.instantiate",template_id, extra_msg);
 
-        notifySubmit("Template.instantiate",template_id, extra_msg);
+          var extra_info = {
+              'hold': hold
+          };
 
-        var extra_info = {
-            'hold': hold
-        };
+          var tmp_json = {};
+          retrieveWizardFields($(".template_user_inputs"+template_id, dialog), tmp_json);
 
-        var tmp_json = {};
-        retrieveWizardFields($(this), tmp_json);
+          extra_info['template'] = tmp_json;
 
-        extra_info['template'] = tmp_json;
+          if (!vm_name.length){ //empty name use OpenNebula core default
+              for (var i=0; i< n_times_int; i++){
+                  extra_info['vm_name'] = "";
+                  Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
+              }
+          }
+          else
+          {
+              if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
+                  extra_info['vm_name'] = vm_name;
 
-        if (!vm_name.length){ //empty name use OpenNebula core default
-            for (var i=0; i< n_times_int; i++){
-                extra_info['vm_name'] = "";
-                Sunstone.runAction("Template.instantiate_quiet", template_id, extra_info);
-            }
-        }
-        else
-        {
-            if (vm_name.indexOf("%i") == -1){//no wildcard, all with the same name
-                extra_info['vm_name'] = vm_name;
+                  for (var i=0; i< n_times_int; i++){
+                      Sunstone.runAction(
+                          "Template.instantiate_quiet",
+                          template_id,
+                          extra_info);
+                  }
+              } else { //wildcard present: replace wildcard
+                  for (var i=0; i< n_times_int; i++){
+                      extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
 
-                for (var i=0; i< n_times_int; i++){
-                    Sunstone.runAction(
-                        "Template.instantiate_quiet",
-                        template_id,
-                        extra_info);
-                }
-            } else { //wildcard present: replace wildcard
-                for (var i=0; i< n_times_int; i++){
-                    extra_info['vm_name'] = vm_name.replace(/%i/gi,i);
-
-                    Sunstone.runAction(
-                        "Template.instantiate_quiet",
-                        template_id,
-                        extra_info);
-                }
-            }
-        }
+                      Sunstone.runAction(
+                          "Template.instantiate_quiet",
+                          template_id,
+                          extra_info);
+                  }
+              }
+          }
+        })
 
         $instantiate_vm_template_dialog.foundation('reveal', 'close')
         return false;
@@ -4966,12 +4988,6 @@ function setupInstantiateTemplateDialog(){
 // Open creation dialog
 function popUpInstantiateVMTemplateDialog(){
     var selected_nodes = getSelectedNodes(dataTable_templates);
-
-    if ( selected_nodes.length != 1 )
-    {
-      notifyMessage("Please select one (and just one) template to instantiate.");
-      return false;
-    }
 
     setupInstantiateTemplateDialog();
     $instantiate_vm_template_dialog.foundation().foundation('reveal', 'open');
