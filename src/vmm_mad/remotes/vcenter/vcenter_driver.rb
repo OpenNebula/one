@@ -900,10 +900,10 @@ class VCenterVm
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula"\
-                " from Cluster #{@vm.runtime.host.parent.name}\""
+                " from Cluster #{@vm.runtime.host.parent.name}\"\n"
         else
             notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
-            str << "DESCRIPTION = \"#{notes}\""
+            str << "DESCRIPTION = \"#{notes}\"\n"
         end
         
         case @vm.guest.guestFullName
