@@ -703,6 +703,24 @@ class VCenterVm
     end
 
     ############################################################################
+    # Find VM snapshot
+    #  @param list root list of VM snapshots
+    #  @param snaphot_name name of the snapshot
+    ############################################################################
+    def self.find_snapshot(list, snapshot_name)
+        list.each do |i|
+            if i.name == snapshot_name
+                return i.snapshot
+            elsif !i.childSnapshotList.empty?
+                snap = find_snapshot(i.childSnapshotList, snapshot_name)
+                return snap if snap
+            end
+        end
+
+        nil
+    end
+
+    ############################################################################
     # Delete VM snapshot
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
@@ -714,13 +732,14 @@ class VCenterVm
 
         vm          = connection.find_vm_template(deploy_id)
 
-        snapshot = vm.snapshot.rootSnapshotList.find {|s|
-                      s.name == snapshot_name
-                   }.snapshot
+        list = vm.snapshot.rootSnapshotList
+
+        snapshot = find_snapshot(list, snapshot_name)
+        return nil if !snapshot
 
         delete_snapshot_hash = {
             :_this => snapshot,
-            :removeChildren => true
+            :removeChildren => false
         }
 
         snapshot.RemoveSnapshot_Task(delete_snapshot_hash).wait_for_completion
@@ -738,9 +757,10 @@ class VCenterVm
 
         vm          = connection.find_vm_template(deploy_id)
 
-        snapshot = vm.snapshot.rootSnapshotList.find {|s|
-                      s.name == snapshot_name
-                   }.snapshot
+        list = vm.snapshot.rootSnapshotList
+
+        snapshot = find_snapshot(list, snapshot_name)
+        return nil if !snapshot
 
         revert_snapshot_hash = {
             :_this => snapshot
