@@ -541,7 +541,7 @@ function updateFileInfo(request,file){
                insert_extended_template_table(file_info.TEMPLATE,
                                                "File",
                                                file_info.ID,
-                                               "Attributes") +
+                                               tr("Attributes")) +
        '</div>\
      </div>'
     }

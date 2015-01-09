@@ -683,7 +683,7 @@ function updateGroupInfo(request,group){
               insert_extended_template_table(info.TEMPLATE,
                                                  "Group",
                                                  info.ID,
-                                                 "Attributes") +
+                                                 tr("Attributes")) +
           '</div>\
         </div>'
       }
