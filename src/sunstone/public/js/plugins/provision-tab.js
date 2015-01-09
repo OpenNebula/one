@@ -4171,14 +4171,11 @@ function setup_provision_vms_list(context, opts) {
   });
 
   $(".provision_list_vms_filter", context).on("change", ".resource_list_select", function(){
-    var filter;
-    if ($(this).val() == "-2"){
-      filter = "";
+    if ($(this).val() != "-2"){
+      provision_vms_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
     } else {
-      filter = $(this).val();
+      provision_vms_datatable.fnFilterClear();
     }
-
-    provision_vms_datatable.fnFilter("^" + filter + "$", 2, true, false);
   })
 
   insertSelectOptions(
@@ -4328,14 +4325,11 @@ function setup_provision_templates_list(context, opts) {
   });
 
   $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
-    var filter;
-    if ($(this).val() == "-2"){
-      filter = "";
+    if ($(this).val() != "-2"){
+      provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
     } else {
-      filter = $(this).val();
+      provision_templates_datatable.fnFilterClear();
     }
-
-    provision_templates_datatable.fnFilter("^" + filter + "$", 3, true, false);
   })
 
   insertSelectOptions(
@@ -5047,14 +5041,11 @@ function setup_provision_flows_list(context, opts){
   });
 
   $(".provision_list_flows_filter", context).on("change", ".resource_list_select", function(){
-    var filter;
-    if ($(this).val() == "-2"){
-      filter = "";
+    if ($(this).val() != "-2"){
+      provision_flows_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
     } else {
-      filter = $(this).val();
+      provision_flows_datatable.fnFilterClear();
     }
-
-    provision_flows_datatable.fnFilter("^" + filter + "$", 2, true, false);
   })
 
   insertSelectOptions(
