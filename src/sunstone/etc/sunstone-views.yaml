@@ -5,6 +5,7 @@ available_tabs:
     - system-tab
     - users-tab
     - groups-tab
+    - vdcs-tab
     - acls-tab
     - vresources-tab
     - vms-tab

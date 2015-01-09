@@ -1580,6 +1580,86 @@ var OpenNebula = {
         }
     },
 
+
+    "Vdc" : {
+        "resource" : "VDC",
+
+        "create" : function(params){
+            OpenNebula.Action.create(params,OpenNebula.Vdc.resource);
+        },
+        "del" : function(params){
+            OpenNebula.Action.del(params,OpenNebula.Vdc.resource);
+        },
+        "list" : function(params){
+            OpenNebula.Action.list(params,OpenNebula.Vdc.resource);
+        },
+        "show" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Vdc.resource);
+        },
+        "update" : function(params){
+            var action_obj = {"template_raw" : params.data.extra_param };
+            OpenNebula.Action.simple_action(params,
+                                     OpenNebula.Vdc.resource,
+                                     "update",
+                                     action_obj);
+        },
+        "fetch_template" : function(params){
+            OpenNebula.Action.show(params,OpenNebula.Vdc.resource,"template");
+        },
+        "rename" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,
+                                            OpenNebula.Vdc.resource,
+                                            "rename",
+                                            action_obj);
+        },
+
+        "add_group" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"add_group",action_obj);
+        },
+        "del_group" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"del_group",action_obj);
+        },
+
+        "add_cluster" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"add_cluster",action_obj);
+        },
+        "del_cluster" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"del_cluster",action_obj);
+        },
+
+        "add_host" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"add_host",action_obj);
+        },
+        "del_host" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"del_host",action_obj);
+        },
+
+        "add_datastore" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"add_datastore",action_obj);
+        },
+        "del_datastore" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"del_datastore",action_obj);
+        },
+
+        "add_vnet" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"add_vnet",action_obj);
+        },
+        "del_vnet" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Vdc.resource,"del_vnet",action_obj);
+        }
+    },
+
     "Marketplace" : {
         "resource" : "MARKETPLACE",
 
