@@ -6682,7 +6682,6 @@ function generateServiceTemplateUserInputs(div, template_json, opts) {
 // opts.network_header: header text for the network inputs
 // returns true if at least one input was inserted
 function generateInstantiateUserInputs(div, user_inputs, opts) {
-
     div.empty();
 
     if(user_inputs == undefined){
