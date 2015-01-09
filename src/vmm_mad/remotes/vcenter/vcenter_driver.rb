@@ -897,6 +897,33 @@ class VCenterVm
               "  LISTEN   =\"0.0.0.0\"\n"\
               "]\n"\
          "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+
+        if @vm.config.annotation.nil? || @vm.config.annotation.empty?
+            str << "DESCRIPTION = \"vCenter Template imported by OpenNebula"\
+                " from Cluster #{@vm.runtime.host.parent.name}\""
+        else
+            notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
+            str << "DESCRIPTION = \"#{notes}\""
+        end
+        
+        case @vm.guest.guestFullName
+            when /CentOS/i
+                str << "LOGO=images/logos/centos.png"
+            when /Debian/i
+                str << "LOGO=images/logos/debian.png"
+            when /Red Hat/i
+                str << "LOGO=images/logos/redhat.png"
+            when /Ubuntu/i
+                str << "LOGO=images/logos/ubuntu.png"
+            when /Windows XP/i
+                str << "LOGO=images/logos/windowsxp.png"
+            when /Windows/i
+                str << "LOGO=images/logos/windows8.png"
+            when /Linux/i
+                str << "LOGO=images/logos/linux.png"
+        end
+
+        return str
     end
 
 private
