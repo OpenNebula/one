@@ -101,6 +101,8 @@ tabs:
     vdcs-tab:
         panel_tabs:
             vdc_info_tab: true
+            vdc_groups_tab: true
+            vdc_resources_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

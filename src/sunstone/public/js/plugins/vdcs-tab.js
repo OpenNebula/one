@@ -397,6 +397,14 @@ var vdc_info_panel = {
     "vdc_info_tab" : {
         title: tr("Virtual Data Center information"),
         content: ""
+    },
+    "vdc_groups_tab" : {
+        title: tr("Groups"),
+        content: ""
+    },
+    "vdc_resources_tab" : {
+        title: tr("Resources"),
+        content: ""
     }
 }
 
@@ -533,9 +541,212 @@ function updateVdcInfo(request,vdc){
         content: info_tab_content
     };
 
+    var groups_tab = {
+        title : tr("Groups"),
+        icon: "fa-users",
+        content: vdc_group_tab_content(vdc_info)
+    };
+
+    var resources_tab = {
+        title : tr("Resources"),
+        icon: "fa-th",
+        content : vdc_resources_tab_content(vdc_info)
+    };
+
     Sunstone.updateInfoPanelTab("vdc_info_panel","vdc_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("vdc_info_panel","vdc_groups_tab",groups_tab);
+    Sunstone.updateInfoPanelTab("vdc_info_panel","vdc_resources_tab",resources_tab);
 
     Sunstone.popUpInfoPanel("vdc_info_panel", "vdcs-tab");
+
+    setup_vdc_group_tab_content(vdc_info);
+    setup_vdc_resources_tab_content(vdc_info);
+}
+
+function vdc_group_tab_content(vdc_info){
+
+    var html =
+    '<form id="vdc_group_list_form" vdcid="'+vdc_info.ID+'">';
+
+    html +=
+        '<div class="row collapse">\
+          <div class="large-12 columns">';
+
+    html += '<span class="right">';
+
+    html += '</span></div></div>';
+
+    html += '<div class="row collapse">\
+        '+generateGroupTableSelect("vdc_group_list")+'\
+      </div>\
+    </form>';
+
+    return html;
+}
+
+function setup_vdc_group_tab_content(vdc_info){
+
+    var groups = [];
+
+    if (vdc_info.GROUPS.ID != undefined){
+        var groups = vdc_info.GROUPS.ID;
+
+        if (!$.isArray(groups)){
+            groups = [groups];
+        }
+    }
+
+    var opts = {
+        read_only: true,
+        fixed_ids: groups
+    }
+
+    setupGroupTableSelect($("#vdc_info_panel"), "vdc_group_list", opts);
+
+    refreshGroupTableSelect($("#vdc_info_panel"), "vdc_group_list");
+}
+
+function vdc_resources_tab_content(vdc_info){
+
+    var clusters_array = [];
+    var hosts_array = [];
+    var vnets_array = [];
+    var datastores_array = [];
+
+    if (vdc_info.CLUSTERS.CLUSTER){
+        clusters_array = vdc_info.CLUSTERS.CLUSTER;
+
+        if (!$.isArray(clusters_array)){
+            clusters_array = [clusters_array];
+        }
+    }
+
+    if (vdc_info.HOSTS.HOST){
+        hosts_array = vdc_info.HOSTS.HOST;
+
+        if (!$.isArray(hosts_array)){
+            hosts_array = [hosts_array];
+        }
+    }
+
+    if (vdc_info.VNETS.VNET){
+        vnets_array = vdc_info.VNETS.VNET;
+
+        if (!$.isArray(vnets_array)){
+            vnets_array = [vnets_array];
+        }
+    }
+
+    if (vdc_info.DATASTORES.DATASTORE){
+        datastores_array = vdc_info.DATASTORES.DATASTORE;
+
+        if (!$.isArray(datastores_array)){
+            datastores_array = [datastores_array];
+        }
+    }
+
+    var html =
+        '<div class="row">\
+          <div class="large-6 columns">\
+            <table class="dataTable extended_table">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("Zone ID") + '</th>\
+                  <th>' + tr("Cluster ID") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody>';
+
+    $.each(clusters_array, function(i,e){
+        html +=
+            '<tr>\
+              <td>' + e.ZONE_ID + '</td>\
+              <td>' + e.CLUSTER_ID + '</td>\
+            </tr>';
+    });
+
+    html +=
+              '</tbody>\
+            </table>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">\
+            <table class="dataTable extended_table">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("Zone ID") + '</th>\
+                  <th>' + tr("Host ID") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody>';
+
+    $.each(hosts_array, function(i,e){
+        html +=
+            '<tr>\
+              <td>' + e.ZONE_ID + '</td>\
+              <td>' + e.HOST_ID + '</td>\
+            </tr>';
+    });
+
+    html +=
+              '</tbody>\
+            </table>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">\
+            <table class="dataTable extended_table">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("Zone ID") + '</th>\
+                  <th>' + tr("VNet ID") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody>';
+
+    $.each(vnets_array, function(i,e){
+        html +=
+            '<tr>\
+              <td>' + e.ZONE_ID + '</td>\
+              <td>' + e.VNET_ID + '</td>\
+            </tr>';
+    });
+
+    html +=
+              '</tbody>\
+            </table>\
+          </div>\
+        </div>\
+        <div class="row">\
+          <div class="large-6 columns">\
+            <table class="dataTable extended_table">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("Zone ID") + '</th>\
+                  <th>' + tr("Datastore ID") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody>';
+
+    $.each(datastores_array, function(i,e){
+        html +=
+            '<tr>\
+              <td>' + e.ZONE_ID + '</td>\
+              <td>' + e.DATASTORE_ID + '</td>\
+            </tr>';
+    });
+
+    html +=
+              '</tbody>\
+            </table>\
+          </div>\
+        </div>'
+
+    return html;
+}
+
+function setup_vdc_resources_tab_content(vdc_info){
 }
 
 function initialize_create_vdc_dialog(dialog) {
