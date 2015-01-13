@@ -744,6 +744,9 @@ var OpenNebula = {
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Host.resource);
         },
+        "list_in_zone" : function(params){
+            OpenNebula.Action.list_in_zone(params,OpenNebula.Host.resource);
+        },
         "show": function(params){
             OpenNebula.Action.show(params,OpenNebula.Host.resource);
         },
@@ -789,6 +792,9 @@ var OpenNebula = {
         },
         "list": function(params){
             OpenNebula.Action.list(params,OpenNebula.Network.resource);
+        },
+        "list_in_zone" : function(params){
+            OpenNebula.Action.list_in_zone(params,OpenNebula.Network.resource);
         },
         "show": function(params){
             OpenNebula.Action.show(params,OpenNebula.Network.resource);
@@ -1458,6 +1464,9 @@ var OpenNebula = {
         },
         "list" : function(params){
             OpenNebula.Action.list(params,OpenNebula.Datastore.resource);
+        },
+        "list_in_zone" : function(params){
+            OpenNebula.Action.list_in_zone(params,OpenNebula.Datastore.resource);
         },
         "show" : function(params){
             OpenNebula.Action.show(params,OpenNebula.Datastore.resource);
