@@ -34,7 +34,7 @@ var create_cluster_tmpl ='<div class="row">\
     <div class="large-6 columns">\
       <dl class="tabs right-info-tabs text-center right" data-tab>\
           <dd class="active"><a href="#tab-hostsTab"><i class="fa fa-hdd-o"></i><br>'+tr("Hosts")+'</a></dd>\
-          <dd><a href="#tab-vnetsTab"><i class="fa fa-upload"></i><br>'+tr("VNets")+'</a></dd>\
+          <dd><a href="#tab-vnetsTab"><i class="fa fa-globe"></i><br>'+tr("VNets")+'</a></dd>\
           <dd><a href="#tab-datastoresTab"><i class="fa fa-folder-open"></i><br>'+tr("Datastores")+'</a></dd>\
       </dl>\
     </div>\

@@ -18,7 +18,7 @@ var create_vdc_wizard_html =
     '<form data-abide="ajax" id="create_vdc_form_wizard" class="custom creation">\
       <div>\
         <dl id="vdc_create_tabs" class="tabs right-info-tabs text-center" data-tab>\
-          <dd class="active"><a href="#vdcCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
+          <dd class="active"><a href="#vdcCreateGeneralTab"><i class="fa fa-th"></i><br>'+tr("General")+'</a></dd>\
           <dd><a href="#vdcCreateGroupsTab"><i class="fa fa-users"></i><br>'+tr("Groups")+'</a></dd>\
           <dd><a href="#vdcCreateResourcesTab"><i class="fa fa-hdd-o"></i><br>'+tr("Resources")+'</a></dd>\
         </dl>\
@@ -407,8 +407,8 @@ var vdcs_tab = {
     tabClass: "subTab",
     parentTab: "system-tab",
     search_input: '<input id="vdc_search" type="text" placeholder="'+tr("Search")+'" />',
-    list_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Data Centers"),
-    info_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Data Center"),
+    list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Data Centers"),
+    info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Data Center"),
     subheader: '<span class="total_vdcs"/> <small>'+tr("TOTAL")+'</small>',
     table: '<table id="datatable_vdcs" class="datatable twelve">\
       <thead>\
@@ -924,9 +924,9 @@ function generateVdcResourceTabContent(str_zone_tab_id, zone_id){
     '<div class="row">\
       <div class="large-12 columns">\
         <dl class="tabs right-info-tabs text-center" data-tab>\
-          <dd class="active"><a href="#vdcCreateClustersTab_'+zone_id+'"><i class="fa fa-hdd-o"></i><br>'+tr("Clusters")+'</a></dd>\
+          <dd class="active"><a href="#vdcCreateClustersTab_'+zone_id+'"><i class="fa fa-th"></i><br>'+tr("Clusters")+'</a></dd>\
           <dd><a href="#vdcCreateHostsTab_'+zone_id+'"><i class="fa fa-hdd-o"></i><br>'+tr("Hosts")+'</a></dd>\
-          <dd><a href="#vdcCreateVnetsTab_'+zone_id+'"><i class="fa fa-upload"></i><br>'+tr("VNets")+'</a></dd>\
+          <dd><a href="#vdcCreateVnetsTab_'+zone_id+'"><i class="fa fa-globe"></i><br>'+tr("VNets")+'</a></dd>\
           <dd><a href="#vdcCreateDatastoresTab_'+zone_id+'"><i class="fa fa-folder-open"></i><br>'+tr("Datastores")+'</a></dd>\
         </dl>\
         <div class="tabs-content">\
