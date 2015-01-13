@@ -180,6 +180,8 @@ var Sunstone = {
 
         var form_obj = SunstoneCfg["form_panels"][form_name];
 
+        $(".right-form", context).data("initialize_func", initialize_func);
+
         $(".reset_button", context).show();
 
         if (action) {
@@ -986,7 +988,8 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 
         $('#'+custom_id+'reset_button', action_block).on("click", function(){
             var form_name = $(".right-form", context).attr("form_name");
-            Sunstone.popUpFormPanel(form_name, tab_name, null, true)
+            var initialize_func = $(".right-form", context).data("initialize_func");
+            Sunstone.popUpFormPanel(form_name, tab_name, null, true, initialize_func);
 
             return false;
         })
