@@ -204,11 +204,17 @@ class VIClient
 
     ########################################################################
     # Builds a hash with the Datacenter / VM Templates for this VCenter
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
     # @return [Hash] in the form
     #   { dc_name [String] => }
     ########################################################################
-    def vm_templates
+    def vm_templates(one_client=nil)
         vm_templates = {}
+
+        tpool = OpenNebula::TemplatePool.new(
+            (one_client||@one), OpenNebula::Pool::INFO_ALL)
+        rc = tpool.info
+        # TODO check error
 
         datacenters = get_entities(@root, 'Datacenter')
 
@@ -222,12 +228,16 @@ class VIClient
             tmp.each { |t|
                 vi_tmp = VCenterVm.new(self, t)
 
-                one_tmp << {
-                    :name => vi_tmp.vm.name,
-                    :uuid => vi_tmp.vm.config.uuid,
-                    :host => vi_tmp.vm.runtime.host.parent.name,
-                    :one  => vi_tmp.to_one
-                }
+                if !tpool["VMTEMPLATE/TEMPLATE/PUBLIC_CLOUD[\
+                        TYPE=\"vcenter\" \
+                        and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
+                    one_tmp << {
+                        :name => vi_tmp.vm.name,
+                        :uuid => vi_tmp.vm.config.uuid,
+                        :host => vi_tmp.vm.runtime.host.parent.name,
+                        :one  => vi_tmp.to_one
+                    }
+                end
             }
 
             vm_templates[dc.name] = one_tmp
@@ -239,12 +249,18 @@ class VIClient
     ########################################################################
     # Builds a hash with the Datacenter / CCR (Distributed)Networks 
     # for this VCenter
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
     # @return [Hash] in the form
     #   { dc_name [String] => Networks [Array] }
     ########################################################################
-    def vcenter_networks
+    def vcenter_networks(one_client=nil)
         vcenter_networks = {}
 
+        vnpool = OpenNebula::VirtualNetworkPool.new(
+            (one_client||@one), OpenNebula::Pool::INFO_ALL)
+        rc = vnpool.info
+        # TODO check error
+        # 
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
@@ -252,51 +268,57 @@ class VIClient
             one_nets = []
 
             networks.each { |n|
-                one_nets << {
-                    :name   => n.name,
-                    :bridge => n.name,
-                    :type   => "Port Group",
-                    :one    => "NAME   = \"#{n[:name]}\"\n" \
-                               "BRIDGE = \"#{n[:name]}\"\n" \
-                               "VCENTER_TYPE = \"Port Group\""
-                }
+                if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                        TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
+                    one_nets << {
+                        :name   => n.name,
+                        :bridge => n.name,
+                        :type   => "Port Group",
+                        :one    => "NAME   = \"#{n[:name]}\"\n" \
+                                   "BRIDGE = \"#{n[:name]}\"\n" \
+                                   "VCENTER_TYPE = \"Port Group\""
+                    }
+                end
             }
 
             networks = get_entities(dc.networkFolder,
                                     'DistributedVirtualPortgroup' )
 
             networks.each { |n|
-                vnet_template = "NAME   = \"#{n[:name]}\"\n" \
-                                "BRIDGE = \"#{n[:name]}\"\n" \
-                                "VCENTER_TYPE = \"Distributed Port Group\""
+                if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                        TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
+                    vnet_template = "NAME   = \"#{n[:name]}\"\n" \
+                                    "BRIDGE = \"#{n[:name]}\"\n" \
+                                    "VCENTER_TYPE = \"Distributed Port Group\""
 
-                vlan     = n.config.defaultPortConfig.vlan.vlanId
-                vlan_str = ""
+                    vlan     = n.config.defaultPortConfig.vlan.vlanId
+                    vlan_str = ""
 
-                if vlan != 0
-                    if vlan.is_a? Array
-                        vlan.each{|v|
-                            vlan_str += v.start.to_s + ".." + v.end.to_s + ","
-                        }
-                        vlan_str.chop!
-                    else
-                        vlan_str = vlan.to_s
+                    if vlan != 0
+                        if vlan.is_a? Array
+                            vlan.each{|v|
+                                vlan_str += v.start.to_s + ".." + v.end.to_s + ","
+                            }
+                            vlan_str.chop!
+                        else
+                            vlan_str = vlan.to_s
+                        end
                     end
+
+                    if !vlan_str.empty?
+                        vnet_template << "VLAN=\"YES\"\n" \
+                                         "VLAN_ID=#{vlan_str}\n"
+                    end
+
+                    one_net = {:name   => n.name,
+                               :bridge => n.name,
+                               :type   => "Distributed Port Group",
+                               :one    => vnet_template}
+
+                    one_net[:vlan] = vlan_str if !vlan_str.empty?
+
+                    one_nets << one_net
                 end
-
-                if !vlan_str.empty?
-                    vnet_template << "VLAN=\"YES\"\n" \
-                                     "VLAN_ID=#{vlan_str}\n"
-                end
-
-                one_net = {:name   => n.name,
-                           :bridge => n.name,
-                           :type   => "Distributed Port Group",
-                           :one    => vnet_template}
-
-                one_net[:vlan] = vlan_str if !vlan_str.empty?
-
-                one_nets << one_net
             }
 
             vcenter_networks[dc.name] = one_nets
