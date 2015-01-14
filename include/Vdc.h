@@ -187,17 +187,17 @@ private:
     set<pair<int,int> > datastores;
     set<pair<int,int> > vnets;
 
-    void add_cluster_rules(int group, int cluster_id, int zone_id);
-    void del_cluster_rules(int group, int cluster_id, int zone_id);
+    void add_cluster_rules(int group, int zone_id, int cluster_id);
+    void del_cluster_rules(int group, int zone_id, int cluster_id);
 
-    void add_host_rules(int group, int host_id, int zone_id);
-    void del_host_rules(int group, int host_id, int zone_id);
+    void add_host_rules(int group, int zone_id, int host_id);
+    void del_host_rules(int group, int zone_id, int host_id);
 
-    void add_datastore_rules(int group, int ds_id, int zone_id);
-    void del_datastore_rules(int group, int ds_id, int zone_id);
+    void add_datastore_rules(int group, int zone_id, int ds_id);
+    void del_datastore_rules(int group, int zone_id, int ds_id);
 
-    void add_vnet_rules(int group, int vnet_id, int zone_id);
-    void del_vnet_rules(int group, int vnet_id, int zone_id);
+    void add_vnet_rules(int group, int zone_id, int vnet_id);
+    void del_vnet_rules(int group, int zone_id, int vnet_id);
 
     // *************************************************************************
     // DataBase implementation (Private)

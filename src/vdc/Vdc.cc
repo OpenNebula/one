@@ -496,7 +496,7 @@ int Vdc::add_cluster(int zone_id, int cluster_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        add_cluster_rules(*it, cluster_id, zone_id);
+        add_cluster_rules(*it, zone_id, cluster_id);
     }
 
     return 0;
@@ -520,7 +520,7 @@ int Vdc::del_cluster(int zone_id, int cluster_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        del_cluster_rules(*it, cluster_id, zone_id);
+        del_cluster_rules(*it, zone_id, cluster_id);
     }
 
     return 0;
@@ -548,7 +548,7 @@ int Vdc::add_host(int zone_id, int host_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        add_host_rules(*it, host_id, zone_id);
+        add_host_rules(*it, zone_id, host_id);
     }
 
     return 0;
@@ -572,7 +572,7 @@ int Vdc::del_host(int zone_id, int host_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        del_host_rules(*it, host_id, zone_id);
+        del_host_rules(*it, zone_id, host_id);
     }
 
     return 0;
@@ -600,7 +600,7 @@ int Vdc::add_datastore(int zone_id, int datastore_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        add_datastore_rules(*it, datastore_id, zone_id);
+        add_datastore_rules(*it, zone_id, datastore_id);
     }
 
     return 0;
@@ -624,7 +624,7 @@ int Vdc::del_datastore(int zone_id, int datastore_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        del_datastore_rules(*it, datastore_id, zone_id);
+        del_datastore_rules(*it, zone_id, datastore_id);
     }
 
     return 0;
@@ -652,7 +652,7 @@ int Vdc::add_vnet(int zone_id, int vnet_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        add_vnet_rules(*it, vnet_id, zone_id);
+        add_vnet_rules(*it, zone_id, vnet_id);
     }
 
     return 0;
@@ -676,7 +676,7 @@ int Vdc::del_vnet(int zone_id, int vnet_id, string& error_msg)
 
     for (it = groups.begin(); it != groups.end(); it++)
     {
-        del_vnet_rules(*it, vnet_id, zone_id);
+        del_vnet_rules(*it, zone_id, vnet_id);
     }
 
     return 0;
@@ -685,7 +685,7 @@ int Vdc::del_vnet(int zone_id, int vnet_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::add_cluster_rules(int group_id, int cluster_id, int zone_id)
+void Vdc::add_cluster_rules(int group_id, int zone_id, int cluster_id)
 {
     int rc = 0;
     string error_msg;
@@ -747,7 +747,7 @@ void Vdc::add_cluster_rules(int group_id, int cluster_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::del_cluster_rules(int group_id, int cluster_id, int zone_id)
+void Vdc::del_cluster_rules(int group_id, int zone_id, int cluster_id)
 {
     int rc = 0;
     string error_msg;
@@ -809,7 +809,7 @@ void Vdc::del_cluster_rules(int group_id, int cluster_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::add_host_rules(int group_id, int host_id, int zone_id)
+void Vdc::add_host_rules(int group_id, int zone_id, int host_id)
 {
     int rc = 0;
     string error_msg;
@@ -850,7 +850,7 @@ void Vdc::add_host_rules(int group_id, int host_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::del_host_rules(int group_id, int host_id, int zone_id)
+void Vdc::del_host_rules(int group_id, int zone_id, int host_id)
 {
     int rc = 0;
     string error_msg;
@@ -891,7 +891,7 @@ void Vdc::del_host_rules(int group_id, int host_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::add_datastore_rules(int group_id, int ds_id, int zone_id)
+void Vdc::add_datastore_rules(int group_id, int zone_id, int ds_id)
 {
     int rc = 0;
     string error_msg;
@@ -932,7 +932,7 @@ void Vdc::add_datastore_rules(int group_id, int ds_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::del_datastore_rules(int group_id, int ds_id, int zone_id)
+void Vdc::del_datastore_rules(int group_id, int zone_id, int ds_id)
 {
     int rc = 0;
     string error_msg;
@@ -973,7 +973,7 @@ void Vdc::del_datastore_rules(int group_id, int ds_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::add_vnet_rules(int group_id, int vnet_id, int zone_id)
+void Vdc::add_vnet_rules(int group_id, int zone_id, int vnet_id)
 {
     int rc = 0;
     string error_msg;
@@ -1014,7 +1014,7 @@ void Vdc::add_vnet_rules(int group_id, int vnet_id, int zone_id)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Vdc::del_vnet_rules(int group_id, int vnet_id, int zone_id)
+void Vdc::del_vnet_rules(int group_id, int zone_id, int vnet_id)
 {
     int rc = 0;
     string error_msg;
