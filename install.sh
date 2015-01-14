@@ -933,17 +933,22 @@ AUTH_PLAIN_FILES="src/authm_mad/remotes/plain/authenticate"
 # Virtual Network Manager drivers to be installed under $REMOTES_LOCATION/vnm
 #-------------------------------------------------------------------------------
 
-NETWORK_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.rb \
+NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
+               src/vnm_mad/remotes/lib/vnmmad.rb \
                src/vnm_mad/remotes/OpenNebulaNetwork.conf \
-               src/vnm_mad/remotes/Firewall.rb \
-               src/vnm_mad/remotes/SecurityGroups.rb \
-               src/vnm_mad/remotes/IPNetmask.rb \
-               src/vnm_mad/remotes/OpenNebulaNic.rb"
+               src/vnm_mad/remotes/lib/fw_driver.rb \
+               src/vnm_mad/remotes/lib/sg_driver.rb \
+               src/vnm_mad/remotes/lib/address.rb \
+               src/vnm_mad/remotes/lib/command.rb \
+               src/vnm_mad/remotes/lib/vm.rb \
+               src/vnm_mad/remotes/lib/security_groups.rb \
+               src/vnm_mad/remotes/lib/security_groups_iptables.rb \
+               src/vnm_mad/remotes/lib/nic.rb"
 
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
-                    src/vnm_mad/remotes/802.1Q/HostManaged.rb"
+                    src/vnm_mad/remotes/802.1Q/vlan_driver.rb"
 
 NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \
@@ -1220,7 +1225,8 @@ VMM_EXEC_ETC_FILES="src/vmm_mad/exec/vmm_execrc \
                   src/vmm_mad/exec/vmm_exec_kvm.conf \
                   src/vmm_mad/exec/vmm_exec_xen3.conf \
                   src/vmm_mad/exec/vmm_exec_xen4.conf \
-                  src/vmm_mad/exec/vmm_exec_vmware.conf"
+                  src/vmm_mad/exec/vmm_exec_vmware.conf \
+                  src/vmm_mad/exec/vmm_exec_vcenter.conf"
 
 #-------------------------------------------------------------------------------
 # Hook Manager driver config. files, to be installed under $ETC_LOCATION/hm
@@ -1509,8 +1515,9 @@ SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
 SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
                     src/sunstone/etc/sunstone-views/cloud.yaml \
+                    src/sunstone/etc/sunstone-views/cloud_vcenter.yaml \
                     src/sunstone/etc/sunstone-views/vdcadmin.yaml \
-		    src/sunstone/etc/sunstone-views/vcenter.yaml"
+		                src/sunstone/etc/sunstone-views/vcenter.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \

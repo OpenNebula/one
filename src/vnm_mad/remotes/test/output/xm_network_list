@@ -1,3 +1,0 @@
-Idx BE     MAC Addr.     handle state evt-ch tx-/rx-ring-ref BE-path
-0   0  02:00:ac:10:00:cb    0     1      -1    -1   /-1      /local/domain/0/backend/vif/4/0  
-1   0  02:00:c0:a8:00:65    1     1      -1    -1   /-1      /local/domain/0/backend/vif/4/1

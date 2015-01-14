@@ -158,6 +158,15 @@ namespace one_util
      * @return
      */
     std::string float_to_str(const float &num);
+
+    /**
+     * Checks if a strings matches a regular expression
+     *
+     * @param pattern PCRE extended pattern
+     * @param subject the string to test
+     * @return 0 on match, another value otherwise
+     */
+    int regex_match(const char *pattern, const char *subject);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

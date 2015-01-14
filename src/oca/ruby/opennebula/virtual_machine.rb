@@ -43,7 +43,6 @@ module OpenNebula
             :snapshotdelete => "vm.snapshotdelete",
             :attachnic  => "vm.attachnic",
             :detachnic  => "vm.detachnic",
-            :resize     => "vm.resize",
             :recover    => "vm.recover"
         }
 

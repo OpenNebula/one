@@ -87,3 +87,23 @@ get '/vcenter/:datacenter/cluster/:name' do
         error 403, error.to_json
 	end
 end
+
+get '/vcenter/:datacenter/network/:name' do
+    begin
+        rs = vcenter_client.vcenter_networks
+
+        networks = rs[params[:datacenter]]
+        if networks.nil?
+            msg = "Datacenter " + params[:datacenter] + "not found"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
+
+        [200, networks.to_json]
+    rescue Exception => e
+        logger.error("[vCenter] " + e.message)
+        error = Error.new(e.message)
+        error 403, error.to_json
+    end
+end

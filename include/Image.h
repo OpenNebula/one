@@ -374,34 +374,6 @@ public:
     }
 
     /**
-     *  Set permissions for the Image. Extends the PoolSQLObject method
-     *  by checking the persistent state of the image.
-     */
-    int set_permissions(int _owner_u,
-                        int _owner_m,
-                        int _owner_a,
-                        int _group_u,
-                        int _group_m,
-                        int _group_a,
-                        int _other_u,
-                        int _other_m,
-                        int _other_a,
-                        string& error_str)
-    {
-        if ( isPersistent() && (_group_u == 1 || _other_u == 1) )
-        {
-            error_str = "Image cannot be public and persistent.";
-
-            return -1;
-        }
-
-        return PoolObjectSQL::set_permissions(_owner_u, _owner_m, _owner_a,
-                                              _group_u, _group_m, _group_a,
-                                              _other_u, _other_m, _other_a,
-                                              error_str);
-    };
-
-    /**
      *  Set/Unset an image as persistent
      *    @param persistent true to make an image persistent
      *    @param error_str Returns the error reason, if any
@@ -428,11 +400,6 @@ public:
             case DELETE:
                 if (persis == true)
                 {
-                    if ( isPublic() )
-                    {
-                        goto error_public;
-                    }
-
                     persistent_img = 1;
                 }
                 else
@@ -449,10 +416,6 @@ public:
         oss << "Image cannot be in state " << state_to_str(state) << ".";
         error_str = oss.str();
 
-        goto error_common;
-
-    error_public:
-        error_str = "Image cannot be public and persistent.";
         goto error_common;
 
     error_common:

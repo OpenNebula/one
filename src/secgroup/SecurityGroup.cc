@@ -349,6 +349,16 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
         return false;
     }
 
+    if (!value.empty())
+    {
+        const char *range_pattern = "^(([[:digit:]]+|[[:digit:]]+:[[:digit:]]+),)*([[:digit:]]+|[[:digit:]]+:[[:digit:]]+)$";
+        if (one_util::regex_match(range_pattern, value.c_str()) != 0)
+        {
+            error = "Invalid RANGE specification.";
+            return false;
+        }
+    }
+
     value = rule->vector_value("ICMP_TYPE");
 
     if (!value.empty())

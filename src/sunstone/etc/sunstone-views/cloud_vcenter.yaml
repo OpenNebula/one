@@ -1,14 +1,12 @@
 provision_logo: images/one_small_logo.png
 enabled_tabs:
     provision-tab: true
-features:
-    showback: true
 tabs:
     provision-tab:
         panel_tabs:
             users: false
             flows: true
-            templates: true
+            templates: false
         actions:
             Template.chmod: false
             Template.delete: true
@@ -19,5 +17,5 @@ tabs:
             vdcvms: false
             users:  false
         create_vm:
-            capacity_select: true
+            capacity_select: false
             network_select: true

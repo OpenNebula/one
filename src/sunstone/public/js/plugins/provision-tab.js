@@ -557,11 +557,11 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
         '<div class="provision_capacity_selector">'+
         '</div>'+
         '<br>'+
-        '<br>'+
+        '<br>' +
         '<div class="provision_network_selector">'+
         '</div>'+
         '<br>'+
-        '<br>'+
+        '<br>' +
         '<div class="provision_custom_attributes_selector">'+
         '</div>'+
     '</div>'+
@@ -1523,12 +1523,13 @@ var provision_info_vm =
           '<a data-tooltip title="You have to boot the Virtual Machine first" class="left button medium radius white provision_vnc_button_disabled tip-top" style="color: #999">'+
             '<i class="fa fa-fw fa-lg fa-desktop"/> '+
           '</a>'+
-          '<a href"#" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="left button medium radius success provision_snapshot_button tip-top">'+
-            '<i class="fa fa-fw fa-lg fa-save"/> '+
-          '</a>'+
-          '<a data-tooltip title="You have to power-off the virtual machine first" class="left button medium radius white provision_snapshot_button_disabled tip-top" style="color: #999">'+
-            '<i class="fa fa-fw fa-lg fa-save"/> '+
-          '</a>'+
+          (Config.isTabPanelEnabled("provision-tab", "templates") ?
+            '<a href"#" data-tooltip title="The main disk of the Virtual Machine will be saved in a new Image" class="left button medium radius success provision_snapshot_button tip-top">'+
+              '<i class="fa fa-fw fa-lg fa-save"/> '+
+            '</a>'+
+            '<a data-tooltip title="You have to power-off the virtual machine first" class="left button medium radius white provision_snapshot_button_disabled tip-top" style="color: #999">'+
+              '<i class="fa fa-fw fa-lg fa-save"/> '+
+            '</a>' : '') +
         '</li>'+
         '<li class="right">'+
           '<a href"#" data-tooltip title="Delete" class="button medium radius alert provision_delete_confirm_button tip-top right">'+
@@ -1878,9 +1879,12 @@ var provision_content = provision_dashboard +
   provision_user_info +
   provision_create_vm +
   '<div class="provision_vms_list_section hidden section_content">' +
-  '</div>' +
-  '<div class="provision_templates_list_section hidden section_content">' +
   '</div>';
+
+if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+  provision_content += '<div class="provision_templates_list_section hidden section_content">';
+  provision_content += '</div>';
+}
 
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_content += provision_manage_vdc;
@@ -1913,11 +1917,14 @@ if (Config.isTabPanelEnabled("provision-tab", "users")) {
 
 provision_header +=  '<li>'+
       '<a href"#" class="medium off-color provision_vms_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-th"/><br>'+tr("VMs")+'</a>'+
-    '</li>'+
+    '</li>'
+
+if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+  provision_header +=
     '<li>'+
       '<a href"#" class="medium off-color provision_templates_list_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-save"/><br>'+tr("Templates")+'</a>'+
     '</li>';
-
+}
 
 if (Config.isTabPanelEnabled("provision-tab", "flows")) {
   provision_header +=
@@ -2256,6 +2263,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
         '</div>'+
       '</div>'+
     '</div>'+
+    (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
     '<br>'+
     '<br>'+
     '<div class="row">'+
@@ -2292,7 +2300,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
           '</dd>'+
         '</dl>'+
       '</div>'+
-    '</div>'+
+    '</div>' : '' ) +
     '<br>');
 
   var cost = 0;
@@ -2314,118 +2322,120 @@ function generate_provision_instance_type_accordion(context, capacity) {
     $(".provision_create_template_cost_div").hide();
   }
 
-  provision_instance_type_accordion_id += 1;
+  if (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO")) {
+    provision_instance_type_accordion_id += 1;
 
-  var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
-    "iDisplayLength": 6,
-    "sDom" : '<"H">t<"F"lp>',
-    "bSort" : false,
-    "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-    "aoColumnDefs": [
-        { "bVisible": false, "aTargets": ["all"]}
-    ],
-    "aoColumns": [
-        { "mDataProp": "name" }
-    ],
-    "fnPreDrawCallback": function (oSettings) {
-      // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-      if (this.$('tr', {"filter": "applied"} ).length == 0) {
-        this.html('<div class="text-center">'+
-          '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-            '<i class="fa fa-cloud fa-stack-2x"></i>'+
-            '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-          '</span>'+
-          '<br>'+
-          '<br>'+
-          '<span style="font-size: 18px; color: #999">'+
-            tr("There are no instance_types available. Please contact your cloud administrator")+
-          '</span>'+
-          '</div>');
+    var provision_instance_types_datatable = $('.provision_instance_types_table', context).dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "bSort" : false,
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "name" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              tr("There are no instance_types available. Please contact your cloud administrator")+
+            '</span>'+
+            '</div>');
+        } else {
+          $(".provision_instance_types_table", context).html(
+            '<ul class="provision_instance_types_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
+            '</ul>');
+        }
+
+        return true;
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData;
+
+        var li = $('<li>'+
+            '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'">'+
+              '<li class="provision-title" title="'+data.name+'">'+
+                data.name+
+              '</li>'+
+              '<li class="provision-bullet-item">'+
+                '<span style="font-size: 40px">'+
+                '<i class="fa fa-fw fa-laptop"/>&emsp;'+
+                '<span style="vertical-align: middle; font-size:14px">'+
+                  'x'+data.cpu+' - '+
+                  ((data.memory > 1000) ?
+                    (Math.floor(data.memory/1024)+'GB') :
+                    (data.memory+'MB'))+
+                '</span>'+
+                '</span>'+
+              '</li>'+
+              '<li class="provision-description">'+
+                (data.description || '')+
+              '</li>'+
+            '</ul>'+
+          '</li>').appendTo($(".provision_instance_types_ul", context));
+
+        $(".provision-pricing-table", li).data("opennebula", data)
+
+        return nRow;
+      }
+    });
+
+
+    $('.provision-search-input', context).on('keyup',function(){
+      provision_instance_types_datatable.fnFilter( $(this).val() );
+    })
+
+    $('.provision-search-input', context).on('change',function(){
+      provision_instance_types_datatable.fnFilter( $(this).val() );
+    })
+
+    context.on("click", ".provision-pricing-table.only-one" , function(){
+      $(".cpu_value", context).html($(this).attr("cpu"));
+
+      var memory_value;
+      var memory_unit;
+
+      if ($(this).attr("memory") > 1000){
+        memory_value = Math.floor($(this).attr("memory")/1024);
+        memory_unit = "GB";
       } else {
-        $(".provision_instance_types_table", context).html(
-          '<ul class="provision_instance_types_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center">'+
-          '</ul>');
+        memory_value = $(this).attr("memory");
+        memory_unit = "MB";
       }
 
-      return true;
-    },
-    "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-      var data = aData;
+      $(".memory_value", context).html(memory_value);
+      $(".memory_unit", context).html(memory_unit);
 
-      var li = $('<li>'+
-          '<ul class="provision-pricing-table hoverable only-one" cpu="'+data.cpu+'" memory="'+data.memory+'">'+
-            '<li class="provision-title" title="'+data.name+'">'+
-              data.name+
-            '</li>'+
-            '<li class="provision-bullet-item">'+
-              '<span style="font-size: 40px">'+
-              '<i class="fa fa-fw fa-laptop"/>&emsp;'+
-              '<span style="vertical-align: middle; font-size:14px">'+
-                'x'+data.cpu+' - '+
-                ((data.memory > 1000) ?
-                  (Math.floor(data.memory/1024)+'GB') :
-                  (data.memory+'MB'))+
-              '</span>'+
-              '</span>'+
-            '</li>'+
-            '<li class="provision-description">'+
-              (data.description || '')+
-            '</li>'+
-          '</ul>'+
-        '</li>').appendTo($(".provision_instance_types_ul", context));
+      if (Config.isFeatureEnabled("showback")) {
+        var cost = 0;
 
-      $(".provision-pricing-table", li).data("opennebula", data)
+        if ($(".cost_value").data("CPU_COST")) {
+          cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+        }
 
-      return nRow;
-    }
-  });
+        if ($(".cost_value").data("MEMORY_COST")) {
+          cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
+        }
 
-
-  $('.provision-search-input', context).on('keyup',function(){
-    provision_instance_types_datatable.fnFilter( $(this).val() );
-  })
-
-  $('.provision-search-input', context).on('change',function(){
-    provision_instance_types_datatable.fnFilter( $(this).val() );
-  })
-
-  context.on("click", ".provision-pricing-table.only-one" , function(){
-    $(".cpu_value", context).html($(this).attr("cpu"));
-
-    var memory_value;
-    var memory_unit;
-
-    if ($(this).attr("memory") > 1000){
-      memory_value = Math.floor($(this).attr("memory")/1024);
-      memory_unit = "GB";
-    } else {
-      memory_value = $(this).attr("memory");
-      memory_unit = "MB";
-    }
-
-    $(".memory_value", context).html(memory_value);
-    $(".memory_unit", context).html(memory_unit);
-
-    if (Config.isFeatureEnabled("showback")) {
-      var cost = 0;
-
-      if ($(".cost_value").data("CPU_COST")) {
-        cost += $(this).attr("cpu") * $(".cost_value").data("CPU_COST")
+        $(".cost_value").html(cost);
       }
 
-      if ($(".cost_value").data("MEMORY_COST")) {
-        cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
-      }
+      $('.accordion a', context).first().trigger("click");
+    })
 
-      $(".cost_value").html(cost);
-    }
+    $(document).foundation();
 
-    $('.accordion a', context).first().trigger("click");
-  })
-
-  $(document).foundation();
-
-  update_provision_instance_types_datatable(provision_instance_types_datatable);
+    update_provision_instance_types_datatable(provision_instance_types_datatable);
+  }
 }
 
 var provision_nic_accordion_id = 0;
@@ -3018,9 +3028,11 @@ function show_provision_create_vm() {
   provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
   provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
 
-  update_provision_templates_datatable(provision_saved_templates_datatable);
-  provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-  provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
+  if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    update_provision_templates_datatable(provision_saved_templates_datatable);
+    provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
+    provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
+  }
 
   $(".provision_accordion_template .selected_template").hide();
   $(".provision_accordion_template .select_template").show();
@@ -3827,33 +3839,69 @@ function setup_info_vm(context) {
     })
   }
 
-  context.on("click", ".provision_snapshot_button", function(){
-    $(".provision_confirm_action:first", context).html(
-      '<div data-alert class="alert-box secondary radius">'+
-        '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<span style="font-size: 14px; line-height: 20px">'+
-              tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
-            '<br>'+
-              tr("You can then create a new Virtual Machine using this Template")+
-            '</span>'+
+  if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    context.on("click", ".provision_snapshot_button", function(){
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+            '<div class="large-12 columns">'+
+              '<span style="font-size: 14px; line-height: 20px">'+
+                tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+              '<br>'+
+                tr("You can then create a new Virtual Machine using this Template")+
+              '</span>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-11 large-centered columns">'+
-            '<input type="text" class="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns">'+
+              '<input type="text" class="provision_snapshot_name" placeholder="'+tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-11 large-centered columns">'+
-            '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
+          '<br>'+
+          '<div class="row">'+
+            '<div class="large-11 large-centered columns">'+
+              '<a href"#" class="provision_snapshot_create_button success button large-12 radius right">'+tr("Save Virtual Machine to Template")+'</a>'+
+            '</div>'+
           '</div>'+
-        '</div>'+
-        '<a href="#" class="close" style="top: 20px">&times;</a>'+
-      '</div>');
-  });
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+    });
+
+    context.on("click", ".provision_snapshot_create_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+      var context = $(".provision_info_vm[vm_id]");
+
+      var vm_id = context.attr("vm_id");
+      var image_name = $('.provision_snapshot_name', context).val();
+
+      OpenNebula.VM.saveas({
+        data : {
+          id: vm_id,
+          extra_param: {
+            disk_id : "0",
+            image_name : image_name,
+            type: "",
+            clonetemplate: true,
+            hot: true
+          }
+        },
+        success: function(request, response){
+          OpenNebula.Helper.clear_cache("VMTEMPLATE");
+          notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
+          update_provision_vm_info(vm_id, context);
+          button.removeAttr("disabled");
+        },
+        error: function(request, response){
+          onError(request, response);
+          button.removeAttr("disabled");
+        }
+      })
+
+      return false;
+    });
+  }
 
   context.on("click", ".provision_delete_confirm_button", function(){
     $(".provision_confirm_action:first", context).html(
@@ -3953,40 +4001,6 @@ function setup_info_vm(context) {
         '</div>'+
         '<a href="#" class="close" style="top: 20px">&times;</a>'+
       '</div>');
-  });
-
-  context.on("click", ".provision_snapshot_create_button", function(){
-    var button = $(this);
-    button.attr("disabled", "disabled");
-    var context = $(".provision_info_vm[vm_id]");
-
-    var vm_id = context.attr("vm_id");
-    var image_name = $('.provision_snapshot_name', context).val();
-
-    OpenNebula.VM.saveas({
-      data : {
-        id: vm_id,
-        extra_param: {
-          disk_id : "0",
-          image_name : image_name,
-          type: "",
-          clonetemplate: true,
-          hot: true
-        }
-      },
-      success: function(request, response){
-        OpenNebula.Helper.clear_cache("VMTEMPLATE");
-        notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
-        update_provision_vm_info(vm_id, context);
-        button.removeAttr("disabled");
-      },
-      error: function(request, response){
-        onError(request, response);
-        button.removeAttr("disabled");
-      }
-    })
-
-    return false;
   });
 
   context.on("click", ".provision_delete_button", function(){
@@ -4289,14 +4303,11 @@ function setup_provision_vms_list(context, opts) {
   });
 
   $(".provision_list_vms_filter", context).on("change", ".resource_list_select", function(){
-    var filter;
-    if ($(this).val() == "-2"){
-      filter = "";
+    if ($(this).val() != "-2"){
+      provision_vms_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
     } else {
-      filter = $(this).val();
+      provision_vms_datatable.fnFilterClear();
     }
-
-    provision_vms_datatable.fnFilter( filter, 2 );
   })
 
   insertSelectOptions(
@@ -4446,14 +4457,11 @@ function setup_provision_templates_list(context, opts) {
   });
 
   $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
-    var filter;
-    if ($(this).val() == "-2"){
-      filter = "";
+    if ($(this).val() != "-2"){
+      provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
     } else {
-      filter = $(this).val();
+      provision_templates_datatable.fnFilterClear();
     }
-
-    provision_templates_datatable.fnFilter( filter, 3 );
   })
 
   insertSelectOptions(
@@ -5165,14 +5173,11 @@ function setup_provision_flows_list(context, opts){
   });
 
   $(".provision_list_flows_filter", context).on("change", ".resource_list_select", function(){
-    var filter;
-    if ($(this).val() == "-2"){
-      filter = "";
+    if ($(this).val() != "-2"){
+      provision_flows_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
     } else {
-      filter = $(this).val();
+      provision_flows_datatable.fnFilterClear();
     }
-
-    provision_flows_datatable.fnFilter( filter, 2 );
   })
 
   insertSelectOptions(
@@ -5939,7 +5944,11 @@ $(document).ready(function(){
     })
 
     generate_provision_vms_list($(".provision_vms_list_section"), {active: true});
-    generate_provision_templates_list($(".provision_templates_list_section"), {active: true});
+
+    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+      generate_provision_templates_list($(".provision_templates_list_section"), {active: true});
+    }
+
     // TODO check if active
     generate_provision_flows_list($(".provision_flows_list_section"), {active: true});
     generate_provision_users_list($(".provision_users_list_section"), {active: true});
@@ -6282,15 +6291,19 @@ $(document).ready(function(){
           $(".provision_capacity_selector", create_vm_context),
           template_json.VMTEMPLATE.TEMPLATE);
 
-        generate_provision_network_accordion(
-          $(".provision_network_selector", create_vm_context));
+        if (Config.provision.create_vm.isEnabled("network_select") && (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO")) {
+          generate_provision_network_accordion(
+            $(".provision_network_selector", create_vm_context));
 
-        $.each(nics, function(index, nic){
-            generate_provision_network_table(
-              $(".provision_nic_accordion", create_vm_context),
-              nic);
-        })
-
+          $.each(nics, function(index, nic){
+              generate_provision_network_table(
+                $(".provision_nic_accordion", create_vm_context),
+                nic);
+          })
+        } else {
+          $(".provision_network_selector", create_vm_context).html("");
+        }
+        
         if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
           generate_custom_attrs(
             $(".provision_custom_attributes_selector", create_vm_context),
