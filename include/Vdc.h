@@ -248,6 +248,13 @@ private:
     }
 
     /**
+     *  Drops the Vdc from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int drop(SqlDB *db);
+
+    /**
      *  Factory method for Vdc templates
      */
     Template * get_new_template() const

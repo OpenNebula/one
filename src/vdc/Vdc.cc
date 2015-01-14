@@ -181,6 +181,28 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int Vdc::drop(SqlDB * db)
+{
+    set<int>::const_iterator it;
+    int rc;
+    string error_msg;
+
+    rc = PoolObjectSQL::drop(db);
+
+    if ( rc == 0 )
+    {
+        for (it = groups.begin(); it != groups.end(); it++)
+        {
+            del_group(*it, error_msg);
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 string& Vdc::to_xml(string& xml) const
 {
     ostringstream   oss;
