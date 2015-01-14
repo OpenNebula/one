@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        */
+/* Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,7 +31,7 @@ using namespace std;
 
 static void print_license()
 {
-    cout<< "Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs\n\n"
+    cout<< "Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs\n\n"
         << Nebula::version() << " is distributed and licensed for use under the"
         << " terms of the\nApache License, Version 2.0 "
         << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
