@@ -28,8 +28,8 @@ require 'opennebula'
 include OpenNebula
 
 module OneDBImportSlave
-    VERSION = "4.6.0"
-    LOCAL_VERSION = "4.9.80"
+    VERSION = "4.11.80"
+    LOCAL_VERSION = "4.11.80"
 
     def check_db_version(master_db_version, slave_db_version)
         if ( master_db_version[:version] != VERSION ||
@@ -61,11 +61,12 @@ EOT
         "OpenNebula #{VERSION}"
     end
 
-    def import_slave(slave_backend, merge_users, merge_groups, zone_id)
+    def import_slave(slave_backend, merge_users, merge_groups, merge_vdcs, zone_id)
 
         users       = Hash.new
         user_names  = Hash.new
         groups      = Hash.new
+        vdcs        = Hash.new
 
         @slave_db = slave_backend.db
 
@@ -101,10 +102,11 @@ EOT
 
         last_user_oid   = last_oid("user_pool")
         last_group_oid  = last_oid("group_pool")
+        last_vdc_oid    = last_oid("vdc_pool")
         last_acl_oid    = last_oid("acl")
 
         ########################################################################
-        # Calculate new IDs and names for users and groups
+        # Calculate new IDs and names for users, groups, and vdcs
         ########################################################################
 
         log(<<-EOT
@@ -235,6 +237,69 @@ EOT
         end
 
         log("")
+        log(<<-EOT
+VDCs will be moved from the slave DB to the master DB. They will need
+a new ID and name.
+Old Slave ID name  =>  New Master ID name
+
+EOT
+            )
+
+        @slave_db.fetch("SELECT oid, name FROM vdc_pool") do |row|
+            found = false
+            new_oid = -1
+
+            master_oid = nil
+            master_name = nil
+
+            @db.fetch("SELECT oid, name FROM vdc_pool "<<
+                      "WHERE name = '#{row[:name]}'") do |row_master|
+
+                found = true
+
+                if (merge_vdcs)
+                    master_oid = row_master[:oid]
+                    master_name = row_master[:name]
+                end
+            end
+
+            merged = false
+
+            if found
+                if merge_vdcs
+                    new_oid  = master_oid
+                    new_name = master_name
+                    merged   = true
+                else
+                    new_oid  = last_vdc_oid += 1
+
+                    i = 1
+
+                    begin
+                        found = false
+
+                        new_name = "#{row[:name]}-#{i}"
+                        i += 1
+
+                        @db.fetch("SELECT oid, name FROM vdc_pool "<<
+                                "WHERE name = '#{new_name}'") do |row_master|
+                            found = true
+                        end
+
+                    end while found
+                end
+            else
+                new_oid  = last_vdc_oid += 1
+                new_name = row[:name]
+            end
+
+            log("%4s %-16s  =>  %4s %-16s" % [row[:oid], row[:name], new_oid, new_name])
+
+            vdcs[row[:oid]] =
+                {:oid => new_oid, :name => new_name, :merged => merged}
+        end
+
+        log("")
 
         ########################################################################
         # Change ownership IDs and names for resources
@@ -254,6 +319,9 @@ EOT
         
         @slave_db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         @slave_db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @slave_db.run "ALTER TABLE secgroup_pool RENAME TO old_secgroup_pool;"
+        @slave_db.run "CREATE TABLE secgroup_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid));"
 
         @slave_db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
         @slave_db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
@@ -514,6 +582,107 @@ EOT
         end
 
         ########################################################################
+        # Move VDCs from slave to master DB, merge if neccessary
+        ########################################################################
+
+        @db.transaction do
+            @slave_db.fetch("SELECT * FROM vdc_pool") do |row|
+                new_vdc = vdcs[row[:oid]]
+
+                slave_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+
+                if new_vdc[:merged]
+                    master_doc = nil
+
+                    @db.fetch("SELECT body from vdc_pool "<<
+                              "WHERE oid=#{new_vdc[:oid]}") do |master_row|
+                        master_doc = Nokogiri::XML(master_row[:body]){|c| c.default_xml.noblanks}
+                    end
+
+                    slave_groups_elem  = slave_doc.root.at_xpath("GROUPS")
+                    master_groups_elem = master_doc.root.at_xpath("GROUPS")
+
+                    slave_groups_elem.xpath("ID").each do |id|
+                        group = groups[id.text.to_i]
+
+                        if !group.nil?
+                            group_id = group[:oid]
+
+                            if master_groups_elem.at_xpath("ID [.=#{group_id}]").nil?
+                                master_groups_elem.add_child(
+                                    master_doc.create_element("ID")).content = group_id
+                            end
+                        end
+                    end
+
+                    slave_template  = slave_doc.root.at_xpath("TEMPLATE")
+                    master_template = master_doc.root.at_xpath("TEMPLATE")
+
+                    # Avoid duplicated template attributes, removing
+                    # them from the slave template
+                    master_template.children.each do |e|
+                        if slave_template.at_xpath(e.name)
+                            slave_template.at_xpath(e.name).remove
+                        end
+                    end
+
+                    # Add slave template attributes to master template
+                    master_template << slave_template.children
+
+                    # Merge resources
+                    ["CLUSTER", "HOST", "VNET", "DATASTORE"].each do |resource|
+                        slave_doc.root.xpath("#{resource}S/#{resource}").each do |elem|
+                            # Zone ID must be 0, will be changed to the target ID
+                            elem.at_xpath("ZONE_ID").content = zone_id
+
+                            master_doc.root.at_xpath("#{resource}S") << elem
+                        end
+                    end
+
+                    @db[:vdc_pool].where(:oid => new_vdc[:oid]).update(
+                        :body => master_doc.root.to_s)
+                else
+                    slave_doc.root.at_xpath("ID").content    = new_vdc[:oid]
+                    slave_doc.root.at_xpath("NAME").content  = new_vdc[:name]
+
+                    groups_elem = slave_doc.root.at_xpath("GROUPS")
+                    groups_elem.remove
+
+                    new_elem = slave_doc.create_element("GROUPS")
+
+                    groups_elem.xpath("ID").each do |id|
+                        group = groups[id.text.to_i]
+
+                        if !group.nil?
+                            new_elem.add_child(slave_doc.create_element("ID")).
+                                content = group[:oid]
+                        end
+                    end
+
+                    slave_doc.root.add_child(new_elem)
+
+                    # Merge resources
+                    ["CLUSTER", "HOST", "VNET", "DATASTORE"].each do |resource|
+                        slave_doc.root.xpath("#{resource}S/#{resource}").each do |elem|
+                            # Zone ID must be 0, will be changed to the target ID
+                            elem.at_xpath("ZONE_ID").content = zone_id
+                        end
+                    end
+
+                    @db[:vdc_pool].insert(
+                        :oid        => new_vdc[:oid],
+                        :name       => new_vdc[:name],
+                        :body       => slave_doc.root.to_s,
+                        :uid        => row[:uid],
+                        :gid        => row[:gid],
+                        :owner_u    => row[:owner_u],
+                        :group_u    => row[:group_u],
+                        :other_u    => row[:other_u])
+                end
+            end
+        end
+
+        ########################################################################
         # Move ACL Rules from slave to master DB
         ########################################################################
 
@@ -651,12 +820,14 @@ EOT
         @slave_db.run "DROP TABLE old_network_pool;"
         @slave_db.run "DROP TABLE old_template_pool;"
         @slave_db.run "DROP TABLE old_vm_pool;"
+        @slave_db.run "DROP TABLE old_secgroup_pool;"
 
         @slave_db.run "DROP TABLE old_group_quotas;"
         @slave_db.run "DROP TABLE old_user_quotas;"
 
         @slave_db.run "DROP TABLE user_pool;"
         @slave_db.run "DROP TABLE group_pool;"
+        @slave_db.run "DROP TABLE vdc_pool;"
         @slave_db.run "DROP TABLE zone_pool;"
         @slave_db.run "DROP TABLE db_versioning;"
         @slave_db.run "DROP TABLE acl;"
@@ -903,5 +1074,39 @@ EOT
                 :group_u    => row[:group_u],
                 :other_u    => row[:other_u])
         end
+
+        db.fetch("SELECT * FROM old_secgroup_pool") do |row|
+            new_user = users[row[:uid]]
+            new_group = groups[row[:gid]]
+
+            if (new_user.nil?)
+                new_user = users[0]
+                log("User ##{row[:uid]} does not exist anymore. Security Group ##{row[:oid]} will be assigned to user ##{new_user[:oid]}, #{new_user[:name]}")
+            end
+
+            if (new_group.nil?)
+                new_group = groups[0]
+                log("Group ##{row[:gid]} does not exist anymore. Security Group ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
+            end
+
+            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+
+            doc.root.at_xpath("UID").content    = new_user[:oid]
+            doc.root.at_xpath("UNAME").content  = new_user[:name]
+
+            doc.root.at_xpath("GID").content    = new_group[:oid]
+            doc.root.at_xpath("GNAME").content  = new_group[:name]
+
+            db[:secgroup_pool].insert(
+                :oid        => row[:oid],
+                :name       => row[:name],
+                :body       => doc.root.to_s,
+                :uid        => new_user[:oid],
+                :gid        => new_group[:oid],
+                :owner_u    => row[:owner_u],
+                :group_u    => row[:group_u],
+                :other_u    => row[:other_u])
+        end
+
     end
 end

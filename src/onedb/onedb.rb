@@ -399,6 +399,15 @@ is preserved.
             end
 
             merge_groups = input == "Y"
+            puts
+
+            input = ""
+            while !( ["Y", "N"].include?(input) ) do
+                print "Do you want to merge VDCS (Y/N): "
+                input = gets.chomp.upcase
+            end
+
+            merge_vdcs = input == "Y"
 
             # Import will be executed, make DB backup
             backup(ops[:backup], ops)
@@ -408,7 +417,7 @@ is preserved.
                 puts "  > Running slave import" if ops[:verbose]
 
                 result = @backend.import_slave(slave_backend, merge_users,
-                    merge_groups, zone_id)
+                    merge_groups, merge_vdcs, zone_id)
 
                 if !result
                     raise "Error running slave import"
