@@ -106,6 +106,11 @@ var create_acl_tmpl =
                 <input type="checkbox" id="res_secgroup" name="res_secgroup" class="resource_cb" value="SECGROUP"><label for="res_secgroup">'+tr("Security Groups")+'</label>\
             </div>\
         </div>\
+        <div class="row">\
+            <div class="large-3 columns">\
+                <input type="checkbox" id="res_vdc" name="res_vdc" class="resource_cb" value="VDC"><label for="res_vdc">'+tr("VDCs")+'</label>\
+            </div>\
+        </div>\
         </fieldset>\
         <fieldset>\
             <legend>'+tr("Resource subset")+'</legend>\
@@ -407,6 +412,9 @@ function parseAclString(string) {
             break;
         case "SECGROUP":
             resources_str+=tr("Security Groups")+", ";
+            break;
+        case "VDC":
+            resources_str+=tr("VDCs")+", ";
             break;
         };
     };
