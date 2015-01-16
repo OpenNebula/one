@@ -7329,13 +7329,30 @@ function setupResourceTableSelect(section, context_id, options) {
         $(section).on("click", '#selected_ids_row_'+context_id+' span.fa.fa-times', function() {
             var row_id = $(this).parent("span").attr('row_id');
 
+            var found = false;
+
             // TODO: improve preformance, linear search
             $.each(dataTable_select.fnGetData(), function(index, row){
                 if(row[options.id_index] == row_id){
+                    found = true;
                     row_click(dataTable_select.fnGetNodes(index), row);
                     return false;
                 }
             });
+
+            if (!found){
+                var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+                delete ids[row_id];
+                $('#selected_ids_row_'+context_id+' span[row_id="'+row_id+'"]', section).remove();
+
+                if ($.isEmptyObject(ids)){
+                    $('#selected_resource_multiple_'+context_id, section).hide();
+                    $('#select_resource_multiple_'+context_id, section).show();
+                } else {
+                    $('#selected_resource_multiple_'+context_id, section).show();
+                    $('#select_resource_multiple_'+context_id, section).hide();
+                }
+            }
 
         });
     }
