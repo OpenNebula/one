@@ -727,7 +727,7 @@ var security_groups_tab = {
     buttons: security_group_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    search_input: '<input id="security_group_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="security_group_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-shield"></i>&emsp;'+tr("Security Groups"),
     info_header: '<i class="fa fa-fw fa-shield"></i>&emsp;'+tr("Security Group"),
     subheader: '<span/> <small></small>&emsp;',

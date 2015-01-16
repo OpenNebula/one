@@ -438,7 +438,7 @@ var groups_tab = {
     buttons: group_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
-    search_input: '<input id="group_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="group_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Groups"),
     info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Group"),
     subheader: '<span>\

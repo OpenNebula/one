@@ -435,7 +435,7 @@ var hosts_tab = {
     buttons: host_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    search_input: '<input id="hosts_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="hosts_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-hdd-o "></i>&emsp;'+tr("Hosts"),
     info_header: '<i class="fa fa-fw fa-hdd-o "></i>&emsp;'+tr("Host"),
     subheader: '<span class="total_hosts"/> <small>'+tr("TOTAL")+'</small>&emsp;\

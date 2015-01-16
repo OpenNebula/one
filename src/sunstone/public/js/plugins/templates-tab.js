@@ -259,7 +259,7 @@ if (Config.isTemplateCreationTabEnabled('os_booting')){
           '<a id="refresh_kernel_table" href="#" class="refresh button small radius secondary"><i class="fa fa-refresh" /></a>' +
         '</div>' +
         '<div class="large-4 columns">'+
-          '<input id="kernel_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
+          '<input id="kernel_search" type="search" class="search" placeholder="'+tr("Search")+'"/>'+
         '</div>'+
       '</div>'+
       '<div class="row">'+
@@ -326,7 +326,7 @@ if (Config.isTemplateCreationTabEnabled('os_booting')){
           '<a id="refresh_ramdisk_table" href="#" class="refresh button small radius secondary"><i class="fa fa-refresh" /></a>' +
         '</div>' +
         '<div class="large-4 columns">'+
-          '<input id="initrd_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
+          '<input id="initrd_search" type="search" class="search" placeholder="'+tr("Search")+'"/>'+
         '</div>'+
       '</div>'+
       '<div class="row">'+
@@ -617,7 +617,7 @@ if (Config.isTemplateCreationTabEnabled('context')){
              '<a id="refresh_context_table" href="#" class="refresh button small radius secondary"><i class="fa fa-refresh" /></a>' +
           '</div>' +
           '<div class="large-4 columns">'+
-            '<input id="files_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
+            '<input id="files_search" type="search" class="search" placeholder="'+tr("Search")+'"/>'+
           '</div>'+
         '</div>'+
         '<div class="row">'+
@@ -766,7 +766,7 @@ if (Config.isTemplateCreationTabEnabled('scheduling')){
                      '<a id="refresh_hosts_placement" href="#" class="refresh button small radius secondary"><i class="fa fa-refresh" /></a>' +
                   '</div>' +
                   '<div class="large-4 columns">'+
-                    '<input id="hosts_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
+                    '<input id="hosts_search" type="search" class="search" placeholder="'+tr("Search")+'"/>'+
                   '</div>'+
                 '</div>'+
                 '<div class="row">'+
@@ -807,7 +807,7 @@ if (Config.isTemplateCreationTabEnabled('scheduling')){
                      '<a id="refresh_clusters_placement" href="#" class="refresh button small radius secondary"><i class="fa fa-refresh" /></a>' +
                   '</div>' +
                   '<div class="large-4 columns">'+
-                    '<input id="clusters_search" type="text" class="search" placeholder="'+tr("Search")+'"/>'+
+                    '<input id="clusters_search" type="search" class="search" placeholder="'+tr("Search")+'"/>'+
                   '</div>'+
                 '</div>'+
                 '<div class="row">'+
@@ -1652,7 +1652,7 @@ var templates_tab = {
     buttons: template_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',
-    search_input: '<input id="template_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="template_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("Templates"),
     info_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("Template"),
     subheader: '<span/> <small></small>&emsp;</span>',

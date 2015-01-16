@@ -6810,7 +6810,7 @@ function generateResourceTableSelect(context_id, columns, options){
          <a id="refresh_button_'+context_id+'" href="#" class="button small radius secondary"><i class="fa fa-refresh" /></a>\
       </div>\
       <div class="large-4 columns">\
-        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+        <input id="'+context_id+'_search" class="search" type="search" placeholder="'+tr("Search")+'"/>\
       </div>\
     </div>\
     <div class="row">\

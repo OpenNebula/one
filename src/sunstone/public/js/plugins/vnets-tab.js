@@ -619,7 +619,7 @@ var vnets_tab = {
     buttons: vnet_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    search_input: '<input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="vnet_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Networks"),
     info_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Network"),
     subheader: '<span class="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\

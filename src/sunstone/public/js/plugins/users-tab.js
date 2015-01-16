@@ -399,7 +399,7 @@ var users_tab = {
     buttons: user_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
-    search_input: ' <input id="user_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: ' <input id="user_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-user"></i>&emsp;'+tr("Users"),
     info_header: '<i class="fa fa-fw fa-user"></i>&emsp;'+tr("User"),
     subheader: '<span>\

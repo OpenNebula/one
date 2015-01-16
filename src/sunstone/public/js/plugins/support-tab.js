@@ -242,7 +242,7 @@ var support_tab = {
         </tbody>\
       </table>',
     buttons: support_buttons,
-    search_input: '<input id="support_search" type="text" placeholder="Search" />',
+    search_input: '<input id="support_search" type="search" placeholder="Search" />',
     list_header: '<i class="fa fa-fw fa-support"></i> Commercial Support Requests',
     info_header: '<i class="fa fa-fw fa-support"></i> Commercial Support Request',
     subheader: '<div class="row text-left support_connect">'+

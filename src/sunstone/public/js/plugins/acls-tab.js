@@ -260,7 +260,7 @@ var acls_tab = {
     buttons: acl_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
-    search_input: '<input id="acl_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="acl_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-key"></i>&emsp;'+tr("Access Control Lists"),
     subheader: '<span/><small></small>&emsp;',
     table: '<table id="datatable_acls" class="dataTable">\

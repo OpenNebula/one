@@ -553,7 +553,7 @@ var datastores_tab = {
     buttons: datastore_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    search_input: '<input id="datastore_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="datastore_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("Datastores"),
     info_header: '<i class="fa fa-fw fa-folder-open"></i>&emsp;'+tr("Datastore"),
     subheader: '<span/> <small></small>&emsp;',

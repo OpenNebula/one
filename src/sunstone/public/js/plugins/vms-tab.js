@@ -942,7 +942,7 @@ var vms_tab = {
     buttons: vm_buttons,
     tabClass: 'subTab',
     parentTab: 'vresources-tab',
-    search_input: '<input id="vms_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="vms_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Virtual Machines"),
     info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("VM"),
     subheader: '<span class="total_vms"/> <small>'+tr("TOTAL")+'</small>&emsp;\
