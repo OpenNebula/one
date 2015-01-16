@@ -262,6 +262,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vnm \
           $VAR_LOCATION/remotes/vnm/802.1Q \
+          $VAR_LOCATION/remotes/vnm/vxlan \
           $VAR_LOCATION/remotes/vnm/dummy \
           $VAR_LOCATION/remotes/vnm/ebtables \
           $VAR_LOCATION/remotes/vnm/fw \
@@ -449,6 +450,7 @@ INSTALL_FILES=(
     DATASTORE_DRIVER_DEV_SCRIPTS:$VAR_LOCATION/remotes/datastore/dev
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_8021Q_FILES:$VAR_LOCATION/remotes/vnm/802.1Q
+    NETWORK_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/vxlan
     NETWORK_DUMMY_FILES:$VAR_LOCATION/remotes/vnm/dummy
     NETWORK_EBTABLES_FILES:$VAR_LOCATION/remotes/vnm/ebtables
     NETWORK_FW_FILES:$VAR_LOCATION/remotes/vnm/fw
@@ -940,6 +942,7 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
                src/vnm_mad/remotes/lib/address.rb \
                src/vnm_mad/remotes/lib/command.rb \
                src/vnm_mad/remotes/lib/vm.rb \
+               src/vnm_mad/remotes/lib/vlan.rb \
                src/vnm_mad/remotes/lib/security_groups.rb \
                src/vnm_mad/remotes/lib/security_groups_iptables.rb \
                src/vnm_mad/remotes/lib/nic.rb"
@@ -947,7 +950,13 @@ NETWORK_FILES="src/vnm_mad/remotes/lib/vnm_driver.rb \
 NETWORK_8021Q_FILES="src/vnm_mad/remotes/802.1Q/clean \
                     src/vnm_mad/remotes/802.1Q/post \
                     src/vnm_mad/remotes/802.1Q/pre \
-                    src/vnm_mad/remotes/802.1Q/vlan_driver.rb"
+                    src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb"
+
+NETWORK_VXLAN_FILES="src/vnm_mad/remotes/vxlan/clean \
+                    src/vnm_mad/remotes/vxlan/post \
+                    src/vnm_mad/remotes/vxlan/pre \
+                    src/vnm_mad/remotes/vxlan/vxlan_driver.rb"
+
 
 NETWORK_DUMMY_FILES="src/vnm_mad/remotes/dummy/clean \
                     src/vnm_mad/remotes/dummy/post \

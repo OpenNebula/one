@@ -14,23 +14,38 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-################################################################################
-# General Options
-################################################################################
-
-# Configure the initial VLAN ID tag (corresponds to vnet ID = 0)
-:start_vlan: 2
+require 'vnmmad'
 
 ################################################################################
-# Open vSwitch Options
+# This driver tag VM traffic with a VLAN_ID using 802.1Q protocol. Features:
+#   - Creates a bridge and bind phisycal device if not present
+#   - Creates a tagged interface for the VM dev.vlan_id
+#
+# Once activated the VM will be attached to this bridge 
 ################################################################################
+class VLANTagDriver < VNMMAD::VLANDriver
 
-# Enable ARP Cache Poisoning Prevention Rules
-:arp_cache_poisoning: true
+    # DRIVER name and XPATH for relevant NICs
+    DRIVER       = "802.1Q"
+    XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
-################################################################################
-# VXLAN Options
-################################################################################
+    ############################################################################
+    # Creatges the driver device operations are not locked
+    ############################################################################
+    def initialize(vm, deploy_id = nil, hypervisor = nil)
+        @locking = false
 
-# Base multicast address for each VLAN. The mc address is :vxlan_mc + :vlan_id
-:vxlan_mc: 239.0.0.0
+        super(vm, XPATH_FILTER, deploy_id, hypervisor)
+    end
+
+    ############################################################################
+    # This function creates and activate a VLAN device
+    ############################################################################
+    def create_vlan_dev(options)
+        OpenNebula.exec_and_log("#{command(:ip)} link add link"\
+            " #{options[:phydev]} name #{options[:vlan_dev]} type vlan id"\
+            " #{options[:vlan_id]}")
+
+        OpenNebula.exec_and_log("#{command(:ip)} link set #{options[:vlan_dev]} up")
+    end
+end
