@@ -1331,9 +1331,7 @@ function setupCreateHostDialog(){
     $create_host_dialog.foundation()
 
     $("#wizard_host_reset_button", $create_host_dialog).on("click", function(){
-      $('#create_host_dialog').html("");
-      setupCreateHostDialog();
-      popUpCreateHostDialog();
+      resetCreateHostDialog();
     })
 
     $(".drivers", $create_host_dialog).hide();
@@ -1736,20 +1734,25 @@ function setupCreateHostDialog(){
     });
 }
 
+function resetCreateHostDialog(){
+  $create_host_dialog.empty();
+  setupCreateHostDialog();
+
+  $create_host_dialog = $('div#create_host_dialog');
+
+  var cluster_id = $('#host_cluster_id .resource_list_select', $create_host_dialog).val();
+  if (!cluster_id) cluster_id = "-1";
+
+  insertSelectOptions('#host_cluster_id', $create_host_dialog, "Cluster", cluster_id, false);
+  $("input#name", $create_host_dialog).focus();
+  return false;
+}
+
 //Open creation dialogs
 function popUpCreateHostDialog(){
-    $create_host_dialog.foundation('reveal', 'close');
-    $create_host_dialog.empty();
-    setupCreateHostDialog();
-
-    var cluster_id = $('#host_cluster_id .resource_list_select',$('div#create_host_dialog')).val();
-    if (!cluster_id) cluster_id = "-1";
-
-    insertSelectOptions('#host_cluster_id',$('div#create_host_dialog'), "Cluster", cluster_id, false);
-
-    $("#create_host_dialog").foundation('reveal', 'open');
-    $("input#name",$("#create_host_dialog")).focus();
-    return false;
+  resetCreateHostDialog();
+  $create_host_dialog.foundation('reveal', 'open');
+  return false;
 }
 
 // Call back when individual host history monitoring fails
