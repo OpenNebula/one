@@ -187,6 +187,9 @@ private:
     set<pair<int,int> > datastores;
     set<pair<int,int> > vnets;
 
+    void add_group_rules(int group);
+    void del_group_rules(int group);
+
     void add_cluster_rules(int group, int zone_id, int cluster_id);
     void del_cluster_rules(int group, int zone_id, int cluster_id);
 

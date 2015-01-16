@@ -185,7 +185,6 @@ int Vdc::drop(SqlDB * db)
 {
     set<int>::const_iterator it;
     int rc;
-    string error_msg;
 
     rc = PoolObjectSQL::drop(db);
 
@@ -193,7 +192,7 @@ int Vdc::drop(SqlDB * db)
     {
         for (it = groups.begin(); it != groups.end(); it++)
         {
-            del_group(*it, error_msg);
+            del_group_rules(*it);
         }
     }
 
@@ -421,8 +420,6 @@ int Vdc::from_xml(const string& xml)
 
 int Vdc::add_group(int group_id, string& error_msg)
 {
-    set<pair<int,int> >::const_iterator it;
-
     pair<set<int>::iterator,bool> ret;
 
     ret = groups.insert(group_id);
@@ -435,25 +432,7 @@ int Vdc::add_group(int group_id, string& error_msg)
         return -1;
     }
 
-    for (it = clusters.begin(); it != clusters.end(); it++)
-    {
-        add_cluster_rules(group_id, it->first, it->second);
-    }
-
-    for (it = hosts.begin(); it != hosts.end(); it++)
-    {
-        add_host_rules(group_id, it->first, it->second);
-    }
-
-    for (it = datastores.begin(); it != datastores.end(); it++)
-    {
-        add_datastore_rules(group_id, it->first, it->second);
-    }
-
-    for (it = vnets.begin(); it != vnets.end(); it++)
-    {
-        add_vnet_rules(group_id, it->first, it->second);
-    }
+    add_group_rules(group_id);
 
     return 0;
 }
@@ -463,8 +442,6 @@ int Vdc::add_group(int group_id, string& error_msg)
 
 int Vdc::del_group(int group_id, string& error_msg)
 {
-    set<pair<int,int> >::const_iterator it;
-
     if( groups.erase(group_id) != 1 )
     {
         ostringstream oss;
@@ -473,25 +450,7 @@ int Vdc::del_group(int group_id, string& error_msg)
         return -1;
     }
 
-    for (it = clusters.begin(); it != clusters.end(); it++)
-    {
-        del_cluster_rules(group_id, it->first, it->second);
-    }
-
-    for (it = hosts.begin(); it != hosts.end(); it++)
-    {
-        del_host_rules(group_id, it->first, it->second);
-    }
-
-    for (it = datastores.begin(); it != datastores.end(); it++)
-    {
-        del_datastore_rules(group_id, it->first, it->second);
-    }
-
-    for (it = vnets.begin(); it != vnets.end(); it++)
-    {
-        del_vnet_rules(group_id, it->first, it->second);
-    }
+    del_group_rules(group_id);
 
     return 0;
 }
@@ -702,6 +661,62 @@ int Vdc::del_vnet(int zone_id, int vnet_id, string& error_msg)
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::add_group_rules(int group_id)
+{
+    set<pair<int,int> >::const_iterator it;
+
+    for (it = clusters.begin(); it != clusters.end(); it++)
+    {
+        add_cluster_rules(group_id, it->first, it->second);
+    }
+
+    for (it = hosts.begin(); it != hosts.end(); it++)
+    {
+        add_host_rules(group_id, it->first, it->second);
+    }
+
+    for (it = datastores.begin(); it != datastores.end(); it++)
+    {
+        add_datastore_rules(group_id, it->first, it->second);
+    }
+
+    for (it = vnets.begin(); it != vnets.end(); it++)
+    {
+        add_vnet_rules(group_id, it->first, it->second);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Vdc::del_group_rules(int group_id)
+{
+    set<pair<int,int> >::const_iterator it;
+
+    for (it = clusters.begin(); it != clusters.end(); it++)
+    {
+        del_cluster_rules(group_id, it->first, it->second);
+    }
+
+    for (it = hosts.begin(); it != hosts.end(); it++)
+    {
+        del_host_rules(group_id, it->first, it->second);
+    }
+
+    for (it = datastores.begin(); it != datastores.end(); it++)
+    {
+        del_datastore_rules(group_id, it->first, it->second);
+    }
+
+    for (it = vnets.begin(); it != vnets.end(); it++)
+    {
+        del_vnet_rules(group_id, it->first, it->second);
+    }
 }
 
 /* ------------------------------------------------------------------------ */
