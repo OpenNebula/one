@@ -6328,16 +6328,21 @@ $(document).ready(function(){
       var template_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
 
       var nics = [];
+      var nic;
       $(".selected_network", context).each(function(){
-        var nic;
         if ($(this).attr("template_nic")) {
           nic = JSON.parse($(this).attr("template_nic"))
-        } else {
+        } else if ($(this).attr("opennebula_id")) {
           nic = {
             'network_id': $(this).attr("opennebula_id")
           }
+        } else {
+          nic = undefined;
         }
-        nics.push(nic);
+
+        if (nic) {
+          nics.push(nic);
+        }
       });
 
       var instance_type = $(".provision_instance_types_ul .selected", context);
