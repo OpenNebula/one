@@ -14,6 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+var VDC_ALL_RESOURCES = "-10";
+
 var create_vdc_wizard_html =
     '<form data-abide="ajax" id="create_vdc_form_wizard" class="custom creation">\
       <div>\
@@ -131,6 +133,9 @@ var vdc_actions = {
                     response.VDC.ID,
                     this);
             });
+
+            // TODO: this vdc.show may get the information before the add/del
+            // actions end, showing "outdated" information
 
             Sunstone.runAction('Vdc.show',request.request.data[0][0]);
 
@@ -780,25 +785,70 @@ function initialize_create_vdc_dialog(dialog) {
             var datastores  = [];
 
             $.each(zone_ids,function(i,zone_id){
-                var selected_clusters = retrieveClusterTableSelect(dialog, "vdc_wizard_clusters_zone_"+this);
-                $.each(selected_clusters,function(j,cluster_id){
-                    clusters.push({zone_id: zone_id, cluster_id: cluster_id});
-                });
 
-                var selected_hosts = retrieveHostTableSelect(dialog, "vdc_wizard_hosts_zone_"+this);
-                $.each(selected_hosts,function(j,host_id){
-                    hosts.push({zone_id: zone_id, host_id: host_id});
-                });
+                switch ($("input[name='radio_cluster_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    clusters.push({zone_id: zone_id, cluster_id: VDC_ALL_RESOURCES});
 
-                var selected_vnets = retrieveVNetTableSelect(dialog, "vdc_wizard_vnets_zone_"+this);
-                $.each(selected_vnets,function(j,vnet_id){
-                    vnets.push({zone_id: zone_id, vnet_id: vnet_id});
-                });
+                    break;
+                case "table":
+                    var selected_clusters = retrieveClusterTableSelect(
+                                    dialog, "vdc_wizard_clusters_zone_"+this);
 
-                var selected_datastores = retrieveDatastoreTableSelect(dialog, "vdc_wizard_datastores_zone_"+this);
-                $.each(selected_datastores,function(j,ds_id){
-                    datastores.push({zone_id: zone_id, ds_id: ds_id});
-                });
+                    $.each(selected_clusters,function(j,cluster_id){
+                        clusters.push({zone_id: zone_id, cluster_id: cluster_id});
+                    });
+
+                    break;
+                }
+
+                switch ($("input[name='radio_host_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    hosts.push({zone_id: zone_id, host_id: VDC_ALL_RESOURCES});
+
+                    break;
+                case "table":
+                    var selected_hosts = retrieveHostTableSelect(
+                                    dialog, "vdc_wizard_hosts_zone_"+this);
+
+                    $.each(selected_hosts,function(j,host_id){
+                        hosts.push({zone_id: zone_id, host_id: host_id});
+                    });
+
+                    break;
+                }
+
+                switch ($("input[name='radio_vnet_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    vnets.push({zone_id: zone_id, vnet_id: VDC_ALL_RESOURCES});
+
+                    break;
+                case "table":
+                    var selected_vnets = retrieveVNetTableSelect(
+                                    dialog, "vdc_wizard_vnets_zone_"+this);
+
+                    $.each(selected_vnets,function(j,vnet_id){
+                        vnets.push({zone_id: zone_id, vnet_id: vnet_id});
+                    });
+
+                    break;
+                }
+
+                switch ($("input[name='radio_datastore_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    datastores.push({zone_id: zone_id, ds_id: VDC_ALL_RESOURCES});
+
+                    break;
+                case "table":
+                    var selected_datastores = retrieveDatastoreTableSelect(
+                                    dialog, "vdc_wizard_datastores_zone_"+this);
+
+                    $.each(selected_datastores,function(j,ds_id){
+                        datastores.push({zone_id: zone_id, ds_id: ds_id});
+                    });
+
+                    break;
+                }
             });
 
             vdc_json = {
@@ -839,10 +889,58 @@ function initialize_create_vdc_dialog(dialog) {
             original_resources = dialog.data("original_resources")
 
             for (var zone_id in original_resources){
-                var selected_clusters   = retrieveClusterTableSelect(dialog, "vdc_wizard_clusters_zone_"+zone_id);
-                var selected_hosts      = retrieveHostTableSelect(dialog, "vdc_wizard_hosts_zone_"+zone_id);
-                var selected_vnets      = retrieveVNetTableSelect(dialog, "vdc_wizard_vnets_zone_"+zone_id);
-                var selected_datastores = retrieveDatastoreTableSelect(dialog, "vdc_wizard_datastores_zone_"+zone_id);
+                var selected_clusters   = [];
+                var selected_hosts      = [];
+                var selected_vnets      = [];
+                var selected_datastores = [];
+
+                switch ($("input[name='radio_cluster_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    selected_clusters = [VDC_ALL_RESOURCES];
+
+                    break;
+                case "table":
+                    selected_clusters = retrieveClusterTableSelect(
+                        dialog, "vdc_wizard_clusters_zone_"+zone_id);
+
+                    break;
+                }
+
+                switch ($("input[name='radio_host_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    selected_hosts = [VDC_ALL_RESOURCES];
+
+                    break;
+                case "table":
+                    selected_hosts = retrieveHostTableSelect(
+                        dialog, "vdc_wizard_hosts_zone_"+zone_id);
+
+                    break;
+                }
+
+                switch ($("input[name='radio_vnet_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    selected_vnets = [VDC_ALL_RESOURCES];
+
+                    break;
+                case "table":
+                    selected_vnets = retrieveVNetTableSelect(
+                        dialog, "vdc_wizard_vnets_zone_"+zone_id);
+
+                    break;
+                }
+
+                switch ($("input[name='radio_datastore_"+zone_id+"']:checked", dialog).val()){
+                case "all":
+                    selected_datastores = [VDC_ALL_RESOURCES];
+
+                    break;
+                case "table":
+                    selected_datastores = retrieveDatastoreTableSelect(
+                        dialog, "vdc_wizard_datastores_zone_"+zone_id);
+
+                    break;
+                }
 
                 var original_clusters   = original_resources[zone_id].clusters_list;
                 var original_hosts      = original_resources[zone_id].hosts_list;
@@ -921,6 +1019,9 @@ function initialize_create_vdc_dialog(dialog) {
                     }
                 });
             }
+
+            // TODO: this vdc.show may get the information before the add/del
+            // actions end, showing "outdated" information
 
             Sunstone.runAction("Vdc.update", vdc_to_update_id, convert_template_to_string(vdc_json));
             return false;
@@ -1086,10 +1187,39 @@ function fillVdcUpdateFormPanel(vdc, dialog){
                     datastores_list : datastore_ids
                 };
 
-                selectClusterTableSelect(dialog, "vdc_wizard_clusters_zone_"+zone_id, { ids : cluster_ids });
-                selectHostTableSelect(dialog, "vdc_wizard_hosts_zone_"+zone_id, { ids : host_ids });
-                selectVNetTableSelect(dialog, "vdc_wizard_vnets_zone_"+zone_id, { ids : vnet_ids });
-                selectDatastoreTableSelect(dialog, "vdc_wizard_datastores_zone_"+zone_id, { ids : datastore_ids });
+                var zone_section = $('#'+dialog.attr('id')+'_zone'+zone_id+'Tab', dialog);
+
+                if(cluster_ids.length == 1 && cluster_ids[0] == VDC_ALL_RESOURCES){
+                    $("#radio_cluster_"+zone_id+"_all", zone_section).click();
+                }else{
+                    selectClusterTableSelect(
+                        zone_section, "vdc_wizard_clusters_zone_"+zone_id,
+                        { ids : cluster_ids });
+                }
+
+                if(host_ids.length == 1 && host_ids[0] == VDC_ALL_RESOURCES){
+                    $("#radio_host_"+zone_id+"_all", zone_section).click();
+                }else{
+                    selectHostTableSelect(
+                        zone_section, "vdc_wizard_hosts_zone_"+zone_id,
+                        { ids : host_ids });
+                }
+
+                if(vnet_ids.length == 1 && vnet_ids[0] == VDC_ALL_RESOURCES){
+                    $("#radio_vnet_"+zone_id+"_all", zone_section).click();
+                }else{
+                    selectVNetTableSelect(
+                        zone_section, "vdc_wizard_vnets_zone_"+zone_id,
+                        { ids : vnet_ids });
+                }
+
+                if(datastore_ids.length == 1 && datastore_ids[0] == VDC_ALL_RESOURCES){
+                    $("#radio_datastore_"+zone_id+"_all", zone_section).click();
+                }else{
+                    selectDatastoreTableSelect(
+                        zone_section, "vdc_wizard_datastores_zone_"+zone_id,
+                        { ids : datastore_ids });
+                }
             });
 
             dialog.data("original_resources", resources);
@@ -1128,6 +1258,38 @@ function addVdcResourceTab(zone_id, zone_name, dialog, vdc) {
     refreshHostTableSelect(zone_section, "vdc_wizard_hosts_zone_"+zone_id);
     refreshVNetTableSelect(zone_section, "vdc_wizard_vnets_zone_"+zone_id);
     refreshDatastoreTableSelect(zone_section, "vdc_wizard_datastores_zone_"+zone_id);
+
+    $("input[name='radio_cluster_"+zone_id+"']", zone_section).change(function(){
+        if ($("input[name='radio_cluster_"+zone_id+"']:checked", zone_section).val() == "table") {
+            $("div.vdc_cluster_select", zone_section).show();
+        } else {
+            $("div.vdc_cluster_select", zone_section).hide();
+        }
+    });
+
+    $("input[name='radio_host_"+zone_id+"']", zone_section).change(function(){
+        if ($("input[name='radio_host_"+zone_id+"']:checked", zone_section).val() == "table") {
+            $("div.vdc_host_select", zone_section).show();
+        } else {
+            $("div.vdc_host_select", zone_section).hide();
+        }
+    });
+
+    $("input[name='radio_vnet_"+zone_id+"']", zone_section).change(function(){
+        if ($("input[name='radio_vnet_"+zone_id+"']:checked", zone_section).val() == "table") {
+            $("div.vdc_vnet_select", zone_section).show();
+        } else {
+            $("div.vdc_vnet_select", zone_section).hide();
+        }
+    });
+
+    $("input[name='radio_datastore_"+zone_id+"']", zone_section).change(function(){
+        if ($("input[name='radio_datastore_"+zone_id+"']:checked", zone_section).val() == "table") {
+            $("div.vdc_datastore_select", zone_section).show();
+        } else {
+            $("div.vdc_datastore_select", zone_section).hide();
+        }
+    });
 }
 
 function generateVdcResourceTabContent(str_zone_tab_id, zone_id){
@@ -1142,16 +1304,48 @@ function generateVdcResourceTabContent(str_zone_tab_id, zone_id){
         </dl>\
         <div class="tabs-content">\
           <div class="content active" id="vdcCreateClustersTab_'+zone_id+'" class="content">\
-            '+generateClusterTableSelect("vdc_wizard_clusters_zone_"+zone_id)+'\
+            <div class="row">\
+              <div class="large-12 columns">\
+                <input type="radio" name="radio_cluster_'+zone_id+'" id="radio_cluster_'+zone_id+'_all" value="all"><label for="radio_cluster_'+zone_id+'_all">'+tr("All")+'</label>\
+                <input checked="checked" type="radio" name="radio_cluster_'+zone_id+'" id="radio_cluster_'+zone_id+'_table" value="table"><label for="radio_cluster_'+zone_id+'_table">'+tr("Select clusters")+'</label>\
+              </div>\
+            </div>\
+            <div class="vdc_cluster_select">\
+              '+generateClusterTableSelect("vdc_wizard_clusters_zone_"+zone_id)+'\
+            </div>\
           </div>\
           <div id="vdcCreateHostsTab_'+zone_id+'" class="content">\
-            '+generateHostTableSelect("vdc_wizard_hosts_zone_"+zone_id)+'\
+            <div class="row">\
+              <div class="large-12 columns">\
+                <input type="radio" name="radio_host_'+zone_id+'" id="radio_host_'+zone_id+'_all" value="all"><label for="radio_host_'+zone_id+'_all">'+tr("All")+'</label>\
+                <input checked="checked" type="radio" name="radio_host_'+zone_id+'" id="radio_host_'+zone_id+'_table" value="table"><label for="radio_host_'+zone_id+'_table">'+tr("Select hosts")+'</label>\
+              </div>\
+            </div>\
+            <div class="vdc_host_select">\
+              '+generateHostTableSelect("vdc_wizard_hosts_zone_"+zone_id)+'\
+            </div>\
           </div>\
           <div id="vdcCreateVnetsTab_'+zone_id+'" class="content">\
-            '+generateVNetTableSelect("vdc_wizard_vnets_zone_"+zone_id)+'\
+            <div class="row">\
+              <div class="large-12 columns">\
+                <input type="radio" name="radio_vnet_'+zone_id+'" id="radio_vnet_'+zone_id+'_all" value="all"><label for="radio_vnet_'+zone_id+'_all">'+tr("All")+'</label>\
+                <input checked="checked" type="radio" name="radio_vnet_'+zone_id+'" id="radio_vnet_'+zone_id+'_table" value="table"><label for="radio_vnet_'+zone_id+'_table">'+tr("Select vnets")+'</label>\
+              </div>\
+            </div>\
+            <div class="vdc_vnet_select">\
+              '+generateVNetTableSelect("vdc_wizard_vnets_zone_"+zone_id)+'\
+            </div>\
           </div>\
           <div id="vdcCreateDatastoresTab_'+zone_id+'" class="content">\
-            '+generateDatastoreTableSelect("vdc_wizard_datastores_zone_"+zone_id)+'\
+            <div class="row">\
+              <div class="large-12 columns">\
+                <input type="radio" name="radio_datastore_'+zone_id+'" id="radio_datastore_'+zone_id+'_all" value="all"><label for="radio_datastore_'+zone_id+'_all">'+tr("All")+'</label>\
+                <input checked="checked" type="radio" name="radio_datastore_'+zone_id+'" id="radio_datastore_'+zone_id+'_table" value="table"><label for="radio_datastore_'+zone_id+'_table">'+tr("Select datastores")+'</label>\
+              </div>\
+            </div>\
+            <div class="vdc_datastore_select">\
+              '+generateDatastoreTableSelect("vdc_wizard_datastores_zone_"+zone_id)+'\
+            </div>\
           </div>\
         </div>\
       </div>\
