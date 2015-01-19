@@ -1699,6 +1699,14 @@ function setupCreateHostDialog(){
             $('input[name="custom_vnm_mad"]').parent().hide();
     });
 
+    $('#create_host_form').on("keyup keypress", function(e) {
+      var code = e.keyCode || e.which; 
+      if (code  == 13) {               
+        e.preventDefault();
+        return false;
+      }
+    });
+
     //Handle the form submission
     $('#create_host_form',$create_host_dialog).submit(function(){
         var name = $('#name',this).val();
