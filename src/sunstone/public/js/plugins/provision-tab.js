@@ -2112,6 +2112,8 @@ function generate_custom_attrs(context, custom_attrs) {
           '</div>'+
         '</div>');
     })
+  } else {
+    context.html("");
   }
 }
 
