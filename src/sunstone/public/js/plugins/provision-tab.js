@@ -2319,7 +2319,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
       $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
     }
 
-    $(".cost_value").html(cost);
+    $(".cost_value").html(cost.toFixed(2));
   } else {
     $(".provision_create_template_cost_div").hide();
   }
@@ -2428,7 +2428,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
           cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
         }
 
-        $(".cost_value").html(cost);
+        $(".cost_value").html(cost.toFixed(2));
       }
 
       $('.accordion a', context).first().trigger("click");
