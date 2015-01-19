@@ -635,13 +635,16 @@ function updateUserInfo(request,user){
         };
 
         Sunstone.updateInfoPanelTab("user_info_panel","user_showback_tab",showback_tab);
-        
+    }
+    
+    //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
+    Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
+
+    if (Config.isFeatureEnabled("showback")) {
         showbackGraphs(
             $("#user_showback","#user_info_panel"),
             { fixed_user: info.ID });
     }
-    //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
-    Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
 
     accountingGraphs(
         $("#user_accounting","#user_info_panel"),

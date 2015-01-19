@@ -4797,10 +4797,6 @@ function time_UTC(time){
 //   fixed_group_by "user", "group", "vm". set a fixed group-by selector
 function showbackGraphs(div, opt){
 
-    if(div.html() != ""){
-        return false;
-    }
-
     div.html(
     '<div class="row">\
       <div id="showback_owner_container" class="left columns">\

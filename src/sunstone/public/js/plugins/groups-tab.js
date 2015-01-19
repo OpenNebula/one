@@ -747,13 +747,15 @@ function updateGroupInfo(request,group){
       };
 
       Sunstone.updateInfoPanelTab("group_info_panel","group_showback_tab",showback_tab);
-      
+    }
+
+    Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
+
+    if (Config.isFeatureEnabled("showback")) {
       showbackGraphs(
           $("#group_showback","#group_info_panel"),
           {   fixed_group: info.ID });
     }
-
-    Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){
         initUpdateGroupDialog();
