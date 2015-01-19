@@ -480,6 +480,28 @@ int Vdc::add_cluster(int zone_id, int cluster_id, string& error_msg)
         add_cluster_rules(*it, zone_id, cluster_id);
     }
 
+    // When using the 'all' resource id, clear the other previous IDs
+    if (cluster_id == ALL_RESOURCES)
+    {
+        string                  error_aux;
+        vector<int>             del_ids;
+        vector<int>::iterator   del_it;
+        set<pair<int, int> >::iterator res_it;
+
+        for (res_it = clusters.begin(); res_it != clusters.end(); res_it++)
+        {
+            if(res_it->first == zone_id && res_it->second != ALL_RESOURCES)
+            {
+                del_ids.push_back(res_it->second);
+            }
+        }
+
+        for (del_it = del_ids.begin(); del_it != del_ids.end(); del_it++)
+        {
+            del_cluster(zone_id, *del_it, error_aux);
+        }
+    }
+
     return 0;
 }
 
@@ -530,6 +552,28 @@ int Vdc::add_host(int zone_id, int host_id, string& error_msg)
     for (it = groups.begin(); it != groups.end(); it++)
     {
         add_host_rules(*it, zone_id, host_id);
+    }
+
+    // When using the 'all' resource id, clear the other previous IDs
+    if (host_id == ALL_RESOURCES)
+    {
+        string                  error_aux;
+        vector<int>             del_ids;
+        vector<int>::iterator   del_it;
+        set<pair<int, int> >::iterator res_it;
+
+        for (res_it = hosts.begin(); res_it != hosts.end(); res_it++)
+        {
+            if(res_it->first == zone_id && res_it->second != ALL_RESOURCES)
+            {
+                del_ids.push_back(res_it->second);
+            }
+        }
+
+        for (del_it = del_ids.begin(); del_it != del_ids.end(); del_it++)
+        {
+            del_host(zone_id, *del_it, error_aux);
+        }
     }
 
     return 0;
@@ -584,6 +628,28 @@ int Vdc::add_datastore(int zone_id, int datastore_id, string& error_msg)
         add_datastore_rules(*it, zone_id, datastore_id);
     }
 
+    // When using the 'all' resource id, clear the other previous IDs
+    if (datastore_id == ALL_RESOURCES)
+    {
+        string                  error_aux;
+        vector<int>             del_ids;
+        vector<int>::iterator   del_it;
+        set<pair<int, int> >::iterator res_it;
+
+        for (res_it = datastores.begin(); res_it != datastores.end(); res_it++)
+        {
+            if(res_it->first == zone_id && res_it->second != ALL_RESOURCES)
+            {
+                del_ids.push_back(res_it->second);
+            }
+        }
+
+        for (del_it = del_ids.begin(); del_it != del_ids.end(); del_it++)
+        {
+            del_datastore(zone_id, *del_it, error_aux);
+        }
+    }
+
     return 0;
 }
 
@@ -634,6 +700,28 @@ int Vdc::add_vnet(int zone_id, int vnet_id, string& error_msg)
     for (it = groups.begin(); it != groups.end(); it++)
     {
         add_vnet_rules(*it, zone_id, vnet_id);
+    }
+
+    // When using the 'all' resource id, clear the other previous IDs
+    if (vnet_id == ALL_RESOURCES)
+    {
+        string                  error_aux;
+        vector<int>             del_ids;
+        vector<int>::iterator   del_it;
+        set<pair<int, int> >::iterator res_it;
+
+        for (res_it = vnets.begin(); res_it != vnets.end(); res_it++)
+        {
+            if(res_it->first == zone_id && res_it->second != ALL_RESOURCES)
+            {
+                del_ids.push_back(res_it->second);
+            }
+        }
+
+        for (del_it = del_ids.begin(); del_it != del_ids.end(); del_it++)
+        {
+            del_vnet(zone_id, *del_it, error_aux);
+        }
     }
 
     return 0;
