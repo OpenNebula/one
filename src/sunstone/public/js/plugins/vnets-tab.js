@@ -22,7 +22,7 @@ var create_vnet_wizard_html =
       <div>\
         <dl id="vnet_create_tabs" class="tabs right-info-tabs text-center" data-tab>\
           <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
-          <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Configuration")+'</a></dd>\
+          <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Conf")+'</a></dd>\
           <dd><a href="#vnetCreateARTab"><i class="fa fa-align-justify"></i><br>'+tr("Addresses")+'</a></dd>\
           <dd><a href="#vnetCreateSecurityTab"><i class="fa fa-shield"></i><br>'+tr("Security")+'</a></dd>\
           <dd><a href="#vnetCreateContextTab"><i class="fa fa-folder"></i><br>'+tr("Context")+'</a></dd>\
