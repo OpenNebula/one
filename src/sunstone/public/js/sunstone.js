@@ -6081,18 +6081,23 @@ function setupVNetTableSelect(section, context_id, opts){
                 updateView(network_list_array, datatable);
             }
 
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
             if (opts.zone_id == undefined) {
                 OpenNebula.Network.list({
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             } else {
                 OpenNebula.Network.list_in_zone({
                     data: { zone_id: opts.zone_id },
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             }
         },
@@ -6344,18 +6349,23 @@ function setupHostTableSelect(section, context_id, opts){
                 updateView(list_array, datatable);
             }
 
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
             if (opts.zone_id == undefined) {
                 OpenNebula.Host.list({
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             } else {
                 OpenNebula.Host.list_in_zone({
                     data: { zone_id: opts.zone_id },
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             }
         },
@@ -6516,18 +6526,23 @@ function setupDatastoreTableSelect(section, context_id, opts){
                 updateView(list_array, datatable);
             }
 
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
             if (opts.zone_id == undefined) {
                 OpenNebula.Datastore.list({
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             } else {
                 OpenNebula.Datastore.list_in_zone({
                     data: { zone_id: opts.zone_id },
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             }
         },
@@ -7101,18 +7116,23 @@ function setupClusterTableSelect(section, context_id, opts){
                 updateView(list_array, datatable);
             }
 
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
             if (opts.zone_id == undefined) {
                 OpenNebula.Cluster.list({
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             } else {
                 OpenNebula.Cluster.list_in_zone({
                     data: { zone_id: opts.zone_id },
                     timeout: true,
                     success: success_func,
-                    error: onError
+                    error: error_func
                 });
             }
         },
