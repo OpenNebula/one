@@ -56,17 +56,7 @@ var create_vdc_wizard_html =
             '+generateGroupTableSelect("vdc_wizard_groups")+'\
           </div>\
           <div id="vdcCreateResourcesTab" class="content">\
-            <div class="row">\
-              <div class="large-12 columns">\
-                <h5>' + tr("Zones") +'</h5>\
-              </div>\
-            </div>\
-            <div class="row">\
-              <div class="large-12 columns">\
-                <dl class="tabs" id="vdc_zones_tabs" data-tab></dl>\
-                <div class="tabs-content vdc_zones_tabs_content"></div>\
-              </div>\
-            </div>\
+            '+vdcResourceTabHeader()+'\
           </div>\
         </div>\
       </div>\
@@ -159,10 +149,15 @@ var vdc_actions = {
                         $.each(obj_list,function(){
                             zone_ids.push(this.ZONE.ID);
 
-                            addVdcResourceTab(this.ZONE.ID,
+                            addVdcResourceTab(
+                                "vdc_create_wizard",
+                                this.ZONE.ID,
                                 this.ZONE.NAME,
-                                context);
+                                $("#vdcCreateResourcesTab",context));
                         });
+
+                        setupVdcResourceTab("vdc_create_wizard",
+                            $("#vdcCreateResourcesTab",context));
 
                         context.data("zone_ids", zone_ids);
                     },
@@ -612,146 +607,24 @@ function setup_vdc_group_tab_content(vdc_info){
 }
 
 function vdc_resources_tab_content(vdc_info){
-
-    var clusters_array = [];
-    var hosts_array = [];
-    var vnets_array = [];
-    var datastores_array = [];
-
-    if (vdc_info.CLUSTERS.CLUSTER){
-        clusters_array = vdc_info.CLUSTERS.CLUSTER;
-
-        if (!$.isArray(clusters_array)){
-            clusters_array = [clusters_array];
-        }
-    }
-
-    if (vdc_info.HOSTS.HOST){
-        hosts_array = vdc_info.HOSTS.HOST;
-
-        if (!$.isArray(hosts_array)){
-            hosts_array = [hosts_array];
-        }
-    }
-
-    if (vdc_info.VNETS.VNET){
-        vnets_array = vdc_info.VNETS.VNET;
-
-        if (!$.isArray(vnets_array)){
-            vnets_array = [vnets_array];
-        }
-    }
-
-    if (vdc_info.DATASTORES.DATASTORE){
-        datastores_array = vdc_info.DATASTORES.DATASTORE;
-
-        if (!$.isArray(datastores_array)){
-            datastores_array = [datastores_array];
-        }
-    }
-
-    var html =
-        '<div class="row">\
-          <div class="large-6 columns">\
-            <table class="dataTable extended_table">\
-              <thead>\
-                <tr>\
-                  <th>' + tr("Zone ID") + '</th>\
-                  <th>' + tr("Cluster ID") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody>';
-
-    $.each(clusters_array, function(i,e){
-        html +=
-            '<tr>\
-              <td>' + e.ZONE_ID + '</td>\
-              <td>' + e.CLUSTER_ID + '</td>\
-            </tr>';
-    });
-
-    html +=
-              '</tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-6 columns">\
-            <table class="dataTable extended_table">\
-              <thead>\
-                <tr>\
-                  <th>' + tr("Zone ID") + '</th>\
-                  <th>' + tr("Host ID") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody>';
-
-    $.each(hosts_array, function(i,e){
-        html +=
-            '<tr>\
-              <td>' + e.ZONE_ID + '</td>\
-              <td>' + e.HOST_ID + '</td>\
-            </tr>';
-    });
-
-    html +=
-              '</tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-6 columns">\
-            <table class="dataTable extended_table">\
-              <thead>\
-                <tr>\
-                  <th>' + tr("Zone ID") + '</th>\
-                  <th>' + tr("VNet ID") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody>';
-
-    $.each(vnets_array, function(i,e){
-        html +=
-            '<tr>\
-              <td>' + e.ZONE_ID + '</td>\
-              <td>' + e.VNET_ID + '</td>\
-            </tr>';
-    });
-
-    html +=
-              '</tbody>\
-            </table>\
-          </div>\
-        </div>\
-        <div class="row">\
-          <div class="large-6 columns">\
-            <table class="dataTable extended_table">\
-              <thead>\
-                <tr>\
-                  <th>' + tr("Zone ID") + '</th>\
-                  <th>' + tr("Datastore ID") + '</th>\
-                </tr>\
-              </thead>\
-              <tbody>';
-
-    $.each(datastores_array, function(i,e){
-        html +=
-            '<tr>\
-              <td>' + e.ZONE_ID + '</td>\
-              <td>' + e.DATASTORE_ID + '</td>\
-            </tr>';
-    });
-
-    html +=
-              '</tbody>\
-            </table>\
-          </div>\
-        </div>'
-
-    return html;
+    return vdcResourceTabHeader();
 }
 
 function setup_vdc_resources_tab_content(vdc_info){
+    var indexed_resources = indexedVdcResources(vdc_info);
+
+    var context = $("#vdc_info_panel #vdc_resources_tab");
+
+    $.each(indexed_resources, function(zone_id,objects){
+        addVdcResourceTab(
+            "vdc_info_panel",
+            zone_id,
+            getZoneName(zone_id),
+            context,
+            indexed_resources);
+    });
+
+    setupVdcResourceTab("vdc_info_panel", context);
 }
 
 function initialize_create_vdc_dialog(dialog) {
@@ -786,69 +659,21 @@ function initialize_create_vdc_dialog(dialog) {
 
             $.each(zone_ids,function(i,zone_id){
 
-                switch ($("input[name='radio_cluster_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    clusters.push({zone_id: zone_id, cluster_id: VDC_ALL_RESOURCES});
+                var resources = retrieveVdcResourceTab('vdc_create_wizard', zone_id, dialog);
 
-                    break;
-                case "table":
-                    var selected_clusters = retrieveClusterTableSelect(
-                                    dialog, "vdc_wizard_clusters_zone_"+this);
+                $.each(resources.clusters,function(j,cluster_id){
+                    clusters.push({zone_id: zone_id, cluster_id: cluster_id});
+                });
 
-                    $.each(selected_clusters,function(j,cluster_id){
-                        clusters.push({zone_id: zone_id, cluster_id: cluster_id});
-                    });
-
-                    break;
-                }
-
-                switch ($("input[name='radio_host_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    hosts.push({zone_id: zone_id, host_id: VDC_ALL_RESOURCES});
-
-                    break;
-                case "table":
-                    var selected_hosts = retrieveHostTableSelect(
-                                    dialog, "vdc_wizard_hosts_zone_"+this);
-
-                    $.each(selected_hosts,function(j,host_id){
-                        hosts.push({zone_id: zone_id, host_id: host_id});
-                    });
-
-                    break;
-                }
-
-                switch ($("input[name='radio_vnet_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    vnets.push({zone_id: zone_id, vnet_id: VDC_ALL_RESOURCES});
-
-                    break;
-                case "table":
-                    var selected_vnets = retrieveVNetTableSelect(
-                                    dialog, "vdc_wizard_vnets_zone_"+this);
-
-                    $.each(selected_vnets,function(j,vnet_id){
-                        vnets.push({zone_id: zone_id, vnet_id: vnet_id});
-                    });
-
-                    break;
-                }
-
-                switch ($("input[name='radio_datastore_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    datastores.push({zone_id: zone_id, ds_id: VDC_ALL_RESOURCES});
-
-                    break;
-                case "table":
-                    var selected_datastores = retrieveDatastoreTableSelect(
-                                    dialog, "vdc_wizard_datastores_zone_"+this);
-
-                    $.each(selected_datastores,function(j,ds_id){
-                        datastores.push({zone_id: zone_id, ds_id: ds_id});
-                    });
-
-                    break;
-                }
+                $.each(resources.hosts,function(j,host_id){
+                    hosts.push({zone_id: zone_id, host_id: host_id});
+                });
+                $.each(resources.vnets,function(j,vnet_id){
+                    vnets.push({zone_id: zone_id, vnet_id: vnet_id});
+                });
+                $.each(resources.datastores,function(j,ds_id){
+                    datastores.push({zone_id: zone_id, ds_id: ds_id});
+                });
             });
 
             vdc_json = {
@@ -889,65 +714,15 @@ function initialize_create_vdc_dialog(dialog) {
             original_resources = dialog.data("original_resources")
 
             for (var zone_id in original_resources){
-                var selected_clusters   = [];
-                var selected_hosts      = [];
-                var selected_vnets      = [];
-                var selected_datastores = [];
+                var original_clusters   = original_resources[zone_id].clusters;
+                var original_hosts      = original_resources[zone_id].hosts;
+                var original_vnets      = original_resources[zone_id].vnets;
+                var original_datastores = original_resources[zone_id].datastores;
 
-                switch ($("input[name='radio_cluster_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    selected_clusters = [VDC_ALL_RESOURCES];
+                var selected_resources = retrieveVdcResourceTab(
+                                        'vdc_update_wizard', zone_id, dialog);
 
-                    break;
-                case "table":
-                    selected_clusters = retrieveClusterTableSelect(
-                        dialog, "vdc_wizard_clusters_zone_"+zone_id);
-
-                    break;
-                }
-
-                switch ($("input[name='radio_host_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    selected_hosts = [VDC_ALL_RESOURCES];
-
-                    break;
-                case "table":
-                    selected_hosts = retrieveHostTableSelect(
-                        dialog, "vdc_wizard_hosts_zone_"+zone_id);
-
-                    break;
-                }
-
-                switch ($("input[name='radio_vnet_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    selected_vnets = [VDC_ALL_RESOURCES];
-
-                    break;
-                case "table":
-                    selected_vnets = retrieveVNetTableSelect(
-                        dialog, "vdc_wizard_vnets_zone_"+zone_id);
-
-                    break;
-                }
-
-                switch ($("input[name='radio_datastore_"+zone_id+"']:checked", dialog).val()){
-                case "all":
-                    selected_datastores = [VDC_ALL_RESOURCES];
-
-                    break;
-                case "table":
-                    selected_datastores = retrieveDatastoreTableSelect(
-                        dialog, "vdc_wizard_datastores_zone_"+zone_id);
-
-                    break;
-                }
-
-                var original_clusters   = original_resources[zone_id].clusters_list;
-                var original_hosts      = original_resources[zone_id].hosts_list;
-                var original_vnets      = original_resources[zone_id].vnets_list;
-                var original_datastores = original_resources[zone_id].datastores_list;
-
-                $.each(selected_clusters, function(i,cluster_id){
+                $.each(selected_resources.clusters, function(i,cluster_id){
                     if (original_clusters.indexOf(cluster_id) == -1){
                         Sunstone.runAction(
                             "Vdc.add_cluster",
@@ -957,7 +732,7 @@ function initialize_create_vdc_dialog(dialog) {
                 });
 
                 $.each(original_clusters, function(i,cluster_id){
-                    if (selected_clusters.indexOf(cluster_id) == -1){
+                    if (selected_resources.clusters.indexOf(cluster_id) == -1){
                         Sunstone.runAction(
                             "Vdc.del_cluster",
                             vdc_to_update_id,
@@ -965,7 +740,7 @@ function initialize_create_vdc_dialog(dialog) {
                     }
                 });
 
-                $.each(selected_hosts, function(i,host_id){
+                $.each(selected_resources.hosts, function(i,host_id){
                     if (original_hosts.indexOf(host_id) == -1){
                         Sunstone.runAction(
                             "Vdc.add_host",
@@ -975,7 +750,7 @@ function initialize_create_vdc_dialog(dialog) {
                 });
 
                 $.each(original_hosts, function(i,host_id){
-                    if (selected_hosts.indexOf(host_id) == -1){
+                    if (selected_resources.hosts.indexOf(host_id) == -1){
                         Sunstone.runAction(
                             "Vdc.del_host",
                             vdc_to_update_id,
@@ -983,7 +758,7 @@ function initialize_create_vdc_dialog(dialog) {
                     }
                 });
 
-                $.each(selected_vnets, function(i,vnet_id){
+                $.each(selected_resources.vnets, function(i,vnet_id){
                     if (original_vnets.indexOf(vnet_id) == -1){
                         Sunstone.runAction(
                             "Vdc.add_vnet",
@@ -993,7 +768,7 @@ function initialize_create_vdc_dialog(dialog) {
                 });
 
                 $.each(original_vnets, function(i,vnet_id){
-                    if (selected_vnets.indexOf(vnet_id) == -1){
+                    if (selected_resources.vnets.indexOf(vnet_id) == -1){
                         Sunstone.runAction(
                             "Vdc.del_vnet",
                             vdc_to_update_id,
@@ -1001,7 +776,7 @@ function initialize_create_vdc_dialog(dialog) {
                     }
                 });
 
-                $.each(selected_datastores, function(i,ds_id){
+                $.each(selected_resources.datastores, function(i,ds_id){
                     if (original_datastores.indexOf(ds_id) == -1){
                         Sunstone.runAction(
                             "Vdc.add_datastore",
@@ -1011,7 +786,7 @@ function initialize_create_vdc_dialog(dialog) {
                 });
 
                 $.each(original_datastores, function(i,ds_id){
-                    if (selected_datastores.indexOf(ds_id) == -1){
+                    if (selected_resources.datastores.indexOf(ds_id) == -1){
                         Sunstone.runAction(
                             "Vdc.del_datastore",
                             vdc_to_update_id,
@@ -1020,8 +795,8 @@ function initialize_create_vdc_dialog(dialog) {
                 });
             }
 
-            // TODO: this vdc.show may get the information before the add/del
-            // actions end, showing "outdated" information
+            // TODO: this method ends now, but the add/del actions may still
+            // be pending. A vdc.show now will get outdated information
 
             Sunstone.runAction("Vdc.update", vdc_to_update_id, convert_template_to_string(vdc_json));
             return false;
@@ -1095,132 +870,73 @@ function fillVdcUpdateFormPanel(vdc, dialog){
 
     // Fill resource tables
 
-    var clusters_array = [];
-    var hosts_array = [];
-    var vnets_array = [];
-    var datastores_array = [];
-
-    if (vdc != undefined){
-        if (vdc.CLUSTERS.CLUSTER){
-            clusters_array = vdc.CLUSTERS.CLUSTER;
-
-            if (!$.isArray(clusters_array)){
-                clusters_array = [clusters_array];
-            }
-        }
-
-        if (vdc.HOSTS.HOST){
-            hosts_array = vdc.HOSTS.HOST;
-
-            if (!$.isArray(hosts_array)){
-                hosts_array = [hosts_array];
-            }
-        }
-
-        if (vdc.VNETS.VNET){
-            vnets_array = vdc.VNETS.VNET;
-
-            if (!$.isArray(vnets_array)){
-                vnets_array = [vnets_array];
-            }
-        }
-
-        if (vdc.DATASTORES.DATASTORE){
-            datastores_array = vdc.DATASTORES.DATASTORE;
-
-            if (!$.isArray(datastores_array)){
-                datastores_array = [datastores_array];
-            }
-        }
-    }
+    var resources = indexedVdcResources(vdc);
 
     var zone_ids = [];
 
     OpenNebula.Zone.list({
         timeout: true,
         success: function (request, obj_list){
-            var resources = {};
-
             $.each(obj_list,function(){
                 var zone_id = this.ZONE.ID;
 
                 zone_ids.push(zone_id);
 
-                addVdcResourceTab(zone_id,
+                addVdcResourceTab(
+                    "vdc_update_wizard",
+                    zone_id,
                     this.ZONE.NAME,
-                    dialog);
+                    $("#vdcCreateResourcesTab",dialog));
 
-                // Filter the resources for this zone only
+                var unique_id = 'vdc_update_wizard_' + zone_id;
+                var zone_section = $('#vdcCreateResourcesTab', dialog);
 
-                var cluster_ids = [];
-                $.each(clusters_array, function(i,e){
-                    if(e.ZONE_ID == zone_id){
-                        cluster_ids.push(e.CLUSTER_ID);
+                if (resources[zone_id] == undefined){
+                    resources[zone_id] = {
+                        clusters   : [],
+                        hosts      : [],
+                        vnets      : [],
+                        datastores : []
                     }
-                });
+                }
 
-                var host_ids = [];
-                $.each(hosts_array, function(i,e){
-                    if(e.ZONE_ID == zone_id){
-                        host_ids.push(e.HOST_ID);
-                    }
-                });
+                var resources_zone = resources[zone_id];
 
-                var vnet_ids = [];
-                $.each(vnets_array, function(i,e){
-                    if(e.ZONE_ID == zone_id){
-                        vnet_ids.push(e.VNET_ID);
-                    }
-                });
-
-                var datastore_ids = [];
-                $.each(datastores_array, function(i,e){
-                    if(e.ZONE_ID == zone_id){
-                        datastore_ids.push(e.DATASTORE_ID);
-                    }
-                });
-
-                resources[zone_id] = {
-                    clusters_list   : cluster_ids,
-                    hosts_list      : host_ids,
-                    vnets_list      : vnet_ids,
-                    datastores_list : datastore_ids
-                };
-
-                var zone_section = $('#'+dialog.attr('id')+'_zone'+zone_id+'Tab', dialog);
-
-                if(cluster_ids.length == 1 && cluster_ids[0] == VDC_ALL_RESOURCES){
-                    $("#radio_cluster_"+zone_id+"_all", zone_section).click();
+                if(resources_zone.clusters.length == 1 && resources_zone.clusters[0] == VDC_ALL_RESOURCES){
+                    $("#all_clusters_"+unique_id, zone_section).click();
                 }else{
                     selectClusterTableSelect(
-                        zone_section, "vdc_wizard_clusters_zone_"+zone_id,
-                        { ids : cluster_ids });
+                        zone_section, "vdc_clusters_"+unique_id,
+                        { ids : resources_zone.clusters });
                 }
 
-                if(host_ids.length == 1 && host_ids[0] == VDC_ALL_RESOURCES){
-                    $("#radio_host_"+zone_id+"_all", zone_section).click();
+                if(resources_zone.hosts.length == 1 && resources_zone.hosts[0] == VDC_ALL_RESOURCES){
+                    $("#all_hosts_"+unique_id, zone_section).click();
                 }else{
                     selectHostTableSelect(
-                        zone_section, "vdc_wizard_hosts_zone_"+zone_id,
-                        { ids : host_ids });
+                        zone_section, "vdc_hosts_"+unique_id,
+                        { ids : resources_zone.hosts });
                 }
 
-                if(vnet_ids.length == 1 && vnet_ids[0] == VDC_ALL_RESOURCES){
-                    $("#radio_vnet_"+zone_id+"_all", zone_section).click();
+                if(resources_zone.vnets.length == 1 && resources_zone.vnets[0] == VDC_ALL_RESOURCES){
+                    $("#all_vnets_"+unique_id, zone_section).click();
                 }else{
                     selectVNetTableSelect(
-                        zone_section, "vdc_wizard_vnets_zone_"+zone_id,
-                        { ids : vnet_ids });
+                        zone_section, "vdc_vnets_"+unique_id,
+                        { ids : resources_zone.vnets });
                 }
 
-                if(datastore_ids.length == 1 && datastore_ids[0] == VDC_ALL_RESOURCES){
-                    $("#radio_datastore_"+zone_id+"_all", zone_section).click();
+                if(resources_zone.datastores.length == 1 && resources_zone.datastores[0] == VDC_ALL_RESOURCES){
+                    $("#all_datastores_"+unique_id, zone_section).click();
                 }else{
                     selectDatastoreTableSelect(
-                        zone_section, "vdc_wizard_datastores_zone_"+zone_id,
-                        { ids : datastore_ids });
+                        zone_section, "vdc_datastores_"+unique_id,
+                        { ids : resources_zone.datastores });
                 }
             });
+
+            setupVdcResourceTab("vdc_update_wizard",
+                            $("#vdcCreateResourcesTab",dialog));
 
             dialog.data("original_resources", resources);
             dialog.data("zone_ids", zone_ids);
@@ -1230,121 +946,246 @@ function fillVdcUpdateFormPanel(vdc, dialog){
     });
 }
 
-function addVdcResourceTab(zone_id, zone_name, dialog, vdc) {
-    var str_zone_tab_id  = dialog.attr('id') + '_zone' + zone_id;
+function vdcResourceTabHeader(){
+    var html =
+      '<div class="row">\
+        <div class="medium-4 columns">\
+          <h5>' + tr("Zone") +'</h5>\
+        </div>\
+        <div class="medium-4 columns end">\
+          <select class="vdc_zones_select">\
+          </select>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="large-12 columns">\
+          <div class="tabs-content vdc_zones_tabs_content"></div>\
+        </div>\
+      </div>';
+
+    return html;
+}
+
+/*
+Return an object with the VDC resources indexed by zone_id.
+
+    {   zone_id :
+        {   clusters   : [],
+            hosts      : [],
+            vnets      : [],
+            datastores : []
+        }
+    }
+*/
+function indexedVdcResources(vdc){
+    var resources = {};
+
+    var clusters_array = [];
+    var hosts_array = [];
+    var vnets_array = [];
+    var datastores_array = [];
+
+    if (vdc.CLUSTERS.CLUSTER){
+        clusters_array = vdc.CLUSTERS.CLUSTER;
+
+        if (!$.isArray(clusters_array)){
+            clusters_array = [clusters_array];
+        }
+    }
+
+    if (vdc.HOSTS.HOST){
+        hosts_array = vdc.HOSTS.HOST;
+
+        if (!$.isArray(hosts_array)){
+            hosts_array = [hosts_array];
+        }
+    }
+
+    if (vdc.VNETS.VNET){
+        vnets_array = vdc.VNETS.VNET;
+
+        if (!$.isArray(vnets_array)){
+            vnets_array = [vnets_array];
+        }
+    }
+
+    if (vdc.DATASTORES.DATASTORE){
+        datastores_array = vdc.DATASTORES.DATASTORE;
+
+        if (!$.isArray(datastores_array)){
+            datastores_array = [datastores_array];
+        }
+    }
+
+    function init_resources_zone(zone_id){
+        if (resources[zone_id] == undefined){
+            resources[zone_id] = {
+                clusters   : [],
+                hosts      : [],
+                vnets      : [],
+                datastores : []
+            }
+        }
+    }
+
+    $.each(clusters_array, function(i,e){
+        init_resources_zone(e.ZONE_ID);
+        resources[e.ZONE_ID].clusters.push(e.CLUSTER_ID);
+    });
+
+    $.each(hosts_array, function(i,e){
+        init_resources_zone(e.ZONE_ID);
+        resources[e.ZONE_ID].hosts.push(e.HOST_ID);
+    });
+
+    $.each(vnets_array, function(i,e){
+        init_resources_zone(e.ZONE_ID);
+        resources[e.ZONE_ID].vnets.push(e.VNET_ID);
+    });
+
+    $.each(datastores_array, function(i,e){
+        init_resources_zone(e.ZONE_ID);
+        resources[e.ZONE_ID].datastores.push(e.DATASTORE_ID);
+    });
+
+    return resources;
+}
+
+function addVdcResourceTab(unique_id_prefix, zone_id, zone_name, context, indexed_resources) {
+
+    var unique_id = unique_id_prefix+'_'+zone_id;
 
     // Append the new div containing the tab and add the tab to the list
-    var html_tab_content = '<div id="'+str_zone_tab_id+'Tab" class="content">'+
-        generateVdcResourceTabContent(str_zone_tab_id, zone_id) +
+    var html_tab_content = '<div id="'+unique_id+'Tab" class="vdc_zone_content">'+
+        generateVdcResourceTabContent(unique_id, zone_id) +
         '</div>'
-    $(html_tab_content).appendTo($(".vdc_zones_tabs_content", dialog));
+    $(html_tab_content).appendTo($(".vdc_zones_tabs_content", context));
 
-    var a = $("<dd>\
-        <a id='zone_tab"+str_zone_tab_id+"' href='#"+str_zone_tab_id+"Tab'>"+zone_name+"</a>\
-        </dd>").appendTo($("dl#vdc_zones_tabs", dialog));
+    $("select.vdc_zones_select", context).append('<option value="'+zone_id+'">'+zone_name+'</option>');
 
-    var zone_section = $('#' +str_zone_tab_id+'Tab', dialog);
+    var zone_section = $('#' +unique_id+'Tab', context);
 
     zone_section.foundation();
 
-    $("dl#vdc_zones_tabs", dialog).children("dd").first().children("a").click();
-
-    setupClusterTableSelect(zone_section, "vdc_wizard_clusters_zone_"+zone_id, {multiple_choice: true, zone_id: zone_id});
-    setupHostTableSelect(zone_section, "vdc_wizard_hosts_zone_"+zone_id, {multiple_choice: true, zone_id: zone_id});
-    setupVNetTableSelect(zone_section, "vdc_wizard_vnets_zone_"+zone_id, {multiple_choice: true, zone_id: zone_id});
-    setupDatastoreTableSelect(zone_section, "vdc_wizard_datastores_zone_"+zone_id, {multiple_choice: true, zone_id: zone_id});
-
-    refreshClusterTableSelect(zone_section, "vdc_wizard_clusters_zone_"+zone_id);
-    refreshHostTableSelect(zone_section, "vdc_wizard_hosts_zone_"+zone_id);
-    refreshVNetTableSelect(zone_section, "vdc_wizard_vnets_zone_"+zone_id);
-    refreshDatastoreTableSelect(zone_section, "vdc_wizard_datastores_zone_"+zone_id);
-
-    $("input[name='radio_cluster_"+zone_id+"']", zone_section).change(function(){
-        if ($("input[name='radio_cluster_"+zone_id+"']:checked", zone_section).val() == "table") {
-            $("div.vdc_cluster_select", zone_section).show();
-        } else {
-            $("div.vdc_cluster_select", zone_section).hide();
-        }
+    $.each(["clusters", "hosts", "vnets", "datastores"], function(i,res_name){
+        $("input[name='all_"+res_name+"_"+unique_id+"']", zone_section).change(function(){
+            if ($(this).prop("checked")){
+                $("div.vdc_"+res_name+"_select", zone_section).hide();
+            } else {
+                $("div.vdc_"+res_name+"_select", zone_section).show();
+            }
+        });
     });
 
-    $("input[name='radio_host_"+zone_id+"']", zone_section).change(function(){
-        if ($("input[name='radio_host_"+zone_id+"']:checked", zone_section).val() == "table") {
-            $("div.vdc_host_select", zone_section).show();
-        } else {
-            $("div.vdc_host_select", zone_section).hide();
-        }
-    });
+    var opts = {};
 
-    $("input[name='radio_vnet_"+zone_id+"']", zone_section).change(function(){
-        if ($("input[name='radio_vnet_"+zone_id+"']:checked", zone_section).val() == "table") {
-            $("div.vdc_vnet_select", zone_section).show();
-        } else {
-            $("div.vdc_vnet_select", zone_section).hide();
-        }
-    });
+    if(indexed_resources != undefined && indexed_resources[zone_id] != undefined){
+        var resources = indexed_resources[zone_id];
 
-    $("input[name='radio_datastore_"+zone_id+"']", zone_section).change(function(){
-        if ($("input[name='radio_datastore_"+zone_id+"']:checked", zone_section).val() == "table") {
-            $("div.vdc_datastore_select", zone_section).show();
-        } else {
-            $("div.vdc_datastore_select", zone_section).hide();
-        }
-    });
+        $.each(["clusters", "hosts", "vnets", "datastores"], function(i,res_name){
+            opts[res_name] = { read_only: true, zone_id: zone_id };
+
+            if (resources[res_name].length == 1 && resources[res_name][0] == VDC_ALL_RESOURCES){
+                $("#all_"+res_name+"_"+unique_id).prop("checked", "checked");
+            } else {
+                opts[res_name].fixed_ids = resources[res_name];
+            }
+
+            $("#all_"+res_name+"_"+unique_id).prop("disabled", true);
+        });
+
+    } else {
+        $.each(["clusters", "hosts", "vnets", "datastores"], function(i,res_name){
+            opts[res_name] = {multiple_choice: true, zone_id: zone_id};
+        });
+    }
+
+    setupClusterTableSelect(zone_section, "vdc_clusters_"+unique_id, opts["clusters"]);
+    setupHostTableSelect(zone_section, "vdc_hosts_"+unique_id, opts["hosts"]);
+    setupVNetTableSelect(zone_section, "vdc_vnets_"+unique_id, opts["vnets"]);
+    setupDatastoreTableSelect(zone_section, "vdc_datastores_"+unique_id, opts["datastores"]);
+
+    refreshClusterTableSelect(zone_section, "vdc_clusters_"+unique_id);
+    refreshHostTableSelect(zone_section, "vdc_hosts_"+unique_id);
+    refreshVNetTableSelect(zone_section, "vdc_vnets_"+unique_id);
+    refreshDatastoreTableSelect(zone_section, "vdc_datastores_"+unique_id);
 }
 
-function generateVdcResourceTabContent(str_zone_tab_id, zone_id){
-    var html =
+function setupVdcResourceTab(unique_id_prefix, context){
+    $("select.vdc_zones_select", context).change(function(){
+        context.find(".vdc_zone_content").hide();
+        $('div#'+unique_id_prefix+'_'+$(this).val()+'Tab', context).show();
+    });
+
+    $("select.vdc_zones_select", context)[0].selectedIndex = 0;
+    $("select.vdc_zones_select", context).change();
+}
+
+function generateVdcResourceTabContent(unique_id, zone_id){
+     var html =
     '<div class="row">\
       <div class="large-12 columns">\
         <dl class="tabs right-info-tabs text-center" data-tab>\
-          <dd class="active"><a href="#vdcCreateClustersTab_'+zone_id+'"><i class="fa fa-th"></i><br>'+tr("Clusters")+'</a></dd>\
-          <dd><a href="#vdcCreateHostsTab_'+zone_id+'"><i class="fa fa-hdd-o"></i><br>'+tr("Hosts")+'</a></dd>\
-          <dd><a href="#vdcCreateVnetsTab_'+zone_id+'"><i class="fa fa-globe"></i><br>'+tr("VNets")+'</a></dd>\
-          <dd><a href="#vdcCreateDatastoresTab_'+zone_id+'"><i class="fa fa-folder-open"></i><br>'+tr("Datastores")+'</a></dd>\
+          <dd class="active"><a href="#vdcClustersTab_'+unique_id+'"><i class="fa fa-th"></i><br>'+tr("Clusters")+'</a></dd>\
+          <dd><a href="#vdcHostsTab_'+unique_id+'"><i class="fa fa-hdd-o"></i><br>'+tr("Hosts")+'</a></dd>\
+          <dd><a href="#vdcVnetsTab_'+unique_id+'"><i class="fa fa-globe"></i><br>'+tr("VNets")+'</a></dd>\
+          <dd><a href="#vdcDatastoresTab_'+unique_id+'"><i class="fa fa-folder-open"></i><br>'+tr("Datastores")+'</a></dd>\
         </dl>\
         <div class="tabs-content">\
-          <div class="content active" id="vdcCreateClustersTab_'+zone_id+'" class="content">\
+          <div class="content active" id="vdcClustersTab_'+unique_id+'" class="content">\
             <div class="row">\
               <div class="large-12 columns">\
-                <input type="radio" name="radio_cluster_'+zone_id+'" id="radio_cluster_'+zone_id+'_all" value="all"><label for="radio_cluster_'+zone_id+'_all">'+tr("All")+'</label>\
-                <input checked="checked" type="radio" name="radio_cluster_'+zone_id+'" id="radio_cluster_'+zone_id+'_table" value="table"><label for="radio_cluster_'+zone_id+'_table">'+tr("Select clusters")+'</label>\
+                <label for="all_clusters_'+unique_id+'">\
+                  <input type="checkbox" name="all_clusters_'+unique_id+'" id="all_clusters_'+unique_id+'" />\
+                  '+tr("All")+'\
+                  <span class="tip">'+tr("Selects all current and future clusters")+'</span>\
+                </label>\
               </div>\
             </div>\
-            <div class="vdc_cluster_select">\
-              '+generateClusterTableSelect("vdc_wizard_clusters_zone_"+zone_id)+'\
+            <div class="vdc_clusters_select">\
+              '+generateClusterTableSelect("vdc_clusters_"+unique_id)+'\
             </div>\
           </div>\
-          <div id="vdcCreateHostsTab_'+zone_id+'" class="content">\
+          <div id="vdcHostsTab_'+unique_id+'" class="content">\
             <div class="row">\
               <div class="large-12 columns">\
-                <input type="radio" name="radio_host_'+zone_id+'" id="radio_host_'+zone_id+'_all" value="all"><label for="radio_host_'+zone_id+'_all">'+tr("All")+'</label>\
-                <input checked="checked" type="radio" name="radio_host_'+zone_id+'" id="radio_host_'+zone_id+'_table" value="table"><label for="radio_host_'+zone_id+'_table">'+tr("Select hosts")+'</label>\
+                <label for="all_hosts_'+unique_id+'">\
+                  <input type="checkbox" name="all_hosts_'+unique_id+'" id="all_hosts_'+unique_id+'" />\
+                  '+tr("All")+'\
+                  <span class="tip">'+tr("Selects all current and future hosts")+'</span>\
+                </label>\
               </div>\
             </div>\
-            <div class="vdc_host_select">\
-              '+generateHostTableSelect("vdc_wizard_hosts_zone_"+zone_id)+'\
+            <div class="vdc_hosts_select">\
+              '+generateHostTableSelect("vdc_hosts_"+unique_id)+'\
             </div>\
           </div>\
-          <div id="vdcCreateVnetsTab_'+zone_id+'" class="content">\
+          <div id="vdcVnetsTab_'+unique_id+'" class="content">\
             <div class="row">\
               <div class="large-12 columns">\
-                <input type="radio" name="radio_vnet_'+zone_id+'" id="radio_vnet_'+zone_id+'_all" value="all"><label for="radio_vnet_'+zone_id+'_all">'+tr("All")+'</label>\
-                <input checked="checked" type="radio" name="radio_vnet_'+zone_id+'" id="radio_vnet_'+zone_id+'_table" value="table"><label for="radio_vnet_'+zone_id+'_table">'+tr("Select vnets")+'</label>\
+                <label for="all_vnets_'+unique_id+'">\
+                  <input type="checkbox" name="all_vnets_'+unique_id+'" id="all_vnets_'+unique_id+'" />\
+                  '+tr("All")+'\
+                  <span class="tip">'+tr("Selects all current and future vnets")+'</span>\
+                </label>\
               </div>\
             </div>\
-            <div class="vdc_vnet_select">\
-              '+generateVNetTableSelect("vdc_wizard_vnets_zone_"+zone_id)+'\
+            <div class="vdc_vnets_select">\
+              '+generateVNetTableSelect("vdc_vnets_"+unique_id)+'\
             </div>\
           </div>\
-          <div id="vdcCreateDatastoresTab_'+zone_id+'" class="content">\
+          <div id="vdcDatastoresTab_'+unique_id+'" class="content">\
             <div class="row">\
               <div class="large-12 columns">\
-                <input type="radio" name="radio_datastore_'+zone_id+'" id="radio_datastore_'+zone_id+'_all" value="all"><label for="radio_datastore_'+zone_id+'_all">'+tr("All")+'</label>\
-                <input checked="checked" type="radio" name="radio_datastore_'+zone_id+'" id="radio_datastore_'+zone_id+'_table" value="table"><label for="radio_datastore_'+zone_id+'_table">'+tr("Select datastores")+'</label>\
+                <label for="all_datastores_'+unique_id+'">\
+                  <input type="checkbox" name="all_datastores_'+unique_id+'" id="all_datastores_'+unique_id+'" />\
+                  '+tr("All")+'\
+                  <span class="tip">'+tr("Selects all current and future datastores")+'</span>\
+                </label>\
               </div>\
             </div>\
-            <div class="vdc_datastore_select">\
-              '+generateDatastoreTableSelect("vdc_wizard_datastores_zone_"+zone_id)+'\
+            <div class="vdc_datastores_select">\
+              '+generateDatastoreTableSelect("vdc_datastores_"+unique_id)+'\
             </div>\
           </div>\
         </div>\
@@ -1352,6 +1193,64 @@ function generateVdcResourceTabContent(str_zone_tab_id, zone_id){
     </div>';
 
     return html;
+}
+
+/*
+Return an object with the selected VDC resources in the zone tab
+    {   clusters   : [],
+        hosts      : [],
+        vnets      : [],
+        datastores : []
+    }
+*/
+function retrieveVdcResourceTab(unique_id_prefix, zone_id, context) {
+    var clusters;
+    var hosts;
+    var vnets;
+    var datastores;
+
+    var unique_id = unique_id_prefix+'_'+zone_id;
+
+    if ( $("input[name='all_clusters_"+unique_id+"']", context).prop("checked") ){
+        clusters = [VDC_ALL_RESOURCES];
+    } else {
+        clusters = retrieveClusterTableSelect(
+                        $("#vdcCreateResourcesTab",context),
+                        "vdc_clusters_"+unique_id);
+    }
+
+    if ( $("input[name='all_hosts_"+unique_id+"']", context).prop("checked") ){
+        hosts = [VDC_ALL_RESOURCES];
+    } else {
+        hosts = retrieveHostTableSelect(
+                        $("#vdcCreateResourcesTab",context),
+                        "vdc_hosts_"+unique_id);
+    }
+
+    if ( $("input[name='all_vnets_"+unique_id+"']", context).prop("checked") ){
+        vnets = [VDC_ALL_RESOURCES];
+    } else {
+        vnets = retrieveVNetTableSelect(
+                        $("#vdcCreateResourcesTab",context),
+                        "vdc_vnets_"+unique_id);
+    }
+
+    if ( $("input[name='all_datastores_"+unique_id+"']", context).prop("checked") ){
+        datastores = [VDC_ALL_RESOURCES];
+    } else {
+        datastores = retrieveDatastoreTableSelect(
+                        $("#vdcCreateResourcesTab",context),
+                        "vdc_datastores_"+unique_id);
+    }
+
+    var resources = {
+        clusters   : clusters,
+        hosts      : hosts,
+        vnets      : vnets,
+        datastores : datastores
+    }
+
+    return resources;
 }
 
 //The DOM is ready and the ready() from sunstone.js
