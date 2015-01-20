@@ -5399,10 +5399,16 @@ function fillAccounting(div, req, response, no_table) {
     var start = new Date(options.start_time * 1000);
     start.setUTCHours(0,0,0,0);
 
-    var end = new Date();
+    var end;
+    var now = new Date();
 
-    if(options.end_time != undefined && options.end_time != -1){
-        var end = new Date(options.end_time * 1000)
+    if (options.end_time != undefined && options.end_time != -1) {
+        end = new Date(options.end_time * 1000)
+        if (end > now) {
+            end = now;
+        }
+    } else {
+        end = now;
     }
 
     // granularity of 1 day
@@ -5417,6 +5423,10 @@ function fillAccounting(div, req, response, no_table) {
 
         // day += 1
         tmp_time.setUTCDate( tmp_time.getUTCDate() + 1 );
+    }
+
+    if (tmp_time > now) {
+        times.push(now.getTime());
     }
 
     //--------------------------------------------------------------------------
