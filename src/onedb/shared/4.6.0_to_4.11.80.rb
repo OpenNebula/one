@@ -53,8 +53,9 @@ EOT
 
         @db.run "CREATE TABLE vdc_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
 
-        # TODO: Before the final release, check if the default vdc in the core
-        # is also empty
+        # The defat vdc in a bootstrap contains the group users and cluster ALL.
+        # But this may have changed, so the default VDC is left empty and
+        # a new VDC 'users' is be created with the current resource providers
         @db.run "INSERT INTO vdc_pool VALUES(0,'default','<VDC><ID>0</ID><NAME>default</NAME><GROUPS></GROUPS><CLUSTERS></CLUSTERS><HOSTS></HOSTS><DATASTORES></DATASTORES><VNETS></VNETS><TEMPLATE></TEMPLATE></VDC>',0,0,1,0,0);"
 
         vdc_last_oid = 99

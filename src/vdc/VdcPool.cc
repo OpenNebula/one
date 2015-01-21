@@ -58,6 +58,15 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
             goto error_bootstrap;
         }
 
+        Vdc* vdc = get(rc, true);
+
+        vdc->add_group(GroupPool::USERS_ID, error_str);
+        vdc->add_cluster(Nebula::instance().get_zone_id(), Vdc::ALL_RESOURCES, error_str);
+
+        update(vdc);
+
+        vdc->unlock();
+
         // The first 100 Vdc IDs are reserved for system Vdcs.
         // Regular ones start from ID 100
 
