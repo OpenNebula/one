@@ -965,6 +965,7 @@ var vms_tab = {
             <th>'+tr("IPs")+'</th>\
             <th>'+tr("Start Time")+'</th>\
             <th>'+tr("")+'</th>\
+            <th>'+tr("Hidden Template")+'</th>\
           </tr>\
         </thead>\
         <tbody id="tbodyvmachines">\
@@ -1032,6 +1033,8 @@ function vMachineElementArray(vm_json){
         state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
     };
 
+    // Build hidden user template
+    var hidden_template = convert_template_to_string(vm);
 
     return [
         '<input class="check_item" type="checkbox" id="vm_'+vm.ID+'" name="selected_items" value="'+vm.ID+'"/>',
@@ -1045,7 +1048,8 @@ function vMachineElementArray(vm_json){
         hostname,
         ip_str(vm),
         str_start_time(vm),
-        vncIcon(vm)
+        vncIcon(vm),
+        hidden_template
     ];
 };
 
@@ -3388,7 +3392,7 @@ $(document).ready(function(){
       });
 
       $('#vms_search').keyup(function(){
-        dataTable_vMachines.fnFilter( $(this).val() );
+        dataTable_vMachines.fnFilter( $(this).val(), null, true, false );
       })
 
       dataTable_vMachines.on('draw', function(){

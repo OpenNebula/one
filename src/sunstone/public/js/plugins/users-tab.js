@@ -464,17 +464,7 @@ function userElementArray(user_json){
     }
 
     // Build hidden user template
-    var hidden_template = "";
-    for (var key in user.TEMPLATE){
-        switch (key){
-            // Don't copy unnecesary keys
-            case "SSH_PUBLIC_KEY":
-            case "TOKEN_PASSWORD":
-                break;
-            default:
-                hidden_template = hidden_template + key + "=" + user.TEMPLATE[key] + "\n";
-        }
-    }
+    var hidden_template = convert_template_to_string(user);
 
     return [
         '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
@@ -886,7 +876,7 @@ $(document).ready(function(){
       });
 
       $('#user_search').keyup(function(){
-        dataTable_users.fnFilter( $(this).val() );
+        dataTable_users.fnFilter( $(this).val(), null, true, false );
       })
 
       dataTable_users.on('draw', function(){
