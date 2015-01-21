@@ -3708,6 +3708,11 @@ function setup_info_vm(context) {
             break;
         }
 
+        if (!enableVnc(data) && !enableSPICE(data)) {
+            $(".provision_vnc_button", context).hide();
+            $(".provision_vnc_button_disabled", context).hide();
+        }
+
         $(".provision_info_vm", context).attr("vm_id", data.ID);
         $(".provision_info_vm", context).data("vm", data);
 
