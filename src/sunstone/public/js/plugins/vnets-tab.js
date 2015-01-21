@@ -22,7 +22,7 @@ var create_vnet_wizard_html =
       <div>\
         <dl id="vnet_create_tabs" class="tabs right-info-tabs text-center" data-tab>\
           <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
-          <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Configuration")+'</a></dd>\
+          <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Conf")+'</a></dd>\
           <dd><a href="#vnetCreateARTab"><i class="fa fa-align-justify"></i><br>'+tr("Addresses")+'</a></dd>\
           <dd><a href="#vnetCreateSecurityTab"><i class="fa fa-shield"></i><br>'+tr("Security")+'</a></dd>\
           <dd><a href="#vnetCreateContextTab"><i class="fa fa-folder"></i><br>'+tr("Context")+'</a></dd>\
@@ -619,7 +619,7 @@ var vnets_tab = {
     buttons: vnet_buttons,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    search_input: '<input id="vnet_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="vnet_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Networks"),
     info_header: '<i class="fa fa-fw fa-globe"></i>&emsp;'+tr("Virtual Network"),
     subheader: '<span class="total_vnets"/> <small>'+tr("TOTAL")+'</small>&emsp;\

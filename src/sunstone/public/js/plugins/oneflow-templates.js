@@ -621,7 +621,7 @@ var service_templates_tab = {
     buttons: service_template_buttons,
     tabClass: 'subTab',
     parentTab: 'oneflow-dashboard',
-    search_input: '<input id="service_templates_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="service_templates_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("OneFlow - Templates"),
     info_header: '<i class="fa fa-fw fa-file-o"></i>&emsp;'+tr("OneFlow - Template"),
     subheader: '<span/> <small></small>&emsp;',

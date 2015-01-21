@@ -536,7 +536,7 @@ var clusters_tab = {
     showOnTopMenu: false,
     tabClass: "subTab",
     parentTab: "infra-tab",
-    search_input: '<input id="cluster_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="cluster_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Clusters"),
     info_header: '<i class="fa fa-fw fa-th"></i>&emsp;'+tr("Cluster"),
     subheader: '<span/> <small></small>&emsp;',

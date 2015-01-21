@@ -4800,10 +4800,6 @@ function time_UTC(time){
 //   fixed_group_by "user", "group", "vm". set a fixed group-by selector
 function showbackGraphs(div, opt){
 
-    if(div.html() != ""){
-        return false;
-    }
-
     div.html(
     '<div class="row">\
       <div id="showback_owner_container" class="left columns">\
@@ -5406,10 +5402,16 @@ function fillAccounting(div, req, response, no_table) {
     var start = new Date(options.start_time * 1000);
     start.setUTCHours(0,0,0,0);
 
-    var end = new Date();
+    var end;
+    var now = new Date();
 
-    if(options.end_time != undefined && options.end_time != -1){
-        var end = new Date(options.end_time * 1000)
+    if (options.end_time != undefined && options.end_time != -1) {
+        end = new Date(options.end_time * 1000)
+        if (end > now) {
+            end = now;
+        }
+    } else {
+        end = now;
     }
 
     // granularity of 1 day
@@ -5424,6 +5426,10 @@ function fillAccounting(div, req, response, no_table) {
 
         // day += 1
         tmp_time.setUTCDate( tmp_time.getUTCDate() + 1 );
+    }
+
+    if (tmp_time > now) {
+        times.push(now.getTime());
     }
 
     //--------------------------------------------------------------------------
@@ -7187,7 +7193,7 @@ function generateResourceTableSelect(context_id, columns, options){
          <a id="refresh_button_'+context_id+'" href="#" class="button small radius secondary"><i class="fa fa-refresh" /></a>\
       </div>\
       <div class="large-4 columns">\
-        <input id="'+context_id+'_search" class="search" type="text" placeholder="'+tr("Search")+'"/>\
+        <input id="'+context_id+'_search" class="search" type="search" placeholder="'+tr("Search")+'"/>\
       </div>\
     </div>\
     <div class="row">\

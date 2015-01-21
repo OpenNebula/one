@@ -182,7 +182,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 next if STDIN.gets.strip.downcase != 'y'
 
                 if tmps.empty?
-                    STDOUT.print "    No VM Templates found in #{dc}...\n\n"
+                    STDOUT.print "    No new VM Templates found in #{dc}...\n\n"
                     next
                 end
 
@@ -253,7 +253,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 next if STDIN.gets.strip.downcase != 'y'
 
                 if tmps.empty?
-                    STDOUT.print "    No Networks found in #{dc}...\n\n"
+                    STDOUT.print "    No new Networks found in #{dc}...\n\n"
                     next
                 end
 

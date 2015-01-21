@@ -55,7 +55,9 @@ helpers do
 		  # config.adapter = :patron
 
 		  # Merged with the default client options hash
-		  # config.client_options = { :ssl => false }
+		  if ENV['http_proxy']
+		  	config.client_options = { :proxy => ENV['http_proxy'] }
+		  end
 
 		  # When getting the error 'hostname does not match the server certificate'
 		  # use the API at https://yoursubdomain.zendesk.com/api/v2

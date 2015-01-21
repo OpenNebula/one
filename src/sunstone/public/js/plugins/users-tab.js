@@ -399,7 +399,7 @@ var users_tab = {
     buttons: user_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
-    search_input: ' <input id="user_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: ' <input id="user_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-user"></i>&emsp;'+tr("Users"),
     info_header: '<i class="fa fa-fw fa-user"></i>&emsp;'+tr("User"),
     subheader: '<span>\
@@ -464,17 +464,7 @@ function userElementArray(user_json){
     }
 
     // Build hidden user template
-    var hidden_template = "";
-    for (var key in user.TEMPLATE){
-        switch (key){
-            // Don't copy unnecesary keys
-            case "SSH_PUBLIC_KEY":
-            case "TOKEN_PASSWORD":
-                break;
-            default:
-                hidden_template = hidden_template + key + "=" + user.TEMPLATE[key] + "\n";
-        }
-    }
+    var hidden_template = convert_template_to_string(user);
 
     return [
         '<input class="check_item" type="checkbox" id="user_'+user.ID+'" name="selected_items" value="'+user.ID+'"/>',
@@ -635,13 +625,16 @@ function updateUserInfo(request,user){
         };
 
         Sunstone.updateInfoPanelTab("user_info_panel","user_showback_tab",showback_tab);
-        
+    }
+    
+    //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
+    Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
+
+    if (Config.isFeatureEnabled("showback")) {
         showbackGraphs(
             $("#user_showback","#user_info_panel"),
             { fixed_user: info.ID });
     }
-    //Sunstone.updateInfoPanelTab("user_info_panel","user_acct_tab",acct_tab);
-    Sunstone.popUpInfoPanel("user_info_panel", 'users-tab');
 
     accountingGraphs(
         $("#user_accounting","#user_info_panel"),
@@ -883,7 +876,7 @@ $(document).ready(function(){
       });
 
       $('#user_search').keyup(function(){
-        dataTable_users.fnFilter( $(this).val() );
+        dataTable_users.fnFilter( $(this).val(), null, true, false );
       })
 
       dataTable_users.on('draw', function(){

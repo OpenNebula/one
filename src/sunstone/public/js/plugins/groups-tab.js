@@ -367,7 +367,7 @@ var groups_tab = {
     buttons: group_buttons,
     tabClass: 'subTab',
     parentTab: 'system-tab',
-    search_input: '<input id="group_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="group_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Groups"),
     info_header: '<i class="fa fa-fw fa-users"></i>&emsp;'+tr("Group"),
     subheader: '<span>\
@@ -588,13 +588,15 @@ function updateGroupInfo(request,group){
       };
 
       Sunstone.updateInfoPanelTab("group_info_panel","group_showback_tab",showback_tab);
-      
+    }
+
+    Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
+
+    if (Config.isFeatureEnabled("showback")) {
       showbackGraphs(
           $("#group_showback","#group_info_panel"),
           {   fixed_group: info.ID });
     }
-
-    Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){
         initUpdateGroupDialog();

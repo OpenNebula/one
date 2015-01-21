@@ -2112,6 +2112,8 @@ function generate_custom_attrs(context, custom_attrs) {
           '</div>'+
         '</div>');
     })
+  } else {
+    context.html("");
   }
 }
 
@@ -2317,7 +2319,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
       $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
     }
 
-    $(".cost_value").html(cost);
+    $(".cost_value").html(cost.toFixed(2));
   } else {
     $(".provision_create_template_cost_div").hide();
   }
@@ -2426,7 +2428,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
           cost += $(this).attr("memory") * $(".cost_value").data("MEMORY_COST")
         }
 
-        $(".cost_value").html(cost);
+        $(".cost_value").html(cost.toFixed(2));
       }
 
       $('.accordion a', context).first().trigger("click");
@@ -3706,6 +3708,11 @@ function setup_info_vm(context) {
             break;
         }
 
+        if (!enableVnc(data) && !enableSPICE(data)) {
+            $(".provision_vnc_button", context).hide();
+            $(".provision_vnc_button_disabled", context).hide();
+        }
+
         $(".provision_info_vm", context).attr("vm_id", data.ID);
         $(".provision_info_vm", context).data("vm", data);
 
@@ -4306,7 +4313,7 @@ function setup_provision_vms_list(context, opts) {
     if ($(this).val() != "-2"){
       provision_vms_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
     } else {
-      provision_vms_datatable.fnFilterClear();
+      provision_vms_datatable.fnFilter("", 2);
     }
   })
 
@@ -4460,7 +4467,7 @@ function setup_provision_templates_list(context, opts) {
     if ($(this).val() != "-2"){
       provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
     } else {
-      provision_templates_datatable.fnFilterClear();
+      provision_templates_datatable.fnFilter("", 3);
     }
   })
 
@@ -5176,7 +5183,7 @@ function setup_provision_flows_list(context, opts){
     if ($(this).val() != "-2"){
       provision_flows_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
     } else {
-      provision_flows_datatable.fnFilterClear();
+      provision_flows_datatable.fnFilter("", 2);
     }
   })
 
@@ -6328,16 +6335,21 @@ $(document).ready(function(){
       var template_id = $(".tabs-content .content.active .selected", context).attr("opennebula_id");
 
       var nics = [];
+      var nic;
       $(".selected_network", context).each(function(){
-        var nic;
         if ($(this).attr("template_nic")) {
           nic = JSON.parse($(this).attr("template_nic"))
-        } else {
+        } else if ($(this).attr("opennebula_id")) {
           nic = {
             'network_id': $(this).attr("opennebula_id")
           }
+        } else {
+          nic = undefined;
         }
-        nics.push(nic);
+
+        if (nic) {
+          nics.push(nic);
+        }
       });
 
       var instance_type = $(".provision_instance_types_ul .selected", context);

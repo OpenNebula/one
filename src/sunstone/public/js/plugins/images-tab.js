@@ -498,7 +498,7 @@ var images_tab = {
     content: '<div class="large-12 columns">\
       <div id="upload_progress_bars"></div>\
     </div>',
-    search_input: '<input id="image_search" type="text" placeholder="'+tr("Search")+'" />',
+    search_input: '<input id="image_search" type="search" placeholder="'+tr("Search")+'" />',
     list_header: '<i class="fa fa-fw fa-upload"></i>&emsp;'+tr("Images"),
     info_header: '<i class="fa fa-fw fa-upload"></i>&emsp;'+tr("Image"),
     subheader: '<span class="total_images"/> <small>'+tr("TOTAL")+'</small>&emsp;\

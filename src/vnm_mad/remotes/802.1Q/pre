@@ -19,7 +19,7 @@
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
-require 'vlan_driver'
+require 'vlan_tag_driver'
 
-hm = VLANDriver.from_base64(ARGV[0])
+hm = VLANTagDriver.from_base64(ARGV[0])
 exit hm.activate

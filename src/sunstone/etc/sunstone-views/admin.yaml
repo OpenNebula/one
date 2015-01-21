@@ -155,6 +155,7 @@ tabs:
             - 9       # IPs
             #- 10      # Start Time
             - 11      # VNC
+            #- 12      # Hidden Template
         actions:
             VM.refresh: true
             VM.create_dialog: true
