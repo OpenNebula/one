@@ -27,7 +27,7 @@ function loadVNC(){
         "use strict";
     Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
                        "keysymdef.js", "keyboard.js", "input.js", "display.js",
-                       "jsunzip.js", "rfb.js"]);
+                       "jsunzip.js", "rfb.js", "keysym.js"]);
 }
 loadVNC();
 
