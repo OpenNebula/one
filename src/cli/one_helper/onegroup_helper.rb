@@ -294,22 +294,6 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
 
         group_hash = group.to_hash
 
-        providers = group_hash['GROUP']['RESOURCE_PROVIDER']
-        if(providers != nil)
-            puts
-            CLIHelper.print_header(str_h1 % "RESOURCE PROVIDERS", false)
-
-            CLIHelper::ShowTable.new(nil, self) do
-                column :"ZONE", "", :right, :size=>7 do |d|
-                    d['ZONE_ID']
-                end
-
-                column :"CLUSTER", "", :right, :size=>7 do |d|
-                    d['CLUSTER_ID'] == '10' ? 'ALL' : d['CLUSTER_ID']
-                end
-            end.show([providers].flatten, {})
-        end
-
         default_quotas = nil
 
         group.each('/GROUP/DEFAULT_GROUP_QUOTAS') { |elem|

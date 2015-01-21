@@ -28,9 +28,7 @@ module OpenNebula
             :allocate       => "group.allocate",
             :update         => "group.update",
             :delete         => "group.delete",
-            :quota          => "group.quota",
-            :add_provider   => "group.addprovider",
-            :del_provider   => "group.delprovider"
+            :quota          => "group.quota"
         }
 
         # Flag for requesting connected user's group info
@@ -38,7 +36,6 @@ module OpenNebula
 
         # Default resource ACL's for group users (create)
         GROUP_DEFAULT_ACLS = "VM+IMAGE+TEMPLATE+DOCUMENT+SECGROUP"
-        ALL_CLUSTERS_IN_ZONE = 10
 
         # The default view for group and group admins, must be defined in
         # sunstone_views.yaml
@@ -82,9 +79,6 @@ module OpenNebula
         #   group_hash[:name] the group name
         #   group_hash[:group_admin] the admin user definition hash, see def
         #   create_admin_user function description for details.
-        #   group_hash[:resource_providers]
-        #   group_hash[:resource_providers][:zone_id]
-        #   group_hash[:resource_providers][:cluster_id]
         #   group_hash[:views] Array of sunstone view names, to be stored
         #       in SUNSTONE_VIEWS
         #   group_hash[:default_view] Default sunstone view name, to be stored
@@ -106,17 +100,6 @@ module OpenNebula
             # Allocate group
             rc = self.allocate(group_hash[:name])
             return rc if OpenNebula.is_error?(rc)
-
-            # Handle resource providers
-            group_hash[:resource_providers].each { |rp|
-                next if rp[:zone_id].nil? && rp[:cluster_id].nil?
-
-                if rp[:cluster_id].class == String && rp[:cluster_id] == "ALL"
-                    add_provider(rp[:zone_id],ALL_CLUSTERS_IN_ZONE)
-                else
-                    add_provider(rp[:zone_id],rp[:cluster_id])
-                end
-            } if !group_hash[:resource_providers].nil?
 
             # Set group ACLs to create resources
             rc, msg = create_default_acls(group_hash[:resources])
@@ -208,26 +191,6 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
-        end
-
-        # Adds a resource provider to this group
-        # @param zone_id [Integer] Zone ID
-        # @param cluster_id [Integer] Cluster ID
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def add_provider(zone_id, cluster_id)
-            return call(GROUP_METHODS[:add_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
-        end
-
-        # Deletes a resource provider from this group
-        # @param zone_id [Integer] Zone ID
-        # @param cluster_id [Integer] Cluster ID
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def del_provider(zone_id, cluster_id)
-            return call(GROUP_METHODS[:del_provider], @pe_id, zone_id.to_i, cluster_id.to_i)
         end
 
         # ---------------------------------------------------------------------

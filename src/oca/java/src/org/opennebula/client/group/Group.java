@@ -32,8 +32,6 @@ public class Group extends PoolElement{
     private static final String INFO            = METHOD_PREFIX + "info";
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String QUOTA           = METHOD_PREFIX + "quota";
-    private static final String ADD_PROVIDER    = METHOD_PREFIX + "addprovider";
-    private static final String DEL_PROVIDER    = METHOD_PREFIX + "delprovider";
     private static final String UPDATE          = METHOD_PREFIX + "update";
 
     /**
@@ -112,36 +110,6 @@ public class Group extends PoolElement{
     }
 
     /**
-     * Adds a resource provider to this group
-     *
-     * @param client XML-RPC Client.
-     * @param id The group id.
-     * @param zoneId The zone id.
-     * @param clusterId The cluster id.
-     * @return A encapsulated response.
-     */
-    public static OneResponse addProvider(Client client, int id,
-        int zoneId, int clusterId)
-    {
-        return client.call(ADD_PROVIDER, id, zoneId, clusterId);
-    }
-
-    /**
-     * Deletes a resource provider from this group
-     *
-     * @param client XML-RPC Client.
-     * @param id The group id.
-     * @param zoneId The zone id.
-     * @param clusterId The cluster id.
-     * @return A encapsulated response.
-     */
-    public static OneResponse delProvider(Client client, int id,
-        int zoneId, int clusterId)
-    {
-        return client.call(DEL_PROVIDER, id, zoneId, clusterId);
-    }
-
-    /**
      * Replaces the template contents.
      *
      * @param client XML-RPC Client.
@@ -192,30 +160,6 @@ public class Group extends PoolElement{
     public OneResponse setQuota(String quota_template)
     {
         return setQuota(client, id, quota_template);
-    }
-
-    /**
-     * Adds a resource provider to this group
-     *
-     * @param zoneId The zone id.
-     * @param clusterId The cluster id.
-     * @return A encapsulated response.
-     */
-    public OneResponse addProvider(int zoneId, int clusterId)
-    {
-        return addProvider(client, id, zoneId, clusterId);
-    }
-
-    /**
-     * Deletes a resource provider from this group
-     *
-     * @param zoneId The zone id.
-     * @param clusterId The cluster id.
-     * @return A encapsulated response.
-     */
-    public OneResponse delProvider(int zoneId, int clusterId)
-    {
-        return delProvider(client, id, zoneId, clusterId);
     }
 
     /**

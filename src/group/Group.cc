@@ -216,8 +216,6 @@ string& Group::to_xml_extended(string& xml, bool extended) const
     string          collection_xml;
     string          template_xml;
 
-    set<pair<int,int> >::const_iterator it;
-
     ObjectCollection::to_xml(collection_xml);
 
     oss <<
@@ -226,15 +224,6 @@ string& Group::to_xml_extended(string& xml, bool extended) const
         "<NAME>" << name << "</NAME>"      <<
         obj_template->to_xml(template_xml) <<
         collection_xml;
-
-    for (it = providers.begin(); it != providers.end(); it++)
-    {
-        oss <<
-        "<RESOURCE_PROVIDER>" <<
-            "<ZONE_ID>"     << it->first    << "</ZONE_ID>"     <<
-            "<CLUSTER_ID>"  << it->second   << "</CLUSTER_ID>"  <<
-        "</RESOURCE_PROVIDER>";
-    }
 
     if (extended)
     {
@@ -300,25 +289,6 @@ int Group::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
-    // Set of resource providers
-    ObjectXML::get_nodes("/GROUP/RESOURCE_PROVIDER", content);
-
-    for (it = content.begin(); it != content.end(); it++)
-    {
-        ObjectXML tmp_xml(*it);
-
-        int zone_id, cluster_id;
-
-        rc += tmp_xml.xpath(zone_id, "/RESOURCE_PROVIDER/ZONE_ID", -1);
-        rc += tmp_xml.xpath(cluster_id, "/RESOURCE_PROVIDER/CLUSTER_ID", -1);
-
-        providers.insert(pair<int,int>(zone_id, cluster_id));
-    }
-
-    ObjectXML::free_nodes(content);
-    content.clear();
-
-
     if (rc != 0)
     {
         return -1;
@@ -326,147 +296,3 @@ int Group::from_xml(const string& xml)
 
     return 0;
 }
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::add_resource_provider(int zone_id, int cluster_id, string& error_msg)
-{
-    AclManager* aclm = Nebula::instance().get_aclm();
-
-    int rc = 0;
-    long long mask_prefix;
-
-    pair<set<pair<int, int> >::iterator,bool> ret;
-
-    ret = providers.insert(pair<int,int>(zone_id, cluster_id));
-
-    if( !ret.second )
-    {
-        error_msg = "Resource provider is already assigned to this group";
-        return -1;
-    }
-
-    if (cluster_id == ClusterPool::ALL_RESOURCES)
-    {
-        mask_prefix = AclRule::ALL_ID;
-    }
-    else
-    {
-        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
-    }
-
-    // @<gid> HOST/%<cid> MANAGE #<zone>
-    rc += aclm->add_rule(
-            AclRule::GROUP_ID |
-            oid,
-
-            mask_prefix |
-            PoolObjectSQL::HOST,
-
-            AuthRequest::MANAGE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    if (rc < 0)
-    {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
-    }
-
-    // @<gid> DATASTORE+NET/%<cid> USE #<zone>
-    rc += aclm->add_rule(
-            AclRule::GROUP_ID |
-            oid,
-
-            mask_prefix |
-            PoolObjectSQL::DATASTORE |
-            PoolObjectSQL::NET,
-
-            AuthRequest::USE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    if (rc < 0)
-    {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
-    }
-
-    return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int Group::del_resource_provider(int zone_id, int cluster_id, string& error_msg)
-{
-    AclManager* aclm = Nebula::instance().get_aclm();
-
-    int rc = 0;
-
-    long long mask_prefix;
-
-    if( providers.erase(pair<int,int>(zone_id, cluster_id)) != 1 )
-    {
-        error_msg = "Resource provider is not assigned to this group";
-        return -1;
-    }
-
-    if (cluster_id == ClusterPool::ALL_RESOURCES)
-    {
-        mask_prefix = AclRule::ALL_ID;
-    }
-    else
-    {
-        mask_prefix = AclRule::CLUSTER_ID | cluster_id;
-    }
-
-    // @<gid> HOST/%<cid> MANAGE #<zid>
-    rc += aclm->del_rule(
-            AclRule::GROUP_ID |
-            oid,
-
-            mask_prefix |
-            PoolObjectSQL::HOST,
-
-            AuthRequest::MANAGE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    if (rc < 0)
-    {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
-    }
-
-    // @<gid> DATASTORE+NET/%<cid> USE #<zid>
-    rc += aclm->del_rule(
-            AclRule::GROUP_ID |
-            oid,
-
-            mask_prefix |
-            PoolObjectSQL::DATASTORE |
-            PoolObjectSQL::NET,
-
-            AuthRequest::USE,
-
-            AclRule::INDIVIDUAL_ID |
-            zone_id,
-
-            error_msg);
-
-    if (rc < 0)
-    {
-        NebulaLog::log("GROUP",Log::ERROR,error_msg);
-    }
-
-    return 0;
-}
-

@@ -44,12 +44,6 @@ public:
      */
     static const int NONE_CLUSTER_ID;
 
-    /**
-     * Special ID to refer to all OpenNebula resources, from any cluster
-     * or in cluster none (* in ACL rules).
-     */
-    static const int ALL_RESOURCES;
-
     /* ---------------------------------------------------------------------- */
     /* Methods for DB management                                              */
     /* ---------------------------------------------------------------------- */

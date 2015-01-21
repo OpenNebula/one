@@ -61,14 +61,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
-    set :format, :clusterid, OpenNebulaHelper.rname_to_id_desc("CLUSTER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "CLUSTER")
-    end
-
-    set :format, :zoneid, OpenNebulaHelper.rname_to_id_desc("ZONE") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "ZONE")
-    end
-
     ########################################################################
     # Commands
     ########################################################################
@@ -238,34 +230,5 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         exit 0
-    end
-
-    add_provider_desc = <<-EOT.unindent
-        Adds a resource provider (cluster of a zone) to the given group.
-        clusterid can be set to ALL
-    EOT
-
-    command :add_provider, add_provider_desc, [:range, :groupid_list], :zoneid, :clusterid do
-        if args[2] and args[2].class != Fixnum and args[2].upcase == "ALL"
-            args[2]=10
-        end
-
-        helper.perform_actions(args[0],options,"resource provider added") do |obj|
-            obj.add_provider(args[1].to_i, args[2].to_i)
-        end
-    end
-
-    del_provider_desc = <<-EOT.unindent
-        Deletes a resource provider (cluster of a zone) from the given group
-        clusterid can be set to ALL
-    EOT
-
-    command :del_provider, del_provider_desc, [:range, :groupid_list], :zoneid, :clusterid do
-        if args[2] and args[2].class != Fixnum and args[2].upcase == "ALL"
-            args[2]=10
-        end
-        helper.perform_actions(args[0],options,"resource provider deleted") do |obj|
-            obj.del_provider(args[1].to_i, args[2].to_i)
-        end
     end
 end

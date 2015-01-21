@@ -18,14 +18,6 @@
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
-                <xs:element name="RESOURCE_PROVIDER" minOccurs="0" maxOccurs="unbounded">
-                  <xs:complexType>
-                    <xs:sequence>
-                      <xs:element name="ZONE_ID" type="xs:integer"/>
-                      <xs:element name="CLUSTER_ID" type="xs:integer"/>
-                    </xs:sequence>
-                  </xs:complexType>
-                </xs:element>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
