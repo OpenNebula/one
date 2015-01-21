@@ -3,9 +3,14 @@
  * is in the format "MMM yyyy" or "MMMM yyyy". Inspired by forum discussion:
  * http://datatables.net/forums/discussion/1242/sorting-dates-with-only-month-and-year
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (MMM yyyy) or (MMMM yyyy)
  *  @anchor Sort dates in the format `MMM yyyy` or `MMMM yyyy`
  *  @author Phil Hurwitz
+ *  @deprecated
  *
  *  @example
  *    $('#example').DataTable( {

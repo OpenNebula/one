@@ -1,12 +1,12 @@
 {
   "name": "foundation-datatables",
   "homepage": "https://github.com/DataTables/Plugins",
-  "version": "1.0.0",
-  "_release": "1.0.0",
+  "version": "1.0.1",
+  "_release": "1.0.1",
   "_resolution": {
     "type": "version",
-    "tag": "1.0.0",
-    "commit": "1be8930f1cf5a3d90f046e245d921714f14f153b"
+    "tag": "1.0.1",
+    "commit": "a94e328df63c79af43123b99ada5ff88d601a31d"
   },
   "_source": "https://github.com/DataTables/Plugins.git",
   "_target": "*",

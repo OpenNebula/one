@@ -4,9 +4,14 @@
  * also be quickly adapted for other formatting as required. Furthermore, this 
  * date sorting plug-in allows for empty values in the column.
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (dd/mm/YYY hh:ii:ss) 
  *  @summary Sort date / time in the format `dd/mm/YYY hh:ii:ss`
  *  @author [Ronan Guilloux](http://coolforest.net/)
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

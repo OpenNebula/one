@@ -174,11 +174,6 @@ table.DTTT_selectable tbody tr {
 	cursor: pointer;
 }
 
-div.DTTT .btn {
-	color: #333 !important;
-	font-size: 12px;
-}
-
 div.DTTT .btn:hover {
 	text-decoration: none !important;
 }

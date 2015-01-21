@@ -4,9 +4,14 @@
  * date and time:`dd.mm.YYYY HH:mm`
  * just date:`dd.mm.YYYY`.
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (dd.mm.YYYY) or date and time (dd.mm.YYYY HH:mm)
  *  @summary Sort date / time in the format `dd.mm.YYYY HH:mm` or `dd.mm.YYYY`.
  *  @author [Ronny Vedrilla](http://www.ambient-innovation.com)
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {
@@ -20,8 +25,8 @@
  jQuery.extend( jQuery.fn.dataTableExt.oSort, {
 	"de_datetime-asc": function ( a, b ) {
 		var x, y;
-		if ($.trim(a) !== '') {
-			var deDatea = $.trim(a).split(' ');
+		if (jQuery.trim(a) !== '') {
+			var deDatea = jQuery.trim(a).split(' ');
 			var deTimea = deDatea[1].split(':');
 			var deDatea2 = deDatea[0].split('.');
 			x = (deDatea2[2] + deDatea2[1] + deDatea2[0] + deTimea[0] + deTimea[1]) * 1;
@@ -29,8 +34,8 @@
 			x = Infinity; // = l'an 1000 ...
 		}
 
-		if ($.trim(b) !== '') {
-			var deDateb = $.trim(b).split(' ');
+		if (jQuery.trim(b) !== '') {
+			var deDateb = jQuery.trim(b).split(' ');
 			var deTimeb = deDateb[1].split(':');
 			deDateb = deDateb[0].split('.');
 			y = (deDateb[2] + deDateb[1] + deDateb[0] + deTimeb[0] + deTimeb[1]) * 1;
@@ -43,8 +48,8 @@
 
 	"de_datetime-desc": function ( a, b ) {
 		var x, y;
-		if ($.trim(a) !== '') {
-			var deDatea = $.trim(a).split(' ');
+		if (jQuery.trim(a) !== '') {
+			var deDatea = jQuery.trim(a).split(' ');
 			var deTimea = deDatea[1].split(':');
 			var deDatea2 = deDatea[0].split('.');
 			x = (deDatea2[2] + deDatea2[1] + deDatea2[0] + deTimea[0] + deTimea[1]) * 1;
@@ -52,8 +57,8 @@
 			x = Infinity;
 		}
 
-		if ($.trim(b) !== '') {
-			var deDateb = $.trim(b).split(' ');
+		if (jQuery.trim(b) !== '') {
+			var deDateb = jQuery.trim(b).split(' ');
 			var deTimeb = deDateb[1].split(':');
 			deDateb = deDateb[0].split('.');
 			y = (deDateb[2] + deDateb[1] + deDateb[0] + deTimeb[0] + deTimeb[1]) * 1;
@@ -66,15 +71,15 @@
 
 	"de_date-asc": function ( a, b ) {
 		var x, y;
-		if ($.trim(a) !== '') {
-			var deDatea = $.trim(a).split('.');
+		if (jQuery.trim(a) !== '') {
+			var deDatea = jQuery.trim(a).split('.');
 			x = (deDatea[2] + deDatea[1] + deDatea[0]) * 1;
 		} else {
 			x = Infinity; // = l'an 1000 ...
 		}
 
-		if ($.trim(b) !== '') {
-			var deDateb = $.trim(b).split('.');
+		if (jQuery.trim(b) !== '') {
+			var deDateb = jQuery.trim(b).split('.');
 			y = (deDateb[2] + deDateb[1] + deDateb[0]) * 1;
 		} else {
 			y = Infinity;
@@ -85,15 +90,15 @@
 
 	"de_date-desc": function ( a, b ) {
 		var x, y;
-		if ($.trim(a) !== '') {
-			var deDatea = $.trim(a).split('.');
+		if (jQuery.trim(a) !== '') {
+			var deDatea = jQuery.trim(a).split('.');
 			x = (deDatea[2] + deDatea[1] + deDatea[0]) * 1;
 		} else {
 			x = Infinity;
 		}
 
-		if ($.trim(b) !== '') {
-			var deDateb = $.trim(b).split('.');
+		if (jQuery.trim(b) !== '') {
+			var deDateb = jQuery.trim(b).split('.');
 			y = (deDateb[2] + deDateb[1] + deDateb[0]) * 1;
 		} else {
 			y = Infinity;

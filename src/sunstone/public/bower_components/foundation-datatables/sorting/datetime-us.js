@@ -8,9 +8,14 @@
  * * 01/01/2013 01:04 PM
  * * 1/1/2013 1:04 Pm
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date / time - US
  *  @summary Sort date / time in the format `m/d/yy h:m am|pm`
  *  @author [Kevin Gravier](http://mrkmg.com/)
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

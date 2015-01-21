@@ -7,9 +7,14 @@
  * * 17-MAY-2013
  * * 31-JAN-2014
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (dd-mmm-yyyy)
  *  @summary Sort dates in the format `dd-mmm-yyyy`
  *  @author [Jeromy French](http://www.appliedinter.net/jeromy_works/)
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

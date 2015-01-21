@@ -89,7 +89,7 @@ $.fn.dataTableExt.oPagination.listbox = {
 						elSel.add(oOption); // IE only
 					}
 				}
-				spans[1].innerHTML = " nbsp;of nbsp;" + iPages;
+				spans[1].innerHTML = "&nbsp;of&nbsp;" + iPages;
 			}
 		  elSel.value = iCurrentPage;
 		}

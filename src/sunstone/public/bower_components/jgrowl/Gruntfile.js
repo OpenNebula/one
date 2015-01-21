@@ -13,8 +13,15 @@ module.exports = function(grunt) {
         }
       },
     },
+    less: {
+      jgrowl: {
+        files: {
+          "jquery.jgrowl.css": "less/jgrowl.less"
+        }
+      }
+    },
     cssmin: {
-      minify: {
+      jgrowl: {
         expand: true,
         src: 'jquery.jgrowl.css',
         ext: '.jgrowl.min.css'
@@ -33,8 +40,13 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'qunit']
+      scripts: {
+        files: ['jquery.jgrowl.js', 'less/*'],
+        tasks: ['jshint', 'less', 'cssmin', 'uglify'],
+        options: {
+          spawn: false,
+        },
+      },
     }
   });
 
@@ -42,9 +54,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-less');
 
   grunt.registerTask('test', ['jshint']);
-
-  grunt.registerTask('default', ['jshint', 'uglify', 'cssmin']);
-
+  grunt.registerTask('default', ['jshint', 'uglify', 'less', 'cssmin']);
 };

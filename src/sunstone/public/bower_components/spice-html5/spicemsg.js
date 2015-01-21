@@ -348,6 +348,44 @@ SpiceMsgMainMouseMode.prototype =
     },
 }
 
+function SpiceMsgMainAgentData(a, at)
+{
+    this.from_buffer(a, at);
+}
+
+SpiceMsgMainAgentData.prototype =
+{
+    from_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        this.protocol = dv.getUint32(at, true); at += 4;
+        this.type = dv.getUint32(at, true); at += 4;
+        this.opaque = dv.getUint64(at, true); at += 8;
+        this.size = dv.getUint32(at, true); at += 4;
+        if (a.byteLength > at)
+        {
+            this.data = a.slice(at);
+            at += this.data.byteLength;
+        }
+    }
+}
+
+function SpiceMsgMainAgentTokens(a, at)
+{
+    this.from_buffer(a, at);
+}
+
+SpiceMsgMainAgentTokens.prototype =
+{
+    from_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        this.num_tokens = dv.getUint32(at, true); at += 4;
+    },
+}
+
 function SpiceMsgSetAck(a, at)
 {
     this.from_buffer(a, at);
@@ -448,6 +486,40 @@ SpiceMsgcMainAgentData.prototype =
     }
 }
 
+function VDAgentAnnounceCapabilities(request, caps)
+{
+    if (caps)
+    {
+        this.request = request;
+        this.caps = caps;
+    }
+    else
+        this.from_buffer(request);
+}
+
+VDAgentAnnounceCapabilities.prototype =
+{
+    to_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        dv.setUint32(at, this.request, true); at += 4;
+        dv.setUint32(at, this.caps, true); at += 4;
+    },
+    from_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        this.request = dv.getUint32(at, true); at += 4;
+        this.caps = dv.getUint32(at, true); at += 4;
+        return at;
+    },
+    buffer_size: function()
+    {
+        return 8;
+    }
+}
+
 function VDAgentMonitorsConfig(flags, width, height, depth, x, y)
 {
     this.num_mon = 1;
@@ -476,6 +548,90 @@ VDAgentMonitorsConfig.prototype =
     buffer_size: function()
     {
         return 28;
+    }
+}
+
+function VDAgentFileXferStatusMessage(data, result)
+{
+    if (result)
+    {
+        this.id = data;
+        this.result = result;
+    }
+    else
+        this.from_buffer(data);
+}
+
+VDAgentFileXferStatusMessage.prototype =
+{
+    to_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        dv.setUint32(at, this.id, true); at += 4;
+        dv.setUint32(at, this.result, true); at += 4;
+    },
+    from_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        this.id = dv.getUint32(at, true); at += 4;
+        this.result = dv.getUint32(at, true); at += 4;
+        return at;
+    },
+    buffer_size: function()
+    {
+        return 8;
+    }
+}
+
+function VDAgentFileXferStartMessage(id, name, size)
+{
+    this.id = id;
+    this.string = "[vdagent-file-xfer]\n"+"name="+name+"\nsize="+size+"\n";
+}
+
+VDAgentFileXferStartMessage.prototype =
+{
+    to_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        dv.setUint32(at, this.id, true); at += 4;
+        for (var i = 0; i < this.string.length; i++, at++)
+            dv.setUint8(at, this.string.charCodeAt(i));
+    },
+    buffer_size: function()
+    {
+        return 4 + this.string.length + 1;
+    }
+}
+
+function VDAgentFileXferDataMessage(id, size, data)
+{
+    this.id = id;
+    this.size = size;
+    this.data = data;
+}
+
+VDAgentFileXferDataMessage.prototype =
+{
+    to_buffer: function(a, at)
+    {
+        at = at || 0;
+        var dv = new SpiceDataView(a);
+        dv.setUint32(at, this.id, true); at += 4;
+        dv.setUint64(at, this.size, true); at += 8;
+        if (this.data && this.data.byteLength > 0)
+        {
+            var u8arr = new Uint8Array(this.data);
+            for (var i = 0; i < u8arr.length; i++, at++)
+                dv.setUint8(at, u8arr[i]);
+        }
+    },
+    buffer_size: function()
+    {
+        return 12 + this.size;
     }
 }
 

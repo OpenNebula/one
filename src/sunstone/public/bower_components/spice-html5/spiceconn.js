@@ -129,6 +129,10 @@ SpiceConn.prototype =
             msg.channel_caps.push(
                 (1 << SPICE_PLAYBACK_CAP_OPUS)
             );
+        else if (msg.channel_type == SPICE_CHANNEL_MAIN)
+            msg.channel_caps.push(
+                (1 << SPICE_MAIN_CAP_AGENT_CONNECTED_TOKENS)
+            );
 
         hdr.size = msg.buffer_size();
 
