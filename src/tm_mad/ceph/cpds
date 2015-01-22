@@ -80,8 +80,24 @@ if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
+RBD_SNAP="cpds-${VM_ID}-${DISK_ID}-$( date +%s )"
 
-ssh_exec_and_log "$SRC_HOST" "$RBD copy $RBD_DST $DST" \
+CP_CMD=$(
+cat <<EOF
+set -e
+
+RBD_FORMAT=\$($RBD info $RBD_DST | sed -n 's/.*format: // p')
+if [ "\$RBD_FORMAT" = "2" ]; then
+    $RBD snap create "$RBD_DST@$RBD_SNAP"
+    $RBD copy "$RBD_DST@$RBD_SNAP" $DST
+    $RBD snap rm "$RBD_DST@$RBD_SNAP"
+else
+    $RBD copy $RBD_DST $DST
+fi
+EOF
+)
+
+ssh_exec_and_log "$SRC_HOST" "$CP_CMD" \
                  "Error cloning $RBD_DST to $DST in $SRC_HOST"
 
 exit 0
