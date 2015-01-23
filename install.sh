@@ -1687,6 +1687,7 @@ SUNSTONE_PUBLIC_VENDOR_SPICE="\
     src/sunstone/public/bower_components/spice-html5/thirdparty/sha1.js \
     src/sunstone/public/bower_components/spice-html5/ticket.js \
     src/sunstone/public/bower_components/spice-html5/resize.js \
+    src/sunstone/public/bower_components/spice-html5/filexfer.js \
     src/sunstone/public/bower_components/spice-html5/spice-custom.css"
 
 # end bower
