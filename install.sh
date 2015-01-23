@@ -1589,6 +1589,7 @@ SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JQUERY="\
     src/sunstone/public/bower_components/jquery/dist/jquery.min.js \
+    src/sunstone/public/bower_components/jquery/dist/jquery.min.map \
     src/sunstone/public/bower_components/jquery-migrate/jquery-migrate.min.js"
 
 SUNSTONE_PUBLIC_NEW_VENDOR_DATATABLES="\
@@ -1603,6 +1604,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FOUNDATION="\
 
 SUNSTONE_PUBLIC_NEW_VENDOR_JGROWL="\
     src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.js \
+    src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.map \
     src/sunstone/public/bower_components/jgrowl/jquery.jgrowl.min.css"
 
 
