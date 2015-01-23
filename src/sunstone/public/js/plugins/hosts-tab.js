@@ -1377,7 +1377,7 @@ function setupCreateHostDialog(){
       $('a', container).trigger("click")
 
       $.ajax({
-          url: '/vcenter',
+          url: 'vcenter',
           type: "GET",
           data: {timeout: false},
           dataType: "json",
