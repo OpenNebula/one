@@ -879,6 +879,13 @@ div.dataTables_scrollFoot table {
   color: #368a54;
 }
 
+.provision_back,
+.provision_show_vm_accordion,
+.provision_show_user_accordion,
+.provision_show_flow_accordion {
+  padding: 0px !important;  
+}
+
 .provision-input {
   border-color: #dfdfdf;
   border-radius: 3px;

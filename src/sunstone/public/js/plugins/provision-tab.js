@@ -469,7 +469,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<dl class="accordion provision_accordion_template" data-accordion="provision_accordion_template">'+
-        '<dd style="border-bottom: 1px solid #efefef;" class="active">'+
+        '<dd style="border-bottom: 1px solid #efefef;" class="active accordion-navigation">'+
           '<a href="#provision_dd_template" style="background: #fff; font-size: 30px">'+
             '<span class="select_template" style="color:#555">'+
               tr("Select a Template")+
@@ -599,7 +599,7 @@ var provision_create_flow = '<form id="provision_create_flow" class="hidden sect
   '<div class="row">'+
     '<div class="large-10 large-centered columns">'+
       '<dl class="accordion provision_accordion_flow_template" data-accordion="provision_accordion_flow_template">'+
-        '<dd style="border-bottom: 1px solid #efefef;" class="active">'+
+        '<dd style="border-bottom: 1px solid #efefef;" class="active accordion-navigation">'+
           '<a href="#provision_dd_flow_template" style="background: #fff; font-size: 30px">'+
             '<span class="select_template" style="color:#555">'+
               tr("Select a Template")+
@@ -1056,7 +1056,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<dl class="accordion" data-accordion>'+
-                '<dd>'+
+                '<dd class="accordion-navigation">'+
                   '<a href="#provision_update_language_accordion" class="text-center accordion-a">'+
                     '<div class="row only-not-active">'+
                       '<div class="large-12 large-centered columns">'+
@@ -1098,7 +1098,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<dl class="accordion" data-accordion>'+
-                '<dd>'+
+                '<dd class="accordion-navigation">'+
                   '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
                     '<div class="row only-not-active">'+
                       '<div class="large-12 large-centered columns">'+
@@ -1147,7 +1147,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
           '<div class="row">'+
             '<div class="large-12 large-centered columns">'+
               '<dl class="accordion" data-accordion>'+
-                '<dd>'+
+                '<dd class="accordion-navigation">'+
                   '<a href="#provision_update_view_accordion" class="text-center accordion-a">'+
                     '<div class="row only-not-active">'+
                       '<div class="large-12 large-centered columns">'+
@@ -1189,7 +1189,7 @@ var provision_user_info = '<div id="provision_user_info" class="hidden section_c
             '<div class="row">'+
               '<div class="large-12 large-centered columns">'+
                 '<dl class="accordion" data-accordion>'+
-                  '<dd >'+
+                  '<dd class="accordion-navigation">'+
                     '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
                       '<div class="row only-not-active">'+
                         '<div class="large-12 large-centered columns">'+
@@ -1336,7 +1336,7 @@ var list_users_accordion_id = 0;
 function provision_list_users(opts_arg){
   list_users_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_users" data-accordion>'+
-    '<dd class="active">'+
+    '<dd class="active accordion-navigation">'+
       '<a href="#provision_list_user_accordion'+list_users_accordion_id+'" class="provision_back right only-not-active">'+
         '<span class="button medium radius">'+
           '<i class="fa fa-fw fa-lg fa-th"/> '+
@@ -1377,7 +1377,7 @@ function provision_list_users(opts_arg){
         '</div>'+
       '</div>'+
     '</dd>'+
-    '<dd>'+
+    '<dd class="accordion-navigation">'+
       '<a class="provision_show_user_accordion" href="#provision_show_user_accordion'+list_users_accordion_id+'">'+
       '</a>'+
       '<div id="provision_show_user_accordion'+list_users_accordion_id+'" class="content">'+
@@ -1448,7 +1448,7 @@ function provision_list_templates(opts_arg){
 
   list_templates_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_templates" data-accordion="dfsaf">'+
-    '<dd class="'+ (opts.active ? 'active' : '') +'">'+
+    '<dd class="'+ (opts.active ? 'active' : '') +' accordion-navigation">'+
       '<a class="right only-not-active" href="#provision_list_template_accordion'+list_templates_accordion_id+'">'+
         '<span class="button medium radius">'+
           '<i class="fa fa-fw fa-lg fa-th"/> '+
@@ -1491,7 +1491,7 @@ function provision_list_templates(opts_arg){
         '</div>'+
       '</div>'+
     '</dd>'+
-    '<dd>'+
+    '<dd class="accordion-navigation">'+
       '<a class="provision_show_template_accordion" href="#provision_show_template_accordion'+list_templates_accordion_id+'">'+
       '</a>'+
       '<div id="provision_show_template_accordion'+list_templates_accordion_id+'" class="content">'+
@@ -1688,7 +1688,7 @@ function provision_list_vms(opts_arg){
 
   list_vms_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_vms" data-accordion>'+
-    '<dd class="'+ (opts.active ? 'active' : '') +'">'+
+    '<dd class="'+ (opts.active ? 'active' : '') +' accordion-navigation">'+
         '<a href="#provision_list_vm_accordion'+list_vms_accordion_id+'" class="provision_back right only-not-active">'+
           '<span class="button medium radius">'+
             '<i class="fa fa-fw fa-lg fa-th"/> '+
@@ -1735,7 +1735,7 @@ function provision_list_vms(opts_arg){
         '</div>'+
       '</div>'+
     '</dd>'+
-    '<dd>'+
+    '<dd class="accordion-navigation">'+
       '<a class="provision_show_vm_accordion" href="#provision_show_vm_accordion'+list_vms_accordion_id+'">'+
       '</a>'+
       '<div id="provision_show_vm_accordion'+list_vms_accordion_id+'" class="content">'+
@@ -1816,7 +1816,7 @@ function provision_list_flows(opts_arg){
 
   list_flows_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_flows" data-accordion>'+
-    '<dd class="'+ (opts.active ? 'active' : '') +'">'+
+    '<dd class="'+ (opts.active ? 'active' : '') +'" accordion-navigation>'+
       '<a class="provision_list_flow_accordion right only-not-active provision_back" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
         '<span class="button medium radius">'+
           '<i class="fa fa-fw fa-lg fa-th"/> '+
@@ -1865,7 +1865,7 @@ function provision_list_flows(opts_arg){
         '</div>'+
       '</div>'+
     '</dd>'+
-    '<dd>'+
+    '<dd class="accordion-navigation">'+
       '<a class="provision_show_flow_accordion" href="#provision_show_flow_accordion'+list_flows_accordion_id+'">'+
       '</a>'+
       '<div id="provision_show_flow_accordion'+list_flows_accordion_id+'" class="content">'+
@@ -2271,7 +2271,7 @@ function generate_provision_instance_type_accordion(context, capacity) {
     '<div class="row">'+
       '<div class="large-12 large-centered columns">'+
         '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
-          '<dd>'+
+          '<dd class="accordion-navigation">'+
             '<a href="#provision_instance_type_dd_'+provision_instance_type_accordion_id+'" class="button large-12 medium radius" style="color: #555;">'+
               tr("Change Capacity")+
             '</a>'+
@@ -2487,7 +2487,7 @@ function generate_provision_network_table(context, nic, vnet_attr){
       '</span>';
   }
 
-  var dd_context = $('<dd style="border-bottom: 1px solid #efefef;">'+
+  var dd_context = $('<dd style="border-bottom: 1px solid #efefef;" class="accordion-navigation">'+
     '<a href="#provision_accordion_dd_'+provision_nic_accordion_dd_id+'" style="background: #fff; font-size: 24px">'+
       nic_span +
     '</a>'+

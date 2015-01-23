@@ -120,7 +120,7 @@ var deploy_vm_tmpl ='\
       </fieldset>\
     </div>\
     <dl class="accordion" id="advanced_toggle" data-accordion>\
-         <dd><a href="#advanced_deploy"> '+tr("Advanced options")+'</a></dd>\
+         <dd class="accordion-navigation"><a href="#advanced_deploy"> '+tr("Advanced options")+'</a></dd>\
     </dl>\
          <div id="advanced_deploy" class="row content">\
             <div class="row">\
@@ -167,7 +167,7 @@ var migrate_vm_tmpl ='\
     <br>\
     <br>\
     <dl class="accordion" id="advanced_migrate_toggle" data-accordion>\
-         <dd><a href="#advanced_migrate"> '+tr("Advanced options")+'</a></dd>\
+         <dd class="accordion-navigation"><a href="#advanced_migrate"> '+tr("Advanced options")+'</a></dd>\
     </dl>\
     <div id="advanced_migrate" class="content">\
         <div class="row">\

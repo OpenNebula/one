@@ -1176,7 +1176,7 @@ function setupImageCloneDialog(){
   <div class="row">\
     <div class="large-12 columns">\
       <dl class="accordion" id="image_clone_advanced_toggle" data-accordion>\
-        <dd><a href="#image_clone_advanced"> '+tr("Advanced options")+'</a></dd>\
+        <dd class="accordion-navigation"><a href="#image_clone_advanced"> '+tr("Advanced options")+'</a></dd>\
       </dl>\
       <div id="image_clone_advanced" class="row collapse content">\
         <br>\
