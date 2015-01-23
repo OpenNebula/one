@@ -117,15 +117,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Creates a new VDC
     EOT
 
-    command :create, create_desc, :file do
+    command :create, create_desc, :name do
         helper.create_resource(options) do |vdc|
-            begin
-                template = File.read(args[0])
-                vdc.allocate(template)
-            rescue => e
-                STDERR.puts e.message
-                exit -1
-            end
+            template = "NAME = \"#{args[0]}\""
+            vdc.allocate(template)
         end
     end
 
