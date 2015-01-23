@@ -70,12 +70,13 @@ var create_image_tmpl ='<div class="row create_image_header">\
                    <div id="img_datastore" name="img_datastore">\
                    </div>\
                 </div>\
-                <div class="large-6 columns">\
-                  <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
-                  <label for="img_persistent">'+tr("Persistent")+
-                    '<span class="tip">'+tr("Persistence of the image")+'</span>'+
-                  '</label>\
-                </div>\
+                <div class="large-6 columns">'+
+                  (Config.isTabActionEnabled('images-tab', "Image.persistent") ? 
+                    '<input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />\
+                    <label for="img_persistent">'+tr("Persistent")+
+                      '<span class="tip">'+tr("Persistence of the image")+'</span>'+
+                    '</label>' : '') +
+                '</div>\
               </div>\
               <br>\
              <fieldset>\
@@ -651,9 +652,10 @@ function updateImageInfo(request,img){
            <tr>\
              <td class="key_td">'+tr("Persistent")+'</td>\
              <td class="value_td_persistency">'+(parseInt(img_info.PERSISTENT) ? tr("yes") : tr("no"))+'</td>\
-             <td><div id="div_edit_persistency">\
-                   <a id="div_edit_persistency_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>\
-                 </div>\
+             <td><div id="div_edit_persistency">' + 
+                  (Config.isTabActionEnabled('images-tab', "Image.persistent") ? 
+                    '<a id="div_edit_persistency_link" class="edit_e" href="#"><i class="fa fa-pencil-square-o right"/></a>' : '') +
+                 '</div>\
              </td>\
            </tr>\
            <tr>\
