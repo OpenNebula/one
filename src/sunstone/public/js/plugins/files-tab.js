@@ -632,7 +632,7 @@ function setupCreateFileDialog(){
       $("#file_uploader").attr("disabled", "disabled");
     } else {
       var file_uploader = new Resumable({
-          target: '/upload_chunk',
+          target: 'upload_chunk',
           chunkSize: 10*1024*1024,
           maxFiles: 1,
           testChunks: false,
@@ -672,7 +672,7 @@ function setupCreateFileDialog(){
       file_uploader.on('fileSuccess', function(file) {
           $('div[id="files-'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
           $.ajax({
-              url: '/upload',
+              url: 'upload',
               type: "POST",
               data: {
                   csrftoken: csrftoken,

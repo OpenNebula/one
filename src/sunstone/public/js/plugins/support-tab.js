@@ -361,7 +361,7 @@ function setup_upload_support_file_dialog() {
     $(".upload_support_file_form_button").attr("disabled", "disabled");
   } else {
     var uploader = new Resumable({
-        target: '/upload_chunk',
+        target: 'upload_chunk',
         chunkSize: 10*1024*1024,
         maxFiles: 1,
         testChunks: false,
@@ -403,7 +403,7 @@ function setup_upload_support_file_dialog() {
     uploader.on('fileSuccess', function(file) {
         $('div[id="'+fileName+'-info"]').text(tr('Registering in OpenNebula'));
         $.ajax({
-            url: '/support/request/' + $("#submit_support_comment").data("request_id") + '/upload',
+            url: 'support/request/' + $("#submit_support_comment").data("request_id") + '/upload',
             type: "POST",
             data: {
                 csrftoken: csrftoken,
