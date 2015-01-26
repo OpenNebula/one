@@ -4404,7 +4404,7 @@ function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quot
 
     return '<div class="row">'+
           '<div class="large-12 columns text-center" style="margin-bottom: 5px">'+
-            '<span id="'+html_tag+'_percentage" style="font-size:'+font_large_size+';">'+quota.percentage+'</span>'+'<span style="font-size:20px; color: #999">'+"%"+'</span>'+
+            '<span>'+legend+'</span>'+
           '</div>'+
         '</div>'+
         '<div class="row">'+
@@ -4416,9 +4416,8 @@ function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quot
         '</div>'+
         '<div class="row">'+
           '<div class="large-12 columns text-center">'+
-            '<span>'+legend+'</span>'+
-            '<br>'+
-            '<span id="'+html_tag+'_str" style="color: #999; font-size: '+font_small_size+';">'+quota.str+'</span>'+
+            '<span id="'+html_tag+'_percentage" class="left" style="font-size:'+font_small_size+';">'+quota.percentage+' %</span>'+
+            '<span id="'+html_tag+'_str" class="right" style="color: #999; font-size: '+font_small_size+';">'+quota.str+'</span>'+
           '</div>'+
         '</div>';
 }

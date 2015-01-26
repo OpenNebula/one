@@ -14,21 +14,31 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-var dashboard_tab_content = '<div>\
-  <div id="one_per_row">\
-  </div>\
-  <div id="three_per_row" class="row">\
-  </div>\
-  <div id="two_per_row" class="row">\
-  </div>\
-  <div id="one_footer">\
-  </div>\
-</div>\
-';
+
+var empty_graph_placeholder =
+  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+    //'<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+  '</span>'+
+  '<br>'+
+  '<span style="color: #cfcfcf">'+
+    tr("There is no information available")+
+  '</span>';
+
+var dashboard_tab_content = 
+  '<div>\
+    <div id="one_per_row">\
+    </div>\
+    <div id="three_per_row" class="row">\
+    </div>\
+    <div id="two_per_row" class="row">\
+    </div>\
+    <div id="one_footer">\
+    </div>\
+  </div>';
 
 var widgets = {
-  "storage" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-upload"></i> '+tr("Storage")+'</legend>\
+  "storage" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-upload"></i> '+tr("Storage")+'</h5>\
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
@@ -42,11 +52,10 @@ var widgets = {
               <small>'+tr("USED")+'</small>\
               </h4>\
             </div>\
-        </div>\
-      </fieldset>',
-  "users" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-user"></i> '+tr("Users")+'</legend>\
+        </div>',
+  "users" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-user"></i> '+tr("Users")+'</h5>\
         <div class="row totals-info">\
+          <div class="large-3 small-3 columns">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
               <span class="subheader total_users">-</span><br>\
@@ -58,11 +67,34 @@ var widgets = {
               <small>'+tr("USERS")+'</small><br>\
               <small>'+tr("GROUPS")+'</small>\
               </h4>\
+            </div>'+
+          '</div>'+
+          '<div class="large-9 small-9 columns" id="dashboard_vdc_user_accounting">'+
+            '<input style="display:none;" value="user" id="acct_group_by"/>'+
+            '<div class="small-6 large-6 columns">'+
+                '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
+                '<div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
+                '</div>'+
+            '</div>'+
+            '<div class="small-6 large-6 columns">'+
+                '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
+                '<div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
+                '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>\
+        <div class="row">\
+            <div class="small-3 large-3 columns text-center">\
             </div>\
-        </div>\
-      </fieldset>',
-  "network" : '<fieldset>\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-sitemap"></i> '+tr("Network")+'</legend>\
+            <div class="small-9 large-9 columns text-center">\
+              <br>\
+              <a class="button secondary radius large-3 small show_users_tab"><i class="fa fa-lg fa-list fa-fw"></i> Users</a>\
+              <a class="button secondary radius large-3 small show_create_user"><i class="fa fa-lg fa-plus fa-fw"></i> Create</a>\
+            </div>\
+        </div>',
+  "network" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-sitemap"></i> '+tr("Network")+'</h5>\
         <div class="row totals-info">\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
@@ -76,13 +108,10 @@ var widgets = {
               <small>'+tr("USED IPs")+'</small>\
               </h4>\
             </div>\
-        </div>\
-      </fieldset>',
-  "hosts" : '<fieldset class="dashboard-panel">\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-hdd-o"></i> '+tr("Hosts")+'</legend>\
+        </div>',
+  "hosts" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-hdd-o"></i> '+tr("Hosts")+'</h5>\
         <div class="row  totals-info">\
           <div class="small-3 large-3 columns centered">\
-            <br>\
             <div class="small-6 large-6 columns text-right">\
               <h4 class="subheader">\
                 <span class="total_hosts subheader"/><br>\
@@ -119,9 +148,16 @@ var widgets = {
             </div>\
           </div>\
         </div>\
-      </fieldset>',
-  "vms" : '<fieldset class="dashboard-panel">\
-        <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-th"></i> '+tr("Virtual Machines")+'</legend>\
+        <div class="row">\
+            <div class="small-3 large-3 columns text-center">\
+            </div>\
+            <div class="small-9 large-9 columns text-center">\
+              <br>\
+              <a class="button secondary radius large-3 small show_hosts_tab"><i class="fa fa-lg fa-list fa-fw"></i> Hosts</a>\
+              <a class="button secondary  radius large-3 small show_create_host"><i class="fa fa-lg fa-plus fa-fw"></i> Create</a>\
+            </div>\
+        </div>',
+  "vms" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-th"></i> '+tr("Virtual Machines")+'</h5>\
         <div class="row totals-info">\
           <div class="small-3 large-3 columns">\
             <div class="small-6 large-6 columns text-right">\
@@ -140,21 +176,36 @@ var widgets = {
               <small class="alert-color">'+tr("FAILED")+'</small>\
               </h4>\
             </div>\
-          </div>\
-          <div class="small-9 large-9 columns">\
-            <div class="row graph_legend text-center">\
-              <div class="small-6 large-6 columns" id="dashboard_cpu_usage" style="padding: 20px 40px">\
-              </div>\
-              <div class="small-6 large-6 columns" id="dashboard_memory_usage" style="padding: 20px 40px">\
-              </div>\
+          </div>'+
+          '<div class="large-9 small-9 columns" id="dashboard_vm_accounting">'+
+            '<input style="display:none;" value="vm" id="acct_group_by"/>'+
+            '<div class="small-6 large-6 columns">'+
+                '<h3 class="subheader"><small>'+tr("CPU hours")+'</small></h3>'+
+                '<div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
+                '</div>'+
+            '</div>'+
+            '<div class="small-6 large-6 columns">'+
+                '<h3 class="subheader"><small>'+tr("Memory GB hours")+'</small></h3>'+
+                '<div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">'+
+                  empty_graph_placeholder +
+                '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row">\
+            <div class="small-3 large-3 columns text-center">\
             </div>\
-          </div>\
-        </div>\
-      </fieldset>',
+            <div class="small-9 large-9 columns text-center">\
+              <br>\
+              <a class="button secondary radius large-3 small show_vms_tab"><i class="fa fa-lg fa-list fa-fw"></i> VMs</a>\
+              <a class="button secondary radius large-3 small show_create_vm"><i class="fa fa-lg fa-plus fa-fw"></i> Create</a>\
+            </div>\
+        </div>',
   "user_quotas" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("User Quotas")+'</legend>\
+      <legend class="subheader"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("User Quotas")+'</legend>\
       <div class="row" id="quotas_tab_user">\
-        <div class="large-12 columns">'+
+        <div class="large-12 small-12 columns">'+
           '<div class="row">'+
             '<div class="large-8 large-centered columns">'+
               '<div class="text-center">'+
@@ -173,7 +224,7 @@ var widgets = {
       </div>\
     </fieldset>',
   "group_quotas" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("Group Quotas")+'</legend>\
+      <legend class="subheader"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("Group Quotas")+'</legend>\
         <div id="quotas_tab_group_TabBody" class="row">\
           <div class="large-12 columns">'+
             '<div class="row">'+
@@ -202,7 +253,7 @@ var widgets = {
         </div>\
     </fieldset>',
   "accounting" : '<fieldset>\
-      <legend class="span-dashboard"><i class="fa fa-fw fa-lg fa-bar-chart-o"></i> '+tr("Accounting")+'</legend>\
+      <legend class="subheader"><i class="fa fa-fw fa-lg fa-bar-chart-o"></i> '+tr("Accounting")+'</legend>\
         <div id="dashboard_vm_accounting" class="row">\
           <div class="large-16 columns">'+
             '<div id="user_dashboard_info_acct_div" class="large-12 columns columns">'+
@@ -217,6 +268,30 @@ var widget_refresh = {
         },
     "users" : function(){
             Sunstone.runAction("User.list");
+
+            var start_time =  Math.floor(new Date().getTime() / 1000);
+            // ms to s
+
+            // 604800 = 7 days = 7*24*60*60
+            start_time = start_time - 604800;
+
+            // today
+            var end_time = -1;
+
+            var options = {
+              "start_time": start_time,
+              "end_time": end_time
+            }
+
+            var no_table = true;
+
+            OpenNebula.VM.accounting({
+                success: function(req, response){
+                    fillAccounting($("#dashboard_vdc_user_accounting"), req, response, no_table);
+                },
+                error: onError,
+                data: options
+            });
         },
     "network" : function(){
             Sunstone.runAction("Network.list");
@@ -226,6 +301,30 @@ var widget_refresh = {
         },
     "vms" : function(){
             Sunstone.runAction("VM.list");
+
+            var start_time =  Math.floor(new Date().getTime() / 1000);
+            // ms to s
+
+            // 604800 = 7 days = 7*24*60*60
+            start_time = start_time - 604800;
+
+            // today
+            var end_time = -1;
+
+            var options = {
+              "start_time": start_time,
+              "end_time": end_time
+            }
+
+            var no_table = true;
+
+            OpenNebula.VM.accounting({
+                success: function(req, response){
+                    fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
+                },
+                error: onError,
+                data: options
+            });
         },
     "accounting" : function(){},
     "user_quotas" : refreshDashboardUserQuotas,
@@ -402,7 +501,7 @@ $(document).ready(function(){
         })
 
         $.each(Config.dashboardWidgets('widgets_one_per_row'), function(id, widget){
-            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div>';
+            var html = '<div class="row"><div class="large-12 columns">'+widgets[widget]+'</div></div><br><br>';
             $('#one_per_row', $dashboard).append(html);
         })
 
@@ -429,6 +528,36 @@ $(document).ready(function(){
                 }
             );
         }
+
+        $(".show_vms_tab").on("click", function(){
+          showTab('vms-tab');
+          return false;
+        })
+
+        $(".show_hosts_tab").on("click", function(){
+          showTab('hosts-tab');
+          return false;
+        })
+
+        $(".show_users_tab").on("click", function(){
+          showTab('users-tab');
+          return false;
+        })
+
+        $(".show_create_vm").on("click", function(){
+          popUpCreateVMDialog();
+          return false;
+        })
+
+        $(".show_create_host").on("click", function(){
+          popUpCreateHostDialog();
+          return false;
+        })
+
+        $(".show_create_user").on("click", function(){
+          popUpCreateUserDialog();
+          return false;
+        })
 
         $(document).foundation();
     }

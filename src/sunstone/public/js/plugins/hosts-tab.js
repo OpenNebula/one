@@ -660,7 +660,7 @@ function updateHostsView (request,host_list){
       "dashboard_host_allocated_cpu",
       tr("ALLOCATED CPU"),
       "30px",
-      "12px",
+      "14px",
       {"percentage": ratio_allocated_cpu, "str": info_str })
     );
 
@@ -678,7 +678,7 @@ function updateHostsView (request,host_list){
       "dashboard_host_real_cpu",
       tr("REAL CPU"),
       "30px",
-      "12px",
+      "14px",
       {"percentage": ratio_real_cpu, "str": info_str })
     );
 
@@ -696,7 +696,7 @@ function updateHostsView (request,host_list){
       "dashboard_host_allocated_mem",
       tr("ALLOCATED MEMORY"),
       "30px",
-      "12px",
+      "14px",
       {"percentage": ratio_allocated_mem, "str": info_str })
     );
 
@@ -714,7 +714,7 @@ function updateHostsView (request,host_list){
       "dashboard_host_real_mem",
       tr("REAL MEMORY"),
       "30px",
-      "12px",
+      "14px",
       {"percentage": ratio_real_mem, "str": info_str })
     );
 
