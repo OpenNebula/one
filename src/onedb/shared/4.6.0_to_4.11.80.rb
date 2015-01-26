@@ -149,6 +149,42 @@ EOT
 
         log_time()
 
+
+        @db.run "ALTER TABLE user_pool RENAME TO old_user_pool;"
+        @db.run "CREATE TABLE user_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name));"
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_user_pool") do |row|
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+
+                elem = doc.at_xpath("/USER/TEMPLATE/DEFAULT_VIEW")
+
+                if (!elem.nil?)
+                    elem.remove
+
+                    doc.at_xpath("/USER/TEMPLATE").add_child(
+                        doc.create_element("DEFAULT_VIEW")).
+                        add_child(Nokogiri::XML::CDATA.new(
+                            doc,
+                            elem.text.gsub("vdcadmin", "groupadmin")))
+                end
+
+                @db[:user_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
+        end
+
+        @db.run "DROP TABLE old_user_pool;"
+
+        log_time()
+
         return true
     end
 end
