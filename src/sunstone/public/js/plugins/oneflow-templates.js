@@ -64,6 +64,7 @@ var create_service_template_wizard_html = '\
                       </table>\
                 </div>\
             </div>'}) +
+    '<br>'+
     generateAdvancedSection({
         title: tr("Advanced Service Parameters"),
         html_id: "advanced_service_params",
@@ -167,6 +168,7 @@ var role_tab_content = '\
     <div class="large-12 columns elasticity_accordion">\
     </div>\
 </div>\
+<br>\
 <div class="row">\
     <div class="large-12 columns advanced_role_accordion">\
     </div>\
@@ -1582,7 +1584,7 @@ function fillUpUpdateServiceTemplateDialog(response, dialog){
     $("select[name='shutdown_action_service']", dialog).val(service_template.TEMPLATE.BODY.shutdown_action);
     $("input[name='ready_status_gate']", dialog).prop("checked",service_template.TEMPLATE.BODY.ready_status_gate || false);
 
-    if (service_template.TEMPLATE.BODY['custom_attrs']) {
+    if (service_template.TEMPLATE.BODY['custom_attrs'].length) {
         $("a[href='#network_configuration_and_attributes']", dialog).trigger("click");
 
         $(".service_networks i.remove-tab", dialog).trigger("click");
@@ -1632,6 +1634,8 @@ function fillUpUpdateServiceTemplateDialog(response, dialog){
                     }
                 }
             });
+
+            $(".vm_template_contents", context).val(htmlDecode(value.vm_template_contents));
         }
 
         $("#cardinality", context).val(htmlDecode(value.cardinality));
