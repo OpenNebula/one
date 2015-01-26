@@ -26,6 +26,17 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         "onevdc.yaml"
     end
 
+    def id_list_size(list)
+        case list
+        when NilClass
+            return 0
+        when Array
+            return list.size
+        when Hash
+            return 1
+        end
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -34,11 +45,39 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
                 d["ID"]
             end
 
-            column :NAME, "Name of the VDC", :left, :size=>25 do |d|
+            column :NAME, "Name of the VDC", :left, :size=>30 do |d|
                 d["NAME"]
             end
 
-            default :ID, :NAME
+            column :GROUPS, "Number of Groups", :size=>6 do |d|
+                ids = d["GROUPS"]["ID"]
+                case ids
+                when String
+                    1
+                when Array
+                    ids.size
+                when NilClass
+                    0
+                end
+            end
+
+            column :CLUSTERS, "Number of Clusters", :size=>8 do |d|
+                @ext.id_list_size(d["CLUSTERS"]["CLUSTER"])
+            end
+
+            column :HOSTS, "Number of Hosts", :size=>5 do |d|
+                @ext.id_list_size(d["HOSTS"]["HOST"])
+            end
+
+            column :VNETS, "Number of Networks", :size=>5 do |d|
+                @ext.id_list_size(d["VNETS"]["VNET"])
+            end
+
+            column :DATASTORES, "Number of Datastores", :size=>10 do |d|
+                @ext.id_list_size(d["DATASTORES"]["DATASTORE"])
+            end
+
+            default :ID, :NAME, :GROUPS, :CLUSTERS, :HOSTS, :VNETS, :DATASTORES
         end
 
         table

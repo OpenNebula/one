@@ -107,6 +107,11 @@ tabs:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Name
+            - 3         # Groups
+            - 4         # Clusters
+            - 5         # Hosts
+            - 6         # VNets
+            - 7         # Datastores
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true

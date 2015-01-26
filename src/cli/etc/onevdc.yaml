@@ -5,9 +5,34 @@
 
 :NAME: 
   :desc: Name of the VDC
-  :size: 25
+  :size: 30
   :left: true
+
+:GROUPS:
+  :desc: Number of Groups
+  :size: 6
+
+:CLUSTERS:
+  :desc: Number of Clusters
+  :size: 8
+
+:HOSTS:
+  :desc: Number of Hosts
+  :size: 5
+
+:VNETS:
+  :desc: Number of Networks
+  :size: 5
+
+:DATASTORES:
+  :desc: Number of Datastores
+  :size: 10
 
 :default:
 - :ID
 - :NAME
+- :GROUPS
+- :CLUSTERS
+- :HOSTS
+- :VNETS
+- :DATASTORES

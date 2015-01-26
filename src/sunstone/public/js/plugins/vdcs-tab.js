@@ -424,6 +424,11 @@ var vdcs_tab = {
           <th class="check"><input type="checkbox" class="check_all" value=""></input></th>\
           <th>'+tr("ID")+'</th>\
           <th>'+tr("Name")+'</th>\
+          <th>'+tr("Groups")+'</th>\
+          <th>'+tr("Clusters")+'</th>\
+          <th>'+tr("Hosts")+'</th>\
+          <th>'+tr("VNets")+'</th>\
+          <th>'+tr("Datastores")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodyvdcs">\
@@ -462,10 +467,45 @@ function vdcElements(){
 function vdcElementArray(vdc_json){
     var vdc = vdc_json.VDC;
 
+    var groups = 0;
+    if ($.isArray(vdc.GROUPS.ID))
+        groups = vdc.GROUPS.ID.length;
+    else if (!$.isEmptyObject(vdc.GROUPS.ID))
+        groups = 1;
+
+    var clusters = 0;
+    if ($.isArray(vdc.CLUSTERS.CLUSTER))
+        clusters = vdc.CLUSTERS.CLUSTER.length;
+    else if (!$.isEmptyObject(vdc.CLUSTERS.CLUSTER))
+        clusters = 1;
+
+    var hosts = 0;
+    if ($.isArray(vdc.HOSTS.HOST))
+        hosts = vdc.HOSTS.HOST.length;
+    else if (!$.isEmptyObject(vdc.HOSTS.HOST))
+        hosts = 1;
+
+    var vnets = 0;
+    if ($.isArray(vdc.VNETS.VNET))
+        vnets = vdc.VNETS.VNET.length;
+    else if (!$.isEmptyObject(vdc.VNETS.VNET))
+        vnets = 1;
+
+    var dss = 0;
+    if ($.isArray(vdc.DATASTORES.DATASTORE))
+        dss = vdc.DATASTORES.DATASTORE.length;
+    else if (!$.isEmptyObject(vdc.DATASTORES.DATASTORE))
+        dss = 1;
+
     return [
         '<input class="check_item" type="checkbox" id="vdc_'+vdc.ID+'" name="selected_items" value="'+vdc.ID+'"/>',
         vdc.ID,
-        vdc.NAME
+        vdc.NAME,
+        groups,
+        clusters,
+        hosts,
+        vnets,
+        dss
     ];
 }
 
