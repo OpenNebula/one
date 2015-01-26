@@ -3,11 +3,16 @@
  * information in the most common formats used. It will automatically detect
  * those date types.
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Time (dd/mm/YY)
  *  @summary Sort Times in the formats: `hh:mm, hh:mm:ss, hh:mm tt, hh:mm:ss tt`
  *    e.g. '22:50, 22:50:40, 10:50 pm, 10:50:40 pm' 
  *    am and pm are not case sensitive. white space is not compulsory
  *  @author David Stoneham
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

@@ -141,7 +141,7 @@ function handle_mousewheel(e)
 {
     var press = new SpiceMsgcMousePress;
     var release = new SpiceMsgcMouseRelease;
-    if (e.wheelDelta > 0)
+    if (e.deltaY < 0)
         press.button = release.button = SPICE_MOUSE_BUTTON_UP;
     else
         press.button = release.button = SPICE_MOUSE_BUTTON_DOWN;

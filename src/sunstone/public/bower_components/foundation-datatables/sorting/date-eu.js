@@ -3,9 +3,14 @@
  * additional  flexibility with support for spaces between the values and
  * either . or / notation for the separators.
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (dd . mm[ . YYYY]) 
  *  @summary Sort dates in the format `dd/mm/YY[YY]` (with optional spaces)
  *  @author [Robert Sedovšek](http://galjot.si/)
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

@@ -6,9 +6,14 @@
  * 
  * An automatic type detection plug-in is available for this sorting plug-in.
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (dd/mm/YY)
  *  @summary Sort dates in the format `dd/mm/YY`
  *  @author Andy McMaster
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

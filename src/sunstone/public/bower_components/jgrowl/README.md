@@ -1,24 +1,47 @@
 # jGrowl 
 jGrowl is a jQuery plugin that raises unobtrusive messages within the browser, similar to the way that OS X's Growl Framework works. The idea is simple, deliver notifications to the end user in a noticeable way that doesn't obstruct the work flow and yet keeps the user informed.
 
-## Example usages
-	// Sample 1
-	$.jGrowl("Hello world!");
-	// Sample 2
-	$.jGrowl("Stick this!", { sticky: true });
-	// Sample 3
-	$.jGrowl("A message with a header", { header: 'Important' });
-	// Sample 4
-	$.jGrowl("A message that will live a little longer.", { life: 10000 });
-	// Sample 5
-	$.jGrowl("A message with a beforeOpen callback and a different opening animation.", {
-		beforeClose: function(e,m) {
-			alert('About to close this notification!');
-		},
-		animateOpen: {
-			height: 'show'
-		}
-	});
+## Installation
+jGrowl can be added to your project using package managers like bower and npm or directly into your html using cdnjs, as well as the good old fashioned copy-paste into your project directory.
+
+Use cdnjs:
+
+```html
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/jquery-jgrowl/1.3.0/jquery.jgrowl.min.js" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-jgrowl/1.3.0/jquery.jgrowl.min.js"></script>
+```
+
+Install with bower
+
+```
+bower install jgrowl
+```
+
+Install with npm
+
+```
+npm install jgrowl
+```
+
+```js
+// Sample 1
+$.jGrowl("Hello world!");
+// Sample 2
+$.jGrowl("Stick this!", { sticky: true });
+// Sample 3
+$.jGrowl("A message with a header", { header: 'Important' });
+// Sample 4
+$.jGrowl("A message that will live a little longer.", { life: 10000 });
+// Sample 5
+$.jGrowl("A message with a beforeOpen callback and a different opening animation.", {
+	beforeClose: function(e,m) {
+		alert('About to close this notification!');
+	},
+	animateOpen: {
+		height: 'show'
+	}
+});
+```
 
 ## Configuration Options
 | Option           |  Default                             |  Description                                               |
@@ -28,6 +51,7 @@ jGrowl is a jQuery plugin that raises unobtrusive messages within the browser, s
 | group            | empty                                | A css class to be applied to notifications when they are created, useful for 'grouping' notifications by a css selector. |
 | sticky           | false                                | When set to true a message will stick to the screen until it is intentionally closed by the user. |
 | position         | top-right                            | Designates a class which is applied to the jGrowl container and controls it's position on the screen. By Default there are five options available, top-left, top-right, bottom-left, bottom-right, center. This must be changed in the defaults before the startup method is called. |
+| appendTo         | body 	                              | The element where our jGrowl messages are appended to. The default is `body` but feel free to define another one. |
 | glue             | after                                | Designates whether a jGrowl notification should be appended to the container after all notifications, or whether it should be prepended to the container before all notifications. Options are after or before. |
 | theme            | default                              | A CSS class designating custom styling for this particular message, intended for use with jQuery UI. |
 | themeState       | highlight                            | A CSS class designating custom styling for this particular message and it's state, intended for use with jQuery UI. |

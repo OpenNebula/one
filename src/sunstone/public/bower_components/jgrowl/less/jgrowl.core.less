@@ -1,0 +1,101 @@
+
+.jGrowl {
+	z-index: 			9999;
+	color: 				@jgrowl-color;
+	font-size: 			@jgrowl-fontSize;
+	font-family:		@jgrowl-fontFamily;
+	position:			fixed;
+
+	&.top-left {
+		left: 				0px;
+		top: 				0px;
+	}
+
+	&.top-right {
+		right: 				0px;
+		top: 				0px;
+	}
+
+	&.bottom-left {
+		left: 				0px;
+		bottom:				0px;
+	}
+
+	&.bottom-right {
+		right: 				0px;
+		bottom: 			0px;
+	}
+
+	&.center {
+		top: 				0px;
+		width: 				50%;
+		left: 				25%;
+		
+		.jGrowl-notification,
+		.jGrowl-closer {
+			margin-left: 		auto;
+			margin-right: 		auto;
+		}
+	}
+}
+
+.notification() {
+	background-color: 		@jgrowl-backgroundColor;
+	opacity: 				@jgrowl-opacity;
+	// These are for older versions of Internet Explorer that don't support opacity
+	-ms-filter: 			progid:DXImageTransform.Microsoft.Alpha(Opacity=(@jgrowl-opacity*100));
+	filter: 				progid:DXImageTransform.Microsoft.Alpha(Opacity=(@jgrowl-opacity*100));
+	zoom: 					1;
+	width: 					@jgrowl-width;
+	padding: 				10px;
+	margin:					10px;
+	text-align: 			left;
+	display: 				none;
+	border-radius:			@jgrowl-borderRadius;
+	
+	.ui-state-highlight,
+	.ui-widget-content .ui-state-highlight,
+	.ui-widget-header .ui-state-highlight {
+		border: 1px solid #000;
+		background: #000;
+		color: #fff;
+	}
+}
+
+.jGrowl-notification {
+	.notification;
+	min-height: 			@jgrowl-height;
+
+	.jGrowl-header {
+		font-weight: 			bold;
+		font-size:				.85em;
+	}
+
+	.jGrowl-close {
+		background-color:		transparent;
+		color: 					inherit;
+		border:					none;
+		z-index:				99;
+		float: 					right;
+		font-weight: 			bold;
+		font-size: 				1em;
+		cursor:					pointer;
+	}
+}
+
+.jGrowl-closer {
+	.notification;
+	padding-top: 			4px;
+	padding-bottom: 		4px;
+	cursor: 				pointer;
+	font-size:				.9em;
+	font-weight: 			bold;
+	text-align: 			center;
+}
+
+/** Hide jGrowl when printing **/
+@media print {
+	.jGrowl {
+		display: 			none;
+	}
+}

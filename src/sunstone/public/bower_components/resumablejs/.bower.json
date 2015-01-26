@@ -11,11 +11,11 @@
     "Large files"
   ],
   "homepage": "https://github.com/23/resumable.js",
-  "_release": "681185ad58",
+  "_release": "420cd351c5",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "681185ad5806f183b169e34b3614eb3dfcfc0ca0"
+    "commit": "420cd351c5deb54086dd9ae9cfeb37b6a9fe0917"
   },
   "_source": "git://github.com/23/resumable.js.git",
   "_target": "*",

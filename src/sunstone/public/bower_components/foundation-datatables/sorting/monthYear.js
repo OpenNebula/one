@@ -2,9 +2,14 @@
  * This sorting plug-in will sort, in calendar order, data which
  * is in the format "MM YY".
  *
+ * Please note that this plug-in is **deprecated*. The
+ * [datetime](//datatables.net/blog/2014-12-18) plug-in provides enhanced
+ * functionality and flexibility.
+ *
  *  @name Date (MM YY)
  *  @anchor Sort dates in the format `MM YY`
  *  @author Michael Motek
+ *  @deprecated
  *
  *  @example
  *    $('#example').dataTable( {

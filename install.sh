@@ -1650,6 +1650,7 @@ SUNSTONE_PUBLIC_VENDOR_NOVNC="\
     src/sunstone/public/bower_components/no-vnc/include/jsunzip.js \
     src/sunstone/public/bower_components/no-vnc/include/keyboard.js \
     src/sunstone/public/bower_components/no-vnc/include/keysymdef.js \
+    src/sunstone/public/bower_components/no-vnc/include/keysym.js \
     src/sunstone/public/bower_components/no-vnc/include/logo.js \
     src/sunstone/public/bower_components/no-vnc/include/Orbitron700.ttf \
     src/sunstone/public/bower_components/no-vnc/include/Orbitron700.woff \
