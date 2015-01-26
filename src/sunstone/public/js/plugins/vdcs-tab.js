@@ -29,7 +29,7 @@ var create_vdc_wizard_html =
             <div class="row">\
               <div class="large-6 columns">\
                 <label for="name" >' + tr("Name") + ':\
-                  <span class="tip">'+tr("Name that the Virtual Data Center will get for description purposes.")+'</span>\
+                  <span class="tip">'+tr("Name that the VDC will get for description purposes.")+'</span>\
                 </label>\
                 <input type="text" wizard_field="NAME" required name="name" id="name"/>\
               </div>\
@@ -37,7 +37,7 @@ var create_vdc_wizard_html =
             <div class="row">\
               <div class="large-6 columns">\
                 <label for="DESCRIPTION" >' + tr("Description") + ':\
-                  <span class="tip">'+tr("Description of the Virtual Data Center")+'</span>\
+                  <span class="tip">'+tr("Description of the VDC")+'</span>\
                 </label>\
                 <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>\
               </div>\
@@ -67,7 +67,7 @@ var create_vdc_advanced_html =
  '<form data-abide="ajax" id="create_vdc_form_advanced" class="custom creation">' +
     '<div class="row">' +
       '<div class="large-12 columns">' +
-        '<p>'+tr("Write the Virtual Data Center template here")+'</p>' +
+        '<p>'+tr("Write the VDC template here")+'</p>' +
       '</div>' +
     '</div>' +
     '<div class="row">' +
@@ -130,7 +130,7 @@ var vdc_actions = {
             Sunstone.runAction('Vdc.show',request.request.data[0][0]);
 
             addVdcElement(request, response);
-            notifyCustom(tr("Virtual Data Center created"), " ID: " + response.VDC.ID, false);
+            notifyCustom(tr("VDC created"), " ID: " + response.VDC.ID, false);
         },
         error: onError
     },
@@ -223,7 +223,7 @@ var vdc_actions = {
         call: function(){
             var selected_nodes = getSelectedNodes(dataTable_vdcs);
             if ( selected_nodes.length != 1 ) {
-                notifyMessage("Please select one (and just one) Virtual Data Center to update.");
+                notifyMessage("Please select one (and just one) VDC to update.");
                 return false;
             }
 
@@ -253,7 +253,7 @@ var vdc_actions = {
             $("a[href=back]", $("#vdcs-tab")).trigger("click");
             popFormDialog("create_vdc_form", $("#vdcs-tab"));
 
-            notifyMessage(tr("Virtual Data Center updated correctly"));
+            notifyMessage(tr("VDC updated correctly"));
         },
         error: function(request, response){
             popFormDialog("create_vdc_form", $("#vdcs-tab"));
@@ -395,7 +395,7 @@ var vdc_buttons = {
 
 var vdc_info_panel = {
     "vdc_info_tab" : {
-        title: tr("Virtual Data Center information"),
+        title: tr("VDC information"),
         content: ""
     },
     "vdc_groups_tab" : {
@@ -409,7 +409,7 @@ var vdc_info_panel = {
 }
 
 var vdcs_tab = {
-    title: tr("Virtual Data Centers"),
+    title: tr("VDCs"),
     resource: 'Vdc',
     buttons: vdc_buttons,
     tabClass: "subTab",
