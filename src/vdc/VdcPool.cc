@@ -20,6 +20,11 @@
 
 /* -------------------------------------------------------------------------- */
 
+const string VdcPool::DEFAULT_NAME = "default";
+const int    VdcPool::DEFAULT_ID   = 0;
+
+/* -------------------------------------------------------------------------- */
+
 VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
     :PoolSQL(db, Vdc::table, !is_federation_slave, true)
 {
@@ -35,7 +40,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
     if (get_lastOID() == -1)
     {
         ostringstream vdc_tmpl;
-        vdc_tmpl << "NAME=default";
+        vdc_tmpl << "NAME=" << DEFAULT_NAME;
 
         int         rc;
         Template *  tmpl;

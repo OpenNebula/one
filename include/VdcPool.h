@@ -126,6 +126,16 @@ public:
         return PoolSQL::dump(oss, "VDC_POOL", Vdc::table, where, limit);
     };
 
+    /**
+     *  Default name for the default VDC
+     */
+    static const string DEFAULT_NAME;
+
+    /**
+     *  Identifier for the default VDC
+     */
+    static const int DEFAULT_ID;
+
 private:
 
     /**

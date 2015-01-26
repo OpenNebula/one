@@ -589,11 +589,31 @@ int GroupAllocate::pool_allocate(
         string&                     error_str,
         RequestAttributes&          att)
 {
+    int rc;
+
     string gname = xmlrpc_c::value_string(paramList.getString(1));
 
     GroupPool * gpool = static_cast<GroupPool *>(pool);
 
-    return gpool->allocate(gname, &id, error_str);
+    rc = gpool->allocate(gname, &id, error_str);
+
+    if (rc == -1)
+    {
+        return rc;
+    }
+
+    Vdc* vdc = vdcpool->get(VdcPool::DEFAULT_ID, true);
+
+    if (vdc != 0)
+    {
+        rc = vdc->add_group(id, error_str);
+
+        vdcpool->update(vdc);
+
+        vdc->unlock();
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */

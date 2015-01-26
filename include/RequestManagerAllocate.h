@@ -340,6 +340,8 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
+
+        vdcpool     = nd.get_vdcpool();
     };
 
     ~GroupAllocate(){};
@@ -349,6 +351,9 @@ public:
                       int& id,
                       string& error_str,
                       RequestAttributes& att);
+
+private:
+    VdcPool * vdcpool;
 };
 
 /* ------------------------------------------------------------------------- */
