@@ -28,7 +28,7 @@ available_tabs:
 groups:
     oneadmin:
         - admin
-        - vdcadmin
+        - groupadmin
         - user
         - cloud
         - vcenter

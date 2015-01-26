@@ -39,7 +39,7 @@ module OpenNebula
 
         # The default view for group and group admins, must be defined in
         # sunstone_views.yaml
-        GROUP_ADMIN_SUNSTONE_VIEWS = "vdcadmin"
+        GROUP_ADMIN_SUNSTONE_VIEWS = "groupadmin"
 
         # Creates a Group description with just its identifier
         # this method should be used to create plain Group objects.
@@ -299,7 +299,7 @@ module OpenNebula
                 return rc
             end
 
-            # Set the default admin view to vdcadmin
+            # Set the default admin view to groupadmin
             group_admin.update("DEFAULT_VIEW=#{GROUP_ADMIN_SUNSTONE_VIEWS}", true)
 
             #Create admin group acls

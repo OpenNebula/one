@@ -69,6 +69,23 @@ EOT
 
                 doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
 
+                ["GROUP_ADMIN_VIEWS", "SUNSTONE_VIEWS", "DEFAULT_VIEW"].each do |elem_name|
+                    elem = doc.at_xpath("/GROUP/TEMPLATE/#{elem_name}")
+
+                    if (!elem.nil?)
+                        elem.remove
+
+                        # The cleaner doc.create_cdata(txt) is not supported in
+                        # old versions of nokogiri
+
+                        doc.at_xpath("/GROUP/TEMPLATE").add_child(
+                            doc.create_element(elem_name)).
+                            add_child(Nokogiri::XML::CDATA.new(
+                                doc,
+                                elem.text.gsub("vdcadmin", "groupadmin")))
+                    end
+                end
+
                 res_providers = doc.xpath("/GROUP/RESOURCE_PROVIDER")
 
                 res_providers.each do |provider|
