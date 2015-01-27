@@ -84,10 +84,6 @@ int Vdc::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
-
-error_common:
-    NebulaLog::log("VDC", Log::ERROR, error_str);
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */

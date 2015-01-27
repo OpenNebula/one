@@ -401,15 +401,3 @@ int SecurityGroupDelete::drop(int oid, PoolObjectSQL * object, string& error_msg
 
     return RequestManagerDelete::drop(oid, object, error_msg);
 }
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-int VdcDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
-{
-    int rc = RequestManagerDelete::drop(oid, object, error_msg);
-
-    // TODO: extra operations to clean up, or error checking to restrict
-
-    return rc;
-}
