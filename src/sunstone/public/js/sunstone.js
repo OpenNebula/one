@@ -5088,11 +5088,6 @@ function fillShowback(div, req, response) {
 //   init_group_by  "user", "group", "vm". init the group-by selector
 //   fixed_group_by "user", "group", "vm". set a fixed group-by selector
 function accountingGraphs(div, opt){
-
-    if(div.html() != ""){
-        return false;
-    }
-
     div.html(
     '<div class="row">\
       <div id="acct_start_time_container" class="left columns">\

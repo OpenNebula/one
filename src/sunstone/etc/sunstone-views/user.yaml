@@ -35,16 +35,16 @@ tabs:
             Dashboard.refresh: false
             Sunstone.toggle_top: false
         widgets_three_per_row:
-            #- users
         widgets_two_per_row:
             - network
             - storage
             - user_quotas
             - group_quotas
-            #- hosts
             #- vms
         widgets_one_per_row:
             - vms
+            #- hosts
+            #- users
         widgets_one_footer:
             - accounting
     system-tab:
