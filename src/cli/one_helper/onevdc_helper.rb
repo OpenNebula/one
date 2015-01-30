@@ -111,7 +111,6 @@ class OneVdcHelper < OpenNebulaHelper::OneHelper
         groups = vdc_hash['VDC']['GROUPS']['ID']
         if(groups != nil)
             puts
-            #CLIHelper.print_header(str_h1 % "GROUPS", false)
 
             CLIHelper::ShowTable.new(nil, self) do
                 column :"GROUPS", "", :right, :size=>7 do |d|

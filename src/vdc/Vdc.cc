@@ -462,13 +462,12 @@ int ResourceSet::from_xml_node(vector<xmlNodePtr>& content)
 
     int zone_id, id;
 
-    string zone_path    = "/" + xml_name + "/ZONE_ID";
+    string zone_path     = "/" + xml_name + "/ZONE_ID";
     string resource_path = "/" + xml_name + "/" + xml_name + "_ID";
 
     for (it = content.begin(); it != content.end(); it++)
     {
         ObjectXML tmp_xml(*it);
-
 
         rc += tmp_xml.xpath(zone_id, zone_path.c_str(), -1);
         rc += tmp_xml.xpath(id, resource_path.c_str(), -1);

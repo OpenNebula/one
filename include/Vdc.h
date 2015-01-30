@@ -41,8 +41,9 @@ public:
      *  Writes the ResourceSet in XML form the the given stream, in the form:
      *  <RESOURCE>
      *    <ZONE_ID>
-     *    <RESOURC_ID>
+     *    <RESOURCE_ID>
      *  </RESOURCE>
+     *  RESOURCE is set from xml_name attribute.
      *    @param oss the outpur string stream
      */
     void to_xml(ostringstream &oss) const;
