@@ -25,6 +25,110 @@
 using namespace std;
 
 /**
+ *  Represents a set of resources in a zone. The class is able to manage
+ *  the ACL rules associated to the set.
+ */
+class ResourceSet 
+{
+public:
+    /**
+     *  Constructor for the ResourceSet, ACL rules are set based on the 
+     *  resource type
+     */
+    ResourceSet(PoolObjectSQL::ObjectType _type);
+
+    /**
+     *  Writes the ResourceSet in XML form the the given stream, in the form:
+     *  <RESOURCE>
+     *    <ZONE_ID>
+     *    <RESOURC_ID>
+     *  </RESOURCE>
+     *    @param oss the outpur string stream
+     */
+    void to_xml(ostringstream &oss) const;
+
+    /**
+     *  Builds the ResourceSet from the xml node
+     *    @param content of the resource set
+     *    @return 0 on success
+     */
+    int from_xml_node(vector<xmlNodePtr>& content);
+
+    /**
+     * Adds a resource to the set. The ACL rules are updated for the groups
+     * 
+     * @param groups set of groups to apply the rules to
+     * @param zone_id ID of the zone
+     * @param id ID of the vnet
+     * @param error returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add(const set<int>& groups, int zone_id, int id,string& error);
+
+    /**
+     * Deletes a resource from the set. The ACL rules are updated
+     *
+     * @param groups set of groups to apply the rules to
+     * @param zone_id ID of the zone
+     * @param id ID of the vnet
+     * @param error returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del(const set<int>& groups, int zone_id, int id, string& error);
+
+    /**
+     * Set ACL rules for a group to access this resource set
+     * 
+     * @param group_id the group
+     */
+    void add_group_rules(int group_id);
+    
+    /**
+     * Remove ACL access rules to this resource set for a group
+     * 
+     * @param group_id the group
+     */    
+    void del_group_rules(int group_id);
+
+    /** 
+     *  Add an ACL rule for group and resource
+     *
+     *  @param group_id of the group
+     *  @param zone_id of the zone
+     *  @param id of the resource
+     */
+    void add_rule(int group_id, int zone_id, int id);
+
+    /** 
+     *  Remove an ACL rule for group and resource
+     */
+    void del_rule(int group_id, int zone_id, int id);    
+
+private:
+    /**
+     *  <ZONE_ID, RESOURCE_ID> pairs for the resource set
+     */ 
+    set<pair<int, int> > resources;
+
+    /**
+     *  <resource, rights> pairs to add/remove to ACL list for this set.
+     */ 
+    set<pair<long long, long long> > rules;
+
+    /** 
+     *  The resource type of this set.
+     */
+     PoolObjectSQL::ObjectType type;
+
+    /**
+     *  XML Name of the resource
+     */
+     string xml_name;
+ };
+
+/**
  *  The Vdc class.
  */
 class Vdc : public PoolObjectSQL
@@ -75,7 +179,10 @@ public:
      *
      * @return 0 on success
      */
-    int add_cluster(int zone_id, int cluster_id, string& error_msg);
+    int add_cluster(int zone_id, int cluster_id, string& error_msg)
+    {
+        return clusters.add(groups, zone_id, cluster_id, error_msg);
+    }
 
     /**
      * Deletes a cluster from the VDC
@@ -86,7 +193,10 @@ public:
      *
      * @return 0 on success
      */
-    int del_cluster(int zone_id, int cluster_id, string& error_msg);
+    int del_cluster(int zone_id, int cluster_id, string& error_msg)
+    {
+        return clusters.del(groups, zone_id, cluster_id, error_msg);
+    }
 
     /**
      * Adds a host to the VDC
@@ -97,7 +207,10 @@ public:
      *
      * @return 0 on success
      */
-    int add_host(int zone_id, int host_id, string& error_msg);
+    int add_host(int zone_id, int host_id, string& error_msg)
+    {
+        return hosts.add(groups, zone_id, host_id, error_msg);
+    }
 
     /**
      * Deletes a host from the VDC
@@ -108,7 +221,10 @@ public:
      *
      * @return 0 on success
      */
-    int del_host(int zone_id, int host_id, string& error_msg);
+    int del_host(int zone_id, int host_id, string& error_msg)
+    {
+        return hosts.del(groups, zone_id, host_id, error_msg);
+    }
 
     /**
      * Adds a datastore to the VDC
@@ -119,7 +235,10 @@ public:
      *
      * @return 0 on success
      */
-    int add_datastore(int zone_id, int datastore_id, string& error_msg);
+    int add_datastore(int zone_id, int datastore_id, string& error_msg)
+    {
+        return datastores.add(groups, zone_id, datastore_id, error_msg);
+    }
 
     /**
      * Deletes a datastore from the VDC
@@ -130,7 +249,10 @@ public:
      *
      * @return 0 on success
      */
-    int del_datastore(int zone_id, int datastore_id, string& error_msg);
+    int del_datastore(int zone_id, int datastore_id, string& error_msg)
+    {
+        return datastores.del(groups, zone_id, datastore_id, error_msg);
+    }
 
     /**
      * Adds a vnet to the VDC
@@ -141,7 +263,10 @@ public:
      *
      * @return 0 on success
      */
-    int add_vnet(int zone_id, int vnet_id, string& error_msg);
+    int add_vnet(int zone_id, int vnet_id, string& error_msg)
+    {
+        return vnets.add(groups, zone_id, vnet_id, error_msg);
+    }
 
     /**
      * Deletes a vnet from the VDC
@@ -152,7 +277,10 @@ public:
      *
      * @return 0 on success
      */
-    int del_vnet(int zone_id, int vnet_id, string& error_msg);
+    int del_vnet(int zone_id, int vnet_id, string& error_msg)
+    {
+        return vnets.del(groups, zone_id, vnet_id, error_msg);
+    }
 
     /**
      * Special ID to refer to all OpenNebula resources, from any cluster
@@ -182,25 +310,10 @@ private:
 
     set<int> groups;
 
-    set<pair<int,int> > clusters;
-    set<pair<int,int> > hosts;
-    set<pair<int,int> > datastores;
-    set<pair<int,int> > vnets;
-
-    void add_group_rules(int group);
-    void del_group_rules(int group);
-
-    void add_cluster_rules(int group, int zone_id, int cluster_id);
-    void del_cluster_rules(int group, int zone_id, int cluster_id);
-
-    void add_host_rules(int group, int zone_id, int host_id);
-    void del_host_rules(int group, int zone_id, int host_id);
-
-    void add_datastore_rules(int group, int zone_id, int ds_id);
-    void del_datastore_rules(int group, int zone_id, int ds_id);
-
-    void add_vnet_rules(int group, int zone_id, int vnet_id);
-    void del_vnet_rules(int group, int zone_id, int vnet_id);
+    ResourceSet clusters;
+    ResourceSet hosts;
+    ResourceSet datastores;
+    ResourceSet vnets;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -267,3 +380,6 @@ private:
 };
 
 #endif /*VDC_H_*/
+
+
+
