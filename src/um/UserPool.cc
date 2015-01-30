@@ -90,8 +90,6 @@ UserPool::UserPool(SqlDB * db,
             throw("Database has not been bootstrapped with master data.");
         }
 
-        oneadmin_name = oneadmin_user->get_name();
-
         oneadmin_user->unlock();
 
         return;
@@ -169,6 +167,13 @@ UserPool::UserPool(SqlDB * db,
 
     for (i=0 ; i < 5; i++)
     {
+        struct stat file_stat;
+
+        if ( stat(filenames[i].c_str(), &file_stat) == 0 )
+        {
+            goto erro_exists;
+        }
+
         int cfile = creat(filenames[i].c_str(), S_IRUSR | S_IWUSR);
         close(cfile);
 
@@ -240,6 +245,12 @@ error_no_open:
     oss << "Could not create configuration file "<< filenames[i];
     goto error_common;
 
+erro_exists:
+    oss << "Password file " << filenames[i] << " already exists "
+        << "but OpenNebula is boostraping the database. Check your " 
+        << "database configuration in oned.conf.";
+    goto error_common;
+
 error_oneadmin:
     oss << "Error creating oneadmin user: " << error_str;
     goto error_common;
@@ -249,7 +260,7 @@ error_serveradmin:
 
 error_common:
     NebulaLog::log("ONE",Log::ERROR,oss);
-    throw;
+    throw runtime_error(oss.str());
 }
 
 /* -------------------------------------------------------------------------- */

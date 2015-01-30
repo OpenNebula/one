@@ -565,7 +565,7 @@ void Nebula::start(bool bootstrap_only)
     }
     catch (exception&)
     {
-        throw;
+        throw runtime_error("Error Initializing OpenNebula pools");
     }
 
 
