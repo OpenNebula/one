@@ -40,16 +40,15 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
     if (get_lastOID() == -1)
     {
         ostringstream vdc_tmpl;
-        vdc_tmpl << "NAME=" << DEFAULT_NAME;
-
-        int         rc;
-        Template *  tmpl;
+        Template *    tmpl = new Template;
 
         // Build the default vdc
-        tmpl = new Template;
-        rc = tmpl->parse_str_or_xml(
-                vdc_tmpl.str(),
-                error_str);
+        vdc_tmpl << "NAME=" << DEFAULT_NAME << endl
+                 << "DESCRIPTION=\"Every new group is added to this VDC. "
+                 << "Use it to store default access rules for your groups. "
+                 << "NOTE: You may need to remove a group from the default "
+                 << "VDC before assigning it to other VDC.\"\n";
+        int rc = tmpl->parse_str_or_xml(vdc_tmpl.str(), error_str);
 
         if( rc < 0 )
         {
