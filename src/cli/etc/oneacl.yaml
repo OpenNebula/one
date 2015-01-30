@@ -11,7 +11,7 @@
 
 :RES_VHNIUTGDCOZSv:
   :desc: Which resource the rule applies to
-  :size: 16
+  :size: 17
 
 :RID: 
   :desc: Resource ID
