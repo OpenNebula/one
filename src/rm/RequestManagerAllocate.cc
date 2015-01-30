@@ -589,11 +589,31 @@ int GroupAllocate::pool_allocate(
         string&                     error_str,
         RequestAttributes&          att)
 {
+    int rc;
+
     string gname = xmlrpc_c::value_string(paramList.getString(1));
 
     GroupPool * gpool = static_cast<GroupPool *>(pool);
 
-    return gpool->allocate(gname, &id, error_str);
+    rc = gpool->allocate(gname, &id, error_str);
+
+    if (rc == -1)
+    {
+        return rc;
+    }
+
+    Vdc* vdc = vdcpool->get(VdcPool::DEFAULT_ID, true);
+
+    if (vdc != 0)
+    {
+        rc = vdc->add_group(id, error_str);
+
+        vdcpool->update(vdc);
+
+        vdc->unlock();
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -698,4 +718,21 @@ int SecurityGroupAllocate::pool_allocate(
 
     return sgpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
         tmpl, &id, error_str);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VdcAllocate::pool_allocate(
+        xmlrpc_c::paramList const&  paramList,
+        Template *                  tmpl,
+        int&                        id,
+        string&                     error_str,
+        RequestAttributes&          att)
+{
+    string name = xmlrpc_c::value_string(paramList.getString(1));
+
+    VdcPool * vdcpool = static_cast<VdcPool *>(pool);
+
+    return vdcpool->allocate(tmpl, &id, error_str);
 }

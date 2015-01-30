@@ -22,7 +22,7 @@ require 'set'
 require 'nokogiri'
 
 module OneDBFsck
-    VERSION = "4.6.0"
+    VERSION = "4.11.80"
     LOCAL_VERSION = "4.11.80"
 
     def check_db_version()
@@ -134,9 +134,10 @@ EOT
 
         tables = ["group_pool", "user_pool", "acl", "image_pool", "host_pool",
             "network_pool", "template_pool", "vm_pool", "cluster_pool",
-            "datastore_pool", "document_pool", "zone_pool", "secgroup_pool"]
+            "datastore_pool", "document_pool", "zone_pool", "secgroup_pool",
+            "vdc_pool"]
 
-        federated_tables = ["group_pool", "user_pool", "acl", "zone_pool"]
+        federated_tables = ["group_pool", "user_pool", "acl", "zone_pool", "vdc_pool"]
 
         tables.each do |table|
             max_oid = -1

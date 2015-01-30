@@ -5,6 +5,7 @@ available_tabs:
     - system-tab
     - users-tab
     - groups-tab
+    - vdcs-tab
     - acls-tab
     - vresources-tab
     - vms-tab
@@ -27,7 +28,7 @@ available_tabs:
 groups:
     oneadmin:
         - admin
-        - vdcadmin
+        - groupadmin
         - user
         - cloud
         - vcenter

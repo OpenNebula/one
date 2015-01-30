@@ -603,6 +603,8 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "zone";
         case PoolObjectSQL::SECGROUP:
             return "security group";
+        case PoolObjectSQL::VDC:
+            return "VDC";
         default:
             return "-";
       }

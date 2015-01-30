@@ -19,6 +19,7 @@
 mkdir -p samples/cluster    samples/cluster_pool
 mkdir -p samples/datastore  samples/datastore_pool
 mkdir -p samples/group      samples/group_pool
+mkdir -p samples/vdc        samples/vdc_pool
 mkdir -p samples/host       samples/host_pool
 mkdir -p samples/image      samples/image_pool
 mkdir -p samples/vmtemplate samples/vmtemplate_pool
@@ -165,7 +166,22 @@ done
 
 onegroup list -x > samples/group_pool/0.xml
 
-for i in  cluster datastore group host image vmtemplate user vm vnet
+# VDC
+onevdc create emptyvdc
+
+onevdc create newvdc
+onevdc addgroup newvdc 0 newgroup
+onevdc addhost newvdc 0 host01
+onevdc addcluster newvdc 0 newcluster
+
+for i in `onevdc list | tail -n +2 | tr -s ' ' | cut -f2 -d ' '`; do
+    onevdc show $i -x > samples/vdc/$i.xml
+done
+
+onevdc list -x > samples/vdc_pool/0.xml
+
+
+for i in  cluster datastore group vdc host image vmtemplate user vm vnet
 do
     POOL_NAME="$i""_pool"
 

@@ -37,6 +37,7 @@
 #include "RequestManagerAcl.h"
 #include "RequestManagerCluster.h"
 #include "RequestManagerGroup.h"
+#include "RequestManagerVdc.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -483,30 +484,22 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * group_allocate_pt;
     xmlrpc_c::method * group_update_pt;
     xmlrpc_c::method * group_delete_pt;
-    xmlrpc_c::method * group_add_provider_pt;
-    xmlrpc_c::method * group_del_provider_pt;
 
     if (nebula.is_federation_slave())
     {
         group_allocate_pt       = new RequestManagerProxy("one.group.allocate");
         group_delete_pt         = new RequestManagerProxy("one.group.delete");
-        group_add_provider_pt   = new RequestManagerProxy("one.group.addprovider");
-        group_del_provider_pt   = new RequestManagerProxy("one.group.delprovider");
         group_update_pt         = new RequestManagerProxy("one.group.update");
     }
     else
     {
         group_allocate_pt       = new GroupAllocate();
         group_delete_pt         = new GroupDelete();
-        group_add_provider_pt   = new GroupAddProvider();
-        group_del_provider_pt   = new GroupDelProvider();
         group_update_pt         = new GroupUpdateTemplate();
     }
 
     xmlrpc_c::methodPtr group_allocate(group_allocate_pt);
     xmlrpc_c::methodPtr group_delete(group_delete_pt);
-    xmlrpc_c::methodPtr group_add_provider(group_add_provider_pt);
-    xmlrpc_c::methodPtr group_del_provider(group_del_provider_pt);
     xmlrpc_c::methodPtr group_update(group_update_pt);
 
     xmlrpc_c::methodPtr group_info(new GroupInfo());
@@ -519,8 +512,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.group.delete",     group_delete);
     RequestManagerRegistry.addMethod("one.group.info",       group_info);
     RequestManagerRegistry.addMethod("one.group.quota",      group_set_quota);
-    RequestManagerRegistry.addMethod("one.group.addprovider",group_add_provider);
-    RequestManagerRegistry.addMethod("one.group.delprovider",group_del_provider);
     RequestManagerRegistry.addMethod("one.group.update",     group_update);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
@@ -747,6 +738,98 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.secgrouppool.info",secgpool_info);
 
+    /* Vdc related methods */
+
+    xmlrpc_c::method * vdc_allocate_pt;
+    xmlrpc_c::method * vdc_update_pt;
+    xmlrpc_c::method * vdc_delete_pt;
+
+    xmlrpc_c::method * vdc_add_group_pt;
+    xmlrpc_c::method * vdc_del_group_pt;
+    xmlrpc_c::method * vdc_add_cluster_pt;
+    xmlrpc_c::method * vdc_del_cluster_pt;
+    xmlrpc_c::method * vdc_add_host_pt;
+    xmlrpc_c::method * vdc_del_host_pt;
+    xmlrpc_c::method * vdc_add_datastore_pt;
+    xmlrpc_c::method * vdc_del_datastore_pt;
+    xmlrpc_c::method * vdc_add_vnet_pt;
+    xmlrpc_c::method * vdc_del_vnet_pt;
+
+    if (nebula.is_federation_slave())
+    {
+        vdc_allocate_pt     = new RequestManagerProxy("one.vdc.allocate");
+        vdc_update_pt       = new RequestManagerProxy("one.vdc.update");
+        vdc_delete_pt       = new RequestManagerProxy("one.vdc.delete");
+
+        vdc_add_group_pt    = new RequestManagerProxy("one.vdc.addgroup");
+        vdc_del_group_pt    = new RequestManagerProxy("one.vdc.delgroup");
+        vdc_add_cluster_pt  = new RequestManagerProxy("one.vdc.addcluster");
+        vdc_del_cluster_pt  = new RequestManagerProxy("one.vdc.delcluster");
+        vdc_add_host_pt     = new RequestManagerProxy("one.vdc.addhost");
+        vdc_del_host_pt     = new RequestManagerProxy("one.vdc.delhost");
+        vdc_add_datastore_pt= new RequestManagerProxy("one.vdc.adddatastore");
+        vdc_del_datastore_pt= new RequestManagerProxy("one.vdc.deldatastore");
+        vdc_add_vnet_pt     = new RequestManagerProxy("one.vdc.addvnet");
+        vdc_del_vnet_pt     = new RequestManagerProxy("one.vdc.delvnet");
+    }
+    else
+    {
+        vdc_allocate_pt     = new VdcAllocate();
+        vdc_update_pt       = new VdcUpdateTemplate();
+        vdc_delete_pt       = new VdcDelete();
+
+        vdc_add_group_pt    = new VdcAddGroup();
+        vdc_del_group_pt    = new VdcDelGroup();
+        vdc_add_cluster_pt  = new VdcAddCluster();
+        vdc_del_cluster_pt  = new VdcDelCluster();
+        vdc_add_host_pt     = new VdcAddHost();
+        vdc_del_host_pt     = new VdcDelHost();
+        vdc_add_datastore_pt= new VdcAddDatastore();
+        vdc_del_datastore_pt= new VdcDelDatastore();
+        vdc_add_vnet_pt     = new VdcAddVNet();
+        vdc_del_vnet_pt     = new VdcDelVNet();
+    }
+
+    xmlrpc_c::methodPtr vdc_allocate(vdc_allocate_pt);
+    xmlrpc_c::methodPtr vdc_update(vdc_update_pt);
+    xmlrpc_c::methodPtr vdc_delete(vdc_delete_pt);
+
+    xmlrpc_c::methodPtr vdc_add_group(vdc_add_group_pt);
+    xmlrpc_c::methodPtr vdc_del_group(vdc_del_group_pt);
+    xmlrpc_c::methodPtr vdc_add_cluster(vdc_add_cluster_pt);
+    xmlrpc_c::methodPtr vdc_del_cluster(vdc_del_cluster_pt);
+    xmlrpc_c::methodPtr vdc_add_host(vdc_add_host_pt);
+    xmlrpc_c::methodPtr vdc_del_host(vdc_del_host_pt);
+    xmlrpc_c::methodPtr vdc_add_datastore(vdc_add_datastore_pt);
+    xmlrpc_c::methodPtr vdc_del_datastore(vdc_del_datastore_pt);
+    xmlrpc_c::methodPtr vdc_add_vnet(vdc_add_vnet_pt);
+    xmlrpc_c::methodPtr vdc_del_vnet(vdc_del_vnet_pt);
+
+
+    xmlrpc_c::methodPtr vdc_info(new VdcInfo());
+    xmlrpc_c::methodPtr vdc_rename(new VdcRename());
+    xmlrpc_c::methodPtr vdcpool_info(new VdcPoolInfo());
+
+    RequestManagerRegistry.addMethod("one.vdc.allocate",    vdc_allocate);
+    RequestManagerRegistry.addMethod("one.vdc.update",      vdc_update);
+    RequestManagerRegistry.addMethod("one.vdc.delete",      vdc_delete);
+
+    RequestManagerRegistry.addMethod("one.vdc.addgroup",    vdc_add_group);
+    RequestManagerRegistry.addMethod("one.vdc.delgroup",    vdc_del_group);
+    RequestManagerRegistry.addMethod("one.vdc.addcluster",  vdc_add_cluster);
+    RequestManagerRegistry.addMethod("one.vdc.delcluster",  vdc_del_cluster);
+
+    RequestManagerRegistry.addMethod("one.vdc.addhost",     vdc_add_host);
+    RequestManagerRegistry.addMethod("one.vdc.delhost",     vdc_del_host);
+    RequestManagerRegistry.addMethod("one.vdc.adddatastore",vdc_add_datastore);
+    RequestManagerRegistry.addMethod("one.vdc.deldatastore",vdc_del_datastore);
+    RequestManagerRegistry.addMethod("one.vdc.addvnet",     vdc_add_vnet);
+    RequestManagerRegistry.addMethod("one.vdc.delvnet",     vdc_del_vnet);
+
+    RequestManagerRegistry.addMethod("one.vdc.info",        vdc_info);
+    RequestManagerRegistry.addMethod("one.vdc.rename",      vdc_rename);
+
+    RequestManagerRegistry.addMethod("one.vdcpool.info",    vdcpool_info);
 
     /* System related methods */
     RequestManagerRegistry.addMethod("one.system.version", system_version);

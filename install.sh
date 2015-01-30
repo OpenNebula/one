@@ -609,6 +609,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneflow \
            src/cli/oneflow-template \
            src/cli/onesecgroup \
+           src/cli/onevdc \
            src/cli/onevcenter \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
@@ -1197,7 +1198,8 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/4.3.90_to_4.4.0.rb \
                              src/onedb/shared/4.4.0_to_4.4.1.rb \
                              src/onedb/shared/4.4.1_to_4.5.80.rb\
-                             src/onedb/shared/4.5.80_to_4.6.0.rb"
+                             src/onedb/shared/4.5.80_to_4.6.0.rb \
+                             src/onedb/shared/4.6.0_to_4.11.80.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
@@ -1301,6 +1303,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/host.rb \
                             src/oca/ruby/opennebula/image_pool.rb \
                             src/oca/ruby/opennebula/image.rb \
+                            src/oca/ruby/opennebula/oneflow_client.rb \
                             src/oca/ruby/opennebula/pool_element.rb \
                             src/oca/ruby/opennebula/pool.rb \
                             src/oca/ruby/opennebula/security_group_pool.rb \
@@ -1310,8 +1313,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
                             src/oca/ruby/opennebula/user_pool.rb \
                             src/oca/ruby/opennebula/user.rb \
-                            src/oca/ruby/opennebula/zone_pool.rb \
-                            src/oca/ruby/opennebula/zone.rb \
+                            src/oca/ruby/opennebula/vdc_pool.rb \
+                            src/oca/ruby/opennebula/vdc.rb \
                             src/oca/ruby/opennebula/virtual_machine_pool.rb \
                             src/oca/ruby/opennebula/virtual_machine.rb \
                             src/oca/ruby/opennebula/virtual_network_pool.rb \
@@ -1319,7 +1322,8 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/xml_element.rb \
                             src/oca/ruby/opennebula/xml_pool.rb \
                             src/oca/ruby/opennebula/xml_utils.rb \
-                            src/oca/ruby/opennebula/oneflow_client.rb"
+                            src/oca/ruby/opennebula/zone_pool.rb \
+                            src/oca/ruby/opennebula/zone.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1467,6 +1471,7 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onedatastore_helper.rb \
                    src/cli/one_helper/onecluster_helper.rb \
                    src/cli/one_helper/onezone_helper.rb \
+                   src/cli/one_helper/onevdc_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb \
                    src/cli/one_helper/onesecgroup_helper.rb"
 
@@ -1485,7 +1490,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneflow-template \
                src/cli/oneacct \
                src/cli/onesecgroup \
-               src/cli/oneshowback"
+               src/cli/oneshowback \
+               src/cli/onevdc"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1500,7 +1506,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onezone.yaml \
                 src/cli/etc/oneacct.yaml \
                 src/cli/etc/onesecgroup.yaml \
-                src/cli/etc/oneshowback.yaml"
+                src/cli/etc/oneshowback.yaml \
+                src/cli/etc/onevdc.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1519,8 +1526,8 @@ SUNSTONE_ETC_VIEW_FILES="src/sunstone/etc/sunstone-views/admin.yaml \
                     src/sunstone/etc/sunstone-views/user.yaml \
                     src/sunstone/etc/sunstone-views/cloud.yaml \
                     src/sunstone/etc/sunstone-views/cloud_vcenter.yaml \
-                    src/sunstone/etc/sunstone-views/vdcadmin.yaml \
-		                src/sunstone/etc/sunstone-views/vcenter.yaml"
+                    src/sunstone/etc/sunstone-views/groupadmin.yaml \
+                    src/sunstone/etc/sunstone-views/vcenter.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/SunstoneServer.rb \
@@ -1540,7 +1547,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb \
-                    src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb"
+                    src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VdcJSON.rb"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/login.erb \
@@ -1578,7 +1586,8 @@ SUNSTONE_PUBLIC_JS_PLUGINS_FILES="\
                         src/sunstone/public/js/plugins/oneflow-templates.js \
                         src/sunstone/public/js/plugins/support-tab.js \
                         src/sunstone/public/js/plugins/zones-tab.js \
-                        src/sunstone/public/js/plugins/secgroups-tab.js"
+                        src/sunstone/public/js/plugins/secgroups-tab.js \
+                        src/sunstone/public/js/plugins/vdcs-tab.js"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
   src/sunstone/routes/vcenter.rb \
@@ -1886,6 +1895,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/onesecgroup.1.gz \
+        share/man/onevdc.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \

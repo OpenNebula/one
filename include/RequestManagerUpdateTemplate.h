@@ -268,6 +268,24 @@ public:
     ~SecurityGroupUpdateTemplate(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VdcUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    VdcUpdateTemplate():
+        RequestManagerUpdateTemplate("VdcUpdateTemplate",
+                                     "Updates a VDC template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vdcpool();
+        auth_object = PoolObjectSQL::VDC;
+    };
+
+    ~VdcUpdateTemplate(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

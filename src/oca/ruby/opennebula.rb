@@ -53,6 +53,8 @@ require 'opennebula/zone'
 require 'opennebula/zone_pool'
 require 'opennebula/security_group'
 require 'opennebula/security_group_pool'
+require 'opennebula/vdc'
+require 'opennebula/vdc_pool'
 require 'opennebula/system'
 
 module OpenNebula

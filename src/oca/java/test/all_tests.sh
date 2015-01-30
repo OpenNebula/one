@@ -67,4 +67,7 @@ let RC=RC+$?
 ./test.sh DocumentTest
 let RC=RC+$?
 
+./test.sh VdcTest
+let RC=RC+$?
+
 exit $RC

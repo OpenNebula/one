@@ -340,6 +340,8 @@ public:
         Nebula& nd = Nebula::instance();
         pool       = nd.get_gpool();
         auth_object = PoolObjectSQL::GROUP;
+
+        vdcpool     = nd.get_vdcpool();
     };
 
     ~GroupAllocate(){};
@@ -349,6 +351,9 @@ public:
                       int& id,
                       string& error_str,
                       RequestAttributes& att);
+
+private:
+    VdcPool * vdcpool;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -542,6 +547,38 @@ public:
                       RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VdcAllocate : public RequestManagerAllocate
+{
+public:
+    VdcAllocate():
+        RequestManagerAllocate("VdcAllocate",
+                               "Allocates a new VDC",
+                               "A:ss",
+                               true)
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vdcpool();
+        auth_object = PoolObjectSQL::VDC;
+    };
+
+    ~VdcAllocate(){};
+
+    /* --------------------------------------------------------------------- */
+
+    Template * get_object_template()
+    {
+        return new Template;
+    };
+
+    int pool_allocate(xmlrpc_c::paramList const& _paramList,
+                      Template * tmpl,
+                      int& id,
+                      string& error_str,
+                      RequestAttributes& att);
+};
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

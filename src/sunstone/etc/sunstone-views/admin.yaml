@@ -5,6 +5,7 @@ enabled_tabs:
     system-tab: true
     users-tab: true
     groups-tab: true
+    vdcs-tab: true
     acls-tab: true
     vresources-tab: true
     vms-tab: true
@@ -97,6 +98,26 @@ tabs:
             Group.create_dialog: true
             Group.quotas_dialog: true
             Group.delete: true
+    vdcs-tab:
+        panel_tabs:
+            vdc_info_tab: true
+            vdc_groups_tab: true
+            vdc_resources_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Groups
+            - 4         # Clusters
+            - 5         # Hosts
+            - 6         # VNets
+            - 7         # Datastores
+        actions:
+            Vdc.refresh: true
+            Vdc.create_dialog: true
+            Vdc.update_dialog: true
+            Vdc.delete: true
+
     acls-tab:
         panel_tabs:
         table_columns:

@@ -180,6 +180,8 @@ var Sunstone = {
 
         var form_obj = SunstoneCfg["form_panels"][form_name];
 
+        $(".right-form", context).data("initialize_func", initialize_func);
+
         $(".reset_button", context).show();
 
         if (action) {
@@ -986,7 +988,8 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
 
         $('#'+custom_id+'reset_button', action_block).on("click", function(){
             var form_name = $(".right-form", context).attr("form_name");
-            Sunstone.popUpFormPanel(form_name, tab_name, null, true)
+            var initialize_func = $(".right-form", context).data("initialize_func");
+            Sunstone.popUpFormPanel(form_name, tab_name, null, true, initialize_func);
 
             return false;
         })
@@ -5983,6 +5986,7 @@ function generateVNetTableSelect(context_id){
 // opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
 //                 an ID is not returned by the pool, it will be included as a
 //                 blank row
+// opts.zone_id: Retrieves elements from this zone, instead of the current one
 function setupVNetTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -6037,49 +6041,65 @@ function setupVNetTableSelect(section, context_id, opts){
         "uname_index": 2,
 
         "update_fn": function(datatable){
-            OpenNebula.Network.list({
-                timeout: true,
-                success: function (request, networks_list){
-                    var network_list_array = [];
+            var success_func = function (request, networks_list){
+                var network_list_array = [];
 
-                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+                var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
 
-                    $.each(networks_list,function(){
-                        var add = true;
+                $.each(networks_list,function(){
+                    var add = true;
 
-                        if(opts.filter_fn){
-                            add = opts.filter_fn(this.VNET);
-                        }
+                    if(opts.filter_fn){
+                        add = opts.filter_fn(this.VNET);
+                    }
 
-                        if(opts.fixed_ids != undefined){
-                            add = (add && fixed_ids_map[this.VNET.ID]);
-                        }
+                    if(opts.fixed_ids != undefined){
+                        add = (add && fixed_ids_map[this.VNET.ID]);
+                    }
 
-                        if(add){
-                            network_list_array.push(vNetworkElementArray(this));
+                    if(add){
+                        network_list_array.push(vNetworkElementArray(this));
 
-                            delete fixed_ids_map[this.VNET.ID];
-                        }
-                    });
+                        delete fixed_ids_map[this.VNET.ID];
+                    }
+                });
 
-                    var n_columns = 10; // SET FOR EACH RESOURCE
+                var n_columns = 10; // SET FOR EACH RESOURCE
 
-                    $.each(fixed_ids_map, function(id,v){
-                        var empty = [];
+                $.each(fixed_ids_map, function(id,v){
+                    var empty = [];
 
-                        for(var i=0; i<=n_columns; i++){
-                            empty.push("");
-                        }
+                    for(var i=0; i<=n_columns; i++){
+                        empty.push("");
+                    }
 
-                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+                    empty[1] = id;  // SET FOR EACH RESOURCE, id_index
 
-                        list_array.push(empty);
-                    });
+                    network_list_array.push(empty);
+                });
 
-                    updateView(network_list_array, datatable);
-                },
-                error: onError
-            });
+                updateView(network_list_array, datatable);
+            }
+
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
+            if (opts.zone_id == undefined) {
+                OpenNebula.Network.list({
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            } else {
+                OpenNebula.Network.list_in_zone({
+                    data: { zone_id: opts.zone_id },
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            }
         },
 
         "select_callback": opts.select_callback
@@ -6235,6 +6255,7 @@ function generateHostTableSelect(context_id){
 // opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
 //                 an ID is not returned by the pool, it will be included as a
 //                 blank row
+// opts.zone_id: Retrieves elements from this zone, instead of the current one
 function setupHostTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -6288,49 +6309,65 @@ function setupHostTableSelect(section, context_id, opts){
         "name_index": 2,
 
         "update_fn": function(datatable){
-            OpenNebula.Host.list({
-                timeout: true,
-                success: function (request, resource_list){
-                    var list_array = [];
+            var success_func = function (request, resource_list){
+                var list_array = [];
 
-                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+                var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
 
-                    $.each(resource_list,function(){
-                        var add = true;
+                $.each(resource_list,function(){
+                    var add = true;
 
-                        if(opts.filter_fn){
-                            add = opts.filter_fn(this.HOST);
-                        }
+                    if(opts.filter_fn){
+                        add = opts.filter_fn(this.HOST);
+                    }
 
-                        if(opts.fixed_ids != undefined){
-                            add = (add && fixed_ids_map[this.HOST.ID]);
-                        }
+                    if(opts.fixed_ids != undefined){
+                        add = (add && fixed_ids_map[this.HOST.ID]);
+                    }
 
-                        if(add){
-                            list_array.push(hostElementArray(this));
+                    if(add){
+                        list_array.push(hostElementArray(this));
 
-                            delete fixed_ids_map[this.HOST.ID];
-                        }
-                    });
+                        delete fixed_ids_map[this.HOST.ID];
+                    }
+                });
 
-                    var n_columns = 13; // SET FOR EACH RESOURCE
+                var n_columns = 13; // SET FOR EACH RESOURCE
 
-                    $.each(fixed_ids_map, function(id,v){
-                        var empty = [];
+                $.each(fixed_ids_map, function(id,v){
+                    var empty = [];
 
-                        for(var i=0; i<=n_columns; i++){
-                            empty.push("");
-                        }
+                    for(var i=0; i<=n_columns; i++){
+                        empty.push("");
+                    }
 
-                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+                    empty[1] = id;  // SET FOR EACH RESOURCE, id_index
 
-                        list_array.push(empty);
-                    });
+                    list_array.push(empty);
+                });
 
-                    updateView(list_array, datatable);
-                },
-                error: onError
-            });
+                updateView(list_array, datatable);
+            }
+
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
+            if (opts.zone_id == undefined) {
+                OpenNebula.Host.list({
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            } else {
+                OpenNebula.Host.list_in_zone({
+                    data: { zone_id: opts.zone_id },
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            }
         },
 
         "select_callback": opts.select_callback
@@ -6393,6 +6430,7 @@ function generateDatastoreTableSelect(context_id){
 // opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
 //                 an ID is not returned by the pool, it will be included as a
 //                 blank row
+// opts.zone_id: Retrieves elements from this zone, instead of the current one
 function setupDatastoreTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -6448,49 +6486,65 @@ function setupDatastoreTableSelect(section, context_id, opts){
         "uname_index": 2,
 
         "update_fn": function(datatable){
-            OpenNebula.Datastore.list({
-                timeout: true,
-                success: function (request, resource_list){
-                    var list_array = [];
+            var success_func = function (request, resource_list){
+                var list_array = [];
 
-                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+                var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
 
-                    $.each(resource_list,function(){
-                        var add = true;
+                $.each(resource_list,function(){
+                    var add = true;
 
-                        if(opts.filter_fn){
-                            add = opts.filter_fn(this.DATASTORE);
-                        }
+                    if(opts.filter_fn){
+                        add = opts.filter_fn(this.DATASTORE);
+                    }
 
-                        if(opts.fixed_ids != undefined){
-                            add = (add && fixed_ids_map[this.DATASTORE.ID]);
-                        }
+                    if(opts.fixed_ids != undefined){
+                        add = (add && fixed_ids_map[this.DATASTORE.ID]);
+                    }
 
-                        if(add){
-                            list_array.push(datastoreElementArray(this));
+                    if(add){
+                        list_array.push(datastoreElementArray(this));
 
-                            delete fixed_ids_map[this.DATASTORE.ID];
-                        }
-                    });
+                        delete fixed_ids_map[this.DATASTORE.ID];
+                    }
+                });
 
-                    var n_columns = 11; // SET FOR EACH RESOURCE
+                var n_columns = 11; // SET FOR EACH RESOURCE
 
-                    $.each(fixed_ids_map, function(id,v){
-                        var empty = [];
+                $.each(fixed_ids_map, function(id,v){
+                    var empty = [];
 
-                        for(var i=0; i<=n_columns; i++){
-                            empty.push("");
-                        }
+                    for(var i=0; i<=n_columns; i++){
+                        empty.push("");
+                    }
 
-                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+                    empty[1] = id;  // SET FOR EACH RESOURCE, id_index
 
-                        list_array.push(empty);
-                    });
+                    list_array.push(empty);
+                });
 
-                    updateView(list_array, datatable);
-                },
-                error: onError
-            });
+                updateView(list_array, datatable);
+            }
+
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
+            if (opts.zone_id == undefined) {
+                OpenNebula.Datastore.list({
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            } else {
+                OpenNebula.Datastore.list_in_zone({
+                    data: { zone_id: opts.zone_id },
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            }
         },
 
         "select_callback": opts.select_callback
@@ -6783,6 +6837,329 @@ function selectSecurityGroupTableSelect(section, context_id, opts){
     return selectResourceTableSelect(section, context_id, opts);
 }
 
+function generateGroupTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Name"),
+        tr("Users"),
+        tr("VMs"),
+        tr("Memory"),
+        tr("CPU")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 2,
+        "select_resource": tr("Please select a Group from the list"),
+        "you_selected": tr("You selected the following Group:"),
+        "select_resource_multiple": tr("Please select one or more groups from the list"),
+        "you_selected_multiple": tr("You selected the following groups:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
+function setupGroupTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('groups-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
+        "id_index": 1,
+        "name_index": 2,
+
+        "update_fn": function(datatable){
+            OpenNebula.Group.list({
+                timeout: true,
+                success: function (request, resource_list){
+                    var list_array = [];
+
+                    var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
+                    $.each(resource_list,function(){
+                        var add = true;
+
+                        if(opts.filter_fn){
+                            add = opts.filter_fn(this.GROUP);
+                        }
+
+                        if(opts.fixed_ids != undefined){
+                            add = (add && fixed_ids_map[this.GROUP.ID]);
+                        }
+
+                        if(add){
+                            list_array.push(groupElementArray(this));
+
+                            delete fixed_ids_map[this.GROUP.ID];
+                        }
+                    });
+
+                    var n_columns = 7; // SET FOR EACH RESOURCE
+
+                    $.each(fixed_ids_map, function(id,v){
+                        var empty = [];
+
+                        for(var i=0; i<=n_columns; i++){
+                            empty.push("");
+                        }
+
+                        empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                        list_array.push(empty);
+                    });
+
+                    updateView(list_array, datatable);
+                },
+                error: onError
+            });
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshGroupTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveGroupTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectGroupTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
+
+function generateClusterTableSelect(context_id){
+
+    var columns = [
+        "",
+        tr("ID"),
+        tr("Name"),
+        tr("Hosts"),
+        tr("VNets"),
+        tr("Datastores")
+    ];
+
+    var options = {
+        "id_index": 1,
+        "name_index": 2,
+        "select_resource": tr("Please select a Cluster from the list"),
+        "you_selected": tr("You selected the following Cluster:"),
+        "select_resource_multiple": tr("Please select one or more clusters from the list"),
+        "you_selected_multiple": tr("You selected the following clusters:")
+    };
+
+    return generateResourceTableSelect(context_id, columns, options);
+}
+
+// opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
+// opts.filter_fn: boolean function to filter which elements to show
+// opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
+// opts.zone_id: Retrieves elements from this zone, instead of the current one
+function setupClusterTableSelect(section, context_id, opts){
+
+    if(opts == undefined){
+        opts = {};
+    }
+
+    if(opts.bVisible == undefined){
+        // Use the settings in the conf, but removing the checkbox
+        var config = Config.tabTableColumns('clusters-tab').slice(0);
+        var i = config.indexOf(0);
+
+        if(i != -1){
+            config.splice(i,1);
+        }
+
+        opts.bVisible = config;
+    }
+
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
+    var options = {
+        "dataTable_options": {
+          "bAutoWidth":false,
+          "iDisplayLength": 4,
+          "sDom" : '<"H">t<"F"p>',
+          "bRetrieve": true,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+              { "sWidth": "35px", "aTargets": [0] },
+              { "bVisible": true, "aTargets": opts.bVisible},
+              { "bVisible": false, "aTargets": ['_all']}
+            ]
+        },
+
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
+        "id_index": 1,
+        "name_index": 2,
+
+        "update_fn": function(datatable){
+            var success_func = function (request, resource_list){
+                var list_array = [];
+
+                var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+
+                $.each(resource_list,function(){
+                    var add = true;
+
+                    if(opts.filter_fn){
+                        add = opts.filter_fn(this.CLUSTER);
+                    }
+
+                    if(opts.fixed_ids != undefined){
+                        add = (add && fixed_ids_map[this.CLUSTER.ID]);
+                    }
+
+                    if(add){
+                        list_array.push(clusterElementArray(this));
+
+                        delete fixed_ids_map[this.CLUSTER.ID];
+                    }
+                });
+
+                var n_columns = 6; // SET FOR EACH RESOURCE
+
+                $.each(fixed_ids_map, function(id,v){
+                    var empty = [];
+
+                    for(var i=0; i<=n_columns; i++){
+                        empty.push("");
+                    }
+
+                    empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                    list_array.push(empty);
+                });
+
+                updateView(list_array, datatable);
+            }
+
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
+            if (opts.zone_id == undefined) {
+                OpenNebula.Cluster.list({
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            } else {
+                OpenNebula.Cluster.list_in_zone({
+                    data: { zone_id: opts.zone_id },
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            }
+        },
+
+        "select_callback": opts.select_callback
+    };
+
+    return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshClusterTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveClusterTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectClusterTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
+}
+
 function generateResourceTableSelect(context_id, columns, options){
     if (!options.select_resource){
         options.select_resource = tr("Please select a resource from the list");
@@ -6972,13 +7349,30 @@ function setupResourceTableSelect(section, context_id, options) {
         $(section).on("click", '#selected_ids_row_'+context_id+' span.fa.fa-times', function() {
             var row_id = $(this).parent("span").attr('row_id');
 
+            var found = false;
+
             // TODO: improve preformance, linear search
             $.each(dataTable_select.fnGetData(), function(index, row){
                 if(row[options.id_index] == row_id){
+                    found = true;
                     row_click(dataTable_select.fnGetNodes(index), row);
                     return false;
                 }
             });
+
+            if (!found){
+                var ids = $('#selected_ids_row_'+context_id, section).data("ids");
+                delete ids[row_id];
+                $('#selected_ids_row_'+context_id+' span[row_id="'+row_id+'"]', section).remove();
+
+                if ($.isEmptyObject(ids)){
+                    $('#selected_resource_multiple_'+context_id, section).hide();
+                    $('#select_resource_multiple_'+context_id, section).show();
+                } else {
+                    $('#selected_resource_multiple_'+context_id, section).show();
+                    $('#select_resource_multiple_'+context_id, section).hide();
+                }
+            }
 
         });
     }

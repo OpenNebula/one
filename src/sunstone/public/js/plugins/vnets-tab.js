@@ -805,7 +805,7 @@ function updateVNetworkInfo(request,vn){
             insert_extended_template_table(stripped_vn_template,
                                                        "Network",
                                                        vn_info.ID,
-                                                       "Attributes",
+                                                       tr("Attributes"),
                                                        hidden_values) +
         '</div>\
       </div>';

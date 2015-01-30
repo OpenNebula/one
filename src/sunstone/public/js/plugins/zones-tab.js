@@ -338,7 +338,7 @@ function updateZoneInfo(request,zone){
                   + insert_extended_template_table(zone_template,
                                            "Zone",
                                            zone_info.ID,
-                                           "Attributes") +
+                                           tr("Attributes")) +
          '</div>\
         </div>'
     }

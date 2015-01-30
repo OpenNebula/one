@@ -61,7 +61,8 @@ public:
         CLUSTER     = 0x0000200000000000LL,
         DOCUMENT    = 0x0000400000000000LL,
         ZONE        = 0x0000800000000000LL,
-        SECGROUP    = 0x0001000000000000LL
+        SECGROUP    = 0x0001000000000000LL,
+        VDC         = 0x0002000000000000LL
     };
 
     static string type_to_str(ObjectType ob)
@@ -81,6 +82,7 @@ public:
             case DOCUMENT:  return "DOCUMENT" ; break;
             case ZONE:      return "ZONE" ; break;
             case SECGROUP:  return "SECGROUP" ; break;
+            case VDC:       return "VDC" ; break;
             default:        return "";
         }
     };

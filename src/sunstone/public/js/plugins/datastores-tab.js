@@ -751,7 +751,7 @@ function updateDatastoreInfo(request,ds){
             insert_extended_template_table(info.TEMPLATE,
                                          "Datastore",
                                          info.ID,
-                                         "Attributes") +
+                                         tr("Attributes")) +
         '</div>\
       </div>';
 

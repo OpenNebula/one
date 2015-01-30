@@ -865,7 +865,7 @@ function updateHostInfo(request,host){
           + insert_extended_template_table(stripped_host_template,
                                            "Host",
                                            host_info.ID,
-                                           "Attributes",
+                                           tr("Attributes"),
                                            unshown_values) +
           '</div>\
         </div>\

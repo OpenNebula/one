@@ -28,7 +28,6 @@
 
 const string ClusterPool::NONE_CLUSTER_NAME = "";
 const int    ClusterPool::NONE_CLUSTER_ID   = -1;
-const int    ClusterPool::ALL_RESOURCES = 10;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

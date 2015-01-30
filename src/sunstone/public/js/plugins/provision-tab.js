@@ -100,7 +100,7 @@ var provision_vdc_quotas_dashboard =
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
-        tr("VDC Quotas")+
+        tr("Group Quotas")+
       '</h2>'+
       '<br>'+
     '</div>'+
@@ -278,7 +278,7 @@ var provision_vdc_vms_dashboard =
   '<div class="row">'+
     '<div class="large-11 large-centered columns">'+
       '<h2 class="subheader">'+
-        tr("VDC Virtual Machines")+
+        tr("Group Virtual Machines")+
       '</h2>'+
       '<br>'+
     '</div>'+
@@ -489,7 +489,7 @@ var provision_create_vm = '<form id="provision_create_vm" class="hidden section_
               '<div class="large-12 large-centered columns">'+
                 '<dl class="tabs text-center" data-tab style="width: 100%">'+
                   '<dd class="active" style="width: 33%;"><a href="#provision_system_templates_selector">'+ tr("System") +'</a></dd>'+
-                  '<dd style="width: 33%;"><a href="#provision_vdc_templates_selector">'+ tr("VDC") +'</a></dd>'+
+                  '<dd style="width: 33%;"><a href="#provision_vdc_templates_selector">'+ tr("Group") +'</a></dd>'+
                   '<dd style="width: 34%;"><a href="#provision_saved_templates_selector">'+ tr("Saved") +'</a></dd>'+
                 '</dl>'+
                 '<div class="row">'+
@@ -702,7 +702,7 @@ var provision_quota_widget = '<div class="row">'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("Unlimited. VDC quotas will still apply")+
+      tr("Unlimited. Group quotas will still apply")+
     '</span>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
@@ -744,7 +744,7 @@ var provision_quota_widget = '<div class="row">'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("Unlimited. VDC quotas will still apply")+
+      tr("Unlimited. Group quotas will still apply")+
     '</span>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
@@ -789,7 +789,7 @@ var provision_quota_widget = '<div class="row">'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">'+
     '<span style="font-size: 18px; color: #999">'+
-      tr("Unlimited. VDC quotas will still apply")+
+      tr("Unlimited. Group quotas will still apply")+
     '</span>'+
   '</div>'+
   '<div class="medium-9 small-12 columns provision_quota_default" style="display:none">'+
@@ -1393,7 +1393,7 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
             '<span class="left">'+
-              tr("VDC Accounting")+
+              tr("Group Accounting")+
             '</span>'+
           '</h3>'+
         '</div>'+
@@ -1408,7 +1408,7 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
             '<span class="left">'+
-              tr("VDC Showback")+
+              tr("Group Showback")+
             '</span>'+
           '</h3>'+
         '</div>'+
@@ -1423,7 +1423,7 @@ var provision_manage_vdc = '<div id="provision_manage_vdc" class="hidden section
         '<div class="large-11 large-centered columns">'+
           '<h3 class="subheader text-right">'+
             '<span class="left">'+
-              tr("VDC Quotas")+
+              tr("Group Quotas")+
             '</span>'+
           '</h3>'+
         '</div>'+
@@ -1906,7 +1906,7 @@ var provision_header = '<a href="#" class="provision_image_header" ><img src="'+
 if (Config.isTabPanelEnabled("provision-tab", "users")) {
   provision_header +=
     '<li>'+
-      '<a href"#" class="medium off-color" id="provision_vdc_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-bar-chart-o"/><br>'+tr("VDC Info")+'</a>'+
+      '<a href"#" class="medium off-color" id="provision_vdc_info_button" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-bar-chart-o"/><br>'+tr("Group Info")+'</a>'+
     '</li>'+
     '<li>'+
       '<a href"#" class="medium off-color provision_users_list_button" id="" style=" margin-left: 10px;margin-right: 10px;"><i class="fa fa-fw fa-2x fa-users"/><br>'+tr("Users")+'</a>'+
@@ -6729,7 +6729,7 @@ $(document).ready(function(){
     });
 
     //
-    // VDC Info
+    // Group Info
     //
 
 

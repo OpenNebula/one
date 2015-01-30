@@ -695,7 +695,7 @@ function updateImageInfo(request,img){
                insert_extended_template_table(img_info.TEMPLATE,
                                                "Image",
                                                img_info.ID,
-                                               "Attributes") +
+                                               tr("Attributes")) +
        '</div>\
      </div>'
     }

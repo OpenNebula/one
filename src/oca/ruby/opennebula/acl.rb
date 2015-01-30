@@ -32,6 +32,7 @@ module OpenNebula
     #                  GROUP
     #                  ACL
     #                  SECGROUP
+    #                  VDC
     #     RIGHTS    -> + separated list
     #                  USE
     #                  MANAGE
@@ -48,18 +49,19 @@ module OpenNebula
 
         RESOURCES =
         {
-            "VM"            => 0x1000000000,
-            "HOST"          => 0x2000000000,
-            "NET"           => 0x4000000000,
-            "IMAGE"         => 0x8000000000,
-            "USER"          => 0x10000000000,
-            "TEMPLATE"      => 0x20000000000,
-            "GROUP"         => 0x40000000000,
-            "DATASTORE"     => 0x100000000000,
-            "CLUSTER"       => 0x200000000000,
-            "DOCUMENT"      => 0x400000000000,
-            "ZONE"          => 0x800000000000,
-            "SECGROUP"      => 0x1000000000000
+            "VM"            =>    0x1000000000,
+            "HOST"          =>    0x2000000000,
+            "NET"           =>    0x4000000000,
+            "IMAGE"         =>    0x8000000000,
+            "USER"          =>   0x10000000000,
+            "TEMPLATE"      =>   0x20000000000,
+            "GROUP"         =>   0x40000000000,
+            "DATASTORE"     =>  0x100000000000,
+            "CLUSTER"       =>  0x200000000000,
+            "DOCUMENT"      =>  0x400000000000,
+            "ZONE"          =>  0x800000000000,
+            "SECGROUP"      => 0x1000000000000,
+            "VDC"           => 0x2000000000000
         }
 
         RIGHTS =
