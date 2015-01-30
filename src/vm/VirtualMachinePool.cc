@@ -495,6 +495,42 @@ static string put_time(time_t t)
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ *  SBrecord is an implementation structure to aggregate metric costs. It
+ *  includes a method to write the showback record to an xml stream
+ */
+struct SBRecord {
+
+    SBRecord(float c, float m, float h): cpu_cost(c), mem_cost(m), hours(h){};
+    SBRecord(): cpu_cost(0), mem_cost(0), hours(0){};
+
+    ostringstream& to_xml(ostringstream &oss)
+    {
+        string cpuc_s = one_util::float_to_str(cpu_cost);
+        string memc_s = one_util::float_to_str(mem_cost);
+        string hour_s = one_util::float_to_str(hours);
+        string cost_s = one_util::float_to_str(cpu_cost + mem_cost);
+
+        oss << "<CPU_COST>"  << cpuc_s << "</CPU_COST>"
+            << "<MEMORY_COST>"<< memc_s << "</MEMORY_COST>"
+            << "<COST>"      << cost_s << "</COST>"
+            << "<HOURS>"     << hour_s << "</HOURS>";
+
+        return oss;
+    };
+
+    void clear()
+    {
+        cpu_cost = 0;
+        mem_cost = 0;
+        hours    = 0;
+    };
+
+    float cpu_cost;
+    float mem_cost;
+    float hours;
+};
+
 int VirtualMachinePool::calculate_showback(
         int start_month,
         int start_year,
@@ -508,10 +544,11 @@ int VirtualMachinePool::calculate_showback(
     vector<time_t>                  showback_slots;
     vector<time_t>::iterator        slot_it;
 
-    // map<vid, map<month, pair<total_cost, n_hours> > >
-    map<int, map<time_t, pair<float,float> > >            vm_cost;
-    map<int, map<time_t, pair<float, float> > >::iterator vm_it;
-    map<time_t, pair<float,float> >::iterator vm_month_it;
+    
+    map<int, map<time_t, SBRecord> >           vm_cost;
+    map<int, map<time_t, SBRecord> >::iterator vm_it;
+
+    map<time_t, SBRecord>::iterator vm_month_it;
 
     VirtualMachine* vm;
 
@@ -701,21 +738,17 @@ int VirtualMachinePool::calculate_showback(
 
                 float n_hours = difftime(etime, stime) / 60 / 60;
 
-                float cost = 0;
-
-                cost += cpu_cost * cpu * n_hours;
-                cost += mem_cost * mem * n_hours;
-
                 // Add to vm time slot.
-                map<time_t, pair<float,float> >& totals = vm_cost[vid];
+                map<time_t, SBRecord>& totals = vm_cost[vid];
 
                 if(totals.count(t) == 0)
                 {
-                    totals[t] = make_pair(0,0);
+                    totals[t].clear();
                 }
 
-                totals[t].first  += cost;
-                totals[t].second += n_hours;
+                totals[t].cpu_cost += cpu_cost * cpu * n_hours;
+                totals[t].mem_cost += mem_cost * mem * n_hours;
+                totals[t].hours    += n_hours;
             }
         }
     }
@@ -736,7 +769,7 @@ int VirtualMachinePool::calculate_showback(
 
     for ( vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
     {
-        map<time_t, pair<float,float> >& totals = vm_it->second;
+        map<time_t, SBRecord>& totals = vm_it->second;
 
         for ( vm_month_it = totals.begin(); vm_month_it != totals.end(); vm_month_it++ )
         {
@@ -767,9 +800,6 @@ int VirtualMachinePool::calculate_showback(
 
             body.str("");
 
-            string cost  = one_util::float_to_str(vm_month_it->second.first);
-            string hours = one_util::float_to_str(vm_month_it->second.second);
-
             body << "<SHOWBACK>"
                     << "<VMID>"     << vmid                     << "</VMID>"
                     << "<VMNAME>"   << vmname                   << "</VMNAME>"
@@ -778,10 +808,9 @@ int VirtualMachinePool::calculate_showback(
                     << "<UNAME>"    << uname                    << "</UNAME>"
                     << "<GNAME>"    << gname                    << "</GNAME>"
                     << "<YEAR>"     << tmp_tm.tm_year + 1900    << "</YEAR>"
-                    << "<MONTH>"    << tmp_tm.tm_mon + 1        << "</MONTH>"
-                    << "<COST>"     << cost                     << "</COST>"
-                    << "<HOURS>"    << hours                    << "</HOURS>"
-                << "</SHOWBACK>";
+                    << "<MONTH>"    << tmp_tm.tm_mon + 1        << "</MONTH>";
+
+            vm_month_it->second.to_xml(body) << "</SHOWBACK>";
 
             sql_body =  db->escape_str(body.str().c_str());
 
