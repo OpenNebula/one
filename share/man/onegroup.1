@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEGROUP" "1" "October 2014" "" "onegroup(1) -- manages OpenNebula groups"
+.TH "ONEGROUP" "1" "February 2015" "" "onegroup(1) -- manages OpenNebula groups"
 .
 .SH "NAME"
 \fBonegroup\fR
@@ -86,12 +86,6 @@ batchquota \fIrange|groupid_list\fR [\fIfile\fR] Sets the quota limits in batch 
 .IP "\(bu" 4
 defaultquota [\fIfile\fR] Sets the default quota limits for the groups\. If a path is not provided the editor will be launched to modify the current default quotas\.
 .
-.IP "\(bu" 4
-add_provider \fIrange|groupid_list\fR \fIzoneid\fR \fIclusterid\fR Adds a resource provider (cluster of a zone) to the given group\. clusterid can be set to ALL
-.
-.IP "\(bu" 4
-del_provider \fIrange|groupid_list\fR \fIzoneid\fR \fIclusterid\fR Deletes a resource provider (cluster of a zone) from the given group clusterid can be set to ALL
-.
 .IP "" 0
 .
 .SH "ARGUMENT FORMATS"
@@ -110,12 +104,6 @@ groupid OpenNebula GROUP name or id
 .
 .IP "\(bu" 4
 groupid_list Comma\-separated list of OpenNebula GROUP names or ids
-.
-.IP "\(bu" 4
-clusterid OpenNebula CLUSTER name or id
-.
-.IP "\(bu" 4
-zoneid OpenNebula ZONE name or id
 .
 .IP "" 0
 .
