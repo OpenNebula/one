@@ -1141,6 +1141,14 @@ var OpenNebula = {
         },
         "accounting" : function(params){
             OpenNebula.Action.monitor(params,OpenNebula.Group.resource,false);
+        },
+        "add_admin" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"add_admin",action_obj);
+        },
+        "del_admin" : function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.Group.resource,"del_admin",action_obj);
         }
     },
 

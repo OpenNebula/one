@@ -98,6 +98,7 @@ tabs:
             Group.create_dialog: true
             Group.quotas_dialog: true
             Group.delete: true
+            Group.edit_admins: true
     vdcs-tab:
         panel_tabs:
             vdc_info_tab: true
