@@ -484,23 +484,31 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * group_allocate_pt;
     xmlrpc_c::method * group_update_pt;
     xmlrpc_c::method * group_delete_pt;
+    xmlrpc_c::method * group_add_admin_pt;
+    xmlrpc_c::method * group_del_admin_pt;
 
     if (nebula.is_federation_slave())
     {
         group_allocate_pt       = new RequestManagerProxy("one.group.allocate");
         group_delete_pt         = new RequestManagerProxy("one.group.delete");
         group_update_pt         = new RequestManagerProxy("one.group.update");
+        group_add_admin_pt      = new RequestManagerProxy("one.group.addadmin");
+        group_del_admin_pt      = new RequestManagerProxy("one.group.deladmin");
     }
     else
     {
         group_allocate_pt       = new GroupAllocate();
         group_delete_pt         = new GroupDelete();
         group_update_pt         = new GroupUpdateTemplate();
+        group_add_admin_pt      = new GroupAddAdmin();
+        group_del_admin_pt      = new GroupDelAdmin();
     }
 
     xmlrpc_c::methodPtr group_allocate(group_allocate_pt);
     xmlrpc_c::methodPtr group_delete(group_delete_pt);
     xmlrpc_c::methodPtr group_update(group_update_pt);
+    xmlrpc_c::methodPtr group_add_admin(group_add_admin_pt);
+    xmlrpc_c::methodPtr group_del_admin(group_del_admin_pt);
 
     xmlrpc_c::methodPtr group_info(new GroupInfo());
     xmlrpc_c::methodPtr group_set_quota(new GroupSetQuota());
@@ -513,6 +521,8 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.group.info",       group_info);
     RequestManagerRegistry.addMethod("one.group.quota",      group_set_quota);
     RequestManagerRegistry.addMethod("one.group.update",     group_update);
+    RequestManagerRegistry.addMethod("one.group.addadmin",   group_add_admin);
+    RequestManagerRegistry.addMethod("one.group.deladmin",   group_del_admin);
 
     RequestManagerRegistry.addMethod("one.grouppool.info",  grouppool_info);
 

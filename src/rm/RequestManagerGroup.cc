@@ -81,3 +81,113 @@ void GroupSetQuota::
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void GroupEditAdmin::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    int group_id    = xmlrpc_c::value_int(paramList.getInt(1));
+    int user_id     = xmlrpc_c::value_int(paramList.getInt(2));
+
+    PoolObjectAuth group_perms;
+    PoolObjectAuth user_perms;
+
+    string group_name;
+    string user_name;
+    string error_str;
+
+    Group* group;
+
+    int rc;
+
+    // -------------------------------------------------------------------------
+    // Authorize the action
+    // -------------------------------------------------------------------------
+
+    rc = get_info(pool, group_id, PoolObjectSQL::GROUP,
+                    att, group_perms, group_name, true);
+
+    if ( rc == -1 )
+    {
+        return;
+    }
+
+    rc = get_info(upool, user_id, PoolObjectSQL::USER, att, user_perms,
+                    user_name, false);
+
+    if ( rc == -1 )
+    {
+        failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::USER),
+                user_id), att);
+
+        return;
+    }
+
+    if ( att.uid != 0 )
+    {
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(AuthRequest::ADMIN, group_perms);   // MANAGE GROUP
+
+        ar.add_auth(AuthRequest::ADMIN, user_perms);    // MANAGE USER
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                             authorization_error(ar.message, att),
+                             att);
+
+            return;
+        }
+    }
+
+    group = static_cast<GroupPool*>(pool)->get(group_id, true);
+
+    if ( group  == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),group_id),
+                att);
+
+        return;
+    }
+
+    rc = edit_admin(group, user_id, error_str);
+
+    if (rc == 0)
+    {
+        pool->update(group);
+    }
+
+    group->unlock();
+
+    if (rc != 0)
+    {
+        failure_response(INTERNAL,
+                request_error("Cannot edit group", error_str),
+                att);
+
+        return;
+    }
+
+    success_response(group_id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupAddAdmin::edit_admin(Group* group, int user_id, string& error_msg)
+{
+    return group->add_admin(user_id, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int GroupDelAdmin::edit_admin(Group* group, int user_id, string& error_msg)
+{
+    return group->del_admin(user_id, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

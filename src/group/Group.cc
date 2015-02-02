@@ -214,6 +214,7 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 {
     ostringstream   oss;
     string          collection_xml;
+    string          admins_xml;
     string          template_xml;
 
     ObjectCollection::to_xml(collection_xml);
@@ -223,7 +224,8 @@ string& Group::to_xml_extended(string& xml, bool extended) const
         "<ID>"   << oid  << "</ID>"        <<
         "<NAME>" << name << "</NAME>"      <<
         obj_template->to_xml(template_xml) <<
-        collection_xml;
+        collection_xml                     <<
+        admins.to_xml(admins_xml);
 
     if (extended)
     {
@@ -276,6 +278,19 @@ int Group::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    // Set of Admin IDs
+    ObjectXML::get_nodes("/GROUP/ADMINS", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += admins.from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
     // Get associated metadata for the group
     ObjectXML::get_nodes("/GROUP/TEMPLATE", content);
 
@@ -295,4 +310,182 @@ int Group::from_xml(const string& xml)
     }
 
     return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Group::add_admin(int user_id, string& error_msg)
+{
+    int rc;
+    ostringstream oss;
+
+    if ( collection_contains(user_id) == false )
+    {
+        oss << "User " << user_id << " is not part of Group "
+            << oid << ".";
+
+        error_msg = oss.str();
+
+        return -1;
+    }
+
+    rc = admins.add_collection_id(user_id);
+
+    if (rc == -1)
+    {
+        oss << "User " << user_id << " is already an administrator of Group "
+            << oid << ".";
+
+        error_msg = oss.str();
+
+        return -1;
+    }
+
+    add_admin_rules(user_id);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Group::add_admin_rules(int user_id)
+{
+    int     rc;
+    string  error_msg;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
+    rc = aclm->add_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            PoolObjectSQL::USER |
+            AclRule::GROUP_ID |
+            oid,
+
+            AuthRequest::USE |
+            AuthRequest::MANAGE |
+            AuthRequest::ADMIN |
+            AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
+    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP/@<gid> USE+MANAGE *
+    rc = aclm->add_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            PoolObjectSQL::VM |
+            PoolObjectSQL::NET |
+            PoolObjectSQL::IMAGE |
+            PoolObjectSQL::TEMPLATE |
+            PoolObjectSQL::DOCUMENT |
+            PoolObjectSQL::SECGROUP |
+            AclRule::GROUP_ID |
+            oid,
+
+            AuthRequest::USE |
+            AuthRequest::MANAGE,
+
+            AclRule::ALL_ID,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Group::del_admin(int user_id, string& error_msg)
+{
+    int rc = admins.del_collection_id(user_id);
+
+    if (rc == -1)
+    {
+        ostringstream oss;
+        oss << "User " << user_id << " is not an administrator of Group "
+            << oid << ".";
+
+        error_msg = oss.str();
+
+        return -1;
+    }
+
+    del_admin_rules(user_id);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void Group::del_admin_rules(int user_id)
+{
+    int     rc;
+    string  error_msg;
+
+    AclManager* aclm = Nebula::instance().get_aclm();
+
+    // #<uid> USER/@<gid> USE+MANAGE+ADMIN+CREATE *
+    rc = aclm->del_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            PoolObjectSQL::USER |
+            AclRule::GROUP_ID |
+            oid,
+
+            AuthRequest::USE |
+            AuthRequest::MANAGE |
+            AuthRequest::ADMIN |
+            AuthRequest::CREATE,
+
+            AclRule::ALL_ID,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
+
+    // #<uid> VM+NET+IMAGE+TEMPLATE+DOCUMENT+SECGROUP/@<gid> USE+MANAGE *
+    rc = aclm->del_rule(
+            AclRule::INDIVIDUAL_ID |
+            user_id,
+
+            PoolObjectSQL::VM |
+            PoolObjectSQL::NET |
+            PoolObjectSQL::IMAGE |
+            PoolObjectSQL::TEMPLATE |
+            PoolObjectSQL::DOCUMENT |
+            PoolObjectSQL::SECGROUP |
+            AclRule::GROUP_ID |
+            oid,
+
+            AuthRequest::USE |
+            AuthRequest::MANAGE,
+
+            AclRule::ALL_ID,
+
+            error_msg);
+
+    if (rc < 0)
+    {
+        NebulaLog::log("GROUP",Log::ERROR,error_msg);
+    }
 }

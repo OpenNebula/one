@@ -85,6 +85,16 @@ public:
         return set<int> (collection_set);
     };
 
+    /**
+     * Returns true if the collection contains the given id
+     * @param id ID to search
+     * @return true if the collection contains the given id
+     */
+    bool collection_contains(int id)
+    {
+        return collection_set.count(id) > 0;
+    }
+
 private:
 
     /**
