@@ -61,6 +61,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
+        OpenNebulaHelper.rname_to_id(arg, "USER")
+    end
+
     ########################################################################
     # Commands
     ########################################################################
@@ -157,6 +161,26 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     command :show, show_desc,[:groupid, nil], :options=>OpenNebulaHelper::XML do
         group = args[0] || OpenNebula::Group::SELF
         helper.show_resource(group,options)
+    end
+
+    add_admin_desc = <<-EOT.unindent
+        Adds a User to the Group administrators set
+    EOT
+
+    command :addadmin, add_admin_desc, [:range, :groupid_list], :userid do
+        helper.perform_actions(args[0],options,"admin added") do |obj|
+            obj.add_admin(args[1].to_i)
+        end
+    end
+
+    del_admin_desc = <<-EOT.unindent
+        Removes a User from the Group administrators set
+    EOT
+
+    command :deladmin, del_admin_desc, [:range, :groupid_list], :userid do
+        helper.perform_actions(args[0],options,"admin deleted") do |obj|
+            obj.del_admin(args[1].to_i)
+        end
     end
 
     quota_desc = <<-EOT.unindent

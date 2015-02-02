@@ -286,11 +286,21 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
         puts group.template_str
         puts
 
-        CLIHelper.print_header(str_h1 % "USERS", false)
-        CLIHelper.print_header("%-15s" % ["ID"])
-        group.user_ids.each do |uid|
-            puts "%-15s" % [uid]
-        end
+        admin_ids = group.admin_ids
+
+        CLIHelper::ShowTable.new(nil, self) do
+            column :"USER ID", "", :right, :size=>7 do |d|
+                d
+            end
+
+            column :"ADMIN", "", :left, :size=>5 do |d|
+                if (group.admin_ids.include?(d))
+                    "*"
+                else
+                    ""
+                end
+            end
+        end.show(group.user_ids, {})
 
         group_hash = group.to_hash
 
