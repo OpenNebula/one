@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -29,13 +29,16 @@ import org.opennebula.client.OneResponse;
 import org.opennebula.client.OneSystem;
 import org.opennebula.client.group.Group;
 import org.opennebula.client.group.GroupPool;
+import org.opennebula.client.user.*;
 import org.w3c.dom.Node;
+import java.util.Hashtable;
 
 public class GroupTest
 {
 
     private static Group        group;
     private static GroupPool    groupPool;
+    private static User         user;
 
     private static Client       client;
 
@@ -69,8 +72,17 @@ public class GroupTest
     {
         res = Group.allocate(client, group_name);
 
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
         int group_id = res.isError() ? -1 : Integer.parseInt(res.getMessage());
         group = new Group(group_id, client);
+
+        res = User.allocate(client, "new_test_user", "new_test_password");
+
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        int uid = Integer.parseInt(res.getMessage());
+        user    = new User(uid, client);
     }
 
     /**
@@ -79,6 +91,7 @@ public class GroupTest
     @After
     public void tearDown() throws Exception
     {
+        user.delete();
         group.delete();
     }
 
@@ -160,8 +173,68 @@ public class GroupTest
         }
     }
 
-//  Commented out, secondary groups do not exist any more
-/*
+    @Test
+    public void addAdmin()
+    {
+        res = group.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        assertFalse( group.contains(user.id()) );
+        assertFalse( group.containsAdmin(user.id()) );
+
+        res = group.addAdmin( user.id() );
+        assertTrue( res.isError() );
+
+        group.info();
+        assertFalse( group.contains(user.id()) );
+        assertFalse( group.containsAdmin(user.id()) );
+
+        res = user.chgrp( group.id() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        group.info();
+        assertTrue( group.contains(user.id()) );
+        assertFalse( group.containsAdmin(user.id()) );
+
+        res = group.addAdmin( user.id() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        group.info();
+        assertTrue( group.contains(user.id()) );
+        assertTrue( group.containsAdmin(user.id()) );
+    }
+
+
+    @Test
+    public void delAdmin()
+    {
+        res = group.info();
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        res = group.delAdmin( user.id() );
+        assertTrue( res.isError() );
+
+        res = user.chgrp( group.id() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        res = group.delAdmin( user.id() );
+        assertTrue( res.isError() );
+
+        res = group.addAdmin( user.id() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        group.info();
+        assertTrue( group.contains(user.id()) );
+        assertTrue( group.containsAdmin(user.id()) );
+
+        res = group.delAdmin( user.id() );
+        assertTrue( res.getErrorMessage(), !res.isError() );
+
+        group.info();
+        assertTrue( group.contains(user.id()) );
+        assertFalse( group.containsAdmin(user.id()) );
+    }
+
     @Test
     public void userGroupRelations()
     {
@@ -211,26 +284,6 @@ public class GroupTest
             assertTrue( !g.info().isError() );
         }
 
-        assertTrue(  users.get("a").isPartOf( groups.get("a").id() ) );
-        assertTrue(  users.get("a").isPartOf( groups.get("b").id() ) );
-        assertFalse( users.get("a").isPartOf( groups.get("c").id() ) );
-        assertFalse( users.get("a").isPartOf( groups.get("d").id() ) );
-
-        assertFalse( users.get("b").isPartOf( groups.get("a").id() ) );
-        assertTrue(  users.get("b").isPartOf( groups.get("b").id() ) );
-        assertFalse( users.get("b").isPartOf( groups.get("c").id() ) );
-        assertFalse( users.get("b").isPartOf( groups.get("d").id() ) );
-
-        assertFalse( users.get("c").isPartOf( groups.get("a").id() ) );
-        assertTrue(  users.get("c").isPartOf( groups.get("b").id() ) );
-        assertTrue(  users.get("c").isPartOf( groups.get("c").id() ) );
-        assertTrue(  users.get("c").isPartOf( groups.get("d").id() ) );
-
-        assertFalse( users.get("d").isPartOf( groups.get("a").id() ) );
-        assertTrue(  users.get("d").isPartOf( groups.get("b").id() ) );
-        assertTrue(  users.get("d").isPartOf( groups.get("c").id() ) );
-        assertTrue(  users.get("d").isPartOf( groups.get("d").id() ) );
-
         assertTrue(  groups.get("a").contains( users.get("a").id() ) );
         assertFalse( groups.get("a").contains( users.get("b").id() ) );
         assertFalse( groups.get("a").contains( users.get("c").id() ) );
@@ -250,5 +303,4 @@ public class GroupTest
         assertTrue(  groups.get("d").contains( users.get("c").id() ) );
         assertTrue(  groups.get("d").contains( users.get("d").id() ) );
     }
-*/
 }
