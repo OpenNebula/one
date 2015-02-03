@@ -71,18 +71,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     create_desc = <<-EOT.unindent
         Creates a new Group. A group name can be passed as the only argument,
-        or a file containing a group template or via command line arguments
+        or via command line arguments
 
         Examples:
 
-          - create a group with admin user and allow group users
-            to only create new templates and VMs, and group admin to manage
-            templates, vms, images and virtual networks
+          - create a group with an admin user and allow group users
+            to only create new templates and VMs
 
             onegroup create --name groupA
                             --admin_user admin_userA --admin_password somestr
                             --resources TEMPLATE+VM
-                            --admin_resources TEMPLATE+VM+IMAGE+NET
 
     EOT
 
@@ -91,7 +89,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
 
         if !args[0] && options.empty?
-            STDERR.puts "Please use either a group name or command arguments"
+            STDERR.puts "Please use either a group name or command arguments."<<
+            " Run onegroup create -h for more information"
             next -1
         end
 
@@ -105,7 +104,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             admin_user[:name]       = options[:admin_user]
             admin_user[:password]   = options[:admin_password]
             admin_user[:auth_driver]= options[:admin_driver] if options[:admin_driver]
-            admin_user[:resources]  = options[:admin_resources] if options[:admin_resources]
 
             options[:group_admin] = admin_user
         end

@@ -169,15 +169,6 @@ EOT
                 "Which resources can be created by group users "<<
                 "(VM+NET+IMAGE+TEMPLATE by default)",
             :format => String
-        },
-        {
-            :name   => 'admin_resources',
-            :large  => '--admin_resources res_str',
-            :short => "-o",
-            :description =>
-                "Which resources can be created by the admin user "<<
-                "(VM+NET+IMAGE+TEMPLATE by default)",
-            :format => String
         }
     ]
 
