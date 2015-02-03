@@ -604,22 +604,9 @@ function updateVdcInfo(request,vdc){
 }
 
 function vdc_group_tab_content(vdc_info){
-
-    var html =
-    '<form id="vdc_group_list_form" vdcid="'+vdc_info.ID+'">';
-
-    html +=
-        '<div class="row collapse">\
-          <div class="large-12 columns">';
-
-    html += '<span class="right">';
-
-    html += '</span></div></div>';
-
-    html += '<div class="row collapse">\
+    var html = '<div class="row collapse">\
         '+generateGroupTableSelect("vdc_group_list")+'\
-      </div>\
-    </form>';
+      </div>';
 
     return html;
 }
