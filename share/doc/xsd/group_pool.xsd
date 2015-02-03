@@ -18,6 +18,13 @@
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
+                <xs:element name="ADMINS">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
