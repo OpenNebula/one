@@ -86,6 +86,40 @@ EOT
                     end
                 end
 
+                admin_v_elem = doc.at_xpath("/GROUP/TEMPLATE/GROUP_ADMIN_VIEWS")
+
+                if (!admin_v_elem.nil?)
+                    aux_e = doc.at_xpath("/GROUP/TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW")
+                    aux_e.remove if !aux_e.nil?
+
+                    doc.at_xpath("/GROUP/TEMPLATE").add_child(
+                        doc.create_element("GROUP_ADMIN_DEFAULT_VIEW")).
+                        add_child(Nokogiri::XML::CDATA.new(
+                            doc,
+                            admin_v_elem.text))
+                end
+
+                admins_elem = doc.root.add_child( doc.create_element("ADMINS") )
+
+                elem = doc.at_xpath("/GROUP/TEMPLATE/GROUP_ADMINS")
+
+                if (!elem.nil?)
+                    elem.remove
+
+                    elem.text.split(",").each do |uname|
+                        @db.fetch("SELECT oid FROM user_pool \
+                            WHERE name=\"#{uname.strip}\"") do |user_row|
+
+                            # Check that user is part of this group first
+                            if !doc.at_xpath("/GROUP/USERS/ID[.=#{user_row[:oid]}]").nil?
+                                admins_elem.add_child(
+                                    doc.create_element("ID") ).content =
+                                    user_row[:oid]
+                            end
+                        end
+                    end
+                end
+
                 res_providers = doc.xpath("/GROUP/RESOURCE_PROVIDER")
 
                 res_providers.each do |provider|

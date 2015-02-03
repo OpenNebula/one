@@ -470,6 +470,22 @@ EOT
                         end
                     end
 
+                    slave_admins_elem  = slave_doc.root.at_xpath("ADMINS")
+                    master_admins_elem = master_doc.root.at_xpath("ADMINS")
+
+                    slave_admins_elem.xpath("ID").each do |id|
+                        user = users[id.text.to_i]
+
+                        if !user.nil?
+                            user_id = user[:oid]
+
+                            if master_admins_elem.at_xpath("ID [.=#{user_id}]").nil?
+                                master_admins_elem.add_child(
+                                    master_doc.create_element("ID")).content = user_id
+                            end
+                        end
+                    end
+
                     slave_template  = slave_doc.root.at_xpath("TEMPLATE")
                     master_template = master_doc.root.at_xpath("TEMPLATE")
 
@@ -501,18 +517,34 @@ EOT
                     users_elem = slave_doc.root.at_xpath("USERS")
                     users_elem.remove
 
-                    new_elem = slave_doc.create_element("USERS")
+                    new_users_elem = slave_doc.create_element("USERS")
 
                     users_elem.xpath("ID").each do |id|
                         user = users[id.text.to_i]
 
                         if !user.nil?
-                            new_elem.add_child(slave_doc.create_element("ID")).
+                            new_users_elem.add_child(slave_doc.create_element("ID")).
                                 content = user[:oid]
                         end
                     end
 
-                    slave_doc.root.add_child(new_elem)
+                    slave_doc.root.add_child(new_users_elem)
+
+                    admins_elem = slave_doc.root.at_xpath("ADMINS")
+                    admins_elem.remove
+
+                    new_admins_elem = slave_doc.create_element("ADMINS")
+
+                    admins_elem.xpath("ID").each do |id|
+                        user = users[id.text.to_i]
+
+                        if !user.nil?
+                            new_admins_elem.add_child(slave_doc.create_element("ID")).
+                                content = user[:oid]
+                        end
+                    end
+
+                    slave_doc.root.add_child(new_admins_elem)
 
                     # Update resource providers
                     slave_doc.root.xpath("RESOURCE_PROVIDER").each do |elem|
