@@ -5,6 +5,7 @@ enabled_tabs:
     system-tab: false
     users-tab: false
     groups-tab: false
+    vdcs-tab: false
     acls-tab: false
     vresources-tab: true
     vms-tab: true
@@ -25,6 +26,7 @@ enabled_tabs:
     doc-tab: false
     community-tab: false
     enterprise-tab: false
+    zones-tab: false
 autorefresh: true
 features:
     showback: true
@@ -66,6 +68,7 @@ tabs:
             - 6         # Memory
             - 7         # CPU
             #- 8         # Group ID
+            #- 9         # Hidden User Data
         actions:
             User.refresh: true
             User.create_dialog: true
@@ -97,6 +100,26 @@ tabs:
             Group.quotas_dialog: true
             Group.delete: true
             Group.edit_admins: true
+    vdcs-tab:
+        panel_tabs:
+            vdc_info_tab: true
+            vdc_groups_tab: true
+            vdc_resources_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Groups
+            - 4         # Clusters
+            - 5         # Hosts
+            - 6         # VNets
+            - 7         # Datastores
+        actions:
+            Vdc.refresh: true
+            Vdc.create_dialog: true
+            Vdc.update_dialog: true
+            Vdc.delete: true
+
     acls-tab:
         panel_tabs:
         table_columns:
@@ -327,7 +350,6 @@ tabs:
             #- 8         # TM
             #- 9         # DS
             #- 10        # Type
-
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false
@@ -477,6 +499,18 @@ tabs:
             ServiceTemplate.chgrp: false
             ServiceTemplate.chmod: true
             ServiceTemplate.delete: true
+    zones-tab:
+        panel_tabs:
+            zone_info_tab: true
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Endpoint
+        actions:
+            Zone.refresh: true
+            Zone.create_dialog: true
+            Zone.delete: true
     support-tab:
         panel_tabs:
             support_info_tab: true

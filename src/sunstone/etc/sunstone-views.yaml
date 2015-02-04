@@ -32,5 +32,6 @@ groups:
         - user
         - cloud
         - vcenter
+        - cloud_vcenter
 default:
     - cloud
