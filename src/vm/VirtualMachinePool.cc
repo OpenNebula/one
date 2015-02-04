@@ -513,7 +513,7 @@ struct SBRecord {
 
         oss << "<CPU_COST>"  << cpuc_s << "</CPU_COST>"
             << "<MEMORY_COST>"<< memc_s << "</MEMORY_COST>"
-            << "<COST>"      << cost_s << "</COST>"
+            << "<TOTAL_COST>" << cost_s << "</TOTAL_COST>"
             << "<HOURS>"     << hour_s << "</HOURS>";
 
         return oss;

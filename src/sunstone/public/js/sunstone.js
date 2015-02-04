@@ -5017,8 +5017,8 @@ function fillShowback(div, req, response) {
             }
         }
 
-        vms_per_date[showback.YEAR][showback.MONTH].VMS.push([showback.VMID, showback.VMNAME, showback.UNAME, showback.HOURS, showback.COST]);
-        vms_per_date[showback.YEAR][showback.MONTH].TOTAL += parseFloat(showback.COST);
+        vms_per_date[showback.YEAR][showback.MONTH].VMS.push([showback.VMID, showback.VMNAME, showback.UNAME, showback.HOURS, showback.TOTAL_COST]);
+        vms_per_date[showback.YEAR][showback.MONTH].TOTAL += parseFloat(showback.TOTAL_COST);
     });
 
     var series = []

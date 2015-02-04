@@ -206,7 +206,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         end
 
         column :COST, "Cost", :size=>15 do |d|
-            d["COST"]
+            d["TOTAL_COST"]
         end
 
         default :USER_NAME, :GROUP_NAME, :VM_ID, :VM_NAME, :MONTH, :YEAR, :HOURS, :COST
