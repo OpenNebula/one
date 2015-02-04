@@ -38,7 +38,9 @@ public:
                        const string&                remotes_location,
                        vector<const Attribute *>&   restricted_attrs,
                        time_t                       expire_time,
-                       bool                         on_hold);
+                       bool                         on_hold,
+                       float                        default_cpu_cost,
+                       float                        default_mem_cost);
 
     ~VirtualMachinePool(){};
 
@@ -324,6 +326,12 @@ private:
      * True or false whether to submit new VM on HOLD or not
      */
     static bool _submit_on_hold;
+
+    /**
+     * Default values for cpu and memory cost
+     */
+    static float _default_cpu_cost;
+    static float _default_mem_cost;
 
     /**
      * Callback used in calculate_showback

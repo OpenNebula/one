@@ -466,6 +466,8 @@ void Nebula::start(bool bootstrap_only)
         time_t  host_expiration;
 
         bool    vm_submit_on_hold;
+        float   cpu_cost;
+        float   mem_cost;
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
@@ -481,6 +483,8 @@ void Nebula::start(bool bootstrap_only)
         vector<const Attribute *> inherit_image_attrs;
         vector<const Attribute *> inherit_datastore_attrs;
         vector<const Attribute *> inherit_vnet_attrs;
+
+        vector<const Attribute *> default_cost;
 
         clpool  = new ClusterPool(db);
         docpool = new DocumentPool(db);
@@ -507,13 +511,41 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("VM_SUBMIT_ON_HOLD",vm_submit_on_hold);
 
+        rc = nebula_configuration->get("DEFAULT_COST", default_cost);
+
+        cpu_cost = 0;
+        mem_cost = 0;
+
+        if (rc != 0)
+        {
+            const VectorAttribute * vatt = static_cast<const VectorAttribute *>
+                                              (default_cost[0]);
+
+            rc = vatt->vector_value("CPU_COST", cpu_cost);
+
+            if (rc != 0)
+            {
+                cpu_cost = 0;
+            }
+
+            rc = vatt->vector_value("MEMORY_COST", mem_cost);
+
+            if (rc != 0)
+            {
+                mem_cost = 0;
+            }
+        }
+
         vmpool = new VirtualMachinePool(db,
                                         vm_hooks,
                                         hook_location,
                                         remotes_location,
                                         vm_restricted_attrs,
                                         vm_expiration,
-                                        vm_submit_on_hold);
+                                        vm_submit_on_hold,
+                                        cpu_cost,
+                                        mem_cost);
+
         hpool  = new HostPool(db,
                               host_hooks,
                               hook_location,

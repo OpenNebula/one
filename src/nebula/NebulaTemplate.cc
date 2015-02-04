@@ -215,6 +215,19 @@ void OpenNebulaTemplate::set_conf_default()
 
     vattribute = new VectorAttribute("FEDERATION",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+/*
+#*******************************************************************************
+# Default showback cost
+#*******************************************************************************
+*/
+    vvalue.clear();
+    vvalue.insert(make_pair("CPU_COST","0"));
+    vvalue.insert(make_pair("MEMORY_COST","0"));
+
+    vattribute = new VectorAttribute("DEFAULT_COST",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
 /*
 #*******************************************************************************
 # XML-RPC server configuration

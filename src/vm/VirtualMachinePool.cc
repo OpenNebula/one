@@ -26,6 +26,8 @@
 
 time_t VirtualMachinePool::_monitor_expiration;
 bool   VirtualMachinePool::_submit_on_hold;
+float VirtualMachinePool::_default_cpu_cost;
+float VirtualMachinePool::_default_mem_cost;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -37,7 +39,9 @@ VirtualMachinePool::VirtualMachinePool(
         const string&               remotes_location,
         vector<const Attribute *>&  restricted_attrs,
         time_t                      expire_time,
-        bool                        on_hold)
+        bool                        on_hold,
+        float                       default_cpu_cost,
+        float                       default_mem_cost)
     : PoolSQL(db, VirtualMachine::table, true, false)
 {
     const VectorAttribute * vattr;
@@ -52,6 +56,8 @@ VirtualMachinePool::VirtualMachinePool(
 
     _monitor_expiration = expire_time;
     _submit_on_hold = on_hold;
+    _default_cpu_cost = default_cpu_cost;
+    _default_mem_cost = default_mem_cost;
 
     if ( _monitor_expiration == 0 )
     {
@@ -699,8 +705,8 @@ int VirtualMachinePool::calculate_showback(
         history.xpath(cpu,      "/HISTORY/VM/TEMPLATE/CPU", 0);
         history.xpath(mem,      "/HISTORY/VM/TEMPLATE/MEMORY", 0);
 
-        history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", 0);
-        history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", 0);
+        history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", _default_cpu_cost);
+        history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", _default_mem_cost);
 
 #ifdef SBDDEBUG
         int seq;
@@ -860,11 +866,13 @@ int VirtualMachinePool::calculate_showback(
             debug << "VM " << vm_it->first
                 << " cost for Y " << tmp_tm.tm_year + 1900
                 << " M " << tmp_tm.tm_mon + 1
-                << " COST " << cost << " €"
-                << " HOURS " << hours;
+                << " COST " << one_util::float_to_str(
+                        vm_month_it->second.cpu_cost +
+                        vm_month_it->second.mem_cost) << " €"
+                << " HOURS " << vm_month_it->second.hours;
 
             NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
-#endif            
+#endif
         }
     }
 
