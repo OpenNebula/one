@@ -66,26 +66,13 @@ function create_group_tmpl(dialog_name){
         <div class="large-12 columns">\
           <p class="subheader">'
             +tr("Allow users in this group to use the following Sunstone views")+
-            '&emsp;<span class="tip">'+tr("Views available to the group users")+'</span>\
+            '&emsp;<span class="tip">'+tr("Views available to the group users. If the default is unset, the one set in sunstone-views.yaml will be used")+'</span>\
           </p>\
         </div>\
       </div>\
       <div class="row">\
         <div class="large-12 columns">'+
             insert_views(dialog_name)
-        +'</div>\
-      </div>\
-      <div class="row">\
-        <div class="large-12 columns">\
-          <p class="subheader">'
-            +tr("Set the default Sunstone view")+
-            '&emsp;<span class="tip">'+tr("Default view for the group users. If it is unset, the default is set in sunstone-views.yaml")+'</span>\
-          </p>\
-        </div>\
-      </div>\
-      <div class="row">\
-        <div class="large-12 columns">'+
-            insert_views_default(dialog_name)
         +'</div>\
       </div>\
     </div>\
@@ -97,7 +84,7 @@ function create_group_tmpl(dialog_name){
               <label>\
                 <input type="checkbox" id="admin_user" name="admin_user" value="YES" />\
                 '+tr("Create an administrator user")+'\
-                <span class="tip">'+tr("You can create now an administrator user that will be assigned to the new regular group, with the administrator group as a secondary one.")+'</span>\
+                <span class="tip">'+tr("You can create now an administrator user. More administrators can be added later.")+'</span>\
               </label>\
             </div>\
           </div>' +
@@ -119,7 +106,7 @@ function create_group_tmpl(dialog_name){
         <div class="large-12 columns">\
           <p class="subheader">'
             +tr("Allow users in this group to create the following resources")+
-            '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create. You can set different resources for the administrator group, and decide if the administrators will be allowed to create new users.")+'</span>\
+            '&emsp;<span class="tip">'+tr("This will create new ACL Rules to define which virtual resources this group's users will be able to create.")+'</span>\
           </p>\
         </div>\
       </div>\
@@ -127,7 +114,6 @@ function create_group_tmpl(dialog_name){
         <div class="large-12 columns">\
           <table class="dataTable" style="table-layout:fixed">\
             <thead><tr>\
-              <th/>\
               <th>'+tr("VMs")+'</th>\
               <th>'+tr("VNets")+'</th>\
               <th>'+tr("Security Groups")+'</th>\
@@ -137,7 +123,6 @@ function create_group_tmpl(dialog_name){
             </tr></thead>\
             <tbody>\
               <tr>\
-                <th>'+tr("Users")+'</th>\
                 <td><input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"></input></td>\
                 <td><input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"></input></td>\
                 <td><input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP"></input></td>\
@@ -145,15 +130,6 @@ function create_group_tmpl(dialog_name){
                 <td><input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
                 <td><input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
                 <td/>\
-              </tr>\
-              <tr>\
-                <th>'+tr("Admins")+'</th>\
-                <td><input type="checkbox" id="group_admin_res_vm" name="group_admin_res_vm" class="resource_cb" value="VM"></input></td>\
-                <td><input type="checkbox" id="group_admin_res_net" name="group_admin_res_net" class="resource_cb" value="NET"></input></td>\
-                <td><input type="checkbox" id="group_admin_res_sg" name="group_admin_res_sg" class="resource_cb" value="SECGROUP"></input></td>\
-                <td><input type="checkbox" id="group_admin_res_image" name="group_admin_res_image" class="resource_cb" value="IMAGE"></input></td>\
-                <td><input type="checkbox" id="group_admin_res_template" name="group_admin_res_template" class="resource_cb" value="TEMPLATE"></input></td>\
-                <td><input type="checkbox" id="group_admin_res_document" name="group_admin_res_document" class="resource_cb" value="DOCUMENT"></input></td>\
               </tr>\
             </tbody>\
           </table>\
@@ -319,6 +295,24 @@ var group_actions = {
             //plot_graph(response,'#group_acct_tabTab','group_acct_', info);
         },
         error: onError
+    },
+
+    "Group.add_admin" : {
+        type: "single",
+        call : OpenNebula.Group.add_admin,
+        callback : function (req) {
+            Sunstone.runAction('Group.show',req.request.data[0][0]);
+        },
+        error : onError
+    },
+
+    "Group.del_admin" : {
+        type: "single",
+        call : OpenNebula.Group.del_admin,
+        callback : function (req) {
+            Sunstone.runAction('Group.show',req.request.data[0][0]);
+        },
+        error : onError
     }
 }
 
@@ -396,33 +390,62 @@ Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
 function insert_views(dialog_name){
-  var views_checks_str = "";
-  var views_array = config['all_views'];
-  for (var i = 0; i < views_array.length; i++)
-  {
-    var checked = views_array[i] == 'cloud' ? "checked" : "";
+    var headers     = "<tr><th/>";
+    var row         = "<tr><td>"+tr("Users")+"</td>";
+    var admin_row   = "<tr><td>"+tr("Admins")+"</td>";
+    var default_row = "<tr><td>"+tr("Users default")+"</td>";
+    var default_admin_row = "<tr><td>"+tr("Admins default")+"</td>";
 
-    views_checks_str = views_checks_str +
-             '<input type="checkbox" id="group_view_'+dialog_name+'_'+views_array[i]+
-                '" value="'+views_array[i]+'" '+checked+'/>' +
-             '<label for="group_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
-             '</label>'
-  }
-  return views_checks_str;
-}
+    var views_array = config['all_views'];
 
-function insert_views_default(dialog_name){
-  var views_checks_str = "";
-  var views_array = config['all_views'];
-  for (var i = 0; i < views_array.length; i++)
-  {
-    views_checks_str = views_checks_str +
-             '<input type="radio" name="group_default_view_'+dialog_name+'" id="group_default_view_'+dialog_name+'_'+views_array[i]+
-                '" value="'+views_array[i]+'"/>' +
-             '<label for="group_default_view_'+dialog_name+'_'+views_array[i]+'">'+views_array[i]+
-             '</label>'
-  }
-  return views_checks_str;
+    for (var i = 0; i < views_array.length; i++){
+        headers += "<th>"+views_array[i]+"</th>";
+
+        var checked = views_array[i] == 'cloud' ? "checked" : "";
+
+        row += '<td>\
+              <input type="checkbox" \
+                id="group_view_'+dialog_name+'_'+views_array[i]+'" \
+                value="'+views_array[i]+'" '+checked+'/>\
+            </td>';
+
+        checked = views_array[i] == 'groupadmin' ? "checked" : "";
+
+        admin_row += '<td>\
+              <input type="checkbox" \
+                id="group_admin_view_'+dialog_name+'_'+views_array[i]+'" \
+                value="'+views_array[i]+'" '+checked+'/>\
+            </td>';
+
+        default_row += '<td>\
+              <input type="radio" \
+                name="group_default_view_'+dialog_name+'" \
+                id="group_default_view_'+dialog_name+'_'+views_array[i]+'" \
+                value="'+views_array[i]+'"/>\
+            </td>'
+
+        default_admin_row += '<td>\
+              <input type="radio" \
+                name="group_default_admin_view_'+dialog_name+'" \
+                id="group_default_admin_view_'+dialog_name+'_'+views_array[i]+'" \
+                value="'+views_array[i]+'"/>\
+            </td>'
+    }
+
+    headers     += "</tr>";
+    row         += "</tr>";
+    admin_row   += "</tr>";
+    default_row += "</tr>";
+    default_admin_row += "</tr>";
+
+    return '<table class="dataTable" style="table-layout:fixed">'+
+            headers+
+            row+
+            default_row+
+            headers+
+            admin_row+
+            default_admin_row+
+        "</table>";
 }
 
 function groupElements(){
@@ -557,6 +580,12 @@ function updateGroupInfo(request,group){
         </div>'
       }
 
+    var users_tab = {
+        title : tr("Users"),
+        icon: "fa-users",
+        content: group_users_tab_content(info)
+    };
+
     var default_group_quotas = Quotas.default_quotas(info.DEFAULT_GROUP_QUOTAS);
 
     var quotas_html = initQuotasPanel(info, default_group_quotas,
@@ -577,6 +606,7 @@ function updateGroupInfo(request,group){
 
 
     Sunstone.updateInfoPanelTab("group_info_panel","group_info_tab",info_tab);
+    Sunstone.updateInfoPanelTab("group_info_panel","group_users_tab",users_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_quotas_tab",quotas_tab);
     Sunstone.updateInfoPanelTab("group_info_panel","group_accounting_tab",accounting_tab);
 
@@ -591,6 +621,8 @@ function updateGroupInfo(request,group){
     }
 
     Sunstone.popUpInfoPanel("group_info_panel", 'groups-tab');
+
+    setup_group_users_tab_content(info);
 
     if (Config.isFeatureEnabled("showback")) {
       showbackGraphs(
@@ -613,6 +645,126 @@ function updateGroupInfo(request,group){
         "#group_info_panel",
         Config.isTabActionEnabled("groups-tab", "Group.quotas_dialog"),
         "Group");
+}
+
+function group_users_tab_content(group_info){
+
+    var html = "";
+
+    if (Config.isTabActionEnabled("groups-tab", "Group.edit_admins")) {
+        html +=
+        '<div class="row">\
+          <div class="large-4 columns right">\
+            <span>\
+              <button class="button secondary small radius" id="edit_admins_button" style="width: 100%;">\
+                <span class="fa fa-pencil-square-o"></span> '+tr("Edit administrators")+'\
+              </button>\
+              <button class="button alert small radius" id="cancel_admins_button" style="display: none">\
+                '+tr("Cancel")+'\
+              </button>\
+              <button class="button success small radius" id="submit_admins_button" style="display: none">\
+                '+tr("Apply")+'\
+              </button>\
+            </span>\
+          </div>\
+        </div>';
+    }
+
+    html += '<div class="group_users_info_table">\
+        '+generateUserTableSelect("group_users_list")+'\
+      </div>';
+
+    return html;
+}
+
+function setup_group_users_tab_content(group_info){
+
+    var users = [];
+
+    if (group_info.USERS.ID != undefined){
+        users = group_info.USERS.ID;
+
+        if (!$.isArray(users)){
+            users = [users];
+        }
+    }
+
+    var admins = [];
+
+    if (group_info.ADMINS.ID != undefined){
+        admins = group_info.ADMINS.ID;
+
+        if (!$.isArray(admins)){
+            admins = [admins];
+        }
+    }
+
+    var opts = {
+        read_only: true,
+        fixed_ids: users,
+        admin_ids: admins
+    }
+
+    setupUserTableSelect($("#group_info_panel"), "group_users_list", opts);
+
+    refreshUserTableSelect($("#group_info_panel"), "group_users_list");
+
+    if (Config.isTabActionEnabled("groups-tab", "Group.edit_admins")) {
+        $("#group_info_panel").off("click", "#edit_admins_button");
+        $("#group_info_panel").on("click",  "#edit_admins_button", function() {
+            $("#edit_admins_button", "#group_info_panel").hide();
+            $("#cancel_admins_button", "#group_info_panel").show();
+            $("#submit_admins_button", "#group_info_panel").show();
+
+            $("#group_info_panel div.group_users_info_table").html(
+                generateUserTableSelect("group_users_edit_list") );
+
+
+            var opts = {
+                multiple_choice: true,
+                fixed_ids: users,
+                admin_ids: admins
+            }
+
+            setupUserTableSelect($("#group_info_panel"), "group_users_edit_list", opts);
+
+            selectUserTableSelect($("#group_info_panel"), "group_users_edit_list", { ids : admins });
+
+            return false;
+        });
+
+        $("#group_info_panel").off("click", "#cancel_admins_button");
+        $("#group_info_panel").on("click",  "#cancel_admins_button", function() {
+            Sunstone.runAction("Group.show", group_info.ID);
+            return false;
+        });
+
+        $("#group_info_panel").off("click", "#submit_admins_button");
+        $("#group_info_panel").on("click",  "#submit_admins_button", function() {
+            // Add/delete admins
+
+            var selected_admins_list = retrieveUserTableSelect(
+                            $("#group_info_panel"), "group_users_edit_list");
+
+            $.each(selected_admins_list, function(i,admin_id){
+                if (admins.indexOf(admin_id) == -1){
+                    Sunstone.runAction("Group.add_admin",
+                        group_info.ID, {admin_id : admin_id});
+                }
+            });
+
+            $.each(admins, function(i,admin_id){
+                if (selected_admins_list.indexOf(admin_id) == -1){
+                    Sunstone.runAction("Group.del_admin",
+                        group_info.ID, {admin_id : admin_id});
+                }
+            });
+
+            return false;
+        });
+    }
+
+
 }
 
 function disableAdminUser(dialog){
@@ -665,16 +817,8 @@ function setupCreateGroupDialog(){
         var dialog = $create_group_dialog;
         if ($(this).prop('checked')) {
             enableAdminUser(dialog);
-
-            $.each($('[id^="group_admin_res"]', dialog), function(){
-                $(this).removeAttr("disabled");
-            });
         } else {
             disableAdminUser(dialog);
-
-            $.each($('[id^="group_admin_res"]', dialog), function(){
-                $(this).attr('disabled', 'disabled');
-            });
         }
     });
 
@@ -684,13 +828,7 @@ function setupCreateGroupDialog(){
         $(this).prop("checked", true);
     });
 
-    $.each($('[id^="group_admin_res"]', dialog), function(){
-        $(this).attr('disabled', 'disabled');
-        $(this).prop("checked", true);
-    });
-
     $("#group_res_net", dialog).prop("checked", false);
-    $("#group_admin_res_net", dialog).prop("checked", false);
 
     $('#create_group_form',dialog).submit(function(){
         var name = $('#name',this).val();
@@ -730,18 +868,6 @@ function setupCreateGroupDialog(){
             group_json['group']['shared_resources'] = "VM+DOCUMENT";
         }
 
-        if (user_json){
-            resources = "";
-            separator = "";
-
-            $.each($('[id^="group_admin_res"]:checked', dialog), function(){
-                resources += (separator + $(this).val());
-                separator = "+";
-            });
-
-            group_json["group"]["group_admin"]["resources"] = resources;
-        }
-
         group_json['group']['views'] = [];
 
         $.each($('[id^="group_view"]:checked', dialog), function(){
@@ -751,6 +877,17 @@ function setupCreateGroupDialog(){
         var default_view = $('[id^="group_default_view"]:checked', dialog).val();
         if (default_view != undefined){
             group_json['group']['default_view'] = default_view;
+        }
+
+        group_json['group']['admin_views'] = [];
+
+        $.each($('[id^="group_admin_view"]:checked', dialog), function(){
+            group_json['group']['admin_views'].push($(this).val());
+        });
+
+        var default_view = $('[id^="group_default_admin_view"]:checked', dialog).val();
+        if (default_view != undefined){
+            group_json['group']['default_admin_view'] = default_view;
         }
 
         Sunstone.runAction("Group.create",group_json);
@@ -820,13 +957,42 @@ function popUpUpdateGroupDialog(group, dialog)
 
     var views_str = "";
 
+    $('input[id^="group_view"]', dialog).removeAttr('checked');
+
     if (group.TEMPLATE.SUNSTONE_VIEWS){
         views_str = group.TEMPLATE.SUNSTONE_VIEWS;
 
         var views = views_str.split(",");
         $.each(views, function(){
-            $('input[id^="group_view"][value="'+this.trim()+'"]', dialog).attr('checked','checked');
+            $('input[id^="group_view"][value="'+this.trim()+'"]',
+                dialog).attr('checked','checked');
         });
+    }
+
+    $('input[id^="group_default_view"]', dialog).removeAttr('checked');
+
+    if (group.TEMPLATE.DEFAULT_VIEW){
+        $('input[id^="group_default_view"][value="'+group.TEMPLATE.DEFAULT_VIEW.trim()+'"]',
+            dialog).attr('checked','checked');
+    }
+
+    $('input[id^="group_admin_view"]', dialog).removeAttr('checked');
+
+    if (group.TEMPLATE.GROUP_ADMIN_VIEWS){
+        views_str = group.TEMPLATE.GROUP_ADMIN_VIEWS;
+
+        var views = views_str.split(",");
+        $.each(views, function(){
+            $('input[id^="group_admin_view"][value="'+this.trim()+'"]',
+                dialog).attr('checked','checked');
+        });
+    }
+
+    $('input[id^="group_default_admin_view"]', dialog).removeAttr('checked');
+
+    if (group.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW){
+        $('input[id^="group_default_admin_view"][value="'+group.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW.trim()+'"]',
+            dialog).attr('checked','checked');
     }
 
     $(dialog).off("click", 'button#update_group_submit');
@@ -834,23 +1000,48 @@ function popUpUpdateGroupDialog(group, dialog)
 
         // Update Views
         //-------------------------------------
-        var new_views_str = "";
-        var separator     = "";
+        var template_json = group.TEMPLATE;
+
+        delete template_json["SUNSTONE_VIEWS"];
+        delete template_json["DEFAULT_VIEW"];
+        delete template_json["GROUP_ADMIN_VIEWS"];
+        delete template_json["GROUP_ADMIN_DEFAULT_VIEW"];
+
+        var views = [];
 
         $.each($('[id^="group_view"]:checked', dialog), function(){
-            new_views_str += (separator + $(this).val());
-            separator = ",";
+            views.push($(this).val());
         });
 
-        if (new_views_str != views_str){
-            var template_json = group.TEMPLATE;
-            delete template_json["SUNSTONE_VIEWS"];
-            template_json["SUNSTONE_VIEWS"] = new_views_str;
-
-            var template_str = convert_template_to_string(template_json);
-
-            Sunstone.runAction("Group.update_template",group.ID,template_str);
+        if (views.length != 0){
+            template_json["SUNSTONE_VIEWS"] = views.join(",");
         }
+
+        var default_view = $('[id^="group_default_view"]:checked', dialog).val();
+
+        if (default_view != undefined){
+            template_json["DEFAULT_VIEW"] = default_view;
+        }
+
+        var admin_views = [];
+
+        $.each($('[id^="group_admin_view"]:checked', dialog), function(){
+            admin_views.push($(this).val());
+        });
+
+        if (admin_views.length != 0){
+            template_json["GROUP_ADMIN_VIEWS"] = admin_views.join(",");
+        }
+
+        var default_admin_view = $('[id^="group_default_admin_view"]:checked', dialog).val();
+
+        if (default_admin_view != undefined){
+            template_json["GROUP_ADMIN_DEFAULT_VIEW"] = default_admin_view;
+        }
+
+        var template_str = convert_template_to_string(template_json);
+
+        Sunstone.runAction("Group.update_template",group.ID,template_str);
 
         // Close the dialog
         //-------------------------------------

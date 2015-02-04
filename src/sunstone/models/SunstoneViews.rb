@@ -87,10 +87,10 @@ class SunstoneViews
                 available << @views_config['groups'][group.name]
             end
 
-            gadmins       = group["TEMPLATE/GROUP_ADMINS"]
+            gadmins       = group.admin_ids
             gadmins_views = group["TEMPLATE/GROUP_ADMIN_VIEWS"]
 
-            if gadmins && gadmins.split(',').include?(user_name) && gadmins_views
+            if gadmins && gadmins.include?(user.id) && gadmins_views
                 views_array = gadmins_views.split(",")
                 available << views_array.each{|v| v.strip!}
             end

@@ -33,6 +33,8 @@ public class Group extends PoolElement{
     private static final String DELETE          = METHOD_PREFIX + "delete";
     private static final String QUOTA           = METHOD_PREFIX + "quota";
     private static final String UPDATE          = METHOD_PREFIX + "update";
+    private static final String ADD_ADMIN       = METHOD_PREFIX + "addadmin";
+    private static final String DEL_ADMIN       = METHOD_PREFIX + "deladmin";
 
     /**
      * Creates a new Group representation.
@@ -124,6 +126,32 @@ public class Group extends PoolElement{
         return client.call(UPDATE, id, new_template, append ? 1 : 0);
     }
 
+    /**
+     * Adds a User to the Group administrators set
+     *
+     * @param client XML-RPC Client.
+     * @param id The group id of the target group we want to modify.
+     * @param uid User ID
+     * @return If successful the message contains the group id.
+     */
+    public static OneResponse addAdmin(Client client, int id, int uid)
+    {
+        return client.call(ADD_ADMIN, id, uid);
+    }
+
+    /**
+     * Removes a User from the Group administrators set
+     *
+     * @param client XML-RPC Client.
+     * @param id The group id of the target group we want to modify.
+     * @param uid User ID
+     * @return If successful the message contains the group id.
+     */
+    public static OneResponse delAdmin(Client client, int id, int uid)
+    {
+        return client.call(DEL_ADMIN, id, uid);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -185,6 +213,28 @@ public class Group extends PoolElement{
         return update(client, id, new_template, append);
     }
 
+    /**
+     * Adds a User to the Group administrators set
+     *
+     * @param uid User ID
+     * @return If successful the message contains the group id.
+     */
+    public OneResponse addAdmin(int uid)
+    {
+        return addAdmin(client, id, uid);
+    }
+
+    /**
+     * Removes a User from the Group administrators set
+     *
+     * @param uid User ID
+     * @return If successful the message contains the group id.
+     */
+    public OneResponse delAdmin(int uid)
+    {
+        return delAdmin(client, id, uid);
+    }
+
     // =================================
     // Helpers
     // =================================
@@ -198,6 +248,18 @@ public class Group extends PoolElement{
     public boolean contains(int uid)
     {
         String res = xpath("USERS/ID[.="+uid+"]");
+        return res != null && res.equals(""+uid);
+    }
+
+    /**
+     * Returns whether or not the user is an admin of this group
+     *
+     * @param uid The user ID.
+     * @return Whether or not the user is an admin of this group
+     */
+    public boolean containsAdmin(int uid)
+    {
+        String res = xpath("ADMINS/ID[.="+uid+"]");
         return res != null && res.equals(""+uid);
     }
 }

@@ -76,6 +76,26 @@ public:
     }
 
     /**
+     * Adds a User to the admin set. ACL Rules are updated only for this user.
+     *
+     * @param user_id ID of the user
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int add_admin(int user_id, string& error_msg);
+
+    /**
+     * Deletes a User from the admin set. ACL Rules are updated only for this user.
+     *
+     * @param user_id ID of the user
+     * @param error_msg Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int del_admin(int user_id, string& error_msg);
+
+    /**
      *  Object quotas, provides set and check interface
      */
     GroupQuotas quota;
@@ -113,7 +133,8 @@ private:
     Group(int id, const string& name):
         PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
         ObjectCollection("USERS"),
-        quota()
+        quota(),
+        admins("ADMINS")
     {
         // Allow users in this group to see it
         group_u = 1;
@@ -125,6 +146,18 @@ private:
     {
         delete obj_template;
     };
+
+    // *************************************************************************
+    // Administrators
+    // *************************************************************************
+
+    /**
+     *  Stores a collection with the admin users
+     */
+    ObjectCollection admins;
+
+    void add_admin_rules(int user_id);
+    void del_admin_rules(int user_id);
 
     // *************************************************************************
     // DataBase implementation (Private)

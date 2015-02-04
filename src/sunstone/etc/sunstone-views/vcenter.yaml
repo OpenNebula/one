@@ -97,6 +97,7 @@ tabs:
             Group.create_dialog: true
             Group.quotas_dialog: true
             Group.delete: true
+            Group.edit_admins: true
     acls-tab:
         panel_tabs:
         table_columns:

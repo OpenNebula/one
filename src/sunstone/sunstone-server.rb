@@ -235,6 +235,8 @@ helpers do
 
             if user['TEMPLATE/DEFAULT_VIEW']
                 session[:default_view] = user['TEMPLATE/DEFAULT_VIEW']
+            elsif group.contains_admin(user.id) && group['TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW']
+                session[:default_view] = group['TEMPLATE/GROUP_ADMIN_DEFAULT_VIEW']
             elsif group['TEMPLATE/DEFAULT_VIEW']
                 session[:default_view] = group['TEMPLATE/DEFAULT_VIEW']
             else
