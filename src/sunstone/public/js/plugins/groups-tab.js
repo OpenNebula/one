@@ -138,6 +138,11 @@ function create_group_tmpl(dialog_name){
     </div>\
   </div>\
   <div class="reveal-footer">\
+    <div class="row collapse" id="default_vdc_warning">\
+      <div class="large-12 columns text-right">\
+        <span class="radius secondary label"><i class="fa fa-warning"/> '+tr("New Groups are automatically added to the default VDC")+'</span>\
+      </div>\
+    </div>\
     <div class="form_buttons">\
       <button class="button radius right success" id="create_group_submit" value="Group.create">'+tr("Create")+'</button>\
        <button class="button right radius" type="submit" id="update_group_submit">' + tr("Update") + '</button>\
@@ -917,6 +922,7 @@ function setupUpdateGroupDialog(){
     setupTips($update_group_dialog);
 
     // Hide create button
+    $('#default_vdc_warning',$update_group_dialog).hide();
     $('#create_group_submit',$update_group_dialog).hide();
     $('#create_group_header',$update_group_dialog).hide();
     $('#create_group_reset_button',$update_group_dialog).hide();
