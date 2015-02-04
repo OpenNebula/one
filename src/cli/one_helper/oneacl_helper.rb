@@ -114,7 +114,7 @@ private
             end
 
             column :RES_VHNIUTGDCOZSv, "Resource to which the rule applies",
-                            :size => 16 do |d|
+                            :size => 17 do |d|
                OneAclHelper::resource_mask d['STRING'].split(" ")[1]
             end
 
