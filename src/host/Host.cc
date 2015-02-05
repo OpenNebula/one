@@ -345,6 +345,14 @@ int Host::update_info(Template        &tmpl,
 
         rc = vatt->vector_value("ID", vmid);
 
+        if (rc == 0 && vmid == -1) //Check if it is an imported
+        {
+            Nebula&  nd = Nebula::instance();
+            VirtualMachinePool * vmpool = nd.get_vmpool();
+
+            vmid = vmpool->get_vmid(vatt->vector_value("DEPLOY_ID"));
+        }
+
         if (rc == 0 && vmid != -1)
         {
             if (tmp_lost_vms.erase(vmid) == 1) //Good, known

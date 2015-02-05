@@ -103,6 +103,15 @@ public:
     };
 
     /**
+     *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
+     *  in the import_table.
+     *    @param deploy_id to search the id for    
+     *    @return -1 if not found or VMID
+     *  
+     */
+    int get_vmid(const string& deploy_id);
+
+    /**
      *  Function to get the IDs of running VMs
      *   @param oids a vector that contains the IDs
      *   @param vm_limit Max. number of VMs returned
@@ -197,8 +206,14 @@ public:
      *    @return 0 on success
      */
     static int bootstrap(SqlDB * _db)
-    {
-        return VirtualMachine::bootstrap(_db);
+    {   
+        int rc;
+        ostringstream oss_import(import_db_bootstrap);
+        
+        rc  = VirtualMachine::bootstrap(_db);
+        rc += _db->exec(oss_import);
+        
+        return rc; 
     };
 
     /**
@@ -279,6 +294,32 @@ private:
      * True or false whether to submit new VM on HOLD or not
      */
     static bool _submit_on_hold;
+    
+    /**
+     * Callback used to get an int in the DB it is used by VM Pool in:
+     *   - calculate_showback (min_stime)
+     *   - get_vmid (vmid)
+     */
+    int db_int_cb(void * _min_stime, int num, char **values, char **names);
+
+    // -------------------------------------------------------------------------
+    // Virtual Machine ID - Deploy ID index for imported VMs
+    // The index is managed by the VirtualMachinePool
+    // -------------------------------------------------------------------------
+    static const char * import_table;
+
+    static const char * import_db_names;
+
+    static const char * import_db_bootstrap;
+
+    /**
+     * Insert deploy_id - vmid index.
+     *   @param replace will replace and not insert
+     *   @return 0 on success
+     */
+    int insert_index(const string& deploy_id, int vm_id, bool replace);
+
+    void drop_index(const string& deploy_id);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/
