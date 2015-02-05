@@ -247,6 +247,66 @@ class VIClient
     end
 
     ########################################################################
+    # Builds a hash with the Datacenter / Virtual Machines for this VCenter
+    # @param one_client [OpenNebula::Client] Use this client instead of @one
+    # @return [Hash] in the form
+    #   { dc_name [String] => }
+    ########################################################################
+    def running_vms(one_client=nil)
+        running_vms = {}
+
+        vmpool = OpenNebula::VirtualMachinePool.new(
+            (one_client||@one), OpenNebula::Pool::INFO_ALL)
+        rc = vmpool.info 
+
+        hostpool = OpenNebula::HostPool.new((one_client||@one))
+        rc = hostpool.info
+        # TODO check error
+
+        datacenters = get_entities(@root, 'Datacenter')
+
+        datacenters.each { |dc|
+            vms  = get_entities(dc.vmFolder, 'VirtualMachine')
+            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
+
+            tmp = vms.select { |v| 
+                # Get rid of VM Templates and VMs not in running state
+                v.config.template != true &&  
+                v.summary.runtime.powerState == "poweredOn"
+            }
+
+            one_tmp = []
+
+            tmp.each { |v|
+                vi_tmp = VCenterVm.new(self, v)
+
+                container_hostname = vi_tmp.vm.runtime.host.parent.name
+
+                cluster_name = ccrs.collect { |c|
+                  found_host=c.host.select {|h|
+                           h.parent.name == container_hostname}
+                   found_host.first.parent.name if found_host.size > 0
+                }.first
+
+                if !vmpool["VM/USER_TEMPLATE/PUBLIC_CLOUD[\
+                        TYPE=\"vcenter\" \
+                        and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
+                    one_tmp << {
+                        :name => vi_tmp.vm.name,
+                        :uuid => vi_tmp.vm.config.uuid,
+                        :host => container_hostname,
+                        :one  => vi_tmp.vm_to_one
+                    }
+                end
+            }
+
+            running_vms[dc.name] = one_tmp
+        }
+
+        return running_vms
+    end    
+
+    ########################################################################
     # Builds a hash with the Datacenter / CCR (Distributed)Networks 
     # for this VCenter
     # @param one_client [OpenNebula::Client] Use this client instead of @one
@@ -943,6 +1003,39 @@ class VCenterVm
                 str << "LOGO=images/logos/windows8.png"
             when /Linux/i
                 str << "LOGO=images/logos/linux.png"
+        end
+
+        return str
+    end
+
+    ########################################################################
+    # Generates an OpenNebula VirtualMachine for this VCenterVm
+    #
+    #
+    ########################################################################
+    def vm_to_one
+        str = "NAME   = \"#{@vm.name}\"\n"\
+              "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
+              "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
+              "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
+              "HYPERVISOR = \"vcenter\"\n"\
+              "PUBLIC_CLOUD = [\n"\
+              "  TYPE        =\"vcenter\",\n"\
+              "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
+              "]\n"\
+              "GRAPHICS = [\n"\
+              "  TYPE     =\"vnc\",\n"\
+              "  LISTEN   =\"0.0.0.0\"\n"\
+              "]\n"\
+              "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+
+        if @vm.config.annotation.nil? || @vm.config.annotation.empty?
+            str << "DESCRIPTION = \"vCenter Virtual Machine imported by OpenNebula"\
+                " from Cluster #{@vm.runtime.host.parent.name}\"\n"
+        else
+            notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
+            str << "DESCRIPTION = \"#{notes}\"\n"
         end
 
         return str
