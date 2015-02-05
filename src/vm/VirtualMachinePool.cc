@@ -327,7 +327,7 @@ int VirtualMachinePool::allocate (
 
     vm->user_obj_template->get("IMPORT_VM_ID", deploy_id);
     
-    if ( _submit_on_hold == true || on_hold || !deploy_id.empty())
+    if ( _submit_on_hold == true || on_hold )
     {
         vm->state = VirtualMachine::HOLD;
     }
@@ -336,11 +336,17 @@ int VirtualMachinePool::allocate (
         vm->state = VirtualMachine::PENDING;
     }
 
-    if (insert_index(deploy_id, -1, false) == -1) //Mark import as in progress
+    if (!deploy_id.empty())
     {
-        error_str = "Virtual Machine " + deploy_id + " already imported.";
-        return -1;
+        vm->state = VirtualMachine::HOLD;
+
+        if (insert_index(deploy_id, -1, false) == -1) //Set import in progress
+        {
+            error_str = "Virtual Machine " + deploy_id + " already imported.";
+            return -1;
+        }
     }
+
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
