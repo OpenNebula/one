@@ -18,6 +18,7 @@
 #include "VirtualMachineHook.h"
 
 #include "NebulaLog.h"
+#include "Nebula.h"
 
 #include <sstream>
 
@@ -28,6 +29,16 @@ time_t VirtualMachinePool::_monitor_expiration;
 bool   VirtualMachinePool::_submit_on_hold;
 float VirtualMachinePool::_default_cpu_cost;
 float VirtualMachinePool::_default_mem_cost;
+
+
+const char * VirtualMachinePool::import_table = "vm_import";
+
+const char * VirtualMachinePool::import_db_names = "deploy_id, vmid";
+
+const char * VirtualMachinePool::import_db_bootstrap =
+    "CREATE TABLE IF NOT EXISTS vm_import "
+    "(deploy_id VARCHAR(128), vmid INTEGER, PRIMARY KEY(deploy_id))";
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -246,6 +257,54 @@ VirtualMachinePool::VirtualMachinePool(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachinePool::insert_index(const string& deploy_id, int vmid, 
+    bool replace)
+{
+    ostringstream oss;
+    char *        deploy_name = db->escape_str(deploy_id.c_str());
+
+    if (deploy_name == 0)
+    {
+        return -1;
+    }
+
+    if (replace)
+    {
+        oss << "REPLACE ";
+    }
+    else
+    {
+        oss << "INSERT ";
+    }
+
+    oss << "INTO " << import_table << " ("<< import_db_names <<") "
+        << " VALUES ('" << deploy_name << "'," << vmid << ")";
+
+    db->free_str(deploy_name);
+
+    return db->exec(oss);
+};
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::drop_index(const string& deploy_id)
+{
+    ostringstream oss;
+    char *        deploy_name = db->escape_str(deploy_id.c_str());
+
+    if (deploy_name == 0)
+    {
+        return;
+    }
+
+    oss << "DELETE FROM " << import_table << " WHERE deploy_id='" 
+        << deploy_name << "'";
+
+    db->exec(oss);
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachinePool::allocate (
     int            uid,
     int            gid,
@@ -258,13 +317,17 @@ int VirtualMachinePool::allocate (
     bool           on_hold)
 {
     VirtualMachine * vm;
+    
+    string deploy_id;
 
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
     vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, vm_template);
 
-    if ( _submit_on_hold == true || on_hold )
+    vm->user_obj_template->get("IMPORT_VM_ID", deploy_id);
+    
+    if ( _submit_on_hold == true || on_hold || !deploy_id.empty())
     {
         vm->state = VirtualMachine::HOLD;
     }
@@ -273,11 +336,32 @@ int VirtualMachinePool::allocate (
         vm->state = VirtualMachine::PENDING;
     }
 
+    if (insert_index(deploy_id, -1, false) == -1) //Mark import as in progress
+    {
+        error_str = "Virtual Machine " + deploy_id + " already imported.";
+        return -1;
+    }
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
     *oid = PoolSQL::allocate(vm, error_str);
+
+    // ------------------------------------------------------------------------
+    // Insert the deploy_id - vmid index for imported VMs
+    // ------------------------------------------------------------------------
+
+    if (!deploy_id.empty())
+    {
+        if (*oid >= 0)
+        {
+            insert_index(deploy_id, *oid, true);
+        }
+        else
+        {
+            drop_index(deploy_id);
+        }
+    }
 
     return *oid;
 }
@@ -466,7 +550,7 @@ int VirtualMachinePool::dump_monitoring(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::min_stime_cb(void * _min_stime, int num, char **values, char **names)
+int VirtualMachinePool::db_int_cb(void * _min_stime, int num, char **values, char **names)
 {
     if ( num == 0 || values == 0 || values[0] == 0 )
     {
@@ -476,6 +560,32 @@ int VirtualMachinePool::min_stime_cb(void * _min_stime, int num, char **values, 
     *static_cast<int*>(_min_stime) = atoi(values[0]);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::get_vmid (const string& deploy_id)
+{
+    int vmid, rc;
+    ostringstream oss;
+
+    set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::db_int_cb),
+                 static_cast<void *>(&vmid));
+
+    oss << "SELECT vmid FROM " << import_table 
+        << "WHERE deploy_id = " << db->escape_str(deploy_id.c_str());
+
+    rc = db->exec(oss, this);
+
+    unset_callback();
+
+    if (rc != 0 )
+    {
+        return -1;
+    }
+
+    return vmid;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -603,7 +713,7 @@ int VirtualMachinePool::calculate_showback(
     {
         // Set start time to the lowest stime from the history records
 
-        set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::min_stime_cb),
+        set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::db_int_cb),
                      static_cast<void *>(&start_time));
 
         oss << "SELECT MIN(stime) FROM " << History::table;
@@ -905,3 +1015,6 @@ int VirtualMachinePool::calculate_showback(
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
