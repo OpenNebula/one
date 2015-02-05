@@ -806,20 +806,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        LifeCycleManager *   lcm    = nd.get_lcm();
-        VirtualMachinePool * vmpool = nd.get_vmpool();
-        HostPool *            hpool = nd.get_hpool();
-int               cpu,mem,disk;
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->add_capacity(vm->get_hid(), id, cpu, mem, disk);
-
-        vm->set_state(VirtualMachine::ACTIVE);
-        vm->set_state(VirtualMachine::BOOT);
-
-        vmpool->update(vm);
-
-        lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
+        dm->import(vm);
     }
 
     vm->unlock();
