@@ -223,13 +223,23 @@ def help
     puts "Use --check parameter to search for non installed libraries."
     puts "Use --no-nokogiri parameter if you don't want to install"
     puts "nokogiri gem."
+    puts "Use --showallpackages to show the list of packages required"
+    puts "to compile the gems."
+    puts "Use --showallgems to show the complete list of required gems."
+end
+
+def which_gems(packages)
+    ([$nokogiri]+packages.map do |package|
+        GROUPS[package.to_sym]
+    end).flatten.uniq
 end
 
 def get_gems(packages)
     ([$nokogiri]+packages.map do |package|
-        GROUPS[package.to_sym]
+	GROUPS[package.to_sym]
     end).flatten.uniq-installed_gems
 end
+
 
 def detect_distro
     begin
@@ -370,6 +380,28 @@ def check_lib(lib)
     end
 end
 
+def show_allgems(packages)
+    all=which_gems(packages)
+    puts all.join("\n")
+end
+
+def show_allpackages(packages)
+    gems=which_gems(packages)
+    distro=detect_distro
+
+    if !distro
+        distro=select_distribution
+    end
+
+    deps=get_dependencies(gems, distro.last[:dependencies])
+    deps+=distro.last[:dependencies_common]
+
+    if deps.length==0
+        return
+    end
+    puts deps.join("\n")
+end
+
 def check_gems(packages)
     list=get_gems(packages).compact
     gems=list.map {|g| g.strip.split(/\s+/).first }
@@ -430,6 +462,12 @@ if params.include?('-h')
 elsif params.include?('--check')
     params-=['--check']
     command='check'
+elsif params.include?('--showallgems')
+    params-=['--showallgems']
+    command='showallgems'
+elsif params.include?('--showallpackages')
+    params-=['--showallpackages']
+    command='showallpackages'
 else
     command='install'
 end
@@ -447,6 +485,10 @@ when 'help'
     exit(0)
 when 'check'
     check_gems(packages)
+when 'showallgems'
+    show_allgems(packages)
+when 'showallpackages'
+    show_allpackages(packages)
 when 'install'
     install_gems(packages)
 end
