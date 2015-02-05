@@ -640,6 +640,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     int  id      = xmlrpc_c::value_int(paramList.getInt(1));
     int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
     bool enforce = false;
+    bool imported= false;
     int  ds_id   = -1;
 
     if ( paramList.size() > 3 )
@@ -687,6 +688,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
          vm->get_action() == History::UNDEPLOY_HARD_ACTION))
     {
         ds_id = vm->get_ds_id();
+    }
+    else if (!vm->get_deploy_id().empty()) //deploy_id && not a Stopped VM
+    {
+        imported = true;
     }
 
     vm->unlock();
@@ -795,7 +800,27 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    dm->deploy(vm);
+    if (!imported)
+    {
+        dm->deploy(vm);    
+    }
+    else
+    {
+        LifeCycleManager *   lcm    = nd.get_lcm();
+        VirtualMachinePool * vmpool = nd.get_vmpool();
+        HostPool *            hpool = nd.get_hpool();
+int               cpu,mem,disk;
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->add_capacity(vm->get_hid(), id, cpu, mem, disk);
+
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::BOOT);
+
+        vmpool->update(vm);
+
+        lcm->trigger(LifeCycleManager::DEPLOY_SUCCESS, id);
+    }
 
     vm->unlock();
 
