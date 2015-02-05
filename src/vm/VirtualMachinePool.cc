@@ -567,14 +567,15 @@ int VirtualMachinePool::db_int_cb(void * _min_stime, int num, char **values, cha
 
 int VirtualMachinePool::get_vmid (const string& deploy_id)
 {
-    int vmid, rc;
+    int rc;
+    int vmid = -1; 
     ostringstream oss;
 
     set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::db_int_cb),
                  static_cast<void *>(&vmid));
 
     oss << "SELECT vmid FROM " << import_table 
-        << "WHERE deploy_id = " << db->escape_str(deploy_id.c_str());
+        << " WHERE deploy_id = '" << db->escape_str(deploy_id.c_str()) << "'";
 
     rc = db->exec(oss, this);
 
