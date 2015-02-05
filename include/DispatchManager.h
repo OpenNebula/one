@@ -95,6 +95,15 @@ public:
         VirtualMachine * vm);
 
     /**
+     *  Sets an imported VM to RUNNING state, a history record MUST be added,
+     *  and the VM MUST be locked.
+     *    @param vm pointer to a VirtualMachine with its mutex locked.
+     *    @return 0 on success
+     */
+    int import (
+        VirtualMachine * vm);
+
+    /**
      *  Migrates a VM. The following actions must be performed before calling
      *  this function:
      *    - Lock the VM mutex.
