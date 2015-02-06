@@ -62,7 +62,7 @@ DISTRIBUTIONS={
         }
     },
     :redhat => {
-        :id => ['CentOS', /^RedHat/],
+        :id => ['CentOS', /^RedHat/, /^Scientific/],
         :dependencies_common => ['ruby-devel', 'make'],
         :dependencies => {
             SQLITE      => ['gcc', 'sqlite-devel'],
