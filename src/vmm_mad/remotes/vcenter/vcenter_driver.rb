@@ -271,6 +271,7 @@ class VIClient
 
             tmp = vms.select { |v| 
                 # Get rid of VM Templates and VMs not in running state
+                v.config &&
                 v.config.template != true &&  
                 v.summary.runtime.powerState == "poweredOn"
             }
