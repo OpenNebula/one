@@ -292,10 +292,14 @@ class VIClient
                 if !vmpool["VM/USER_TEMPLATE/PUBLIC_CLOUD[\
                         TYPE=\"vcenter\" \
                         and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
+
+                    host_id = name_to_id(container_hostname,hostpool,"HOST")[1]
+
                     one_tmp << {
                         :name => vi_tmp.vm.name,
                         :uuid => vi_tmp.vm.config.uuid,
                         :host => container_hostname,
+                        :host_id => host_id,
                         :one  => vi_tmp.vm_to_one
                     }
                 end
@@ -305,7 +309,23 @@ class VIClient
         }
 
         return running_vms
-    end    
+    end
+
+    def name_to_id(name, pool, ename)
+            objects=pool.select {|object| object.name==name }
+
+            if objects.length>0
+                if objects.length>1
+                    return -1, "There are multiple #{ename}s with name #{name}."
+                else
+                    result = objects.first.id
+                end
+            else
+                return -1, "#{ename} named #{name} not found."
+            end
+
+            return 0, result
+    end
 
     ########################################################################
     # Builds a hash with the Datacenter / CCR (Distributed)Networks 
