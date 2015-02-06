@@ -277,9 +277,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                     "#{rc.message}\n"
                     end
 
-                    host_id = OpenNebulaHelper.rname_to_id(v[:host], "HOST")[1]
-
-                    rc = one_v.deploy host_id
+                    rc = one_v.deploy v[:host_id]
 
                     if ::OpenNebula.is_error?(rc)
                         STDOUT.puts "    Error creating Virtual Machine: "\
