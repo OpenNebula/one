@@ -29,6 +29,7 @@ groups:
     oneadmin:
         - admin
         - groupadmin
+        - groupadmin_vcenter
         - user
         - cloud
         - vcenter
