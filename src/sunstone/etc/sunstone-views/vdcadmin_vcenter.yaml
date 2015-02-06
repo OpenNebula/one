@@ -1,0 +1,21 @@
+provision_logo: images/one_small_logo.png
+enabled_tabs:
+    provision-tab: true
+tabs:
+    provision-tab:
+        panel_tabs:
+            users: true
+            flows: true
+            templates: false
+        actions:
+            Template.chmod: true
+            Template.delete: true
+        dashboard:
+            quotas: false
+            vms: false
+            vdcquotas: true
+            vdcvms: true
+            users:  true
+        create_vm:
+            capacity_select: false
+            network_select: true
