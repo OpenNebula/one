@@ -509,14 +509,14 @@ int VirtualMachinePool::dump_monitoring(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::db_int_cb(void * _min_stime, int num, char **values, char **names)
+int VirtualMachinePool::db_int_cb(void * _int_output, int num, char **values, char **names)
 {
     if ( num == 0 || values == 0 || values[0] == 0 )
     {
         return -1;
     }
 
-    *static_cast<int*>(_min_stime) = atoi(values[0]);
+    *static_cast<int*>(_int_output) = atoi(values[0]);
 
     return 0;
 }
