@@ -336,6 +336,8 @@ int VirtualMachinePool::allocate (
 
         if (insert_index(deploy_id, -1, false) == -1) //Set import in progress
         {
+            delete vm;
+
             error_str = "Virtual Machine " + deploy_id + " already imported.";
             return -1;
         }
