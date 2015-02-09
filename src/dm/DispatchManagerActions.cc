@@ -78,14 +78,11 @@ int DispatchManager::import (
     VirtualMachine *    vm)
 {
     ostringstream oss;
-    int           vid;
 
     if ( vm == 0 )
     {
         return -1;
     }
-
-    vid = vm->get_oid();
 
     if ( vm->get_state() != VirtualMachine::PENDING &&
          vm->get_state() != VirtualMachine::HOLD )
