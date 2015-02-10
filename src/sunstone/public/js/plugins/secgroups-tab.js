@@ -180,10 +180,20 @@ function initialize_create_security_group_dialog(dialog){
         }
     });
 
-    $('#create_security_group_form_advanced',dialog).on('invalid.fndtn.abide', function () {
+    $('#create_security_group_form_advanced',dialog).on('invalid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_security_group_form", $("#secgroups-tab"));
-    }).on('valid.fndtn.abide', function() {
+    }).on('valid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         if ($('#create_security_group_form_advanced',dialog).attr("action") == "create") {
 
             var template = $('textarea#template',dialog).val();

@@ -434,10 +434,20 @@ function setup_upload_support_file_dialog() {
 function initialize_create_support_request_dialog() {
     $('#create_support_request_form_wizard').foundation();
 
-    $('#create_support_request_form_wizard').on('invalid.fndtn.abide', function () {
+    $('#create_support_request_form_wizard').on('invalid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_support_request_form", $("#support-tab"));
-    }).on('valid.fndtn.abide', function() {
+    }).on('valid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         var template = {
             "subject" : $('#subject', this).val(),
             "description" : $('#description', this).val(),

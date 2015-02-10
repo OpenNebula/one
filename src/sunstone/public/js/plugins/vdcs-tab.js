@@ -663,10 +663,20 @@ function initialize_create_vdc_dialog(dialog) {
     dialog.foundation();
 
     //Process form
-    $('#create_vdc_form_wizard',dialog).on('invalid.fndtn.abide', function () {
+    $('#create_vdc_form_wizard',dialog).on('invalid.fndtn.abide', function (e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_vdc_form", $("#vdcs-tab"));
-    }).on('valid.fndtn.abide', function() {
+    }).on('valid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         //Fetch values
         var vdc_json = {};
 
@@ -830,10 +840,20 @@ function initialize_create_vdc_dialog(dialog) {
         }
     });
 
-    $('#create_vdc_form_advanced',dialog).on('invalid.fndtn.abide', function () {
+    $('#create_vdc_form_advanced',dialog).on('invalid.fndtn.abide', function (e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_vdc_form", $("#vdcs-tab"));
-    }).on('valid.fndtn.abide', function() {
+    }).on('valid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         if ($('#create_vdc_form_advanced',dialog).attr("action") == "create") {
 
             var template = $('textarea#template',dialog).val();

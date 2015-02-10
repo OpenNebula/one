@@ -1398,10 +1398,20 @@ function initialize_create_vnet_dialog(dialog) {
     dialog.foundation();
 
     //Process form
-    $('#create_vnet_form_wizard',dialog).on('invalid.fndtn.abide', function () {
+    $('#create_vnet_form_wizard',dialog).on('invalid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_vnet_form", $("#vnets-tab"));
-    }).on('valid.fndtn.abide', function() {
+    }).on('valid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         //Fetch values
         var network_json = {};
 
@@ -1440,10 +1450,20 @@ function initialize_create_vnet_dialog(dialog) {
         }
     });
 
-    $('#create_vnet_form_advanced',dialog).on('invalid.fndtn.abide', function () {
+    $('#create_vnet_form_advanced',dialog).on('invalid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         notifyError(tr("One or more required fields are missing or malformed."));
         popFormDialog("create_vnet_form", $("#vnets-tab"));
-    }).on('valid.fndtn.abide', function() {
+    }).on('valid.fndtn.abide', function(e) {
+        // Fix for valid event firing twice
+        if(e.namespace != 'abide.fndtn') {
+            return;
+        }
+
         if ($('#create_vnet_form_advanced',dialog).attr("action") == "create") {
 
             var template = $('textarea#template',dialog).val();
