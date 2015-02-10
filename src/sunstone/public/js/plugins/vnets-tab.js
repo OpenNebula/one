@@ -52,7 +52,7 @@ var create_vnet_wizard_html =
                 <label for="mac_spoofing">\
                   <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />\
                   '+tr("Filter MAC spoofing")+'\
-                  <span class="tip">'+tr("Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q and Ebtables network drivers.")+'</span>\
+                  <span class="tip">'+tr("Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
                 </label>\
               </div>\
             </div>\
@@ -61,7 +61,7 @@ var create_vnet_wizard_html =
                 <label for="ip_spoofing">\
                   <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />\
                   '+tr("Filter IP spoofing")+'\
-                  <span class="tip">'+tr("Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q and Ebtables network drivers.")+'</span>\
+                  <span class="tip">'+tr("Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
                 </label>\
               </div>\
             </div>\
@@ -81,6 +81,7 @@ var create_vnet_wizard_html =
                 <select name="network_mode" id="network_mode">\
                   <option value="default">'+tr("Default")+'</option>\
                   <option value="802.1Q">'+tr("802.1Q")+'</option>\
+                  <option value="vxlan">'+tr("VXLAN")+'</option>\
                   <option value="ebtables">'+tr("ebtables")+'</option>\
                   <option value="openvswitch">'+tr("Open vSwitch")+'</option>\
                   <option value="vmware">'+tr("VMware")+'</option>\
@@ -89,6 +90,7 @@ var create_vnet_wizard_html =
               <div class="large-12 columns">\
                 <div class="network_mode_description" value="default">'+tr("Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored.")+'</div>\
                 <div class="network_mode_description" value="802.1Q">'+tr("802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches.")+'</div>\
+                <div class="network_mode_description" value="vxlan">'+tr("VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN has associated a multicast address in the 239.0.0.0/8 range.")+'</div>\
                 <div class="network_mode_description" value="ebtables">'+tr("ebtables: restrict network access through Ebtables rules. No special hardware configuration required.")+'</div>\
                 <div class="network_mode_description" value="openvswitch">'+tr("Open vSwitch: restrict network access with Open vSwitch Virtual Switch.")+'</div>\
                 <div class="network_mode_description" value="vmware">'+tr("VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor.")+'</div>\
@@ -1347,6 +1349,15 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#bridge',dialog).attr('required', '');
             break;
         case "802.1Q":
+            $('input#bridge,label[for="bridge"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#phydev,label[for="phydev"]',dialog).show().prop('wizard_field_disabled', false);
+            $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
+
+            $('input#phydev',dialog).removeAttr('required');
+            $('input#bridge',dialog).removeAttr('required');
+            break;
+        case "vxlan":
             $('input#bridge,label[for="bridge"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#phydev,label[for="phydev"]',dialog).show().prop('wizard_field_disabled', false);
             $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false);

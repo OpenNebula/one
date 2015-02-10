@@ -60,6 +60,7 @@ var create_host_tmpl =
                <option value="dummy">' + tr("Default (dummy)") +'</option>\
                <option value="fw">'+tr("Firewall")+'</option>\
                <option value="802.1Q">'+tr("802.1Q")+'</option>\
+               <option value="vxlan">'+tr("VXLAN")+'</option>\
                <option value="ebtables">'+tr("ebtables")+'</option>\
                <option value="ovswitch">'+tr("Open vSwitch")+'</option>\
                <option value="vmware">'+tr("VMware")+'</option>\
