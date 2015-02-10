@@ -2216,6 +2216,54 @@ function generate_disk_tab_content(str_disk_tab_id){
                     '<option value="native">'+tr("native")+'</option>'+
                   '</select>'+
                 '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="TOTAL_BYTES_SEC">'+tr("Total Bytes Sec")+
+                      '<span class="tip">'+
+                        tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="READ_BYTES_SEC">'+tr("Read Bytes Sec")+
+                      '<span class="tip">'+
+                        tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="WRITE_BYTES_SEC">'+tr("Write Bytes Sec")+
+                      '<span class="tip">'+
+                        tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="TOTAL_IOPS_SEC">'+tr("Total IOPS Sec")+
+                      '<span class="tip">'+
+                        tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="READ_IOPS_SEC">'+tr("Read IOPS Sec")+
+                      '<span class="tip">'+
+                        tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />'+
+                '</div>'+
+                '<div class="large-6 columns hypervisor only_kvm">'+
+                  '<label for="WRITE_IOPS_SEC">'+tr("Write IOPS Sec")+
+                      '<span class="tip">'+
+                        tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                      '</span>'+
+                  '</label>'+
+                  '<input type="text" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />'+
+                '</div>'+
               '</div>'})+
       '</div>'+
       '<div id="disk_type" class="volatile" style="display: none;">'+
@@ -2337,6 +2385,54 @@ function generate_disk_tab_content(str_disk_tab_id){
                 '<option value="threads">'+tr("threads")+'</option>'+
                 '<option value="native">'+tr("native")+'</option>'+
               '</select>'+
+            '</div>'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
+              '<label for="TOTAL_BYTES_SEC">'+tr("Total Bytes Sec")+
+                  '<span class="tip">'+
+                    tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />'+
+            '</div>'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
+              '<label for="READ_BYTES_SEC">'+tr("Read Bytes Sec")+
+                  '<span class="tip">'+
+                    tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />'+
+            '</div>'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
+              '<label for="WRITE_BYTES_SEC">'+tr("Write Bytes Sec")+
+                  '<span class="tip">'+
+                    tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />'+
+            '</div>'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
+              '<label for="TOTAL_IOPS_SEC">'+tr("Total IOPS Sec")+
+                  '<span class="tip">'+
+                    tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />'+
+            '</div>'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
+              '<label for="READ_IOPS_SEC">'+tr("Read IOPS Sec")+
+                  '<span class="tip">'+
+                    tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />'+
+            '</div>'+
+            '<div class="large-6 columns hypervisor only_kvm">'+
+              '<label for="WRITE_IOPS_SEC">'+tr("Write IOPS Sec")+
+                  '<span class="tip">'+
+                    tr("IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")+
+                  '</span>'+
+              '</label>'+
+              '<input type="text" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />'+
             '</div>'+
           '</div>'})+
     '</div>';
