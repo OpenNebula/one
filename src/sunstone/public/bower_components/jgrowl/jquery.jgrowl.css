@@ -43,6 +43,7 @@
   text-align: left;
   display: none;
   border-radius: 5px;
+  word-break: break-all;
   min-height: 40px;
 }
 .jGrowl-notification .ui-state-highlight,
@@ -78,6 +79,7 @@
   text-align: left;
   display: none;
   border-radius: 5px;
+  word-break: break-all;
   padding-top: 4px;
   padding-bottom: 4px;
   cursor: pointer;

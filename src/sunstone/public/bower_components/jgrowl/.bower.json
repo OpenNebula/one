@@ -1,6 +1,6 @@
 {
   "name": "jGrowl",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "homepage": "https://github.com/stanlemon/jGrowl",
   "authors": [
     "Stan Lemon <stosh1985@gmail.com>"
@@ -26,11 +26,11 @@
     "test",
     "tests"
   ],
-  "_release": "1.4.1",
+  "_release": "1.4.2",
   "_resolution": {
     "type": "version",
-    "tag": "1.4.1",
-    "commit": "1cab5ed501513a4b4497632314556cc605584e82"
+    "tag": "1.4.2",
+    "commit": "7999a1e343796c087e1cf5c499fcf5c0724f0d09"
   },
   "_source": "git://github.com/stanlemon/jGrowl.git",
   "_target": "*",
