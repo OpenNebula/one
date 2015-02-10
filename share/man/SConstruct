@@ -62,12 +62,8 @@ env.Man('onevnet')
 env.Man('onegroup')
 env.Man('onezone')
 env.Man('onevcenter')
-
-# TODO
-#env.Man('onesecgroup')
-
-# TODO
-#env.Man('onevdc')
+env.Man('onesecgroup')
+env.Man('onevdc')
 
 env.Man('oneflow')
 env.Man('oneflow-template')
