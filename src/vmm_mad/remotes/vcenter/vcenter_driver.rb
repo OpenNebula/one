@@ -625,6 +625,7 @@ class VCenterHost < ::OpenNebula::Host
             str_info << "\nVM = ["
             str_info << "ID=#{number},"
             str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+            str_info << "VM_NAME=\"#{name}\","
             str_info << "POLL=\"#{vm.info}\"]"
         }
 
