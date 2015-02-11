@@ -49,24 +49,6 @@ var create_vnet_wizard_html =
           <div class="content" id="vnetCreateBridgeTab">\
             <div class="row">\
               <div class="large-6 columns">\
-                <label for="mac_spoofing">\
-                  <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />\
-                  '+tr("Filter MAC spoofing")+'\
-                  <span class="tip">'+tr("Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
-                </label>\
-              </div>\
-            </div>\
-            <div class="row">\
-              <div class="large-6 columns">\
-                <label for="ip_spoofing">\
-                  <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />\
-                  '+tr("Filter IP spoofing")+'\
-                  <span class="tip">'+tr("Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
-                </label>\
-              </div>\
-            </div>\
-            <div class="row">\
-              <div class="large-6 columns">\
                   <label for="bridge">'+tr("Bridge")+':\
                     <span class="tip">'+tr("Name of the physical bridge in the physical host where the VM should connect its network interface")+'</span>\
                   </label>\
@@ -97,6 +79,24 @@ var create_vnet_wizard_html =
               </div>\
             </div>\
             <br>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="mac_spoofing">\
+                  <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />\
+                  '+tr("Filter MAC spoofing")+'\
+                  <span class="tip">'+tr("Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
+                </label>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="ip_spoofing">\
+                  <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />\
+                  '+tr("Filter IP spoofing")+'\
+                  <span class="tip">'+tr("Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
+                </label>\
+              </div>\
+            </div>\
             <div class="row">\
               <div class="large-6 columns">\
                 <div class="row">\
@@ -1344,6 +1344,8 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#phydev,label[for="phydev"]',dialog).hide().prop('wizard_field_disabled', true);
             $('select#vlan,label[for="vlan"]',dialog).hide().prop('wizard_field_disabled', true);
             $('input#vlan_id,label[for="vlan_id"]',dialog).hide().prop('wizard_field_disabled', true);
+            $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
+            $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1353,6 +1355,8 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#phydev,label[for="phydev"]',dialog).show().prop('wizard_field_disabled', false);
             $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).removeAttr('required');
@@ -1362,6 +1366,8 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#phydev,label[for="phydev"]',dialog).show().prop('wizard_field_disabled', false);
             $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).removeAttr('required');
@@ -1371,6 +1377,8 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#phydev,label[for="phydev"]',dialog).hide().prop('wizard_field_disabled', true);
             $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',dialog).hide().prop('wizard_field_disabled', true);
+            $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1380,6 +1388,8 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#phydev,label[for="phydev"]',dialog).hide().prop('wizard_field_disabled', true);
             $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
+            $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1389,6 +1399,8 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#phydev,label[for="phydev"]',dialog).hide();
             $('select#vlan,label[for="vlan"]',dialog).show();
             $('input#vlan_id,label[for="vlan_id"]',dialog).show();
+            $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
+            $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1516,6 +1528,8 @@ function fillVNetUpdateFormPanel(vnet, dialog){
     $('input#phydev,label[for="phydev"]',dialog).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('select#vlan,label[for="vlan"]',dialog).show().prop('wizard_field_disabled', false).removeAttr('required');
     $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false).removeAttr('required');
+    $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+    $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
 
     if (vnet.TEMPLATE["SECURITY_GROUPS"] != undefined &&
         vnet.TEMPLATE["SECURITY_GROUPS"].length != 0){
