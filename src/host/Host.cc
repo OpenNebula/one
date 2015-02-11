@@ -366,23 +366,41 @@ int Host::update_info(Template        &tmpl,
                 // Reported as zombie at least 2 times?
                 if (prev_tmp_zombie.count(vmid) == 1)
                 {
+                    string zname;
+
                     if (num_zombies++ > 0)
                     {
                         zombie << ", ";
                     }
 
-                    zombie << vatt->vector_value("DEPLOY_ID");
+                    zname = vatt->vector_value("VM_NAME");
+
+                    if (zname.empty())
+                    {
+                        zname = vatt->vector_value("DEPLOY_ID");
+                    }
+
+                    zombie << zname;
                 }
             }
         }
         else if (rc == 0) //not ours
         {
+            string wname;
+
             if (num_wilds++ > 0)
             {
                 wild << ", ";
             }
 
-            wild << vatt->vector_value("DEPLOY_ID");
+            wname = vatt->vector_value("VM_NAME");
+
+            if (wname.empty())
+            {
+                wname = vatt->vector_value("DEPLOY_ID");
+            }
+
+            wild << wname;
         }
 
         delete *it;

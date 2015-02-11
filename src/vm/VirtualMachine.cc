@@ -412,6 +412,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     if (!value.empty())
     {
         deploy_id = value;
+        obj_template->add("IMPORTED", "YES");
     }
 
     // ------------------------------------------------------------------------
