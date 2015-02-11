@@ -2106,7 +2106,8 @@ function printNics(vm_info){
    var isHybrid = calculate_isHybrid(vm_info);
 
    // vCenter has network capabilities
-   if (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter")
+   if (vm_info.USER_TEMPLATE.HYPERVISOR &&
+       vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter")
    {
      isHybrid = false;
    }
@@ -2255,7 +2256,8 @@ function printNics(vm_info){
     }
 
   // Do not show statistics for not hypervisors that do not gather net data
-  if (!isHybrid && vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+  if (!isHybrid && vm_info.USER_TEMPLATE.HYPERVISOR &&
+      vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
   {
     html += '\
         <div class="row">\
