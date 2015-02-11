@@ -1215,25 +1215,37 @@ function fillVCenterVMs(opts) {
                 '</div>').appendTo($(".content", opts.container))
           } else {
             $.each(vms, function(id, vm){
-              var trow = $('<div class="vcenter_vm">' +
-                  '<div class="row">' +
-                    '<div class="large-10 columns">' +
-                      '<label>' +
-                        '<input type="checkbox" class="vm_name" checked/> ' +
-                        vm.name + '&emsp;<span style="color: #999">' + vm.host + '</span>' +
-                      '</vm>' +
-                      '<div class="large-12 columns vcenter_vm_response">'+
+              if (vm.host_id === parseInt(vm.host_id, 10)) {
+                var trow = $('<div class="vcenter_vm">' +
+                    '<div class="row">' +
+                      '<div class="large-10 columns">' +
+                        '<label>' +
+                          '<input type="checkbox" class="vm_name" checked/> ' +
+                          vm.name + '&emsp;<span style="color: #999">' + vm.host + '</span>' +
+                        '</vm>' +
+                        '<div class="large-12 columns vcenter_vm_response">'+
+                        '</div>'+
+                      '</div>' +
+                      '<div class="large-2 columns vcenter_vm_result">'+
                       '</div>'+
-                    '</div>' +
-                    '<div class="large-2 columns vcenter_vm_result">'+
                     '</div>'+
-                  '</div>'+
-                '</div>').appendTo($(".content", opts.container))
+                  '</div>').appendTo($(".content", opts.container))
 
-              $(".vm_name", trow).data("vm_name", vm.name)
-              $(".vm_name", trow).data("one_vm", vm.one)
-              $(".vm_name", trow).data("vm_to_host", vm.host_id)
+                $(".vm_name", trow).data("vm_name", vm.name)
+                $(".vm_name", trow).data("one_vm", vm.one)
+                $(".vm_name", trow).data("vm_to_host", vm.host_id)
+              }
             });
+
+            if ($(".vcenter_vm").length == 0) {
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<label>' +
+                      tr("No new running VMs found in this DataCenter") +
+                    '</label>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", opts.container))
+            } 
           };
         });
       },

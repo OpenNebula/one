@@ -1806,6 +1806,43 @@ function getName(id,dataTable,name_col){
     return name;
 };
 
+function getHostIdFromName(hostName) {
+  getColumnValue({
+      dataTable: dataTable_hosts,
+      columnFilterIndex: 2, // Name
+      columnFilterValue: hostName,
+      columnResultIndex: 1 // ID
+    });
+}
+
+/*
+  Returns the value of the columnResultIndex column of the row
+    whose columnFilterIndex column has the columnFilterValue value 
+
+  opts = {
+    dataTable: datatable to get the info from
+    columnFilterIndex: column that will be filtered
+    columnFilterValue: value to filter
+    columnResultIndex: value to be returned
+  }
+ */
+function getColumnValue(opts) {
+  if (typeof(opts.dataTable) == "undefined") {
+    return false;
+  };
+
+  var result = false;
+
+  $.each(opts.dataTable.fnGetData(), function(){
+    if (opts.columnFilterValue == this[opts.columnFilterIndex]) {
+      result = this[opts.columnResultIndex];
+      return false;
+    }
+  });
+
+  return result;
+}
+
 // A more general version of the above.
 // Search a datatable record matching the filter_str in the filter_col. Returns
 // the value of that record in the desired value column.
