@@ -343,9 +343,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             obj.delete_element("AR_POOL/AR[AR_ID!=#{args[1]}]")
             obj.delete_element("AR_POOL/AR/LEASES")
             obj.delete_element("AR_POOL/AR/USED_LEASES")
+            obj.delete_element("AR_POOL/AR/MAC_END")
+            obj.delete_element("AR_POOL/AR/IP_END")
+            obj.delete_element("AR_POOL/AR/IP6_ULA")
+            obj.delete_element("AR_POOL/AR/IP6_ULA_END")
+            obj.delete_element("AR_POOL/AR/IP6_GLOBAL")
+            obj.delete_element("AR_POOL/AR/IP6_GLOBAL_END")
 
             if obj.template_like_str("AR_POOL").empty?
-                puts "Address Range #{args[1]} does not exit for "<<
+                puts "Address Range #{args[1]} does not exist for "<<
                     "Virtual Network #{args[0]}"
                 exit -1
             end

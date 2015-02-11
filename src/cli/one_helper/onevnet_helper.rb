@@ -238,40 +238,40 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false)
 
+        arlist = []
+
         if !vn_hash['VNET']['AR_POOL']['AR'].nil?
             arlist = [vn_hash['VNET']['AR_POOL']['AR']].flatten
         end
 
-        CLIHelper::ShowTable.new(nil, self) do
-            column :AR, "", :size=>3 do |d|
-                    d["AR_ID"]
+        arlist.each do |ar|
+
+            CLIHelper.print_header("%-80s" % "AR #{ar["AR_ID"]}")
+
+            str="%-15s: %-20s"
+            puts str % ["SIZE", ar["SIZE"]]
+            puts str % ["LEASES", ar["USED_LEASES"]]
+            puts
+
+            format = "%-10s %34s %34s"
+            CLIHelper.print_header(format % ["RANGE", "FIRST", "LAST"], false)
+
+            puts format % ["MAC", ar["MAC"], ar["MAC_END"]]
+
+            if !ar["IP"].nil?
+                puts format % ["IP", ar["IP"], ar["IP_END"]]
             end
 
-            column :TYPE, "", :left, :size=>5 do |d|
-                    d["TYPE"]
+            if !ar["IP6_GLOBAL"].nil?
+                puts format % ["IP6_GLOBAL", ar["IP6_GLOBAL"], ar["IP6_GLOBAL_END"]]
             end
 
-            column :SIZE, "", :size=>6 do |d|
-                    d["SIZE"]
+            if !ar["IP6_ULA"].nil?
+                puts format % ["IP6_ULA", ar["IP6_ULA"], ar["IP6_ULA_END"]]
             end
 
-            column :LEASES, "", :size=>6 do |d|
-                    d["USED_LEASES"]
-            end
-
-            column :MAC, "", :size=>17 do |d|
-                    d["MAC"]
-            end
-
-            column :IP, "", :size=>15 do |d|
-                    d["IP"]||"-"
-            end
-
-            column :GLOBAL_PREFIX, "", :right, :size=>22 do |d|
-                    d["GLOBAL_PREFIX"]||"-"
-            end
-
-        end.show(arlist, {})
+            puts
+        end
 
         puts
         CLIHelper.print_header(str_h1 % ["LEASES"], false)

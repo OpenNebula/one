@@ -359,6 +359,12 @@ private:
     int mac_to_i(string mac, unsigned int i_mac[]) const;
 
     /**
+     *  MAC to string
+     *    @param mac in array form
+     */
+    string mac_to_s(const unsigned int mac[]) const;
+
+    /**
      *  IP version 4 to binary (32 bits)
      *    @param ip in string form 192.168.0.2
      *    @return 0 on success
@@ -366,11 +372,28 @@ private:
     int ip_to_i(const string& _ip, unsigned int& i_ip) const;
 
     /**
+     * IP version 4 to dot notation
+     *
+     * @param i_ip Numeric (32 bits) IP
+     * @return dot notation
+     */
+    string ip_to_s(unsigned int i_ip) const;
+
+    /**
      *  IPv6 64bits prefix conversion
      *    @param prefix in string form 2a00:1bc0:b001:A::
      *    @return 0 on success
      */
     int prefix6_to_i(const string& prefix, unsigned int ip[]) const;
+
+    /**
+     * IPv6 to string
+     * @param prefix Numeric IPv6 prefix
+     * @param mac Numeric (48 bits) mac address
+     * @param ip6_s Will contain the resulting IPv6 string
+     * @return 0 on success
+     */
+    int ip6_to_s(const unsigned int prefix[], const unsigned int mac[], string& ip6_s) const;
 
     /* ---------------------------------------------------------------------- */
     /* NIC setup functions                                                    */

@@ -259,6 +259,13 @@ int AddressRange::update_attributes(
                 attr->vector_value("PARENT_NETWORK_AR_ID"));
     }
 
+    vup->remove("MAC_END");
+    vup->remove("IP_END");
+    vup->remove("IP6_ULA");
+    vup->remove("IP6_ULA_END");
+    vup->remove("IP6_GLOBAL");
+    vup->remove("IP6_GLOBAL_END");
+
     /* ----------------- restricted attributes ----------------- */
 
     if (keep_restricted && restricted_set)
@@ -390,6 +397,10 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
     const map<string,string>&          ar_attrs = attr->value();
     map<string,string>::const_iterator it;
 
+    int          rc;
+    unsigned int mac_end[2];
+    string       aux_st;
+
     bool all_vms = (vms.size() == 1 && vms[0] == -1);
     bool all_vns = (vns.size() == 1 && vns[0] == -1);
 
@@ -404,6 +415,48 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
         oss << "<" << it->first << "><![CDATA[" << it->second
                 << "]]></"<< it->first << ">";
+    }
+
+    mac_end[1] = mac[1];
+    mac_end[0] = (mac[0] + size - 1);
+
+    oss << "<MAC_END><![CDATA[" << mac_to_s(mac_end) << "]]></MAC_END>";
+
+    aux_st = attr->vector_value("IP");
+
+    if (aux_st != "")
+    {
+        unsigned int ip_i;
+
+        rc = ip_to_i(aux_st, ip_i);
+
+        if (rc == 0)
+        {
+            oss << "<IP_END><![CDATA[" << ip_to_s(ip_i + size - 1) << "]]></IP_END>";
+        }
+    }
+
+    if (type & 0x00000004)
+    {
+        string ip6_s;
+
+        if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address */
+        {
+            ip6_to_s(ula6, mac, ip6_s);
+            oss << "<IP6_ULA><![CDATA[" << ip6_s << "]]></IP6_ULA>";
+
+            ip6_to_s(ula6, mac_end, ip6_s);
+            oss << "<IP6_ULA_END><![CDATA[" << ip6_s << "]]></IP6_ULA_END>";
+        }
+
+        if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
+        {
+            ip6_to_s(global6, mac, ip6_s);
+            oss << "<IP6_GLOBAL><![CDATA[" << ip6_s << "]]></IP6_GLOBAL>";
+
+            ip6_to_s(global6, mac_end, ip6_s);
+            oss << "<IP6_GLOBAL_END><![CDATA[" << ip6_s << "]]></IP6_GLOBAL_END>";
+        }
     }
 
     oss << "<USED_LEASES>" << used_addr << "</USED_LEASES>";
@@ -520,6 +573,42 @@ int AddressRange::mac_to_i(string mac, unsigned int i_mac[]) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string AddressRange::mac_to_s(const unsigned int i_mac[]) const
+{
+    ostringstream oss;
+    unsigned int  temp_byte;
+
+    for (int i=5;i>=0;i--)
+    {
+        if ( i < 4 )
+        {
+            temp_byte = i_mac[0];
+            temp_byte >>= i*8;
+        }
+        else
+        {
+            temp_byte = i_mac[1];
+            temp_byte >>= (i%4)*8;
+        }
+
+        temp_byte &= 255;
+
+        oss.width(2);
+        oss.fill('0');
+        oss << hex << temp_byte;
+
+        if(i!=0)
+        {
+            oss << ":";
+        }
+    }
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
 {
     istringstream iss;
@@ -563,6 +652,31 @@ int AddressRange::ip_to_i(const string& _ip, unsigned int& i_ip) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string AddressRange::ip_to_s(unsigned int i_ip) const
+{
+    ostringstream oss;
+    unsigned int  temp_byte;
+
+    for (int index=0;index<4;index++)
+    {
+        temp_byte =   i_ip;
+        temp_byte >>= (24-index*8);
+        temp_byte &=  255;
+
+        oss << temp_byte;
+
+        if(index!=3)
+        {
+            oss << ".";
+        }
+    }
+
+    return oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
 {
     struct in6_addr s6;
@@ -586,74 +700,13 @@ int AddressRange::prefix6_to_i(const string& prefix, unsigned int ip[]) const
     return 0;
 }
 
-/* ************************************************************************** */
-/* ************************************************************************** */
-
-void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic) const
-{
-    ostringstream oss;
-    unsigned int  temp_byte;
-
-    for (int i=5;i>=0;i--)
-    {
-        if ( i < 4 )
-        {
-            temp_byte = mac[0] + addr_index;
-            temp_byte >>= i*8;
-        }
-        else
-        {
-            temp_byte = mac[1];
-            temp_byte >>= (i%4)*8;
-        }
-
-        temp_byte &= 255;
-
-        oss.width(2);
-        oss.fill('0');
-        oss << hex << temp_byte;
-
-        if(i!=0)
-        {
-            oss << ":";
-        }
-    }
-
-     nic->replace("MAC", oss.str());
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic) const
-{
-    ostringstream oss;
-    unsigned int  temp_byte;
-
-    for (int index=0;index<4;index++)
-    {
-        temp_byte =   ip + addr_index;
-        temp_byte >>= (24-index*8);
-        temp_byte &=  255;
-
-        oss << temp_byte;
-
-        if(index!=3)
-        {
-            oss << ".";
-        }
-    }
-
-    nic->replace("IP", oss.str());
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
+int AddressRange::ip6_to_s(const unsigned int prefix[], const unsigned int mac[], string& ip6_s) const
 {
     unsigned int eui64[2];
-    unsigned int mlow = mac[0] + addr_index;
+    unsigned int mlow = mac[0];
 
     struct in6_addr ip6;
     char dst[INET6_ADDRSTRLEN];
@@ -664,34 +717,71 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
     ip6.s6_addr32[2] = htonl(eui64[1]);
     ip6.s6_addr32[3] = htonl(eui64[0]);
 
-    /* Link Local */
-    ip6.s6_addr32[0] = htonl(0xfe800000);
-    ip6.s6_addr32[1] = 0;
+    ip6.s6_addr32[0] = htonl(prefix[1]);
+    ip6.s6_addr32[1] = htonl(prefix[0]);
 
     if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
     {
-        nic->replace("IP6_LINK", dst);
+        ip6_s = dst;
+        return 0;
+    }
+
+    return -1;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic) const
+{
+    unsigned int new_mac[2];
+
+    new_mac[0] = mac[0] + addr_index;
+    new_mac[1] = mac[1];
+
+    nic->replace("MAC", mac_to_s(new_mac));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::set_ip(unsigned int addr_index, VectorAttribute * nic) const
+{
+    nic->replace("IP", ip_to_s(ip + addr_index));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
+{
+    unsigned int new_mac[2];
+    string       ip6_s;
+
+    new_mac[0] = mac[0] + addr_index;
+    new_mac[1] = mac[1];
+
+    /* Link Local */
+    unsigned int local_prefix[2] = {0, 0xfe800000};
+
+    if (ip6_to_s(local_prefix, new_mac, ip6_s) == 0)
+    {
+        nic->replace("IP6_LINK", ip6_s);
     }
 
     if (ula6[1] != 0 || ula6[0] != 0 ) /* Unique Local Address */
     {
-        ip6.s6_addr32[0] = htonl(ula6[1]);
-        ip6.s6_addr32[1] = htonl(ula6[0]);
-
-        if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
+        if (ip6_to_s(ula6, new_mac, ip6_s) == 0)
         {
-            nic->replace("IP6_ULA", dst);
+            nic->replace("IP6_ULA", ip6_s);
         }
     }
 
-    if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
+    if (global6[1] != 0 || global6[0] != 0 ) /* Global Unicast */
     {
-        ip6.s6_addr32[0] = htonl(global6[1]);
-        ip6.s6_addr32[1] = htonl(global6[0]);
-
-        if ( inet_ntop(AF_INET6, &ip6, dst, INET6_ADDRSTRLEN) != 0 )
+        if (ip6_to_s(global6, new_mac, ip6_s) == 0)
         {
-            nic->replace("IP6_GLOBAL", dst);
+            nic->replace("IP6_GLOBAL", ip6_s);
         }
     }
 }

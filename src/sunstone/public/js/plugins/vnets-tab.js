@@ -1072,6 +1072,18 @@ function ar_show_info(vn_info, ar_id){
           </thead>\
           <tbody>';
 
+    first_mac = ar.MAC;
+    last_mac = ar.MAC_END;
+
+    first_ip = ar.IP;
+    last_ip = ar.IP_END;
+
+    first_ip6_global = ar.IP6_GLOBAL;
+    last_ip6_global = ar.IP6_GLOBAL_END;
+
+    first_ip6_ula = ar.IP6_ULA;
+    last_ip6_ula = ar.IP6_ULA_END;
+
     // TODO: translate ar.TYPE values?
     html += ar_attr(tr("Type"),         ar.TYPE);
     html += ar_attr(tr("MAC Start"),    ar.MAC);
@@ -1082,6 +1094,12 @@ function ar_show_info(vn_info, ar_id){
     html += ar_attr(tr("Used leases"),  ar.USED_LEASES);
     html += ar_attr(tr("Reservation parent AR"),  ar.PARENT_NETWORK_AR_ID);
 
+    delete ar["MAC_END"];
+    delete ar["IP_END"];
+    delete ar["IP6_ULA"];
+    delete ar["IP6_ULA_END"];
+    delete ar["IP6_GLOBAL"];
+    delete ar["IP6_GLOBAL_END"];
     delete ar["AR_ID"];
     delete ar["TYPE"];
     delete ar["MAC"];
@@ -1114,6 +1132,57 @@ function ar_show_info(vn_info, ar_id){
     $.each(ar, function(key, value){
         html += ar_attr(key, value);
     });
+
+    html +=
+          '</tbody>\
+        </table>\
+      </div>\
+    </div>';
+
+    html +=
+    '<div class="row collapse">\
+      <div class="large-12 columns">\
+        <table class="dataTable extended_table">\
+          <thead>\
+            <tr>\
+              <th>'+tr("Range")+'</th>\
+              <th>'+tr("First")+'</th>\
+              <th>'+tr("Last")+'</th>\
+            </tr>\
+          </thead>\
+          <tbody>\
+            <tr>\
+              <td class="key_td">'+tr("MAC")+'</td>\
+              <td class="value_td">'+first_mac+'</td>\
+              <td class="value_td">'+last_mac+'</td>\
+            </tr>';
+
+    if (first_ip != undefined){
+        html+=
+            '<tr>\
+              <td class="key_td">'+tr("IP")+'</td>\
+              <td class="value_td">'+first_ip+'</td>\
+              <td class="value_td">'+last_ip+'</td>\
+            </tr>';
+    }
+
+    if (first_ip6_global != undefined){
+        html +=
+            '<tr>\
+              <td class="key_td">'+tr("IP6_GLOBAL")+'</td>\
+              <td class="value_td">'+first_ip6_global+'</td>\
+              <td class="value_td">'+last_ip6_global+'</td>\
+            </tr>';
+    }
+
+    if (first_ip6_ula != undefined){
+        html +=
+            '<tr>\
+              <td class="key_td">'+tr("IP6_ULA")+'</td>\
+              <td class="value_td">'+first_ip6_ula+'</td>\
+              <td class="value_td">'+last_ip6_ula+'</td>\
+            </tr>';
+    }
 
     html +=
           '</tbody>\
@@ -1766,6 +1835,12 @@ function fill_ar_tab_data(ar_json, ar_section){
     delete ar_json["AR_ID"];
     delete ar_json["USED_LEASES"];
     delete ar_json["LEASES"];
+    delete ar_json["MAC_END"];
+    delete ar_json["IP_END"];
+    delete ar_json["IP6_ULA"];
+    delete ar_json["IP6_ULA_END"];
+    delete ar_json["IP6_GLOBAL"];
+    delete ar_json["IP6_GLOBAL_END"];
 
     if (ar_json["SECURITY_GROUPS"] != undefined &&
         ar_json["SECURITY_GROUPS"].length != 0){
