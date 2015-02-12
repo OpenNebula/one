@@ -602,9 +602,9 @@ $(document).ready(function(){
               { "mDataProp": "_id.$oid", "sWidth" : "200px" },
               { "mDataProp": "name" },
               { "mDataProp": "publisher" },
-              { "mDataProp": "files.0.hypervisor", "sWidth" : "100px"},
-              { "mDataProp": "files.0.os-arch", "sWidth" : "100px"},
-              { "mDataProp": "files.0.format", "sWidth" : "100px"},
+              { "mDataProp": "files.0.hypervisor", "sWidth" : "100px", "sDefaultContent" : "-" },
+              { "mDataProp": "files.0.os-arch", "sWidth" : "100px", "sDefaultContent" : "-" },
+              { "mDataProp": "files.0.format", "sWidth" : "100px", "sDefaultContent" : "-" },
               { "mDataProp": "tags"}
             ],
             "aoColumnDefs": [
