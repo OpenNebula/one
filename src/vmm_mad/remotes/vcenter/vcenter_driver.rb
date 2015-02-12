@@ -622,6 +622,8 @@ class VCenterHost < ::OpenNebula::Host
             vm = VCenterVm.new(@client, v)
             vm.monitor
 
+            next if !vm.vm.config
+
             str_info << "\nVM = ["
             str_info << "ID=#{number},"
             str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
@@ -1044,10 +1046,6 @@ class VCenterVm
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
               "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
-              "]\n"\
-              "GRAPHICS = [\n"\
-              "  TYPE     =\"vnc\",\n"\
-              "  LISTEN   =\"0.0.0.0\"\n"\
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"

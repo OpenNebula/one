@@ -277,7 +277,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                     "#{rc.message}\n"
                     end
 
-                    rc = one_v.deploy v[:host_id], true # Force deployment
+                    rc = one_v.deploy v[:host_id]
 
                     if ::OpenNebula.is_error?(rc)
                         STDOUT.puts "    Error creating Virtual Machine: "\
