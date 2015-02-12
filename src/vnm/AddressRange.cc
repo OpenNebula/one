@@ -1072,12 +1072,12 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = mac_i[0] - mac[0];
 
-    if ((0 <= index) && (index < size))
+    if ( index < 0)
     {
-        return free_addr(ot, obid, index);
+        return -1;
     }
 
-    return -1;
+    return free_addr(ot, obid, index);
 }
 
 /* -------------------------------------------------------------------------- */
