@@ -539,8 +539,8 @@ int LibVirtDriver::deployment_description_kvm(
                      << "\t\t\t</auth>" << endl;
             }
         }
-	else if ( type == "SHEEPDOG" || type == "SHEEPDOG_CDROM" )
-	{
+        else if ( type == "sheepdog" || type == "sheepdog_cdrom" )
+        {
             if (type == "SHEEPDOG")
             {
                 file << "\t\t<disk type='network' device='disk'>" << endl;
@@ -556,7 +556,8 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
-	    do_network_hosts(file, sheepdog_host, "tcp");
+
+    	    do_network_hosts(file, sheepdog_host, "tcp", -1);
         }
         else if ( type == "GLUSTER" || type == "GLUSTER_CDROM" )
         {
