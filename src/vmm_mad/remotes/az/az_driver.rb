@@ -138,6 +138,10 @@ class AzureDriver
 
         @public_cloud_az_conf  = YAML::load(File.read(AZ_DRIVER_CONF))
 
+        if @public_cloud_az_conf['proxy_uri']
+            ENV['HTTP_PROXY'] = @public_cloud_az_conf['proxy_uri']
+        end
+
         @instance_types = @public_cloud_az_conf['instance_types']
 
         regions = @public_cloud_az_conf['regions']
