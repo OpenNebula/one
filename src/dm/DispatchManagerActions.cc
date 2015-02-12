@@ -74,6 +74,62 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int DispatchManager::import (
+    VirtualMachine *    vm)
+{
+    ostringstream oss;
+    int           vid;
+
+    if ( vm == 0 )
+    {
+        return -1;
+    }
+
+    vid = vm->get_oid();
+
+    if ( vm->get_state() != VirtualMachine::PENDING &&
+         vm->get_state() != VirtualMachine::HOLD )
+    {
+        return -1;
+    }
+
+    Nebula&    nd  = Nebula::instance();
+    HostPool * hpool = nd.get_hpool();
+
+    time_t the_time = time(0);
+    int    cpu, mem, disk;
+
+    vm->get_requirements(cpu, mem, disk);
+
+    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+
+    vm->set_state(VirtualMachine::ACTIVE);
+
+    vm->set_state(VirtualMachine::RUNNING);
+
+    vmpool->update(vm);
+
+    vm->set_stime(the_time);
+    
+    vm->set_prolog_stime(the_time);
+    vm->set_prolog_etime(the_time);
+
+    vm->set_running_stime(the_time);
+
+    vm->set_last_poll(0);
+
+    vmpool->update_history(vm);
+
+    vm->log("LCM", Log::INFO, "New VM state is RUNNING");
+
+    vm->unlock();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int DispatchManager::migrate(
     VirtualMachine *    vm)
 {

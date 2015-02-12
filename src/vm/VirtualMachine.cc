@@ -438,6 +438,21 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_graphics;
     }
 
+    // -------------------------------------------------------------------------
+    // Get and set DEPLOY_ID for imported VMs
+    // -------------------------------------------------------------------------
+    
+    user_obj_template->get("IMPORT_VM_ID", value);
+    user_obj_template->erase("IMPORT_VM_ID");
+
+    if (!value.empty())
+    {
+        deploy_id = value;
+        obj_template->add("IMPORTED", "YES");
+    }
+
+    // ------------------------------------------------------------------------
+    
     parse_well_known_attributes();
 
     // ------------------------------------------------------------------------

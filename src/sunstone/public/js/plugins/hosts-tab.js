@@ -154,6 +154,10 @@ var create_host_tmpl =
       <div class="vcenter_templates">\
       </div>\
       <br>\
+      <br>\
+      <div class="vcenter_vms">\
+      </div>\
+      <br>\
       <div class="vcenter_networks">\
       </div>\
       <div class="row import_vcenter_clusters_div hidden">\
@@ -1150,6 +1154,112 @@ function fillVCenterTemplates(opts) {
 }
 
 /*
+  Retrieve the list of running VMs from vCenter and fill the container with them
+
+  opts = {
+    datacenter: "Datacenter Name",
+    cluster: "Cluster Name",
+    container: Jquery div to inject the html,
+    vcenter_user: vCenter Username,
+    vcenter_password: vCenter Password,
+    vcenter_host: vCenter Host
+  }
+ */
+function fillVCenterVMs(opts) {
+  var path = '/vcenter/vms';
+  opts.container.html(generateAdvancedSection({
+    html_id: path,
+    title: tr("Running VMs"),
+    content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'
+  }))
+
+  $('a', opts.container).trigger("click")
+
+  $.ajax({
+      url: path,
+      type: "GET",
+      data: {timeout: false},
+      dataType: "json",
+      headers: {
+        "X_VCENTER_USER": opts.vcenter_user,
+        "X_VCENTER_PASSWORD": opts.vcenter_password,
+        "X_VCENTER_HOST": opts.vcenter_host
+      },
+      success: function(response){
+        $(".content", opts.container).html("");
+
+        $('<div class="row">' +
+            '<div class="large-12 columns">' +
+              '<p style="color: #999">' + tr("Please select the vCenter running VMs to be imported to OpenNebula.") + '</p>' +
+            '</div>' +
+          '</div>').appendTo($(".content", opts.container))
+
+        $.each(response, function(datacenter_name, vms){
+          $('<div class="row">' +
+              '<div class="large-12 columns">' +
+                '<h5>' +
+                  datacenter_name + ' ' + tr("DataCenter") +
+                '</h5>' +
+              '</div>' +
+            '</div>').appendTo($(".content", opts.container))
+
+          if (vms.length == 0) {
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<label>' +
+                      tr("No new running VMs found in this DataCenter") +
+                    '</label>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", opts.container))
+          } else {
+            $.each(vms, function(id, vm){
+              if (vm.host_id === parseInt(vm.host_id, 10)) {
+                var trow = $('<div class="vcenter_vm">' +
+                    '<div class="row">' +
+                      '<div class="large-10 columns">' +
+                        '<label>' +
+                          '<input type="checkbox" class="vm_name" checked/> ' +
+                          vm.name + '&emsp;<span style="color: #999">' + vm.host + '</span>' +
+                        '</vm>' +
+                        '<div class="large-12 columns vcenter_vm_response">'+
+                        '</div>'+
+                      '</div>' +
+                      '<div class="large-2 columns vcenter_vm_result">'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>').appendTo($(".content", opts.container))
+
+                $(".vm_name", trow).data("vm_name", vm.name)
+                $(".vm_name", trow).data("one_vm", vm.one)
+                $(".vm_name", trow).data("vm_to_host", vm.host_id)
+              }
+            });
+
+            if ($(".vcenter_vm").length == 0) {
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<label>' +
+                      tr("No new running VMs found in this DataCenter") +
+                    '</label>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", opts.container))
+            } 
+          };
+        });
+      },
+      error: function(response){
+        opts.container.html("");
+        onError({}, OpenNebula.Error(response));
+      }
+  });
+
+  return false;
+}
+
+/*
   Retrieve the list of networks from vCenter and fill the container with them
   
   opts = {
@@ -1443,6 +1553,7 @@ function setupCreateHostDialog(){
               });
 
               var templates_container = $(".vcenter_templates", $create_host_dialog);
+              var vms_container = $(".vcenter_vms", $create_host_dialog);
               var networks_container = $(".vcenter_networks", $create_host_dialog);
 
               var vcenter_user = $("#vcenter_user", $create_host_dialog).val();
@@ -1451,6 +1562,13 @@ function setupCreateHostDialog(){
 
               fillVCenterTemplates({
                 container: templates_container,
+                vcenter_user: vcenter_user,
+                vcenter_password: vcenter_password,
+                vcenter_host: vcenter_host
+              });
+
+              fillVCenterVMs({
+                container: vms_container,
                 vcenter_user: vcenter_user,
                 vcenter_password: vcenter_password,
                 vcenter_host: vcenter_host
@@ -1570,6 +1688,60 @@ function setupCreateHostDialog(){
                     '</span>');
 
                 $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                      (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                    '</p>');
+            }
+        });
+      })
+
+      $.each($(".vm_name:checked", $create_host_dialog), function(){
+        var vm_context = $(this).closest(".vcenter_vm");
+
+        $(".vcenter_vm_result:not(.success)", vm_context).html(
+            '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>');
+
+        var vm_json = {
+          "vm": {
+            "vm_raw": $(this).data("one_vm")
+          }
+        };
+
+        var host_id_to_deploy = $(this).data("vm_to_host");
+
+        OpenNebula.VM.create({
+            timeout: true,
+            data: vm_json,
+            success: function(request, response) {
+              OpenNebula.Helper.clear_cache("VM");
+
+              var extra_info = {};
+
+              extra_info['host_id'] = host_id_to_deploy;
+              extra_info['ds_id']   = -1;
+              extra_info['enforce'] = false;
+
+              Sunstone.runAction("VM.deploy_action", response.VM.ID, extra_info);
+
+              $(".vcenter_vm_result", vm_context).addClass("success").html(
+                  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                  '</span>');
+
+              $(".vcenter_vm_response", vm_context).html('<p style="font-size:12px" class="running-color">'+
+                    tr("VM imported successfully")+' ID:'+response.VM.ID+
+                  '</p>');
+            },
+            error: function (request, error_json){
+                $(".vcenter_vm_response", vm_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                $(".vcenter_vm_response", vm_context).html('<p style="font-size:12px" class="error-color">'+
                       (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
                     '</p>');
             }
