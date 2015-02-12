@@ -1168,7 +1168,7 @@ function fillVCenterVMs(opts) {
   var path = '/vcenter/vms';
   opts.container.html(generateAdvancedSection({
     html_id: path,
-    title: tr("Runing VMs"),
+    title: tr("Running VMs"),
     content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
       '<i class="fa fa-cloud fa-stack-2x"></i>'+
       '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
@@ -1720,7 +1720,7 @@ function setupCreateHostDialog(){
 
               extra_info['host_id'] = host_id_to_deploy;
               extra_info['ds_id']   = -1;
-              extra_info['enforce'] = true;
+              extra_info['enforce'] = false;
 
               Sunstone.runAction("VM.deploy_action", response.VM.ID, extra_info);
 
