@@ -1387,6 +1387,21 @@ function tableCheckboxesListener(dataTable, custom_context){
     });
 }
 
+
+/*
+ * onlyOneCheckboxListener: Only one box can be checked
+ */
+
+function onlyOneCheckboxListener(dataTable) {
+    $('tbody input.check_item', dataTable).live("change", function(){
+        var checked = $(this).is(':checked');
+        $('td', dataTable).removeClass('markrowchecked');
+        $('input.check_item:checked', dataTable).removeAttr('checked');
+        $("td", $(this).closest('tr')).addClass('markrowchecked')
+        $(this).attr('checked', checked);
+    });
+}
+
 // Updates a data_table, with a 2D array containing the new values
 // Does a partial redraw, so the filter and pagination are kept
 function updateView(item_list,dataTable){

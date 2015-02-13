@@ -562,21 +562,6 @@ function updateMarketInfo(request,app){
     });
 }
 
-
-/*
- * onlyOneCheckboxListener: Only one box can be checked
- */
-
-function onlyOneCheckboxListener(dataTable) {
-    $('tbody input.check_item', dataTable).live("change", function(){
-        var checked = $(this).is(':checked');
-        $('td', dataTable).removeClass('markrowchecked');
-        $('input.check_item:checked', dataTable).removeAttr('checked');
-        $("td", $(this).closest('tr')).addClass('markrowchecked')
-        $(this).attr('checked', checked);
-    });
-}
-
 /*
  * Document
  */
