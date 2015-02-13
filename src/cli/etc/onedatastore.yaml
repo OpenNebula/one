@@ -33,12 +33,17 @@
 
 :DS:
   :desc: Datastore driver
-  :size: 8
+  :size: 6
   :left: true
 
 :TM:
   :desc: Transfer driver
-  :size: 8
+  :size: 7
+  :left: true
+
+:STAT:
+  :desc: State of the Datastore
+  :size: 4
   :left: true
 
 :default:
@@ -51,4 +56,5 @@
 - :TYPE
 - :DS
 - :TM
+- :STAT
 

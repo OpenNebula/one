@@ -30,7 +30,8 @@ module OpenNebula
             :update     => "datastore.update",
             :chown      => "datastore.chown",
             :chmod      => "datastore.chmod",
-            :rename     => "datastore.rename"
+            :rename     => "datastore.rename",
+            :enable     => "datastore.enable"
         }
 
         DATASTORE_TYPES=%w{IMAGE SYSTEM FILE}
@@ -39,6 +40,13 @@ module OpenNebula
             "IMAGE" => "img",
             "SYSTEM"=> "sys",
             "FILE"  => "fil"
+        }
+
+        DATASTORE_STATES=%w{READY DISABLED}
+
+        SHORT_DATASTORE_STATES={
+            "READY"     => "rdy",
+            "DISABLED"  => "disa"
         }
 
         # Creates a Datastore description with just its identifier
@@ -66,20 +74,6 @@ module OpenNebula
         #######################################################################
         # XML-RPC Methods for the Datastore Object
         #######################################################################
-        # Returns the datastore type
-        def type
-            self['TYPE'].to_i
-        end
-
-        # Returns the datastore type (string value)
-        def type_str
-            DATASTORE_TYPES[type]
-        end
-
-        # Returns the datastore type (string value)
-        def short_type_str
-            SHORT_DATASTORE_TYPES[type_str]
-        end
 
         # Retrieves the information of the given Datastore.
         def info()
@@ -157,9 +151,49 @@ module OpenNebula
             return call(DATASTORE_METHODS[:rename], @pe_id, name)
         end
 
+        # Enables a Datastore
+        def enable
+            return call(DATASTORE_METHODS[:enable], @pe_id, true)
+        end
+
+        # Disables a Datastore
+        def disable
+            return call(DATASTORE_METHODS[:enable], @pe_id, false)
+        end
+
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
+
+        # Returns the datastore type
+        def type
+            self['TYPE'].to_i
+        end
+
+        # Returns the datastore type (string value)
+        def type_str
+            DATASTORE_TYPES[type]
+        end
+
+        # Returns the datastore type (string value)
+        def short_type_str
+            SHORT_DATASTORE_TYPES[type_str]
+        end
+
+        # Returns the state of the datastore (numeric value)
+        def state
+            self['STATE'].to_i
+        end
+
+        # Returns the state of the datastore (string value)
+        def state_str
+            DATASTORE_STATES[state]
+        end
+
+        # Returns the state of the datastore (string value)
+        def short_state_str
+            SHORT_DATASTORE_STATES[state_str]
+        end
 
         # Returns whether or not the image with id 'id' is part of this datastore
         def contains(id)
