@@ -1180,7 +1180,8 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
                              src/onedb/shared/4.5.80_to_4.6.0.rb"
 
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
-                            src/onedb/local/4.7.80_to_4.9.80.rb"
+                            src/onedb/local/4.7.80_to_4.9.80.rb \
+                            src/onedb/local/4.9.80_to_4.10.3.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
