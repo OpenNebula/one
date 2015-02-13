@@ -36,10 +36,15 @@ public class Datastore extends PoolElement
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String RENAME   = METHOD_PREFIX + "rename";
+    private static final String ENABLE   = METHOD_PREFIX + "enable";
 
     private static final String[] DATASTORE_TYPES = {"IMAGE", "SYSTEM", "FILE"};
 
     private static final String[] SHORT_DATASTORE_TYPES = {"img", "sys", "fil"};
+
+    private static final String[] DATASTORE_STATES = {"READY", "DISABLED"};
+
+    private static final String[] SHORT_DATASTORE_STATES = {"rdy", "disa"};
 
     /**
      * Creates a new Datastore representation.
@@ -217,13 +222,26 @@ public class Datastore extends PoolElement
      * Renames this Datastore.
      *
      * @param client XML-RPC Client.
-     * @param id The image id of the target host we want to modify.
+     * @param id The id of the target object.
      * @param name New name for the Datastore
      * @return If successful the message contains the datastore id.
      */
     public static OneResponse rename(Client client, int id, String name)
     {
         return client.call(RENAME, id, name);
+    }
+
+    /**
+     * Enables or disables this Datastore.
+     *
+     * @param client XML-RPC Client.
+     * @param id The id of the target object.
+     * @param enable True for enabling, false for disabling.
+     * @return If successful the message contains the datastore id.
+     */
+    public static OneResponse enable(Client client, int id, boolean enable)
+    {
+        return client.call(ENABLE, id, enable);
     }
 
     // =================================
@@ -398,6 +416,37 @@ public class Datastore extends PoolElement
         return rename(client, id, name);
     }
 
+    /**
+     * Enables or disables the datastore.
+     *
+     * @param enable True for enabling, false for disabling.
+     * @return If successful the message contains the datastore id.
+     */
+    public OneResponse enable(boolean enable)
+    {
+        return enable(client, id, enable);
+    }
+
+    /**
+     * Enables the datastore.
+     *
+     * @return If successful the message contains the datastore id.
+     */
+    public OneResponse enable()
+    {
+        return enable(true);
+    }
+
+    /**
+     * Disables the datastore.
+     *
+     * @return If successful the message contains the datastore id.
+     */
+    public OneResponse disable()
+    {
+        return enable(false);
+    }
+
     // =================================
     // Helpers
     // =================================
@@ -432,6 +481,39 @@ public class Datastore extends PoolElement
     {
         int type = type();
         return type != -1 ? SHORT_DATASTORE_TYPES[type] : null;
+    }
+
+    /**
+     * Returns the state of the Datastore.
+     *
+     * @return The state of the Datastore.
+     */
+    public int state()
+    {
+        String state = xpath("STATE");
+        return state != null ? Integer.parseInt( state ) : -1;
+    }
+
+    /**
+     * Returns the state of the Datastore as a String.
+     *
+     * @return The state of the Datastore as a String.
+     */
+    public String stateStr()
+    {
+        int state = state();
+        return state != -1 ? DATASTORE_STATES[state] : null;
+    }
+
+    /**
+     * Returns the state of the Datastore as a short String.
+     *
+     * @return The state of the Datastore as a short String.
+     */
+    public String shortStateStr()
+    {
+        int state = state();
+        return state != -1 ? SHORT_DATASTORE_STATES[state] : null;
     }
 
     /**
