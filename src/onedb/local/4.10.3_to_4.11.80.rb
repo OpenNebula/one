@@ -101,6 +101,36 @@ module Migrator
 
         log_time()
 
+        ########################################################################
+        # Datastore status
+        ########################################################################
+
+        @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
+        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_datastore_pool") do |row|
+                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+
+                doc.root.add_child(doc.create_element("STATE")).content = "0"
+
+                @db[:datastore_pool].insert(
+                    :oid        =>  row[:oid],
+                    :name       =>  row[:name],
+                    :body       =>  doc.root.to_s,
+                    :uid        =>  row[:uid],
+                    :gid        =>  row[:gid],
+                    :owner_u    =>  row[:owner_u],
+                    :group_u    =>  row[:group_u],
+                    :other_u    =>  row[:other_u],
+                    :cid        =>  row[:cid])
+            end
+        end
+
+        @db.run "DROP TABLE old_datastore_pool;"
+
+        log_time()
+
         return true
     end
 end
