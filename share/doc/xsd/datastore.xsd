@@ -30,6 +30,7 @@
         <xs:element name="BASE_PATH" type="xs:string"/>
         <xs:element name="TYPE" type="xs:integer"/>
         <xs:element name="DISK_TYPE" type="xs:integer"/>
+        <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="CLUSTER_ID" type="xs:integer"/>
         <xs:element name="CLUSTER" type="xs:string"/>
         <xs:element name="TOTAL_MB" type="xs:integer"/>

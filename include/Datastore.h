@@ -63,6 +63,30 @@ public:
     static DatastoreType str_to_type(string& str_type);
 
     /**
+     *  Datastore State
+     */
+    enum DatastoreState
+    {
+        READY     = 0, /** < Datastore ready to use */
+        DISABLED  = 1  /** < System Datastore can not be used */
+    };
+
+    /**
+     * Returns the string representation of a DatastoreState
+     * @param state The state
+     * @return the string representation
+     */
+    static string state_to_str(DatastoreState state)
+    {
+        switch(state)
+        {
+            case READY:     return "READY";     break;
+            case DISABLED:  return "DISABLED";  break;
+            default:        return "";
+        }
+    };
+
+    /**
      * Function to print the Datastore object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
@@ -200,6 +224,15 @@ public:
         return shared;
     };
 
+    /**
+     * Enable or disable the DS. Only for System DS.
+     * @param enable true to enable
+     * @param error_str Returns the error reason, if any
+     *
+     * @return 0 on success
+     */
+    int enable(bool enable, string& error_str);
+
 private:
 
     // -------------------------------------------------------------------------
@@ -251,6 +284,11 @@ private:
      * Used datastore capacity in MB
      */
      long long used_mb;
+
+    /**
+     *  Datastore state
+     */
+    DatastoreState state;
 
     // *************************************************************************
     // Constructor
