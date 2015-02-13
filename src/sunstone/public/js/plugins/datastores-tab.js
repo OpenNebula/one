@@ -489,6 +489,28 @@ var datastore_actions = {
         },
         error: onError,
         notify: true
+    },
+
+    "Datastore.enable" : {
+        type: "multiple",
+        call: OpenNebula.Datastore.enable,
+        callback: function (req) {
+            Sunstone.runAction("Datastore.show",req.request.data[0]);
+        },
+        elements: datastoreElements,
+        error: onError,
+        notify: true
+    },
+
+    "Datastore.disable" : {
+        type: "multiple",
+        call: OpenNebula.Datastore.disable,
+        callback: function (req) {
+            Sunstone.runAction("Datastore.show",req.request.data[0]);
+        },
+        elements: datastoreElements,
+        error: onError,
+        notify: true
     }
 };
 
@@ -538,6 +560,16 @@ var datastore_buttons = {
         layout: "del",
         condition: mustBeAdmin
     },
+    "Datastore.enable" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Enable")
+    },
+    "Datastore.disable" : {
+        type: "action",
+        layout: "more_select",
+        text: tr("Disable")
+    }
 }
 
 var datastore_info_panel = {
@@ -571,6 +603,7 @@ var datastores_tab = {
           <th>'+tr("TM MAD")+'</th>\
           <th>'+tr("DS MAD")+'</th>\
           <th>'+tr("Type")+'</th>\
+          <th>'+tr("Status")+'</th>\
         </tr>\
       </thead>\
       <tbody id="tbodydatastores">\
@@ -632,7 +665,8 @@ function datastoreElementArray(element_json){
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,
-        ds_type_str.toLowerCase().split('_')[0]
+        ds_type_str.toLowerCase().split('_')[0],
+        OpenNebula.Helper.resource_state("datastore",element.STATE)
     ];
 }
 
@@ -720,6 +754,11 @@ function updateDatastoreInfo(request,ds){
               '<tr>'+
               cluster_str  +
               '</tr>\
+              <tr>\
+                 <td class="key_td">'+tr("State")+'</td>\
+                 <td class="value_td">'+OpenNebula.Helper.resource_state("datastore",info.STATE)+'</td>\
+                 <td></td>\
+              </tr>\
               <tr>\
                  <td class="key_td">'+tr("Base path")+'</td>\
                  <td class="value_td">'+info.BASE_PATH+'</td>\
