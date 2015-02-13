@@ -29,7 +29,7 @@ include OpenNebula
 
 module OneDBImportSlave
     VERSION = "4.6.0"
-    LOCAL_VERSION = "4.9.80"
+    LOCAL_VERSION = "4.10.3"
 
     def check_db_version(master_db_version, slave_db_version)
         if ( master_db_version[:version] != VERSION ||
