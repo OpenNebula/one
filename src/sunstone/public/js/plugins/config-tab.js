@@ -200,11 +200,6 @@ var config_tab_content =
                    </select>\
                 </label>\
           </div>\
-          <div class="row">\
-                <label for="wss_checkbox" >' + tr("VNC Secure websockets") + ':\
-                  <input id="wss_checkbox" type="checkbox" value="yes" />\
-                </label>\
-          </div>\
       </div>\
     </div>\
     <div id="quotas_configuration" class="row content">\

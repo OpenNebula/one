@@ -218,14 +218,10 @@ helpers do
                 session[:lang] = $conf[:lang]
             end
 
-            if user['TEMPLATE/VNC_WSS']
-                session[:vnc_wss] = user['TEMPLATE/VNC_WSS']
-            else
-                wss = $conf[:vnc_proxy_support_wss]
-                #limit to yes,no options
-                session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
-                                 "yes" : "no")
-            end
+            wss = $conf[:vnc_proxy_support_wss]
+            #limit to yes,no options
+            session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
+                             "yes" : "no")
 
             if user['TEMPLATE/TABLE_ORDER']
                 session[:table_order] = user['TEMPLATE/TABLE_ORDER']
