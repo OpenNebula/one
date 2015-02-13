@@ -518,6 +518,14 @@ if (Config.isTemplateCreationTabEnabled('input_output')){
           '<input type="text" id="PASSWD" name="graphics_pw" />'+
         '</div>'+
       '</div>'+
+      '<div class="row hypervisor only_kvm only_vmware only_xen">'+
+        '<div class="columns large-12">'+
+            '<input type="checkbox" name="RANDOM_PASSWD" id="RANDOM_PASSWD">'+
+            '<label for="RANDOM_PASSWD">'+ tr("Generate Random Password")+
+              '<span class="tip">'+tr("A random password will be generated for each VM, and will be included in the VM information")+'</span>'+
+            '</label>'+
+        '</div>'+
+      '</div>'+
     '</fieldset>'+
   '</div>'+
   '<div class="large-6 columns inputs hypervisor only_kvm only_vmware only_xen">'+
@@ -4150,6 +4158,10 @@ function build_template(dialog){
     vm_json["GRAPHICS"] = {};
     addSectionJSON(vm_json["GRAPHICS"],$('#ioTab .graphics',dialog));
 
+    if (!$.isEmptyObject(vm_json["GRAPHICS"]) && $("#RANDOM_PASSWD:checked", dialog).length > 0) {
+      vm_json["GRAPHICS"]["RANDOM_PASSWD"] = "YES";
+    }
+
     //
     // INPUT
     //
@@ -4618,6 +4630,10 @@ var fillTemplatePopUp = function(template, dialog){
             $("input[value='"+ type.toUpperCase() + "']").click();
 
             autoFillInputs(graphics, graphics_section);
+        }
+
+        if (graphics["RANDOM_PASSWD"] == "YES") {
+          $("#RANDOM_PASSWD", graphics_section).attr("checked", "checked");
         }
 
         delete template.GRAPHICS

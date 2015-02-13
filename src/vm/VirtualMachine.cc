@@ -1078,6 +1078,13 @@ int VirtualMachine::parse_graphics(string& error_str)
         return -1;
     }
 
+    string random_passwd = graphics->vector_value("RANDOM_PASSWD");
+
+    if ( !random_passwd.empty() )
+    {
+        graphics->replace("PASSWD", one_util::random_password());
+    }
+
     return 0;
 }
 
