@@ -77,11 +77,30 @@ void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     string where_vnets;
     string where_vms;
 
-    bool all_reservations = RequestManagerPoolInfoFilter::use_filter(att,
-            PoolObjectSQL::NET, true, true, false, "(pid != -1)", where_vnets);
+    bool all_reservations;
+    bool all_vms;
 
-    bool all_vms = RequestManagerPoolInfoFilter::use_filter(att,
-            PoolObjectSQL::VM, false, false, false, "", where_vms);
+    PoolObjectAuth perms;
+
+    object->get_permissions(perms);
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, perms);
+
+    if (UserPool::authorize(ar) == 0)
+    {
+        all_reservations = true;
+        all_vms = true;
+    }
+    else
+    {
+        all_reservations = RequestManagerPoolInfoFilter::use_filter(att,
+                PoolObjectSQL::NET, true, true, false, "(pid != -1)", where_vnets);
+
+        all_vms = RequestManagerPoolInfoFilter::use_filter(att,
+                PoolObjectSQL::VM, false, false, false, "", where_vms);
+    }
 
     if ( all_reservations == true )
     {
