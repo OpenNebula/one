@@ -1,21 +1,21 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEACL" "1" "February 2015" "" "oneacl(1) -- manages OpenNebula ACLs"
+.TH "ONEVCENTER" "1" "February 2015" "" "onevcenter(1) -- vCenter import tool"
 .
 .SH "NAME"
-\fBoneacl\fR
+\fBonevcenter\fR
 .
 .SH "SYNOPSIS"
-\fBoneacl\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
+\fBonevcenter\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
 .
 .SH "OPTIONS"
 .
 .nf
 
- \-x, \-\-xml                 Show the resource in xml format
- \-\-describe                Describe list columns
- \-v, \-\-verbose             Verbose mode
+ \-\-vcenter vCenter         The vCenter hostname
+ \-\-vuser username          The username to interact with vCenter
+ \-\-vpass password          The password for the user
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
  \-\-user name               User name used to connect to OpenNebula
@@ -27,13 +27,16 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create \fIuser|rulestr\fR [\fIresource\fR] [\fIrights\fR] Adds a new ACL rule
+hosts Import vCenter clusters as OpenNebula hosts valid options: vcenter, vuser, vpass
 .
 .IP "\(bu" 4
-delete \fIrange\fR Deletes an existing ACL rule
+templates Import vCenter VM Templates into OpenNebula valid options: vcenter, vuser, vpass
 .
 .IP "\(bu" 4
-list Lists the ACL rule set valid options: xml, describe
+vms Import vCenter running Virtual Machines into OpenNebula valid options: vcenter, vuser, vpass
+.
+.IP "\(bu" 4
+networks Import vCenter networks into OpenNebula valid options: vcenter, vuser, vpass
 .
 .IP "" 0
 .
@@ -47,9 +50,6 @@ range List of id\'s in the form 1,8\.\.15
 .
 .IP "\(bu" 4
 text String
-.
-.IP "\(bu" 4
-aclid_list Comma\-separated list of OpenNebula ACL names or ids
 .
 .IP "" 0
 .
