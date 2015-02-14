@@ -259,11 +259,18 @@ int AddressRange::update_attributes(
                 attr->vector_value("PARENT_NETWORK_AR_ID"));
     }
 
+    /* ------ Remove non-persistent attributes, generated in to_xml() ------ */
+    
     vup->remove("MAC_END");
+
     vup->remove("IP_END");
+    
     vup->remove("IP6_ULA");
+    
     vup->remove("IP6_ULA_END");
+    
     vup->remove("IP6_GLOBAL");
+    
     vup->remove("IP6_GLOBAL_END");
 
     /* ----------------- restricted attributes ----------------- */
