@@ -1,5 +1,5 @@
-Defaults !requiretty
-Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin
+Defaults:oneadmin !requiretty
+Defaults:oneadmin secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
 Cmnd_Alias ONE_MISC = /bin/dd, /sbin/mkfs, /bin/sync
 Cmnd_Alias ONE_NET = /sbin/brctl, /sbin/ebtables, /sbin/iptables, /sbin/ip
