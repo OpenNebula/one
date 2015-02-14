@@ -38,6 +38,7 @@
 #include "RequestManagerCluster.h"
 #include "RequestManagerGroup.h"
 #include "RequestManagerVdc.h"
+#include "RequestManagerDatastore.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -385,6 +386,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_chtype(new ImageChangeType());
     xmlrpc_c::methodPtr image_clone(new ImageClone());
 
+    // Datastore Methods
+    xmlrpc_c::methodPtr datastore_enable(new DatastoreEnable());
+
     // Chown Methods
     xmlrpc_c::methodPtr vm_chown(new VirtualMachineChown());
     xmlrpc_c::methodPtr template_chown(new TemplateChown());
@@ -669,6 +673,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.datastore.chown",   datastore_chown);
     RequestManagerRegistry.addMethod("one.datastore.chmod",   datastore_chmod);
     RequestManagerRegistry.addMethod("one.datastore.rename",  datastore_rename);
+    RequestManagerRegistry.addMethod("one.datastore.enable",  datastore_enable);
 
     RequestManagerRegistry.addMethod("one.datastorepool.info",datastorepool_info);
 

@@ -350,6 +350,7 @@ tabs:
             #- 8         # TM
             #- 9         # DS
             #- 10        # Type
+            #- 11        # Status
         actions:
             Datastore.refresh: true
             Datastore.create_dialog: false

@@ -164,6 +164,11 @@ var OpenNebula = {
                                "DELETE",
                                "USED_PERS"][value]);
                     break;
+                case "DATASTORE":
+                case "datastore":
+                    state = tr(["ON",
+                               "OFF"][value]);
+                    break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":
                     state = tr(["NONE",
@@ -1500,6 +1505,12 @@ var OpenNebula = {
                                             OpenNebula.Datastore.resource,
                                             "rename",
                                             action_obj);
+        },
+        "enable": function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.Datastore.resource,"enable");
+        },
+        "disable": function(params){
+            OpenNebula.Action.simple_action(params,OpenNebula.Datastore.resource,"disable");
         }
     },
 

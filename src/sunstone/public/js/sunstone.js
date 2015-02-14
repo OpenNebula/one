@@ -6458,7 +6458,8 @@ function generateDatastoreTableSelect(context_id){
         tr("Basepath"),
         tr("TM MAD"),
         tr("DS MAD"),
-        tr("Type")
+        tr("Type"),
+        tr("Status")
     ];
 
     var options = {
@@ -6561,7 +6562,7 @@ function setupDatastoreTableSelect(section, context_id, opts){
                     }
                 });
 
-                var n_columns = 11; // SET FOR EACH RESOURCE
+                var n_columns = 12; // SET FOR EACH RESOURCE
 
                 $.each(fixed_ids_map, function(id,v){
                     var empty = [];

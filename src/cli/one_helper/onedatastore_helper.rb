@@ -82,15 +82,21 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 Datastore::SHORT_DATASTORE_TYPES[type]
             end
 
-            column :DS, "Datastore driver", :left, :size=>8 do |d|
+            column :DS, "Datastore driver", :left, :size=>7 do |d|
                 d["DS_MAD"]
             end
 
-            column :TM, "Transfer driver", :left, :size=>8 do |d|
+            column :TM, "Transfer driver", :left, :size=>7 do |d|
                 d["TM_MAD"]
             end
 
-            default :ID, :NAME, :SIZE, :AVAIL, :CLUSTER, :IMAGES, :TYPE, :DS, :TM
+            column :STAT, "State of the Datastore", :left, :size=>3 do |d|
+                state = Datastore::DATASTORE_STATES[d["STATE"].to_i]
+                Datastore::SHORT_DATASTORE_STATES[state]
+            end
+
+            default :ID, :NAME, :SIZE, :AVAIL, :CLUSTER, :IMAGES,
+                    :TYPE, :DS, :TM, :STAT
         end
 
         table
@@ -128,6 +134,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         puts str % ["TM_MAD",   datastore['TM_MAD']]
         puts str % ["BASE PATH",datastore['BASE_PATH']]
         puts str % ["DISK_TYPE",Image::DISK_TYPES[datastore['DISK_TYPE'].to_i]]
+        puts str % ["STATE",    datastore.state_str]
         puts
 
         CLIHelper.print_header(str_h1 % "DATASTORE CAPACITY", false)

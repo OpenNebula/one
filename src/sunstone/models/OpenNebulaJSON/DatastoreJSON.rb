@@ -51,6 +51,8 @@ module OpenNebulaJSON
                  when "chown"         then self.chown(action_hash['params'])
                  when "chmod"         then self.chmod_octet(action_hash['params'])
                  when "rename"        then self.rename(action_hash['params'])
+                 when "enable"        then self.enable
+                 when "disable"       then self.disable
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"

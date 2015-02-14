@@ -62,7 +62,7 @@ public:
 protected:
     int get_suitable_nodes(vector<xmlNodePtr>& content)
     {
-        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1]", content);
+        return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1 and STATE=0]", content);
     };
 };
 
