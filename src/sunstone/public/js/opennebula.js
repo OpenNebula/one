@@ -166,8 +166,8 @@ var OpenNebula = {
                     break;
                 case "DATASTORE":
                 case "datastore":
-                    state = tr(["READY",
-                               "DISABLED"][value]);
+                    state = tr(["ON",
+                               "OFF"][value]);
                     break;
                 case "VM_MIGRATE_REASON":
                 case "vm_migrate_reason":

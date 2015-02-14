@@ -85,24 +85,13 @@ int Datastore::enable(bool enable, string& error_str)
         return -1;
     }
 
+
     if (enable)
     {
-        if (state == READY)
-        {
-            error_str = "Datastore state is already READY";
-            return -1;
-        }
-
         state = READY;
     }
     else
     {
-        if (state == DISABLED)
-        {
-            error_str = "Datastore state is already DISABLED";
-            return -1;
-        }
-
         state = DISABLED;
     }
 

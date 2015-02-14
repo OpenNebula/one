@@ -45,8 +45,8 @@ module OpenNebula
         DATASTORE_STATES=%w{READY DISABLED}
 
         SHORT_DATASTORE_STATES={
-            "READY"     => "rdy",
-            "DISABLED"  => "disa"
+            "READY"     => "on",
+            "DISABLED"  => "off"
         }
 
         # Creates a Datastore description with just its identifier

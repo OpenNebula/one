@@ -82,7 +82,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 Datastore::SHORT_DATASTORE_TYPES[type]
             end
 
-            column :DS, "Datastore driver", :left, :size=>6 do |d|
+            column :DS, "Datastore driver", :left, :size=>7 do |d|
                 d["DS_MAD"]
             end
 
@@ -90,7 +90,7 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
                 d["TM_MAD"]
             end
 
-            column :STAT, "State of the Datastore", :left, :size=>4 do |d|
+            column :STAT, "State of the Datastore", :left, :size=>3 do |d|
                 state = Datastore::DATASTORE_STATES[d["STATE"].to_i]
                 Datastore::SHORT_DATASTORE_STATES[state]
             end

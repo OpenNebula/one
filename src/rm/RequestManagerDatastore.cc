@@ -51,15 +51,6 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( rc != 0  )
     {
-        if (enable_flag == true)
-        {
-            err_msg = "Could not enable Datastore: " + err_msg;
-        }
-        else
-        {
-            err_msg = "Could not disable Datastore: " + err_msg;
-        }
-
         failure_response(INTERNAL,request_error(err_msg,""), att);
 
         ds->unlock();
