@@ -253,7 +253,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 exit -1
             end
 
-            vn.reserve(name, size, options[:address_range], addr, args[1])
+            res = vn.reserve(name, size, options[:address_range], addr, args[1])
+
+            if !OpenNebula.is_error?(res)
+                puts "Reservation VNET ID: #{res}"
+            end
+
+            res
         end
     end
 

@@ -224,7 +224,7 @@ module OpenNebula
         end
 
         # Reserve a set of addresses from this virtual network
-        # @param name [String] of the reservation
+        # @param rname [String] of the reservation
         # @param rsize[String] number of addresses to reserve
         # @param ar_id[String] the ar_id to make the reservation. If set to nil
         #        any address range will be used
@@ -232,6 +232,8 @@ module OpenNebula
         #        nil the first free address will be used
         # @param vnet [String] ID of the VNET to add the reservation to. If not
         #        set a new VNET will be created.
+        # @return [Integer, OpenNebula::Error] The reservation vnet id on
+        #        success, Error otherwise
         def reserve(rname, rsize, ar_id, addr, vnet)
             return Error.new('ID not defined') if !@pe_id
 
@@ -250,10 +252,7 @@ module OpenNebula
                 rtmpl << "#{addr_name} = #{addr}\n"
             end
 
-            rc = @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
-            rc = nil if !OpenNebula.is_error?(rc)
-
-            return rc
+            return @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
         end
 
         # Removes an Address Range from the VirtualNetwork
