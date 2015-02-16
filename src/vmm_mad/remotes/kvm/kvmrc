@@ -35,3 +35,5 @@ export SHUTDOWN_TIMEOUT=300
 # method set (can be set using templates when attaching a disk).
 #DEFAULT_ATTACH_CACHE=none
 
+# Uncomment this line to set options for the virsh migrate command
+#MIGRATE_OPTIONS=--unsafe
