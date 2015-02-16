@@ -167,9 +167,23 @@ var Sunstone = {
 
         var form_obj = SunstoneCfg["form_panels"][form_name];
 
+        $(".right-form", context).data("initialize_func", initialize_func);
+
+        $(".reset_button", context).show();
+
+        if (form_obj.advanced_html) {
+            $(".wizard_tabs", context).show();
+        } else {
+            $(".wizard_tabs", context).hide();
+        }
+
         if (action) {
             $(".right-form-title", context).text(form_obj["actions"][action]["title"]);
             $(".submit_button", context).text(form_obj["actions"][action]["submit_text"]);
+
+            if (form_obj["actions"][action]["reset_button"] == false) {
+                $(".reset_button", context).hide();
+            }
         }
 
         setTimeout(function() {
@@ -178,8 +192,8 @@ var Sunstone = {
                     action = $("#"+form_name+"_wizard", context).attr("action")
                 }
 
-                $("#"+form_name+"_wizard", context).remove();
-                $("#"+form_name+"_advanced", context).remove();
+                $("#advancedForms", context).empty();
+                $("#wizardForms", context).empty();
             }
 
             if ($("#"+form_name+"_wizard", context).length == 0) {
