@@ -5,7 +5,7 @@ tabs:
     provision-tab:
         panel_tabs:
             users: true
-            flows: true
+            flows: false
             templates: false
         actions:
             Template.chmod: true
