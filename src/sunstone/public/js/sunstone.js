@@ -184,6 +184,12 @@ var Sunstone = {
 
         $(".reset_button", context).show();
 
+        if (form_obj.advanced_html) {
+            $(".wizard_tabs", context).show();
+        } else {
+            $(".wizard_tabs", context).hide();
+        }
+
         if (action) {
             $(".right-form-title", context).text(form_obj["actions"][action]["title"]);
             $(".submit_button", context).text(form_obj["actions"][action]["submit_text"]);
