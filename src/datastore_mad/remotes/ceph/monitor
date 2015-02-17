@@ -67,18 +67,35 @@ fi
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-$RADOS df -p ${POOL_NAME}| $AWK '{
-    if (\$1 == "total") {
+to_mb() {
+    value=\$(echo "\$1" | sed 's/[^0123456789].*\$//g')
+    units=\$(echo "\$1" | sed 's/^[0123456789]*//g' | tr '[:upper:]' '[:lower:]')
 
-        space = int(\$3/1024)
+    case "\$units" in
+        t|tb) value=\$(expr \$value * 1024 * 1024) ;;
+        g|gb) value=\$(expr \$value * 1024) ;;
+        m|mb) value=\$value ;;
+        k|kb) value=\$(expr \$value / 1024) ;;
+        b|'') value=0 ;;
+        *) value=0;;
+    esac
+    echo "\$value"
+}
 
-        if      (\$2 == "used")  {var = "USED_MB"}
-        else if (\$2 == "avail") {var = "FREE_MB"}
-        else if (\$2 == "space") {var = "TOTAL_MB"}
+REPSIZE=\$($CEPH osd pool get "$POOL_NAME" size | cut -d':' -f2)
+MAXAVAIL=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$5}')
+USED=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$3}')
+TOTAL=\$($RADOS df | grep 'total space' | awk '{print \$3}')
 
-        print var "=" space
-    }
-}'
+USED_MB=\$(to_mb \$USED)
+FREE_MB=\$(to_mb \$MAX_AVAIL)
+TOTAL_MB=\$(expr \$TOTAL / 1024 / \$REPSIZE)
+
+if [ \$FREE_MB -eq 0 ] ; then FREE_MB=\$(expr \$TOTAL_MB - \$USED_MB) ; fi
+
+echo "USED_MB=\$USED_MB"
+echo "FREE_MB=\$FREE_MB"
+echo "TOTAL_MB=\$TOTAL_MB"
 EOF
 )
 

@@ -21,6 +21,7 @@ export PATH=/bin:/sbin:/usr/bin:$PATH
 AWK=awk
 BASH=bash
 CUT=cut
+CEPH=ceph
 DATE=date
 DD=dd
 DF=df
