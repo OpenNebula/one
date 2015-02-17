@@ -435,7 +435,7 @@ var create_security_group_wizard_html =
       <div class="row">\
         <div class="medium-4 columns">\
           <label>'+tr("Network")+'\
-            <span class="tip">'+tr("Any: apply this rule to any connection regardless of its source or destination. Network: Apply this rule only to a custome define network range. Virtual Network: Apply this rule only to connections with origin or destination in one of the already define VNETs.")+'</span>\
+            <span class="tip">'+tr("Any: apply this rule to any connection regardless of its source or destination. Network: Apply this rule only to a custom defined network range. Virtual Network: Apply this rule only to connections with origin or destination in one of the already defined VNETs.")+'</span>\
           </label>\
           <select class="security_group_rule_network_sel">\
             <option value="ANY" selected="selected">'+tr("Any")+'</option>\
@@ -840,6 +840,8 @@ function updateSecurityGroupsView (request,list){
 function updateSecurityGroupInfo(request,security_group){
     security_group_info     = security_group.SECURITY_GROUP;
     security_group_template = security_group_info.TEMPLATE;
+
+    $(".resource-info-header", $("#secgroups-tab")).html(security_group_info.NAME);
 
     stripped_security_group_template = $.extend({}, security_group_info.TEMPLATE);
     delete stripped_security_group_template["RULE"];
