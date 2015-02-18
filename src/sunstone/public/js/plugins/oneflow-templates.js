@@ -405,7 +405,10 @@ var service_template_actions = {
     "ServiceTemplate.create_dialog" : {
         type : "custom",
         call: function(){
-          Sunstone.popUpFormPanel("create_service_template_form", "oneflow-templates", "create", false);
+          Sunstone.popUpFormPanel("create_service_template_form",
+            "oneflow-templates", "create", true, function(context){
+                $("input#service_name",context).focus();
+            });
         }
     },
 
