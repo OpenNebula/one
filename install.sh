@@ -1639,6 +1639,7 @@ SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_CSS="\
 SUNSTONE_PUBLIC_NEW_VENDOR_FONTAWESOME_FONT="\
     src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.eot \
     src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff \
+    src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff2 \
     src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.ttf \
     src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.svg \
     src/sunstone/public/bower_components/fontawesome/fonts/FontAwesome.otf"
