@@ -996,10 +996,10 @@ function fillVdcUpdateFormPanel(vdc, dialog){
 function vdcResourceTabHeader(){
     var html =
       '<div class="row">\
-        <div class="medium-4 columns">\
-          <h5>' + tr("Zone") +'</h5>\
+        <div class="large-8 medium-6 columns">\
+          <label class="inline right">' + tr("Zone") +'</label>\
         </div>\
-        <div class="medium-4 columns end">\
+        <div class="large-4 medium-6 columns end">\
           <select class="vdc_zones_select">\
           </select>\
         </div>\
