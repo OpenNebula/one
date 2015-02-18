@@ -358,6 +358,8 @@ tabs:
             Datastore.chgrp: true
             Datastore.chmod: true
             Datastore.delete: true
+            Datastore.enable: true
+            Datastore.disable: true
     vnets-tab:
         panel_tabs:
             vnet_info_tab: true
