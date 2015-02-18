@@ -443,7 +443,7 @@ function insert_views(dialog_name){
     default_row += "</tr>";
     default_admin_row += "</tr>";
 
-    return '<table class="dataTable" style="table-layout:fixed">'+
+    return '<table style="table-layout:fixed">'+
             headers+
             row+
             default_row+
