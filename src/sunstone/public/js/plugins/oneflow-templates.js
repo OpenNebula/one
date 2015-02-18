@@ -723,7 +723,7 @@ function updateServiceTemplateInfo(request,elem){
     $(".resource-info-header", $("#oneflow-templates")).html(elem_info.NAME);
 
     var network_configuration = "";
-    if (elem_info.TEMPLATE.BODY['custom_attrs']) {
+    if ( ! $.isEmptyObject( elem_info.TEMPLATE.BODY['custom_attrs'] ) ) {
         network_configuration +=
             '<table id="info_template_table" class="dataTable extended_table">\
                 <thead>\
@@ -1556,8 +1556,11 @@ function generate_json_service_template_from_form(dialog) {
         name: name,
         deployment: deployment,
         description: description,
-        roles: roles,
-        custom_attrs: custom_attrs
+        roles: roles
+    }
+
+    if (!$.isEmptyObject(custom_attrs)){
+        obj['custom_attrs'] = custom_attrs
     }
 
     if (shutdown_action_service){
@@ -1584,7 +1587,7 @@ function fillUpUpdateServiceTemplateDialog(response, dialog){
     $("select[name='shutdown_action_service']", dialog).val(service_template.TEMPLATE.BODY.shutdown_action);
     $("input[name='ready_status_gate']", dialog).prop("checked",service_template.TEMPLATE.BODY.ready_status_gate || false);
 
-    if (service_template.TEMPLATE.BODY['custom_attrs'].length) {
+    if ( ! $.isEmptyObject( service_template.TEMPLATE.BODY['custom_attrs'] ) ) {
         $("a[href='#network_configuration_and_attributes']", dialog).trigger("click");
 
         $(".service_networks i.remove-tab", dialog).trigger("click");
