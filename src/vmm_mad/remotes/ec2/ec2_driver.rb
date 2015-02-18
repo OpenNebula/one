@@ -125,7 +125,7 @@ class EC2Driver
                     :proc => lambda {|str| str.split(',')}
                 },
                 "AVAILABILITYZONE" => {
-                    :opt => 'placement/availability-zone'
+                    :opt => 'placement/availability_zone'
                 },
                 "EBS_OPTIMIZED" => {
                     :opt => 'ebs_optimized'
