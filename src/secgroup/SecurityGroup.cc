@@ -414,9 +414,8 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
     }
     else //Target is ANY or NETWORK_ID
     {
-        value = rule->vector_value("NETWORK_ID");
-
-        if (!value.empty() && rule->vector_value("NETWORK_ID", id) != 0)
+        if (rule->vector_value("NETWORK_ID", value) == 0 &&
+            rule->vector_value("NETWORK_ID", id) != 0)
         {
             error = "Wrong NETWORK_ID.";
             return false;

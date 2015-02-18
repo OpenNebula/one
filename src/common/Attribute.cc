@@ -252,6 +252,26 @@ string VectorAttribute::vector_value(const char *name) const
         return it->second;
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VectorAttribute::vector_value(const char *name, string& value) const
+{
+    map<string,string>::const_iterator it;
+
+    it = attribute_value.find(name);
+
+    if (it == attribute_value.end())
+    {
+        return -1;
+    }
+
+    value = it->second;
+
+    return 0;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

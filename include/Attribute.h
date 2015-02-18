@@ -247,6 +247,15 @@ public:
     string vector_value(const char *name) const;
 
     /**
+     *  Returns the string value
+     *    @param name of the attribute
+     *    @param value of the value
+     *
+     *    @return 0 if the attribute was found, -1 otherwise
+     */
+    int vector_value(const char *name, string& value) const;
+
+    /**
      *  Returns the boolean value
      *    @param name of the attribute
      *    @param value Bool value ("YES" is true)
