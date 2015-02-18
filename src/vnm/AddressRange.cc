@@ -277,9 +277,10 @@ int AddressRange::update_attributes(
 
     if (keep_restricted && restricted_set)
     {
-        remove_all_except_restricted(attr);
+        VectorAttribute va_aux(*attr);
+        remove_all_except_restricted(&va_aux);
 
-        vup->merge(attr, true);
+        vup->merge(&va_aux, true);
     }
 
     /* ----------------- update known attributes ----------------- */
