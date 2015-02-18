@@ -7421,10 +7421,10 @@ function generateResourceTableSelect(context_id, columns, options){
 
     var html =
     '<div class="row">\
-      <div class="large-8 columns">\
+      <div class="large-8 small-2 columns">\
          <a id="refresh_button_'+context_id+'" href="#" class="button small radius secondary"><i class="fa fa-refresh" /></a>\
       </div>\
-      <div class="large-4 columns">\
+      <div class="large-4 small-10 columns">\
         <input id="'+context_id+'_search" class="search" type="search" placeholder="'+tr("Search")+'"/>\
       </div>\
     </div>\
@@ -7439,7 +7439,7 @@ function generateResourceTableSelect(context_id, columns, options){
     </div>\
     <div class="row">\
       <div class="large-12 columns" id="selected_ids_row_'+context_id+'">\
-        <span id="select_resource_'+context_id+'" class="radius secondary label">'+options.select_resource+'</span>\
+        <label for="selected_resource_id_'+context_id+'" id="select_resource_'+context_id+'" class="radius secondary label">'+options.select_resource+'</label>\
         <span id="selected_resource_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected+'</span>\
         <span id="select_resource_multiple_'+context_id+'" class="radius secondary label" style="display: none;">'+options.select_resource_multiple+'</span>\
         <span id="selected_resource_multiple_'+context_id+'" class="radius secondary label" style="display: none;">'+options.you_selected_multiple+'</span>\
