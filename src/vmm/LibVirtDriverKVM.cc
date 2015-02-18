@@ -539,7 +539,7 @@ int LibVirtDriver::deployment_description_kvm(
                      << "\t\t\t</auth>" << endl;
             }
         }
-        else if ( type == "sheepdog" || type == "sheepdog_cdrom" )
+        else if ( type == "SHEEPDOG" || type == "SHEEPDOG_CDROM" )
         {
             if (type == "SHEEPDOG")
             {
