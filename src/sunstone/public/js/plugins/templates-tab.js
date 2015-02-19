@@ -1139,7 +1139,8 @@ var hybrid_inputs = {
     {
       name: "HOURLYBILLING",
       label: tr("Hourly Billing"),
-      tooltip: tr("Specifies the billing type for the instance . When true the computing instance will be billed on hourly usage, otherwise it will be billed on a monthly basis")
+      tooltip: tr("Specifies the billing type for the instance . When true the computing instance will be billed on hourly usage, otherwise it will be billed on a monthly basis"),
+      required: true
     },
     {
       name: "INSTANCE_TYPE",
@@ -1150,7 +1151,8 @@ var hybrid_inputs = {
     {
       name: "LOCALDISK",
       label: tr("Local Disk"),
-      tooltip: tr("Name of the placement group. When true the disks for the computing instance will be provisioned on the host which it runs, otherwise SAN disks will be provisioned")
+      tooltip: tr("Name of the placement group. When true the disks for the computing instance will be provisioned on the host which it runs, otherwise SAN disks will be provisioned"),
+      required: true
     },
     {
       name: "MAXMEMORY",
