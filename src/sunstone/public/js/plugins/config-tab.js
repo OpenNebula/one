@@ -33,11 +33,15 @@ Config = {
     },
 
     "isTabActionEnabled": function(tab_name, action_name, panel_name){
-      var enabled;
-      if (panel_name) {
-        enabled = config['view']['tabs'][tab_name]['panel_tabs_actions'][panel_name][action_name];
-      } else {
-        enabled = config['view']['tabs'][tab_name]['actions'][action_name];
+      var enabled = false;
+      var config_tab = config['view']['tabs'][tab_name];
+
+      if (config_tab != undefined){
+        if (panel_name) {
+          enabled = config_tab['panel_tabs_actions'][panel_name][action_name];
+        } else {
+          enabled = config_tab['actions'][action_name];
+        }
       }
 
       return enabled;
