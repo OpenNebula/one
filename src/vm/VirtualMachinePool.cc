@@ -59,8 +59,6 @@ VirtualMachinePool::VirtualMachinePool(
     string arg;
     bool   remote;
 
-    bool state_hook = false;
-
     _monitor_expiration = expire_time;
     _submit_on_hold = on_hold;
 
@@ -128,8 +126,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                            VirtualMachine::PROLOG, VirtualMachine::ACTIVE);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "RUNNING" )
         {
@@ -138,8 +134,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                            VirtualMachine::RUNNING, VirtualMachine::ACTIVE);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "SHUTDOWN" )
         {
@@ -148,8 +142,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                             VirtualMachine::EPILOG, VirtualMachine::ACTIVE);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "STOP" )
         {
@@ -158,8 +150,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                             VirtualMachine::LCM_INIT, VirtualMachine::STOPPED);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "DONE" )
         {
@@ -168,8 +158,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                             VirtualMachine::LCM_INIT, VirtualMachine::DONE);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "FAILED" )
         {
@@ -178,8 +166,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                             VirtualMachine::LCM_INIT, VirtualMachine::FAILED);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "UNKNOWN" )
         {
@@ -188,8 +174,6 @@ VirtualMachinePool::VirtualMachinePool(
             hook = new VirtualMachineStateHook(name, cmd, arg, remote,
                             VirtualMachine::UNKNOWN, VirtualMachine::ACTIVE);
             add_hook(hook);
-
-            state_hook = true;
         }
         else if ( on == "CUSTOM" )
         {
@@ -223,8 +207,6 @@ VirtualMachinePool::VirtualMachinePool(
                     lcm_state, vm_state);
 
             add_hook(hook);
-
-            state_hook = true;
         }
         else
         {
@@ -233,15 +215,6 @@ VirtualMachinePool::VirtualMachinePool(
             oss << "Unknown VM_HOOK " << on << ". Hook not registered!";
             NebulaLog::log("VM",Log::WARNING,oss);
         }
-    }
-
-    if ( state_hook )
-    {
-        VirtualMachineUpdateStateHook * hook;
-
-        hook = new VirtualMachineUpdateStateHook();
-
-        add_hook(hook);
     }
 
     // Set restricted attributes
