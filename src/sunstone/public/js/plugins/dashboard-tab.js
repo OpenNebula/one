@@ -249,7 +249,7 @@ var widgets = {
           </div>\
         </div>',
   "accounting" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-bar-chart-o"></i> '+tr("Accounting")+'</h5>\
-        <div id="dashboard_vm_accounting" class="row dashboard-widget-footer">\
+        <div class="row dashboard-widget-footer">\
             <div id="user_dashboard_info_acct_div" class="large-12 columns columns">\
             </div>\
         </div>'
@@ -545,10 +545,10 @@ $(document).ready(function(){
           popUpCreateUserDialog();
           return false;
         })
+
         accountingGraphs(
             $("#user_dashboard_info_acct_div"),
-            {   no_table: true,
-                fixed_user: config["user_id"],
+            {   fixed_user: config["user_id"],
                 fixed_group_by: "vm"
             }
         );

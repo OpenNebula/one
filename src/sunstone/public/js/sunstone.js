@@ -5425,15 +5425,10 @@ function accountingGraphs(div, opt){
             }
         }
 
-        var no_table = false;
-        if (opt["no_table"] == true) {
-            no_table = true;
-        }
-
         OpenNebula.VM.accounting({
     //        timeout: true,
             success: function(req, response){
-                fillAccounting(div, req, response, no_table);
+                fillAccounting(div, req, response, false);
             },
             error: onError,
             data: options
@@ -5718,7 +5713,7 @@ function fillAccounting(div, req, response, no_table) {
     //--------------------------------------------------------------------------
 
     if (no_table) {
-        $(".acct_table").hide();
+        $(".acct_table",div).hide();
     } else {
         $("#acct_cpu_datatable",div).dataTable().fnClearTable();
         $("#acct_cpu_datatable",div).dataTable().fnDestroy();
