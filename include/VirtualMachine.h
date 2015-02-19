@@ -958,6 +958,11 @@ public:
         return state;
     };
 
+    VmState get_prev_state() const
+    {
+        return prev_state;
+    };
+
     /**
      *  Returns the VM state (life-cycle Manager)
      *    @return the VM state
@@ -965,6 +970,11 @@ public:
     LcmState get_lcm_state() const
     {
         return lcm_state;
+    };
+
+    LcmState get_prev_lcm_state() const
+    {
+        return prev_lcm_state;
     };
 
     /**
@@ -984,6 +994,24 @@ public:
     {
         lcm_state = s;
     };
+
+    /**
+     *  Sets the previous state to the current one
+     */
+    void set_prev_state()
+    {
+        prev_state     = state;
+        prev_lcm_state = lcm_state;
+    };
+
+    /**
+     *  Test if the VM has changed state since last time prev state was set
+     *    @return true if VM changed state
+     */
+    bool has_changed_state()
+    {
+        return (prev_lcm_state != lcm_state || prev_state != state);
+    }
 
     /**
      *  Sets the re-scheduling flag
@@ -1419,9 +1447,19 @@ private:
     VmState     state;
 
     /**
+     *  Previous state og the virtual machine, to trigger state hooks
+     */
+    VmState     prev_state;
+
+    /**
      *  The state of the virtual machine (in the Life-cycle Manager).
      */
     LcmState    lcm_state;
+
+    /**
+     *  Previous state og the virtual machine, to trigger state hooks
+     */
+    LcmState    prev_lcm_state;
 
     /**
      *  Marks the VM as to be re-scheduled

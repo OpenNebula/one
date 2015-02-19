@@ -49,7 +49,9 @@ VirtualMachine::VirtualMachine(int           id,
         PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,table),
         last_poll(0),
         state(INIT),
+        prev_state(INIT),
         lcm_state(LCM_INIT),
+        prev_lcm_state(LCM_INIT),
         resched(0),
         stime(time(0)),
         etime(0),
@@ -3678,6 +3680,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
         << "<STATE>"     << state     << "</STATE>"
         << "<LCM_STATE>" << lcm_state << "</LCM_STATE>"
+        << "<PREV_STATE>"     << prev_state     << "</PREV_STATE>"
+        << "<PREV_LCM_STATE>" << prev_lcm_state << "</PREV_LCM_STATE>"
         << "<RESCHED>"   << resched   << "</RESCHED>"
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
@@ -3744,8 +3748,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(name,      "/VM/NAME",  "not_found");
 
     rc += xpath(last_poll, "/VM/LAST_POLL", 0);
-    rc += xpath(istate,    "/VM/STATE",     0);
-    rc += xpath(ilcmstate, "/VM/LCM_STATE", 0);
     rc += xpath(resched,   "/VM/RESCHED",   0);
 
     rc += xpath(stime,     "/VM/STIME",    0);
@@ -3760,8 +3762,18 @@ int VirtualMachine::from_xml(const string &xml_str)
     // Permissions
     rc += perms_from_xml();
 
+    //VM states
+    rc += xpath(istate,    "/VM/STATE",     0);
+    rc += xpath(ilcmstate, "/VM/LCM_STATE", 0);
+
     state     = static_cast<VmState>(istate);
     lcm_state = static_cast<LcmState>(ilcmstate);
+
+    rc += xpath(istate,    "/VM/PREV_STATE",     0);
+    rc += xpath(ilcmstate, "/VM/PREV_LCM_STATE", 0);
+
+    prev_state     = static_cast<VmState>(istate);
+    prev_lcm_state = static_cast<LcmState>(ilcmstate);
 
     // Virtual Machine template
     ObjectXML::get_nodes("/VM/TEMPLATE", content);
