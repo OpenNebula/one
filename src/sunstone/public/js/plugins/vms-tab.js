@@ -2160,9 +2160,6 @@ function printNics(vm_info){
 
         switch(vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase())
         {
-            case "vcenter":
-                nic.IP = vm_info.TEMPLATE.GUEST_IP?vm_info.TEMPLATE.GUEST_IP:"--";
-                break;
             case "ec2":
                 nic.IP = vm_info.TEMPLATE.IP_ADDRESS?vm_info.TEMPLATE.IP_ADDRESS:"--";
                 break;
