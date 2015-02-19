@@ -25,7 +25,6 @@ void VirtualMachineStateHook::do_hook(void *arg)
 {
 
     VirtualMachine * vm;
-    int              rc;
 
     vm = static_cast<VirtualMachine *>(arg);
 
