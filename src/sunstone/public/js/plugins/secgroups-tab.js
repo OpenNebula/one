@@ -45,6 +45,7 @@ function initialize_create_security_group_dialog(dialog){
     dialog.on("change", '.security_group_rule_network_sel', function(){
         $('.security_group_rule_network',dialog).hide();
         $('div.security_group_rule_network input',dialog).removeAttr('required');
+        $("input#selected_resource_id_"+"new_sg_rule", dialog).removeAttr("required");
 
         $('.vnet_select',dialog).hide();
 
@@ -57,6 +58,7 @@ function initialize_create_security_group_dialog(dialog){
             break;
         case "VNET":
             $('.vnet_select',dialog).show();
+            $("input#selected_resource_id_"+"new_sg_rule", dialog).attr("required", "");
 
             refreshVNetTableSelect(dialog, "new_sg_rule");
 
