@@ -172,6 +172,8 @@ class SLDriver
 
         client_cred[:endpoint_url]=@region['endpoint'] if @region['endpoint']
 
+        client_cred[:timeout] = public_cloud_sl_conf['timeout'] || 120
+
 
         @sl_client = SoftLayer::Client.new(client_cred)
     end
