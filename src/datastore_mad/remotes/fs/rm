@@ -45,22 +45,32 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
 
-SRC="${XPATH_ELEMENTS[0]}"
-BASE_PATH="${XPATH_ELEMENTS[1]}"
+unset i
 
-BASENAME_SRC=`basename "${SRC##$BASE_PATH}"`
+SRC="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+BASE_PATH="${XPATH_ELEMENTS[i++]}"
 
 # ------------ Remove the image from the repository ------------
 
-if [ -f "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n "$BASENAME_SRC" ]
-then
-    log "Removing $SRC from the image repository"
+if [ -n "$BRIDGE_LIST" ]; then
+    DST_HOST=`get_destination_host $ID`
 
-    exec_and_log "rm -f $SRC" \
-        "Error deleting $SRC"
+    ssh_exec_and_log "$DST_HOST" "rm -f $SRC" \
+        "Error deleting $SRC in $DST_HOST"
 else
-    log_error "Bad formed or unavailable Image source: ${SRC}"
-    exit 1
+    BASENAME_SRC=`basename "${SRC##$REMOTE_RM_CMD}"`
+    if [ -f "$SRC" -a `dirname "$SRC"` = "$BASE_PATH" -a -n "$BASENAME_SRC" ]
+    then
+        log "Removing $SRC from the image repository"
+
+        exec_and_log "rm -f $SRC" \
+            "Error deleting $SRC"
+    else
+        log_error "Bad formed or unavailable Image source: ${SRC}"
+        exit 1
+    fi
 fi

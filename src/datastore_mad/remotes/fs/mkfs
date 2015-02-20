@@ -48,17 +48,19 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE)
 
+unset i
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
-RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
-SAFE_DIRS="${XPATH_ELEMENTS[2]}"
-FSTYPE="${XPATH_ELEMENTS[3]}"
-SIZE="${XPATH_ELEMENTS[4]}"
+BASE_PATH="${XPATH_ELEMENTS[i++]}"
+RESTRICTED_DIRS="${XPATH_ELEMENTS[i++]}"
+SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+FSTYPE="${XPATH_ELEMENTS[i++]}"
+SIZE="${XPATH_ELEMENTS[i++]}"
 
-mkdir -p "$BASE_PATH"
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
 DST=`generate_image_path`
@@ -74,9 +76,29 @@ fi
 
 MKFS_CMD=`mkfs_command $DST $FSTYPE $SIZE`
 
-exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
-    "Could not create image $DST"
-exec_and_log "$MKFS_CMD" \
-    "Unable to create filesystem $FSTYPE in $DST"
+REMOTE_REGISTER_CMD=$(cat <<EOF
+    set -e
+    export PATH=/usr/sbin:/sbin:\$PATH
+
+    mkdir -p $BASE_PATH
+    $DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M
+    $MKFS_CMD
+EOF
+)
+
+if [ -n "$BRIDGE_LIST" ]; then
+    DST_HOST=`get_destination_host $ID`
+
+    ssh_exec_and_log "$DST_HOST" "$REMOTE_REGISTER_CMD" \
+        "Error registering $RBD_SOURCE in $DST_HOST"
+
+else
+    mkdir -p "$BASE_PATH"
+
+    exec_and_log "$DD if=/dev/zero of=$DST bs=1 count=1 seek=${SIZE}M" \
+        "Could not create image $DST"
+    exec_and_log "$MKFS_CMD" \
+        "Unable to create filesystem $FSTYPE in $DST"
+fi
 
 echo "$DST"

@@ -71,11 +71,10 @@ SHA1="${XPATH_ELEMENTS[i++]}"
 NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
 LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
 
-mkdir -p "$BASE_PATH"
-set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
-
 DST=`generate_image_path`
 IMAGE_HASH=`basename $DST`
+
+set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
 if [ -n "$BRIDGE_LIST" ]; then
     DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" -`
@@ -107,6 +106,7 @@ if [ -n "$BRIDGE_LIST" ]; then
     ssh_exec_and_log    "$DST_HOST" "mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
                         "Error moving $TMP_DST to $DST in $DST_HOST"
 else
+    mkdir -p "$BASE_PATH"
     exec_and_log "$COPY_COMMAND" "Error copying $SRC to $DST"
 fi
 
