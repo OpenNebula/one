@@ -5384,15 +5384,21 @@ function accountingGraphs(div, opt){
 
         var v = $("#acct_end_time", div).val();
         if (v != ""){
-            end_time = dateFromString(v)
+            end_time = new Date(v+' UTC');
 
             if (isNaN(end_time)){
                 notifyError(tr("Time range end is not a valid date. It must be YYYY/MM/DD"));
                 return false;
             }
 
+            // Add 1 to end_date, because the date is initialized at 00:00.
+            // The difference for this range  01/01, 31/01  is:
+            //   without adjustment: [01, 31)
+            //             adjusted: [01, 31]
+            end_time.setDate(end_time.getDate() + 1);
+
             // ms to s
-            end_time = end_time / 1000;
+            end_time = end_time.getTime() / 1000;
         }
 
         var options = {
@@ -5466,18 +5472,20 @@ function fillAccounting(div, req, response, no_table) {
 
     var tmp_time = start;
 
-    // End time is the start of the last time slot. We use <=, to
-    // add one extra time step
-    while (tmp_time <= end) {
+    while (tmp_time < end) {
         times.push(tmp_time.getTime());
 
         // day += 1
         tmp_time.setUTCDate( tmp_time.getUTCDate() + 1 );
     }
 
+    // End time is the start of the last time slot. For the last slot,
+    // we don't add one day if the date is the current day, we add "up to now".
     if (tmp_time > now) {
-        times.push(now.getTime());
+        tmp_time = now;
     }
+
+    times.push(tmp_time.getTime());
 
     //--------------------------------------------------------------------------
     // Flot options
