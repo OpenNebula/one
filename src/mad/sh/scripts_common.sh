@@ -149,6 +149,33 @@ function exec_and_log
     fi
 }
 
+# This function executes $1 and returns stdout
+# If a second parameter is present it is used as the error message when
+# the command fails
+function monitor_and_log
+{
+    EXEC_OUT=`bash -s 2>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+set -xv
+$1
+EOF`
+    EXEC_RC=$?
+
+    if [ $EXEC_RC -ne 0 ]; then
+
+        if [ -n "$2" ]; then
+            log_error "Command \"$2\" failed: $EXEC_OUT"
+        else
+            log_error "Command \"$1\" failed: $EXEC_OUT"
+        fi
+
+        exit $EXEC_RC
+    fi
+
+    echo $EXEC_OUT
+}
+
 # Executes a command, if it fails returns error message and exits. Similar to
 # exec_and_log, except that it allows multiline commands.
 # If a second parameter is present it is used as the error message when
