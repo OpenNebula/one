@@ -154,7 +154,7 @@ function gzip_file_size {
 function fs_size {
 
     case $1 in
-    http://*)
+    http://*|https://*)
         HEADERS=`curl -LIk --max-time 60 $1 2>&1`
 
         if echo "$HEADERS" | grep -q "OpenNebula-AppMarket-Size"; then
