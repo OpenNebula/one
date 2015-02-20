@@ -3532,8 +3532,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     state     = static_cast<VmState>(istate);
     lcm_state = static_cast<LcmState>(ilcmstate);
 
-    rc += xpath(istate,    "/VM/PREV_STATE",     0);
-    rc += xpath(ilcmstate, "/VM/PREV_LCM_STATE", 0);
+    xpath(istate,    "/VM/PREV_STATE",     istate);
+    xpath(ilcmstate, "/VM/PREV_LCM_STATE", ilcmstate);
 
     prev_state     = static_cast<VmState>(istate);
     prev_lcm_state = static_cast<LcmState>(ilcmstate);
