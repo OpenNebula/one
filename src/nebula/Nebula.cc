@@ -859,6 +859,7 @@ void Nebula::start(bool bootstrap_only)
         bool rpc_log;
         string log_call_format;
         string rpc_filename = "";
+        int  message_size;
 
         nebula_configuration->get("PORT", rm_port);
         nebula_configuration->get("MAX_CONN", max_conn);
@@ -868,6 +869,7 @@ void Nebula::start(bool bootstrap_only)
         nebula_configuration->get("TIMEOUT", timeout);
         nebula_configuration->get("RPC_LOG", rpc_log);
         nebula_configuration->get("LOG_CALL_FORMAT", log_call_format);
+        nebula_configuration->get("MESSAGE_SIZE", message_size);
 
         if (rpc_log)
         {
@@ -876,7 +878,7 @@ void Nebula::start(bool bootstrap_only)
 
         rm = new RequestManager(rm_port, max_conn, max_conn_backlog,
             keepalive_timeout, keepalive_max_conn, timeout, rpc_filename,
-            log_call_format);
+            log_call_format, message_size);
     }
     catch (bad_alloc&)
     {

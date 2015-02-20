@@ -50,7 +50,8 @@ public:
             int _keepalive_max_conn,
             int _timeout,
             const string _xml_log_file,
-            const string call_log_format);
+            const string call_log_format,
+            int message_size);
 
     ~RequestManager(){};
 

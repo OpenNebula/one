@@ -63,7 +63,8 @@ RequestManager::RequestManager(
         int _keepalive_max_conn,
         int _timeout,
         const string _xml_log_file,
-        const string call_log_format):
+        const string call_log_format,
+        int message_size):
             port(_port),
             socket_fd(-1),
             max_conn(_max_conn),
@@ -74,6 +75,8 @@ RequestManager::RequestManager(
             xml_log_file(_xml_log_file)
 {
     Request::set_call_log_format(call_log_format);
+
+    xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 
     am.addListener(this);
 };
