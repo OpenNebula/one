@@ -59,7 +59,7 @@ if [ ! -d \$BASE_PATH ]; then
     mkdir -p \$BASE_PATH
 fi
 
-# USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
+USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
 TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
 FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
 
