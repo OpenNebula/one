@@ -358,7 +358,9 @@ EOF`
     fi
 }
 
-#This function executes $2 at $1 host and returns stdout
+# This function executes $2 at $1 host and returns stdout
+# If $3 is present, it is used as the error message when
+# the command fails
 function ssh_monitor_and_log
 {
     SSH_EXEC_OUT=`$SSH $1 sh -s 2>/dev/null <<EOF
@@ -369,8 +371,12 @@ EOF`
     SSH_EXEC_RC=$?
 
     if [ $SSH_EXEC_RC -ne 0 ]; then
-        log_error "Command \"$2\" failed: $SSH_EXEC_OUT"
-        error_message "Cannot monitor $1"
+
+        if [ -n "$3" ]; then
+            log_error "Command \"$3\" failed: $SSH_EXEC_OUT"
+        else
+            log_error "Command \"$2\" failed: $SSH_EXEC_OUT"
+        fi
 
         exit $SSH_EXEC_RC
     fi
