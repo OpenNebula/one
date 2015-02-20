@@ -1816,7 +1816,7 @@ function provision_list_flows(opts_arg){
 
   list_flows_accordion_id += 1;
   return '<dl class="accordion accordion_list provision_list_flows" data-accordion>'+
-    '<dd class="'+ (opts.active ? 'active' : '') +'" accordion-navigation>'+
+    '<dd class="'+ (opts.active ? 'active' : '') +' accordion-navigation">'+
       '<a class="provision_list_flow_accordion right only-not-active provision_back" href="#provision_list_flow_accordion'+list_flows_accordion_id+'">'+
         '<span class="button medium radius">'+
           '<i class="fa fa-fw fa-lg fa-th"/> '+
