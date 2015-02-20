@@ -266,10 +266,10 @@ class VIClient
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
-            vms  = get_entities(dc.vmFolder, 'VirtualMachine')
-            ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
+            vms     = get_entities(dc.vmFolder, 'VirtualMachine')
+            ccrs    = get_entities(dc.hostFolder, 'ClusterComputeResource')
 
-            tmp = vms.select { |v| 
+            vm_list = vms.select { |v| 
                 # Get rid of VM Templates and VMs not in running state
                 v.config &&
                 v.config.template != true &&  
@@ -278,8 +278,12 @@ class VIClient
 
             one_tmp = []
 
-            tmp.each { |v|
+            vm_list.each { |v|
                 vi_tmp = VCenterVm.new(self, v)
+
+                # Do not reimport VMs deployed by OpenNebula
+                # since the core will get confused with the IDs
+                next if vi_tmp.vm.name.match(/one-\d/) 
 
                 container_hostname = vi_tmp.vm.runtime.host.parent.name
 
