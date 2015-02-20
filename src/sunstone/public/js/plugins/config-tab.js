@@ -126,15 +126,18 @@ Config = {
 var config_response = {};
 var config_tab_content =
 '<div class="row">\
-    <div class="large-6 columns">\
+    <div class="large-4 columns">\
       <h3 id="configuration_dialog" class="subheader">'+tr("Configuration")+'</h3>\
     </div>\
-    <div class="large-6 columns">\
+    <div class="large-8 columns">\
       <dl class="tabs right-info-tabs text-center right" data-tab>\
            <dd class="active"><a href="#info_configuration"><i class="fa fa-info-circle"></i><br>'+tr("Info")+'</a></dd>\
            <dd><a href="#conf_configuration"><i class="fa fa-cog"></i><br>'+tr("Conf")+'</a></dd>\
            <dd><a href="#quotas_configuration"><i class="fa fa-align-left"></i><br>'+tr("Quotas")+'</a></dd>\
-      </dl>\
+           <dd><a href="#acct_configuration"><i class="fa fa-bar-chart-o"></i><br>'+tr("Accounting")+'</a></dd>'+
+           ( Config.isFeatureEnabled("showback") ?
+             '<dd><a href="#showback_configuration"><i class="fa fa-money"></i><br>'+tr("Showback")+'</a></dd>' : '')+
+      '</dl>\
     </div>\
 </div>\
 <div class="reveal-body">\
@@ -229,6 +232,10 @@ var config_tab_content =
             </div>\
           </div>\
       </div>\
+    </div>\
+    <div id="acct_configuration" class="row content">\
+    </div>\
+    <div id="showback_configuration" class="row content">\
     </div>\
     </div>\
     <div class="reveal-footer">\
@@ -331,8 +338,6 @@ function setupConfigDialog() {
     });
 
     $("#config_ssh_public_key_textarea", '#config_dialog').on("change", function(){
-        var user_id = getSelectedNodes(dataTable_users)[0];
-
         OpenNebula.User.show({
             data : {
                 id: -1
@@ -413,9 +418,9 @@ function setupConfigDialog() {
       })
     });
 
-    $("#quota_group_sel").die();
+    $("#quota_group_sel", dialog).die();
 
-    $("#quota_group_sel").live("change", function() {
+    $("#quota_group_sel", dialog).live("change", function() {
         var value_str = $('select#quota_group_sel').val();
         if(value_str!="")
         {
@@ -525,6 +530,17 @@ function updateUserConfigInfo(request,user_json) {
             fillUserInfo();
         }
     });
+
+    accountingGraphs(
+        $("#acct_configuration", "#config_dialog"),
+        {   fixed_user: info.ID,
+            init_group_by: "vm" });
+
+    if (Config.isFeatureEnabled("showback")) {
+        showbackGraphs(
+            $("#showback_configuration","#config_dialog"),
+            { fixed_user: info.ID });
+    }
 }
 
 function fillGroupQuotas(group_id){
