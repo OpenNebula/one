@@ -99,6 +99,7 @@ var create_image_tmpl ='<div class="row create_image_header">\
                </div>\
                <div class="row">\
                   <div id="file-uploader" class="large-12 columns text-center">\
+                    <label id="file-uploader-label" for="file-uploader-input"></label>\
                     <input id="file-uploader-input" type="file"/>\
                   </div>\
                </div>\
@@ -952,6 +953,9 @@ function initialize_create_image_dialog(dialog) {
       uploader.on('fileAdded', function(file){
           fileName = file.fileName;
           file_input = fileName;
+
+          $('#file-uploader-input',dialog).hide()
+          $("#file-uploader-label", dialog).html(file.fileName);
       });
 
       uploader.on('uploadStart', function() {

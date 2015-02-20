@@ -93,6 +93,7 @@ var create_file_tmpl ='<div class="row">\
                </div>\
                <div class="row">\
                   <div id="files_file-uploader" class="large-12 columns text-center">\
+                    <label id="files_file-uploader-label" for="files_file-uploader-input"></label>\
                     <input id="files_file-uploader-input" type="file"/>\
                   </div>\
                </div>\
@@ -649,6 +650,9 @@ function setupCreateFileDialog(){
       file_uploader.on('fileAdded', function(file){
           fileName = file.fileName;
           file_input = fileName;
+          
+          $('#files_file-uploader-input',dialog).hide()
+          $("#files_file-uploader-label", dialog).html(file.fileName);
       });
 
       file_uploader.on('uploadStart', function() {
