@@ -59,7 +59,7 @@ BASE_PATH="${XPATH_ELEMENTS[i++]}"
 if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
 
-    ssh_exec_and_log "$DST_HOST" "rm -f $SRC" \
+    ssh_exec_and_log "$DST_HOST" "[ -f $SRC ] && rm -f $SRC" \
         "Error deleting $SRC in $DST_HOST"
 else
     BASENAME_SRC=`basename "${SRC##$REMOTE_RM_CMD}"`
