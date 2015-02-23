@@ -6190,6 +6190,12 @@ function generateTemplateTableSelect(context_id){
 // opts.bVisible: dataTable bVisible option. If not set, the .yaml visibility will be used
 // opts.filter_fn: boolean function to filter which elements to show
 // opts.select_callback(aData, options): function called after a row is selected
+// opts.multiple_choice: boolean true to enable multiple element selection
+// opts.read_only: boolean true so user is not asked to select elements
+// opts.fixed_ids: Array of IDs to show. Any other ID will be filtered out. If
+//                 an ID is not returned by the pool, it will be included as a
+//                 blank row
+// opts.zone_id: Retrieves elements from this zone, instead of the current one
 function setupTemplateTableSelect(section, context_id, opts){
 
     if(opts == undefined){
@@ -6208,6 +6214,18 @@ function setupTemplateTableSelect(section, context_id, opts){
         opts.bVisible = config;
     }
 
+    if(opts.multiple_choice == undefined){
+        opts.multiple_choice = false;
+    }
+
+    var fixed_ids_map_orig = {};
+
+    if(opts.fixed_ids != undefined){
+        $.each(opts.fixed_ids,function(){
+            fixed_ids_map_orig[this] = true;
+        });
+    }
+
     var options = {
         "dataTable_options": {
           "bAutoWidth":false,
@@ -6223,38 +6241,97 @@ function setupTemplateTableSelect(section, context_id, opts){
             ]
         },
 
+        "multiple_choice": opts.multiple_choice,
+        "read_only": opts.read_only,
+        "fixed_ids": opts.fixed_ids,
+
         "id_index": 1,
         "name_index": 4,
         "uname_index": 2,
 
         "update_fn": function(datatable){
-            OpenNebula.Template.list({
-                timeout: true,
-                success: function (request, resource_list){
-                    var list_array = [];
+            var success_func = function (request, resource_list){
+                var list_array = [];
 
-                    $.each(resource_list,function(){
-                        var add = true;
+                var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
 
-                        if(opts.filter_fn){
-                            add = opts.filter_fn(this.VMTEMPLATE);
-                        }
+                $.each(resource_list,function(){
+                    var add = true;
 
-                        if(add){
-                            list_array.push(templateElementArray(this));
-                        }
-                    });
+                    if(opts.filter_fn){
+                        add = opts.filter_fn(this.VMTEMPLATE);
+                    }
 
-                    updateView(list_array, datatable);
-                },
-                error: onError
-            });
+                    if(opts.fixed_ids != undefined){
+                        add = (add && fixed_ids_map[this.VMTEMPLATE.ID]);
+                    }
+
+                    if(add){
+                        list_array.push(templateElementArray(this));
+
+                        delete fixed_ids_map[this.VMTEMPLATE.ID];
+                    }
+                });
+
+                var n_columns = 6; // SET FOR EACH RESOURCE
+
+                $.each(fixed_ids_map, function(id,v){
+                    var empty = [];
+
+                    for(var i=0; i<=n_columns; i++){
+                        empty.push("");
+                    }
+
+                    empty[1] = id;  // SET FOR EACH RESOURCE, id_index
+
+                    list_array.push(empty);
+                });
+
+                updateView(list_array, datatable);
+            }
+
+            var error_func = function(request,error_json, container){
+                success_func(request, []);
+                onError(request,error_json, container);
+            }
+
+            if (opts.zone_id == undefined) {
+                OpenNebula.Template.list({
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            } else {
+                OpenNebula.Template.list_in_zone({
+                    data: { zone_id: opts.zone_id },
+                    timeout: true,
+                    success: success_func,
+                    error: error_func
+                });
+            }
         },
 
         "select_callback": opts.select_callback
     };
 
     return setupResourceTableSelect(section, context_id, options);
+}
+
+// Clicks the refresh button
+function refreshTemplateTableSelect(section, context_id){
+    return refreshResourceTableSelect(section, context_id);
+}
+
+// Returns an ID, or an array of IDs for opts.multiple_choice
+function retrieveTemplateTableSelect(section, context_id){
+    return retrieveResourceTableSelect(section, context_id);
+}
+
+// Clears the current selection, and selects the given IDs
+// opts.ids must be a single ID, or an array of IDs for options.multiple_choice
+// opts.names must be an array of {name, uname}
+function selectTemplateTableSelect(section, context_id, opts){
+    return selectResourceTableSelect(section, context_id, opts);
 }
 
 function generateHostTableSelect(context_id){

@@ -123,24 +123,21 @@ var role_tab_content = '\
               '</label>\
               <input type="text" id="role_name" name="name" required/>\
     </div>\
-</div>\
-<div class="row">\
-    <div class="service_template_param service_role large-6 columns">\
-        <label for="vm_template">' + tr("VM template") +
-            '<span class="tip">'+ tr("Template associated to this role") +'</span>'+
-        '</label>\
-        <div id="vm_template">\
-        </div>\
-    </div>\
-    <div class="service_template_param service_role large-2 columns">\
+    <div class="service_template_param service_role large-2 columns end">\
         <label for="cardinality">' + tr("VMs") +
             '<span class="tip">'+ tr("Number of VMs to instantiate with this role") +'</span>'+
         '</label>\
         <input type="text" id="cardinality" name="cardinality" value="1" />\
     </div>\
-    <div class="large-2 columns">\
-    </div>\
-    <div class="large-2 columns">\
+</div>\
+<div class="row">\
+    <div class="service_template_param service_role small-12 columns">\
+        <label for="vm_template">' + tr("VM template") +
+            '<span class="tip">'+ tr("Template associated to this role") +'</span>'+
+        '</label>\
+        '+generateTemplateTableSelect("role_vm_template")+'\
+        <div id="vm_template">\
+        </div>\
     </div>\
 </div>\
 <div class="row">\
@@ -1088,7 +1085,11 @@ function setup_policy_tab_content(policy_section, html_policy_id) {
 function setup_role_tab_content(role_section, html_role_id) {
     setupTips(role_section);
 
-    insertSelectOptions('div#vm_template', role_section, "Template", null, false);
+    var unique_id = "role_vm_template";
+    setupTemplateTableSelect(role_section, unique_id);
+    refreshTemplateTableSelect(role_section, unique_id);
+
+    $("input#selected_resource_id_"+unique_id, role_section).attr("required", "")
 
     $("#role_name", role_section).change(function(){
         $("#" + html_role_id +" #role_name_text").html($(this).val());
@@ -1487,7 +1488,7 @@ function generate_json_service_template_from_form(dialog) {
         var role = {};
         role['name'] = $('input[name="name"]', this).val();
         role['cardinality'] = $('input[name="cardinality"]', this).val();
-        role['vm_template'] = $('#vm_template .resource_list_select', this).val();
+        role['vm_template'] = retrieveTemplateTableSelect(this, "role_vm_template");
         role['shutdown_action'] = $('select[name="shutdown_action_role"]', this).val();
         role['parents'] = [];
         role['vm_template_contents'] = $(".vm_template_contents", this).val();
@@ -1646,12 +1647,7 @@ function fillUpUpdateServiceTemplateDialog(response, dialog){
 
         $("#cardinality", context).val(htmlDecode(value.cardinality));
 
-        // The vm_template select is already initialized, but we need to select
-        // the template retrived from the service_template. Since the initialization
-        // is async, we can't assume the .resource_list_select exists yet.
-        // Calling the initialization again with the correct init_val should
-        // use the cache anyway
-        insertSelectOptions('div#vm_template', context, "Template", value.vm_template, false);
+        selectTemplateTableSelect(context, "role_vm_template", {ids: value.vm_template});
 
         $("select[name='shutdown_action_role']", context).val(value.shutdown_action);
         $("#min_vms", context).val(htmlDecode(value.min_vms));
