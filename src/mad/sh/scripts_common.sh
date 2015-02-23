@@ -149,6 +149,33 @@ function exec_and_log
     fi
 }
 
+# This function executes $1 and returns stdout
+# If a second parameter is present it is used as the error message when
+# the command fails
+function monitor_and_log
+{
+    EXEC_OUT=`bash -s 2>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+set -xv
+$1
+EOF`
+    EXEC_RC=$?
+
+    if [ $EXEC_RC -ne 0 ]; then
+
+        if [ -n "$2" ]; then
+            log_error "Command \"$2\" failed: $EXEC_OUT"
+        else
+            log_error "Command \"$1\" failed: $EXEC_OUT"
+        fi
+
+        exit $EXEC_RC
+    fi
+
+    echo $EXEC_OUT
+}
+
 # Executes a command, if it fails returns error message and exits. Similar to
 # exec_and_log, except that it allows multiline commands.
 # If a second parameter is present it is used as the error message when
@@ -358,7 +385,9 @@ EOF`
     fi
 }
 
-#This function executes $2 at $1 host and returns stdout
+# This function executes $2 at $1 host and returns stdout
+# If $3 is present, it is used as the error message when
+# the command fails
 function ssh_monitor_and_log
 {
     SSH_EXEC_OUT=`$SSH $1 sh -s 2>/dev/null <<EOF
@@ -369,8 +398,12 @@ EOF`
     SSH_EXEC_RC=$?
 
     if [ $SSH_EXEC_RC -ne 0 ]; then
-        log_error "Command \"$2\" failed: $SSH_EXEC_OUT"
-        error_message "Cannot monitor $1"
+
+        if [ -n "$3" ]; then
+            log_error "Command \"$3\" failed: $SSH_EXEC_OUT"
+        else
+            log_error "Command \"$2\" failed: $SSH_EXEC_OUT"
+        fi
 
         exit $SSH_EXEC_RC
     fi

@@ -44,31 +44,50 @@ unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH)
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
+unset i
+
+BASE_PATH="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 
 # ------------ Compute datastore usage -------------
 
+MONITOR_SCRIPT=$(cat <<EOF
 if [ ! -d $BASE_PATH ]; then
     mkdir -p $BASE_PATH
 fi
 
-USED_MB=`du -sLm $BASE_PATH 2>/dev/null | cut -f1`
-TOTAL_MB=`df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print $2}'`
-FREE_MB=`df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print $4}'`
+USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
+TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
+FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
 
-if [ -z "$USED_MB" -o -z "$TOTAL_MB" -o -z "$FREE_MB"]; then
-    msg="Empty monitoring data"
-    error_message "$msg: USED_MB=$USED_MB, TOTAL_MB=$TOTAL_MB, FREE_MB=$FREE_MB"
+if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
+    msg="Empty value found"
+    echo "\$msg: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
     exit 1
 fi
 
-MONITOR_DATA=$(cat <<EOF
-USED_MB=$USED_MB
-TOTAL_MB=$TOTAL_MB
-FREE_MB=$FREE_MB
+echo "USED_MB=\$USED_MB"
+echo "FREE_MB=\$FREE_MB"
+echo "TOTAL_MB=\$TOTAL_MB"
 EOF
 )
 
-echo "$MONITOR_DATA"
+if [ -n "$BRIDGE_LIST" ]; then
+    HOST=`get_destination_host`
+    MONITOR_DATA=$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)
+else
+    MONITOR_DATA=$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)
+fi
+
+MONITOR_STATUS=$?
+
+if [ "$MONITOR_STATUS" = "0" ]; then
+    echo "$MONITOR_DATA" | tr ' ' '\n'
+    exit 0
+else
+    echo "$MONITOR_DATA"
+    exit $MONITOR_STATUS
+fi

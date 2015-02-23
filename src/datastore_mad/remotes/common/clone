@@ -46,20 +46,29 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
-SRC="${XPATH_ELEMENTS[1]}"
+unset i
 
-mkdir -p "$BASE_PATH"
+BASE_PATH="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+SRC="${XPATH_ELEMENTS[i++]}"
+
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
 DST=`generate_image_path`
 
 # ------------ Copy the image to the repository -------------
 
-log "Copying local image $SRC to the image repository"
-
-exec_and_log "cp -f $SRC $DST" "Error copying $SRC to $DST"
+if [ -n "$BRIDGE_LIST" ]; then
+    log "Copying remotely local image $SRC to the image repository"
+    DST_HOST=`get_destination_host $ID`
+    ssh_exec_and_log "$DST_HOST" "mkdir -p $BASE_PATH; cp -f $SRC $DST" "Error copying $SRC to $DST in $DST_HOST"
+else
+    log "Copying local image $SRC to the image repository"
+    mkdir -p "$BASE_PATH"
+    exec_and_log "cp -f $SRC $DST" "Error copying $SRC to $DST"
+fi
 
 echo "$DST"

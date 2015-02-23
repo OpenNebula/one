@@ -50,41 +50,41 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RESTRICTED_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW)
 
-BASE_PATH="${XPATH_ELEMENTS[0]}"
-RESTRICTED_DIRS="${XPATH_ELEMENTS[1]}"
-SAFE_DIRS="${XPATH_ELEMENTS[2]}"
-SRC="${XPATH_ELEMENTS[3]}"
-MD5="${XPATH_ELEMENTS[4]}"
-SHA1="${XPATH_ELEMENTS[5]}"
-NO_DECOMPRESS="${XPATH_ELEMENTS[6]}"
-LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[7]}"
+unset i
 
-mkdir -p "$BASE_PATH"
+BASE_PATH="${XPATH_ELEMENTS[i++]}"
+RESTRICTED_DIRS="${XPATH_ELEMENTS[i++]}"
+SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+STAGING_DIR="${XPATH_ELEMENTS[i++]:-/var/tmp}"
+SRC="${XPATH_ELEMENTS[i++]}"
+MD5="${XPATH_ELEMENTS[i++]}"
+SHA1="${XPATH_ELEMENTS[i++]}"
+NO_DECOMPRESS="${XPATH_ELEMENTS[i++]}"
+LIMIT_TRANSFER_BW="${XPATH_ELEMENTS[i++]}"
+
+DST=`generate_image_path`
+IMAGE_HASH=`basename $DST`
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
-DST=`generate_image_path`
-
-DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" "$DST"`
+if [ -n "$BRIDGE_LIST" ]; then
+    DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" -`
+else
+    DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" "$DST"`
+fi
 
 COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
-# ------------ Copy the image to the repository -------------
-
-case $SRC in
-http://*|https://*)
-    log "Downloading $SRC to the image repository"
-
-    exec_and_log "$COPY_COMMAND" "Error downloading $SRC"
-    ;;
-
-*)
+if echo "$SRC" | grep -vq '^https\?://'; then
     if [ `check_restricted $SRC` -eq 1 ]; then
         log_error "Not allowed to copy images from $RESTRICTED_DIRS"
         error_message "Not allowed to copy image file $SRC"
@@ -92,9 +92,22 @@ http://*|https://*)
     fi
 
     log "Copying local image $SRC to the image repository"
+else
+    log "Downloading image $SRC to the image repository"
+fi
 
+if [ -n "$BRIDGE_LIST" ]; then
+    DST_HOST=`get_destination_host $ID`
+    TMP_DST="$STAGING_DIR/$IMAGE_HASH"
+
+    exec_and_log "eval $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=64k" \
+                 "Error dumping $SRC to $DST_HOST:$TMP_DST"
+
+    ssh_exec_and_log    "$DST_HOST" "mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
+                        "Error moving $TMP_DST to $DST in $DST_HOST"
+else
+    mkdir -p "$BASE_PATH"
     exec_and_log "$COPY_COMMAND" "Error copying $SRC to $DST"
-    ;;
-esac
+fi
 
 echo "$DST"
