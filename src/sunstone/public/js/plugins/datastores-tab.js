@@ -216,8 +216,11 @@ var create_datastore_tmpl =
               <input type="text" name="rbd_format" id="rbd_format" />\
           </div>\
           <div class="large-6 columns">\
-              <label for="staging_dir">' + tr("Staging Dir") +
-                '<span class="tip">'+tr("Default path for image operations in the OpenNebula Ceph frontend.")+'</span>'+
+              <label class="fs" for="staging_dir">' + tr("Staging Dir") +
+                '<span class="tip">'+
+                  tr("FS: Default path where images will be temporarily copied to in the host carrying out the registration operation (chosen from the bridge list). If empty, defaults to /var/tmp.") + '<br><br>' + 
+                  tr("Ceph: Default path for image operations in the OpenNebula Ceph frontend.") + 
+                '</span>'+
               '</label>\
               <input type="text" name="staging_dir" id="staging_dir" />\
           </div>\
@@ -1117,6 +1120,8 @@ function select_filesystem(){
     $('input#base_path').removeAttr('disabled');
     $('input#limit_mb').removeAttr('disabled');
     $('input#restricted_dirs').removeAttr('disabled');
+    $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
+    $('label[for="staging_dir"],input#staging_dir').parent().fadeIn();
 }
 
 function select_vmware_vmfs(){
