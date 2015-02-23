@@ -55,7 +55,21 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
         filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
         start_time  = options[:start_time] ? options[:start_time].to_i : -1
-        end_time    = options[:end_time] ? options[:end_time].to_i : -1
+
+        end_time = -1
+
+        if (!options[:end_time].nil?)
+            # Not the safest way to add a day, but since managing date/time
+            # in ruby is... not entirely convenient, this will do
+
+            t = options[:end_time]
+
+            if (t.hour == 0 && t.min == 0 && t.sec == 0)
+                t += 24*60*60
+            end
+
+            end_time = t.to_i
+        end
 
         common_opts = {
             :start_time => start_time,
