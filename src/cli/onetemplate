@@ -171,7 +171,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     instantiate_desc = <<-EOT.unindent
         Creates a new VM instance from the given Template. This VM can be
-        managed with the 'onevm' command
+        managed with the 'onevm' command.
+
+        The source Template can be modified adding or replacing attributes with
+        the optional file argument, or with the options.
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
