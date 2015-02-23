@@ -18,6 +18,7 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <regex.h>
 #include <unistd.h>
 
 #include <iostream>
@@ -443,18 +444,27 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Get and set DEPLOY_ID for imported VMs
     // -------------------------------------------------------------------------
-    
+
     user_obj_template->get("IMPORT_VM_ID", value);
     user_obj_template->erase("IMPORT_VM_ID");
 
     if (!value.empty())
     {
-        deploy_id = value;
-        obj_template->add("IMPORTED", "YES");
+        const char * one_vms = "^one-[[:digit:]]+$";
+
+        if (one_util::regex_match(one_vms, value.c_str()) == 0)
+        {
+            goto error_one_vms;
+        }
+        else
+        {
+            deploy_id = value;
+            obj_template->add("IMPORTED", "YES");
+        }
     }
 
     // ------------------------------------------------------------------------
-    
+
     parse_well_known_attributes();
 
     // ------------------------------------------------------------------------
@@ -507,6 +517,10 @@ error_cpu_cost:
 
 error_memory_cost:
     error_str = "MEMORY_COST attribute must be a positive float or integer value.";
+    goto error_common;
+
+error_one_vms:
+    error_str = "Trying to import an OpenNebula VM: 'one-*'.";
     goto error_common;
 
 error_os:
