@@ -55,8 +55,8 @@ BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 # ------------ Compute datastore usage -------------
 
 MONITOR_SCRIPT=$(cat <<EOF
-if [ ! -d \$BASE_PATH ]; then
-    mkdir -p \$BASE_PATH
+if [ ! -d $BASE_PATH ]; then
+    mkdir -p $BASE_PATH
 fi
 
 USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
