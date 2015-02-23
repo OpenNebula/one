@@ -633,7 +633,7 @@ function updateUserInfo(request,user){
     if (Config.isFeatureEnabled("showback")) {
         showbackGraphs(
             $("#user_showback","#user_info_panel"),
-            { fixed_user: info.ID });
+            { fixed_user: info.ID, fixed_group: "" });
     }
 
     accountingGraphs(

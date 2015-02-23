@@ -4851,31 +4851,22 @@ function time_UTC(time){
 
 // div is a jQuery selector
 // The following options can be set:
-//   fixed_user     fix an owner user ID
-//   fixed_group    fix an owner group ID
-//   init_group_by  "user", "group", "vm". init the group-by selector
-//   fixed_group_by "user", "group", "vm". set a fixed group-by selector
+//   fixed_user     fix an owner user ID. Use "" to fix to "any user"
+//   fixed_group    fix an owner group ID. Use "" to fix to "any group"
 function showbackGraphs(div, opt){
 
     div.html(
     '<div class="row">\
-      <div id="showback_owner_container" class="left columns">\
-        <label for="showback_owner">' +  tr("Filter") + '</label>\
-        <div class="row">\
-          <div class="large-5 columns">\
-            <select id="showback_owner" name="showback_owner">\
-              <option value="showback_owner_all">' + tr("All") + '</option>\
-              <option value="showback_owner_group">' + tr("Group") + '</option>\
-              <option value="showback_owner_user">' + tr("User") + '</option>\
-            </select>\
-          </div>\
-          <div class="large-7 columns">\
-            <div id="showback_owner_select"/>\
-          </div>\
-        </div>\
+      <div id="showback_user_container" class="left medium-4 columns">\
+        <label for="showback_user_select">' +  tr("Filter by user") + '</label>\
+        <div id="showback_user_select"/>\
       </div>\
-      <div id="showback_button_container" class="left columns">\
-        <button class="button radius success right" id="showback_submit" type="button">'+tr("Get Showback")+'</button>\
+      <div id="showback_group_container" class="left medium-4 columns">\
+        <label for="showback_group_select">' +  tr("Filter by group") + '</label>\
+        <div id="showback_group_select"/>\
+      </div>\
+      <div id="showback_button_container" class="right medium-3 columns">\
+        <button class="button radius success right large-12" id="showback_submit" type="button">'+tr("Get Showback")+'</button>\
       </div>\
     </div>\
     <div id="showback_placeholder">\
@@ -4952,29 +4943,17 @@ function showbackGraphs(div, opt){
     // VM owner: all, group, user
     //--------------------------------------------------------------------------
 
-    if (opt.fixed_user != undefined || opt.fixed_group != undefined){
-        $("#showback_owner_container", div).hide();
+    if (opt.fixed_user != undefined){
+        $("#showback_user_container", div).hide();
     } else {
-        $("select#showback_owner", div).change(function(){
-            var value = $(this).val();
-
-            switch (value){
-            case "showback_owner_all":
-                $("#showback_owner_select", div).hide();
-                break;
-
-            case "showback_owner_group":
-                $("#showback_owner_select", div).show();
-                insertSelectOptions("#showback_owner_select", div, "Group");
-                break;
-
-            case "showback_owner_user":
-                $("#showback_owner_select", div).show();
-                insertSelectOptions("#showback_owner_select", div, "User", -1, false,
+        insertSelectOptions("#showback_user_select", div, "User", -1, false,
                     '<option value="-1">'+tr("<< me >>")+'</option>');
-                break;
-            }
-        });
+    }
+
+    if (opt.fixed_group != undefined){
+        $("#showback_group_container", div).hide();
+    } else {
+        insertSelectOptions("#showback_group_select", div, "Group", "", true);
     }
 
     showback_dataTable = $("#showback_datatable",div).dataTable({
@@ -5013,29 +4992,29 @@ function showbackGraphs(div, opt){
 
     $("#showback_submit", div).on("click", function(){
         var options = {};
+
+        var userfilter;
+        var group;
+
         if (opt.fixed_user != undefined){
-            options.userfilter = opt.fixed_user;
-        } else if (opt.fixed_group != undefined){
-            options.group = opt.fixed_group;
+            userfilter = opt.fixed_user;
+
         } else {
-            var select_val = $("#showback_owner_select .resource_list_select", div).val();
+            userfilter = $("#showback_user_select .resource_list_select", div).val();
+        }
 
-            switch ($("select#showback_owner", div).val()){
-            case "showback_owner_all":
-                break;
+        if (opt.fixed_group != undefined){
+            group = opt.fixed_group;
+        } else {
+            group = $("#showback_group_select .resource_list_select", div).val();
+        }
 
-            case "showback_owner_group":
-                if(select_val != ""){
-                    options.group = select_val;
-                }
-                break;
+        if(userfilter != ""){
+            options.userfilter = userfilter;
+        }
 
-            case "showback_owner_user":
-                if(select_val != ""){
-                    options.userfilter = select_val;
-                }
-                break;
-            }
+        if(group != ""){
+            options.group = group;
         }
 
         OpenNebula.VM.showback({

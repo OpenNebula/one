@@ -632,7 +632,7 @@ function updateGroupInfo(request,group){
     if (Config.isFeatureEnabled("showback")) {
       showbackGraphs(
           $("#group_showback","#group_info_panel"),
-          {   fixed_group: info.ID });
+          {   fixed_user: "", fixed_group: info.ID });
     }
 
     $("#add_rp_button", $("#group_info_panel")).click(function(){

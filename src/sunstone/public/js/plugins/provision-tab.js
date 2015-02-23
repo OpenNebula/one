@@ -2985,7 +2985,7 @@ function show_provision_user_info_callback(request, response) {
   if (Config.isFeatureEnabled("showback")) {
     showbackGraphs(
       $("#provision_user_info_showback_div"),
-        { fixed_user: info.ID});
+        { fixed_user: info.ID, fixed_group: ""});
   }
 }
 
@@ -3015,7 +3015,7 @@ function show_provision_group_info_callback(request, response) {
   if (Config.isFeatureEnabled("showback")) {
     showbackGraphs(
       $("#provision_info_vdc_group_showback", context),
-      {   fixed_group: info.ID });
+      {   fixed_user: "", fixed_group: info.ID });
   }
 
   $("#acct_placeholder", context).hide();
@@ -5493,7 +5493,8 @@ function setup_provision_user_info(context) {
 
       showbackGraphs(
         $(".provision_vdc_info_container", context),
-          { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id")});
+          { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id"),
+            fixed_group: "" });
 
       $(".provision_vdc_info_container", context).prepend(
         '<h2 class="subheader">'+
