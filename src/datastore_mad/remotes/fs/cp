@@ -85,7 +85,7 @@ fi
 COPY_COMMAND="$UTILS_PATH/downloader.sh $DOWNLOADER_ARGS"
 
 if echo "$SRC" | grep -vq '^https\?://'; then
-    if [ `check_restricted 1` -eq 1 ]; then
+    if [ `check_restricted $SRC` -eq 1 ]; then
         log_error "Not allowed to copy images from $RESTRICTED_DIRS"
         error_message "Not allowed to copy image file $SRC"
         exit -1
