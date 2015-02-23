@@ -370,6 +370,7 @@ private
 
     # Retrive the vm information from the Azure instance
     def parse_poll(instance)
+      begin
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
                 "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
                 "#{POLL_ATTRIBUTE[:nettx]}=0 " \
@@ -385,7 +386,7 @@ private
             when "Suspended", "Stopping", 
                 VM_STATE[:paused]
             else
-                VM_STATE[:deleted]
+                VM_STATE[:unknown]
             end
         end
         info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
@@ -408,6 +409,11 @@ private
         }
 
         info
+      rescue
+        # Unkown state if exception occurs retrieving information from
+        # an instance
+        "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
+      end
     end
 
     def format_endpoints(endpoints)

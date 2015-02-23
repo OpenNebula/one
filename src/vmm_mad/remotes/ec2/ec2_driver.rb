@@ -421,42 +421,48 @@ private
 
     # Retrive the vm information from the EC2 instance
     def parse_poll(instance)
-        info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
-                "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0 "
+        begin
+            info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
+                    "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
+                    "#{POLL_ATTRIBUTE[:nettx]}=0 " \
+                    "#{POLL_ATTRIBUTE[:netrx]}=0 "
 
-        state = ""
-        if !instance.exists?
-            state = VM_STATE[:deleted]
-        else
-            state = case instance.status
-            when :pending
-                VM_STATE[:active]
-            when :running
-                VM_STATE[:active]
-            when :'shutting-down', :terminated
-                VM_STATE[:deleted]
+            state = ""
+            if !instance.exists?
+                state = VM_STATE[:deleted]
             else
-                VM_STATE[:deleted]
-            end
-        end
-        info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
-
-        EC2_POLL_ATTRS.map { |key|
-            value = instance.send(key)
-            if !value.nil? && !value.empty?
-                if value.is_a?(Array)
-                    value = value.map {|v|
-                        v.security_group_id if v.is_a?(AWS::EC2::SecurityGroup)
-                    }.join(",")
+                state = case instance.status
+                when :pending
+                    VM_STATE[:active]
+                when :running
+                    VM_STATE[:active]
+                when :'shutting-down', :terminated
+                    VM_STATE[:deleted]
+                else
+                    VM_STATE[:unknown]
                 end
-
-                info << "AWS_#{key.to_s.upcase}=#{URI::encode(value)} "
             end
-        }
+            info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
 
-        info
+            EC2_POLL_ATTRS.map { |key|
+                value = instance.send(key)
+                if !value.nil? && !value.empty?
+                    if value.is_a?(Array)
+                        value = value.map {|v|
+                            v.security_group_id if v.is_a?(AWS::EC2::SecurityGroup)
+                        }.join(",")
+                    end
+
+                    info << "AWS_#{key.to_s.upcase}=#{URI::encode(value)} "
+                end
+            }
+
+            info
+        rescue
+            # Unkown state if exception occurs retrieving information from
+            # an instance
+            "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
+        end
     end
 
     # Execute an EC2 command

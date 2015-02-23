@@ -381,6 +381,7 @@ private
 
     # Retrieve the VM information from the SoftLayer instance
     def parse_poll(vm)
+      begin
         info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
                 "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
                 "#{POLL_ATTRIBUTE[:nettx]}=0 " \
@@ -409,7 +410,7 @@ private
                             when "PAUSED"
                                 VM_STATE[:paused]
                             else
-                                VM_STATE[:deleted]
+                                VM_STATE[:unknown]
                     end
         end
         info << "#{POLL_ATTRIBUTE[:state]}=#{state} "
@@ -428,6 +429,11 @@ private
         info << "SL_CRED_USER=#{user} SL_CRED_PASSWORD=#{pwd}" if user and pwd
 
         info
+      rescue
+        # Unkown state if exception occurs retrieving information from
+        # an instance
+        "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:unknown]} "
+      end
     end
 
     # Execute a SoftLayer command
