@@ -2058,16 +2058,18 @@ function plot_graph(response, info) {
 
         var data = response.monitoring[attribute];
 
-        if(info.derivative == true && data) {
-            derivative(data);
-        }
+        if (data) {
+            if(info.derivative == true) {
+                derivative(data);
+            }
 
-        series.push({
-            stack: attribute,
-            // Turns label TEMPLATE/BLABLA into BLABLA
-            label: labels ? labels[i] : attribute[i].split('/').pop(),
-            data: data
-        });
+            series.push({
+                stack: attribute,
+                // Turns label TEMPLATE/BLABLA into BLABLA
+                label: labels ? labels[i] : attribute[i].split('/').pop(),
+                data: data
+            });
+        }
     }
 
     var humanize = info.humanize_figures ?
@@ -2107,7 +2109,9 @@ function plot_graph(response, info) {
         }
     };
 
-    $.plot(info.div_graph, series, options);
+    if (series.length > 0) {
+        $.plot(info.div_graph, series, options);
+    };
 }
 
 
@@ -8251,12 +8255,19 @@ function getInternetExplorerVersion(){
 }
 
 // Return true if the VM has a hybrid section
-function calculate_isHybrid(vm_info){
-    return vm_info.USER_TEMPLATE.HYPERVISOR &&
+function isNICGraphsSupported(vm_info){
+    return !(vm_info.USER_TEMPLATE.HYPERVISOR &&
        (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
        || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
        || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer")
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer"));
+}
+
+function isNICAttachSupported(vm_info){
+    return !(vm_info.USER_TEMPLATE.HYPERVISOR &&
+       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
+       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer"));
 }
 
 // Return the IP or several IPs of a VM

@@ -1458,12 +1458,14 @@ function updateVMInfo(request,vm){
 
     $("[href='#vm_capacity_tab']").on("click", function(){
         Sunstone.runAction("VM.monitor",vm_info.ID,
-        { monitor_resources : "CPU,MEMORY"});
+            { monitor_resources : "CPU,MEMORY"});
     })
 
     $("[href='#vm_network_tab']").on("click", function(){
-        Sunstone.runAction("VM.monitor",vm_info.ID,
-        { monitor_resources : "NET_TX,NET_RX"});
+        if (isNICGraphsSupported(vm_info)) {
+            Sunstone.runAction("VM.monitor",vm_info.ID,
+                { monitor_resources : "NET_TX,NET_RX"});
+        }
     })
 
     $("[href='#vm_log_tab']").on("click", function(){
@@ -2103,15 +2105,6 @@ function hotpluggingOps(){
 
 function printNics(vm_info){
 
-   var isHybrid = calculate_isHybrid(vm_info);
-
-   // vCenter has network capabilities
-   if (vm_info.USER_TEMPLATE.HYPERVISOR &&
-       vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter")
-   {
-     isHybrid = false;
-   }
-
    var html ='<form id="tab_network_form" vmid="'+vm_info.ID+'" >\
       <div class="row">\
       <div class="large-12 columns">\
@@ -2130,7 +2123,7 @@ function printNics(vm_info){
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       // If VM is not RUNNING, then we forget about the attach nic form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && !isHybrid){
+      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && isNICAttachSupported(vm_info)){
         html += '\
            <button id="attach_nic" class="button tiny success right radius" >'+tr("Attach nic")+'</button>'
       } else {
@@ -2253,9 +2246,7 @@ function printNics(vm_info){
     }
 
   // Do not show statistics for not hypervisors that do not gather net data
-  if (!isHybrid && vm_info.USER_TEMPLATE.HYPERVISOR &&
-      vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
-  {
+  if (isNICGraphsSupported(vm_info)) {
     html += '\
         <div class="row">\
             <div class="large-6 columns">\
