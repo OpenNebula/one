@@ -380,6 +380,7 @@ class VIClient
                     default_pc = n.config.defaultPortConfig
 
                     has_vlan = false
+                    vlan_str = ""
 
                     if default_pc.methods.include? :vlan
                        has_vlan = default_pc.vlan.methods.include? :vlanId
@@ -387,7 +388,6 @@ class VIClient
 
                     if has_vlan
                         vlan     = n.config.defaultPortConfig.vlan.vlanId
-                        vlan_str = ""
 
                         if vlan != 0
                             if vlan.is_a? Array
