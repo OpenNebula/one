@@ -75,6 +75,14 @@ public:
      */
     void free_str(char * str);
 
+    /**
+     * Returns true if the syntax INSERT VALUES (data), (data), (data)
+     * is supported
+     *
+     * @return true if supported
+     */
+    bool multiple_values_support();
+
 private:
 
     /**
@@ -148,6 +156,8 @@ public:
     char * escape_str(const string& str){return 0;};
 
     void free_str(char * str){};
+
+    bool multiple_values_support(){return true};
 };
 #endif
 

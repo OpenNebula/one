@@ -55,6 +55,14 @@ public:
      *    @param str pointer to the str
      */
     virtual void free_str(char * str) = 0;
+
+    /**
+     * Returns true if the syntax INSERT VALUES (data), (data), (data)
+     * is supported
+     *
+     * @return true if supported
+     */
+    virtual bool multiple_values_support() = 0;
 };
 
 #endif /*SQL_DB_H_*/

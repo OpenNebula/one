@@ -66,6 +66,16 @@ SqliteDB::~SqliteDB()
 
 /* -------------------------------------------------------------------------- */
 
+bool SqliteDB::multiple_values_support()
+{
+    // Versions > 3.7.11 support multiple value inserts, but tests
+    // have ended in segfault. A transaction seems to perform better
+    //return SQLITE_VERSION_NUMBER >= 3007011;
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
     int          rc;

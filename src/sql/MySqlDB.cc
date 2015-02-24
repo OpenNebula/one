@@ -132,6 +132,13 @@ MySqlDB::~MySqlDB()
 
 /* -------------------------------------------------------------------------- */
 
+bool MySqlDB::multiple_values_support()
+{
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+
 int MySqlDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
 {
     int          rc;

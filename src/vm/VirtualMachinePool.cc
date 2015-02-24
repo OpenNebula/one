@@ -654,6 +654,9 @@ int VirtualMachinePool::calculate_showback(
     ostringstream   oss;
     ostringstream   body;
     char *          sql_body;
+    string          sql_cmd_start;
+    string          sql_cmd_separator;
+    string          sql_cmd_end;
 
     tm      tmp_tm;
     int     vid;
@@ -859,9 +862,38 @@ int VirtualMachinePool::calculate_showback(
 
     // Write to DB
 
+    if (db->multiple_values_support())
+    {
+        oss.str("");
+
+        oss << "REPLACE INTO " << VirtualMachine::showback_table
+            << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
+
+        sql_cmd_start = oss.str();
+
+        sql_cmd_separator = ",";
+
+        sql_cmd_end = "";
+    }
+    else
+    {
+        oss.str("");
+        oss << "BEGIN TRANSACTION; "
+            << "REPLACE INTO " << VirtualMachine::showback_table
+            << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
+
+        sql_cmd_start = oss.str();
+
+        oss.str("");
+        oss << "; REPLACE INTO " << VirtualMachine::showback_table
+            << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
+
+        sql_cmd_separator = oss.str();
+
+        sql_cmd_end = "; COMMIT";
+    }
+
     oss.str("");
-    oss << "REPLACE INTO " << VirtualMachine::showback_table
-        << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
 
     int n_entries = 0;
 
@@ -921,12 +953,11 @@ int VirtualMachinePool::calculate_showback(
             if (n_entries == 0)
             {
                 oss.str("");
-                oss << "REPLACE INTO " << VirtualMachine::showback_table
-                    << " ("<< VirtualMachine::showback_db_names <<") VALUES ";
+                oss << sql_cmd_start;
             }
             else
             {
-                oss << ",";
+                oss << sql_cmd_separator;
             }
 
             oss << " (" <<  vm_it->first            << ","
@@ -941,6 +972,8 @@ int VirtualMachinePool::calculate_showback(
             // To avoid the oss to grow indefinitely, flush contents
             if (n_entries == 1000)
             {
+                oss << sql_cmd_end;
+
                 rc = db->exec(oss);
 
                 if (rc != 0)
@@ -970,6 +1003,8 @@ int VirtualMachinePool::calculate_showback(
 
     if (n_entries > 0)
     {
+        oss << sql_cmd_end;
+
         rc = db->exec(oss);
 
         if (rc != 0)

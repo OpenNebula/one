@@ -73,6 +73,14 @@ public:
      */
     void free_str(char * str);
 
+    /**
+     * Returns true if the syntax INSERT VALUES (data), (data), (data)
+     * is supported
+     *
+     * @return true if supported
+     */
+    bool multiple_values_support();
+
 private:
     /**
      *  Fine-grain mutex for DB access
