@@ -2149,10 +2149,7 @@ function printNics(vm_info){
         nics = [vm_info.TEMPLATE.NIC]
 
     if (!nics.length){
-        html += '\
-          <tr id="no_nics_tr">\
-            <td colspan="7">' + tr("No nics to show") + '</td>\
-          </tr>';
+        $("#vms-tab").data("nic_dt_data", []);
     }
     else {
         var nic_dt_data = [];
