@@ -210,12 +210,6 @@ var create_datastore_tmpl =
               <input type="text" name="ceph_secret" id="ceph_secret" />\
           </div>\
           <div class="large-6 columns">\
-              <label for="rbd_format">' + tr("RBD Format") +
-                '<span class="tip">'+tr("By default RBD Format 2 will be used. If RBD_FORMAT=2 is specified then when instantiating non-persistent images the Ceph driver will perform rbd snap instead of rbd copy.")+'</span>'+
-              '</label>\
-              <input type="text" name="rbd_format" id="rbd_format" />\
-          </div>\
-          <div class="large-6 columns">\
               <label class="fs" for="staging_dir">' + tr("Staging Dir") +
                 '<span class="tip">'+
                   tr("FS: Default path where images will be temporarily copied to in the host carrying out the registration operation (chosen from the bridge list). If empty, defaults to /var/tmp.") + '<br><br>' + 
@@ -223,6 +217,12 @@ var create_datastore_tmpl =
                 '</span>'+
               '</label>\
               <input type="text" name="staging_dir" id="staging_dir" />\
+          </div>\
+          <div class="large-6 columns">\
+              <label for="rbd_format">' + tr("RBD Format") +
+                '<span class="tip">'+tr("By default RBD Format 2 will be used. If RBD_FORMAT=2 is specified then when instantiating non-persistent images the Ceph driver will perform rbd snap instead of rbd copy.")+'</span>'+
+              '</label>\
+              <input type="text" name="rbd_format" id="rbd_format" />\
           </div>\
         </div>\
         <div class="reveal-footer">\
