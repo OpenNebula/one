@@ -964,7 +964,7 @@ var vms_tab = {
             <th>'+tr("Host")+'</th>\
             <th>'+tr("IPs")+'</th>\
             <th>'+tr("Start Time")+'</th>\
-            <th>'+tr("")+'</th>\
+            <th></th>\
             <th>'+tr("Hidden Template")+'</th>\
           </tr>\
         </thead>\
