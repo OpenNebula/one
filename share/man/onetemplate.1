@@ -107,7 +107,20 @@ clone \fItemplateid\fR \fIname\fR Creates a new Template from an existing one
 delete \fIrange|templateid_list\fR Deletes the given Image
 .
 .IP "\(bu" 4
-instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the given Template\. This VM can be managed with the \'onevm\' command valid options: name, multiple, userdata, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, spice, spice_password, spice_listen, ssh, net_context, context, boot, files_ds, init
+instantiate \fItemplateid\fR [\fIfile\fR] Creates a new VM instance from the given Template\. This VM can be managed with the \'onevm\' command\.
+.
+.IP "" 4
+.
+.nf
+
+The source Template can be modified adding or replacing attributes with
+the optional file argument, or with the options\.
+valid options: name, multiple, userdata, hold, cpu, vcpu, arch, memory, disk, nic, raw, vnc, vnc_password, vnc_listen, spice, spice_password, spice_listen, ssh, net_context, context, boot, files_ds, init
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "\(bu" 4
 chgrp \fIrange|templateid_list\fR \fIgroupid\fR Changes the Template group
@@ -164,7 +177,7 @@ filterflag a, all all the known VMTEMPLATEs m, mine the VMTEMPLATE belonging to 
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.10\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.11\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

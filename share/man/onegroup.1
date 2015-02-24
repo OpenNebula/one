@@ -19,8 +19,6 @@
  \-d, \-\-admin_driver driver Auth driver for the admin user of the group
  \-r, \-\-resources res_str   Which resources can be created by group users
                            (VM+NET+IMAGE+TEMPLATE by default)
- \-o, \-\-admin_resources res_str Which resources can be created by the admin
-                           user (VM+NET+IMAGE+TEMPLATE by default)
  \-a, \-\-append              Append new attributes to the current template
  \-l, \-\-list x,y,z          Selects columns to display with list command
  \-d, \-\-delay x             Sets the delay in seconds for top command
@@ -42,7 +40,7 @@
 .SH "COMMANDS"
 .
 .IP "\(bu" 4
-create [\fIgroup_name\fR] Creates a new Group\. A group name can be passed as the only argument, or a file containing a group template or via command line arguments
+create [\fIgroup_name\fR] Creates a new Group\. A group name can be passed as the only argument, or via command line arguments
 .
 .IP "" 4
 .
@@ -50,15 +48,13 @@ create [\fIgroup_name\fR] Creates a new Group\. A group name can be passed as th
 
 Examples:
 
-  \- create a group with admin user and allow group users
-    to only create new templates and VMs, and group admin to manage
-    templates, vms, images and virtual networks
+  \- create a group with an admin user and allow group users
+    to only create new templates and VMs
 
     onegroup create \-\-name groupA
                     \-\-admin_user admin_userA \-\-admin_password somestr
                     \-\-resources TEMPLATE+VM
-                    \-\-admin_resources TEMPLATE+VM+IMAGE+NET
-valid options: name, admin_user, admin_password, admin_driver, resources, admin_resources
+valid options: name, admin_user, admin_password, admin_driver, resources
 .
 .fi
 .
@@ -76,6 +72,12 @@ list Lists Groups in the pool valid options: list, delay, filter, csv, xml, nume
 .
 .IP "\(bu" 4
 show [\fIgroupid\fR] Shows information for the given Group valid options: xml
+.
+.IP "\(bu" 4
+addadmin \fIrange|groupid_list\fR \fIuserid\fR Adds a User to the Group administrators set
+.
+.IP "\(bu" 4
+deladmin \fIrange|groupid_list\fR \fIuserid\fR Removes a User from the Group administrators set
 .
 .IP "\(bu" 4
 quota \fIgroupid\fR [\fIfile\fR] Set the quota limits for the group\. If a path is not provided the editor will be launched to modify the current quotas\.
@@ -105,10 +107,13 @@ groupid OpenNebula GROUP name or id
 .IP "\(bu" 4
 groupid_list Comma\-separated list of OpenNebula GROUP names or ids
 .
+.IP "\(bu" 4
+userid OpenNebula USER name or id
+.
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.10\.0 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.11\.80 Copyright 2002\-2014, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
