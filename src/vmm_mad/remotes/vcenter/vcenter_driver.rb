@@ -372,17 +372,29 @@ class VIClient
                                     "BRIDGE = \"#{n[:name]}\"\n" \
                                     "VCENTER_TYPE = \"Distributed Port Group\""
 
-                    vlan     = n.config.defaultPortConfig.vlan.vlanId
-                    vlan_str = ""
 
-                    if vlan != 0
-                        if vlan.is_a? Array
-                            vlan.each{|v|
-                                vlan_str += v.start.to_s + ".." + v.end.to_s + ","
-                            }
-                            vlan_str.chop!
-                        else
-                            vlan_str = vlan.to_s
+                    default_pc = n.config.defaultPortConfig
+
+                    has_vlan = false
+
+                    if default_pc.methods.include? :vlan
+                       has_vlan = default_pc.vlan.methods.include? :vlanId
+                    end
+
+                    if has_vlan
+                        vlan     = n.config.defaultPortConfig.vlan.vlanId
+                        vlan_str = ""
+
+                        if vlan != 0
+                            if vlan.is_a? Array
+                                vlan.each{|v|
+                                    vlan_str += v.start.to_s + ".." +
+                                                v.end.to_s + ","
+                                }
+                                vlan_str.chop!
+                            else
+                                vlan_str = vlan.to_s
+                            end
                         end
                     end
 
