@@ -157,7 +157,7 @@ public:
 
     void free_str(char * str){};
 
-    bool multiple_values_support(){return true};
+    bool multiple_values_support(){return true;};
 };
 #endif
 
