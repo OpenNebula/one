@@ -75,14 +75,17 @@ EOT
                     if (!elem.nil?)
                         elem.remove
 
+                        newtext = (elem.text.split(",").map { |s|
+                            s.strip.
+                                gsub(/^vcenter$/, "admin_vcenter").
+                                gsub(/^vdcadmin$/, "groupadmin")
+                        }).join(",")
+
                         # The cleaner doc.create_cdata(txt) is not supported in
                         # old versions of nokogiri
-
                         doc.at_xpath("/GROUP/TEMPLATE").add_child(
                             doc.create_element(elem_name)).
-                            add_child(Nokogiri::XML::CDATA.new(
-                                doc,
-                                elem.text.gsub("vdcadmin", "groupadmin")))
+                            add_child(Nokogiri::XML::CDATA.new(doc, newtext))
                     end
                 end
 
@@ -196,11 +199,15 @@ EOT
                 if (!elem.nil?)
                     elem.remove
 
+                    newtext = (elem.text.split(",").map { |s|
+                        s.strip.
+                            gsub(/^vcenter$/, "admin_vcenter").
+                            gsub(/^vdcadmin$/, "groupadmin")
+                    }).join(",")
+
                     doc.at_xpath("/USER/TEMPLATE").add_child(
                         doc.create_element("DEFAULT_VIEW")).
-                        add_child(Nokogiri::XML::CDATA.new(
-                            doc,
-                            elem.text.gsub("vdcadmin", "groupadmin")))
+                        add_child(Nokogiri::XML::CDATA.new(doc,newtext))
                 end
 
                 @db[:user_pool].insert(
