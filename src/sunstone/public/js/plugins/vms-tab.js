@@ -2143,41 +2143,10 @@ function printNics(vm_info){
 
     var nics = []
 
-    if (isHybrid)
-    {
-        nic         = {};
-        nic.NIC_ID  = 0;
-        nic.ATTACH  = "NO";
-        nic.NETWORK = "-";
-        nic.MAC     = "-";
-
-        switch(vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase())
-        {
-            case "ec2":
-                nic.IP = vm_info.TEMPLATE.IP_ADDRESS?vm_info.TEMPLATE.IP_ADDRESS:"--";
-                break;
-            case "azure":
-                nic.IP = vm_info.TEMPLATE.IPADDRESS?vm_info.TEMPLATE.IPADDRESS:"--";
-                break;
-            case "softlayer":
-                nic.IP = vm_info.TEMPLATE.PRIMARYIPADDRESS?vm_info.TEMPLATE.PRIMARYIPADDRESS:"--";
-                break;
-            default:
-                nic.IP = "--";
-        }
-
-        nics = [nic];
-
-    }
-    else
-    {
-        if ($.isArray(vm_info.TEMPLATE.NIC))
-            nics = vm_info.TEMPLATE.NIC
-        else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
-            nics = [vm_info.TEMPLATE.NIC]
-    }
-
-
+    if ($.isArray(vm_info.TEMPLATE.NIC))
+        nics = vm_info.TEMPLATE.NIC
+    else if (!$.isEmptyObject(vm_info.TEMPLATE.NIC))
+        nics = [vm_info.TEMPLATE.NIC]
 
     if (!nics.length){
         html += '\

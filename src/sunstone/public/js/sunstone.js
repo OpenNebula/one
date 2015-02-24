@@ -8273,52 +8273,51 @@ function isNICAttachSupported(vm_info){
 // Return the IP or several IPs of a VM
 function ip_str(vm, divider){
     var divider = divider || "<br>"
-    var isHybrid = calculate_isHybrid(vm);
     var nic = vm.TEMPLATE.NIC;
+    var ips = [];
 
-    if (nic == undefined) {
-        if (isHybrid) {
-            switch(vm.USER_TEMPLATE.HYPERVISOR.toLowerCase()) {
-                case "vcenter":
-                    ip = vm.TEMPLATE.GUEST_IP?vm.TEMPLATE.GUEST_IP:"--";
-                    break;
-                case "ec2":
-                    ip = vm.TEMPLATE.IP_ADDRESS?vm.TEMPLATE.IP_ADDRESS:"--";
-                    break;
-                case "azure":
-                    ip = vm.TEMPLATE.IPADDRESS?vm.TEMPLATE.IPADDRESS:"--";
-                    break;
-                case "softlayer":
-                    ip = vm.TEMPLATE.PRIMARYIPADDRESS?vm.TEMPLATE.PRIMARYIPADDRESS:"--";
-                    break;
-                default:
-                    ip = "--";
-            }
-        } else {
-            return '--';
-        }
-    } else {
+    if (nic != undefined) {
         if (!$.isArray(nic)){
             nic = [nic];
         }
 
-        ip = '';
         $.each(nic, function(index,value){
             if (value.IP){
-                ip += value.IP+divider;
+                ips.push(value.IP);
             }
 
             if (value.IP6_GLOBAL){
-                ip += value.IP6_GLOBAL+divider;
+                ips.push(value.IP6_GLOBAL);
             }
 
             if (value.IP6_ULA){
-                ip += value.IP6_ULA+divider;
+                ips.push(value.IP6_ULA);
             }
         });
     }
 
-    return ip;
+    if (vm.TEMPLATE.GUEST_IP && ($.inArray(vm.TEMPLATE.GUEST_IP, ips) == -1)) {
+        ips.push(vm.TEMPLATE.GUEST_IP);
+    }
+
+    if (vm.TEMPLATE.AWS_IP_ADDRESS) {
+        ips.push(vm.TEMPLATE.AWS_IP_ADDRESS);
+    }
+
+    if (vm.TEMPLATE.AZ_IPADDRESS) {
+        ips.push(vm.TEMPLATE.AZ_IPADDRESS);
+    }
+
+    if (vm.TEMPLATE.SL_PRIMARYIPADDRESS) {
+        ips.push(vm.TEMPLATE.SL_PRIMARYIPADDRESS);
+    }
+
+
+    if (ips.length > 0) {
+        return ips.join(divider);
+    } else {
+        return '--';
+    }
 };
 
 // returns true if the vnc button should be enabled
