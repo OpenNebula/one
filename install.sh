@@ -117,6 +117,7 @@ if [ -z "$ROOT" ] ; then
     SHARE_LOCATION="/usr/share/one"
     MAN_LOCATION="/usr/share/man/man1"
     VM_LOCATION="/var/lib/one/vms"
+    DOCS_LOCATION="/usr/share/docs/one"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -147,7 +148,7 @@ if [ -z "$ROOT" ] ; then
         CHOWN_DIRS=""
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
-                   $INCLUDE_LOCATION $SHARE_LOCATION \
+                   $INCLUDE_LOCATION $SHARE_LOCATION $DOCS_LOCATION \
                    $LOG_LOCATION $RUN_LOCATION $LOCK_LOCATION \
                    $SYSTEM_DS_LOCATION $DEFAULT_DS_LOCATION $MAN_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
@@ -172,6 +173,7 @@ else
     SHARE_LOCATION="$ROOT/share"
     MAN_LOCATION="$ROOT/share/man/man1"
     VM_LOCATION="$VAR_LOCATION/vms"
+    DOCS_LOCATION="$ROOT/share/docs"
 
     if [ "$CLIENT" = "yes" ]; then
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION"
@@ -195,7 +197,7 @@ else
     else
         MAKE_DIRS="$BIN_LOCATION $LIB_LOCATION $ETC_LOCATION $VAR_LOCATION \
                    $INCLUDE_LOCATION $SHARE_LOCATION $SYSTEM_DS_LOCATION \
-                   $DEFAULT_DS_LOCATION $MAN_LOCATION \
+                   $DEFAULT_DS_LOCATION $MAN_LOCATION $DOCS_LOCATION \
                    $VM_LOCATION $ONEGATE_LOCATION $ONEFLOW_LOCATION"
 
         DELETE_DIRS="$MAKE_DIRS"
@@ -469,6 +471,7 @@ INSTALL_FILES=(
     MARKET_LIB_FILES:$LIB_LOCATION/ruby/cloud/marketplace
     MARKET_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
+    DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
     ONE_CLI_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     RBVMOMI_VENDOR_RUBY_FILES:$LIB_LOCATION/ruby/vendors/rbvmomi
@@ -1921,6 +1924,12 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/econe-stop-instances.1.gz \
         share/man/econe-terminate-instances.1.gz \
         share/man/econe-upload.1.gz"
+
+#-----------------------------------------------------------------------------
+# Docs Files
+#-----------------------------------------------------------------------------
+
+DOCS_FILES="LICENSE NOTICE README.md"
 
 #-----------------------------------------------------------------------------
 # Ruby VENDOR files
