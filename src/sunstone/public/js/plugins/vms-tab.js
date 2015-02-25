@@ -2141,6 +2141,31 @@ function printNics(vm_info){
         </div>\
       </div>';
 
+    var externalNetworkAttrs = retrieveExternalNetworkAttrs(vm_info);
+    if (!$.isEmptyObject(externalNetworkAttrs)) {
+        html += '<div class="row">'+
+          '<div class="large-12 columns">' +
+           '<table class="dataTable extended_table">' +
+              '<thead>'+
+                '<tr>'+
+                   '<th colspan=2>'+ tr("Network Monitoring Attributes") + '</th>'+
+                '</tr>'+
+              '</thead>'+
+              '<tbody>';
+
+        $.each(externalNetworkAttrs, function(key, value){
+            html += '<tr>'+
+               '<td>'+ key + '</td>'+
+               '<td>'+ value + '</td>'+
+              '</tr>';
+        });
+
+        html += '</tbody>' +
+              '</table>'+
+            '</div>'+
+          '</div>';
+    }
+
     var nics = []
 
     if ($.isArray(vm_info.TEMPLATE.NIC))

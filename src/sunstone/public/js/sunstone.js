@@ -8254,20 +8254,84 @@ function getInternetExplorerVersion(){
     return rv;
 }
 
+function retrieveLastHistoryRecord(vm_info) {
+    if (vm_info.HISTORY_RECORDS && vm_info.HISTORY_RECORDS.HISTORY) {
+        var history = vm_info.HISTORY_RECORDS.HISTORY;
+        if (history.constructor == Array){
+            return history[history.length-1];
+        } else {
+            return history;
+        };
+    } else {
+        return null;
+    }
+}
+
 // Return true if the VM has a hybrid section
 function isNICGraphsSupported(vm_info){
-    return !(vm_info.USER_TEMPLATE.HYPERVISOR &&
-       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "vcenter"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer"));
+    var history = retrieveLastHistoryRecord(vm_info)
+    if (history) {
+        return $.inArray(history.VMMMAD, ['vcenter', 'ec2', 'az', 'sl']) == -1;
+    } else {
+        return false;
+    }
 }
 
 function isNICAttachSupported(vm_info){
-    return !(vm_info.USER_TEMPLATE.HYPERVISOR &&
-       (vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "ec2"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "azure"
-       || vm_info.USER_TEMPLATE.HYPERVISOR.toLowerCase() == "softlayer"));
+    var history = retrieveLastHistoryRecord(vm_info)
+    if (history) {
+        return $.inArray(history.VMMMAD, ['ec2', 'az', 'sl']) == -1;
+    } else {
+        return false;
+    }
+}
+
+var externalIPsAttrs = [
+        'GUEST_IP',
+        'AWS_IP_ADDRESS',
+        'AZ_IPADDRESS',
+        'SL_PRIMARYIPADDRESS'
+    ]
+
+var externalNetworkAttrs = [
+        'GUEST_IP',
+        'AWS_IP_ADDRESS',
+        'AWS_DNS_NAME',
+        'AWS_PRIVATE_IP_ADDRESS',
+        'AWS_PRIVATE_DNS_NAME',
+        'AWS_SECURITY_GROUPS',
+        'AZ_IPADDRESS',
+        'SL_PRIMARYIPADDRESS'
+    ]
+
+function retrieveExternalIPs(vm_info) {
+    var template = vm_info.TEMPLATE;
+    var ips = {};
+    var externalIP;
+
+    $.each(externalIPsAttrs, function(index, IPAttr){
+        externalIP = template[IPAttr];
+        if (externalIP) {
+            ips[IPAttr] = externalIP;
+        }
+    });
+
+    return ips;
+}
+
+function retrieveExternalNetworkAttrs(vm_info) {
+    var template = vm_info.TEMPLATE;
+    var ips = {};
+    var externalAttr;
+
+    $.each(externalNetworkAttrs, function(index, attr){
+        externalAttr = template[attr];
+        if (externalAttr) {
+            ips[attr] = externalAttr;
+        }
+    });
+
+    return ips;
 }
 
 // Return the IP or several IPs of a VM
@@ -8296,22 +8360,14 @@ function ip_str(vm, divider){
         });
     }
 
-    if (vm.TEMPLATE.GUEST_IP && ($.inArray(vm.TEMPLATE.GUEST_IP, ips) == -1)) {
-        ips.push(vm.TEMPLATE.GUEST_IP);
-    }
-
-    if (vm.TEMPLATE.AWS_IP_ADDRESS) {
-        ips.push(vm.TEMPLATE.AWS_IP_ADDRESS);
-    }
-
-    if (vm.TEMPLATE.AZ_IPADDRESS) {
-        ips.push(vm.TEMPLATE.AZ_IPADDRESS);
-    }
-
-    if (vm.TEMPLATE.SL_PRIMARYIPADDRESS) {
-        ips.push(vm.TEMPLATE.SL_PRIMARYIPADDRESS);
-    }
-
+    var template = vm.TEMPLATE;
+    var externalIP;
+    $.each(externalIPsAttrs, function(index, IPAttr){
+        externalIP = template[IPAttr];
+        if (externalIP && ($.inArray(externalIP, ips) == -1)) {
+            ips.push(externalIP);
+        }
+    })
 
     if (ips.length > 0) {
         return ips.join(divider);
