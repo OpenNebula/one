@@ -223,6 +223,16 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 next if host['CLUSTER_ID'].to_i != cluster_id
             end
 
+            vm_mad = host['VM_MAD'].downcase
+            remote_remotes = host['TEMPLATE/REMOTE_REMOTES']
+
+            # Skip this host from remote syncing unless:
+            # - the host is type "KVM"
+            # - the host is type "XEN"
+            # - the host has REMOTE_REMOTES defined in the template (useful
+            #   for custom defined VMM types)
+            next unless remote_remotes || vm_mad == "kvm" || vm_mad == "xen"
+
             host_version=host['TEMPLATE/VERSION']
 
             begin
