@@ -81,8 +81,6 @@ end
 
 set :cloud_auth, $cloud_auth
 
-$flow_client = Service::Client.new(:user_agent => USER_AGENT)
-
 helpers do
     def authenticate(env, params)
         begin
