@@ -144,6 +144,8 @@
                 BOOT_UNDEPLOY       = 32
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
+              <xs:element name="PREV_STATE" type="xs:integer"/>
+              <xs:element name="PREV_LCM_STATE" type="xs:integer"/>
               <xs:element name="RESCHED" type="xs:integer"/>
               <xs:element name="STIME" type="xs:integer"/>
               <xs:element name="ETIME" type="xs:integer"/>

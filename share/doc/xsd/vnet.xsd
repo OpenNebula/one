@@ -49,6 +49,12 @@
                     <xs:element name="TYPE" type="xs:string"/>
                     <xs:element name="ULA_PREFIX" type="xs:string" minOccurs="0"/>
                     <xs:element name="VLAN" type="xs:string"  minOccurs="0"/>
+                    <xs:element name="MAC_END" type="xs:string" minOccurs="0"/>
+                    <xs:element name="IP_END" type="xs:string" minOccurs="0"/>
+                    <xs:element name="IP6_ULA" type="xs:string" minOccurs="0"/>
+                    <xs:element name="IP6_ULA_END" type="xs:string" minOccurs="0"/>
+                    <xs:element name="IP6_GLOBAL" type="xs:string" minOccurs="0"/>
+                    <xs:element name="IP6_GLOBAL_END" type="xs:string" minOccurs="0"/>
                     <xs:element name="USED_LEASES" type="xs:string"/>
                     <xs:element name="LEASES" minOccurs="0" maxOccurs="1">
                       <xs:complexType>
