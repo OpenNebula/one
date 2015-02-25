@@ -24,9 +24,11 @@ JUNIT_JAR="/usr/share/java/junit4.jar"
 if [ -z $ONE_LOCATION ]; then
     DB_LOCATION="/var/lib/one/one.db"
     LOG_LOCATION="/var/log/one"
+    AUTH_LOCATION="/var/lib/one/.one"
 else
     DB_LOCATION="$ONE_LOCATION/var/one.db"
     LOG_LOCATION="$ONE_LOCATION/var"
+    AUTH_LOCATION="$ONE_LOCATION/var/.one"
 fi
 
 if [ -f $DB_LOCATION ]; then
@@ -37,6 +39,8 @@ fi
 echo "========================================================================="
 echo "Doing $1"
 echo "========================================================================="
+
+rm -rf $AUTH_LOCATION
 
 PID=$$
 

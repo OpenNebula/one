@@ -70,4 +70,7 @@ let RC=RC+$?
 ./test.sh VdcTest
 let RC=RC+$?
 
+./test.sh SecurityGroupTest
+let RC=RC+$?
+
 exit $RC
