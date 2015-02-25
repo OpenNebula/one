@@ -3960,7 +3960,7 @@ function fromJSONtoHTMLRow(field,value,resource_type,resource_id, vectorial_key,
         if (vectorial_key)
         {
             str += '<tr>\
-                     <td class="key_td key_vectorial_td" style="text-align:center">'+tr(field)+'</td>\
+                     <td class="key_td key_vectorial_td">&emsp;&emsp;'+tr(field)+'</td>\
                      <td class="value_td value_vectorial_td value_td_input_'+field+ocurrence_str+' vectorial_key_'+vectorial_key+'" id="value_td_input_'+field+'">'+value+'</td>\
                      <td class="text-right">\
                        <span id="div_edit_vectorial">\
