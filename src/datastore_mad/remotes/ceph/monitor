@@ -82,16 +82,12 @@ to_mb() {
     echo "\$value"
 }
 
-REPSIZE=\$($CEPH osd pool get "$POOL_NAME" size | cut -d':' -f2)
 MAXAVAIL=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$5}')
 USED=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$3}')
-TOTAL=\$($RADOS df | grep 'total space' | awk '{print \$3}')
 
 USED_MB=\$(to_mb \$USED)
 FREE_MB=\$(to_mb \$MAX_AVAIL)
-TOTAL_MB=\$(expr \$TOTAL / 1024 / \$REPSIZE)
-
-if [ \$FREE_MB -eq 0 ] ; then FREE_MB=\$(expr \$TOTAL_MB - \$USED_MB) ; fi
+TOTAL_MB=\$(expr \$USED_MB + \$FREE_MB)
 
 echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
