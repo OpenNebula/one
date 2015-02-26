@@ -103,7 +103,6 @@ public:
     };
 
     /**
-<<<<<<< HEAD
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
      *  in the import_table.
      *    @param deploy_id to search the id for    
@@ -111,7 +110,8 @@ public:
      *  
      */
     int get_vmid(const string& deploy_id);
-=======
+
+    /**
      *  Updates a VM in the data base. The VM SHOULD be locked. It also updates
      *  the previous state after executing the hooks.
      *    @param objsql a pointer to the VM
@@ -127,7 +127,6 @@ public:
 
         return objsql->update(db); 
     };
->>>>>>> c2e6528... Bug #3620: Move previous state managment to VM class for hook management
 
     /**
      *  Function to get the IDs of running VMs
