@@ -435,29 +435,8 @@ bool VirtualMachineXML::test_image_datastore_capacity(
     {
         ds = img_dspool->get(ds_usage_it->first);
 
-        if (ds == 0) //Should never reach here
+        if (ds == 0 || !ds->test_capacity(ds_usage_it->second))
         {
-            ostringstream oss;
-
-            oss << "Image Datastore " << ds_usage_it->first << " not found.";
-
-            NebulaLog::log("SCHED",Log::INFO,oss);
-
-            return false;
-        }
-
-        if (!ds->test_capacity(ds_usage_it->second))
-        {
-            ostringstream oss;
-
-            oss << "VM " << oid
-                << ": Image Datastore " << ds_usage_it->first
-                << " does not have enough free storage.";
-
-            NebulaLog::log("SCHED",Log::INFO,oss);
-
-            log(oss.str());
-
             return false;
         }
     }
