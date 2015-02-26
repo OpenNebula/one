@@ -36,6 +36,43 @@
 
 using namespace std;
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static double profile(bool start, const string& message="")
+{
+    static struct timespec estart, eend;
+    double t;
+
+    if (start)
+    {
+        clock_gettime(CLOCK_MONOTONIC, &estart);
+
+        if (!message.empty())
+        {
+            NebulaLog::log("SCHED", Log::INFO, message);
+        }
+
+        return 0;
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &eend);
+ 
+    t = (eend.tv_sec + (eend.tv_nsec * pow(10,-9))) - 
+        (estart.tv_sec+(estart.tv_nsec*pow(10,-9)));
+
+    if (!message.empty())
+    {
+        ostringstream oss;
+
+        oss << message << " Total time: " << t << "s";
+        NebulaLog::log("SCHED", Log::INFO, oss);
+    }
+
+    return t;    
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -635,6 +672,8 @@ static bool match_system_ds(VirtualMachineXML* vm, long long vdisk,
     return true;
 }
 
+/* -------------------------------------------------------------------------- */
+
 static void log_match(int vid, const string& msg)
 {
     ostringstream oss;
@@ -678,6 +717,11 @@ void Scheduler::match_schedule()
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
 
+    double total_match_time = 0;
+    double total_rank_time = 0;
+
+    time_t stime = time(0);
+
     for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
@@ -713,6 +757,8 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         // Match hosts for this VM.
         // ---------------------------------------------------------------------
+        profile(true);
+
         for (h_it=hosts.begin(); h_it != hosts.end(); h_it++)
         {
             host = static_cast<HostXML *>(h_it->second);
@@ -730,6 +776,8 @@ void Scheduler::match_schedule()
                 break;
             }
         }
+
+        total_match_time += profile(false);
 
         // ---------------------------------------------------------------------
         // Log scheduling errors to VM user if any
@@ -772,6 +820,7 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         // Schedule matched hosts
         // ---------------------------------------------------------------------
+        profile(true);
 
         for (it=host_policies.begin() ; it != host_policies.end() ; it++)
         {
@@ -780,6 +829,8 @@ void Scheduler::match_schedule()
 
         vm->sort_match_hosts();
  
+        total_rank_time += profile(false);
+
         if (vm->is_resched())//Will use same system DS for migrations
         {
             vm->add_match_datastore(vm->get_dsid());
@@ -871,6 +922,16 @@ void Scheduler::match_schedule()
         vm->sort_match_datastores();
     }
 
+    ostringstream oss;
+
+    oss << "Match Making statistics:\n" 
+        << "\tNumber of VMs: " << pending_vms.size() << endl
+        << "\tTotal time: " << time(0) - stime << "s" << endl
+        << "\tTotal Match time: " << total_match_time << "s" << endl
+        << "\tTotal Ranking Time: " << total_rank_time << "s";
+
+    NebulaLog::log("SCHED", Log::DEBUG, oss);
+
 #ifdef SCHEDDEBUG
     ostringstream oss;
 
@@ -929,16 +990,12 @@ void Scheduler::dispatch()
         //--------------------------------------------------------------
         // Test Image Datastore capacity, but not for migrations
         //--------------------------------------------------------------
-
         if (!resources.empty() && !vm->is_resched())
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
-                if (vm->is_public_cloud())
+                if (vm->is_public_cloud())//No capacity needed for public cloud
                 {
-                    // Image DS do not have capacity, but if the VM ends
-                    // in a public cloud host, image copies will not
-                    // be performed.
                     vm->set_only_public_cloud();
                 }
                 else
@@ -953,7 +1010,6 @@ void Scheduler::dispatch()
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
         //----------------------------------------------------------------------
-
         for (i = resources.rbegin() ; i != resources.rend() ; i++)
         {
             hid  = (*i)->oid;
@@ -1039,17 +1095,6 @@ void Scheduler::dispatch()
                     else
                     {
                         test_cap_result = host->test_ds_capacity(ds->get_oid(), dsk);
-
-                        if (test_cap_result == false)
-                        {
-                            ostringstream oss;
-
-                            oss << "VM " << vm->get_oid() << ": Local Datastore "
-                                << ds->get_oid() << " in Host " << host->get_hid()
-                                << " filtered out. Not enough capacity.";
-
-                            NebulaLog::log("SCHED",Log::DEBUG,oss);
-                        }
                     }
 
                     if (test_cap_result != true)
@@ -1066,16 +1111,8 @@ void Scheduler::dispatch()
                 break;
             }
 
-            if (dsid == -1 && !host->is_public_cloud())
+            if (dsid == -1 && !host->is_public_cloud())//No system DS for this host
             {
-                ostringstream oss;
-
-                oss << "VM " << vm->get_oid()
-                    << ": No suitable System DS found for Host: " << hid
-                    << ". Filtering out host.";
-
-                NebulaLog::log("SCHED", Log::INFO, oss);
-
                 continue;
             }
 
@@ -1111,6 +1148,7 @@ void Scheduler::dispatch()
 
             break;
         }
+        //TODO information about 1.- no local space in sys ds, 2.- no sys_ds - host match
     }
 }
 
@@ -1215,26 +1253,36 @@ int Scheduler::do_scheduled_actions()
 void Scheduler::do_action(const string &name, void *args)
 {
     int rc;
-
+    
     if (name == ACTION_TIMER)
     {
+        profile(true);
         rc = vmapool->set_up();
+        profile(false,"Getting scheduled actions information.");
 
         if ( rc == 0 )
         {
+            profile(true);
             do_scheduled_actions();
+            profile(false,"Executing scheduled actions.");
         }
 
+        profile(true);
         rc = set_up_pools();
+        profile(false,"Getting VM and Host information.");
 
         if ( rc != 0 )
         {
             return;
         }
 
+//        profile(true);
         match_schedule();
+//        profile(false,"Computing Host-VM match-making.");
 
+        profile(true);
         dispatch();
+        profile(false,"Dispatching VMs to hosts.");
     }
     else if (name == ACTION_FINALIZE)
     {
