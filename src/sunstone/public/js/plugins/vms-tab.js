@@ -32,19 +32,19 @@ function loadVNC(){
 loadVNC();
 
 var VNCstates=[
-  tr("RUNNING"),
-  tr("SHUTDOWN"),
-  tr("SHUTDOWN_POWEROFF"),
-  tr("UNKNOWN"),
-  tr("HOTPLUG"),
-  tr("CANCEL"),
-  tr("MIGRATE"),
-  tr("HOTPLUG_SNAPSHOT"),
-  tr("HOTPLUG_NIC"),
-  tr("HOTPLUG_SAVEAS"),
-  tr("HOTPLUG_SAVEAS_POWEROFF"),
-  tr("HOTPLUG_SAVEAS_SUSPENDED"),
-  tr("SHUTDOWN_UNDEPLOY")];
+  OpenNebula.VM.lcm_state.RUNNING,
+  OpenNebula.VM.lcm_state.SHUTDOWN,
+  OpenNebula.VM.lcm_state.SHUTDOWN_POWEROFF,
+  OpenNebula.VM.lcm_state.UNKNOWN,
+  OpenNebula.VM.lcm_state.HOTPLUG,
+  OpenNebula.VM.lcm_state.CANCEL,
+  OpenNebula.VM.lcm_state.MIGRATE,
+  OpenNebula.VM.lcm_state.HOTPLUG_SNAPSHOT,
+  OpenNebula.VM.lcm_state.HOTPLUG_NIC,
+  OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS,
+  OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS_POWEROFF,
+  OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS_SUSPENDED,
+  OpenNebula.VM.lcm_state.SHUTDOWN_UNDEPLOY];
 
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
