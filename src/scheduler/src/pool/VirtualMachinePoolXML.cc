@@ -20,7 +20,8 @@
 
 int VirtualMachinePoolXML::set_up()
 {
-
+    ostringstream   oss;
+    
     int rc = PoolXML::set_up();
 
     if ( rc == 0 )
@@ -30,44 +31,43 @@ int VirtualMachinePoolXML::set_up()
             return -2;
         }
 
-        if (NebulaLog::log_level() == Log::DEBUG)
+#ifdef SCHEDDEBUG
+        oss << "Pending/rescheduling VM and capacity requirements:" << endl;
+
+        oss << right << setw(8)  << "VM"        << " "
+            << right << setw(4)  << "CPU"       << " "
+            << right << setw(11) << "Memory"    << " "
+            << right << setw(11) << "System DS" << " "
+            << " Image DS"
+            << endl << setw(60) << setfill('-') << "-" << setfill(' ');
+
+        for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
         {
-            ostringstream   oss;
-            oss << "Pending/rescheduling VM and capacity requirements:" << endl;
+            int cpu, mem;
+            long long disk;
 
-            oss << right << setw(8)  << "VM"        << " "
-                << right << setw(4)  << "CPU"       << " "
-                << right << setw(11) << "Memory"    << " "
-                << right << setw(11) << "System DS" << " "
-                << " Image DS"
-                << endl << setw(60) << setfill('-') << "-" << setfill(' ');
+            VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
 
-            for (map<int,ObjectXML*>::iterator it=objects.begin();it!=objects.end();it++)
+            vm->get_requirements(cpu, mem, disk);
+
+            oss << endl
+                << right << setw(8)  << it->first   << " "
+                << right << setw(4)  << cpu         << " "
+                << right << setw(11) << mem         << " "
+                << right << setw(11) << disk        << " ";
+
+            map<int,long long> ds_usage = vm->get_storage_usage();
+
+            for (map<int,long long>::const_iterator ds_it = ds_usage.begin();
+                    ds_it != ds_usage.end(); ds_it++)
             {
-                int cpu, mem;
-                long long disk;
-
-                VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
-
-                vm->get_requirements(cpu, mem, disk);
-
-                oss << endl
-                    << right << setw(8)  << it->first   << " "
-                    << right << setw(4)  << cpu         << " "
-                    << right << setw(11) << mem         << " "
-                    << right << setw(11) << disk        << " ";
-
-                map<int,long long> ds_usage = vm->get_storage_usage();
-
-                for (map<int,long long>::const_iterator ds_it = ds_usage.begin();
-                        ds_it != ds_usage.end(); ds_it++)
-                {
-                    oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
-                }
+                oss << " DS " << ds_it->first << ": " << ds_it->second << " ";
             }
-
-            NebulaLog::log("VM",Log::DEBUG,oss);
         }
+#else
+        oss << "Found " << objects.size() << " pending/rescheduling VMs."; 
+#endif
+        NebulaLog::log("VM",Log::DEBUG,oss);
     }
 
     return rc;
