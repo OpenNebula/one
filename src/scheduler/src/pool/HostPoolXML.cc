@@ -36,7 +36,7 @@ int HostPoolXML::set_up()
             oss << " " << it->first;
         }
 #else
-        oss << "Discovered " << objects.size() << "enabled hosts.\n";
+        oss << "Discovered " << objects.size() << " enabled hosts.";
 #endif
 
         NebulaLog::log("HOST",Log::DEBUG,oss);
