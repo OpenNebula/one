@@ -769,7 +769,8 @@ EOT
             end
 
             counters[:vnet][row[:oid]] = {
-                :ar_leases      => ar_leases
+                :ar_leases      => ar_leases,
+                :no_ar_leases   => {}
             }
         end
 
@@ -808,25 +809,43 @@ EOT
                         log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
                             "but it does not exist")
                     else
-                        ar_id_e = nic.at_xpath('AR_ID')
-                        ar_id = ar_id_e.nil? ? -1 : ar_id_e.text.to_i
-
-                        if counters[:vnet][net_id][:ar_leases][ar_id].nil?
-                            log_error("VM #{row[:oid]} is using VNet #{net_id}, AR #{ar_id}, "<<
-                                "but the AR does not exist")
-                        end
-
                         mac = nic.at_xpath("MAC").nil? ? nil : nic.at_xpath("MAC").text
 
-                        counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
-                            :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
-                            :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
-                            :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
-                            :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
-                            :mac        => mac,
-                            :vm         => row[:oid],
-                            :vnet       => nil
-                        }
+                        ar_id_e = nic.at_xpath('AR_ID')
+
+                        if ar_id_e.nil?
+                            if !counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)].nil?
+                                log_error("VNet has more than one VM with the same MAC address (#{mac}). "<<
+                                    "FSCK can't handle this, and consistency is not guaranteed")
+                            end
+
+                            counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)] = {
+                                :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
+                                :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
+                                :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
+                                :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                :mac        => mac,
+                                :vm         => row[:oid],
+                                :vnet       => nil
+                            }
+                        else
+                            ar_id = ar_id_e.text.to_i
+
+                            if counters[:vnet][net_id][:ar_leases][ar_id].nil?
+                                log_error("VM #{row[:oid]} is using VNet #{net_id}, AR #{ar_id}, "<<
+                                    "but the AR does not exist")
+                            else
+                                counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
+                                    :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
+                                    :ip6_global => nic.at_xpath("IP6_GLOBAL").nil? ? nil : nic.at_xpath("IP6_GLOBAL").text,
+                                    :ip6_link   => nic.at_xpath("IP6_LINK").nil? ? nil : nic.at_xpath("IP6_LINK").text,
+                                    :ip6_ula    => nic.at_xpath("IP6_ULA").nil? ? nil : nic.at_xpath("IP6_ULA").text,
+                                    :mac        => mac,
+                                    :vm         => row[:oid],
+                                    :vnet       => nil
+                                }
+                            end
+                        end
                     end
                 end
             end
@@ -1237,6 +1256,8 @@ EOT
             used_leases = doc.root.at_xpath("USED_LEASES").text.to_i
             new_used_leases = 0
 
+            counter_no_ar = counters[:vnet][row[:oid]][:no_ar_leases]
+
             counters[:vnet][row[:oid]][:ar_leases].each do |ar_id, counter_ar|
                 net_ar = doc.root.at_xpath("AR_POOL/AR[AR_ID=#{ar_id}]")
 
@@ -1342,6 +1363,11 @@ EOT
 
                     counter_lease = counter_ar[mac]
                     counter_ar.delete(mac)
+
+                    if counter_lease.nil?
+                        counter_lease = counter_no_ar[mac]
+                        counter_no_ar.delete(mac)
+                    end
 
                     if counter_lease.nil?
                         if(lease[:vm] != HOLD)
@@ -1455,6 +1481,11 @@ EOT
 
                 doc.root.at_xpath("USED_LEASES").content =
                                                 new_used_leases.to_s
+            end
+
+            counter_no_ar.each do |mac, counter_lease|
+                log_error("VM #{counter_lease[:vm]} has a lease from "<<
+                    "VNet #{oid}, but it could not be matched to any AR")
             end
 
             row[:body] = doc.root.to_s
