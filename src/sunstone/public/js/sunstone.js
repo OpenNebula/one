@@ -8379,7 +8379,7 @@ function ip_str(vm, divider){
 // returns true if the vnc button should be enabled
 function enableVnc(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
-    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    var state = parseInt(vm.LCM_STATE);
 
     return (graphics &&
         graphics.TYPE &&
@@ -8389,7 +8389,7 @@ function enableVnc(vm){
 
 function enableSPICE(vm){
     var graphics = vm.TEMPLATE.GRAPHICS;
-    var state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+    var state = parseInt(vm.LCM_STATE);
 
     return (graphics &&
         graphics.TYPE &&
