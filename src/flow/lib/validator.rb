@@ -164,8 +164,7 @@ class Validator
     #
     def validate_object(body, schema_object, key)
         unless body.is_a?(Hash)
-            raise ParseException, "KEY: #{key} must be a Hash; SCHEMA:"\
-                "#{schema_object}"
+            raise ParseException, "KEY: #{key} must be a Hash; SCHEMA:"
         end
 
         new_body = body.dup
@@ -178,8 +177,7 @@ class Validator
                                         schema_key)
             else
                 if schema_value[:required]
-                    raise ParseException, "KEY: '#{schema_key}' is required;"\
-                        " SCHEMA: #{schema_value}"
+                    raise ParseException, "KEY: '#{schema_key}' is required;"
                 end
 
                 if @opts[:default_values] && schema_value[:default]
@@ -199,7 +197,7 @@ class Validator
                     return body
                 else
                     raise ParseException, "KEY: #{new_body.keys.join(', ')} not"\
-                        " allowed; SCHEMA: #{schema_object}"
+                        " allowed;"
                 end
             end
         end
@@ -240,8 +238,7 @@ class Validator
                 validate!(body_item, schema_array[:items], schema_key)
             }
         else
-            raise ParseException, "KEY: '#{schema_key}' must be an Array;"\
-                " SCHEMA: #{schema_array}"
+            raise ParseException, "KEY: '#{schema_key}' must be an Array;"
         end
     end
 
@@ -274,8 +271,7 @@ class Validator
             max = schema_array[:maximum]
             if !(excl ? value < max : value <= max)
                 raise ParseException, "KEY: '#{schema_key}' must be "\
-                    "lower than #{excl ? '' : 'or equal to'} #{max};"\
-                    " SCHEMA: #{schema_array}"
+                    "lower than #{excl ? '' : 'or equal to'} #{max};"
             end
         end
 
@@ -284,15 +280,13 @@ class Validator
             min = schema_array[:minimum]
             if !(excl ? value > min : value >= min)
                 raise ParseException, "KEY: '#{schema_key}' must be "\
-                    "greater than #{excl ? '' : 'or equal to'} #{min};"\
-                    " SCHEMA: #{schema_array}"
+                    "greater than #{excl ? '' : 'or equal to'} #{min};"
             end
         end
 
         value
     rescue ArgumentError
-        raise ParseException, "KEY: '#{schema_key}' must be an Integer;"\
-            " SCHEMA: #{schema_array}"
+        raise ParseException, "KEY: '#{schema_key}' must be an Integer;"
     end
 
     # Validate an null type
@@ -318,8 +312,7 @@ class Validator
     #
     def validate_null(body, schema_null, schema_key)
         if body != nil
-            raise ParseException, "KEY: '#{schema_key}' is not allowed;"\
-                " SCHEMA: #{schema_null}"
+            raise ParseException, "KEY: '#{schema_key}' is not allowed;"
         end
     end
 
@@ -346,8 +339,7 @@ class Validator
     #
     def validate_boolean(body, schema_boolean, schema_key)
         if body != true && body != false
-            raise ParseException, "KEY: '#{schema_key}' is not allowed;"\
-                " SCHEMA: #{schema_boolean}"
+            raise ParseException, "KEY: '#{schema_key}' is not allowed;"
         end
 
         body
@@ -391,8 +383,7 @@ class Validator
                 body
             end
         else
-            raise ParseException, "KEY: '#{schema_key}' must be a String;"\
-                " SCHEMA: #{schema_string}"
+            raise ParseException, "KEY: '#{schema_key}' must be a String;"
         end
     end
 
@@ -428,8 +419,7 @@ class Validator
                 require 'uri'
                 uri = URI.parse(body_value)
             rescue
-                raise ParseException, "KEY: '#{schema_key}' must be a valid URL;"\
-                    " SCHEMA: #{schema_string} #{$!.message}"
+                raise ParseException, "KEY: '#{schema_key}' must be a valid URL;"
             end
 
             body_value
@@ -468,7 +458,7 @@ class Validator
             body_value
         else
             raise ParseException, "KEY: '#{schema_key}' must be one of"\
-                " #{schema_string[:enum].join(', ')}; SCHEMA: #{schema_string}"
+                " #{schema_string[:enum].join(', ')};"
         end
     end
 
@@ -501,8 +491,7 @@ class Validator
         if schema_string[:regex] =~ body_value
             body_value
         else
-            raise ParseException, "KEY: '#{schema_key}' malformed; "\
-                "SCHEMA: #{schema_string}"
+            raise ParseException, "KEY: '#{schema_key}' malformed;"
         end
     end
 end
