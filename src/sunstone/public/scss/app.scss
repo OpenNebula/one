@@ -1144,3 +1144,21 @@ hr {
   text-overflow: 
   ellipsis; height: 120px;
 }
+
+.vm-action-disabled {
+    //color: red !important;
+    color: #cfcfcf !important;
+/*
+    &:hover {
+        color: $alert-color !important;
+    }
+*/
+    cursor: default !important;
+}
+/*
+.vm-action-enabled {
+    &:hover {
+      color: $primary-color !important;
+    }
+}
+*/
