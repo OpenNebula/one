@@ -4820,7 +4820,7 @@ $(document).ready(function(){
     $('a.zone-choice').live("click", function(){
       $.ajax({
         url: 'config',
-        type: "HEAD",
+        type: "GET",
         headers: {
             "ZONE_NAME" : this.id
         },
@@ -4828,7 +4828,8 @@ $(document).ready(function(){
         success: function(){
             window.location.href = ".";
         },
-        error: function(response){
+        error: function(response) {
+            onError(null, OpenNebula.Error(response))
         }
       });
     });
