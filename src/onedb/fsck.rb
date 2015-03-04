@@ -14,6 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+if !ONE_LOCATION
+    LOG_LOCATION = "/var/log/one"
+else
+    LOG_LOCATION = ONE_LOCATION + "/var"
+end
+
+LOG              = LOG_LOCATION + "/onedb-fsck.log"
+
 require "rexml/document"
 include REXML
 require 'ipaddr'
@@ -1605,12 +1613,19 @@ EOT
 
     def log_error(message)
         @errors += 1
+
+        @log_file ||= File.open(LOG, "w")
+
         puts message
+
+        @log_file.puts(message)
+        @log_file.flush
     end
 
     def log_total_errors()
         puts
         puts "Total errors found: #{@errors}"
+        puts "A copy of this output was stored in #{LOG}"
     end
 
 
