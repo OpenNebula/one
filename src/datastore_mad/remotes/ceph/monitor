@@ -61,7 +61,7 @@ if [ -z "$HOST" ]; then
 fi
 
 if [ -n "$CEPH_USER" ]; then
-    RADOS="$RADOS --id ${CEPH_USER}"
+    CEPH="$CEPH --id ${CEPH_USER}"
 fi
 
 # ------------ Compute datastore usage -------------
@@ -72,8 +72,8 @@ to_mb() {
     units=\$(echo "\$1" | sed 's/^[0123456789]*//g' | tr '[:upper:]' '[:lower:]')
 
     case "\$units" in
-        t|tb) value=\$(expr \$value * 1024 * 1024) ;;
-        g|gb) value=\$(expr \$value * 1024) ;;
+        t|tb) value=\$(expr \$value \* 1024 \* 1024) ;;
+        g|gb) value=\$(expr \$value \* 1024) ;;
         m|mb) value=\$value ;;
         k|kb) value=\$(expr \$value / 1024) ;;
         b|'') value=0 ;;
@@ -82,7 +82,7 @@ to_mb() {
     echo "\$value"
 }
 
-MAXAVAIL=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$5}')
+MAX_AVAIL=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$5}')
 USED=\$($CEPH df | grep "$POOL_NAME" | awk '{print \$3}')
 
 USED_MB=\$(to_mb \$USED)
