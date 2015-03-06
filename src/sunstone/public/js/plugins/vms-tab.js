@@ -46,6 +46,107 @@ var VNCstates=[
   OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS_SUSPENDED,
   OpenNebula.VM.lcm_state.SHUTDOWN_UNDEPLOY];
 
+var state_actions = {
+    0: //OpenNebula.VM.state.INIT:
+        ["VM.delete", "VM.delete_recreate", "VM.resize"],
+
+    1: //OpenNebula.VM.state.PENDING:
+        ["VM.delete", "VM.delete_recreate", "VM.hold", "VM.deploy"],
+
+    2: //OpenNebula.VM.state.HOLD:
+        ["VM.delete", "VM.delete_recreate", "VM.release", "VM.deploy"],
+
+    3: //OpenNebula.VM.state.ACTIVE:
+        ["VM.delete", "VM.delete_recreate", "VM.recover"],
+
+    4: //OpenNebula.VM.state.STOPPED:
+        ["VM.delete", "VM.delete_recreate", "VM.resume"],
+
+    5: //OpenNebula.VM.state.SUSPENDED:
+        ["VM.delete", "VM.resume"],
+
+    6: //OpenNebula.VM.state.DONE:
+        [],
+
+    7: //OpenNebula.VM.state.FAILED:
+        ["VM.delete", "VM.delete_recreate", "VM.resize"],
+
+    8: //OpenNebula.VM.state.POWEROFF:
+        ["VM.delete", "VM.resume", "VM.resize"],
+
+    9: //OpenNebula.VM.state.UNDEPLOYED:
+        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize"],
+}
+
+var lcm_state_actions = {
+    0: //OpenNebula.VM.lcm_state.LCM_INIT:
+        [],
+    1: //OpenNebula.VM.lcm_state.PROLOG:
+        [],
+    2: //OpenNebula.VM.lcm_state.BOOT:
+        ["VM.boot"],
+    3: //OpenNebula.VM.lcm_state.RUNNING:
+        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live"],
+    4: //OpenNebula.VM.lcm_state.MIGRATE:
+        [],
+    5: //OpenNebula.VM.lcm_state.SAVE_STOP:
+        [],
+    6: //OpenNebula.VM.lcm_state.SAVE_SUSPEND:
+        [],
+    7: //OpenNebula.VM.lcm_state.SAVE_MIGRATE:
+        [],
+    8: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE:
+        [],
+    9: //OpenNebula.VM.lcm_state.PROLOG_RESUME:
+        [],
+    10: //OpenNebula.VM.lcm_state.EPILOG_STOP:
+        [],
+    11: //OpenNebula.VM.lcm_state.EPILOG:
+        [],
+    12: //OpenNebula.VM.lcm_state.SHUTDOWN:
+        [],
+    13: //OpenNebula.VM.lcm_state.CANCEL:
+        [],
+    14: //OpenNebula.VM.lcm_state.FAILURE:
+        [],
+    15: //OpenNebula.VM.lcm_state.CLEANUP_RESUBMIT:
+        [],
+    16: //OpenNebula.VM.lcm_state.UNKNOWN:
+        ["VM.shutdown", "VM.shutdown_hard", "VM.boot", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live"],
+    17: //OpenNebula.VM.lcm_state.HOTPLUG:
+        [],
+    18: //OpenNebula.VM.lcm_state.SHUTDOWN_POWEROFF:
+        [],
+    19: //OpenNebula.VM.lcm_state.BOOT_UNKNOWN:
+        ["VM.boot"],
+    20: //OpenNebula.VM.lcm_state.BOOT_POWEROFF:
+        ["VM.boot"],
+    21: //OpenNebula.VM.lcm_state.BOOT_SUSPENDED:
+        ["VM.boot"],
+    22: //OpenNebula.VM.lcm_state.BOOT_STOPPED:
+        ["VM.boot"],
+    23: //OpenNebula.VM.lcm_state.CLEANUP_DELETE:
+        [],
+    24: //OpenNebula.VM.lcm_state.HOTPLUG_SNAPSHOT:
+        [],
+    25: //OpenNebula.VM.lcm_state.HOTPLUG_NIC:
+        [],
+    26: //OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS:
+        [],
+    27: //OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS_POWEROFF:
+        [],
+    28: //OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS_SUSPENDED:
+        [],
+    29: //OpenNebula.VM.lcm_state.SHUTDOWN_UNDEPLOY:
+        [],
+    30: //OpenNebula.VM.lcm_state.EPILOG_UNDEPLOY:
+        [],
+    31: //OpenNebula.VM.lcm_state.PROLOG_UNDEPLOY:
+        [],
+    32: //OpenNebula.VM.lcm_state.BOOT_UNDEPLOY:
+        ["VM.boot"],
+}
+
 //Permanent storage for last value of aggregated network usage
 //Used to calculate bandwidth
 var netUsage = {
@@ -765,30 +866,28 @@ var vm_buttons = {
         text: tr("Change owner"),
         select: "User",
         layout: "user_select",
-        tip: tr("Select the new owner")+":",
-        condition: mustBeAdmin
+        tip: tr("Select the new owner")+":"
     },
     "VM.chgrp" : {
         type: "confirm_with_select",
         text: tr("Change group"),
         select: "Group",
         layout: "user_select",
-        tip: tr("Select the new group")+":",
-        condition: mustBeAdmin
+        tip: tr("Select the new group")+":"
     },
     "VM.deploy" : {
         type: "action",
         text: tr("Deploy"),
         tip: tr("This will deploy the selected VMs on the chosen host"),
         layout: "vmsplanification_buttons",
-        condition: mustBeAdmin
+        custom_classes : "state-dependent"
     },
     "VM.migrate" : {
         type: "action",
         text: tr("Migrate"),
         tip: tr("This will migrate the selected VMs to the chosen host"),
         layout: "vmsplanification_buttons",
-        condition: mustBeAdmin
+        custom_classes : "state-dependent"
 
     },
     "VM.migrate_live" : {
@@ -796,116 +895,134 @@ var vm_buttons = {
         text: tr("Migrate") + ' <span class="label secondary radius">live</span>',
         tip: tr("This will live-migrate the selected VMs to the chosen host"),
         layout: "vmsplanification_buttons",
-        condition: mustBeAdmin
+        custom_classes : "state-dependent"
     },
     "VM.hold" : {
         type: "action",
         text: tr("Hold"),
         tip: tr("This will hold selected pending VMs from being deployed"),
         layout: "vmsplanification_buttons",
+        custom_classes : "state-dependent"
     },
     "VM.release" : {
         type: "action",
         text: tr("Release"),
         layout: "vmsplanification_buttons",
-        tip: tr("This will release held machines")
+        tip: tr("This will release held machines"),
+        custom_classes : "state-dependent"
     },
     "VM.suspend" : {
         type: "action",
         text: tr("Suspend"),
         layout: "vmspause_buttons",
-        tip: tr("This will suspend selected machines")
+        tip: tr("This will suspend selected machines"),
+        custom_classes : "state-dependent"
     },
     "VM.resume" : {
         type: "action",
         text: '<i class="fa fa-play"/>',
         layout: "vmsplay_buttons",
-        tip: tr("This will resume selected VMs")
+        tip: tr("This will resume selected VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.stop" : {
         type: "action",
         text: tr("Stop"),
         layout: "vmsstop_buttons",
-        tip: tr("This will stop selected VMs")
+        tip: tr("This will stop selected VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.boot" : {
         type: "action",
         text: tr("Boot"),
         layout: "vmsplanification_buttons",
-        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
+        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"),
+        custom_classes : "state-dependent"
     },
     "VM.reboot" : {
         type: "action",
         text: tr("Reboot"),
         layout: "vmsrepeat_buttons",
-        tip: tr("This will send a reboot action to running VMs")
+        tip: tr("This will send a reboot action to running VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.reboot_hard" : {
         type: "action",
         text: tr("Reboot") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsrepeat_buttons",
-        tip: tr("This will perform a hard reboot on selected VMs")
+        tip: tr("This will perform a hard reboot on selected VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.poweroff" : {
         type: "action",
         text: tr("Power Off"),
         layout: "vmspause_buttons",
-        tip: tr("This will send a power off signal to running VMs. They can be resumed later.")
+        tip: tr("This will send a power off signal to running VMs. They can be resumed later."),
+        custom_classes : "state-dependent"
     },
     "VM.poweroff_hard" : {
         type: "action",
         text: tr("Power Off") + ' <span class="label secondary radius">hard</span>',
         layout: "vmspause_buttons",
-        tip: tr("This will send a forced power off signal to running VMs. They can be resumed later.")
+        tip: tr("This will send a forced power off signal to running VMs. They can be resumed later."),
+        custom_classes : "state-dependent"
     },
     "VM.undeploy" : {
         type: "action",
         text: tr("Undeploy"),
         layout: "vmsstop_buttons",
-        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore."),
+        custom_classes : "state-dependent"
     },
     "VM.undeploy_hard" : {
         type: "action",
         text: tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsstop_buttons",
-        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore.")
+        tip: tr("Shuts down the given VM. The VM is saved in the system Datastore."),
+        custom_classes : "state-dependent"
     },
     "VM.shutdown" : {
         type: "confirm",
         text: tr("Shutdown"),
         layout: "vmsdelete_buttons",
-        tip: tr("This will initiate the shutdown process in the selected VMs")
+        tip: tr("This will initiate the shutdown process in the selected VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.shutdown_hard" : {
         type: "confirm",
         text: tr("Shutdown") + ' <span class="label secondary radius">hard</span>',
         layout: "vmsdelete_buttons",
-        tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs")
+        tip: tr("This will initiate the shutdown-hard (forced) process in the selected VMs"),
+        custom_classes : "state-dependent"
     },
 
     "VM.delete" : {
         type: "confirm",
         text: tr("Delete"),
         layout: "vmsdelete_buttons",
-        tip: tr("This will delete the selected VMs from the database")
+        tip: tr("This will delete the selected VMs from the database"),
+        custom_classes : "state-dependent"
     },
     "VM.delete_recreate" : {
         type: "confirm",
         text: tr("Delete") + ' <span class="label secondary radius">recreate</span>',
         layout: "vmsrepeat_buttons",
-        tip: tr("This will delete and recreate VMs to PENDING state")
+        tip: tr("This will delete and recreate VMs to PENDING state"),
+        custom_classes : "state-dependent"
     },
     "VM.resched" : {
         type: "action",
         text: tr("Reschedule"),
         layout: "vmsplanification_buttons",
-        tip: tr("This will reschedule selected VMs")
+        tip: tr("This will reschedule selected VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.unresched" : {
         type: "action",
         text: tr("Un-Reschedule"),
         layout: "vmsplanification_buttons",
-        tip: tr("This will cancel the rescheduling for the selected VMs")
+        tip: tr("This will cancel the rescheduling for the selected VMs"),
+        custom_classes : "state-dependent"
     },
     "VM.recover" : {
         type: "confirm_with_select",
@@ -916,7 +1033,8 @@ var vm_buttons = {
         tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
                 The recovery may be done by failing or succeeding the pending operation. \
                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
-                was successful or not.")
+                was successful or not."),
+        custom_classes : "state-dependent"
     },
     "VM.startvnc" : {
         type: "action",
@@ -1076,6 +1194,8 @@ function addVMachineElement(request,vm_json){
 
 // Callback to refresh the list of Virtual Machines
 function updateVMachinesView(request, vmachine_list){
+    resetStateButtons();
+
     var vmachine_list_array = [];
 
     active_vms = 0;
@@ -1239,6 +1359,42 @@ function generatePlacementTable(vm){
 
 };
 
+function disableAllStateActions(){
+    $(".state-dependent").attr("disabled", "disabled").
+        removeClass("vm-action-enabled").
+        addClass("vm-action-disabled").
+        click(function(e){ e.preventDefault(); });
+}
+
+function resetStateButtons(){
+    $(".state-dependent").
+        addClass("vm-action-enabled").
+        removeClass("vm-action-disabled").
+        click(function(e){ return true; });
+}
+
+function enableStateButton(button_action){
+    $(".state-dependent[href='"+button_action+"']").removeAttr("disabled").
+        addClass("vm-action-enabled").
+        removeClass("vm-action-disabled").
+        click(function(e){ return true; });
+}
+
+// state and lcm_state are numeric
+function enableStateActions(state, lcm_state){
+    state = parseInt(state);
+    lcm_state = parseInt(lcm_state);
+
+    $.each(state_actions[state], function(i,action){
+        enableStateButton(action);
+    });
+
+    if (state == OpenNebula.VM.state.ACTIVE){
+        $.each(lcm_state_actions[lcm_state], function(i,action){
+            enableStateButton(action);
+        });
+    }
+}
 
 // Refreshes the information panel for a VM
 function updateVMInfo(request,vm){
@@ -1252,6 +1408,10 @@ function updateVMInfo(request,vm){
             hostname = vm_info.HISTORY_RECORDS.HISTORY.HOSTNAME;
         };
     };
+
+    // Enable only action buttons for the current state
+    disableAllStateActions();
+    enableStateActions(vm_info.STATE, vm_info.LCM_STATE);
 
     // Get rid of the unwanted (for show) SCHED_* keys
     var stripped_vm_template = {};
