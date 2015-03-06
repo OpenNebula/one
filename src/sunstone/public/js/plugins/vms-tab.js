@@ -1480,6 +1480,8 @@ function updateVMInfo(request,vm){
 
                 $("td.open-control", nRow).html("").removeClass('open-control');
             }
+
+            $(nRow).attr("nic_id", aData.NIC_ID);
         }
     });
 
