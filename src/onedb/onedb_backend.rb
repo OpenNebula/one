@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'time'
 require 'rubygems'
 
 begin
@@ -229,7 +230,9 @@ class BackEndMySQL < OneDBBacKEnd
     end
 
     def bck_file
-        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}.sql"
+        t = Time.now
+        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}.sql_"<<
+        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.bck"
     end
 
     def backup(bck_file)
@@ -299,7 +302,9 @@ class BackEndSQLite < OneDBBacKEnd
     end
 
     def bck_file
-        "#{VAR_LOCATION}/one.db.bck"
+        t = Time.now
+        "#{VAR_LOCATION}/one.db_"<<
+        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.bck"
     end
 
     def backup(bck_file)
