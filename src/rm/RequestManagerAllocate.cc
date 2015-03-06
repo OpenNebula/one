@@ -525,6 +525,46 @@ int TemplateAllocate::pool_allocate(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool TemplateAllocate::allocate_authorization(
+        Template *          tmpl,
+        RequestAttributes&  att,
+        PoolObjectAuth *    cluster_perms)
+{
+    if ( att.uid == UserPool::ONEADMIN_ID )
+    {
+        return true;
+    }
+
+    AuthRequest ar(att.uid, att.group_ids);
+    string      t64;
+    string      aname;
+
+    VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
+
+    // ------------ Check template for restricted attributes -------------------
+
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (ttmpl->check(aname))
+        {
+            ostringstream oss;
+
+            oss << "VM Template includes a restricted attribute " << aname;
+
+            failure_response(AUTHORIZATION,
+                    authorization_error(oss.str(), att),
+                    att);
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int HostAllocate::pool_allocate(
         xmlrpc_c::paramList const&  paramList,
         Template *                  tmpl,
