@@ -254,6 +254,8 @@ helpers do
             zone.info
             session[:zone_name] = zone.name
 
+            session[:federation_mode] = rc['FEDERATION/MODE'].upcase
+
             return [204, ""]
         end
     end
@@ -500,7 +502,7 @@ end
 get '/:pool' do
     zone_client = nil
 
-    if params[:zone_id]
+    if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
                                             $cloud_auth.client(session[:user], 
                                                 session[:active_zone_endpoint]))
