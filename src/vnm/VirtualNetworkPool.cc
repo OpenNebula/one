@@ -248,6 +248,8 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
     string           network;
     VirtualNetwork * vnet = 0;
 
+    nic->replace("NIC_ID", nic_id);
+
     if (!(network = nic->vector_value("NETWORK")).empty())
     {
         vnet = get_nic_by_name (nic, network, uid, error);
@@ -271,8 +273,6 @@ int VirtualNetworkPool::nic_attribute(VectorAttribute * nic,
     if ( rc == 0 )
     {
         update(vnet);
-
-        nic->replace("NIC_ID", nic_id);
     }
     else
     {
