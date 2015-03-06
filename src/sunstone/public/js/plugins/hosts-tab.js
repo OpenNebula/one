@@ -1321,7 +1321,19 @@ function fillVCenterNetworks(opts) {
                 '</div>').appendTo($(".content", opts.container))
           } else {
             $.each(networks, function(id, network){
-              var netname = network.name.replace(" ","_");
+              var netname   = network.name.replace(" ","_");
+              var vlan_info = ""
+
+              if (network.vlan)
+              {
+                   var vlan_info = '<div class="vlan_info">' +
+                        '<div class="large-4 columns">'+
+                          '<label>' + tr("VLAN") + 
+                             '<input type="text" class="vlaninfo" value="'+network.vlan+'" disabled/>' +
+                          '</label>'+
+                        '</div>'+
+                      '</div>';
+              }
 
               var trow = $('<div class="vcenter_network">' +
                   '<div class="row">' +
@@ -1352,7 +1364,8 @@ function fillVCenterNetworks(opts) {
                             '<input type="text" class="eth_mac_net" placeholder="'+tr("Optional")+'"/>' + 
                           '</label>'+
                         '</div>'+
-                      '</div>'+
+                      '</div>'+ 
+                      vlan_info +
                       '<div class="large-12 columns vcenter_network_response">'+
                       '</div>'+
                     '</div>' +
@@ -1809,6 +1822,12 @@ function setupCreateHostDialog(){
         network_tmpl += "\nAR=[" 
         network_tmpl += ar_array.join(",\n")
         network_tmpl += "]"
+
+        if($(".vlaninfo", network_context))
+        {
+           network_tmpl += "VLAN=\"YES\"\n";
+           network_tmpl += "VLAN_ID="+$(".vlaninfo", network_context).val()+"\n";
+        }
 
         var vnet_json = {
           "vnet": {
