@@ -1464,13 +1464,13 @@ function updateVMInfo(request,vm){
                 "data":           null,
                 "defaultContent": '<span class="fa fa-fw fa-chevron-down"></span>'
             },
-            { "data": "NIC_ID" },
-            { "data": "NETWORK" },
-            { "data": "IP" },
-            { "data": "MAC" },
-            { "data": "IP6_ULA" },
-            { "data": "IP6_GLOBAL" },
-            { "data": "ACTIONS" }
+            { "data": "NIC_ID",     "defaultContent": "" },
+            { "data": "NETWORK",    "defaultContent": "" },
+            { "data": "IP",         "defaultContent": "" },
+            { "data": "MAC",        "defaultContent": "" },
+            { "data": "IP6_ULA",    "defaultContent": "" },
+            { "data": "IP6_GLOBAL", "defaultContent": "" },
+            { "data": "ACTIONS",    "defaultContent": "" }
         ],
 
         "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
