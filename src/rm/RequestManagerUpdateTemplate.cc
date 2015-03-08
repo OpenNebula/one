@@ -95,8 +95,8 @@ void RequestManagerUpdateTemplate::request_execute(
 
     object = pool->get(oid,true);
 
-    if ( object == 0 )                             
-    {                                            
+    if ( object == 0 )
+    {
         failure_response(NO_EXISTS,
                 get_error(object_name(auth_object),oid),
                 att);

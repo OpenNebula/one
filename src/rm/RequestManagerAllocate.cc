@@ -530,7 +530,7 @@ bool TemplateAllocate::allocate_authorization(
         RequestAttributes&  att,
         PoolObjectAuth *    cluster_perms)
 {
-    if ( att.uid == UserPool::ONEADMIN_ID )
+    if ( att.uid == UserPool::ONEADMIN_ID || att.gid == GroupPool::ONEADMIN_ID )
     {
         return true;
     }
@@ -542,21 +542,17 @@ bool TemplateAllocate::allocate_authorization(
     VirtualMachineTemplate * ttmpl = static_cast<VirtualMachineTemplate *>(tmpl);
 
     // ------------ Check template for restricted attributes -------------------
-
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    if (ttmpl->check(aname))
     {
-        if (ttmpl->check(aname))
-        {
-            ostringstream oss;
+        ostringstream oss;
 
-            oss << "VM Template includes a restricted attribute " << aname;
+        oss << "VM Template includes a restricted attribute " << aname;
 
-            failure_response(AUTHORIZATION,
-                    authorization_error(oss.str(), att),
-                    att);
+        failure_response(AUTHORIZATION,
+                authorization_error(oss.str(), att),
+                att);
 
-            return false;
-        }
+        return false;
     }
 
     return true;
