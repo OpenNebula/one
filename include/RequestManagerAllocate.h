@@ -251,6 +251,10 @@ public:
                       int& id,
                       string& error_str,
                       RequestAttributes& att);
+
+    bool allocate_authorization(Template *          obj_template,
+                                RequestAttributes&  att,
+                                PoolObjectAuth *    cluster_perms);
 };
 
 /* ------------------------------------------------------------------------- */

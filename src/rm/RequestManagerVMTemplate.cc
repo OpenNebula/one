@@ -79,24 +79,6 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
 
     rtmpl->unlock();
 
-    // Check template for restricted attributes, only if owner is not oneadmin
-    if (perms.uid!=UserPool::ONEADMIN_ID && perms.gid!=GroupPool::ONEADMIN_ID)
-    {
-        if (tmpl->check(aname))
-        {
-            ostringstream oss;
-
-            oss << "VM Template includes a restricted attribute " << aname;
-
-            failure_response(AUTHORIZATION,
-                    authorization_error(oss.str(), att),
-                    att);
-
-            delete tmpl;
-            return;
-        }
-    }
-
     // Parse & merge user attributes (check if the request user is not oneadmin)
     if (!str_uattrs.empty())
     {
