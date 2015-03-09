@@ -28,11 +28,11 @@ available_tabs:
 groups:
     oneadmin:
         - admin
+        - admin_vcenter
         - groupadmin
         - groupadmin_vcenter
         - user
         - cloud
-        - vcenter
         - cloud_vcenter
 default:
     - cloud
