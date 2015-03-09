@@ -3,9 +3,9 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Grzegorz Kocur <gkocur@cloudox.pl>, 2013
-# Kamil Szczygieł <k.szczygiel@intratel.pl>, 2013-2014
-# m.prostko <m.prostko@intratel.pl>, 2013
+# Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
+# Gintarė Budrauskytė <gintare.budrauskyte@mif.vu.lt>, 2014
+# Linas Bukauskas, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"
@@ -13,12 +13,12 @@ msgstr ""
 "POT-Creation-Date: 2015-02-24 16:55+0100\n"
 "PO-Revision-Date: 2015-02-24 15:56+0000\n"
 "Last-Translator: Daniel Molina <dmolina@opennebula.org>\n"
-"Language-Team: Polish (http://www.transifex.com/projects/p/one/language/pl/)\n"
+"Language-Team: Lithuanian (Lithuania) (http://www.transifex.com/projects/p/one/language/lt_LT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pl\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Language: lt_LT\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../public/js/opennebula.js:1801 ../public/js/opennebula.js:1823
 #: ../public/js/plugins/dashboard-tab.js:175
@@ -27,7 +27,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:3491
 #: ../public/js/plugins/vms-tab.js:951 ../public/js/plugins/vms-tab.js:1013
 msgid "PENDING"
-msgstr "OCZEKUJE"
+msgstr "LAUKIAMA"
 
 #: ../public/js/opennebula.js:1802 ../public/js/opennebula.js:1824
 #: ../public/js/plugins/provision-tab.js:223
@@ -40,7 +40,7 @@ msgstr "OCZEKUJE"
 #: ../public/js/plugins/provision-tab.js:3514
 #: ../public/js/plugins/provision-tab.js:3613
 msgid "DEPLOYING"
-msgstr "TWORZENIE"
+msgstr "DIEGIAMA"
 
 #: ../public/js/opennebula.js:1803 ../public/js/opennebula.js:1825
 #: ../public/js/plugins/provision-tab.js:213
@@ -51,47 +51,47 @@ msgstr "TWORZENIE"
 #: ../public/js/plugins/provision-tab.js:3520
 #: ../public/js/plugins/vms-tab.js:35
 msgid "RUNNING"
-msgstr "DZIAŁA"
+msgstr "VYKDOMA"
 
 #: ../public/js/opennebula.js:1804 ../public/js/opennebula.js:1826
 #: ../public/js/plugins/provision-tab.js:3428
 #: ../public/js/plugins/provision-tab.js:3430
 msgid "UNDEPLOYING"
-msgstr ""
+msgstr "PAŠALINIMAS"
 
 #: ../public/js/opennebula.js:1805 ../public/js/opennebula.js:1827
 #: ../public/js/plugins/provision-tab.js:3444
 #: ../public/js/plugins/provision-tab.js:3446
 msgid "WARNING"
-msgstr "OSTRZEŻENIE"
+msgstr "ĮSPĖJIMAS"
 
 #: ../public/js/opennebula.js:1806 ../public/js/opennebula.js:1828
 #: ../public/js/plugins/provision-tab.js:3460
 #: ../public/js/plugins/provision-tab.js:3462
 #: ../public/js/plugins/vms-tab.js:1549
 msgid "DONE"
-msgstr "SKOŃCZONY"
+msgstr "ATLIKTA"
 
 #: ../public/js/opennebula.js:1807 ../public/js/opennebula.js:1829
 #: ../public/js/plugins/provision-tab.js:3432
 msgid "FAILED_UNDEPLOYING"
-msgstr ""
+msgstr "NEPAVYKĘS_PAŠALINIMAS"
 
 #: ../public/js/opennebula.js:1808 ../public/js/opennebula.js:1830
 #: ../public/js/plugins/provision-tab.js:3436
 msgid "FAILED_DEPLOYING"
-msgstr "BŁĄD_TWORZENIE"
+msgstr "NEPAVYKĘS_DIEGIMAS"
 
 #: ../public/js/opennebula.js:1809 ../public/js/opennebula.js:1831
 #: ../public/js/plugins/provision-tab.js:3452
 #: ../public/js/plugins/provision-tab.js:3454
 msgid "SCALING"
-msgstr "SKALOWANIE"
+msgstr "IŠPLEČIAMAS"
 
 #: ../public/js/opennebula.js:1810 ../public/js/opennebula.js:1832
 #: ../public/js/plugins/provision-tab.js:3440
 msgid "FAILED_SCALING"
-msgstr "BŁĄD_SKALOWANIE"
+msgstr "KLAIDA IŠPLEČIANT"
 
 #: ../public/js/opennebula.js:1811 ../public/js/opennebula.js:1833
 #: ../public/js/plugins/provision-tab.js:3456
@@ -101,11 +101,11 @@ msgstr ""
 
 #: ../public/js/plugins/acls-tab.js:24
 msgid "Create ACL"
-msgstr "Stwórz regułę"
+msgstr "Kurti ACL"
 
 #: ../public/js/plugins/acls-tab.js:31
 msgid "This rule applies to"
-msgstr "Ta reguła odnosi się do"
+msgstr "Ši taisyklė galioja"
 
 #: ../public/js/plugins/acls-tab.js:34 ../public/js/plugins/acls-tab.js:119
 #: ../public/js/plugins/acls-tab.js:306 ../public/js/plugins/acls-tab.js:324
@@ -119,14 +119,14 @@ msgstr "Ta reguła odnosi się do"
 #: ../public/js/sunstone.js:5158 ../public/js/sunstone.js:8037
 #: ../public/js/sunstone.js:8099 ../public/js/sunstone.js:8132
 msgid "All"
-msgstr "Wszystkie"
+msgstr "Visi"
 
 #: ../public/js/plugins/acls-tab.js:37 ../public/js/plugins/acls-tab.js:46
 #: ../public/js/plugins/acls-tab.js:309 ../public/js/plugins/hosts-tab.js:133
 #: ../public/js/plugins/users-tab.js:404 ../public/js/sunstone.js:5148
 #: ../public/js/sunstone.js:5160 ../public/js/sunstone.js:5532
 msgid "User"
-msgstr "Użytkownik"
+msgstr "Vartotojas"
 
 #: ../public/js/plugins/acls-tab.js:40 ../public/js/plugins/acls-tab.js:51
 #: ../public/js/plugins/acls-tab.js:125 ../public/js/plugins/acls-tab.js:138
@@ -156,15 +156,15 @@ msgstr "Użytkownik"
 #: ../public/js/sunstone.js:6700 ../public/js/sunstone.js:6821
 #: ../public/js/sunstone.js:7121
 msgid "Group"
-msgstr "Grupa"
+msgstr "Grupė"
 
 #: ../public/js/plugins/acls-tab.js:60
 msgid "Zones where the rule applies"
-msgstr "Strefy w których reguła obowiązuje"
+msgstr "Taisyklės galiojimo zonos"
 
 #: ../public/js/plugins/acls-tab.js:66 ../public/js/plugins/acls-tab.js:277
 msgid "Affected resources"
-msgstr "Dotyczy zasobów"
+msgstr "Įtakoti ištekliai"
 
 #: ../public/js/plugins/acls-tab.js:69 ../public/js/plugins/acls-tab.js:381
 #: ../public/js/plugins/clusters-tab.js:36
@@ -176,7 +176,7 @@ msgstr "Dotyczy zasobów"
 #: ../public/js/plugins/vdcs-tab.js:429 ../public/js/plugins/vdcs-tab.js:1177
 #: ../public/js/sunstone.js:7301
 msgid "Hosts"
-msgstr "Gospodarze"
+msgstr "Serveriai"
 
 #: ../public/js/plugins/acls-tab.js:72 ../public/js/plugins/acls-tab.js:402
 #: ../public/js/plugins/clusters-tab.js:533
@@ -184,7 +184,7 @@ msgstr "Gospodarze"
 #: ../public/js/plugins/hosts-tab.js:1481 ../public/js/plugins/vdcs-tab.js:428
 #: ../public/js/plugins/vdcs-tab.js:1176
 msgid "Clusters"
-msgstr "Klastry"
+msgstr "Telkiniai"
 
 #: ../public/js/plugins/acls-tab.js:75 ../public/js/plugins/acls-tab.js:405
 #: ../public/js/plugins/clusters-tab.js:38
@@ -196,7 +196,7 @@ msgstr "Klastry"
 #: ../public/js/plugins/vdcs-tab.js:431 ../public/js/plugins/vdcs-tab.js:1179
 #: ../public/js/sunstone.js:7303
 msgid "Datastores"
-msgstr "Magazyny danych"
+msgstr "Duomenų saugyklos"
 
 #: ../public/js/plugins/acls-tab.js:78 ../public/js/plugins/acls-tab.js:384
 #: ../public/js/plugins/dashboard-tab.js:160
@@ -205,12 +205,12 @@ msgstr "Magazyny danych"
 #: ../public/js/plugins/provision-tab.js:1683
 #: ../public/js/plugins/vms-tab.js:940 ../public/js/plugins/vms-tab.js:946
 msgid "Virtual Machines"
-msgstr "Maszyny wirtualne"
+msgstr "Virtualios mašinos"
 
 #: ../public/js/plugins/acls-tab.js:83 ../public/js/plugins/acls-tab.js:387
 #: ../public/js/plugins/vnets-tab.js:619 ../public/js/plugins/vnets-tab.js:625
 msgid "Virtual Networks"
-msgstr "Wirtualne sieci"
+msgstr "Virtualūs tinklai"
 
 #: ../public/js/plugins/acls-tab.js:86 ../public/js/plugins/acls-tab.js:390
 #: ../public/js/plugins/datastores-tab.js:64
@@ -220,7 +220,7 @@ msgstr "Wirtualne sieci"
 #: ../public/js/plugins/images-tab.js:504
 #: ../public/js/plugins/marketplace-tab.js:416 ../public/js/sunstone.js:2553
 msgid "Images"
-msgstr "Obrazy"
+msgstr "Atvaizdžiai"
 
 #: ../public/js/plugins/acls-tab.js:89 ../public/js/plugins/groups-tab.js:121
 #: ../public/js/plugins/hosts-tab.js:1079
@@ -229,7 +229,7 @@ msgstr "Obrazy"
 #: ../public/js/plugins/templates-tab.js:1660
 #: ../public/js/plugins/templates-tab.js:1666
 msgid "Templates"
-msgstr "Szablony"
+msgstr "Šablonai"
 
 #: ../public/js/plugins/acls-tab.js:92 ../public/js/plugins/acls-tab.js:396
 #: ../public/js/plugins/dashboard-tab.js:56
@@ -242,7 +242,7 @@ msgstr "Szablony"
 #: ../public/js/plugins/users-tab.js:397 ../public/js/plugins/users-tab.js:403
 #: ../public/js/sunstone.js:6968
 msgid "Users"
-msgstr "Użytkownicy"
+msgstr "Vartotojai"
 
 #: ../public/js/plugins/acls-tab.js:97 ../public/js/plugins/acls-tab.js:399
 #: ../public/js/plugins/groups-tab.js:364
@@ -250,17 +250,17 @@ msgstr "Użytkownicy"
 #: ../public/js/plugins/vdcs-tab.js:402 ../public/js/plugins/vdcs-tab.js:427
 #: ../public/js/plugins/vdcs-tab.js:585
 msgid "Groups"
-msgstr "Grupy"
+msgstr "Grupės"
 
 #: ../public/js/plugins/acls-tab.js:100 ../public/js/plugins/acls-tab.js:408
 #: ../public/js/plugins/groups-tab.js:122
 msgid "Documents"
-msgstr "Dokumenty"
+msgstr "Dokumentai"
 
 #: ../public/js/plugins/acls-tab.js:103 ../public/js/plugins/acls-tab.js:411
 #: ../public/js/plugins/zones-tab.js:218 ../public/js/plugins/zones-tab.js:224
 msgid "Zones"
-msgstr "Strefy"
+msgstr "Zonos"
 
 #: ../public/js/plugins/acls-tab.js:106 ../public/js/plugins/acls-tab.js:414
 #: ../public/js/plugins/groups-tab.js:119
@@ -280,7 +280,7 @@ msgstr ""
 
 #: ../public/js/plugins/acls-tab.js:116
 msgid "Resource subset"
-msgstr "Podzbiór zasobów"
+msgstr "sub-Ištekliai"
 
 #: ../public/js/plugins/acls-tab.js:122 ../public/js/plugins/acls-tab.js:275
 #: ../public/js/plugins/acls-tab.js:327
@@ -351,27 +351,27 @@ msgstr "ID"
 #: ../public/js/sunstone.js:6006 ../public/js/sunstone.js:6347
 #: ../public/js/sunstone.js:6526
 msgid "Cluster"
-msgstr "Klaster"
+msgstr "Telkinys"
 
 #: ../public/js/plugins/acls-tab.js:134
 msgid "Resource ID"
-msgstr "ID Zasobu"
+msgstr "Išteklių ID"
 
 #: ../public/js/plugins/acls-tab.js:151 ../public/js/plugins/acls-tab.js:279
 msgid "Allowed operations"
-msgstr "Dozwolone operacje"
+msgstr "Leisti veiksmai"
 
 #: ../public/js/plugins/acls-tab.js:154 ../public/js/sunstone.js:4058
 msgid "Use"
-msgstr "Używanie"
+msgstr "Naudoti"
 
 #: ../public/js/plugins/acls-tab.js:157 ../public/js/sunstone.js:4059
 msgid "Manage"
-msgstr "Zarządzanie"
+msgstr "Valdyti"
 
 #: ../public/js/plugins/acls-tab.js:160
 msgid "Administrate"
-msgstr "Administrowanie"
+msgstr "Administruoti"
 
 #: ../public/js/plugins/acls-tab.js:163 ../public/js/plugins/acls-tab.js:175
 #: ../public/js/plugins/clusters-tab.js:57
@@ -391,11 +391,11 @@ msgstr "Administrowanie"
 #: ../public/js/plugins/vms-tab.js:101 ../public/js/plugins/vnets-tab.js:652
 #: ../public/js/plugins/zones-tab.js:74 ../public/js/sunstone.js:821
 msgid "Create"
-msgstr "Stwórz"
+msgstr "Kurti"
 
 #: ../public/js/plugins/acls-tab.js:170
 msgid "ACL String preview"
-msgstr "Podgląd reguły ACL"
+msgstr "ACL eilutės peržiūra"
 
 #: ../public/js/plugins/acls-tab.js:176
 #: ../public/js/plugins/datastores-tab.js:231
@@ -407,7 +407,7 @@ msgstr "Podgląd reguły ACL"
 #: ../public/js/plugins/images-tab.js:220
 #: ../public/js/plugins/vnets-tab.js:1988 ../public/js/sunstone.js:818
 msgid "Reset"
-msgstr "Resetuj"
+msgstr "Atkurti"
 
 #: ../public/js/plugins/acls-tab.js:253
 #: ../public/js/plugins/clusters-tab.js:528
@@ -432,11 +432,11 @@ msgstr "Resetuj"
 #: ../public/js/plugins/vms-tab.js:2645 ../public/js/plugins/vnets-tab.js:599
 #: ../public/js/plugins/zones-tab.js:213
 msgid "Delete"
-msgstr "Usuń"
+msgstr "Trinti"
 
 #: ../public/js/plugins/acls-tab.js:263
 msgid "ACLs"
-msgstr "Reguły"
+msgstr "ACLai"
 
 #: ../public/js/plugins/acls-tab.js:268
 #: ../public/js/plugins/clusters-tab.js:539
@@ -459,56 +459,56 @@ msgstr "Reguły"
 #: ../public/js/plugins/vms-tab.js:945 ../public/js/plugins/vnets-tab.js:624
 #: ../public/js/plugins/zones-tab.js:223 ../public/js/sunstone.js:7491
 msgid "Search"
-msgstr "Szukaj"
+msgstr "Ieškoti"
 
 #: ../public/js/plugins/acls-tab.js:269
 msgid "Access Control Lists"
-msgstr "Listy kontroli dostępu"
+msgstr "Prieigos teisių sąrašas"
 
 #: ../public/js/plugins/acls-tab.js:276
 msgid "Applies to"
-msgstr "Dotyczy"
+msgstr "Taikoma "
 
 #: ../public/js/plugins/acls-tab.js:278
 msgid "Resource ID / Owned by"
-msgstr "ID zasobu"
+msgstr "Išteklių ID / Savininkas"
 
 #: ../public/js/plugins/acls-tab.js:280 ../public/js/plugins/vdcs-tab.js:1000
 #: ../public/js/plugins/zones-tab.js:225
 msgid "Zone"
-msgstr "Strefa"
+msgstr "Zona"
 
 #: ../public/js/plugins/acls-tab.js:281
 msgid "ACL String"
-msgstr "Reguła ACL"
+msgstr "ACL eilutė"
 
 #: ../public/js/plugins/acls-tab.js:313
 msgid "Group "
-msgstr "Grupa"
+msgstr "Grupė"
 
 #: ../public/js/plugins/acls-tab.js:335
 msgid "Cluster ID"
-msgstr "ID Klastra"
+msgstr "Telkinio ID"
 
 #: ../public/js/plugins/acls-tab.js:393
 msgid "VM Templates"
-msgstr "Szablony maszyn"
+msgstr "VM šablonai"
 
 #: ../public/js/plugins/acls-tab.js:634
 msgid "Please select at least one resource"
-msgstr "Wybierz przynajmniej jeden zasób"
+msgstr "Prašoma pasirinkti bent vieną išteklių"
 
 #: ../public/js/plugins/acls-tab.js:643
 msgid "Please provide a resource ID for the resource(s) in this rule"
-msgstr "Podaj ID zasobu dla zasobu(ów) w tej regule"
+msgstr "Prašome nurodykite išteklių ID ištekliui(-ams) šioje taisyklėje"
 
 #: ../public/js/plugins/clusters-tab.js:23
 msgid "Create Cluster"
-msgstr "Stwórz klaster"
+msgstr "Sukurti telkinį"
 
 #: ../public/js/plugins/clusters-tab.js:24
 msgid "Update Cluster"
-msgstr "Edytuj klaster"
+msgstr "Atnaujinti telkinį"
 
 #: ../public/js/plugins/clusters-tab.js:31
 #: ../public/js/plugins/clusters-tab.js:548
@@ -571,7 +571,7 @@ msgstr "Edytuj klaster"
 #: ../public/js/sunstone.js:6822 ../public/js/sunstone.js:6967
 #: ../public/js/sunstone.js:7120 ../public/js/sunstone.js:7300
 msgid "Name"
-msgstr "Nazwa"
+msgstr "Pavadinimas"
 
 #: ../public/js/plugins/clusters-tab.js:37
 #: ../public/js/plugins/clusters-tab.js:550
@@ -581,7 +581,7 @@ msgstr "Nazwa"
 #: ../public/js/plugins/vdcs-tab.js:430 ../public/js/plugins/vdcs-tab.js:1178
 #: ../public/js/sunstone.js:7302
 msgid "VNets"
-msgstr "Sieci wirtualne"
+msgstr "VNetai"
 
 #: ../public/js/plugins/clusters-tab.js:58
 #: ../public/js/plugins/clusters-tab.js:523
@@ -599,35 +599,35 @@ msgstr "Sieci wirtualne"
 #: ../public/js/plugins/vnets-tab.js:2054
 #: ../public/js/plugins/zones-tab.js:207
 msgid "Update"
-msgstr "Edytuj"
+msgstr "Atnaujinti"
 
 #: ../public/js/plugins/clusters-tab.js:85
 msgid "Cluster name missing!"
-msgstr "Nazwa klastra jest obowiązkowa!"
+msgstr "Nepateiktas telkinio pavadinimas"
 
 #: ../public/js/plugins/clusters-tab.js:157
 msgid "Please select one (and just one) cluster to update."
-msgstr "Wybierz jeden (i tylko jeden) klaster do edycji"
+msgstr "Prašome pasirinkti tik vieną (vienintelį) telkinį atnaujinimui."
 
 #: ../public/js/plugins/clusters-tab.js:354
 msgid "Cluster created"
-msgstr "Utworzono klaster"
+msgstr "Telkinys sukurtas"
 
 #: ../public/js/plugins/clusters-tab.js:561
 msgid "Cluster information"
-msgstr "Informacje o klastrze"
+msgstr "Telkinio informacija"
 
 #: ../public/js/plugins/clusters-tab.js:566
 msgid "Cluster Hosts"
-msgstr "Gospodarze w klastrze"
+msgstr "Telkinio serveris"
 
 #: ../public/js/plugins/clusters-tab.js:570
 msgid "Cluster Virtual Networks"
-msgstr "Sieci wirtualne w klastrze"
+msgstr "Telkinio virtualus tinklas"
 
 #: ../public/js/plugins/clusters-tab.js:574
 msgid "Cluster Datastores"
-msgstr "Magazyny danych w klastrze"
+msgstr "Telkinio duomenų saugykla"
 
 #: ../public/js/plugins/clusters-tab.js:664
 #: ../public/js/plugins/config-tab.js:134
@@ -668,7 +668,7 @@ msgstr "Info"
 #: ../public/js/plugins/vdcs-tab.js:554 ../public/js/plugins/vms-tab.js:1320
 #: ../public/js/plugins/vnets-tab.js:777 ../public/js/plugins/zones-tab.js:318
 msgid "Information"
-msgstr "Monitorowanie"
+msgstr "Informacija"
 
 #: ../public/js/plugins/clusters-tab.js:675
 #: ../public/js/plugins/hosts-tab.js:807
@@ -686,15 +686,15 @@ msgstr "id"
 #: ../public/js/plugins/vms-tab.js:1382 ../public/js/plugins/vnets-tab.js:810
 #: ../public/js/plugins/zones-tab.js:341
 msgid "Attributes"
-msgstr "Atrybuty"
+msgstr "Atributai"
 
 #: ../public/js/plugins/config-tab.js:130
 msgid "Configuration"
-msgstr "Konfiguracja"
+msgstr "Konfigūracija"
 
 #: ../public/js/plugins/config-tab.js:135 ../public/js/plugins/vnets-tab.js:25
 msgid "Conf"
-msgstr "Conf"
+msgstr "Konfig."
 
 #: ../public/js/plugins/config-tab.js:136
 #: ../public/js/plugins/groups-tab.js:347
@@ -704,7 +704,7 @@ msgstr "Conf"
 #: ../public/js/plugins/users-tab.js:346 ../public/js/plugins/users-tab.js:387
 #: ../public/js/plugins/users-tab.js:604
 msgid "Quotas"
-msgstr "Limity"
+msgstr "Apribojimai"
 
 #: ../public/js/plugins/config-tab.js:137
 #: ../public/js/plugins/dashboard-tab.js:251
@@ -713,7 +713,7 @@ msgstr "Limity"
 #: ../public/js/plugins/provision-tab.js:5486
 #: ../public/js/plugins/users-tab.js:610
 msgid "Accounting"
-msgstr ""
+msgstr "Apskaitymas"
 
 #: ../public/js/plugins/config-tab.js:139
 #: ../public/js/plugins/groups-tab.js:620
@@ -726,7 +726,7 @@ msgstr ""
 
 #: ../public/js/plugins/config-tab.js:151
 msgid "User information"
-msgstr "Informacje o użytkowniku"
+msgstr "Vartotojo informacija"
 
 #: ../public/js/plugins/config-tab.js:161
 #: ../public/js/plugins/users-tab.js:575
@@ -735,63 +735,63 @@ msgstr ""
 
 #: ../public/js/plugins/config-tab.js:190
 msgid "Language"
-msgstr "Język"
+msgstr "Kalba"
 
 #: ../public/js/plugins/config-tab.js:197
 #: ../public/js/plugins/groups-tab.js:57
 msgid "Views"
-msgstr "Widoki"
+msgstr "Rodiniai"
 
 #: ../public/js/plugins/config-tab.js:203
 msgid "Default Table order"
-msgstr "Domyślna kolejność w tabeli"
+msgstr "Numatyta lentelės tvarka"
 
 #: ../public/js/plugins/config-tab.js:224
 #: ../public/js/plugins/dashboard-tab.js:245
 msgid "Select group"
-msgstr "Wybierz grupę"
+msgstr "Pasirinkti grupę"
 
 #: ../public/js/plugins/config-tab.js:243
 msgid "Update config"
-msgstr "Zaktualizuj konfigurację"
+msgstr "Atnaujinti konfigūraciją"
 
 #: ../public/js/plugins/config-tab.js:253
 #: ../public/js/plugins/provision-tab.js:1132
 #: ../public/js/plugins/provision-tab.js:5542
 #: ../public/js/plugins/users-tab.js:94
 msgid "Update Password"
-msgstr "Zaktualizuj hasło"
+msgstr "Atnaujinti slaptažodį"
 
 #: ../public/js/plugins/config-tab.js:259
 #: ../public/js/plugins/users-tab.js:100
 msgid "New password"
-msgstr "Nowe hasło"
+msgstr "Naujas slaptažodis"
 
 #: ../public/js/plugins/config-tab.js:265
 #: ../public/js/plugins/provision-tab.js:1127
 #: ../public/js/plugins/provision-tab.js:5536
 #: ../public/js/plugins/users-tab.js:107
 msgid "Confirm Password"
-msgstr "Potwierdź hasło"
+msgstr "Patvirtinti slaptažodį"
 
 #: ../public/js/plugins/config-tab.js:270
 #: ../public/js/plugins/oneflow-templates.js:1113
 #: ../public/js/plugins/oneflow-templates.js:1148
 #: ../public/js/plugins/users-tab.js:113 ../public/js/plugins/users-tab.js:132
 msgid "Change"
-msgstr "Zmień"
+msgstr "Keisti"
 
 #: ../public/js/plugins/config-tab.js:295
 #: ../public/js/plugins/users-tab.js:757
 msgid "Change password"
-msgstr "Zmień hasło"
+msgstr "Keisti slaptažodį"
 
 #: ../public/js/plugins/config-tab.js:311
 #: ../public/js/plugins/provision-tab.js:5556
 #: ../public/js/plugins/provision-tab.js:6011
 #: ../public/js/plugins/users-tab.js:769
 msgid "Fill in a new password"
-msgstr "Wypełnij nowe hasło"
+msgstr "Įveskite naująjį slaptažodį"
 
 #: ../public/js/plugins/config-tab.js:316
 #: ../public/js/plugins/provision-tab.js:5561
@@ -799,17 +799,17 @@ msgstr "Wypełnij nowe hasło"
 #: ../public/js/plugins/provision-tab.js:6776
 #: ../public/js/plugins/users-tab.js:774
 msgid "Passwords do not match"
-msgstr "Hasła nie są takie same"
+msgstr "Slaptažodžiai nesutampa"
 
 #: ../public/js/plugins/config-tab.js:456
 #: ../public/js/plugins/users-tab.js:419 ../public/js/sunstone.js:7126
 msgid "Group ID"
-msgstr "ID Grupy"
+msgstr "Grupės ID"
 
 #: ../public/js/plugins/config-tab.js:469
 #: ../public/js/plugins/users-tab.js:559
 msgid "Secondary groups"
-msgstr "Grupy podrzędne"
+msgstr "Antrinės grupės"
 
 #: ../public/js/plugins/config-tab.js:473
 #: ../public/js/plugins/hosts-tab.js:143
@@ -817,11 +817,11 @@ msgstr "Grupy podrzędne"
 #: ../public/js/plugins/templates-tab.js:515
 #: ../public/js/plugins/users-tab.js:67 ../public/js/plugins/users-tab.js:336
 msgid "Password"
-msgstr "Hasło"
+msgstr "Slaptažodis"
 
 #: ../public/js/plugins/config-tab.js:474
 msgid "Update password"
-msgstr "Zaktualizuj hasło"
+msgstr "Atnaujinti slaptažodį"
 
 #: ../public/js/plugins/config-tab.js:484
 #: ../public/js/plugins/users-tab.js:583
@@ -831,7 +831,7 @@ msgstr ""
 #: ../public/js/plugins/config-tab.js:491
 #: ../public/js/plugins/provision-tab.js:2088 ../public/js/sunstone.js:7905
 msgid "Custom Attributes"
-msgstr "Ustawienia niestandardowe"
+msgstr "Individualizuoti atributai"
 
 #: ../public/js/plugins/dashboard-tab.js:25
 #: ../public/js/plugins/provision-tab.js:24
@@ -842,25 +842,25 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:3013
 #: ../public/js/plugins/vms-tab.js:1389
 msgid "Storage"
-msgstr "Zasoby dyskowe"
+msgstr "saugykla"
 
 #: ../public/js/plugins/dashboard-tab.js:51
 msgid "IMAGES"
-msgstr "OBRAZÓW"
+msgstr "Diskai"
 
 #: ../public/js/plugins/dashboard-tab.js:52
 #: ../public/js/plugins/images-tab.js:507
 #: ../public/js/plugins/provision-tab.js:3600
 msgid "USED"
-msgstr "ZUŻYTE"
+msgstr "Panaudota"
 
 #: ../public/js/plugins/dashboard-tab.js:67
 msgid "USERS"
-msgstr "UŻYTKOWNIKÓW"
+msgstr "Naudotojai"
 
 #: ../public/js/plugins/dashboard-tab.js:68
 msgid "GROUPS"
-msgstr "GRUPY"
+msgstr "Grupės"
 
 #: ../public/js/plugins/dashboard-tab.js:75
 #: ../public/js/plugins/dashboard-tab.js:183
@@ -870,7 +870,7 @@ msgstr "GRUPY"
 #: ../public/js/plugins/provision-tab.js:1295 ../public/js/sunstone.js:5194
 #: ../public/js/sunstone.js:5216
 msgid "CPU hours"
-msgstr ""
+msgstr "CPU valandos"
 
 #: ../public/js/plugins/dashboard-tab.js:81
 #: ../public/js/plugins/dashboard-tab.js:189
@@ -894,16 +894,16 @@ msgstr ""
 #: ../public/js/plugins/vms-tab.js:2375 ../public/js/sunstone.js:2842
 #: ../public/js/sunstone.js:7909
 msgid "Network"
-msgstr "Sieć"
+msgstr "Tinklas"
 
 #: ../public/js/plugins/dashboard-tab.js:107
 msgid "VNETS"
-msgstr "VNETÓW"
+msgstr ""
 
 #: ../public/js/plugins/dashboard-tab.js:108
 #: ../public/js/plugins/vnets-tab.js:628
 msgid "USED IPs"
-msgstr "UŻYWANYCH IP"
+msgstr "UŽIMTI IP"
 
 #: ../public/js/plugins/dashboard-tab.js:125
 #: ../public/js/plugins/dashboard-tab.js:173
@@ -917,12 +917,12 @@ msgstr "UŻYWANYCH IP"
 #: ../public/js/plugins/users-tab.js:406 ../public/js/plugins/vdcs-tab.js:420
 #: ../public/js/plugins/vms-tab.js:948 ../public/js/plugins/vnets-tab.js:627
 msgid "TOTAL"
-msgstr "RAZEM"
+msgstr "Iš viso"
 
 #: ../public/js/plugins/dashboard-tab.js:126
 #: ../public/js/plugins/hosts-tab.js:447 ../public/js/plugins/hosts-tab.js:572
 msgid "ON"
-msgstr "AKTYWNY"
+msgstr "Įjungti"
 
 #: ../public/js/plugins/dashboard-tab.js:127
 #: ../public/js/plugins/hosts-tab.js:448 ../public/js/plugins/hosts-tab.js:579
@@ -932,7 +932,7 @@ msgstr "AKTYWNY"
 #: ../public/js/plugins/provision-tab.js:3607
 #: ../public/js/plugins/vms-tab.js:950
 msgid "OFF"
-msgstr "WYŁĄCZONY"
+msgstr "Išjungti"
 
 #: ../public/js/plugins/dashboard-tab.js:128
 #: ../public/js/plugins/hosts-tab.js:449 ../public/js/plugins/hosts-tab.js:575
@@ -943,7 +943,7 @@ msgstr "WYŁĄCZONY"
 #: ../public/js/plugins/provision-tab.js:3615
 #: ../public/js/plugins/provision-tab.js:3617
 msgid "ERROR"
-msgstr "BŁĄD"
+msgstr "KLAIDA"
 
 #: ../public/js/plugins/dashboard-tab.js:174
 #: ../public/js/plugins/provision-tab.js:3500
@@ -951,59 +951,59 @@ msgstr "BŁĄD"
 #: ../public/js/plugins/vms-tab.js:1020 ../public/js/plugins/vms-tab.js:1032
 #: ../public/js/plugins/vms-tab.js:1292 ../public/js/plugins/vms-tab.js:2968
 msgid "ACTIVE"
-msgstr "AKTYWNYCH"
+msgstr "AKTYVU"
 
 #: ../public/js/plugins/dashboard-tab.js:176
 #: ../public/js/plugins/provision-tab.js:3496
 #: ../public/js/plugins/vms-tab.js:952 ../public/js/plugins/vms-tab.js:1017
 msgid "FAILED"
-msgstr "BŁĄD"
+msgstr "NEPAVYKĘS"
 
 #: ../public/js/plugins/dashboard-tab.js:205
 msgid "User Quotas"
-msgstr ""
+msgstr "Apribojimai vartotojui"
 
 #: ../public/js/plugins/dashboard-tab.js:217
 #: ../public/js/plugins/dashboard-tab.js:236
 #: ../public/js/plugins/dashboard-tab.js:402
 #: ../public/js/plugins/dashboard-tab.js:444 ../public/js/sunstone.js:3105
 msgid "There are no quotas defined"
-msgstr ""
+msgstr "Nėra nustatytų apribojimų"
 
 #: ../public/js/plugins/dashboard-tab.js:224
 #: ../public/js/plugins/provision-tab.js:103
 #: ../public/js/plugins/provision-tab.js:1426
 msgid "Group Quotas"
-msgstr ""
+msgstr "Apribojimai grupei"
 
 #: ../public/js/plugins/dashboard-tab.js:353
 #: ../public/js/plugins/dashboard-tab.js:357
 msgid "Dashboard"
-msgstr "Kokpit"
+msgstr "Skydelis"
 
 #: ../public/js/plugins/datastores-tab.js:20
 msgid "Create Datastore"
-msgstr "Stwórz magazyn danych"
+msgstr "Sukurti duomenų saugyklą"
 
 #: ../public/js/plugins/datastores-tab.js:24
 #: ../public/js/plugins/files-tab.js:23 ../public/js/plugins/images-tab.js:27
 #: ../public/js/sunstone.js:824
 msgid "Wizard"
-msgstr "Kreator"
+msgstr "Vediklis"
 
 #: ../public/js/plugins/datastores-tab.js:25
 #: ../public/js/plugins/files-tab.js:24 ../public/js/plugins/images-tab.js:28
 msgid "Advanced mode"
-msgstr "Tryb zaawansowany"
+msgstr "Sudėtingesnė veiksena"
 
 #: ../public/js/plugins/datastores-tab.js:41
 msgid "Presets"
-msgstr "Ustawienie"
+msgstr "Išankstinės parinktys"
 
 #: ../public/js/plugins/datastores-tab.js:43
 #: ../public/js/plugins/datastores-tab.js:78
 msgid "Filesystem"
-msgstr "System plików"
+msgstr "Failų sistema"
 
 #: ../public/js/plugins/datastores-tab.js:44
 msgid "VMware VMFS"
@@ -1011,7 +1011,7 @@ msgstr "VMware VMFS"
 
 #: ../public/js/plugins/datastores-tab.js:45
 msgid "Block LVM"
-msgstr "Blokowy LVM"
+msgstr "Blokinis LVM"
 
 #: ../public/js/plugins/datastores-tab.js:46
 #: ../public/js/plugins/datastores-tab.js:98
@@ -1033,7 +1033,7 @@ msgstr "Gluster"
 #: ../public/js/plugins/datastores-tab.js:83
 #: ../public/js/plugins/datastores-tab.js:101
 msgid "Devices"
-msgstr ""
+msgstr "Įrenginiai"
 
 #: ../public/js/plugins/datastores-tab.js:50
 #: ../public/js/plugins/datastores-tab.js:84
@@ -1042,7 +1042,7 @@ msgstr ""
 #: ../public/js/plugins/hosts-tab.js:94 ../public/js/plugins/hosts-tab.js:116
 #: ../public/js/plugins/users-tab.js:51
 msgid "Custom"
-msgstr "Niestandardowy"
+msgstr "Individualizuotas"
 
 #: ../public/js/plugins/datastores-tab.js:62
 #: ../public/js/plugins/datastores-tab.js:269
@@ -1071,22 +1071,22 @@ msgstr "Niestandardowy"
 #: ../public/js/plugins/vnets-tab.js:2251 ../public/js/sunstone.js:6530
 #: ../public/js/sunstone.js:6704
 msgid "Type"
-msgstr "Typ"
+msgstr "Tipas"
 
 #: ../public/js/plugins/datastores-tab.js:65
 #: ../public/js/plugins/provision-tab.js:491
 #: ../public/js/plugins/system-tab.js:18
 msgid "System"
-msgstr "System"
+msgstr "Sistema"
 
 #: ../public/js/plugins/datastores-tab.js:66
 #: ../public/js/plugins/templates-tab.js:584
 msgid "Files"
-msgstr "Pliki"
+msgstr "Failai"
 
 #: ../public/js/plugins/datastores-tab.js:74
 msgid "Managers"
-msgstr "Zarządcy"
+msgstr "Tvarkytojai"
 
 #: ../public/js/plugins/datastores-tab.js:76
 #: ../public/js/plugins/datastores-tab.js:267
@@ -1103,7 +1103,7 @@ msgstr "Zarządcy"
 #: ../public/js/plugins/vms-tab.js:1160 ../public/js/sunstone.js:2548
 #: ../public/js/sunstone.js:3300 ../public/js/sunstone.js:6702
 msgid "Datastore"
-msgstr "Magazyn danych"
+msgstr "Duomenų saugykla"
 
 #: ../public/js/plugins/datastores-tab.js:79
 #: ../public/js/plugins/hosts-tab.js:35 ../public/js/plugins/hosts-tab.js:66
@@ -1125,17 +1125,17 @@ msgstr "VMFS"
 
 #: ../public/js/plugins/datastores-tab.js:87
 msgid "Custom DS_MAD"
-msgstr "Niestandardowy DS_MAD"
+msgstr "Individualizuotas DS_MAD"
 
 #: ../public/js/plugins/datastores-tab.js:92
 msgid "Transfer"
-msgstr "Transfer"
+msgstr "Perduoti"
 
 #: ../public/js/plugins/datastores-tab.js:94
 #: ../public/js/plugins/provision-tab.js:524
 #: ../public/js/plugins/provision-tab.js:538
 msgid "Shared"
-msgstr "Współdzielony"
+msgstr "Bendrintas"
 
 #: ../public/js/plugins/datastores-tab.js:95
 #: ../public/js/plugins/users-tab.js:47
@@ -1148,21 +1148,21 @@ msgstr "qcow2"
 
 #: ../public/js/plugins/datastores-tab.js:105
 msgid "Custom TM_MAD"
-msgstr "Niestandardowy TM_MAD"
+msgstr "Individualizuotas TM_MAD"
 
 #: ../public/js/plugins/datastores-tab.js:114
 #: ../public/js/plugins/templates-tab.js:2306
 msgid "Disk type"
-msgstr "Typ dysku"
+msgstr "Disko tipas"
 
 #: ../public/js/plugins/datastores-tab.js:116
 #: ../public/js/plugins/files-tab.js:359 ../public/js/plugins/files-tab.js:478
 msgid "File"
-msgstr "Plik"
+msgstr "Failas"
 
 #: ../public/js/plugins/datastores-tab.js:117
 msgid "Block"
-msgstr "Urządzenie blokowe"
+msgstr "Blokas"
 
 #: ../public/js/plugins/datastores-tab.js:118
 msgid "RBD"
@@ -1170,15 +1170,15 @@ msgstr "RBD"
 
 #: ../public/js/plugins/datastores-tab.js:125
 msgid "Safe Directories"
-msgstr "Bezpieczne katalogi"
+msgstr "Saugūs katalogai"
 
 #: ../public/js/plugins/datastores-tab.js:126
 msgid "If you need to un-block a directory under one of the RESTRICTED_DIRS"
-msgstr "Musisz usunąć katalog z listy katalogów zablokowanych 'RESTRICTED_DIRS'."
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:131
 msgid "Restricted Directories"
-msgstr "Ograniczone katalogi"
+msgstr "Ribotų teisių kanalogai"
 
 #: ../public/js/plugins/datastores-tab.js:132
 msgid ""
@@ -1187,11 +1187,11 @@ msgid ""
 "accessing them thourgh their VMs. OpenNebula will automatically add its "
 "configuration directories: /var/lib/one, /etc/one and oneadmin's home "
 "($HOME)."
-msgstr "Scieżki w których nie można zapisać obrazu, oddzielone spacjami. Zapobiega to zapisywaniu plików z nazwą Wirtualnej Maszyny oraz późniejszego dostępu do nich przez te maszyny. OpenNebula automatycznie doda ścieżki konfiguracyjne: : /var/lib/one, /etc/one oraz katalog domowy użytkownika oneadmin ($HOME)."
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:137
 msgid "Base Path"
-msgstr "Ścieżka"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:138
 msgid ""
@@ -1212,13 +1212,13 @@ msgstr ""
 #: ../public/js/plugins/datastores-tab.js:149
 #: ../public/js/plugins/datastores-tab.js:775
 msgid "Limit"
-msgstr "Limit"
+msgstr "Limitai"
 
 #: ../public/js/plugins/datastores-tab.js:150
 msgid ""
 "Optional limit, in MB. If set, OpenNebula will only use this amount of "
 "storage, instead of the whole free disk."
-msgstr "Opcjonalny limit w MB. Gdy ustawiony, OpenNebula będzie używać tylko tyle przestrzeni ile zostało zdefiniowane zamiast całego wolnego dysku."
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:155
 msgid "Do not try to untar or decompress"
@@ -1230,7 +1230,7 @@ msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:161
 msgid "Host Bridge List"
-msgstr "Lista mostków gospodarza"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:162
 msgid ""
@@ -1251,27 +1251,27 @@ msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:173
 msgid "Volume Group Name"
-msgstr "Nazwa Grupy Woluminów"
+msgstr "Tomo grupės pavadinimas"
 
 #: ../public/js/plugins/datastores-tab.js:177
 msgid "Gluster Host"
-msgstr "Gospodarz Gluster"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:178
 msgid "Host and port of one (and only one) Gluster server (host:port)"
-msgstr "Host i port jednego (i tylko jednego) serwera Gluster (host:port)"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:183
 msgid "Gluster Volume"
-msgstr "Wolumin Gluster"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:184
 msgid "Gluster volume to use for the datastore"
-msgstr "Wolumin Gluster który zostanie użyty dla magazynu danych"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:189
 msgid "Pool Name"
-msgstr "Nazwa puli"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:190
 msgid ""
@@ -1281,14 +1281,14 @@ msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:195
 msgid "Ceph Host"
-msgstr "Gospodarz Ceph"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:196
 msgid ""
 "Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 "
 "host4:port4 (if no port is specified, the default one is chosen) (Required "
 "for Libvirt 1.x when cephx is enabled)."
-msgstr "Lista monitorów Ceph oddzielona spacją np. host1 host2:port2 host3 host4:port4 (jeśli nie zostanie podany port użyty będzie domyślny) (Wymagane dla Libvirt 1.x, gdy włączony jest cephx)."
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:201
 msgid "Ceph User"
@@ -1303,7 +1303,7 @@ msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:207
 msgid "Ceph Secret"
-msgstr "Sekret Ceph"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:208
 msgid ""
@@ -1311,7 +1311,7 @@ msgid ""
 "in Libvirt on each hypervisor). This should be generated when creating the "
 "Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is "
 "enabled)."
-msgstr "Wygenerowany UUID dla sekretu LibVirt (aby przetrzymywać klucz autoryzacyjny CephX w LibVirt na każdym nadzorcy). Powinien zostać wygenerowany, gdy zostanie utworzony magazyn danych Ceph w OpenNebuli. (Wymagany dla Libvirt 1.x, gdy włączony jest cephx)."
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:213
 msgid "Staging Dir"
@@ -1359,7 +1359,7 @@ msgstr ""
 #: ../public/js/sunstone.js:6177 ../public/js/sunstone.js:6522
 #: ../public/js/sunstone.js:6699 ../public/js/sunstone.js:6820
 msgid "Owner"
-msgstr "Właściciel"
+msgstr "Savininkas"
 
 #: ../public/js/plugins/datastores-tab.js:268
 #: ../public/js/plugins/files-tab.js:371 ../public/js/plugins/files-tab.js:514
@@ -1376,7 +1376,7 @@ msgstr "Właściciel"
 #: ../public/js/plugins/vnets-tab.js:1683 ../public/js/sunstone.js:2554
 #: ../public/js/sunstone.js:6703 ../public/js/sunstone.js:8152
 msgid "Size"
-msgstr "Wielkość"
+msgstr "Dydis"
 
 #: ../public/js/plugins/datastores-tab.js:270
 #: ../public/js/plugins/files-tab.js:373
@@ -1387,7 +1387,7 @@ msgstr "Wielkość"
 #: ../public/js/plugins/templates-tab.js:1677 ../public/js/sunstone.js:6180
 #: ../public/js/sunstone.js:6705
 msgid "Registration time"
-msgstr "Czas rejestracji"
+msgstr "Registravimo data"
 
 #: ../public/js/plugins/datastores-tab.js:271
 #: ../public/js/plugins/files-tab.js:374 ../public/js/plugins/images-tab.js:76
@@ -1398,7 +1398,7 @@ msgstr "Czas rejestracji"
 #: ../public/js/plugins/templates-tab.js:645
 #: ../public/js/plugins/vms-tab.js:1787 ../public/js/sunstone.js:6706
 msgid "Persistent"
-msgstr "Trwały"
+msgstr "Pastovus"
 
 #: ../public/js/plugins/datastores-tab.js:272
 #: ../public/js/plugins/datastores-tab.js:609
@@ -1415,7 +1415,7 @@ msgstr "Trwały"
 #: ../public/js/plugins/vms-tab.js:961 ../public/js/sunstone.js:6353
 #: ../public/js/sunstone.js:6531 ../public/js/sunstone.js:6707
 msgid "Status"
-msgstr "Status"
+msgstr "Būsena"
 
 #: ../public/js/plugins/datastores-tab.js:273
 #: ../public/js/plugins/files-tab.js:376
@@ -1437,21 +1437,21 @@ msgstr "#VMS"
 #: ../public/js/plugins/templates-tab.js:2326
 #: ../public/js/plugins/vms-tab.js:1785 ../public/js/sunstone.js:6709
 msgid "Target"
-msgstr "Cel"
+msgstr "Tikslas"
 
 #: ../public/js/plugins/datastores-tab.js:327
 msgid "Datastore created"
-msgstr "Utworzono magazyn danych"
+msgstr "Duomenų saugykla sukurta"
 
 #: ../public/js/plugins/datastores-tab.js:538
 #: ../public/js/plugins/hosts-tab.js:398 ../public/js/plugins/vnets-tab.js:572
 msgid "Select cluster"
-msgstr "Wybierz klaster"
+msgstr "Pasirinkti telkinį"
 
 #: ../public/js/plugins/datastores-tab.js:541
 #: ../public/js/plugins/hosts-tab.js:400 ../public/js/plugins/vnets-tab.js:575
 msgid "Select the destination cluster:"
-msgstr "Wybierz docelowy klaster:"
+msgstr "Pasirinkti tikslinį telkinį:"
 
 #: ../public/js/plugins/datastores-tab.js:546
 #: ../public/js/plugins/files-tab.js:310
@@ -1462,7 +1462,7 @@ msgstr "Wybierz docelowy klaster:"
 #: ../public/js/plugins/templates-tab.js:1621
 #: ../public/js/plugins/vms-tab.js:765 ../public/js/plugins/vnets-tab.js:580
 msgid "Change owner"
-msgstr "Zmień właściciela"
+msgstr "Keisti savininką"
 
 #: ../public/js/plugins/datastores-tab.js:549
 #: ../public/js/plugins/files-tab.js:313
@@ -1473,7 +1473,7 @@ msgstr "Zmień właściciela"
 #: ../public/js/plugins/templates-tab.js:1624
 #: ../public/js/plugins/vms-tab.js:768 ../public/js/plugins/vnets-tab.js:583
 msgid "Select the new owner"
-msgstr "Wybierz nowego właściciela"
+msgstr "Pasirinkti naują savininką"
 
 #: ../public/js/plugins/datastores-tab.js:554
 #: ../public/js/plugins/files-tab.js:318
@@ -1485,7 +1485,7 @@ msgstr "Wybierz nowego właściciela"
 #: ../public/js/plugins/users-tab.js:351 ../public/js/plugins/vms-tab.js:773
 #: ../public/js/plugins/vnets-tab.js:589
 msgid "Change group"
-msgstr "Zmień grupę"
+msgstr "Keisti grupę"
 
 #: ../public/js/plugins/datastores-tab.js:557
 #: ../public/js/plugins/files-tab.js:321
@@ -1496,19 +1496,19 @@ msgstr "Zmień grupę"
 #: ../public/js/plugins/templates-tab.js:1632
 #: ../public/js/plugins/vms-tab.js:776 ../public/js/plugins/vnets-tab.js:592
 msgid "Select the new group"
-msgstr "Wybierz nową grupę"
+msgstr "Pasirinkti naują grupę"
 
 #: ../public/js/plugins/datastores-tab.js:569
 #: ../public/js/plugins/files-tab.js:327 ../public/js/plugins/hosts-tab.js:406
 #: ../public/js/plugins/images-tab.js:458
 msgid "Enable"
-msgstr "Włącz"
+msgstr "Aktyvinti"
 
 #: ../public/js/plugins/datastores-tab.js:574
 #: ../public/js/plugins/files-tab.js:332 ../public/js/plugins/hosts-tab.js:412
 #: ../public/js/plugins/images-tab.js:463
 msgid "Disable"
-msgstr "Wyłącz"
+msgstr "Deaktyvuoti"
 
 #: ../public/js/plugins/datastores-tab.js:603
 #: ../public/js/plugins/datastores-tab.js:771
@@ -1516,11 +1516,11 @@ msgstr "Wyłącz"
 #: ../public/js/plugins/provision-tab.js:2238
 #: ../public/js/plugins/vms-tab.js:1401 ../public/js/sunstone.js:6525
 msgid "Capacity"
-msgstr "Zasoby"
+msgstr "Talpa"
 
 #: ../public/js/plugins/datastores-tab.js:605 ../public/js/sunstone.js:6527
 msgid "Basepath"
-msgstr "Ścieżka"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:606 ../public/js/sunstone.js:6528
 msgid "TM MAD"
@@ -1538,23 +1538,23 @@ msgstr "DS MAD"
 #: ../public/js/plugins/oneflow-services.js:1000
 #: ../public/js/plugins/vms-tab.js:1334
 msgid "State"
-msgstr "Stan"
+msgstr "Būsena"
 
 #: ../public/js/plugins/datastores-tab.js:766
 msgid "Base path"
-msgstr "Ścieżka"
+msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:1063
 msgid "Please select a cluster for this datastore"
-msgstr "Wybierz klaster dla tego magazynu danych"
+msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
 
 #: ../public/js/plugins/files-tab.js:19
 msgid "Create File"
-msgstr "Stwórz plik"
+msgstr "Sukurti failą"
 
 #: ../public/js/plugins/files-tab.js:36
 msgid "Name that the File will get. Every file must have a unique name."
-msgstr "Nazwa pliku. Każdy plik musi posiadać unikalną nazwę."
+msgstr ""
 
 #: ../public/js/plugins/files-tab.js:43 ../public/js/plugins/images-tab.js:45
 #: ../public/js/plugins/marketplace-tab.js:513
@@ -1566,15 +1566,15 @@ msgstr "Nazwa pliku. Każdy plik musi posiadać unikalną nazwę."
 #: ../public/js/plugins/templates-tab.js:1783
 #: ../public/js/plugins/vdcs-tab.js:39 ../public/js/plugins/vnets-tab.js:42
 msgid "Description"
-msgstr "Opis"
+msgstr "Aprašas"
 
 #: ../public/js/plugins/files-tab.js:44
 msgid "Human readable description of the file for other users."
-msgstr "Opis obrazu dla pozostałych użytkowników."
+msgstr "Failo aprašymas matomas kitiems vartotojams."
 
 #: ../public/js/plugins/files-tab.js:54
 msgid "Type of the file."
-msgstr "Typ pliku."
+msgstr "Failo tipas"
 
 #: ../public/js/plugins/files-tab.js:55
 msgid ""
@@ -1592,81 +1592,81 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:3029
 #: ../public/js/plugins/vnets-tab.js:28
 msgid "Context"
-msgstr "Kontekst"
+msgstr "Kontekstas"
 
 #: ../public/js/plugins/files-tab.js:61
 #: ../public/js/plugins/templates-tab.js:60
 msgid "Kernel"
-msgstr "Jądro"
+msgstr "Branduolys"
 
 #: ../public/js/plugins/files-tab.js:62
 #: ../public/js/plugins/templates-tab.js:61
 #: ../public/js/plugins/templates-tab.js:1077
 msgid "Ramdisk"
-msgstr "Ramdysk"
+msgstr "Virtualusis diskas"
 
 #: ../public/js/plugins/files-tab.js:69
 msgid "Select the datastore for this file"
-msgstr "Wybierz magazyn danych dla tego pliku"
+msgstr "Prašome pasirinkti duomenų saugyklą "
 
 #: ../public/js/plugins/files-tab.js:78 ../public/js/plugins/images-tab.js:83
 msgid "Image location"
-msgstr "Położenie obrazu"
+msgstr "disko atvaizdžio vieta"
 
 #: ../public/js/plugins/files-tab.js:81 ../public/js/plugins/images-tab.js:86
 msgid "Provide a path"
-msgstr "Podaj ścieżkę"
+msgstr "Nurodykite kelią iki direktorijos"
 
 #: ../public/js/plugins/files-tab.js:82 ../public/js/plugins/images-tab.js:87
 msgid "Upload"
-msgstr "Załaduj"
+msgstr "Nusiuntimas"
 
 #: ../public/js/plugins/files-tab.js:88 ../public/js/plugins/images-tab.js:94
 msgid "Path"
-msgstr "Ścieżka"
+msgstr "Kelias"
 
 #: ../public/js/plugins/files-tab.js:89
 msgid "Path to the original file that will be copied to the file repository."
-msgstr ""
+msgstr "Kelias į originalų failą, kuris bus kopijuojamas į repozitoriją"
 
 #: ../public/js/plugins/files-tab.js:145
 msgid "File created"
-msgstr "Utworzono plik"
+msgstr "Failas sukurtas"
 
 #: ../public/js/plugins/files-tab.js:284
 msgid "File renamed correctly"
-msgstr "Nazwa pliku zmieniona pomyślnie"
+msgstr "Failo pavadinimas pakeistas sėkmingai"
 
 #: ../public/js/plugins/files-tab.js:349 ../public/js/plugins/files-tab.js:358
 msgid "Files & Kernels"
-msgstr "Pliki i jądra"
+msgstr "Failai ir branduoliai"
 
 #: ../public/js/plugins/files-tab.js:361
 #: ../public/js/plugins/hosts-tab.js:1337
 msgid "SIZE"
-msgstr "UŻYTYCH"
+msgstr "DYDIS"
 
 #: ../public/js/plugins/files-tab.js:504
 #: ../public/js/plugins/images-tab.js:649
 #: ../public/js/plugins/templates-tab.js:2900
 msgid "Register time"
-msgstr "Czas rejestracji"
+msgstr "Registravimo data"
 
 #: ../public/js/plugins/files-tab.js:509
 #: ../public/js/plugins/images-tab.js:663
 msgid "Filesystem type"
-msgstr "System plików"
+msgstr "Failų sistemos tipas"
 
 #: ../public/js/plugins/files-tab.js:524
 #: ../public/js/plugins/images-tab.js:678
 msgid "Running VMS"
-msgstr "Działające maszyny"
+msgstr "Veikiančios VMS"
 
 #: ../public/js/plugins/files-tab.js:661
 #: ../public/js/plugins/images-tab.js:964
 #: ../public/js/plugins/support-tab.js:388
 msgid "Uploading..."
-msgstr "Przesyłanie..."
+msgstr "Įkeliama..."
 
 #: ../public/js/plugins/files-tab.js:677
 #: ../public/js/plugins/images-tab.js:980
@@ -1676,7 +1676,7 @@ msgstr ""
 
 #: ../public/js/plugins/files-tab.js:705 ../public/js/plugins/files-tab.js:756
 msgid "Please select a datastore for this file"
-msgstr "Wybierz magazyn danych dla tego pliku"
+msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
 
 #: ../public/js/plugins/groups-tab.js:22
 #: ../public/js/plugins/groups-tab.js:384
@@ -1695,7 +1695,7 @@ msgstr "Wybierz magazyn danych dla tego pliku"
 #: ../public/js/plugins/vms-tab.js:2415 ../public/js/sunstone.js:2443
 #: ../public/js/sunstone.js:6971 ../public/js/sunstone.js:7125
 msgid "CPU"
-msgstr "PROCESOR"
+msgstr "CPU"
 
 #: ../public/js/plugins/groups-tab.js:26
 #: ../public/js/plugins/groups-tab.js:383
@@ -1708,7 +1708,7 @@ msgstr "PROCESOR"
 #: ../public/js/sunstone.js:2484 ../public/js/sunstone.js:6970
 #: ../public/js/sunstone.js:7124
 msgid "Memory"
-msgstr "Pamięć"
+msgstr "Atmintis"
 
 #: ../public/js/plugins/groups-tab.js:30 ../public/js/plugins/users-tab.js:33
 msgid "Net TX"
@@ -1720,23 +1720,23 @@ msgstr "Net RX"
 
 #: ../public/js/plugins/groups-tab.js:43
 msgid "Create Group"
-msgstr "Stwórz Grupę"
+msgstr "Sukurti grupę"
 
 #: ../public/js/plugins/groups-tab.js:44
 msgid "Update Group"
-msgstr ""
+msgstr "Atnaujinti grupę"
 
 #: ../public/js/plugins/groups-tab.js:58 ../public/js/sunstone.js:4060
 msgid "Admin"
-msgstr "Administrator"
+msgstr "Administratorius"
 
 #: ../public/js/plugins/groups-tab.js:59 ../public/js/sunstone.js:4057
 msgid "Permissions"
-msgstr "Uprawnienia"
+msgstr "Leidimai"
 
 #: ../public/js/plugins/groups-tab.js:68
 msgid "Allow users in this group to use the following Sunstone views"
-msgstr ""
+msgstr "Leisti šios grupės naudotojams naudoti šias Sunstone svetaines"
 
 #: ../public/js/plugins/groups-tab.js:69
 msgid ""
@@ -1746,7 +1746,7 @@ msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:86
 msgid "Create an administrator user"
-msgstr "Stwórz użytkownika administracyjnego"
+msgstr "Sukurti naudotoją administratorius"
 
 #: ../public/js/plugins/groups-tab.js:87
 msgid ""
@@ -1757,7 +1757,7 @@ msgstr ""
 #: ../public/js/plugins/groups-tab.js:100
 msgid ""
 "Allow users to view the VMs and Services of other users in the same group"
-msgstr ""
+msgstr "Leisti naudotojams matyt kitų vartotojų toje pačioje grupėje VM ir Paslaugas "
 
 #: ../public/js/plugins/groups-tab.js:101
 msgid ""
@@ -1767,7 +1767,7 @@ msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:108
 msgid "Allow users in this group to create the following resources"
-msgstr ""
+msgstr "Leisti šios grupės vartotojams kurti šiuos išteklius"
 
 #: ../public/js/plugins/groups-tab.js:109
 msgid ""
@@ -1789,7 +1789,7 @@ msgstr ""
 #: ../public/js/sunstone.js:4922 ../public/js/sunstone.js:4988
 #: ../public/js/sunstone.js:6969 ../public/js/sunstone.js:7123
 msgid "VMs"
-msgstr "VMs"
+msgstr "VM"
 
 #: ../public/js/plugins/groups-tab.js:122
 msgid ""
@@ -1805,20 +1805,20 @@ msgstr ""
 #: ../public/js/plugins/groups-tab.js:160
 #: ../public/js/plugins/users-tab.js:140
 msgid "Update Quota"
-msgstr "Edytuj limit"
+msgstr "Atnaujinti apribojimus"
 
 #: ../public/js/plugins/groups-tab.js:169
 #: ../public/js/plugins/users-tab.js:149
 msgid "Apply changes"
-msgstr "Zapisz zmiany"
+msgstr "Išsaugoti pakeitimus"
 
 #: ../public/js/plugins/groups-tab.js:191
 msgid "Group created"
-msgstr "Utworzono grupę"
+msgstr "Grupė sukurta"
 
 #: ../public/js/plugins/groups-tab.js:400
 msgid "Admins"
-msgstr "Administratorzy"
+msgstr "Administratoriai"
 
 #: ../public/js/plugins/groups-tab.js:401
 msgid "Users default"
@@ -1834,20 +1834,20 @@ msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:668 ../public/js/sunstone.js:3084
 msgid "Cancel"
-msgstr ""
+msgstr "Atšaukti"
 
 #: ../public/js/plugins/groups-tab.js:671 ../public/js/sunstone.js:3087
 msgid "Apply"
-msgstr ""
+msgstr "Taikyti"
 
 #: ../public/js/plugins/groups-tab.js:847
 #: ../public/js/plugins/users-tab.js:747
 msgid "User name and password must be filled in"
-msgstr "Nazwa użytkownika i hasło muszą być wypełnione"
+msgstr "Naudotojo vardas ir slaptažodis turi būti užpildyti"
 
 #: ../public/js/plugins/hosts-tab.js:24
 msgid "Create Host"
-msgstr "Stwórz gospodarza"
+msgstr "Sukurti serverį"
 
 #: ../public/js/plugins/hosts-tab.js:33 ../public/js/plugins/hosts-tab.js:86
 #: ../public/js/plugins/hosts-tab.js:108
@@ -1888,25 +1888,25 @@ msgstr ""
 #: ../public/js/plugins/hosts-tab.js:40 ../public/js/plugins/hosts-tab.js:93
 #: ../public/js/plugins/hosts-tab.js:115
 msgid "Dummy"
-msgstr "Domyślny"
+msgstr "Fiktyvus"
 
 #: ../public/js/plugins/hosts-tab.js:52 ../public/js/plugins/hosts-tab.js:137
 #: ../public/js/plugins/hosts-tab.js:952
 #: ../public/js/plugins/templates-tab.js:1135
 msgid "Hostname"
-msgstr "Hostname"
+msgstr "Serverio vardas"
 
 #: ../public/js/plugins/hosts-tab.js:58
 msgid "Networking"
-msgstr "Sieć"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:60
 msgid "Default (dummy)"
-msgstr "Domyślny"
+msgstr "Numatytas (fiktyvus)"
 
 #: ../public/js/plugins/hosts-tab.js:61
 msgid "Firewall"
-msgstr "Ściana ogniowa"
+msgstr "Ugniasienė"
 
 #: ../public/js/plugins/hosts-tab.js:62 ../public/js/plugins/vnets-tab.js:65
 msgid "802.1Q"
@@ -1918,31 +1918,31 @@ msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:64 ../public/js/plugins/vnets-tab.js:67
 msgid "ebtables"
-msgstr "ebtables"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:65 ../public/js/plugins/vnets-tab.js:68
 msgid "Open vSwitch"
-msgstr "Open vSwitch"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:71
 msgid "Custom VNM_MAD"
-msgstr "Niestandardowy  VNM_MAD"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:79
 msgid "Drivers"
-msgstr "Sterowniki"
+msgstr "Tvarkyklės"
 
 #: ../public/js/plugins/hosts-tab.js:84
 msgid "Virtualization"
-msgstr "Nadzorca"
+msgstr "Virtualizacija"
 
 #: ../public/js/plugins/hosts-tab.js:98
 msgid "Custom VMM_MAD"
-msgstr "Niestandardowy VMM_MAD"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:120
 msgid "Custom IM_MAD"
-msgstr "Niestandardowy IM_MAD"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:148
 msgid "Get vCenter Clusters"
@@ -1952,32 +1952,32 @@ msgstr ""
 #: ../public/js/plugins/marketplace-tab.js:335
 #: ../public/js/plugins/marketplace-tab.js:350
 msgid "Import"
-msgstr "Importuj"
+msgstr "Inportuoti"
 
 #: ../public/js/plugins/hosts-tab.js:196
 msgid "Host created"
-msgstr "Utworzono gospodarza"
+msgstr "Serveris sukurtas"
 
 #: ../public/js/plugins/hosts-tab.js:279 ../public/js/plugins/hosts-tab.js:286
 msgid "Allocated"
-msgstr "Przydzielone"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:279 ../public/js/plugins/hosts-tab.js:286
 msgid "Real"
-msgstr "Rzeczywiste"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:279 ../public/js/plugins/hosts-tab.js:286
 #: ../public/js/sunstone.js:5730 ../public/js/sunstone.js:5747
 msgid "Total"
-msgstr "Łącznie"
+msgstr "Iš viso"
 
 #: ../public/js/plugins/hosts-tab.js:418
 msgid "Delete host"
-msgstr "Usuń gospodarza"
+msgstr "Trinti serverį"
 
 #: ../public/js/plugins/hosts-tab.js:431 ../public/js/plugins/hosts-tab.js:882
 msgid "Graphs"
-msgstr "Wykresy"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:445 ../public/js/plugins/hosts-tab.js:931
 #: ../public/js/plugins/images-tab.js:765
@@ -1985,33 +1985,33 @@ msgstr "Wykresy"
 #: ../public/js/plugins/vms-tab.js:964 ../public/js/plugins/vms-tab.js:1159
 #: ../public/js/plugins/vms-tab.js:1344
 msgid "Host"
-msgstr "Gospodarz"
+msgstr "Serveris"
 
 #: ../public/js/plugins/hosts-tab.js:457
 #: ../public/js/plugins/templates-tab.js:789 ../public/js/sunstone.js:6348
 msgid "RVMs"
-msgstr "RVMs"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:458 ../public/js/plugins/hosts-tab.js:856
 #: ../public/js/plugins/hosts-tab.js:954
 #: ../public/js/plugins/templates-tab.js:790 ../public/js/sunstone.js:6349
 msgid "Real CPU"
-msgstr "Rzeczywiste CPU"
+msgstr "Tikras CPU"
 
 #: ../public/js/plugins/hosts-tab.js:459 ../public/js/plugins/hosts-tab.js:848
 #: ../public/js/plugins/templates-tab.js:791 ../public/js/sunstone.js:6350
 msgid "Allocated CPU"
-msgstr "Przydzielone CPU"
+msgstr "Išskirta CPU "
 
 #: ../public/js/plugins/hosts-tab.js:460
 #: ../public/js/plugins/templates-tab.js:792 ../public/js/sunstone.js:6351
 msgid "Real MEM"
-msgstr "Rzeczywista pamięć"
+msgstr "Tikros MEM"
 
 #: ../public/js/plugins/hosts-tab.js:461
 #: ../public/js/plugins/templates-tab.js:793 ../public/js/sunstone.js:6352
 msgid "Allocated MEM"
-msgstr "Przydzielona pamięć"
+msgstr "Išskirta MEM"
 
 #: ../public/js/plugins/hosts-tab.js:463 ../public/js/plugins/hosts-tab.js:823
 #: ../public/js/plugins/templates-tab.js:795 ../public/js/sunstone.js:6354
@@ -2026,22 +2026,22 @@ msgstr "VM MAD"
 #: ../public/js/plugins/hosts-tab.js:465
 #: ../public/js/plugins/templates-tab.js:797 ../public/js/sunstone.js:6356
 msgid "Last monitored on"
-msgstr "Ostatnio monitorowany"
+msgstr "Vėliausiai stebėta"
 
 #: ../public/js/plugins/hosts-tab.js:570
 #: ../public/js/plugins/provision-tab.js:3490
 #: ../public/js/plugins/provision-tab.js:3611
 #: ../public/js/plugins/vms-tab.js:1012
 msgid "INIT"
-msgstr "INIT"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:571
 msgid "UPDATE"
-msgstr "UPDATE"
+msgstr "Atnaujinti"
 
 #: ../public/js/plugins/hosts-tab.js:576
 msgid "RETRY"
-msgstr "Ponów"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:666
 msgid "ALLOCATED CPU"
@@ -2049,7 +2049,7 @@ msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:684 ../public/js/plugins/vms-tab.js:2453
 msgid "REAL CPU"
-msgstr "RZECZYWISTE CPU"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:702
 msgid "ALLOCATED MEMORY"
@@ -2057,11 +2057,11 @@ msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:720 ../public/js/plugins/vms-tab.js:2465
 msgid "REAL MEMORY"
-msgstr "RZECZYWISTA PAMIĘĆ"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:745
 msgid "Datastore ID"
-msgstr "ID magazynu danych"
+msgstr "Duomenų saugyklos ID"
 
 #: ../public/js/plugins/hosts-tab.js:831
 msgid "VN MAD"
@@ -2069,11 +2069,11 @@ msgstr "VN MAD"
 
 #: ../public/js/plugins/hosts-tab.js:844
 msgid "Allocated Memory"
-msgstr "Przydzielona pamięć"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:852 ../public/js/plugins/hosts-tab.js:955
 msgid "Real Memory"
-msgstr "Rzeczywista pamięć"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:860
 #: ../public/js/plugins/hosts-tab.js:1172
@@ -2083,7 +2083,7 @@ msgstr "Rzeczywista pamięć"
 #: ../public/js/plugins/provision-tab.js:5782
 #: ../public/js/plugins/provision-tab.js:5827 ../public/js/sunstone.js:2712
 msgid "Running VMs"
-msgstr "Działające maszyny"
+msgstr "Veikiančios VM"
 
 #: ../public/js/plugins/hosts-tab.js:901
 #: ../public/js/plugins/provision-tab.js:89
@@ -2092,35 +2092,35 @@ msgstr "Działające maszyny"
 #: ../public/js/plugins/provision-tab.js:2258
 #: ../public/js/plugins/vms-tab.js:2417
 msgid "MEMORY"
-msgstr "PAMIĘĆ"
+msgstr "Atmintis"
 
 #: ../public/js/plugins/hosts-tab.js:929
 #: ../public/js/plugins/images-tab.js:763
 #: ../public/js/plugins/oneflow-services.js:1167
 #: ../public/js/plugins/vms-tab.js:962
 msgid "Used CPU"
-msgstr "Zużyty procesor"
+msgstr "Panaudoti CPU"
 
 #: ../public/js/plugins/hosts-tab.js:930
 #: ../public/js/plugins/images-tab.js:764
 #: ../public/js/plugins/oneflow-services.js:1168
 #: ../public/js/plugins/vms-tab.js:963
 msgid "Used Memory"
-msgstr "Zużyta pamięć"
+msgstr "Naudojama atmintis"
 
 #: ../public/js/plugins/hosts-tab.js:932
 #: ../public/js/plugins/images-tab.js:766
 #: ../public/js/plugins/oneflow-services.js:1170
 #: ../public/js/plugins/vms-tab.js:965
 msgid "IPs"
-msgstr "Adresy IP"
+msgstr "IPs"
 
 #: ../public/js/plugins/hosts-tab.js:933
 #: ../public/js/plugins/images-tab.js:767
 #: ../public/js/plugins/oneflow-services.js:1171
 #: ../public/js/plugins/vms-tab.js:966
 msgid "Start Time"
-msgstr "Czas rozpoczęcia"
+msgstr "Pradžios laikas"
 
 #: ../public/js/plugins/hosts-tab.js:934
 #: ../public/js/plugins/images-tab.js:768
@@ -2128,7 +2128,7 @@ msgstr "Czas rozpoczęcia"
 #: ../public/js/plugins/vms-tab.js:923 ../public/js/plugins/vms-tab.js:925
 #: ../public/js/plugins/vms-tab.js:3076
 msgid "VNC"
-msgstr "VNC"
+msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:945
 msgid "ESX"
@@ -2173,7 +2173,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:559
 #: ../public/js/plugins/templates-tab.js:941
 msgid "TYPE"
-msgstr "TYP"
+msgstr "TIPAS"
 
 #: ../public/js/plugins/hosts-tab.js:1352
 #: ../public/js/plugins/hosts-tab.js:1376
@@ -2231,12 +2231,12 @@ msgstr ""
 #: ../public/js/plugins/marketplace-tab.js:215
 #: ../public/js/plugins/marketplace-tab.js:293 ../public/js/sunstone.js:1695
 msgid "Cannot contact server: is it running and reachable?"
-msgstr "Nie można połączyć się z serwerem: upewnij się, że jest uruchomiony i osiągalny"
+msgstr "Negalima pasiekti serverio: ar jis pasiekiamas ir vykdomas?"
 
 #: ../public/js/plugins/hosts-tab.js:1681
 #: ../public/js/plugins/marketplace-tab.js:203
 msgid "Template created successfully"
-msgstr ""
+msgstr "Šablonas sukrtas sėkmingai"
 
 #: ../public/js/plugins/hosts-tab.js:1735
 msgid "VM imported successfully"
@@ -2248,31 +2248,31 @@ msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:1887
 msgid "Host name missing!"
-msgstr "Nazwa gospodarza jest obowiązkowa!"
+msgstr "Nenurodytas serverio vardas!"
 
 #: ../public/js/plugins/images-tab.js:23
 msgid "Create Image"
-msgstr "Stwórz obraz"
+msgstr "Sukurti diską"
 
 #: ../public/js/plugins/images-tab.js:38
 msgid "Name that the Image will get. Every image must have a unique name."
-msgstr "Nazwa obrazu. Każdy obraz musi posiadać unikalną nazwę."
+msgstr "Disko pavadinimas. Kiekvienas diskas turi turėti unikalų pavadinimą."
 
 #: ../public/js/plugins/images-tab.js:46
 msgid "Human readable description of the image for other users."
-msgstr "Opis obrazu dla pozostałych użytkowników."
+msgstr "Disko aprašymas matomas kitiems naudotojams."
 
 #: ../public/js/plugins/images-tab.js:54
 msgid "Type of the image."
-msgstr "Typ obrazu."
+msgstr "Disko tipas"
 
 #: ../public/js/plugins/images-tab.js:55
 msgid " OS images contain a working operative system."
-msgstr "Obrazy systemu operacyjnego zawierają działający system operacyjny."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:56
 msgid " CDROM images are readonly data."
-msgstr "Obrazy CDROM są tylko do odczytu."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:57
 msgid ""
@@ -2283,7 +2283,7 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:61
 #: ../public/js/plugins/marketplace-tab.js:478
 msgid "OS"
-msgstr "SO"
+msgstr "OS"
 
 #: ../public/js/plugins/images-tab.js:62
 #: ../public/js/plugins/templates-tab.js:202
@@ -2294,37 +2294,37 @@ msgstr "CDROM"
 
 #: ../public/js/plugins/images-tab.js:63
 msgid "DATABLOCK"
-msgstr "DATABLOCK"
+msgstr "Duomenų blokas"
 
 #: ../public/js/plugins/images-tab.js:68
 msgid "Select the datastore for this image"
-msgstr "Wybierz magazyn danych dla tego obrazu"
+msgstr "Prašome pasirinkti duomenų saugyklą šiam diskui"
 
 #: ../public/js/plugins/images-tab.js:77
 msgid "Persistence of the image"
-msgstr "Trwałość obrazu"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:88
 msgid "Empty datablock"
-msgstr "Pusty datablock"
+msgstr "Tuščias duomenų blokas"
 
 #: ../public/js/plugins/images-tab.js:95
 msgid ""
 "Path to the original file that will be copied to the image repository. If "
 "not specified for a DATABLOCK type image, an empty image will be created."
-msgstr "Ścieżka do pliku który zostanie skopiowany do repozytorium obrazów. Jeśli nie zostanie podana dla typu DATABLOCK, zostanie stworzony pusty obraz."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:109
 msgid "Size of the datablock in MB."
-msgstr "Wielkość datablocku w MB"
+msgstr "Duomenų bloko dydis MB"
 
 #: ../public/js/plugins/images-tab.js:114
 msgid "FS type"
-msgstr "System plików"
+msgstr "Failų sistemos tipas"
 
 #: ../public/js/plugins/images-tab.js:115
 msgid "Type of file system to be built."
-msgstr "System plików, który zostanie stworzony."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:116
 msgid ""
@@ -2332,7 +2332,7 @@ msgid ""
 " the image, and so it is ready to be used by the guest OS. Values: ext2, "
 "ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will "
 "work if no special option is needed."
-msgstr "Prosty. Gdy obraz dysku jest używany bezpośrednio przez nadzorcę możemy sformatować obraz tak, aby był gotowy do użycia przez system operacyjny gościa. Wartości: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Jakikolwiek system plików wspierany przez mkfs będzie działał, gdy nie wymaga dodatkowych parametrów."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:117
 msgid ""
@@ -2346,42 +2346,42 @@ msgstr ""
 #: ../public/js/plugins/images-tab.js:1183 ../public/js/plugins/vms-tab.js:123
 #: ../public/js/plugins/vms-tab.js:170 ../public/js/plugins/vnets-tab.js:2152
 msgid "Advanced options"
-msgstr "Zaawansowane"
+msgstr "Papildomi nustatymai"
 
 #: ../public/js/plugins/images-tab.js:132
 msgid "Device prefix"
-msgstr "Prefix urządzenia"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:133
 msgid ""
 "Prefix for the emulated device this image will be mounted at. For instance, "
 "“hd”, “sd”. If omitted, the default value is the one defined in oned.conf "
 "(installation default is “hd”)."
-msgstr "Prefiks dla emulowanego urządzenia poprzez które będzie dostępny ten obraz np. \"hd\", \"sd\". Jeśli pominięty, domyślną wartością jest wartość w pliku oned.conf."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:140
 #: ../public/js/plugins/templates-tab.js:2166
 #: ../public/js/plugins/templates-tab.js:2336
 msgid "Driver"
-msgstr "Sterownik"
+msgstr "Tvarkyklė"
 
 #: ../public/js/plugins/images-tab.js:141
 msgid "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"
-msgstr "Specyficzny sterownik mapowania obrazu. Dla KVM: raw, qcow2. Dla XEN: tap:aio, file:"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:151
 msgid "Target on which the image will be mounted at. For example: hda, sdb..."
-msgstr "Urządzenie pod którym dostępny będzie obraz np. hda, sdb..."
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:161 ../public/js/plugins/vdcs-tab.js:48
 #: ../public/js/plugins/vnets-tab.js:202
 #: ../public/js/plugins/vnets-tab.js:1708
 msgid "Custom attributes"
-msgstr "Ustawienia niestandardowe"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:172
 msgid "Value"
-msgstr "Wartość"
+msgstr "Reikšmė"
 
 #: ../public/js/plugins/images-tab.js:179
 #: ../public/js/plugins/templates-tab.js:551
@@ -2391,27 +2391,27 @@ msgstr "Wartość"
 #: ../public/js/plugins/vnets-tab.js:1987 ../public/js/sunstone.js:3552
 #: ../public/js/sunstone.js:3817 ../public/js/sunstone.js:5844
 msgid "Add"
-msgstr "Dodaj"
+msgstr "Pridėti"
 
 #: ../public/js/plugins/images-tab.js:182
 msgid "Remove selected"
-msgstr "Usuń zaznaczony"
+msgstr "Trinti pažymėtą"
 
 #: ../public/js/plugins/images-tab.js:241
 msgid "Image created"
-msgstr "Utworzono obraz"
+msgstr "Diskas sukurtas"
 
 #: ../public/js/plugins/images-tab.js:415
 msgid "Image renamed correctly"
-msgstr "Nazwa obrazu zmieniona pomyślnie"
+msgstr "Disko pavadinimas pakeistas sėkmingai"
 
 #: ../public/js/plugins/images-tab.js:468
 msgid "Make persistent"
-msgstr "Uczyń trwałym"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:473
 msgid "Make non persistent"
-msgstr "Uczyń nietrwałym"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:478
 #: ../public/js/plugins/images-tab.js:1197
@@ -2420,7 +2420,7 @@ msgstr "Uczyń nietrwałym"
 #: ../public/js/plugins/templates-tab.js:1638
 #: ../public/js/plugins/templates-tab.js:4941
 msgid "Clone"
-msgstr "Sklonuj"
+msgstr "Klonuoti"
 
 #: ../public/js/plugins/images-tab.js:505
 #: ../public/js/plugins/provision-tab.js:3899
@@ -2429,7 +2429,7 @@ msgstr "Sklonuj"
 #: ../public/js/plugins/templates-tab.js:2124 ../public/js/sunstone.js:2707
 #: ../public/js/sunstone.js:3301
 msgid "Image"
-msgstr "Obraz"
+msgstr "Diskas"
 
 #: ../public/js/plugins/images-tab.js:655
 #: ../public/js/plugins/images-tab.js:731
@@ -2437,7 +2437,7 @@ msgstr "Obraz"
 #: ../public/js/plugins/templates-tab.js:2367
 #: ../public/js/plugins/vms-tab.js:1360
 msgid "yes"
-msgstr "tak"
+msgstr "taip"
 
 #: ../public/js/plugins/images-tab.js:655
 #: ../public/js/plugins/images-tab.js:732
@@ -2445,24 +2445,24 @@ msgstr "tak"
 #: ../public/js/plugins/templates-tab.js:2368
 #: ../public/js/plugins/vms-tab.js:1360
 msgid "no"
-msgstr "nie"
+msgstr "ne"
 
 #: ../public/js/plugins/images-tab.js:906
 msgid "Custom attribute name and value must be filled in"
-msgstr "Nazwa i wartość w ustawieniach niestandardowych musi być wypełniona"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:1010
 msgid "There are mandatory parameters missing"
-msgstr "Niektóre wymagane parametry zostały pominięte"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:1019
 #: ../public/js/plugins/images-tab.js:1100
 msgid "Please select a datastore for this image"
-msgstr "Wybierz magazyn danych dla tego obrazu"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:1170
 msgid "Clone Image"
-msgstr "Sklonuj obraz"
+msgstr ""
 
 #: ../public/js/plugins/images-tab.js:1176
 msgid ""
@@ -2475,11 +2475,11 @@ msgstr ""
 
 #: ../public/js/plugins/infra-tab.js:18
 msgid "Infrastructure"
-msgstr "Infrastruktura"
+msgstr "Infrastruktūra"
 
 #: ../public/js/plugins/marketplace-tab.js:49
 msgid "The appliance is not ready"
-msgstr "Appliance nie jest gotowy"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:65
 msgid "The following images will be created in OpenNebula."
@@ -2497,7 +2497,7 @@ msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:97
 msgid "Image Name"
-msgstr ""
+msgstr "Disko pavadinimas"
 
 #: ../public/js/plugins/marketplace-tab.js:117
 msgid ""
@@ -2514,27 +2514,27 @@ msgstr ""
 #: ../public/js/plugins/marketplace-tab.js:128
 #: ../public/js/plugins/provision-tab.js:3865
 msgid "Template Name"
-msgstr ""
+msgstr "Šablono pavadinimas"
 
 #: ../public/js/plugins/marketplace-tab.js:276
 msgid "Image created successfully"
-msgstr ""
+msgstr "Diskas sukurtas sėkmingai"
 
 #: ../public/js/plugins/marketplace-tab.js:343
 msgid "Import Appliance"
-msgstr "Importuj appliance"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:358
 msgid "Marketplace"
-msgstr "Marketplace"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:361
 msgid "OpenNebula Marketplace"
-msgstr "OpenNebula Marketplace"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:362
 msgid "Appliance"
-msgstr "Appliance"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:366
 msgid "Cannot connect to OpenNebula Marketplace"
@@ -2543,39 +2543,39 @@ msgstr ""
 #: ../public/js/plugins/marketplace-tab.js:375
 #: ../public/js/plugins/marketplace-tab.js:459
 msgid "Publisher"
-msgstr "Wydawca"
+msgstr "Leidėjas"
 
 #: ../public/js/plugins/marketplace-tab.js:376
 #: ../public/js/plugins/marketplace-tab.js:490
 #: ../public/js/plugins/templates-tab.js:1774
 msgid "Hypervisor"
-msgstr "Nadzorca"
+msgstr "Hipervizorius"
 
 #: ../public/js/plugins/marketplace-tab.js:377
 #: ../public/js/plugins/marketplace-tab.js:482
 #: ../public/js/plugins/templates-tab.js:68
 msgid "Arch"
-msgstr "Architektura"
+msgstr "Arch"
 
 #: ../public/js/plugins/marketplace-tab.js:378
 #: ../public/js/plugins/marketplace-tab.js:494
 #: ../public/js/plugins/templates-tab.js:2314
 msgid "Format"
-msgstr "Format"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:379
 #: ../public/js/plugins/marketplace-tab.js:470
 #: ../public/js/plugins/templates-tab.js:1092
 msgid "Tags"
-msgstr "Tagi"
+msgstr "Žymės"
 
 #: ../public/js/plugins/marketplace-tab.js:397
 msgid "Appliance information"
-msgstr "Appliance information"
+msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:429
 msgid "No Images defined"
-msgstr ""
+msgstr "Nėra aprašyto atvaizdžio"
 
 #: ../public/js/plugins/marketplace-tab.js:455
 msgid "URL"
@@ -2583,15 +2583,15 @@ msgstr "URL"
 
 #: ../public/js/plugins/marketplace-tab.js:456
 msgid "link"
-msgstr "link"
+msgstr "nuoroda"
 
 #: ../public/js/plugins/marketplace-tab.js:463
 msgid "Downloads"
-msgstr "Pobrania"
+msgstr "Parsisiuntimai"
 
 #: ../public/js/plugins/marketplace-tab.js:474
 msgid "Catalog"
-msgstr ""
+msgstr "Katalogas"
 
 #: ../public/js/plugins/marketplace-tab.js:503
 msgid "Short Description"
@@ -2599,76 +2599,76 @@ msgstr ""
 
 #: ../public/js/plugins/marketplace-tab.js:524
 msgid "OpenNebula Template"
-msgstr ""
+msgstr "OpenNebula šablonas"
 
 #: ../public/js/plugins/oneflow-services.js:438
 #: ../public/js/plugins/oneflow-services.js:1447
 #: ../public/js/plugins/oneflow-services.js:1466
 msgid "Scale"
-msgstr "Skaluj"
+msgstr "Išplėsti"
 
 #: ../public/js/plugins/oneflow-services.js:439
 #: ../public/js/plugins/oneflow-services.js:445
 #: ../public/js/plugins/oneflow-services.js:545
 #: ../public/js/plugins/vms-tab.js:804
 msgid "This will hold selected pending VMs from being deployed"
-msgstr "Wstrzyma powoływanie wybranych wstrzymanych maszyn wirtualnych"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:444
 #: ../public/js/plugins/oneflow-services.js:544
 #: ../public/js/plugins/templates-tab.js:1334
 #: ../public/js/plugins/vms-tab.js:82 ../public/js/plugins/vms-tab.js:803
 msgid "Hold"
-msgstr "Wstrzymaj"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:450
 #: ../public/js/plugins/oneflow-services.js:550
 #: ../public/js/plugins/vms-tab.js:809
 msgid "Release"
-msgstr "Odłącz"
+msgstr "Išleisti"
 
 #: ../public/js/plugins/oneflow-services.js:452
 #: ../public/js/plugins/oneflow-services.js:552
 #: ../public/js/plugins/vms-tab.js:811
 msgid "This will release held machines"
-msgstr "Wznowi wstrzymane maszyny"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:456
 #: ../public/js/plugins/oneflow-services.js:556
 #: ../public/js/plugins/vms-tab.js:815
 msgid "Suspend"
-msgstr "Wstrzymaj"
+msgstr "Sustabdtyti"
 
 #: ../public/js/plugins/oneflow-services.js:458
 #: ../public/js/plugins/oneflow-services.js:558
 #: ../public/js/plugins/vms-tab.js:817
 msgid "This will suspend selected machines"
-msgstr "Wstrzyma wybrane maszyny"
+msgstr "Tai sustabdys pasirinktas virtualias mašinas"
 
 #: ../public/js/plugins/oneflow-services.js:464
 #: ../public/js/plugins/oneflow-services.js:564
 #: ../public/js/plugins/vms-tab.js:823
 msgid "This will resume selected VMs"
-msgstr "Wznowi wybrane maszyny"
+msgstr "Tai atstatys pasirinktas virtualias mašinas"
 
 #: ../public/js/plugins/oneflow-services.js:468
 #: ../public/js/plugins/oneflow-services.js:568
 #: ../public/js/plugins/vms-tab.js:827
 msgid "Stop"
-msgstr "Stop"
+msgstr "Sustabdyti"
 
 #: ../public/js/plugins/oneflow-services.js:470
 #: ../public/js/plugins/oneflow-services.js:570
 #: ../public/js/plugins/vms-tab.js:829
 msgid "This will stop selected VMs"
-msgstr "Zatrzyma to wybrane wirtualne maszyny"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:474
 #: ../public/js/plugins/oneflow-services.js:574
 #: ../public/js/plugins/templates-tab.js:59
 #: ../public/js/plugins/vms-tab.js:833
 msgid "Boot"
-msgstr "Rozruch z"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:476
 #: ../public/js/plugins/oneflow-services.js:576
@@ -2676,7 +2676,7 @@ msgstr "Rozruch z"
 msgid ""
 "This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT "
 "state"
-msgstr "Wymusi akcję rozruchu w maszynach, które są w stanie NIEZNANY lub ROZRUCH"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:480
 #: ../public/js/plugins/oneflow-services.js:486
@@ -2685,19 +2685,19 @@ msgstr "Wymusi akcję rozruchu w maszynach, które są w stanie NIEZNANY lub ROZ
 #: ../public/js/plugins/provision-tab.js:3998
 #: ../public/js/plugins/vms-tab.js:839 ../public/js/plugins/vms-tab.js:845
 msgid "Reboot"
-msgstr "Uruchom ponownie"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:482
 #: ../public/js/plugins/oneflow-services.js:582
 #: ../public/js/plugins/vms-tab.js:841
 msgid "This will send a reboot action to running VMs"
-msgstr "Uruchomi ponownie wybrane maszyny wirtualne"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:488
 #: ../public/js/plugins/oneflow-services.js:588
 #: ../public/js/plugins/vms-tab.js:847
 msgid "This will perform a hard reboot on selected VMs"
-msgstr "Wykona to twardy restart dla wybranych maszyn wirtualnych"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:492
 #: ../public/js/plugins/oneflow-services.js:498
@@ -2705,14 +2705,14 @@ msgstr "Wykona to twardy restart dla wybranych maszyn wirtualnych"
 #: ../public/js/plugins/oneflow-services.js:598
 #: ../public/js/plugins/vms-tab.js:851 ../public/js/plugins/vms-tab.js:857
 msgid "Power Off"
-msgstr "Wyłącz"
+msgstr "Išjungti"
 
 #: ../public/js/plugins/oneflow-services.js:494
 #: ../public/js/plugins/oneflow-services.js:594
 #: ../public/js/plugins/vms-tab.js:853
 msgid ""
 "This will send a power off signal to running VMs. They can be resumed later."
-msgstr "Wyśle to sygnał wyłączenia do wybranych maszyn wirtualnych. Mogą zostać wznowione później."
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:500
 #: ../public/js/plugins/oneflow-services.js:600
@@ -2720,7 +2720,7 @@ msgstr "Wyśle to sygnał wyłączenia do wybranych maszyn wirtualnych. Mogą zo
 msgid ""
 "This will send a forced power off signal to running VMs. They can be resumed"
 " later."
-msgstr "Wyśle to sygnał wyłączenia do wybranych maszyn wirtualnych. Mogą zostać wznowione później."
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:504
 #: ../public/js/plugins/oneflow-services.js:510
@@ -2728,7 +2728,7 @@ msgstr "Wyśle to sygnał wyłączenia do wybranych maszyn wirtualnych. Mogą zo
 #: ../public/js/plugins/oneflow-services.js:610
 #: ../public/js/plugins/vms-tab.js:863 ../public/js/plugins/vms-tab.js:869
 msgid "Undeploy"
-msgstr "Zatrzymaj"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:506
 #: ../public/js/plugins/oneflow-services.js:512
@@ -2736,7 +2736,7 @@ msgstr "Zatrzymaj"
 #: ../public/js/plugins/oneflow-services.js:612
 #: ../public/js/plugins/vms-tab.js:865 ../public/js/plugins/vms-tab.js:871
 msgid "Shuts down the given VM. The VM is saved in the system Datastore."
-msgstr "Wyłącza wybraną maszynę wirtualną. Maszyna zostanie zapisana w systemowym magazynie danych."
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:516
 #: ../public/js/plugins/oneflow-services.js:522
@@ -2748,86 +2748,86 @@ msgstr "Wyłącza wybraną maszynę wirtualną. Maszyna zostanie zapisana w syst
 #: ../public/js/plugins/provision-tab.js:4976
 #: ../public/js/plugins/vms-tab.js:875 ../public/js/plugins/vms-tab.js:881
 msgid "Shutdown"
-msgstr "Wyłącz"
+msgstr "Išjungti"
 
 #: ../public/js/plugins/oneflow-services.js:518
 #: ../public/js/plugins/oneflow-services.js:618
 #: ../public/js/plugins/vms-tab.js:877
 msgid "This will initiate the shutdown process in the selected VMs"
-msgstr "Rozpocznie proces wyłączania wybranych maszyn wirtualnych"
+msgstr "Tai inicijuos išjungimo proecesą pasirinktai virtualiai mašinai"
 
 #: ../public/js/plugins/oneflow-services.js:524
 #: ../public/js/plugins/oneflow-services.js:624
 #: ../public/js/plugins/vms-tab.js:883
 msgid ""
 "This will initiate the shutdown-hard (forced) process in the selected VMs"
-msgstr "Rozpocznie proces wyłączania (wymuszonego) w wybranych maszynach wirtualnych"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:530
 #: ../public/js/plugins/oneflow-services.js:631
 #: ../public/js/plugins/vms-tab.js:890
 msgid "This will delete the selected VMs from the database"
-msgstr "Usunie wybrane maszyny wirtualne z bazy danych"
+msgstr "Tai ištrins pasirinktas mašinas iš duomenų bazės"
 
 #: ../public/js/plugins/oneflow-services.js:536
 #: ../public/js/plugins/oneflow-services.js:637
 #: ../public/js/plugins/vms-tab.js:896
 msgid "This will delete and recreate VMs to PENDING state"
-msgstr "Skasuje i stworzy ponownie maszynę w stanie OCZEKUJĄCY"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:641
 #: ../public/js/plugins/vms-tab.js:900 ../public/js/plugins/vms-tab.js:1359
 msgid "Reschedule"
-msgstr "Włącz przenoszenie"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:643
 #: ../public/js/plugins/vms-tab.js:902
 msgid "This will reschedule selected VMs"
-msgstr "Włączy przenoszenie wybranych maszyn między gospodarzami"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:647
 #: ../public/js/plugins/vms-tab.js:906
 msgid "Un-Reschedule"
-msgstr "Wyłącz przenoszenie"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:649
 #: ../public/js/plugins/vms-tab.js:908
 msgid "This will cancel the rescheduling for the selected VMs"
-msgstr "Wyłączy przenoszenie wybranych maszyn między gospodarzami"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:799
 #: ../public/js/plugins/vms-tab.js:912
 msgid "Recover"
-msgstr "Odzyskaj"
+msgstr "Atkurti"
 
 #: ../public/js/plugins/oneflow-services.js:805
 msgid "This will delete the selected services"
-msgstr "Usunie zaznaczone usługi"
+msgstr "Tai ištrints pasirinktus servisus"
 
 #: ../public/js/plugins/oneflow-services.js:811
 #: ../public/js/plugins/oneflow-templates.js:615
 msgid "Service information"
-msgstr "Informacje o usłudze"
+msgstr "Serviso informacija"
 
 #: ../public/js/plugins/oneflow-services.js:823
 msgid "OneFlow - Services"
-msgstr "OneFlow - Usługi"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:824
 msgid "OneFlow - Service"
-msgstr "OneFlow - Usługa"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:828
 #: ../public/js/plugins/oneflow-templates.js:632
 #: ../public/js/plugins/provision-tab.js:3382
 msgid "Cannot connect to OneFlow server"
-msgstr "Brak połączenia z serwerem OneFlow"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:936
 #: ../public/js/plugins/oneflow-templates.js:73
 #: ../public/js/plugins/oneflow-templates.js:798
 msgid "Strategy"
-msgstr "Strategia"
+msgstr "Strategija"
 
 #: ../public/js/plugins/oneflow-services.js:940
 #: ../public/js/plugins/oneflow-services.js:1134
@@ -2836,7 +2836,7 @@ msgstr "Strategia"
 #: ../public/js/plugins/oneflow-templates.js:802
 #: ../public/js/plugins/oneflow-templates.js:917
 msgid "Shutdown action"
-msgstr "Wyłączenie"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:948
 #: ../public/js/plugins/oneflow-templates.js:806
@@ -2847,22 +2847,22 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:103
 #: ../public/js/plugins/oneflow-templates.js:765
 msgid "Roles"
-msgstr "Role"
+msgstr "Rolės"
 
 #: ../public/js/plugins/oneflow-services.js:978
 #: ../public/js/plugins/oneflow-services.js:1219
 #: ../public/js/plugins/oneflow-templates.js:276
 #: ../public/js/plugins/oneflow-templates.js:970
 msgid "Period"
-msgstr "Okres"
+msgstr "Laikotarpis"
 
 #: ../public/js/plugins/oneflow-services.js:979
 msgid "Seconds between each group of actions"
-msgstr "Ilość sekund pomiędzy każdą grupą akcji"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:984
 msgid "Number"
-msgstr "Liczba"
+msgstr "Skaičius"
 
 #: ../public/js/plugins/oneflow-services.js:985
 msgid "Number of VMs to apply the action to each period"
@@ -2880,23 +2880,23 @@ msgstr ""
 #: ../public/js/plugins/oneflow-services.js:1002
 #: ../public/js/plugins/oneflow-templates.js:836
 msgid "VM Template"
-msgstr "Szablon maszyny wirtualnej"
+msgstr "VM šablonas"
 
 #: ../public/js/plugins/oneflow-services.js:1003
 #: ../public/js/plugins/oneflow-templates.js:837
 msgid "Parents"
-msgstr "Rodzice"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1011
 #: ../public/js/plugins/oneflow-templates.js:844
 msgid "Select a role in the table for more information"
-msgstr "Aby uzyskać więcej informacji wybierz rolę z tabeli"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1126
 #: ../public/js/plugins/oneflow-templates.js:907
 #: ../public/js/plugins/oneflow-templates.js:1792
 msgid "Role"
-msgstr "Rola"
+msgstr "Rolė"
 
 #: ../public/js/plugins/oneflow-services.js:1136
 #: ../public/js/plugins/oneflow-services.js:1223
@@ -2911,13 +2911,13 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:222
 #: ../public/js/plugins/oneflow-templates.js:921
 msgid "Min VMs"
-msgstr "Min VMs"
+msgstr "Min. VM"
 
 #: ../public/js/plugins/oneflow-services.js:1140
 #: ../public/js/plugins/oneflow-templates.js:228
 #: ../public/js/plugins/oneflow-templates.js:923
 msgid "Max VMs"
-msgstr "Max VMs"
+msgstr "Maks. VM"
 
 #: ../public/js/plugins/oneflow-services.js:1187
 #: ../public/js/plugins/oneflow-templates.js:246
@@ -2932,7 +2932,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:944
 #: ../public/js/plugins/oneflow-templates.js:1008
 msgid "Type of adjustment."
-msgstr ""
+msgstr "Regyliavimo tipas."
 
 #: ../public/js/plugins/oneflow-services.js:1194
 #: ../public/js/plugins/oneflow-services.js:1258
@@ -2941,7 +2941,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:945
 #: ../public/js/plugins/oneflow-templates.js:1009
 msgid "CHANGE: Add/substract the given number of VMs."
-msgstr "ZMIANA: Dodaj/odejmij wybraną liczbę maszyn wirtualnych."
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1195
 #: ../public/js/plugins/oneflow-services.js:1259
@@ -2970,7 +2970,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:950
 #: ../public/js/plugins/oneflow-templates.js:1014
 msgid "Adjust"
-msgstr "Dostosuj"
+msgstr "Pareguliuoti"
 
 #: ../public/js/plugins/oneflow-services.js:1200
 #: ../public/js/plugins/oneflow-services.js:1264
@@ -3015,7 +3015,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:957
 #: ../public/js/plugins/oneflow-templates.js:1021
 msgid "Min"
-msgstr "Min"
+msgstr "Min."
 
 #: ../public/js/plugins/oneflow-services.js:1207
 #: ../public/js/plugins/oneflow-services.js:1271
@@ -3036,7 +3036,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:887
 #: ../public/js/plugins/templates-tab.js:909
 msgid "Expression"
-msgstr "Wyrażenie"
+msgstr "Išraiška"
 
 #: ../public/js/plugins/oneflow-services.js:1211
 #: ../public/js/plugins/oneflow-templates.js:268
@@ -3048,12 +3048,12 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:269
 #: ../public/js/plugins/oneflow-templates.js:963
 msgid "Example: ATT < 20"
-msgstr "Przykład: ATT < 20"
+msgstr "Pavyzdžiui: ATT < 20"
 
 #: ../public/js/plugins/oneflow-services.js:1215
 #: ../public/js/plugins/oneflow-templates.js:966
 msgid "# Periods"
-msgstr "# Okresy"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1216
 #: ../public/js/plugins/oneflow-templates.js:272
@@ -3067,7 +3067,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:275
 #: ../public/js/plugins/oneflow-templates.js:971
 msgid "Duration, in seconds, of each period in '# Periods'"
-msgstr "Czas trwania w sekundach każdego okresu w '# Okresy'"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1224
 #: ../public/js/plugins/oneflow-templates.js:278
@@ -3079,13 +3079,13 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:303
 #: ../public/js/plugins/oneflow-templates.js:1002
 msgid "Scheduled policies"
-msgstr "Zaplanowane polisy"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1274
 #: ../public/js/plugins/oneflow-templates.js:326
 #: ../public/js/plugins/oneflow-templates.js:1025
 msgid "Time format"
-msgstr "Format czasu"
+msgstr "Laiko formatas"
 
 #: ../public/js/plugins/oneflow-services.js:1275
 #: ../public/js/plugins/oneflow-services.js:1281
@@ -3111,30 +3111,30 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:331
 #: ../public/js/plugins/oneflow-templates.js:1030
 msgid "Time expression"
-msgstr "Wyrażenie czasowe"
+msgstr "Laiko išraiška"
 
 #: ../public/js/plugins/oneflow-services.js:1280
 #: ../public/js/plugins/oneflow-templates.js:328
 #: ../public/js/plugins/oneflow-templates.js:1031
 msgid "Time expression depends on the the time formar selected"
-msgstr "Wyrażenie czasowe zależy od wybranego formatu czasu"
+msgstr "Laiko išraiška priklauso nuo pasirinkto laiko formato"
 
 #: ../public/js/plugins/oneflow-services.js:1340
 msgid "The VM is ready"
-msgstr ""
+msgstr "VM paruošta"
 
 #: ../public/js/plugins/oneflow-services.js:1343
 msgid "Waiting for the VM to be ready"
-msgstr ""
+msgstr "Laukiama kol VM bus paruošta"
 
 #: ../public/js/plugins/oneflow-services.js:1453
 #: ../public/js/plugins/oneflow-templates.js:128
 msgid "Number of VMs to instantiate with this role"
-msgstr "Ilość maszyn wirtualnych do utworzenia z tą rolą"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1460
 msgid "Force"
-msgstr "Wymuś"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-services.js:1461
 msgid "Force the new cardinality even if it is outside the limits"
@@ -3142,20 +3142,20 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:24
 msgid "Name for this template"
-msgstr "Nazwa szablonu"
+msgstr "Šablono pavadinimas"
 
 #: ../public/js/plugins/oneflow-templates.js:34
 msgid "Description of the service"
-msgstr ""
+msgstr "Serviso aprašymas"
 
 #: ../public/js/plugins/oneflow-templates.js:41
 #: ../public/js/plugins/oneflow-templates.js:730
 msgid "Network Configuration"
-msgstr ""
+msgstr "Kompiuterių tinklo konfigūracija"
 
 #: ../public/js/plugins/oneflow-templates.js:60
 msgid "Add another Network"
-msgstr ""
+msgstr "Pridėti kitą kompiuterių tinklą"
 
 #: ../public/js/plugins/oneflow-templates.js:69
 msgid "Advanced Service Parameters"
@@ -3174,7 +3174,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:78
 msgid "None"
-msgstr "Brak"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:83
 msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'."
@@ -3183,7 +3183,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:88
 #: ../public/js/plugins/oneflow-templates.js:200
 msgid "Shutdown hard"
-msgstr "Wymuś wyłączenie"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:95
 msgid "Wait for VMs to report that they are READY"
@@ -3197,31 +3197,31 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:110
 msgid "Add another role"
-msgstr "Dodaj kolejną rolę"
+msgstr "Pridėti vartotojų grupė"
 
 #: ../public/js/plugins/oneflow-templates.js:121
 msgid "Role Name"
-msgstr "Nazwa roli"
+msgstr "Vartotojų grupės pavadinimas"
 
 #: ../public/js/plugins/oneflow-templates.js:122
 msgid "Name of the role"
-msgstr "Nazwa roli"
+msgstr "Vartotojų grupės pavadinimas"
 
 #: ../public/js/plugins/oneflow-templates.js:135
 msgid "VM template"
-msgstr "Szablon maszyny wirtualnej"
+msgstr "VM šablonas"
 
 #: ../public/js/plugins/oneflow-templates.js:136
 msgid "Template associated to this role"
-msgstr "Szablon przypisany do tej roli"
+msgstr "Šablonas siejamas su šia role"
 
 #: ../public/js/plugins/oneflow-templates.js:147
 msgid "Network Interfaces"
-msgstr ""
+msgstr "Tinklo sąsajos"
 
 #: ../public/js/plugins/oneflow-templates.js:156
 msgid "Parent roles"
-msgstr ""
+msgstr "Tėvinės rolės"
 
 #: ../public/js/plugins/oneflow-templates.js:178
 msgid "Write the Service template here"
@@ -3229,7 +3229,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:190
 msgid "Advanced Role Parameters"
-msgstr ""
+msgstr "Praplėsti rolių parametrai"
 
 #: ../public/js/plugins/oneflow-templates.js:195
 msgid ""
@@ -3250,7 +3250,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:218
 msgid "Role Elasticity"
-msgstr ""
+msgstr "Rolės elastiškumas"
 
 #: ../public/js/plugins/oneflow-templates.js:223
 msgid "Minimum number of VMs for elasticity adjustments"
@@ -3286,7 +3286,7 @@ msgstr ""
 #: ../public/js/plugins/oneflow-templates.js:357
 #: ../public/js/plugins/provision-tab.js:595
 msgid "Service Name"
-msgstr ""
+msgstr "Serviso pavadinimas"
 
 #: ../public/js/plugins/oneflow-templates.js:358
 msgid ""
@@ -3299,7 +3299,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1325
 #: ../public/js/plugins/vms-tab.js:75
 msgid "Number of instances"
-msgstr "Liczba instancji"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:364
 msgid "Number of Services that will be created using this template"
@@ -3310,49 +3310,49 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1343
 #: ../public/js/plugins/templates-tab.js:1617
 msgid "Instantiate"
-msgstr "Twórz"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:394
 msgid "Service Template created"
-msgstr "Utworzono szablon usługi"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:447
 msgid "ServiceTemplate updated correctly"
-msgstr "Szablon usługi zaktualizowany pomyślnie"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:609
 msgid "This will delete the selected templates"
-msgstr "Usunie zaznaczone szablony"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:627
 msgid "OneFlow - Templates"
-msgstr "OneFlow - Szablony"
+msgstr "OneFlow - šablonai"
 
 #: ../public/js/plugins/oneflow-templates.js:628
 msgid "OneFlow - Template"
-msgstr "OneFlow - Szablon"
+msgstr "OneFlow - šablonas"
 
 #: ../public/js/plugins/oneflow-templates.js:652
 msgid "Create Service Template"
-msgstr "Stwórz szablon usługi"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:656
 msgid "Update Service Template"
-msgstr "Edytuj szablon usługi"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1115
 #: ../public/js/plugins/oneflow-templates.js:1150
 msgid "Percentage"
-msgstr "Procent"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1160
 #: ../public/js/plugins/vms-tab.js:1349 ../public/js/sunstone.js:5138
 msgid "Start time"
-msgstr "Czas rozpoczęcia"
+msgstr "Pražios laikas"
 
 #: ../public/js/plugins/oneflow-templates.js:1161
 msgid "Recurrence"
-msgstr "Rekurencja"
+msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1219
 #: ../public/js/plugins/templates-tab.js:3512
@@ -3361,7 +3361,7 @@ msgstr ""
 
 #: ../public/js/plugins/oneflow-templates.js:1307
 msgid "Role "
-msgstr "Rola"
+msgstr "Rolė"
 
 #: ../public/js/plugins/oneflow-templates.js:1378
 #: ../public/js/plugins/oneflow-templates.js:1394
@@ -3395,16 +3395,16 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:458
 #: ../public/js/plugins/vms-tab.js:60
 msgid "Create Virtual Machine"
-msgstr "Stwórz maszynę wirtualną"
+msgstr "Sukurti virtualią mašiną"
 
 #: ../public/js/plugins/provision-tab.js:465
 msgid "Virtual Machine Name"
-msgstr ""
+msgstr "Virtualio mašinos pavadinimas"
 
 #: ../public/js/plugins/provision-tab.js:475
 #: ../public/js/plugins/provision-tab.js:605
 msgid "Select a Template"
-msgstr ""
+msgstr "Pasirinkite šabloną"
 
 #: ../public/js/plugins/provision-tab.js:493
 #: ../public/js/plugins/provision-tab.js:510
@@ -3412,7 +3412,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:537
 #: ../public/js/plugins/provision-tab.js:1482
 msgid "Saved"
-msgstr ""
+msgstr "Išsaugota"
 
 #: ../public/js/plugins/provision-tab.js:588
 msgid "Create Service"
@@ -3429,7 +3429,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:727
 #: ../public/js/plugins/provision-tab.js:772 ../public/js/sunstone.js:3209
 msgid "Unlimited"
-msgstr ""
+msgstr "Neriboti"
 
 #: ../public/js/plugins/provision-tab.js:686
 #: ../public/js/plugins/provision-tab.js:728
@@ -3437,7 +3437,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:970
 #: ../public/js/plugins/vnets-tab.js:64 ../public/js/sunstone.js:3198
 msgid "Default"
-msgstr "Domyślny"
+msgstr "Numatytas"
 
 #: ../public/js/plugins/provision-tab.js:705
 #: ../public/js/plugins/provision-tab.js:747
@@ -3454,21 +3454,21 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:760
 msgid "Memory (GBs)"
-msgstr ""
+msgstr "Atmintis (GBs)"
 
 #: ../public/js/plugins/provision-tab.js:933
 #: ../public/js/plugins/users-tab.js:81
 msgid "Create User"
-msgstr "Stwórz użytkownika"
+msgstr "Sukurti naudotoją"
 
 #: ../public/js/plugins/provision-tab.js:940
 #: ../public/js/plugins/users-tab.js:61
 msgid "Username"
-msgstr "Nazwa użytkownika"
+msgstr "Naudotojo vardas"
 
 #: ../public/js/plugins/provision-tab.js:952
 msgid "Repeat Password"
-msgstr ""
+msgstr "Pakartokite slaptažodį"
 
 #: ../public/js/plugins/provision-tab.js:960
 msgid "Define Quotas"
@@ -3476,7 +3476,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1001
 msgid "Add User"
-msgstr ""
+msgstr "Pridėti naudotoją"
 
 #: ../public/js/plugins/provision-tab.js:1015
 #: ../public/js/plugins/provision-tab.js:1351
@@ -3487,66 +3487,66 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:1831
 #: ../public/js/plugins/provision-tab.js:1834
 msgid "Refresh"
-msgstr "Odśwież"
+msgstr "Perkrauti"
 
 #: ../public/js/plugins/provision-tab.js:1026
 msgid "Settings"
-msgstr ""
+msgstr "Nustatymai"
 
 #: ../public/js/plugins/provision-tab.js:1073
 msgid "Change Language"
-msgstr ""
+msgstr "Keisti kalbą"
 
 #: ../public/js/plugins/provision-tab.js:1087
 msgid "Update Language"
-msgstr ""
+msgstr "Atnaujinti kalbą"
 
 #: ../public/js/plugins/provision-tab.js:1115
 msgid "Change Password"
-msgstr ""
+msgstr "Keisti slaptažodį"
 
 #: ../public/js/plugins/provision-tab.js:1122
 #: ../public/js/plugins/provision-tab.js:5531
 msgid "New Password"
-msgstr ""
+msgstr "Naujas slaptažodis"
 
 #: ../public/js/plugins/provision-tab.js:1164
 msgid "Change view"
-msgstr ""
+msgstr "Keisti svetainę"
 
 #: ../public/js/plugins/provision-tab.js:1177
 msgid "Update view"
-msgstr ""
+msgstr "Atnaujinti svetainę"
 
 #: ../public/js/plugins/provision-tab.js:1206
 #: ../public/js/plugins/provision-tab.js:1230
 msgid "Add SSH Key"
-msgstr ""
+msgstr "Pridėti SSH raktą"
 
 #: ../public/js/plugins/provision-tab.js:1207
 #: ../public/js/plugins/provision-tab.js:1231
 msgid "Update SSH Key"
-msgstr ""
+msgstr "Atnaujinti SSH raktą"
 
 #: ../public/js/plugins/provision-tab.js:1213
 msgid "Add a public SSH key to your account!"
-msgstr ""
+msgstr "Pridėkite SSH rakto viešąją dalį"
 
 #: ../public/js/plugins/provision-tab.js:1215
 #: ../public/js/plugins/provision-tab.js:1220
 msgid "You will be able to access your Virtual Machines without password"
-msgstr ""
+msgstr "Jūs galėsite prisijungti prie savo virtualios mašinos be slptažodžio"
 
 #: ../public/js/plugins/provision-tab.js:1218
 msgid "Update your public SSH key!"
-msgstr ""
+msgstr "Atnaujinkite savo viešą SSH rakto dalį!"
 
 #: ../public/js/plugins/provision-tab.js:1344
 #: ../public/js/plugins/provision-tab.js:1456
 #: ../public/js/plugins/provision-tab.js:1696
 #: ../public/js/plugins/provision-tab.js:1824
 msgid "Show List"
-msgstr ""
+msgstr "Rodyti sąrašą"
 
 #: ../public/js/plugins/provision-tab.js:1396
 msgid "Group Accounting"
@@ -3558,13 +3558,13 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1442
 msgid "Saved Templates"
-msgstr ""
+msgstr "Išsaugoti šablonai"
 
 #: ../public/js/plugins/provision-tab.js:1464
 #: ../public/js/plugins/provision-tab.js:1709
 #: ../public/js/plugins/provision-tab.js:1837
 msgid "Filter by User"
-msgstr ""
+msgstr "Grupuoti pagal naudotoją"
 
 #: ../public/js/plugins/provision-tab.js:1483
 #: ../public/js/plugins/provision-tab.js:1727
@@ -3572,7 +3572,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:2141
 #: ../public/js/plugins/templates-tab.js:2678
 msgid "User ID"
-msgstr "ID użytkownika"
+msgstr "Naudotojo ID"
 
 #: ../public/js/plugins/provision-tab.js:1605
 #: ../public/js/plugins/vms-tab.js:2220
@@ -3587,12 +3587,12 @@ msgstr "NET TX"
 #: ../public/js/plugins/provision-tab.js:1641
 #: ../public/js/plugins/vms-tab.js:2246
 msgid "NET DOWNLOAD SPEED"
-msgstr "PRĘDKOŚĆ POBIERANIA"
+msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1658
 #: ../public/js/plugins/vms-tab.js:2259
 msgid "NET UPLOAD SPEED"
-msgstr "PRĘDKOŚĆ WYSYŁANIA"
+msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:1810
 #: ../public/js/plugins/provision-tab.js:1932
@@ -3625,7 +3625,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:2276
 msgid "Change Capacity"
-msgstr ""
+msgstr "Keisti talpą"
 
 #: ../public/js/plugins/provision-tab.js:2352
 msgid ""
@@ -3643,7 +3643,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:2465
 #: ../public/js/plugins/provision-tab.js:2477
 msgid "Select a Network"
-msgstr ""
+msgstr "Pasirinkite kompiuterių tinklą"
 
 #: ../public/js/plugins/provision-tab.js:2468
 #: ../public/js/plugins/provision-tab.js:2480
@@ -3664,7 +3664,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:6168
 #: ../public/js/plugins/provision-tab.js:6439
 msgid "There are no templates available"
-msgstr ""
+msgstr "Nėra jokių šablonų"
 
 #: ../public/js/plugins/provision-tab.js:3168
 msgid "There are no instance types available"
@@ -3672,17 +3672,17 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3201
 msgid "There are no networks available."
-msgstr ""
+msgstr "Nėra jokių kompiuterinių tinklų"
 
 #: ../public/js/plugins/provision-tab.js:3278
 #: ../public/js/plugins/provision-tab.js:5732
 msgid "The list of users is empty"
-msgstr ""
+msgstr "Naudotojų sąrašas tuščias"
 
 #: ../public/js/plugins/provision-tab.js:3302
 #: ../public/js/plugins/provision-tab.js:4240
 msgid "There are no Virtual Machines"
-msgstr ""
+msgstr "Nėra virtualių mašinų"
 
 #: ../public/js/plugins/provision-tab.js:3367
 msgid "There are no Services"
@@ -3708,12 +3708,12 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:3625
 #: ../public/js/plugins/vms-tab.js:38
 msgid "UNKNOWN"
-msgstr "NIEZNANY"
+msgstr "NEŽINOMA"
 
 #: ../public/js/plugins/provision-tab.js:3492
 #: ../public/js/plugins/vms-tab.js:1014
 msgid "HOLD"
-msgstr "WSTRZYMANY"
+msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3504
 msgid "LCM_INIT"
@@ -3734,7 +3734,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:3518
 #: ../public/js/plugins/vms-tab.js:41
 msgid "MIGRATE"
-msgstr "MIGRACJA"
+msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3522
 #: ../public/js/plugins/vms-tab.js:39
@@ -3743,15 +3743,15 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3524
 msgid "SAVING IMAGE"
-msgstr ""
+msgstr "SAUGOMAS DISKAS"
 
 #: ../public/js/plugins/provision-tab.js:3526
 msgid "FAILURE"
-msgstr ""
+msgstr "KLAIDA"
 
 #: ../public/js/plugins/provision-tab.js:3530
 msgid "SAVE"
-msgstr ""
+msgstr "IŠSAUGOTA"
 
 #: ../public/js/plugins/provision-tab.js:3531
 msgid "EPILOG"
@@ -3760,7 +3760,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:3532
 #: ../public/js/plugins/vms-tab.js:36
 msgid "SHUTDOWN"
-msgstr "ZAMKNIĘCIE"
+msgstr "IŠJUNGTI"
 
 #: ../public/js/plugins/provision-tab.js:3533
 msgid "CLEANUP"
@@ -3773,24 +3773,24 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:3548
 #: ../public/js/plugins/vms-tab.js:1023
 msgid "STOPPED"
-msgstr "ZATRZYMANY"
+msgstr "SUSTABDYTA"
 
 #: ../public/js/plugins/provision-tab.js:3549
 #: ../public/js/plugins/vms-tab.js:1002 ../public/js/plugins/vms-tab.js:1024
 #: ../public/js/plugins/vms-tab.js:1292 ../public/js/plugins/vms-tab.js:2968
 msgid "SUSPENDED"
-msgstr "WSTRZYMANY"
+msgstr "SUSTABDYTI"
 
 #: ../public/js/plugins/provision-tab.js:3550
 #: ../public/js/plugins/vms-tab.js:1002 ../public/js/plugins/vms-tab.js:1025
 #: ../public/js/plugins/vms-tab.js:1292 ../public/js/plugins/vms-tab.js:2968
 msgid "POWEROFF"
-msgstr "WYŁĄCZONY"
+msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3599
 #: ../public/js/plugins/provision-tab.js:3602
 msgid "READY"
-msgstr ""
+msgstr "PARUOŠTA"
 
 #: ../public/js/plugins/provision-tab.js:3604
 msgid "DISABLED"
@@ -3802,19 +3802,19 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3609
 msgid "LOCKED"
-msgstr ""
+msgstr "UŽRAKINTA"
 
 #: ../public/js/plugins/provision-tab.js:3610
 msgid "CLONE"
-msgstr ""
+msgstr "KOPIJUOTI"
 
 #: ../public/js/plugins/provision-tab.js:3619
 msgid "DELETE"
-msgstr ""
+msgstr "TRINTI"
 
 #: ../public/js/plugins/provision-tab.js:3621
 msgid "DELETING"
-msgstr ""
+msgstr "TRINAMA"
 
 #: ../public/js/plugins/provision-tab.js:3856
 msgid ""
@@ -3824,7 +3824,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3858
 msgid "You can then create a new Virtual Machine using this Template"
-msgstr ""
+msgstr "Jūs galite sukurti naują virtualią mašiną naudodami šį šabloną"
 
 #: ../public/js/plugins/provision-tab.js:3871
 msgid "Save Virtual Machine to Template"
@@ -3832,7 +3832,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3899
 msgid "saved successfully"
-msgstr ""
+msgstr "išsaugota sėkmingai"
 
 #: ../public/js/plugins/provision-tab.js:3919
 #: ../public/js/plugins/provision-tab.js:3938
@@ -3844,7 +3844,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:4953
 #: ../public/js/plugins/provision-tab.js:4972
 msgid "All the information will be lost!"
-msgstr ""
+msgstr "Visi duomenys bus prarasti"
 
 #: ../public/js/plugins/provision-tab.js:3957
 msgid ""
@@ -3862,11 +3862,11 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:3967
 msgid "Power off"
-msgstr ""
+msgstr "Išjungti"
 
 #: ../public/js/plugins/provision-tab.js:3970
 msgid "Power off the machine"
-msgstr ""
+msgstr "Išjungti mašiną"
 
 #: ../public/js/plugins/provision-tab.js:3974
 msgid "Send the power off signal"
@@ -3896,11 +3896,11 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:4480
 #: ../public/js/plugins/provision-tab.js:5196
 msgid "ALL"
-msgstr ""
+msgstr "VISI"
 
 #: ../public/js/plugins/provision-tab.js:4382
 msgid "There are no saved templates available"
-msgstr ""
+msgstr "Nėra išsaugotų šablonų"
 
 #: ../public/js/plugins/provision-tab.js:4384
 msgid "Create a template by saving a running Virtual Machine"
@@ -3916,7 +3916,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:4403
 msgid "Share"
-msgstr ""
+msgstr "Bendrinti"
 
 #: ../public/js/plugins/provision-tab.js:4503
 msgid "Handle with care! This action will inmediately destroy the template"
@@ -3929,7 +3929,7 @@ msgstr ""
 #: ../public/js/plugins/provision-tab.js:4578
 #: ../public/js/plugins/provision-tab.js:4633
 msgid "The template"
-msgstr ""
+msgstr "Šablonas"
 
 #: ../public/js/plugins/provision-tab.js:4580
 msgid ""
@@ -3939,7 +3939,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:4584
 msgid "Share template"
-msgstr ""
+msgstr "Bendrinti šabloną"
 
 #: ../public/js/plugins/provision-tab.js:4635
 msgid ""
@@ -3974,11 +3974,11 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:5339
 msgid "User Virtual Machines"
-msgstr ""
+msgstr "Naudotojo virtualios mašinos"
 
 #: ../public/js/plugins/provision-tab.js:5342
 msgid "User Saved Templates"
-msgstr ""
+msgstr "Naudotojo išsaugoti šablonai"
 
 #: ../public/js/plugins/provision-tab.js:5345
 msgid "User Services"
@@ -3999,15 +3999,15 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:5519
 msgid "Delete User"
-msgstr ""
+msgstr "Ištrinti naudotoją"
 
 #: ../public/js/plugins/provision-tab.js:5593
 msgid "Update User Quota"
-msgstr ""
+msgstr "Atnaujinti naudotojo limitus"
 
 #: ../public/js/plugins/provision-tab.js:6028
 msgid "You have to provide an SSH key"
-msgstr ""
+msgstr "Jūs turite pateikti savo SSH raktą"
 
 #: ../public/js/plugins/provision-tab.js:6359
 #: ../public/js/plugins/provision-tab.js:6659
@@ -4028,7 +4028,7 @@ msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:6770
 msgid "You have to provide a username and password"
-msgstr ""
+msgstr "Turi pateikti naudotojo vardą ir slaptažodį"
 
 #: ../public/js/plugins/secgroups-tab.js:286
 msgid "Clone Security Group"
@@ -4043,7 +4043,7 @@ msgstr ""
 #: ../public/js/plugins/secgroups-tab.js:298
 #: ../public/js/plugins/templates-tab.js:4935
 msgid "Prefix"
-msgstr "Prefiks"
+msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:362
 msgid "Security Group Name"
@@ -4144,23 +4144,23 @@ msgstr ""
 #: ../public/js/plugins/vnets-tab.js:1979
 #: ../public/js/plugins/vnets-tab.js:2046 ../public/js/sunstone.js:8138
 msgid "Virtual Network"
-msgstr "Sieć wirtualna"
+msgstr "Virtualus kompiuterių tinklas"
 
 #: ../public/js/plugins/secgroups-tab.js:449
 #: ../public/js/plugins/vnets-tab.js:1090
 #: ../public/js/plugins/vnets-tab.js:1670
 msgid "IP Start"
-msgstr "IP początkowe"
+msgstr "IP pradžia"
 
 #: ../public/js/plugins/secgroups-tab.js:450
 #: ../public/js/plugins/vnets-tab.js:1671
 msgid "First IP address"
-msgstr ""
+msgstr "Pirmas IP adresas"
 
 #: ../public/js/plugins/secgroups-tab.js:456
 #: ../public/js/plugins/vnets-tab.js:1684
 msgid "Number of addresses in the range"
-msgstr ""
+msgstr "Adresų skaičius intervale"
 
 #: ../public/js/plugins/secgroups-tab.js:470
 msgid "Add Rule"
@@ -4226,11 +4226,11 @@ msgstr ""
 
 #: ../public/js/plugins/support-tab.js:464
 msgid "Documentation"
-msgstr ""
+msgstr "Dokumentacija"
 
 #: ../public/js/plugins/support-tab.js:471
 msgid "Community"
-msgstr ""
+msgstr "Bendruomenė"
 
 #: ../public/js/plugins/support-tab.js:478
 msgid "Enterprise"
@@ -4250,11 +4250,11 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:29
 msgid "Add another disk"
-msgstr "Dodaj kolejny dysk"
+msgstr "Pridėti naują diską"
 
 #: ../public/js/plugins/templates-tab.js:40
 msgid "Add another nic"
-msgstr "Dodaj kolejny interfejs sieciowy"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:46
 msgid "Default model"
@@ -4268,11 +4268,11 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:62
 msgid "Features"
-msgstr "Cechy"
+msgstr "Požymiai"
 
 #: ../public/js/plugins/templates-tab.js:69
 msgid "CPU architecture to virtualization"
-msgstr "Architektura procesora"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:78
 msgid "Machine type"
@@ -4284,19 +4284,19 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:86
 msgid "Root"
-msgstr "Korzeń"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:87
 msgid "Device to be mounted as root"
-msgstr "Urządzenie, które zostanie zamontowane jako root"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:92
 msgid "Guest OS"
-msgstr "System gościa"
+msgstr "Svečio OS"
 
 #: ../public/js/plugins/templates-tab.js:93
 msgid "Set the OS of the VM, only for VMware"
-msgstr "Wybierz system operacyjny maszyny wirtualnej, tylko dla VMware"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:195
 msgid "1st Boot"
@@ -4322,7 +4322,7 @@ msgstr "FD"
 #: ../public/js/plugins/templates-tab.js:215
 #: ../public/js/plugins/templates-tab.js:227
 msgid "NETWORK"
-msgstr "SIEĆ"
+msgstr "TINKLAS"
 
 #: ../public/js/plugins/templates-tab.js:207
 msgid "2nd Boot"
@@ -4342,78 +4342,78 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:233
 msgid "Kernel cmd"
-msgstr "Argumenty"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:234
 msgid "Arguments for the booting kernel"
-msgstr "Dodatkowe argumenty podawane do jądra systemu"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:241
 msgid "Bootloader"
-msgstr "Program rozruchowy"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:242
 msgid "Path to the bootloader executable"
-msgstr "Ścieżka do pliku wykonywalnego bootloadera"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:251
 msgid "Registered Image"
-msgstr "Zarejestrowany obraz"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:252
 #: ../public/js/plugins/templates-tab.js:319
 msgid "Remote PATH"
-msgstr "Ścieżka zdalna"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:292
 msgid "Please select a Kernel from the list"
-msgstr "Wybierz jądro z powyższej listy"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:293
 msgid "You selected the following Kernel: "
-msgstr "Wybrałeś następujące jądro:"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:300
 msgid "KERNEL_DS"
-msgstr "KERNEL_DS"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:308
 #: ../public/js/plugins/templates-tab.js:376
 msgid "PATH"
-msgstr "Ścieżka"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:309
 msgid "Path to the OS kernel to boot the image"
-msgstr "Ścieżka do jądra systemu operacyjnego który uruchomi obraz"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:318
 msgid "Registered Image "
-msgstr "Zarejestrowany obraz"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:359
 msgid "Please select a Ramdisk from the list"
-msgstr "Wybierz Ramdysk z powyższej listy"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:360
 msgid "You selected the following Ramdisk: "
-msgstr "Wybrałeś następujący ramdisk:"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:367
 msgid "INITRD_DS"
-msgstr "INITRD_DS"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:377
 msgid "Path to the initrd image"
-msgstr "Ścieżka do obrazu initrd"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:387
 msgid "ACPI"
-msgstr "ACPI"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:388
 msgid ""
 "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
-msgstr "Włącz wsparcie w maszynie wirtualnej dla Advanced Configuration and Power Interface (ACPI)"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:392
 #: ../public/js/plugins/templates-tab.js:402
@@ -4422,7 +4422,7 @@ msgstr "Włącz wsparcie w maszynie wirtualnej dla Advanced Configuration and Po
 #: ../public/js/plugins/templates-tab.js:436
 #: ../public/js/plugins/vnets-tab.js:108 ../public/js/plugins/vnets-tab.js:696
 msgid "Yes"
-msgstr "Tak"
+msgstr "Taip"
 
 #: ../public/js/plugins/templates-tab.js:393
 #: ../public/js/plugins/templates-tab.js:403
@@ -4431,91 +4431,91 @@ msgstr "Tak"
 #: ../public/js/plugins/templates-tab.js:437
 #: ../public/js/plugins/vnets-tab.js:109 ../public/js/plugins/vnets-tab.js:696
 msgid "No"
-msgstr "Nie"
+msgstr "Ne"
 
 #: ../public/js/plugins/templates-tab.js:397
 msgid "PAE"
-msgstr "PAE"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:398
 msgid "Add support in the VM for Physical Address Extension (PAE)"
-msgstr "Włącz wsparcie dla technologii Physical Address Extension (PAE)"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:409
 msgid "APIC"
-msgstr "APIC"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:410
 msgid "Enables the advanced programmable IRQ management."
-msgstr "Włącza zaawansowane, programowalne zarządzanie IRQ."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:419
 msgid "HYPERV"
-msgstr "HYPERV"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:420
 msgid "Add support in the VM for hyper-v features (HYPERV)"
-msgstr "Włącz wsparcie w maszynie wirtualnej dla funkcjonalności Hyper-V (HYPERV)"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:431
 msgid "Localtime"
-msgstr "Czas lokalny"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:432
 msgid ""
 "The guest clock will be synchronized to the host's configured timezone when "
 "booted."
-msgstr "Zegar gościa zostanie zsynchronizowany ze strefą czasową gospodarza podczas uruchomienia."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:441
 msgid "Device model"
-msgstr "Model urządzenia"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:442
 msgid "Used to change the IO emulator in Xen HVM. Only XEN."
-msgstr "Używany, aby zmienić emulator IO w Xen HVM. Tylko XEN."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:449
 msgid "PCI BRIDGE"
-msgstr "MOSTEK PCI"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:450
 msgid ""
 " Adds a PCI Controller that provides bridge-to-bridge capability, only for "
 "VMware."
-msgstr ""
+msgstr "Įtraukti PCI kontrolerį, kuris suteikia \"bridge-to-bridge\" galimybę tik VMWare."
 
 #: ../public/js/plugins/templates-tab.js:481
 msgid "Graphics"
-msgstr "Urządzenia "
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:493
 msgid "Listen IP"
-msgstr "IP nasłuchu"
+msgstr "Klausomas IP"
 
 #: ../public/js/plugins/templates-tab.js:494
 msgid "IP to listen on"
-msgstr "Adres IP do nasłuchu"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:501
 msgid "Port"
-msgstr "Port"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:502
 msgid "Port for the VNC/SPICE server"
-msgstr "Port dla serwera VNC/SPICE"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:507
 msgid "Keymap"
-msgstr "Układ klawiatury"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:508
 msgid "Keyboard configuration locale to use in the VNC/SPICE display"
-msgstr "Układ klawiatury, który będzie używany w VNC/SPICE"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:516
 msgid "Password for the VNC/SPICE server"
-msgstr "Hasło dla serwera VNC/SPICE"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:524
 msgid "Generate Random Password"
@@ -4529,15 +4529,15 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:533
 msgid "Inputs"
-msgstr "Urządzenia wejściowe"
+msgstr "Įvestys"
 
 #: ../public/js/plugins/templates-tab.js:538
 msgid "Mouse"
-msgstr "Mysz"
+msgstr "Pelė"
 
 #: ../public/js/plugins/templates-tab.js:539
 msgid "Tablet"
-msgstr "Tablet"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:545
 msgid "USB"
@@ -4549,67 +4549,67 @@ msgstr "PS2"
 
 #: ../public/js/plugins/templates-tab.js:560
 msgid "BUS"
-msgstr "MAGISTRALA"
+msgstr "MAGISTRALĖ"
 
 #: ../public/js/plugins/templates-tab.js:583
 msgid "Network & SSH"
-msgstr "Sieć i SSH"
+msgstr "Tinklas ir SSH"
 
 #: ../public/js/plugins/templates-tab.js:585
 #: ../public/js/plugins/templates-tab.js:720
 msgid "User Inputs"
-msgstr ""
+msgstr "Naudotojo įvestys"
 
 #: ../public/js/plugins/templates-tab.js:586
 msgid "Custom vars"
-msgstr "Niestandardowe wartości"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:593
 msgid "  Add SSH contextualization"
-msgstr "Dostosuj SSH"
+msgstr "Įtraukti SSH kontekstualizaciją"
 
 #: ../public/js/plugins/templates-tab.js:594
 msgid ""
 "Add an ssh public key to the context. If the Public Key textarea is empty "
 "then the user variable SSH_PUBLIC_KEY will be used."
-msgstr "Dodaj publiczny klucz ssh do kontekstu. Jeśli pole Klucz publiczny jest puste, zostanie użyta zmienna SSH_PUBLIC_KEY."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:600
 msgid "Public Key"
-msgstr "Klucz publiczny"
+msgstr "Viešas raktas"
 
 #: ../public/js/plugins/templates-tab.js:608
 msgid "  Add Network contextualization"
-msgstr "Dostosuj ustawienia sieci"
+msgstr "Įtraukti tinklo kontekstualizaciją"
 
 #: ../public/js/plugins/templates-tab.js:609
 msgid ""
 "Add network contextualization parameters. For each NIC defined in the "
 "NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
 "the CONTEXT section and will be available in the Virtual Machine"
-msgstr "Dodaj parametry kontekstualizacji. Dla każdej karty sieciowej zdefiniowanej w sekcji SIEĆ zostaną utworzone parametry ETH$i_IP, ETH$i_SIEĆ... i będą dostępne w maszynie wirtualnej"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:616
 msgid "  Add OneGate token"
-msgstr "Dodaj token OneGate"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:617
 msgid ""
 "Add a file (token.txt) to the context contaning the token to push custom "
 "metrics to the VirtualMachine through OneGate"
-msgstr "Dodaje plik (token.txt) do kontekstu zawierający token do przesyłania niestandardowych metryk do maszyny wirtualnej przy użyciu OneGate"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:658
 msgid "Please select files from the list"
-msgstr "Wybierz pliki z listy"
+msgstr "Prašome rinktis failus iš sąrašo"
 
 #: ../public/js/plugins/templates-tab.js:659
 msgid "You selected the following files:"
-msgstr "Wybrałeś następujące pliki:"
+msgstr "Jūs pasirinkite šiuos failus:"
 
 #: ../public/js/plugins/templates-tab.js:665
 msgid "FILES_DS"
-msgstr "FILES_DS"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:666
 msgid ""
@@ -4620,7 +4620,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:673
 msgid "Init scripts"
-msgstr "Skrypty inicjalizacyjne"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:674
 msgid ""
@@ -4633,12 +4633,12 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:697
 #: ../public/js/plugins/templates-tab.js:986 ../public/js/sunstone.js:5852
 msgid "KEY"
-msgstr "KLUCZ"
+msgstr "RAKTAS"
 
 #: ../public/js/plugins/templates-tab.js:698
 #: ../public/js/plugins/templates-tab.js:987 ../public/js/sunstone.js:5853
 msgid "VALUE"
-msgstr "WARTOŚĆ"
+msgstr "REIKŠMĖ"
 
 #: ../public/js/plugins/templates-tab.js:721
 msgid ""
@@ -4648,54 +4648,54 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:741
 msgid "Add another attribute"
-msgstr ""
+msgstr "Įtraukti kitą atributą"
 
 #: ../public/js/plugins/templates-tab.js:757
 #: ../public/js/plugins/vms-tab.js:1439
 msgid "Placement"
-msgstr "Położenie"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:758
 msgid "Policy"
-msgstr "Polityki"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:763
 msgid "Host Requirements"
-msgstr "Wymagania gospodarza"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:766
 msgid "Select Hosts "
-msgstr "Wybierz gospodarzy"
+msgstr "Rinkitės serverius"
 
 #: ../public/js/plugins/templates-tab.js:767
 msgid "Select Clusters "
-msgstr "Wybierz klastry"
+msgstr "Rinkitės telkinius"
 
 #: ../public/js/plugins/templates-tab.js:807 ../public/js/sunstone.js:6364
 msgid "Please select one or more hosts from the list"
-msgstr "Wybierz jednego lub więcej gospodarzy z listy"
+msgstr "Prašome pasirinkti vieną ar kelis serverius iš sąrašo"
 
 #: ../public/js/plugins/templates-tab.js:808 ../public/js/sunstone.js:6365
 msgid "You selected the following hosts:"
-msgstr "Wybrano następujących gospodarzy:"
+msgstr "Jūs pasirinkote pasirinkote serverius:"
 
 #: ../public/js/plugins/templates-tab.js:841 ../public/js/sunstone.js:7311
 msgid "Please select one or more clusters from the list"
-msgstr "Wybierz jeden lub więcej klastrów z listy"
+msgstr "Prašome pasirinkti vieną ar kelis telkinius iš sąrašo"
 
 #: ../public/js/plugins/templates-tab.js:842 ../public/js/sunstone.js:7312
 msgid "You selected the following clusters:"
-msgstr "Wybrałeś następujące klastry:"
+msgstr "Jūs pasirinkote pasirinkote telkinį:"
 
 #: ../public/js/plugins/templates-tab.js:850
 msgid ""
 "Boolean expression that rules out provisioning hosts from list of machines "
 "suitable to run this VM"
-msgstr "Wyrażenie boolowskie, które wyklucza gospodarzy z listy dostępnych gospodarzy dla tej maszyny wirtualnej"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:857
 msgid "Datastore Requirements"
-msgstr "Wymagania magazynu danych"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:861
 msgid ""
@@ -4705,43 +4705,43 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:870
 msgid "Host Rank"
-msgstr "Ranga gospodarza"
+msgstr "Serverio rangas"
 
 #: ../public/js/plugins/templates-tab.js:873
 #: ../public/js/plugins/templates-tab.js:898
 msgid "Packing"
-msgstr "Upakowywanie"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:874
 msgid "Pack the VMs in the cluster nodes to reduce VM fragmentation"
-msgstr "Alokuje maszny wirtualne odpowiednich gospodarzach by zredukować ich fragmentację."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:876
 #: ../public/js/plugins/templates-tab.js:901
 msgid "Stripping"
-msgstr "Rozproszenie"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:877
 msgid "Spread the VMs in the cluster nodes"
-msgstr "Rozrzuca maszyny wirtualne po różnych gospodarzach w klastrze"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:879
 msgid "Load-aware"
-msgstr "Równoważenie obciążenia"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:880
 msgid "Maximize the resources available to VMs in a node"
-msgstr "Zapewnia największą ilość zasobów dostępnych dla maszyny wirtualnej w gospodarzu"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:888
 msgid ""
 "This field sets which attribute will be used to sort the suitable hosts for "
 "this VM"
-msgstr "Te pole ustawia, który z atrybutów zostanie użyty do sortowania dostępnych gospodarzy dla tej maszyny wirtualnej"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:895
 msgid "Datastore Rank"
-msgstr "Ranga magazynu danych"
+msgstr "Duomenų  saugyklos rangas"
 
 #: ../public/js/plugins/templates-tab.js:899
 msgid ""
@@ -4765,7 +4765,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:938
 msgid "RAW data"
-msgstr "Dane surowe"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:945
 msgid "kvm"
@@ -4781,23 +4781,23 @@ msgstr "vmware"
 
 #: ../public/js/plugins/templates-tab.js:951
 msgid "DATA"
-msgstr "DANE"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:952
 msgid "Raw data to be passed directly to the hypervisor"
-msgstr "Surowe dane, które zostaną przekazane do nadzorcy"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:961
 msgid "DATA_VMX"
-msgstr "DANE_VMX"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:962
 msgid "Raw data to be added directly to the .vmx file."
-msgstr "Surowe dane, które zostaną dodane do pliku .vmx."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:969
 msgid "Custom Tags"
-msgstr "Niestandardowe etykiety"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1010
 msgid "AKI"
@@ -4883,7 +4883,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1057
 msgid "Keypair"
-msgstr ""
+msgstr "Raktų pora"
 
 #: ../public/js/plugins/templates-tab.js:1058
 msgid ""
@@ -4956,7 +4956,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1102
 #: ../public/js/plugins/templates-tab.js:1205
 msgid "User Data"
-msgstr ""
+msgstr "Naudotojo duomenys"
 
 #: ../public/js/plugins/templates-tab.js:1103
 msgid ""
@@ -5027,7 +5027,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1153
 msgid "Local Disk"
-msgstr ""
+msgstr "Lokalus diskas"
 
 #: ../public/js/plugins/templates-tab.js:1154
 msgid ""
@@ -5054,7 +5054,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1169
 msgid "Operating System"
-msgstr ""
+msgstr "Operacinė sistema"
 
 #: ../public/js/plugins/templates-tab.js:1170
 msgid ""
@@ -5104,7 +5104,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1195
 msgid "SSH Keys"
-msgstr ""
+msgstr "SSH raktai"
 
 #: ../public/js/plugins/templates-tab.js:1196
 msgid "SSH keys to install on the computing instance upon provisioning"
@@ -5176,7 +5176,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1250
 msgid "Subnet"
-msgstr ""
+msgstr "Potinklis"
 
 #: ../public/js/plugins/templates-tab.js:1251
 msgid "Name of the particular Subnet where this VM will be connected to"
@@ -5195,7 +5195,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:1260
 #: ../public/js/plugins/vnets-tab.js:2140
 msgid "Virtual Network Name"
-msgstr ""
+msgstr "Virtualaus tinklo vardas"
 
 #: ../public/js/plugins/templates-tab.js:1261
 msgid "Name of the virtual network to which this VM will be connected"
@@ -5203,7 +5203,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1265
 msgid "VM User"
-msgstr ""
+msgstr "VM naudotojas"
 
 #: ../public/js/plugins/templates-tab.js:1266
 msgid ""
@@ -5213,11 +5213,11 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1271
 msgid "VM Password"
-msgstr ""
+msgstr "VM slaptažodis"
 
 #: ../public/js/plugins/templates-tab.js:1272
 msgid "Password for VM_USER"
-msgstr ""
+msgstr "VM_USER slaptažodis"
 
 #: ../public/js/plugins/templates-tab.js:1277
 msgid "Win RM"
@@ -5229,16 +5229,16 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1300
 msgid "Write the Virtual Machine template here"
-msgstr "Tu wpisz szablon maszyny wirtualnej"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1312
 msgid "Instantiate VM Template"
-msgstr "Wywołaj szablon maszyny"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1317
 #: ../public/js/plugins/vms-tab.js:69
 msgid "VM Name"
-msgstr "Nazwa maszyny"
+msgstr "VM pavadinimas"
 
 #: ../public/js/plugins/templates-tab.js:1318
 #: ../public/js/plugins/vms-tab.js:70
@@ -5262,41 +5262,41 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1361
 msgid "Template created"
-msgstr "Utworzono szablon"
+msgstr "Šablonas sukurtas"
 
 #: ../public/js/plugins/templates-tab.js:1424
 msgid "Template updated correctly"
-msgstr "Szablon zaktualizowany pomyślnie"
+msgstr "Šablonas atnaujintas sėkmingai"
 
 #: ../public/js/plugins/templates-tab.js:1474
 msgid "Template renamed correctly"
-msgstr "Nazwa szablonu zmieniona pomyślnie"
+msgstr "Šablonas pervadintas sėkmingai"
 
 #: ../public/js/plugins/templates-tab.js:1548
 msgid "Please select only one template in the table"
-msgstr "Wybierz tylko jeden szablon z tabeli"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1654
 msgid "Template information"
-msgstr "Informacje o szablonie"
+msgstr "Šablono informacija"
 
 #: ../public/js/plugins/templates-tab.js:1667
 #: ../public/js/plugins/templates-tab.js:2917
 #: ../public/js/plugins/vms-tab.js:1413
 msgid "Template"
-msgstr "Szablon"
+msgstr "Šablonas"
 
 #: ../public/js/plugins/templates-tab.js:1687
 msgid "Create Template"
-msgstr ""
+msgstr "Sukurti šabloną"
 
 #: ../public/js/plugins/templates-tab.js:1691
 msgid "Update Template"
-msgstr ""
+msgstr "Atnaujinti šabloną"
 
 #: ../public/js/plugins/templates-tab.js:1769
 msgid "Name that the VM will get for description purposes."
-msgstr "Nazwa opisująca maszynę wirtualną."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1777
 msgid "Xen"
@@ -5304,15 +5304,15 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1784
 msgid "Description of the template"
-msgstr ""
+msgstr "Šablono aprašymas"
 
 #: ../public/js/plugins/templates-tab.js:1791
 msgid "Logo"
-msgstr ""
+msgstr "Logotipas"
 
 #: ../public/js/plugins/templates-tab.js:1792
 msgid "Logo for the template."
-msgstr ""
+msgstr "Šablono logotipas"
 
 #: ../public/js/plugins/templates-tab.js:1796
 msgid "Arch Linux"
@@ -5320,35 +5320,35 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1797
 msgid "CentOS"
-msgstr ""
+msgstr "CentOS"
 
 #: ../public/js/plugins/templates-tab.js:1798
 msgid "Debian"
-msgstr ""
+msgstr "Debian"
 
 #: ../public/js/plugins/templates-tab.js:1799
 msgid "Fedora"
-msgstr ""
+msgstr "Fedora"
 
 #: ../public/js/plugins/templates-tab.js:1800
 msgid "Linux"
-msgstr ""
+msgstr "Linux"
 
 #: ../public/js/plugins/templates-tab.js:1801
 msgid "Redhat"
-msgstr ""
+msgstr "Redhat"
 
 #: ../public/js/plugins/templates-tab.js:1802
 msgid "Ubuntu"
-msgstr ""
+msgstr "Ubuntu"
 
 #: ../public/js/plugins/templates-tab.js:1803
 msgid "Windows XP/2003"
-msgstr ""
+msgstr "Windows XP/2003"
 
 #: ../public/js/plugins/templates-tab.js:1804
 msgid "Windows 8"
-msgstr ""
+msgstr "Windows 8"
 
 #: ../public/js/plugins/templates-tab.js:1815
 msgid "vCenter Template UUID"
@@ -5374,7 +5374,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1850
 msgid "Amount of RAM required for the VM, in Megabytes."
-msgstr "Ilość pamięci wymaganej dla maszyny wirtualnej w megabajtach"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1861
 #: ../public/js/plugins/templates-tab.js:2299
@@ -5400,7 +5400,7 @@ msgstr ""
 msgid ""
 "Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
 "processor is written 0.5."
-msgstr "Procent procesora podzielony przez 100 wymagany dla maszyny wirtualnej. Pół procesora to 0.5."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1894
 msgid "Cost of each CPU per hour"
@@ -5415,46 +5415,46 @@ msgstr "VCPU"
 msgid ""
 "Number of virtual cpus. This value is optional, the default hypervisor "
 "behavior is used, usually one virtual CPU."
-msgstr "Liczba wirtualnych procesorów. Ta wartość jest opcjonalna, domyślnie zachowana jest polityka nadzorcy, przeważnie jeden wirtualny procesor."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2114
 msgid "Volatile Disk"
-msgstr "Dysk ulotny"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2121
 #: ../public/js/plugins/templates-tab.js:2322
 #: ../public/js/plugins/templates-tab.js:2658
 #: ../public/js/plugins/vnets-tab.js:1704
 msgid "Advanced Options"
-msgstr ""
+msgstr "Papildomi nustatymai"
 
 #: ../public/js/plugins/templates-tab.js:2128
 msgid "Image ID to be used in the Virtual Image disk."
-msgstr "ID obrazu, który zostanie użyty w dysku wirtualnego obrazu"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2134
 msgid "Name of the image to be used in the Virtual Image disk."
-msgstr "Nazwa obrazu, który zostanie użyty w dysku wirtualnego obrazu"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2142
 msgid "Identifier of the user owner of the image to reduce ambiguity."
-msgstr "Identyfikator właściciela obrazu, aby zredukować dwuznaczność."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2147
 #: ../public/js/plugins/templates-tab.js:2684
 msgid "User Name"
-msgstr "Nazwa użytkownika"
+msgstr "Naudotojo vardas"
 
 #: ../public/js/plugins/templates-tab.js:2148
 msgid "Name of the user owner of the image to reduce ambiguity."
-msgstr "Nazwa właściciela obrazu, aby zredukować dwuznaczność."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2157
 #: ../public/js/plugins/templates-tab.js:2327
 msgid ""
 "Device to map image disk. If set, it will overwrite the default device "
 "mapping"
-msgstr "Urządzenie mapujące obrazku dysku. Jeśli jest podane, nadpisze standardowe ustawienia mapowania urządzeń."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2158
 #: ../public/js/plugins/templates-tab.js:2180
@@ -5463,7 +5463,7 @@ msgstr "Urządzenie mapujące obrazku dysku. Jeśli jest podane, nadpisze standa
 #: ../public/js/plugins/templates-tab.js:2350
 #: ../public/js/plugins/templates-tab.js:2360
 msgid "Xen: Optional"
-msgstr "Xen: Opcjonalnie"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2159
 #: ../public/js/plugins/templates-tab.js:2181
@@ -5472,7 +5472,7 @@ msgstr "Xen: Opcjonalnie"
 #: ../public/js/plugins/templates-tab.js:2351
 #: ../public/js/plugins/templates-tab.js:2361
 msgid "KVM: Optional"
-msgstr "KVM: Opcjonalnie"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2160
 #: ../public/js/plugins/templates-tab.js:2182
@@ -5481,32 +5481,32 @@ msgstr "KVM: Opcjonalnie"
 #: ../public/js/plugins/templates-tab.js:2352
 #: ../public/js/plugins/templates-tab.js:2362
 msgid "VMWare: Optional"
-msgstr "VMWare: Opcjonalnie"
+msgstr "VMWare: papildomai"
 
 #: ../public/js/plugins/templates-tab.js:2167
 #: ../public/js/plugins/templates-tab.js:2337
 msgid "Specific image mapping driver"
-msgstr "Specyficzny sterownik mapowania obrazu"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2168
 #: ../public/js/plugins/templates-tab.js:2338
 msgid "Xen: Optional (tap:aio:, file:)"
-msgstr "Xen: Opcjonalnie (tap:aio:, file:)"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2169
 #: ../public/js/plugins/templates-tab.js:2339
 msgid "KVM: Optional (raw, qcow2)"
-msgstr "KVM: Opcjonalnie (raw, qcow2)"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2170
 #: ../public/js/plugins/templates-tab.js:2340
 msgid "VMWare: Not supported"
-msgstr "VMware: brak wsparcia"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2178
 #: ../public/js/plugins/templates-tab.js:2348
 msgid "Device Prefix"
-msgstr "Prefix urządzenia"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2179
 #: ../public/js/plugins/templates-tab.js:2349
@@ -5514,57 +5514,57 @@ msgid ""
 "Prefix for the emulated device this image will be mounted at. For instance, "
 "“hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of "
 "the Image will be used"
-msgstr "Prefiks dla emulowanego urządzenia poprzez które będzie dostępny ten obraz np. \"hd\", \"sd\" lub \"vd\" dla KVM virtio. Jeśli pominięty, użyta zostanie wartość atrybutu dev_prefix"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2188
 #: ../public/js/plugins/templates-tab.js:2358
 msgid "Read Only"
-msgstr "Tylko do odczytu"
+msgstr "Tik skaitymui"
 
 #: ../public/js/plugins/templates-tab.js:2189
 #: ../public/js/plugins/templates-tab.js:2359
 msgid "Set how the image is exposed by the hypervisor"
-msgstr "Wybierz w jaki sposób obraz będzie udostępniony dla nadzorcy"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2204
 #: ../public/js/plugins/templates-tab.js:2374
 msgid "Cache"
-msgstr "Pamięć podręczna"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2205
 #: ../public/js/plugins/templates-tab.js:2375
 msgid "Selects the cache mechanism for the disk."
-msgstr "Wybierz mechanizm pamięci podręcznej dla dysku"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2210
 #: ../public/js/plugins/templates-tab.js:2380
 msgid "default"
-msgstr "domyślny"
+msgstr "numatytas"
 
 #: ../public/js/plugins/templates-tab.js:2211
 #: ../public/js/plugins/templates-tab.js:2381
 msgid "none"
-msgstr "brak"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2212
 #: ../public/js/plugins/templates-tab.js:2382
 msgid "writethrough"
-msgstr "writethrough"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2213
 #: ../public/js/plugins/templates-tab.js:2383
 msgid "writeback"
-msgstr "writeback"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2214
 #: ../public/js/plugins/templates-tab.js:2384
 msgid "directsync"
-msgstr "directsync"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2215
 #: ../public/js/plugins/templates-tab.js:2385
 msgid "unsafe"
-msgstr "niebezpieczny"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2219
 #: ../public/js/plugins/templates-tab.js:2389
@@ -5574,17 +5574,17 @@ msgstr "IO"
 #: ../public/js/plugins/templates-tab.js:2220
 #: ../public/js/plugins/templates-tab.js:2390
 msgid "Set IO policy."
-msgstr "Wybierz polisę IO."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2225
 #: ../public/js/plugins/templates-tab.js:2395
 msgid "threads"
-msgstr "wątki"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2226
 #: ../public/js/plugins/templates-tab.js:2396
 msgid "native"
-msgstr "natywny"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2230
 #: ../public/js/plugins/templates-tab.js:2400
@@ -5637,19 +5637,19 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2286
 msgid "Size of the new disk"
-msgstr "Wielkość nowego dysku"
+msgstr "Naujo disko dydis"
 
 #: ../public/js/plugins/templates-tab.js:2309
 msgid "FS"
-msgstr "SP"
+msgstr "FS"
 
 #: ../public/js/plugins/templates-tab.js:2310
 msgid "Swap"
-msgstr "Swap"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2315
 msgid "Filesystem type for the fs images"
-msgstr "System plików dla obrazów"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2665
 msgid ""
@@ -5683,56 +5683,56 @@ msgstr "IP"
 
 #: ../public/js/plugins/templates-tab.js:2694
 msgid "Request an specific IP from the Network"
-msgstr "Zarządaj specyficznego adresu IP z tej sieci"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2699
 msgid "Model"
-msgstr "Model"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2700
 msgid ""
 "Hardware that will emulate this network interface. With Xen this is the type"
 " attribute of the vif."
-msgstr "Typ sprzętu, który będzie emulowany przez ten interfejs sieciowy. W Xen jest to typ atrybutu vif."
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2719
 msgid "TCP Firewall"
-msgstr "Zapora TCP"
+msgstr "TCP ugniasienė"
 
 #: ../public/js/plugins/templates-tab.js:2722
 #: ../public/js/plugins/templates-tab.js:2739
 msgid "Whitelist"
-msgstr "Biała lista"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2723
 #: ../public/js/plugins/templates-tab.js:2740
 msgid "Blacklist"
-msgstr "Czarna lista"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2728
 #: ../public/js/plugins/templates-tab.js:2745
 msgid "PORTS"
-msgstr "PORTY"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2729
 #: ../public/js/plugins/templates-tab.js:2746
 msgid ""
 "A list of ports separated by commas or a ranges separated by semicolons, "
 "e.g.: 22,80,5900:6000"
-msgstr "Lista i/lub zakres portów oddzielonych przecinkami, np. 22,80,5900:6000"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2736
 msgid "UDP Firewall"
-msgstr "Zapora UDP"
+msgstr "UDP ungniasienė"
 
 #: ../public/js/plugins/templates-tab.js:2758
 msgid "Drop"
-msgstr "Odrzuć"
+msgstr "Išmesti"
 
 #: ../public/js/plugins/templates-tab.js:3009
 #: ../public/js/plugins/vdcs-tab.js:23 ../public/js/plugins/vnets-tab.js:24
 msgid "General"
-msgstr "Główna"
+msgstr "Bendras"
 
 #: ../public/js/plugins/templates-tab.js:3021
 msgid "OS Booting"
@@ -5740,7 +5740,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3025
 msgid "Input/Output"
-msgstr ""
+msgstr "Įvedimas/Išvedimas"
 
 #: ../public/js/plugins/templates-tab.js:3033
 msgid "Scheduling"
@@ -5752,7 +5752,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3041 ../public/js/sunstone.js:4074
 msgid "Other"
-msgstr "Pozostałe"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3074
 #: ../public/js/plugins/templates-tab.js:3099
@@ -5761,7 +5761,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3095
 msgid "DISK"
-msgstr "DYSK"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3131
 #: ../public/js/plugins/templates-tab.js:3155
@@ -5770,7 +5770,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3150
 msgid "NIC"
-msgstr "NIC"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3516
 msgid "text"
@@ -5778,7 +5778,7 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:3517
 msgid "password"
-msgstr ""
+msgstr "slaptažodis"
 
 #: ../public/js/plugins/templates-tab.js:3770
 #: ../public/js/plugins/templates-tab.js:3805
@@ -5796,7 +5796,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:4536
 #: ../public/js/plugins/templates-tab.js:4579
 msgid " does not exists any more"
-msgstr "już nie istnieje"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:4544
 #: ../public/js/plugins/templates-tab.js:4587
@@ -5805,12 +5805,12 @@ msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:4923
 msgid "Clone Template"
-msgstr "Sklonuj szablon"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:4929
 msgid ""
 "Several templates are selected, please choose prefix to name the new copies"
-msgstr "Został wybrany więcej niż jeden szablon, wybierz prefiks, który zostany dodany do kopii"
+msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:5019
 msgid "Templates to be instantiated"
@@ -5818,11 +5818,11 @@ msgstr ""
 
 #: ../public/js/plugins/users-tab.js:46
 msgid "Core"
-msgstr "Rdzeń"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:48
 msgid "x509"
-msgstr "x509"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:49
 msgid "LDAP"
@@ -5830,52 +5830,52 @@ msgstr "LDAP"
 
 #: ../public/js/plugins/users-tab.js:50
 msgid "Public"
-msgstr "Publiczny"
+msgstr "Viašas"
 
 #: ../public/js/plugins/users-tab.js:73 ../public/js/plugins/users-tab.js:126
 msgid "Authentication"
-msgstr "Autoryzacja"
+msgstr "Autentifikacija"
 
 #: ../public/js/plugins/users-tab.js:120 ../public/js/plugins/users-tab.js:785
 msgid "Change authentication"
-msgstr "Zmień autoryzację"
+msgstr "Pakeisti autentifikaciją"
 
 #: ../public/js/plugins/users-tab.js:168
 msgid "User created"
-msgstr "Utworzono użytkownika"
+msgstr "Naudotojas sukurtas"
 
 #: ../public/js/plugins/users-tab.js:341
 msgid "Auth"
-msgstr "Autoryzacja"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:354
 msgid ""
 "This will change the main group of the selected users. Select the new group"
-msgstr "Ta opcja zmieni główną grupę wybranych użytkowników. Wybierz nową grupę"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:359
 msgid "Add to group"
-msgstr "Dodaj do grupy"
+msgstr "Priskirti grupę"
 
 #: ../public/js/plugins/users-tab.js:362
 msgid "This will add the user to a secondary group. Select the new group"
-msgstr "Ta opcja doda użytkownika do grupy podrzędnej. Wybierz nową grupę"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:367
 msgid "Remove from group"
-msgstr "Usuń z grupy"
+msgstr "Pašalinti iš grupės"
 
 #: ../public/js/plugins/users-tab.js:370
 msgid "This will remove the user from a secondary group. Select the group"
-msgstr "Ta opcja usunie użytkownika z grupy podrzędnej. Wybierz grupę"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:391
 msgid "Historical usages"
-msgstr "Poprzednie użycia"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:415 ../public/js/sunstone.js:7122
 msgid "Auth driver"
-msgstr "Metoda autoryzacji"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:420 ../public/js/sunstone.js:7127
 msgid "Hidden User Data"
@@ -5883,16 +5883,16 @@ msgstr ""
 
 #: ../public/js/plugins/users-tab.js:564
 msgid "Authentication driver"
-msgstr "Metoda autentykacji"
+msgstr ""
 
 #: ../public/js/plugins/users-tab.js:806
 msgid "Fill in a new auth driver"
-msgstr "Wypełnij nowy sterownik autoryzacji"
+msgstr ""
 
 #: ../public/js/plugins/vdcs-tab.js:25 ../public/js/plugins/vdcs-tab.js:406
 #: ../public/js/plugins/vdcs-tab.js:591
 msgid "Resources"
-msgstr "Zasoby"
+msgstr "Ištekliai"
 
 #: ../public/js/plugins/vdcs-tab.js:32
 msgid "Name that the VDC will get for description purposes."
@@ -5952,11 +5952,11 @@ msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:37
 msgid "SHUTDOWN_POWEROFF"
-msgstr "ZAMKNIĘCIE_WYŁĄCZENIE"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:40
 msgid "CANCEL"
-msgstr "ANULOWANIE"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:42
 msgid "HOTPLUG_SNAPSHOT"
@@ -5984,28 +5984,28 @@ msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:66
 msgid "Step 1: Specify a name and the number of instances"
-msgstr "Krok 1: Podaj nazwę i liczbę instancji"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:89
 msgid "Step 2: Select a template"
-msgstr "Krok 2: Wybierz szablon"
+msgstr "2 žingsnis: pasirinkite šabloną"
 
 #: ../public/js/plugins/vms-tab.js:94
 msgid "Step 3: Fill the required inputs"
-msgstr ""
+msgstr "3 žingnsis: užpildykite reikalingus laukus"
 
 #: ../public/js/plugins/vms-tab.js:111
 msgid "Deploy Virtual Machine"
-msgstr "Rozmieść maszynę wirtualną"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:118 ../public/js/plugins/vms-tab.js:162
 msgid "Select a Host"
-msgstr "Wybierz gospodarza"
+msgstr "Pasirinkite serverį"
 
 #: ../public/js/plugins/vms-tab.js:129 ../public/js/plugins/vms-tab.js:176
 #: ../public/js/plugins/vms-tab.js:2497
 msgid "Enforce"
-msgstr "Wymuś"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:130 ../public/js/plugins/vms-tab.js:177
 #: ../public/js/plugins/vms-tab.js:2499
@@ -6013,52 +6013,52 @@ msgid ""
 "If it is set to true, the host capacity will be checked. This will only "
 "affect oneadmin requests, regular users resize requests will always be "
 "enforced"
-msgstr "Jeśli jest ustawione jako TAK, pojemność gospodarza będzie sprawdzana. Zostanie to użyte tylko w przypadku zapytań od oneadmin. Żądania od zwykłych użytkowników będą zawsze wymuszane."
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:136
 msgid "Select a datastore"
-msgstr "Wybierz magazyn danych"
+msgstr "Pasirinkti duomenų saugyklą"
 
 #: ../public/js/plugins/vms-tab.js:142 ../public/js/plugins/vms-tab.js:781
 msgid "Deploy"
-msgstr "Powołaj"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:152
 msgid "Migrate Virtual Machine"
-msgstr "Migruj maszynę wirtualną"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:184 ../public/js/plugins/vms-tab.js:788
 #: ../public/js/plugins/vms-tab.js:796
 msgid "Migrate"
-msgstr "Migruj"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:717
 msgid "VirtualMachine renamed correctly"
-msgstr "Nazwa maszyny zmieniona pomyślnie"
+msgstr "Virtuali mašina pervadinta sėkmingai"
 
 #: ../public/js/plugins/vms-tab.js:728 ../public/js/plugins/vms-tab.js:738
 msgid "VirtualMachine updated correctly"
-msgstr "Wirtualna maszyna zaktualizowana pomyślnie"
+msgstr "Virtuali mašina atnaujinta sėkmingai"
 
 #: ../public/js/plugins/vms-tab.js:782
 msgid "This will deploy the selected VMs on the chosen host"
-msgstr "Rozpocznie powoływanie maszyn wirtualnych na wybranym gospodarzu"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:789
 msgid "This will migrate the selected VMs to the chosen host"
-msgstr "Rozpocznie proces migracji wybranych maszyn wirtualnych na wybranego gospodarza"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:797
 msgid "This will live-migrate the selected VMs to the chosen host"
-msgstr "Rozpocznie proces migracji w czasie rzeczywistym wybranych maszyn wirtualnych na wybranego gospodarza"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:914
 msgid "success"
-msgstr "sukces"
+msgstr "sėkmė"
 
 #: ../public/js/plugins/vms-tab.js:915
 msgid "failure"
-msgstr "niepowodzenie"
+msgstr "klaida"
 
 #: ../public/js/plugins/vms-tab.js:916
 msgid ""
@@ -6097,295 +6097,295 @@ msgstr "#"
 
 #: ../public/js/plugins/vms-tab.js:1161
 msgid "Action"
-msgstr "Akcja"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1162
 msgid "Reason"
-msgstr "Powód"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1163
 msgid "Chg time"
-msgstr "Czas zmiany"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1164
 msgid "Total time"
-msgstr "Całkowity czas"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1165
 msgid "Prolog time"
-msgstr "Czas prologu"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1178
 msgid "No data available in table"
-msgstr "Brak danych w tabeli"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1230
 msgid "Sched Message"
-msgstr "Wiadomość harmonogramu"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1248
 msgid "Placement - Host"
-msgstr "Położenie - gospodarz"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1253
 msgid "Requirements"
-msgstr "Wymagania"
+msgstr "Reikalavimai"
 
 #: ../public/js/plugins/vms-tab.js:1257
 msgid "Rank"
-msgstr "Ranga"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1265
 msgid "Placement - Datastore"
-msgstr "Położenie - magazyn danych"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1270
 msgid "DS Requirements"
-msgstr "Wymagania magazynu danych"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1274
 msgid "DS Rank"
-msgstr "Ranga magazynu danych"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1339
 msgid "LCM State"
-msgstr "Stan LCM"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1354
 msgid "Deploy ID"
-msgstr "ID powołania"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1407
 msgid "Snapshots"
-msgstr "Migawki"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1426
 msgid "Log"
-msgstr "Dziennik"
+msgstr "Žurnalas"
 
 #: ../public/js/plugins/vms-tab.js:1432 ../public/js/plugins/vms-tab.js:1551
 #: ../public/js/plugins/vms-tab.js:1789 ../public/js/plugins/vms-tab.js:2121
 #: ../public/js/plugins/vms-tab.js:2592
 msgid "Actions"
-msgstr "Akcje"
+msgstr "Veiksmai"
 
 #: ../public/js/plugins/vms-tab.js:1547
 msgid "ACTION"
-msgstr "AKCJA"
+msgstr "Veiksmas"
 
 #: ../public/js/plugins/vms-tab.js:1548
 msgid "TIME"
-msgstr "CZAS"
+msgstr "Laikas"
 
 #: ../public/js/plugins/vms-tab.js:1550
 msgid "MESSAGE"
-msgstr "WIADOMOŚĆ"
+msgstr "Žinutė"
 
 #: ../public/js/plugins/vms-tab.js:1552
 msgid "Add action"
-msgstr "Dodaj akcję"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1576
 msgid "shutdown"
-msgstr "wyłącz"
+msgstr "išjungti"
 
 #: ../public/js/plugins/vms-tab.js:1577
 msgid "shutdown-hard"
-msgstr "twarde wyłączenie"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1578
 msgid "hold"
-msgstr "wstrzymaj"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1579
 msgid "release"
-msgstr "odłącz"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1580
 msgid "stop"
-msgstr "stop"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1581
 msgid "suspend"
-msgstr "wstrzymaj"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1582
 msgid "resume"
-msgstr "wznów"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1583
 msgid "boot"
-msgstr "rozruch"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1584
 msgid "delete"
-msgstr "usuń"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1585
 msgid "delete-recreate"
-msgstr "stwórz ponownie"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1586
 msgid "reboot"
-msgstr "restart"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1587
 msgid "reboot-hard"
-msgstr "twardy restart"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1588
 msgid "poweroff"
-msgstr "wyłącz"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1589
 msgid "poweroff-hard"
-msgstr "wymuś wyłączenie"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1590
 msgid "undeploy"
-msgstr "zatrzymaj"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1591
 msgid "undeploy-hard"
-msgstr "wymuś zatrzymanie"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1592
 msgid "snapshot-create"
-msgstr "stwórz migawkę"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1683
 msgid "No actions to show"
-msgstr "Brak akcji do pokazania"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1739
 msgid "Date Time Picker"
-msgstr "Wybór daty i czasu"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1749
 msgid "Done"
-msgstr "Zakończono"
+msgstr "Atlikta"
 
 #: ../public/js/plugins/vms-tab.js:1786
 msgid "Image / Format-Size"
-msgstr "Obraz / format"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1788
 msgid "Save as"
-msgstr "Zapisz jako"
+msgstr "Išsaugoti kaip"
 
 #: ../public/js/plugins/vms-tab.js:1796 ../public/js/plugins/vms-tab.js:1799
 msgid "Attach disk"
-msgstr "Dołącz dysk"
+msgstr "Pridėti naują diską"
 
 #: ../public/js/plugins/vms-tab.js:1818
 msgid "No disks to show"
-msgstr "Brak dysków do pokazania"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1836
 msgid "in progress"
-msgstr "W trakcie"
+msgstr "vykdoma"
 
 #: ../public/js/plugins/vms-tab.js:1837
 msgid "deferred snapshot in progress"
-msgstr "Trwa proces odłożonej migawki"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1849
 msgid "hot snapshot in progress"
-msgstr "Trwa proces tworzenia migawki"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1861 ../public/js/plugins/vms-tab.js:2170
 msgid "attach/detach in progress"
-msgstr "Trwa process dołączania/odłączania"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1872 ../public/js/plugins/vms-tab.js:1913
 #: ../public/js/plugins/vms-tab.js:2677
 msgid "Snapshot"
-msgstr "Migawka"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1879 ../public/js/plugins/vms-tab.js:2177
 msgid "Detach"
-msgstr "Odłącz"
+msgstr "Atjungti"
 
 #: ../public/js/plugins/vms-tab.js:1889
 msgid "YES"
-msgstr "TAK"
+msgstr "TAIP"
 
 #: ../public/js/plugins/vms-tab.js:1889
 msgid "NO"
-msgstr "NIE"
+msgstr "NE"
 
 #: ../public/js/plugins/vms-tab.js:1919 ../public/js/plugins/vms-tab.js:2007
 #: ../public/js/plugins/vms-tab.js:2291 ../public/js/plugins/vms-tab.js:2492
 #: ../public/js/plugins/vms-tab.js:2683
 msgid "Virtual Machine ID"
-msgstr "ID Maszyny wirtualnej"
+msgstr "Virtualios mašinos ID"
 
 #: ../public/js/plugins/vms-tab.js:1925
 msgid "Disk ID"
-msgstr "ID Dysku"
+msgstr "Disko ID"
 
 #: ../public/js/plugins/vms-tab.js:1932
 msgid "Image name"
-msgstr "Nazwa obrazu"
+msgstr "Disko pavadinimas"
 
 #: ../public/js/plugins/vms-tab.js:1938
 msgid "Snapshot type"
-msgstr "Typ migawki"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1939
 msgid "Sets the specified VM disk to be saved in a new Image."
-msgstr "Wybrany dysk maszyny wirtualnej zostanie zapisany jako nowy obraz"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1940
 msgid ""
 "Deferred: The Image is created immediately, but the contents are saved only "
 "if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
-msgstr "Odłożony: Obraz jest stworzony natychmiast, ale jest zapisany jedynie, gdy maszyna wirtualna zostanie wyłączona poprawnie (np. przy użyciu polecenia Wyłącz, a nie Usuń)"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1941
 msgid "Hot: The Image will be saved immediately."
-msgstr "Na gorąco: Obraz zostanie zapisany natychmiast."
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1944
 msgid "Deferred"
-msgstr "Odroczony"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1945
 msgid "Hot"
-msgstr "Gorący"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1950 ../public/js/plugins/vms-tab.js:2599
 #: ../public/js/plugins/vms-tab.js:2602 ../public/js/plugins/vms-tab.js:2694
 msgid "Take snapshot"
-msgstr "Zrób migawkę"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:1964
 msgid "Please provide a name for the new image"
-msgstr "Wprowadź nazwę dla nowego obrazu"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2000
 msgid "Attach new disk"
-msgstr "Dołącz nowy dysk"
+msgstr "Pridėti naują diską"
 
 #: ../public/js/plugins/vms-tab.js:2014 ../public/js/plugins/vms-tab.js:2298
 msgid "Attach"
-msgstr "Dołącz"
+msgstr "Pridėti"
 
 #: ../public/js/plugins/vms-tab.js:2119 ../public/js/plugins/vnets-tab.js:1309
 msgid "IPv6 ULA"
-msgstr ""
+msgstr "IPv6 ULA"
 
 #: ../public/js/plugins/vms-tab.js:2120 ../public/js/plugins/vnets-tab.js:1310
 msgid "IPv6 Global"
-msgstr ""
+msgstr "Globalus IPv6"
 
 #: ../public/js/plugins/vms-tab.js:2128 ../public/js/plugins/vms-tab.js:2131
 msgid "Attach nic"
-msgstr "Dołącz kartę sieciową"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2284
 msgid "Attach new nic"
-msgstr "Dodaj nową kartę sieciową"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2374 ../public/js/plugins/vnets-tab.js:1148
 msgid "Range"
@@ -6402,55 +6402,55 @@ msgstr ""
 #: ../public/js/plugins/vms-tab.js:2436 ../public/js/plugins/vms-tab.js:2439
 #: ../public/js/plugins/vms-tab.js:2507
 msgid "Resize"
-msgstr "Zmień rozmiar"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2485
 msgid "Resize VM capacity"
-msgstr "Zmień ilość zasobów"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2591
 msgid "Timestamp"
-msgstr "Znacznik czasu"
+msgstr "Laiko žyma"
 
 #: ../public/js/plugins/vms-tab.js:2621
 msgid "No snapshots to show"
-msgstr "Brak migawek do pokazania"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2641
 msgid "Revert"
-msgstr "Cofnij"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2689
 msgid "Snapshot name"
-msgstr "Nazwa migawki"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:2832
 msgid "You have not selected a template"
-msgstr "Nie wybrano żadnego szablonu"
+msgstr "Jūs nepasirinkote šablono"
 
 #: ../public/js/plugins/vms-tab.js:2929 ../public/js/plugins/vms-tab.js:3006
 msgid "You have not selected a host"
-msgstr "Nie wybrano żadnego gospodarza"
+msgstr "Jūs nepasirinkote serverio"
 
 #: ../public/js/plugins/vms-tab.js:2980
 msgid "is currently running on Host"
-msgstr "obecnie uruchomiony na gospodarzu"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:3069
 msgid "VNC connection"
-msgstr "Połączenie VNC"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:3077
 msgid "Loading"
-msgstr "Ładowanie"
+msgstr "Kraunama"
 
 #: ../public/js/plugins/vms-tab.js:3078 ../public/js/plugins/vms-tab.js:3140
 msgid "Open in a new window"
-msgstr "Otwórz w nowym oknie"
+msgstr "Atidaryti naujame lange"
 
 #: ../public/js/plugins/vms-tab.js:3089
 msgid "Canvas not supported."
-msgstr "Canvas jest nie wspierany"
+msgstr ""
 
 #: ../public/js/plugins/vms-tab.js:3120 ../public/js/plugins/vms-tab.js:3185
 msgid "VNC Connection in progress"
@@ -6462,7 +6462,7 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:26 ../public/js/plugins/vnets-tab.js:822
 msgid "Addresses"
-msgstr ""
+msgstr "Adresai"
 
 #: ../public/js/plugins/vnets-tab.js:27 ../public/js/plugins/vnets-tab.js:828
 msgid "Security"
@@ -6474,12 +6474,12 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:43
 msgid "Description of the Virtual Network"
-msgstr ""
+msgstr "Virtualaus kompiuterių tinklo apibūdinimas"
 
 #: ../public/js/plugins/vnets-tab.js:52 ../public/js/plugins/vnets-tab.js:639
 #: ../public/js/sunstone.js:6007
 msgid "Bridge"
-msgstr "Most"
+msgstr "Tiltas"
 
 #: ../public/js/plugins/vnets-tab.js:53
 msgid ""
@@ -6489,7 +6489,7 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:60
 msgid "Network model"
-msgstr "Model sieci"
+msgstr "Tinklo modelis"
 
 #: ../public/js/plugins/vnets-tab.js:61
 msgid ""
@@ -6572,7 +6572,7 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:123
 msgid "Physical device"
-msgstr "Urządzenie fizyczne"
+msgstr "Fizinis įrenginys"
 
 #: ../public/js/plugins/vnets-tab.js:124
 msgid ""
@@ -6581,7 +6581,7 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:139
 msgid "Add another Address Range"
-msgstr ""
+msgstr "Pridėkite kitą adresų intervalą"
 
 #: ../public/js/plugins/vnets-tab.js:150
 msgid ""
@@ -6595,23 +6595,23 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:165
 msgid "Network address"
-msgstr ""
+msgstr "Tinklo adresas"
 
 #: ../public/js/plugins/vnets-tab.js:166
 msgid "Base network address. For example, 192.168.1.0"
-msgstr ""
+msgstr "Bazinis tinklo adresas. Pavyzdžiui, 192.168.1.0"
 
 #: ../public/js/plugins/vnets-tab.js:171
 msgid "Network mask"
-msgstr "Maska sieci"
+msgstr "Tinklo kaukė"
 
 #: ../public/js/plugins/vnets-tab.js:172
 msgid "Network mask. For example, 255.255.255.0"
-msgstr ""
+msgstr "Tinklo kaukė. Pavyzdžiui, 255.255.255.0"
 
 #: ../public/js/plugins/vnets-tab.js:179
 msgid "Gateway"
-msgstr "Brama"
+msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:180
 msgid "Router for this network. Leave empty if the network is not routable"
@@ -6635,11 +6635,11 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:218
 msgid "Write the Virtual Network template here"
-msgstr "Tu wpisz szablon wirtualnej sieci"
+msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:242
 msgid "Virtual Network created"
-msgstr "Utworzono sieć wirtualną"
+msgstr "Virtualus kompiuterių tinklas sukurtas"
 
 #: ../public/js/plugins/vnets-tab.js:470
 msgid "Virtual Network updated correctly"
@@ -6648,11 +6648,11 @@ msgstr ""
 #: ../public/js/plugins/vnets-tab.js:567
 #: ../public/js/plugins/vnets-tab.js:2179
 msgid "Reserve"
-msgstr ""
+msgstr "Rezervuoti"
 
 #: ../public/js/plugins/vnets-tab.js:605
 msgid "Virtual network information"
-msgstr "Informacje o wirtualnej sieci"
+msgstr "Virtualaus tinklo informacija"
 
 #: ../public/js/plugins/vnets-tab.js:609
 msgid "Address Range management"
@@ -6660,22 +6660,22 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:613
 msgid "Lease management"
-msgstr "Zarządzanie dzierżawami"
+msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:637 ../public/js/sunstone.js:6005
 msgid "Reservation"
-msgstr ""
+msgstr "Rezervacija"
 
 #: ../public/js/plugins/vnets-tab.js:640 ../public/js/plugins/vnets-tab.js:834
 #: ../public/js/plugins/vnets-tab.js:979
 #: ../public/js/plugins/vnets-tab.js:2254 ../public/js/sunstone.js:2847
 #: ../public/js/sunstone.js:6008
 msgid "Leases"
-msgstr "Dzierżawy"
+msgstr "Pieskyros"
 
 #: ../public/js/plugins/vnets-tab.js:651
 msgid "Create Virtual Network"
-msgstr "Stwórz nową sieć wirtualną"
+msgstr "Sukurti virtualų kompiuterių tinklą"
 
 #: ../public/js/plugins/vnets-tab.js:655
 msgid "Update Virtual Network"
@@ -6687,11 +6687,11 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:765
 msgid "This Network is already a reservation"
-msgstr ""
+msgstr "Šis tinklas jau rezervuotas"
 
 #: ../public/js/plugins/vnets-tab.js:963
 msgid "Remove"
-msgstr ""
+msgstr "Pašalinti"
 
 #: ../public/js/plugins/vnets-tab.js:975
 #: ../public/js/plugins/vnets-tab.js:1071
@@ -6699,32 +6699,32 @@ msgstr ""
 #: ../public/js/plugins/vnets-tab.js:1646
 #: ../public/js/plugins/vnets-tab.js:2250
 msgid "Address Range"
-msgstr ""
+msgstr "Adresų intervalas"
 
 #: ../public/js/plugins/vnets-tab.js:977
 #: ../public/js/plugins/vnets-tab.js:2252 ../public/js/sunstone.js:8147
 #: ../public/js/sunstone.js:8149
 msgid "Start"
-msgstr ""
+msgstr "Pradžia"
 
 #: ../public/js/plugins/vnets-tab.js:978
 #: ../public/js/plugins/vnets-tab.js:2253
 msgid "IPv6 Prefix"
-msgstr ""
+msgstr "IPv6 prefiksas"
 
 #: ../public/js/plugins/vnets-tab.js:1033
 msgid "Select an Address Range to see more information"
-msgstr ""
+msgstr "Rinkitės adresų intervalą, kad pamatyti daugiau informacijos"
 
 #: ../public/js/plugins/vnets-tab.js:1089
 #: ../public/js/plugins/vnets-tab.js:1676
 msgid "MAC Start"
-msgstr "Początkowy MAC"
+msgstr "MAC pradžia"
 
 #: ../public/js/plugins/vnets-tab.js:1091
 #: ../public/js/plugins/vnets-tab.js:1691
 msgid "Global prefix"
-msgstr ""
+msgstr "Globalus prefiksas"
 
 #: ../public/js/plugins/vnets-tab.js:1092
 #: ../public/js/plugins/vnets-tab.js:1697
@@ -6757,11 +6757,11 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:1293
 msgid "Hold IP"
-msgstr "Zarezerwuj IP"
+msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:1308
 msgid "IPv6 Link"
-msgstr ""
+msgstr "IPv6 ryšys"
 
 #: ../public/js/plugins/vnets-tab.js:1350
 msgid "VM:"
@@ -6769,7 +6769,7 @@ msgstr "VM:"
 
 #: ../public/js/plugins/vnets-tab.js:1353
 msgid "NET:"
-msgstr ""
+msgstr "NET:"
 
 #: ../public/js/plugins/vnets-tab.js:1661
 msgid "IPv4"
@@ -6777,7 +6777,7 @@ msgstr "IPv4"
 
 #: ../public/js/plugins/vnets-tab.js:1662
 msgid "IPv4/6"
-msgstr ""
+msgstr "IPv4/6"
 
 #: ../public/js/plugins/vnets-tab.js:1663
 msgid "IPv6"
@@ -6785,11 +6785,11 @@ msgstr "IPv6"
 
 #: ../public/js/plugins/vnets-tab.js:1664
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernetas"
 
 #: ../public/js/plugins/vnets-tab.js:1677
 msgid "First MAC address"
-msgstr ""
+msgstr "Pirmas MAC adresas"
 
 #: ../public/js/plugins/vnets-tab.js:1692
 msgid "IPv6 global address prefix to create leases"
@@ -6801,88 +6801,88 @@ msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:1948
 msgid "The Adress Range was not found"
-msgstr ""
+msgstr "Nerastas adresų intervalas"
 
 #: ../public/js/plugins/vnets-tab.js:1980
 msgid "New Address Range"
-msgstr ""
+msgstr "Naujas adresų intervalas"
 
 #: ../public/js/plugins/vnets-tab.js:2012
 #: ../public/js/plugins/vnets-tab.js:2075
 msgid "One or more required fields are missing."
-msgstr ""
+msgstr "Vienas ar keli privalomi laukai neužpildyti."
 
 #: ../public/js/plugins/vnets-tab.js:2047
 msgid "Edit Address Range"
-msgstr ""
+msgstr "Keisti adresų intervalą"
 
 #: ../public/js/plugins/vnets-tab.js:2121
 msgid "Reservation from Virtual Network"
-msgstr ""
+msgstr "Rezervacija iš virtualaus tinklo"
 
 #: ../public/js/plugins/vnets-tab.js:2127
 msgid "Number of addresses"
-msgstr ""
+msgstr "Adresų skaičius"
 
 #: ../public/js/plugins/vnets-tab.js:2133
 msgid "Add to a new Virtual Network"
-msgstr ""
+msgstr "Įtraukti į naują virtualų tinklą"
 
 #: ../public/js/plugins/vnets-tab.js:2134
 msgid "Add to an existing Reservation"
-msgstr ""
+msgstr "Įtraukti egzistuojančią rezervaciją"
 
 #: ../public/js/plugins/vnets-tab.js:2160
 msgid "You can select the addresses from an specific Address Range"
-msgstr ""
+msgstr "Jūs galite rinktis adresą iš konkretaus adresų rėžio"
 
 #: ../public/js/plugins/vnets-tab.js:2171
 msgid "First address"
-msgstr ""
+msgstr "Pirmas adresas"
 
 #: ../public/js/plugins/vnets-tab.js:2172
 msgid "IPv4 or MAC"
-msgstr ""
+msgstr "IPv4 arba MAC"
 
 #: ../public/js/plugins/vnets-tab.js:2260
 msgid "Please select an Address Range from the list"
-msgstr ""
+msgstr "Prašome pasirinkti adresų intervalą iš sąrašo"
 
 #: ../public/js/plugins/vnets-tab.js:2261
 msgid "You selected the following Address Range:"
-msgstr ""
+msgstr "Jūs pasirinkote šį adresų intervalą:"
 
 #: ../public/js/plugins/vresources-tab.js:18
 msgid "Virtual Resources"
-msgstr "Zasoby wirtualne"
+msgstr "Virtualūs ištekliai"
 
 #: ../public/js/plugins/zones-tab.js:23 ../public/js/plugins/zones-tab.js:382
 msgid "Create zone"
-msgstr "Stwórz strefę"
+msgstr "Kurti zoną"
 
 #: ../public/js/plugins/zones-tab.js:57
 msgid "Create Zone"
-msgstr "Stwórz strefę"
+msgstr "Kurti zoną"
 
 #: ../public/js/plugins/zones-tab.js:63
 msgid "Zone Name"
-msgstr "Nazwa strefy"
+msgstr "Zonos vardas"
 
 #: ../public/js/plugins/zones-tab.js:69 ../public/js/plugins/zones-tab.js:233
 msgid "Endpoint"
-msgstr "Punkt końcowy"
+msgstr "Galinis taškas"
 
 #: ../public/js/plugins/zones-tab.js:161
 msgid "Zone updated correctly"
-msgstr "Strefa zaktualizowana pomyślnie"
+msgstr "Zona atnaujinta korektiškai"
 
 #: ../public/js/plugins/zones-tab.js:181
 msgid "Zone renamed correctly"
-msgstr "Nazwa strefy zmieniona pomyślnie"
+msgstr "Zona pervardinta korektiškai"
 
 #: ../public/js/plugins/zones-tab.js:243
 msgid "Zone information"
-msgstr "Informacje o strefie"
+msgstr "Zonos informacija"
 
 #: ../public/js/sunstone.js:59
 msgid "January"
@@ -6938,65 +6938,65 @@ msgstr ""
 
 #: ../public/js/sunstone.js:1023 ../public/js/sunstone.js:1043
 msgid "Confirmation of action"
-msgstr "Potwierdzenie akcji"
+msgstr "Veksmo patvirtinimas"
 
 #: ../public/js/sunstone.js:1029 ../public/js/sunstone.js:1048
 msgid "Confirm"
-msgstr "Potwierdź"
+msgstr "Patvirtinti"
 
 #: ../public/js/sunstone.js:1032
 msgid "You have to confirm this action."
-msgstr "Musisz potwierdzić tą akcję."
+msgstr "Jūs turite patvirtinti veiksmą."
 
 #: ../public/js/sunstone.js:1034
 msgid "Do you want to proceed?"
-msgstr "Czy chcesz kontynuować?"
+msgstr "Ar norite tęsti?"
 
 #: ../public/js/sunstone.js:1037 ../public/js/sunstone.js:1061
 msgid "OK"
-msgstr "OK"
+msgstr "Gerai"
 
 #: ../public/js/sunstone.js:1052
 msgid "You need to select something."
-msgstr "Musisz coś wybrać."
+msgstr "Jums reikia kažką pasirinkti."
 
 #: ../public/js/sunstone.js:1115 ../public/js/sunstone.js:1139
 #: ../public/js/sunstone.js:1142
 msgid "You have to confirm this action"
-msgstr "Musisz potwierdzić tą akcję."
+msgstr "Jūs nepatvirtinote šio veiksmo"
 
 #: ../public/js/sunstone.js:1713
 msgid "Network is unreachable: is OpenNebula running?"
-msgstr "Sieć jest nieosiągalna: czy OpenNebula jest włączona?"
+msgstr ""
 
 #: ../public/js/sunstone.js:1734
 msgid "Unauthorized"
-msgstr "Nieautoryzowany"
+msgstr "Neautorizuotas"
 
 #: ../public/js/sunstone.js:1961
 msgid "Please select"
-msgstr "Proszę wybrać"
+msgstr "Prašome pasirinkti"
 
 #: ../public/js/sunstone.js:2525
 msgid "Volatile disks"
-msgstr "Dyski ulotne"
+msgstr ""
 
 #: ../public/js/sunstone.js:2609 ../public/js/sunstone.js:2757
 #: ../public/js/sunstone.js:2892
 msgid "Add a new quota"
-msgstr ""
+msgstr "Papildyti nauju apribojimu"
 
 #: ../public/js/sunstone.js:3081
 msgid "Edit"
-msgstr "Edytuj"
+msgstr "Keisti"
 
 #: ../public/js/sunstone.js:3302
 msgid "VNet"
-msgstr "Sieć wirtualna"
+msgstr "VNet"
 
 #: ../public/js/sunstone.js:4092
 msgid "Ownership"
-msgstr "Własność"
+msgstr "Nuosavybė"
 
 #: ../public/js/sunstone.js:4865
 msgid "Filter by user"
@@ -7025,7 +7025,7 @@ msgstr ""
 #: ../public/js/sunstone.js:4906 ../public/js/sunstone.js:5222
 #: ../public/js/sunstone.js:5238
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 #: ../public/js/sunstone.js:4913
 msgid "Select a row to get detailed information of the month"
@@ -7037,23 +7037,23 @@ msgstr ""
 
 #: ../public/js/sunstone.js:4954 ../public/js/sunstone.js:5322
 msgid "<< me >>"
-msgstr ""
+msgstr "<< me >>"
 
 #: ../public/js/sunstone.js:5142
 msgid "End time"
-msgstr ""
+msgstr "Pabaigos laikas"
 
 #: ../public/js/sunstone.js:5146
 msgid "Group by"
-msgstr ""
+msgstr "Grupuoti pagal"
 
 #: ../public/js/sunstone.js:5154
 msgid "Filter"
-msgstr ""
+msgstr "Atrinkti"
 
 #: ../public/js/sunstone.js:5169
 msgid "Get Accounting"
-msgstr ""
+msgstr "Gauti apskaitą"
 
 #: ../public/js/sunstone.js:5184
 msgid "There are no accounting records"
@@ -7065,31 +7065,31 @@ msgstr ""
 
 #: ../public/js/sunstone.js:5353
 msgid "Time range start is mandatory"
-msgstr ""
+msgstr "Laiko intervalo pradžia yra privaloma"
 
 #: ../public/js/sunstone.js:5360
 msgid "Time range start is not a valid date. It must be YYYY/MM/DD"
-msgstr ""
+msgstr "Laiko intervalo pradžia nėra validi. Privalo būti YYYY/MM/DD"
 
 #: ../public/js/sunstone.js:5373
 msgid "Time range end is not a valid date. It must be YYYY/MM/DD"
-msgstr ""
+msgstr "Laiko intervalo pabaiga nėra validi. Privalo būti YYYY/MM/DD"
 
 #: ../public/js/sunstone.js:5729 ../public/js/sunstone.js:5746
 msgid "Date UTC"
-msgstr ""
+msgstr "Data UTC"
 
 #: ../public/js/sunstone.js:6009
 msgid "VLAN_ID"
-msgstr ""
+msgstr "VLAN_ID"
 
 #: ../public/js/sunstone.js:6016
 msgid "Please select a network from the list"
-msgstr "Wybierz sieć z powyższej listy"
+msgstr "Prašome pasirinkti interneto tinklą iš sąrašo"
 
 #: ../public/js/sunstone.js:6017
 msgid "You selected the following network:"
-msgstr "Wybrano następujące sieci:"
+msgstr "Jūs pasirinkote tokius interneto tinklus:"
 
 #: ../public/js/sunstone.js:6018
 msgid "Please select one or more networks from the list"
@@ -7101,39 +7101,39 @@ msgstr ""
 
 #: ../public/js/sunstone.js:6187
 msgid "Please select a template from the list"
-msgstr "Wybierz szablon z listy"
+msgstr "Prašome pasirinkti šabloną iš sąrašo"
 
 #: ../public/js/sunstone.js:6188
 msgid "You selected the following template:"
-msgstr "Wybrano następujący szablon:"
+msgstr "Jūs pasirinkote šabloną:"
 
 #: ../public/js/sunstone.js:6362
 msgid "Please select a Host from the list"
-msgstr "Wybierz gospodarza z listy"
+msgstr "Prašome pasirinkti serverį iš sąrašo"
 
 #: ../public/js/sunstone.js:6363
 msgid "You selected the following Host:"
-msgstr "Wybrano następującego gospodarza:"
+msgstr "Jūs pasirinkote pasirinkote serverį:"
 
 #: ../public/js/sunstone.js:6538
 msgid "Please select a datastore from the list"
-msgstr "Wybierz magazyn danych z listy"
+msgstr "Prašome pasirinkti duomenų saugyklą iš sąrašo"
 
 #: ../public/js/sunstone.js:6539
 msgid "You selected the following datastore:"
-msgstr "Wybrano następujący magazyn danych:"
+msgstr "Jūs pasirinkote duomenų saugylą:"
 
 #: ../public/js/sunstone.js:6540
 msgid "Please select one or more datastores from the list"
-msgstr "Wybierz jeden lub więcej magazyn danych z listy"
+msgstr "Prašome pasirinkti vieną ar kelias duomenų saugyklas iš sąrašo"
 
 #: ../public/js/sunstone.js:6541
 msgid "You selected the following datastores:"
-msgstr "Wybrano następujące magazyny danych:"
+msgstr "Jūs pasirinkote duomenų saugyklą:"
 
 #: ../public/js/sunstone.js:6716
 msgid "Please select an image from the list"
-msgstr "Wybierz obraz dysku z powyższej listy"
+msgstr ""
 
 #: ../public/js/sunstone.js:6717
 msgid "You selected the following image:"
@@ -7197,8 +7197,8 @@ msgstr ""
 
 #: ../public/js/sunstone.js:7466
 msgid "Please select a resource from the list"
-msgstr ""
+msgstr "Prašome pasirinkti išteklį iš sąrašo"
 
 #: ../public/js/sunstone.js:7470
 msgid "You selected the following resource:"
-msgstr ""
+msgstr "Jūs pasirinkote išteklį:"

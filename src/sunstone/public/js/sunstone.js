@@ -78,7 +78,9 @@ var language_options = '<option value="en_US">English (en_US)</option>\
    <option value="fr_FR">French (fr_FR)</option>\
    <option value="de">German (de)</option>\
    <option value="el_GR">Greek (el_GR)</option>\
-   <option value="it_IT">Italian (el_GR)</option>\
+   <option value="it_IT">Italian (it_IT)</option>\
+   <option value="ja">Japanese (ja)</option>\
+   <option value="lt_LT">Lithuanian (lt_LT)</option>\
    <option value="fa_IR">Persian (fa_IR)</option>\
    <option value="pl">Polish (pl)</option>\
    <option value="pt_BR">Portuguese (pt_BR)</option>\
