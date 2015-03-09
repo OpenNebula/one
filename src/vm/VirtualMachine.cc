@@ -2156,6 +2156,18 @@ bool VirtualMachine::isVolatile(const Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachine::isImported() const
+{
+    bool is_imported = false;
+
+    get_template_attribute("IMPORTED", is_imported);
+
+    return is_imported;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
 {
     long long size = 0;
