@@ -1813,11 +1813,11 @@ src/sunstone/locale/languages/it_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_JA="\
 src/sunstone/locale/languages/ja.js \
-src/sunstone/locale/languages/it_datatable.txt"
+src/sunstone/locale/languages/ja_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_LT_LT="\
 src/sunstone/locale/languages/lt_LT.js \
-src/sunstone/locale/languages/it_datatable.txt"
+src/sunstone/locale/languages/lt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_NL_NL="\
 src/sunstone/locale/languages/nl_NL.js \

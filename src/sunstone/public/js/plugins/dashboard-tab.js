@@ -90,8 +90,8 @@ var widgets = {
             </div>\
             <div class="small-9 large-9 columns text-center">\
               <br>\
-              <a class="button secondary radius large-3 small show_users_tab"><i class="fa fa-lg fa-list fa-fw"></i> Users</a>\
-              <a class="button secondary radius large-3 small show_create_user"><i class="fa fa-lg fa-plus fa-fw"></i> Create</a>\
+              <a class="button secondary radius large-3 small show_users_tab"><i class="fa fa-lg fa-list fa-fw"></i> ' + tr("Users") + '</a>\
+              <a class="button secondary radius large-3 small show_create_user"><i class="fa fa-lg fa-plus fa-fw"></i> ' + tr("Create") + '</a>\
             </div>\
         </div>',
   "network" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-sitemap"></i> '+tr("Network")+'</h5>\
@@ -153,8 +153,8 @@ var widgets = {
             </div>\
             <div class="small-9 large-9 columns text-center">\
               <br>\
-              <a class="button secondary radius large-3 small show_hosts_tab"><i class="fa fa-lg fa-list fa-fw"></i> Hosts</a>\
-              <a class="button secondary  radius large-3 small show_create_host"><i class="fa fa-lg fa-plus fa-fw"></i> Create</a>\
+              <a class="button secondary radius large-3 small show_hosts_tab"><i class="fa fa-lg fa-list fa-fw"></i> ' + tr("Hosts") + '</a>\
+              <a class="button secondary  radius large-3 small show_create_host"><i class="fa fa-lg fa-plus fa-fw"></i> ' + tr("Create") + '</a>\
             </div>\
         </div>',
   "vms" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-th"></i> '+tr("Virtual Machines")+'</h5>\
@@ -198,8 +198,8 @@ var widgets = {
             </div>\
             <div class="small-9 large-9 columns text-center">\
               <br>\
-              <a class="button secondary radius large-3 small show_vms_tab"><i class="fa fa-lg fa-list fa-fw"></i> VMs</a>\
-              <a class="button secondary radius large-3 small show_create_vm"><i class="fa fa-lg fa-plus fa-fw"></i> Create</a>\
+              <a class="button secondary radius large-3 small show_vms_tab"><i class="fa fa-lg fa-list fa-fw"></i> ' + tr("VMs") + '</a>\
+              <a class="button secondary radius large-3 small show_create_vm"><i class="fa fa-lg fa-plus fa-fw"></i> ' + tr("Create") + '</a>\
             </div>\
         </div>',
   "user_quotas" : '<h5 class="subheader"><i class="fa fa-fw fa-lg fa-align-left"></i> '+tr("User Quotas")+'</h5>\

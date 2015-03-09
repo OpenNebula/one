@@ -422,7 +422,7 @@ post '/config' do
 
     user = OpenNebula::User.new_with_id(
                 OpenNebula::User::SELF,
-                $cloud_auth.client(session[:user]), session[:active_zone_endpoint])
+                $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
 
     rc = user.info
     if OpenNebula.is_error?(rc)
