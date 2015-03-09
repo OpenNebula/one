@@ -1114,6 +1114,11 @@ public:
     static bool isVolatile(const Template * tmpl);
 
     /**
+     *  Check if the themplate is for an imported VM
+     */
+    bool isImported() const;
+
+    /**
      *  Return the total SIZE of volatile disks
      */
     static long long get_volatile_disk_size(Template * tmpl);
