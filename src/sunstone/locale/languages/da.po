@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Jens Kristian Søgaard <jens@mermaidconsulting.dk>, 2013-2015
 msgid ""
@@ -12,10 +12,10 @@ msgstr ""
 "PO-Revision-Date: 2015-02-24 15:56+0000\n"
 "Last-Translator: Daniel Molina <dmolina@opennebula.org>\n"
 "Language-Team: Danish (http://www.transifex.com/projects/p/one/language/da/)\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../public/js/opennebula.js:1801 ../public/js/opennebula.js:1823
@@ -1179,12 +1179,7 @@ msgid "Restricted Directories"
 msgstr "Begrænsende biblioteker"
 
 #: ../public/js/plugins/datastores-tab.js:132
-msgid ""
-"Paths that can not be used to register images. A space separated list of "
-"paths. This will prevent users registering important files as VM images and "
-"accessing them thourgh their VMs. OpenNebula will automatically add its "
-"configuration directories: /var/lib/one, /etc/one and oneadmin's home "
-"($HOME)."
+msgid "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."
 msgstr "Stier kan ikke bruges til at registrere diskbilleder. En mellemrums-adskilt liste af stier. Dette forhindrer brugere i at registrere vigtige filer som VM-diskbilleder og tilgå dem gennem deres VMer. OpenNebula tilføjer automatisk sine konfigurations-biblioteker: /var/lib/one, /etc/one og oneadmins hjemmebibliotek ($HOME)."
 
 #: ../public/js/plugins/datastores-tab.js:137
@@ -1192,9 +1187,7 @@ msgid "Base Path"
 msgstr "Basis-sti"
 
 #: ../public/js/plugins/datastores-tab.js:138
-msgid ""
-"When needed, the front-end will access the datastores using BASE_PATH "
-"(defaults to /var/lib/one/datastores)."
+msgid "When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores)."
 msgstr "Ved behov vil front-enden tilgå datalagre ved brug af BASE_PATH (som standard er det /var/lib/one/datastores)."
 
 #: ../public/js/plugins/datastores-tab.js:143
@@ -1202,9 +1195,7 @@ msgid "Transfer BW Limit"
 msgstr "Begrænsning på overførselsbåndbredde"
 
 #: ../public/js/plugins/datastores-tab.js:144
-msgid ""
-"Specify the maximum transfer rate in bytes/second when downloading images "
-"from a http/https URL. Suffixes K, M or G can be used."
+msgid "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:149
@@ -1213,9 +1204,7 @@ msgid "Limit"
 msgstr "Begrænsning"
 
 #: ../public/js/plugins/datastores-tab.js:150
-msgid ""
-"Optional limit, in MB. If set, OpenNebula will only use this amount of "
-"storage, instead of the whole free disk."
+msgid "Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk."
 msgstr "Valgfri begrænsning, i MB. Hvis sat, bruger OpenNebula kun denne mængde lager, istedet for hele den ledige diskplads."
 
 #: ../public/js/plugins/datastores-tab.js:155
@@ -1231,10 +1220,7 @@ msgid "Host Bridge List"
 msgstr "Værts-broliste"
 
 #: ../public/js/plugins/datastores-tab.js:162
-msgid ""
-"Space separated list of Server names or IPs where OpenNebula will be staging"
-" the new images into. This server will act as the entry point for new "
-"inmages in the datastore."
+msgid "Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore."
 msgstr "Mellemrums-separeret liste over servernavne eller IPer, hvor OpenNebula stager de nye diskbilleder til. Denne server bruges som indgangspunkt for nye diskbilleder i datalageret."
 
 #: ../public/js/plugins/datastores-tab.js:167
@@ -1242,9 +1228,7 @@ msgid "DS Tmp Dir"
 msgstr "DS Tmp Dir"
 
 #: ../public/js/plugins/datastores-tab.js:168
-msgid ""
-"Path in the OpenNebula front-end to be used as a buffer to stage in files in"
-" vmfs datastores."
+msgid "Path in the OpenNebula front-end to be used as a buffer to stage in files in vmfs datastores."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:173
@@ -1272,9 +1256,7 @@ msgid "Pool Name"
 msgstr "Pool-navn"
 
 #: ../public/js/plugins/datastores-tab.js:190
-msgid ""
-"The OpenNebula Ceph pool name. Defaults to 'one' (this pool must exist "
-"before using the drivers)."
+msgid "The OpenNebula Ceph pool name. Defaults to 'one' (this pool must exist before using the drivers)."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:195
@@ -1282,10 +1264,7 @@ msgid "Ceph Host"
 msgstr "Ceph Vært"
 
 #: ../public/js/plugins/datastores-tab.js:196
-msgid ""
-"Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 "
-"host4:port4 (if no port is specified, the default one is chosen) (Required "
-"for Libvirt 1.x when cephx is enabled)."
+msgid "Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled)."
 msgstr "Mellemrums-adskilt liste af Ceph monitorer. Eksempel: vært1 vært2:port2 vært3 vært4:port4 (hvis portnummer ikke er specificeret, antages standard-porten) (Påkrævet for Libvirt 1.x når cephx er valgt)"
 
 #: ../public/js/plugins/datastores-tab.js:201
@@ -1293,10 +1272,7 @@ msgid "Ceph User"
 msgstr "Ceph-bruger"
 
 #: ../public/js/plugins/datastores-tab.js:202
-msgid ""
-"The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph "
-"user must exist before using the drivers. Required for Libvirt 1.x when "
-"cephx is enabled ."
+msgid "The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph user must exist before using the drivers. Required for Libvirt 1.x when cephx is enabled ."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:207
@@ -1304,11 +1280,7 @@ msgid "Ceph Secret"
 msgstr "Ceph Secret"
 
 #: ../public/js/plugins/datastores-tab.js:208
-msgid ""
-"A generated UUID for a LibVirt secret (to hold the CephX authentication key "
-"in Libvirt on each hypervisor). This should be generated when creating the "
-"Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is "
-"enabled)."
+msgid "A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled)."
 msgstr "Et dannet UUID til en LibVirt secret (bruges til at rumme CephX autentifikations-nøglen i LibVirt på hver hypervisor). Denne bør dannes når Ceph datalageret oprettet i OpenNebula. (Påkrævet for Libvirt 1.x når cephx er valgt)."
 
 #: ../public/js/plugins/datastores-tab.js:213
@@ -1316,15 +1288,11 @@ msgid "Staging Dir"
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:215
-msgid ""
-"FS: Default path where images will be temporarily copied to in the host "
-"carrying out the registration operation (chosen from the bridge list). If "
-"empty, defaults to /var/tmp."
+msgid "FS: Default path where images will be temporarily copied to in the host carrying out the registration operation (chosen from the bridge list). If empty, defaults to /var/tmp."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:216
-msgid ""
-"Ceph: Default path for image operations in the OpenNebula Ceph frontend."
+msgid "Ceph: Default path for image operations in the OpenNebula Ceph frontend."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:222
@@ -1332,10 +1300,7 @@ msgid "RBD Format"
 msgstr "RBD-format"
 
 #: ../public/js/plugins/datastores-tab.js:223
-msgid ""
-"By default RBD Format 2 will be used. If RBD_FORMAT=2 is specified then when"
-" instantiating non-persistent images the Ceph driver will perform rbd snap "
-"instead of rbd copy."
+msgid "By default RBD Format 2 will be used. If RBD_FORMAT=2 is specified then when instantiating non-persistent images the Ceph driver will perform rbd snap instead of rbd copy."
 msgstr ""
 
 #: ../public/js/plugins/datastores-tab.js:264
@@ -1575,15 +1540,11 @@ msgid "Type of the file."
 msgstr "Filtypen"
 
 #: ../public/js/plugins/files-tab.js:55
-msgid ""
-" KERNEL & RAMDISK files can be used in the OS Booting section of the "
-"Template wizard."
+msgid " KERNEL & RAMDISK files can be used in the OS Booting section of the Template wizard."
 msgstr "KERNEL- og RAMDISK-filer kan benyttes i OS Boot-sektionen af Skabelon-wizarden."
 
 #: ../public/js/plugins/files-tab.js:56
-msgid ""
-" CONTEXT files can be included in the context CD-ROM, from the Context/Files"
-" section of the Template wizard."
+msgid " CONTEXT files can be included in the context CD-ROM, from the Context/Files section of the Template wizard."
 msgstr "CONTEXT filer kan inkluderes i context CD-ROMen, fra Context/Filer sektionen af Skabelon wizarden."
 
 #: ../public/js/plugins/files-tab.js:60
@@ -1737,9 +1698,7 @@ msgid "Allow users in this group to use the following Sunstone views"
 msgstr "Tillad brugerne i denne gruppe at bruge de følgende Sunstone visninger"
 
 #: ../public/js/plugins/groups-tab.js:69
-msgid ""
-"Views available to the group users. If the default is unset, the one set in "
-"sunstone-views.yaml will be used"
+msgid "Views available to the group users. If the default is unset, the one set in sunstone-views.yaml will be used"
 msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:86
@@ -1747,20 +1706,15 @@ msgid "Create an administrator user"
 msgstr "Opret en administrator-bruger"
 
 #: ../public/js/plugins/groups-tab.js:87
-msgid ""
-"You can create now an administrator user. More administrators can be added "
-"later."
+msgid "You can create now an administrator user. More administrators can be added later."
 msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:100
-msgid ""
-"Allow users to view the VMs and Services of other users in the same group"
+msgid "Allow users to view the VMs and Services of other users in the same group"
 msgstr "Tillad brugere at vise VMer og services fra andre brugere i samme gruppe"
 
 #: ../public/js/plugins/groups-tab.js:101
-msgid ""
-"An ACL Rule will be created to give users in this group access to all the "
-"resources in the same group."
+msgid "An ACL Rule will be created to give users in this group access to all the resources in the same group."
 msgstr "En ACL-regel vil blive oprettet for at give brugere i denne gruppe adgang til alle resurserne i den samme gruppe"
 
 #: ../public/js/plugins/groups-tab.js:108
@@ -1768,9 +1722,7 @@ msgid "Allow users in this group to create the following resources"
 msgstr "Tillad brugere i denne gruppe at oprette de følgende resurser"
 
 #: ../public/js/plugins/groups-tab.js:109
-msgid ""
-"This will create new ACL Rules to define which virtual resources this "
-"group's users will be able to create."
+msgid "This will create new ACL Rules to define which virtual resources this group's users will be able to create."
 msgstr ""
 
 #: ../public/js/plugins/groups-tab.js:117
@@ -1790,10 +1742,7 @@ msgid "VMs"
 msgstr "VMer"
 
 #: ../public/js/plugins/groups-tab.js:122
-msgid ""
-"Documents are a special tool used for general purposes, mainly by OneFlow. "
-"If you want to enable users of this group to use service composition via "
-"OneFlow, let it checked."
+msgid "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."
 msgstr "Dokumenter er et særligt værktøj til almen brug - mest af OneFlow. Hvis du vil give brugere i denne gruppe mulighed for at bruge service-sammensætning via OneFlow, så lad denne være afkrydset."
 
 #: ../public/js/plugins/groups-tab.js:143
@@ -2203,9 +2152,7 @@ msgid "ULA_PREFIX"
 msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:1511
-msgid ""
-"Please select the vCenter Clusters to be imported to OpenNebula. Each "
-"vCenter Cluster will be included as a new OpenNebula Host"
+msgid "Please select the vCenter Clusters to be imported to OpenNebula. Each vCenter Cluster will be included as a new OpenNebula Host"
 msgstr ""
 
 #: ../public/js/plugins/hosts-tab.js:1519
@@ -2273,9 +2220,7 @@ msgid " CDROM images are readonly data."
 msgstr "CDROM-diskbilleder er ikke-skrivbar data."
 
 #: ../public/js/plugins/images-tab.js:57
-msgid ""
-" DATABLOCK images are a storage for data. They can be created from previous "
-"existing data, or as an empty drive."
+msgid " DATABLOCK images are a storage for data. They can be created from previous existing data, or as an empty drive."
 msgstr "DATABLOCK-diskbilleder er lager for data. De kan oprettes fra forudeksisterende data, eller som et tomt drev."
 
 #: ../public/js/plugins/images-tab.js:61
@@ -2307,9 +2252,7 @@ msgid "Empty datablock"
 msgstr "Tøm datablok"
 
 #: ../public/js/plugins/images-tab.js:95
-msgid ""
-"Path to the original file that will be copied to the image repository. If "
-"not specified for a DATABLOCK type image, an empty image will be created."
+msgid "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."
 msgstr "Sti til den oprindelige fil som bliver kopieret til diskbillede-lageret. Hvis ikke angivet for et diskbillede af  DATABLOK-typen, så oprettes et tomt diskbillede."
 
 #: ../public/js/plugins/images-tab.js:109
@@ -2325,19 +2268,11 @@ msgid "Type of file system to be built."
 msgstr "Filsystemstypen som skal bygges."
 
 #: ../public/js/plugins/images-tab.js:116
-msgid ""
-" Plain. When the disk image is used directly by the hypervisor we can format"
-" the image, and so it is ready to be used by the guest OS. Values: ext2, "
-"ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will "
-"work if no special option is needed."
+msgid " Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed."
 msgstr "Almindelig. Når diskbilledet bruges direkte af hypervisoren, kan vi formattere det, så det er kalr til brug af gæste-operativsystemet. Værdier: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Ethvert andet filsystem understøttet af mkfs vil kunne bruges, hvis der ikke er behov for særlig parametre."
 
 #: ../public/js/plugins/images-tab.js:117
-msgid ""
-" Formatted. The disk image is stored in a hypervisor specific format VMDK or"
-" Qcow2. Then we cannot really make a filesystem on the image, just create "
-"the device and let the guest OS format the disk. Use raw to not to format "
-"the new image. Values: raw, qcow2, vmdk_*."
+msgid " Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*."
 msgstr "Formatteret. Diskbilledet er lagret i et hypervisor-specifikt format, VMDK eller Qcow2. Derfor kan vi ikke danne et filsystemet på diskbilledet; opret bare enheden og lad gæste-operativsystemet formattere disken. Brug raw for ikke at formatere det nye diskbillede. Værdier: raw, qcow2, vmdk_*."
 
 #: ../public/js/plugins/images-tab.js:125
@@ -2351,10 +2286,7 @@ msgid "Device prefix"
 msgstr "Enhedspræfiks"
 
 #: ../public/js/plugins/images-tab.js:133
-msgid ""
-"Prefix for the emulated device this image will be mounted at. For instance, "
-"“hd”, “sd”. If omitted, the default value is the one defined in oned.conf "
-"(installation default is “hd”)."
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."
 msgstr "Præfiks for den emulerede enhed, som dette diskbillede bliver monteret på. Fx \"hd\" eller \"sd\". Hvis udeladt er standardværdien den, som er defineret i oned.conf (ved installation er standardværdien \"hd\")."
 
 #: ../public/js/plugins/images-tab.js:140
@@ -2463,8 +2395,7 @@ msgid "Clone Image"
 msgstr "Klon diskbillede"
 
 #: ../public/js/plugins/images-tab.js:1176
-msgid ""
-"Several images are selected, please choose a prefix to name the new copies"
+msgid "Several images are selected, please choose a prefix to name the new copies"
 msgstr "Flere diskbilleder er valgt, vælg et præfiks til navngivning af de nye kopier"
 
 #: ../public/js/plugins/images-tab.js:1188
@@ -2484,9 +2415,7 @@ msgid "The following images will be created in OpenNebula."
 msgstr "De følgende diskbilleder bliver oprettet i OpenNebula."
 
 #: ../public/js/plugins/marketplace-tab.js:66
-msgid ""
-"If you want to edit parameters of the image you can do it later in the "
-"images tab"
+msgid "If you want to edit parameters of the image you can do it later in the images tab"
 msgstr "Hvis du vil ændre diskbilledets parametre, kan du gøre det senere under fanebladet Images."
 
 #: ../public/js/plugins/marketplace-tab.js:74
@@ -2498,15 +2427,11 @@ msgid "Image Name"
 msgstr "Diskbillede-navn"
 
 #: ../public/js/plugins/marketplace-tab.js:117
-msgid ""
-"The following template will be created in OpenNebula and the previous images"
-" will be referenced in the disks"
+msgid "The following template will be created in OpenNebula and the previous images will be referenced in the disks"
 msgstr "Den følgende skabelon vil blive oprettet i OpenNebula, og de tidligere diskbilleder bliver refereret i diskene"
 
 #: ../public/js/plugins/marketplace-tab.js:118
-msgid ""
-"If you want to edit parameters of the template you can do it later in the "
-"templates tab"
+msgid "If you want to edit parameters of the template you can do it later in the templates tab"
 msgstr "Hvis du vil ændre skabelonens parametre, kan du gøre det senere under fanebladet Skabeloner"
 
 #: ../public/js/plugins/marketplace-tab.js:128
@@ -2671,9 +2596,7 @@ msgstr "Boot"
 #: ../public/js/plugins/oneflow-services.js:476
 #: ../public/js/plugins/oneflow-services.js:576
 #: ../public/js/plugins/vms-tab.js:835
-msgid ""
-"This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT "
-"state"
+msgid "This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"
 msgstr "Dette vil tvinge hypervisor boothandlingen for VMer som sidder fast i UKENDT eller BOOT tilstandene."
 
 #: ../public/js/plugins/oneflow-services.js:480
@@ -2708,16 +2631,13 @@ msgstr "Sluk"
 #: ../public/js/plugins/oneflow-services.js:494
 #: ../public/js/plugins/oneflow-services.js:594
 #: ../public/js/plugins/vms-tab.js:853
-msgid ""
-"This will send a power off signal to running VMs. They can be resumed later."
+msgid "This will send a power off signal to running VMs. They can be resumed later."
 msgstr "Dette vil sende et sluk-signal til de kørende VMer. De kan genoptages senere."
 
 #: ../public/js/plugins/oneflow-services.js:500
 #: ../public/js/plugins/oneflow-services.js:600
 #: ../public/js/plugins/vms-tab.js:859
-msgid ""
-"This will send a forced power off signal to running VMs. They can be resumed"
-" later."
+msgid "This will send a forced power off signal to running VMs. They can be resumed later."
 msgstr "Dette vil sende et tvungent sluk-signal til de kørende VMer. De kan genoptages senere."
 
 #: ../public/js/plugins/oneflow-services.js:504
@@ -2757,8 +2677,7 @@ msgstr "Dette vil påbegynde nedlukningsprocessen i de valgte VMer"
 #: ../public/js/plugins/oneflow-services.js:524
 #: ../public/js/plugins/oneflow-services.js:624
 #: ../public/js/plugins/vms-tab.js:883
-msgid ""
-"This will initiate the shutdown-hard (forced) process in the selected VMs"
+msgid "This will initiate the shutdown-hard (forced) process in the selected VMs"
 msgstr "Dette vil påbegynde hård (forceret) nedlukning i de valgte VMer"
 
 #: ../public/js/plugins/oneflow-services.js:530
@@ -2956,9 +2875,7 @@ msgstr "KARDINALITET: Sæt kardinaliteten til det givne tal."
 #: ../public/js/plugins/oneflow-templates.js:312
 #: ../public/js/plugins/oneflow-templates.js:947
 #: ../public/js/plugins/oneflow-templates.js:1011
-msgid ""
-"PERCENTAGE_CHANGE: Add/substract the given percentage to the current "
-"cardinality."
+msgid "PERCENTAGE_CHANGE: Add/substract the given percentage to the current cardinality."
 msgstr "PROCENTVIS_ÆNDRING: Læg til / træk fra en given procentdel fra den nuværende kardinalitet."
 
 #: ../public/js/plugins/oneflow-services.js:1199
@@ -3020,10 +2937,7 @@ msgstr "Min"
 #: ../public/js/plugins/oneflow-templates.js:321
 #: ../public/js/plugins/oneflow-templates.js:958
 #: ../public/js/plugins/oneflow-templates.js:1022
-msgid ""
-"Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the "
-"policy will change the cardinality by at least the number of VMs set in this"
-" attribute."
+msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type. If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "Valgfri parameter for PROCENTVIS_ÆNDRING justerings-typen. Hvis angivet, så vil politikken ændre kardinaliteten med mindst det antal VMer som er angivet i attributten."
 
 #: ../public/js/plugins/oneflow-services.js:1210
@@ -3056,9 +2970,7 @@ msgstr "# Perioder"
 #: ../public/js/plugins/oneflow-services.js:1216
 #: ../public/js/plugins/oneflow-templates.js:272
 #: ../public/js/plugins/oneflow-templates.js:967
-msgid ""
-"Number of periods that the expression must be true before the elasticity is "
-"triggered"
+msgid "Number of periods that the expression must be true before the elasticity is triggered"
 msgstr "Antal perioder udtrykket skal være sandt før elasticiteten trigges"
 
 #: ../public/js/plugins/oneflow-services.js:1220
@@ -3091,9 +3003,7 @@ msgstr "Tidsformat"
 #: ../public/js/plugins/oneflow-templates.js:329
 #: ../public/js/plugins/oneflow-templates.js:1026
 #: ../public/js/plugins/oneflow-templates.js:1032
-msgid ""
-"Recurrence: Time for recurring adjustements. Time is specified with the Unix"
-" cron syntax"
+msgid "Recurrence: Time for recurring adjustements. Time is specified with the Unix cron syntax"
 msgstr "Gentagelse: Tidspunkt for gentagne justeringer. Tidspunktet er angivet med Unix cron syntaks"
 
 #: ../public/js/plugins/oneflow-services.js:1276
@@ -3160,10 +3070,7 @@ msgid "Advanced Service Parameters"
 msgstr "Avancerede serviceparametre"
 
 #: ../public/js/plugins/oneflow-templates.js:74
-msgid ""
-"Straight strategy will instantiate each role in order: parents role will be "
-"deployed before their children. None strategy will instantiate the roles "
-"regardless of their relationships."
+msgid "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."
 msgstr "Ligefrem strategi instantierer hver rolle i rækkefølge: forældrenes rolle startes før deres børn. Strategien \"ingen\" instantierer rollerne uden hensyn til deres indbyrdes relationer."
 
 #: ../public/js/plugins/oneflow-templates.js:77
@@ -3188,9 +3095,7 @@ msgid "Wait for VMs to report that they are READY"
 msgstr "Afvent at VMer rapporterer, at de er klar"
 
 #: ../public/js/plugins/oneflow-templates.js:96
-msgid ""
-"Before deploying any child roles, wait for all VMs of the parent roles to "
-"report via OneGate that they are READY=YES"
+msgid "Before deploying any child roles, wait for all VMs of the parent roles to report via OneGate that they are READY=YES"
 msgstr "Før igangsættelse af børne-roller, afvent at alle VMer af forældre-roller rapporterer via OneGate at de er READY=YES "
 
 #: ../public/js/plugins/oneflow-templates.js:110
@@ -3230,9 +3135,7 @@ msgid "Advanced Role Parameters"
 msgstr "Avancerede rolleparametre"
 
 #: ../public/js/plugins/oneflow-templates.js:195
-msgid ""
-"VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one"
-" set for the Service will be used"
+msgid "VM shutdown action: 'shutdown' or 'shutdown-hard'. If it is not set, the one set for the Service will be used"
 msgstr "VM-nedlukningshandling: 'luk-ned' eller 'luk-ned-hård'. Hvis den ikke vælges, så bruges den, der er valgt for servicen"
 
 #: ../public/js/plugins/oneflow-templates.js:208
@@ -3240,10 +3143,7 @@ msgid "VM Template Content"
 msgstr "VM Skabelonindhold"
 
 #: ../public/js/plugins/oneflow-templates.js:209
-msgid ""
-"This information will be merged with the original Virtual Machine template. "
-"Configuration attributes and network interfaces will be replaced by those "
-"provided by the user when the template is instantiated"
+msgid "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"
 msgstr "Denne information vil blive flettet sammen med den oprindelige virtuelle maskin-skabelon. Konfigurationsattributterne og netværksinterfaces bliver erstattet af dem, som er angivet af brugeren når skabelonen benyttes."
 
 #: ../public/js/plugins/oneflow-templates.js:218
@@ -3267,9 +3167,7 @@ msgid "Optional parameter for PERCENTAGE_CHANGE adjustment type."
 msgstr "Valgfri parameter for PERCENTAGE_CHANGE justering"
 
 #: ../public/js/plugins/oneflow-templates.js:265
-msgid ""
-" If present, the policy will change the cardinality by at least the number "
-"of VMs set in this attribute."
+msgid " If present, the policy will change the cardinality by at least the number of VMs set in this attribute."
 msgstr "Hvis angivet, så vil politikken ændre kardinaliteten med mindst det antal Vmer som er angivet i attributten."
 
 #: ../public/js/plugins/oneflow-templates.js:289
@@ -3287,10 +3185,7 @@ msgid "Service Name"
 msgstr "Servicenavn"
 
 #: ../public/js/plugins/oneflow-templates.js:358
-msgid ""
-"Defaults to template name when emtpy. You can use the wildcard &#37;i. When "
-"creating several Services, &#37;i will be replaced with a different number "
-"starting from 0 in each of them"
+msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several Services, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "Hvis tom, benyttes skabelonavnet som standard. Du kan bruge wildcardet &#37;i. Når du opretter flere services bliver &#37;i erstattet med et tal begyndende med 0."
 
 #: ../public/js/plugins/oneflow-templates.js:363
@@ -3626,9 +3521,7 @@ msgid "Change Capacity"
 msgstr "Ændr kapacitet"
 
 #: ../public/js/plugins/provision-tab.js:2352
-msgid ""
-"There are no instance_types available. Please contact your cloud "
-"administrator"
+msgid "There are no instance_types available. Please contact your cloud administrator"
 msgstr "Der er ingen tilgængelige instanstyper. Kontakt venligst din cloud-administrator"
 
 #: ../public/js/plugins/provision-tab.js:2452
@@ -3649,8 +3542,7 @@ msgid "Select a Network for this interface"
 msgstr "Vælg et netværk til dette interface"
 
 #: ../public/js/plugins/provision-tab.js:2545
-msgid ""
-"There are no networks available. Please contact your cloud administrator"
+msgid "There are no networks available. Please contact your cloud administrator"
 msgstr "Der er ingen tilgængelige netværk. Kontakt venligst din cloud-administrator"
 
 #: ../public/js/plugins/provision-tab.js:2631
@@ -3815,9 +3707,7 @@ msgid "DELETING"
 msgstr "SLETTER"
 
 #: ../public/js/plugins/provision-tab.js:3856
-msgid ""
-"This Virtual Machine will be saved in a new Template. Only the main disk "
-"will be preserved!"
+msgid "This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!"
 msgstr "Denne virtuelle maskine vil blive gemt i en ny skabelon. Kun hoved-disken vil blive bevaret!"
 
 #: ../public/js/plugins/provision-tab.js:3858
@@ -3845,17 +3735,11 @@ msgid "All the information will be lost!"
 msgstr "Al data vil gå tabt!"
 
 #: ../public/js/plugins/provision-tab.js:3957
-msgid ""
-"This action will power off this Virtual Machine. The Virtual Machine will "
-"remain in the poweroff state, and can be powered on later"
+msgid "This action will power off this Virtual Machine. The Virtual Machine will remain in the poweroff state, and can be powered on later"
 msgstr "Denne handling slukker denne virtuelle maskine. Den virtuelle maskine vil forblive i slukket tilstand, og kan tændes senere."
 
 #: ../public/js/plugins/provision-tab.js:3960
-msgid ""
-"You can send the power off signal to the Virtual Machine (this is equivalent"
-" to execute the command from the console). If that doesn't effect your "
-"Virtual Machine, try to Power off the machine (this is equivalent to "
-"pressing the power off button in a physical computer)."
+msgid "You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer)."
 msgstr "Du kan sende sluk-signalet til den virtuelle maskine (det svarer til at køre kommandoen fra konsollen). Hvis dette ikke påvirker din virtuelle maskine, så prøv at lsukke maskinen (det svarer til at trykke på sluk-knappen på en fysisk computer)."
 
 #: ../public/js/plugins/provision-tab.js:3967
@@ -3875,11 +3759,7 @@ msgid "This action will reboot this Virtual Machine."
 msgstr "Denne handling vil genstarte denne virtuelle maskine."
 
 #: ../public/js/plugins/provision-tab.js:3991
-msgid ""
-"You can send the reboot signal to the Virtual Machine (this is equivalent to"
-" execute the reboot command form the console). If that doesn't effect your "
-"Virtual Machine, try to Reboot the machine (this is equivalent to pressing "
-"the reset button a physical computer)."
+msgid "You can send the reboot signal to the Virtual Machine (this is equivalent to execute the reboot command form the console). If that doesn't effect your Virtual Machine, try to Reboot the machine (this is equivalent to pressing the reset button a physical computer)."
 msgstr "Du kan sende genstart-signalet til den virtuelle maskine (det svarer til at køre genstart-kommandoen fra konsollen). Hvis dette ikke påvirker din virtuelle maskine, så prøv at genstart maskinen (det svarer til at trykke på reset-knappen på en fysisk computer)."
 
 #: ../public/js/plugins/provision-tab.js:4001
@@ -3930,9 +3810,7 @@ msgid "The template"
 msgstr "Skabelonen"
 
 #: ../public/js/plugins/provision-tab.js:4580
-msgid ""
-"and the image associated will be shared and all the users will be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be shared and all the users will be able to instantiate new VMs using this template."
 msgstr "og det tilknyttede diskbillede vil blive delt og alle brugerne vil kunne oprette nye VMer med denne skabelon"
 
 #: ../public/js/plugins/provision-tab.js:4584
@@ -3940,9 +3818,7 @@ msgid "Share template"
 msgstr "Del skabelon"
 
 #: ../public/js/plugins/provision-tab.js:4635
-msgid ""
-"and the image associated will be unshared and the users will not be able to "
-"instantiate new VMs using this template."
+msgid "and the image associated will be unshared and the users will not be able to instantiate new VMs using this template."
 msgstr "og det tilknytttede diskbillede vil ikke længere være delt, og brugerne vil ikke kunne oprette nye VMer med denne skabelon"
 
 #: ../public/js/plugins/provision-tab.js:4639
@@ -3962,8 +3838,7 @@ msgid "Be careful, this action will inmediately shutdown your Service"
 msgstr "Pas på - denne handling vil øjeblikkeligt lukke din service"
 
 #: ../public/js/plugins/provision-tab.js:5082
-msgid ""
-"Looks like you don't have any Service. Click the button below to get started"
+msgid "Looks like you don't have any Service. Click the button below to get started"
 msgstr "Det ser ud til at du ikke har nogen services. Tryk på knappen herunder for at begynde."
 
 #: ../public/js/plugins/provision-tab.js:5088
@@ -3991,8 +3866,7 @@ msgid "User Showback"
 msgstr ""
 
 #: ../public/js/plugins/provision-tab.js:5512
-msgid ""
-"Be careful, this action will inmediately remove the User from OpenNebula"
+msgid "Be careful, this action will inmediately remove the User from OpenNebula"
 msgstr "Pas på, denne handling fjerner øjeblikket brugeren fra OpenNebula"
 
 #: ../public/js/plugins/provision-tab.js:5519
@@ -4033,9 +3907,7 @@ msgid "Clone Security Group"
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:292
-msgid ""
-"Several security groups are selected, please choose a prefix to name the new"
-" copies"
+msgid "Several security groups are selected, please choose a prefix to name the new copies"
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:298
@@ -4099,9 +3971,7 @@ msgid "ICMP Type"
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:400
-msgid ""
-"Specific ICMP type of the rule. If a type has multiple codes, it includes "
-"all the codes within."
+msgid "Specific ICMP type of the rule. If a type has multiple codes, it includes all the codes within."
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:422
@@ -4110,9 +3980,7 @@ msgid "Port range"
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:423
-msgid ""
-"Selects whether to apply this TCP or UDP rule to all the ports or just a "
-"specific set."
+msgid "Selects whether to apply this TCP or UDP rule to all the ports or just a specific set."
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:431
@@ -4120,17 +3988,11 @@ msgid "Iptables range"
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:432
-msgid ""
-"A Port Range to filter specific ports. Uses the iptables port syntax: "
-"port[,port|,port:port]..."
+msgid "A Port Range to filter specific ports. Uses the iptables port syntax: port[,port|,port:port]..."
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:440
-msgid ""
-"Any: apply this rule to any connection regardless of its source or "
-"destination. Network: Apply this rule only to a custom defined network "
-"range. Virtual Network: Apply this rule only to connections with origin or "
-"destination in one of the already defined VNETs."
+msgid "Any: apply this rule to any connection regardless of its source or destination. Network: Apply this rule only to a custom defined network range. Virtual Network: Apply this rule only to connections with origin or destination in one of the already defined VNETs."
 msgstr ""
 
 #: ../public/js/plugins/secgroups-tab.js:443 ../public/js/sunstone.js:8156
@@ -4259,9 +4121,7 @@ msgid "Default model"
 msgstr "Standardmodel"
 
 #: ../public/js/plugins/templates-tab.js:47
-msgid ""
-"Default value for all NICs. Hardware that will emulate the network "
-"interface. With Xen this is the type attribute of the vif."
+msgid "Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif."
 msgstr "Standardværdi for alle netværksinterfaces. Hardware som skal emulere dette netværksinterface. Ved Xen er det type-attributten på vif."
 
 #: ../public/js/plugins/templates-tab.js:62
@@ -4409,8 +4269,7 @@ msgid "ACPI"
 msgstr "ACPI"
 
 #: ../public/js/plugins/templates-tab.js:388
-msgid ""
-"Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
+msgid "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"
 msgstr "Tilføj understøttelse i VMen for Advanced Configuration and Power Interface (ACPI)"
 
 #: ../public/js/plugins/templates-tab.js:392
@@ -4460,9 +4319,7 @@ msgid "Localtime"
 msgstr "Lokaltid"
 
 #: ../public/js/plugins/templates-tab.js:432
-msgid ""
-"The guest clock will be synchronized to the host's configured timezone when "
-"booted."
+msgid "The guest clock will be synchronized to the host's configured timezone when booted."
 msgstr "Gæstens ur bliver synkroniseret med værtens konfigurerede tidszone ved boot."
 
 #: ../public/js/plugins/templates-tab.js:441
@@ -4478,9 +4335,7 @@ msgid "PCI BRIDGE"
 msgstr "PCI BRO"
 
 #: ../public/js/plugins/templates-tab.js:450
-msgid ""
-" Adds a PCI Controller that provides bridge-to-bridge capability, only for "
-"VMware."
+msgid " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."
 msgstr "Tilføjer en PCI Controller der giver bridge-to-bridge mulighed, kun for VMware."
 
 #: ../public/js/plugins/templates-tab.js:481
@@ -4520,9 +4375,7 @@ msgid "Generate Random Password"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:525
-msgid ""
-"A random password will be generated for each VM, and will be included in the"
-" VM information"
+msgid "A random password will be generated for each VM, and will be included in the VM information"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:533
@@ -4567,9 +4420,7 @@ msgid "  Add SSH contextualization"
 msgstr "Tilføj SSH-kontekstualisering"
 
 #: ../public/js/plugins/templates-tab.js:594
-msgid ""
-"Add an ssh public key to the context. If the Public Key textarea is empty "
-"then the user variable SSH_PUBLIC_KEY will be used."
+msgid "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."
 msgstr "Tilføj en ssh offentlig nøgle til konteksten. Hvis tekstområdet til den offentlige nøgle er tomt, så bliver bruger-variablen SSH_PUBLIC_KEY anvendt istedet."
 
 #: ../public/js/plugins/templates-tab.js:600
@@ -4581,10 +4432,7 @@ msgid "  Add Network contextualization"
 msgstr "Tilføj netværks-kontekstualisering"
 
 #: ../public/js/plugins/templates-tab.js:609
-msgid ""
-"Add network contextualization parameters. For each NIC defined in the "
-"NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in "
-"the CONTEXT section and will be available in the Virtual Machine"
+msgid "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"
 msgstr "Tilføj netværkskontekstualiseringsparametre. For hvert netværkskort defineret i NETWORK afsnittet, ETH$i_IP, ETH$i_NETWORK... parametrene bliver inkluderet i CONTEXT afsnittet og gøres tilgængelige i den virtuelle maskine."
 
 #: ../public/js/plugins/templates-tab.js:616
@@ -4592,9 +4440,7 @@ msgid "  Add OneGate token"
 msgstr "Tilføj OneGate token"
 
 #: ../public/js/plugins/templates-tab.js:617
-msgid ""
-"Add a file (token.txt) to the context contaning the token to push custom "
-"metrics to the VirtualMachine through OneGate"
+msgid "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate"
 msgstr "Tilføj en fil (token.txt) til konteksten som indeholder det toke, der skubber tilpassede metrikker ind i den virtuelle maskine gennem OneGate"
 
 #: ../public/js/plugins/templates-tab.js:658
@@ -4610,10 +4456,7 @@ msgid "FILES_DS"
 msgstr "FILES_DS"
 
 #: ../public/js/plugins/templates-tab.js:666
-msgid ""
-"Raw String for the FILE_DS attribute of the VM template, representing files "
-"that will be included in the contextualization image. Each file must be "
-"stored in a FILE_DS Datastore and must be of type CONTEXT"
+msgid "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT"
 msgstr "Ufortolket streng til FILE_DS attributten i VM-skabelonen, som repræsenterer de filer, som bliver inkluderet i kontekstualiserings-diskbilledet. Den enkelte fil skal gemmes i et FILE_DS datalager, og skal være af typen CONTEXT"
 
 #: ../public/js/plugins/templates-tab.js:673
@@ -4621,11 +4464,7 @@ msgid "Init scripts"
 msgstr "Init scripts"
 
 #: ../public/js/plugins/templates-tab.js:674
-msgid ""
-"If the VM uses the OpenNebula contextualization package the init.sh file is "
-"executed by default. When the init script added is not called init.sh or "
-"more than one init script is added, this list contains the scripts to run "
-"and the order. Ex. “init.sh users.sh mysql.sh”"
+msgid "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”"
 msgstr "Hvis den virtuelle masine bruger OpenNebula kontekstualiserings-pakken, vil init.sh filen blive udført som standard. Hvis det tilføjede initscript ikke har navnet init.sh eller mere end et init script bliver tilføjet, så indeholder listen i rækkefølgen de scripts, som skal køres. Fx \"init.sh users.sh mysql.sh\""
 
 #: ../public/js/plugins/templates-tab.js:697
@@ -4639,9 +4478,7 @@ msgid "VALUE"
 msgstr "VÆRDI"
 
 #: ../public/js/plugins/templates-tab.js:721
-msgid ""
-"These attributes must be provided by the user when a new VM is intantatiated"
-" using each template. They will be included in the VM context"
+msgid "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:741
@@ -4686,9 +4523,7 @@ msgid "You selected the following clusters:"
 msgstr "Du har valgt følgende klynger"
 
 #: ../public/js/plugins/templates-tab.js:850
-msgid ""
-"Boolean expression that rules out provisioning hosts from list of machines "
-"suitable to run this VM"
+msgid "Boolean expression that rules out provisioning hosts from list of machines suitable to run this VM"
 msgstr "Boolsk udtryk som udelukker provisionerings-værter fra listen af maskiner, som kan køre denne VM."
 
 #: ../public/js/plugins/templates-tab.js:857
@@ -4696,9 +4531,7 @@ msgid "Datastore Requirements"
 msgstr "Datalagerkrav"
 
 #: ../public/js/plugins/templates-tab.js:861
-msgid ""
-"Boolean expression that rules out entries from the pool of datastores "
-"suitable to run this VM."
+msgid "Boolean expression that rules out entries from the pool of datastores suitable to run this VM."
 msgstr "Boolsk udtryk der udelukker elementer fra mængden af datalagre, som er passende til at køre denne VM."
 
 #: ../public/js/plugins/templates-tab.js:870
@@ -4732,9 +4565,7 @@ msgid "Maximize the resources available to VMs in a node"
 msgstr "Maksimér de tilgængelige resurser for VMerne på en vært"
 
 #: ../public/js/plugins/templates-tab.js:888
-msgid ""
-"This field sets which attribute will be used to sort the suitable hosts for "
-"this VM"
+msgid "This field sets which attribute will be used to sort the suitable hosts for this VM"
 msgstr "Dette felt angiver de attributer som bruges til at sortere de værter, som er passende for denne VM."
 
 #: ../public/js/plugins/templates-tab.js:895
@@ -4742,19 +4573,15 @@ msgid "Datastore Rank"
 msgstr "Datalager-placering"
 
 #: ../public/js/plugins/templates-tab.js:899
-msgid ""
-"Tries to optimize storage usage by selecting the DS with less free space"
+msgid "Tries to optimize storage usage by selecting the DS with less free space"
 msgstr "Prøver at optimere lagerforbruget ved at vælge den DS med mindst ledig plads"
 
 #: ../public/js/plugins/templates-tab.js:902
-msgid ""
-"Striping. Tries to optimize I/O by distributing the VMs across datastores."
+msgid "Striping. Tries to optimize I/O by distributing the VMs across datastores."
 msgstr "Striping. Prøver at optimere I/O ved at distribuere VMs over datalagre."
 
 #: ../public/js/plugins/templates-tab.js:910
-msgid ""
-"This field sets which attribute will be used to sort the suitable datastores"
-" for this VM"
+msgid "This field sets which attribute will be used to sort the suitable datastores for this VM"
 msgstr "Dette felt sætter den attribut, som bliver brugt til at sortere de passende datalagre for denne VM"
 
 #: ../public/js/plugins/templates-tab.js:925
@@ -4810,8 +4637,7 @@ msgid "AMI"
 msgstr "AMI"
 
 #: ../public/js/plugins/templates-tab.js:1016
-msgid ""
-"Unique ID of a machine image, returned by a call to ec2-describe-images."
+msgid "Unique ID of a machine image, returned by a call to ec2-describe-images."
 msgstr "Unikt ID på et maskin-billede, returneret af et kald til ec2-describe-images."
 
 #: ../public/js/plugins/templates-tab.js:1021
@@ -4827,10 +4653,7 @@ msgid "Block Device Mapping"
 msgstr "Blok-enhedsmapping"
 
 #: ../public/js/plugins/templates-tab.js:1027
-msgid ""
-"The block device mapping for the instance. More than one can be specified in"
-" a space-separated list. Check the –block-device-mapping option of the EC2 "
-"CLI Reference for the syntax"
+msgid "The block device mapping for the instance. More than one can be specified in a space-separated list. Check the –block-device-mapping option of the EC2 CLI Reference for the syntax"
 msgstr "Blok-enhedsmapping for instansen. Mere end en kan angives i en mellemrums-adskilt liste. Tjek --block-device-mapping parameteren i EC2 Cli Reference for syntaksforklaring."
 
 #: ../public/js/plugins/templates-tab.js:1031
@@ -4838,9 +4661,7 @@ msgid "Client Token"
 msgstr "Klient-token"
 
 #: ../public/js/plugins/templates-tab.js:1032
-msgid ""
-"Unique, case-sensitive identifier you provide to ensure idempotency of the "
-"request."
+msgid "Unique, case-sensitive identifier you provide to ensure idempotency of the request."
 msgstr "Unik, versalfølsomt ID du angiver for at sikre idempotensen af forespørgslen"
 
 #: ../public/js/plugins/templates-tab.js:1036
@@ -4856,9 +4677,7 @@ msgid "Elastic IP"
 msgstr "Elastisk IP"
 
 #: ../public/js/plugins/templates-tab.js:1042
-msgid ""
-"EC2 Elastic IP address to assign to the instance. This parameter is passed "
-"to the command ec2-associate-address -i i-0041230 elasticip."
+msgid "EC2 Elastic IP address to assign to the instance. This parameter is passed to the command ec2-associate-address -i i-0041230 elasticip."
 msgstr "EC2 Elastisk IP-adresse som tildeles instansen. Parameteren gives til kommandoen ec2-associate-address -i i-0041230 elasticip."
 
 #: ../public/js/plugins/templates-tab.js:1046
@@ -4884,9 +4703,7 @@ msgid "Keypair"
 msgstr "Nøglepar"
 
 #: ../public/js/plugins/templates-tab.js:1058
-msgid ""
-"The name of the key pair, later will be used to execute commands like ssh -i"
-" id_keypair or scp -i id_keypair"
+msgid "The name of the key pair, later will be used to execute commands like ssh -i id_keypair or scp -i id_keypair"
 msgstr "Navnet på det nøglepar, som senere vil blive brugt til at udføre kommandoer som ssh -i id_keypair eller scp -i id_keypair"
 
 #: ../public/js/plugins/templates-tab.js:1062
@@ -4910,10 +4727,7 @@ msgid "Private IP"
 msgstr "Privat IP"
 
 #: ../public/js/plugins/templates-tab.js:1073
-msgid ""
-"If you’re using Amazon Virtual Private Cloud, you can optionally use this "
-"parameter to assign the instance a specific available IP address from the "
-"subnet."
+msgid "If you’re using Amazon Virtual Private Cloud, you can optionally use this parameter to assign the instance a specific available IP address from the subnet."
 msgstr "Hvis du bruger Amazon Virtual Private Cloud, kan du valgfrit bruge denne parameter til at tildele instansen en specifik, tilgængelig IP-adresse fra subnettet."
 
 #: ../public/js/plugins/templates-tab.js:1078
@@ -4921,9 +4735,7 @@ msgid "The ID of the RAM disk to select."
 msgstr "ID på RAM-disken som skal vælges"
 
 #: ../public/js/plugins/templates-tab.js:1083
-msgid ""
-"Name of the security group. You can specify more than one security group "
-"(comma separated)."
+msgid "Name of the security group. You can specify more than one security group (comma separated)."
 msgstr "Navn på sikkerhedsgruppen. Du kan angive mere end en sikkerhedsgruppe (komma-separereret)."
 
 #: ../public/js/plugins/templates-tab.js:1087
@@ -4931,16 +4743,11 @@ msgid "Subnet ID"
 msgstr "Subnet-ID"
 
 #: ../public/js/plugins/templates-tab.js:1088
-msgid ""
-"If you’re using Amazon Virtual Private Cloud, this specifies the ID of the "
-"subnet you want to launch the instance into. This parameter is also passed "
-"to the command ec2-associate-address -i i-0041230 -a elasticip."
+msgid "If you’re using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip."
 msgstr "Hvis du bruger Amazon Virtual Private Cloud, specificerer dette IDet på det subnet, du vil starte instansen i. Denne parameter gives også til kommandoen ec2-associate-address -i i-0041230 -a elasticip."
 
 #: ../public/js/plugins/templates-tab.js:1093
-msgid ""
-"Key and optional value of the tag, separated by an equals sign ( = ).You can"
-" specify more than one tag (comma separated)."
+msgid "Key and optional value of the tag, separated by an equals sign ( = ).You can specify more than one tag (comma separated)."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1097
@@ -4957,9 +4764,7 @@ msgid "User Data"
 msgstr "Brugerdata"
 
 #: ../public/js/plugins/templates-tab.js:1103
-msgid ""
-"Specifies Base64-encoded MIME user data to be made available to the "
-"instance(s) in this reservation."
+msgid "Specifies Base64-encoded MIME user data to be made available to the instance(s) in this reservation."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1109
@@ -4967,9 +4772,7 @@ msgid "Block Device Template"
 msgstr "Blok-enhedsskabelon"
 
 #: ../public/js/plugins/templates-tab.js:1110
-msgid ""
-"A global identifier for the template to be used to provision the computing "
-"instance"
+msgid "A global identifier for the template to be used to provision the computing instance"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1114
@@ -4989,9 +4792,7 @@ msgid "Dedicated Host"
 msgstr "Dedikereret værk"
 
 #: ../public/js/plugins/templates-tab.js:1125
-msgid ""
-"Specifies whether or not the instance must only run on hosts with instances "
-"from the same account"
+msgid "Specifies whether or not the instance must only run on hosts with instances from the same account"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1129
@@ -5011,16 +4812,11 @@ msgid "Hourly Billing"
 msgstr "Timevis afregning"
 
 #: ../public/js/plugins/templates-tab.js:1142
-msgid ""
-"Specifies the billing type for the instance . When true the computing "
-"instance will be billed on hourly usage, otherwise it will be billed on a "
-"monthly basis"
+msgid "Specifies the billing type for the instance . When true the computing instance will be billed on hourly usage, otherwise it will be billed on a monthly basis"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1148
-msgid ""
-"Specifies the capacity of the VM in terms of CPU and memory. If both "
-"STARTCPUS and MAXMEMORY are used, then this parameter is disregarded"
+msgid "Specifies the capacity of the VM in terms of CPU and memory. If both STARTCPUS and MAXMEMORY are used, then this parameter is disregarded"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1153
@@ -5028,10 +4824,7 @@ msgid "Local Disk"
 msgstr "Lokal disk"
 
 #: ../public/js/plugins/templates-tab.js:1154
-msgid ""
-"Name of the placement group. When true the disks for the computing instance "
-"will be provisioned on the host which it runs, otherwise SAN disks will be "
-"provisioned"
+msgid "Name of the placement group. When true the disks for the computing instance will be provisioned on the host which it runs, otherwise SAN disks will be provisioned"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1159
@@ -5055,9 +4848,7 @@ msgid "Operating System"
 msgstr "Operativsystem"
 
 #: ../public/js/plugins/templates-tab.js:1170
-msgid ""
-"An identifier for the operating system to provision the computing instance "
-"with. A non exhaustive list of identifiers can be found here"
+msgid "An identifier for the operating system to provision the computing instance with. A non exhaustive list of identifiers can be found here"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1175
@@ -5065,9 +4856,7 @@ msgid "Postscript"
 msgstr "Postscript"
 
 #: ../public/js/plugins/templates-tab.js:1176
-msgid ""
-"Specifies the uri location of the script to be downloaded and run after "
-"installation is complete"
+msgid "Specifies the uri location of the script to be downloaded and run after installation is complete"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1180
@@ -5075,9 +4864,7 @@ msgid "Private Netwrok Only"
 msgstr "Udelukkende privat netværk"
 
 #: ../public/js/plugins/templates-tab.js:1181
-msgid ""
-"Specifies whether or not the instance only has access to the private network"
-"  (ie, if it is going to have a public IP interface or not)"
+msgid "Specifies whether or not the instance only has access to the private network  (ie, if it is going to have a public IP interface or not)"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1185
@@ -5085,9 +4872,7 @@ msgid "Primary Network VLAN"
 msgstr "Primært netværks-VLAN"
 
 #: ../public/js/plugins/templates-tab.js:1186
-msgid ""
-"Specifies the network vlan which is to be used for the frontend interface of"
-" the computing instance"
+msgid "Specifies the network vlan which is to be used for the frontend interface of the computing instance"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1190
@@ -5095,9 +4880,7 @@ msgid "Primary Backed Network VLAN"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1191
-msgid ""
-"Specifies the network vlan which is to be used for the backend interface of "
-"the computing instance"
+msgid "Specifies the network vlan which is to be used for the backend interface of the computing instance"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1195
@@ -5133,9 +4916,7 @@ msgid "Cloud Service"
 msgstr "Cloud-service"
 
 #: ../public/js/plugins/templates-tab.js:1218
-msgid ""
-"Specifies the name of the cloud service where this VM will be linked. "
-"Defaults to 'OpennebulaDefaultCloudServiceName'"
+msgid "Specifies the name of the cloud service where this VM will be linked. Defaults to 'OpennebulaDefaultCloudServiceName'"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1223
@@ -5151,9 +4932,7 @@ msgid "Location"
 msgstr "Placering"
 
 #: ../public/js/plugins/templates-tab.js:1235
-msgid ""
-"Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for "
-"possible values (under region_name)"
+msgid "Azure datacenter where the VM will be sent. See /etc/one/az_driver.conf for possible values (under region_name)"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1240
@@ -5185,9 +4964,7 @@ msgid "TCP Endpoints"
 msgstr "TCP-endepunkter"
 
 #: ../public/js/plugins/templates-tab.js:1256
-msgid ""
-"Comma-separated list of TCP ports to be accesible from the public internet "
-"to this VM"
+msgid "Comma-separated list of TCP ports to be accesible from the public internet to this VM"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1260
@@ -5204,9 +4981,7 @@ msgid "VM User"
 msgstr "VM-bruger"
 
 #: ../public/js/plugins/templates-tab.js:1266
-msgid ""
-"If the selected IMAGE is prepared for Azure provisioning, a username can be "
-"specified here to access the VM once booted"
+msgid "If the selected IMAGE is prepared for Azure provisioning, a username can be specified here to access the VM once booted"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1271
@@ -5240,10 +5015,7 @@ msgstr "VM-navn"
 
 #: ../public/js/plugins/templates-tab.js:1318
 #: ../public/js/plugins/vms-tab.js:70
-msgid ""
-"Defaults to template name when emtpy. You can use the wildcard &#37;i. When "
-"creating several VMs, &#37;i will be replaced with a different number "
-"starting from 0 in each of them"
+msgid "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"
 msgstr "Hvis tom, benyttes skabelonavnet som standard. Du kan bruge wildcardet &#37;i. Når du opretter flere VMer bliver &#37;i erstattet med et tal begyndende med 0."
 
 #: ../public/js/plugins/templates-tab.js:1326
@@ -5253,9 +5025,7 @@ msgstr "Antal virtuelle maskiner som bliver oprettet ved brug af denne skabelon"
 
 #: ../public/js/plugins/templates-tab.js:1335
 #: ../public/js/plugins/vms-tab.js:83
-msgid ""
-"Sets the new VM to hold state, instead of pending. The scheduler will not "
-"deploy VMs in this state. It can be released later, or deployed manually."
+msgid "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."
 msgstr "Sæt den nye VM i hold-tilstand istedet for afventende. Planlæggeren iværksætter ikke VMs i denne tilstand. VMen kan frigives senere, eller iværksættes manuelt."
 
 #: ../public/js/plugins/templates-tab.js:1361
@@ -5357,9 +5127,7 @@ msgid "Do not allow to change capacity"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1826
-msgid ""
-"Users using the cloud view will not be able to select a new capacity for "
-"this template"
+msgid "Users using the cloud view will not be able to select a new capacity for this template"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1833
@@ -5395,9 +5163,7 @@ msgid "Cost of each MB per hour"
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:1881
-msgid ""
-"Percentage of CPU divided by 100 required for the Virtual Machine. Half a "
-"processor is written 0.5."
+msgid "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."
 msgstr "Procentdel af CPU dividereret med 100 påkrævet af den virtuelle maskine. En halv processor angives 0.5."
 
 #: ../public/js/plugins/templates-tab.js:1894
@@ -5410,9 +5176,7 @@ msgid "VCPU"
 msgstr "VCPU"
 
 #: ../public/js/plugins/templates-tab.js:1906
-msgid ""
-"Number of virtual cpus. This value is optional, the default hypervisor "
-"behavior is used, usually one virtual CPU."
+msgid "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."
 msgstr "Antal virtuelle CPUer. Værdien er valgfri, standard hypervisor opførsel benyttes, sædvanligvis 1 virtuel CPU."
 
 #: ../public/js/plugins/templates-tab.js:2114
@@ -5449,9 +5213,7 @@ msgstr "Brugernavn på ejeren af diskbilledet, for at reducere tvetydighed."
 
 #: ../public/js/plugins/templates-tab.js:2157
 #: ../public/js/plugins/templates-tab.js:2327
-msgid ""
-"Device to map image disk. If set, it will overwrite the default device "
-"mapping"
+msgid "Device to map image disk. If set, it will overwrite the default device mapping"
 msgstr "Enhed som diskbilledet mappes til. Hvis sat, så overskriver den standard enheden."
 
 #: ../public/js/plugins/templates-tab.js:2158
@@ -5508,10 +5270,7 @@ msgstr "Enhedspræfiks"
 
 #: ../public/js/plugins/templates-tab.js:2179
 #: ../public/js/plugins/templates-tab.js:2349
-msgid ""
-"Prefix for the emulated device this image will be mounted at. For instance, "
-"“hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of "
-"the Image will be used"
+msgid "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"
 msgstr "Præfiks for den emulerede enhed, som dette diskbillede bliver monteret på. Fx \"hd\", \"sd\" eller \"vd\" for KVM virtio. Hvis udeladt, benyttes dev_prefix attributen fra diskbilledet."
 
 #: ../public/js/plugins/templates-tab.js:2188
@@ -5601,11 +5360,7 @@ msgstr ""
 #: ../public/js/plugins/templates-tab.js:2426
 #: ../public/js/plugins/templates-tab.js:2434
 #: ../public/js/plugins/templates-tab.js:2442
-msgid ""
-"IO throttling attributes for the disk. They are specified in bytes or IOPS "
-"(IO Operations) and can be specified for the total (read+write) or specific "
-"for read or write. Total and read or write can not be used at the same time."
-" By default these parameters are only allowed to be used by oneadmin."
+msgid "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."
 msgstr ""
 
 #: ../public/js/plugins/templates-tab.js:2238
@@ -5650,27 +5405,19 @@ msgid "Filesystem type for the fs images"
 msgstr "Filsystemstype for fs diskbilleder"
 
 #: ../public/js/plugins/templates-tab.js:2665
-msgid ""
-"Identifier of the virtual network from which to lease an IP and MAC address "
-"to this Virtual Machine network interface."
+msgid "Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr "ID på det virtuelle netværk fra hvilket IP og MAC-adresse udlånes til dette virtuel-maskine netværksinterface"
 
 #: ../public/js/plugins/templates-tab.js:2671
-msgid ""
-"Name of the virtual network from which to lease an IP and MAC address to "
-"this Virtual Machine network interface."
+msgid "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr "Navn på det virtuelle netværk fra hvilket en IP og MAC-adresse udlånes til denne virtuelle-maskines netværksinterface"
 
 #: ../public/js/plugins/templates-tab.js:2679
-msgid ""
-"Identifier of the user owner of the virtual network from which to lease an "
-"IP and MAC address to this Virtual Machine network interface."
+msgid "Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr "Bruger-ID på ejeren af det virtuelle netværk fra hvilket en IP og MAC-adresse udlånes til denne virtuelle maskines netværksinterface."
 
 #: ../public/js/plugins/templates-tab.js:2685
-msgid ""
-"Name of the user owner of the virtual network from which to lease an IP and "
-"MAC address to this Virtual Machine network interface."
+msgid "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."
 msgstr "Brugernavn på ejeren af det virtuelle netværk fra hvilket en IP og MAC-adresse udlånes til denne virtuelle maskines netværksinterface."
 
 #: ../public/js/plugins/templates-tab.js:2693
@@ -5688,9 +5435,7 @@ msgid "Model"
 msgstr "Model"
 
 #: ../public/js/plugins/templates-tab.js:2700
-msgid ""
-"Hardware that will emulate this network interface. With Xen this is the type"
-" attribute of the vif."
+msgid "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."
 msgstr "Hardware som skal emulere dette netværksinterface. Ved Xen er det type-attributten på vif."
 
 #: ../public/js/plugins/templates-tab.js:2719
@@ -5714,9 +5459,7 @@ msgstr "PORTE"
 
 #: ../public/js/plugins/templates-tab.js:2729
 #: ../public/js/plugins/templates-tab.js:2746
-msgid ""
-"A list of ports separated by commas or a ranges separated by semicolons, "
-"e.g.: 22,80,5900:6000"
+msgid "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"
 msgstr "En liste af porte adskilt af kommaer, eller et interval adskilt af semikolonner, fx: 22,80,5900:6000"
 
 #: ../public/js/plugins/templates-tab.js:2736
@@ -5806,8 +5549,7 @@ msgid "Clone Template"
 msgstr "Klynge-skabelon"
 
 #: ../public/js/plugins/templates-tab.js:4929
-msgid ""
-"Several templates are selected, please choose prefix to name the new copies"
+msgid "Several templates are selected, please choose prefix to name the new copies"
 msgstr "Flere skabeloner er valgt, vælg et præfiks til navngivning af nye kopier"
 
 #: ../public/js/plugins/templates-tab.js:5019
@@ -5847,8 +5589,7 @@ msgid "Auth"
 msgstr "Auth"
 
 #: ../public/js/plugins/users-tab.js:354
-msgid ""
-"This will change the main group of the selected users. Select the new group"
+msgid "This will change the main group of the selected users. Select the new group"
 msgstr "Dette vil ændre hovedgruppen for de valgte brugere. Vælg den nye gruppe"
 
 #: ../public/js/plugins/users-tab.js:359
@@ -6007,10 +5748,7 @@ msgstr "Påtving"
 
 #: ../public/js/plugins/vms-tab.js:130 ../public/js/plugins/vms-tab.js:177
 #: ../public/js/plugins/vms-tab.js:2499
-msgid ""
-"If it is set to true, the host capacity will be checked. This will only "
-"affect oneadmin requests, regular users resize requests will always be "
-"enforced"
+msgid "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"
 msgstr "Hvis sat til \"sandt\" vil værtskapaciteten blive tjekket. Det påvirker kun oneadmin-forespørgsler, alm. brugeres forespørgsler om ændring af størrelser bliver altid udført"
 
 #: ../public/js/plugins/vms-tab.js:136
@@ -6059,11 +5797,7 @@ msgid "failure"
 msgstr "fejl"
 
 #: ../public/js/plugins/vms-tab.js:916
-msgid ""
-"Recovers a stuck VM that is waiting for a driver operation.                 "
-"The recovery may be done by failing or succeeding the pending operation."
-"                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to "
-"decide if the operation                 was successful or not."
+msgid "Recovers a stuck VM that is waiting for a driver operation.                 The recovery may be done by failing or succeeding the pending operation.                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation                 was successful or not."
 msgstr "Gendanner en fastlåst VM, der venter på en driver-handling. Gendannelse kan ske ved at gennemtvinge den ventende handling som fejl eller success. DU SKAL MANUELT KONTROLLERE VM STATUS PÅ VÆRTEN for at afgøre om handlingen gik godt eller ej."
 
 #: ../public/js/plugins/vms-tab.js:929 ../public/js/plugins/vms-tab.js:931
@@ -6335,9 +6069,7 @@ msgid "Sets the specified VM disk to be saved in a new Image."
 msgstr "Vælg at den valgte VM disk bliver gemt i et nyt diskbillede"
 
 #: ../public/js/plugins/vms-tab.js:1940
-msgid ""
-"Deferred: The Image is created immediately, but the contents are saved only "
-"if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
+msgid "Deferred: The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i.e., using Shutdown; not Delete)"
 msgstr "Udskudt: Diskbilledet bliver oprettet med det samme, men dets indhold gemmes kun, hvis VMen lukkes pænt ned (i.e. ved at bruge Luk ned; ikke Slet)"
 
 #: ../public/js/plugins/vms-tab.js:1941
@@ -6480,9 +6212,7 @@ msgid "Bridge"
 msgstr "Bro"
 
 #: ../public/js/plugins/vnets-tab.js:53
-msgid ""
-"Name of the physical bridge in the physical host where the VM should connect"
-" its network interface"
+msgid "Name of the physical bridge in the physical host where the VM should connect its network interface"
 msgstr "Navn på den fysiske bro i den fysiske vært, hvor VMen skal forbinde dens netværksinterface"
 
 #: ../public/js/plugins/vnets-tab.js:60
@@ -6490,44 +6220,31 @@ msgid "Network model"
 msgstr "Netværksmodel"
 
 #: ../public/js/plugins/vnets-tab.js:61
-msgid ""
-"Choose the same networking model you chose for the hosts that will use this "
-"newtork"
+msgid "Choose the same networking model you chose for the hosts that will use this newtork"
 msgstr "Vælg den samme netværksmodel du har valgt for de værter, som skal benytte dette netværk"
 
 #: ../public/js/plugins/vnets-tab.js:73
-msgid ""
-"Default: dummy driver that doesn’t perform any network operation. "
-"Firewalling rules are also ignored."
+msgid "Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored."
 msgstr "Standard: dummy driver som ikke udfører netværksoperationer. Firewall-regler bliver også ignoreret."
 
 #: ../public/js/plugins/vnets-tab.js:74
-msgid ""
-"802.1Q: restrict network access through VLAN tagging, which also requires "
-"support from the hardware switches."
+msgid "802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches."
 msgstr "802.1Q: Begræns netværksadgang via VLAN tagging, som kræver understøttelse fra hardware-switchene."
 
 #: ../public/js/plugins/vnets-tab.js:75
-msgid ""
-"VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN "
-"has associated a multicast address in the 239.0.0.0/8 range."
+msgid "VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN has associated a multicast address in the 239.0.0.0/8 range."
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:76
-msgid ""
-"ebtables: restrict network access through Ebtables rules. No special "
-"hardware configuration required."
+msgid "ebtables: restrict network access through Ebtables rules. No special hardware configuration required."
 msgstr "ebtables: Begræns netværksadgang gennem ebtables regler. Der er ikke nogen særlige krav til hardwarekonfigurationen."
 
 #: ../public/js/plugins/vnets-tab.js:77
-msgid ""
-"Open vSwitch: restrict network access with Open vSwitch Virtual Switch."
+msgid "Open vSwitch: restrict network access with Open vSwitch Virtual Switch."
 msgstr "Open vSwitch: Begræns netværksadgang med Open vSwitch virtuel switch."
 
 #: ../public/js/plugins/vnets-tab.js:78
-msgid ""
-"VMware: uses the VMware networking infrastructure to provide an isolated and"
-" 802.1Q compatible network for VMs launched with the VMware hypervisor."
+msgid "VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor."
 msgstr "VMware: Brug VMware netværksinfrastruktur for at få et isoleret og 802.1Q kompatibelt netværk for VMer startet med VMware hypervisoren."
 
 #: ../public/js/plugins/vnets-tab.js:86
@@ -6535,9 +6252,7 @@ msgid "Filter MAC spoofing"
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:87
-msgid ""
-"Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, "
-"VXLAN and Ebtables network drivers."
+msgid "Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers."
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:95
@@ -6545,9 +6260,7 @@ msgid "Filter IP spoofing"
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:96
-msgid ""
-"Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, "
-"VXLAN and Ebtables network drivers."
+msgid "Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers."
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:104
@@ -6555,9 +6268,7 @@ msgid "VLAN"
 msgstr "VLAN"
 
 #: ../public/js/plugins/vnets-tab.js:105
-msgid ""
-"Whether or not to isolate this virtual network using the Virtual Network "
-"Manager drivers"
+msgid "Whether or not to isolate this virtual network using the Virtual Network Manager drivers"
 msgstr "Om dette virtuelle netværk skal isoleres ved hjælp af Virtual Network Manager drivere."
 
 #: ../public/js/plugins/vnets-tab.js:113 ../public/js/plugins/vnets-tab.js:641
@@ -6573,8 +6284,7 @@ msgid "Physical device"
 msgstr "Fysisk enhed"
 
 #: ../public/js/plugins/vnets-tab.js:124
-msgid ""
-"Name of the physical network device that will be attached to the bridge"
+msgid "Name of the physical network device that will be attached to the bridge"
 msgstr "Navn på den fysiske netværksenhed, som vil blive forbundet til denne bro"
 
 #: ../public/js/plugins/vnets-tab.js:139
@@ -6582,13 +6292,11 @@ msgid "Add another Address Range"
 msgstr "Tilføj endnu et adresserum"
 
 #: ../public/js/plugins/vnets-tab.js:150
-msgid ""
-"Address Ranges need to be managed in the individual Virtual Network panel"
+msgid "Address Ranges need to be managed in the individual Virtual Network panel"
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:158
-msgid ""
-"The default Security Group 0 is automatically added to new Virtual Networks"
+msgid "The default Security Group 0 is automatically added to new Virtual Networks"
 msgstr ""
 
 #: ../public/js/plugins/vnets-tab.js:165
