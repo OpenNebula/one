@@ -226,12 +226,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
             vm_mad = host['VM_MAD'].downcase
             remote_remotes = host['TEMPLATE/REMOTE_REMOTES']
 
-            # Skip this host from remote syncing unless:
-            # - the host is type "KVM"
-            # - the host is type "XEN"
-            # - the host has REMOTE_REMOTES defined in the template (useful
-            #   for custom defined VMM types)
-            next unless remote_remotes || vm_mad == "kvm" || vm_mad == "xen"
+            # Skip this host from remote syncing if it's a PUBLIC_CLOUD host
+            next if host['TEMPLATE/PUBLIC_CLOUD'] == 'YES'
 
             host_version=host['TEMPLATE/VERSION']
 
