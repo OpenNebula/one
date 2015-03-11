@@ -1208,6 +1208,11 @@ var hybrid_inputs = {
   ],
   azure: [
     {
+      name: "AFFINITY_GROUP",
+      label: tr("Affinity Group"),
+      tooltip: tr("Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region") 
+    },
+    {
       name: "AVAILABILITY_SET",
       label: tr("Availability Set"),
       tooltip: tr("Name of the availability set to which this VM will belong")
