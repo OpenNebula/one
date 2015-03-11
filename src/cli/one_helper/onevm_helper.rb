@@ -384,7 +384,28 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             puts str % [e,  mask]
         }
 
+        vm_disks = []
+
         if vm.has_elements?("/VM/TEMPLATE/DISK")
+            vm_disks = [vm.to_hash['VM']['TEMPLATE']['DISK']].flatten
+        end
+
+        if vm.has_elements?("/VM/TEMPLATE/CONTEXT")
+            context_disk = vm.to_hash['VM']['TEMPLATE']['CONTEXT']
+
+            context_disk["IMAGE"] = "CONTEXT"
+            context_disk["DATASTORE"] = "-"
+            context_disk["TYPE"] = "-"
+            context_disk["READONLY"] = "-"
+            context_disk["SAVE"] = "-"
+            context_disk["CLONE"] = "-"
+            context_disk["SAVE_AS"] = "-"
+
+            vm_disks.push(context_disk)
+        end
+
+
+        if !vm_disks.empty?
             puts
             CLIHelper.print_header(str_h1 % "VM DISKS",false)
             CLIHelper::ShowTable.new(nil, self) do
@@ -440,7 +461,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
                 default :ID, :TARGET, :IMAGE, :TYPE,
                     :SAVE, :SAVE_AS
-            end.show([vm.to_hash['VM']['TEMPLATE']['DISK']].flatten, {})
+            end.show(vm_disks, {})
 
             while vm.has_elements?("/VM/TEMPLATE/DISK")
                 vm.delete_element("/VM/TEMPLATE/DISK")

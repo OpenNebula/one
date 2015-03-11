@@ -1930,6 +1930,15 @@ function printDisks(vm_info){
     else if (!$.isEmptyObject(vm_info.TEMPLATE.DISK))
         disks = [vm_info.TEMPLATE.DISK]
 
+    if (!$.isEmptyObject(vm_info.TEMPLATE.CONTEXT)){
+        var context_disk = vm_info.TEMPLATE.CONTEXT;
+
+        context_disk["IMAGE"] = tr("Context");
+        context_disk["CONTEXT"] = true;
+
+        disks.push(context_disk);
+    }
+
     if (!disks.length){
         html += '\
           <tr id="no_disks_tr">\
@@ -1993,7 +2002,7 @@ function printDisks(vm_info){
               }
 
               if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
-                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && !disk.CONTEXT) {
                   actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
                 }
               }
