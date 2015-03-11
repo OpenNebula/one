@@ -44,6 +44,11 @@
   :desc: Time since the VM was submitted
   :size: 10
 
+:IP:
+  :desc: VM IP addresses
+  :left: true
+  :size: 15
+
 :default: 
 - :ID
 - :USER

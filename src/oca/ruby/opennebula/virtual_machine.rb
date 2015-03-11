@@ -118,6 +118,13 @@ module OpenNebula
             delete-recreate reboot reboot-hard resched unresched poweroff
             poweroff-hard}
 
+        EXTERNAL_IP_ATTRS = [
+            'GUEST_IP',
+            'AWS_IP_ADDRESS',
+            'AZ_IPADDRESS',
+            'SL_PRIMARYIPADDRESS'
+        ]
+
         # Creates a VirtualMachine description with just its identifier
         # this method should be used to create plain VirtualMachine objects.
         # +id+ the id of the vm

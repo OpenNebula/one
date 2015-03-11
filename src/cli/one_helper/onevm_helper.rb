@@ -123,6 +123,45 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         return short_state_str
     end
 
+    # Return the IP or several IPs of a VM
+    def self.ip_str(vm)
+        ips = []
+
+        vm_nics = []
+
+        if !vm["TEMPLATE"]["NIC"].nil?
+            vm_nics = [vm["TEMPLATE"]['NIC']].flatten
+        end
+
+        vm_nics.each do |nic|
+            if nic.has_key?("IP")
+                ips.push(nic["IP"])
+            end
+
+            if nic.has_key?("IP6_GLOBAL")
+                ips.push(nic["IP6_GLOBAL"])
+            end
+
+            if nic.has_key?("IP6_ULA")
+                ips.push(nic["IP6_ULA"])
+            end
+        end
+
+        VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
+            external_ip = vm["TEMPLATE"][attr]
+
+            if !external_ip.nil? && !ips.include?(external_ip)
+                ips.push(external_ip)
+            end
+        end
+
+        if ips.empty?
+            return "--"
+        else
+            return ips.join(",")
+        end
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -206,6 +245,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 etime = d["ETIME"]=="0" ? Time.now.to_i : d["ETIME"].to_i
                 dtime = etime-stime
                 OpenNebulaHelper.period_to_str(dtime, false)
+            end
+
+            column :IP, "VM IP addresses", :left, :donottruncate, :size=>15 do |d|
+                OneVMHelper.ip_str(d)
             end
 
             default :ID, :USER, :GROUP, :NAME, :STAT, :UCPU, :UMEM, :HOST,
