@@ -69,8 +69,6 @@ class OneDB
     end
 
     def backup(bck_file, ops, backend=@backend)
-        bck_file = backend.bck_file if bck_file.nil?
-
         if !ops[:force] && File.exists?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
@@ -81,8 +79,6 @@ class OneDB
     end
 
     def restore(bck_file, ops, backend=@backend)
-        bck_file = backend.bck_file if bck_file.nil?
-
         if !File.exists?(bck_file)
             raise "File #{bck_file} doesn't exist, backup restoration aborted."
         end
@@ -142,6 +138,8 @@ class OneDB
 
             puts ""
         end
+
+        ops[:backup] = @backend.bck_file if ops[:backup].nil?
 
         backup(ops[:backup], ops)
 
@@ -264,6 +262,8 @@ class OneDB
             @backend.extend OneDBFsck
 
             @backend.check_db_version()
+
+            ops[:backup] = @backend.bck_file if ops[:backup].nil?
 
             # FSCK will be executed, make DB backup
             backup(ops[:backup], ops)
@@ -408,6 +408,9 @@ is preserved.
             end
 
             merge_vdcs = input == "Y"
+
+            ops[:backup] = @backend.bck_file if ops[:backup].nil?
+            ops[:"slave-backup"] = slave_backend.bck_file if ops[:"slave-backup"].nil?
 
             # Import will be executed, make DB backup
             backup(ops[:backup], ops)
