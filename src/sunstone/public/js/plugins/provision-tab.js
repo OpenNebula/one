@@ -3768,6 +3768,12 @@ function setup_info_vm(context) {
                 data.UNAME+
               '</span>'+
             '</li>'+
+            '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
+              '<span style="color: #999;">'+
+                '<i class="fa fa-fw fa-lg fa-link"/>&emsp;'+
+                data.ID+
+              '</span>'+
+            '</li>'+
             '<li class="text-left provision-bullet-item">'+
             '</li>');
 
@@ -4756,6 +4762,12 @@ function setup_info_flow(context) {
               '<span style="color: #999;">'+
                 '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                 data.UNAME+
+              '</span>'+
+            '</li>'+
+            '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
+              '<span style="color: #999;">'+
+                '<i class="fa fa-fw fa-lg fa-link"/>&emsp;'+
+                data.ID+
               '</span>'+
             '</li>'+
             '<li class="text-left provision-bullet-item">'+
