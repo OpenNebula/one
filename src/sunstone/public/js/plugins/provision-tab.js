@@ -2179,17 +2179,17 @@ function generate_cardinality_selector(context, role_template, template_json) {
 
       if (capacity.CPU && capacity.CPU_COST) {
         cost += capacity.CPU * capacity.CPU_COST
-        $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+        $(".cost_value", context).data("CPU_COST", capacity.CPU_COST);
       }
 
       if (capacity.MEMORY && capacity.MEMORY_COST) {
         cost += capacity.MEMORY * capacity.MEMORY_COST
-        $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+        $(".cost_value", context).data("MEMORY_COST", capacity.MEMORY_COST);
       }
 
       $(".provision_create_service_cost_div", context).data("cost", cost)
       var cost_value = cost*parseInt(role_template.cardinality);
-      $(".cost_value").html(cost_value.toFixed(2));
+      $(".cost_value", context).html(cost_value.toFixed(2));
     } else {
       $(".provision_create_service_cost_div").hide();
     }
@@ -2205,7 +2205,7 @@ function generate_cardinality_selector(context, role_template, template_json) {
       $( ".cardinality_slider", context).on('change', function(){
         $(".cardinality_value",context).html($(this).attr('data-slider'))
         var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
-        $(".cost_value").html(cost_value.toFixed(2));
+        $(".cost_value", context).html(cost_value.toFixed(2));
       });
     } else {
       $( ".cardinality_slider_div", context).hide();
@@ -3748,7 +3748,7 @@ function setup_info_vm(context) {
               '</span>'+
             '</li>'+
             //'<li  class="text-left provision-bullet-item" >'+
-            //  '<span style="color: #afafaf;px" style="font-size: 16px">'+
+            //  '<span style="color: #afafaf;" style="font-size: 16px">'+
             //    "ID: " +
             //    data.ID+
             //  '</span>' +
@@ -3757,13 +3757,13 @@ function setup_info_vm(context) {
               '<hr style="margin: 0px">'+
             '</li>'+
             '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
-              '<span style="color: #999;px">'+
+              '<span style="color: #999;">'+
                 '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
                 _format_date(data.STIME)+
               '</span>'+
             '</li>'+
             '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
-              '<span style="color: #999;px">'+
+              '<span style="color: #999;">'+
                 '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                 data.UNAME+
               '</span>'+
@@ -4747,13 +4747,13 @@ function setup_info_flow(context) {
               '<hr style="margin: 0px">'+
             '</li>'+
             '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
-              '<span style="color: #999;px">'+
+              '<span style="color: #999;">'+
                 '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
                 (start_time ? _format_date(start_time) : "-") +
               '</span>'+
             '</li>'+
             '<li class="text-left provision-bullet-item" style="font-size: 16px">'+
-              '<span style="color: #999;px">'+
+              '<span style="color: #999;">'+
                 '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
                 data.UNAME+
               '</span>'+
