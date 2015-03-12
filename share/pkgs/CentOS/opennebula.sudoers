@@ -2,7 +2,7 @@ Defaults:oneadmin !requiretty
 Defaults:oneadmin secure_path = /sbin:/bin:/usr/sbin:/usr/bin
 
 Cmnd_Alias ONE_MISC = /bin/dd, /sbin/mkfs, /bin/sync
-Cmnd_Alias ONE_NET = /usr/sbin/brctl, /sbin/ebtables, /sbin/iptables, /sbin/ip
+Cmnd_Alias ONE_NET = /usr/sbin/brctl, /sbin/ebtables, /sbin/iptables, /sbin/ip, /usr/sbin/ipset
 Cmnd_Alias ONE_LVM = /sbin/lvcreate, /sbin/lvremove, /sbin/lvrename, /sbin/lvs, /sbin/vgdisplay
 Cmnd_Alias ONE_ISCSI = /sbin/iscsiadm, /usr/sbin/tgt-admin, /usr/sbin/tgtadm
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl
