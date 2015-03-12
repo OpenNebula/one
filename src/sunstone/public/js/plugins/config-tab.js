@@ -208,6 +208,11 @@ var config_tab_content =
                 </label>\
           </div>\
       </div>\
+      <div class="reveal-footer">\
+          <div class="form_buttons">\
+            <button class="button radius right success" id="config_submit" type="button" value="">'+tr("Update config")+'</button>\
+          </div>\
+      </div>\
     </div>\
     <div id="quotas_configuration" class="row content">\
       <div class="large-12 columns">\
@@ -237,11 +242,6 @@ var config_tab_content =
     </div>\
     <div id="showback_configuration" class="row content">\
     </div>\
-    </div>\
-    <div class="reveal-footer">\
-        <div class="form_buttons">\
-          <button class="button radius right success" id="config_submit" type="button" value="">'+tr("Update config")+'</button>\
-        </div>\
     </div>\
   </form>\
   </div>\
