@@ -21,7 +21,7 @@
 int VirtualMachinePoolXML::set_up()
 {
     ostringstream   oss;
-    
+
     int rc = PoolXML::set_up();
 
     if ( rc == 0 )
@@ -65,7 +65,7 @@ int VirtualMachinePoolXML::set_up()
             }
         }
 #else
-        oss << "Found " << objects.size() << " pending/rescheduling VMs."; 
+        oss << "Found " << objects.size() << " pending/rescheduling VMs.";
 #endif
         NebulaLog::log("VM",Log::DEBUG,oss);
     }
@@ -124,20 +124,7 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 
 int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) const
 {
-    ostringstream               oss;
-    xmlrpc_c::value             deploy_result;
-
-    if (resched == true)
-    {
-        oss << "Rescheduling " << "VM " << vid << " to host " << hid;
-    }
-    else
-    {
-        oss << "Dispatching " << "VM " << vid << " to host " << hid
-            << " and datastore " << dsid;
-    }
-
-    NebulaLog::log("VM",Log::INFO,oss);
+    xmlrpc_c::value deploy_result;
 
     try
     {
@@ -168,15 +155,14 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) co
     }
     catch (exception const& e)
     {
-        oss.str("");
+        ostringstream   oss;
+
         oss << "Exception raised: " << e.what() << '\n';
 
         NebulaLog::log("VM",Log::ERROR,oss);
 
         return -1;
     }
-
-    // See how ONE handled the deployment
 
     vector<xmlrpc_c::value> values =
                     xmlrpc_c::value_array(deploy_result).vectorValueValue();
@@ -185,9 +171,9 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) co
 
     if ( !success )
     {
+        ostringstream oss;
         string message = xmlrpc_c::value_string(values[1]);
 
-        oss.str("");
         oss << "Error deploying virtual machine " << vid
             << " to HID: " << hid << ". Reason: " << message;
 
