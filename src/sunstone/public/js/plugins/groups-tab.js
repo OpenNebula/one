@@ -394,63 +394,131 @@ Sunstone.addActions(group_actions);
 Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
+function generateViewTable(views, dialog_name) {
+  var headers     = "<tr><th/>";
+  var row         = "<tr><td>"+tr("Users")+"</td>";
+  var admin_row   = "<tr><td>"+tr("Admins")+"</td>";
+  var default_row = "<tr><td>"+tr("Users default")+"</td>";
+  var default_admin_row = "<tr><td>"+tr("Admins default")+"</td>";
+
+  $.each(views, function(id, view){
+      headers += "<th>" + 
+          view.name +
+          '<span class="tip">'+view.description+'</span>'+
+        "</th>";
+
+      var checked = view.id == 'cloud' ? "checked" : "";
+
+      row += '<td>\
+            <input type="checkbox" \
+              id="group_view_'+dialog_name+'_'+view.id+'" \
+              value="'+view.id+'" '+checked+'/>\
+          </td>';
+
+      checked = view.id == 'groupadmin' ? "checked" : "";
+
+      admin_row += '<td>\
+            <input type="checkbox" \
+              id="group_admin_view_'+dialog_name+'_'+view.id+'" \
+              value="'+view.id+'" '+checked+'/>\
+          </td>';
+
+      default_row += '<td>\
+            <input type="radio" \
+              name="group_default_view_'+dialog_name+'" \
+              id="group_default_view_'+dialog_name+'_'+view.id+'" \
+              value="'+view.id+'"/>\
+          </td>'
+
+      default_admin_row += '<td>\
+            <input type="radio" \
+              name="group_default_admin_view_'+dialog_name+'" \
+              id="group_default_admin_view_'+dialog_name+'_'+view.id+'" \
+              value="'+view.id+'"/>\
+          </td>'
+  });
+
+  headers     += "</tr>";
+  row         += "</tr>";
+  admin_row   += "</tr>";
+  default_row += "</tr>";
+  default_admin_row += "</tr>";
+
+  return '<table class="dataTable extended_table">'+
+          headers+
+          row+
+          default_row+
+          admin_row+
+          default_admin_row+
+      "</table>";
+} 
+
 function insert_views(dialog_name){
-    var headers     = "<tr><th/>";
-    var row         = "<tr><td>"+tr("Users")+"</td>";
-    var admin_row   = "<tr><td>"+tr("Admins")+"</td>";
-    var default_row = "<tr><td>"+tr("Users default")+"</td>";
-    var default_admin_row = "<tr><td>"+tr("Admins default")+"</td>";
+  var filtered_views = {
+    advanced : [],
+    cloud : [],
+    vcenter : [],
+    other : []
+  }
 
-    var views_array = config['all_views'];
-
-    for (var i = 0; i < views_array.length; i++){
-        headers += "<th>"+views_array[i]+"</th>";
-
-        var checked = views_array[i] == 'cloud' ? "checked" : "";
-
-        row += '<td>\
-              <input type="checkbox" \
-                id="group_view_'+dialog_name+'_'+views_array[i]+'" \
-                value="'+views_array[i]+'" '+checked+'/>\
-            </td>';
-
-        checked = views_array[i] == 'groupadmin' ? "checked" : "";
-
-        admin_row += '<td>\
-              <input type="checkbox" \
-                id="group_admin_view_'+dialog_name+'_'+views_array[i]+'" \
-                value="'+views_array[i]+'" '+checked+'/>\
-            </td>';
-
-        default_row += '<td>\
-              <input type="radio" \
-                name="group_default_view_'+dialog_name+'" \
-                id="group_default_view_'+dialog_name+'_'+views_array[i]+'" \
-                value="'+views_array[i]+'"/>\
-            </td>'
-
-        default_admin_row += '<td>\
-              <input type="radio" \
-                name="group_default_admin_view_'+dialog_name+'" \
-                id="group_default_admin_view_'+dialog_name+'_'+views_array[i]+'" \
-                value="'+views_array[i]+'"/>\
-            </td>'
+  var view_info;
+  $.each(config['all_views'], function(index, view_id) {
+    view_info = views_info[view_id];
+    if (view_info) {
+      switch (view_info.type) {
+        case 'advanced':
+          filtered_views.advanced.push(view_info);
+          break;
+        case 'cloud':
+          filtered_views.cloud.push(view_info);
+          break;
+        case 'vcenter':
+          filtered_views.vcenter.push(view_info);
+          break;
+        default:
+          filtered_views.other.push({
+            id: view_id,
+            name: view_id,
+            description: null,
+            type: "other"
+          });
+          break;
+      }
+    } else {
+      filtered_views.other.push({
+        id: view_id,
+        name: view_id,
+        description: null,
+        type: "other"
+      });
     }
+  })
 
-    headers     += "</tr>";
-    row         += "</tr>";
-    admin_row   += "</tr>";
-    default_row += "</tr>";
-    default_admin_row += "</tr>";
+  var str = "";
+  $.each(filtered_views, function(view_type, views){
+    // todo description
+    // 
+    
+    if (views.length > 0) {
+      str += '<div class="row">'+
+          '<div class="large-12 columns">'+
+            '<h4>'+view_types[view_type].name+'</h4>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<p>'+view_types[view_type].description+'</p>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            (view_types[view_type].preview ?
+              '<img src="images/' + view_types[view_type].preview +'">' :
+              '') +
+          '</div>'+
+        '</div>';
 
-    return '<table style="table-layout:fixed">'+
-            headers+
-            row+
-            default_row+
-            headers+
-            admin_row+
-            default_admin_row+
-        "</table>";
+      str += generateViewTable(views, dialog_name);
+    }
+  })
+
+  return str;
 }
 
 function groupElements(){
