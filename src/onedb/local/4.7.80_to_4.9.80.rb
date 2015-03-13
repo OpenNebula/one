@@ -37,7 +37,7 @@ module Migrator
         @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, pid INTEGER, UNIQUE(name,uid));"
 
         @db.fetch("SELECT * FROM old_network_pool") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             parent_st = doc.root.at_xpath("PARENT_NETWORK_ID").text
             parent_i = -1

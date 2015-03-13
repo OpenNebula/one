@@ -348,7 +348,7 @@ EOT
                     log("Group ##{row[:gid]} should exist, but it was not found. Run fsck to fix. User ##{new_user[:oid]} (#{new_user[:name]}) will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
                 end
 
-                slave_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                slave_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 if new_user[:merged]
                     # Merge user objects, giving priority to the contents
@@ -362,7 +362,7 @@ EOT
 
                     @db.fetch("SELECT body from user_pool "<<
                               "WHERE oid=#{new_user[:oid]}") do |master_row|
-                        master_doc = Nokogiri::XML(master_row[:body]){|c| c.default_xml.noblanks}
+                        master_doc = Nokogiri::XML(master_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
                     end
 
                     # Merge secondary groups
@@ -444,14 +444,14 @@ EOT
             @slave_db.fetch("SELECT * FROM group_pool") do |row|
                 new_group = groups[row[:gid]]
 
-                slave_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                slave_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 if new_group[:merged]
                     master_doc = nil
 
                     @db.fetch("SELECT body from group_pool "<<
                               "WHERE oid=#{new_group[:oid]}") do |master_row|
-                        master_doc = Nokogiri::XML(master_row[:body]){|c| c.default_xml.noblanks}
+                        master_doc = Nokogiri::XML(master_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
                     end
 
                     slave_users_elem  = slave_doc.root.at_xpath("USERS")
@@ -578,7 +578,7 @@ EOT
                 else
                     new_user_id = user[:oid]
 
-                    doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                    doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                     doc.root.at_xpath("ID").content = new_user_id
 
@@ -602,7 +602,7 @@ EOT
                 else
                     new_group_id = group[:oid]
 
-                    doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                    doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                     doc.root.at_xpath("ID").content = new_group_id
 
@@ -621,14 +621,14 @@ EOT
             @slave_db.fetch("SELECT * FROM vdc_pool") do |row|
                 new_vdc = vdcs[row[:oid]]
 
-                slave_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                slave_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 if new_vdc[:merged]
                     master_doc = nil
 
                     @db.fetch("SELECT body from vdc_pool "<<
                               "WHERE oid=#{new_vdc[:oid]}") do |master_row|
-                        master_doc = Nokogiri::XML(master_row[:body]){|c| c.default_xml.noblanks}
+                        master_doc = Nokogiri::XML(master_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
                     end
 
                     slave_groups_elem  = slave_doc.root.at_xpath("GROUPS")
@@ -918,7 +918,7 @@ EOT
                 log("Group ##{row[:gid]} does not exist anymore. Template ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
             end
 
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -983,7 +983,7 @@ EOT
                 log("Group ##{row[:gid]} does not exist anymore. Image ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
             end
 
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -1016,7 +1016,7 @@ EOT
                 log("Group ##{row[:gid]} does not exist anymore. Document ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
             end
 
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -1050,7 +1050,7 @@ EOT
                 log("Group ##{row[:gid]} does not exist anymore. Network ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
             end
 
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -1085,7 +1085,7 @@ EOT
                 log("Group ##{row[:gid]} does not exist anymore. VM ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
             end
 
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]
@@ -1121,7 +1121,7 @@ EOT
                 log("Group ##{row[:gid]} does not exist anymore. Security Group ##{row[:oid]} will be assigned to group ##{new_group[:oid]}, #{new_group[:name]}")
             end
 
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.at_xpath("UID").content    = new_user[:oid]
             doc.root.at_xpath("UNAME").content  = new_user[:name]

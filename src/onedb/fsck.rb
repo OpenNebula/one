@@ -214,7 +214,7 @@ EOT
         users_fix = {}
 
         @db.fetch("SELECT oid,body,gid FROM user_pool") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             gid = doc.root.at_xpath('GID').text.to_i
             user_gid = gid
@@ -302,7 +302,7 @@ EOT
         @db.transaction do
             @db.fetch("SELECT * from group_pool") do |row|
                 gid = row[:oid]
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 users_elem = doc.root.at_xpath("USERS")
                 users_elem.remove if !users_elem.nil?
@@ -768,7 +768,7 @@ EOT
 
         # Init vnet counters
         @db.fetch("SELECT oid,body FROM network_pool") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             ar_leases = {}
 
@@ -788,7 +788,7 @@ EOT
 
         # Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
-            vm_doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            vm_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             state     = vm_doc.root.at_xpath('STATE').text.to_i
             lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i            
@@ -1151,7 +1151,7 @@ EOT
         ########################################################################
 
         @db.fetch("SELECT oid,body,pid FROM network_pool WHERE pid<>-1") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             parent_vnet = doc.root.at_xpath("PARENT_NETWORK_ID").text.to_i
 
@@ -1258,7 +1258,7 @@ EOT
 
         @db.transaction do
         @db[:network_pool].each do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
             oid = row[:oid]
 
             used_leases = doc.root.at_xpath("USED_LEASES").text.to_i
@@ -1544,7 +1544,7 @@ EOT
             end
 
             @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 calculate_quotas(doc, "uid=#{row[:user_oid]}", "User")
 
@@ -1592,7 +1592,7 @@ EOT
             end
 
             @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 calculate_quotas(doc, "gid=#{row[:group_oid]}", "Group")
 
@@ -1647,7 +1647,7 @@ EOT
         img_usage = {}
 
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
-            vmdoc = Nokogiri::XML(vm_row[:body]){|c| c.default_xml.noblanks}
+            vmdoc = Nokogiri::XML(vm_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             # VM quotas
             vmdoc.root.xpath("TEMPLATE/CPU").each { |e|
@@ -1832,7 +1832,7 @@ EOT
         ds_usage = {}
 
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
-            img_doc = Nokogiri::XML(img_row[:body]){|c| c.default_xml.noblanks}
+            img_doc = Nokogiri::XML(img_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             img_doc.root.xpath("DATASTORE_ID").each { |e|
                 ds_usage[e.text] = [0,0] if ds_usage[e.text].nil?

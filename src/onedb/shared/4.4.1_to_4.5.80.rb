@@ -56,7 +56,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_user_pool") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 quotas_doc = extract_quotas(doc)
 
@@ -92,7 +92,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_group_pool") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 quotas_doc = extract_quotas(doc)
 
@@ -125,7 +125,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_network_pool") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 template = doc.root.at_xpath("TEMPLATE")
 
@@ -169,7 +169,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_template_pool") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 atts = ["SCHED_REQUIREMENTS", "SCHED_RANK", "REQUIREMENTS", "RANK"]
 
@@ -222,7 +222,7 @@ module Migrator
         vm_quota  = doc.root.at_xpath("VM_QUOTA")
         img_quota = doc.root.at_xpath("IMAGE_QUOTA")
 
-        quotas_doc = Nokogiri::XML("<QUOTAS></QUOTAS>"){|c| c.default_xml.noblanks}
+        quotas_doc = Nokogiri::XML("<QUOTAS></QUOTAS>",nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
         ds_quota  = quotas_doc.create_element("DATASTORE_QUOTA") if ds_quota.nil?
         net_quota = quotas_doc.create_element("NETWORK_QUOTA")   if net_quota.nil?

@@ -42,7 +42,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_user_quotas WHERE user_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 redo_quota_limits(doc)
 
@@ -66,7 +66,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_group_quotas WHERE group_oid>0") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 redo_quota_limits(doc)
 
@@ -84,13 +84,13 @@ module Migrator
         default_group_quotas = nil
 
         @db.fetch("SELECT * FROM system_attributes WHERE name = 'DEFAULT_USER_QUOTAS'") do |row|
-            default_user_quotas = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            default_user_quotas = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             redo_quota_limits(default_user_quotas)
         end
 
         @db.fetch("SELECT * FROM system_attributes WHERE name = 'DEFAULT_GROUP_QUOTAS'") do |row|
-            default_group_quotas = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            default_group_quotas = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             redo_quota_limits(default_group_quotas)
         end
@@ -111,7 +111,7 @@ module Migrator
         @db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name,uid));"
 
         @db.fetch("SELECT * FROM old_network_pool") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             ranged = doc.root.at_xpath("TYPE").text == "0"
             doc.root.at_xpath("TYPE").remove
@@ -151,7 +151,7 @@ module Migrator
                 mac_prefix = ONEDCONF_MAC_PREFIX.gsub(":","").to_i(16)
 
                 @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]} ORDER BY ip ASC LIMIT 1") do |lease_row|
-                    lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
+                    lease = Nokogiri::XML(lease_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                     mac_prefix = lease.root.at_xpath("MAC_PREFIX").text.to_i
                 end
@@ -183,7 +183,7 @@ module Migrator
                 allocated_str = ""
 
                 @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]} ORDER BY ip ASC") do |lease_row|
-                    lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
+                    lease = Nokogiri::XML(lease_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                     # For ranged, all leases are used
 
@@ -255,7 +255,7 @@ module Migrator
                 ar_id = 0
 
                 @db.fetch("SELECT body FROM leases WHERE oid=#{row[:oid]}") do |lease_row|
-                    lease = Nokogiri::XML(lease_row[:body]){|c| c.default_xml.noblanks}
+                    lease = Nokogiri::XML(lease_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                     # For fixed, IP != MAC_SUFFIX
 
@@ -325,7 +325,7 @@ module Migrator
         log_time()
 
         @db.fetch("SELECT * FROM old_vm_pool WHERE state<>6") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             doc.root.xpath("TEMPLATE/NIC/IP6_SITE").each {|e|
                 e.name = "IP6_ULA"

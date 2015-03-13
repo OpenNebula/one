@@ -74,7 +74,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_network_pool") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 template = doc.root.at_xpath("TEMPLATE")
 
@@ -110,7 +110,7 @@ module Migrator
 
         @db.transaction do
             @db.fetch("SELECT * FROM old_datastore_pool") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 doc.root.add_child(doc.create_element("STATE")).content = "0"
 
@@ -144,7 +144,7 @@ module Migrator
 
         @db.transaction do
         @db.fetch("SELECT * FROM old_vm_pool WHERE state<>6") do |row|
-            doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             ["STATE", "LCM_STATE"].each do |ename|
                 prev_elem = doc.root.at_xpath("PREV_#{ename}")

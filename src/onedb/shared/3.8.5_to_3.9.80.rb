@@ -291,7 +291,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_user_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 set_default_quotas(doc)
 
@@ -329,7 +329,7 @@ module Migrator
             end
 
             @db.fetch("SELECT * FROM old_group_pool WHERE oid>0") do |row|
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 set_default_quotas(doc)
 
@@ -452,7 +452,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
 
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
                 user_template = doc.create_element("USER_TEMPLATE")
 
                 e = doc.root.at_xpath("TEMPLATE")
@@ -509,7 +509,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_template_pool") do |row|
 
-                doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                 template = doc.root.at_xpath("TEMPLATE")
 
@@ -559,7 +559,7 @@ module Migrator
         @db.transaction do
             @db.fetch("SELECT * FROM old_vm_pool") do |row|
                 if ( row[:state] != 6 )     # DONE
-                    doc = Nokogiri::XML(row[:body]){|c| c.default_xml.noblanks}
+                    doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
                     nic_id = 0
 
