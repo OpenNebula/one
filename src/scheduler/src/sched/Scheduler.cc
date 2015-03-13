@@ -58,8 +58,8 @@ static double profile(bool start, const string& message="")
     }
 
     clock_gettime(CLOCK_MONOTONIC, &eend);
- 
-    t = (eend.tv_sec + (eend.tv_nsec * pow(10,-9))) - 
+
+    t = (eend.tv_sec + (eend.tv_nsec * pow(10,-9))) -
         (estart.tv_sec+(estart.tv_nsec*pow(10,-9)));
 
     if (!message.empty())
@@ -70,7 +70,7 @@ static double profile(bool start, const string& message="")
         NebulaLog::log("SCHED", Log::INFO, oss);
     }
 
-    return t;    
+    return t;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -500,7 +500,7 @@ int Scheduler::set_up_pools()
  *    3. Have enough capacity to host the VM
  *
  *  @param vm the virtual machine
- *  @param vm_memory vm requirement 
+ *  @param vm_memory vm requirement
  *  @param vm_cpu vm requirement
  *  @param host to evaluate vm assgiment
  *  @param n_auth number of hosts authorized for the user, incremented if needed
@@ -510,8 +510,8 @@ int Scheduler::set_up_pools()
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu, 
-    HostXML * host, int &n_auth, int& n_error, int &n_fits, int &n_matched, 
+static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
+    HostXML * host, int &n_auth, int& n_error, int &n_fits, int &n_matched,
     string &error)
 {
     // -------------------------------------------------------------------------
@@ -550,8 +550,8 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
 
         if ( !acls->authorize(vm->get_uid(), gids, hperms, AuthRequest::MANAGE))
         {
-            error = "Permission denied.";        
-            return false;            
+            error = "Permission denied.";
+            return false;
         }
     }
 
@@ -584,7 +584,7 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
 
             oss << "Error in SCHED_REQUIREMENTS: '" << vm->get_requirements()
                 << "', error: " << estr;
-    
+
             vm->log(oss.str());
 
             error = oss.str();
@@ -615,19 +615,19 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *    2. Have enough capacity to host the VM
  *
  *  @param vm the virtual machine
- *  @param vdisk vm requirement 
+ *  @param vdisk vm requirement
  *  @param ds to evaluate vm assgiment
  *  @param n_error number of requirement errors, incremented if needed
  *  @param n_matched number of system ds that fullfil VM sched_requirements
- *  @param n_fits number of system ds with capacity that fits the VM requirements 
+ *  @param n_fits number of system ds with capacity that fits the VM requirements
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_system_ds(VirtualMachineXML* vm, long long vdisk, 
+static bool match_system_ds(VirtualMachineXML* vm, long long vdisk,
     DatastoreXML * ds, int& n_error, int& n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
-    // Check datastore capacity for shared systems DS (non-shared will be 
+    // Check datastore capacity for shared systems DS (non-shared will be
     // checked in a per host basis during dispatch)
     // -------------------------------------------------------------------------
     if (ds->is_shared() && ds->is_monitored() && !ds->test_capacity(vdisk))
@@ -652,7 +652,7 @@ static bool match_system_ds(VirtualMachineXML* vm, long long vdisk,
 
             n_error++;
 
-            oss << "Error in SCHED_DS_REQUIREMENTS: '" 
+            oss << "Error in SCHED_DS_REQUIREMENTS: '"
                 << vm->get_ds_requirements() << "', error: " << error;
 
             vm->log(oss.str());
@@ -763,12 +763,12 @@ void Scheduler::match_schedule()
         {
             host = static_cast<HostXML *>(h_it->second);
 
-            if (match_host(acls, vm, vm_memory, vm_cpu, host, n_auth, n_error, 
+            if (match_host(acls, vm, vm_memory, vm_cpu, host, n_auth, n_error,
                     n_fits, n_matched, m_error))
             {
                 vm->add_match_host(host->get_hid());
-                
-                n_resources++;   
+
+                n_resources++;
             }
             else if ( n_error > 0 )
             {
@@ -828,7 +828,7 @@ void Scheduler::match_schedule()
         }
 
         vm->sort_match_hosts();
- 
+
         total_rank_time += profile(false);
 
         if (vm->is_resched())//Will use same system DS for migrations
@@ -854,7 +854,7 @@ void Scheduler::match_schedule()
             if (match_system_ds(vm, vm_disk, ds, n_error, n_fits, n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
-            
+
                 n_resources++;
             }
             else if (n_error > 0)
@@ -924,7 +924,7 @@ void Scheduler::match_schedule()
 
     ostringstream oss;
 
-    oss << "Match Making statistics:\n" 
+    oss << "Match Making statistics:\n"
         << "\tNumber of VMs: " << pending_vms.size() << endl
         << "\tTotal time: " << time(0) - stime << "s" << endl
         << "\tTotal Match time: " << total_match_time << "s" << endl
@@ -958,7 +958,7 @@ void Scheduler::dispatch()
     DatastoreXML *      ds;
     VirtualMachineXML * vm;
 
-    ostringstream       oss;
+    ostringstream dss;
 
     int cpu, mem;
     long long dsk;
@@ -973,6 +973,9 @@ void Scheduler::dispatch()
     vector<Resource *>::const_reverse_iterator i, j;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
+
+    dss << "Dispatching VMs to hosts:\n" << "\tVMID\tHost\tSystem DS\n"
+        << "\t-------------------------\n";
 
     //--------------------------------------------------------------------------
     // Dispatch each VM till we reach the dispatch limit
@@ -1124,6 +1127,8 @@ void Scheduler::dispatch()
                 continue;
             }
 
+            dss << "\t" << vm_it->first << "\t" << hid << "\t" << dsid << "\n";
+
             // DS capacity is only added for new deployments, not for migrations
             // It is also omitted for VMs deployed in public cloud hosts
             if (!vm->is_resched() && !host->is_public_cloud())
@@ -1148,8 +1153,9 @@ void Scheduler::dispatch()
 
             break;
         }
-        //TODO information about 1.- no local space in sys ds, 2.- no sys_ds - host match
     }
+
+    NebulaLog::log("SCHED", Log::DEBUG, dss);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1253,7 +1259,7 @@ int Scheduler::do_scheduled_actions()
 void Scheduler::do_action(const string &name, void *args)
 {
     int rc;
-    
+
     if (name == ACTION_TIMER)
     {
         profile(true);
@@ -1276,9 +1282,7 @@ void Scheduler::do_action(const string &name, void *args)
             return;
         }
 
-//        profile(true);
         match_schedule();
-//        profile(false,"Computing Host-VM match-making.");
 
         profile(true);
         dispatch();
