@@ -1,0 +1,21 @@
+compress
+weekly
+rotate 52
+
+/var/log/one/one_xmlrpc.log {
+   missingok
+   notifempty
+   copytruncate
+}
+
+/var/log/one/oned.log {
+   missingok
+   notifempty
+   copytruncate
+}
+
+/var/log/one/sched.log {
+   missingok
+   notifempty
+   copytruncate
+}
