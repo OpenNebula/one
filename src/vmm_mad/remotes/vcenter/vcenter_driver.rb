@@ -644,6 +644,10 @@ class VCenterHost < ::OpenNebula::Host
             str_info << "ID=#{number},"
             str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
             str_info << "VM_NAME=\"#{name}\","
+            if number == -1
+             vm_template_to_one = Base64.encode64(vm.vm_to_one).gsub("\n","")
+             str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+            end
             str_info << "POLL=\"#{vm.info}\"]"
         }
 

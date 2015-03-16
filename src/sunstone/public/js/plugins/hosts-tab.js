@@ -962,6 +962,26 @@ function updateHostInfo(request,host){
           </div>'
     }
 
+    var wilds_info_tab = {
+        title: tr("WILDS"),
+        icon: "fa-hdd-o",
+        content : '<div id="datatable_host_wilds_info_div" class="row">\
+          <div class="large-12 columns">\
+            <table id="datatable_host_wilds" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th>' + tr("VM name") + '</th>\
+                  <th>' + tr("UUID") + '</th>\
+                  <th>' + tr("Import") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbody_host_wilds">\
+              </tbody>\
+            </table>\
+          </div>\
+          </div>'
+    }    
+
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
@@ -969,11 +989,13 @@ function updateHostInfo(request,host){
 
     if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
       Sunstone.updateInfoPanelTab("host_info_panel","host_esx_tab",esx_info_tab);
+      Sunstone.updateInfoPanelTab("host_info_panel","host_wilds_tab",wilds_info_tab);
     }
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
     if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+      // ESX datatable
       var dataTable_esx_hosts = $("#datatable_host_esx",main_tabs_context).dataTable({
             "bSortClasses" : false,
             "bDeferRender": true
@@ -1003,6 +1025,32 @@ function updateHostInfo(request,host){
         dataTable_esx_hosts.fnAddData(host_list_array);
         delete host_info.TEMPLATE.HOST;
       }
+
+      // WILDS datatable
+      var dataTable_wilds_hosts = $("#datatable_host_wilds",main_tabs_context).dataTable({
+       "bSortClasses" : false,
+       "bDeferRender": true
+      });
+
+      var wilds_list_array = [];
+
+      if (host_info.TEMPLATE.WILDS) {
+        wilds = host_info.TEMPLATE.WILDS.split(",");
+
+        $.each(wilds, function(){
+            name  = this.split("_")[0];
+            uuid  = this.split("_")[1];
+
+            wilds_list_array.push([
+                name,
+                uuid,
+                '<input type="checkbox" class="import_'+name+'" checked/>'
+            ]);
+          });
+        }
+
+        dataTable_wilds_hosts.fnAddData(wilds_list_array);
+        delete host_info.TEMPLATE.WILDS;
     }
 
     var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
