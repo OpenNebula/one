@@ -18,6 +18,7 @@
 
 require 'pp'
 require 'rexml/document'
+require 'base64'
 
 ENV['LANG']='C'
 
@@ -69,7 +70,9 @@ module KVM
         values[:usedcpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
         values[:usedmemory] = [resident_mem, max_mem].max
 
-        values.merge!(get_interface_statistics(one_vm))
+        xml = dump_xml(vmid)
+
+        values.merge!(get_interface_statistics(one_vm, xml))
 
         return values
     end
@@ -125,7 +128,14 @@ module KVM
             values[:usedcpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
             values[:usedmemory] = [resident_mem, max_mem].max
 
-            values.merge!(get_interface_statistics(name))
+            xml = dump_xml(name)
+
+            values.merge!(get_interface_statistics(name, xml))
+
+            if !name.match(/^one-\d+/)
+                uuid, template = xml_to_one(xml)
+                values[:template] = Base64.encode64(template).delete("\n")
+            end
 
             vms_info[vm[:name]] = values
         end
@@ -213,11 +223,19 @@ module KVM
         hash
     end
 
+    # Get dumpxml output of a VM
+    #   @param the ID of the VM as defined in libvirt
+    #   @return [String] xml output of virsh dumpxml
+    def self.dump_xml(vmid)
+        `#{virsh(:dumpxml)} '#{vmid}'`
+    end
+
     # Aggregate statics of all VM NICs
     #   @param the ID of the VM as defined in libvirt
+    #   @param text [nil, String] dumpxml output or nil to execute dumpxml
     #   @return [Hash] with network stats, by name [symbol] :netrx, :nettx
-    def self.get_interface_statistics(vmid)
-        text = `#{virsh(:dumpxml)} #{vmid}`
+    def self.get_interface_statistics(vmid, text = nil)
+        text = dump_xml(vmid) if !text
 
         return {} if $?.exitstatus != 0
 
@@ -277,6 +295,126 @@ module KVM
             else
                 '-'
         end
+    end
+
+    # Convert the output of dumpxml to an OpenNebula template
+    #   @param xml [String] output of dumpxml
+    #   @return [Array] uuid and OpenNebula template encoded in base64
+    def self.xml_to_one(xml)
+        doc = REXML::Document.new(xml)
+
+        name = REXML::XPath.first(doc, '/domain/name').text
+        uuid = REXML::XPath.first(doc, '/domain/uuid').text
+        vcpu = REXML::XPath.first(doc, '/domain/vcpu').text
+        memory = REXML::XPath.first(doc, '/domain/memory').text.to_i / 1024
+        arch = REXML::XPath.first(doc, '/domain/os/type').attributes['arch']
+
+        disks = []
+        REXML::XPath.each(doc, '/domain/devices/disk') do |d|
+            type = REXML::XPath.first(d, '//disk').attributes['type']
+            driver = REXML::XPath.first(d, '//disk/driver').attributes['type']
+            source = REXML::XPath.first(d, '//disk/source').attributes[type]
+            target = REXML::XPath.first(d, '//disk/target').attributes['dev']
+
+            disks << {
+                :type => type,
+                :driver => driver,
+                :source => source,
+                :target => target
+            }
+        end
+
+        disks_txt = ''
+
+        disks.each do |disk|
+            disks_txt << "DISK=[\n"
+            disks_txt << "  SOURCE=\"#{disk[:source]}\",\n"
+            disks_txt << "  DRIVER=\"#{disk[:driver]}\",\n"
+            disks_txt << "  TARGET=\"#{disk[:target]}\""
+            disks_txt << "]\n"
+        end
+
+
+        interfaces = []
+        REXML::XPath.each(doc,
+                "/domain/devices/interface[@type='bridge']") do |i|
+            mac = REXML::XPath.first(i, '//interface/mac').
+                attributes['address']
+            bridge = REXML::XPath.first(i, '//interface/source')
+                .attributes['bridge']
+            model = REXML::XPath.first(i, '//interface/model')
+                .attributes['type']
+
+            interfaces << {
+                :mac => mac,
+                :bridge => bridge,
+                :model => model
+            }
+        end
+
+        interfaces_txt = ''
+
+        interfaces.each do |interface|
+            interfaces_txt << "NIC=[\n"
+            interfaces_txt << "  MAC=\"#{interface[:mac]}\",\n"
+            interfaces_txt << "  BRIDGE=\"#{interface[:bridge]}\",\n"
+            interfaces_txt << "  MODEL=\"#{interface[:model]}\""
+            interfaces_txt << "]\n"
+        end
+
+
+        spice = REXML::XPath.first(doc,
+            "/domain/devices/graphics[@type='spice']")
+        spice = spice.attributes['port'] if spice
+
+        spice_txt = ''
+        if spice
+            spice_txt = %Q<GRAPHICS = [ TYPE="spice", PORT="#{spice}" ]>
+        end
+
+        vnc = REXML::XPath.first(doc, "/domain/devices/graphics[@type='vnc']")
+        vnc = vnc.attributes['port'] if vnc
+
+        vnc_txt = ''
+        if vnc
+            vnc_txt = %Q<GRAPHICS = [ TYPE="vnc", PORT="#{vnc}" ]>
+        end
+
+
+        feature_list = %w{acpi apic pae}
+        features = []
+
+        feature_list.each do |feature|
+            if REXML::XPath.first(doc, "/domain/features/#{feature}")
+                features << feature
+            end
+        end
+
+        feat = []
+        features.each do |feature|
+            feat << %Q[  #{feature.upcase}="yes"]
+        end
+
+        features_txt = "FEATURES=[\n"
+        features_txt << feat.join(",\n")
+        features_txt << "]\n"
+
+
+        template = <<EOT
+NAME="#{name}"
+CPU=#{vcpu}
+VCPU=#{vcpu}
+MEMORY=#{memory}
+HYPERVISOR="kvm"
+IMPORT_VM_ID="#{uuid}"
+OS=[ARCH="#{arch}"]
+#{features_txt}
+#{spice_txt}
+#{vnc_txt}
+EOT
+
+
+        return uuid, template
     end
 end
 
@@ -467,7 +605,6 @@ end
 
 def print_all_vm_info(hypervisor)
     require 'yaml'
-    require 'base64'
     require 'zlib'
 
     vms = hypervisor.get_all_vm_info
@@ -496,6 +633,11 @@ def print_all_vm_template(hypervisor)
         string  = "VM=[\n"
         string << "  ID=#{number},\n"
         string << "  DEPLOY_ID=#{name},\n"
+
+        if data[:template]
+            string << %Q(  IMPORT_TEMPLATE="#{data[:template]}",\n)
+            data.delete(:template)
+        end
 
         values = data.map do |key, value|
             print_data(key, value)
