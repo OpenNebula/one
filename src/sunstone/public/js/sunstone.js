@@ -8173,7 +8173,9 @@ function sg_rule_to_st(rule){
     @param opts.id key of the OpenNebula Template
     @param opts.label name to be shown as label
     @param opts.tooltip 
-    @param opts.options array of options for the select
+    @param opts.options 
+        array of options for the select
+        the option can be a string or an object {name: XXX, value: XXX}
     @param opts.custom boolean, provide a text input for a custom value (default: false)
     @param opts.no_empty_option do not provide an empty option
     @return {string}
@@ -8196,7 +8198,11 @@ function generateValueSelect(opts){
     }
 
     $.each(opts.options, function(index, option){
-        str += '<option value="' + option + '">' + option + '</option>';
+        if (option.name) {
+            str += '<option value="' + option.value + '">' + option.name + '</option>';
+        } else {
+            str += '<option value="' + option + '">' + option + '</option>';
+        }
     });
 
     if (opts.custom) {
