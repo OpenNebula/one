@@ -395,68 +395,45 @@ Sunstone.addMainTab('groups-tab',groups_tab);
 Sunstone.addInfoPanel("group_info_panel",group_info_panel);
 
 function generateViewTable(views, dialog_name) {
-  var headers     = "<tr><th/>";
-  var row         = "<tr><td>"+tr("Users")+"</td>";
-  var admin_row   = "<tr><td>"+tr("Admins")+"</td>";
-  var default_row = "<tr><td>"+tr("Users default")+"</td>";
-  var default_admin_row = "<tr><td>"+tr("Admins default")+"</td>";
+  var table_str = '<table class="dataTable extended_table">'+
+    "<tr>"+
+      "<th style='width: 60%;'></th>"+
+      "<th>"+tr("Group Users")+"</th>"+
+      "<th>"+tr("Group Admins")+"</th>"+
+    "<tr>";
 
   $.each(views, function(id, view){
-      headers += "<th>" + 
+      var default_user_checked = view.id == 'cloud' ? "checked" : "";
+      var default_admin_checked = view.id == 'groupadmin' ? "checked" : "";
+
+      table_str += "<tr><td>" + 
           view.name +
-          '<span class="tip">'+view.description+'</span>'+
-        "</th>";
-
-      var checked = view.id == 'cloud' ? "checked" : "";
-
-      row += '<td>\
-            <input type="checkbox" \
-              id="group_view_'+dialog_name+'_'+view.id+'" \
-              value="'+view.id+'" '+checked+'/>\
-          </td>';
-
-      checked = view.id == 'groupadmin' ? "checked" : "";
-
-      admin_row += '<td>\
-            <input type="checkbox" \
-              id="group_admin_view_'+dialog_name+'_'+view.id+'" \
-              value="'+view.id+'" '+checked+'/>\
-          </td>';
-
-      default_row += '<td>\
-            <input type="radio" \
-              name="group_default_view_'+dialog_name+'" \
-              id="group_default_view_'+dialog_name+'_'+view.id+'" \
-              value="'+view.id+'"/>\
-          </td>'
-
-      default_admin_row += '<td>\
-            <input type="radio" \
-              name="group_default_admin_view_'+dialog_name+'" \
-              id="group_default_admin_view_'+dialog_name+'_'+view.id+'" \
-              value="'+view.id+'"/>\
-          </td>'
+          ' ' + tr("View") +
+          (view.description ? 
+            '<span class="tip">'+view.description+'</span>'
+            : "") +
+        "</td>"+
+        '<td>\
+          <input class="user_view_input" type="checkbox" \
+            id="group_view_'+dialog_name+'_'+view.id+'" \
+            value="'+view.id+'" '+default_user_checked+'/>\
+        </td>'+
+        '<td>\
+          <input class="admin_view_input" type="checkbox" \
+            id="group_admin_view_'+dialog_name+'_'+view.id+'" \
+            value="'+view.id+'" '+default_admin_checked+'/>\
+        </td></tr>';
   });
 
-  headers     += "</tr>";
-  row         += "</tr>";
-  admin_row   += "</tr>";
-  default_row += "</tr>";
-  default_admin_row += "</tr>";
+  table_str += '</table>';
 
-  return '<table class="dataTable extended_table">'+
-          headers+
-          row+
-          default_row+
-          admin_row+
-          default_admin_row+
-      "</table>";
+  return table_str;
 } 
 
 function insert_views(dialog_name){
   var filtered_views = {
-    advanced : [],
     cloud : [],
+    advanced : [],
     vcenter : [],
     other : []
   }
@@ -495,28 +472,34 @@ function insert_views(dialog_name){
   })
 
   var str = "";
-  $.each(filtered_views, function(view_type, views){
-    // todo description
-    // 
-    
+
+  str += '<div class="row">'+
+      '<div class="large-6 columns user_view_default_container">'+
+      '</div>'+
+      '<div class="large-6 columns admin_view_default_container">'+
+      '</div>'+
+    '</div><br>';
+
+  $.each(filtered_views, function(view_type, views){    
     if (views.length > 0) {
       str += '<div class="row">'+
-          '<div class="large-12 columns">'+
-            '<h4>'+view_types[view_type].name+'</h4>'+
+          '<div class="large-7 columns">'+
+            '<h4>'+view_types[view_type].name+
+            (view_types[view_type].description ? 
+              '<span class="tip">' + view_types[view_type].description + '</span>'
+              : "")+
+            '</h4>'+
+            generateViewTable(views, dialog_name) +
           '</div>'+
-          '<div class="large-6 columns">'+
-            '<p>'+view_types[view_type].description+'</p>'+
-          '</div>'+
-          '<div class="large-6 columns">'+
+          '<div class="large-5 columns" style="text-align: center">'+
             (view_types[view_type].preview ?
-              '<img src="images/' + view_types[view_type].preview +'">' :
+              '<img src="images/' + view_types[view_type].preview +'" style="height: 200px;">' :
               '') +
           '</div>'+
-        '</div>';
-
-      str += generateViewTable(views, dialog_name);
+        '</div><br>';
     }
   })
+
 
   return str;
 }
@@ -854,6 +837,51 @@ function enableAdminUser(dialog){
     $('#custom_auth',dialog).removeAttr("disabled");
 };
 
+
+function generateUserViewsSelect(dialog, value) {
+  var views = [];
+  var old_value = $("#user_view_default").val();
+
+  $(".user_view_input:checked", dialog).each(function(){
+    views.push({
+      value: this.value,
+      name: (views_info[this.value] ? views_info[this.value].name : this.value)});
+  });
+
+  $(".user_view_default_container", dialog).html(
+    generateValueSelect({
+      id: 'user_view_default',
+      label: tr("Default Users View"),
+      options: views,
+      custom: false
+    }))
+
+  $("#user_view_default", dialog).val(value ? value : old_value).change();
+};
+
+function generateAdminViewsSelect(dialog, value) {
+  var views = [];
+  var old_value = value || $("#admin_view_default").val();
+
+  $(".admin_view_input:checked", dialog).each(function(){
+    views.push({
+      value: this.value,
+      name: (views_info[this.value] ? views_info[this.value].name : this.value)});
+  });
+
+  $(".admin_view_default_container", dialog).html(
+    generateValueSelect({
+      id: 'admin_view_default',
+      label: tr("Default Admins View"),
+      options: views,
+      custom: false
+    }))
+
+  if (old_value) {
+    $("#admin_view_default", dialog).val(old_value).change();
+  }
+};
+
 //Prepares the dialog to create
 function setupCreateGroupDialog(){
     dialogs_context.append('<div id="create_group_dialog"></div>');
@@ -903,6 +931,18 @@ function setupCreateGroupDialog(){
 
     $("#group_res_net", dialog).prop("checked", false);
 
+    generateAdminViewsSelect(dialog, "groupadmin");
+    $(dialog).off("change", ".admin_view_input");
+    $(dialog).on("change", ".admin_view_input", function(){
+      generateAdminViewsSelect(dialog);
+    })
+
+    generateUserViewsSelect(dialog, "cloud")
+    $(dialog).off("change", ".user_view_input")
+    $(dialog).on("change", ".user_view_input", function(){
+      generateUserViewsSelect(dialog)
+    })
+
     $('#create_group_form',dialog).submit(function(){
         var name = $('#name',this).val();
 
@@ -947,7 +987,7 @@ function setupCreateGroupDialog(){
             group_json['group']['views'].push($(this).val());
         });
 
-        var default_view = $('[id^="group_default_view"]:checked', dialog).val();
+        var default_view = $('#user_view_default', dialog).val();
         if (default_view != undefined){
             group_json['group']['default_view'] = default_view;
         }
@@ -958,7 +998,7 @@ function setupCreateGroupDialog(){
             group_json['group']['admin_views'].push($(this).val());
         });
 
-        var default_view = $('[id^="group_default_admin_view"]:checked', dialog).val();
+        var default_view = $('#admin_view_default', dialog).val();
         if (default_view != undefined){
             group_json['group']['default_admin_view'] = default_view;
         }
@@ -1001,6 +1041,16 @@ function setupUpdateGroupDialog(){
     $("a[href='#administrators']", dialog).parents("dd").hide();
     $("a[href='#resource_creation']", dialog).parents("dd").hide();
 
+    $(dialog).off("change", ".admin_view_input")
+    $(dialog).on("change", ".admin_view_input", function(){
+      generateAdminViewsSelect(dialog);
+    })
+
+    $(dialog).off("change", ".user_view_input")
+    $(dialog).on("change", ".user_view_input", function(){
+      generateUserViewsSelect(dialog)
+    })
+
     $update_group_dialog.foundation();
 }
 
@@ -1039,15 +1089,16 @@ function popUpUpdateGroupDialog(group, dialog)
         var views = views_str.split(",");
         $.each(views, function(){
             $('input[id^="group_view"][value="'+this.trim()+'"]',
-                dialog).attr('checked','checked');
+                dialog).attr('checked','checked').change();
         });
     }
 
     $('input[id^="group_default_view"]', dialog).removeAttr('checked');
 
     if (group.TEMPLATE.DEFAULT_VIEW){
-        $('input[id^="group_default_view"][value="'+group.TEMPLATE.DEFAULT_VIEW.trim()+'"]',
-            dialog).attr('checked','checked');
+      $('#user_view_default', dialog).val(group.TEMPLATE.DEFAULT_VIEW.trim()).change();
+    } else {
+      $('#user_view_default', dialog).val("").change();
     }
 
     $('input[id^="group_admin_view"]', dialog).removeAttr('checked');
@@ -1058,15 +1109,16 @@ function popUpUpdateGroupDialog(group, dialog)
         var views = views_str.split(",");
         $.each(views, function(){
             $('input[id^="group_admin_view"][value="'+this.trim()+'"]',
-                dialog).attr('checked','checked');
+                dialog).attr('checked','checked').change();
         });
     }
 
     $('input[id^="group_default_admin_view"]', dialog).removeAttr('checked');
 
     if (group.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW){
-        $('input[id^="group_default_admin_view"][value="'+group.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW.trim()+'"]',
-            dialog).attr('checked','checked');
+      $('#admin_view_default', dialog).val(group.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW.trim()).change();
+    } else {
+      $('#admin_view_default', dialog).val("").change();
     }
 
     $(dialog).off("click", 'button#update_group_submit');
@@ -1091,7 +1143,7 @@ function popUpUpdateGroupDialog(group, dialog)
             template_json["SUNSTONE_VIEWS"] = views.join(",");
         }
 
-        var default_view = $('[id^="group_default_view"]:checked', dialog).val();
+        var default_view = $('#user_view_default', dialog).val();
 
         if (default_view != undefined){
             template_json["DEFAULT_VIEW"] = default_view;
@@ -1107,7 +1159,7 @@ function popUpUpdateGroupDialog(group, dialog)
             template_json["GROUP_ADMIN_VIEWS"] = admin_views.join(",");
         }
 
-        var default_admin_view = $('[id^="group_default_admin_view"]:checked', dialog).val();
+        var default_admin_view = $('#admin_view_default', dialog).val();
 
         if (default_admin_view != undefined){
             template_json["GROUP_ADMIN_DEFAULT_VIEW"] = default_admin_view;

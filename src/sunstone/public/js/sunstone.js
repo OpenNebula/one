@@ -8413,22 +8413,22 @@ function enableSPICE(vm){
 
 var view_types = {
     advanced : {
-        name: 'Advanced',
+        name: 'Advanced Layout',
         description : tr("This layout exposes a complete view of the cloud, allowing administrators and advanced users to have full control of any physical or virtual resource of the cloud."),
         preview: "advanced_layout.png"
     },
     cloud : {
-        name: 'Cloud',
+        name: 'Cloud Layout',
         description : tr("This layout exposes a simplified version of the cloud where group administrators and cloud end-users will be able to manage any virtual resource of the cloud, without taking care of the physical resources management."),
         preview: "cloud_layout.png"
     },
     vcenter : {
-        name: 'vCenter',
+        name: 'vCenter Layout',
         description : tr("Set of views to present the valid operation against a vCenter infrastructure"),
-        preview: null
+        preview: "vcenter_layout.png"
     },
     other : {
-        name: 'Other',
+        name: 'Other Layouts',
         description : '',
         preview: null
     }
