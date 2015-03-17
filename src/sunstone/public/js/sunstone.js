@@ -8207,6 +8207,7 @@ function generateValueSelect(opts){
     str += '</select>';
     str += '</div>';
 
+    $(document).off("change", ".custom_select_input");
     $(document).on("change", ".custom_select_input", function(){
         var select = $(".custom_select", $(this).closest(".custom_select_container"));
         select.val($(this).val());
@@ -8216,6 +8217,7 @@ function generateValueSelect(opts){
         select.change();
     });
 
+    $(document).off("change", ".custom_select");
     $(document).on("change", ".custom_select", function(){
         var container = $(this).closest(".custom_select_container");
         if ($(this).val() == "custom") {
