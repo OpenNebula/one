@@ -8175,6 +8175,7 @@ function sg_rule_to_st(rule){
     @param opts.tooltip 
     @param opts.options array of options for the select
     @param opts.custom boolean, provide a text input for a custom value (default: false)
+    @param opts.no_empty_option do not provide an empty option
     @return {string}
 */
 function generateValueSelect(opts){
@@ -8190,7 +8191,9 @@ function generateValueSelect(opts){
     str += '<div class="custom_select_div large-12 columns">'+ 
             '<select name="' + opts.id + '_select" class="custom_select">';
 
-    str += '<option id="" name="" value=""></option>';
+    if (!opts.no_empty_option) {
+        str += '<option id="" name="" value=""></option>';
+    }
 
     $.each(opts.options, function(index, option){
         str += '<option value="' + option + '">' + option + '</option>';
