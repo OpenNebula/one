@@ -596,10 +596,66 @@ function updateGroupsView(request, group_list, quotas_hash){
     $(".total_groups").text(group_list.length);
 }
 
+function generateUserViewsTableFromInfo(admin_views, user_views, default_admin_view, default_user_view) {
+  var html = "";
+
+  html += '<table class="dataTable extended_table">';
+
+  if (admin_views) {
+    html += '<thead>'+
+        '<tr><th colspan="3">'+tr("Group Admins Views")+'</th></tr>'+
+      '</thead>';
+
+    $.each(admin_views.split(','), function(index, view){
+      html += '<tr>' +
+          '<td class="key_td">'+
+            (views_info[view] ? views_info[view].name : view) +
+            (view == default_admin_view ? ' (' + tr("default") + ') ': '') +
+            (views_info[view] ? 
+              '<span class="tip">' + views_info[view].description + '</span>'
+              : "")
+          '</td>'+
+        '</tr>';
+    })
+  }
+
+  if (user_views) {
+    html += '<thead>'+
+        '<tr><th colspan="3">'+tr("Group Users Views")+'</th></tr>'+
+      '</thead>';
+
+    $.each(user_views.split(','), function(index, view){
+      html += '<tr>' +
+          '<td class="key_td">'+
+            (views_info[view] ? views_info[view].name : view) +
+            (view == default_user_view ? ' (' + tr("default") + ') ': '') +
+            (views_info[view] ? 
+              '<span class="tip">' + views_info[view].description + '</span>'
+              : "")
+          '</td>'+
+        '</tr>';
+    })
+  }
+
+  html += '</table>';
+
+  return html;
+}
+
 function updateGroupInfo(request,group){
     var info = group.GROUP;
 
     $(".resource-info-header", $("#groups-tab")).html(info.NAME);
+
+
+    var admin_views = info.TEMPLATE.GROUP_ADMIN_VIEWS;
+    delete info.TEMPLATE.GROUP_ADMIN_VIEWS;
+    var user_views = info.TEMPLATE.SUNSTONE_VIEWS;
+    delete info.TEMPLATE.SUNSTONE_VIEWS;
+    var default_admin_view = info.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW;
+    delete info.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW;
+    var default_user_view = info.TEMPLATE.DEFAULT_VIEW;
+    delete info.TEMPLATE.DEFAULT_VIEW;
 
     var info_tab = {
           title: tr("Info"),
@@ -624,6 +680,7 @@ function updateGroupInfo(request,group){
               </table>\
            </div>\
            <div class="large-6 columns">' +
+            generateUserViewsTableFromInfo(admin_views, user_views, default_admin_view, default_user_view)+
            '</div>\
          </div>\
          <div class="row">\
@@ -631,7 +688,11 @@ function updateGroupInfo(request,group){
               insert_extended_template_table(info.TEMPLATE,
                                                  "Group",
                                                  info.ID,
-                                                 tr("Attributes")) +
+                                                 tr("Attributes"),
+                                                 {GROUP_ADMIN_VIEWS: admin_views,
+                                                  SUNSTONE_VIEWS: user_views,
+                                                  GROUP_ADMIN_DEFAULT_VIEW: default_admin_view,
+                                                  DEFAULT_VIEW: default_user_view}) +
           '</div>\
         </div>'
       }
