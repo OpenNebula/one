@@ -72,7 +72,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resize"],
 
     8: //OpenNebula.VM.state.POWEROFF:
-        ["VM.delete", "VM.resume", "VM.resize"],
+        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
 
     9: //OpenNebula.VM.state.UNDEPLOYED:
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize"],
@@ -86,7 +86,7 @@ var lcm_state_actions = {
     2: //OpenNebula.VM.lcm_state.BOOT:
         ["VM.boot"],
     3: //OpenNebula.VM.lcm_state.RUNNING:
-        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live"],
+        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
     4: //OpenNebula.VM.lcm_state.MIGRATE:
         [],
     5: //OpenNebula.VM.lcm_state.SAVE_STOP:
@@ -145,6 +145,10 @@ var lcm_state_actions = {
         [],
     32: //OpenNebula.VM.lcm_state.BOOT_UNDEPLOY:
         ["VM.boot"],
+    33: //OpenNebula.VM.lcm_state.HOTPLUG_PROLOG_POWEROFF:
+        [],
+    34: //OpenNebula.VM.lcm_state.HOTPLUG_EPILOG_POWEROFF:
+        [],
 }
 
 //Permanent storage for last value of aggregated network usage
@@ -1382,8 +1386,8 @@ function enableStateButton(button_action){
 
 // state and lcm_state are numeric
 function enableStateActions(state, lcm_state){
-    state = parseInt(state);
-    lcm_state = parseInt(lcm_state);
+    var state = parseInt(state);
+    var lcm_state = parseInt(lcm_state);
 
     $.each(state_actions[state], function(i,action){
         enableStateButton(action);
@@ -1394,6 +1398,17 @@ function enableStateActions(state, lcm_state){
             enableStateButton(action);
         });
     }
+}
+
+// Returns true if the action is enabled for the given state
+// action is "VM.action", state and lcm_state are numeric
+function enabledStateAction(action, state, lcm_state){
+    var state = parseInt(state);
+    var lcm_state = parseInt(lcm_state);
+
+    return ( state_actions[state].indexOf(action) != -1 ||
+             (  state == OpenNebula.VM.state.ACTIVE &&
+                lcm_state_actions[lcm_state].indexOf(action) != -1 ) );
 }
 
 // Refreshes the information panel for a VM
@@ -1908,8 +1923,7 @@ function printDisks(vm_info){
                 <th>';
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
-      // If VM is not RUNNING, then we forget about the attach disk form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3"){
+      if (enabledStateAction("VM.attachdisk", vm_info.STATE, vm_info.LCM_STATE)){
         html += '\
            <button id="attach_disk" class="button tiny success right radius" >'+tr("Attach disk")+'</button>'
       } else {
@@ -2002,7 +2016,7 @@ function printDisks(vm_info){
               }
 
               if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
-                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && !disk.CONTEXT) {
+                if (enabledStateAction("VM.detachdisk", vm_info.STATE, vm_info.LCM_STATE) && !disk.CONTEXT) {
                   actions += '<a href="VM.detachdisk" class="detachdisk" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
                 }
               }
@@ -2249,8 +2263,7 @@ function printNics(vm_info){
                 <th>';
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
-      // If VM is not RUNNING, then we forget about the attach nic form.
-      if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3" && isNICAttachSupported(vm_info)){
+      if (enabledStateAction("VM.attachnic", vm_info.STATE, vm_info.LCM_STATE) && isNICAttachSupported(vm_info)){
         html += '\
            <button id="attach_nic" class="button tiny success right radius" >'+tr("Attach nic")+'</button>'
       } else {
@@ -2325,7 +2338,7 @@ function printNics(vm_info){
               actions = '';
 
               if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                if (vm_info.STATE == "3" && vm_info.LCM_STATE == "3") {
+                if (enabledStateAction("VM.detachnic", vm_info.STATE, vm_info.LCM_STATE)){
                   actions += '<a href="VM.detachnic" class="detachnic" ><i class="fa fa-times"/>'+tr("Detach")+'</a>'
                 }
               }
