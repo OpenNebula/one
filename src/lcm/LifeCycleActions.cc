@@ -1085,7 +1085,10 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
-        default: //LCM_INIT,CLEANUP_RESUBMIT, CLEANUP_DELETE, FAILURE
+        case VirtualMachine::LCM_INIT:
+        case VirtualMachine::CLEANUP_RESUBMIT:
+        case VirtualMachine::CLEANUP_DELETE:
+        case VirtualMachine::FAILURE:
         break;
     }
 }
