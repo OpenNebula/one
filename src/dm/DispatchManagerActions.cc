@@ -1474,8 +1474,9 @@ int DispatchManager::attach_nic(
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
-         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    if (( vm->get_state()     != VirtualMachine::ACTIVE ||
+          vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
+        vm->get_state()       != VirtualMachine::POWEROFF )
     {
         oss << "Could not add a new NIC to VM " << vid << ", wrong state.";
         error_str = oss.str();
@@ -1498,7 +1499,11 @@ int DispatchManager::attach_nic(
 
     vm->get_security_groups(vm_sgs);
 
-    vm->set_state(VirtualMachine::HOTPLUG_NIC);
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        vm->set_state(VirtualMachine::HOTPLUG_NIC);
+    }
 
     vm->set_resched(false);
 
@@ -1552,7 +1557,10 @@ int DispatchManager::attach_nic(
             delete *it;
         }
 
-        vm->set_state(VirtualMachine::RUNNING);
+        if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
+        {
+            vm->set_state(VirtualMachine::RUNNING);
+        }
 
         vmpool->update(vm);
 
@@ -1567,11 +1575,20 @@ int DispatchManager::attach_nic(
         vm->set_attach_nic(nic, sg_rules);
     }
 
+    if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
+    {
+        vmm->trigger(VirtualMachineManager::ATTACH_NIC,vid);
+    }
+    else
+    {
+        vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
+
+        vm->clear_attach_nic();
+    }
+
     vmpool->update(vm);
 
     vm->unlock();
-
-    vmm->trigger(VirtualMachineManager::ATTACH_NIC,vid);
 
     return 0;
 }
@@ -1600,8 +1617,9 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
-         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    if (( vm->get_state()     != VirtualMachine::ACTIVE ||
+          vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
+        vm->get_state()       != VirtualMachine::POWEROFF )
     {
         oss << "Could not detach NIC from VM " << vid << ", wrong state.";
         error_str = oss.str();
@@ -1624,15 +1642,27 @@ int DispatchManager::detach_nic(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::HOTPLUG_NIC);
+    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
-    vm->set_resched(false);
+        vm->set_resched(false);
 
-    vmpool->update(vm);
+        vmpool->update(vm);
 
-    vm->unlock();
+        vm->unlock();
 
-    vmm->trigger(VirtualMachineManager::DETACH_NIC,vid);
+        vmm->trigger(VirtualMachineManager::DETACH_NIC,vid);
+    }
+    else
+    {
+        vm->unlock();
+
+        vmpool->delete_attach_nic(vid);
+
+        vm->log("DiM", Log::INFO, "VM NIC Successfully detached.");
+    }
 
     return 0;
 }

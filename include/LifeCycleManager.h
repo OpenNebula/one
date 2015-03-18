@@ -213,8 +213,6 @@ private:
 
     void attach_success_action(int vid);
 
-    void delete_attach_disk(int vid, bool release_save_as);
-
     void attach_failure_action(int vid);
 
     void detach_success_action(int vid);
