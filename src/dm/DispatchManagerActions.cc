@@ -1052,6 +1052,7 @@ int DispatchManager::attach(int vid,
 
     Nebula&           nd       = Nebula::instance();
     VirtualMachineManager* vmm = nd.get_vmm();
+    TransferManager*       tm  = nd.get_tm();
 
     VirtualMachine * vm  = vmpool->get(vid, true);
 
@@ -1066,8 +1067,17 @@ int DispatchManager::attach(int vid,
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
-         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    if ( vm->get_state()     == VirtualMachine::ACTIVE &&
+         vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        vm->set_state(VirtualMachine::HOTPLUG);
+    }
+    else if ( vm->get_state() == VirtualMachine::POWEROFF )
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::HOTPLUG_PROLOG_POWEROFF);
+    }
+    else
     {
         oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
         error_str = oss.str();
@@ -1079,8 +1089,6 @@ int DispatchManager::attach(int vid,
     }
 
     vm->get_disk_info(max_disk_id, used_targets);
-
-    vm->set_state(VirtualMachine::HOTPLUG);
 
     vm->set_resched(false);
 
@@ -1121,7 +1129,15 @@ int DispatchManager::attach(int vid,
 
     if ( disk == 0 )
     {
-        vm->set_state(VirtualMachine::RUNNING);
+        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+        {
+            vm->set_state(VirtualMachine::RUNNING);
+        }
+        else
+        {
+            vm->set_state(VirtualMachine::LCM_INIT);
+            vm->set_state(VirtualMachine::POWEROFF);
+        }
 
         vmpool->update(vm);
 
@@ -1139,7 +1155,14 @@ int DispatchManager::attach(int vid,
 
     vm->unlock();
 
-    vmm->trigger(VirtualMachineManager::ATTACH,vid);
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vmm->trigger(VirtualMachineManager::ATTACH,vid);
+    }
+    else
+    {
+        tm->trigger(TransferManager::PROLOG_ATTACH, vid);
+    }
 
     return 0;
 }
@@ -1156,6 +1179,7 @@ int DispatchManager::detach(
 
     Nebula&           nd       = Nebula::instance();
     VirtualMachineManager* vmm = nd.get_vmm();
+    TransferManager*       tm  = nd.get_tm();
 
     VirtualMachine * vm  = vmpool->get(vid, true);
 
@@ -1168,8 +1192,9 @@ int DispatchManager::detach(
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::ACTIVE ||
-         vm->get_lcm_state() != VirtualMachine::RUNNING )
+    if (( vm->get_state()     != VirtualMachine::ACTIVE ||
+          vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
+        vm->get_state()       != VirtualMachine::POWEROFF)
     {
         oss << "Could not detach disk from VM " << vid << ", wrong state.";
         error_str = oss.str();
@@ -1192,7 +1217,16 @@ int DispatchManager::detach(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::HOTPLUG);
+    if ( vm->get_state() == VirtualMachine::ACTIVE &&
+         vm->get_lcm_state() == VirtualMachine::RUNNING )
+    {
+        vm->set_state(VirtualMachine::HOTPLUG);
+    }
+    else
+    {
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::HOTPLUG_EPILOG_POWEROFF);
+    }
 
     vm->set_resched(false);
 
@@ -1200,7 +1234,14 @@ int DispatchManager::detach(
 
     vm->unlock();
 
-    vmm->trigger(VirtualMachineManager::DETACH,vid);
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vmm->trigger(VirtualMachineManager::DETACH,vid);
+    }
+    else
+    {
+        tm->trigger(TransferManager::EPILOG_DETACH, vid);
+    }
 
     return 0;
 }

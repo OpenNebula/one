@@ -1018,6 +1018,14 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
+        case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+        case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+            vm->clear_attach_disk();
+
+            tm->trigger(TransferManager::DRIVER_CANCEL,vid);
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+
         case VirtualMachine::MIGRATE:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -1158,6 +1166,28 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
             else
             {
                 lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::ATTACH_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::ATTACH_FAILURE;
+            }
+        break;
+
+        case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::DETACH_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::DETACH_FAILURE;
             }
         break;
 

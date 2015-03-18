@@ -49,12 +49,14 @@ public:
         PROLOG,
         PROLOG_MIGR,
         PROLOG_RESUME,
+        PROLOG_ATTACH,
         EPILOG,
         EPILOG_STOP,
         EPILOG_DELETE,
         EPILOG_DELETE_PREVIOUS,
         EPILOG_DELETE_STOP,
         EPILOG_DELETE_BOTH,
+        EPILOG_DETACH,
         CHECKPOINT,
         DRIVER_CANCEL,
         SAVEAS_HOT,
@@ -253,6 +255,11 @@ private:
     void prolog_resume_action(int vid);
 
     /**
+     *  This function starts the prolog attach sequence
+     */
+    void prolog_attach_action(int vid);
+
+    /**
      *  This function starts the epilog sequence
      */
     void epilog_action(int vid);
@@ -298,6 +305,11 @@ private:
      *  This function starts the epilog_delete sequence
      */
     void epilog_delete_action(bool local, int vid);
+
+    /**
+     *  This function starts the epilog detach sequence
+     */
+    void epilog_detach_action(int vid);
 
     /**
      *  This function starts the epilog sequence
