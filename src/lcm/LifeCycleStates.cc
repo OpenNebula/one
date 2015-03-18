@@ -339,6 +339,8 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         return;
     }
 
+    time_t  the_time = time(0);
+
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
         int     cpu,mem,disk;
@@ -400,8 +402,6 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
-        time_t  the_time = time(0);
-
         vm->set_running_etime(the_time);
 
         failure_action(vm);
@@ -416,19 +416,27 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF)
     {
+        vm->set_etime(the_time);
+        vm->set_running_etime(the_time);
+
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vmpool->update(vm);
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is POWEROFF");
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED)
     {
+        vm->set_etime(the_time);
+        vm->set_running_etime(the_time);
+
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vmpool->update(vm);
+        vmpool->update_history(vm);
 
         vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is SUSPENDED");
     }
