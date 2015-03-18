@@ -6328,6 +6328,8 @@ $(document).ready(function(){
           generate_custom_attrs(
             $(".provision_custom_attributes_selector", create_vm_context),
             template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
+        } else {
+          $(".provision_custom_attributes_selector", create_vm_context).html("");
         }
       }
     })
@@ -6641,6 +6643,8 @@ $(document).ready(function(){
                 generate_custom_attrs(
                   $(".provision_custom_attributes_selector", role_context),
                   template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS);
+              } else {
+                $(".provision_custom_attributes_selector", role_context).html("");
               }
             }
           })
