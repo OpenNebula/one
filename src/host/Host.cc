@@ -383,6 +383,8 @@ int Host::update_info(Template        &tmpl,
                     zombie << zname;
                 }
             }
+
+            delete *it;
         }
         else if (rc == 0) //not ours
         {
@@ -401,9 +403,9 @@ int Host::update_info(Template        &tmpl,
             }
 
             wild << wname;
-        }
 
-        delete *it;
+            obj_template->set(*it);
+        }
     }
 
     for(set_it = tmp_lost_vms.begin(); set_it != tmp_lost_vms.end(); set_it++)
