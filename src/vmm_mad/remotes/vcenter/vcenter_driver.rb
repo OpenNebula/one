@@ -181,7 +181,7 @@ class VIClient
                 false
             end
         end
-    end    
+    end
 
     ########################################################################
     # Builds a hash with the DataCenter / ClusterComputeResource hierarchy
@@ -1065,6 +1065,16 @@ class VCenterVm
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+
+        vp=@vm.config.extraConfig.select{|v| v[:key]=="remotedisplay.vnc.port"}
+
+        if vp.size > 0
+            str << "GRAPHICS = [\n"\
+                   "  TYPE     =\"vnc\",\n"\
+                   "  LISTEN   =\"0.0.0.0\",\n"\
+                   "  PORT     =\"#{vp[0][:value]}\"\n"\
+                   "]\n"
+        end
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Virtual Machine imported by OpenNebula"\
