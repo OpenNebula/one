@@ -696,7 +696,7 @@ class VCenterVm
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 shutdown(deploy_id, hostname, lcm_state)
-            when "CANCEL", "LCM_INIT"
+            when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT"
                 hid         = VIClient::translate_hostname(hostname)
                 connection  = VIClient.new(hid)
                 vm          = connection.find_vm_template(deploy_id)
