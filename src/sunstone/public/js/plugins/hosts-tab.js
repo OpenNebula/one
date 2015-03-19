@@ -962,10 +962,13 @@ function updateHostInfo(request,host){
           </div>'
     }
 
+    // TODO make wilds configurable
+
     var wilds_info_tab = {
         title: tr("WILDS"),
         icon: "fa-hdd-o",
-        content : '<div id="datatable_host_wilds_info_div" class="row">\
+        content : '<form id="tab_nwilds_form">\
+          <div id="datatable_host_wilds_info_div" class="row">\
           <div class="large-12 columns">\
             <table id="datatable_host_wilds" class="datatable twelve">\
               <thead>\
@@ -973,14 +976,62 @@ function updateHostInfo(request,host){
                   <th>' + tr("VM name") + '</th>\
                   <th>' + tr("UUID") + '</th>\
                   <th>' + tr("Import") + '</th>\
+                  <th><button id="import_wilds" class="button tiny success right radius" >'+tr("Import Wilds")+'</button>\
                 </tr>\
               </thead>\
               <tbody id="tbody_host_wilds">\
               </tbody>\
             </table>\
           </div>\
-          </div>'
-    }    
+          </div>\
+          </form>'
+    }
+
+    // Add event listener for importing WILDS
+    $('#import_wilds').on('click', function () {
+        var row = $(this).closest('table').DataTable().row( $(this).closest('tr') );
+ 
+        if ( row.child.isShown() ) {
+            row.child.hide();
+            $(this).children("span").addClass('fa-chevron-down');
+            $(this).children("span").removeClass('fa-chevron-up');
+        }
+        else {
+            var html = '<div style="padding-left: 30px;">\
+              <table class="extended_table dataTable">\
+                <thead>\
+                  <tr>\
+                    <th colspan="2">'+tr("Security Group")+'</th>\
+                    <th>'+tr("Protocol")+'</th>\
+                    <th>'+tr("Type")+'</th>\
+                    <th>'+tr("Range")+'</th>\
+                    <th>'+tr("Network")+'</th>\
+                    <th>'+tr("ICMP Type")+'</th>\
+                  </tr>\
+                <thead>\
+                <tbody>';
+
+            $.each(row.data().SECURITY_GROUP_RULES, function(index, elem){
+                var rule_st = sg_rule_to_st(this);
+
+                var new_tr = '<tr>\
+                  <td>'+this.SECURITY_GROUP_ID+'</td>\
+                  <td>'+this.SECURITY_GROUP_NAME+'</td>\
+                  <td>'+rule_st.PROTOCOL+'</td>\
+                  <td>'+rule_st.RULE_TYPE+'</td>\
+                  <td>'+rule_st.RANGE+'</td>\
+                  <td>'+rule_st.NETWORK+'</td>\
+                  <td>'+rule_st.ICMP_TYPE+'</td>\
+                </tr>'
+
+                html += new_tr;
+            });
+
+            row.child( html ).show();
+            $(this).children("span").removeClass('fa-chevron-down');
+            $(this).children("span").addClass('fa-chevron-up');
+        }
+    } );
 
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
@@ -1039,15 +1090,17 @@ function updateHostInfo(request,host){
 
         $.each(wilds, function(){
             name  = this.split("_")[0];
-            uuid  = this.split("_")[1];
+            uuid  = "-"; // TODO get uuid from template and present it, CPU, MEMORY ??
 
             wilds_list_array.push([
                 name,
                 uuid,
-                '<input type="checkbox" class="import_'+name+'" checked/>'
+                '<input type="checkbox" class="import_'+name+'" unchecked/>'
             ]);
           });
         }
+
+        //$(".import_'+name+'", trow).data("wild_template", COREVALUE)
 
         dataTable_wilds_hosts.fnAddData(wilds_list_array);
         delete host_info.TEMPLATE.WILDS;
