@@ -706,34 +706,79 @@ void  LifeCycleManager::restart_action(int vid)
          vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
          vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY))
+         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+         vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
 
+        VirtualMachineManager::Actions action;
+
         //----------------------------------------------------
         //       RE-START THE VM IN THE SAME HOST
         //----------------------------------------------------
 
-        if (vm->get_state() == VirtualMachine::ACTIVE &&
-            (vm->get_lcm_state() == VirtualMachine::BOOT ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY))
+        if (vm->get_state() == VirtualMachine::ACTIVE)
         {
-            vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
-        }
-        else if (vm->get_state() == VirtualMachine::ACTIVE &&
-                 vm->get_lcm_state() == VirtualMachine::UNKNOWN)
-        {
-            vm->set_state(VirtualMachine::BOOT_UNKNOWN);
+            switch (vm->get_lcm_state()) {
+                case VirtualMachine::BOOT:
+                case VirtualMachine::BOOT_UNKNOWN:
+                case VirtualMachine::BOOT_POWEROFF:
+                    action = VirtualMachineManager::DEPLOY;
 
-            vmpool->update(vm);
+                    vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
 
-            vm->log("LCM", Log::INFO, "New VM state is BOOT_UNKNOWN");
+                    break;
+
+                case VirtualMachine::BOOT_SUSPENDED:
+                case VirtualMachine::BOOT_STOPPED:
+                case VirtualMachine::BOOT_UNDEPLOY:
+                case VirtualMachine::BOOT_MIGRATE:
+                    action = VirtualMachineManager::RESTORE;
+
+                    vm->log("LCM", Log::INFO, "Sending RESTORE command to VM again");
+
+                    break;
+
+                case VirtualMachine::UNKNOWN:
+                    action = VirtualMachineManager::DEPLOY;
+
+                    vm->set_state(VirtualMachine::BOOT_UNKNOWN);
+
+                    vmpool->update(vm);
+
+                    vm->log("LCM", Log::INFO, "New VM state is BOOT_UNKNOWN");
+
+                    break;
+
+                case VirtualMachine::BOOT_FAILURE:
+                    action = VirtualMachineManager::DEPLOY;
+
+                    vm->set_state(VirtualMachine::BOOT);
+
+                    vmpool->update(vm);
+
+                    vm->log("LCM", Log::INFO, "New VM state is BOOT");
+
+                    break;
+
+                case VirtualMachine::BOOT_MIGRATE_FAILURE:
+                    action = VirtualMachineManager::RESTORE;
+
+                    vm->set_state(VirtualMachine::BOOT_MIGRATE);
+
+                    vmpool->update(vm);
+
+                    vm->log("LCM", Log::INFO, "New VM state is BOOT_MIGRATE");
+
+                    break;
+
+                default:
+                    break;
+            }
         }
         else // if ( vm->get_state() == VirtualMachine::POWEROFF )
         {
@@ -757,7 +802,7 @@ void  LifeCycleManager::restart_action(int vid)
             vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
         }
 
-        vmm->trigger(VirtualMachineManager::DEPLOY,vid);
+        vmm->trigger(action,vid);
     }
     else
     {
@@ -971,6 +1016,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::BOOT_SUSPENDED:
         case VirtualMachine::BOOT_STOPPED:
         case VirtualMachine::BOOT_UNDEPLOY:
+        case VirtualMachine::BOOT_MIGRATE:
+        case VirtualMachine::BOOT_FAILURE:
+        case VirtualMachine::BOOT_MIGRATE_FAILURE:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
@@ -1168,6 +1216,9 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::BOOT_STOPPED:
         case VirtualMachine::BOOT_UNDEPLOY:
         case VirtualMachine::MIGRATE:
+        case VirtualMachine::BOOT_MIGRATE:
+        case VirtualMachine::BOOT_MIGRATE_FAILURE:
+        case VirtualMachine::BOOT_FAILURE:
             if (success)
             {
                 //Auto-generate deploy-id it'll work for Xen, KVM and VMware
