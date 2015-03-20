@@ -17,7 +17,7 @@
 module VNMMAD
 
     ############################################################################
-    # Module to use as mixin for implementing  VLAN drivers based on special
+    # Module to use as mixin for implementing  VLAN drivers based on special 
     # link devices though the Linux kernel features and bridges. It provides
     # common functionality to handle bridges
     ############################################################################
@@ -41,11 +41,10 @@ module VNMMAD
 
                 options.clear
 
-                options[:bridge]     = nic[:bridge]
-                options[:phydev]     = nic[:phydev]
-                options[:vlan_id]    = nic[:vlan_id]
+                options[:bridge]  = nic[:bridge]
+                options[:phydev]  = nic[:phydev]
+                options[:vlan_id] = nic[:vlan_id]
                 options[:network_id] = nic[:network_id]
-                options[:mtu]        = nic[:mtu]
 
                 return if options[:phydev].nil?
 
@@ -57,15 +56,15 @@ module VNMMAD
             return 0
         end
 
-        # Set ups the VLAN for the VMs.
+        # Set ups the VLAN for the VMs. 
         #   @param options [Hash] including
         #   - :phydev Physical Device to bind the VLAN traffic to
         #   - :bridge Name of the bridge to attach the VMs and VLAN dev to
-        #   - :network_id
+        #   - :network_id 
         def set_up_vlan(options)
 
             if options[:vlan_id].nil?
-                options[:vlan_id] = CONF[:start_vlan] + options[:network_id].to_i
+                options[:vlan_id] = CONF[:start_vlan] + options[:network_id].to_i 
             end
 
             options[:vlan_dev] = "#{options[:phydev]}.#{options[:vlan_id]}"
@@ -94,9 +93,9 @@ module VNMMAD
 
             exit -1
         end
-
+            
     private
-        # Creates a bridge if it does not exists, and brings it up.
+        # Creates a bridge if it does not exists, and brings it up. 
         # This function IS FINAL, exits if action cannot be completed
         #   @param bridge [String] the bridge name
         def create_bridge(bridge)
