@@ -150,7 +150,10 @@ var OpenNebula = {
                                "SHUTDOWN",
                                "EPILOG",
                                "PROLOG",
-                               "BOOT"][value]);
+                               "BOOT",
+                               "BOOT",
+                               "FAILURE",
+                               "FAILURE"][value]);
                     break;
                 case "IMAGE":
                 case "image":
@@ -933,7 +936,10 @@ var OpenNebula = {
             "SHUTDOWN_UNDEPLOY"   : 29,
             "EPILOG_UNDEPLOY"     : 30,
             "PROLOG_UNDEPLOY"     : 31,
-            "BOOT_UNDEPLOY"       : 32
+            "BOOT_UNDEPLOY"       : 32,
+            "BOOT_MIGRATE"        : 33,
+            "BOOT_FAILURE"        : 34,
+            "BOOT_MIGRATE_FAILURE": 35
         },
 
         "create": function(params){

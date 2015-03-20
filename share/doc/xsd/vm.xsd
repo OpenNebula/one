@@ -78,7 +78,10 @@
           SHUTDOWN_UNDEPLOY   = 29,
           EPILOG_UNDEPLOY     = 30,
           PROLOG_UNDEPLOY     = 31,
-          BOOT_UNDEPLOY       = 32
+          BOOT_UNDEPLOY       = 32,
+          BOOT_MIGRATE        = 33,
+          BOOT_FAILURE        = 34,
+          BOOT_MIGRATE_FAILURE= 35
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="PREV_STATE" type="xs:integer"/>

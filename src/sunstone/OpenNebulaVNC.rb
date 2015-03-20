@@ -64,7 +64,10 @@ VNC_STATES = [
         "29"  #SHUTDOWN_UNDEPLOY
         #30, #EPILOG_UNDEPLOY
         #31, #PROLOG_UNDEPLOY
-        #32  #BOOT_UNDEPLOY
+        #32, #BOOT_UNDEPLOY
+        #33, #BOOT_MIGRATE
+        #34, #BOOT_FAILURE
+        #35, #BOOT_MIGRATE_FAILURE
 ]
 
 class OpenNebulaVNC
