@@ -21,7 +21,7 @@ require 'vnmmad'
 #   - Creates a bridge and bind phisycal device if not present
 #   - Creates a tagged interface for the VM dev.vlan_id
 #
-# Once activated the VM will be attached to this bridge 
+# Once activated the VM will be attached to this bridge
 ################################################################################
 class VXLANDriver < VNMMAD::VLANDriver
 
@@ -44,9 +44,10 @@ class VXLANDriver < VNMMAD::VLANDriver
     def create_vlan_dev(options)
         mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + options[:vlan_id].to_i
         mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
+        mtu = options[:mtu] ? "mtu #{options[:mtu]}" : ""
 
         OpenNebula.exec_and_log("#{command(:ip)} link add #{options[:vlan_dev]}"\
-            " type vxlan id #{options[:vlan_id]} group #{mcs}"\
+            " #{mtu} type vxlan id #{options[:vlan_id]} group #{mcs}"\
             " dev #{options[:phydev]}")
 
         OpenNebula.exec_and_log("#{command(:ip)} link set #{options[:vlan_dev]} up")
