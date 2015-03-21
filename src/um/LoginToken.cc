@@ -46,7 +46,7 @@ const std::string& LoginToken::set(const std::string& user_token, time_t valid)
         expiration_time = 0;
     }
 
-    if (user_token.empty())
+    if (!user_token.empty())
     {
         token = user_token;
     }
