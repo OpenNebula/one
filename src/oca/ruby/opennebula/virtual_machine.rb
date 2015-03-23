@@ -137,7 +137,7 @@ module OpenNebula
             "PROLOG_UNDEPLOY"   => "prol",
             "BOOT_UNDEPLOY"     => "boot",
             "HOTPLUG_PROLOG_POWEROFF"   => "hotp",
-            "HOTPLUG_EPILOG_POWEROFF"   => "hotp"
+            "HOTPLUG_EPILOG_POWEROFF"   => "hotp",
             "BOOT_MIGRATE"      => "boot",
             "BOOT_FAILURE"      => "fail",
             "BOOT_MIGRATE_FAILURE" => "fail"

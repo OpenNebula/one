@@ -22,10 +22,9 @@ digraph OpenNebula {
     subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; prolog_resume; prolog_migrate; color="white" }
-//    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; save_migrate; color="white" }
-
-    subgraph { rank = max; suspended; done; failure;
-    stopped; undeployed; poweroff; ANY; color="white" }
+    subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; hotplug_epilog_poweroff; color="white" }
+    subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
+    subgraph { rank = sink; done; failure; ANY; color="white" }
 
 #   create
     user -> pending [label="create"];
