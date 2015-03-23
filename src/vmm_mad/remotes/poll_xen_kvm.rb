@@ -340,10 +340,10 @@ module KVM
                 "/domain/devices/interface[@type='bridge']") do |i|
             mac = REXML::XPath.first(i, '//interface/mac').
                 attributes['address']
-            bridge = REXML::XPath.first(i, '//interface/source')
-                .attributes['bridge']
-            model = REXML::XPath.first(i, '//interface/model')
-                .attributes['type']
+            bridge = REXML::XPath.first(i, '//interface/source').
+                attributes['bridge']
+            model = REXML::XPath.first(i, '//interface/model').
+                attributes['type']
 
             interfaces << {
                 :mac => mac,
