@@ -19,6 +19,7 @@
 require 'pp'
 require 'rexml/document'
 require 'base64'
+require 'uri'
 
 ENV['LANG']='C'
 
@@ -447,6 +448,12 @@ module XEN
     # @return [Hash, nil] Hash with the VM information or nil in case of error
     def self.get_all_vm_info
         begin
+            begin
+                vm_templates = get_vm_templates
+            rescue
+                vm_templates = {}
+            end
+
             text  = `#{CONF['XM_POLL']}`
 
             return nil if $?.exitstatus != 0
@@ -481,6 +488,11 @@ module XEN
                 dom_hash[:nettx]      = dom_data[10].to_i * 1024
                 dom_hash[:netrx]      = dom_data[11].to_i * 1024
 
+                if !dom_data[0].match(/^one-\d/) && vm_templates[dom_data[0]]
+                    dom_hash[:template] =
+                        Base64.encode64(vm_templates[dom_data[0]]).delete("\n")
+                end
+
                 domains[dom_hash[:name]] = dom_hash
             end
 
@@ -511,6 +523,42 @@ module XEN
         else
             '-'
         end
+    end
+
+    def self.get_vm_templates
+        begin
+            require 'rubygems'
+            require 'json'
+        rescue LoadError
+            return {}
+        end
+
+        text = `#{CONF['XM_LIST']} -l`
+        doms = JSON.parse(text)
+
+        dom_tmpl = {}
+
+        doms.each do |dom|
+            name = dom['config']['c_info']['name']
+            name = URI.escape(name)
+
+            tmp = %Q<NAME = "#{name}"\n>
+
+            vcpus = dom['config']['b_info']['max_vcpus'].to_i
+            vcpus = 1 if vcpus < 1
+
+            tmp << %Q<CPU = #{vcpus}\n>
+            tmp << %Q<VCPU = #{vcpus}\n>
+
+            memory = dom['config']['b_info']['max_memkb']
+            memory /= 1024
+
+            tmp << %Q<MEMORY = #{memory}\n>
+
+            dom_tmpl[name] = tmp
+        end
+
+        dom_tmpl
     end
 end
 
@@ -548,7 +596,7 @@ def setup_hypervisor
     case hypervisor.name
         when 'XEN'
             file = 'xenrc'
-            vars = %w{XM_POLL}
+            vars = %w{XM_POLL XM_LIST}
         when 'KVM'
             file = 'kvmrc'
             vars = %w{LIBVIRT_URI}
