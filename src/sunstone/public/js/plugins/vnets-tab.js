@@ -128,6 +128,14 @@ var create_vnet_wizard_html =
                 </div>\
               </div>\
             </div>\
+            <div class="row">\
+              <div class="large-3 columns">\
+                <label for="mtu">'+tr("MTU")+':\
+                  <span class="tip">'+tr("Set the MTU for the tagged interface. This MTU will be then inherited by the bridge and by the tagged interface.")+'</span>\
+                </label>\
+                <input type="text" wizard_field="MTU" name="mtu" id="mtu" />\
+              </div>\
+            </div>\
           </div>\
           <div class="content" id="vnetCreateARTab">\
             <div class="row" id="vnetCreateARTabCreate">\
@@ -1415,6 +1423,7 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#vlan_id,label[for="vlan_id"]',dialog).hide().prop('wizard_field_disabled', true);
             $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mtu,label[for="mtu"]',dialog).hide().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1426,6 +1435,7 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mtu,label[for="mtu"]',dialog).show().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).removeAttr('required');
@@ -1437,6 +1447,7 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mtu,label[for="mtu"]',dialog).show().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).removeAttr('required');
@@ -1448,6 +1459,7 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#vlan_id,label[for="vlan_id"]',dialog).hide().prop('wizard_field_disabled', true);
             $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mtu,label[for="mtu"]',dialog).hide().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1459,6 +1471,7 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#vlan_id,label[for="vlan_id"]',dialog).show().prop('wizard_field_disabled', false);
             $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
             $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).show().prop('wizard_field_disabled', false);
+            $('input#mtu,label[for="mtu"]',dialog).hide().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
@@ -1470,6 +1483,7 @@ function initialize_create_vnet_dialog(dialog) {
             $('input#vlan_id,label[for="vlan_id"]',dialog).show();
             $('input#ip_spoofing,label[for="ip_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
             $('input#mac_spoofing,label[for="mac_spoofing"]',dialog).hide().prop('wizard_field_disabled', true);
+            $('input#mtu,label[for="mtu"]',dialog).hide().prop('wizard_field_disabled', false);
 
             $('input#phydev',dialog).removeAttr('required');
             $('input#bridge',dialog).attr('required', '');
