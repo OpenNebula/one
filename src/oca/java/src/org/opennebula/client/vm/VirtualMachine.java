@@ -110,6 +110,8 @@ public class VirtualMachine extends PoolElement{
         "EPILOG_UNDEPLOY",
         "PROLOG_UNDEPLOY",
         "BOOT_UNDEPLOY",
+        "HOTPLUG_PROLOG_POWEROFF",
+        "HOTPLUG_EPILOG_POWEROFF",
         "BOOT_MIGRATE",
         "BOOT_FAILURE",
         "BOOT_MIGRATE_FAILURE" };
@@ -149,6 +151,8 @@ public class VirtualMachine extends PoolElement{
         "epil",
         "prol",
         "boot",
+        "hotp",
+        "hotp",
         "boot",
         "fail",
         "fail" };

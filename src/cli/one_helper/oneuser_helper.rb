@@ -179,7 +179,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
         user = OpenNebula::User.new(User.build_xml, login_client)
 
-        token_oned = user.login(username, token, options[:time])
+        token_oned = user.login(username, "", options[:time])
 
         return -1, token_oned.message if OpenNebula.is_error?(token_oned)
 

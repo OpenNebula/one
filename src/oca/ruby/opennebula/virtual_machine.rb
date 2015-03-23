@@ -49,13 +49,46 @@ module OpenNebula
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
             POWEROFF UNDEPLOYED}
 
-        LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
-            SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
-            SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
-            BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
-            HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
-            HOTPLUG_SAVEAS_SUSPENDED SHUTDOWN_UNDEPLOY EPILOG_UNDEPLOY
-            PROLOG_UNDEPLOY BOOT_UNDEPLOY BOOT_MIGRATE BOOT_FAILURE BOOT_MIGRATE_FAILURE}
+        LCM_STATE=%w{
+            LCM_INIT
+            PROLOG
+            BOOT
+            RUNNING
+            MIGRATE
+            SAVE_STOP
+            SAVE_SUSPEND
+            SAVE_MIGRATE
+            PROLOG_MIGRATE
+            PROLOG_RESUME
+            EPILOG_STOP
+            EPILOG
+            SHUTDOWN
+            CANCEL
+            FAILURE
+            CLEANUP_RESUBMIT
+            UNKNOWN
+            HOTPLUG
+            SHUTDOWN_POWEROFF
+            BOOT_UNKNOWN
+            BOOT_POWEROFF
+            BOOT_SUSPENDED
+            BOOT_STOPPED
+            CLEANUP_DELETE
+            HOTPLUG_SNAPSHOT
+            HOTPLUG_NIC
+            HOTPLUG_SAVEAS
+            HOTPLUG_SAVEAS_POWEROFF
+            HOTPLUG_SAVEAS_SUSPENDED
+            SHUTDOWN_UNDEPLOY
+            EPILOG_UNDEPLOY
+            PROLOG_UNDEPLOY
+            BOOT_UNDEPLOY
+            HOTPLUG_PROLOG_POWEROFF
+            HOTPLUG_EPILOG_POWEROFF
+            BOOT_MIGRATE
+            BOOT_FAILURE
+            BOOT_MIGRATE_FAILURE
+        }
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -103,6 +136,8 @@ module OpenNebula
             "EPILOG_UNDEPLOY"   => "epil",
             "PROLOG_UNDEPLOY"   => "prol",
             "BOOT_UNDEPLOY"     => "boot",
+            "HOTPLUG_PROLOG_POWEROFF"   => "hotp",
+            "HOTPLUG_EPILOG_POWEROFF"   => "hotp"
             "BOOT_MIGRATE"      => "boot",
             "BOOT_FAILURE"      => "fail",
             "BOOT_MIGRATE_FAILURE" => "fail"

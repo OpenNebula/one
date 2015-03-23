@@ -139,9 +139,11 @@ public:
         EPILOG_UNDEPLOY     = 30,
         PROLOG_UNDEPLOY     = 31,
         BOOT_UNDEPLOY       = 32,
-        BOOT_MIGRATE        = 33,
-        BOOT_FAILURE        = 34,
-        BOOT_MIGRATE_FAILURE= 35
+        HOTPLUG_PROLOG_POWEROFF = 33,
+        HOTPLUG_EPILOG_POWEROFF = 34,
+        BOOT_MIGRATE        = 35,
+        BOOT_FAILURE        = 36,
+        BOOT_MIGRATE_FAILURE= 37
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -181,6 +183,8 @@ public:
         else if ( st == "EPILOG_UNDEPLOY") { state = EPILOG_UNDEPLOY; }
         else if ( st == "PROLOG_UNDEPLOY") { state = PROLOG_UNDEPLOY; }
         else if ( st == "BOOT_UNDEPLOY") { state = BOOT_UNDEPLOY; }
+        else if ( st == "HOTPLUG_PROLOG_POWEROFF") { state = HOTPLUG_PROLOG_POWEROFF; }
+        else if ( st == "HOTPLUG_EPILOG_POWEROFF") { state = HOTPLUG_EPILOG_POWEROFF; }
         else if ( st == "BOOT_MIGRATE") { state = BOOT_MIGRATE; }
         else if ( st == "BOOT_FAILURE") { state = BOOT_FAILURE; }
         else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
@@ -226,6 +230,8 @@ public:
             case EPILOG_UNDEPLOY: st = "EPILOG_UNDEPLOY"; break;
             case PROLOG_UNDEPLOY: st = "PROLOG_UNDEPLOY"; break;
             case BOOT_UNDEPLOY: st = "BOOT_UNDEPLOY"; break;
+            case HOTPLUG_PROLOG_POWEROFF: st = "HOTPLUG_PROLOG_POWEROFF"; break;
+            case HOTPLUG_EPILOG_POWEROFF: st = "HOTPLUG_EPILOG_POWEROFF"; break;
             case BOOT_MIGRATE: st = "BOOT_MIGRATE"; break;
             case BOOT_FAILURE: st = "BOOT_FAILURE"; break;
             case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
