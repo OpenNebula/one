@@ -55,7 +55,8 @@ module OpenNebula
             BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
             HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
             HOTPLUG_SAVEAS_SUSPENDED SHUTDOWN_UNDEPLOY EPILOG_UNDEPLOY
-            PROLOG_UNDEPLOY BOOT_UNDEPLOY}
+            PROLOG_UNDEPLOY BOOT_UNDEPLOY HOTPLUG_PROLOG_POWEROFF
+            HOTPLUG_EPILOG_POWEROFF}
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -102,7 +103,9 @@ module OpenNebula
             "SHUTDOWN_UNDEPLOY" => "shut",
             "EPILOG_UNDEPLOY"   => "epil",
             "PROLOG_UNDEPLOY"   => "prol",
-            "BOOT_UNDEPLOY"     => "boot"
+            "BOOT_UNDEPLOY"     => "boot",
+            "HOTPLUG_PROLOG_POWEROFF"   => "hotp",
+            "HOTPLUG_EPILOG_POWEROFF"   => "hotp"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

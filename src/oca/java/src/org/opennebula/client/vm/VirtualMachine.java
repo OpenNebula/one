@@ -109,7 +109,9 @@ public class VirtualMachine extends PoolElement{
         "SHUTDOWN_UNDEPLOY",
         "EPILOG_UNDEPLOY",
         "PROLOG_UNDEPLOY",
-        "BOOT_UNDEPLOY" };
+        "BOOT_UNDEPLOY",
+        "HOTPLUG_PROLOG_POWEROFF",
+        "HOTPLUG_EPILOG_POWEROFF" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -145,7 +147,9 @@ public class VirtualMachine extends PoolElement{
         "shut",
         "epil",
         "prol",
-        "boot" };
+        "boot",
+        "hotp",
+        "hotp" };
 
     /**
      * Creates a new VM representation.

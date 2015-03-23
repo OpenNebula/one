@@ -1035,3 +1035,107 @@ int VirtualMachinePool::calculate_showback(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::delete_attach_disk(int vid, bool release_save_as)
+{
+    VirtualMachine *  vm;
+    VectorAttribute * disk;
+
+    int uid;
+    int gid;
+    int oid;
+
+    vm = get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    disk = vm->delete_attach_disk();
+    uid  = vm->get_uid();
+    gid  = vm->get_gid();
+    oid  = vm->get_oid();
+
+    update(vm);
+
+    vm->unlock();
+
+    if ( disk != 0 )
+    {
+        Nebula&       nd     = Nebula::instance();
+        ImageManager* imagem = nd.get_imagem();
+
+        Template tmpl;
+        int      image_id;
+
+        tmpl.set(disk);
+
+        if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
+        {
+            // Disk using an Image
+            Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
+            imagem->release_image(oid, image_id, false);
+
+            // Release non-persistent images in the detach event
+            if (release_save_as)
+            {
+                int save_as_id;
+
+                if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
+                {
+                    imagem->release_image(oid, save_as_id, false);
+                }
+            }
+        }
+        else // Volatile disk
+        {
+            // It is an update of the volatile counter without
+            // shutting destroying a VM
+            tmpl.add("VMS", 0);
+
+            Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachinePool::delete_attach_nic(int vid)
+{
+    VirtualMachine *  vm;
+    VectorAttribute * nic;
+
+    int uid;
+    int gid;
+    int oid;
+
+    vm = get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    nic = vm->delete_attach_nic();
+    uid = vm->get_uid();
+    gid = vm->get_gid();
+    oid = vm->get_oid();
+
+    update(vm);
+
+    vm->unlock();
+
+    if ( nic != 0 )
+    {
+        Template tmpl;
+
+        tmpl.set(nic);
+
+        Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
+
+        VirtualMachine::release_network_leases(nic, oid);
+    }
+}

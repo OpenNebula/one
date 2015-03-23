@@ -138,6 +138,14 @@ void TransferManagerDriver::protocol(const string& message) const
                     lcm_action = LifeCycleManager::SAVEAS_HOT_SUCCESS;
                     break;
 
+                case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+                    lcm_action = LifeCycleManager::ATTACH_SUCCESS;
+                    break;
+
+                case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+                    lcm_action = LifeCycleManager::DETACH_SUCCESS;
+                    break;
+
                 default:
                     goto error_state;
             }
@@ -181,6 +189,14 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
                     lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
+                    break;
+
+                case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+                    lcm_action = LifeCycleManager::ATTACH_FAILURE;
+                    break;
+
+                case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+                    lcm_action = LifeCycleManager::DETACH_FAILURE;
                     break;
 
                 default:

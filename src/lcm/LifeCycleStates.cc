@@ -1439,6 +1439,15 @@ void LifeCycleManager::attach_success_action(int vid)
 
         vmpool->update(vm);
     }
+    else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF )
+    {
+        vm->log("LCM", Log::INFO, "VM Disk successfully attached.");
+
+        vm->clear_attach_disk();
+        vmpool->update(vm);
+
+        Nebula::instance().get_dm()->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+    }
     else
     {
         vm->log("LCM",Log::ERROR,"attach_success_action, VM in a wrong state");
@@ -1450,14 +1459,9 @@ void LifeCycleManager::attach_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::attach_failure_action(int vid, bool release_save_as)
+void LifeCycleManager::attach_failure_action(int vid)
 {
     VirtualMachine *  vm;
-    VectorAttribute * disk;
-
-    int uid;
-    int gid;
-    int oid;
 
     vm = vmpool->get(vid,true);
 
@@ -1466,56 +1470,34 @@ void LifeCycleManager::attach_failure_action(int vid, bool release_save_as)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG ||
+         vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF )
     {
-        disk = vm->delete_attach_disk();
-        uid  = vm->get_uid();
-        gid  = vm->get_gid();
-        oid  = vm->get_oid();
+        vm->unlock();
 
-        vm->set_state(VirtualMachine::RUNNING);
+        vmpool->delete_attach_disk(vid, false);
+
+        vm = vmpool->get(vid,true);
+
+        if ( vm == 0 )
+        {
+            return;
+        }
+
+        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+        {
+            vm->set_state(VirtualMachine::RUNNING);
+        }
+        else
+        {
+            vm->log("LCM", Log::INFO, "VM Disk attach failure.");
+
+            Nebula::instance().get_dm()->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        }
 
         vmpool->update(vm);
 
         vm->unlock();
-
-        if ( disk != 0 )
-        {
-            Nebula&       nd     = Nebula::instance();
-            ImageManager* imagem = nd.get_imagem();
-
-            Template tmpl;
-            int      image_id;
-
-            tmpl.set(disk);
-
-            if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
-            {
-                // Disk using an Image
-                Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
-
-                imagem->release_image(oid, image_id, false);
-
-                // Release non-persistent images in the detach event
-                if (release_save_as)
-                {
-                    int save_as_id;
-
-                    if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
-                    {
-                        imagem->release_image(oid, save_as_id, false);
-                    }
-                }
-            }
-            else // Volatile disk
-            {
-                // It is an update of the volatile counter without
-                // shutting destroying a VM
-                tmpl.add("VMS", 0);
-
-                Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
-            }
-        }
     }
     else
     {
@@ -1529,7 +1511,49 @@ void LifeCycleManager::attach_failure_action(int vid, bool release_save_as)
 
 void LifeCycleManager::detach_success_action(int vid)
 {
-    attach_failure_action(vid, true);
+    VirtualMachine *  vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG ||
+         vm->get_lcm_state() == VirtualMachine::HOTPLUG_EPILOG_POWEROFF )
+    {
+        vm->unlock();
+
+        vmpool->delete_attach_disk(vid, true);
+
+        vm = vmpool->get(vid,true);
+
+        if ( vm == 0 )
+        {
+            return;
+        }
+
+        if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+        {
+            vm->set_state(VirtualMachine::RUNNING);
+        }
+        else
+        {
+            vm->log("LCM", Log::INFO, "VM Disk successfully detached.");
+
+            Nebula::instance().get_dm()->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        }
+
+        vmpool->update(vm);
+
+        vm->unlock();
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"detach_success_action, VM in a wrong state");
+        vm->unlock();
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1537,7 +1561,38 @@ void LifeCycleManager::detach_success_action(int vid)
 
 void LifeCycleManager::detach_failure_action(int vid)
 {
-    attach_success_action(vid);
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+    {
+        vm->clear_attach_disk();
+
+        vm->set_state(VirtualMachine::RUNNING);
+
+        vmpool->update(vm);
+    }
+    else if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_EPILOG_POWEROFF )
+    {
+        vm->log("LCM", Log::INFO, "VM Disk detach failure.");
+
+        vm->clear_attach_disk();
+        vmpool->update(vm);
+
+        Nebula::instance().get_dm()->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"detach_failure_action, VM in a wrong state");
+    }
+
+    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1739,11 +1794,6 @@ void LifeCycleManager::attach_nic_success_action(int vid)
 void LifeCycleManager::attach_nic_failure_action(int vid)
 {
     VirtualMachine *  vm;
-    VectorAttribute * nic;
-
-    int uid;
-    int gid;
-    int oid;
 
     vm = vmpool->get(vid,true);
 
@@ -1754,27 +1804,22 @@ void LifeCycleManager::attach_nic_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC )
     {
-        nic = vm->delete_attach_nic();
-        uid = vm->get_uid();
-        gid = vm->get_gid();
-        oid = vm->get_oid();
+        vm->unlock();
+
+        vmpool->delete_attach_nic(vid);
+
+        vm = vmpool->get(vid,true);
+
+        if ( vm == 0 )
+        {
+            return;
+        }
 
         vm->set_state(VirtualMachine::RUNNING);
 
         vmpool->update(vm);
 
         vm->unlock();
-
-        if ( nic != 0 )
-        {
-            Template tmpl;
-
-            tmpl.set(nic);
-
-            Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
-
-            VirtualMachine::release_network_leases(nic, oid);
-        }
     }
     else
     {

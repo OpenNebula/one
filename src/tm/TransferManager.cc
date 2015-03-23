@@ -95,6 +95,10 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "PROLOG_RESUME";
         break;
 
+    case PROLOG_ATTACH:
+        aname = "PROLOG_ATTACH";
+        break;
+
     case EPILOG:
         aname = "EPILOG";
         break;
@@ -117,6 +121,10 @@ void TransferManager::trigger(Actions action, int _vid)
 
     case EPILOG_DELETE_BOTH:
         aname = "EPILOG_DELETE_BOTH";
+        break;
+
+    case EPILOG_DETACH:
+        aname = "EPILOG_DETACH";
         break;
 
     case CHECKPOINT:
@@ -238,6 +246,21 @@ void TransferManager::do_action(const string &action, void * arg)
             prolog_resume_action(vid);
         }
     }
+    else if (action == "PROLOG_ATTACH")
+    {
+        if (host_is_cloud)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::ATTACH_SUCCESS,vid);
+        }
+        else if (vm_no_history)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::ATTACH_FAILURE,vid);
+        }
+        else
+        {
+            prolog_attach_action(vid);
+        }
+    }
     else if (action == "EPILOG")
     {
         if (host_is_cloud)
@@ -326,6 +349,21 @@ void TransferManager::do_action(const string &action, void * arg)
         else
         {
             epilog_delete_both_action(vid);
+        }
+    }
+    else if (action == "EPILOG_DETACH")
+    {
+        if (host_is_cloud)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::DETACH_SUCCESS,vid);
+        }
+        else if (vm_no_history)
+        {
+            (nd.get_lcm())->trigger(LifeCycleManager::DETACH_FAILURE,vid);
+        }
+        else
+        {
+            epilog_detach_action(vid);
         }
     }
     else if (action == "CHECKPOINT")
@@ -1051,6 +1089,121 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void TransferManager::prolog_attach_action(int vid)
+{
+    ofstream      xfr;
+    ostringstream os("prolog, ");
+    string        xfr_name;
+
+    const VectorAttribute * disk;
+
+    string  files;
+    string  vm_tm_mad;
+    string  opennebula_hostname;
+    int     rc;
+    string  error_str;
+
+    VirtualMachine * vm;
+    Nebula&          nd = Nebula::instance();
+
+    const TransferManagerDriver * tm_md;
+
+    // -------------------------------------------------------------------------
+    // Setup & Transfer script
+    // -------------------------------------------------------------------------
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    vm_tm_mad = vm->get_tm_mad();
+    tm_md     = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty() )
+    {
+        goto error_drivers;
+    }
+
+    xfr_name = vm->get_transfer_file() + ".prolog_attach";
+    xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
+
+    if (xfr.fail() == true)
+    {
+        goto error_file;
+    }
+
+    opennebula_hostname = nd.get_nebula_hostname();
+
+    // -------------------------------------------------------------------------
+    // Image Transfer Commands
+    // -------------------------------------------------------------------------
+    disk = vm->get_attach_disk();
+
+    if ( disk == 0 )
+    {
+        goto error_disk;
+    }
+
+    rc = prolog_transfer_command(vm,
+                                 disk,
+                                 vm_tm_mad,
+                                 opennebula_hostname,
+                                 xfr,
+                                 os);
+
+    if ( rc != 0 )
+    {
+        goto error_attributes;
+    }
+
+    xfr.close();
+
+    tm_md->transfer(vid,xfr_name);
+
+    vm->unlock();
+    return;
+
+error_history:
+    os << "VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "prolog_attach, error getting drivers.";
+    goto error_common;
+
+error_file:
+    os << "could not open file: " << xfr_name;
+    goto error_common;
+
+error_disk:
+    os.str("");
+    os << "prolog_attach, could not find disk to attach";
+    goto error_common;
+
+error_attributes:
+    xfr.close();
+    goto error_common;
+
+error_common:
+    (nd.get_lcm())->trigger(LifeCycleManager::PROLOG_FAILURE,vid);
+    vm->log("TM", Log::ERROR, os);
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void TransferManager::epilog_transfer_command(
         VirtualMachine *        vm,
         const VectorAttribute * disk,
@@ -1729,6 +1882,103 @@ error_file:
 error_common:
     vm->log("TM", Log::ERROR, os);
     (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE, vid);
+
+    vm->unlock();
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::epilog_detach_action(int vid)
+{
+    ofstream        xfr;
+    ostringstream   os;
+    string xfr_name;
+    string vm_tm_mad;
+    string error_str;
+
+    const VectorAttribute * disk;
+
+    VirtualMachine *    vm;
+    Nebula&             nd = Nebula::instance();
+
+    const TransferManagerDriver * tm_md;
+
+    // ------------------------------------------------------------------------
+    // Setup & Transfer script
+    // ------------------------------------------------------------------------
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    vm_tm_mad = vm->get_tm_mad();
+    tm_md     = get();
+
+    if ( tm_md == 0 || vm_tm_mad.empty())
+    {
+        goto error_drivers;
+    }
+
+    xfr_name = vm->get_transfer_file() + ".epilog_detach";
+    xfr.open(xfr_name.c_str(), ios::out | ios::trunc);
+
+    if (xfr.fail() == true)
+    {
+        goto error_file;
+    }
+
+    // -------------------------------------------------------------------------
+    // copy back VM image (DISK with SAVE="yes")
+    // -------------------------------------------------------------------------
+
+    disk = vm->get_attach_disk();
+
+    if ( disk == 0 )
+    {
+        goto error_disk;
+    }
+
+    epilog_transfer_command(vm, disk, xfr);
+
+    xfr.close();
+
+    tm_md->transfer(vid,xfr_name);
+
+    vm->unlock();
+    return;
+
+error_history:
+    os.str("");
+    os << "epilog_detach, VM " << vid << " has no history";
+    goto error_common;
+
+error_drivers:
+    os.str("");
+    os << "epilog_detach, error getting drivers.";
+    goto error_common;
+
+error_file:
+    os.str("");
+    os << "epilog_detach, could not open file: " << xfr_name;
+    goto error_common;
+
+error_disk:
+    os.str("");
+    os << "epilog_detach, could not find disk to detach";
+    goto error_common;
+
+error_common:
+    (nd.get_lcm())->trigger(LifeCycleManager::EPILOG_FAILURE,vid);
+    vm->log("TM", Log::ERROR, os);
 
     vm->unlock();
     return;

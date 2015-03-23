@@ -563,7 +563,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Attaches a disk to a running VM. When using --file add only one
         DISK instance.
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :"disk-attach", disk_attach_desc, :vmid,
@@ -605,7 +605,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     disk_detach_desc = <<-EOT.unindent
         Detaches a disk from a running VM
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :"disk-detach", disk_detach_desc, :vmid, :diskid do
@@ -620,7 +620,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Attaches a NIC to a running VM. When using --file add only one
         NIC instance.
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :"nic-attach", nic_attach_desc, :vmid,
@@ -653,7 +653,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     nic_detach_desc = <<-EOT.unindent
         Detaches a NIC from a running VM
 
-        States: RUNNING
+        States: RUNNING, POWEROFF
     EOT
 
     command :"nic-detach", nic_detach_desc, :vmid, :nicid do

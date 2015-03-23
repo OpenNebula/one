@@ -933,7 +933,9 @@ var OpenNebula = {
             "SHUTDOWN_UNDEPLOY"   : 29,
             "EPILOG_UNDEPLOY"     : 30,
             "PROLOG_UNDEPLOY"     : 31,
-            "BOOT_UNDEPLOY"       : 32
+            "BOOT_UNDEPLOY"       : 32,
+            "HOTPLUG_PROLOG_POWEROFF"   : 33,
+            "HOTPLUG_EPILOG_POWEROFF"   : 34
         },
 
         "create": function(params){

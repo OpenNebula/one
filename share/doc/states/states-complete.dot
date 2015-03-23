@@ -130,9 +130,16 @@ digraph OpenNebula {
     running     -> hotplug [label="disk-attach /\n-detach"]
     hotplug     -> running [style="dashed"];
 
+    poweroff                -> hotplug_prolog_poweroff [label="disk-attach"]
+    hotplug_prolog_poweroff -> poweroff [style="dashed"];
+    poweroff                -> hotplug_epilog_poweroff [label="disk-detach"]
+    hotplug_epilog_poweroff -> poweroff [style="dashed"];
+
 #   nic-attach
     running     -> hotplug_nic [label="nic-attach /\n-detach"]
     hotplug_nic -> running [style="dashed"];
+
+    poweroff    -> poweroff [label="nic-attach /\n-detach"]
 
 #   snapshot
     running             -> hotplug_snapshot [label="snapshot-create /\n-revert /\n-delete"]
