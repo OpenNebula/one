@@ -114,7 +114,8 @@ public class VirtualMachine extends PoolElement{
         "HOTPLUG_EPILOG_POWEROFF",
         "BOOT_MIGRATE",
         "BOOT_FAILURE",
-        "BOOT_MIGRATE_FAILURE" };
+        "BOOT_MIGRATE_FAILURE",
+        "PROLOG_MIGRATE_FAILURE" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -154,6 +155,7 @@ public class VirtualMachine extends PoolElement{
         "hotp",
         "hotp",
         "boot",
+        "fail",
         "fail",
         "fail" };
 

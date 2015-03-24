@@ -141,9 +141,10 @@ public:
         BOOT_UNDEPLOY       = 32,
         HOTPLUG_PROLOG_POWEROFF = 33,
         HOTPLUG_EPILOG_POWEROFF = 34,
-        BOOT_MIGRATE        = 35,
-        BOOT_FAILURE        = 36,
-        BOOT_MIGRATE_FAILURE= 37
+        BOOT_MIGRATE            = 35,
+        BOOT_FAILURE            = 36,
+        BOOT_MIGRATE_FAILURE    = 37,
+        PROLOG_MIGRATE_FAILURE  = 38
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -188,6 +189,7 @@ public:
         else if ( st == "BOOT_MIGRATE") { state = BOOT_MIGRATE; }
         else if ( st == "BOOT_FAILURE") { state = BOOT_FAILURE; }
         else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
+        else if ( st == "PROLOG_MIGRATE_FAILURE") { state = PROLOG_MIGRATE_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -235,6 +237,7 @@ public:
             case BOOT_MIGRATE: st = "BOOT_MIGRATE"; break;
             case BOOT_FAILURE: st = "BOOT_FAILURE"; break;
             case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
+            case PROLOG_MIGRATE_FAILURE: st = "PROLOG_MIGRATE_FAILURE"; break;
         }
 
         return st;
@@ -800,6 +803,15 @@ public:
     void set_previous_running_etime(time_t _etime)
     {
         previous_history->running_etime=_etime;
+    };
+
+    /**
+     *  Sets end time of VM prolog state in the previous host.
+     *    @param _etime time when the running state finished
+     */
+    void set_previous_prolog_etime(time_t _etime)
+    {
+        previous_history->prolog_etime=_etime;
     };
 
     /**

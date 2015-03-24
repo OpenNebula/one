@@ -118,42 +118,45 @@ var OpenNebula = {
                     break;
                 case "VM_LCM":
                 case "vm_lcm":
-                    state = tr(["LCM_INIT",
-                               "PROLOG",
-                               "BOOT",
-                               "RUNNING",
-                               "MIGRATE",
-                               "SAVE",
-                               "SAVE",
-                               "SAVE",
-                               "MIGRATE",
-                               "PROLOG",
-                               "EPILOG",
-                               "EPILOG",
-                               "SHUTDOWN",
-                               "SHUTDOWN",
-                               "FAILURE",
-                               "CLEANUP",
-                               "UNKNOWN",
-                               "HOTPLUG",
-                               "SHUTDOWN",
-                               "BOOT",
-                               "BOOT",
-                               "BOOT",
-                               "BOOT",
-                               "CLEANUP",
-                               "SNAPSHOT",
-                               "HOTPLUG",
-                               "HOTPLUG",
-                               "HOTPLUG",
-                               "HOTPLUG",
-                               "SHUTDOWN",
-                               "EPILOG",
-                               "PROLOG",
-                               "BOOT",
-                               "BOOT",
-                               "FAILURE",
-                               "FAILURE"][value]);
+                    state = tr(["LCM_INIT", // LCM_INIT
+                               "PROLOG",    // PROLOG
+                               "BOOT",      // BOOT
+                               "RUNNING",   // RUNNING
+                               "MIGRATE",   // MIGRATE
+                               "SAVE",      // SAVE_STOP
+                               "SAVE",      // SAVE_SUSPEND
+                               "SAVE",      // SAVE_MIGRATE
+                               "MIGRATE",   // PROLOG_MIGRATE
+                               "PROLOG",    // PROLOG_RESUME
+                               "EPILOG",    // EPILOG_STOP
+                               "EPILOG",    // EPILOG
+                               "SHUTDOWN",  // SHUTDOWN
+                               "SHUTDOWN",  // CANCEL
+                               "FAILURE",   // FAILURE
+                               "CLEANUP",   // CLEANUP_RESUBMIT
+                               "UNKNOWN",   // UNKNOWN
+                               "HOTPLUG",   // HOTPLUG
+                               "SHUTDOWN",  // SHUTDOWN_POWEROFF
+                               "BOOT",      // BOOT_UNKNOWN
+                               "BOOT",      // BOOT_POWEROFF
+                               "BOOT",      // BOOT_SUSPENDED
+                               "BOOT",      // BOOT_STOPPED
+                               "CLEANUP",   // CLEANUP_DELETE
+                               "SNAPSHOT",  // HOTPLUG_SNAPSHOT
+                               "HOTPLUG",   // HOTPLUG_NIC
+                               "HOTPLUG",   // HOTPLUG_SAVEAS
+                               "HOTPLUG",   // HOTPLUG_SAVEAS_POWEROFF
+                               "HOTPLUG",   // HOTPLUG_SAVEAS_SUSPENDED
+                               "SHUTDOWN",  // SHUTDOWN_UNDEPLOY
+                               "EPILOG",    // EPILOG_UNDEPLOY
+                               "PROLOG",    // PROLOG_UNDEPLOY
+                               "BOOT",      // BOOT_UNDEPLOY
+                               "HOTPLUG",   // HOTPLUG_PROLOG_POWEROFF
+                               "HOTPLUG",   // HOTPLUG_EPILOG_POWEROFF
+                               "BOOT",      // BOOT_MIGRATE
+                               "FAILURE",   // BOOT_FAILURE
+                               "FAILURE",   // BOOT_MIGRATE_FAILURE
+                               "FAILURE"][value]); // PROLOG_MIGRATE_FAILURE
                     break;
                 case "IMAGE":
                 case "image":
@@ -939,9 +942,10 @@ var OpenNebula = {
             "BOOT_UNDEPLOY"       : 32,
             "HOTPLUG_PROLOG_POWEROFF"   : 33,
             "HOTPLUG_EPILOG_POWEROFF"   : 34,
-            "BOOT_MIGRATE"        : 35,
-            "BOOT_FAILURE"        : 36,
-            "BOOT_MIGRATE_FAILURE": 37
+            "BOOT_MIGRATE"              : 35,
+            "BOOT_FAILURE"              : 36,
+            "BOOT_MIGRATE_FAILURE"      : 37,
+            "PROLOG_MIGRATE_FAILURE"    : 38
         },
 
         "create": function(params){

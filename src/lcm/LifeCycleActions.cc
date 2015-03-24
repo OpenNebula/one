@@ -267,6 +267,59 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
+    else if (vm->get_state() == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE)
+    {
+        //----------------------------------------------------
+        //   Bypass SAVE_MIGRATE
+        //----------------------------------------------------
+
+        Nebula& nd = Nebula::instance();
+        TransferManager * tm = nd.get_tm();
+
+        int    cpu, mem, disk;
+        time_t the_time = time(0);
+
+        vm->set_resched(false);
+
+        vm->set_state(VirtualMachine::PROLOG_MIGRATE);
+
+        vm->delete_snapshots();
+
+        map<string, string> empty;
+
+        vm->update_info(0, 0, -1, -1, empty);
+
+        vmpool->update(vm);
+
+        vm->set_stime(the_time);
+
+        vm->set_previous_action(History::MIGRATE_ACTION);
+
+        vm->set_previous_prolog_etime(the_time);
+
+        vm->set_previous_etime(the_time);
+
+        vm->set_previous_vm_info();
+
+        vm->set_previous_reason(History::USER);
+
+        vmpool->update_previous_history(vm);
+
+        vmpool->update_history(vm);
+
+        vm->get_requirements(cpu,mem,disk);
+
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+
+        vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::PROLOG_MIGR,vid);
+    }
     else if (vm->get_state()     == VirtualMachine::ACTIVE &&
              vm->get_lcm_state() == VirtualMachine::UNKNOWN)
     {
@@ -1116,6 +1169,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 
@@ -1182,6 +1236,7 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         //----------------------------------------------------------------------
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
         case VirtualMachine::PROLOG_RESUME:
         case VirtualMachine::PROLOG_UNDEPLOY:
             if (success)

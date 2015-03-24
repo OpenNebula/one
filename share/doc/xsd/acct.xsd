@@ -144,9 +144,10 @@
                 BOOT_UNDEPLOY       = 32,
                 HOTPLUG_PROLOG_POWEROFF = 33,
                 HOTPLUG_EPILOG_POWEROFF = 34,
-                BOOT_MIGRATE        = 35,
-                BOOT_FAILURE        = 36,
-                BOOT_MIGRATE_FAILURE= 37
+                BOOT_MIGRATE            = 35,
+                BOOT_FAILURE            = 36,
+                BOOT_MIGRATE_FAILURE    = 37,
+                PROLOG_MIGRATE_FAILURE  = 38
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
               <xs:element name="PREV_STATE" type="xs:integer"/>

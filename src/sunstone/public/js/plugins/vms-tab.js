@@ -155,6 +155,8 @@ var lcm_state_actions = {
         ["VM.boot"],
     37: //OpenNebula.VM.lcm_state.BOOT_MIGRATE_FAILURE:
         ["VM.boot"],
+    38: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_FAILURE:
+        ["VM.migrate"],
 }
 
 //Permanent storage for last value of aggregated network usage
