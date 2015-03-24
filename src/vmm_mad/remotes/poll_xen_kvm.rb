@@ -21,6 +21,15 @@ require 'rexml/document'
 require 'base64'
 require 'uri'
 
+begin
+    require 'rubygems'
+    require 'json'
+
+    JSON_LOADED = true
+rescue LoadError
+    JSON_LOADED = false
+end
+
 ENV['LANG']='C'
 
 ################################################################################
@@ -132,6 +141,7 @@ module KVM
             xml = dump_xml(name)
 
             values.merge!(get_interface_statistics(name, xml))
+            values.merge!(get_disk_usage(xml))
 
             if !name.match(/^one-\d+/)
                 uuid, template = xml_to_one(xml)
@@ -296,6 +306,35 @@ module KVM
             else
                 '-'
         end
+    end
+
+    def self.get_disk_usage(xml)
+        return {} if !JSON_LOADED
+
+        doc=REXML::Document.new(xml)
+        size = 0
+
+        data = {
+            :disk_actual_size => 0.0,
+            :disk_virtual_size => 0.0
+        }
+
+        doc.elements.each('domain/devices/disk/source') do |ele|
+            next if !ele.attributes['file']
+
+            text = `qemu-img info --output=json #{ele.attributes['file']}`
+            next if !$? || !$?.success?
+
+            json = JSON.parse(text)
+
+            data[:disk_actual_size] += json['actual-size'].to_f/1024/1024
+            data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+        end
+
+        data[:disk_actual_size] = data[:disk_actual_size].round
+        data[:disk_virtual_size] = data[:disk_virtual_size].round
+
+        data
     end
 
     # Convert the output of dumpxml to an OpenNebula template
@@ -526,12 +565,7 @@ module XEN
     end
 
     def self.get_vm_templates
-        begin
-            require 'rubygems'
-            require 'json'
-        rescue LoadError
-            return {}
-        end
+        return {} if !JSON_LOADED
 
         text = `#{CONF['XM_LIST']} -l`
         doms = JSON.parse(text)
