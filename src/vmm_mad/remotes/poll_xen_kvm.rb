@@ -488,10 +488,13 @@ module XEN
     def self.get_all_vm_info
         begin
             begin
-                vm_templates = get_vm_templates
+                list_long = get_vm_list_long
             rescue
-                vm_templates = {}
+                list_long = []
             end
+
+            vm_templates = get_vm_templates(list_long)
+            vm_disk_stats = get_vm_disk_stats(list_long)
 
             text  = `#{CONF['XM_POLL']}`
 
@@ -518,21 +521,25 @@ module XEN
             domain_lines.each do |dom|
                 dom_data = dom.gsub('no limit', 'no-limit').strip.split
 
+                name = dom_data[0]
+
                 dom_hash = Hash.new
 
-                dom_hash[:name]       = dom_data[0]
+                dom_hash[:name]       = name
                 dom_hash[:state]      = get_state(dom_data[1])
                 dom_hash[:usedcpu]    = dom_data[3]
                 dom_hash[:usedmemory] = dom_data[4]
                 dom_hash[:nettx]      = dom_data[10].to_i * 1024
                 dom_hash[:netrx]      = dom_data[11].to_i * 1024
 
-                if !dom_data[0].match(/^one-\d/) && vm_templates[dom_data[0]]
+                if !name.match(/^one-\d/) && vm_templates[name]
                     dom_hash[:template] =
-                        Base64.encode64(vm_templates[dom_data[0]]).delete("\n")
+                        Base64.encode64(vm_templates[name]).delete("\n")
                 end
 
-                domains[dom_hash[:name]] = dom_hash
+                dom_hash.merge!(vm_disk_stats[name]) if vm_disk_stats[name]
+
+                domains[name] = dom_hash
             end
 
             domains
@@ -564,12 +571,14 @@ module XEN
         end
     end
 
-    def self.get_vm_templates
+    def self.get_vm_list_long
         return {} if !JSON_LOADED
 
         text = `#{CONF['XM_LIST']} -l`
         doms = JSON.parse(text)
+    end
 
+    def self.get_vm_templates(doms)
         dom_tmpl = {}
 
         doms.each do |dom|
@@ -593,6 +602,38 @@ module XEN
         end
 
         dom_tmpl
+    end
+
+    def self.get_vm_disk_stats(doms)
+        dom_disk_stats = {}
+
+        doms.each do |dom|
+            data = {
+                :disk_actual_size => 0.0,
+                :disk_virtual_size => 0.0
+            }
+
+            dom['config']['disks'].each do |disk|
+                next if !disk['pdev_path']
+
+                path = disk['pdev_path']
+
+                text = `qemu-img info --output=json #{path}`
+                next if !$? || !$?.success?
+
+                json = JSON.parse(text)
+
+                data[:disk_actual_size] += json['actual-size'].to_f/1024/1024
+                data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+            end
+
+            data[:disk_actual_size] = data[:disk_actual_size].round
+            data[:disk_virtual_size] = data[:disk_virtual_size].round
+
+            data
+        end
+
+        dom_disk_stats
     end
 end
 
