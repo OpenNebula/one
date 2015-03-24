@@ -698,11 +698,13 @@ void  LifeCycleManager::prolog_success_action(int vid)
     lcm_state = vm->get_lcm_state();
 
     if (lcm_state == VirtualMachine::PROLOG ||
-        lcm_state == VirtualMachine::PROLOG_UNDEPLOY )
+        lcm_state == VirtualMachine::PROLOG_UNDEPLOY ||
+        lcm_state == VirtualMachine::PROLOG_FAILURE)
     {
         action = VirtualMachineManager::DEPLOY;
     }
     else if ( lcm_state == VirtualMachine::PROLOG_MIGRATE ||
+              lcm_state == VirtualMachine::PROLOG_MIGRATE_FAILURE ||
               lcm_state == VirtualMachine::PROLOG_RESUME )
     {
         action = VirtualMachineManager::RESTORE;
@@ -731,7 +733,7 @@ void  LifeCycleManager::prolog_success_action(int vid)
     {
         vm->set_state(VirtualMachine::BOOT_MIGRATE);
     }
-    else // PROLOG
+    else // PROLOG, PROLOG_FAILURE
     {
         vm->set_state(VirtualMachine::BOOT);
     }
@@ -778,9 +780,10 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
     if ( state == VirtualMachine::PROLOG )
     {
-        vm->set_prolog_etime(the_time);
+        vm->set_state(VirtualMachine::PROLOG_FAILURE);
+        vmpool->update(vm);
 
-        failure_action(vm);
+        vm->log("LCM", Log::INFO, "New VM state is PROLOG_FAILURE");
     }
     else if ( state == VirtualMachine::PROLOG_MIGRATE )
     {

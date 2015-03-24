@@ -71,6 +71,7 @@ VNC_STATES = [
         #36, #BOOT_FAILURE
         #37, #BOOT_MIGRATE_FAILURE
         #38, #PROLOG_MIGRATE_FAILURE
+        #39, #PROLOG_FAILURE
 ]
 
 class OpenNebulaVNC

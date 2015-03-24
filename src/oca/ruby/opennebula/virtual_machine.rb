@@ -89,6 +89,7 @@ module OpenNebula
             BOOT_FAILURE
             BOOT_MIGRATE_FAILURE
             PROLOG_MIGRATE_FAILURE
+            PROLOG_FAILURE
         }
 
         SHORT_VM_STATES={
@@ -142,7 +143,8 @@ module OpenNebula
             "BOOT_MIGRATE"              => "boot",
             "BOOT_FAILURE"              => "fail",
             "BOOT_MIGRATE_FAILURE"      => "fail",
-            "PROLOG_MIGRATE_FAILURE"    => "fail"
+            "PROLOG_MIGRATE_FAILURE"    => "fail",
+            "PROLOG_FAILURE"            => "fail"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

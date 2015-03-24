@@ -156,7 +156,9 @@ var OpenNebula = {
                                "BOOT",      // BOOT_MIGRATE
                                "FAILURE",   // BOOT_FAILURE
                                "FAILURE",   // BOOT_MIGRATE_FAILURE
-                               "FAILURE"][value]); // PROLOG_MIGRATE_FAILURE
+                               "FAILURE",   // PROLOG_MIGRATE_FAILURE
+                               "FAILURE"    // PROLOG_FAILURE
+                            ][value]); 
                     break;
                 case "IMAGE":
                 case "image":
@@ -945,7 +947,8 @@ var OpenNebula = {
             "BOOT_MIGRATE"              : 35,
             "BOOT_FAILURE"              : 36,
             "BOOT_MIGRATE_FAILURE"      : 37,
-            "PROLOG_MIGRATE_FAILURE"    : 38
+            "PROLOG_MIGRATE_FAILURE"    : 38,
+            "PROLOG_FAILURE"            : 39
         },
 
         "create": function(params){

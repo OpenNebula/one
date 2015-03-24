@@ -3,7 +3,7 @@
 digraph OpenNebula {
     graph [
         nodesep=0.5,
-        ratio=1,
+        ratio=0.5,
         pad=0.5,
     ];
 
@@ -18,10 +18,12 @@ digraph OpenNebula {
     ANY [ shape="box" ];
     "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
 
+    running [ width = 2.5, height = 1 ]
+
     subgraph { rank = min; user}
     subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; prolog_migrate_failure; color="white" }
+    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; color="white" }
     subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; hotplug_epilog_poweroff; color="white" }
     subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
     subgraph { rank = sink; done; failure; ANY; color="white" }
@@ -30,15 +32,15 @@ digraph OpenNebula {
     user -> pending [label="create"];
 
 #   deploy
+    pending     -> prolog [label="deploy"];
+    prolog      -> boot [style="dashed"];
+    boot        -> running [style="dashed"];
+
     pending     -> prolog_resume [label="deploy\n(from stopped)"];
     prolog_resume -> boot_stopped [style="dashed"];
 
     pending         -> prolog_undeploy [label="deploy\n(from undeployed)"];
     prolog_undeploy -> boot_undeploy [style="dashed"];
-
-    pending     -> prolog [label="deploy"];
-    prolog      -> boot [style="dashed"];
-    boot        -> running [style="dashed"];
 
 #   shutdown
     running     -> shutdown [label="shutdown"];
@@ -164,7 +166,8 @@ digraph OpenNebula {
     epilog          -> failure [style="dotted"];
     epilog_undeploy -> failure [style="dotted"];
 
-    prolog          -> failure [style="dotted"];
+    prolog          -> prolog_failure [style="dotted"];
+    prolog_failure  -> prolog [label="deploy"];
 
     prolog_migrate          -> prolog_migrate_failure [style="dotted"];
     prolog_migrate_failure  -> prolog_migrate [label="recover"];

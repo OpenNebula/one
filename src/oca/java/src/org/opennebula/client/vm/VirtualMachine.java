@@ -115,49 +115,51 @@ public class VirtualMachine extends PoolElement{
         "BOOT_MIGRATE",
         "BOOT_FAILURE",
         "BOOT_MIGRATE_FAILURE",
-        "PROLOG_MIGRATE_FAILURE" };
+        "PROLOG_MIGRATE_FAILURE",
+        "PROLOG_FAILURE" };
 
     private static final String[] SHORT_LCM_STATES =
     {
-        null,
-        "prol",
-        "boot",
-        "runn",
-        "migr",
-        "save",
-        "save",
-        "save",
-        "migr",
-        "prol",
-        "epil",
-        "epil",
-        "shut",
-        "shut",
-        "fail",
-        "clea",
-        "unkn",
-        "hotp",
-        "shut",
-        "boot",
-        "boot",
-        "boot",
-        "boot",
-        "clea",
-        "snap",
-        "hotp",
-        "hotp",
-        "hotp",
-        "hotp",
-        "shut",
-        "epil",
-        "prol",
-        "boot",
-        "hotp",
-        "hotp",
-        "boot",
-        "fail",
-        "fail",
-        "fail" };
+        "",         // LCM_INIT
+        "prol",     // PROLOG
+        "boot",     // BOOT
+        "runn",     // RUNNING
+        "migr",     // MIGRATE
+        "save",     // SAVE_STOP
+        "save",     // SAVE_SUSPEND
+        "save",     // SAVE_MIGRATE
+        "migr",     // PROLOG_MIGRATE
+        "prol",     // PROLOG_RESUME
+        "epil",     // EPILOG_STOP
+        "epil",     // EPILOG
+        "shut",     // SHUTDOWN
+        "shut",     // CANCEL
+        "fail",     // FAILURE
+        "clea",     // CLEANUP_RESUBMIT
+        "unkn",     // UNKNOWN
+        "hotp",     // HOTPLUG
+        "shut",     // SHUTDOWN_POWEROFF
+        "boot",     // BOOT_UNKNOWN
+        "boot",     // BOOT_POWEROFF
+        "boot",     // BOOT_SUSPENDED
+        "boot",     // BOOT_STOPPED
+        "clea",     // CLEANUP_DELETE
+        "snap",     // HOTPLUG_SNAPSHOT
+        "hotp",     // HOTPLUG_NIC
+        "hotp",     // HOTPLUG_SAVEAS
+        "hotp",     // HOTPLUG_SAVEAS_POWEROFF
+        "hotp",     // HOTPLUG_SAVEAS_SUSPENDED
+        "shut",     // SHUTDOWN_UNDEPLOY
+        "epil",     // EPILOG_UNDEPLOY
+        "prol",     // PROLOG_UNDEPLOY
+        "boot",     // BOOT_UNDEPLOY
+        "hotp",     // HOTPLUG_PROLOG_POWEROFF
+        "hotp",     // HOTPLUG_EPILOG_POWEROFF
+        "boot",     // BOOT_MIGRATE
+        "fail",     // BOOT_FAILURE
+        "fail",     // BOOT_MIGRATE_FAILURE
+        "fail",     // PROLOG_MIGRATE_FAILURE
+        "fail" };   // PROLOG_FAILURE
 
     /**
      * Creates a new VM representation.

@@ -144,7 +144,8 @@ public:
         BOOT_MIGRATE            = 35,
         BOOT_FAILURE            = 36,
         BOOT_MIGRATE_FAILURE    = 37,
-        PROLOG_MIGRATE_FAILURE  = 38
+        PROLOG_MIGRATE_FAILURE  = 38,
+        PROLOG_FAILURE          = 39
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -190,6 +191,7 @@ public:
         else if ( st == "BOOT_FAILURE") { state = BOOT_FAILURE; }
         else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
         else if ( st == "PROLOG_MIGRATE_FAILURE") { state = PROLOG_MIGRATE_FAILURE; }
+        else if ( st == "PROLOG_FAILURE") { state = PROLOG_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -238,6 +240,7 @@ public:
             case BOOT_FAILURE: st = "BOOT_FAILURE"; break;
             case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
             case PROLOG_MIGRATE_FAILURE: st = "PROLOG_MIGRATE_FAILURE"; break;
+            case PROLOG_FAILURE: st = "PROLOG_FAILURE"; break;
         }
 
         return st;
