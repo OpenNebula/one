@@ -116,7 +116,10 @@ public class VirtualMachine extends PoolElement{
         "BOOT_FAILURE",
         "BOOT_MIGRATE_FAILURE",
         "PROLOG_MIGRATE_FAILURE",
-        "PROLOG_FAILURE" };
+        "PROLOG_FAILURE",
+        "EPILOG_FAILURE",
+        "EPILOG_STOP_FAILURE",
+        "EPILOG_UNDEPLOY_FAILURE" };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -159,7 +162,11 @@ public class VirtualMachine extends PoolElement{
         "fail",     // BOOT_FAILURE
         "fail",     // BOOT_MIGRATE_FAILURE
         "fail",     // PROLOG_MIGRATE_FAILURE
-        "fail" };   // PROLOG_FAILURE
+        "fail",     // PROLOG_FAILURE
+        "fail",     // EPILOG_FAILURE
+        "fail",     // EPILOG_STOP_FAILURE
+        "fail"      // EPILOG_UNDEPLOY_FAILURE
+    };   
 
     /**
      * Creates a new VM representation.

@@ -90,6 +90,9 @@ module OpenNebula
             BOOT_MIGRATE_FAILURE
             PROLOG_MIGRATE_FAILURE
             PROLOG_FAILURE
+            EPILOG_FAILURE
+            EPILOG_STOP_FAILURE
+            EPILOG_UNDEPLOY_FAILURE
         }
 
         SHORT_VM_STATES={
@@ -144,7 +147,10 @@ module OpenNebula
             "BOOT_FAILURE"              => "fail",
             "BOOT_MIGRATE_FAILURE"      => "fail",
             "PROLOG_MIGRATE_FAILURE"    => "fail",
-            "PROLOG_FAILURE"            => "fail"
+            "PROLOG_FAILURE"            => "fail",
+            "EPILOG_FAILURE"            => "fail",
+            "EPILOG_STOP_FAILURE"       => "fail",
+            "EPILOG_UNDEPLOY_FAILURE"   => "fail",
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

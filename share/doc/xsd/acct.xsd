@@ -148,7 +148,10 @@
                 BOOT_FAILURE            = 36,
                 BOOT_MIGRATE_FAILURE    = 37,
                 PROLOG_MIGRATE_FAILURE  = 38,
-                PROLOG_FAILURE          = 39
+                PROLOG_FAILURE          = 39,
+                EPILOG_FAILURE          = 40,
+                EPILOG_STOP_FAILURE     = 41,
+                EPILOG_UNDEPLOY_FAILURE = 42
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
               <xs:element name="PREV_STATE" type="xs:integer"/>

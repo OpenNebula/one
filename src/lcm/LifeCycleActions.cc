@@ -176,6 +176,10 @@ void  LifeCycleManager::suspend_action(int vid)
 
 void  LifeCycleManager::stop_action(int vid)
 {
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
+    TransferManager *       tm = nd.get_tm();
+
     VirtualMachine *    vm;
 
     vm = vmpool->get(vid,true);
@@ -188,9 +192,6 @@ void  LifeCycleManager::stop_action(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //                SAVE_STOP STATE
         //----------------------------------------------------
@@ -210,6 +211,23 @@ void  LifeCycleManager::stop_action(int vid)
         //----------------------------------------------------
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
+    }
+    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::EPILOG_STOP_FAILURE)
+    {
+        //----------------------------------------------------
+        //   Bypass SAVE_STOP
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_STOP);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
     else
     {
@@ -396,6 +414,10 @@ void  LifeCycleManager::shutdown_action(int vid)
 {
     VirtualMachine *    vm;
 
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
+    TransferManager *       tm = nd.get_tm();
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -407,9 +429,6 @@ void  LifeCycleManager::shutdown_action(int vid)
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //                  SHUTDOWN STATE
         //----------------------------------------------------
@@ -430,6 +449,23 @@ void  LifeCycleManager::shutdown_action(int vid)
 
         vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
     }
+    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::EPILOG_FAILURE)
+    {
+        //----------------------------------------------------
+        //   Bypass SHUTDOWN
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG,vid);
+    }
     else
     {
         vm->log("LCM", Log::ERROR, "shutdown_action, VM in a wrong state.");
@@ -445,6 +481,10 @@ void  LifeCycleManager::shutdown_action(int vid)
 
 void  LifeCycleManager::undeploy_action(int vid, bool hard)
 {
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
+    TransferManager *       tm = nd.get_tm();
+
     VirtualMachine *    vm;
 
     vm = vmpool->get(vid,true);
@@ -458,9 +498,6 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //             SHUTDOWN_UNDEPLOY STATE
         //----------------------------------------------------
@@ -489,6 +526,23 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
         }
 
         vmpool->update_history(vm);
+    }
+    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY_FAILURE)
+    {
+        //----------------------------------------------------
+        //   Bypass SHUTDOWN_UNDEPLOY
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
     else
     {
@@ -642,6 +696,10 @@ void  LifeCycleManager::cancel_action(int vid)
 {
     VirtualMachine *    vm;
 
+    Nebula&                 nd = Nebula::instance();
+    VirtualMachineManager * vmm = nd.get_vmm();
+    TransferManager *       tm = nd.get_tm();
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -653,9 +711,6 @@ void  LifeCycleManager::cancel_action(int vid)
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //                  CANCEL STATE
         //----------------------------------------------------
@@ -675,6 +730,23 @@ void  LifeCycleManager::cancel_action(int vid)
         //----------------------------------------------------
 
         vmm->trigger(VirtualMachineManager::CANCEL,vid);
+    }
+    else if (vm->get_state()     == VirtualMachine::ACTIVE &&
+             vm->get_lcm_state() == VirtualMachine::EPILOG_FAILURE)
+    {
+        //----------------------------------------------------
+        //   Bypass CANCEL
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::EPILOG);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG,vid);
     }
     else
     {
@@ -1218,6 +1290,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
         case VirtualMachine::EPILOG:
+        case VirtualMachine::EPILOG_FAILURE:
+        case VirtualMachine::EPILOG_STOP_FAILURE:
+        case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
             vm->set_epilog_etime(the_time);
             vmpool->update_history(vm);
 
@@ -1291,6 +1366,9 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::EPILOG:
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
+        case VirtualMachine::EPILOG_FAILURE:
+        case VirtualMachine::EPILOG_STOP_FAILURE:
+        case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
             if (success)
             {
                 lcm_action = LifeCycleManager::EPILOG_SUCCESS;

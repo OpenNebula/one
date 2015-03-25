@@ -901,6 +901,30 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     state = vm->get_lcm_state();
 
+    if ( state == VirtualMachine::EPILOG_STOP_FAILURE )
+    {
+        vm->set_state(VirtualMachine::EPILOG_STOP);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
+    }
+    else if ( state == VirtualMachine::EPILOG_UNDEPLOY_FAILURE )
+    {
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
+    }
+    else if ( state == VirtualMachine::EPILOG_FAILURE )
+    {
+        vm->set_state(VirtualMachine::EPILOG);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG");
+    }
+
+    state = vm->get_lcm_state();
+
     if ( state == VirtualMachine::EPILOG_STOP )
     {
         action = DispatchManager::STOP_SUCCESS;
@@ -992,7 +1016,8 @@ void  LifeCycleManager::cleanup_callback_action(int vid)
 void  LifeCycleManager::epilog_failure_action(int vid)
 {
     VirtualMachine * vm;
-    time_t           the_time = time(0);
+
+    VirtualMachine::LcmState state;
 
     vm = vmpool->get(vid,true);
 
@@ -1001,20 +1026,35 @@ void  LifeCycleManager::epilog_failure_action(int vid)
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::CLEANUP_RESUBMIT )
+    state = vm->get_lcm_state();
+
+    if ( state == VirtualMachine::CLEANUP_RESUBMIT )
     {
         Nebula&           nd = Nebula::instance();
         DispatchManager * dm = nd.get_dm();
 
         dm->trigger(DispatchManager::RESUBMIT, vid);
     }
-    else if ( vm->get_lcm_state() == VirtualMachine::EPILOG_STOP ||
-              vm->get_lcm_state() == VirtualMachine::EPILOG_UNDEPLOY ||
-              vm->get_lcm_state() == VirtualMachine::EPILOG )
+    else if ( state == VirtualMachine::EPILOG )
     {
-        vm->set_epilog_etime(the_time);
+        vm->set_state(VirtualMachine::EPILOG_FAILURE);
+        vmpool->update(vm);
 
-        failure_action(vm);
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_FAILURE");
+    }
+    else if ( state == VirtualMachine::EPILOG_STOP )
+    {
+        vm->set_state(VirtualMachine::EPILOG_STOP_FAILURE);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP_FAILURE");
+    }
+    else if ( state == VirtualMachine::EPILOG_UNDEPLOY )
+    {
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY_FAILURE);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY_FAILURE");
     }
     else
     {

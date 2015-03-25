@@ -145,7 +145,10 @@ public:
         BOOT_FAILURE            = 36,
         BOOT_MIGRATE_FAILURE    = 37,
         PROLOG_MIGRATE_FAILURE  = 38,
-        PROLOG_FAILURE          = 39
+        PROLOG_FAILURE          = 39,
+        EPILOG_FAILURE          = 40,
+        EPILOG_STOP_FAILURE     = 41,
+        EPILOG_UNDEPLOY_FAILURE = 42
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -192,6 +195,9 @@ public:
         else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
         else if ( st == "PROLOG_MIGRATE_FAILURE") { state = PROLOG_MIGRATE_FAILURE; }
         else if ( st == "PROLOG_FAILURE") { state = PROLOG_FAILURE; }
+        else if ( st == "EPILOG_FAILURE") { state = EPILOG_FAILURE; }
+        else if ( st == "EPILOG_STOP_FAILURE") { state = EPILOG_STOP_FAILURE; }
+        else if ( st == "EPILOG_UNDEPLOY_FAILURE") { state = EPILOG_UNDEPLOY_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -241,6 +247,9 @@ public:
             case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
             case PROLOG_MIGRATE_FAILURE: st = "PROLOG_MIGRATE_FAILURE"; break;
             case PROLOG_FAILURE: st = "PROLOG_FAILURE"; break;
+            case EPILOG_FAILURE: st = "EPILOG_FAILURE"; break;
+            case EPILOG_STOP_FAILURE: st = "EPILOG_STOP_FAILURE"; break;
+            case EPILOG_UNDEPLOY_FAILURE: st = "EPILOG_UNDEPLOY_FAILURE"; break;
         }
 
         return st;
