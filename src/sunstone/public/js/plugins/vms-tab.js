@@ -60,7 +60,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.recover"],
 
     4: //OpenNebula.VM.state.STOPPED:
-        ["VM.delete", "VM.delete_recreate", "VM.resume"],
+        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.deploy"],
 
     5: //OpenNebula.VM.state.SUSPENDED:
         ["VM.delete", "VM.resume"],
@@ -75,7 +75,7 @@ var state_actions = {
         ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
 
     9: //OpenNebula.VM.state.UNDEPLOYED:
-        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize"],
+        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"],
 }
 
 var lcm_state_actions = {
