@@ -22,11 +22,12 @@ digraph OpenNebula {
     running [ width = 2.5, height = 1 ]
 
     subgraph { rank = min; user}
-    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; unknown; color="white"}
-    subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; color="white" }
-    subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; epilog_stop_failure; epilog_failure; epilog_undeploy_failure; hotplug_epilog_poweroff; color="white" }
     subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
+    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; color="white"}
+    subgraph { rank = same; running; unknown; color="white"}
+    subgraph { rank = same; pending; hold; color="white"}
+    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; prolog_undeploy; color="white" }
+    subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; epilog_stop_failure; epilog_failure; epilog_undeploy_failure; hotplug_epilog_poweroff; color="white" }
     subgraph { rank = sink; done; failure; ANY; color="white" }
 
 #   create
@@ -38,10 +39,16 @@ digraph OpenNebula {
     boot        -> running [style="dashed", color="blue"];
 
     pending     -> prolog_resume [label="deploy\n(from stopped)"];
+    //hold        -> prolog_resume [label="deploy\n(from stopped)"];
+    stopped     -> prolog_resume [label="deploy"];
     prolog_resume -> boot_stopped [style="dashed", color="blue"];
 
     pending         -> prolog_undeploy [label="deploy\n(from undeployed)"];
+    //hold            -> prolog_undeploy [label="deploy\n(from undeployed)"];
+    undeployed      -> prolog_undeploy [label="deploy"];
     prolog_undeploy -> boot_undeploy [style="dashed", color="blue"];
+
+    //hold    -> prolog [label="deploy"];
 
 #   shutdown
     running     -> shutdown [label="shutdown"];
@@ -72,6 +79,7 @@ digraph OpenNebula {
     save_migrate    -> running [style="dotted", color="red"];
     prolog_migrate  -> boot_migrate [style="dashed", color="blue"];
     boot_migrate    -> running [style="dashed", color="blue"];
+    unknown         -> boot [label="migrate"];
 
 #   hold
     pending     -> hold [label="hold"];
