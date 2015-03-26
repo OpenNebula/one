@@ -168,7 +168,9 @@ void  DispatchManager::poweroff_success_action(int vid)
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
         (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::HOTPLUG_PROLOG_POWEROFF ||
-         vm->get_lcm_state() == VirtualMachine::HOTPLUG_EPILOG_POWEROFF))
+         vm->get_lcm_state() == VirtualMachine::HOTPLUG_EPILOG_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
     {
         vm->set_state(VirtualMachine::POWEROFF);
 

@@ -88,8 +88,6 @@ void VirtualMachineStateHook::parse_hook_arguments(PoolObjectSQL * obj,
 
     if ( found != string::npos )
     {
-        string str;
-
-        parsed.replace(found, 15, VirtualMachine::lcm_state_to_str(str, prev_lcm));
+        parsed.replace(found, 15, VirtualMachine::lcm_state_to_str(prev_lcm));
     }
 }

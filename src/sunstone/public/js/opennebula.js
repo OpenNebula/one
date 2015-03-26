@@ -160,7 +160,9 @@ var OpenNebula = {
                                "FAILURE",   // PROLOG_FAILURE
                                "FAILURE",   // EPILOG_FAILURE
                                "FAILURE",   // EPILOG_STOP_FAILURE
-                               "FAILURE"    // EPILOG_UNDEPLOY_FAILURE
+                               "FAILURE",   // EPILOG_UNDEPLOY_FAILURE
+                               "MIGRATE",   // PROLOG_MIGRATE_POWEROFF
+                               "FAILURE"    // PROLOG_MIGRATE_POWEROFF_FAILURE
                             ][value]); 
                     break;
                 case "IMAGE":
@@ -958,7 +960,9 @@ var OpenNebula = {
             "PROLOG_FAILURE"            : 39,
             "EPILOG_FAILURE"            : 40,
             "EPILOG_STOP_FAILURE"       : 41,
-            "EPILOG_UNDEPLOY_FAILURE"   : 42
+            "EPILOG_UNDEPLOY_FAILURE"   : 42,
+            "PROLOG_MIGRATE_POWEROFF"   : 43,
+            "PROLOG_MIGRATE_POWEROFF_FAILURE" : 44
         },
 
         "create": function(params){

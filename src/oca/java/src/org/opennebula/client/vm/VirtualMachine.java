@@ -119,7 +119,10 @@ public class VirtualMachine extends PoolElement{
         "PROLOG_FAILURE",
         "EPILOG_FAILURE",
         "EPILOG_STOP_FAILURE",
-        "EPILOG_UNDEPLOY_FAILURE" };
+        "EPILOG_UNDEPLOY_FAILURE",
+        "PROLOG_MIGRATE_POWEROFF",
+        "PROLOG_MIGRATE_POWEROFF_FAILURE"
+    };
 
     private static final String[] SHORT_LCM_STATES =
     {
@@ -165,7 +168,9 @@ public class VirtualMachine extends PoolElement{
         "fail",     // PROLOG_FAILURE
         "fail",     // EPILOG_FAILURE
         "fail",     // EPILOG_STOP_FAILURE
-        "fail"      // EPILOG_UNDEPLOY_FAILURE
+        "fail",     // EPILOG_UNDEPLOY_FAILURE
+        "migr",     // PROLOG_MIGRATE_POWEROFF
+        "fail"      // PROLOG_MIGRATE_POWEROFF_FAILURE
     };   
 
     /**

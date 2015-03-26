@@ -146,7 +146,9 @@ public:
         PROLOG_FAILURE          = 39,
         EPILOG_FAILURE          = 40,
         EPILOG_STOP_FAILURE     = 41,
-        EPILOG_UNDEPLOY_FAILURE = 42
+        EPILOG_UNDEPLOY_FAILURE = 42,
+        PROLOG_MIGRATE_POWEROFF = 43,
+        PROLOG_MIGRATE_POWEROFF_FAILURE = 44
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -195,13 +197,17 @@ public:
         else if ( st == "EPILOG_FAILURE") { state = EPILOG_FAILURE; }
         else if ( st == "EPILOG_STOP_FAILURE") { state = EPILOG_STOP_FAILURE; }
         else if ( st == "EPILOG_UNDEPLOY_FAILURE") { state = EPILOG_UNDEPLOY_FAILURE; }
+        else if ( st == "PROLOG_MIGRATE_POWEROFF") { state = PROLOG_MIGRATE_POWEROFF;}
+        else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE") { state = PROLOG_MIGRATE_POWEROFF_FAILURE;}
         else {return -1;}
 
         return 0;
     }
 
-    static string& lcm_state_to_str(string& st, LcmState& state)
+    static string lcm_state_to_str(LcmState state)
     {
+        string st;
+
         switch (state)
         {
             case LCM_INIT: st = "LCM_INIT"; break;
@@ -246,6 +252,8 @@ public:
             case EPILOG_FAILURE: st = "EPILOG_FAILURE"; break;
             case EPILOG_STOP_FAILURE: st = "EPILOG_STOP_FAILURE"; break;
             case EPILOG_UNDEPLOY_FAILURE: st = "EPILOG_UNDEPLOY_FAILURE"; break;
+            case PROLOG_MIGRATE_POWEROFF: st = "PROLOG_MIGRATE_POWEROFF"; break;
+            case PROLOG_MIGRATE_POWEROFF_FAILURE: st = "PROLOG_MIGRATE_POWEROFF_FAILURE"; break;
         }
 
         return st;

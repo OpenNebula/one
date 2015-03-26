@@ -72,7 +72,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resize"],
 
     8: //OpenNebula.VM.state.POWEROFF:
-        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
+        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.migrate"],
 
     9: //OpenNebula.VM.state.UNDEPLOYED:
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"],
@@ -164,6 +164,10 @@ var lcm_state_actions = {
     41: //OpenNebula.VM.lcm_state.EPILOG_STOP_FAILURE:
         [],
     42: //OpenNebula.VM.lcm_state.EPILOG_UNDEPLOY_FAILURE:
+        [],
+    43: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_POWEROFF:
+        [],
+    44: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_POWEROFF_FAILURE:
         [],
 }
 

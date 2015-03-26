@@ -681,16 +681,17 @@ void  LifeCycleManager::shutdown_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::prolog_success_action(int vid)
+void LifeCycleManager::prolog_success_action(int vid)
 {
     Nebula&                 nd = Nebula::instance();
     VirtualMachineManager * vmm = nd.get_vmm();
+    DispatchManager *       dm = nd.get_dm();
     VirtualMachine *        vm;
     time_t                  the_time = time(0);
     ostringstream           os;
+    map<string, string>     empty;
 
     VirtualMachineManager::Actions action;
-    VirtualMachine::LcmState       lcm_state;
 
     vm = vmpool->get(vid, true);
 
@@ -699,66 +700,91 @@ void  LifeCycleManager::prolog_success_action(int vid)
         return;
     }
 
-    lcm_state = vm->get_lcm_state();
-
-    if (lcm_state == VirtualMachine::PROLOG ||
-        lcm_state == VirtualMachine::PROLOG_UNDEPLOY ||
-        lcm_state == VirtualMachine::PROLOG_FAILURE)
+    switch (vm->get_lcm_state())
     {
-        action = VirtualMachineManager::DEPLOY;
-    }
-    else if ( lcm_state == VirtualMachine::PROLOG_MIGRATE ||
-              lcm_state == VirtualMachine::PROLOG_MIGRATE_FAILURE ||
-              lcm_state == VirtualMachine::PROLOG_RESUME )
-    {
-        action = VirtualMachineManager::RESTORE;
-    }
-    else
-    {
-        vm->log("LCM",Log::ERROR,"prolog_success_action, VM in a wrong state");
-        vm->unlock();
-
-        return;
-    }
-
-    //----------------------------------------------------
-    //                     BOOT STATE
-    //----------------------------------------------------
-    switch (lcm_state)
-    {
+        //---------------------------------------------------------------------
+        //                             BOOT STATE
+        //---------------------------------------------------------------------
         case VirtualMachine::PROLOG_RESUME:
-            vm->set_state(VirtualMachine::BOOT_STOPPED);
-            break;
         case VirtualMachine::PROLOG_UNDEPLOY:
-            vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
-            break;
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
-            vm->set_state(VirtualMachine::BOOT_MIGRATE);
-            break;
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_FAILURE: //recover success
-            vm->set_state(VirtualMachine::BOOT);
+            switch (vm->get_lcm_state())
+            {
+                case VirtualMachine::PROLOG_RESUME:
+                    action = VirtualMachineManager::RESTORE;
+                    vm->set_state(VirtualMachine::BOOT_STOPPED);
+                    break;
+
+                case VirtualMachine::PROLOG_UNDEPLOY:
+                    action = VirtualMachineManager::DEPLOY;
+                    vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
+                    break;
+
+                case VirtualMachine::PROLOG_MIGRATE:
+                case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
+                    action = VirtualMachineManager::RESTORE;
+                    vm->set_state(VirtualMachine::BOOT_MIGRATE);
+                    break;
+
+                case VirtualMachine::PROLOG:
+                case VirtualMachine::PROLOG_FAILURE: //recover success
+                    action = VirtualMachineManager::DEPLOY;
+                    vm->set_state(VirtualMachine::BOOT);
+                    break;
+
+                default:
+                    return;
+            }
+
+            vmpool->update(vm);
+
+            vm->set_prolog_etime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vm->set_last_poll(0);
+
+            vmpool->update_history(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT");
+
+            vmm->trigger(action,vid);
             break;
+
+        //---------------------------------------------------------------------
+        //                          POWEROFF STATE
+        //---------------------------------------------------------------------
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE: //recover success
+            vm->delete_snapshots();
+
+            vm->update_info(0, 0, -1, -1, empty);
+
+            vmpool->update(vm);
+
+            vm->set_etime(the_time);
+
+            vm->set_prolog_etime(the_time);
+
+            vm->set_last_poll(0);
+
+            vm->set_vm_info();
+
+            vm->set_reason(vm->get_previous_reason());
+            vm->set_action(vm->get_previous_action());
+
+            vmpool->update_history(vm);
+
+            dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+            break;
+
         default:
+            vm->log("LCM",Log::ERROR,"prolog_success_action, VM in a wrong state");
             break;
     }
-
-    vmpool->update(vm);
-
-    vm->set_prolog_etime(the_time);
-
-    vm->set_running_stime(the_time);
-
-    vm->set_last_poll(0);
-
-    vmpool->update_history(vm);
-
-    vm->log("LCM", Log::INFO, "New VM state is BOOT");
-
-    //----------------------------------------------------
-
-    vmm->trigger(action,vid);
 
     vm->unlock();
 
@@ -798,6 +824,13 @@ void  LifeCycleManager::prolog_failure_action(int vid)
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_FAILURE");
+    }
+    else if ( state == VirtualMachine::PROLOG_MIGRATE_POWEROFF )
+    {
+        vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_POWEROFF_FAILURE");
     }
     else if ( state == VirtualMachine::PROLOG_RESUME )
     {

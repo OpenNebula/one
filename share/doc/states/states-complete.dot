@@ -26,7 +26,7 @@ digraph OpenNebula {
     subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; color="white"}
     subgraph { rank = same; running; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; prolog_undeploy; color="white" }
+    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; prolog_migrate_poweroff; prolog_migrate_poweroff_failure; prolog_undeploy; color="white" }
     subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; epilog_stop_failure; epilog_failure; epilog_undeploy_failure; hotplug_epilog_poweroff; color="white" }
     subgraph { rank = sink; done; failure; ANY; color="white" }
 
@@ -79,7 +79,11 @@ digraph OpenNebula {
     save_migrate    -> running [style="dotted", color="red"];
     prolog_migrate  -> boot_migrate [style="dashed", color="blue"];
     boot_migrate    -> running [style="dashed", color="blue"];
+
     unknown         -> boot [label="migrate"];
+
+    poweroff                -> prolog_migrate_poweroff [label="migrate"];
+    prolog_migrate_poweroff -> poweroff [style="dashed", color="blue"];
 
 #   hold
     pending     -> hold [label="hold"];
@@ -185,6 +189,9 @@ digraph OpenNebula {
 
     prolog_migrate          -> prolog_migrate_failure [label=" ", style="dotted", color="red"];
     prolog_migrate_failure  -> prolog_migrate [label="recover"];
+
+    prolog_migrate_poweroff          -> prolog_migrate_poweroff_failure [label=" ", style="dotted", color="red"];
+    prolog_migrate_poweroff_failure  -> prolog_migrate_poweroff [label="migrate"];
 
     prolog_resume   -> stopped [style="dotted", color="red"];
     prolog_undeploy -> undeployed [style="dotted", color="red"];
