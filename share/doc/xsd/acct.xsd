@@ -157,7 +157,9 @@
                 EPILOG_STOP_FAILURE     = 41,
                 EPILOG_UNDEPLOY_FAILURE = 42,
                 PROLOG_MIGRATE_POWEROFF = 43,
-                PROLOG_MIGRATE_POWEROFF_FAILURE = 44
+                PROLOG_MIGRATE_POWEROFF_FAILURE = 44,
+                PROLOG_MIGRATE_SUSPEND          = 45,
+                PROLOG_MIGRATE_SUSPEND_FAILURE  = 46
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
               <xs:element name="PREV_STATE" type="xs:integer"/>

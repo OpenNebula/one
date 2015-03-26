@@ -169,6 +169,10 @@ var lcm_state_actions = {
         [],
     44: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_POWEROFF_FAILURE:
         [],
+    45: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_SUSPEND:
+        [],
+    46: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_SUSPEND_FAILURE:
+        [],
 }
 
 //Permanent storage for last value of aggregated network usage
