@@ -16,6 +16,7 @@
 
 
 require 'opennebula/pool_element'
+require 'base64'
 
 module OpenNebula
     class Host < PoolElement
@@ -204,6 +205,12 @@ module OpenNebula
         # Returns the state of the Host (string value)
         def short_state_str
             SHORT_HOST_STATES[state_str]
+        end
+
+        # Returns the <TEMPLATE> element in text form
+        # indent:: _Boolean_ indents the resulting string, default true
+        def template_str(indent=true) 
+            template_like_str('TEMPLATE', indent)
         end
 
     private

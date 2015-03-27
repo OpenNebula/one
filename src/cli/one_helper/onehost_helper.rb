@@ -406,7 +406,38 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
 
+        wilds = host.to_hash['HOST']['TEMPLATE']['VM']
+
+        host.delete_element("TEMPLATE/VM")
+        host.delete_element("TEMPLATE_WILDS")
+
         puts host.template_str
+
+        puts
+        CLIHelper.print_header("WILD VIRTUAL MACHINES", false)
+        puts
+
+        format = "%30s %36s %4s %10s"
+        CLIHelper.print_header(format % ["NAME", "UUID", "CPU", "MEMORY"],
+                               false)
+
+        wilds.each do |wild|
+          wild_tmplt = Base64::decode64(wild['IMPORT_TEMPLATE']).split("\n")
+          name   = wild_tmplt.select { |line| 
+                    line[/^NAME/] 
+                   }[0].split("=")[1].gsub("\"", " ").strip
+          uuid   = wild_tmplt.select { |line| 
+                     line[/^IMPORT_VM_ID/] 
+                   }[0].split("=")[1].gsub("\"", " ").strip
+          memory = wild_tmplt.select { |line| 
+                     line[/^MEMORY/] 
+                   }[0].split("=")[1].gsub("\"", " ").strip
+          cpu    = wild_tmplt.select { |line| 
+                      line[/^MEMORY/] 
+                   }[0].split("=")[1].gsub("\"", " ").strip
+
+          puts format % [name, uuid, memory, cpu]
+        end
 
         puts
         CLIHelper.print_header("VIRTUAL MACHINES", false)
