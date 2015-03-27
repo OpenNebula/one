@@ -238,9 +238,11 @@ int DispatchManager::shutdown (
     oss << "Shutting down VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::POWEROFF ||
+        vm->get_state()     == VirtualMachine::SUSPENDED ||
+       (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -532,9 +534,11 @@ int DispatchManager::cancel(
     oss << "Cancelling VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::POWEROFF ||
+        vm->get_state()     == VirtualMachine::SUSPENDED ||
+       (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();

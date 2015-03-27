@@ -57,6 +57,9 @@ digraph OpenNebula {
 
     shutdown    -> running [style="dotted", color="red"];
 
+    suspended   -> epilog [label="shutdown [--hard]"];
+    poweroff    -> epilog [label="shutdown [--hard]"];
+
 #   shutdown --hard
     running     -> cancel [label="shutdown --hard"];
     cancel      -> epilog [style="dashed", color="blue"];

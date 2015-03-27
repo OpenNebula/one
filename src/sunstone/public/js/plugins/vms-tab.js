@@ -63,8 +63,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.deploy"],
 
     5: //OpenNebula.VM.state.SUSPENDED:
-        ["VM.delete", "VM.resume", "VM.saveas", "VM.disk_snapshot_cancel", "VM.stop"],
-
+        ["VM.delete", "VM.resume", "VM.saveas", "VM.disk_snapshot_cancel", "VM.stop", "VM.shutdown_hard"],
     6: //OpenNebula.VM.state.DONE:
         [],
 
@@ -72,7 +71,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resize"],
 
     8: //OpenNebula.VM.state.POWEROFF:
-        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel", "VM.migrate", "VM.undeploy", "VM.undeploy_hard"],
+        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.shutdown_hard"],
 
     9: //OpenNebula.VM.state.UNDEPLOYED:
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"],
