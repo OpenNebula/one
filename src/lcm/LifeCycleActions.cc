@@ -186,6 +186,29 @@ void  LifeCycleManager::stop_action(int vid)
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
+    else if (vm->get_state() == VirtualMachine::SUSPENDED)
+    {
+        //----------------------------------------------------
+        //   Bypass SAVE_STOP
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::EPILOG_STOP);
+
+        vmpool->update(vm);
+
+        vm->set_action(History::STOP_ACTION);
+
+        vm->set_epilog_stime(time(0));
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
     else
     {
         vm->log("LCM", Log::ERROR, "stop_action, VM in a wrong state.");

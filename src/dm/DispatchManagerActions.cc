@@ -485,8 +485,9 @@ int DispatchManager::stop(
     oss << "Stopping VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if (vm->get_state()         == VirtualMachine::SUSPENDED ||
+        (vm->get_state()       == VirtualMachine::ACTIVE &&
+         vm->get_lcm_state() == VirtualMachine::RUNNING ))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();

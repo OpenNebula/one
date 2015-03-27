@@ -63,7 +63,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.deploy"],
 
     5: //OpenNebula.VM.state.SUSPENDED:
-        ["VM.delete", "VM.resume", "VM.saveas", "VM.disk_snapshot_cancel"],
+        ["VM.delete", "VM.resume", "VM.saveas", "VM.disk_snapshot_cancel", "VM.stop"],
 
     6: //OpenNebula.VM.state.DONE:
         [],
