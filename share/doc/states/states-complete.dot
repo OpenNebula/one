@@ -108,6 +108,8 @@ digraph OpenNebula {
     shutdown_undeploy   -> running [style="dotted", color="red"];
     epilog_undeploy     -> undeployed [style="dashed", color="blue"];
 
+    poweroff            -> epilog_undeploy [label="undeploy [--hard]"];
+
 #   suspend
     running         -> save_suspend [label="suspend"];
     save_suspend    -> suspended [style="dashed", color="blue"];

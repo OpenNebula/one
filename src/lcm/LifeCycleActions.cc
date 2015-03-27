@@ -524,6 +524,29 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
 
         vmpool->update_history(vm);
     }
+    else if (vm->get_state() == VirtualMachine::POWEROFF)
+    {
+        //----------------------------------------------------
+        //   Bypass SHUTDOWN_UNDEPLOY
+        //----------------------------------------------------
+
+        vm->set_state(VirtualMachine::ACTIVE);
+        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+        vmpool->update(vm);
+
+        vm->set_action(History::UNDEPLOY_ACTION);
+
+        vm->set_epilog_stime(time(0));
+
+        vmpool->update_history(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
+
+        //----------------------------------------------------
+
+        tm->trigger(TransferManager::EPILOG_STOP,vid);
+    }
     else
     {
         vm->log("LCM", Log::ERROR, "undeploy_action, VM in a wrong state.");
