@@ -97,7 +97,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             oneimage create -d default centOS.tmpl
 
-          - new image "arch" using a path of type centOS:
+          - new image "arch" using a path:
 
             oneimage create -d default --name arch --path /tmp/arch.img
 
