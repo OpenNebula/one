@@ -700,9 +700,6 @@ void Scheduler::match_schedule()
     int n_error;
     int n_fits;
 
-    string reqs;
-    string ds_reqs;
-
     HostXML * host;
     DatastoreXML *ds;
 
@@ -800,7 +797,7 @@ void Scheduler::match_schedule()
                     ostringstream oss;
 
                     oss << "No host meets SCHED_REQUIREMENTS: "
-                        << reqs;
+                        << vm->get_requirements();
 
                     vm->log(oss.str());
                 }
@@ -889,7 +886,7 @@ void Scheduler::match_schedule()
                         ostringstream oss;
 
                         oss << "No system datastore meets SCHED_DS_REQUIREMENTS: "
-                            << ds_reqs;
+                            << vm->get_ds_requirements();
 
                         vm->log(oss.str());
                     }
