@@ -90,6 +90,7 @@ UserPool::UserPool(SqlDB * db,
             throw("Database has not been bootstrapped with master data.");
         }
 
+        oneadmin_name = oneadmin_user->get_name();
         oneadmin_user->unlock();
 
         return;
