@@ -256,15 +256,13 @@ private:
 
     void stop_action(int vid);
 
-    void cancel_action(int vid);
-
     void checkpoint_action(int vid);
 
     void migrate_action(int vid);
 
     void live_migrate_action(int vid);
 
-    void shutdown_action(int vid);
+    void shutdown_action(int vid, bool hard);
 
     void undeploy_action(int vid, bool hard);
 
