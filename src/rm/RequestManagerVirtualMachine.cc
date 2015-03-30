@@ -481,6 +481,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     AuthRequest::Operation op = auth_op;
     History::VMAction action;
 
+    VirtualMachine * vm;
+
     // Compatibility with 3.8
     if (action_st == "cancel")
     {
@@ -514,6 +516,29 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         return;
     }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if (vm->isImported() && (
+        action == History::DELETE_RECREATE_ACTION ||
+        action == History::UNDEPLOY_ACTION ||
+        action == History::UNDEPLOY_HARD_ACTION ||
+        action == History::STOP_ACTION))
+    {
+        oss << "Action \"" << action_st << "\" is not supported for imported VMs";
+
+        failure_response(ACTION,
+                request_error(oss.str(),""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    vm->unlock();
 
     switch (action)
     {
@@ -895,6 +920,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
+    if (vm->isImported())
+    {
+        failure_response(ACTION,
+                request_error("Migration is not supported for imported VMs",""),
                 att);
 
         vm->unlock();
