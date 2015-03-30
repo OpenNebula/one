@@ -861,9 +861,15 @@ module OpenNebula
 
                         new_nodes << node
                     end
-                elsif vm_state == '3' && lcm_state == '16' # UNKNOWN
+                elsif (vm_state == '3' &&
+                        (lcm_state == '16' || # UNKNOWN
+                         lcm_state == '36' || # BOOT_FAILURE
+                         lcm_state == '37'))  # BOOT_MIGRATE_FAILURE
+
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                     vm.boot
+
+                    new_nodes << node
                 else
                     new_nodes << node
                 end

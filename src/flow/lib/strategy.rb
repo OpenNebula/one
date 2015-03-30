@@ -276,8 +276,21 @@ protected
                 vm_state = node['vm_info']['VM']['STATE']
                 lcm_state = node['vm_info']['VM']['LCM_STATE']
 
-                # UNKNOWN or FAILED
-                if (vm_state == '3' && lcm_state == '16') || vm_state == '7'
+                if vm_state == '7' ||            # FAILED
+                    (vm_state == '3' &&          # ACTIVE
+                        (   lcm_state == '14' || # FAILURE
+                            lcm_state == '16' || # UNKNOWN
+                            lcm_state == '36' || # BOOT_FAILURE
+                            lcm_state == '37' || # BOOT_MIGRATE_FAILURE
+                            lcm_state == '38' || # PROLOG_MIGRATE_FAILURE
+                            lcm_state == '39' || # PROLOG_FAILURE
+                            lcm_state == '40' || # EPILOG_FAILURE
+                            lcm_state == '41' || # EPILOG_STOP_FAILURE
+                            lcm_state == '42' || # EPILOG_UNDEPLOY_FAILURE
+                            lcm_state == '44' || # PROLOG_MIGRATE_POWEROFF_FAILURE
+                            lcm_state == '46' )  # PROLOG_MIGRATE_SUSPEND_FAILURE
+                    )
+
                     return true
                 end
             end
