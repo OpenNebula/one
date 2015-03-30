@@ -50,8 +50,6 @@ int DispatchManager::deploy (
 
         vmpool->update(vm);
 
-        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
-
         lcm->trigger(LifeCycleManager::DEPLOY,vid);
     }
     else
@@ -118,8 +116,6 @@ int DispatchManager::import (
     vm->set_last_poll(0);
 
     vmpool->update_history(vm);
-
-    vm->log("LCM", Log::INFO, "New VM state is RUNNING");
 
     vm->unlock();
 
@@ -402,8 +398,6 @@ int DispatchManager::hold(
         vm->set_state(VirtualMachine::HOLD);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is HOLD.");
     }
     else
     {
@@ -448,8 +442,6 @@ int DispatchManager::release(
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is PENDING.");
     }
     else
     {
@@ -633,15 +625,11 @@ int DispatchManager::resume(
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is PENDING.");
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
-
-        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
 
         lcm->trigger(LifeCycleManager::RESTORE,vid);
     }
@@ -649,8 +637,6 @@ int DispatchManager::resume(
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
-
-        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
 
         lcm->trigger(LifeCycleManager::RESTART,vid);
     }
@@ -885,8 +871,6 @@ void DispatchManager::finalize_cleanup(VirtualMachine * vm)
     vm->set_state(VirtualMachine::DONE);
     vmpool->update(vm);
 
-    vm->log("DiM", Log::INFO, "New VM state is DONE.");
-
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     tmpl = vm->clone_template();
@@ -1007,8 +991,6 @@ int DispatchManager::resubmit(int vid)
             vm->set_state(VirtualMachine::PENDING);
 
             vmpool->update(vm);
-
-            vm->log("DiM", Log::INFO, "New VM state is PENDING.");
         break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING

@@ -40,8 +40,6 @@ void  DispatchManager::suspend_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is SUSPENDED");
     }
     else
     {
@@ -88,8 +86,6 @@ void  DispatchManager::stop_success_action(int vid)
         }
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is STOPPED");
     }
     else
     {
@@ -136,8 +132,6 @@ void  DispatchManager::undeploy_success_action(int vid)
         }
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is UNDEPLOYED");
     }
     else
     {
@@ -179,8 +173,6 @@ void  DispatchManager::poweroff_success_action(int vid)
         vm->set_state(VirtualMachine::LCM_INIT);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is POWEROFF");
     }
     else
     {
@@ -237,8 +229,6 @@ void  DispatchManager::done_action(int vid)
 
         vmpool->update(vm);
 
-        vm->log("DiM", Log::INFO, "New VM state is DONE");
-
         uid  = vm->get_uid();
         gid  = vm->get_gid();
         tmpl = vm->clone_template();
@@ -284,8 +274,6 @@ void  DispatchManager::resubmit_action(int vid)
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is PENDING");
 
         vm->unlock();
     }
