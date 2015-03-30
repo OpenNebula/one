@@ -137,7 +137,8 @@ public:
      *    in a wrong a state
      */
     int shutdown (
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Shuts down a VM, but it is saved in the system DS instead of destroyed.
@@ -147,8 +148,9 @@ public:
      *    in a wrong a state
      */
     int undeploy (
-        int vid,
-        bool hard);
+        int     vid,
+        bool    hard,
+        string& error_str);
 
     /**
      *  Powers off a VM.
@@ -158,8 +160,9 @@ public:
      *    in a wrong a state
      */
     int poweroff (
-        int vid,
-        bool hard);
+        int     vid,
+        bool    hard,
+        string& error_str);
 
     /**
      *  Holds a VM.
@@ -168,7 +171,8 @@ public:
      *    in a wrong a state
      */
     int hold(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Releases a VM.
@@ -177,7 +181,8 @@ public:
      *    in a wrong a state
      */
     int release(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Stops a VM.
@@ -186,7 +191,8 @@ public:
      *    in a wrong a state
      */
     int stop(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Cancels a VM.
@@ -195,7 +201,8 @@ public:
      *    in a wrong a state
      */
     int cancel(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Suspends a VM.
@@ -204,7 +211,8 @@ public:
      *    in a wrong a state
      */
     int suspend(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Resumes a VM.
@@ -213,7 +221,8 @@ public:
      *    in a wrong a state
      */
     int resume(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      * Restart a previusly deployed VM.
@@ -222,7 +231,8 @@ public:
      *    in a wrong a state
      */
     int restart(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Ends a VM life cycle inside ONE.
@@ -231,7 +241,8 @@ public:
      *    in a wrong a state
      */
     int finalize(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Moves a VM to PENDING state preserving any resource (i.e. leases) and id
@@ -240,7 +251,8 @@ public:
      *    in a wrong a state
      */
     int resubmit(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Reboots a VM preserving any resource and RUNNING state
@@ -249,7 +261,8 @@ public:
      *    in a wrong a state
      */
     int reboot(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Resets a VM preserving any resource and RUNNING state
@@ -258,7 +271,8 @@ public:
      *    in a wrong a state
      */
     int reset(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
@@ -269,8 +283,9 @@ public:
      *    in a wrong a state
      */
     int resched(
-        int  vid,
-        bool do_resched);
+        int     vid,
+        bool    do_resched,
+        string& error_str);
 
     /**
      *  Starts the attach disk action.

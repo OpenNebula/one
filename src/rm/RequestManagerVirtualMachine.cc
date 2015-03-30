@@ -477,6 +477,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager * dm = nd.get_dm();
 
     ostringstream oss;
+    string error;
 
     AuthRequest::Operation op = auth_op;
     History::VMAction action;
@@ -543,58 +544,58 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     switch (action)
     {
         case History::SHUTDOWN_ACTION:
-            rc = dm->shutdown(id);
+            rc = dm->shutdown(id, error);
             break;
         case History::HOLD_ACTION:
-            rc = dm->hold(id);
+            rc = dm->hold(id, error);
             break;
         case History::RELEASE_ACTION:
-            rc = dm->release(id);
+            rc = dm->release(id, error);
             break;
         case History::STOP_ACTION:
-            rc = dm->stop(id);
+            rc = dm->stop(id, error);
             break;
         case History::SHUTDOWN_HARD_ACTION:
-            rc = dm->cancel(id);
+            rc = dm->cancel(id, error);
             break;
         case History::SUSPEND_ACTION:
-            rc = dm->suspend(id);
+            rc = dm->suspend(id, error);
             break;
         case History::RESUME_ACTION:
-            rc = dm->resume(id);
+            rc = dm->resume(id, error);
             break;
         case History::BOOT_ACTION:
-            rc = dm->restart(id);
+            rc = dm->restart(id, error);
             break;
         case History::DELETE_ACTION:
-            rc = dm->finalize(id);
+            rc = dm->finalize(id, error);
             break;
         case History::DELETE_RECREATE_ACTION:
-            rc = dm->resubmit(id);
+            rc = dm->resubmit(id, error);
             break;
         case History::REBOOT_ACTION:
-            rc = dm->reboot(id);
+            rc = dm->reboot(id, error);
             break;
         case History::RESCHED_ACTION:
-            rc = dm->resched(id, true);
+            rc = dm->resched(id, true, error);
             break;
         case History::UNRESCHED_ACTION:
-            rc = dm->resched(id, false);
+            rc = dm->resched(id, false, error);
             break;
         case History::REBOOT_HARD_ACTION:
-            rc = dm->reset(id);
+            rc = dm->reset(id, error);
             break;
         case History::POWEROFF_ACTION:
-            rc = dm->poweroff(id, false);
+            rc = dm->poweroff(id, false, error);
             break;
         case History::POWEROFF_HARD_ACTION:
-            rc = dm->poweroff(id, true);
+            rc = dm->poweroff(id, true, error);
             break;
         case History::UNDEPLOY_ACTION:
-            rc = dm->undeploy(id, false);
+            rc = dm->undeploy(id, false, error);
             break;
         case History::UNDEPLOY_HARD_ACTION:
-            rc = dm->undeploy(id, true);
+            rc = dm->undeploy(id, true, error);
             break;
         default:
             rc = -3;
@@ -612,10 +613,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                     att);
             break;
         case -2:
-            oss << "Wrong state to perform action \"" << action_st << "\"";
+            oss << "Error performing action \"" << action_st << "\" on "
+                << object_name(auth_object) << " [" << id << "]";
 
             failure_response(ACTION,
-                    request_error(oss.str(),""),
+                    request_error(oss.str(),error),
                     att);
              break;
         case -3:
@@ -801,8 +803,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         vm->get_state() != VirtualMachine::STOPPED &&
         vm->get_state() != VirtualMachine::UNDEPLOYED)
     {
+        ostringstream oss;
+
+        oss << "Deploy action is not available for state " << vm->state_str();
+
         failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                request_error(oss.str(),""),
                 att);
 
         vm->unlock();
@@ -949,8 +955,12 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
          (vm->get_lcm_state() != VirtualMachine::RUNNING &&
           vm->get_lcm_state() != VirtualMachine::UNKNOWN))))
     {
+        ostringstream oss;
+
+        oss << "Migrate action is not available for state " << vm->state_str();
+
         failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                request_error(oss.str(),""),
                 att);
 
         vm->unlock();
@@ -1970,8 +1980,12 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
+            ostringstream oss;
+
+            oss << "Resize action is not available for state " << vm->state_str();
+
             failure_response(ACTION,
-                     request_error("Wrong state to perform action",""),
+                     request_error(oss.str(),""),
                      att);
 
             vm->unlock();
@@ -2102,8 +2116,12 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
+            ostringstream oss;
+
+            oss << "Resize action is not available for state " << vm->state_str();
+
             failure_response(ACTION,
-                     request_error("Wrong state to perform action",""),
+                     request_error(oss.str(),""),
                      att);
 
             vm->unlock();
@@ -2420,8 +2438,12 @@ void VirtualMachineRecover::request_execute(
 
     if(vm->get_state() != VirtualMachine::ACTIVE)
     {
+        ostringstream oss;
+
+        oss << "Recover action is not available for state " << vm->state_str();
+
         failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                request_error(oss.str(),""),
                 att);
 
         vm->unlock();
