@@ -31,7 +31,7 @@ cd $SCRIPTS_DIR
 function run_dir {
     (
     cd $1
-    for i in `ls *`;do
+    for i in `ls * | grep -E -v '(\.rpmnew$|\.rpmsave$|\.dpkg-\w+$)'`;do
         if [ -x "$i" ]; then
             ./$i $ARGUMENTS
             EXIT_CODE=$?
