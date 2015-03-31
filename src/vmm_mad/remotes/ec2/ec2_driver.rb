@@ -172,7 +172,7 @@ class EC2Driver
             :cmd => :create_tags,
             :args => {
                 "TAGS" => {
-                    :opt  => '-t',
+                    :opt  => 'tags',
                     :proc => lambda {|str|
                         hash = {}
                         str.split(',').each {|s|
@@ -251,7 +251,8 @@ class EC2Driver
             exit(-1)
         end
 
-        tags = generate_options(:tags, ec2_info) || {}
+        tags = generate_options(:tags, ec2_info)['tags'] || {}
+        
         tags['ONE_ID'] = id
         tags.each{ |key,value|
             begin
