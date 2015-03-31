@@ -81,12 +81,12 @@ module VNMMAD
         # Return a string for the hypervisor
         #   @return [String] "kvm", "xen" or nil
         def detect_hypervisor
-            lsmod       = `#{VNMNetwork::COMMANDS[:lsmod]}`
             xen_file    = "/proc/xen/capabilities"
+            kvm_dir     = "/sys/class/misc/kvm"
 
             if File.exists?(xen_file)
                 "xen"
-            elsif lsmod.match(/kvm/)
+            elsif File.exists?(kvm_dir)
                 "kvm"
             else
                 nil
