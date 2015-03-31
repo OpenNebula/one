@@ -51,6 +51,10 @@ Host::Host(
 
     add_template_attribute("RESERVED_CPU", default_cpu);
     add_template_attribute("RESERVED_MEM", default_cpu);
+
+    replace_template_attribute("IM_MAD", im_mad_name);
+    replace_template_attribute("VM_MAD", vmm_mad_name);
+    replace_template_attribute("VN_MAD", vnm_mad_name);
 }
 
 Host::~Host()
@@ -693,8 +697,10 @@ int Host::from_xml(const string& xml)
 
 int Host::post_update_template(string& error)
 {
-
     string vcenter_password;
+    string new_im_mad;
+    string new_vm_mad;
+    string new_vn_mad;
 
     erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
 
@@ -719,6 +725,26 @@ int Host::post_update_template(string& error)
             add_template_attribute("VCENTER_PASSWORD", vcenter_password);
         }
     }
+
+    get_template_attribute("IM_MAD", new_im_mad);
+    get_template_attribute("VM_MAD", new_vm_mad);
+    get_template_attribute("VN_MAD", new_vn_mad);
+
+    if (new_im_mad != ""){
+        im_mad_name = new_im_mad;
+    }
+
+    if (new_im_mad != ""){
+        vmm_mad_name = new_vm_mad;
+    }
+
+    if (new_im_mad != ""){
+        vnm_mad_name = new_vn_mad;
+    }
+
+    replace_template_attribute("IM_MAD", im_mad_name);
+    replace_template_attribute("VM_MAD", vmm_mad_name);
+    replace_template_attribute("VN_MAD", vnm_mad_name);
 
     return 0;
 };
