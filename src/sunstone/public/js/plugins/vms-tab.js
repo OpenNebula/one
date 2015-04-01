@@ -2167,22 +2167,7 @@ function setupAttachDiskDialog(){
         var vm_id = $('#vm_id', this).text();
 
         var data  = {};
-
-        if($('input[type=radio]:checked', dialog).val()=="image")
-        {
-          // Clear the volatile fields
-          $('input#FORMAT',   dialog).val("");
-          $('input#SIZE_TMP', dialog).val("");
-        }
-        else
-        {
-          $('input#IMAGE_ID',   dialog).val("");
-          $('input#IMAGE',      dialog).val("");
-          $('input#IMAGE_UID',  dialog).val("");
-          $('input#IMAGE_UNAME',dialog).val("");
-        }
-
-        addSectionJSON(data, this);
+        addSectionJSON(data, $('#disk_type.vm_param ', this));
 
         var obj = {DISK: data}
         Sunstone.runAction('VM.attachdisk', vm_id, obj);
