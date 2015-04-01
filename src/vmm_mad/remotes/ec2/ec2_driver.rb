@@ -198,7 +198,8 @@ class EC2Driver
         :ip_address,
         :subnet_id,
         :security_groups,
-        :instance_type
+        :instance_type,
+        :image_id
     ]
 
     # EC2 constructor, loads credentials and endpoint
@@ -419,7 +420,7 @@ private
         ec2
     end
 
-    # Retrive the vm information from the EC2 instance
+    # Retrieve the vm information from the EC2 instance
     def parse_poll(instance)
         begin
             info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
@@ -456,6 +457,10 @@ private
                     info << "AWS_#{key.to_s.upcase}=#{URI::encode(value)} "
                 end
             }
+
+            vm_template_to_one = vm_to_one(instance)
+            vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
+            info << "IMPORT_TEMPLATE=#{vm_template_to_one}"
 
             info
         rescue
@@ -565,6 +570,26 @@ private
             STDERR.puts e.message
             exit(-1)
         end
+    end
+
+    # Build template for importation
+    def vm_to_one(instance)
+        cpu, mem = instance_type_capacity(instance.instance_type)
+
+        str = "NAME   = \"Instance from #{instance.image_id}\"\n"\
+              "CPU    = \"#{cpu}\"\n"\
+              "vCPU   = \"#{cpu}\"\n"\
+              "MEMORY = \"#{mem}\"\n"\
+              "HYPERVISOR = \"ec2\"\n"\
+              "PUBLIC_CLOUD = [\n"\
+              "  TYPE  =\"ec2\",\n"\
+              "  AMI   =\"#{instance.image_id}\"\n"\
+              "]\n"\
+              "IMPORT_VM_ID    = \"#{instance.image_id}\"\n"\
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
+              "DESCRIPTION = \"Instance imported from EC2\"\n"
+
+        str
     end
 end
 
