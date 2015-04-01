@@ -418,25 +418,30 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts
 
         format = "%30s %36s %4s %10s"
-        CLIHelper.print_header(format % ["NAME", "UUID", "CPU", "MEMORY"],
-                               false)
+        CLIHelper.print_header(format % ["NAME", "IMPORT_ID", "CPU", "MEMORY"],
+                               true)
 
         wilds.each do |wild|
-          wild_tmplt = Base64::decode64(wild['IMPORT_TEMPLATE']).split("\n")
-          name   = wild_tmplt.select { |line| 
-                    line[/^NAME/] 
-                   }[0].split("=")[1].gsub("\"", " ").strip
-          uuid   = wild_tmplt.select { |line| 
-                     line[/^IMPORT_VM_ID/] 
-                   }[0].split("=")[1].gsub("\"", " ").strip
-          memory = wild_tmplt.select { |line| 
-                     line[/^MEMORY/] 
-                   }[0].split("=")[1].gsub("\"", " ").strip
-          cpu    = wild_tmplt.select { |line| 
-                      line[/^MEMORY/] 
-                   }[0].split("=")[1].gsub("\"", " ").strip
+          if wild['IMPORT_TEMPLATE']
+            wild_tmplt = Base64::decode64(wild['IMPORT_TEMPLATE']).split("\n")
+            name   = wild_tmplt.select { |line| 
+                      line[/^NAME/] 
+                     }[0].split("=")[1].gsub("\"", " ").strip
+            import = wild_tmplt.select { |line| 
+                       line[/^IMPORT_VM_ID/] 
+                     }[0].split("=")[1].gsub("\"", " ").strip
+            memory = wild_tmplt.select { |line| 
+                       line[/^MEMORY/] 
+                     }[0].split("=")[1].gsub("\"", " ").strip
+            cpu    = wild_tmplt.select { |line| 
+                        line[/^MEMORY/] 
+                     }[0].split("=")[1].gsub("\"", " ").strip
+          else
+            name     = wild['DEPLOY_ID']
+            import   = memory = cpu = "-"
+          end
 
-          puts format % [name, uuid, memory, cpu]
+          puts format % [name, import, memory, cpu]
         end
 
         puts
