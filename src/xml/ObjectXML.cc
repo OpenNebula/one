@@ -564,7 +564,7 @@ int ObjectXML::validate_xml(const string &xml_doc)
 
 void ObjectXML::xml_parse(const string &xml_doc)
 {
-    xml = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+    xml = xmlReadMemory (xml_doc.c_str(),xml_doc.length(),0,0,XML_PARSE_HUGE);
 
     if (xml == 0)
     {
