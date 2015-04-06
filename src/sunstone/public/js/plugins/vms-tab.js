@@ -2676,6 +2676,18 @@ function setupResizeCapacityDialog(){
         var data  = {};
         addSectionJSON(data, this);
 
+        if (data["CPU"] == $('#cpu_info').text()) {
+            delete data["CPU"];
+        };
+
+        if (data["MEMORY"] == $('#memory_info').attr("one_value")) {
+            delete data["MEMORY"];
+        };
+
+        if (data["VCPU"] == $('#vcpu_info').text()) {
+            delete data["VCPU"];
+        };
+
         var obj = {
           "vm_template": data,
           "enforce": enforce,
