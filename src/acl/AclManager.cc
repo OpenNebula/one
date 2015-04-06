@@ -1095,7 +1095,7 @@ int AclManager::select_cb(void *nil, int num, char **values, char **names)
 
     int oid = atoi(values[0]);
 
-    long long rule_values[3];
+    long long rule_values[4];
 
     for ( int i = 0; i < 4; i++ )
     {
