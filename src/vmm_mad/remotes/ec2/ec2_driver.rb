@@ -340,11 +340,16 @@ class EC2Driver
 
                 poll_data=parse_poll(i)
 
+                vm_template_to_one = vm_to_one(i)
+                vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
+
                 one_id = i.tags['ONE_ID']
 
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
                 vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
+                vms_info << "  VM_NAME=#{i.instance_id},\n"
+                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
                 vms_info << "  POLL=\"#{poll_data}\" ]\n"
 
                 if one_id
@@ -457,10 +462,6 @@ private
                     info << "AWS_#{key.to_s.upcase}=#{URI::encode(value)} "
                 end
             }
-
-            vm_template_to_one = vm_to_one(instance)
-            vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-            info << "IMPORT_TEMPLATE=#{vm_template_to_one}"
 
             info
         rescue
@@ -576,7 +577,7 @@ private
     def vm_to_one(instance)
         cpu, mem = instance_type_capacity(instance.instance_type)
 
-        str = "NAME   = \"Instance from #{instance.image_id}\"\n"\
+        str = "NAME   = \"Instance from #{instance.id}\"\n"\
               "CPU    = \"#{cpu}\"\n"\
               "vCPU   = \"#{cpu}\"\n"\
               "MEMORY = \"#{mem}\"\n"\
@@ -585,9 +586,10 @@ private
               "  TYPE  =\"ec2\",\n"\
               "  AMI   =\"#{instance.image_id}\"\n"\
               "]\n"\
-              "IMPORT_VM_ID    = \"#{instance.image_id}\"\n"\
+              "IMPORT_VM_ID    = \"#{instance.id}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
-              "DESCRIPTION = \"Instance imported from EC2\"\n"
+              "DESCRIPTION = \"Instance imported from EC2, from instance"\
+              " #{instance.id}, AMI #{instance.image_id}\"\n"
 
         str
     end

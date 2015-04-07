@@ -18,6 +18,9 @@
 /* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
 
+/* Hypervisors from where you can import VMs*/
+var HYPERVISORS_CAN_IMPORT_VM = ["vcenter", "ec2"]
+
 var create_host_tmpl =
 '<div class="row">\
   <div class="large-12 columns">\
@@ -778,7 +781,10 @@ function updateHostInfo(request,host){
     var stripped_host_template = {};
     var unshown_values         = {};
 
-    if (host_info.TEMPLATE.HYPERVISOR && host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+    var hypervisor_name = host_info.TEMPLATE.HYPERVISOR ? host_info.TEMPLATE.HYPERVISOR.toLowerCase() : "-" ;
+
+
+    if (!$.inArray(hypervisor_name, HYPERVISORS_CAN_IMPORT_VM))
     {
       stripped_host_template = host_info.TEMPLATE;
     }
@@ -969,7 +975,7 @@ function updateHostInfo(request,host){
                 <tr>\
                   <th></th>\
                   <th>' + tr("VM name") + '</th>\
-                  <th>' + tr("UUID") + '</th>\
+                  <th>' + tr("Remote ID") + '</th>\
                 </tr>\
               </thead>\
               <tbody id="tbody_host_wilds">\
@@ -1030,8 +1036,13 @@ function updateHostInfo(request,host){
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
 
-    if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+    hypervisor_name = host_info.TEMPLATE.HYPERVISOR ? host_info.TEMPLATE.HYPERVISOR.toLowerCase() : "-";
+
+    if (hypervisor_name == "vcenter") {
       Sunstone.updateInfoPanelTab("host_info_panel","host_esx_tab",esx_info_tab);
+    }
+
+    if ($.inArray(hypervisor_name, HYPERVISORS_CAN_IMPORT_VM)) {
       Sunstone.updateInfoPanelTab("host_info_panel","host_wilds_tab",wilds_info_tab);
     }
 
@@ -1068,7 +1079,9 @@ function updateHostInfo(request,host){
         dataTable_esx_hosts.fnAddData(host_list_array);
         delete host_info.TEMPLATE.HOST;
       }
+    }
 
+    if ($.inArray(hypervisor_name, HYPERVISORS_CAN_IMPORT_VM)) {
       // WILDS datatable
       var dataTable_wilds_hosts = $("#datatable_host_wilds",main_tabs_context).dataTable({
        "bSortClasses" : false,
@@ -1082,13 +1095,13 @@ function updateHostInfo(request,host){
 
         $.each(wilds, function(){
             name      = this.VM_NAME;
-            safe_name = name.replace(/ /g,"_").replace(/./g,"_");
-            uuid      = this.DEPLOY_ID;
+            safe_name = name.replace(/ /g,"_").replace(/\./g,"_");
+            deploy_id = this.DEPLOY_ID;
 
             wilds_list_array.push([
                 '<input type="checkbox" id="import_wild_checker" class="import_'+safe_name+'" unchecked/>',
                 name,
-                uuid
+                deploy_id
             ]);
 
             dataTable_wilds_hosts.fnAddData(wilds_list_array);
