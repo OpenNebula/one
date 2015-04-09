@@ -267,59 +267,6 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
-    else if (vm->get_state() == VirtualMachine::ACTIVE &&
-             vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE)
-    {
-        //----------------------------------------------------
-        //   Bypass SAVE_MIGRATE
-        //----------------------------------------------------
-
-        Nebula& nd = Nebula::instance();
-        TransferManager * tm = nd.get_tm();
-
-        int    cpu, mem, disk;
-        time_t the_time = time(0);
-
-        vm->set_resched(false);
-
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE);
-
-        vm->delete_snapshots();
-
-        map<string, string> empty;
-
-        vm->update_info(0, 0, -1, -1, empty);
-
-        vmpool->update(vm);
-
-        vm->set_stime(the_time);
-
-        vm->set_previous_action(History::MIGRATE_ACTION);
-
-        vm->set_previous_prolog_etime(the_time);
-
-        vm->set_previous_etime(the_time);
-
-        vm->set_previous_vm_info();
-
-        vm->set_previous_reason(History::USER);
-
-        vmpool->update_previous_history(vm);
-
-        vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
-
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
-
-        vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
-
-        //----------------------------------------------------
-
-        tm->trigger(TransferManager::PROLOG_MIGR,vid);
-    }
     else if (vm->get_state()     == VirtualMachine::ACTIVE &&
              vm->get_lcm_state() == VirtualMachine::UNKNOWN)
     {
@@ -762,10 +709,12 @@ void  LifeCycleManager::restart_action(int vid)
          vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
          vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
          vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE))
+         vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE))
        ||vm->get_state() == VirtualMachine::POWEROFF)
     {
-        Nebula&                 nd = Nebula::instance();
+        Nebula& nd  = Nebula::instance();
+
         VirtualMachineManager * vmm = nd.get_vmm();
 
         VirtualMachineManager::Actions action;
@@ -832,12 +781,15 @@ void  LifeCycleManager::restart_action(int vid)
                 default:
                     break;
             }
+
+            vmm->trigger(action,vid);
         }
-        else // if ( vm->get_state() == VirtualMachine::POWEROFF )
+        else if ( vm->get_state() == VirtualMachine::POWEROFF )
         {
             time_t the_time = time(0);
 
             vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
+
             vm->set_state(VirtualMachine::BOOT_POWEROFF);
 
             vm->cp_history();
@@ -853,9 +805,21 @@ void  LifeCycleManager::restart_action(int vid)
             vmpool->update_history(vm);
 
             vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
-        }
 
-        vmm->trigger(action,vid);
+            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+        }
+        else if ( vm->get_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE )
+        {
+            TransferManager * tm  = nd.get_tm();
+
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
+
+            tm->trigger(TransferManager::PROLOG_MIGR, vid);
+        }
     }
     else
     {

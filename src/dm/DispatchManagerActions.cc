@@ -107,7 +107,7 @@ int DispatchManager::import (
     vmpool->update(vm);
 
     vm->set_stime(the_time);
-    
+
     vm->set_prolog_stime(the_time);
     vm->set_prolog_etime(the_time);
 
@@ -145,8 +145,7 @@ int DispatchManager::migrate(
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE) )
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN ) )
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -691,7 +690,8 @@ int DispatchManager::restart(int vid)
          vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
          vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
          vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ))
+         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();

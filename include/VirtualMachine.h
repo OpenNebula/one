@@ -806,15 +806,6 @@ public:
     };
 
     /**
-     *  Sets end time of VM prolog state in the previous host.
-     *    @param _etime time when the running state finished
-     */
-    void set_previous_prolog_etime(time_t _etime)
-    {
-        previous_history->prolog_etime=_etime;
-    };
-
-    /**
      *  Sets start time of VM epilog.
      *    @param _stime time when the epilog started
      */
