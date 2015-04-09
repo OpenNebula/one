@@ -915,8 +915,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if((vm->get_state()     != VirtualMachine::ACTIVE)  ||
        (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-        vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
-        vm->get_lcm_state() != VirtualMachine::PROLOG_MIGRATE_FAILURE) ||
+        vm->get_lcm_state() != VirtualMachine::UNKNOWN) ||
        (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
     {
         failure_response(ACTION,
@@ -941,51 +940,19 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     c_hid = vm->get_hid();
 
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE)
+    if (c_hid == hid)
     {
-        enforce = false;
-        live = false;
+        ostringstream oss;
 
-        int p_hid = c_hid;
+        oss << "VM is already running on "
+            << object_name(PoolObjectSQL::HOST) << " [" << c_hid << "]";
 
-        if(vm->hasPreviousHistory())
-        {
-            p_hid = vm->get_previous_hid();
-        }
+        failure_response(ACTION,
+                request_error(oss.str(),""),
+                att);
 
-        if (hid != c_hid && hid != p_hid)
-        {
-            ostringstream oss;
-
-            oss << "VM in state PROLOG_MIGRATE_FAILURE can only be migrated to "
-                << object_name(PoolObjectSQL::HOST) << " [" << c_hid << "] or "
-                << object_name(PoolObjectSQL::HOST) << " [" << p_hid << "]";
-
-            failure_response(ACTION,
-                    request_error(oss.str(),""),
-                    att);
-
-            vm->unlock();
-            return;
-        }
-    }
-    else
-    {
-        if (c_hid == hid)
-        {
-            ostringstream oss;
-
-            oss << "VM is already running on "
-                << object_name(PoolObjectSQL::HOST) << " [" << c_hid << "]";
-
-            failure_response(ACTION,
-                    request_error(oss.str(),""),
-                    att);
-
-            vm->unlock();
-            return;
-        }
+        vm->unlock();
+        return;
     }
 
     // Get System DS information from current History record
