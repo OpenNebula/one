@@ -308,7 +308,10 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN  ||
               vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED||
               vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-              vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY )
+              vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -400,11 +403,23 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmm->trigger(VirtualMachineManager::POLL,vid);
     }
-    else if (vm->get_lcm_state() == VirtualMachine::BOOT)
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE)
     {
-        vm->set_running_etime(the_time);
+        vm->set_state(VirtualMachine::BOOT_FAILURE);
 
-        failure_action(vm);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is BOOT_FAILURE");
+    }
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
+             vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE )
+    {
+        vm->set_state(VirtualMachine::BOOT_MIGRATE_FAILURE);
+
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is BOOT_MIGRATE_FAILURE");
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN)
     {
@@ -716,7 +731,11 @@ void  LifeCycleManager::prolog_success_action(int vid)
     {
         vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
     }
-    else // PROLOG || PROLOG_MIGRATE
+    else if ( lcm_state == VirtualMachine::PROLOG_MIGRATE )
+    {
+        vm->set_state(VirtualMachine::BOOT_MIGRATE);
+    }
+    else // PROLOG
     {
         vm->set_state(VirtualMachine::BOOT);
     }

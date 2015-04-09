@@ -19,13 +19,12 @@ digraph OpenNebula {
     "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
 
     subgraph { rank = min; user}
-    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; unknown; color="white"}
+    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; prolog_resume; prolog_migrate; color="white" }
-//    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; save_migrate; color="white" }
-
-    subgraph { rank = max; suspended; done; failure;
-    stopped; undeployed; poweroff; ANY; color="white" }
+    subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; hotplug_epilog_poweroff; color="white" }
+    subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
+    subgraph { rank = sink; done; failure; ANY; color="white" }
 
 #   create
     user -> pending [label="create"];
@@ -68,7 +67,8 @@ digraph OpenNebula {
     running         -> save_migrate [label="migrate"];
     save_migrate    -> prolog_migrate [style="dashed"];
     save_migrate    -> running [style="dotted"];
-    prolog_migrate  -> boot [style="dashed"];
+    prolog_migrate  -> boot_migrate [style="dashed"];
+    boot_migrate    -> running [style="dashed"];
 
 #   hold
     pending     -> hold [label="hold"];
@@ -118,10 +118,14 @@ digraph OpenNebula {
     boot_stopped    -> boot_stopped [label="boot"];
     boot_poweroff   -> boot_poweroff [label="boot"];
     boot_undeploy   -> boot_undeploy [label="boot"];
+    boot_migrate    -> boot_migrate [label="boot"];
 
     unknown         -> boot_unknown [label="boot"];
     boot_unknown    -> boot_unknown [label="boot"];
     boot_unknown    -> running [style="dashed"];
+
+    boot_failure         -> boot [label="boot"];
+    boot_migrate_failure -> boot_migrate [label="boot"];
 
 #   reboot
     running     -> running [label="reboot"];
@@ -165,7 +169,8 @@ digraph OpenNebula {
     prolog_resume   -> stopped [style="dotted"];
     prolog_undeploy -> undeployed [style="dotted"];
 
-    boot            -> failure [style="dotted"];
+    boot            -> boot_failure [style="dotted"];
+    boot_migrate    -> boot_migrate_failure [style="dotted"];
     boot_poweroff   -> poweroff [style="dotted"];
     boot_unknown    -> unknown [style="dotted"];
     boot_suspended  -> suspended [style="dotted"];

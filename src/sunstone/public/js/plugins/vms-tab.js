@@ -149,6 +149,12 @@ var lcm_state_actions = {
         [],
     34: //OpenNebula.VM.lcm_state.HOTPLUG_EPILOG_POWEROFF:
         [],
+    35: //OpenNebula.VM.lcm_state.BOOT_MIGRATE:
+        ["VM.boot"],
+    36: //OpenNebula.VM.lcm_state.BOOT_FAILURE:
+        ["VM.boot"],
+    37: //OpenNebula.VM.lcm_state.BOOT_MIGRATE_FAILURE:
+        ["VM.boot"],
 }
 
 //Permanent storage for last value of aggregated network usage
