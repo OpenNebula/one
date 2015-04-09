@@ -151,6 +151,15 @@ helpers do
             return OpenNebula::Error.new("Error parsing JSON: Wrong resource type")
         end
     end
+
+    def check_permissions(resource, action)
+        permissions = settings.config[:permissions]
+        unless permissions && permissions[resource] && permissions[resource][action]
+            error_msg = "Action (#{action}) on resource (#{resource}) not supported"
+            logger.error {error_msg} 
+            halt 403, error_msg
+        end
+    end
 end
 
 NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC)
@@ -243,6 +252,8 @@ get '/' do
 end
 
 put '/vm' do
+    check_permissions(:vm, :update)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
@@ -262,6 +273,8 @@ put '/vm' do
 end
 
 get '/vm' do
+    check_permissions(:vm, :show)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
@@ -276,6 +289,8 @@ get '/vm' do
 end
 
 get '/service' do
+    check_permissions(:service, :show)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
@@ -312,6 +327,8 @@ get '/service' do
 end
 
 get '/vms/:id' do
+    check_permissions(:vm, :show_by_id)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
@@ -353,6 +370,8 @@ get '/vms/:id' do
 end
 
 post '/vms/:id/action' do
+    check_permissions(:vm, :action_by_id)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
@@ -438,6 +457,8 @@ post '/vms/:id/action' do
 end
 
 put '/service/role/:role' do
+    check_permissions(:service, :change_cardinality)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
@@ -484,11 +505,9 @@ put '/service/role/:role' do
     [200, ""]
 end
 
-#############
-# DEPRECATED
-#############
-
 put '/vms/:id' do
+    check_permissions(:vm, :update_by_id)
+
     client = authenticate(request.env, params)
 
     halt 401, "Not authorized" if client.nil?
