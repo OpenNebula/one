@@ -688,10 +688,7 @@ int DispatchManager::restart(int vid)
          vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
          vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
          vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE))
+         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();

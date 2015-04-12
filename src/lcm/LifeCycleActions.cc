@@ -688,6 +688,109 @@ void  LifeCycleManager::cancel_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void LifeCycleManager::retry_action(int vid)
+{
+    Nebula& nd  = Nebula::instance();
+
+    TransferManager *       tm  = nd.get_tm();
+    VirtualMachineManager * vmm = nd.get_vmm();
+
+    VirtualMachine * vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_state() != VirtualMachine::ACTIVE )
+    {
+        vm->unlock();
+        return;
+    }
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
+    {
+        case VirtualMachine::BOOT_FAILURE:
+            vm->set_state(VirtualMachine::BOOT);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT");
+
+            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+            break;
+
+        case VirtualMachine::BOOT_MIGRATE_FAILURE:
+            vm->set_state(VirtualMachine::BOOT_MIGRATE);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT_MIGRATE");
+
+            vmm->trigger(VirtualMachineManager::RESTORE, vid);
+            break;
+
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
+
+            tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
+        case VirtualMachine::LCM_INIT:
+        case VirtualMachine::BOOT:
+        case VirtualMachine::BOOT_MIGRATE:
+        case VirtualMachine::BOOT_POWEROFF:
+        case VirtualMachine::BOOT_SUSPENDED:
+        case VirtualMachine::BOOT_STOPPED:
+        case VirtualMachine::BOOT_UNDEPLOY:
+        case VirtualMachine::BOOT_UNKNOWN:
+        case VirtualMachine::CANCEL:
+        case VirtualMachine::CLEANUP_RESUBMIT:
+        case VirtualMachine::CLEANUP_DELETE:
+        case VirtualMachine::EPILOG:
+        case VirtualMachine::EPILOG_STOP:
+        case VirtualMachine::EPILOG_UNDEPLOY:
+        case VirtualMachine::FAILURE:
+        case VirtualMachine::HOTPLUG:
+        case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
+        case VirtualMachine::HOTPLUG_SAVEAS:
+        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+        case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+        case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+        case VirtualMachine::PROLOG:
+        case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_UNDEPLOY:
+        case VirtualMachine::MIGRATE:
+        case VirtualMachine::RUNNING:
+        case VirtualMachine::SAVE_STOP:
+        case VirtualMachine::SAVE_SUSPEND:
+        case VirtualMachine::SAVE_MIGRATE:
+        case VirtualMachine::SHUTDOWN:
+        case VirtualMachine::SHUTDOWN_POWEROFF:
+        case VirtualMachine::SHUTDOWN_UNDEPLOY:
+        case VirtualMachine::UNKNOWN:
+            break;
+    }
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void  LifeCycleManager::restart_action(int vid)
 {
     VirtualMachine *    vm;
@@ -699,19 +802,14 @@ void  LifeCycleManager::restart_action(int vid)
         return;
     }
 
-    if ((vm->get_state() == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE))
-       ||vm->get_state() == VirtualMachine::POWEROFF)
+    VirtualMachine::LcmState lstate = vm->get_lcm_state();
+    VirtualMachine::VmState  vstate = vm->get_state();
+
+    if (vstate == VirtualMachine::POWEROFF || ( vstate == VirtualMachine::ACTIVE &&
+        (lstate == VirtualMachine::UNKNOWN        || lstate == VirtualMachine::BOOT ||
+         lstate == VirtualMachine::BOOT_UNKNOWN   || lstate == VirtualMachine::BOOT_POWEROFF ||
+         lstate == VirtualMachine::BOOT_SUSPENDED || lstate == VirtualMachine::BOOT_STOPPED ||
+         lstate == VirtualMachine::BOOT_UNDEPLOY  || lstate == VirtualMachine::BOOT_MIGRATE)))
     {
         Nebula& nd  = Nebula::instance();
 
@@ -723,16 +821,15 @@ void  LifeCycleManager::restart_action(int vid)
         //       RE-START THE VM IN THE SAME HOST
         //----------------------------------------------------
 
-        if (vm->get_state() == VirtualMachine::ACTIVE)
+        if (vstate == VirtualMachine::ACTIVE)
         {
-            switch (vm->get_lcm_state()) {
+            switch (lstate) {
                 case VirtualMachine::BOOT:
                 case VirtualMachine::BOOT_UNKNOWN:
                 case VirtualMachine::BOOT_POWEROFF:
                     action = VirtualMachineManager::DEPLOY;
 
                     vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
-
                     break;
 
                 case VirtualMachine::BOOT_SUSPENDED:
@@ -742,7 +839,6 @@ void  LifeCycleManager::restart_action(int vid)
                     action = VirtualMachineManager::RESTORE;
 
                     vm->log("LCM", Log::INFO, "Sending RESTORE command to VM again");
-
                     break;
 
                 case VirtualMachine::UNKNOWN:
@@ -753,29 +849,6 @@ void  LifeCycleManager::restart_action(int vid)
                     vmpool->update(vm);
 
                     vm->log("LCM", Log::INFO, "New VM state is BOOT_UNKNOWN");
-
-                    break;
-
-                case VirtualMachine::BOOT_FAILURE:
-                    action = VirtualMachineManager::DEPLOY;
-
-                    vm->set_state(VirtualMachine::BOOT);
-
-                    vmpool->update(vm);
-
-                    vm->log("LCM", Log::INFO, "New VM state is BOOT");
-
-                    break;
-
-                case VirtualMachine::BOOT_MIGRATE_FAILURE:
-                    action = VirtualMachineManager::RESTORE;
-
-                    vm->set_state(VirtualMachine::BOOT_MIGRATE);
-
-                    vmpool->update(vm);
-
-                    vm->log("LCM", Log::INFO, "New VM state is BOOT_MIGRATE");
-
                     break;
 
                 default:
@@ -807,18 +880,6 @@ void  LifeCycleManager::restart_action(int vid)
             vm->log("LCM", Log::INFO, "New VM state is BOOT_POWEROFF");
 
             vmm->trigger(VirtualMachineManager::DEPLOY, vid);
-        }
-        else if ( vm->get_state() == VirtualMachine::PROLOG_MIGRATE_FAILURE )
-        {
-            TransferManager * tm  = nd.get_tm();
-
-            vm->set_state(VirtualMachine::PROLOG_MIGRATE);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
-
-            tm->trigger(TransferManager::PROLOG_MIGR, vid);
         }
     }
     else
@@ -1040,6 +1101,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
+        case VirtualMachine::SHUTDOWN_UNDEPLOY:
         case VirtualMachine::CANCEL:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
             vm->set_running_etime(the_time);

@@ -124,8 +124,8 @@ digraph OpenNebula {
     boot_unknown    -> boot_unknown [label="boot"];
     boot_unknown    -> running [style="dashed"];
 
-    boot_failure         -> boot [label="boot"];
-    boot_migrate_failure -> boot_migrate [label="boot"];
+    boot_failure         -> boot [label="recover"];
+    boot_migrate_failure -> boot_migrate [label="recover"];
 
 #   reboot
     running     -> running [label="reboot"];
@@ -167,7 +167,7 @@ digraph OpenNebula {
     prolog          -> failure [style="dotted"];
 
     prolog_migrate          -> prolog_migrate_failure [style="dotted"];
-    prolog_migrate_failure  -> prolog_migrate [label="boot"];
+    prolog_migrate_failure  -> prolog_migrate [label="recover"];
 
     prolog_resume   -> stopped [style="dotted"];
     prolog_undeploy -> undeployed [style="dotted"];

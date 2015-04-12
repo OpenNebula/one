@@ -459,7 +459,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     boot_desc = <<-EOT.unindent
         Boots the given VM.
 
-        States: UNKNOWN, BOOT OR FAIL
+        States: UNKNOWN, BOOT
     EOT
 
     command :boot, boot_desc, [:range,:vmid_list],

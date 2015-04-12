@@ -309,9 +309,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED||
               vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
               vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
-              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
-              vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
+              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE )
     {
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -403,8 +401,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmm->trigger(VirtualMachineManager::POLL,vid);
     }
-    else if (vm->get_lcm_state() == VirtualMachine::BOOT ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE)
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
         vm->set_state(VirtualMachine::BOOT_FAILURE);
 
@@ -412,8 +409,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->log("LCM", Log::INFO, "Fail to boot VM. New VM state is BOOT_FAILURE");
     }
-    else if (vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE )
+    else if (vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE)
     {
         vm->set_state(VirtualMachine::BOOT_MIGRATE_FAILURE);
 
