@@ -214,6 +214,7 @@ tabs:
         actions:
             Template.refresh: true
             Template.create_dialog: true
+            Template.import_dialog: false
             Template.update_dialog: true
             Template.instantiate_vms: true
             Template.chown: false
