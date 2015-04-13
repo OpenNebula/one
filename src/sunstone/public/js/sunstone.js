@@ -868,7 +868,8 @@ function insertButtonsInTab(tab_name, panel_name, panel_buttons, custom_context)
             switch (button.layout) {
             case "create":
                 button_context = $("#"+custom_id+"create_buttons", buttons_row);
-                text = button.text ? '<i class="fa fa-plus"/>  ' + button.text : '<i class="fa fa-plus"/>';
+                icon = button.icon ? button.icon : '<i class="fa fa-plus"/>';
+                text = button.text ? icon + ' ' + button.text : icon;
                 str_class.push("success", "button", "small", "radius");
                 button_code = '<button class="'+str_class.join(' ')+'" href="'+button_name+'">'+text+'</button>';
                 break;
