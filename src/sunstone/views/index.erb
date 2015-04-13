@@ -9,7 +9,7 @@
 
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
-
+  <!-- 
     <script src="vendor/4.0/modernizr/modernizr.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
 
     <script src="vendor/4.0/jquery.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
@@ -22,8 +22,9 @@
 
     <script src="vendor/4.0/jgrowl/jquery.jgrowl.min.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <link href="vendor/4.0/jgrowl/jquery.jgrowl.min.css?v=<%= OpenNebula::VERSION %>" rel="stylesheet" type="text/css"></link>
-
+-->
     <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="vendor/flot/excanvas.min.js"></script><![endif]-->
+  <!-- 
     <script src="vendor/4.0/flot/jquery.flot.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="vendor/4.0/flot/jquery.flot.stack.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="vendor/4.0/flot/jquery.flot.resize.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
@@ -72,10 +73,12 @@
     <% if session[:lang] %>
       <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% end %>
-    <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
-    <script type="text/javascript">var csrftoken='<%= session[:csrftoken] %>';</script>
+
     <script src="js/opennebula.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <script src="js/sunstone.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+    -->
+    <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <script type="text/javascript">var csrftoken='<%= session[:csrftoken] %>';</script>
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script>
 
@@ -110,13 +113,24 @@
 
 
     </script>
+      <!-- 
     <script src="js/plugins/config-tab.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
-
+    -->
     <!-- enabled tabs: -->
+      <!-- 
     <%- $views_config.available_tabs.each do |tab_name| -%>
         <script src="js/plugins/<%= tab_name %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <%- end -%>
+    -->
+
     <!-- end tabs -->
+
+
+
+    <script src="bower_components/requirejs/require.js" data-main="app/main"></script>
+
+
+
   </head>
   <body class="antialiased">
     <div class="row">

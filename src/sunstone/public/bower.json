@@ -11,6 +11,7 @@
     "flot.tooltip": "latest",
     "no-vnc": "*",
     "resumablejs": "*",
-    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5"
+    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5",
+    "requirejs": "~2.1.17"
   }
 }
