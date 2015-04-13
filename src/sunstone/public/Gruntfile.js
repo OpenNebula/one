@@ -22,12 +22,33 @@ module.exports = function(grunt) {
       sass: {
         files: 'scss/**/*.scss',
         tasks: ['sass']
+      },
+
+      requirejs: {
+        files: 'app/**/*.js',
+        tasks: ['requirejs']
+      }
+    },
+
+    requirejs: {
+      compile: {
+        options: {
+          //baseUrl: '../js', // 1
+          out: 'app/main.min.js', // 2
+          //name: 'vendor/almond', // 3
+          include: 'main', // 4
+          mainConfigFile: 'app/main.js', // 5
+          preserveLicenseComments: false,
+          optimize: 'uglify2',
+          generateSourceMaps: true
+        }
       }
     }
   });
 
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-requirejs');
 
   grunt.registerTask('build', ['sass']);
   grunt.registerTask('default', ['build','watch']);

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "devDependencies": {
     "grunt": "~0.4.1",
+    "grunt-contrib-requirejs": "^0.4.4",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-sass": "~0.8.0",
     "node-sass": "~0.7.0"
