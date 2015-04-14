@@ -38,23 +38,18 @@ int DispatchManager::deploy (
     oss << "Deploying VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    Nebula&             nd  = Nebula::instance();
-    LifeCycleManager *  lcm = nd.get_lcm();
-
     if ( vm->get_state() == VirtualMachine::PENDING ||
          vm->get_state() == VirtualMachine::HOLD )
     {
+        Nebula&             nd  = Nebula::instance();
+        LifeCycleManager *  lcm = nd.get_lcm();
+
         vm->set_state(VirtualMachine::ACTIVE);
 
         vmpool->update(vm);
 
         vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
 
-        lcm->trigger(LifeCycleManager::DEPLOY,vid);
-    }
-    else if ( vm->get_state()     == VirtualMachine::ACTIVE &&
-              vm->get_lcm_state() == VirtualMachine::PROLOG_FAILURE)
-    {
         lcm->trigger(LifeCycleManager::DEPLOY,vid);
     }
     else

@@ -706,39 +706,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::PROLOG_FAILURE)
-    {
-        int c_hid = -1;
-
-        if (vm->hasHistory())
-        {
-            c_hid = vm->get_hid();
-        }
-
-        if (c_hid != hid)
-        {
-            ostringstream oss;
-
-            oss << "VM in state PROLOG_FAILURE can only be deployed to "
-                << object_name(PoolObjectSQL::HOST) << " [" << c_hid << "]";
-
-            failure_response(ACTION,
-                    request_error(oss.str(),""),
-                    att);
-
-            vm->unlock();
-            return;
-        }
-
-        dm->deploy(vm);
-
-        vm->unlock();
-
-        success_response(id, att);
-        return;
-    }
-
     if (vm->hasHistory() &&
         (vm->get_action() == History::STOP_ACTION ||
          vm->get_action() == History::UNDEPLOY_ACTION ||

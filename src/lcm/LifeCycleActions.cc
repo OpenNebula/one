@@ -22,9 +22,6 @@ void  LifeCycleManager::deploy_action(int vid)
     VirtualMachine *    vm;
     ostringstream       os;
 
-    Nebula&           nd = Nebula::instance();
-    TransferManager * tm = nd.get_tm();
-
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -32,11 +29,13 @@ void  LifeCycleManager::deploy_action(int vid)
         return;
     }
 
-    if ( vm->get_state() == VirtualMachine::ACTIVE &&
-         vm->get_lcm_state() != VirtualMachine::PROLOG_FAILURE )
+    if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
         time_t            thetime = time(0);
         int               cpu,mem,disk;
+
+        Nebula&           nd = Nebula::instance();
+        TransferManager * tm = nd.get_tm();
 
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
@@ -111,17 +110,6 @@ void  LifeCycleManager::deploy_action(int vid)
         //----------------------------------------------------
 
         tm->trigger(tm_action,vid);
-    }
-    else if ( vm->get_state() == VirtualMachine::ACTIVE &&
-              vm->get_lcm_state() == VirtualMachine::PROLOG_FAILURE )
-    {
-        vm->set_state(VirtualMachine::PROLOG);
-
-        vmpool->update(vm);
-
-        vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
-
-        tm->trigger(TransferManager::PROLOG,vid);
     }
     else
     {
@@ -755,6 +743,16 @@ void LifeCycleManager::retry_action(int vid)
             vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
 
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
+        case VirtualMachine::PROLOG_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
+
+            tm->trigger(TransferManager::PROLOG,vid);
             break;
 
         case VirtualMachine::LCM_INIT:
