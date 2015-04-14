@@ -150,7 +150,7 @@ module OpenNebula
             "PROLOG_FAILURE"            => "fail",
             "EPILOG_FAILURE"            => "fail",
             "EPILOG_STOP_FAILURE"       => "fail",
-            "EPILOG_UNDEPLOY_FAILURE"   => "fail",
+            "EPILOG_UNDEPLOY_FAILURE"   => "fail"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

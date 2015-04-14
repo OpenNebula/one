@@ -901,6 +901,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     state = vm->get_lcm_state();
 
+	//Recover failure epilog states with success
     if ( state == VirtualMachine::EPILOG_STOP_FAILURE )
     {
         vm->set_state(VirtualMachine::EPILOG_STOP);
