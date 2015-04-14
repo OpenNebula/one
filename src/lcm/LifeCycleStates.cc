@@ -309,7 +309,9 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED||
               vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
               vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE )
+              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -507,7 +509,9 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
-    else
+    //wrong state + recover failure from failure state
+    else if ( vm->get_lcm_state() != VirtualMachine::BOOT_FAILURE &&
+              vm->get_lcm_state() != VirtualMachine::BOOT_MIGRATE_FAILURE )
     {
         vm->log("LCM",Log::ERROR,"deploy_failure_action, VM in a wrong state");
     }
@@ -720,22 +724,24 @@ void  LifeCycleManager::prolog_success_action(int vid)
     //----------------------------------------------------
     //                     BOOT STATE
     //----------------------------------------------------
-
-    if ( lcm_state == VirtualMachine::PROLOG_RESUME )
+    switch (lcm_state)
     {
-        vm->set_state(VirtualMachine::BOOT_STOPPED);
-    }
-    else if ( lcm_state == VirtualMachine::PROLOG_UNDEPLOY )
-    {
-        vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
-    }
-    else if ( lcm_state == VirtualMachine::PROLOG_MIGRATE )
-    {
-        vm->set_state(VirtualMachine::BOOT_MIGRATE);
-    }
-    else // PROLOG, PROLOG_FAILURE
-    {
-        vm->set_state(VirtualMachine::BOOT);
+        case VirtualMachine::PROLOG_RESUME:
+            vm->set_state(VirtualMachine::BOOT_STOPPED);
+            break;
+        case VirtualMachine::PROLOG_UNDEPLOY:
+            vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
+            break;
+        case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
+            vm->set_state(VirtualMachine::BOOT_MIGRATE);
+            break;
+        case VirtualMachine::PROLOG:
+        case VirtualMachine::PROLOG_FAILURE: //recover success
+            vm->set_state(VirtualMachine::BOOT);
+            break;
+        default:
+            break;
     }
 
     vmpool->update(vm);
@@ -859,7 +865,9 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 
         dm->trigger(DispatchManager::UNDEPLOY_SUCCESS,vid);
     }
-    else
+    //wrong state + recover failure from failure state
+    else if ( state != VirtualMachine::PROLOG_MIGRATE_FAILURE &&
+              state != VirtualMachine::PROLOG_FAILURE )
     {
         vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");
     }
