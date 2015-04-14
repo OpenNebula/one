@@ -165,6 +165,7 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: true
+            VM.import_dialog: true
             VM.chown: true
             VM.chgrp: true
             VM.chmod: true
@@ -380,7 +381,7 @@ tabs:
         actions:
             Network.refresh: true
             Network.create_dialog: true
-            Network.import_dialog: false
+            Network.import_dialog: true
             Network.update_dialog: true
             Network.addtocluster: true
             Network.chown: true

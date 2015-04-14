@@ -165,6 +165,7 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: true
+            VM.import_dialog: false
             VM.chown: true
             VM.chgrp: true
             VM.chmod: true

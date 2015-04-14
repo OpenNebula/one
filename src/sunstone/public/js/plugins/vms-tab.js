@@ -316,6 +316,13 @@ var vm_actions = {
         }
     },
 
+    "VM.import_dialog" : {
+        type: "create",
+        call: function(){
+          popUpVMImportDialog();
+        }
+    },
+
     "VM.list" : {
         type: "list",
         call: OpenNebula.VM.list,
@@ -859,6 +866,13 @@ var vm_buttons = {
     "VM.create_dialog" : {
         type: "action",
         layout: "create",
+        alwaysActive: true
+    },
+    "VM.import_dialog" : {
+        type: "create_dialog",
+        layout: "create",
+        text:  tr("Import"),
+        icon: '<i class="fa fa-download">',
         alwaysActive: true
     },
     "VM.chown" : {
@@ -3479,6 +3493,255 @@ function vmMonitorError(req,error_json){
     var id_suffix = labels.replace(/,/g,'_');
     var id = '#vm_monitor_'+id_suffix;
     $('#vm_monitoring_tab '+id).html('<div style="padding-left:20px;">'+message+'</div>');
+}
+
+function popUpVMImportDialog(){
+    setupVMImportDialog();
+    var dialog = $('#vm_import_dialog');
+    $(dialog).foundation().foundation('reveal', 'open');
+}
+
+// VM import dialog
+function setupVMImportDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="vm_import_dialog"></div>');
+    var dialog = $('#vm_import_dialog',dialogs_context);
+
+    //Put HTML in place
+
+    var html = '<div class="row">\
+        <h3 id="vm_template_header" class="subheader">'+tr("Import vCenter Running VMs")+'</h3>\
+      </div>\
+      <div class="row vcenter_credentials">\
+        <fieldset>\
+          <legend>'+tr("vCenter")+'</legend>\
+          <div class="row">\
+            <div class="large-6 columns">\
+              <label for="vcenter_user">' + tr("User")  + '</label>\
+              <input type="text" name="vcenter_user" id="vcenter_user" />\
+            </div>\
+            <div class="large-6 columns">\
+              <label for="vcenter_host">' + tr("Hostname")  + '</label>\
+              <input type="text" name="vcenter_host" id="vcenter_host" />\
+            </div>\
+          </div>\
+          <div class="row">\
+            <div class="large-6 columns">\
+              <label for="vcenter_password">' + tr("Password")  + '</label>\
+              <input type="password" name="vcenter_password" id="vcenter_password" />\
+            </div>\
+            <div class="large-6 columns">\
+              <br>\
+              <a class="button radius small right" id="get_vcenter_vms">'+tr("Get Running VMs")+'</a>\
+            </div>\
+          </div>\
+          <div class="vcenter_vms">\
+          </div>\
+          <br>\
+          <div class="row">\
+            <div class="large-12 columns hide" id="import_vcenter_vms_button_div">\
+              <br>\
+              <a class="button radius small right success" id="import_vcenter_vms">'+tr("Import")+'</a>\
+            </div>\
+          </div>\
+        </fieldset>\
+        <a class="close-reveal-modal">&#215;</a>\
+      </div>\
+      ';
+
+
+    dialog.html(html);
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
+
+    $("#get_vcenter_vms", dialog).on("click", function(){
+      var vms_container = $(".vcenter_vms", dialog);
+
+      var vcenter_user = $("#vcenter_user", dialog).val();
+      var vcenter_password = $("#vcenter_password", dialog).val();
+      var vcenter_host = $("#vcenter_host", dialog).val();
+
+      fillVCenterVMs({
+        container: vms_container,
+        vcenter_user: vcenter_user,
+        vcenter_password: vcenter_password,
+        vcenter_host: vcenter_host
+      });
+
+      $("#import_vcenter_vms_button_div", dialog).show();
+
+      return false;
+    })
+
+
+    $("#import_vcenter_vms", dialog).on("click", function(){
+      $(this).hide();
+
+      $.each($(".vm_name:checked", dialog), function(){
+        var vm_context = $(this).closest(".vcenter_vm");
+
+        $(".vcenter_vm_result:not(.success)", vm_context).html(
+            '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>');
+
+        var vm_json = {
+          "vm": {
+            "vm_raw": $(this).data("one_vm")
+          }
+        };
+
+       // var host_id_to_deploy = $(this).data("vm_to_host");
+
+        OpenNebula.VM.create({
+            timeout: true,
+            data: vm_json,
+            success: function(request, response) {
+              OpenNebula.Helper.clear_cache("VM");
+
+              /* TODO Translate the ID from REQUIREMENTS
+              var extra_info = {};
+
+              extra_info['host_id'] = host_id_to_deploy;
+              extra_info['ds_id']   = -1;
+              extra_info['enforce'] = false;
+
+              Sunstone.runAction("VM.deploy_action", response.VM.ID, extra_info); */
+              id_array = [response.VM.ID];
+
+              Sunstone.runAction("VM.release", id_array);
+
+              $(".vcenter_vm_result", vm_context).addClass("success").html(
+                  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                  '</span>');
+
+              $(".vcenter_vm_response", vm_context).html('<p style="font-size:12px" class="running-color">'+
+                    tr("VM imported successfully")+' ID:'+response.VM.ID+
+                  '</p>');
+              Sunstone.runAction("VM.refresh");
+            },
+            error: function (request, error_json){
+              $(".vcenter_vm_response", vm_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                  '</span>');
+
+              $(".vcenter_vm_response", vm_context).html('<p style="font-size:12px" class="error-color">'+
+                    (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                  '</p>');
+              Sunstone.runAction("VM.refresh");
+            }
+        });
+      })
+    })
+}
+
+/*
+  Retrieve the list of running VMs from vCenter and fill the container with them
+
+  opts = {
+    datacenter: "Datacenter Name",
+    cluster: "Cluster Name",
+    container: Jquery div to inject the html,
+    vcenter_user: vCenter Username,
+    vcenter_password: vCenter Password,
+    vcenter_host: vCenter Host
+  }
+ */
+function fillVCenterVMs(opts) {
+  var path = '/vcenter/vms';
+  opts.container.html(generateAdvancedSection({
+    html_id: path,
+    title: tr("Running VMs"),
+    content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'
+  }))
+
+  $('a', opts.container).trigger("click")
+
+  $.ajax({
+      url: path,
+      type: "GET",
+      data: {timeout: false},
+      dataType: "json",
+      headers: {
+        "X_VCENTER_USER": opts.vcenter_user,
+        "X_VCENTER_PASSWORD": opts.vcenter_password,
+        "X_VCENTER_HOST": opts.vcenter_host
+      },
+      success: function(response){
+        $(".content", opts.container).html("");
+
+        $('<div class="row">' +
+            '<div class="large-12 columns">' +
+              '<p style="color: #999">' + tr("Please select the vCenter running VMs to be imported to OpenNebula.") + '</p>' +
+            '</div>' +
+          '</div>').appendTo($(".content", opts.container))
+
+        $.each(response, function(datacenter_name, vms){
+          $('<div class="row">' +
+              '<div class="large-12 columns">' +
+                '<h5>' +
+                  datacenter_name + ' ' + tr("DataCenter") +
+                '</h5>' +
+              '</div>' +
+            '</div>').appendTo($(".content", opts.container))
+
+          if (vms.length == 0) {
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<label>' +
+                      tr("No new running VMs found in this DataCenter") +
+                    '</label>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", opts.container))
+          } else {
+            $.each(vms, function(id, vm){
+              if (vm.host_id === parseInt(vm.host_id, 10)) {
+                var trow = $('<div class="vcenter_vm">' +
+                    '<div class="row">' +
+                      '<div class="large-10 columns">' +
+                        '<label>' +
+                          '<input type="checkbox" class="vm_name" checked/> ' +
+                          vm.name + '&emsp;<span style="color: #999">' + vm.host + '</span>' +
+                        '</vm>' +
+                        '<div class="large-12 columns vcenter_vm_response">'+
+                        '</div>'+
+                      '</div>' +
+                      '<div class="large-2 columns vcenter_vm_result">'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>').appendTo($(".content", opts.container))
+
+                $(".vm_name", trow).data("vm_name", vm.name)
+                $(".vm_name", trow).data("one_vm", vm.one)
+                $(".vm_name", trow).data("vm_to_host", vm.host_id)
+              }
+            });
+
+            if ($(".vcenter_vm").length == 0) {
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<label>' +
+                      tr("No new running VMs found in this DataCenter") +
+                    '</label>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", opts.container))
+            } 
+          };
+        });
+      },
+      error: function(response){
+        opts.container.html("");
+        onError({}, OpenNebula.Error(response));
+      }
+  });
+
+  return false;
 }
 
 // At this point the DOM is ready and the sunstone.js ready() has been run.
