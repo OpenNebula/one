@@ -421,7 +421,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         deployment, in a standard installation the Scheduler is in charge
         of this decision
 
-        States: PENDING
+        States: PENDING, HOLD, STOPPED, UNDEPLOYED
     EOT
 
     command :deploy, deploy_desc, [:range,:vmid_list], :hostid, [:datastoreid,nil],
