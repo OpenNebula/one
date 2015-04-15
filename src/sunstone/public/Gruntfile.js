@@ -34,7 +34,7 @@ module.exports = function(grunt) {
       compile: {
         options: {
           //baseUrl: '../js', // 1
-          out: 'app/main.min.js', // 2
+          out: 'dist/main.min.js', // 2
           //name: 'vendor/almond', // 3
           include: 'main', // 4
           mainConfigFile: 'app/main.js', // 5
