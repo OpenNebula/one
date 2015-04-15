@@ -1,0 +1,75 @@
+<div class="text-center">
+  <span class="left">
+
+    <span id="{{customId}}refresh_buttons" class="only-right-info only-right-list"></span>
+    {{#unless customContext}}
+    <span id="{{customId}}back_button" class="only-right-info only-right-form">
+      <a class="button small radius" href="back"> <i class="fa fa-arrow-left"></i>
+        &emsp;&emsp; <i class="fa fa-list"></i>
+      </a>
+    </span>
+    {{/unless}}
+    <span id="{{customId}}create_buttons" class="only-right-list"></span>
+  </span>
+
+  <span class="right" style="margin-left: 20px">
+    <a href='#' data-dropdown='{{customId}}user_buttons' class='only-right-info only-right-list top_button small  secondary button dropdown radius'>
+      <i class='fa fa-user'/></a>
+    <ul id='{{customId}}user_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+
+    <a href='#' data-dropdown='{{customId}}vmsdelete_buttons' class='only-right-info only-right-list top_button small  button alert dropdown radius'>
+      <i class='fa fa-trash-o'/></a>
+    <ul id='{{customId}}vmsdelete_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+
+    <span id='{{customId}}delete_buttons' class='only-right-info only-right-list'></span>
+  </span>
+
+  <span class="right">
+    <span id="{{customId}}vmsplay_buttons"></span>
+
+    <a href='#' data-dropdown='{{customId}}vmspause_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>
+      <i class='fa fa-pause'/>
+    </a>
+    <ul id='{{customId}}vmspause_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+
+    <a href='#' data-dropdown='{{customId}}vmsstop_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>
+      <i class='fa fa-stop'/>
+    </a>
+    <ul id='{{customId}}vmsstop_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+
+    <a href='#' data-dropdown='{{customId}}vmsrepeat_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>
+      <i class='fa fa-repeat'/>
+    </a>
+    <ul id='{{customId}}vmsrepeat_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+
+    <a href='#' data-dropdown='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>
+      <i class='fa fa-th-list'/>
+    </a>
+    <ul id='{{customId}}vmsplanification_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+
+    <span id="{{customId}}main_buttons" class="only-right-info only-right-list"></span>
+
+    <a href='#' data-dropdown='{{customId}}more_buttons' class='only-right-info only-right-list top_button small  button secondary dropdown radius'>
+      <i class='fa fa-ellipsis-v'/>
+    </a>
+    <ul id='{{customId}}more_buttons' class='only-right-info only-right-list f-dropdown' data-dropdown-content></ul>
+  </span>
+
+  <span id='{{customId}}form_buttons' class='only-right-form' style='display: none'>
+    <span id="{{customId}}reset_button" class="left" style="margin-left: 10px;">
+      <a class="button small secondary radius reset_button" href="submit">{{tr "Reset"}}</a>
+    </span>
+    <span id="{{customId}}submit_button" class="left" style="margin-left: 10px;">
+      <a class="button small success radius submit_button" href="submit">{{tr "Create"}}</a>
+    </span>
+    <dl class="tabs right wizard_tabs" data-tab style="margin-left: 10px;">
+      <dd id="wizard_mode" class="active">
+        <a style="padding: 0.3rem 1rem;" href="#wizardForms">{{tr "Wizard"}}</a>
+      </dd>
+      <dd id="advanced_mode">
+        <a style="padding: 0.3rem 1rem;" id="advanced_mode_a" href="#advancedForms">{{tr "Advanced"}}</a>
+      </dd>
+    </dl>
+  </span>
+</div>
+"

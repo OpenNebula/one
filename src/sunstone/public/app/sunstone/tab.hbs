@@ -1,0 +1,73 @@
+<div id="{{tabName}}" class="tab" style="display:none;">
+  {{#if listHeader }}
+  <div class="row header-row">
+    <div class="large-12 columns">
+      <h2 class="subheader header-title only-right-list">
+        <span class="header-resource">{{{listHeader}}}</span>
+      </h2>
+      <h2 class="subheader header-title only-right-info" hidden>
+        <span class="header-resource">{{{infoHeader}}}</span>
+        &emsp;
+        <span class="resource-id"></span>
+        &emsp;
+        <span class="resource-info-header"></span>
+      </h2>
+      <h2 class="subheader header-title only-right-form" hidden>
+        <span class="right-form-title"></span>
+      </h2>
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if buttons}}
+  <div class="row actions_row">
+    <div class="small-12 large-12 columns">
+      <div class="action_blocks"></div>
+      <div class="small-3 large-3 columns only-right-list" style="margin-top: 2px">
+        {{#if searchInput}}
+          {{{searchInput}}}
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+  <div class="right-list">
+    {{#if table}}
+    <div class="row">
+      <div class="large-12 columns">{{{table}}}</div>
+    </div>
+    {{/if}}
+
+    {{#if content}}
+    {{{content}}}
+    {{/if}}
+
+    {{#if subheader}}
+    <div class="row header-info">
+      <div class="large-12 columns text-center totals-info">
+        <h3 class="subheader">
+          {{#if subheader}}
+            {{{subheader}}}
+          {{/if}}
+        </h3>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+
+  <div class="right-info" hidden></div>
+
+  <div class="large-12 small-12 right-form" hidden>
+    <div class="loadingForm">
+      <br>
+      <br>
+      <span class="fa-stack fa-5x" style="color: #dfdfdf"> <i class="fa fa-cloud fa-stack-2x"/><i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"/>
+      </span>
+      <br>
+      <br></div>
+    <div class="tabs-content tabs-contentForm  ">
+      <div class="content active" id="wizardForms"></div>
+      <div class="content" id="advancedForms"></div>
+    </div>
+  </div>
+</div>
