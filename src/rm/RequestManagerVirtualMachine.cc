@@ -643,6 +643,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
+    DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachine * vm;
 
@@ -652,7 +653,9 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     int    cluster_id;
     string ds_location;
     bool   is_public_cloud;
-    PoolObjectAuth host_perms;
+
+    PoolObjectAuth host_perms, ds_perms;
+    PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
 
@@ -691,15 +694,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // Authorize request
+    // Get information about the system DS to use (tm_mad & permissions)
     // ------------------------------------------------------------------------
-
-    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
-
-    if (auth == false)
-    {
-        return;
-    }
 
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -715,10 +711,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     vm->unlock();
-
-    // ------------------------------------------------------------------------
-    // Get information about the system DS to use (tm_mad)
-    // ------------------------------------------------------------------------
 
     if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
     {                    // by VirtualMachine::get_host_is_cloud()
@@ -756,6 +748,41 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
                 return;
             }
         }
+    }
+
+    if (ds_id == -1)
+    {
+       auth_ds_perms = 0;
+    }
+    else
+    {
+        Datastore * ds = dspool->get(ds_id, true);
+
+        if (ds == 0 )
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
+                att);
+
+            return;
+        }
+
+        ds->get_permissions(ds_perms);
+
+        ds->unlock();
+
+        auth_ds_perms = &ds_perms;
+    }
+
+    // ------------------------------------------------------------------------
+    // Authorize request
+    // ------------------------------------------------------------------------
+
+    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, auth_op);
+
+    if (auth == false)
+    {
+        return;
     }
 
     // ------------------------------------------------------------------------
