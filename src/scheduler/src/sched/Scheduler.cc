@@ -617,14 +617,16 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *  @param vm the virtual machine
  *  @param vdisk vm requirement
  *  @param ds to evaluate vm assgiment
+ *  @param n_auth number of ds authorized for the user, incremented if needed
  *  @param n_error number of requirement errors, incremented if needed
  *  @param n_matched number of system ds that fullfil VM sched_requirements
  *  @param n_fits number of system ds with capacity that fits the VM requirements
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_system_ds(VirtualMachineXML* vm, long long vdisk,
-    DatastoreXML * ds, int& n_error, int& n_fits, int &n_matched, string &error)
+static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdisk,
+    DatastoreXML * ds, int& n_auth, int& n_error, int& n_fits, int &n_matched,
+    string &error)
 {
     // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
@@ -637,6 +639,31 @@ static bool match_system_ds(VirtualMachineXML* vm, long long vdisk,
     }
 
     n_fits++;
+
+    // -------------------------------------------------------------------------
+    // Check if user is authorized
+    // -------------------------------------------------------------------------
+    if ( vm->get_uid() != 0 && vm->get_gid() != 0 )
+    {
+        PoolObjectAuth dsperms;
+
+        dsperms.oid      = ds->get_oid();
+        dsperms.cid      = ds->get_cid();
+        dsperms.obj_type = PoolObjectSQL::DATASTORE;
+
+        // Only include the VM group ID
+
+        set<int> gids;
+        gids.insert(vm->get_gid());
+
+        if ( !acls->authorize(vm->get_uid(), gids, dsperms, AuthRequest::USE))
+        {
+            error = "Permission denied.";
+            return false;
+        }
+    }
+
+    n_auth++;
 
     // -------------------------------------------------------------------------
     // Evaluate VM requirements
@@ -840,6 +867,7 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
 
         n_resources = 0;
+        n_auth    = 0;
         n_matched = 0;
         n_error   = 0;
         n_fits    = 0;
@@ -848,7 +876,8 @@ void Scheduler::match_schedule()
         {
             ds = static_cast<DatastoreXML *>(h_it->second);
 
-            if (match_system_ds(vm, vm_disk, ds, n_error, n_fits, n_matched, m_error))
+            if (match_system_ds(acls, vm, vm_disk, ds, n_auth, n_error, n_fits,
+                        n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
 
@@ -889,6 +918,10 @@ void Scheduler::match_schedule()
                             << vm->get_ds_requirements();
 
                         vm->log(oss.str());
+                    }
+                    else if (n_auth == 0)
+                    {
+                        vm->log("User is not authorized to use any system datastore");
                     }
                     else if (n_fits == 0)
                     {
