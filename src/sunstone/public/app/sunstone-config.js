@@ -98,7 +98,8 @@ define(function(require) {
       "logo": (_config['view']["provision_logo"] || "images/one_small_logo.png")
     },
 
-    'autoRefresh' : _config['view']['autorefresh']
+    'autoRefresh' : _config['view']['autorefresh'],
+    'tableOrder': _config['user_config']['table_order']
   }
 
   return Config;

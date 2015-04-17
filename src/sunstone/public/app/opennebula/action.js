@@ -1,5 +1,6 @@
 define(function(require) {
   var OpenNebulaHelper = require('./helper');
+  var OpenNebulaError = require('./error');
 
   var listCache = {};
   var listWaiting = {};
@@ -34,7 +35,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -57,7 +58,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -148,7 +149,7 @@ define(function(require) {
 
             if (callback) {
               //console.log(cache_name+" list. ERROR Callback called");
-              callback(request, OpenNebula.Error(response));
+              callback(request, OpenNebulaError(response));
             }
           }
 
@@ -178,7 +179,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -205,7 +206,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -264,7 +265,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -290,7 +291,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -315,7 +316,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -340,7 +341,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },

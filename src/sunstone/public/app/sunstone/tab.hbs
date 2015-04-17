@@ -24,17 +24,17 @@
     <div class="small-12 large-12 columns">
       <div class="action_blocks"></div>
       <div class="small-3 large-3 columns only-right-list" style="margin-top: 2px">
-        {{#if searchInput}}
-          {{{searchInput}}}
+        {{#if dataTable.searchInputHTML}}
+          {{{dataTable.searchInputHTML}}}
         {{/if}}
       </div>
     </div>
   </div>
   {{/if}}
   <div class="right-list">
-    {{#if table}}
+    {{#if dataTable.dataTableHTML}}
     <div class="row">
-      <div class="large-12 columns">{{{table}}}</div>
+      <div class="large-12 columns">{{{dataTable.dataTableHTML}}}</div>
     </div>
     {{/if}}
 
