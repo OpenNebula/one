@@ -345,6 +345,12 @@ define(function(require) {
 
       return false;
     });
+
+    // Button to return to the list view from the detailed view
+    $("a[href='back']").on("click", function(e){
+        $(".navigation-active-li a", $("#navigation")).click();
+        e.preventDefault();
+    });
   }
 
   var _setupTabs = function() {
