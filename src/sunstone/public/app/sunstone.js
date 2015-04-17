@@ -36,7 +36,7 @@ define(function(require) {
     for (tabName in SunstoneCfg["tabs"]) {
       _insertTab(tabName);
       _insertButtonsInTab(tabName);
-      _initializeDataTable(tabName);
+      _setupDataTable(tabName);
 
       // TODO Add openenbula actions
       /*if (config['view']['autorefresh']) {
@@ -53,7 +53,7 @@ define(function(require) {
     _setupTabs();
   }
 
-  var _initializeDataTable = function(tabName) {
+  var _setupDataTable = function(tabName) {
     if (SunstoneCfg['tabs'][tabName].dataTable) {
       SunstoneCfg['tabs'][tabName].dataTable.initialize();
     }
@@ -362,7 +362,7 @@ define(function(require) {
         return false;
       } else {
         var tabName = $(this).attr('id').substring(3);
-        showTab(tabName);
+        _showTab(tabName);
         return false;
       }
     });
@@ -376,7 +376,7 @@ define(function(require) {
         subtabs.fadeToggle('fast');
         return false;
       } else {
-        showTab(tabName);
+        _showTab(tabName);
         return false;
       }
     });
@@ -384,7 +384,33 @@ define(function(require) {
     _setupButtons();
   };
 
-  var showTab = function(tabName) {
+  var _showRighList = function(tabName){
+    var tab = $('#' + tabName);
+    $(".tab").hide();
+    tab.show();
+
+    $(".right-info", tab).hide();
+    $(".right-form", tab).hide();
+    $(".right-list", tab).show();
+    $(".only-right-info", tab).hide();
+    $(".only-right-form", tab).hide();
+    $(".only-right-list", tab).show();
+  };
+
+  var _showRighInfo = function(tabName){
+    var tab = $('#' + tabName);
+    $(".tab").hide();
+    tab.show();
+
+    $(".right-list", tab).hide();
+    $(".right-form", tab).hide();
+    $(".right-info", tab).show();
+    $(".only-right-list", tab).hide();
+    $(".only-right-form", tab).hide();
+    $(".only-right-info", tab).show();
+  }
+
+  var _showTab = function(tabName) {
     if (!SunstoneCfg['tabs'][tabName]) {
       return false;
     }
@@ -398,67 +424,36 @@ define(function(require) {
 
     //clean selected menu
     $("#navigation li").removeClass("navigation-active-li");
-
-    //select tab in left menu
-    var li = $("#navigation li#li_" + tabName)
-    li.addClass("navigation-active-li");
+    $("#navigation li#li_" + tabName).addClass("navigation-active-li");
 
     var tab = $('#' + tabName);
     //show tab
-    $(".tab").hide();
-    tab.show();
-    $(".right-info", tab).hide();
-    $(".right-form", tab).hide();
-    $(".right-list", tab).show();
-    $(".only-right-info", tab).hide();
-    $(".only-right-form", tab).hide();
-    $(".only-right-list", tab).show();
+    _showRighList(tabName);
 
     // TODO Add recountCheckboxes
     //recountCheckboxes($(".dataTable", tab).first());
 
-    // TODO Add opennebula.js
-    /*var res = SunstoneCfg['tabs'][activeTab]['resource']
+    var res = SunstoneCfg['tabs'][tabName]['resource']
     if (res) {
       Sunstone.runAction(res + ".list");
-    } else {
-      var action = activeTab + ".refresh";
-
-      if (SunstoneCfg["actions"][action]) {
-        Sunstone.runAction(action);
-      }
-    }*/
+    }
   }
 
   var _showElement = function(tabName, infoAction, elementId) {
-    showTab(tabName);
+    _showTab(tabName);
 
     var context = $('#' + tabName);
 
     $(".resource-id", context).html(elementId);
     $(".resource-info-header", context).text("");
 
-    _popDialogLoading(context);
+    var loading = '<div style="margin-top: 20px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
+    $(".right-info", context).html(loading);
+    _showRighInfo(tabName);
 
     Sunstone.runAction(infoAction, elementId);
     //enable action buttons
     $('.top_button, .list_button', context).attr('disabled', false);
-  }
-
-  var _popDialog = function(content, context) {
-    $(".right-info", context).html(content);
-    context.foundation();
-  }
-
-  var _popDialogLoading = function(context) {
-    $(".right-list", context).hide();
-    $(".right-form", context).hide();
-    $(".right-info", context).show();
-    $(".only-right-list", context).hide();
-    $(".only-right-form", context).hide();
-    $(".only-right-info", context).show();
-    var loading = '<div style="margin-top: 20px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
-    _popDialog(loading, context);
   }
 
   var _insertPanels = function(tabName, info) {
@@ -499,7 +494,7 @@ define(function(require) {
     });
 
     var TemplatePanels = require('hbs!./sunstone/panels');
-    _popDialog(TemplatePanels(templateAttrs), $("#" + tabName));
+    $(".right-info", $("#" + tabName)).html(TemplatePanels(templateAttrs));
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
@@ -603,11 +598,7 @@ define(function(require) {
   }
 
   var Sunstone = {
-    "showAction" : function() {
-      return SunstoneCfg["actions"];
-    },
-
-    //Adds several actions encapsulated in an js object.
+     //Adds several actions encapsulated in an js object.
     "addActions" : _addActions,
 
     "addMainTab" : _addMainTab,
@@ -617,24 +608,10 @@ define(function(require) {
       SunstoneCfg["form_panels"][formName] = formObj;
     },
 
-    // TODO Not necessary, updateInfoPanelTab overwrites it
-    //Adds a new info panel
-    "addInfoPanel" : function(panelName, panelObj) {
-      SunstoneCfg["info_panels"][panelName] = panelObj;
-    },
-
     //Makes an info panel content pop up in the screen.
     "showElement" : _showElement,
     "insertPanels" : _insertPanels,
 
-    // Replaces a tab from an info panel. Refreshes the DOM if wanted.
-    "updateInfoPanelTab" : function(panelName, panelTabId, panelTabObj, refresh) {
-      SunstoneCfg["info_panels"][panelName][panelTabId] = panelTabObj;
-      if (refresh) {
-        var tabContent = panelTabObj.content;
-        $('div#' + panelName + ' div#' + panelTabId, info_panel_context).html(tabContent);
-      }
-    },
 
     "popUpFormPanel" : function(formName, selectedTab, action, reset, initalizeFunc) {
       var context = $("#" + selectedTab);
@@ -732,7 +709,7 @@ define(function(require) {
 
     'insertTabs': _insertTabs,
     // TODO check if it used externally
-    //'showTab': showTab
+    //'showTab': _showTab
   };
 
   return Sunstone;
