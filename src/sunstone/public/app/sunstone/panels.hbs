@@ -1,0 +1,22 @@
+<div id="{{containerId}}" class="bordered-tabs">
+  <dl class="tabs right-info-tabs text-center" data-tab>
+    {{#each panels}}
+    <dd {{#if active}}class="active"{{/if}}>
+      <a href="#{{panelName}}">
+        {{#if icon}} 
+          <i class="fa {{icon}}"></i>
+          <br>
+        {{/if}}
+        {{title}}
+      </a>
+    </dd>
+    {{/each}}
+  </dl>
+  <div class='tabs-content'>
+    {{#each panels}}
+    <div id="{{panelName}}" class="content {{#if active}}active{{/if}}">
+      {{{contentHTML}}}
+    </div>
+    {{/each}}
+  </div>
+</div>

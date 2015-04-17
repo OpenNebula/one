@@ -439,65 +439,61 @@ define(function(require) {
     $('.top_button, .list_button', context).attr('disabled', false);
   }
 
-  var _popDialog = function(content, context){
-      $(".right-info", context).html(content);
-      context.foundation();
+  var _popDialog = function(content, context) {
+    $(".right-info", context).html(content);
+    context.foundation();
   }
 
-  var _popDialogLoading = function(context){
-      $(".right-list", context).hide();
-      $(".right-form", context).hide();
-      $(".right-info", context).show();
-      $(".only-right-list", context).hide();
-      $(".only-right-form", context).hide();
-      $(".only-right-info", context).show();
-      var loading = '<div style="margin-top: 20px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
-      _popDialog(loading, context);
+  var _popDialogLoading = function(context) {
+    $(".right-list", context).hide();
+    $(".right-form", context).hide();
+    $(".right-info", context).show();
+    $(".only-right-list", context).hide();
+    $(".only-right-form", context).hide();
+    $(".only-right-info", context).show();
+    var loading = '<div style="margin-top: 20px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
+    _popDialog(loading, context);
   }
 
   var _insertPanels = function(tabName, info) {
-    var panelName = tabName + '-panels';
-    var activaTab = $("dd.active a", $("#" + panelName));
+    var containerId = tabName + '-panels';
+    var activaTab = $("dd.active a", $("#" + containerId));
     if (activaTab) {
       var activaTabHref = activaTab.attr('href');
     }
 
-    var dlTabs = $('<div id="' + panelName + '" class="bordered-tabs">\
-              <dl class="tabs right-info-tabs text-center" data-tab>\
-              </dl>\
-              <div class="tabs-content"></div>\
-              </div>\
-          </div>');
-console.log(tabName)
-console.log(SunstoneCfg)
-    var tabs = SunstoneCfg['tabs'][tabName].panels;
-    var tab = null;
-    var active = false;
-
-    for (panelTabName in tabs) {
-      if (Config.isTabPanelEnabled(tabName, panelTabName) == false) {
-        continue;
-      }
-
-      tab = tabs[panelTabName];
-      var dd = $('<dd><a href="#' + panelTabName + '">' + (tab.icon ? '<i class="fa ' + tab.icon + '"></i><br>' : '') + tab.title + '</a></dd>').appendTo($('dl', dlTabs));
-      var li = $('<div id="' + panelTabName + '" class="content">' + tab.content(info) + '</div>').appendTo($('.tabs-content', dlTabs));
-
-      if (activaTabHref) {
-        if (activaTabHref == "#" + panelTabName) {
-          dd.addClass('active');
-          li.addClass('active');
-        }
-      } else {
-        if (!active) {
-          dd.addClass('active');
-          li.addClass('active');
-          active = true;
-        }
-      }
+    var templateAttrs = {
+      'containerId': containerId,
+      'panels': []
     }
 
-    _popDialog(dlTabs, $("#" + tabName));
+    var panels = SunstoneCfg['tabs'][tabName].panels;
+    var active = false;
+
+    $.each(panels, function(panelName, panel) {
+      if (Config.isTabPanelEnabled(tabName, panelName)) {
+        if (activaTabHref) {
+          if (activaTabHref == "#" + panelTabName) {
+            active = true;
+          }
+        } else {
+          if (!active) {
+            active = true;
+          }
+        }
+
+        templateAttrs.panels.push({
+          'panelName': panelName,
+          'icon': panel.icon,
+          'title': panel.title,
+          'contentHTML': panel.content(info),
+          'active': active
+        })
+      }
+    });
+
+    var TemplatePanels = require('hbs!./sunstone/panels');
+    _popDialog(TemplatePanels(templateAttrs), $("#" + tabName));
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
