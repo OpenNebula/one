@@ -2,8 +2,9 @@ define(function(require) {
   require('jquery');
   require('foundation.core')
 
-  var Config = require('sunstone-config'),
-      Locale = require('utils/locale');
+  var Config = require('sunstone-config');
+  var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
 
   var TOP_INTERVAL = 10000; //ms
 
@@ -14,15 +15,32 @@ define(function(require) {
     "form_panels" : {}
   };
 
+  var _addActions = function(actions) {
+    for (action in actions) {
+      SunstoneCfg["actions"][action] = actions[action];
+    }
+  }
+
+  var _addMainTab = function(tadId, tabObj) {
+    if (Config.isTabEnabled(tadId)) {
+      SunstoneCfg["tabs"][tadId] = tabObj;
+
+      if (tabObj.actions) {
+        _addActions(tabObj.actions);
+      }
+    }
+  }
+
   //Inserts all main tabs in the DOM
-  var insertTabs = function() {
-    for (tab in SunstoneCfg["tabs"]) {
-      _insertTab(tab);
-      insertButtonsInTab(tab);
+  var _insertTabs = function() {
+    for (tabName in SunstoneCfg["tabs"]) {
+      _insertTab(tabName);
+      _insertButtonsInTab(tabName);
+      _initializeDataTable(tabName);
 
       // TODO Add openenbula actions
       /*if (config['view']['autorefresh']) {
-        var tabContext = $("#" + tab);
+        var tabContext = $("#" + tabName);
         var refreshButton = $(".fa-refresh", $(".action_blocks", tabContext).first());
         setInterval(function() {
           if (Sunstone.rightListVisible(tabContext)) {
@@ -33,6 +51,12 @@ define(function(require) {
     }
 
     _setupTabs();
+  }
+
+  var _initializeDataTable = function(tabName) {
+    if (SunstoneCfg['tabs'][tabName].dataTable) {
+      SunstoneCfg['tabs'][tabName].dataTable.initialize();
+    }
   }
 
   //Inserts a main tab in the DOM. This is done by
@@ -78,7 +102,7 @@ define(function(require) {
 
   //If we have defined a block of action buttons in a tab,
   //this function takes care of inserting them in the DOM.
-  var insertButtonsInTab = function(tabName, panelName, panelButtons, customContext) {
+  var _insertButtonsInTab = function(tabName, panelName, panelButtons, customContext) {
     var buttons = panelButtons ? panelButtons : SunstoneCfg["tabs"][tabName]["buttons"];
     var buttonCode = "";
     var condition = null;
@@ -283,6 +307,46 @@ define(function(require) {
     }//if tab exists
   }
 
+  var _setupButtons = function() {
+    //Listen for .action_buttons
+    //An action buttons runs a predefined action. If it has type
+    //"multiple" it runs that action on the elements of a datatable.
+    $('.action_button').on("click", function() {
+      var error = 0;
+      var value = $(this).val()
+      if ($.isEmptyObject(value)) {
+        value = $(this).attr('href');
+      }
+
+      /*if (!$(this).hasClass("refresh")) {
+        $(document).foundation('dropdown', 'closeall');
+      }*/
+
+      var action = SunstoneCfg["actions"][value];
+      if (!action) {
+        Notifier.notifyError("Action " + value + " not defined.");
+        return false;
+      };
+      switch (action.type){
+      case "multiple": //find the datatable
+        var context = $(this).parents(".tab");
+        var nodes = action.elements();
+        error = _runAction(value, nodes);
+        break;
+      default:
+        error = _runAction(value);
+      }
+
+      if (!error && !$(this).hasClass("refresh")) {
+        //proceed to close confirm dialog in
+        //case it was open
+        $('div#confirm_dialog').foundation('reveal', 'close');
+      };
+
+      return false;
+    });
+  }
+
   var _setupTabs = function() {
     var topTabs = $(".left-content ul li.topTab");
     var subTabs = $(".left-content ul li.subTab");
@@ -310,6 +374,8 @@ define(function(require) {
         return false;
       }
     });
+
+    _setupButtons();
   };
 
   var showTab = function(tabName) {
@@ -358,23 +424,115 @@ define(function(require) {
     }*/
   }
 
+  //Runs a predefined action. Wraps the calls to opennebula.js and
+  //can be use to run action depending on conditions and notify them
+  //if desired. Returns 1 if some problem has been detected: i.e
+  //the condition to run the action is not met, the action is not found 
+  var _runAction = function(action, dataArg, extraParam) {
+    var actions = SunstoneCfg["actions"];
+    if (!actions[action]) {
+      notifyError("Action " + action + " not defined");
+      return 1;
+    }
+
+    var actionCfg = actions[action];
+    var notify = actionCfg.notify;
+
+    var condition = actionCfg["condition"];
+
+    //Is the condition to run the action met?
+    //Should we inform if it is not met?
+    if (condition && !condition()) {
+      if (notify) {
+        notifyError("This action cannot be run");
+      }
+      return 1;
+    }
+
+    var call = actionCfg["call"];
+    var callback = actionCfg["callback"];
+    var err = actionCfg["error"];
+
+    switch (actionCfg.type){
+    case "create":
+    case "register":
+      call({data:dataArg, success: callback, error:err});
+      break;
+    case "single":
+      if (extraParam) {
+        call({
+          data:{
+            id:dataArg,
+            extraParam:extraParam
+          },
+          success: callback, error:err
+        });
+      } else {
+        call({data:{id:dataArg}, success: callback, error:err});
+      };
+      break;
+    case "list":
+      call({success: callback, error:err, options:dataArg});
+      break;
+    case "monitor_global":
+      call({
+          timeout: true,
+          success: callback,
+          error:err,
+          data: {monitor: dataArg}});
+      break;
+    case "monitor":
+    case "monitor_single":
+      call({
+          timeout: true,
+          success: callback,
+          error:err,
+          data: {id:dataArg, monitor: extraParam}});
+      break;
+    case "multiple":
+      $.each(dataArg, function() {
+        if (extraParam) {
+          call({
+                        data:{
+                          id:this,
+                          extraParam:extraParam
+                        },
+                        success: callback,
+                        error: err});
+        } else {
+          call({
+              data:{id:this},
+              success: callback,
+              error:err});
+        }
+      });
+      break;
+    default:
+      if (dataArg && extraParam) {
+        call(dataArg, extraParam);
+      } else if (dataArg) {
+        call(dataArg);
+      } else {
+        call();
+      }
+    }
+
+    if (notify) {
+      notifySubmit(action, dataArg, extraParam);
+    }
+
+    return 0;
+  }
+
   var Sunstone = {
     "showAction" : function() {
       return SunstoneCfg["actions"];
     },
 
     //Adds several actions encapsulated in an js object.
-    "addActions" : function(actions) {
-      for (action in actions) {
-        SunstoneCfg["actions"][action] = actions[action];
-      }
-    },
+    "addActions" : _addActions,
 
-    "addMainTab" : function(tadId, tabObj) {
-      if (Config.isTabEnabled(tadId)) {
-        SunstoneCfg["tabs"][tadId] = tabObj;
-      }
-    },
+    "addMainTab" : _addMainTab,
 
     // TODO Check if necessary
     "addFormPanel" : function(tadId, formName, formObj) {
@@ -508,105 +666,7 @@ define(function(require) {
       }
     },
 
-    //Runs a predefined action. Wraps the calls to opennebula.js and
-    //can be use to run action depending on conditions and notify them
-    //if desired. Returns 1 if some problem has been detected: i.e
-    //the condition to run the action is not met, the action is not found
-    "runAction" : function(action, dataArg, extraParam) {
-      var actions = SunstoneCfg["actions"];
-      if (!actions[action]) {
-        notifyError("Action " + action + " not defined");
-        return 1;
-      }
-
-      var actionCfg = actions[action];
-      var notify = actionCfg.notify;
-
-      var condition = actionCfg["condition"];
-
-      //Is the condition to run the action met?
-      //Should we inform if it is not met?
-      if (condition && !condition()) {
-        if (notify) {
-          notifyError("This action cannot be run");
-        }
-        return 1;
-      }
-
-      var call = actionCfg["call"];
-      var callback = actionCfg["callback"];
-      var err = actionCfg["error"];
-
-      switch (actionCfg.type){
-      case "create":
-      case "register":
-        call({data:dataArg, success: callback, error:err});
-        break;
-      case "single":
-        if (extraParam) {
-          call({
-            data:{
-              id:dataArg,
-              extraParam:extraParam
-            },
-            success: callback, error:err
-          });
-        } else {
-          call({data:{id:dataArg}, success: callback, error:err});
-        };
-        break;
-      case "list":
-        call({success: callback, error:err, options:dataArg});
-        break;
-      case "monitor_global":
-        call({
-            timeout: true,
-            success: callback,
-            error:err,
-            data: {monitor: dataArg}});
-        break;
-      case "monitor":
-      case "monitor_single":
-        call({
-            timeout: true,
-            success: callback,
-            error:err,
-            data: {id:dataArg, monitor: extraParam}});
-        break;
-      case "multiple":
-        $.each(dataArg, function() {
-          if (extraParam) {
-            call({
-                          data:{
-                            id:this,
-                            extraParam:extraParam
-                          },
-                          success: callback,
-                          error: err});
-          } else {
-            call({
-                data:{id:this},
-                success: callback,
-                error:err});
-          }
-        });
-        break;
-      default:
-        if (dataArg && extraParam) {
-          call(dataArg, extraParam);
-        } else if (dataArg) {
-          call(dataArg);
-        } else {
-          call();
-        }
-      }
-
-      if (notify) {
-        notifySubmit(action, dataArg, extraParam);
-      }
-
-      return 0;
-    },
+    "runAction" : _runAction,
 
     //returns a button object from the desired tab
     "getButton" : function(tadId, buttonName) {
@@ -632,7 +692,7 @@ define(function(require) {
       return $(".resource-id", context).text();
     },
 
-    'insertTabs': insertTabs,
+    'insertTabs': _insertTabs,
     // TODO check if it used externally
     //'showTab': showTab
   };
