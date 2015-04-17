@@ -3,6 +3,13 @@ require.config({
     /* jQuery */
     'jquery': '../bower_components/jquery/dist/jquery.min',
 
+    /* DataTables */
+    'datatables': '../bower_components/datatables/media/js/jquery.dataTables.min',
+    'foundation-datatables': '../bower_components/foundation-datatables/integration/foundation/dataTables.foundation.min',
+
+    /* DataTables */
+    'jgrowl': '../bower_components/jgrowl/jquery.jgrowl.min',
+
     /* Foundation */
     'foundation.core': '../bower_components/foundation/js/foundation/foundation',
     'foundation.abide': '../bower_components/foundation/js/foundation/foundation.abide',
@@ -34,6 +41,11 @@ require.config({
     /* jQuery */
     'jquery': {
       exports: '$'
+    },
+
+    /* dataTables */
+    'foundation-datatables': {
+      deps: ['jquery', 'datatables']
     },
 
     /* Foundation */
