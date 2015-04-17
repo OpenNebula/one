@@ -36,9 +36,9 @@ define(function(require) {
       callback: function(request, response) {
         // TODO var tab = dataTable_zones.parents(".tab");
 
-        if (Sunstone.rightInfoVisible(tab)) {
+        if (Sunstone.rightInfoVisible($('#zones-tab'))) {
           // individual view
-          // TODO updateZoneInfo(request, response);
+          Sunstone.insertPanels('zones-tab', response);
         }
 
         // datatable row

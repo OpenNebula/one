@@ -1,6 +1,7 @@
 define(function(require) {
   require('foundation-datatables');
-  var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table')
+  var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
+  var Sunstone = require('sunstone');
 
   var SPINNER = '<img src="images/ajax-loader.gif" alt="retrieving" class="loading_img"/>';
 
@@ -16,12 +17,10 @@ define(function(require) {
 
   //Shows run a custom action when clicking on rows.
   var _infoListener = function(dataTable, info_action, target_tab) {
-    $('tbody tr', dataTable).off("click");
-    $('tbody tr', dataTable).on("click", function(e) {
-
-      if ($(e.target).is('input') ||
-          $(e.target).is('select') ||
-          $(e.target).is('option')) return true;
+    dataTable.on("click", 'tbody tr', function(e) {
+      if ($(e.target).is('input') ||$(e.target).is('select') || $(e.target).is('option')) {
+       return true;
+     }
 
       var aData = dataTable.fnGetData(this);
       if (!aData) return true;
@@ -34,10 +33,10 @@ define(function(require) {
           $('.check_item', this).trigger('click');
         } else {
           if (!target_tab) {
-            target_tab = activeTab;
+            target_tab = $(dataTable).parents(".tab").attr("id");
           }
-
-          showElement(target_tab, info_action, id);
+          console.log(target_tab)
+          Sunstone.showElement(target_tab, info_action, id);
         };
       } else {
         $('.check_item', this).trigger('click');
@@ -146,7 +145,7 @@ define(function(require) {
         $(this).parents('tr').children().removeClass('markrowchecked');
       }
 
-      recountCheckboxes(datatable, context);
+      _recountCheckboxes(datatable, context);
     });
   }
 
@@ -259,7 +258,7 @@ define(function(require) {
       var position = dataTable.fnGetPosition(tr);
       dataTable.fnUpdate(element, position, undefined, false);
       $('input.check_item', tr).attr('checked', checked_val);
-      recountCheckboxes(dataTable);
+      _recountCheckboxes(dataTable);
     }
   }
 

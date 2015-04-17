@@ -424,6 +424,82 @@ define(function(require) {
     }*/
   }
 
+  var _showElement = function(tabName, infoAction, elementId) {
+    showTab(tabName);
+
+    var context = $('#' + tabName);
+
+    $(".resource-id", context).html(elementId);
+    $(".resource-info-header", context).text("");
+
+    _popDialogLoading(context);
+
+    Sunstone.runAction(infoAction, elementId);
+    //enable action buttons
+    $('.top_button, .list_button', context).attr('disabled', false);
+  }
+
+  var _popDialog = function(content, context){
+      $(".right-info", context).html(content);
+      context.foundation();
+  }
+
+  var _popDialogLoading = function(context){
+      $(".right-list", context).hide();
+      $(".right-form", context).hide();
+      $(".right-info", context).show();
+      $(".only-right-list", context).hide();
+      $(".only-right-form", context).hide();
+      $(".only-right-info", context).show();
+      var loading = '<div style="margin-top: 20px; text-align: center; width: 100%"><img src="images/pbar.gif" alt="loading..." /></div>';
+      _popDialog(loading, context);
+  }
+
+  var _insertPanels = function(tabName, info) {
+    var panelName = tabName + '-panels';
+    var activaTab = $("dd.active a", $("#" + panelName));
+    if (activaTab) {
+      var activaTabHref = activaTab.attr('href');
+    }
+
+    var dlTabs = $('<div id="' + panelName + '" class="bordered-tabs">\
+              <dl class="tabs right-info-tabs text-center" data-tab>\
+              </dl>\
+              <div class="tabs-content"></div>\
+              </div>\
+          </div>');
+console.log(tabName)
+console.log(SunstoneCfg)
+    var tabs = SunstoneCfg['tabs'][tabName].panels;
+    var tab = null;
+    var active = false;
+
+    for (panelTabName in tabs) {
+      if (Config.isTabPanelEnabled(tabName, panelTabName) == false) {
+        continue;
+      }
+
+      tab = tabs[panelTabName];
+      var dd = $('<dd><a href="#' + panelTabName + '">' + (tab.icon ? '<i class="fa ' + tab.icon + '"></i><br>' : '') + tab.title + '</a></dd>').appendTo($('dl', dlTabs));
+      var li = $('<div id="' + panelTabName + '" class="content">' + tab.content(info) + '</div>').appendTo($('.tabs-content', dlTabs));
+
+      if (activaTabHref) {
+        if (activaTabHref == "#" + panelTabName) {
+          dd.addClass('active');
+          li.addClass('active');
+        }
+      } else {
+        if (!active) {
+          dd.addClass('active');
+          li.addClass('active');
+          active = true;
+        }
+      }
+    }
+
+    _popDialog(dlTabs, $("#" + tabName));
+  }
+
   //Runs a predefined action. Wraps the calls to opennebula.js and
   //can be use to run action depending on conditions and notify them
   //if desired. Returns 1 if some problem has been detected: i.e
@@ -546,48 +622,8 @@ define(function(require) {
     },
 
     //Makes an info panel content pop up in the screen.
-    "popUpInfoPanel" : function(panelName, selectedTab) {
-      var activaTab = $("dd.active a", $("#" + panelName));
-      if (activaTab) {
-        var activaTabHref = activaTab.attr('href');
-      }
-
-      var dlTabs = $('<div id="' + panelName + '" class="bordered-tabs">\
-              <dl class="tabs right-info-tabs text-center" data-tab>\
-              </dl>\
-              <div class="tabs-content"></div>\
-              </div>\
-          </div>');
-
-      var tabs = SunstoneCfg["info_panels"][panelName];
-      var tab = null;
-      var active = false;
-
-      for (panelTabName in tabs) {
-        if (Config.isTabPanelEnabled(selectedTab, panelTabName) == false) {
-          continue;
-        }
-
-        tab = tabs[panelTabName];
-        var dd = $('<dd><a href="#' + panelTabName + '">' + (tab.icon ? '<i class="fa ' + tab.icon + '"></i><br>' : '') + tab.title + '</a></dd>').appendTo($('dl', dlTabs));
-        var li = $('<div id="' + panelTabName + '" class="content">' + tab.content + '</div>').appendTo($('.tabs-content', dlTabs));
-
-        if (activaTabHref) {
-          if (activaTabHref == "#" + panelTabName) {
-            dd.addClass('active');
-            li.addClass('active');
-          }
-        } else {
-          if (!active) {
-            dd.addClass('active');
-            li.addClass('active');
-            active = true;
-          }
-        }
-      }
-
-      popDialog(dlTabs, $("#" + selectedTab));
-    },
+    "showElement" : _showElement,
+    "insertPanels" : _insertPanels,
 
     // Replaces a tab from an info panel. Refreshes the DOM if wanted.
     "updateInfoPanelTab" : function(panelName, panelTabId, panelTabObj, refresh) {
