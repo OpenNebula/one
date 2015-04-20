@@ -53,12 +53,12 @@ define(function(require) {
     };
 
     if (!message) {
-      notifyError(tr("Cannot contact server: is it running and reachable?"));
+      _notifyError(tr("Cannot contact server: is it running and reachable?"));
       return false;
     };
 
     if (error_json.error.http_status == "404") {
-      notifyError(message);
+      _notifyError(message);
       return false;
     }
 
@@ -68,7 +68,7 @@ define(function(require) {
     }
 
     if (message.match(/^Network is unreachable .+$/)) {
-      notifyError(tr("Network is unreachable: is OpenNebula running?"));
+      _notifyError(tr("Network is unreachable: is OpenNebula running?"));
       return false;
     };
 
@@ -102,7 +102,7 @@ define(function(require) {
       message = "<table>" + message + "</table>";
     };
 
-    notifyError(message);
+    _notifyError(message);
     return true;
   }
 

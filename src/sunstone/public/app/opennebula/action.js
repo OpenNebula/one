@@ -240,7 +240,6 @@ define(function(require) {
       var callback = params.success;
       var callbackError = params.error;
       var id = params.data.id;
-
       var action, request;
       if (action_obj) {
         action = OpenNebulaHelper.action(method, action_obj);

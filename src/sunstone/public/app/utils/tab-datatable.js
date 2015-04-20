@@ -35,7 +35,6 @@ define(function(require) {
           if (!target_tab) {
             target_tab = $(dataTable).parents(".tab").attr("id");
           }
-          console.log(target_tab)
           Sunstone.showElement(target_tab, info_action, id);
         };
       } else {

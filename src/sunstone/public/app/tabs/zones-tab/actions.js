@@ -3,6 +3,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var ZonesDataTable = require('./datatable');
+  var Locale = require('utils/locale');
 
   var _zoneActions = {
     "Zone.create" : {
@@ -81,7 +82,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaZone.update,
       callback: function(request, response) {
-        Notifier.notifyMessage(tr("Zone updated correctly"));
+        Notifier.notifyMessage(Locale.tr("Zone updated correctly"));
         Sunstone.runAction('Zone.show', request.request.data[0][0]);
       },
       error: Notifier.onError
@@ -100,7 +101,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaZone.rename,
       callback: function(request) {
-        Notifier.notifyMessage(tr("Zone renamed correctly"));
+        Notifier.notifyMessage(Locale.tr("Zone renamed correctly"));
         Sunstone.runAction('Zone.show', request.request.data[0][0]);
       },
       error: Notifier.onError,

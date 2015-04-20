@@ -347,9 +347,9 @@ define(function(require) {
     });
 
     // Button to return to the list view from the detailed view
-    $("a[href='back']").on("click", function(e){
-        $(".navigation-active-li a", $("#navigation")).click();
-        e.preventDefault();
+    $("a[href='back']").on("click", function(e) {
+      $(".navigation-active-li a", $("#navigation")).click();
+      e.preventDefault();
     });
   }
 
@@ -384,7 +384,7 @@ define(function(require) {
     _setupButtons();
   };
 
-  var _showRighList = function(tabName){
+  var _showRighList = function(tabName) {
     var tab = $('#' + tabName);
     $(".tab").hide();
     tab.show();
@@ -397,7 +397,7 @@ define(function(require) {
     $(".only-right-list", tab).show();
   };
 
-  var _showRighInfo = function(tabName){
+  var _showRighInfo = function(tabName) {
     var tab = $('#' + tabName);
     $(".tab").hide();
     tab.show();
@@ -457,6 +457,7 @@ define(function(require) {
   }
 
   var _insertPanels = function(tabName, info) {
+    var context = $(".right-info", $("#" + tabName));
     var containerId = tabName + '-panels';
     var activaTab = $("dd.active a", $("#" + containerId));
     if (activaTab) {
@@ -470,11 +471,12 @@ define(function(require) {
 
     var panels = SunstoneCfg['tabs'][tabName].panels;
     var active = false;
+    var activePanels = []
 
     $.each(panels, function(panelName, panel) {
       if (Config.isTabPanelEnabled(tabName, panelName)) {
         if (activaTabHref) {
-          if (activaTabHref == "#" + panelTabName) {
+          if (activaTabHref == "#" + panelName) {
             active = true;
           }
         } else {
@@ -483,18 +485,28 @@ define(function(require) {
           }
         }
 
-        templateAttrs.panels.push({
+        activePanels.push({
           'panelName': panelName,
           'icon': panel.icon,
           'title': panel.title,
-          'contentHTML': panel.content(info),
-          'active': active
+          'html': panel.html(info),
+          'active': active,
+          'setup': panel.setup
         })
       }
     });
 
     var TemplatePanels = require('hbs!./sunstone/panels');
-    $(".right-info", $("#" + tabName)).html(TemplatePanels(templateAttrs));
+    var html = TemplatePanels({
+      'containerId': containerId,
+      'panels': activePanels
+    })
+
+    context.html(html);
+
+    $.each(panels, function(index, panel) {
+      panel.setup(info, context)
+    });
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
@@ -504,7 +516,7 @@ define(function(require) {
   var _runAction = function(action, dataArg, extraParam) {
     var actions = SunstoneCfg["actions"];
     if (!actions[action]) {
-      notifyError("Action " + action + " not defined");
+      Notifier.notifyError("Action " + action + " not defined");
       return 1;
     }
 
@@ -517,7 +529,7 @@ define(function(require) {
     //Should we inform if it is not met?
     if (condition && !condition()) {
       if (notify) {
-        notifyError("This action cannot be run");
+        Notifier.notifyError("This action cannot be run");
       }
       return 1;
     }
@@ -536,7 +548,7 @@ define(function(require) {
         call({
           data:{
             id:dataArg,
-            extraParam:extraParam
+            extra_param: extraParam
           },
           success: callback, error:err
         });
@@ -568,7 +580,7 @@ define(function(require) {
           call({
                         data:{
                           id:this,
-                          extraParam:extraParam
+                          extra_param:extraParam
                         },
                         success: callback,
                         error: err});
@@ -591,14 +603,14 @@ define(function(require) {
     }
 
     if (notify) {
-      notifySubmit(action, dataArg, extraParam);
+      Notifier.notifySubmit(action, dataArg, extraParam);
     }
 
     return 0;
   }
 
   var Sunstone = {
-     //Adds several actions encapsulated in an js object.
+    //Adds several actions encapsulated in an js object.
     "addActions" : _addActions,
 
     "addMainTab" : _addMainTab,
@@ -611,7 +623,6 @@ define(function(require) {
     //Makes an info panel content pop up in the screen.
     "showElement" : _showElement,
     "insertPanels" : _insertPanels,
-
 
     "popUpFormPanel" : function(formName, selectedTab, action, reset, initalizeFunc) {
       var context = $("#" + selectedTab);
