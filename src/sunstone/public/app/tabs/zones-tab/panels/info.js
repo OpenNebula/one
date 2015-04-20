@@ -1,5 +1,5 @@
 define(function(require) {
-  var TemplateInfo = require('hbs!./info/content');
+  var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var RenameTr = require('utils/panel/rename-tr');
   var ExtendedTemplateTable = require('utils/panel/extended-template-table');
