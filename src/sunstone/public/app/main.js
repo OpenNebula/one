@@ -43,6 +43,11 @@ require.config({
       exports: '$'
     },
 
+    /* jGrowl */
+    'jgrowl': {
+      deps: ['jquery']
+    },
+
     /* dataTables */
     'foundation-datatables': {
       deps: ['jquery', 'datatables']
