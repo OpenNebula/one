@@ -4,7 +4,7 @@ define(function(require) {
     The row can be edited and a rename action will be sent
    */
   
-  var TemplateRenameTr = require('hbs!./panel/rename-tr/html');
+  var TemplateRenameTr = require('hbs!./rename-tr/html');
   var Sunstone = require('sunstone');
 
   /*
