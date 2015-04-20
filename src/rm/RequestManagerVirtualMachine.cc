@@ -1494,6 +1494,157 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineSaveDiskCancel::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    Nebula& nd  = Nebula::instance();
+
+    AclManager *    aclm   = nd.get_aclm();
+    ImageManager *  imagem = nd.get_imagem();
+    ImagePool *     ipool  = nd.get_ipool();
+    Image *         img;
+    int             img_id;
+
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachine * vm;
+
+    string error_str;
+
+    int    id       = xmlrpc_c::value_int(paramList.getInt(1));
+    int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the VM operation
+    // -------------------------------------------------------------------------
+
+    if (att.uid != UserPool::ONEADMIN_ID)
+    {
+        PoolObjectAuth vm_perms;
+        PoolObjectAuth img_perms;
+
+        if ((vm = get_vm(id, att)) == 0)
+        {
+            return;
+        }
+
+        vm->get_permissions(vm_perms);
+
+        img_id = vm->get_save_disk_image(disk_id);
+
+        vm->unlock();
+
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(auth_op, vm_perms); // MANAGE VM
+
+        img = ipool->get(img_id, true);
+
+        if ( img != 0 )
+        {
+            img->get_permissions(img_perms);
+
+            img->unlock();
+
+            ar.add_auth(AuthRequest::MANAGE, img_perms);    // MANAGE IMAGE
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Check the VM state
+    // -------------------------------------------------------------------------
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if ((vm->get_state() != VirtualMachine::ACTIVE ||
+        (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+         vm->get_lcm_state() != VirtualMachine::UNKNOWN) ) &&
+        vm->get_state() != VirtualMachine::POWEROFF &&
+        vm->get_state() != VirtualMachine::SUSPENDED)
+    {
+        failure_response(ACTION,
+                 request_error("Wrong state to perform action",""),
+                 att);
+
+        vm->unlock();
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Cancel the disk snapshot
+    // -------------------------------------------------------------------------
+
+    img_id = vm->get_save_disk_image(disk_id);
+
+    if ( img_id == -1 )
+    {
+        ostringstream oss;
+        oss << "Disk with ID [" << disk_id << "] is not going to be saved";
+
+        failure_response(ACTION,
+                        request_error(oss.str(), ""),
+                        att);
+
+        vm->unlock();
+
+        return;
+    }
+
+    vm->clear_save_disk(disk_id);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // -------------------------------------------------------------------------
+    // Delete the target Image
+    // -------------------------------------------------------------------------
+
+    img = ipool->get(img_id, true);
+
+    if ( img != 0 )
+    {
+        img->unlock();
+
+        int rc = imagem->delete_image(img_id, error_str);
+
+        if (rc != 0)
+        {
+            ostringstream oss;
+            oss << "The snapshot was canceled, but "
+                << object_name(PoolObjectSQL::IMAGE) << " [" << img_id
+                << "] could not be deleted: " << error_str;
+
+            failure_response(INTERNAL,
+                    request_error(oss.str(), ""),
+                    att);
+
+            return;
+        }
+
+        aclm->del_resource_rules(img_id, PoolObjectSQL::IMAGE);
+    }
+
+    // TODO: Delete the cloned template
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineMonitoring::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)

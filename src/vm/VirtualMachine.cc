@@ -3353,6 +3353,51 @@ int VirtualMachine::save_disk(int           disk_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::clear_save_disk(int disk_id)
+{
+    VectorAttribute * disk;
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        disk->remove("SAVE_AS_SOURCE");
+        disk->remove("SAVE_AS");
+        disk->replace("SAVE", "NO");
+
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_save_disk_image(int disk_id)
+{
+    VectorAttribute * disk;
+    bool    save;
+    int     img_id = -1;
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        disk->vector_value("SAVE", save);
+
+        if (save)
+        {
+            disk->vector_value("SAVE_AS", img_id);
+        }
+    }
+
+    return img_id;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::save_disk_hot(int           disk_id,
                                   const string& source,
                                   int           img_id)

@@ -24,26 +24,27 @@ module OpenNebula
         #######################################################################
 
         VM_METHODS = {
-            :info       => "vm.info",
-            :allocate   => "vm.allocate",
-            :action     => "vm.action",
-            :migrate    => "vm.migrate",
-            :deploy     => "vm.deploy",
-            :savedisk   => "vm.savedisk",
-            :chown      => "vm.chown",
-            :chmod      => "vm.chmod",
-            :monitoring => "vm.monitoring",
-            :attach     => "vm.attach",
-            :detach     => "vm.detach",
-            :rename     => "vm.rename",
-            :update     => "vm.update",
-            :resize     => "vm.resize",
+            :info           => "vm.info",
+            :allocate       => "vm.allocate",
+            :action         => "vm.action",
+            :migrate        => "vm.migrate",
+            :deploy         => "vm.deploy",
+            :savedisk       => "vm.savedisk",
+            :savediskcancel => "vm.savediskcancel",
+            :chown          => "vm.chown",
+            :chmod          => "vm.chmod",
+            :monitoring     => "vm.monitoring",
+            :attach         => "vm.attach",
+            :detach         => "vm.detach",
+            :rename         => "vm.rename",
+            :update         => "vm.update",
+            :resize         => "vm.resize",
             :snapshotcreate => "vm.snapshotcreate",
             :snapshotrevert => "vm.snapshotrevert",
             :snapshotdelete => "vm.snapshotdelete",
-            :attachnic  => "vm.attachnic",
-            :detachnic  => "vm.detachnic",
-            :recover    => "vm.recover"
+            :attachnic      => "vm.attachnic",
+            :detachnic      => "vm.detachnic",
+            :recover        => "vm.recover"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -479,6 +480,14 @@ module OpenNebula
         # @deprecated use {#disk_snapshot}
         def save_as(disk_id, image_name, image_type="", hot=false)
             return disk_snapshot(disk_id, image_name, image_type, hot)
+        end
+
+        # Cancels a deferred snapshot that has been set by disk_snapshot.
+        # The target image is also deleted.
+        def disk_snapshot_cancel(disk_id)
+            return call(VM_METHODS[:savediskcancel],
+                              @pe_id,
+                              disk_id)
         end
 
         # Resize the VM

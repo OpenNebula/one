@@ -192,6 +192,7 @@ tabs:
             VM.attachdisk: true
             VM.detachdisk: true
             VM.saveas: true
+            VM.disk_snapshot_cancel: true
             VM.attachnic: true
             VM.detachnic: true
             VM.snapshot_create: true

@@ -330,6 +330,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    disk_snapshot_cancel_desc = <<-EOT.unindent
+        Cancels a deferred disk snapshot that has been set by disk-snapshot.
+        The target image is also deleted.
+
+        States: ANY
+    EOT
+
+    command :"disk-snapshot-cancel", disk_snapshot_cancel_desc, :vmid, :diskid do
+        helper.perform_action(args[0],options,"disk snapshot canceled") do |vm|
+            vm.disk_snapshot_cancel(args[1].to_i)
+        end
+    end
+
     shutdown_desc = <<-EOT.unindent
         Shuts down the given VM. The VM life cycle will end.
 

@@ -1067,6 +1067,11 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
                                             "saveas",action_obj);
         },
+        "disk_snapshot_cancel": function(params){
+            var action_obj = {"disk_id": params.data.extra_param};
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "disk_snapshot_cancel",action_obj);
+        },
         "snapshot_create": function(params){
             var action_obj = params.data.extra_param;
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,

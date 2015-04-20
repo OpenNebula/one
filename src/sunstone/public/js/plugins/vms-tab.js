@@ -63,7 +63,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.deploy"],
 
     5: //OpenNebula.VM.state.SUSPENDED:
-        ["VM.delete", "VM.resume"],
+        ["VM.delete", "VM.resume", "VM.saveas", "VM.disk_snapshot_cancel"],
 
     6: //OpenNebula.VM.state.DONE:
         [],
@@ -72,7 +72,7 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resize"],
 
     8: //OpenNebula.VM.state.POWEROFF:
-        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.migrate"],
+        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel", "VM.migrate"],
 
     9: //OpenNebula.VM.state.UNDEPLOYED:
         ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"],
@@ -86,7 +86,7 @@ var lcm_state_actions = {
     2: //OpenNebula.VM.lcm_state.BOOT:
         ["VM.boot"],
     3: //OpenNebula.VM.lcm_state.RUNNING:
-        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
+        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel"],
     4: //OpenNebula.VM.lcm_state.MIGRATE:
         [],
     5: //OpenNebula.VM.lcm_state.SAVE_STOP:
@@ -112,7 +112,7 @@ var lcm_state_actions = {
     15: //OpenNebula.VM.lcm_state.CLEANUP_RESUBMIT:
         [],
     16: //OpenNebula.VM.lcm_state.UNKNOWN:
-        ["VM.shutdown", "VM.shutdown_hard", "VM.boot", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live"],
+        ["VM.shutdown", "VM.shutdown_hard", "VM.boot", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.disk_snapshot_cancel"],
     17: //OpenNebula.VM.lcm_state.HOTPLUG:
         [],
     18: //OpenNebula.VM.lcm_state.SHUTDOWN_POWEROFF:
@@ -547,6 +547,17 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OpenNebula.VM.saveas,
+        callback: function(request) {
+            Sunstone.runAction("VM.show", request.request.data[0]);
+            OpenNebula.Helper.clear_cache("IMAGE");
+        },
+        error:onError,
+        notify: true
+    },
+
+    "VM.disk_snapshot_cancel" : {
+        type: "single",
+        call: OpenNebula.VM.disk_snapshot_cancel,
         callback: function(request) {
             Sunstone.runAction("VM.show", request.request.data[0]);
             OpenNebula.Helper.clear_cache("IMAGE");
@@ -2030,10 +2041,18 @@ function printDisks(vm_info){
 
               actions = '';
 
-              if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
-                // Check if its volatie
-                if (disk.IMAGE_ID) {
-                  if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
+              if (disk.SAVE == "YES") {
+                if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
+                  if ( enabledStateAction("VM.disk_snapshot_cancel", vm_info.STATE, vm_info.LCM_STATE)) {
+                    actions += '<a href="VM.disk_snapshot_cancel" class="disk_snapshot_cancel" >\
+                      <i class="fa fa-times"/></span>'+tr("Cancel Snapshot")+'</a> &emsp;'
+                  }
+                }
+              } else {
+                if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
+                  // Check if it's volatile
+                  if ( disk.IMAGE_ID &&
+                       enabledStateAction("VM.saveas", vm_info.STATE, vm_info.LCM_STATE)) {
                     actions += '<a href="VM.saveas" class="saveas" ><i class="fa fa-save"/>'+tr("Snapshot")+'</a> &emsp;'
                   }
                 }
@@ -2221,6 +2240,18 @@ function hotpluggingOps(){
           popUpSaveAsDialog(vm_id, disk_id);
 
           //b.html(spinner);
+          return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
+      $('a.disk_snapshot_cancel').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var disk_id = b.parents('tr').attr('disk_id');
+
+          Sunstone.runAction('VM.disk_snapshot_cancel', vm_id, disk_id);
+
           return false;
       });
     }

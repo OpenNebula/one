@@ -177,6 +177,11 @@ digraph OpenNebula {
     suspended                -> hotplug_saveas_suspended [label="disk-snapshot"]
     hotplug_saveas_suspended -> suspended [style="dashed", color="blue"];
 
+#   disk-snapshot-cancel
+    running     -> running [label="disk-snapshot-cancel"]
+    poweroff    -> poweroff [label="disk-snapshot-cancel"]
+    suspended   -> suspended [label="disk-snapshot-cancel"]
+
 #   failures and misc.
     epilog_stop         -> epilog_stop_failure [label=" ", style="dotted", color="red"];
     epilog_stop_failure -> epilog_stop [label="recover"];

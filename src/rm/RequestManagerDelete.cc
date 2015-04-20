@@ -180,49 +180,11 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
     Nebula&         nd     = Nebula::instance();
-
     ImageManager *  imagem = nd.get_imagem();
-    DatastorePool * dspool = nd.get_dspool();
 
-    Datastore * ds;
-    Image *     img;
+    object->unlock();
 
-    int    ds_id, rc;
-    string ds_data;
-
-    img   = static_cast<Image *>(object);
-    ds_id = img->get_ds_id();
-
-    img->unlock();
-
-    ds = dspool->get(ds_id, true);
-
-    if ( ds == 0 )
-    {
-       error_msg = "Datastore no longer exists cannot remove image";
-       return -1;
-    }
-
-    ds->to_xml(ds_data);
-
-    ds->unlock();
-
-    rc = imagem->delete_image(oid, ds_data, error_msg);
-
-    if ( rc == 0 )
-    {
-        ds = dspool->get(ds_id, true);
-
-        if ( ds != 0 )
-        {
-            ds->del_image(oid);
-            dspool->update(ds);
-
-            ds->unlock();
-        }
-    }
-
-    return rc;
+    return imagem->delete_image(oid, error_msg);
 }
 
 /* ------------------------------------------------------------------------- */

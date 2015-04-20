@@ -1219,6 +1219,20 @@ public:
                   int img_id);
 
     /**
+     *  Clears the SAVE_AS attribute for the "disk_id"th disk.
+     *    @param  disk_id Index of the disk to save
+     *    @return 0 on success, -1 if the disk does not exist
+     */
+    int clear_save_disk(int disk_id);
+
+    /**
+     * Returns the image ID to be saved-as.
+     * @param disk_id Index of the disk to save
+     * @return The image ID, or -1 if the disk is not going to be saved-as
+     */
+    int get_save_disk_image(int disk_id);
+
+    /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.
      *    @param  disk_id Index of the disk to save
      *    @param  source to save the disk (SAVE_AS_SOURCE)

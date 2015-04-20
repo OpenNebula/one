@@ -390,13 +390,15 @@ int ImageManager::enable_image(int iid, bool to_enable, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ImageManager::delete_image(int iid, const string& ds_data, string& error_str)
+int ImageManager::delete_image(int iid, string& error_str)
 {
-    Image * img;
+    Image *     img;
+    Datastore * ds;
 
     string   source;
     string   img_tmpl;
     string * drv_msg;
+    string   ds_data;
 
     long long size;
     int ds_id;
@@ -411,6 +413,31 @@ int ImageManager::delete_image(int iid, const string& ds_data, string& error_str
 
     if ( img == 0 )
     {
+        error_str = "Image does not exist";
+        return -1;
+    }
+
+    ds_id = img->get_ds_id();
+
+    img->unlock();
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+       error_str = "Datastore no longer exists cannot remove image";
+       return -1;
+    }
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        error_str = "Image does not exist";
         return -1;
     }
 
@@ -516,6 +543,16 @@ int ImageManager::delete_image(int iid, const string& ds_data, string& error_str
     if ( cloning_id != -1 )
     {
         release_cloning_image(cloning_id, iid);
+    }
+
+    ds = dspool->get(ds_id, true);
+
+    if ( ds != 0 )
+    {
+        ds->del_image(iid);
+        dspool->update(ds);
+
+        ds->unlock();
     }
 
     return 0;
