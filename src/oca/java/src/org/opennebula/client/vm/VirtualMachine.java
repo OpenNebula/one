@@ -483,12 +483,13 @@ public class VirtualMachine extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
-     * @param success recover by succeeding the missing transaction if true.
+     * @param operation to recover the VM: (0) failure, (1) success or (2)
+     * retry
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse recover(Client client, int id, boolean success)
+    public static OneResponse recover(Client client, int id, int operation)
     {
-        return client.call(RECOVER, id, success);
+        return client.call(RECOVER, id, operation);
     }
 
     // =================================

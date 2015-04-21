@@ -91,6 +91,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Recover a VM by failing the pending action"
     }
 
+    RETRY={
+        :name  => "retry",
+        :large => "--retry",
+        :description => "Recover a VM by retrying the last failed action"
+    }
+
     CLONETEMPLATE={
         :name => "clonetemplate",
         :short => "-c",
@@ -530,27 +536,31 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     recover_desc = <<-EOT.unindent
         Recovers a stuck VM that is waiting for a driver operation. The recovery
-        may be done by failing or succeeding the pending operation. YOU NEED
+        may be done by failing, succeeding or retrying the current operation. YOU NEED
         TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation
-        was successful or not.
+        was successful or not, or if it can be retried.
 
         Example: A VM is stuck in "migrate" because of a hardware failure. You
         need to check if the VM is running in the new host or not to recover
         the vm with --success or --failure, respectively.
 
-        States: Any ACTIVE state.
+        States for success/failure recovers: Any ACTIVE state.
+        States for a retry recover: Any *FAILURE state
     EOT
 
     command :recover, recover_desc, [:range,:vmid_list],
-        :options => [SUCCESS, FAILURE] do
+        :options => [SUCCESS, FAILURE, RETRY] do
         if !options[:success].nil?
-            result = true
+            result = 1
         elsif !options[:failure].nil?
-            result = false
+            result = 0
+        elsif !options[:retry].nil?
+            result = 2
         else
             STDERR.puts "Need to specify the result of the pending action."
             STDERR.puts "\t--success recover the VM by succeeding the missing action."
             STDERR.puts "\t--failure recover the VM by failing the missing action."
+            STDERR.puts "\t--retry recover the VM by retrying the last failed action."
             exit -1
         end
 

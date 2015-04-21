@@ -2249,8 +2249,8 @@ void VirtualMachineDetachNic::request_execute(
 void VirtualMachineRecover::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
-    bool success = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    int id = xmlrpc_c::value_int(paramList.getInt(1));
+    int op = xmlrpc_c::value_int(paramList.getInt(2));
 
     VirtualMachine * vm;
 
@@ -2277,7 +2277,26 @@ void VirtualMachineRecover::request_execute(
         return;
     }
 
-    lcm->recover(vm, success);
+    switch (op)
+    {
+		case 0:
+			lcm->recover(vm, false);
+			break;
+		case 1:
+			lcm->recover(vm, true);
+			break;
+		case 2:
+			lcm->retry(vm);
+			break;
+
+		default:
+			failure_response(ACTION,
+                request_error("Wrong recovery operation code",""),
+                att);
+
+			vm->unlock();
+			return;
+	}
 
     success_response(id, att);
 

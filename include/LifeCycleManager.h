@@ -129,6 +129,12 @@ public:
      */
     void  recover(VirtualMachine * vm, bool success);
 
+	/**
+	 *  Retries the last VM operation that lead to a failure. The underlying
+	 *  driver actions may be invoked and should be "re-entrant".
+	 */
+    void retry(VirtualMachine * vm);
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager
@@ -269,8 +275,6 @@ private:
     void poweroff_action(int vid, bool hard);
 
     void restart_action(int vid);
-
-    void retry_action(int vid);
 
     void delete_action(int vid);
 

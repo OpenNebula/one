@@ -349,7 +349,7 @@ public:
     VirtualMachineRecover():
         RequestManagerVirtualMachine("VirtualMachineRecover",
                                      "Recovers a virtual machine",
-                                     "A:sib")
+                                     "A:sii")
     {
          auth_op = AuthRequest::ADMIN;
     };

@@ -658,147 +658,6 @@ void  LifeCycleManager::cancel_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::retry_action(int vid)
-{
-    Nebula& nd  = Nebula::instance();
-
-    TransferManager *       tm  = nd.get_tm();
-    VirtualMachineManager * vmm = nd.get_vmm();
-
-    VirtualMachine * vm;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_state() != VirtualMachine::ACTIVE )
-    {
-        vm->unlock();
-        return;
-    }
-
-    VirtualMachine::LcmState state = vm->get_lcm_state();
-
-    switch (state)
-    {
-        case VirtualMachine::BOOT_FAILURE:
-            vm->set_state(VirtualMachine::BOOT);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is BOOT");
-
-            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
-            break;
-
-        case VirtualMachine::BOOT_MIGRATE_FAILURE:
-            vm->set_state(VirtualMachine::BOOT_MIGRATE);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is BOOT_MIGRATE");
-
-            vmm->trigger(VirtualMachineManager::RESTORE, vid);
-            break;
-
-        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
-            vm->set_state(VirtualMachine::PROLOG_MIGRATE);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
-
-            tm->trigger(TransferManager::PROLOG_MIGR, vid);
-            break;
-
-        case VirtualMachine::PROLOG_FAILURE:
-            vm->set_state(VirtualMachine::PROLOG);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
-
-            tm->trigger(TransferManager::PROLOG,vid);
-            break;
-
-        case VirtualMachine::EPILOG_FAILURE:
-            vm->set_state(VirtualMachine::EPILOG);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is EPILOG");
-
-            tm->trigger(TransferManager::EPILOG,vid);
-            break;
-
-        case VirtualMachine::EPILOG_STOP_FAILURE:
-            vm->set_state(VirtualMachine::EPILOG_STOP);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
-
-            tm->trigger(TransferManager::EPILOG_STOP,vid);
-            break;
-
-       case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
-            vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
-
-            vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
-
-            tm->trigger(TransferManager::EPILOG_STOP,vid);
-            break;
-
-        case VirtualMachine::LCM_INIT:
-        case VirtualMachine::BOOT:
-        case VirtualMachine::BOOT_MIGRATE:
-        case VirtualMachine::BOOT_POWEROFF:
-        case VirtualMachine::BOOT_SUSPENDED:
-        case VirtualMachine::BOOT_STOPPED:
-        case VirtualMachine::BOOT_UNDEPLOY:
-        case VirtualMachine::BOOT_UNKNOWN:
-        case VirtualMachine::CANCEL:
-        case VirtualMachine::CLEANUP_RESUBMIT:
-        case VirtualMachine::CLEANUP_DELETE:
-        case VirtualMachine::EPILOG:
-        case VirtualMachine::EPILOG_STOP:
-        case VirtualMachine::EPILOG_UNDEPLOY:
-        case VirtualMachine::HOTPLUG:
-        case VirtualMachine::HOTPLUG_NIC:
-        case VirtualMachine::HOTPLUG_SNAPSHOT:
-        case VirtualMachine::HOTPLUG_SAVEAS:
-        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
-        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-        case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
-        case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-        case VirtualMachine::PROLOG:
-        case VirtualMachine::PROLOG_MIGRATE:
-        case VirtualMachine::PROLOG_RESUME:
-        case VirtualMachine::PROLOG_UNDEPLOY:
-        case VirtualMachine::MIGRATE:
-        case VirtualMachine::RUNNING:
-        case VirtualMachine::SAVE_STOP:
-        case VirtualMachine::SAVE_SUSPEND:
-        case VirtualMachine::SAVE_MIGRATE:
-        case VirtualMachine::SHUTDOWN:
-        case VirtualMachine::SHUTDOWN_POWEROFF:
-        case VirtualMachine::SHUTDOWN_UNDEPLOY:
-        case VirtualMachine::UNKNOWN:
-            break;
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 void  LifeCycleManager::restart_action(int vid)
 {
@@ -1419,3 +1278,134 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::retry(VirtualMachine * vm)
+{
+    Nebula& nd  = Nebula::instance();
+
+    TransferManager *       tm  = nd.get_tm();
+    VirtualMachineManager * vmm = nd.get_vmm();
+
+	int vid = vm->get_oid();
+
+    if ( vm->get_state() != VirtualMachine::ACTIVE )
+    {
+        return;
+    }
+
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
+    {
+        case VirtualMachine::BOOT_FAILURE:
+            vm->set_state(VirtualMachine::BOOT);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT");
+
+            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+            break;
+
+        case VirtualMachine::BOOT_MIGRATE_FAILURE:
+            vm->set_state(VirtualMachine::BOOT_MIGRATE);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is BOOT_MIGRATE");
+
+            vmm->trigger(VirtualMachineManager::RESTORE, vid);
+            break;
+
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
+
+            tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
+        case VirtualMachine::PROLOG_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
+
+            tm->trigger(TransferManager::PROLOG,vid);
+            break;
+
+        case VirtualMachine::EPILOG_FAILURE:
+            vm->set_state(VirtualMachine::EPILOG);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is EPILOG");
+
+            tm->trigger(TransferManager::EPILOG,vid);
+            break;
+
+        case VirtualMachine::EPILOG_STOP_FAILURE:
+            vm->set_state(VirtualMachine::EPILOG_STOP);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
+
+            tm->trigger(TransferManager::EPILOG_STOP,vid);
+            break;
+
+       case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
+            vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
+
+            tm->trigger(TransferManager::EPILOG_STOP,vid);
+            break;
+
+        case VirtualMachine::LCM_INIT:
+        case VirtualMachine::BOOT:
+        case VirtualMachine::BOOT_MIGRATE:
+        case VirtualMachine::BOOT_POWEROFF:
+        case VirtualMachine::BOOT_SUSPENDED:
+        case VirtualMachine::BOOT_STOPPED:
+        case VirtualMachine::BOOT_UNDEPLOY:
+        case VirtualMachine::BOOT_UNKNOWN:
+        case VirtualMachine::CANCEL:
+        case VirtualMachine::CLEANUP_RESUBMIT:
+        case VirtualMachine::CLEANUP_DELETE:
+        case VirtualMachine::EPILOG:
+        case VirtualMachine::EPILOG_STOP:
+        case VirtualMachine::EPILOG_UNDEPLOY:
+        case VirtualMachine::HOTPLUG:
+        case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_SNAPSHOT:
+        case VirtualMachine::HOTPLUG_SAVEAS:
+        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+        case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+        case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+        case VirtualMachine::PROLOG:
+        case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_UNDEPLOY:
+        case VirtualMachine::MIGRATE:
+        case VirtualMachine::RUNNING:
+        case VirtualMachine::SAVE_STOP:
+        case VirtualMachine::SAVE_SUSPEND:
+        case VirtualMachine::SAVE_MIGRATE:
+        case VirtualMachine::SHUTDOWN:
+        case VirtualMachine::SHUTDOWN_POWEROFF:
+        case VirtualMachine::SHUTDOWN_UNDEPLOY:
+        case VirtualMachine::UNKNOWN:
+            break;
+    }
+
+    return;
+}
