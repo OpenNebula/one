@@ -43,18 +43,18 @@ define(function(require) {
    */
   var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues) {
     // Remove previous listeners
-    context.off("keypress", "#new_key").off();
-    context.off("keypress", "#new_value").off();
-    context.off("keypress", "#new_value_vectorial").off();
-    context.off("click", "#div_minus").off();
-    context.off("click", "#div_edit").off();
-    context.off("change", ".input_edit_value").off();
-    context.off("click", "#div_edit_vectorial").off();
-    context.off("change", ".input_edit_value_vectorial").off();
-    context.off("click", "#div_minus_vectorial").off();
-    context.off("click", "#button_add_value").off();
-    context.off("click", "#button_add_value_vectorial").off();
-    context.off("click", "#div_add_vectorial").off();
+    context.off("keypress", "#new_key");
+    context.off("keypress", "#new_value");
+    context.off("keypress", "#new_value_vectorial");
+    context.off("click", "#div_minus");
+    context.off("click", "#div_edit");
+    context.off("change", ".input_edit_value");
+    context.off("click", "#div_edit_vectorial");
+    context.off("change", ".input_edit_value_vectorial");
+    context.off("click", "#div_minus_vectorial");
+    context.off("click", "#button_add_value");
+    context.off("click", "#button_add_value_vectorial");
+    context.off("click", "#div_add_vectorial");
 
     // Add listener for add key and add value for Extended Template
     context.on("click", '#button_add_value', function() {
