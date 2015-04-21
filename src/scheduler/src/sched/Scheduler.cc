@@ -51,7 +51,7 @@ static double profile(bool start, const string& message="")
 
         if (!message.empty())
         {
-            NebulaLog::log("SCHED", Log::INFO, message);
+            NebulaLog::log("SCHED", Log::DDEBUG, message);
         }
 
         return 0;
@@ -66,8 +66,8 @@ static double profile(bool start, const string& message="")
     {
         ostringstream oss;
 
-        oss << message << " Total time: " << t << "s";
-        NebulaLog::log("SCHED", Log::INFO, oss);
+        oss << message << " Total time: " << one_util::float_to_str(t) << "s";
+        NebulaLog::log("SCHED", Log::DDEBUG, oss);
     }
 
     return t;
@@ -186,7 +186,7 @@ void Scheduler::start()
             value  = log->vector_value("DEBUG_LEVEL");
             ilevel = atoi(value.c_str());
 
-            if (0 <= ilevel && ilevel <= 3 )
+            if (Log::ERROR <= ilevel && ilevel <= Log::DDDEBUG)
             {
                 clevel = static_cast<Log::MessageType>(ilevel);
             }
@@ -955,28 +955,29 @@ void Scheduler::match_schedule()
     ostringstream oss;
 
     oss << "Match Making statistics:\n"
-        << "\tNumber of VMs: " << pending_vms.size() << endl
-        << "\tTotal time: " << time(0) - stime << "s" << endl
-        << "\tTotal Match time: " << total_match_time << "s" << endl
-        << "\tTotal Ranking Time: " << total_rank_time << "s";
+        << "\tNumber of VMs: \t\t" << pending_vms.size() << endl
+        << "\tTotal time: \t\t" << one_util::float_to_str(time(0) - stime) << "s" << endl
+        << "\tTotal Match time: \t" << one_util::float_to_str(total_match_time) << "s" << endl
+        << "\tTotal Ranking time: \t" << one_util::float_to_str(total_rank_time) << "s";
 
-    NebulaLog::log("SCHED", Log::DEBUG, oss);
+    NebulaLog::log("SCHED", Log::DDEBUG, oss);
 
-#ifdef SCHEDDEBUG
-    ostringstream oss;
-
-    oss << "Scheduling Results:" << endl;
-
-    for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
-        vm_it != pending_vms.end(); vm_it++)
+    if (NebulaLog::log_level() >= Log::DDDEBUG)
     {
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+        ostringstream oss;
 
-        oss << *vm;
+        oss << "Scheduling Results:" << endl;
+
+        for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
+            vm_it != pending_vms.end(); vm_it++)
+        {
+            vm = static_cast<VirtualMachineXML*>(vm_it->second);
+
+            oss << *vm;
+        }
+
+        NebulaLog::log("SCHED", Log::DDDEBUG, oss);
     }
-
-    NebulaLog::log("SCHED", Log::DEBUG, oss);
-#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1000,6 +1001,8 @@ void Scheduler::dispatch()
     map<int, unsigned int>  host_vms;
     pair<map<int,unsigned int>::iterator, bool> rc;
 
+    map<int, ObjectXML*>::const_iterator vm_it;
+
     vector<Resource *>::const_reverse_iterator i, j;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
@@ -1011,7 +1014,7 @@ void Scheduler::dispatch()
     // Dispatch each VM till we reach the dispatch limit
     //--------------------------------------------------------------------------
 
-    for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
+    for (vm_it = pending_vms.begin();
          vm_it != pending_vms.end() &&
             ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
          vm_it++)
@@ -1183,6 +1186,12 @@ void Scheduler::dispatch()
 
             break;
         }
+    }
+
+    if (vm_it != pending_vms.end())
+    {
+        dss << endl << "MAX_DISPATCH limit of " << dispatch_limit << " reached, "
+            << std::distance(vm_it, pending_vms.end()) << " VMs were not dispatched";
     }
 
     NebulaLog::log("SCHED", Log::DEBUG, dss);
