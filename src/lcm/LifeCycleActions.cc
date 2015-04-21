@@ -31,8 +31,8 @@ void  LifeCycleManager::deploy_action(int vid)
 
     if ( vm->get_state() == VirtualMachine::ACTIVE )
     {
-        time_t            thetime = time(0);
-        int               cpu,mem,disk;
+        time_t thetime = time(0);
+        int    cpu,mem,disk;
 
         Nebula&           nd = Nebula::instance();
         TransferManager * tm = nd.get_tm();
@@ -45,37 +45,6 @@ void  LifeCycleManager::deploy_action(int vid)
         //----------------------------------------------------
 
         vm->get_requirements(cpu,mem,disk);
-
-        if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk) == -1)
-        {
-            //The host has been deleted, move VM to FAILURE
-
-            vm->log("LCM", Log::ERROR, "deploy_action, Host has been removed.");
-
-            vm->set_state(VirtualMachine::FAILURE);
-
-            vm->set_resched(false);
-
-            map<string, string> empty;
-            vm->update_info(0, 0, -1, -1, empty);
-
-            vmpool->update(vm);
-
-            vm->set_stime(thetime);
-            vm->set_etime(thetime);
-
-            vm->set_vm_info();
-
-            vm->set_reason(History::ERROR);
-
-            vmpool->update_history(vm);
-
-            vm->unlock();
-
-            nd.get_dm()->trigger(DispatchManager::FAILED, vid);
-
-            return;
-        }
 
         vm_state  = VirtualMachine::PROLOG;
         tm_action = TransferManager::PROLOG;
@@ -109,7 +78,15 @@ void  LifeCycleManager::deploy_action(int vid)
 
         //----------------------------------------------------
 
-        tm->trigger(tm_action,vid);
+        if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk) == -1)
+        {
+            //The host has been deleted, move VM to FAILURE
+            this->trigger(LifeCycleManager::PROLOG_FAILURE, vid);
+        }
+        else
+        {
+            tm->trigger(tm_action, vid);
+        }
     }
     else
     {
@@ -791,7 +768,6 @@ void LifeCycleManager::retry_action(int vid)
         case VirtualMachine::EPILOG:
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
-        case VirtualMachine::FAILURE:
         case VirtualMachine::HOTPLUG:
         case VirtualMachine::HOTPLUG_NIC:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
@@ -934,7 +910,6 @@ void LifeCycleManager::delete_action(int vid)
 
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
-    TransferManager * tm = nd.get_tm();
 
     int image_id = -1;
 
@@ -957,18 +932,10 @@ void LifeCycleManager::delete_action(int vid)
     switch(vm->get_lcm_state())
     {
         case VirtualMachine::CLEANUP_RESUBMIT:
+            vm->set_state(VirtualMachine::CLEANUP_DELETE);
+            vmpool->update(vm);
+
         case VirtualMachine::CLEANUP_DELETE:
-            vm->set_state(VirtualMachine::CLEANUP_DELETE);
-            vmpool->update(vm);
-
-            dm->trigger(DispatchManager::DONE, vid);
-        break;
-
-        case VirtualMachine::FAILURE:
-            vm->set_state(VirtualMachine::CLEANUP_DELETE);
-            vmpool->update(vm);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
             dm->trigger(DispatchManager::DONE, vid);
         break;
 
@@ -1005,7 +972,6 @@ void  LifeCycleManager::clean_action(int vid)
 
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
-    TransferManager * tm = nd.get_tm();
 
     int image_id = -1;
 
@@ -1032,13 +998,6 @@ void  LifeCycleManager::clean_action(int vid)
 
         case VirtualMachine::CLEANUP_RESUBMIT:
             dm->trigger(DispatchManager::RESUBMIT, vid);
-        break;
-
-        case VirtualMachine::FAILURE:
-            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-            vmpool->update(vm);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
         default:
@@ -1253,7 +1212,6 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::LCM_INIT:
         case VirtualMachine::CLEANUP_RESUBMIT:
         case VirtualMachine::CLEANUP_DELETE:
-        case VirtualMachine::FAILURE:
         break;
     }
 }
@@ -1288,10 +1246,6 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::UNKNOWN:
             vm->set_state(VirtualMachine::RUNNING);
             vmpool->update(vm);
-            return;
-
-        case VirtualMachine::FAILURE:
-            dm->trigger(DispatchManager::FAILED,vm->get_oid());
             return;
 
         //----------------------------------------------------------------------

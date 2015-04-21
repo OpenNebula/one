@@ -96,7 +96,7 @@ void VirtualMachinePoolInfo::request_execute(
     ostringstream state_filter;
 
     if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
-        ( state > VirtualMachine::FAILED ))
+        ( state > VirtualMachine::UNDEPLOYED ))
     {
         failure_response(XML_RPC_API,
                          request_error("Incorrect filter_flag, state",""),

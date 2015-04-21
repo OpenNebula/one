@@ -930,11 +930,6 @@ int DispatchManager::finalize(
             finalize_cleanup(vm);
         break;
 
-        case VirtualMachine::FAILED:
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
-            finalize_cleanup(vm);
-        break;
-
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
             tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
@@ -971,7 +966,6 @@ int DispatchManager::resubmit(int vid)
 
     Nebula&             nd  = Nebula::instance();
     LifeCycleManager *  lcm = nd.get_lcm();
-    TransferManager *   tm  = nd.get_tm();
 
     vm = vmpool->get(vid,true);
 
@@ -996,17 +990,6 @@ int DispatchManager::resubmit(int vid)
 
         case VirtualMachine::INIT: // No need to do nothing here
         case VirtualMachine::PENDING:
-        break;
-
-        case VirtualMachine::FAILED: //Cleanup VM host files
-            vm->log("DiM", Log::INFO, "New VM state is CLEANUP.");
-
-            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-            vm->set_state(VirtualMachine::ACTIVE);
-
-            vmpool->update(vm);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these

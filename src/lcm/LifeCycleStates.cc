@@ -1229,37 +1229,6 @@ void  LifeCycleManager::cancel_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::monitor_failure_action(int vid)
-{
-    VirtualMachine * vm;
-
-    time_t  the_time = time(0);
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN )
-    {
-        vm->set_running_etime(the_time);
-
-        failure_action(vm);
-    }
-    else
-    {
-        vm->log("LCM",Log::ERROR,"monitor_failure_action, VM in a wrong state");
-    }
-
-    vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void  LifeCycleManager::monitor_suspend_action(int vid)
 {
     VirtualMachine *    vm;
@@ -1446,49 +1415,6 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
     }
 
     vm->unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::failure_action(VirtualMachine * vm)
-{
-    Nebula&             nd = Nebula::instance();
-    DispatchManager *   dm = nd.get_dm();
-
-    time_t  the_time = time(0);
-    int     cpu,mem,disk;
-
-    //----------------------------------------------------
-    //                LCM FAILURE STATE
-    //----------------------------------------------------
-
-    vm->set_state(VirtualMachine::FAILURE);
-
-    vm->set_resched(false);
-
-    vm->delete_snapshots();
-
-    map<string, string> empty;
-    vm->update_info(0, 0, -1, -1, empty);
-
-    vmpool->update(vm);
-
-    vm->set_etime(the_time);
-
-    vm->set_vm_info();
-
-    vm->set_reason(History::ERROR);
-
-    vmpool->update_history(vm);
-
-    vm->get_requirements(cpu,mem,disk);
-
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
-
-    //--- VM to FAILED. Remote host cleanup upon VM deletion ---
-
-    dm->trigger(DispatchManager::FAILED,vm->get_oid());
 }
 
 /* -------------------------------------------------------------------------- */
