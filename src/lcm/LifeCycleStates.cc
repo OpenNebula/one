@@ -1057,7 +1057,10 @@ void  LifeCycleManager::epilog_failure_action(int vid)
 
         vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY_FAILURE");
     }
-    else
+    //wrong state + recover failure from failure state
+    else if ( state != VirtualMachine::EPILOG_FAILURE &&
+              state != VirtualMachine::EPILOG_STOP_FAILURE &&
+              state != VirtualMachine::EPILOG_STOP_FAILURE )
     {
         vm->log("LCM",Log::ERROR,"epilog_failure_action, VM in a wrong state");
     }
