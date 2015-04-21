@@ -3,7 +3,13 @@ define(function(require) {
   var Buttons = require('./zones-tab/buttons');
   var Actions = require('./zones-tab/actions');
   var DataTable = require('./zones-tab/datatable');
-  var Panels = require('./zones-tab/panels');
+
+  var PanelInfo = require('./zones-tab/panels/info');
+
+  var _panels = {};
+  $.each([PanelInfo], function(index, panel){
+    _panels[panel.panelId] = panel
+  })
 
   var zonesTab = {
     title: Locale.tr("Zones"),
@@ -15,8 +21,8 @@ define(function(require) {
     subheader: '',
     buttons: Buttons,
     actions: Actions,
-    panels: Panels,
-    dataTable: DataTable
+    dataTable: DataTable,
+    panels: _panels,
   };
 
   return {
