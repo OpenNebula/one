@@ -51,7 +51,6 @@ public:
         SHUTDOWN_FAILURE, /**< Sent by the VMM when a shutdown action fails   */
         CANCEL_SUCCESS,   /**< Sent by the VMM when a cancel action succeeds  */
         CANCEL_FAILURE,   /**< Sent by the VMM when a cancel action fails     */
-        MONITOR_FAILURE,  /**< Sent by the VMM when a VM has failed while active */
         MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused while active */
         MONITOR_DONE,     /**< Sent by the VMM when a Host cannot be monitored*/
         MONITOR_POWEROFF, /**< Sent by the VMM when a VM is not found */
@@ -193,8 +192,6 @@ private:
 
     void cancel_failure_action(int vid);
 
-    void monitor_failure_action(int vid);
-
     void monitor_suspend_action(int vid);
 
     void monitor_done_action(int vid);
@@ -270,8 +267,6 @@ private:
     void poweroff_hard_action(int vid);
 
     void poweroff_action(int vid, bool hard);
-
-    void failure_action(VirtualMachine * vm);
 
     void restart_action(int vid);
 

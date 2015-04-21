@@ -49,7 +49,6 @@ public:
         UNDEPLOY_SUCCESS,  /**< Send by LCM when a VM is undeployed and saved*/
         POWEROFF_SUCCESS, /**< Send by LCM when a VM is powered off */
         DONE,           /**< Send by LCM when a VM is shut down*/
-        FAILED,         /**< Send by LCM when one of the execution steps fails*/
         RESUBMIT,       /**< Send by LCM when a VM is ready for resubmission*/
         FINALIZE
     };
@@ -424,8 +423,6 @@ private:
     void  poweroff_success_action(int vid);
 
     void  done_action(int vid);
-
-    void  failed_action(int vid);
 
     void  resubmit_action(int vid);
 };

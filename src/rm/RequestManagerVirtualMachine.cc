@@ -1785,7 +1785,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-        case VirtualMachine::FAILED:
         case VirtualMachine::UNDEPLOYED:
         break;
 
@@ -1904,7 +1903,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-        case VirtualMachine::FAILED:
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
             ret = vm->resize(ncpu, nmemory, nvcpu, error_str);
