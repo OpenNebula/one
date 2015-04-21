@@ -1149,23 +1149,50 @@ int DispatchManager::attach(int vid,
         NebulaLog::log("DiM", Log::ERROR, error_str);
         return -1;
     }
-    else
-    {
-        vm->set_attach_disk(disk);
-    }
 
-    vmpool->update(vm);
+    // Set the VM info in the history before the disk is attached to the
+    // VM template
+    vm->set_vm_info();
 
-    vm->unlock();
+    vm->set_attach_disk(disk);
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::DISK_ATTACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        //-----------------------------------------------
+
         vmm->trigger(VirtualMachineManager::ATTACH,vid);
     }
     else
     {
         tm->trigger(TransferManager::PROLOG_ATTACH, vid);
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -1220,31 +1247,53 @@ int DispatchManager::detach(
         return -1;
     }
 
+    vm->set_resched(false);
+
     if ( vm->get_state() == VirtualMachine::ACTIVE &&
          vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_vm_info();
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::DISK_DETACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        //---------------------------------------------------
+
         vm->set_state(VirtualMachine::HOTPLUG);
+
+        vmm->trigger(VirtualMachineManager::DETACH,vid);
     }
     else
     {
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::HOTPLUG_EPILOG_POWEROFF);
-    }
 
-    vm->set_resched(false);
+        tm->trigger(TransferManager::EPILOG_DETACH, vid);
+    }
 
     vmpool->update(vm);
 
     vm->unlock();
-
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
-    {
-        vmm->trigger(VirtualMachineManager::DETACH,vid);
-    }
-    else
-    {
-        tm->trigger(TransferManager::EPILOG_DETACH, vid);
-    }
 
     return 0;
 }
@@ -1573,13 +1622,40 @@ int DispatchManager::attach_nic(
 
         return -1;
     }
-    else
-    {
-        vm->set_attach_nic(nic, sg_rules);
-    }
+
+    // Set the VM info in the history before the nic is attached to the
+    // VM template
+    vm->set_vm_info();
+
+    vm->set_attach_nic(nic, sg_rules);
 
     if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::NIC_ATTACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        //-----------------------------------------------
+
         vmm->trigger(VirtualMachineManager::ATTACH_NIC,vid);
     }
     else
@@ -1648,6 +1724,31 @@ int DispatchManager::detach_nic(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_vm_info();
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::NIC_DETACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
         vm->set_resched(false);
@@ -1655,6 +1756,8 @@ int DispatchManager::detach_nic(
         vmpool->update(vm);
 
         vm->unlock();
+
+        //---------------------------------------------------
 
         vmm->trigger(VirtualMachineManager::DETACH_NIC,vid);
     }

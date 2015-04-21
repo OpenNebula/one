@@ -57,7 +57,11 @@ public:
         RESCHED_ACTION         = 17,
         UNRESCHED_ACTION       = 18,
         POWEROFF_ACTION        = 19,
-        POWEROFF_HARD_ACTION   = 20
+        POWEROFF_HARD_ACTION   = 20,
+        DISK_ATTACH_ACTION     = 21,
+        DISK_DETACH_ACTION     = 22,
+        NIC_ATTACH_ACTION      = 23,
+        NIC_DETACH_ACTION      = 24
     };
 
     static string action_to_str(VMAction action)
@@ -125,6 +129,18 @@ public:
             break;
             case POWEROFF_HARD_ACTION:
                 st = "poweroff-hard";
+            break;
+            case DISK_ATTACH_ACTION:
+                st = "disk-attach";
+            break;
+            case DISK_DETACH_ACTION:
+                st = "disk-detach";
+            break;
+            case NIC_ATTACH_ACTION:
+                st = "nic-attach";
+            break;
+            case NIC_DETACH_ACTION:
+                st = "nic-detach";
             break;
             case NONE_ACTION:
                 st = "none";
@@ -215,6 +231,22 @@ public:
         else if (st == "poweroff-hard")
         {
             action = POWEROFF_HARD_ACTION;
+        }
+        else if (st == "disk-attach")
+        {
+            action = DISK_ATTACH_ACTION;
+        }
+        else if (st == "disk-detach")
+        {
+            action = DISK_DETACH_ACTION;
+        }
+        else if (st == "nic-attach")
+        {
+            action = NIC_ATTACH_ACTION;
+        }
+        else if (st == "nic-detach")
+        {
+            action = NIC_DETACH_ACTION;
         }
         else
         {

@@ -208,7 +208,11 @@ var OpenNebula = {
                                 "resched",
                                 "unresched",
                                 "poweroff",
-                                "poweroff-hard"][value]);
+                                "poweroff-hard",
+                                "disk-attach",
+                                "disk-detach",
+                                "nic-attach",
+                                "nic-detach"][value]);
                     break;
                 default:
                     return value;

@@ -61,6 +61,10 @@
           UNRESCHED_ACTION        = 18
           POWEROFF_ACTION         = 19
           POWEROFF_HARD_ACTION    = 20
+          DISK_ATTACH_ACTION      = 21
+          DISK_DETACH_ACTION      = 22
+          NIC_ATTACH_ACTION       = 23
+          NIC_DETACH_ACTION       = 24
         -->
         <xs:element name="ACTION" type="xs:integer"/>
 
