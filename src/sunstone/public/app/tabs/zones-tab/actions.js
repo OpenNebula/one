@@ -10,9 +10,8 @@ define(function(require) {
       type: "create",
       call: OpenNebulaZone.create,
       callback: function(request, response) {
-        $create_zone_dialog.foundation('reveal', 'close');
-        $("form", $create_zone_dialog)[0].reset();
-
+        Sunstone.hideDialog('zones-tab', 'createZoneDialog');
+        Sunstone.resetDialog('zones-tab', 'createZoneDialog');
         Sunstone.runAction('Zone.list');
       },
       error: Notifier.onError,
@@ -21,7 +20,9 @@ define(function(require) {
 
     "Zone.create_dialog" : {
       type: "custom",
-      // TODO call: popUpCreateZoneDialog
+      call: function() {
+        Sunstone.showDialog('zones-tab', 'createZoneDialog');
+      }
     },
 
     "Zone.list" : {
