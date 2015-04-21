@@ -1,6 +1,6 @@
 define(function(require) {
   require('jquery');
-  require('foundation.core')
+  require('foundation.reveal');
 
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -15,18 +15,15 @@ define(function(require) {
     "form_panels" : {}
   };
 
-  var _addActions = function(actions) {
-    for (action in actions) {
-      SunstoneCfg["actions"][action] = actions[action];
-    }
-  }
-
   var _addMainTab = function(tadId, tabObj) {
     if (Config.isTabEnabled(tadId)) {
       SunstoneCfg["tabs"][tadId] = tabObj;
-
-      if (tabObj.actions) {
-        _addActions(tabObj.actions);
+      
+      var actions = tabObj.actions;
+      if (actions) {      
+        $.each(actions, function(actionName, action){
+          SunstoneCfg["actions"][actionName] = action;
+        })
       }
     }
   }
@@ -509,6 +506,43 @@ define(function(require) {
     });
   }
 
+  var _insertDialog = function(dialog) {
+    var dialogElement = $(dialog.html()).appendTo('div#dialogs');
+    dialog.setup(dialogElement);
+    dialogElement.foundation('reveal', 'reflow');
+
+    dialogElement.on('opened.fndtn.reveal', function () {
+      dialog.onShow(dialogElement);
+    });
+
+    return dialogElement;
+  }
+
+  var _showDialog = function(tabName, dialogId) {
+    var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
+    var dialogElement = $('#' + dialog.dialogId);
+    if (dialogElement.length == 0) {
+      dialogElement = _insertDialog(dialog);
+    }
+
+    dialogElement.foundation('reveal', 'open');
+    return false;
+  }
+
+  var _hideDialog = function(tabName, dialogId) {
+    var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
+    var dialogElement = $('#' + dialog.dialogId);
+    dialogElement.foundation('reveal', 'close')
+  }
+
+  var _resetDialog = function(tabName, dialogId) {
+    var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
+    var dialogElement = $('#' + dialog.dialogId);
+    dialogElement.remove();
+    dialogElement = _insertDialog(dialog);
+    return false;
+  }
+
   //Runs a predefined action. Wraps the calls to opennebula.js and
   //can be use to run action depending on conditions and notify them
   //if desired. Returns 1 if some problem has been detected: i.e
@@ -611,7 +645,6 @@ define(function(require) {
 
   var Sunstone = {
     //Adds several actions encapsulated in an js object.
-    "addActions" : _addActions,
 
     "addMainTab" : _addMainTab,
 
@@ -623,6 +656,10 @@ define(function(require) {
     //Makes an info panel content pop up in the screen.
     "showElement" : _showElement,
     "insertPanels" : _insertPanels,
+
+    "showDialog": _showDialog,
+    "hideDialog": _hideDialog,
+    "resetDialog": _resetDialog,
 
     "popUpFormPanel" : function(formName, selectedTab, action, reset, initalizeFunc) {
       var context = $("#" + selectedTab);
