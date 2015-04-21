@@ -89,10 +89,6 @@ void DispatchManager::trigger(Actions action, int _vid)
         aname = "DONE";
         break;
 
-    case FAILED:
-        aname = "FAILED";
-        break;
-
     case RESUBMIT:
         aname = "RESUBMIT";
         break;
@@ -145,10 +141,6 @@ void DispatchManager::do_action(const string &action, void * arg)
     else if (action == "DONE")
     {
         done_action(vid);
-    }
-    else if (action == "FAILED")
-    {
-        failed_action(vid);
     }
     else if (action == "RESUBMIT")
     {

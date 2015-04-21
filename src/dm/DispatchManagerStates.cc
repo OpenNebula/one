@@ -261,39 +261,6 @@ void  DispatchManager::done_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  DispatchManager::failed_action(int vid)
-{
-    VirtualMachine *    vm;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_lcm_state() == VirtualMachine::FAILURE)
-    {
-
-        vm->set_state(VirtualMachine::LCM_INIT);
-
-        vm->set_state(VirtualMachine::FAILED);
-
-        vm->set_exit_time(time(0));
-
-        vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is FAILED");
-
-        vm->unlock();
-    }
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void  DispatchManager::resubmit_action(int vid)
 {
     VirtualMachine *    vm;

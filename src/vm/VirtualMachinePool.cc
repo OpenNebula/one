@@ -165,14 +165,6 @@ VirtualMachinePool::VirtualMachinePool(
                             VirtualMachine::LCM_INIT, VirtualMachine::DONE);
             add_hook(hook);
         }
-        else if ( on == "FAILED" )
-        {
-            VirtualMachineStateHook * hook;
-
-            hook = new VirtualMachineStateHook(name, cmd, arg, remote,
-                            VirtualMachine::LCM_INIT, VirtualMachine::FAILED);
-            add_hook(hook);
-        }
         else if ( on == "UNKNOWN" )
         {
             VirtualMachineStateHook * hook;

@@ -101,10 +101,6 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "CANCEL_FAILURE";
         break;
 
-    case MONITOR_FAILURE:
-        aname = "MONITOR_FAILURE";
-        break;
-
     case MONITOR_SUSPEND:
         aname = "MONITOR_SUSPEND";
         break;
@@ -329,10 +325,6 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "CANCEL_FAILURE")
     {
         cancel_failure_action(vid);
-    }
-    else if (action == "MONITOR_FAILURE")
-    {
-        monitor_failure_action(vid);
     }
     else if (action == "MONITOR_SUSPEND")
     {

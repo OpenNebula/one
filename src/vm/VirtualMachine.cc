@@ -2496,8 +2496,9 @@ void VirtualMachine::release_disk_images()
 {
     int     iid;
     int     save_as_id;
-    int     rc;
     int     num_disks;
+
+    bool img_error;
 
     vector<Attribute const  * > disks;
     ImageManager *              imagem;
@@ -2519,18 +2520,16 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        rc = disk->vector_value("IMAGE_ID", iid);
+        img_error = state != ACTIVE || lcm_state != EPILOG;
 
-        if ( rc == 0 )
+        if ( disk->vector_value("IMAGE_ID", iid) == 0 )
         {
-            imagem->release_image(oid, iid, (state == FAILED));
+            imagem->release_image(oid, iid, img_error);
         }
 
-        rc = disk->vector_value("SAVE_AS", save_as_id);
-
-        if ( rc == 0 )
+        if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
         {
-            imagem->release_image(oid, save_as_id, (state != ACTIVE || lcm_state != EPILOG));
+            imagem->release_image(oid, save_as_id, img_error);
         }
     }
 }

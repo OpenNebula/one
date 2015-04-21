@@ -234,8 +234,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::LCM_INIT )
+    if ( vm->get_lcm_state() == VirtualMachine::LCM_INIT )
     {
         os.str("");
         os << "Ignored: " << message;
@@ -695,7 +694,7 @@ void VirtualMachineManagerDriver::process_poll(
         case 'e': //Failed
             vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
 
-            lcm->trigger(LifeCycleManager::MONITOR_FAILURE, vm->get_oid());
+            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
             break;
 
         case 'd': //The VM was powered-off
