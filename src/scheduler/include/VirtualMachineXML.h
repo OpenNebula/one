@@ -289,6 +289,13 @@ public:
      */
     void log(const string &st);
 
+    /**
+     * Clears the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
+     * @return true if the template was modified, false if SCHED_MESSAGE did not
+     * need to be deleted
+     */
+    bool clear_log();
+
 protected:
 
     /**

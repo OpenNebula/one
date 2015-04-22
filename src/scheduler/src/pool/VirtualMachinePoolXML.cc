@@ -130,6 +130,13 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) co
 {
     xmlrpc_c::value deploy_result;
 
+    VirtualMachineXML* vm = get(vid);
+
+    if (vm != 0 && vm->clear_log())
+    {
+        update(vm);
+    }
+
     try
     {
         if (resched == true)

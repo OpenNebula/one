@@ -399,6 +399,30 @@ void VirtualMachineXML::log(const string &st)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachineXML::clear_log()
+{
+    string st;
+
+    if (user_template == 0)
+    {
+        return false;
+    }
+
+    user_template->get("SCHED_MESSAGE", st);
+
+    if (st.empty())
+    {
+        return false;
+    }
+
+    user_template->erase("SCHED_MESSAGE");
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachineXML::parse_action_name(string& action_st)
 {
     one_util::tolower(action_st);
