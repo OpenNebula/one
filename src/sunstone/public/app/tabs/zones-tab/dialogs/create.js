@@ -1,7 +1,7 @@
 define(function(require) {
   var TemplateHTML = require('hbs!./create/html');
   var Sunstone = require('sunstone');
-  var DIALOG_ID = "createZoneDialog";
+  var DIALOG_ID = require('./create/dialogId');
 
   var _html = function() {
     return TemplateHTML({dialogId: DIALOG_ID});

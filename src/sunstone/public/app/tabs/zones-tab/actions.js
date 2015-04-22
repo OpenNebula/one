@@ -5,13 +5,16 @@ define(function(require) {
   var ZonesDataTable = require('./datatable');
   var Locale = require('utils/locale');
 
+  var TAB_ID = require('./tabId');
+  var CREATE_ZONE_DIALOG_ID = require('./dialogs/create/dialogId');
+
   var _zoneActions = {
     "Zone.create" : {
       type: "create",
       call: OpenNebulaZone.create,
       callback: function(request, response) {
-        Sunstone.hideDialog('zones-tab', 'createZoneDialog');
-        Sunstone.resetDialog('zones-tab', 'createZoneDialog');
+        Sunstone.hideDialog(TAB_ID, CREATE_ZONE_DIALOG_ID);
+        Sunstone.resetDialog(TAB_ID, CREATE_ZONE_DIALOG_ID);
         Sunstone.runAction('Zone.list');
       },
       error: Notifier.onError,
@@ -21,7 +24,7 @@ define(function(require) {
     "Zone.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.showDialog('zones-tab', 'createZoneDialog');
+        Sunstone.showDialog(TAB_ID, CREATE_ZONE_DIALOG_ID);
       }
     },
 
@@ -36,9 +39,9 @@ define(function(require) {
       type: "single",
       call: OpenNebulaZone.show,
       callback: function(request, response) {
-        if (Sunstone.rightInfoVisible($('#zones-tab'))) {
+        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
           // individual view
-          Sunstone.insertPanels('zones-tab', response);
+          Sunstone.insertPanels(TAB_ID, response);
         }
 
         // datatable row
@@ -57,7 +60,7 @@ define(function(require) {
     "Zone.refresh" : {
       type: "custom",
       call: function() {
-            var tab = $("#zones-tab");
+            var tab = $('#' + TAB_ID);
             if (Sunstone.rightInfoVisible(tab)) {
               Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
             } else {

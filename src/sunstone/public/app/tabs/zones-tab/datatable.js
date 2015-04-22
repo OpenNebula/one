@@ -7,7 +7,7 @@ define(function(require) {
   var _dataTableZones;
   var DATATABLE_ID = "dataTableZones";
   var DATATABLE_SEARCH_ID = "zonesSearch";
-  var TAB_NAME = 'zones-tab';
+  var TAB_NAME = require('./tabId');
 
   function _initialize() {
     _dataTableZones = $('#'+DATATABLE_ID).dataTable({

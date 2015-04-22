@@ -4,7 +4,7 @@ define(function(require) {
   var Actions = require('./zones-tab/actions');
   var DataTable = require('./zones-tab/datatable');
 
-  var TAB_ID = 'zones-tab';
+  var TAB_ID = require('./zones-tab/tabId');
 
   var _dialogs = [
     require('./zones-tab/dialogs/create')
