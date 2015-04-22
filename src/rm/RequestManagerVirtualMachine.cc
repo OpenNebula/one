@@ -942,10 +942,11 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if((vm->get_state()     != VirtualMachine::ACTIVE)  ||
-       (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-        vm->get_lcm_state() != VirtualMachine::UNKNOWN) ||
-       (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
+    if((vm->hasPreviousHistory() && vm->get_previous_reason()== History::NONE)||
+       (vm->get_state() != VirtualMachine::POWEROFF &&
+        (vm->get_state() != VirtualMachine::ACTIVE ||
+         (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+          vm->get_lcm_state() != VirtualMachine::UNKNOWN))))
     {
         failure_response(ACTION,
                 request_error("Wrong state to perform action",""),
@@ -966,7 +967,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // Check we are not migrating to the same host
-
     c_hid = vm->get_hid();
 
     if (c_hid == hid)
@@ -1009,7 +1009,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // Check we are in the same cluster
-
     Host * host = nd.get_hpool()->get(c_hid, true);
 
     if (host == 0)

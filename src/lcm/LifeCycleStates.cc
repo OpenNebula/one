@@ -900,6 +900,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
     }
     //wrong state + recover failure from failure state
     else if ( state != VirtualMachine::PROLOG_MIGRATE_FAILURE &&
+              state != VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE &&
               state != VirtualMachine::PROLOG_FAILURE )
     {
         vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");

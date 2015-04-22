@@ -1376,6 +1376,16 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
             break;
 
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_POWEROFF");
+
+            tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
         case VirtualMachine::PROLOG_FAILURE:
             vm->set_state(VirtualMachine::PROLOG);
 
@@ -1440,6 +1450,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_RESUME:
         case VirtualMachine::PROLOG_UNDEPLOY:
         case VirtualMachine::MIGRATE:
