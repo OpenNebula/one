@@ -455,7 +455,7 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 /* -------------------------------------------------------------------------- */
 
 bool VirtualMachineXML::test_image_datastore_capacity(
-    ImageDatastorePoolXML * img_dspool)
+    ImageDatastorePoolXML * img_dspool, string & error_msg) const
 {
     map<int,long long>::const_iterator ds_usage_it;
     DatastoreXML* ds;
@@ -466,6 +466,12 @@ bool VirtualMachineXML::test_image_datastore_capacity(
 
         if (ds == 0 || !ds->test_capacity(ds_usage_it->second))
         {
+            ostringstream oss;
+
+            oss << "Image Datastore " << ds->get_oid()
+                << " does not have enough capacity";
+
+            error_msg = oss.str();
             return false;
         }
     }

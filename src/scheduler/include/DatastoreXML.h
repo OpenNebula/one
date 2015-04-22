@@ -36,14 +36,23 @@ public:
     };
 
     /**
-     *  Tests whether a new VM can be hosted by the datasotre
+     *  Tests whether a new VM can be hosted by the datastore
+     *    @param vm_disk_mb capacity needed by the VM
+     *    @param error error message
+     *    @return true if the datastore can host the VM
+     */
+    bool test_capacity(long long vm_disk_mb, string & error) const;
+
+    /**
+     *  Tests whether a new VM can be hosted by the datastore
      *    @param vm_disk_mb capacity needed by the VM
      *    @return true if the datastore can host the VM
      */
     bool test_capacity(long long vm_disk_mb) const
     {
-        return (vm_disk_mb < free_mb);
-    };
+        string tmp_st;
+        return test_capacity(vm_disk_mb, tmp_st);
+    }
 
     /**
      *  Adds a new VM to the datastore

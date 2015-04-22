@@ -50,12 +50,21 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param error error message
+     *    @return true if the share can host the VM
+     */
+    bool test_capacity(long long cpu, long long mem, string & error) const;
+
+    /**
+     *  Tests whether a new VM can be hosted by the host or not
+     *    @param cpu needed by the VM (percentage)
+     *    @param mem needed by the VM (in KB)
      *    @return true if the share can host the VM
      */
     bool test_capacity(long long cpu, long long mem) const
     {
-        return (((max_cpu  - cpu_usage ) >= cpu) &&
-                ((max_mem  - mem_usage ) >= mem));
+        string tmp_st;
+        return test_capacity(cpu, mem, tmp_st);
     };
 
     /**
