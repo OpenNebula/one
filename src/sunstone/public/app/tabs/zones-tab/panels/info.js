@@ -23,7 +23,7 @@ define(function(require) {
     return false;
   }
 
-  var infoPanel = {
+  var InfoPanel = {
     title : Locale.tr("Info"),
     icon: "fa-info-circle",
     panelId: PANEL_ID,
@@ -31,5 +31,5 @@ define(function(require) {
     setup: _setup
   }
 
-  return infoPanel;
+  return InfoPanel;
 });

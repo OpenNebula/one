@@ -2,18 +2,14 @@ define(function(require) {
   require('jquery');
 
   var Sunstone = require('sunstone');
-  require('tabs/infra-tab');
-  require('tabs/zones-tab');
 
-  var tabs = [
-    'infra-tab',
-    'zones-tab'
+  var _tabs = [
+    require('tabs/infra-tab'),
+    require('tabs/zones-tab')
   ];
 
-  var tab;
-  $.each(tabs, function(index, tabName) {
-    tab = require('tabs/' + tabName);
-    Sunstone.addMainTab(tabName, tab.definition);
+  $.each(_tabs, function(index, tab) {
+    Sunstone.addMainTab(tab);
   });
 
   $(document).ready(function() {

@@ -4,28 +4,25 @@ define(function(require) {
   var Actions = require('./zones-tab/actions');
   var DataTable = require('./zones-tab/datatable');
 
-  var DialogCreate = require('./zones-tab/dialogs/create');
+  var TAB_ID = 'zones-tab';
 
-  var _dialogs = {};
-  $.each([DialogCreate], function(index, dialog){
-    _dialogs[dialog.dialogId] = dialog
-  })
+  var _dialogs = [
+    require('./zones-tab/dialogs/create')
+  ];
 
-  var PanelInfo = require('./zones-tab/panels/info');
+  var _panels = [
+    require('./zones-tab/panels/info')
+  ];
 
-  var _panels = {};
-  $.each([PanelInfo], function(index, panel){
-    _panels[panel.panelId] = panel
-  })
-
-  var zonesTab = {
+  var ZonesTab = {
+    tabId: TAB_ID,
     title: Locale.tr("Zones"),
-    resource: 'Zone',
     tabClass: "subTab",
     parentTab: "infra-tab",
     listHeader: '<i class="fa fa-fw fa-files-o"></i>&emsp;' + Locale.tr("Zones"),
     infoHeader: '<i class="fa fa-fw fa-files-o"></i>&emsp;' + Locale.tr("Zone"),
     subheader: '',
+    resource: 'Zone',
     buttons: Buttons,
     actions: Actions,
     dataTable: DataTable,
@@ -33,7 +30,5 @@ define(function(require) {
     dialogs: _dialogs
   };
 
-  return {
-    'definition': zonesTab
-  }
+  return ZonesTab;
 });

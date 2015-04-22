@@ -36,8 +36,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaZone.show,
       callback: function(request, response) {
-        // TODO var tab = dataTable_zones.parents(".tab");
-
         if (Sunstone.rightInfoVisible($('#zones-tab'))) {
           // individual view
           Sunstone.insertPanels('zones-tab', response);
