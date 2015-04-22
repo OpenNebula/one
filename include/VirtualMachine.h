@@ -204,10 +204,8 @@ public:
         return 0;
     }
 
-    static string lcm_state_to_str(LcmState state)
+    static string& lcm_state_to_str(string& st, LcmState state)
     {
-        string st;
-
         switch (state)
         {
             case LCM_INIT: st = "LCM_INIT"; break;
