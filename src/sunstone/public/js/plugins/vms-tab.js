@@ -1189,7 +1189,7 @@ function vMachineElementArray(vm_json){
     }
 
     if (state == tr("ACTIVE")) {
-        state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+        state = OpenNebula.Helper.resource_state("short_vm_lcm",vm.LCM_STATE);
     };
 
     // Build hidden user template

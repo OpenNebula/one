@@ -116,8 +116,8 @@ var OpenNebula = {
                                "POWEROFF",
                                "UNDEPLOYED"][value]);
                     break;
-                case "VM_LCM":
-                case "vm_lcm":
+                case "SHORT_VM_LCM":
+                case "short_vm_lcm":
                     state = tr(["LCM_INIT", // LCM_INIT
                                "PROLOG",    // PROLOG
                                "BOOT",      // BOOT
@@ -165,7 +165,58 @@ var OpenNebula = {
                                "FAILURE",   // PROLOG_MIGRATE_POWEROFF_FAILURE
                                "MIGRATE",   // PROLOG_MIGRATE_SUSPEND
                                "FAILURE"    // PROLOG_MIGRATE_SUSPEND_FAILURE
-                            ][value]); 
+                            ][value]);
+                    break;
+                case "VM_LCM":
+                case "vm_lcm":
+                    state = tr(["LCM_INIT",
+                                "PROLOG",
+                                "BOOT",
+                                "RUNNING",
+                                "MIGRATE",
+                                "SAVE_STOP",
+                                "SAVE_SUSPEND",
+                                "SAVE_MIGRATE",
+                                "PROLOG_MIGRATE",
+                                "PROLOG_RESUME",
+                                "EPILOG_STOP",
+                                "EPILOG",
+                                "SHUTDOWN",
+                                "CANCEL",
+                                "FAILURE",
+                                "CLEANUP_RESUBMIT",
+                                "UNKNOWN",
+                                "HOTPLUG",
+                                "SHUTDOWN_POWEROFF",
+                                "BOOT_UNKNOWN",
+                                "BOOT_POWEROFF",
+                                "BOOT_SUSPENDED",
+                                "BOOT_STOPPED",
+                                "CLEANUP_DELETE",
+                                "HOTPLUG_SNAPSHOT",
+                                "HOTPLUG_NIC",
+                                "HOTPLUG_SAVEAS",
+                                "HOTPLUG_SAVEAS_POWEROFF",
+                                "HOTPLUG_SAVEAS_SUSPENDED",
+                                "SHUTDOWN_UNDEPLOY",
+                                "EPILOG_UNDEPLOY",
+                                "PROLOG_UNDEPLOY",
+                                "BOOT_UNDEPLOY",
+                                "HOTPLUG_PROLOG_POWEROFF",
+                                "HOTPLUG_EPILOG_POWEROFF",
+                                "BOOT_MIGRATE",
+                                "BOOT_FAILURE",
+                                "BOOT_MIGRATE_FAILURE",
+                                "PROLOG_MIGRATE_FAILURE",
+                                "PROLOG_FAILURE",
+                                "EPILOG_FAILURE",
+                                "EPILOG_STOP_FAILURE",
+                                "EPILOG_UNDEPLOY_FAILURE",
+                                "PROLOG_MIGRATE_POWEROFF",
+                                "PROLOG_MIGRATE_POWEROFF_FAILURE",
+                                "PROLOG_MIGRATE_SUSPEND",
+                                "PROLOG_MIGRATE_SUSPEND_FAILURE"
+                            ][value]);
                     break;
                 case "IMAGE":
                 case "image":
