@@ -1164,7 +1164,7 @@ var OpenNebula = {
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"unresched");
         },
         "recover" : function(params){
-            var action_obj = {"with": params.data.extra_param};
+            var action_obj = {"result": params.data.extra_param};
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"recover",action_obj);
         },
         "accounting": function(params){

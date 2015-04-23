@@ -1066,12 +1066,15 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Recover"),
         layout: "vmsplanification_buttons",
-        custom_select: '<select class="resource_list_select"><option value="success">' + tr("success") + '</option>\
-                 <option value="failure">' + tr("failure") + '</option></select>',
+        custom_select: '<select class="resource_list_select">\
+                <option value="2">' + tr("retry") + '</option>\
+                <option value="1">' + tr("success") + '</option>\
+                <option value="0">' + tr("failure") + '</option>\
+                </select>',
         tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
-                The recovery may be done by failing or succeeding the pending operation. \
+                The recovery may be done by failing, succeeding or retrying the current operation. \
                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
-                was successful or not."),
+                was successful or not, or if it can be retried."),
         custom_classes : "state-dependent"
     },
     "VM.startvnc" : {

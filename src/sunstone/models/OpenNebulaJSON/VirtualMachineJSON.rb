@@ -170,8 +170,7 @@ module OpenNebulaJSON
         end
 
         def recover(params=Hash.new)
-            result = params['with'] == "success" ? true : false
-            super(result)
+            super(params['result'].to_i)
         end
     end
 end
