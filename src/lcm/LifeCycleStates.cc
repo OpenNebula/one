@@ -783,8 +783,8 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vm->set_vm_info();
 
-            vm->set_reason(vm->get_previous_reason());
-            vm->set_action(vm->get_previous_action());
+            vm->set_reason(History::USER);
+            vm->set_action(History::MIGRATE_ACTION);
 
             vmpool->update_history(vm);
 
@@ -795,7 +795,7 @@ void LifeCycleManager::prolog_success_action(int vid)
 			}
 			else //PROLOG_MIGRATE_SUSPEND, PROLOG_MIGRATE_SUSPEND_FAILURE
 			{
-				dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+				dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
 			}
             break;
 
@@ -926,6 +926,7 @@ void  LifeCycleManager::prolog_failure_action(int vid)
     //wrong state + recover failure from failure state
     else if ( state != VirtualMachine::PROLOG_MIGRATE_FAILURE &&
               state != VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE &&
+              state != VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE &&
               state != VirtualMachine::PROLOG_FAILURE )
     {
         vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");

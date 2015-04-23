@@ -252,11 +252,6 @@ void  LifeCycleManager::migrate_action(int vid)
         //------------------------------------------------------
         //   Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF
         //------------------------------------------------------
-
-        vm->set_resched(false);
-
-        vm->set_state(VirtualMachine::ACTIVE);
-
 	 	if (vm->get_state() == VirtualMachine::POWEROFF)
 		{
 			vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
@@ -267,6 +262,10 @@ void  LifeCycleManager::migrate_action(int vid)
 			vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
 			vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_SUSPEND");
 		}
+
+        vm->set_state(VirtualMachine::ACTIVE);
+
+        vm->set_resched(false);
 
         vm->delete_snapshots();
 
