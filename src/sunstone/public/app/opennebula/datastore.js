@@ -2,8 +2,12 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
 
   var RESOURCE = "DATASTORE";
+  var STATES = ["ON", "OFF"];
 
   var Datastore = {
+    "stateStr": function(stateId) {
+      return STATES[stateId];
+    },
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
