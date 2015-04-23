@@ -179,12 +179,58 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    Nebula&         nd     = Nebula::instance();
-    ImageManager *  imagem = nd.get_imagem();
+    Nebula&         nd          = Nebula::instance();
+    ImageManager *  imagem      = nd.get_imagem();
+    VirtualMachinePool * vmpool = nd.get_vmpool();
+
+    VirtualMachine * vm;
+
+    bool save_as;
+    int rc, img_id, vm_id, disk_id;
+
+    object->get_template_attribute("SAVE_AS", save_as);
+
+    if (save_as)
+    {
+        save_as = save_as && object->get_template_attribute("SAVED_VM_ID", vm_id);
+        save_as = save_as && object->get_template_attribute("SAVED_DISK_ID", disk_id);
+    }
 
     object->unlock();
 
-    return imagem->delete_image(oid, error_msg);
+    rc = imagem->delete_image(oid, error_msg);
+
+    // -------------------------------------------------------------------------
+    // Cancel the disk snapshot
+    // -------------------------------------------------------------------------
+
+    if (rc == 0 && save_as)
+    {
+        vm = vmpool->get(vm_id, true);
+
+        if (vm == 0)
+        {
+            return rc;
+        }
+
+        if (vm->get_state() == VirtualMachine::DONE)
+        {
+            vm->unlock();
+            return rc;
+        }
+
+        img_id = vm->get_save_disk_image(disk_id);
+
+        if ( img_id == oid )
+        {
+            vm->clear_save_disk(disk_id);
+            vmpool->update(vm);
+        }
+
+        vm->unlock();
+    }
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------- */
