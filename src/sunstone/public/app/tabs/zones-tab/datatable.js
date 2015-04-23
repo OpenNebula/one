@@ -4,13 +4,13 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var TabDataTable = require('utils/tab-datatable');
 
-  var _dataTableZones;
+  var _dataTable;
   var DATATABLE_ID = "dataTableZones";
   var DATATABLE_SEARCH_ID = "zonesSearch";
   var TAB_NAME = require('./tabId');
 
   function _initialize() {
-    _dataTableZones = $('#'+DATATABLE_ID).dataTable({
+    _dataTable = $('#'+DATATABLE_ID).dataTable({
       "bSortClasses": false,
       "bDeferRender": true,
       "aoColumnDefs": [
@@ -22,17 +22,17 @@ define(function(require) {
     });
  
     $('#'+DATATABLE_SEARCH_ID).keyup(function() {
-      _dataTableZones.fnFilter($(this).val());
+      _dataTable.fnFilter($(this).val());
     })
 
-    _dataTableZones.on('draw', function() {
-      TabDataTable.recountCheckboxes(_dataTableZones);
+    _dataTable.on('draw', function() {
+      TabDataTable.recountCheckboxes(_dataTable);
     })
 
-    TabDataTable.initCheckAllBoxes(_dataTableZones);
-    TabDataTable.tableCheckboxesListener(_dataTableZones);
-    TabDataTable.infoListener(_dataTableZones, "Zone.show");
-    _dataTableZones.fnSort([[1, SunstoneConfig.tableOrder]]);
+    TabDataTable.initCheckAllBoxes(_dataTable);
+    TabDataTable.tableCheckboxesListener(_dataTable);
+    TabDataTable.infoListener(_dataTable, "Zone.show");
+    _dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
   }
 
   var _dataTableHTML = function() {
@@ -46,7 +46,7 @@ define(function(require) {
   }
 
   var _elements = function() {
-    return TabDataTable.getSelectedNodes(_dataTableZones);
+    return TabDataTable.getSelectedNodes(_dataTable);
   }
 
   var _elementArray = function(element_json) {
@@ -64,19 +64,19 @@ define(function(require) {
   var _updateElement = function(request, element_json) {
     var id = element_json.ZONE.ID;
     var element = _elementArray(element_json);
-    TabDataTable.updateSingleElement(element, _dataTableZones, '#zone_' + id);
+    TabDataTable.updateSingleElement(element, _dataTable, '#zone_' + id);
   }
 
   //callback for actions deleting a zone element
   var _deleteElement = function(req) {
-    TabDataTable.deleteElement(_dataTableZones, '#zone_' + req.request.data);
+    TabDataTable.deleteElement(_dataTable, '#zone_' + req.request.data);
     $('div#zone_tab_' + req.request.data, main_tabs_context).remove();
   }
 
   //call back for actions creating a zone element
   var _addElement = function(request, element_json) {
     var element = _elementArray(element_json);
-    TabDataTable.addElement(element, _dataTableZones);
+    TabDataTable.addElement(element, _dataTable);
   }
 
   //callback to update the list of zones.
@@ -87,7 +87,7 @@ define(function(require) {
       list_array.push(_elementArray(this));
     });
 
-    TabDataTable.updateView(list_array, _dataTableZones);
+    TabDataTable.updateView(list_array, _dataTable);
   };
 
   return {
@@ -99,7 +99,7 @@ define(function(require) {
     'updateElement': _updateElement,
     'deleteElement': _deleteElement,
     'addElement': _addElement,
-    'updateZonesView': _updateView,
+    'updateView': _updateView,
     'waitingNodes': TabDataTable.waitingNodes
   }
 });

@@ -1,21 +1,21 @@
 define(function(require) {
-  var OpenNebulaZone = require('opennebula/zone');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
-  var ZonesDataTable = require('./datatable');
   var Locale = require('utils/locale');
+  var ZonesDataTable = require('./datatable');
+  var OpenNebulaZone = require('opennebula/zone');
 
   var TAB_ID = require('./tabId');
-  var CREATE_ZONE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
 
-  var _zoneActions = {
+  var _actions = {
     "Zone.create" : {
       type: "create",
       call: OpenNebulaZone.create,
       callback: function(request, response) {
-        Sunstone.hideDialog(TAB_ID, CREATE_ZONE_DIALOG_ID);
-        Sunstone.resetDialog(TAB_ID, CREATE_ZONE_DIALOG_ID);
-        Sunstone.runAction('Zone.list');
+        Sunstone.hideDialog(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.resetDialog(TAB_ID, CREATE_DIALOG_ID);
+        ZonesDataTable.addElement(request, response);
       },
       error: Notifier.onError,
       notify: true
@@ -24,7 +24,7 @@ define(function(require) {
     "Zone.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.showDialog(TAB_ID, CREATE_ZONE_DIALOG_ID);
+        Sunstone.showDialog(TAB_ID, CREATE_DIALOG_ID);
       }
     },
 
@@ -111,5 +111,5 @@ define(function(require) {
     }
   };
 
-  return _zoneActions;
+  return _actions;
 })
