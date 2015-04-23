@@ -148,7 +148,8 @@ int DispatchManager::migrate(
     if ((vm->get_state()     == VirtualMachine::ACTIVE &&
          (vm->get_lcm_state() == VirtualMachine::RUNNING ||
           vm->get_lcm_state() == VirtualMachine::UNKNOWN )) ||
-         vm->get_state() == VirtualMachine::POWEROFF)
+         vm->get_state() == VirtualMachine::POWEROFF ||
+         vm->get_state() == VirtualMachine::SUSPENDED)
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();

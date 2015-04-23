@@ -31,7 +31,9 @@ void  DispatchManager::suspend_success_action(int vid)
     }
 
     if ((vm->get_state() == VirtualMachine::ACTIVE) &&
-        (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND))
+        (vm->get_lcm_state() == VirtualMachine::SAVE_SUSPEND ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_SUSPEND ||
+         vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE))
     {
         vm->set_state(VirtualMachine::SUSPENDED);
 

@@ -203,6 +203,13 @@ void  LifeCycleManager::migrate_action(int vid)
 {
     VirtualMachine *    vm;
 
+	Nebula& nd = Nebula::instance();
+	TransferManager *       tm  = nd.get_tm();
+	VirtualMachineManager * vmm = nd.get_vmm();
+
+	int    cpu, mem, disk;
+	time_t the_time = time(0);
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -213,10 +220,6 @@ void  LifeCycleManager::migrate_action(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
-        Nebula&                 nd  = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-        int                     cpu,mem,disk;
-
         //----------------------------------------------------
         //                SAVE_MIGRATE STATE
         //----------------------------------------------------
@@ -227,7 +230,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_stime(time(0));
+        vm->set_stime(the_time);
 
         vm->set_previous_action(History::MIGRATE_ACTION);
 
@@ -243,14 +246,9 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
-    else if (vm->get_state() == VirtualMachine::POWEROFF)
+    else if (vm->get_state() == VirtualMachine::POWEROFF ||
+		     vm->get_state() == VirtualMachine::SUSPENDED )
     {
-        Nebula& nd = Nebula::instance();
-        TransferManager * tm = nd.get_tm();
-
-        int    cpu, mem, disk;
-        time_t the_time = time(0);
-
         //------------------------------------------------------
         //   Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF
         //------------------------------------------------------
@@ -259,9 +257,16 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_state(VirtualMachine::ACTIVE);
 
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
-
-        vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_POWEROFF");
+	 	if (vm->get_state() == VirtualMachine::POWEROFF)
+		{
+			vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
+			vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_POWEROFF");
+		}
+		else //if (vm->get_state() == VirtualMachine::SUSPENDED)
+		{
+			vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+			vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_SUSPEND");
+		}
 
         vm->delete_snapshots();
 
@@ -270,7 +275,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmpool->update(vm);
 
-        vm->set_stime(time(0));
+        vm->set_stime(the_time);
 
         vm->set_prolog_stime(the_time);
 
@@ -293,12 +298,6 @@ void  LifeCycleManager::migrate_action(int vid)
         //   Bypass SAVE_MIGRATE & PROLOG_MIGRATE goto BOOT
         //----------------------------------------------------
 
-        Nebula& nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
-        int    cpu, mem, disk;
-        time_t the_time = time(0);
-
         vm->set_resched(false);
 
         vm->set_state(VirtualMachine::BOOT);
@@ -306,7 +305,6 @@ void  LifeCycleManager::migrate_action(int vid)
         vm->delete_snapshots();
 
         map<string, string> empty;
-
         vm->update_info(0, 0, -1, -1, empty);
 
         vmpool->update(vm);
@@ -1093,6 +1091,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::PROLOG_MIGRATE_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 
@@ -1163,6 +1163,8 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::PROLOG_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
             if (success)
             {
                 lcm_action = LifeCycleManager::PROLOG_SUCCESS;
@@ -1386,6 +1388,17 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
             break;
 
+
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+
+            vmpool->update(vm);
+
+            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_SUSPEND");
+
+            tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
         case VirtualMachine::PROLOG_FAILURE:
             vm->set_state(VirtualMachine::PROLOG);
 
@@ -1451,6 +1464,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
         case VirtualMachine::PROLOG_RESUME:
         case VirtualMachine::PROLOG_UNDEPLOY:
         case VirtualMachine::MIGRATE:

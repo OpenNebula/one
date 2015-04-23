@@ -706,7 +706,9 @@ void LifeCycleManager::prolog_success_action(int vid)
         return;
     }
 
-    switch (vm->get_lcm_state())
+	VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+
+    switch (lcm_state)
     {
         //---------------------------------------------------------------------
         //                             BOOT STATE
@@ -717,7 +719,7 @@ void LifeCycleManager::prolog_success_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_FAILURE: //recover success
-            switch (vm->get_lcm_state())
+            switch (lcm_state)
             {
                 case VirtualMachine::PROLOG_RESUME:
                     action = VirtualMachineManager::RESTORE;
@@ -761,10 +763,12 @@ void LifeCycleManager::prolog_success_action(int vid)
             break;
 
         //---------------------------------------------------------------------
-        //                          POWEROFF STATE
+        //                      POWEROFF/SUSPEND STATE
         //---------------------------------------------------------------------
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE: //recover success
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE: //recover success
             vm->delete_snapshots();
 
             vm->update_info(0, 0, -1, -1, empty);
@@ -784,7 +788,15 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vmpool->update_history(vm);
 
-            dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+			if (lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF||
+			    lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE)
+			{
+				dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+			}
+			else //PROLOG_MIGRATE_SUSPEND, PROLOG_MIGRATE_SUSPEND_FAILURE
+			{
+				dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+			}
             break;
 
         default:
@@ -837,6 +849,13 @@ void  LifeCycleManager::prolog_failure_action(int vid)
         vmpool->update(vm);
 
         vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_POWEROFF_FAILURE");
+    }
+    else if ( state == VirtualMachine::PROLOG_MIGRATE_SUSPEND )
+    {
+        vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE);
+        vmpool->update(vm);
+
+        vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_SUSPEND_FAILURE");
     }
     else if ( state == VirtualMachine::PROLOG_RESUME )
     {
