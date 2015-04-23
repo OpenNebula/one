@@ -827,20 +827,6 @@ void  LifeCycleManager::restart_action(int vid)
                     vmpool->update(vm);
                     break;
 
-                case VirtualMachine::BOOT_FAILURE:
-                    action = VirtualMachineManager::DEPLOY;
-                    vm->set_state(VirtualMachine::BOOT);
-
-                    vmpool->update(vm);
-                    break;
-
-                case VirtualMachine::BOOT_MIGRATE_FAILURE:
-                    action = VirtualMachineManager::RESTORE;
-                    vm->set_state(VirtualMachine::BOOT_MIGRATE);
-
-                    vmpool->update(vm);
-                    break;
-
                 default:
                     break;
             }
