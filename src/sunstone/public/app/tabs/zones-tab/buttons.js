@@ -1,7 +1,7 @@
 define(function(require) {
   var Locale = require('utils/locale');
 
-  var zoneButtons = {
+  var ZoneButtons = {
     "Zone.refresh" : {
       type: "action",
       layout: "refresh",
@@ -18,5 +18,5 @@ define(function(require) {
     }
   };
 
-  return zoneButtons;
+  return ZoneButtons;
 })

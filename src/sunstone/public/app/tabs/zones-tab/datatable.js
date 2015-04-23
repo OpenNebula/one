@@ -45,11 +45,11 @@ define(function(require) {
     return TemplateSearchInputHTML({'dataTableSearchId': DATATABLE_SEARCH_ID});
   }
 
-  var _zoneElements = function() {
+  var _elements = function() {
     return TabDataTable.getSelectedNodes(_dataTableZones);
   }
 
-  var _zoneElementArray = function(element_json) {
+  var _elementArray = function(element_json) {
     var element = element_json.ZONE;
 
     return [
@@ -61,30 +61,30 @@ define(function(require) {
   }
 
   //callback for an action affecting a zone element
-  var _updateZoneElement = function(request, element_json) {
+  var _updateElement = function(request, element_json) {
     var id = element_json.ZONE.ID;
-    var element = _zoneElementArray(element_json);
+    var element = _elementArray(element_json);
     TabDataTable.updateSingleElement(element, _dataTableZones, '#zone_' + id);
   }
 
   //callback for actions deleting a zone element
-  var _deleteZoneElement = function(req) {
+  var _deleteElement = function(req) {
     TabDataTable.deleteElement(_dataTableZones, '#zone_' + req.request.data);
     $('div#zone_tab_' + req.request.data, main_tabs_context).remove();
   }
 
   //call back for actions creating a zone element
-  var _addZoneElement = function(request, element_json) {
-    var element = _zoneElementArray(element_json);
+  var _addElement = function(request, element_json) {
+    var element = _elementArray(element_json);
     TabDataTable.addElement(element, _dataTableZones);
   }
 
   //callback to update the list of zones.
-  var _updateZonesView =function(request, list) {
+  var _updateView =function(request, list) {
     var list_array = [];
 
     $.each(list, function() {
-      list_array.push(_zoneElementArray(this));
+      list_array.push(_elementArray(this));
     });
 
     TabDataTable.updateView(list_array, _dataTableZones);
@@ -94,12 +94,12 @@ define(function(require) {
     'initialize': _initialize,
     'dataTableHTML': _dataTableHTML,
     'searchInputHTML': _searchInputHTML,
-    'zoneElements': _zoneElements,
-    'zoneElementArray': _zoneElementArray,
-    'updateZoneElement': _updateZoneElement,
-    'deleteZoneElement': _deleteZoneElement,
-    'addZoneElement': _addZoneElement,
-    'updateZonesView': _updateZonesView,
+    'elements': _elements,
+    'elementArray': _elementArray,
+    'updateElement': _updateElement,
+    'deleteElement': _deleteElement,
+    'addElement': _addElement,
+    'updateZonesView': _updateView,
     'waitingNodes': TabDataTable.waitingNodes
   }
 });

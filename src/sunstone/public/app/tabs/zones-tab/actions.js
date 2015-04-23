@@ -31,7 +31,7 @@ define(function(require) {
     "Zone.list" : {
       type: "list",
       call: OpenNebulaZone.list,
-      callback: ZonesDataTable.updateZonesView,
+      callback: ZonesDataTable.updateView,
       error: Notifier.onError
     },
 
@@ -45,7 +45,7 @@ define(function(require) {
         }
 
         // datatable row
-        ZonesDataTable.updateZoneElement(request, response);
+        ZonesDataTable.updateElement(request, response);
       },
       error: Notifier.onError
     },
@@ -74,8 +74,8 @@ define(function(require) {
     "Zone.delete" : {
       type: "multiple",
       call : OpenNebulaZone.del,
-      callback : ZonesDataTable.deleteZoneElement,
-      elements: ZonesDataTable.zoneElements,
+      callback : ZonesDataTable.deleteElement,
+      elements: ZonesDataTable.elements,
       error : Notifier.onError,
       notify:true
     },
