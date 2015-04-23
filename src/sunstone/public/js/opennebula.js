@@ -162,7 +162,7 @@ var OpenNebula = {
                                "FAILURE",   // EPILOG_STOP_FAILURE
                                "FAILURE",   // EPILOG_UNDEPLOY_FAILURE
                                "MIGRATE",   // PROLOG_MIGRATE_POWEROFF
-                               "FAILURE"    // PROLOG_MIGRATE_POWEROFF_FAILURE
+                               "FAILURE",   // PROLOG_MIGRATE_POWEROFF_FAILURE
                                "MIGRATE",   // PROLOG_MIGRATE_SUSPEND
                                "FAILURE"    // PROLOG_MIGRATE_SUSPEND_FAILURE
                             ][value]); 
