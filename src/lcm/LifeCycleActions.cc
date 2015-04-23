@@ -1416,8 +1416,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is BOOT");
-
             vmm->trigger(VirtualMachineManager::DEPLOY, vid);
             break;
 
@@ -1425,8 +1423,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             vm->set_state(VirtualMachine::BOOT_MIGRATE);
 
             vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is BOOT_MIGRATE");
 
             vmm->trigger(VirtualMachineManager::RESTORE, vid);
             break;
@@ -1436,8 +1432,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE");
-
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
             break;
 
@@ -1445,8 +1439,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
 
             vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_POWEROFF");
 
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
             break;
@@ -1457,8 +1449,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG_MIGRATE_SUSPEND");
-
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
             break;
 
@@ -1466,8 +1456,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             vm->set_state(VirtualMachine::PROLOG);
 
             vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is PROLOG.");
 
             tm->trigger(TransferManager::PROLOG,vid);
             break;
@@ -1477,8 +1465,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is EPILOG");
-
             tm->trigger(TransferManager::EPILOG,vid);
             break;
 
@@ -1487,8 +1473,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is EPILOG_STOP");
-
             tm->trigger(TransferManager::EPILOG_STOP,vid);
             break;
 
@@ -1496,8 +1480,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
 
             vmpool->update(vm);
-
-            vm->log("LCM", Log::INFO, "New VM state is EPILOG_UNDEPLOY");
 
             tm->trigger(TransferManager::EPILOG_STOP,vid);
             break;

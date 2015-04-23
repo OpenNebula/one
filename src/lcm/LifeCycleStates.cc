@@ -731,8 +731,6 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vmpool->update_history(vm);
 
-            vm->log("LCM", Log::INFO, "New VM state is BOOT");
-
             vmm->trigger(action,vid);
             break;
 
