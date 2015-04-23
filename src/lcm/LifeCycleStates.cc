@@ -433,6 +433,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_running_etime(the_time);
 
         vm->set_reason(History::ERROR);
+        vm->set_action(History::RESUME_ACTION);
 
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
@@ -448,6 +449,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         vm->set_running_etime(the_time);
 
         vm->set_reason(History::ERROR);
+        vm->set_action(History::RESUME_ACTION);
 
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
