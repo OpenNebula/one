@@ -188,10 +188,12 @@ void  LifeCycleManager::stop_action(int vid)
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
+		Nebula& nd = Nebula::instance();
+		TransferManager *       tm  = nd.get_tm();
+
         //----------------------------------------------------
         //   Bypass SAVE_STOP
         //----------------------------------------------------
-
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::EPILOG_STOP);
 
@@ -526,6 +528,9 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
     }
     else if (vm->get_state() == VirtualMachine::POWEROFF)
     {
+		Nebula& nd = Nebula::instance();
+		TransferManager *       tm  = nd.get_tm();
+
         //----------------------------------------------------
         //   Bypass SHUTDOWN_UNDEPLOY
         //----------------------------------------------------
