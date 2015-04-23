@@ -5,7 +5,8 @@ define(function(require) {
 
   var _tabs = [
     require('tabs/infra-tab'),
-    require('tabs/zones-tab')
+    require('tabs/zones-tab'),
+    require('tabs/datastores-tab')
   ];
 
   $.each(_tabs, function(index, tab) {
