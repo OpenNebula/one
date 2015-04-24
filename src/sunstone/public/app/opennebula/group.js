@@ -6,6 +6,7 @@ define(function(require) {
   var RESOURCE = "GROUP";
 
   var Group =  {
+    "resource": RESOURCE,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
@@ -26,7 +27,7 @@ define(function(require) {
         dataType: "json",
         success: function(response) {
           // Get the default group quotas
-          default_group_quotas = Quotas.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS);
+          //TODO default_group_quotas = Quotas.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS);
 
           var list = OpenNebulaHelper.pool(RESOURCE, response)
           var quotas_hash = OpenNebulaHelper.pool_hash_processing(

@@ -18,6 +18,7 @@ define(function(require) {
   }
 
   var Role = {
+    "resource": RESOURCE,
     "state" : function(state_int) {
       state_int = state_int ? state_int : 0;
       var state = [

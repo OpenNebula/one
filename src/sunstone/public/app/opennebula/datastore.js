@@ -5,6 +5,7 @@ define(function(require) {
   var STATES = ["ON", "OFF"];
 
   var Datastore = {
+    "resource": RESOURCE,
     "stateStr": function(stateId) {
       return STATES[stateId];
     },

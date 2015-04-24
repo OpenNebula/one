@@ -5,6 +5,7 @@ define(function(require) {
   var RESOURCE = "MARKETPLACE";
 
   var Marketplace = {
+    "resource": RESOURCE,
     "show" : function(params) {
       params.error = function() {
         return notifyError("Cannot connect to OpenNebula Marketplace")

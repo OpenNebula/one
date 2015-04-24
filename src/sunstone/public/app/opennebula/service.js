@@ -6,6 +6,7 @@ define(function(require) {
   var CACHE_NAME = 'SERVICE'
 
   var Service = {
+    "resource": RESOURCE,
     "del": function(params) {
       params.cache_name = CACHE_NAME;
       OpenNebulaAction.del(params, RESOURCE, PATH);

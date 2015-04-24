@@ -6,6 +6,7 @@ define(function(require) {
   var CACHE_NAME = CACHE_NAME;
 
   var ServiceTemplate = {
+    "resource": RESOURCE,
     "create": function(params) {
       params.cache_name = CACHE_NAME;
       OpenNebulaAction.create(params, RESOURCE, PATH);

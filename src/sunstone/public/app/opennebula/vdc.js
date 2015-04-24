@@ -4,6 +4,7 @@ define(function(require) {
   var RESOURCE = "VDC";
 
   var Vdc = {
+    "resource": RESOURCE,
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

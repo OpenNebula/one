@@ -4,6 +4,7 @@ define(function(require) {
   var RESOURCE = "CLUSTER";
 
   var Cluster = {
+    "resource": RESOURCE,
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

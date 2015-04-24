@@ -6,6 +6,7 @@ define(function(require) {
   var RESOURCE = "VM";
 
   var VM = {
+    "resource": RESOURCE,
     "state": {
       "INIT"      : 0,
       "PENDING"   : 1,

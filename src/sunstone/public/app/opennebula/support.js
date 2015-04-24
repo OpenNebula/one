@@ -6,6 +6,7 @@ define(function(require) {
   var CACHE_NAME = "REQUEST";
 
   var Support = {
+    "resource": RESOURCE,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE, PATH);
     },

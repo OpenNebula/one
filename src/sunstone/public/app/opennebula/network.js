@@ -4,6 +4,7 @@ define(function(require) {
   var RESOURCE = "VNET";
 
   var Network =  {
+    "resource": RESOURCE,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

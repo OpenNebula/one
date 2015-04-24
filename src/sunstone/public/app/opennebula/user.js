@@ -6,6 +6,7 @@ define(function(require) {
   var RESOURCE = "USER";
 
   var User = {
+    "resource": RESOURCE,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
@@ -25,7 +26,7 @@ define(function(require) {
         data: {timeout: timeout},
         dataType: "json",
         success: function(response) {
-          default_user_quotas = Quotas.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS);
+         //TODO  default_user_quotas = Quotas.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS);
 
           var list = OpenNebulaHelper.pool(RESOURCE, response)
           var quotas_hash = OpenNebulaHelper.pool_hash_processing(

@@ -4,6 +4,7 @@ define(function(require) {
   var RESOURCE = "ACL";
 
   var Acl = {
+    "resource": RESOURCE,
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

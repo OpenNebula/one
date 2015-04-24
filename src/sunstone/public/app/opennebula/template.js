@@ -4,6 +4,7 @@ define(function(require) {
   var RESOURCE = "TEMPLATE";
 
   var Template = {
+    "resource": RESOURCE,
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
