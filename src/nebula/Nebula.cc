@@ -642,18 +642,11 @@ void Nebula::start(bool bootstrap_only)
     // ---- Life-cycle Manager ----
     try
     {
-        lcm = new LifeCycleManager(vmpool,hpool);
+        lcm = new LifeCycleManager();
     }
     catch (bad_alloc&)
     {
         throw;
-    }
-
-    rc = lcm->start();
-
-    if ( rc != 0 )
-    {
-        throw runtime_error("Could not start the Life-cycle Manager");
     }
 
     // ---- Information Manager ----
@@ -885,6 +878,20 @@ void Nebula::start(bool bootstrap_only)
         NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
         throw;
     }
+
+
+    // ---- Start the LCM ----
+
+    lcm->init_managers();
+
+    rc = lcm->start();
+
+    if ( rc != 0 )
+    {
+        throw runtime_error("Could not start the Life-cycle Manager");
+    }
+
+    // ---- Start the Request Manager ----
 
     rc = rm->start();
 

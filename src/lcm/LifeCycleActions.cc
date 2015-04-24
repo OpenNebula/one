@@ -15,7 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "LifeCycleManager.h"
-#include "Nebula.h"
+#include "TransferManager.h"
+#include "DispatchManager.h"
+#include "VirtualMachineManager.h"
 
 void  LifeCycleManager::deploy_action(int vid)
 {
@@ -33,9 +35,6 @@ void  LifeCycleManager::deploy_action(int vid)
     {
         time_t thetime = time(0);
         int    cpu,mem,disk;
-
-        Nebula&           nd = Nebula::instance();
-        TransferManager * tm = nd.get_tm();
 
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
@@ -113,9 +112,6 @@ void  LifeCycleManager::suspend_action(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //                SAVE_SUSPEND STATE
         //----------------------------------------------------
@@ -159,9 +155,6 @@ void  LifeCycleManager::stop_action(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //                SAVE_STOP STATE
         //----------------------------------------------------
@@ -182,9 +175,6 @@ void  LifeCycleManager::stop_action(int vid)
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
-		Nebula& nd = Nebula::instance();
-		TransferManager *       tm  = nd.get_tm();
-
         //----------------------------------------------------
         //   Bypass SAVE_STOP
         //----------------------------------------------------
@@ -219,10 +209,6 @@ void  LifeCycleManager::stop_action(int vid)
 void  LifeCycleManager::migrate_action(int vid)
 {
     VirtualMachine *    vm;
-
-	Nebula& nd = Nebula::instance();
-	TransferManager *       tm  = nd.get_tm();
-	VirtualMachineManager * vmm = nd.get_vmm();
 
 	int    cpu, mem, disk;
 	time_t the_time = time(0);
@@ -375,8 +361,6 @@ void  LifeCycleManager::live_migrate_action(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
         int                     cpu,mem,disk;
 
         //----------------------------------------------------
@@ -430,9 +414,6 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
          vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::SHUTDOWN))
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //                  SHUTDOWN STATE
         //----------------------------------------------------
@@ -472,9 +453,6 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
     else if (vm->get_state() == VirtualMachine::SUSPENDED ||
              vm->get_state() == VirtualMachine::POWEROFF)
     {
-		Nebula& nd = Nebula::instance();
-		TransferManager *       tm  = nd.get_tm();
-
         //----------------------------------------------------
         //   Bypass SHUTDOWN
         //----------------------------------------------------
@@ -521,9 +499,6 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
          vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY))
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //             SHUTDOWN_UNDEPLOY STATE
         //----------------------------------------------------
@@ -560,9 +535,6 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
     }
     else if (vm->get_state() == VirtualMachine::POWEROFF)
     {
-		Nebula& nd = Nebula::instance();
-		TransferManager *       tm  = nd.get_tm();
-
         //----------------------------------------------------
         //   Bypass SHUTDOWN_UNDEPLOY
         //----------------------------------------------------
@@ -628,9 +600,6 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
          vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
          vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF))
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         //----------------------------------------------------
         //             SHUTDOWN_POWEROFF STATE
         //----------------------------------------------------
@@ -692,8 +661,6 @@ void  LifeCycleManager::restore_action(int vid)
 
     if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        Nebula&                 nd  = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
         time_t                  the_time = time(0);
 
         vm->log("LCM", Log::INFO, "Restoring VM");
@@ -754,10 +721,6 @@ void  LifeCycleManager::restart_action(int vid)
          lstate == VirtualMachine::BOOT_SUSPENDED || lstate == VirtualMachine::BOOT_STOPPED ||
          lstate == VirtualMachine::BOOT_UNDEPLOY  || lstate == VirtualMachine::BOOT_MIGRATE)))
     {
-        Nebula& nd  = Nebula::instance();
-
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         VirtualMachineManager::Actions action;
 
         //----------------------------------------------------
@@ -835,9 +798,6 @@ void LifeCycleManager::delete_action(int vid)
 {
     VirtualMachine * vm;
 
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
-
     int image_id = -1;
 
     vm = vmpool->get(vid,true);
@@ -876,7 +836,6 @@ void LifeCycleManager::delete_action(int vid)
 
     if ( image_id != -1 )
     {
-        ImagePool* ipool = nd.get_ipool();
         Image*     image = ipool->get(image_id, true);
 
         if ( image != 0 )
@@ -896,9 +855,6 @@ void LifeCycleManager::delete_action(int vid)
 void  LifeCycleManager::clean_action(int vid)
 {
     VirtualMachine * vm;
-
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
 
     int image_id = -1;
 
@@ -936,7 +892,6 @@ void  LifeCycleManager::clean_action(int vid)
 
     if ( image_id != -1 )
     {
-        ImagePool* ipool = nd.get_ipool();
         Image*     image = ipool->get(image_id, true);
 
         if ( image != 0 )
@@ -957,11 +912,6 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 {
     int    cpu, mem, disk;
     time_t the_time = time(0);
-
-    Nebula& nd = Nebula::instance();
-
-    TransferManager *       tm  = nd.get_tm();
-    VirtualMachineManager * vmm = nd.get_vmm();
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
     int                      vid   = vm->get_oid();
@@ -1150,9 +1100,6 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
 {
     LifeCycleManager::Actions lcm_action = LifeCycleManager::FINALIZE;
-
-    Nebula&           nd = Nebula::instance();
-    DispatchManager * dm = nd.get_dm();
 
     switch (vm->get_lcm_state())
     {
@@ -1345,11 +1292,6 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
 
 void LifeCycleManager::retry(VirtualMachine * vm)
 {
-    Nebula& nd  = Nebula::instance();
-
-    TransferManager *       tm  = nd.get_tm();
-    VirtualMachineManager * vmm = nd.get_vmm();
-
 	int vid = vm->get_oid();
 
     if ( vm->get_state() != VirtualMachine::ACTIVE )

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "LifeCycleManager.h"
+#include "Nebula.h"
 #include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
@@ -55,6 +56,22 @@ int LifeCycleManager::start()
     rc = pthread_create(&lcm_thread,&pattr,lcm_action_loop,(void *) this);
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::init_managers()
+{
+    Nebula& nd = Nebula::instance();
+
+    tm  = nd.get_tm();
+    vmm = nd.get_vmm();
+    dm  = nd.get_dm();
+
+    vmpool = nd.get_vmpool();
+    hpool  = nd.get_hpool();
+    ipool  = nd.get_ipool();
 }
 
 /* -------------------------------------------------------------------------- */

@@ -20,10 +20,16 @@
 #include "ActionManager.h"
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
+#include "ImagePool.h"
 
 using namespace std;
 
 extern "C" void * lcm_action_loop(void *arg);
+
+//Forward definitions
+class TransferManager;
+class DispatchManager;
+class VirtualMachineManager;
 
 /**
  *  The Virtual Machine Life-cycle Manager module. This class is responsible for
@@ -33,8 +39,8 @@ class LifeCycleManager : public ActionListener
 {
 public:
 
-    LifeCycleManager(VirtualMachinePool * _vmpool, HostPool * _hpool):
-        vmpool(_vmpool),hpool(_hpool)
+    LifeCycleManager():
+        vmpool(0), hpool(0), ipool(0), tm(0), vmm(0), dm(0)
     {
         am.addListener(this);
     };
@@ -114,6 +120,12 @@ public:
     int start();
 
     /**
+     * Initializes internal pointers to other managers. Must be called when
+     * all the other managers exist in Nebula::instance
+     */
+    void init_managers();
+
+    /**
      *  Gets the thread identification.
      *    @return pthread_t for the manager thread (that in the action loop).
      */
@@ -150,6 +162,26 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
+
+    /**
+     *  Pointer to the Image Pool, to access images
+     */
+    ImagePool *             ipool;
+
+    /**
+     * Pointer to TransferManager
+     */
+    TransferManager *       tm;
+
+    /**
+     * Pointer to VirtualMachineManager
+     */
+    VirtualMachineManager * vmm;
+
+    /**
+     * Pointer to DispatchManager
+     */
+    DispatchManager *       dm;
 
     /**
      *  Action engine for the Manager
