@@ -194,10 +194,6 @@ private:
 
     void shutdown_failure_action(int vid);
 
-    void cancel_success_action(int vid);
-
-    void cancel_failure_action(int vid);
-
     void monitor_suspend_action(int vid);
 
     void monitor_done_action(int vid);

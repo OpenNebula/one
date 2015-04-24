@@ -219,8 +219,9 @@ error:
 /* ************************************************************************** */
 
 int DispatchManager::shutdown (
-    int     vid,
-    string& error_str)
+        int     vid,
+        bool    hard,
+        string& error_str)
 {
     ostringstream       oss;
     VirtualMachine *    vm;
@@ -244,7 +245,14 @@ int DispatchManager::shutdown (
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
 
-        lcm->trigger(LifeCycleManager::SHUTDOWN,vid);
+        if (hard)
+        {
+            lcm->trigger(LifeCycleManager::CANCEL,vid);
+        }
+        else
+        {
+            lcm->trigger(LifeCycleManager::SHUTDOWN,vid);
+        }
     }
     else
     {
@@ -528,59 +536,6 @@ int DispatchManager::stop(
 error:
     oss.str("");
     oss << "Could not stop VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
-
-    oss.str("");
-    oss << "This action is not available for state " << vm->state_str();
-    error_str = oss.str();
-
-    vm->unlock();
-    return -2;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::cancel(
-    int     vid,
-    string& error_str)
-{
-    VirtualMachine *    vm;
-    ostringstream       oss;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
-    oss << "Cancelling VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
-
-    if (vm->get_state()     == VirtualMachine::POWEROFF ||
-        vm->get_state()     == VirtualMachine::SUSPENDED ||
-       (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
-    {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        vm->unlock();
-
-        lcm->trigger(LifeCycleManager::CANCEL,vid);
-    }
-    else
-    {
-        goto error;
-    }
-
-    return 0;
-
-error:
-    oss.str("");
-    oss << "Could not cancel VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");

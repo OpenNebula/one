@@ -544,7 +544,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     switch (action)
     {
         case History::SHUTDOWN_ACTION:
-            rc = dm->shutdown(id, error);
+            rc = dm->shutdown(id, false, error);
             break;
         case History::HOLD_ACTION:
             rc = dm->hold(id, error);
@@ -556,7 +556,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = dm->stop(id, error);
             break;
         case History::SHUTDOWN_HARD_ACTION:
-            rc = dm->cancel(id, error);
+            rc = dm->shutdown(id, true, error);
             break;
         case History::SUSPEND_ACTION:
             rc = dm->suspend(id, error);

@@ -117,7 +117,7 @@ public:
         EPILOG_STOP         = 10,
         EPILOG              = 11,
         SHUTDOWN            = 12,
-        CANCEL              = 13,
+        //CANCEL              = 13,
         //FAILURE           = 14,
         CLEANUP_RESUBMIT    = 15,
         UNKNOWN             = 16,
@@ -170,7 +170,6 @@ public:
         else if ( st == "EPILOG_STOP") { state = EPILOG_STOP; }
         else if ( st == "EPILOG") { state = EPILOG; }
         else if ( st == "SHUTDOWN") { state = SHUTDOWN; }
-        else if ( st == "CANCEL") { state = CANCEL; }
         else if ( st == "CLEANUP_RESUBMIT") { state = CLEANUP_RESUBMIT; }
         else if ( st == "UNKNOWN") { state = UNKNOWN; }
         else if ( st == "HOTPLUG") { state = HOTPLUG; }
@@ -225,7 +224,6 @@ public:
             case EPILOG_STOP: st = "EPILOG_STOP"; break;
             case EPILOG: st = "EPILOG"; break;
             case SHUTDOWN: st = "SHUTDOWN"; break;
-            case CANCEL: st = "CANCEL"; break;
             case CLEANUP_RESUBMIT: st = "CLEANUP_RESUBMIT"; break;
             case UNKNOWN: st = "UNKNOWN"; break;
             case HOTPLUG: st = "HOTPLUG"; break;

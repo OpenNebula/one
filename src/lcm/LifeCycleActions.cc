@@ -436,9 +436,10 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
         //                  SHUTDOWN STATE
         //----------------------------------------------------
 
+        vm->set_state(VirtualMachine::SHUTDOWN);
+
         if (hard)
         {
-            vm->set_state(VirtualMachine::CANCEL);
             vm->set_action(History::SHUTDOWN_HARD_ACTION);
 
             //----------------------------------------------------
@@ -447,7 +448,6 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
         }
         else
         {
-            vm->set_state(VirtualMachine::SHUTDOWN);
             vm->set_action(History::SHUTDOWN_ACTION);
 
             //----------------------------------------------------
@@ -1011,7 +1011,6 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
-        case VirtualMachine::CANCEL:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -1285,17 +1284,6 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
             }
         break;
 
-        case VirtualMachine::CANCEL:
-            if (success)
-            {
-                lcm_action = LifeCycleManager::CANCEL_SUCCESS;
-            }
-            else
-            {
-                lcm_action = LifeCycleManager::CANCEL_FAILURE;
-            }
-        break;
-
         case VirtualMachine::SAVE_STOP:
         case VirtualMachine::SAVE_SUSPEND:
         case VirtualMachine::SAVE_MIGRATE:
@@ -1445,7 +1433,6 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::BOOT_STOPPED:
         case VirtualMachine::BOOT_UNDEPLOY:
         case VirtualMachine::BOOT_UNKNOWN:
-        case VirtualMachine::CANCEL:
         case VirtualMachine::CLEANUP_RESUBMIT:
         case VirtualMachine::CLEANUP_DELETE:
         case VirtualMachine::EPILOG:

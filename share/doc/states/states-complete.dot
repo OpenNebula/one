@@ -51,7 +51,7 @@ digraph OpenNebula {
     //hold    -> prolog [label="deploy"];
 
 #   shutdown
-    running     -> shutdown [label="shutdown"];
+    running     -> shutdown [label="shutdown [--hard]"];
     shutdown    -> epilog [style="dashed", color="blue"];
     epilog      -> done [style="dashed", color="blue"];
 
@@ -59,12 +59,6 @@ digraph OpenNebula {
 
     suspended   -> epilog [label="shutdown [--hard]"];
     poweroff    -> epilog [label="shutdown [--hard]"];
-
-#   shutdown --hard
-    running     -> cancel [label="shutdown --hard"];
-    cancel      -> epilog [style="dashed", color="blue"];
-    cancel      -> running [style="dotted", color="red"];
-    unknown     -> epilog [label="shutdown --hard"];
 
 #   poweroff
     running             -> shutdown_poweroff [label="poweroff [--hard]"];

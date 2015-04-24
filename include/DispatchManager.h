@@ -133,11 +133,13 @@ public:
     /**
      *  Shuts down a VM.
      *    @param vid VirtualMachine identification
+     *    @param hard True to force the shutdown (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
     int shutdown (
         int     vid,
+        bool    hard,
         string& error_str);
 
     /**
@@ -191,16 +193,6 @@ public:
      *    in a wrong a state
      */
     int stop(
-        int     vid,
-        string& error_str);
-
-    /**
-     *  Cancels a VM.
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
-     */
-    int cancel(
         int     vid,
         string& error_str);
 

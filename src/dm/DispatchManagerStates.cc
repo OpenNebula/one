@@ -214,7 +214,6 @@ void  DispatchManager::done_action(int vid)
 
     if ((dm_state == VirtualMachine::ACTIVE) &&
           (lcm_state == VirtualMachine::EPILOG ||
-           lcm_state == VirtualMachine::CANCEL ||
            lcm_state == VirtualMachine::CLEANUP_DELETE))
     {
         vm->release_network_leases();

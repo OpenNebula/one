@@ -320,11 +320,11 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "CANCEL_SUCCESS")
     {
-        cancel_success_action(vid);
+        shutdown_success_action(vid);
     }
     else if (action == "CANCEL_FAILURE")
     {
-        cancel_failure_action(vid);
+        shutdown_failure_action(vid);
     }
     else if (action == "MONITOR_SUSPEND")
     {
