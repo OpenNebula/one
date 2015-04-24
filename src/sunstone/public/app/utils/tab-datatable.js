@@ -65,11 +65,9 @@ define(function(require) {
   //Add a listener to the check-all box of a datatable, enabling it to
   //check and uncheck all the checkboxes of its elements.
   var _initCheckAllBoxes = function(datatable, custom_context) {
-    $('input.check_all', datatable).css({"border":"2px"});
-    $('input.check_all', datatable).on("change", function() {
+    datatable.on("change", '.check_all', function() {
       var table = $(this).closest('.dataTables_wrapper');
-      var checked = $(this).attr('checked');
-      if (checked) { //check all
+      if ($(this).is(":checked")) { //check all
         $('tbody input.check_item', table).attr('checked', 'checked');
         $('td', table).addClass('markrowchecked');
       } else { //uncheck all
@@ -135,11 +133,11 @@ define(function(require) {
     $('.alwaysActive', context).attr('disabled', false);
 
     //listen to changes in the visible inputs
-    $('tbody input.check_item', dataTable).on("change", function() {
+    dataTable.on("change", 'tbody input.check_item', function() {
       var datatable = $(this).parents('table');
 
       if ($(this).is(":checked")) {
-        $(this).parents('tr').children().each(function() {$(this).addClass('markrowchecked');});
+        $(this).parents('tr').children().addClass('markrowchecked');
       } else {
         $(this).parents('tr').children().removeClass('markrowchecked');
       }
