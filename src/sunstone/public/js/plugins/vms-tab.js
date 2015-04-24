@@ -103,7 +103,7 @@ var lcm_state_actions = {
     11: //OpenNebula.VM.lcm_state.EPILOG:
         [],
     12: //OpenNebula.VM.lcm_state.SHUTDOWN:
-        [],
+        ["VM.shutdown", "VM.shutdown_hard"],
     13: //OpenNebula.VM.lcm_state.CANCEL:
         [],
     14: //OpenNebula.VM.lcm_state.FAILURE:

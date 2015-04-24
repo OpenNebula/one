@@ -427,7 +427,8 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN))
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
@@ -435,6 +436,17 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
         //----------------------------------------------------
         //                  SHUTDOWN STATE
         //----------------------------------------------------
+
+        if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
+        {
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+        }
+        else
+        {
+            vm->set_resched(false);
+
+            vmpool->update(vm);
+        }
 
         vm->set_state(VirtualMachine::SHUTDOWN);
 
@@ -455,9 +467,6 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
             vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
         }
 
-        vm->set_resched(false);
-
-        vmpool->update(vm);
         vmpool->update_history(vm);
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED ||

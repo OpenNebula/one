@@ -348,7 +348,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         With --hard it unplugs the VM.
 
-        States: RUNNING, UNKNOWN (with --hard)
+        States: RUNNING, UNKNOWN (with --hard), SHUTDOWN
     EOT
 
     command :shutdown, shutdown_desc, [:range,:vmid_list],
