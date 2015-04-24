@@ -11,7 +11,8 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./datastores-tab/panels/info')
+    require('./datastores-tab/panels/info'),
+    require('./datastores-tab/panels/images')
   ];
 
   var DatastoresTab = {

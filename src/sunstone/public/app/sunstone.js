@@ -1,6 +1,7 @@
 define(function(require) {
   require('jquery');
   require('foundation.reveal');
+  require('foundation.tab');
 
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -495,9 +496,8 @@ define(function(require) {
             active = true;
           }
         } else {
-          if (!active) {
-            active = true;
-          }
+          activaTabHref = "#" + panelName
+          active = true;
         }
 
         activePanels.push({
@@ -508,6 +508,8 @@ define(function(require) {
           'active': active,
           'setup': panel.setup
         })
+
+        active = false;
       }
     });
 
@@ -522,6 +524,8 @@ define(function(require) {
     $.each(panels, function(index, panel) {
       panel.setup(info, context)
     });
+
+    $(document).foundation('reflow', 'tab');
   }
 
   var _insertDialog = function(dialog) {
