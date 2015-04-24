@@ -8,9 +8,43 @@ define(function(require) {
 
   var CACHE_EXPIRE = 60000; //ms
 
-  var clearCache = function(cache_name) {
+  var _clearCache = function(cache_name) {
     listCache[cache_name] = null;
     //console.log(cache_name+" cache cleaned");
+  }
+
+  //Example: Simple action: publish. Simple action with action obj: deploy
+  var _simple_action = function(params, resource, method, action_obj, path) {
+    var callback = params.success;
+    var callbackError = params.error;
+    var id = params.data.id;
+    var action, request;
+    if (action_obj) {
+      action = OpenNebulaHelper.action(method, action_obj);
+      request = OpenNebulaHelper.request(resource, method, [id, action_obj]);
+    } else {
+      action = OpenNebulaHelper.action(method);
+      request = OpenNebulaHelper.request(resource, method, id);
+    };
+
+    var reqPath = path ? path : resource.toLowerCase();
+    var cache_name = params.cache_name ? params.cache_name : resource;
+
+    $.ajax({
+      url: reqPath + "/" + id + "/action",
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      data: JSON.stringify(action),
+      success: function() {
+        _clearCache(cache_name);
+
+        return callback ? callback(request) : null;
+      },
+      error: function(response) {
+        return callbackError ?
+            callbackError(request, OpenNebulaError(response)) : null;
+      }
+    });
   }
 
   var Action = {
@@ -29,7 +63,7 @@ define(function(require) {
         data: JSON.stringify(data),
         contentType: "application/json; charset=utf-8",
         success: function(response) {
-          clearCache(cache_name);
+          _clearCache(cache_name);
 
           return callback ? callback(request, response) : null;
         },
@@ -52,7 +86,7 @@ define(function(require) {
         url: reqPath + "/" + id,
         type: "DELETE",
         success: function() {
-          clearCache(cache_name);
+          _clearCache(cache_name);
 
           return callback ? callback(request) : null;
         },
@@ -78,7 +112,7 @@ define(function(require) {
       }
 
       if (force) {
-        clearCache(cache_name);
+        _clearCache(cache_name);
       }
 
       if (!force &&
@@ -216,11 +250,7 @@ define(function(require) {
       var action_obj = {"owner_id": id,
                         "group_id": "-1"};
 
-      OpenNebula.Action.simple_action(params,
-                                      resource,
-                                      "chown",
-                                      action_obj,
-                                      path);
+      _simple_action(params, resource, "chown", action_obj, path);
     },
 
     "chgrp": function(params, resource, path) {
@@ -228,46 +258,10 @@ define(function(require) {
       var action_obj = {"owner_id": "-1",
                         "group_id": id};
 
-      OpenNebula.Action.simple_action(params,
-                                      resource,
-                                      "chown",
-                                      action_obj,
-                                      path);
+      _simple_action(params, resource, "chown", action_obj, path);
     },
 
-    //Example: Simple action: publish. Simple action with action obj: deploy
-    "simple_action": function(params, resource, method, action_obj, path) {
-      var callback = params.success;
-      var callbackError = params.error;
-      var id = params.data.id;
-      var action, request;
-      if (action_obj) {
-        action = OpenNebulaHelper.action(method, action_obj);
-        request = OpenNebulaHelper.request(resource, method, [id, action_obj]);
-      } else {
-        action = OpenNebulaHelper.action(method);
-        request = OpenNebulaHelper.request(resource, method, id);
-      };
-
-      var reqPath = path ? path : resource.toLowerCase();
-      var cache_name = params.cache_name ? params.cache_name : resource;
-
-      $.ajax({
-        url: reqPath + "/" + id + "/action",
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify(action),
-        success: function() {
-          clearCache(cache_name);
-
-          return callback ? callback(request) : null;
-        },
-        error: function(response) {
-          return callbackError ?
-              callbackError(request, OpenNebulaError(response)) : null;
-        }
-      });
-    },
+    "simple_ation": _simple_action,
 
     "monitor": function(params, resource, all, path) {
       var callback = params.success;
@@ -345,7 +339,7 @@ define(function(require) {
       });
     },
 
-    "clear_cache": clearCache
+    "clear_cache": _clearCache
   }
 
   return Action;
