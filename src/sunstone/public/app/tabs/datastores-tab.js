@@ -10,9 +10,9 @@ define(function(require) {
     require('./datastores-tab/dialogs/create')
   ];
 
-  //var _panels = [
-  //  require('./datastores-tab/panels/info')
-  //];
+  var _panels = [
+    require('./datastores-tab/panels/info')
+  ];
 
   var DatastoresTab = {
     tabId: TAB_ID,
@@ -26,7 +26,7 @@ define(function(require) {
     buttons: Buttons,
     actions: Actions,
     dataTable: DataTable,
-    //panels: _panels,
+    panels: _panels,
     dialogs: _dialogs
   };
 

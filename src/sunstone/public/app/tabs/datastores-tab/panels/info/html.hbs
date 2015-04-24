@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Information"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "ID"}}</td>
+          <td class="value_td" colspan="2">{{element.ID}}</td>
+        </tr>
+        {{{renameTrHTML}}}
+        <tr>
+          <td class="key_td">{{tr "State"}}</td>
+          <td class="value_td">{{stateStr}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Base path"}}</td>
+          <td class="value_td">{{element.BASE_PATH}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Capacity"}}</td>
+          <td class="value_td" colspan="2">{{{capacityBar}}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Limit"}}</td>
+          <td class="value_td" colspan="2">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns"></div>
+</div>
+<div class="row">
+  <div class="large-9 columns">{{{extendedTemplateTableHTML}}}</div>
+</div>
