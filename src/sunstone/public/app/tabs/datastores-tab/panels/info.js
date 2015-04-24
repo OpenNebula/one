@@ -1,6 +1,7 @@
 define(function(require) {
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
+  var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
   var PermissionsTable = require('utils/panel/permissions-table');
@@ -23,6 +24,11 @@ define(function(require) {
     var capacityBar = DatastoreCapacityBar.html(element);
     var stateStr = Locale.tr(OpenNebulaDatastore.stateStr(element.STATE));
 
+    var limitStr = '-';
+    if (element.TEMPLATE.SHARED == "NO" || element.TEMPLATE.LIMIT_MB != undefined) {
+      limitStr = Humanize.sizeFromMB(element.TEMPLATE.LIMIT_MB)
+    }
+
     return TemplateInfo({
       'element': element,
       'renameTrHTML': renameTrHTML,
@@ -30,7 +36,8 @@ define(function(require) {
       'templateTableHTML': templateTableHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'capacityBar': capacityBar,
-      'stateStr': stateStr
+      'stateStr': stateStr,
+      'limitStr': limitStr
     });
   }
 
