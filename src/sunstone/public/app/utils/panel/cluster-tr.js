@@ -5,7 +5,7 @@ define(function(require) {
    */
   
   var TemplateClusterTr = require('hbs!./cluster-tr/html');
-  var ResourceSelect = require('utils/resource-select')
+  var ResourceSelect = require('utils/resource-select');
   var Sunstone = require('sunstone');
 
   /*

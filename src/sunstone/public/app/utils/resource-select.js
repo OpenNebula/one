@@ -1,6 +1,8 @@
 define(function(require) {
   var Notifier = require('utils/notifier');
   require('opennebula/cluster');
+  require('opennebula/user');
+  require('opennebula/group');
 
   var _insert = function(id, context, resource, init_val, empty_value,
       extra_options, filter_att, filter_val, trigger_change_init_val, only_name) {
