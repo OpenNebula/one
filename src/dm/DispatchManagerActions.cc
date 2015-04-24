@@ -723,6 +723,7 @@ error:
 
 int DispatchManager::reboot(
     int     vid,
+    bool    hard,
     string& error_str)
 {
     VirtualMachine *    vm;
@@ -744,7 +745,14 @@ int DispatchManager::reboot(
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
 
-        vmm->trigger(VirtualMachineManager::REBOOT,vid);
+        if (hard)
+        {
+            vmm->trigger(VirtualMachineManager::RESET,vid);
+        }
+        else
+        {
+            vmm->trigger(VirtualMachineManager::REBOOT,vid);
+        }
 
         vm->set_resched(false); //Rebooting cancels re-scheduling actions
 
@@ -762,61 +770,6 @@ int DispatchManager::reboot(
 error:
     oss.str("");
     oss << "Could not reboot VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
-
-    oss.str("");
-    oss << "This action is not available for state " << vm->state_str();
-    error_str = oss.str();
-
-    vm->unlock();
-
-    return -2;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::reset(
-    int     vid,
-    string& error_str)
-{
-    VirtualMachine *    vm;
-    ostringstream       oss;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
-    oss << "Resetting VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
-    {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
-        vmm->trigger(VirtualMachineManager::RESET,vid);
-
-        vm->set_resched(false); //Resetting cancels re-scheduling actions
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        goto error;
-    }
-
-    vm->unlock();
-
-    return 0;
-
-error:
-    oss.str("");
-    oss << "Could not reset VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
     oss.str("");

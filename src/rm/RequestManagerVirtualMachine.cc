@@ -574,7 +574,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = dm->resubmit(id, error);
             break;
         case History::REBOOT_ACTION:
-            rc = dm->reboot(id, error);
+            rc = dm->reboot(id, false, error);
             break;
         case History::RESCHED_ACTION:
             rc = dm->resched(id, true, error);
@@ -583,7 +583,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = dm->resched(id, false, error);
             break;
         case History::REBOOT_HARD_ACTION:
-            rc = dm->reset(id, error);
+            rc = dm->reboot(id, true, error);
             break;
         case History::POWEROFF_ACTION:
             rc = dm->poweroff(id, false, error);

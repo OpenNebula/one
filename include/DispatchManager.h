@@ -249,21 +249,13 @@ public:
     /**
      *  Reboots a VM preserving any resource and RUNNING state
      *    @param vid VirtualMachine identification
+     *    @param hard True to force the shutdown (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
     int reboot(
         int     vid,
-        string& error_str);
-
-    /**
-     *  Resets a VM preserving any resource and RUNNING state
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
-     */
-    int reset(
-        int     vid,
+        bool    hard,
         string& error_str);
 
     /**
