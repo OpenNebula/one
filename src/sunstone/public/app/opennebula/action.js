@@ -261,7 +261,7 @@ define(function(require) {
       _simple_action(params, resource, "chown", action_obj, path);
     },
 
-    "simple_ation": _simple_action,
+    "simple_action": _simple_action,
 
     "monitor": function(params, resource, all, path) {
       var callback = params.success;
