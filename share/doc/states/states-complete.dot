@@ -70,6 +70,8 @@ digraph OpenNebula {
     running             -> shutdown_poweroff [label="poweroff [--hard]"];
     shutdown_poweroff   -> poweroff [style="dashed", color="blue"];
 
+    shutdown_poweroff   -> shutdown_poweroff [label="poweroff [--hard]"];
+
     shutdown_poweroff   -> running [style="dotted", color="red"];
 
 #   livemigrate
@@ -110,6 +112,8 @@ digraph OpenNebula {
     shutdown_undeploy   -> epilog_undeploy [style="dashed", color="blue"];
     shutdown_undeploy   -> running [style="dotted", color="red"];
     epilog_undeploy     -> undeployed [style="dashed", color="blue"];
+
+    shutdown_undeploy   -> shutdown_undeploy [label="undeploy [--hard]"];
 
     poweroff            -> epilog_undeploy [label="undeploy [--hard]"];
 

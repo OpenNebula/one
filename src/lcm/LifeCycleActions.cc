@@ -509,7 +509,8 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY))
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
@@ -518,11 +519,18 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
         //             SHUTDOWN_UNDEPLOY STATE
         //----------------------------------------------------
 
-        vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
+        if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
+        {
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+        }
+        else
+        {
+            vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
 
-        vm->set_resched(false);
+            vm->set_resched(false);
 
-        vmpool->update(vm);
+            vmpool->update(vm);
+        }
 
         //----------------------------------------------------
 
@@ -608,7 +616,8 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF))
     {
         Nebula&                 nd = Nebula::instance();
         VirtualMachineManager * vmm = nd.get_vmm();
@@ -617,11 +626,18 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
         //             SHUTDOWN_POWEROFF STATE
         //----------------------------------------------------
 
-        vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
+        if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
+        {
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+        }
+        else
+        {
+            vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
 
-        vm->set_resched(false);
+            vm->set_resched(false);
 
-        vmpool->update(vm);
+            vmpool->update(vm);
+        }
 
         //----------------------------------------------------
 

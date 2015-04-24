@@ -115,7 +115,7 @@ var lcm_state_actions = {
     17: //OpenNebula.VM.lcm_state.HOTPLUG:
         [],
     18: //OpenNebula.VM.lcm_state.SHUTDOWN_POWEROFF:
-        [],
+        ["VM.poweroff", "VM.poweroff_hard"],
     19: //OpenNebula.VM.lcm_state.BOOT_UNKNOWN:
         ["VM.boot"],
     20: //OpenNebula.VM.lcm_state.BOOT_POWEROFF:
@@ -137,7 +137,7 @@ var lcm_state_actions = {
     28: //OpenNebula.VM.lcm_state.HOTPLUG_SAVEAS_SUSPENDED:
         [],
     29: //OpenNebula.VM.lcm_state.SHUTDOWN_UNDEPLOY:
-        [],
+        ["VM.undeploy", "VM.undeploy_hard"],
     30: //OpenNebula.VM.lcm_state.EPILOG_UNDEPLOY:
         [],
     31: //OpenNebula.VM.lcm_state.PROLOG_UNDEPLOY:

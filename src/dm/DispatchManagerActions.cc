@@ -292,7 +292,8 @@ int DispatchManager::undeploy(
     if ( vm->get_state()       == VirtualMachine::POWEROFF ||
          (vm->get_state()       == VirtualMachine::ACTIVE &&
            (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
+            vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
+            vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -351,7 +352,8 @@ int DispatchManager::poweroff (
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
+         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
