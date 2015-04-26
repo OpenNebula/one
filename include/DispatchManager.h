@@ -25,22 +25,29 @@ using namespace std;
 
 extern "C" void * dm_action_loop(void *arg);
 
+//Forward definitions
+class TransferManager;
+class LifeCycleManager;
+class VirtualMachineManager;
+class ImageManager;
+
 class DispatchManager : public ActionListener
 {
 public:
 
-    DispatchManager(
-        VirtualMachinePool *        _vmpool,
-        HostPool *                  _hpool):
-            hpool(_hpool),
-            vmpool(_vmpool)
+    DispatchManager():
+            hpool(0), vmpool(0), tm(0), vmm(0), lcm(0), imagem(0)
     {
         am.addListener(this);
     };
 
-    ~DispatchManager()
-    {}
-    ;
+    ~DispatchManager(){};
+
+     /**
+	  * Initializes internal pointers to other managers. Must be called when
+	  * all the other managers exist in Nebula::instance
+	  */
+    void init_managers();
 
     enum Actions
     {
@@ -371,6 +378,26 @@ private:
      *  Pointer to the Virtual Machine Pool, to access hosts
      */
     VirtualMachinePool *    vmpool;
+
+	/**
+     * Pointer to TransferManager
+     */
+	TransferManager *       tm;
+
+	/**
+	 * Pointer to VirtualMachineManager
+	 */
+	VirtualMachineManager * vmm;
+
+	/**
+	 * Pointer to LifeCycleManager
+	 */
+	LifeCycleManager *       lcm;
+
+	/**
+	 * Pointer to ImageManager
+	 */
+	ImageManager *			imagem;
 
     /**
      *  Action engine for the Manager

@@ -17,7 +17,10 @@
 #include "DispatchManager.h"
 #include "NebulaLog.h"
 
-#include "Nebula.h"
+#include "VirtualMachineManager.h"
+#include "TransferManager.h"
+#include "ImageManager.h"
+#include "Quotas.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -43,9 +46,6 @@ int DispatchManager::deploy (
          vm->get_state() == VirtualMachine::STOPPED ||
          vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         vm->set_state(VirtualMachine::ACTIVE);
 
         vmpool->update(vm);
@@ -89,9 +89,6 @@ int DispatchManager::import (
     {
         return -1;
     }
-
-    Nebula&    nd  = Nebula::instance();
-    HostPool * hpool = nd.get_hpool();
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
@@ -147,9 +144,6 @@ int DispatchManager::migrate(
          vm->get_state() == VirtualMachine::POWEROFF ||
          vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::MIGRATE,vid);
     }
     else
@@ -192,9 +186,6 @@ int DispatchManager::live_migrate(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::LIVE_MIGRATE,vid);
     }
     else
@@ -223,10 +214,9 @@ int DispatchManager::shutdown (
         bool    hard,
         string& error_str)
 {
-    ostringstream       oss;
-    VirtualMachine *    vm;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -242,9 +232,6 @@ int DispatchManager::shutdown (
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         if (hard)
         {
             lcm->trigger(LifeCycleManager::CANCEL,vid);
@@ -284,10 +271,9 @@ int DispatchManager::undeploy(
     bool    hard,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -302,9 +288,6 @@ int DispatchManager::undeploy(
            (vm->get_lcm_state() == VirtualMachine::RUNNING ||
             vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         if (hard)
         {
             lcm->trigger(LifeCycleManager::UNDEPLOY_HARD,vid);
@@ -344,10 +327,9 @@ int DispatchManager::poweroff (
     bool    hard,
     string& error_str)
 {
-    ostringstream       oss;
-    VirtualMachine *    vm;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -361,9 +343,6 @@ int DispatchManager::poweroff (
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         if (hard)
         {
             lcm->trigger(LifeCycleManager::POWEROFF_HARD,vid);
@@ -403,10 +382,9 @@ int DispatchManager::hold(
     int     vid,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -452,10 +430,9 @@ int DispatchManager::release(
     int     vid,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -500,10 +477,9 @@ int DispatchManager::stop(
     int     vid,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -517,9 +493,6 @@ int DispatchManager::stop(
         (vm->get_state()       == VirtualMachine::ACTIVE &&
          vm->get_lcm_state() == VirtualMachine::RUNNING ))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::STOP,vid);
     }
     else
@@ -551,10 +524,9 @@ int DispatchManager::suspend(
     int     vid,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -567,9 +539,6 @@ int DispatchManager::suspend(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::SUSPEND,vid);
     }
     else
@@ -601,13 +570,9 @@ int DispatchManager::resume(
     int     vid,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    Nebula&             nd  = Nebula::instance();
-    LifeCycleManager *  lcm = nd.get_lcm();
-
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -664,10 +629,9 @@ int DispatchManager::reboot(
     bool    hard,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -680,9 +644,6 @@ int DispatchManager::reboot(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
         if (hard)
         {
             vmm->trigger(VirtualMachineManager::RESET,vid);
@@ -727,10 +688,9 @@ int DispatchManager::resched(
     bool    do_resched,
     string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -824,10 +784,6 @@ int DispatchManager::finalize(
     oss << "Finalizing VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    Nebula&            nd  = Nebula::instance();
-    TransferManager *  tm  = nd.get_tm();
-    LifeCycleManager * lcm = nd.get_lcm();
-
     switch (state)
     {
         case VirtualMachine::SUSPENDED:
@@ -876,9 +832,6 @@ int DispatchManager::resubmit(
     VirtualMachine * vm;
     ostringstream    oss;
     int              rc = 0;
-
-    Nebula&             nd  = Nebula::instance();
-    LifeCycleManager *  lcm = nd.get_lcm();
 
     vm = vmpool->get(vid,true);
 
@@ -947,11 +900,7 @@ int DispatchManager::attach(int vid,
     set<string>       used_targets;
     VectorAttribute * disk;
 
-    Nebula&           nd       = Nebula::instance();
-    VirtualMachineManager* vmm = nd.get_vmm();
-    TransferManager*       tm  = nd.get_tm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1008,9 +957,6 @@ int DispatchManager::attach(int vid,
 
     if ( vm == 0 )
     {
-        Nebula&       nd     = Nebula::instance();
-        ImageManager* imagem = nd.get_imagem();
-
         if ( image_id != -1 )
         {
             imagem->release_image(oid, image_id, false);
@@ -1102,11 +1048,7 @@ int DispatchManager::detach(
 {
     ostringstream oss;
 
-    Nebula&           nd       = Nebula::instance();
-    VirtualMachineManager* vmm = nd.get_vmm();
-    TransferManager*       tm  = nd.get_tm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1205,10 +1147,7 @@ int DispatchManager::snapshot_create(
 {
     ostringstream oss;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1261,10 +1200,7 @@ int DispatchManager::snapshot_revert(
 
     int rc;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1330,10 +1266,7 @@ int DispatchManager::snapshot_delete(
 
     int rc;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1406,10 +1339,7 @@ int DispatchManager::attach_nic(
     VectorAttribute *        nic;
     vector<VectorAttribute*> sg_rules;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine *        vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1579,10 +1509,7 @@ int DispatchManager::detach_nic(
 {
     ostringstream oss;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine *        vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {

@@ -649,6 +649,13 @@ void Nebula::start(bool bootstrap_only)
         throw;
     }
 
+    rc = lcm->start();
+
+    if ( rc != 0 )
+    {
+        throw runtime_error("Could not start the Life-cycle Manager");
+    }
+
     // ---- Information Manager ----
     try
     {
@@ -708,7 +715,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Dispatch Manager ----
     try
     {
-        dm = new DispatchManager(vmpool,hpool);
+        dm = new DispatchManager();
     }
     catch (bad_alloc&)
     {
@@ -880,16 +887,11 @@ void Nebula::start(bool bootstrap_only)
     }
 
 
-    // ---- Start the LCM ----
+    // ---- Initialize Manager cross-reference pointers and pool references ----
+
+    dm->init_managers();
 
     lcm->init_managers();
-
-    rc = lcm->start();
-
-    if ( rc != 0 )
-    {
-        throw runtime_error("Could not start the Life-cycle Manager");
-    }
 
     // ---- Start the Request Manager ----
 
