@@ -51,15 +51,15 @@ public:
      */
     enum VmState
     {
-        INIT      = 0,
-        PENDING   = 1,
-        HOLD      = 2,
-        ACTIVE    = 3,
-        STOPPED   = 4,
-        SUSPENDED = 5,
-        DONE      = 6,
-        //FAILED    = 7,
-        POWEROFF  = 8,
+        INIT       = 0,
+        PENDING    = 1,
+        HOLD       = 2,
+        ACTIVE     = 3,
+        STOPPED    = 4,
+        SUSPENDED  = 5,
+        DONE       = 6,
+        //FAILED   = 7,
+        POWEROFF   = 8,
         UNDEPLOYED = 9
     };
 
@@ -117,7 +117,7 @@ public:
         EPILOG_STOP         = 10,
         EPILOG              = 11,
         SHUTDOWN            = 12,
-        //CANCEL              = 13,
+        //CANCEL            = 13,
         //FAILURE           = 14,
         CLEANUP_RESUBMIT    = 15,
         UNKNOWN             = 16,
@@ -1252,7 +1252,6 @@ public:
     int save_disk(int disk_id,
                   const string& source,
                   int img_id);
-
     /**
      *  Clears the SAVE_AS attribute for the "disk_id"th disk.
      *    @param  disk_id Index of the disk to save

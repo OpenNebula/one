@@ -411,23 +411,11 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         //----------------------------------------------------
         //                  SHUTDOWN STATE
         //----------------------------------------------------
-
-        if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
-        {
-            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-        }
-        else
-        {
-            vm->set_resched(false);
-
-            vmpool->update(vm);
-        }
 
         vm->set_state(VirtualMachine::SHUTDOWN);
 
@@ -448,6 +436,9 @@ void  LifeCycleManager::shutdown_action(int vid, bool hard)
             vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
         }
 
+        vm->set_resched(false);
+
+        vmpool->update(vm);
         vmpool->update_history(vm);
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED ||
@@ -496,25 +487,17 @@ void  LifeCycleManager::undeploy_action(int vid, bool hard)
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         //----------------------------------------------------
         //             SHUTDOWN_UNDEPLOY STATE
         //----------------------------------------------------
 
-        if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
-        {
-            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-        }
-        else
-        {
-            vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
+        vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
 
-            vm->set_resched(false);
+        vm->set_resched(false);
 
-            vmpool->update(vm);
-        }
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -597,25 +580,17 @@ void  LifeCycleManager::poweroff_action(int vid, bool hard)
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         //----------------------------------------------------
         //             SHUTDOWN_POWEROFF STATE
         //----------------------------------------------------
 
-        if (vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF)
-        {
-            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
-        }
-        else
-        {
-            vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
+        vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
 
-            vm->set_resched(false);
+        vm->set_resched(false);
 
-            vmpool->update(vm);
-        }
+        vmpool->update(vm);
 
         //----------------------------------------------------
 
@@ -712,74 +687,36 @@ void  LifeCycleManager::restart_action(int vid)
         return;
     }
 
-    VirtualMachine::LcmState lstate = vm->get_lcm_state();
-    VirtualMachine::VmState  vstate = vm->get_state();
-
-    if (vstate == VirtualMachine::POWEROFF || ( vstate == VirtualMachine::ACTIVE &&
-        (lstate == VirtualMachine::UNKNOWN        || lstate == VirtualMachine::BOOT ||
-         lstate == VirtualMachine::BOOT_UNKNOWN   || lstate == VirtualMachine::BOOT_POWEROFF ||
-         lstate == VirtualMachine::BOOT_SUSPENDED || lstate == VirtualMachine::BOOT_STOPPED ||
-         lstate == VirtualMachine::BOOT_UNDEPLOY  || lstate == VirtualMachine::BOOT_MIGRATE)))
+    if (vm->get_state() == VirtualMachine::ACTIVE &&
+        vm->get_lcm_state() == VirtualMachine::UNKNOWN)
     {
-        VirtualMachineManager::Actions action;
+        vm->set_state(VirtualMachine::BOOT_UNKNOWN);
 
-        //----------------------------------------------------
-        //       RE-START THE VM IN THE SAME HOST
-        //----------------------------------------------------
+        vmpool->update(vm);
 
-        if (vstate == VirtualMachine::ACTIVE)
-        {
-            switch (lstate) {
-                case VirtualMachine::BOOT:
-                case VirtualMachine::BOOT_UNKNOWN:
-                case VirtualMachine::BOOT_POWEROFF:
-                    action = VirtualMachineManager::DEPLOY;
-                    vm->log("LCM", Log::INFO, "Sending BOOT command to VM again");
-                    break;
+        vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+    }
+    else if ( vm->get_state() == VirtualMachine::POWEROFF )
+    {
+        time_t the_time = time(0);
 
-                case VirtualMachine::BOOT_SUSPENDED:
-                case VirtualMachine::BOOT_STOPPED:
-                case VirtualMachine::BOOT_UNDEPLOY:
-                case VirtualMachine::BOOT_MIGRATE:
-                    action = VirtualMachineManager::RESTORE;
-                    vm->log("LCM", Log::INFO, "Sending RESTORE command to VM again");
-                    break;
+        vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
 
-                case VirtualMachine::UNKNOWN:
-                    action = VirtualMachineManager::DEPLOY;
-                    vm->set_state(VirtualMachine::BOOT_UNKNOWN);
+        vm->set_state(VirtualMachine::BOOT_POWEROFF);
 
-                    vmpool->update(vm);
-                    break;
+        vm->cp_history();
 
-                default:
-                    break;
-            }
+        vmpool->update(vm);
 
-            vmm->trigger(action,vid);
-        }
-        else if ( vm->get_state() == VirtualMachine::POWEROFF )
-        {
-            time_t the_time = time(0);
+        vm->set_stime(the_time);
 
-            vm->set_state(VirtualMachine::ACTIVE); // Only needed by poweroff
+        vm->set_last_poll(0);
 
-            vm->set_state(VirtualMachine::BOOT_POWEROFF);
+        vm->set_running_stime(the_time);
 
-            vm->cp_history();
+        vmpool->update_history(vm);
 
-            vmpool->update(vm);
-
-            vm->set_stime(the_time);
-
-            vm->set_last_poll(0);
-
-            vm->set_running_stime(the_time);
-
-            vmpool->update_history(vm);
-
-            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
-        }
+        vmm->trigger(VirtualMachineManager::DEPLOY, vid);
     }
     else
     {
@@ -806,7 +743,6 @@ void LifeCycleManager::delete_action(int vid)
     {
         return;
     }
-
 
     if ( vm->get_state() != VirtualMachine::ACTIVE )
     {
@@ -1376,19 +1312,69 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             tm->trigger(TransferManager::EPILOG_STOP,vid);
             break;
 
-        case VirtualMachine::LCM_INIT:
-        case VirtualMachine::BOOT:
         case VirtualMachine::BOOT_MIGRATE:
-        case VirtualMachine::BOOT_POWEROFF:
         case VirtualMachine::BOOT_SUSPENDED:
         case VirtualMachine::BOOT_STOPPED:
         case VirtualMachine::BOOT_UNDEPLOY:
+            vmm->trigger(VirtualMachineManager::RESTORE, vid);
+            break;
+
+        case VirtualMachine::BOOT:
+        case VirtualMachine::BOOT_POWEROFF:
         case VirtualMachine::BOOT_UNKNOWN:
-        case VirtualMachine::CLEANUP_RESUBMIT:
-        case VirtualMachine::CLEANUP_DELETE:
+            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+            break;
+
+        case VirtualMachine::SHUTDOWN:
+        case VirtualMachine::SHUTDOWN_POWEROFF:
+        case VirtualMachine::SHUTDOWN_UNDEPLOY:
+            if (vm->get_action() == History::SHUTDOWN_HARD_ACTION)
+            {
+                vmm->trigger(VirtualMachineManager::CANCEL,vid);
+            }
+            else
+            {
+                vmm->trigger(VirtualMachineManager::SHUTDOWN,vid);
+            }
+            break;
+
+        case VirtualMachine::SAVE_STOP:
+        case VirtualMachine::SAVE_SUSPEND:
+        case VirtualMachine::SAVE_MIGRATE:
+            vmm->trigger(VirtualMachineManager::SAVE,vid);
+            break;
+
+        case VirtualMachine::MIGRATE:
+            vmm->trigger(VirtualMachineManager::MIGRATE,vid);
+            break;
+
+        case VirtualMachine::PROLOG:
+            tm->trigger(TransferManager::PROLOG,vid);
+            break;
+
+        case VirtualMachine::PROLOG_MIGRATE:
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+            tm->trigger(TransferManager::PROLOG_MIGR,vid);
+            break;
+
+        case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_UNDEPLOY:
+            tm->trigger(TransferManager::PROLOG_RESUME,vid);
+            break;
+
         case VirtualMachine::EPILOG:
+            tm->trigger(TransferManager::EPILOG,vid);
+            break;
+
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
+            tm->trigger(TransferManager::EPILOG_STOP,vid);
+            break;
+
+        case VirtualMachine::LCM_INIT:
+        case VirtualMachine::CLEANUP_RESUBMIT:
+        case VirtualMachine::CLEANUP_DELETE:
         case VirtualMachine::HOTPLUG:
         case VirtualMachine::HOTPLUG_NIC:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
@@ -1397,20 +1383,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-        case VirtualMachine::PROLOG:
-        case VirtualMachine::PROLOG_MIGRATE:
-        case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
-        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
-        case VirtualMachine::PROLOG_RESUME:
-        case VirtualMachine::PROLOG_UNDEPLOY:
-        case VirtualMachine::MIGRATE:
         case VirtualMachine::RUNNING:
-        case VirtualMachine::SAVE_STOP:
-        case VirtualMachine::SAVE_SUSPEND:
-        case VirtualMachine::SAVE_MIGRATE:
-        case VirtualMachine::SHUTDOWN:
-        case VirtualMachine::SHUTDOWN_POWEROFF:
-        case VirtualMachine::SHUTDOWN_UNDEPLOY:
         case VirtualMachine::UNKNOWN:
             break;
     }

@@ -190,11 +190,8 @@ int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
     object->get_template_attribute("SAVE_AS", save_as);
 
-    if (save_as)
-    {
-        save_as = save_as && object->get_template_attribute("SAVED_VM_ID", vm_id);
-        save_as = save_as && object->get_template_attribute("SAVED_DISK_ID", disk_id);
-    }
+    save_as &= object->get_template_attribute("SAVED_VM_ID", vm_id) &
+               object->get_template_attribute("SAVED_DISK_ID", disk_id);
 
     object->unlock();
 

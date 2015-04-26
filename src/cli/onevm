@@ -348,7 +348,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         With --hard it unplugs the VM.
 
-        States: RUNNING, UNKNOWN (with --hard), SHUTDOWN
+        States: RUNNING, UNKNOWN (with --hard)
     EOT
 
     command :shutdown, shutdown_desc, [:range,:vmid_list],
@@ -371,7 +371,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         With --hard it unplugs the VM.
 
-        States: RUNNING, UNKNOWN, SHUTDOWN_UNDEPLOY
+        States: RUNNING
     EOT
 
     command :undeploy, undeploy_desc, [:range,:vmid_list],
@@ -393,7 +393,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Powers off the given VM. The VM will remain in the poweroff state, and
         can be powered on with the 'onevm resume' command.
 
-        States: RUNNING, UNKNOWN, SHUTDOWN_POWEROFF
+        States: RUNNING
     EOT
 
     command :poweroff, poweroff_desc, [:range,:vmid_list],

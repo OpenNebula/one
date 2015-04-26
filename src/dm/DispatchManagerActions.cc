@@ -240,8 +240,7 @@ int DispatchManager::shutdown (
         vm->get_state()     == VirtualMachine::SUSPENDED ||
        (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN)))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -301,8 +300,7 @@ int DispatchManager::undeploy(
     if ( vm->get_state()       == VirtualMachine::POWEROFF ||
          (vm->get_state()       == VirtualMachine::ACTIVE &&
            (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-            vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)))
+            vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -361,8 +359,7 @@ int DispatchManager::poweroff (
 
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
         Nebula&             nd  = Nebula::instance();
         LifeCycleManager *  lcm = nd.get_lcm();
@@ -607,6 +604,9 @@ int DispatchManager::resume(
     VirtualMachine *    vm;
     ostringstream       oss;
 
+    Nebula&             nd  = Nebula::instance();
+    LifeCycleManager *  lcm = nd.get_lcm();
+
     vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -626,16 +626,12 @@ int DispatchManager::resume(
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::RESTORE,vid);
     }
-    else if (vm->get_state() == VirtualMachine::POWEROFF)
+    else if ( vm->get_state() == VirtualMachine::POWEROFF ||
+             (vm->get_state() == VirtualMachine::ACTIVE &&
+              vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::RESTART,vid);
     }
     else
@@ -657,64 +653,6 @@ error:
     error_str = oss.str();
 
     vm->unlock();
-    return -2;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::restart(
-    int     vid,
-    string& error_str)
-{
-    VirtualMachine *    vm;
-    ostringstream       oss;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
-    oss << "Restarting VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
-
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ))
-    {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        lcm->trigger(LifeCycleManager::RESTART,vid);
-    }
-    else
-    {
-        goto error;
-    }
-
-    vm->unlock();
-
-    return 0;
-
-error:
-    oss.str("");
-    oss << "Could not restart VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
-
-    oss.str("");
-    oss << "This action is not available for state " << vm->state_str();
-    error_str = oss.str();
-
-    vm->unlock();
-
     return -2;
 }
 

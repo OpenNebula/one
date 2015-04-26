@@ -103,9 +103,6 @@ public:
             case RESUME_ACTION:
                 st = "resume";
             break;
-            case BOOT_ACTION:
-                st = "boot";
-            break;
             case DELETE_ACTION:
                 st = "delete";
             break;
@@ -143,6 +140,7 @@ public:
                 st = "nic-detach";
             break;
             case NONE_ACTION:
+            case BOOT_ACTION:
                 st = "none";
             break;
         }
@@ -196,10 +194,6 @@ public:
         {
             action = RESUME_ACTION;
         }
-        else if (st == "boot")
-        {
-            action = BOOT_ACTION;
-        }
         else if (st == "delete")
         {
             action = DELETE_ACTION;
@@ -248,7 +242,7 @@ public:
         {
             action = NIC_DETACH_ACTION;
         }
-        else
+        else //BOOT_ACTION and others
         {
             action = NONE_ACTION;
             return -1;

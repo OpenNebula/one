@@ -489,10 +489,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     {
         action_st = "shutdown-hard";
     }
-    else if (action_st == "restart")
-    {
-        action_st = "boot";
-    }
     else if (action_st == "finalize")
     {
         action_st = "delete";
@@ -563,9 +559,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             break;
         case History::RESUME_ACTION:
             rc = dm->resume(id, error);
-            break;
-        case History::BOOT_ACTION:
-            rc = dm->restart(id, error);
             break;
         case History::DELETE_ACTION:
             rc = dm->finalize(id, error);
