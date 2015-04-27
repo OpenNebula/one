@@ -31,7 +31,6 @@ module Role
         'stop',
         'suspend',
         'resume',
-        'boot',
         'delete',
         'delete-recreate',
         'reboot',

@@ -24,18 +24,20 @@ module OpenNebula
         # Actions that can be performed on the VMs of a given Role
         SCHEDULE_ACTIONS = [
             'shutdown',
-            'delete',
+            'shutdown-hard',
+            'undeploy',
+            'undeploy-hard',
             'hold',
             'release',
             'stop',
-            'shutdown-hard',
             'suspend',
             'resume',
-            'boot',
+            'delete',
             'delete-recreate',
             'reboot',
             'reboot-hard',
             'poweroff',
+            'poweroff-hard',
             'snapshot-create'
         ]
 
@@ -823,7 +825,7 @@ module OpenNebula
             set_cardinality( get_nodes.size() - nodes_dispose.size() )
         end
 
-        # Deletes VMs in DONE or FAILED, and sends a boot action to VMs in UNKNOWN
+        # Deletes VMs in DONE or FAILED, and sends a resume action to VMs in UNKNOWN
         def recover()
 
             nodes = @body['nodes']
@@ -861,13 +863,17 @@ module OpenNebula
 
                         new_nodes << node
                     end
+                elsif (vm_state == '3' && lcm_state == '16') # UNKNOWN
+                    vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                    vm.resume
+
+                    new_nodes << node
                 elsif (vm_state == '3' &&
-                        (lcm_state == '16' || # UNKNOWN
-                         lcm_state == '36' || # BOOT_FAILURE
+                        (lcm_state == '36' || # BOOT_FAILURE
                          lcm_state == '37'))  # BOOT_MIGRATE_FAILURE
 
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                    vm.boot
+                    vm.recover(2) # 2 == retry
 
                     new_nodes << node
                 else
