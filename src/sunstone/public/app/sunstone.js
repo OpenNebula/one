@@ -2,15 +2,19 @@ define(function(require) {
   require('jquery');
   require('foundation.reveal');
   require('foundation.tab');
+  require('foundation.dropdown');
 
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
 
   var TOP_INTERVAL = 10000; //ms
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/confirm/dialogId');
+  var CONFIRM_WITH_SELECT_DIALOG_ID = require('utils/dialogs/confirm-with-select/dialogId');
 
   var SunstoneCfg = {
     "actions" : {},
+    "dialogs" : {},
     "tabs" : {},
     "form_panels" : {}
   };
@@ -21,30 +25,43 @@ define(function(require) {
       SunstoneCfg["tabs"][_tabId] = tabObj;
       
       var actions = tabObj.actions;
-      if (actions) {      
-        $.each(actions, function(actionName, action){
-          SunstoneCfg["actions"][actionName] = action;
-        })
+      if (actions) {
+        _addActions(actions)
       }
 
       var panels = tabObj.panels;
       if (panels) {
-        var indexedPanels = {}
-        $.each(panels, function(index, panel){
-          indexedPanels[panel.panelId] = panel
-        })
-        SunstoneCfg["tabs"][_tabId]['panels'] = indexedPanels;
+        _addPanels(_tabId, panels)
       }
 
       var dialogs = tabObj.dialogs;
       if (dialogs) {
-        var indexedDialogs = {}
-        $.each(dialogs, function(index, dialog){
-          indexedDialogs[dialog.dialogId] = dialog
-        })
-        SunstoneCfg["tabs"][_tabId]['dialogs'] = indexedDialogs;
+        _addDialogs(dialogs)
       }
     }
+  }
+
+  var _addActions = function(actions) {
+    $.each(actions, function(actionName, action) {
+      SunstoneCfg["actions"][actionName] = action;
+    })
+    return false;
+  }
+
+  var _addDialogs = function(dialogs) {
+    $.each(dialogs, function(index, dialog) {
+      SunstoneCfg['dialogs'][dialog.dialogId] = dialog
+    })
+    return false;
+  }
+
+  var _addPanels = function(tabId, panels) {
+    var indexedPanels = {}
+    $.each(panels, function(index, panel) {
+      indexedPanels[panel.panelId] = panel
+    })
+    SunstoneCfg["tabs"][tabId]['panels'] = indexedPanels;
+    return false;
   }
 
   //Inserts all main tabs in the DOM
@@ -327,7 +344,7 @@ define(function(require) {
     //Listen for .action_buttons
     //An action buttons runs a predefined action. If it has type
     //"multiple" it runs that action on the elements of a datatable.
-    $('.action_button').on("click", function() {
+    $(document).on("click", '.action_button', function() {
       var error = 0;
       var value = $(this).val()
       if ($.isEmptyObject(value)) {
@@ -356,14 +373,34 @@ define(function(require) {
       if (!error && !$(this).hasClass("refresh")) {
         //proceed to close confirm dialog in
         //case it was open
-        $('div#confirm_dialog').foundation('reveal', 'close');
+        _hideDialog(CONFIRM_DIALOG_ID);
       };
 
       return false;
     });
 
+    //Listen .confirm_buttons. These buttons show a confirmation dialog
+    //before running the action.
+    $(document).on("click", '.confirm_button', function() {
+      $('#' + CONFIRM_DIALOG_ID).data('buttonAction', $(this).attr('href'));
+      $('#' + CONFIRM_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
+      _showDialog(CONFIRM_DIALOG_ID);
+      return false;
+    });
+
+    //Listen .confirm_buttons. These buttons show a confirmation dialog
+    //with a select box before running the action.
+    $(document).on("click", '.confirm_with_select_button', function() {
+      $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonAction', $(this).attr('href'));
+      $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
+      _showDialog(CONFIRM_WITH_SELECT_DIALOG_ID);
+      return false;
+    });
+
+    $(document).foundation('reflow', 'dropdown');
+
     // Button to return to the list view from the detailed view
-    $("a[href='back']").on("click", function(e) {
+    $(document).on("click", "a[href='back']", function(e) {
       $(".navigation-active-li a", $("#navigation")).click();
       e.preventDefault();
     });
@@ -528,45 +565,45 @@ define(function(require) {
     $(document).foundation('reflow', 'tab');
   }
 
-  var _insertDialog = function(tabName, dialog) {
+  var _insertDialog = function(dialog) {
     var dialogElement = $(dialog.html()).appendTo('div#dialogs');
     dialog.setup(dialogElement);
     dialogElement.foundation('reveal', 'reflow');
 
     dialogElement.on('opened.fndtn.reveal', function () {
-      dialog.onShow(dialogElement);
+      dialog.onShow(dialog.dialogId);
     });
 
-    dialogElement.on('click', '.resetDialog', function(){
-      _resetDialog(tabName, dialog.dialogId);
-      _showDialog(tabName, dialog.dialogId);
+    dialogElement.on('click', '.resetDialog', function() {
+      _resetDialog(dialog.dialogId);
+      _showDialog(dialog.dialogId);
     })
 
     return dialogElement;
   }
 
-  var _showDialog = function(tabName, dialogId) {
-    var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
+  var _showDialog = function(dialogId) {
+    var dialog = SunstoneCfg['dialogs'][dialogId];
     var dialogElement = $('#' + dialog.dialogId);
     if (dialogElement.length == 0) {
-      dialogElement = _insertDialog(tabName, dialog);
+      dialogElement = _insertDialog(dialog);
     }
 
     dialogElement.foundation('reveal', 'open');
     return false;
   }
 
-  var _hideDialog = function(tabName, dialogId) {
-    var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
+  var _hideDialog = function(dialogId) {
+    var dialog = SunstoneCfg['dialogs'][dialogId];
     var dialogElement = $('#' + dialog.dialogId);
     dialogElement.foundation('reveal', 'close')
   }
 
-  var _resetDialog = function(tabName, dialogId) {
-    var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
+  var _resetDialog = function(dialogId) {
+    var dialog = SunstoneCfg['dialogs'][dialogId];
     var dialogElement = $('#' + dialog.dialogId);
     dialogElement.remove();
-    dialogElement = _insertDialog(tabName, dialog);
+    dialogElement = _insertDialog(dialog);
     return false;
   }
 
@@ -764,11 +801,17 @@ define(function(require) {
     return $(".resource-id", context).text();
   }
 
+  var _getAction = function(actionId) {
+    return SunstoneCfg["actions"][actionId];
+  }
+
   var Sunstone = {
     "addMainTab": _addMainTab,
+    "addDialogs": _addDialogs,
 
     "insertTabs": _insertTabs,
     "insertPanels": _insertPanels,
+    "insertDialog": _insertDialog,
 
     'showTab': _showTab,
     "showElement" : _showElement,
@@ -780,7 +823,9 @@ define(function(require) {
     "rightListVisible": _rightListVisible,
     "rightInfoResourceId": _rightInfoResourceId, 
 
-    "runAction" : _runAction
+    "runAction" : _runAction,
+    "getAction": _getAction,
+    "getButton": _getButton
   }
 
   return Sunstone;

@@ -269,6 +269,24 @@ define(function(require) {
     $('tr input.check_item:visible', dataTable).replaceWith(SPINNER);
   }
 
+  //returns an array of ids of selected elements in a dataTable
+  var _getSelectedNodes = function(dataTable, forceDataTable){
+      var selected_nodes = [];
+      if (dataTable){
+          var tab = dataTable.parents(".tab")
+          if (Sunstone.rightInfoVisible(tab) && !forceDataTable) {
+              selected_nodes.push(Sunstone.rightInfoResourceId(tab));
+          } else {
+          //Which rows of the datatable are checked?
+          var nodes = $('tbody input.check_item:checked',dataTable);
+              $.each(nodes,function(){
+                  selected_nodes.push($(this).val());
+              });
+          }
+      };
+      return selected_nodes;
+  }
+
   return {
     'infoListener': _infoListener,
     'addElement': _addElement,
@@ -280,6 +298,7 @@ define(function(require) {
     'updateView': _updateView,
     'updateSingleElement': _updateSingleElement,
     'getElementData': _getElementData,
-    'waitingNodes': _waitingNodes
+    'waitingNodes': _waitingNodes,
+    'getSelectedNodes': _getSelectedNodes
   }
 })

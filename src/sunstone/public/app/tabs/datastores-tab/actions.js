@@ -15,8 +15,8 @@ define(function(require) {
       type: "create",
       call : OpenNebulaDatastore.create,
       callback : function(request, response) {
-        Sunstone.hideDialog(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.resetDialog(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideDialog(CREATE_DIALOG_ID);
+        Sunstone.resetDialog(CREATE_DIALOG_ID);
         DatastoresDataTable.addElement(request, response);
         Notifier.notifyCustom(Locale.tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
       },
@@ -26,7 +26,7 @@ define(function(require) {
     "Datastore.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.showDialog(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.showDialog(CREATE_DIALOG_ID);
       }
     },
 

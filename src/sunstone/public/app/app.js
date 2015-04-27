@@ -9,11 +9,20 @@ define(function(require) {
     require('tabs/datastores-tab')
   ];
 
+  var _commonDialogs = [
+    require('utils/dialogs/confirm'),
+    require('utils/dialogs/confirm-with-select')
+  ]
+
+  Sunstone.addDialogs(_commonDialogs);
+
   $.each(_tabs, function(index, tab) {
     Sunstone.addMainTab(tab);
   });
 
   $(document).ready(function() {
     Sunstone.insertTabs();
+    Sunstone.insertDialog(require('utils/dialogs/confirm'))
+    Sunstone.insertDialog(require('utils/dialogs/confirm-with-select'))
   });
 });
