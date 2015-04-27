@@ -214,21 +214,6 @@ define(function(require) {
       return false;
     });
 
-    $('#wizard_ds_reset_button').click(function() {
-      dialog.html("");
-      setupCreateDatastoreDialog();
-
-      popUpCreateDatastoreDialog();
-    });
-
-    $('#advanced_ds_reset_button').click(function() {
-      dialog.html("");
-      setupCreateDatastoreDialog();
-
-      popUpCreateDatastoreDialog();
-      $("a[href='#datastore_manual']").click();
-    });
-
     // Hide disk_type
     $('select#disk_type').parent().hide();
 

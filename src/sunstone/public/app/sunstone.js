@@ -528,7 +528,7 @@ define(function(require) {
     $(document).foundation('reflow', 'tab');
   }
 
-  var _insertDialog = function(dialog) {
+  var _insertDialog = function(tabName, dialog) {
     var dialogElement = $(dialog.html()).appendTo('div#dialogs');
     dialog.setup(dialogElement);
     dialogElement.foundation('reveal', 'reflow');
@@ -537,6 +537,11 @@ define(function(require) {
       dialog.onShow(dialogElement);
     });
 
+    dialogElement.on('click', '.resetDialog', function(){
+      _resetDialog(tabName, dialog.dialogId);
+      _showDialog(tabName, dialog.dialogId);
+    })
+
     return dialogElement;
   }
 
@@ -544,7 +549,7 @@ define(function(require) {
     var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
     var dialogElement = $('#' + dialog.dialogId);
     if (dialogElement.length == 0) {
-      dialogElement = _insertDialog(dialog);
+      dialogElement = _insertDialog(tabName, dialog);
     }
 
     dialogElement.foundation('reveal', 'open');
@@ -561,7 +566,7 @@ define(function(require) {
     var dialog = SunstoneCfg['tabs'][tabName]['dialogs'][dialogId];
     var dialogElement = $('#' + dialog.dialogId);
     dialogElement.remove();
-    dialogElement = _insertDialog(dialog);
+    dialogElement = _insertDialog(tabName, dialog);
     return false;
   }
 
