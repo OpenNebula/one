@@ -560,7 +560,6 @@ public class VirtualMachine extends PoolElement{
      * <li>{@link VirtualMachine#suspend()}</li>
      * <li>{@link VirtualMachine#resume()}</li>
      * <li>{@link VirtualMachine#delete(boolean)}</li>
-     * <li>{@link VirtualMachine#boot()}</li>
      * <li>{@link VirtualMachine#poweroff()}</li>
      * <li>{@link VirtualMachine#resched()}</li>
      * <li>{@link VirtualMachine#unresched()}</li>
@@ -569,7 +568,7 @@ public class VirtualMachine extends PoolElement{
      *
      * @param action The action name to be performed, can be:<br/>
      * "shutdown", "hold", "release", "stop", "shutdown-hard", "suspend",
-     * "resume", "boot", "delete", "delete-recreate", "reboot", "resched",
+     * "resume", "delete", "delete-recreate", "reboot", "resched",
      * "unresched", "reboot-hard", "poweroff", "undeploy", "undeploy-hard"
      * @return If an error occurs the error message contains the reason.
      */
@@ -1049,15 +1048,6 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse boot()
-    {
-        return action("boot");
-    }
-
-    /**
      * Sets the re-scheduling flag for the VM
      * @return If an error occurs the error message contains the reason.
      */
@@ -1236,17 +1226,6 @@ public class VirtualMachine extends PoolElement{
     @Deprecated public OneResponse resubmit()
     {
         return action("resubmit");
-    }
-
-    /**
-     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by {@link #boot}
-     */
-    @Deprecated public OneResponse restart()
-    {
-        return action("restart");
     }
 
     /**

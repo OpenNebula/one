@@ -1066,9 +1066,6 @@ var OpenNebula = {
         "resume": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resume");
         },
-        "restart": function(params){
-            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"restart");
-        },
         "resubmit": function(params){
             OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,"resubmit");
         },

@@ -53,7 +53,6 @@ module OpenNebulaJSON
                  when "release"      then self.release
                  when "stop"         then self.stop
                  when "suspend"      then self.suspend
-                 when "restart"      then self.restart
                  when "reset"        then self.reset
                  when "saveas"       then self.save_as(action_hash['params'])
                  when "disk_snapshot_cancel"  then self.disk_snapshot_cancel(action_hash['params'])

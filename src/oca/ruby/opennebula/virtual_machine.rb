@@ -403,13 +403,6 @@ module OpenNebula
             delete(recreate)
         end
 
-        # Forces a re-deployment of a VM in UNKNOWN or BOOT state
-        def boot
-            action('boot')
-        end
-
-        alias_method :restart, :boot
-
         # @deprecated use {#delete} instead
         def resubmit
             action('delete-recreate')

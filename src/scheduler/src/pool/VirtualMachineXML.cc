@@ -436,7 +436,6 @@ int VirtualMachineXML::parse_action_name(string& action_st)
         && action_st != "stop"
         && action_st != "suspend"
         && action_st != "resume"
-        && action_st != "boot"
         && action_st != "delete"
         && action_st != "delete-recreate"
         && action_st != "reboot"

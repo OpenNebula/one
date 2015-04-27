@@ -177,7 +177,6 @@ tabs:
             VM.resume: true
             VM.stop: true
             VM.recover: true
-            VM.boot: true
             VM.reboot: true
             VM.reboot_hard: true
             VM.poweroff: true

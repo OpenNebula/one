@@ -125,26 +125,15 @@ digraph OpenNebula {
     poweroff        -> boot_poweroff [label="resume"];
     boot_poweroff   -> running [style="dashed", color="blue"];
 
+    unknown         -> boot_unknown [label="resume"];
+    boot_unknown    -> running [style="dashed", color="blue"];
+
+
 #   delete
     ANY         -> done [label="delete"];
 
 #   resubmit
     "ANY \\ {suspended,poweroff,done}" -> pending [label="delete --recreate"];
-
-#   boot
-    boot            -> boot [label="boot"];
-    boot_suspended  -> boot_suspended [label="boot"];
-    boot_stopped    -> boot_stopped [label="boot"];
-    boot_poweroff   -> boot_poweroff [label="boot"];
-    boot_undeploy   -> boot_undeploy [label="boot"];
-    boot_migrate    -> boot_migrate [label="boot"];
-
-    unknown         -> boot_unknown [label="boot"];
-    boot_unknown    -> boot_unknown [label="boot"];
-    boot_unknown    -> running [style="dashed", color="blue"];
-
-    boot_failure         -> boot [label="recover"];
-    boot_migrate_failure -> boot_migrate [label="recover"];
 
 #   reboot
     running     -> running [label="reboot"];
@@ -184,6 +173,9 @@ digraph OpenNebula {
     suspended   -> suspended [label="disk-snapshot-cancel"]
 
 #   failures and misc.
+    boot_failure         -> boot [label="recover"];
+    boot_migrate_failure -> boot_migrate [label="recover"];
+
     epilog_stop         -> epilog_stop_failure [label=" ", style="dotted", color="red"];
     epilog_stop_failure -> epilog_stop [label="recover"];
 

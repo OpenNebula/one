@@ -83,7 +83,7 @@ var lcm_state_actions = {
     1: //OpenNebula.VM.lcm_state.PROLOG:
         [],
     2: //OpenNebula.VM.lcm_state.BOOT:
-        ["VM.boot"],
+        [],
     3: //OpenNebula.VM.lcm_state.RUNNING:
         ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel"],
     4: //OpenNebula.VM.lcm_state.MIGRATE:
@@ -111,19 +111,19 @@ var lcm_state_actions = {
     15: //OpenNebula.VM.lcm_state.CLEANUP_RESUBMIT:
         [],
     16: //OpenNebula.VM.lcm_state.UNKNOWN:
-        ["VM.shutdown", "VM.shutdown_hard", "VM.boot", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.disk_snapshot_cancel"],
+        ["VM.shutdown", "VM.shutdown_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.disk_snapshot_cancel", "VM.resume"],
     17: //OpenNebula.VM.lcm_state.HOTPLUG:
         [],
     18: //OpenNebula.VM.lcm_state.SHUTDOWN_POWEROFF:
         [],
     19: //OpenNebula.VM.lcm_state.BOOT_UNKNOWN:
-        ["VM.boot"],
+        [],
     20: //OpenNebula.VM.lcm_state.BOOT_POWEROFF:
-        ["VM.boot"],
+        [],
     21: //OpenNebula.VM.lcm_state.BOOT_SUSPENDED:
-        ["VM.boot"],
+        [],
     22: //OpenNebula.VM.lcm_state.BOOT_STOPPED:
-        ["VM.boot"],
+        [],
     23: //OpenNebula.VM.lcm_state.CLEANUP_DELETE:
         [],
     24: //OpenNebula.VM.lcm_state.HOTPLUG_SNAPSHOT:
@@ -143,13 +143,13 @@ var lcm_state_actions = {
     31: //OpenNebula.VM.lcm_state.PROLOG_UNDEPLOY:
         [],
     32: //OpenNebula.VM.lcm_state.BOOT_UNDEPLOY:
-        ["VM.boot"],
+        [],
     33: //OpenNebula.VM.lcm_state.HOTPLUG_PROLOG_POWEROFF:
         [],
     34: //OpenNebula.VM.lcm_state.HOTPLUG_EPILOG_POWEROFF:
         [],
     35: //OpenNebula.VM.lcm_state.BOOT_MIGRATE:
-        ["VM.boot"],
+        [],
     36: //OpenNebula.VM.lcm_state.BOOT_FAILURE:
         [],
     37: //OpenNebula.VM.lcm_state.BOOT_MIGRATE_FAILURE:
@@ -465,15 +465,6 @@ var vm_actions = {
     "VM.stop" : {
         type: "multiple",
         call: OpenNebula.VM.stop,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
-    "VM.boot" : {
-        type: "multiple",
-        call: OpenNebula.VM.restart,
         callback: vmShow,
         elements: vmElements,
         error: onError,
@@ -968,13 +959,6 @@ var vm_buttons = {
         text: tr("Stop"),
         layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs"),
-        custom_classes : "state-dependent"
-    },
-    "VM.boot" : {
-        type: "action",
-        text: tr("Boot"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"),
         custom_classes : "state-dependent"
     },
     "VM.reboot" : {
@@ -1750,7 +1734,6 @@ function printActionsTable(vm_info)
                                 <option value="stop">' + tr("stop") + '</option>\
                                 <option value="suspend">' + tr("suspend") + '</option>\
                                 <option value="resume">' + tr("resume") + '</option>\
-                                <option value="boot">' + tr("boot") + '</option>\
                                 <option value="delete">' + tr("delete") + '</option>\
                                 <option value="delete-recreate">' + tr("delete-recreate") + '</option>\
                                 <option value="reboot">' + tr("reboot") + '</option>\
