@@ -2,9 +2,35 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
 
   var RESOURCE = "IMAGE";
+  var STATES = [
+    "INIT",
+    "READY",
+    "USED",
+    "DISABLED",
+    "LOCKED",
+    "ERROR",
+    "CLONE",
+    "DELETE",
+    "USED_PERS"
+  ];
+
+  var TYPES = [
+    "OS", 
+    "CDROM", 
+    "DATABLOCK", 
+    "KERNEL", 
+    "RAMDISK", 
+    "CONTEXT"
+  ];
 
   var Image = {
     "resource": RESOURCE,
+    "stateStr": function(stateId) {
+      return STATES[stateId];
+    },
+    "typeStr": function(typeId) {
+      return TYPES[typeId];
+    },
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
