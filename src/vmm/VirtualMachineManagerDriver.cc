@@ -657,50 +657,60 @@ void VirtualMachineManagerDriver::process_poll(
     /* Process the VM state from the monitoring info                          */
     /* ---------------------------------------------------------------------- */
 
-    bool process_state = vm->get_state() == VirtualMachine::POWEROFF || (
-        vm->get_state() == VirtualMachine::ACTIVE && (
-            vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN));
-
-    if (!process_state)
-    {
-        return;
-    }
-
     switch (state)
     {
-        case 'a': // Still active, good!
-            if ( vm->get_lcm_state() == VirtualMachine::UNKNOWN)
-            {
-                vm->log("VMM", Log::INFO, "VM found again, state is RUNNING");
+        case 'a': // Active
 
-                vm->set_state(VirtualMachine::RUNNING);
-                vmpool->update(vm);
-            }
-            else if ( vm->get_state() == VirtualMachine::POWEROFF )
+            if ( vm->get_state() == VirtualMachine::POWEROFF ||
+                 (vm->get_state() == VirtualMachine::ACTIVE &&
+                 (  vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN  ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED_FAILURE ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
+                    vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )))
             {
-                vm->log("VMM", Log::INFO, "VM found again, state is RUNNING");
-
                 lcm->trigger(LifeCycleManager::MONITOR_POWERON, vm->get_oid());
             }
+
             break;
 
         case 'p': // It's paused
-            vm->log("VMM",Log::INFO, "VM running but monitor state is PAUSED.");
+            if ( vm->get_state() == VirtualMachine::ACTIVE &&
+                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+                  vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
+            {
+                vm->log("VMM",Log::INFO, "VM running but monitor state is PAUSED.");
 
-            lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, vm->get_oid());
+                lcm->trigger(LifeCycleManager::MONITOR_SUSPEND, vm->get_oid());
+            }
             break;
 
         case 'e': //Failed
-            vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
+            if ( vm->get_state() == VirtualMachine::ACTIVE &&
+                 vm->get_lcm_state() == VirtualMachine::RUNNING )
+            {
+                vm->log("VMM",Log::INFO,"VM running but monitor state is ERROR.");
 
-            lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
+                lcm->trigger(LifeCycleManager::MONITOR_DONE, vm->get_oid());
+            }
             break;
 
         case 'd': //The VM was powered-off
-            vm->log("VMM",Log::INFO,"VM running but monitor state is POWEROFF");
-
-            lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, vm->get_oid());
+            if ( vm->get_state() == VirtualMachine::ACTIVE &&
+                ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
+                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
+                  vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY ))
+            {
+                lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, vm->get_oid());
+            }
             break;
     }
 }

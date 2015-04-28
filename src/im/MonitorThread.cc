@@ -238,8 +238,11 @@ void MonitorThread::do_message()
             // 2.- It is supposed to be in RUNNING state
             // 3.- It has been monitored at least once
             if (vm->hasHistory() &&
-                vm->get_lcm_state() == VirtualMachine::RUNNING &&
-                vm->get_last_poll() != 0)
+                vm->get_last_poll() != 0 &&
+                 ( vm->get_lcm_state() == VirtualMachine::RUNNING ||
+                   vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
+                   vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
+                   vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY))
             {
                 lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
             }

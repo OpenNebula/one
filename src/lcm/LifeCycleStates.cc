@@ -1106,12 +1106,14 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
         return;
     }
 
-    //This event should be ignored if the VM is not RUNNING
     if ( vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
         //----------------------------------------------------
         //                POWEROFF STATE
         //----------------------------------------------------
+
+        vm->log("LCM",Log::INFO,"VM running but monitor state is POWEROFF");
+
         time_t the_time = time(0);
 
         vm->delete_snapshots();
@@ -1137,6 +1139,14 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
         //----------------------------------------------------
 
         dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+
+    } else if ( vm->get_lcm_state() == VirtualMachine::SHUTDOWN ||
+                vm->get_lcm_state() == VirtualMachine::SHUTDOWN_POWEROFF ||
+                vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY )
+    {
+        vm->log("LCM", Log::INFO, "VM reported SHUTDOWN by the drivers");
+
+        trigger(LifeCycleManager::SHUTDOWN_SUCCESS, vid);
     }
 
     vm->unlock();
@@ -1156,9 +1166,10 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
         return;
     }
 
-    //This event should be ignored if the VM is not POWEROFF
     if ( vm->get_state() == VirtualMachine::POWEROFF )
     {
+            vm->log("VMM",Log::INFO,"VM found again by the drivers");
+
             time_t the_time = time(0);
 
             vm->set_state(VirtualMachine::ACTIVE);
@@ -1176,6 +1187,36 @@ void  LifeCycleManager::monitor_poweron_action(int vid)
             vm->set_last_poll(the_time);
 
             vmpool->update_history(vm);
+    }
+    else if ( vm->get_state() == VirtualMachine::ACTIVE )
+    {
+        switch (vm->get_lcm_state()) {
+            case VirtualMachine::UNKNOWN:
+                vm->log("LCM", Log::INFO, "VM found again by the drivers");
+
+                vm->set_state(VirtualMachine::RUNNING);
+                vmpool->update(vm);
+                break;
+
+            case VirtualMachine::BOOT:
+            case VirtualMachine::BOOT_POWEROFF:
+            case VirtualMachine::BOOT_UNKNOWN :
+            case VirtualMachine::BOOT_SUSPENDED:
+            case VirtualMachine::BOOT_STOPPED:
+            case VirtualMachine::BOOT_UNDEPLOY:
+            case VirtualMachine::BOOT_MIGRATE:
+            case VirtualMachine::BOOT_MIGRATE_FAILURE:
+            case VirtualMachine::BOOT_STOPPED_FAILURE:
+            case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+            case VirtualMachine::BOOT_FAILURE:
+                vm->log("LCM", Log::INFO, "VM reported RUNNING by the drivers");
+
+                trigger(LifeCycleManager::DEPLOY_SUCCESS, vid);
+                break;
+
+            default:
+                break;
+        }
     }
 
     vm->unlock();
