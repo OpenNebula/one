@@ -54,7 +54,7 @@ define(function(require) {
   var _deleteElement = function(dataTable, tag) {
     var tr = $(tag, dataTable).parents('tr')[0];
     dataTable.fnDeleteRow(tr);
-    recountCheckboxes(dataTable);
+    _recountCheckboxes(dataTable);
 
     var tab = dataTable.parents(".tab");
     if (Sunstone.rightInfoVisible(tab)) {

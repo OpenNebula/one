@@ -70,7 +70,7 @@ define(function(require) {
   //callback for actions deleting a zone element
   var _deleteElement = function(req) {
     TabDataTable.deleteElement(_dataTable, '#zone_' + req.request.data);
-    $('div#zone_tab_' + req.request.data, main_tabs_context).remove();
+    // TODO $('div#zone_tab_' + req.request.data, main_tabs_context).remove();
   }
 
   //call back for actions creating a zone element
