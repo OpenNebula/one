@@ -48,8 +48,32 @@ define(function(require) {
     return st;
   }
 
+  //introduces 0s before a number until in reaches 'length'.
+  var _pad = function(number,length) {
+      var str = '' + number;
+      while (str.length < length)
+          str = '0' + str;
+      return str;
+  }
+
+  //turns a Unix-formatted time into a human readable string
+  var _prettyTime = function(seconds) {
+    var d = new Date();
+    d.setTime(seconds * 1000);
+
+    var secs = _pad(d.getSeconds(), 2);
+    var hour = _pad(d.getHours(), 2);
+    var mins = _pad(d.getMinutes(), 2);
+    var day = _pad(d.getDate(), 2);
+    var month = _pad(d.getMonth() + 1, 2); //getMonths returns 0-11
+    var year = d.getFullYear();
+
+    return hour + ":" + mins + ":" + secs + "&nbsp;" + day + "/" + month + "/" + year;
+  }
+
   return {
     'size': _size,
-    'sizeFromMB': _sizeFromMB
+    'sizeFromMB': _sizeFromMB,
+    'prettyTime': _prettyTime
   }
 })
