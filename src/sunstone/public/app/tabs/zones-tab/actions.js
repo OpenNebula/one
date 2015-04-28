@@ -2,7 +2,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var ZonesDataTable = require('./datatable');
+  var DataTable = require('./datatable');
   var OpenNebulaZone = require('opennebula/zone');
 
   var TAB_ID = require('./tabId');
@@ -15,7 +15,7 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.hideDialog(CREATE_DIALOG_ID);
         Sunstone.resetDialog(CREATE_DIALOG_ID);
-        ZonesDataTable.addElement(request, response);
+        DataTable.addElement(request, response);
       },
       error: Notifier.onError,
       notify: true
@@ -31,7 +31,7 @@ define(function(require) {
     "Zone.list" : {
       type: "list",
       call: OpenNebulaZone.list,
-      callback: ZonesDataTable.updateView,
+      callback: DataTable.updateView,
       error: Notifier.onError
     },
 
@@ -45,7 +45,7 @@ define(function(require) {
         }
 
         // datatable row
-        ZonesDataTable.updateElement(request, response);
+        DataTable.updateElement(request, response);
       },
       error: Notifier.onError
     },
@@ -60,22 +60,22 @@ define(function(require) {
     "Zone.refresh" : {
       type: "custom",
       call: function() {
-            var tab = $('#' + TAB_ID);
-            if (Sunstone.rightInfoVisible(tab)) {
-              Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
-            } else {
-              ZonesDataTable.waitingNodes();
-              Sunstone.runAction("Zone.list", {force: true});
-            }
-          },
+        var tab = $('#' + TAB_ID);
+        if (Sunstone.rightInfoVisible(tab)) {
+          Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
+        } else {
+          DataTable.waitingNodes();
+          Sunstone.runAction("Zone.list", {force: true});
+        }
+      },
       error: Notifier.onError
     },
 
     "Zone.delete" : {
       type: "multiple",
       call : OpenNebulaZone.del,
-      callback : ZonesDataTable.deleteElement,
-      elements: ZonesDataTable.elements,
+      callback : DataTable.deleteElement,
+      elements: DataTable.elements,
       error : Notifier.onError,
       notify:true
     },
