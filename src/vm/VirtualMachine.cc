@@ -133,6 +133,23 @@ const char * VirtualMachine::NO_NIC_DEFAULTS[] = {"NETWORK_ID", "NETWORK",
 
 const int VirtualMachine::NUM_NO_NIC_DEFAULTS = 4;
 
+const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
+        {"IP", "IP"},
+        {"MAC", "MAC"},
+        {"MASK", "NETWORK_MASK"},
+        {"NETWORK", "NETWORK_ADDRESS"},
+        {"GATEWAY", "GATEWAY"},
+        {"DNS", "DNS"},
+        {"SEARCH_DOMAIN", "SEARCH_DOMAIN"}};
+const int VirtualMachine::NUM_NETWORK_CONTEXT = 7;
+
+const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
+        {"IP6", "IP6_GLOBAL"},
+        {"GATEWAY6", "GATEWAY6"},
+        {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"}};
+
+const int VirtualMachine::NUM_NETWORK6_CONTEXT = 3;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -767,6 +784,42 @@ error_cleanup:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void parse_context_network(const char* vars[][2], int num_vars,
+        VectorAttribute * context, VectorAttribute * nic)
+{
+    string name   = nic->vector_value("NETWORK");
+    string nic_id = nic->vector_value("NIC_ID");
+
+    for (int i=0; i < num_vars; i++)
+    {
+        ostringstream cvar;
+        string cval;
+
+        cvar << "ETH" << nic_id << "_" << vars[i][0];
+
+        cval = context->vector_value(cvar.str().c_str());
+
+        if (!cval.empty())
+        {
+            continue;
+        }
+
+        cval = nic->vector_value(vars[i][1]); //Check the NIC
+
+        if (cval.empty()) //Will check the AR and VNET
+        {
+            ostringstream cval_ss;
+
+            cval_ss << "$NETWORK["<< vars[i][1] <<", NETWORK=\""<< name <<"\"]";
+            cval = cval_ss.str();
+        }
+
+        context->replace(cvar.str(), cval);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::parse_context(string& error_str)
 {
     int rc, num;
@@ -831,71 +884,13 @@ int VirtualMachine::parse_context(string& error_str)
                 continue;
             }
 
-            string name   = vatt->vector_value("NETWORK");
-            string ip     = vatt->vector_value("IP");
-            string mac    = vatt->vector_value("MAC");
-            string ip6    = vatt->vector_value("IP6_GLOBAL");
-            string nic_id = vatt->vector_value("NIC_ID");
+            parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, 
+                    context, vatt);
 
-            ostringstream var;
-            ostringstream val;
-
-            var << "ETH" << nic_id << "_IP";
-            context->replace(var.str(), ip);
-
-            var.str(""); val.str("");
-
-            var << "ETH" << nic_id << "_MAC";
-            context->replace(var.str(), mac);
-
-            var.str(""); val.str("");
-
-            var << "ETH" << nic_id << "_NETWORK";
-            val << "$NETWORK[NETWORK_ADDRESS, NETWORK=\"" << name << "\"]";
-            context->replace(var.str(), val.str());
-
-            var.str(""); val.str("");
-
-            var << "ETH" << nic_id << "_MASK";
-            val << "$NETWORK[NETWORK_MASK, NETWORK=\"" << name << "\"]";
-            context->replace(var.str(), val.str());
-
-            var.str(""); val.str("");
-
-            var << "ETH" << nic_id << "_GATEWAY";
-            val << "$NETWORK[GATEWAY, NETWORK=\"" << name << "\"]";
-            context->replace(var.str(), val.str());
-
-            var.str(""); val.str("");
-
-            var << "ETH" << nic_id << "_DNS";
-            val << "$NETWORK[DNS, NETWORK=\"" << name << "\"]";
-            context->replace(var.str(), val.str());
-
-            var.str(""); val.str("");
-
-            var << "ETH" << nic_id << "_SEARCH_DOMAIN";
-            val << "$NETWORK[SEARCH_DOMAIN, NETWORK=\"" << name << "\"]";
-            context->replace(var.str(), val.str());
-
-            if (!ip6.empty())
+            if (!vatt->vector_value("IP6_GLOBAL").empty())
             {
-                var.str(""); val.str("");
-
-                var << "ETH" << nic_id << "_IP6";
-                context->replace(var.str(), ip6);
-
-                var.str(""); val.str("");
-
-                var << "ETH" << nic_id << "_GATEWAY6";
-                val << "$NETWORK[GATEWAY6, NETWORK=\"" << name << "\"]";
-                context->replace(var.str(), val.str());
-
-                var.str(""); val.str("");
-
-                var << "ETH" << nic_id << "_CONTEXT_FORCE_IPV4";
-                val << "$NETWORK[CONTEXT_FORCE_IPV4, NETWORK=\"" << name << "\"]";
-                context->replace(var.str(), val.str());
+                parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, 
+                        context, vatt);
             }
         }
     }

@@ -1771,6 +1771,33 @@ private:
      */
     int parse_defaults(string& error_str);
 
+    /** 
+     * Known attributes for network contextualization rendered as:
+     *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
+     *
+     * The context[1] values in the map are searched in the NIC and 
+     * if not found in the AR and VNET. They can be also set in the 
+     * CONTEXT section it self using full name (ETH_).
+     *
+     * IPv4 context variables:
+     *   {"IP", "IP"},
+     *   {"MAC", "MAC"},
+     *   {"NETWORK", "NETWORK_ADDRESS"},
+     *   {"GATEWAY", "GATEWAY"},
+     *   {"DNS", "DNS"},
+     *   {"SEARCH_DOMAIN", "SEARCH_DOMAIN"}
+     *
+     * IPv6 context:
+     *   {"IP6", "IP6_GLOBAL"},
+     *   {"GATEWAY6", "GATEWAY6"},
+     *   {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"}
+     */
+    static const char* NETWORK_CONTEXT[][2];
+    static const int   NUM_NETWORK_CONTEXT;
+
+    static const char* NETWORK6_CONTEXT[][2];
+    static const int   NUM_NETWORK6_CONTEXT;
+
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
