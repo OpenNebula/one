@@ -6,12 +6,16 @@ define(function(require) {
   var _tabs = [
     require('tabs/infra-tab'),
     require('tabs/zones-tab'),
-    require('tabs/datastores-tab')
+    require('tabs/datastores-tab'),
+    require('tabs/vresources-tab')
   ];
 
+  var DialogConfirm = require('utils/dialogs/confirm');
+  var DialogConfirmWithSelect = require('utils/dialogs/confirm-with-select');
+
   var _commonDialogs = [
-    require('utils/dialogs/confirm'),
-    require('utils/dialogs/confirm-with-select')
+    DialogConfirm,
+    DialogConfirmWithSelect
   ]
 
   Sunstone.addDialogs(_commonDialogs);
@@ -22,7 +26,7 @@ define(function(require) {
 
   $(document).ready(function() {
     Sunstone.insertTabs();
-    Sunstone.insertDialog(require('utils/dialogs/confirm'))
-    Sunstone.insertDialog(require('utils/dialogs/confirm-with-select'))
+    Sunstone.insertDialog(DialogConfirm);
+    Sunstone.insertDialog(DialogConfirmWithSelect);
   });
 });
