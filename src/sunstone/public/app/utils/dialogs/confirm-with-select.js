@@ -16,27 +16,27 @@ define(function(require) {
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
     $('#confirm_with_select_proceed', dialog).click(function() {
-      var action = $(this).val();
-      var action = Sunstone.getActions[action];
+      var actionId = dialog.data('buttonAction');
+      var action = Sunstone.getAction(actionId);
       var param = $('.resource_list_select', dialog).val();
 
       if (!param.length) {
-        notifyError("You must select a value");
+        Notifier.notifyError("You must select a value");
         return false;
       };
 
       if (!action) { 
-        notifyError("Action " + action + " not defined."); 
+        Notifier.notifyError("Action " + action + " not defined."); 
         return false;
       };
 
       var error;
       switch (action.type){
       case "multiple": 
-        error = Sunstone.runAction(action, action.elements(), param);
+        error = Sunstone.runAction(actionId, action.elements(), param);
         break;
       default:
-        error = Sunstone.runAction(action, param);
+        error = Sunstone.runAction(actionId, param);
         break;
       }
 
@@ -53,7 +53,7 @@ define(function(require) {
   var _onShow = function(dialog) {
     var actionId = dialog.data('buttonAction');
     var tabId = dialog.data('buttonTab');
-    var button = Sunstone.getButton(tabId, action);
+    var button = Sunstone.getButton(tabId, actionId);
 
     var tip = Locale.tr("You have to confirm this action");
     if (button.tip == undefined) {
@@ -67,12 +67,11 @@ define(function(require) {
     }
 
     $('#confirm_with_select_tip', dialog).text(tip);
-    $('#confirm_with_select_proceed', dialog).val(action);
 
-    var action = Sunstone.getAction(action);
+    var action = Sunstone.getAction(actionId);
     var elements = action.elements();
     if (elements) {
-      var str = action.split('.');
+      var str = actionId.split('.');
       $(".confirm_action", dialog).html(str[1] + ' ' + str[0] + ': ' + elements.join(', '))
     }
 

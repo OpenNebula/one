@@ -13,8 +13,7 @@ define(function(require) {
     return false;
   }
 
-  var _onShow = function(dialogId) {
-    var dialog = $('#' + dialogId);
+  var _onShow = function(dialog) {
     var actionId = dialog.data('buttonAction');
     var tabId = dialog.data('buttonTab');
     var button = Sunstone.getButton(tabId, actionId);

@@ -1,5 +1,6 @@
 define(function(require) {
   var Notifier = require('utils/notifier');
+  var Locale = require('utils/locale');
   require('opennebula/cluster');
   require('opennebula/user');
   require('opennebula/group');
@@ -17,7 +18,7 @@ define(function(require) {
 
         if (empty_value) {
           select_str += '<option class="empty_value" value="">' +
-                          tr("Please select") + '</option>';
+                          Locale.tr("Please select") + '</option>';
         }
 
         if (resource == "Cluster") {

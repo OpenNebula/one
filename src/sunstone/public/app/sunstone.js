@@ -571,7 +571,7 @@ define(function(require) {
     dialogElement.foundation('reveal', 'reflow');
 
     dialogElement.on('opened.fndtn.reveal', function () {
-      dialog.onShow(dialog.dialogId);
+      dialog.onShow(dialogElement);
     });
 
     dialogElement.on('click', '.resetDialog', function() {
