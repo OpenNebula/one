@@ -248,12 +248,12 @@ void  LifeCycleManager::migrate_action(int vid)
         vmm->trigger(VirtualMachineManager::SAVE,vid);
     }
     else if (vm->get_state() == VirtualMachine::POWEROFF ||
-		     vm->get_state() == VirtualMachine::SUSPENDED )
+        vm->get_state() == VirtualMachine::SUSPENDED )
     {
         //------------------------------------------------------
         //   Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF
         //------------------------------------------------------
-	 	if (vm->get_state() == VirtualMachine::POWEROFF)
+        if (vm->get_state() == VirtualMachine::POWEROFF)
 		{
 			vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
 		}
@@ -268,8 +268,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -290,7 +289,7 @@ void  LifeCycleManager::migrate_action(int vid)
         tm->trigger(TransferManager::PROLOG_MIGR,vid);
     }
     else if (vm->get_state()     == VirtualMachine::ACTIVE &&
-             vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+        vm->get_lcm_state() == VirtualMachine::UNKNOWN)
     {
         //----------------------------------------------------
         //   Bypass SAVE_MIGRATE & PROLOG_MIGRATE goto BOOT
@@ -302,8 +301,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -867,8 +865,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 
     vm->delete_snapshots();
 
-    map<string, string> empty;
-    vm->update_info(0, 0, -1, -1, empty);
+    vm->reset_info();
 
     vmpool->update(vm);
 
@@ -901,6 +898,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::BOOT_MIGRATE:
         case VirtualMachine::BOOT_FAILURE:
         case VirtualMachine::BOOT_MIGRATE_FAILURE:
+        case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+        case VirtualMachine::BOOT_STOPPED_FAILURE:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
         case VirtualMachine::SHUTDOWN:
@@ -1143,6 +1142,8 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::BOOT_MIGRATE:
         case VirtualMachine::BOOT_MIGRATE_FAILURE:
         case VirtualMachine::BOOT_FAILURE:
+        case VirtualMachine::BOOT_STOPPED_FAILURE:
+        case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
             if (success)
             {
                 //Auto-generate deploy-id it'll work for Xen, KVM and VMware
@@ -1249,6 +1250,22 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
         case VirtualMachine::BOOT_MIGRATE_FAILURE:
             vm->set_state(VirtualMachine::BOOT_MIGRATE);
+
+            vmpool->update(vm);
+
+            vmm->trigger(VirtualMachineManager::RESTORE, vid);
+            break;
+
+        case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+            vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
+
+            vmpool->update(vm);
+
+            vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+            break;
+
+        case VirtualMachine::BOOT_STOPPED_FAILURE:
+            vm->set_state(VirtualMachine::BOOT_STOPPED);
 
             vmpool->update(vm);
 

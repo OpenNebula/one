@@ -123,7 +123,9 @@ public class VirtualMachine extends PoolElement{
         "PROLOG_MIGRATE_POWEROFF",
         "PROLOG_MIGRATE_POWEROFF_FAILURE",
         "PROLOG_MIGRATE_SUSPEND",
-        "PROLOG_MIGRATE_SUSPEND_FAILURE"
+        "PROLOG_MIGRATE_SUSPEND_FAILURE",
+        "BOOT_UNDEPLOY_FAILURE",
+        "BOOT_STOPPED_FAILURE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -174,8 +176,10 @@ public class VirtualMachine extends PoolElement{
         "migr",     // PROLOG_MIGRATE_POWEROFF
         "fail",     // PROLOG_MIGRATE_POWEROFF_FAILURE
         "migr",     // PROLOG_MIGRATE_SUSPEND
-        "fail"      // PROLOG_MIGRATE_SUSPEND_FAILURE
-    };   
+        "fail",     // PROLOG_MIGRATE_SUSPEND_FAILURE
+        "fail",     // BOOT_UNDEPLOY_FAILURE
+        "fail"      // BOOT_STOPPED_FAILURE
+    };
 
     /**
      * Creates a new VM representation.

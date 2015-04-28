@@ -164,7 +164,9 @@ var OpenNebula = {
                                "MIGRATE",   // PROLOG_MIGRATE_POWEROFF
                                "FAILURE",   // PROLOG_MIGRATE_POWEROFF_FAILURE
                                "MIGRATE",   // PROLOG_MIGRATE_SUSPEND
-                               "FAILURE"    // PROLOG_MIGRATE_SUSPEND_FAILURE
+                               "FAILURE",   // PROLOG_MIGRATE_SUSPEND_FAILURE
+                               "FAILURE",   // BOOT_UNDEPLOY_FAILURE
+                               "FAILURE"    // BOOT_STOPPED_FAILURE
                             ][value]);
                     break;
                 case "VM_LCM":
@@ -215,7 +217,9 @@ var OpenNebula = {
                                 "PROLOG_MIGRATE_POWEROFF",
                                 "PROLOG_MIGRATE_POWEROFF_FAILURE",
                                 "PROLOG_MIGRATE_SUSPEND",
-                                "PROLOG_MIGRATE_SUSPEND_FAILURE"
+                                "PROLOG_MIGRATE_SUSPEND_FAILURE",
+                                "BOOT_UNDEPLOY_FAILURE",
+                                "BOOT_STOPPED_FAILURE"
                             ][value]);
                     break;
                 case "IMAGE":
@@ -1017,7 +1021,9 @@ var OpenNebula = {
             "PROLOG_MIGRATE_POWEROFF"   : 43,
             "PROLOG_MIGRATE_POWEROFF_FAILURE"   : 44,
             "PROLOG_MIGRATE_SUSPEND"            : 45,
-            "PROLOG_MIGRATE_SUSPEND_FAILURE"    : 46
+            "PROLOG_MIGRATE_SUSPEND_FAILURE"    : 46,
+            "BOOT_UNDEPLOY_FAILURE"     : 47,
+            "BOOT_STOPPED_FAILURE"      : 48
         },
 
         "create": function(params){

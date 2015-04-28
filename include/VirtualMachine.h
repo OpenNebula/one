@@ -150,7 +150,9 @@ public:
         PROLOG_MIGRATE_POWEROFF = 43,
         PROLOG_MIGRATE_POWEROFF_FAILURE = 44,
         PROLOG_MIGRATE_SUSPEND          = 45,
-        PROLOG_MIGRATE_SUSPEND_FAILURE  = 46
+        PROLOG_MIGRATE_SUSPEND_FAILURE  = 46,
+        BOOT_UNDEPLOY_FAILURE   = 47,
+        BOOT_STOPPED_FAILURE    = 48
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -202,6 +204,8 @@ public:
         else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE") { state = PROLOG_MIGRATE_POWEROFF_FAILURE;}
         else if ( st == "PROLOG_MIGRATE_SUSPEND") { state = PROLOG_MIGRATE_SUSPEND;}
         else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE") { state = PROLOG_MIGRATE_SUSPEND_FAILURE;}
+        else if ( st == "BOOT_STOPPED_FAILURE") { state = BOOT_STOPPED_FAILURE; }
+        else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -256,6 +260,8 @@ public:
             case PROLOG_MIGRATE_POWEROFF_FAILURE: st = "PROLOG_MIGRATE_POWEROFF_FAILURE"; break;
             case PROLOG_MIGRATE_SUSPEND: st = "PROLOG_MIGRATE_SUSPEND"; break;
             case PROLOG_MIGRATE_SUSPEND_FAILURE: st = "PROLOG_MIGRATE_SUSPEND_FAILURE"; break;
+            case BOOT_STOPPED_FAILURE: st = "BOOT_STOPPED_FAILURE"; break;
+            case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
         }
 
         return st;
@@ -369,7 +375,8 @@ public:
     };
 
     /**
-     *  Updates VM dynamic information (usage counters), and updates last_poll
+     *  Updates VM dynamic information (usage counters), and updates last_poll,
+     *  and copies it to history record for acct.
      *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
@@ -381,6 +388,17 @@ public:
         const long long _net_tx,
         const long long _net_rx,
         const map<string, string> &custom);
+
+    /**
+     *  Clears the VM monitor information: usage counters, last_poll,
+     *  custom attributes, and copies it to the history record for acct.
+     */
+    void reset_info()
+    {
+        map<string,string> empty;
+
+        update_info(0, 0, -1, -1, empty);
+    }
 
     /**
      *  Returns the deployment ID

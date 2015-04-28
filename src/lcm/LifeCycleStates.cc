@@ -47,8 +47,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -84,8 +83,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -115,8 +113,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -295,6 +292,8 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY ||
               vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE ||
               vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED_FAILURE ||
+              vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
               vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
         vm->set_state(VirtualMachine::RUNNING);
@@ -430,55 +429,21 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED)
     {
-        time_t              the_time = time(0);
-
-        //----------------------------------------------------
-        //             EPILOG_STOP STATE FROM BOOT
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::EPILOG_STOP);
+        vm->set_state(VirtualMachine::BOOT_STOPPED_FAILURE);
 
         vmpool->update(vm);
-
-        vm->set_epilog_stime(the_time);
-
-        vm->set_running_etime(the_time);
-
-        vm->set_reason(History::ERROR);
-
-        vmpool->update_history(vm);
-
-        //----------------------------------------------------
-
-        tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY)
     {
-        time_t              the_time = time(0);
-
-        //----------------------------------------------------
-        //            EPILOG_UNDEPLOY STATE FROM BOOT
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+        vm->set_state(VirtualMachine::BOOT_UNDEPLOY_FAILURE);
 
         vmpool->update(vm);
-
-        vm->set_epilog_stime(the_time);
-
-        vm->set_running_etime(the_time);
-
-        vm->set_reason(History::ERROR);
-
-        vmpool->update_history(vm);
-
-        //----------------------------------------------------
-
-        tm->trigger(TransferManager::EPILOG_STOP,vid);
     }
     //wrong state + recover failure from failure state
     else if ( vm->get_lcm_state() != VirtualMachine::BOOT_FAILURE &&
-              vm->get_lcm_state() != VirtualMachine::BOOT_MIGRATE_FAILURE )
+              vm->get_lcm_state() != VirtualMachine::BOOT_MIGRATE_FAILURE &&
+              vm->get_lcm_state() != VirtualMachine::BOOT_UNDEPLOY_FAILURE &&
+              vm->get_lcm_state() != VirtualMachine::BOOT_STOPPED_FAILURE )
     {
         vm->log("LCM",Log::ERROR,"deploy_failure_action, VM in a wrong state");
     }
@@ -511,8 +476,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -536,8 +500,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -565,8 +528,7 @@ void  LifeCycleManager::shutdown_success_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -643,7 +605,6 @@ void LifeCycleManager::prolog_success_action(int vid)
     VirtualMachine *        vm;
     time_t                  the_time = time(0);
     ostringstream           os;
-    map<string, string>     empty;
 
     VirtualMachineManager::Actions action;
 
@@ -717,7 +678,7 @@ void LifeCycleManager::prolog_success_action(int vid)
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE: //recover success
             vm->delete_snapshots();
 
-            vm->update_info(0, 0, -1, -1, empty);
+            vm->reset_info();
 
             vmpool->update(vm);
 
@@ -1072,8 +1033,7 @@ void  LifeCycleManager::monitor_suspend_action(int vid)
 
         vm->delete_snapshots();
 
-        map<string, string> empty;
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vmpool->update(vm);
 
@@ -1152,12 +1112,11 @@ void  LifeCycleManager::monitor_poweroff_action(int vid)
         //----------------------------------------------------
         //                POWEROFF STATE
         //----------------------------------------------------
-        map<string, string> empty;
-        time_t              the_time = time(0);
+        time_t the_time = time(0);
 
         vm->delete_snapshots();
 
-        vm->update_info(0, 0, -1, -1, empty);
+        vm->reset_info();
 
         vm->set_resched(false);
 

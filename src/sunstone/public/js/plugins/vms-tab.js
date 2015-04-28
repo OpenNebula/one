@@ -172,6 +172,10 @@ var lcm_state_actions = {
         [],
     46: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_SUSPEND_FAILURE:
         [],
+    47: //OpenNebula.VM.lcm_state.BOOT_UNDEPLOY_FAILURE:
+        [],
+    48: //OpenNebula.VM.lcm_state.BOOT_STOPPED_FAILURE:
+        [],
 }
 
 //Permanent storage for last value of aggregated network usage

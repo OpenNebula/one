@@ -23,7 +23,7 @@ digraph OpenNebula {
 
     subgraph { rank = min; user}
     subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
-    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; color="white"}
+    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; boot_undeploy_failure, boot_stopped_failure; color="white"}
     subgraph { rank = same; running; unknown; color="white"}
     subgraph { rank = same; pending; hold; color="white"}
     subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; prolog_migrate_poweroff; prolog_migrate_poweroff_failure; prolog_migrate_suspend; prolog_migrate_suspend_failure; prolog_undeploy; color="white" }

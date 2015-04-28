@@ -160,6 +160,8 @@
                 PROLOG_MIGRATE_POWEROFF_FAILURE = 44,
                 PROLOG_MIGRATE_SUSPEND          = 45,
                 PROLOG_MIGRATE_SUSPEND_FAILURE  = 46
+                BOOT_UNDEPLOY_FAILURE   = 47,
+                BOOT_STOPPED_FAILURE    = 48
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
               <xs:element name="PREV_STATE" type="xs:integer"/>
