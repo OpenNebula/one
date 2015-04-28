@@ -175,6 +175,8 @@ digraph OpenNebula {
 #   failures and misc.
     boot_failure         -> boot [label="recover"];
     boot_migrate_failure -> boot_migrate [label="recover"];
+    boot_undeploy_failure -> boot_undeploy [label="recover"];
+    boot_stopped_failure-> boot_stopped [label="recover"];
 
     epilog_stop         -> epilog_stop_failure [label=" ", style="dotted", color="red"];
     epilog_stop_failure -> epilog_stop [label="recover"];
@@ -205,8 +207,8 @@ digraph OpenNebula {
     boot_poweroff   -> poweroff [style="dotted", color="red"];
     boot_unknown    -> unknown [label=" ", style="dotted", color="red"];
     boot_suspended  -> suspended [style="dotted", color="red"];
-    boot_stopped    -> epilog_stop [style="dotted", color="red"];
-    boot_undeploy   -> epilog_undeploy [style="dotted", color="red"];
+    boot_stopped    -> boot_stopped_failure [style="dotted", color="red"];
+    boot_undeploy   -> boot_undeploy_failure [style="dotted", color="red"];
 
     running -> failure [style="dotted", color="red"];
     unknown -> failure [style="dotted", color="red"];
