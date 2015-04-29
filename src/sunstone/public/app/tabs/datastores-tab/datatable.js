@@ -1,19 +1,30 @@
 define(function(require) {
-  require('foundation-datatables');
-
-  var SunstoneConfig = require('sunstone-config');
+  /*
+    DEPENDENCIES
+   */
+  
   var TabDataTable = require('utils/tab-datatable');
+  var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('./utils/datastore-capacity-bar');
-
-  var _dataTable;
-  var DATATABLE_ID = "dataTableDatastores";
-  var DATATABLE_SEARCH_ID = "datastoresSearch";
+  
+  /*
+    CONSTANTS
+   */
+  
+  var RESOURCE = "Datastore"
   var TAB_NAME = require('./tabId');
 
-  function _initialize() {
-    _dataTable = $('#' + DATATABLE_ID).dataTable({
+  /*
+    CONSTRUCTOR
+   */
+  
+  function Table(dataTableId) {
+    this.dataTableId = dataTableId;
+    this.resource = RESOURCE;
+
+    this.dataTableOptions = {
       "bAutoWidth": false,
       "bSortClasses" : false,
       "bDeferRender": true,
@@ -24,41 +35,40 @@ define(function(require) {
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
-    });
+    }
 
-    $('#' + DATATABLE_SEARCH_ID).keyup(function() {
-      _dataTable.fnFilter($(this).val());
-    })
+    this.columns = [
+      Locale.tr("ID"),
+      Locale.tr("Owner"),
+      Locale.tr("Group"),
+      Locale.tr("Name"),
+      Locale.tr("Capacity"),
+      Locale.tr("Cluster"),
+      Locale.tr("Basepath"),
+      Locale.tr("TM MAD"),
+      Locale.tr("DS MAD"),
+      Locale.tr("Type"),
+      Locale.tr("Status"),
+    ]
 
-    _dataTable.on('draw', function() {
-      TabDataTable.recountCheckboxes(_dataTable);
-    })
+    TabDataTable.call(this);
+  };
 
-    TabDataTable.initCheckAllBoxes(_dataTable);
-    TabDataTable.tableCheckboxesListener(_dataTable);
-    TabDataTable.infoListener(_dataTable, "Datastore.show");
-    _dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
-  }
+  Table.prototype = Object.create(TabDataTable.prototype);
+  Table.prototype.constructor = Table;
+  Table.prototype.elementArray = _elementArray;
 
-  var _dataTableHTML = function() {
-    var TemplateDataTableHTML = require('hbs!./datatable/table');
-    return TemplateDataTableHTML({'dataTableId': DATATABLE_ID});
-  }
+  return Table;
 
-  var _searchInputHTML = function() {
-    var TemplateSearchInputHTML = require('hbs!./datatable/search-input');
-    return TemplateSearchInputHTML({'dataTableSearchId': DATATABLE_SEARCH_ID});
-  }
+  /*
+    FUNCTION DEFINITIONS
+   */
 
-  var _elements = function() {
-    return TabDataTable.getSelectedNodes(_dataTable);
-  }
-
-  var _elementArray = function(element_json) {
+  function _elementArray(element_json) {
     var element = element_json.DATASTORE;
 
     return [
-        '<input class="check_item" type="checkbox" id="datastore_' +
+        '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                              element.ID + '" name="selected_items" value="' +
                              element.ID + '"/>',
         element.ID,
@@ -73,47 +83,5 @@ define(function(require) {
         element.TEMPLATE.TYPE.toLowerCase().split('_')[0],
         Locale.tr(OpenNebulaDatastore.stateStr(element.STATE))
     ];
-  }
-
-  //callback for an action affecting a zone element
-  var _updateElement = function(request, element_json) {
-    var id = element_json.DATASTORE.ID;
-    var element = _elementArray(element_json);
-    TabDataTable.updateSingleElement(element, _dataTable, '#datastore_' + id);
-  }
-
-  //callback for actions deleting a zone element
-  var _deleteElement = function(req) {
-    TabDataTable.deleteElement(_dataTable, '#datastore_' + req.request.data);
-  }
-
-  //call back for actions creating a zone element
-  var _addElement = function(request, element_json) {
-    var element = _elementArray(element_json);
-    TabDataTable.addElement(element, _dataTable);
-  }
-
-  //callback to update the list of zones.
-  var _updateView = function(request, list) {
-    var list_array = [];
-
-    $.each(list, function() {
-      list_array.push(_elementArray(this));
-    });
-
-    TabDataTable.updateView(list_array, _dataTable);
-  };
-
-  return {
-    'initialize': _initialize,
-    'dataTableHTML': _dataTableHTML,
-    'searchInputHTML': _searchInputHTML,
-    'elements': _elements,
-    'elementArray': _elementArray,
-    'updateElement': _updateElement,
-    'deleteElement': _deleteElement,
-    'addElement': _addElement,
-    'updateView': _updateView,
-    'waitingNodes': TabDataTable.waitingNodes
   }
 });

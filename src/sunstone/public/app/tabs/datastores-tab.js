@@ -2,9 +2,10 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Buttons = require('./datastores-tab/buttons');
   var Actions = require('./datastores-tab/actions');
-  var DataTable = require('./datastores-tab/datatable');
+  var Table = require('./datastores-tab/datatable');
 
   var TAB_ID = require('./datastores-tab/tabId');
+  var DATATABLE_ID = "dataTableDatastores";
 
   var _dialogs = [
     require('./datastores-tab/dialogs/create')
@@ -26,7 +27,7 @@ define(function(require) {
     resource: 'Datastore',
     buttons: Buttons,
     actions: Actions,
-    dataTable: DataTable,
+    dataTable: new Table(DATATABLE_ID),
     panels: _panels,
     dialogs: _dialogs
   };

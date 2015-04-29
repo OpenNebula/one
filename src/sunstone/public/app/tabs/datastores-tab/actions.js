@@ -2,7 +2,6 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var DataTable = require('./datatable');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var OpenNebulaCluster = require('opennebula/cluster');
   var OpenNebulaAction = require('opennebula/action');
@@ -17,7 +16,7 @@ define(function(require) {
       callback : function(request, response) {
         Sunstone.hideDialog(CREATE_DIALOG_ID);
         Sunstone.resetDialog(CREATE_DIALOG_ID);
-        DataTable.addElement(request, response);
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
         Notifier.notifyCustom(Locale.tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
       },
       error : Notifier.onError
@@ -33,7 +32,9 @@ define(function(require) {
     "Datastore.list" : {
       type: "list",
       call: OpenNebulaDatastore.list,
-      callback: DataTable.updateView,
+      callback: function(request, response) {
+        Sunstone.getDataTable(TAB_ID).updateView(request, response);
+      },
       error: Notifier.onError
     },
 
@@ -41,7 +42,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaDatastore.show,
       callback: function(request, response) {
-        DataTable.updateElement(request, response);
+        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
         if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
           Sunstone.insertPanels(TAB_ID, response);
         }
@@ -56,7 +57,7 @@ define(function(require) {
           if (Sunstone.rightInfoVisible(tab)) {
             Sunstone.runAction("Datastore.show", Sunstone.rightInfoResourceId(tab))
           } else {
-            DataTable.waitingNodes();
+            Sunstone.getDataTable(TAB_ID).waitingNodes();
             Sunstone.runAction("Datastore.list", {force: true});
           }
         },
@@ -94,8 +95,12 @@ define(function(require) {
     "Datastore.delete" : {
       type: "multiple",
       call : OpenNebulaDatastore.del,
-      callback : DataTable.deleteElement,
-      elements: DataTable.elements,
+      callback: function(request, response) {
+        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       error : Notifier.onError,
       notify: true
     },
@@ -106,7 +111,9 @@ define(function(require) {
       callback:  function (req) {
         Sunstone.runAction("Datastore.show", req.request.data[0][0]);
       },
-      elements: DataTable.elements,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       error: Notifier.onError
     },
 
@@ -116,7 +123,9 @@ define(function(require) {
       callback: function (req) {
         Sunstone.runAction("Datastore.show", req.request.data[0][0]);
       },
-      elements: DataTable.elements,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       error: Notifier.onError
     },
 
@@ -176,7 +185,9 @@ define(function(require) {
           });
         }
       },
-      elements: DataTable.elements
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      }
     },
 
     "Datastore.rename" : {
@@ -195,7 +206,9 @@ define(function(require) {
       callback: function (req) {
         Sunstone.runAction("Datastore.show", req.request.data[0]);
       },
-      elements: DataTable.elements,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       error: Notifier.onError,
       notify: true
     },
@@ -206,7 +219,9 @@ define(function(require) {
       callback: function (req) {
         Sunstone.runAction("Datastore.show", req.request.data[0]);
       },
-      elements: DataTable.elements,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       error: Notifier.onError,
       notify: true
     }
