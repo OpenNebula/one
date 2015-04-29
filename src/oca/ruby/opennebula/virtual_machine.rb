@@ -432,12 +432,14 @@ module OpenNebula
         # @param enforce [true|false] If it is set to true, the host capacity
         #   will be checked, and the deployment will fail if the host is
         #   overcommited. Defaults to false
+        # @param ds_id [Integer] The System Datastore where to migrate the VM.
+        #   To use the current one, set it to -1
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def migrate(host_id, live=false, enforce=false)
+        def migrate(host_id, live=false, enforce=false, ds_id=-1)
             call(VM_METHODS[:migrate], @pe_id, host_id.to_i, live==true,
-                enforce)
+                enforce, ds_id.to_i)
         end
 
         # @deprecated use {#migrate} instead

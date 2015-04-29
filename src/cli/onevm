@@ -463,15 +463,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: RUNNING
     EOT
 
-    command :migrate, migrate_desc, [:range,:vmid_list], :hostid,
+    command :migrate, migrate_desc, [:range,:vmid_list], :hostid, [:datastoreid,nil],
             :options=>[ENFORCE, OneVMHelper::LIVE] do
         host_id = args[1]
         verbose = "migrating to #{host_id}"
 
+        ds_id = args[2].nil? ? -1 : args[2]
+
         helper.perform_actions(args[0],options,verbose) do |vm|
             vm.migrate( host_id,
                         options[:live]==true,
-                        options[:enforce]==true)
+                        options[:enforce]==true,
+                        ds_id)
         end
     end
 

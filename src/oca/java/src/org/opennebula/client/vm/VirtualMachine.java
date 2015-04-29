@@ -591,11 +591,13 @@ public class VirtualMachine extends PoolElement{
      * @param enforce If it is set to true, the host capacity
      * will be checked, and the deployment will fail if the host is
      * overcommited. Defaults to false
+     * @param ds_id The System Datastore where to migrate the VM. To use the
+     * current one, set it to -1
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse migrate(int hostId, boolean live, boolean enforce)
+    public OneResponse migrate(int hostId, boolean live, boolean enforce, int ds_id)
     {
-        return client.call(MIGRATE, id, hostId, live, enforce);
+        return client.call(MIGRATE, id, hostId, live, enforce, ds_id);
     }
 
     /**
@@ -608,7 +610,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse migrate(int hostId, boolean live)
     {
-        return migrate(hostId, live, false);
+        return migrate(hostId, live, false, -1);
     }
 
     /**
@@ -620,7 +622,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse migrate(int hostId)
     {
-        return migrate(hostId, false, false);
+        return migrate(hostId, false, false, -1);
     }
 
     /**
