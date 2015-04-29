@@ -894,7 +894,7 @@ public class VirtualMachine extends PoolElement{
      * @param success recover by succeeding the missing transaction if true.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse recover(boolean success)
+    public OneResponse recover(int success)
     {
         return recover(client, id, success);
     }
