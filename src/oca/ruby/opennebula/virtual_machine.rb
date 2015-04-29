@@ -24,39 +24,83 @@ module OpenNebula
         #######################################################################
 
         VM_METHODS = {
-            :info       => "vm.info",
-            :allocate   => "vm.allocate",
-            :action     => "vm.action",
-            :migrate    => "vm.migrate",
-            :deploy     => "vm.deploy",
-            :savedisk   => "vm.savedisk",
-            :chown      => "vm.chown",
-            :chmod      => "vm.chmod",
-            :monitoring => "vm.monitoring",
-            :attach     => "vm.attach",
-            :detach     => "vm.detach",
-            :rename     => "vm.rename",
-            :update     => "vm.update",
-            :resize     => "vm.resize",
+            :info           => "vm.info",
+            :allocate       => "vm.allocate",
+            :action         => "vm.action",
+            :migrate        => "vm.migrate",
+            :deploy         => "vm.deploy",
+            :savedisk       => "vm.savedisk",
+            :savediskcancel => "vm.savediskcancel",
+            :chown          => "vm.chown",
+            :chmod          => "vm.chmod",
+            :monitoring     => "vm.monitoring",
+            :attach         => "vm.attach",
+            :detach         => "vm.detach",
+            :rename         => "vm.rename",
+            :update         => "vm.update",
+            :resize         => "vm.resize",
             :snapshotcreate => "vm.snapshotcreate",
             :snapshotrevert => "vm.snapshotrevert",
             :snapshotdelete => "vm.snapshotdelete",
-            :attachnic  => "vm.attachnic",
-            :detachnic  => "vm.detachnic",
-            :recover    => "vm.recover"
+            :attachnic      => "vm.attachnic",
+            :detachnic      => "vm.detachnic",
+            :recover        => "vm.recover"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
             POWEROFF UNDEPLOYED}
 
-        LCM_STATE=%w{LCM_INIT PROLOG BOOT RUNNING MIGRATE SAVE_STOP SAVE_SUSPEND
-            SAVE_MIGRATE PROLOG_MIGRATE PROLOG_RESUME EPILOG_STOP EPILOG
-            SHUTDOWN CANCEL FAILURE CLEANUP_RESUBMIT UNKNOWN HOTPLUG SHUTDOWN_POWEROFF
-            BOOT_UNKNOWN BOOT_POWEROFF BOOT_SUSPENDED BOOT_STOPPED CLEANUP_DELETE
-            HOTPLUG_SNAPSHOT HOTPLUG_NIC HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF
-            HOTPLUG_SAVEAS_SUSPENDED SHUTDOWN_UNDEPLOY EPILOG_UNDEPLOY
-            PROLOG_UNDEPLOY BOOT_UNDEPLOY HOTPLUG_PROLOG_POWEROFF
-            HOTPLUG_EPILOG_POWEROFF}
+        LCM_STATE=%w{
+            LCM_INIT
+            PROLOG
+            BOOT
+            RUNNING
+            MIGRATE
+            SAVE_STOP
+            SAVE_SUSPEND
+            SAVE_MIGRATE
+            PROLOG_MIGRATE
+            PROLOG_RESUME
+            EPILOG_STOP
+            EPILOG
+            SHUTDOWN
+            CANCEL
+            FAILURE
+            CLEANUP_RESUBMIT
+            UNKNOWN
+            HOTPLUG
+            SHUTDOWN_POWEROFF
+            BOOT_UNKNOWN
+            BOOT_POWEROFF
+            BOOT_SUSPENDED
+            BOOT_STOPPED
+            CLEANUP_DELETE
+            HOTPLUG_SNAPSHOT
+            HOTPLUG_NIC
+            HOTPLUG_SAVEAS
+            HOTPLUG_SAVEAS_POWEROFF
+            HOTPLUG_SAVEAS_SUSPENDED
+            SHUTDOWN_UNDEPLOY
+            EPILOG_UNDEPLOY
+            PROLOG_UNDEPLOY
+            BOOT_UNDEPLOY
+            HOTPLUG_PROLOG_POWEROFF
+            HOTPLUG_EPILOG_POWEROFF
+            BOOT_MIGRATE
+            BOOT_FAILURE
+            BOOT_MIGRATE_FAILURE
+            PROLOG_MIGRATE_FAILURE
+            PROLOG_FAILURE
+            EPILOG_FAILURE
+            EPILOG_STOP_FAILURE
+            EPILOG_UNDEPLOY_FAILURE
+            PROLOG_MIGRATE_POWEROFF
+            PROLOG_MIGRATE_POWEROFF_FAILURE
+            PROLOG_MIGRATE_SUSPEND
+            PROLOG_MIGRATE_SUSPEND_FAILURE
+            BOOT_UNDEPLOY_FAILURE
+            BOOT_STOPPED_FAILURE
+        }
 
         SHORT_VM_STATES={
             "INIT"      => "init",
@@ -105,7 +149,21 @@ module OpenNebula
             "PROLOG_UNDEPLOY"   => "prol",
             "BOOT_UNDEPLOY"     => "boot",
             "HOTPLUG_PROLOG_POWEROFF"   => "hotp",
-            "HOTPLUG_EPILOG_POWEROFF"   => "hotp"
+            "HOTPLUG_EPILOG_POWEROFF"   => "hotp",
+            "BOOT_MIGRATE"              => "boot",
+            "BOOT_FAILURE"              => "fail",
+            "BOOT_MIGRATE_FAILURE"      => "fail",
+            "PROLOG_MIGRATE_FAILURE"    => "fail",
+            "PROLOG_FAILURE"            => "fail",
+            "EPILOG_FAILURE"            => "fail",
+            "EPILOG_STOP_FAILURE"       => "fail",
+            "EPILOG_UNDEPLOY_FAILURE"   => "fail",
+            "PROLOG_MIGRATE_POWEROFF"   => "migr",
+            "PROLOG_MIGRATE_POWEROFF_FAILURE"   => "fail",
+            "PROLOG_MIGRATE_SUSPEND"            => "migr",
+            "PROLOG_MIGRATE_SUSPEND_FAILURE"    => "fail",
+            "BOOT_UNDEPLOY_FAILURE"     => "fail",
+            "BOOT_STOPPED_FAILURE"      => "fail"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
@@ -119,7 +177,7 @@ module OpenNebula
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
             undeploy undeploy-hard hold release stop suspend resume boot delete
             delete-recreate reboot reboot-hard resched unresched poweroff
-            poweroff-hard}
+            poweroff-hard disk-attach disk-detach nic-attach nic-detach}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',
@@ -349,13 +407,6 @@ module OpenNebula
             delete(recreate)
         end
 
-        # Forces a re-deployment of a VM in UNKNOWN or BOOT state
-        def boot
-            action('boot')
-        end
-
-        alias_method :restart, :boot
-
         # @deprecated use {#delete} instead
         def resubmit
             action('delete-recreate')
@@ -426,6 +477,14 @@ module OpenNebula
         # @deprecated use {#disk_snapshot}
         def save_as(disk_id, image_name, image_type="", hot=false)
             return disk_snapshot(disk_id, image_name, image_type, hot)
+        end
+
+        # Cancels a deferred snapshot that has been set by disk_snapshot.
+        # The target image is also deleted.
+        def disk_snapshot_cancel(disk_id)
+            return call(VM_METHODS[:savediskcancel],
+                              @pe_id,
+                              disk_id)
         end
 
         # Resize the VM
@@ -551,7 +610,8 @@ module OpenNebula
 
         # Recovers an ACTIVE VM
         #
-        # @param result [Boolean] Recover with success (true) or failure (false)
+        # @param result [Integer] Recover with failure (0), success (1) or
+        # retry (2)
         # @param result [info] Additional information needed to recover the VM
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise

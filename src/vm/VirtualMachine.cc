@@ -2496,8 +2496,9 @@ void VirtualMachine::release_disk_images()
 {
     int     iid;
     int     save_as_id;
-    int     rc;
     int     num_disks;
+
+    bool img_error;
 
     vector<Attribute const  * > disks;
     ImageManager *              imagem;
@@ -2519,18 +2520,16 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        rc = disk->vector_value("IMAGE_ID", iid);
+        img_error = state != ACTIVE || lcm_state != EPILOG;
 
-        if ( rc == 0 )
+        if ( disk->vector_value("IMAGE_ID", iid) == 0 )
         {
-            imagem->release_image(oid, iid, (state == FAILED));
+            imagem->release_image(oid, iid, img_error);
         }
 
-        rc = disk->vector_value("SAVE_AS", save_as_id);
-
-        if ( rc == 0 )
+        if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
         {
-            imagem->release_image(oid, save_as_id, (state != ACTIVE || lcm_state != EPILOG));
+            imagem->release_image(oid, save_as_id, img_error);
         }
     }
 }
@@ -3349,6 +3348,51 @@ int VirtualMachine::save_disk(int           disk_id,
     }
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::clear_save_disk(int disk_id)
+{
+    VectorAttribute * disk;
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        disk->remove("SAVE_AS_SOURCE");
+        disk->remove("SAVE_AS");
+        disk->replace("SAVE", "NO");
+
+        return 0;
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::get_save_disk_image(int disk_id)
+{
+    VectorAttribute * disk;
+    bool    save;
+    int     img_id = -1;
+
+    disk = get_disk(disk_id);
+
+    if ( disk != 0 )
+    {
+        disk->vector_value("SAVE", save);
+
+        if (save)
+        {
+            disk->vector_value("SAVE_AS", img_id);
+        }
+    }
+
+    return img_id;
 }
 
 /* -------------------------------------------------------------------------- */

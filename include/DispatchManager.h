@@ -25,22 +25,29 @@ using namespace std;
 
 extern "C" void * dm_action_loop(void *arg);
 
+//Forward definitions
+class TransferManager;
+class LifeCycleManager;
+class VirtualMachineManager;
+class ImageManager;
+
 class DispatchManager : public ActionListener
 {
 public:
 
-    DispatchManager(
-        VirtualMachinePool *        _vmpool,
-        HostPool *                  _hpool):
-            hpool(_hpool),
-            vmpool(_vmpool)
+    DispatchManager():
+            hpool(0), vmpool(0), tm(0), vmm(0), lcm(0), imagem(0)
     {
         am.addListener(this);
     };
 
-    ~DispatchManager()
-    {}
-    ;
+    ~DispatchManager(){};
+
+     /**
+	  * Initializes internal pointers to other managers. Must be called when
+	  * all the other managers exist in Nebula::instance
+	  */
+    void init_managers();
 
     enum Actions
     {
@@ -49,7 +56,6 @@ public:
         UNDEPLOY_SUCCESS,  /**< Send by LCM when a VM is undeployed and saved*/
         POWEROFF_SUCCESS, /**< Send by LCM when a VM is powered off */
         DONE,           /**< Send by LCM when a VM is shut down*/
-        FAILED,         /**< Send by LCM when one of the execution steps fails*/
         RESUBMIT,       /**< Send by LCM when a VM is ready for resubmission*/
         FINALIZE
     };
@@ -134,11 +140,14 @@ public:
     /**
      *  Shuts down a VM.
      *    @param vid VirtualMachine identification
+     *    @param hard True to force the shutdown (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
     int shutdown (
-        int vid);
+        int     vid,
+        bool    hard,
+        string& error_str);
 
     /**
      *  Shuts down a VM, but it is saved in the system DS instead of destroyed.
@@ -148,8 +157,9 @@ public:
      *    in a wrong a state
      */
     int undeploy (
-        int vid,
-        bool hard);
+        int     vid,
+        bool    hard,
+        string& error_str);
 
     /**
      *  Powers off a VM.
@@ -159,8 +169,9 @@ public:
      *    in a wrong a state
      */
     int poweroff (
-        int vid,
-        bool hard);
+        int     vid,
+        bool    hard,
+        string& error_str);
 
     /**
      *  Holds a VM.
@@ -169,7 +180,8 @@ public:
      *    in a wrong a state
      */
     int hold(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Releases a VM.
@@ -178,7 +190,8 @@ public:
      *    in a wrong a state
      */
     int release(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Stops a VM.
@@ -187,16 +200,8 @@ public:
      *    in a wrong a state
      */
     int stop(
-        int vid);
-
-    /**
-     *  Cancels a VM.
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
-     */
-    int cancel(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Suspends a VM.
@@ -205,7 +210,8 @@ public:
      *    in a wrong a state
      */
     int suspend(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Resumes a VM.
@@ -214,16 +220,8 @@ public:
      *    in a wrong a state
      */
     int resume(
-        int vid);
-
-    /**
-     * Restart a previusly deployed VM.
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
-     */
-    int restart(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Ends a VM life cycle inside ONE.
@@ -232,7 +230,8 @@ public:
      *    in a wrong a state
      */
     int finalize(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Moves a VM to PENDING state preserving any resource (i.e. leases) and id
@@ -241,25 +240,20 @@ public:
      *    in a wrong a state
      */
     int resubmit(
-        int vid);
+        int     vid,
+        string& error_str);
 
     /**
      *  Reboots a VM preserving any resource and RUNNING state
      *    @param vid VirtualMachine identification
+     *    @param hard True to force the shutdown (cancel instead of shutdown)
      *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
      *    in a wrong a state
      */
     int reboot(
-        int vid);
-
-    /**
-     *  Resets a VM preserving any resource and RUNNING state
-     *    @param vid VirtualMachine identification
-     *    @return 0 on success, -1 if the VM does not exits or -2 if the VM is
-     *    in a wrong a state
-     */
-    int reset(
-        int vid);
+        int     vid,
+        bool    hard,
+        string& error_str);
 
     /**
      *  Set the re-scheduling flag for the VM (must be in RUNNING state)
@@ -270,8 +264,9 @@ public:
      *    in a wrong a state
      */
     int resched(
-        int  vid,
-        bool do_resched);
+        int     vid,
+        bool    do_resched,
+        string& error_str);
 
     /**
      *  Starts the attach disk action.
@@ -384,6 +379,26 @@ private:
      */
     VirtualMachinePool *    vmpool;
 
+	/**
+     * Pointer to TransferManager
+     */
+	TransferManager *       tm;
+
+	/**
+	 * Pointer to VirtualMachineManager
+	 */
+	VirtualMachineManager * vmm;
+
+	/**
+	 * Pointer to LifeCycleManager
+	 */
+	LifeCycleManager *       lcm;
+
+	/**
+	 * Pointer to ImageManager
+	 */
+	ImageManager *			imagem;
+
     /**
      *  Action engine for the Manager
      */
@@ -424,8 +439,6 @@ private:
     void  poweroff_success_action(int vid);
 
     void  done_action(int vid);
-
-    void  failed_action(int vid);
 
     void  resubmit_action(int vid);
 };

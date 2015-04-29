@@ -25,19 +25,21 @@ int HostPoolXML::set_up()
 
     if ( rc == 0 )
     {
-
-#ifdef SCHEDDEBUG
-        oss << "Discovered Hosts (enabled):" << endl;
-
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
+        if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
-            oss << " " << it->first;
+            oss << "Discovered Hosts (enabled):" << endl;
+
+            map<int,ObjectXML*>::iterator it;
+
+            for (it=objects.begin();it!=objects.end();it++)
+            {
+                oss << " " << it->first;
+            }
         }
-#else
-        oss << "Discovered " << objects.size() << " enabled hosts.";
-#endif
+        else
+        {
+            oss << "Discovered " << objects.size() << " enabled hosts.";
+        }
 
         NebulaLog::log("HOST",Log::DEBUG,oss);
     }

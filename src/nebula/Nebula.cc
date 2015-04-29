@@ -642,7 +642,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Life-cycle Manager ----
     try
     {
-        lcm = new LifeCycleManager(vmpool,hpool);
+        lcm = new LifeCycleManager();
     }
     catch (bad_alloc&)
     {
@@ -715,7 +715,7 @@ void Nebula::start(bool bootstrap_only)
     // ---- Dispatch Manager ----
     try
     {
-        dm = new DispatchManager(vmpool,hpool);
+        dm = new DispatchManager();
     }
     catch (bad_alloc&)
     {
@@ -885,6 +885,15 @@ void Nebula::start(bool bootstrap_only)
         NebulaLog::log("ONE", Log::ERROR, "Error starting RM");
         throw;
     }
+
+
+    // ---- Initialize Manager cross-reference pointers and pool references ----
+
+    dm->init_managers();
+
+    lcm->init_managers();
+
+    // ---- Start the Request Manager ----
 
     rc = rm->start();
 

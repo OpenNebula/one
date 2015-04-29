@@ -18,6 +18,7 @@
 
 #include "DatastoreXML.h"
 #include "NebulaUtil.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -67,6 +68,34 @@ void DatastoreXML::init_attributes()
 
     ObjectXML::paths     = ds_paths;
     ObjectXML::num_paths = ds_num_paths;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool DatastoreXML::test_capacity(long long vm_disk_mb, string & error) const
+{
+    bool fits = (vm_disk_mb < free_mb) || (vm_disk_mb == 0);
+
+    if (!fits)
+    {
+        if (NebulaLog::log_level() >= Log::DDEBUG)
+        {
+            ostringstream oss;
+
+            oss << "Not enough capacity. "
+                << "Requested: " << vm_disk_mb << " MB, "
+                << "Available: " << free_mb << " MB";
+
+            error = oss.str();
+        }
+        else
+        {
+            error = "Not enough capacity.";
+        }
+    }
+
+    return fits;
 }
 
 /* -------------------------------------------------------------------------- */

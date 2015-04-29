@@ -163,12 +163,13 @@ public:
                     string& error);
 
     /**
-     *  Deletes an image from the repository and the DB
+     *  Deletes an image from the repository and the DB. The Datastore image list
+     *  is also updated
      *    @param iid id of image
      *    @param error_str Error reason, if any
      *    @return 0 on success
      */
-    int delete_image(int iid, const string& ds_data, string& error_str);
+    int delete_image(int iid, string& error_str);
 
     /**
      *  Gets the size of an image by calling the STAT action of the associated

@@ -60,11 +60,10 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.recover"],
 
     4: //OpenNebula.VM.state.STOPPED:
-        ["VM.delete", "VM.delete_recreate", "VM.resume"],
+        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.deploy"],
 
     5: //OpenNebula.VM.state.SUSPENDED:
-        ["VM.delete", "VM.resume"],
-
+        ["VM.delete", "VM.resume", "VM.saveas", "VM.disk_snapshot_cancel", "VM.stop", "VM.shutdown_hard"],
     6: //OpenNebula.VM.state.DONE:
         [],
 
@@ -72,10 +71,10 @@ var state_actions = {
         ["VM.delete", "VM.delete_recreate", "VM.resize"],
 
     8: //OpenNebula.VM.state.POWEROFF:
-        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
+        ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.shutdown_hard"],
 
     9: //OpenNebula.VM.state.UNDEPLOYED:
-        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize"],
+        ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"],
 }
 
 var lcm_state_actions = {
@@ -84,9 +83,9 @@ var lcm_state_actions = {
     1: //OpenNebula.VM.lcm_state.PROLOG:
         [],
     2: //OpenNebula.VM.lcm_state.BOOT:
-        ["VM.boot"],
+        [],
     3: //OpenNebula.VM.lcm_state.RUNNING:
-        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic"],
+        ["VM.shutdown", "VM.shutdown_hard", "VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.saveas", "VM.disk_snapshot_cancel"],
     4: //OpenNebula.VM.lcm_state.MIGRATE:
         [],
     5: //OpenNebula.VM.lcm_state.SAVE_STOP:
@@ -112,19 +111,19 @@ var lcm_state_actions = {
     15: //OpenNebula.VM.lcm_state.CLEANUP_RESUBMIT:
         [],
     16: //OpenNebula.VM.lcm_state.UNKNOWN:
-        ["VM.shutdown", "VM.shutdown_hard", "VM.boot", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live"],
+        ["VM.shutdown", "VM.shutdown_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.disk_snapshot_cancel", "VM.resume"],
     17: //OpenNebula.VM.lcm_state.HOTPLUG:
         [],
     18: //OpenNebula.VM.lcm_state.SHUTDOWN_POWEROFF:
         [],
     19: //OpenNebula.VM.lcm_state.BOOT_UNKNOWN:
-        ["VM.boot"],
+        [],
     20: //OpenNebula.VM.lcm_state.BOOT_POWEROFF:
-        ["VM.boot"],
+        [],
     21: //OpenNebula.VM.lcm_state.BOOT_SUSPENDED:
-        ["VM.boot"],
+        [],
     22: //OpenNebula.VM.lcm_state.BOOT_STOPPED:
-        ["VM.boot"],
+        [],
     23: //OpenNebula.VM.lcm_state.CLEANUP_DELETE:
         [],
     24: //OpenNebula.VM.lcm_state.HOTPLUG_SNAPSHOT:
@@ -144,10 +143,38 @@ var lcm_state_actions = {
     31: //OpenNebula.VM.lcm_state.PROLOG_UNDEPLOY:
         [],
     32: //OpenNebula.VM.lcm_state.BOOT_UNDEPLOY:
-        ["VM.boot"],
+        [],
     33: //OpenNebula.VM.lcm_state.HOTPLUG_PROLOG_POWEROFF:
         [],
     34: //OpenNebula.VM.lcm_state.HOTPLUG_EPILOG_POWEROFF:
+        [],
+    35: //OpenNebula.VM.lcm_state.BOOT_MIGRATE:
+        [],
+    36: //OpenNebula.VM.lcm_state.BOOT_FAILURE:
+        [],
+    37: //OpenNebula.VM.lcm_state.BOOT_MIGRATE_FAILURE:
+        [],
+    38: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_FAILURE:
+        [],
+    39: //OpenNebula.VM.lcm_state.PROLOG_FAILURE:
+        [],
+    40: //OpenNebula.VM.lcm_state.EPILOG_FAILURE:
+        [],
+    41: //OpenNebula.VM.lcm_state.EPILOG_STOP_FAILURE:
+        [],
+    42: //OpenNebula.VM.lcm_state.EPILOG_UNDEPLOY_FAILURE:
+        [],
+    43: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_POWEROFF:
+        [],
+    44: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_POWEROFF_FAILURE:
+        [],
+    45: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_SUSPEND:
+        [],
+    46: //OpenNebula.VM.lcm_state.PROLOG_MIGRATE_SUSPEND_FAILURE:
+        [],
+    47: //OpenNebula.VM.lcm_state.BOOT_UNDEPLOY_FAILURE:
+        [],
+    48: //OpenNebula.VM.lcm_state.BOOT_STOPPED_FAILURE:
         [],
 }
 
@@ -448,15 +475,6 @@ var vm_actions = {
         notify: true
     },
 
-    "VM.boot" : {
-        type: "multiple",
-        call: OpenNebula.VM.restart,
-        callback: vmShow,
-        elements: vmElements,
-        error: onError,
-        notify: true
-    },
-
     "VM.reboot_hard" : {
         type: "multiple",
         call: OpenNebula.VM.reset,
@@ -523,6 +541,17 @@ var vm_actions = {
     "VM.saveas" : {
         type: "single",
         call: OpenNebula.VM.saveas,
+        callback: function(request) {
+            Sunstone.runAction("VM.show", request.request.data[0]);
+            OpenNebula.Helper.clear_cache("IMAGE");
+        },
+        error:onError,
+        notify: true
+    },
+
+    "VM.disk_snapshot_cancel" : {
+        type: "single",
+        call: OpenNebula.VM.disk_snapshot_cancel,
         callback: function(request) {
             Sunstone.runAction("VM.show", request.request.data[0]);
             OpenNebula.Helper.clear_cache("IMAGE");
@@ -936,13 +965,6 @@ var vm_buttons = {
         tip: tr("This will stop selected VMs"),
         custom_classes : "state-dependent"
     },
-    "VM.boot" : {
-        type: "action",
-        text: tr("Boot"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state"),
-        custom_classes : "state-dependent"
-    },
     "VM.reboot" : {
         type: "action",
         text: tr("Reboot"),
@@ -1032,12 +1054,15 @@ var vm_buttons = {
         type: "confirm_with_select",
         text: tr("Recover"),
         layout: "vmsplanification_buttons",
-        custom_select: '<select class="resource_list_select"><option value="success">' + tr("success") + '</option>\
-                 <option value="failure">' + tr("failure") + '</option></select>',
+        custom_select: '<select class="resource_list_select">\
+                <option value="2">' + tr("retry") + '</option>\
+                <option value="1">' + tr("success") + '</option>\
+                <option value="0">' + tr("failure") + '</option>\
+                </select>',
         tip: tr("Recovers a stuck VM that is waiting for a driver operation. \
-                The recovery may be done by failing or succeeding the pending operation. \
+                The recovery may be done by failing, succeeding or retrying the current operation. \
                 YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation \
-                was successful or not."),
+                was successful or not, or if it can be retried."),
         custom_classes : "state-dependent"
     },
     "VM.startvnc" : {
@@ -1152,7 +1177,7 @@ function vMachineElementArray(vm_json){
     }
 
     if (state == tr("ACTIVE")) {
-        state = OpenNebula.Helper.resource_state("vm_lcm",vm.LCM_STATE);
+        state = OpenNebula.Helper.resource_state("short_vm_lcm",vm.LCM_STATE);
     };
 
     // Build hidden user template
@@ -1713,7 +1738,6 @@ function printActionsTable(vm_info)
                                 <option value="stop">' + tr("stop") + '</option>\
                                 <option value="suspend">' + tr("suspend") + '</option>\
                                 <option value="resume">' + tr("resume") + '</option>\
-                                <option value="boot">' + tr("boot") + '</option>\
                                 <option value="delete">' + tr("delete") + '</option>\
                                 <option value="delete-recreate">' + tr("delete-recreate") + '</option>\
                                 <option value="reboot">' + tr("reboot") + '</option>\
@@ -2006,10 +2030,18 @@ function printDisks(vm_info){
 
               actions = '';
 
-              if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
-                // Check if its volatie
-                if (disk.IMAGE_ID) {
-                  if ((vm_info.STATE == "3" && vm_info.LCM_STATE == "3") || vm_info.STATE == "5" || vm_info.STATE == "8") {
+              if (disk.SAVE == "YES") {
+                if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
+                  if ( enabledStateAction("VM.disk_snapshot_cancel", vm_info.STATE, vm_info.LCM_STATE)) {
+                    actions += '<a href="VM.disk_snapshot_cancel" class="disk_snapshot_cancel" >\
+                      <i class="fa fa-times"/></span>'+tr("Cancel Snapshot")+'</a> &emsp;'
+                  }
+                }
+              } else {
+                if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
+                  // Check if it's volatile
+                  if ( disk.IMAGE_ID &&
+                       enabledStateAction("VM.saveas", vm_info.STATE, vm_info.LCM_STATE)) {
                     actions += '<a href="VM.saveas" class="saveas" ><i class="fa fa-save"/>'+tr("Snapshot")+'</a> &emsp;'
                   }
                 }
@@ -2197,6 +2229,18 @@ function hotpluggingOps(){
           popUpSaveAsDialog(vm_id, disk_id);
 
           //b.html(spinner);
+          return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
+      $('a.disk_snapshot_cancel').live('click', function(){
+          var b = $(this);
+          var vm_id = b.parents('form').attr('vmid');
+          var disk_id = b.parents('tr').attr('disk_id');
+
+          Sunstone.runAction('VM.disk_snapshot_cancel', vm_id, disk_id);
+
           return false;
       });
     }

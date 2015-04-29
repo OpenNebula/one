@@ -187,6 +187,23 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachineSaveDiskCancel : public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineSaveDiskCancel():
+        RequestManagerVirtualMachine("VirtualMachineSaveDiskCancel",
+                           "Cancels a disk snapshot set by VirtualMachineSaveDisk",
+                           "A:sii"){};
+
+    ~VirtualMachineSaveDiskCancel(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualMachineMonitoring : public RequestManagerVirtualMachine
 {
 public:
@@ -349,7 +366,7 @@ public:
     VirtualMachineRecover():
         RequestManagerVirtualMachine("VirtualMachineRecover",
                                      "Recovers a virtual machine",
-                                     "A:sib")
+                                     "A:sii")
     {
          auth_op = AuthRequest::ADMIN;
     };

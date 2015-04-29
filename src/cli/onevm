@@ -91,6 +91,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Recover a VM by failing the pending action"
     }
 
+    RETRY={
+        :name  => "retry",
+        :large => "--retry",
+        :description => "Recover a VM by retrying the last failed action"
+    }
+
     CLONETEMPLATE={
         :name => "clonetemplate",
         :short => "-c",
@@ -324,6 +330,19 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    disk_snapshot_cancel_desc = <<-EOT.unindent
+        Cancels a deferred disk snapshot that has been set by disk-snapshot.
+        The target image is also deleted.
+
+        States: ANY
+    EOT
+
+    command :"disk-snapshot-cancel", disk_snapshot_cancel_desc, :vmid, :diskid do
+        helper.perform_action(args[0],options,"disk snapshot canceled") do |vm|
+            vm.disk_snapshot_cancel(args[1].to_i)
+        end
+    end
+
     shutdown_desc = <<-EOT.unindent
         Shuts down the given VM. The VM life cycle will end.
 
@@ -421,7 +440,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         deployment, in a standard installation the Scheduler is in charge
         of this decision
 
-        States: PENDING
+        States: PENDING, HOLD, STOPPED, UNDEPLOYED
     EOT
 
     command :deploy, deploy_desc, [:range,:vmid_list], :hostid, [:datastoreid,nil],
@@ -453,23 +472,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             vm.migrate( host_id,
                         options[:live]==true,
                         options[:enforce]==true)
-        end
-    end
-
-    boot_desc = <<-EOT.unindent
-        Boots the given VM.
-
-        States: UNKNOWN, BOOT
-    EOT
-
-    command :boot, boot_desc, [:range,:vmid_list],
-        :options => [OneVMHelper::SCHEDULE] do
-        if (!options[:schedule].nil?)
-            helper.schedule_actions(args[0], options, @comm_name)
-        else
-            helper.perform_actions(args[0],options,"booting") do |vm|
-                vm.boot
-            end
         end
     end
 
@@ -514,7 +516,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     resume_desc = <<-EOT.unindent
         Resumes the execution of the a saved VM
 
-        States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF
+        States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF, UNKNOWN
     EOT
 
     command :resume, resume_desc, [:range,:vmid_list],
@@ -530,27 +532,31 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     recover_desc = <<-EOT.unindent
         Recovers a stuck VM that is waiting for a driver operation. The recovery
-        may be done by failing or succeeding the pending operation. YOU NEED
+        may be done by failing, succeeding or retrying the current operation. YOU NEED
         TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation
-        was successful or not.
+        was successful or not, or if it can be retried.
 
         Example: A VM is stuck in "migrate" because of a hardware failure. You
         need to check if the VM is running in the new host or not to recover
         the vm with --success or --failure, respectively.
 
-        States: Any ACTIVE state.
+        States for success/failure recovers: Any ACTIVE state.
+        States for a retry recover: Any *FAILURE state
     EOT
 
     command :recover, recover_desc, [:range,:vmid_list],
-        :options => [SUCCESS, FAILURE] do
+        :options => [SUCCESS, FAILURE, RETRY] do
         if !options[:success].nil?
-            result = true
+            result = 1
         elsif !options[:failure].nil?
-            result = false
+            result = 0
+        elsif !options[:retry].nil?
+            result = 2
         else
             STDERR.puts "Need to specify the result of the pending action."
             STDERR.puts "\t--success recover the VM by succeeding the missing action."
             STDERR.puts "\t--failure recover the VM by failing the missing action."
+            STDERR.puts "\t--retry recover the VM by retrying the last failed action."
             exit -1
         end
 
@@ -842,6 +848,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     deprecated_command(:livemigrate, 'migrate --live')
     deprecated_command(:cancel, 'shutdown --hard')
     deprecated_command(:reset, 'reboot --hard')
-    deprecated_command(:restart, 'boot')
+    deprecated_command(:restart, 'recover --retry')
+    deprecated_command(:boot, 'recover --retry')
     deprecated_command(:resubmit, 'delete --recreate')
 end

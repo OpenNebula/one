@@ -179,47 +179,52 @@ int HostDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 
 int ImageDelete::drop(int oid, PoolObjectSQL * object, string& error_msg)
 {
-    Nebula&         nd     = Nebula::instance();
+    Nebula&         nd          = Nebula::instance();
+    ImageManager *  imagem      = nd.get_imagem();
+    VirtualMachinePool * vmpool = nd.get_vmpool();
 
-    ImageManager *  imagem = nd.get_imagem();
-    DatastorePool * dspool = nd.get_dspool();
+    VirtualMachine * vm;
 
-    Datastore * ds;
-    Image *     img;
+    bool save_as;
+    int rc, img_id, vm_id, disk_id;
 
-    int    ds_id, rc;
-    string ds_data;
+    object->get_template_attribute("SAVE_AS", save_as);
 
-    img   = static_cast<Image *>(object);
-    ds_id = img->get_ds_id();
+    save_as &= object->get_template_attribute("SAVED_VM_ID", vm_id) &
+               object->get_template_attribute("SAVED_DISK_ID", disk_id);
 
-    img->unlock();
+    object->unlock();
 
-    ds = dspool->get(ds_id, true);
+    rc = imagem->delete_image(oid, error_msg);
 
-    if ( ds == 0 )
+    // -------------------------------------------------------------------------
+    // Cancel the disk snapshot
+    // -------------------------------------------------------------------------
+
+    if (rc == 0 && save_as)
     {
-       error_msg = "Datastore no longer exists cannot remove image";
-       return -1;
-    }
+        vm = vmpool->get(vm_id, true);
 
-    ds->to_xml(ds_data);
-
-    ds->unlock();
-
-    rc = imagem->delete_image(oid, ds_data, error_msg);
-
-    if ( rc == 0 )
-    {
-        ds = dspool->get(ds_id, true);
-
-        if ( ds != 0 )
+        if (vm == 0)
         {
-            ds->del_image(oid);
-            dspool->update(ds);
-
-            ds->unlock();
+            return rc;
         }
+
+        if (vm->get_state() == VirtualMachine::DONE)
+        {
+            vm->unlock();
+            return rc;
+        }
+
+        img_id = vm->get_save_disk_image(disk_id);
+
+        if ( img_id == oid )
+        {
+            vm->clear_save_disk(disk_id);
+            vmpool->update(vm);
+        }
+
+        vm->unlock();
     }
 
     return rc;

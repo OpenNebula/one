@@ -86,15 +86,6 @@ var role_actions = {
         notify: true
     },
 
-    "Role.boot" : {
-        type: "multiple",
-        call: OpenNebula.Role.boot,
-        callback: roleCallback,
-        elements: roleElements,
-        error: onError,
-        notify: true
-    },
-
     "Role.reboot_hard" : {
         type: "multiple",
         call: OpenNebula.Role.reboot_hard,
@@ -268,15 +259,6 @@ var role_actions = {
     "RoleVM.stop" : {
         type: "multiple",
         call: OpenNebula.VM.stop,
-        callback: roleCallback,
-        elements: roleVMElements,
-        error: onError,
-        notify: true
-    },
-
-    "RoleVM.boot" : {
-        type: "multiple",
-        call: OpenNebula.VM.restart,
         callback: roleCallback,
         elements: roleVMElements,
         error: onError,
@@ -469,12 +451,6 @@ var role_buttons = {
         layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
     },
-    "Role.boot" : {
-        type: "action",
-        text: tr("Boot"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
-    },
     "Role.reboot" : {
         type: "action",
         text: tr("Reboot"),
@@ -568,12 +544,6 @@ var role_vm_buttons = {
         text: tr("Stop"),
         layout: "vmsstop_buttons",
         tip: tr("This will stop selected VMs")
-    },
-    "RoleVM.boot" : {
-        type: "action",
-        text: tr("Boot"),
-        layout: "vmsplanification_buttons",
-        tip: tr("This will force the hypervisor boot action of VMs stuck in UNKNOWN or BOOT state")
     },
     "RoleVM.reboot" : {
         type: "action",

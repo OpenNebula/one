@@ -126,6 +126,8 @@ public:
     char * escape_str(const string& str){return 0;};
 
     void free_str(char * str){};
+
+    bool multiple_values_support(){return true;};
 };
 #endif
 

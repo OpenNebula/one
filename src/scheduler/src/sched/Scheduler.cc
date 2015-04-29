@@ -51,7 +51,7 @@ static double profile(bool start, const string& message="")
 
         if (!message.empty())
         {
-            NebulaLog::log("SCHED", Log::INFO, message);
+            NebulaLog::log("SCHED", Log::DDEBUG, message);
         }
 
         return 0;
@@ -66,8 +66,8 @@ static double profile(bool start, const string& message="")
     {
         ostringstream oss;
 
-        oss << message << " Total time: " << t << "s";
-        NebulaLog::log("SCHED", Log::INFO, oss);
+        oss << message << " Total time: " << one_util::float_to_str(t) << "s";
+        NebulaLog::log("SCHED", Log::DDEBUG, oss);
     }
 
     return t;
@@ -186,7 +186,7 @@ void Scheduler::start()
             value  = log->vector_value("DEBUG_LEVEL");
             ilevel = atoi(value.c_str());
 
-            if (0 <= ilevel && ilevel <= 3 )
+            if (Log::ERROR <= ilevel && ilevel <= Log::DDDEBUG)
             {
                 clevel = static_cast<Log::MessageType>(ilevel);
             }
@@ -560,9 +560,8 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
     // -------------------------------------------------------------------------
     // Check host capacity
     // -------------------------------------------------------------------------
-    if (host->test_capacity(vcpu,vmem) != true)
+    if (host->test_capacity(vcpu,vmem,error) != true)
     {
-        error = "Not enough capacity.";
         return false;
     }
 
@@ -617,22 +616,48 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
  *  @param vm the virtual machine
  *  @param vdisk vm requirement
  *  @param ds to evaluate vm assgiment
+ *  @param n_auth number of ds authorized for the user, incremented if needed
  *  @param n_error number of requirement errors, incremented if needed
  *  @param n_matched number of system ds that fullfil VM sched_requirements
  *  @param n_fits number of system ds with capacity that fits the VM requirements
  *  @param error, string describing why the host is not valid
  *  @return true for a positive match
  */
-static bool match_system_ds(VirtualMachineXML* vm, long long vdisk,
-    DatastoreXML * ds, int& n_error, int& n_fits, int &n_matched, string &error)
+static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdisk,
+    DatastoreXML * ds, int& n_auth, int& n_error, int& n_fits, int &n_matched,
+    string &error)
 {
+    // -------------------------------------------------------------------------
+    // Check if user is authorized
+    // -------------------------------------------------------------------------
+    if ( vm->get_uid() != 0 && vm->get_gid() != 0 )
+    {
+        PoolObjectAuth dsperms;
+
+        dsperms.oid      = ds->get_oid();
+        dsperms.cid      = ds->get_cid();
+        dsperms.obj_type = PoolObjectSQL::DATASTORE;
+
+        // Only include the VM group ID
+
+        set<int> gids;
+        gids.insert(vm->get_gid());
+
+        if ( !acls->authorize(vm->get_uid(), gids, dsperms, AuthRequest::USE))
+        {
+            error = "Permission denied.";
+            return false;
+        }
+    }
+
+    n_auth++;
+
     // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
     // checked in a per host basis during dispatch)
     // -------------------------------------------------------------------------
-    if (ds->is_shared() && ds->is_monitored() && !ds->test_capacity(vdisk))
+    if (ds->is_shared() && ds->is_monitored() && !ds->test_capacity(vdisk, error))
     {
-        error = "Not enough capacity.";
         return false;
     }
 
@@ -736,7 +761,7 @@ void Scheduler::match_schedule()
         //----------------------------------------------------------------------
         if (!vm->is_resched())
         {
-            if (vm->test_image_datastore_capacity(img_dspool) == false)
+            if (vm->test_image_datastore_capacity(img_dspool, m_error) == false)
             {
                 if (vm->is_public_cloud()) //No capacity needed for public cloud
                 {
@@ -744,8 +769,11 @@ void Scheduler::match_schedule()
                 }
                 else
                 {
-                    log_match(vm->get_oid(), "Cannot schedule VM, image datastore "
-                        "does not have enough capacity.");
+                    log_match(vm->get_oid(), "Cannot schedule VM. "+m_error);
+
+                    vm->log("Cannot schedule VM. "+m_error);
+                    vmpool->update(vm);
+
                     continue;
                 }
             }
@@ -767,10 +795,21 @@ void Scheduler::match_schedule()
 
                 n_resources++;
             }
-            else if ( n_error > 0 )
+            else
             {
-                log_match(vm->get_oid(), "Cannot schedule VM. " + m_error);
-                break;
+                if ( n_error > 0 )
+                {
+                    log_match(vm->get_oid(), "Cannot schedule VM. " + m_error);
+                    break;
+                }
+                else if (NebulaLog::log_level() >= Log::DDEBUG)
+                {
+                    ostringstream oss;
+                    oss << "Host " << host->get_hid() << " discarded for VM "
+                        << vm->get_oid() << ". " << m_error;
+
+                    NebulaLog::log("SCHED", Log::DDEBUG, oss);
+                }
             }
         }
 
@@ -792,18 +831,22 @@ void Scheduler::match_schedule()
                 {
                     vm->log("User is not authorized to use any host");
                 }
+                else if (n_fits == 0)
+                {
+                    ostringstream oss;
+
+                    oss << "No host with enough capacity to deploy the VM";
+
+                    vm->log(oss.str());
+                }
                 else if (n_matched == 0)
                 {
                     ostringstream oss;
 
-                    oss << "No host meets SCHED_REQUIREMENTS: "
+                    oss << "No host meets capacity and SCHED_REQUIREMENTS: "
                         << vm->get_requirements();
 
                     vm->log(oss.str());
-                }
-                else if (n_fits == 0)
-                {
-                    vm->log("No host with enough capacity to deploy the VM");
                 }
             }
 
@@ -840,6 +883,7 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
 
         n_resources = 0;
+        n_auth    = 0;
         n_matched = 0;
         n_error   = 0;
         n_fits    = 0;
@@ -848,16 +892,28 @@ void Scheduler::match_schedule()
         {
             ds = static_cast<DatastoreXML *>(h_it->second);
 
-            if (match_system_ds(vm, vm_disk, ds, n_error, n_fits, n_matched, m_error))
+            if (match_system_ds(acls, vm, vm_disk, ds, n_auth, n_error, n_fits,
+                        n_matched, m_error))
             {
                 vm->add_match_datastore(ds->get_oid());
 
                 n_resources++;
             }
-            else if (n_error > 0)
+            else
             {
-                log_match(vm->get_oid(), "Cannot schedule VM. " + m_error);
-                break;
+                if (n_error > 0)
+                {
+                    log_match(vm->get_oid(), "Cannot schedule VM. " + m_error);
+                    break;
+                }
+                else if (NebulaLog::log_level() >= Log::DDEBUG)
+                {
+                    ostringstream oss;
+                    oss << "System DS " << ds->get_oid() << " discarded for VM "
+                        << vm->get_oid() << ". " << m_error;
+
+                    NebulaLog::log("SCHED", Log::DDEBUG, oss);
+                }
             }
         }
 
@@ -881,18 +937,26 @@ void Scheduler::match_schedule()
                     {
                         vm->log("No system datastores found to run VMs");
                     }
+                    else if (n_auth == 0)
+                    {
+                        vm->log("User is not authorized to use any system datastore");
+                    }
+                    else if (n_fits == 0)
+                    {
+                        ostringstream oss;
+                        oss <<  "No system datastore with enough capacity for the VM";
+
+                        vm->log(oss.str());
+                    }
                     else if (n_matched == 0)
                     {
                         ostringstream oss;
 
-                        oss << "No system datastore meets SCHED_DS_REQUIREMENTS: "
+                        oss << "No system datastore meets capacity "
+                            << "and SCHED_DS_REQUIREMENTS: "
                             << vm->get_ds_requirements();
 
                         vm->log(oss.str());
-                    }
-                    else if (n_fits == 0)
-                    {
-                        vm->log("No system datastore with enough capacity for the VM");
                     }
                 }
 
@@ -922,28 +986,29 @@ void Scheduler::match_schedule()
     ostringstream oss;
 
     oss << "Match Making statistics:\n"
-        << "\tNumber of VMs: " << pending_vms.size() << endl
-        << "\tTotal time: " << time(0) - stime << "s" << endl
-        << "\tTotal Match time: " << total_match_time << "s" << endl
-        << "\tTotal Ranking Time: " << total_rank_time << "s";
+        << "\tNumber of VMs: \t\t" << pending_vms.size() << endl
+        << "\tTotal time: \t\t" << one_util::float_to_str(time(0) - stime) << "s" << endl
+        << "\tTotal Match time: \t" << one_util::float_to_str(total_match_time) << "s" << endl
+        << "\tTotal Ranking time: \t" << one_util::float_to_str(total_rank_time) << "s";
 
-    NebulaLog::log("SCHED", Log::DEBUG, oss);
+    NebulaLog::log("SCHED", Log::DDEBUG, oss);
 
-#ifdef SCHEDDEBUG
-    ostringstream oss;
-
-    oss << "Scheduling Results:" << endl;
-
-    for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
-        vm_it != pending_vms.end(); vm_it++)
+    if (NebulaLog::log_level() >= Log::DDDEBUG)
     {
-        vm = static_cast<VirtualMachineXML*>(vm_it->second);
+        ostringstream oss;
 
-        oss << *vm;
+        oss << "Scheduling Results:" << endl;
+
+        for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
+            vm_it != pending_vms.end(); vm_it++)
+        {
+            vm = static_cast<VirtualMachineXML*>(vm_it->second);
+
+            oss << *vm;
+        }
+
+        NebulaLog::log("SCHED", Log::DDDEBUG, oss);
     }
-
-    NebulaLog::log("SCHED", Log::DEBUG, oss);
-#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -967,6 +1032,8 @@ void Scheduler::dispatch()
     map<int, unsigned int>  host_vms;
     pair<map<int,unsigned int>::iterator, bool> rc;
 
+    map<int, ObjectXML*>::const_iterator vm_it;
+
     vector<Resource *>::const_reverse_iterator i, j;
 
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
@@ -978,7 +1045,7 @@ void Scheduler::dispatch()
     // Dispatch each VM till we reach the dispatch limit
     //--------------------------------------------------------------------------
 
-    for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
+    for (vm_it = pending_vms.begin();
          vm_it != pending_vms.end() &&
             ( dispatch_limit <= 0 || dispatched_vms < dispatch_limit );
          vm_it++)
@@ -1150,6 +1217,12 @@ void Scheduler::dispatch()
 
             break;
         }
+    }
+
+    if (vm_it != pending_vms.end())
+    {
+        dss << endl << "MAX_DISPATCH limit of " << dispatch_limit << " reached, "
+            << std::distance(vm_it, pending_vms.end()) << " VMs were not dispatched";
     }
 
     NebulaLog::log("SCHED", Log::DEBUG, dss);

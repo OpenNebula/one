@@ -95,8 +95,7 @@ void TransferManagerDriver::protocol(const string& message) const
         return;
     }
 
-    if ( vm->get_lcm_state() == VirtualMachine::FAILURE ||
-         vm->get_lcm_state() == VirtualMachine::LCM_INIT )
+    if ( vm->get_lcm_state() == VirtualMachine::LCM_INIT )
     {
         os.str("");
         os << "Ignored: " << message;
@@ -122,6 +121,8 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_RESUME:
                 case VirtualMachine::PROLOG_UNDEPLOY:
+                case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+                case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
                     lcm_action = LifeCycleManager::PROLOG_SUCCESS;
                     break;
 
@@ -175,6 +176,8 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_MIGRATE:
                 case VirtualMachine::PROLOG_RESUME:
                 case VirtualMachine::PROLOG_UNDEPLOY:
+                case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+                case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
                     lcm_action = LifeCycleManager::PROLOG_FAILURE;
                     break;
 

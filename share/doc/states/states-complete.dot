@@ -3,8 +3,9 @@
 digraph OpenNebula {
     graph [
         nodesep=0.5,
-        ratio=1,
+        ratio=0.5,
         pad=0.5,
+        //concentrate=true,
     ];
 
     node [fontname="Helvetica"];
@@ -18,57 +19,71 @@ digraph OpenNebula {
     ANY [ shape="box" ];
     "ANY \\ {suspended,poweroff,done}" [ shape="box" ];
 
-    subgraph { rank = min; user}
-    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; unknown; color="white"}
-    subgraph { rank = same; pending; hold; color="white"}
-    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; color="white" }
-//    subgraph { rank = same; prolog; prolog_resume; prolog_migrate; save_migrate; color="white" }
+    running [ width = 2.5, height = 1 ]
 
-    subgraph { rank = max; suspended; done; failure;
-    stopped; undeployed; poweroff; ANY; color="white" }
+    subgraph { rank = min; user}
+    subgraph { rank = same; suspended; stopped; undeployed; poweroff; color="white" }
+    subgraph { rank = same; boot; boot_stopped; boot_undeploy; boot_suspended; boot_unknown; boot_poweroff; boot_migrate; boot_failure; boot_migrate_failure; boot_undeploy_failure, boot_stopped_failure; color="white"}
+    subgraph { rank = same; running; unknown; color="white"}
+    subgraph { rank = same; pending; hold; color="white"}
+    subgraph { rank = same; prolog; prolog_failure; prolog_resume; prolog_migrate; prolog_migrate_failure; prolog_migrate_poweroff; prolog_migrate_poweroff_failure; prolog_migrate_suspend; prolog_migrate_suspend_failure; prolog_undeploy; color="white" }
+    subgraph { rank = same; hotplug_prolog_poweroff; hotplug_saveas_poweroff; hotplug_saveas_suspended; epilog_stop; epilog; epilog_undeploy; epilog_stop_failure; epilog_failure; epilog_undeploy_failure; hotplug_epilog_poweroff; color="white" }
+    subgraph { rank = sink; done; failure; ANY; color="white" }
 
 #   create
     user -> pending [label="create"];
 
 #   deploy
+    pending     -> prolog [label="deploy"];
+    prolog      -> boot [style="dashed", color="blue"];
+    boot        -> running [style="dashed", color="blue"];
+
     pending     -> prolog_resume [label="deploy\n(from stopped)"];
-    prolog_resume -> boot_stopped [style="dashed"];
+    //hold        -> prolog_resume [label="deploy\n(from stopped)"];
+    stopped     -> prolog_resume [label="deploy"];
+    prolog_resume -> boot_stopped [style="dashed", color="blue"];
 
     pending         -> prolog_undeploy [label="deploy\n(from undeployed)"];
-    prolog_undeploy -> boot_undeploy [style="dashed"];
+    //hold            -> prolog_undeploy [label="deploy\n(from undeployed)"];
+    undeployed      -> prolog_undeploy [label="deploy"];
+    prolog_undeploy -> boot_undeploy [style="dashed", color="blue"];
 
-    pending     -> prolog [label="deploy"];
-    prolog      -> boot [style="dashed"];
-    boot        -> running [style="dashed"];
+    //hold    -> prolog [label="deploy"];
 
 #   shutdown
-    running     -> shutdown [label="shutdown"];
-    shutdown    -> epilog [style="dashed"];
-    epilog      -> done [style="dashed"];
+    running     -> shutdown [label="shutdown [--hard]"];
+    shutdown    -> epilog [style="dashed", color="blue"];
+    epilog      -> done [style="dashed", color="blue"];
 
-    shutdown    -> running [style="dotted"];
+    shutdown    -> running [style="dotted", color="red"];
 
-#   shutdown --hard
-    running     -> cancel [label="shutdown --hard"];
-    cancel      -> epilog [style="dashed"];
-    cancel      -> running [style="dotted"];
-    unknown     -> epilog [label="shutdown --hard"];
+    suspended   -> epilog [label="shutdown [--hard]"];
+    poweroff    -> epilog [label="shutdown [--hard]"];
 
 #   poweroff
     running             -> shutdown_poweroff [label="poweroff [--hard]"];
-    shutdown_poweroff   -> poweroff [style="dashed"];
+    shutdown_poweroff   -> poweroff [style="dashed", color="blue"];
 
-    shutdown_poweroff   -> running [style="dotted"];
+    shutdown_poweroff   -> running [style="dotted", color="red"];
 
 #   livemigrate
     running     -> migrate [label="migrate --live"];
-    migrate     -> running [style="dashed"];
+    migrate     -> running [style="dashed", color="blue"];
 
 #   migrate
     running         -> save_migrate [label="migrate"];
-    save_migrate    -> prolog_migrate [style="dashed"];
-    save_migrate    -> running [style="dotted"];
-    prolog_migrate  -> boot [style="dashed"];
+    save_migrate    -> prolog_migrate [style="dashed", color="blue"];
+    save_migrate    -> running [style="dotted", color="red"];
+    prolog_migrate  -> boot_migrate [style="dashed", color="blue"];
+    boot_migrate    -> running [style="dashed", color="blue"];
+
+    unknown         -> boot [label="migrate"];
+
+    poweroff                -> prolog_migrate_poweroff [label="migrate"];
+    prolog_migrate_poweroff -> poweroff [style="dashed", color="blue"];
+
+    suspended               -> prolog_migrate_suspend [label="migrate"];
+    prolog_migrate_suspend  -> suspended [style="dashed", color="blue"];
 
 #   hold
     pending     -> hold [label="hold"];
@@ -78,33 +93,41 @@ digraph OpenNebula {
 
 #   stop
     running     -> save_stop [label="stop"];
-    save_stop   -> epilog_stop [style="dashed"];
-    save_stop   -> running [style="dotted"];
-    epilog_stop -> stopped [style="dashed"];
+    save_stop   -> epilog_stop [style="dashed", color="blue"];
+    save_stop   -> running [style="dotted", color="red"];
+    epilog_stop -> stopped [style="dashed", color="blue"];
+
+    suspended   -> epilog_stop [label="stop"];
 
 #   undeploy
     running             -> shutdown_undeploy [label="undeploy [--hard]"];
-    shutdown_undeploy   -> epilog_undeploy [style="dashed"];
-    shutdown_undeploy   -> running [style="dotted"];
-    epilog_undeploy     -> undeployed [style="dashed"];
+    shutdown_undeploy   -> epilog_undeploy [style="dashed", color="blue"];
+    shutdown_undeploy   -> running [style="dotted", color="red"];
+    epilog_undeploy     -> undeployed [style="dashed", color="blue"];
+
+    poweroff            -> epilog_undeploy [label="undeploy [--hard]"];
 
 #   suspend
     running         -> save_suspend [label="suspend"];
-    save_suspend    -> suspended [style="dashed"];
-    save_suspend    -> running [style="dotted"];
+    save_suspend    -> suspended [style="dashed", color="blue"];
+    save_suspend    -> running [style="dotted", color="red"];
 
 #   resume
     stopped         -> pending [label="resume"];
-    boot_stopped    -> running [style="dashed"];
+    boot_stopped    -> running [style="dashed", color="blue"];
 
     undeployed      -> pending [label="resume"];
-    boot_undeploy   -> running [style="dashed"];
+    boot_undeploy   -> running [style="dashed", color="blue"];
 
     suspended       -> boot_suspended [label="resume"];
-    boot_suspended  -> running [style="dashed"];
+    boot_suspended  -> running [style="dashed", color="blue"];
 
     poweroff        -> boot_poweroff [label="resume"];
-    boot_poweroff   -> running [style="dashed"];
+    boot_poweroff   -> running [style="dashed", color="blue"];
+
+    unknown         -> boot_unknown [label="resume"];
+    boot_unknown    -> running [style="dashed", color="blue"];
+
 
 #   delete
     ANY         -> done [label="delete"];
@@ -112,72 +135,87 @@ digraph OpenNebula {
 #   resubmit
     "ANY \\ {suspended,poweroff,done}" -> pending [label="delete --recreate"];
 
-#   boot
-    boot            -> boot [label="boot"];
-    boot_suspended  -> boot_suspended [label="boot"];
-    boot_stopped    -> boot_stopped [label="boot"];
-    boot_poweroff   -> boot_poweroff [label="boot"];
-    boot_undeploy   -> boot_undeploy [label="boot"];
-
-    unknown         -> boot_unknown [label="boot"];
-    boot_unknown    -> boot_unknown [label="boot"];
-    boot_unknown    -> running [style="dashed"];
-
 #   reboot
     running     -> running [label="reboot"];
 
 #   disk-attach
     running     -> hotplug [label="disk-attach /\n-detach"]
-    hotplug     -> running [style="dashed"];
+    hotplug     -> running [style="dashed", color="blue"];
 
     poweroff                -> hotplug_prolog_poweroff [label="disk-attach"]
-    hotplug_prolog_poweroff -> poweroff [style="dashed"];
+    hotplug_prolog_poweroff -> poweroff [style="dashed", color="blue"];
     poweroff                -> hotplug_epilog_poweroff [label="disk-detach"]
-    hotplug_epilog_poweroff -> poweroff [style="dashed"];
+    hotplug_epilog_poweroff -> poweroff [style="dashed", color="blue"];
 
 #   nic-attach
     running     -> hotplug_nic [label="nic-attach /\n-detach"]
-    hotplug_nic -> running [style="dashed"];
+    hotplug_nic -> running [style="dashed", color="blue"];
 
     poweroff    -> poweroff [label="nic-attach /\n-detach"]
 
 #   snapshot
     running             -> hotplug_snapshot [label="snapshot-create /\n-revert /\n-delete"]
-    hotplug_snapshot    -> running [style="dashed"];
+    hotplug_snapshot    -> running [style="dashed", color="blue"];
 
 #   disk-snapshot
     running         -> hotplug_saveas [label="disk-snapshot"]
-    hotplug_saveas  -> running [style="dashed"];
+    hotplug_saveas  -> running [style="dashed", color="blue"];
 
     poweroff                -> hotplug_saveas_poweroff [label="disk-snapshot"]
-    hotplug_saveas_poweroff -> poweroff [style="dashed"];
+    hotplug_saveas_poweroff -> poweroff [style="dashed", color="blue"];
 
     suspended                -> hotplug_saveas_suspended [label="disk-snapshot"]
-    hotplug_saveas_suspended -> suspended [style="dashed"];
+    hotplug_saveas_suspended -> suspended [style="dashed", color="blue"];
+
+#   disk-snapshot-cancel
+    running     -> running [label="disk-snapshot-cancel"]
+    poweroff    -> poweroff [label="disk-snapshot-cancel"]
+    suspended   -> suspended [label="disk-snapshot-cancel"]
 
 #   failures and misc.
-    epilog_stop     -> failure [style="dotted"];
-    epilog          -> failure [style="dotted"];
-    epilog_undeploy -> failure [style="dotted"];
+    boot_failure         -> boot [label="recover"];
+    boot_migrate_failure -> boot_migrate [label="recover"];
+    boot_undeploy_failure -> boot_undeploy [label="recover"];
+    boot_stopped_failure-> boot_stopped [label="recover"];
 
-    prolog          -> failure [style="dotted"];
-    prolog_migrate  -> failure [style="dotted"];
-    prolog_resume   -> stopped [style="dotted"];
-    prolog_undeploy -> undeployed [style="dotted"];
+    epilog_stop         -> epilog_stop_failure [label=" ", style="dotted", color="red"];
+    epilog_stop_failure -> epilog_stop [label="recover"];
 
-    boot            -> failure [style="dotted"];
-    boot_poweroff   -> poweroff [style="dotted"];
-    boot_unknown    -> unknown [style="dotted"];
-    boot_suspended  -> suspended [style="dotted"];
-    boot_stopped    -> epilog_stop [style="dotted"];
-    boot_undeploy   -> epilog_undeploy [style="dotted"];
+    epilog          -> epilog_failure [label=" ", style="dotted", color="red"];
+    epilog_failure  -> epilog [label="recover"];
 
-    running -> failure [style="dotted"];
-    unknown -> failure [style="dotted"];
+    epilog_undeploy         -> epilog_undeploy_failure [label=" ", style="dotted", color="red"];
+    epilog_undeploy_failure -> epilog_undeploy [label="recover"];
 
-    running -> save_suspend [style="dotted"];
-    unknown -> save_suspend [style="dotted"];
+    prolog          -> prolog_failure [label=" ", style="dotted", color="red"];
+    prolog_failure  -> prolog [label="recover"];
 
-    running -> unknown [style="dotted"];
-    unknown -> running [style="dashed"];
+    prolog_migrate          -> prolog_migrate_failure [label=" ", style="dotted", color="red"];
+    prolog_migrate_failure  -> prolog_migrate [label="recover"];
+
+    prolog_migrate_poweroff          -> prolog_migrate_poweroff_failure [label=" ", style="dotted", color="red"];
+    prolog_migrate_poweroff_failure  -> prolog_migrate_poweroff [label="migrate"];
+
+    prolog_migrate_suspend          -> prolog_migrate_suspend_failure [label=" ", style="dotted", color="red"];
+    prolog_migrate_suspend_failure  -> prolog_migrate_suspend [label="migrate"];
+
+    prolog_resume   -> stopped [style="dotted", color="red"];
+    prolog_undeploy -> undeployed [style="dotted", color="red"];
+
+    boot            -> boot_failure [label=" ", style="dotted", color="red"];
+    boot_migrate    -> boot_migrate_failure [label=" ", style="dotted", color="red"];
+    boot_poweroff   -> poweroff [style="dotted", color="red"];
+    boot_unknown    -> unknown [label=" ", style="dotted", color="red"];
+    boot_suspended  -> suspended [style="dotted", color="red"];
+    boot_stopped    -> boot_stopped_failure [style="dotted", color="red"];
+    boot_undeploy   -> boot_undeploy_failure [style="dotted", color="red"];
+
+    running -> failure [style="dotted", color="red"];
+    unknown -> failure [style="dotted", color="red"];
+
+    running -> save_suspend [style="dotted", color="red"];
+    unknown -> save_suspend [style="dotted", color="red"];
+
+    running -> unknown [style="dotted", color="red"];
+    unknown -> running [style="dashed", color="blue"];
 }

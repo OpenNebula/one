@@ -19,6 +19,7 @@
 
 #include "HostXML.h"
 #include "NebulaUtil.h"
+#include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -117,6 +118,39 @@ int HostXML::search(const char *name, int& value)
     {
         return ObjectXML::search(name, value);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool HostXML::test_capacity(long long cpu, long long mem, string & error) const
+{
+    bool fits = (((max_cpu  - cpu_usage ) >= cpu) &&
+                ((max_mem  - mem_usage ) >= mem));
+
+    if (!fits)
+    {
+        if (NebulaLog::log_level() >= Log::DDEBUG)
+        {
+            ostringstream oss;
+
+            oss << "Not enough capacity. "
+                << "Requested: "
+                << cpu << " CPU, "
+                << mem << " KB MEM; "
+                << "Available: "
+                << (max_cpu  - cpu_usage ) << " CPU, "
+                << (max_mem  - mem_usage ) << " KB MEM";
+
+            error = oss.str();
+        }
+        else
+        {
+            error = "Not enough capacity.";
+        }
+    }
+
+    return fits;
 }
 
 /* -------------------------------------------------------------------------- */

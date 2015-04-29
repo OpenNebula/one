@@ -24,18 +24,20 @@ module OpenNebula
         # Actions that can be performed on the VMs of a given Role
         SCHEDULE_ACTIONS = [
             'shutdown',
-            'delete',
+            'shutdown-hard',
+            'undeploy',
+            'undeploy-hard',
             'hold',
             'release',
             'stop',
-            'shutdown-hard',
             'suspend',
             'resume',
-            'boot',
+            'delete',
             'delete-recreate',
             'reboot',
             'reboot-hard',
             'poweroff',
+            'poweroff-hard',
             'snapshot-create'
         ]
 
@@ -823,7 +825,7 @@ module OpenNebula
             set_cardinality( get_nodes.size() - nodes_dispose.size() )
         end
 
-        # Deletes VMs in DONE or FAILED, and sends a boot action to VMs in UNKNOWN
+        # Deletes VMs in DONE or FAILED, and sends a resume action to VMs in UNKNOWN
         def recover()
 
             nodes = @body['nodes']
@@ -837,13 +839,30 @@ module OpenNebula
                 if node['vm_info'] && node['vm_info']['VM'] && node['vm_info']['VM']['STATE']
                     vm_state = node['vm_info']['VM']['STATE']
                     lcm_state = node['vm_info']['VM']['LCM_STATE']
+
+                    vm_state_str = VirtualMachine::VM_STATE[vm_state.to_i]
+                    lcm_state_str = VirtualMachine::LCM_STATE[lcm_state.to_i]
                 end
 
                 if vm_state == '6' # DONE
                     # Store the VM id in the array of disposed nodes
                     disposed_nodes << vm_id
 
-                elsif vm_state == '7' # FAILED
+                elsif ( vm_state_str == 'FAILED' ||
+                        vm_state_str == 'ACTIVE' &&
+                        (   lcm_state_str == 'FAILURE' ||
+                            lcm_state_str == 'BOOT_FAILURE' ||
+                            lcm_state_str == 'BOOT_MIGRATE_FAILURE' ||
+                            lcm_state_str == 'PROLOG_MIGRATE_FAILURE' ||
+                            lcm_state_str == 'PROLOG_FAILURE' ||
+                            lcm_state_str == 'EPILOG_FAILURE' ||
+                            lcm_state_str == 'EPILOG_STOP_FAILURE' ||
+                            lcm_state_str == 'EPILOG_UNDEPLOY_FAILURE' ||
+                            lcm_state_str == 'PROLOG_MIGRATE_POWEROFF_FAILURE' ||
+                            lcm_state_str == 'PROLOG_MIGRATE_SUSPEND_FAILURE' ||
+                            lcm_state_str == 'BOOT_UNDEPLOY_FAILURE' ||
+                            lcm_state_str == 'BOOT_STOPPED_FAILURE' ))
+
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
                     rc = vm.finalize
 
@@ -861,9 +880,11 @@ module OpenNebula
 
                         new_nodes << node
                     end
-                elsif vm_state == '3' && lcm_state == '16' # UNKNOWN
+                elsif (vm_state == '3' && lcm_state == '16') # UNKNOWN
                     vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
-                    vm.boot
+                    vm.resume
+
+                    new_nodes << node
                 else
                     new_nodes << node
                 end

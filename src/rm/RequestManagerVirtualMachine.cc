@@ -477,6 +477,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     DispatchManager * dm = nd.get_dm();
 
     ostringstream oss;
+    string error;
 
     AuthRequest::Operation op = auth_op;
     History::VMAction action;
@@ -487,10 +488,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     if (action_st == "cancel")
     {
         action_st = "shutdown-hard";
-    }
-    else if (action_st == "restart")
-    {
-        action_st = "boot";
     }
     else if (action_st == "finalize")
     {
@@ -543,58 +540,55 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     switch (action)
     {
         case History::SHUTDOWN_ACTION:
-            rc = dm->shutdown(id);
+            rc = dm->shutdown(id, false, error);
             break;
         case History::HOLD_ACTION:
-            rc = dm->hold(id);
+            rc = dm->hold(id, error);
             break;
         case History::RELEASE_ACTION:
-            rc = dm->release(id);
+            rc = dm->release(id, error);
             break;
         case History::STOP_ACTION:
-            rc = dm->stop(id);
+            rc = dm->stop(id, error);
             break;
         case History::SHUTDOWN_HARD_ACTION:
-            rc = dm->cancel(id);
+            rc = dm->shutdown(id, true, error);
             break;
         case History::SUSPEND_ACTION:
-            rc = dm->suspend(id);
+            rc = dm->suspend(id, error);
             break;
         case History::RESUME_ACTION:
-            rc = dm->resume(id);
-            break;
-        case History::BOOT_ACTION:
-            rc = dm->restart(id);
+            rc = dm->resume(id, error);
             break;
         case History::DELETE_ACTION:
-            rc = dm->finalize(id);
+            rc = dm->finalize(id, error);
             break;
         case History::DELETE_RECREATE_ACTION:
-            rc = dm->resubmit(id);
+            rc = dm->resubmit(id, error);
             break;
         case History::REBOOT_ACTION:
-            rc = dm->reboot(id);
+            rc = dm->reboot(id, false, error);
             break;
         case History::RESCHED_ACTION:
-            rc = dm->resched(id, true);
+            rc = dm->resched(id, true, error);
             break;
         case History::UNRESCHED_ACTION:
-            rc = dm->resched(id, false);
+            rc = dm->resched(id, false, error);
             break;
         case History::REBOOT_HARD_ACTION:
-            rc = dm->reset(id);
+            rc = dm->reboot(id, true, error);
             break;
         case History::POWEROFF_ACTION:
-            rc = dm->poweroff(id, false);
+            rc = dm->poweroff(id, false, error);
             break;
         case History::POWEROFF_HARD_ACTION:
-            rc = dm->poweroff(id, true);
+            rc = dm->poweroff(id, true, error);
             break;
         case History::UNDEPLOY_ACTION:
-            rc = dm->undeploy(id, false);
+            rc = dm->undeploy(id, false, error);
             break;
         case History::UNDEPLOY_HARD_ACTION:
-            rc = dm->undeploy(id, true);
+            rc = dm->undeploy(id, true, error);
             break;
         default:
             rc = -3;
@@ -612,10 +606,11 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
                     att);
             break;
         case -2:
-            oss << "Wrong state to perform action \"" << action_st << "\"";
+            oss << "Error performing action \"" << action_st << "\" on "
+                << object_name(auth_object) << " [" << id << "]";
 
             failure_response(ACTION,
-                    request_error(oss.str(),""),
+                    request_error(oss.str(),error),
                     att);
              break;
         case -3:
@@ -643,6 +638,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
+    DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachine * vm;
 
@@ -652,7 +648,9 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     int    cluster_id;
     string ds_location;
     bool   is_public_cloud;
-    PoolObjectAuth host_perms;
+
+    PoolObjectAuth host_perms, ds_perms;
+    PoolObjectAuth * auth_ds_perms;
 
     string tm_mad;
 
@@ -691,15 +689,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // Authorize request
+    // Get information about the system DS to use (tm_mad & permissions)
     // ------------------------------------------------------------------------
-
-    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
-
-    if (auth == false)
-    {
-        return;
-    }
 
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -715,10 +706,6 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     vm->unlock();
-
-    // ------------------------------------------------------------------------
-    // Get information about the system DS to use (tm_mad)
-    // ------------------------------------------------------------------------
 
     if (is_public_cloud) // Set ds_id to -1 and tm_mad empty(). This is used by
     {                    // by VirtualMachine::get_host_is_cloud()
@@ -758,6 +745,41 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
+    if (ds_id == -1)
+    {
+       auth_ds_perms = 0;
+    }
+    else
+    {
+        Datastore * ds = dspool->get(ds_id, true);
+
+        if (ds == 0 )
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
+                att);
+
+            return;
+        }
+
+        ds->get_permissions(ds_perms);
+
+        ds->unlock();
+
+        auth_ds_perms = &ds_perms;
+    }
+
+    // ------------------------------------------------------------------------
+    // Authorize request
+    // ------------------------------------------------------------------------
+
+    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, auth_op);
+
+    if (auth == false)
+    {
+        return;
+    }
+
     // ------------------------------------------------------------------------
     // Check request consistency:
     // - VM States are right
@@ -770,10 +792,16 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if (vm->get_state() != VirtualMachine::PENDING &&
-        vm->get_state() != VirtualMachine::HOLD)
+        vm->get_state() != VirtualMachine::HOLD &&
+        vm->get_state() != VirtualMachine::STOPPED &&
+        vm->get_state() != VirtualMachine::UNDEPLOYED)
     {
+        ostringstream oss;
+
+        oss << "Deploy action is not available for state " << vm->state_str();
+
         failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                request_error(oss.str(),""),
                 att);
 
         vm->unlock();
@@ -913,13 +941,19 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if((vm->get_state()     != VirtualMachine::ACTIVE)  ||
-       (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-        vm->get_lcm_state() != VirtualMachine::UNKNOWN) ||
-       (vm->hasPreviousHistory() && vm->get_previous_reason() == History::NONE))
+    if((vm->hasPreviousHistory() && vm->get_previous_reason()== History::NONE)||
+       (vm->get_state() != VirtualMachine::POWEROFF &&
+        vm->get_state() != VirtualMachine::SUSPENDED &&
+        (vm->get_state() != VirtualMachine::ACTIVE ||
+         (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+          vm->get_lcm_state() != VirtualMachine::UNKNOWN))))
     {
+        ostringstream oss;
+
+        oss << "Migrate action is not available for state " << vm->state_str();
+
         failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                request_error(oss.str(),""),
                 att);
 
         vm->unlock();
@@ -937,7 +971,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // Check we are not migrating to the same host
-
     c_hid = vm->get_hid();
 
     if (c_hid == hid)
@@ -980,7 +1013,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // Check we are in the same cluster
-
     Host * host = nd.get_hpool()->get(c_hid, true);
 
     if (host == 0)
@@ -1465,6 +1497,157 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineSaveDiskCancel::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    Nebula& nd  = Nebula::instance();
+
+    AclManager *    aclm   = nd.get_aclm();
+    ImageManager *  imagem = nd.get_imagem();
+    ImagePool *     ipool  = nd.get_ipool();
+    Image *         img;
+    int             img_id;
+
+    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+    VirtualMachine * vm;
+
+    string error_str;
+
+    int    id       = xmlrpc_c::value_int(paramList.getInt(1));
+    int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    // -------------------------------------------------------------------------
+    // Authorize the VM operation
+    // -------------------------------------------------------------------------
+
+    if (att.uid != UserPool::ONEADMIN_ID)
+    {
+        PoolObjectAuth vm_perms;
+        PoolObjectAuth img_perms;
+
+        if ((vm = get_vm(id, att)) == 0)
+        {
+            return;
+        }
+
+        vm->get_permissions(vm_perms);
+
+        img_id = vm->get_save_disk_image(disk_id);
+
+        vm->unlock();
+
+        AuthRequest ar(att.uid, att.group_ids);
+
+        ar.add_auth(auth_op, vm_perms); // MANAGE VM
+
+        img = ipool->get(img_id, true);
+
+        if ( img != 0 )
+        {
+            img->get_permissions(img_perms);
+
+            img->unlock();
+
+            ar.add_auth(AuthRequest::MANAGE, img_perms);    // MANAGE IMAGE
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            return;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Check the VM state
+    // -------------------------------------------------------------------------
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    if ((vm->get_state() != VirtualMachine::ACTIVE ||
+        (vm->get_lcm_state() != VirtualMachine::RUNNING &&
+         vm->get_lcm_state() != VirtualMachine::UNKNOWN) ) &&
+        vm->get_state() != VirtualMachine::POWEROFF &&
+        vm->get_state() != VirtualMachine::SUSPENDED)
+    {
+        failure_response(ACTION,
+                 request_error("Wrong state to perform action",""),
+                 att);
+
+        vm->unlock();
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Cancel the disk snapshot
+    // -------------------------------------------------------------------------
+
+    img_id = vm->get_save_disk_image(disk_id);
+
+    if ( img_id == -1 )
+    {
+        ostringstream oss;
+        oss << "Disk with ID [" << disk_id << "] is not going to be saved";
+
+        failure_response(ACTION,
+                        request_error(oss.str(), ""),
+                        att);
+
+        vm->unlock();
+
+        return;
+    }
+
+    vm->clear_save_disk(disk_id);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    // -------------------------------------------------------------------------
+    // Delete the target Image
+    // -------------------------------------------------------------------------
+
+    img = ipool->get(img_id, true);
+
+    if ( img != 0 )
+    {
+        img->unlock();
+
+        int rc = imagem->delete_image(img_id, error_str);
+
+        if (rc != 0)
+        {
+            ostringstream oss;
+            oss << "The snapshot was canceled, but "
+                << object_name(PoolObjectSQL::IMAGE) << " [" << img_id
+                << "] could not be deleted: " << error_str;
+
+            failure_response(INTERNAL,
+                    request_error(oss.str(), ""),
+                    att);
+
+            return;
+        }
+
+        aclm->del_resource_rules(img_id, PoolObjectSQL::IMAGE);
+    }
+
+    // TODO: Delete the cloned template
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineMonitoring::request_execute(
         xmlrpc_c::paramList const&  paramList,
         RequestAttributes&          att)
@@ -1783,7 +1966,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-        case VirtualMachine::FAILED:
         case VirtualMachine::UNDEPLOYED:
         break;
 
@@ -1791,8 +1973,12 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
+            ostringstream oss;
+
+            oss << "Resize action is not available for state " << vm->state_str();
+
             failure_response(ACTION,
-                     request_error("Wrong state to perform action",""),
+                     request_error(oss.str(),""),
                      att);
 
             vm->unlock();
@@ -1902,7 +2088,6 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::INIT:
         case VirtualMachine::PENDING:
         case VirtualMachine::HOLD:
-        case VirtualMachine::FAILED:
         case VirtualMachine::POWEROFF:
         case VirtualMachine::UNDEPLOYED:
             ret = vm->resize(ncpu, nmemory, nvcpu, error_str);
@@ -1924,8 +2109,12 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
         case VirtualMachine::ACTIVE:
+            ostringstream oss;
+
+            oss << "Resize action is not available for state " << vm->state_str();
+
             failure_response(ACTION,
-                     request_error("Wrong state to perform action",""),
+                     request_error(oss.str(),""),
                      att);
 
             vm->unlock();
@@ -2222,8 +2411,8 @@ void VirtualMachineDetachNic::request_execute(
 void VirtualMachineRecover::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
-    int  id      = xmlrpc_c::value_int(paramList.getInt(1));
-    bool success = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    int id = xmlrpc_c::value_int(paramList.getInt(1));
+    int op = xmlrpc_c::value_int(paramList.getInt(2));
 
     VirtualMachine * vm;
 
@@ -2242,15 +2431,38 @@ void VirtualMachineRecover::request_execute(
 
     if(vm->get_state() != VirtualMachine::ACTIVE)
     {
+        ostringstream oss;
+
+        oss << "Recover action is not available for state " << vm->state_str();
+
         failure_response(ACTION,
-                request_error("Wrong state to perform action",""),
+                request_error(oss.str(),""),
                 att);
 
         vm->unlock();
         return;
     }
 
-    lcm->recover(vm, success);
+    switch (op)
+    {
+		case 0:
+			lcm->recover(vm, false);
+			break;
+		case 1:
+			lcm->recover(vm, true);
+			break;
+		case 2:
+			lcm->retry(vm);
+			break;
+
+		default:
+			failure_response(ACTION,
+                request_error("Wrong recovery operation code",""),
+                att);
+
+			vm->unlock();
+			return;
+	}
 
     success_response(id, att);
 

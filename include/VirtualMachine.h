@@ -51,15 +51,15 @@ public:
      */
     enum VmState
     {
-        INIT      = 0,
-        PENDING   = 1,
-        HOLD      = 2,
-        ACTIVE    = 3,
-        STOPPED   = 4,
-        SUSPENDED = 5,
-        DONE      = 6,
-        FAILED    = 7,
-        POWEROFF  = 8,
+        INIT       = 0,
+        PENDING    = 1,
+        HOLD       = 2,
+        ACTIVE     = 3,
+        STOPPED    = 4,
+        SUSPENDED  = 5,
+        DONE       = 6,
+        //FAILED   = 7,
+        POWEROFF   = 8,
         UNDEPLOYED = 9
     };
 
@@ -74,7 +74,6 @@ public:
         else if ( st == "STOPPED" ) { state = STOPPED; }
         else if ( st == "SUSPENDED" ) { state = SUSPENDED; }
         else if ( st == "DONE" ) { state = DONE; }
-        else if ( st == "FAILED" ) { state = FAILED; }
         else if ( st == "POWEROFF" ) { state = POWEROFF; }
         else if ( st == "UNDEPLOYED" ) { state = UNDEPLOYED; }
         else {return -1;}
@@ -93,7 +92,6 @@ public:
             case STOPPED   : st = "STOPPED"; break;
             case SUSPENDED : st = "SUSPENDED"; break;
             case DONE      : st = "DONE"; break;
-            case FAILED    : st = "FAILED"; break;
             case POWEROFF  : st = "POWEROFF"; break;
             case UNDEPLOYED: st = "UNDEPLOYED"; break;
         }
@@ -119,8 +117,8 @@ public:
         EPILOG_STOP         = 10,
         EPILOG              = 11,
         SHUTDOWN            = 12,
-        CANCEL              = 13,
-        FAILURE             = 14,
+        //CANCEL            = 13,
+        //FAILURE           = 14,
         CLEANUP_RESUBMIT    = 15,
         UNKNOWN             = 16,
         HOTPLUG             = 17,
@@ -140,7 +138,21 @@ public:
         PROLOG_UNDEPLOY     = 31,
         BOOT_UNDEPLOY       = 32,
         HOTPLUG_PROLOG_POWEROFF = 33,
-        HOTPLUG_EPILOG_POWEROFF = 34
+        HOTPLUG_EPILOG_POWEROFF = 34,
+        BOOT_MIGRATE            = 35,
+        BOOT_FAILURE            = 36,
+        BOOT_MIGRATE_FAILURE    = 37,
+        PROLOG_MIGRATE_FAILURE  = 38,
+        PROLOG_FAILURE          = 39,
+        EPILOG_FAILURE          = 40,
+        EPILOG_STOP_FAILURE     = 41,
+        EPILOG_UNDEPLOY_FAILURE = 42,
+        PROLOG_MIGRATE_POWEROFF = 43,
+        PROLOG_MIGRATE_POWEROFF_FAILURE = 44,
+        PROLOG_MIGRATE_SUSPEND          = 45,
+        PROLOG_MIGRATE_SUSPEND_FAILURE  = 46,
+        BOOT_UNDEPLOY_FAILURE   = 47,
+        BOOT_STOPPED_FAILURE    = 48
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -160,8 +172,6 @@ public:
         else if ( st == "EPILOG_STOP") { state = EPILOG_STOP; }
         else if ( st == "EPILOG") { state = EPILOG; }
         else if ( st == "SHUTDOWN") { state = SHUTDOWN; }
-        else if ( st == "CANCEL") { state = CANCEL; }
-        else if ( st == "FAILURE") { state = FAILURE; }
         else if ( st == "CLEANUP_RESUBMIT") { state = CLEANUP_RESUBMIT; }
         else if ( st == "UNKNOWN") { state = UNKNOWN; }
         else if ( st == "HOTPLUG") { state = HOTPLUG; }
@@ -182,12 +192,26 @@ public:
         else if ( st == "BOOT_UNDEPLOY") { state = BOOT_UNDEPLOY; }
         else if ( st == "HOTPLUG_PROLOG_POWEROFF") { state = HOTPLUG_PROLOG_POWEROFF; }
         else if ( st == "HOTPLUG_EPILOG_POWEROFF") { state = HOTPLUG_EPILOG_POWEROFF; }
+        else if ( st == "BOOT_MIGRATE") { state = BOOT_MIGRATE; }
+        else if ( st == "BOOT_FAILURE") { state = BOOT_FAILURE; }
+        else if ( st == "BOOT_MIGRATE_FAILURE") { state = BOOT_MIGRATE_FAILURE; }
+        else if ( st == "PROLOG_MIGRATE_FAILURE") { state = PROLOG_MIGRATE_FAILURE; }
+        else if ( st == "PROLOG_FAILURE") { state = PROLOG_FAILURE; }
+        else if ( st == "EPILOG_FAILURE") { state = EPILOG_FAILURE; }
+        else if ( st == "EPILOG_STOP_FAILURE") { state = EPILOG_STOP_FAILURE; }
+        else if ( st == "EPILOG_UNDEPLOY_FAILURE") { state = EPILOG_UNDEPLOY_FAILURE; }
+        else if ( st == "PROLOG_MIGRATE_POWEROFF") { state = PROLOG_MIGRATE_POWEROFF;}
+        else if ( st == "PROLOG_MIGRATE_POWEROFF_FAILURE") { state = PROLOG_MIGRATE_POWEROFF_FAILURE;}
+        else if ( st == "PROLOG_MIGRATE_SUSPEND") { state = PROLOG_MIGRATE_SUSPEND;}
+        else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE") { state = PROLOG_MIGRATE_SUSPEND_FAILURE;}
+        else if ( st == "BOOT_STOPPED_FAILURE") { state = BOOT_STOPPED_FAILURE; }
+        else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
         else {return -1;}
 
         return 0;
     }
 
-    static string& lcm_state_to_str(string& st, LcmState& state)
+    static string& lcm_state_to_str(string& st, LcmState state)
     {
         switch (state)
         {
@@ -204,8 +228,6 @@ public:
             case EPILOG_STOP: st = "EPILOG_STOP"; break;
             case EPILOG: st = "EPILOG"; break;
             case SHUTDOWN: st = "SHUTDOWN"; break;
-            case CANCEL: st = "CANCEL"; break;
-            case FAILURE: st = "FAILURE"; break;
             case CLEANUP_RESUBMIT: st = "CLEANUP_RESUBMIT"; break;
             case UNKNOWN: st = "UNKNOWN"; break;
             case HOTPLUG: st = "HOTPLUG"; break;
@@ -226,9 +248,40 @@ public:
             case BOOT_UNDEPLOY: st = "BOOT_UNDEPLOY"; break;
             case HOTPLUG_PROLOG_POWEROFF: st = "HOTPLUG_PROLOG_POWEROFF"; break;
             case HOTPLUG_EPILOG_POWEROFF: st = "HOTPLUG_EPILOG_POWEROFF"; break;
+            case BOOT_MIGRATE: st = "BOOT_MIGRATE"; break;
+            case BOOT_FAILURE: st = "BOOT_FAILURE"; break;
+            case BOOT_MIGRATE_FAILURE: st = "BOOT_MIGRATE_FAILURE"; break;
+            case PROLOG_MIGRATE_FAILURE: st = "PROLOG_MIGRATE_FAILURE"; break;
+            case PROLOG_FAILURE: st = "PROLOG_FAILURE"; break;
+            case EPILOG_FAILURE: st = "EPILOG_FAILURE"; break;
+            case EPILOG_STOP_FAILURE: st = "EPILOG_STOP_FAILURE"; break;
+            case EPILOG_UNDEPLOY_FAILURE: st = "EPILOG_UNDEPLOY_FAILURE"; break;
+            case PROLOG_MIGRATE_POWEROFF: st = "PROLOG_MIGRATE_POWEROFF"; break;
+            case PROLOG_MIGRATE_POWEROFF_FAILURE: st = "PROLOG_MIGRATE_POWEROFF_FAILURE"; break;
+            case PROLOG_MIGRATE_SUSPEND: st = "PROLOG_MIGRATE_SUSPEND"; break;
+            case PROLOG_MIGRATE_SUSPEND_FAILURE: st = "PROLOG_MIGRATE_SUSPEND_FAILURE"; break;
+            case BOOT_STOPPED_FAILURE: st = "BOOT_STOPPED_FAILURE"; break;
+            case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
         }
 
         return st;
+    }
+
+    /**
+     * Returns the VM state to string, using the lcm state if the current state
+     * is ACTIVE.
+     * @return the state sting
+     */
+    string state_str()
+    {
+		string st;
+
+        if (state == ACTIVE)
+        {
+            return lcm_state_to_str(st, lcm_state);
+        }
+
+        return vm_state_to_str(st, state);
     }
 
     // -------------------------------------------------------------------------
@@ -263,6 +316,18 @@ public:
         {
             _log->log(module,type,message);
         }
+    };
+
+    /**
+     *  writes a log message in vm.log. The class lock should be locked and
+     *  the VM MUST BE obtained through the VirtualMachinePool get() method.
+     */
+    void log(
+        const char *            module,
+        const Log::MessageType  type,
+        const string&           message) const
+    {
+        log(module, type, message.c_str());
     };
 
     /**
@@ -310,7 +375,8 @@ public:
     };
 
     /**
-     *  Updates VM dynamic information (usage counters), and updates last_poll
+     *  Updates VM dynamic information (usage counters), and updates last_poll,
+     *  and copies it to history record for acct.
      *   @param _memory Kilobytes used by the VM (total)
      *   @param _cpu used by the VM (rate)
      *   @param _net_tx transmitted bytes (total)
@@ -322,6 +388,17 @@ public:
         const long long _net_tx,
         const long long _net_rx,
         const map<string, string> &custom);
+
+    /**
+     *  Clears the VM monitor information: usage counters, last_poll,
+     *  custom attributes, and copies it to the history record for acct.
+     */
+    void reset_info()
+    {
+        map<string,string> empty;
+
+        update_info(0, 0, -1, -1, empty);
+    }
 
     /**
      *  Returns the deployment ID
@@ -989,7 +1066,11 @@ public:
      */
     void set_state(VmState s)
     {
+        string st;
+
         state = s;
+
+        log("VM", Log::INFO, "New state is " + vm_state_to_str(st, s));
     };
 
     /**
@@ -998,7 +1079,11 @@ public:
      */
     void set_state(LcmState s)
     {
+        string st;
+
         lcm_state = s;
+
+        log("VM", Log::INFO, "New LCM state is " + lcm_state_to_str(st, s));
     };
 
     /**
@@ -1185,6 +1270,19 @@ public:
     int save_disk(int disk_id,
                   const string& source,
                   int img_id);
+    /**
+     *  Clears the SAVE_AS attribute for the "disk_id"th disk.
+     *    @param  disk_id Index of the disk to save
+     *    @return 0 on success, -1 if the disk does not exist
+     */
+    int clear_save_disk(int disk_id);
+
+    /**
+     * Returns the image ID to be saved-as.
+     * @param disk_id Index of the disk to save
+     * @return The image ID, or -1 if the disk is not going to be saved-as
+     */
+    int get_save_disk_image(int disk_id);
 
     /**
      *  Set the SAVE_AS attribute for the "disk_id"th disk.

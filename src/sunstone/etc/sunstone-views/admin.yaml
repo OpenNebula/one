@@ -177,7 +177,6 @@ tabs:
             VM.resume: true
             VM.stop: true
             VM.recover: true
-            VM.boot: true
             VM.reboot: true
             VM.reboot_hard: true
             VM.poweroff: true
@@ -192,6 +191,7 @@ tabs:
             VM.attachdisk: true
             VM.detachdisk: true
             VM.saveas: true
+            VM.disk_snapshot_cancel: true
             VM.attachnic: true
             VM.detachnic: true
             VM.snapshot_create: true
@@ -440,7 +440,6 @@ tabs:
                 Role.suspend: true
                 Role.resume: true
                 Role.stop: true
-                Role.boot: true
                 Role.reboot: true
                 Role.reboot_hard: true
                 Role.poweroff: true
@@ -454,7 +453,6 @@ tabs:
                 RoleVM.suspend: true
                 RoleVM.resume: true
                 RoleVM.stop: true
-                RoleVM.boot: true
                 RoleVM.reboot: true
                 RoleVM.reboot_hard: true
                 RoleVM.poweroff: true

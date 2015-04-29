@@ -17,7 +17,10 @@
 #include "DispatchManager.h"
 #include "NebulaLog.h"
 
-#include "Nebula.h"
+#include "VirtualMachineManager.h"
+#include "TransferManager.h"
+#include "ImageManager.h"
+#include "Quotas.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -39,16 +42,13 @@ int DispatchManager::deploy (
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
     if ( vm->get_state() == VirtualMachine::PENDING ||
-         vm->get_state() == VirtualMachine::HOLD )
+         vm->get_state() == VirtualMachine::HOLD ||
+         vm->get_state() == VirtualMachine::STOPPED ||
+         vm->get_state() == VirtualMachine::UNDEPLOYED )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         vm->set_state(VirtualMachine::ACTIVE);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
 
         lcm->trigger(LifeCycleManager::DEPLOY,vid);
     }
@@ -90,9 +90,6 @@ int DispatchManager::import (
         return -1;
     }
 
-    Nebula&    nd  = Nebula::instance();
-    HostPool * hpool = nd.get_hpool();
-
     time_t the_time = time(0);
     int    cpu, mem, disk;
 
@@ -107,7 +104,7 @@ int DispatchManager::import (
     vmpool->update(vm);
 
     vm->set_stime(the_time);
-    
+
     vm->set_prolog_stime(the_time);
     vm->set_prolog_etime(the_time);
 
@@ -116,8 +113,6 @@ int DispatchManager::import (
     vm->set_last_poll(0);
 
     vmpool->update_history(vm);
-
-    vm->log("LCM", Log::INFO, "New VM state is RUNNING");
 
     vm->unlock();
 
@@ -143,13 +138,12 @@ int DispatchManager::migrate(
     oss << "Migrating VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN ) )
+    if ((vm->get_state()     == VirtualMachine::ACTIVE &&
+         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+          vm->get_lcm_state() == VirtualMachine::UNKNOWN )) ||
+         vm->get_state() == VirtualMachine::POWEROFF ||
+         vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::MIGRATE,vid);
     }
     else
@@ -192,9 +186,6 @@ int DispatchManager::live_migrate(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::LIVE_MIGRATE,vid);
     }
     else
@@ -219,12 +210,13 @@ error:
 /* ************************************************************************** */
 
 int DispatchManager::shutdown (
-    int vid)
+        int     vid,
+        bool    hard,
+        string& error_str)
 {
-    ostringstream       oss;
-    VirtualMachine *    vm;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -234,14 +226,20 @@ int DispatchManager::shutdown (
     oss << "Shutting down VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
+    if (vm->get_state()     == VirtualMachine::POWEROFF ||
+        vm->get_state()     == VirtualMachine::SUSPENDED ||
+       (vm->get_state()     == VirtualMachine::ACTIVE &&
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+         vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        lcm->trigger(LifeCycleManager::SHUTDOWN,vid);
+        if (hard)
+        {
+            lcm->trigger(LifeCycleManager::CANCEL,vid);
+        }
+        else
+        {
+            lcm->trigger(LifeCycleManager::SHUTDOWN,vid);
+        }
     }
     else
     {
@@ -253,10 +251,13 @@ int DispatchManager::shutdown (
     return 0;
 
 error:
-
     oss.str("");
     oss << "Could not shutdown VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
+
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
 
     vm->unlock();
     return -2;
@@ -266,13 +267,13 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::undeploy(
-    int vid,
-    bool hard)
+    int     vid,
+    bool    hard,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -282,13 +283,11 @@ int DispatchManager::undeploy(
     oss << "Undeploying VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+    if ( vm->get_state()       == VirtualMachine::POWEROFF ||
+         (vm->get_state()       == VirtualMachine::ACTIVE &&
+           (vm->get_lcm_state() == VirtualMachine::RUNNING ||
+            vm->get_lcm_state() == VirtualMachine::UNKNOWN)))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         if (hard)
         {
             lcm->trigger(LifeCycleManager::UNDEPLOY_HARD,vid);
@@ -312,6 +311,10 @@ error:
     oss << "Could not undeploy VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
+
     vm->unlock();
     return -2;
 }
@@ -320,13 +323,13 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::poweroff (
-    int vid,
-    bool hard)
+    int     vid,
+    bool    hard,
+    string& error_str)
 {
-    ostringstream       oss;
-    VirtualMachine *    vm;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -340,9 +343,6 @@ int DispatchManager::poweroff (
         (vm->get_lcm_state() == VirtualMachine::RUNNING ||
          vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         if (hard)
         {
             lcm->trigger(LifeCycleManager::POWEROFF_HARD,vid);
@@ -367,6 +367,10 @@ error:
     oss << "Could not power off VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
+
     vm->unlock();
     return -2;
 }
@@ -375,12 +379,12 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::hold(
-    int vid)
+    int     vid,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -395,8 +399,6 @@ int DispatchManager::hold(
         vm->set_state(VirtualMachine::HOLD);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is HOLD.");
     }
     else
     {
@@ -413,6 +415,10 @@ error:
     oss << "Could not hold VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
+
     vm->unlock();
     return -2;
 }
@@ -421,12 +427,12 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::release(
-    int vid)
+    int     vid,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -441,8 +447,6 @@ int DispatchManager::release(
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is PENDING.");
     }
     else
     {
@@ -458,6 +462,10 @@ error:
     oss << "Could not release VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
+
     vm->unlock();
     return -2;
 }
@@ -466,12 +474,12 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::stop(
-    int vid)
+    int     vid,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -481,12 +489,10 @@ int DispatchManager::stop(
     oss << "Stopping VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if (vm->get_state()        == VirtualMachine::SUSPENDED ||
+        (vm->get_state()       == VirtualMachine::ACTIVE &&
+         vm->get_lcm_state() == VirtualMachine::RUNNING ))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::STOP,vid);
     }
     else
@@ -503,51 +509,9 @@ error:
     oss << "Could not stop VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
-    vm->unlock();
-    return -2;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::cancel(
-    int vid)
-{
-    VirtualMachine *    vm;
-    ostringstream       oss;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
-    oss << "Cancelling VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
-    {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        vm->unlock();
-
-        lcm->trigger(LifeCycleManager::CANCEL,vid);
-    }
-    else
-    {
-        goto error;
-    }
-
-    return 0;
-
-error:
     oss.str("");
-    oss << "Could not cancel VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
 
     vm->unlock();
     return -2;
@@ -557,12 +521,12 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::suspend(
-    int vid)
+    int     vid,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -575,9 +539,6 @@ int DispatchManager::suspend(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
         lcm->trigger(LifeCycleManager::SUSPEND,vid);
     }
     else
@@ -594,6 +555,10 @@ error:
     oss << "Could not suspend VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
+
     vm->unlock();
     return -2;
 }
@@ -602,12 +567,12 @@ error:
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::resume(
-    int vid)
+    int     vid,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -623,25 +588,15 @@ int DispatchManager::resume(
         vm->set_state(VirtualMachine::PENDING);
 
         vmpool->update(vm);
-
-        vm->log("DiM", Log::INFO, "New VM state is PENDING.");
     }
     else if (vm->get_state() == VirtualMachine::SUSPENDED)
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
-
         lcm->trigger(LifeCycleManager::RESTORE,vid);
     }
-    else if (vm->get_state() == VirtualMachine::POWEROFF)
+    else if ( vm->get_state() == VirtualMachine::POWEROFF ||
+             (vm->get_state() == VirtualMachine::ACTIVE &&
+              vm->get_lcm_state() == VirtualMachine::UNKNOWN))
     {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        vm->log("DiM", Log::INFO, "New VM state is ACTIVE.");
-
         lcm->trigger(LifeCycleManager::RESTART,vid);
     }
     else
@@ -658,70 +613,25 @@ error:
     oss << "Could not resume VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
-    vm->unlock();
-    return -2;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::restart(int vid)
-{
-    VirtualMachine *    vm;
-    ostringstream       oss;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
-    oss << "Restarting VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
-
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED ||
-         vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY))
-    {
-        Nebula&             nd  = Nebula::instance();
-        LifeCycleManager *  lcm = nd.get_lcm();
-
-        lcm->trigger(LifeCycleManager::RESTART,vid);
-    }
-    else
-    {
-        goto error;
-    }
-
-    vm->unlock();
-
-    return 0;
-
-error:
     oss.str("");
-    oss << "Could not restart VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
 
     vm->unlock();
-
     return -2;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::reboot(int vid)
+int DispatchManager::reboot(
+    int     vid,
+    bool    hard,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -734,10 +644,14 @@ int DispatchManager::reboot(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
-        vmm->trigger(VirtualMachineManager::REBOOT,vid);
+        if (hard)
+        {
+            vmm->trigger(VirtualMachineManager::RESET,vid);
+        }
+        else
+        {
+            vmm->trigger(VirtualMachineManager::REBOOT,vid);
+        }
 
         vm->set_resched(false); //Rebooting cancels re-scheduling actions
 
@@ -757,54 +671,9 @@ error:
     oss << "Could not reboot VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
-    vm->unlock();
-
-    return -2;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int DispatchManager::reset(int vid)
-{
-    VirtualMachine *    vm;
-    ostringstream       oss;
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return -1;
-    }
-
-    oss << "Resetting VM " << vid;
-    NebulaLog::log("DiM",Log::DEBUG,oss);
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING )
-    {
-        Nebula&                 nd = Nebula::instance();
-        VirtualMachineManager * vmm = nd.get_vmm();
-
-        vmm->trigger(VirtualMachineManager::RESET,vid);
-
-        vm->set_resched(false); //Resetting cancels re-scheduling actions
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        goto error;
-    }
-
-    vm->unlock();
-
-    return 0;
-
-error:
     oss.str("");
-    oss << "Could not reset VM " << vid << ", wrong state.";
-    NebulaLog::log("DiM",Log::ERROR,oss);
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
 
     vm->unlock();
 
@@ -814,12 +683,14 @@ error:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::resched(int vid, bool do_resched)
+int DispatchManager::resched(
+    int     vid,
+    bool    do_resched,
+    string& error_str)
 {
-    VirtualMachine *    vm;
-    ostringstream       oss;
+    ostringstream oss;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
@@ -850,6 +721,10 @@ error:
     oss << "Could not set rescheduling flag for VM " << vid << ", wrong state.";
     NebulaLog::log("DiM",Log::ERROR,oss);
 
+    oss.str("");
+    oss << "This action is not available for state " << vm->state_str();
+    error_str = oss.str();
+
     vm->unlock();
 
     return -2;
@@ -874,8 +749,6 @@ void DispatchManager::finalize_cleanup(VirtualMachine * vm)
     vm->set_state(VirtualMachine::DONE);
     vmpool->update(vm);
 
-    vm->log("DiM", Log::INFO, "New VM state is DONE.");
-
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     tmpl = vm->clone_template();
@@ -891,7 +764,8 @@ void DispatchManager::finalize_cleanup(VirtualMachine * vm)
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::finalize(
-    int vid)
+    int     vid,
+    string& error_str)
 {
     VirtualMachine * vm;
     ostringstream oss;
@@ -910,10 +784,6 @@ int DispatchManager::finalize(
     oss << "Finalizing VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    Nebula&            nd  = Nebula::instance();
-    TransferManager *  tm  = nd.get_tm();
-    LifeCycleManager * lcm = nd.get_lcm();
-
     switch (state)
     {
         case VirtualMachine::SUSPENDED:
@@ -923,11 +793,6 @@ int DispatchManager::finalize(
             vm->get_requirements(cpu,mem,disk);
             hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
-            finalize_cleanup(vm);
-        break;
-
-        case VirtualMachine::FAILED:
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
             finalize_cleanup(vm);
         break;
@@ -960,15 +825,13 @@ int DispatchManager::finalize(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int DispatchManager::resubmit(int vid)
+int DispatchManager::resubmit(
+    int     vid,
+    string& error_str)
 {
     VirtualMachine * vm;
     ostringstream    oss;
     int              rc = 0;
-
-    Nebula&             nd  = Nebula::instance();
-    LifeCycleManager *  lcm = nd.get_lcm();
-    TransferManager *   tm  = nd.get_tm();
 
     vm = vmpool->get(vid,true);
 
@@ -980,30 +843,19 @@ int DispatchManager::resubmit(int vid)
     switch (vm->get_state())
     {
         case VirtualMachine::POWEROFF:
-            NebulaLog::log("DiM",Log::ERROR,
-                "Cannot delete-recreate a powered off VM. Resume it first");
+            error_str = "Cannot delete-recreate a powered off VM. Resume it first";
+            NebulaLog::log("DiM",Log::ERROR,error_str);
             rc = -2;
         break;
 
         case VirtualMachine::SUSPENDED:
-            NebulaLog::log("DiM",Log::ERROR,
-                "Cannot delete-recreate a suspended VM. Resume it first");
+            error_str = "Cannot delete-recreate a suspended VM. Resume it first";
+            NebulaLog::log("DiM",Log::ERROR,error_str);
             rc = -2;
         break;
 
         case VirtualMachine::INIT: // No need to do nothing here
         case VirtualMachine::PENDING:
-        break;
-
-        case VirtualMachine::FAILED: //Cleanup VM host files
-            vm->log("DiM", Log::INFO, "New VM state is CLEANUP.");
-
-            vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-            vm->set_state(VirtualMachine::ACTIVE);
-
-            vmpool->update(vm);
-
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
@@ -1013,8 +865,6 @@ int DispatchManager::resubmit(int vid)
             vm->set_state(VirtualMachine::PENDING);
 
             vmpool->update(vm);
-
-            vm->log("DiM", Log::INFO, "New VM state is PENDING.");
         break;
 
         case VirtualMachine::ACTIVE: //Cleanup VM resources before PENDING
@@ -1022,8 +872,8 @@ int DispatchManager::resubmit(int vid)
         break;
 
         case VirtualMachine::DONE:
-            NebulaLog::log("DiM",Log::ERROR,
-                "Cannot delete-recreate a VM already in DONE state");
+            error_str = "Cannot delete-recreate a VM already in DONE state";
+            NebulaLog::log("DiM",Log::ERROR,error_str);
             rc = -2;
         break;
     }
@@ -1050,11 +900,7 @@ int DispatchManager::attach(int vid,
     set<string>       used_targets;
     VectorAttribute * disk;
 
-    Nebula&           nd       = Nebula::instance();
-    VirtualMachineManager* vmm = nd.get_vmm();
-    TransferManager*       tm  = nd.get_tm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1079,7 +925,8 @@ int DispatchManager::attach(int vid,
     }
     else
     {
-        oss << "Could not attach a new disk to VM " << vid << ", wrong state.";
+        oss << "Could not attach a new disk to VM " << vid << ", wrong state "
+            << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1110,9 +957,6 @@ int DispatchManager::attach(int vid,
 
     if ( vm == 0 )
     {
-        Nebula&       nd     = Nebula::instance();
-        ImageManager* imagem = nd.get_imagem();
-
         if ( image_id != -1 )
         {
             imagem->release_image(oid, image_id, false);
@@ -1146,23 +990,50 @@ int DispatchManager::attach(int vid,
         NebulaLog::log("DiM", Log::ERROR, error_str);
         return -1;
     }
-    else
-    {
-        vm->set_attach_disk(disk);
-    }
 
-    vmpool->update(vm);
+    // Set the VM info in the history before the disk is attached to the
+    // VM template
+    vm->set_vm_info();
 
-    vm->unlock();
+    vm->set_attach_disk(disk);
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::DISK_ATTACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        //-----------------------------------------------
+
         vmm->trigger(VirtualMachineManager::ATTACH,vid);
     }
     else
     {
         tm->trigger(TransferManager::PROLOG_ATTACH, vid);
     }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }
@@ -1177,11 +1048,7 @@ int DispatchManager::detach(
 {
     ostringstream oss;
 
-    Nebula&           nd       = Nebula::instance();
-    VirtualMachineManager* vmm = nd.get_vmm();
-    TransferManager*       tm  = nd.get_tm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1196,7 +1063,8 @@ int DispatchManager::detach(
           vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
         vm->get_state()       != VirtualMachine::POWEROFF)
     {
-        oss << "Could not detach disk from VM " << vid << ", wrong state.";
+        oss << "Could not detach disk from VM " << vid << ", wrong state "
+            << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1217,31 +1085,53 @@ int DispatchManager::detach(
         return -1;
     }
 
+    vm->set_resched(false);
+
     if ( vm->get_state() == VirtualMachine::ACTIVE &&
          vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_vm_info();
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::DISK_DETACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        //---------------------------------------------------
+
         vm->set_state(VirtualMachine::HOTPLUG);
+
+        vmm->trigger(VirtualMachineManager::DETACH,vid);
     }
     else
     {
         vm->set_state(VirtualMachine::ACTIVE);
         vm->set_state(VirtualMachine::HOTPLUG_EPILOG_POWEROFF);
-    }
 
-    vm->set_resched(false);
+        tm->trigger(TransferManager::EPILOG_DETACH, vid);
+    }
 
     vmpool->update(vm);
 
     vm->unlock();
-
-    if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
-    {
-        vmm->trigger(VirtualMachineManager::DETACH,vid);
-    }
-    else
-    {
-        tm->trigger(TransferManager::EPILOG_DETACH, vid);
-    }
 
     return 0;
 }
@@ -1257,10 +1147,7 @@ int DispatchManager::snapshot_create(
 {
     ostringstream oss;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1277,7 +1164,7 @@ int DispatchManager::snapshot_create(
          vm->get_lcm_state() != VirtualMachine::RUNNING )
     {
         oss << "Could not create a new snapshot for VM " << vid
-            << ", wrong state.";
+            << ", wrong state " << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1313,10 +1200,7 @@ int DispatchManager::snapshot_revert(
 
     int rc;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1333,7 +1217,7 @@ int DispatchManager::snapshot_revert(
          vm->get_lcm_state() != VirtualMachine::RUNNING )
     {
         oss << "Could not revert VM " << vid << " to snapshot " << snap_id
-            << ", wrong state.";
+            << ", wrong state " << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1382,10 +1266,7 @@ int DispatchManager::snapshot_delete(
 
     int rc;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine * vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1402,7 +1283,7 @@ int DispatchManager::snapshot_delete(
          vm->get_lcm_state() != VirtualMachine::RUNNING )
     {
         oss << "Could not delete snapshot " << snap_id << " for VM " << vid
-            << ", wrong state.";
+            << ", wrong state " << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1458,10 +1339,7 @@ int DispatchManager::attach_nic(
     VectorAttribute *        nic;
     vector<VectorAttribute*> sg_rules;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine *        vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1478,7 +1356,8 @@ int DispatchManager::attach_nic(
           vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
         vm->get_state()       != VirtualMachine::POWEROFF )
     {
-        oss << "Could not add a new NIC to VM " << vid << ", wrong state.";
+        oss << "Could not add a new NIC to VM " << vid << ", wrong state "
+            << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1570,13 +1449,40 @@ int DispatchManager::attach_nic(
 
         return -1;
     }
-    else
-    {
-        vm->set_attach_nic(nic, sg_rules);
-    }
+
+    // Set the VM info in the history before the nic is attached to the
+    // VM template
+    vm->set_vm_info();
+
+    vm->set_attach_nic(nic, sg_rules);
 
     if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_NIC)
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::NIC_ATTACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
+        //-----------------------------------------------
+
         vmm->trigger(VirtualMachineManager::ATTACH_NIC,vid);
     }
     else
@@ -1603,10 +1509,7 @@ int DispatchManager::detach_nic(
 {
     ostringstream oss;
 
-    Nebula&                 nd  = Nebula::instance();
-    VirtualMachineManager*  vmm = nd.get_vmm();
-
-    VirtualMachine *        vm  = vmpool->get(vid, true);
+    VirtualMachine * vm = vmpool->get(vid, true);
 
     if ( vm == 0 )
     {
@@ -1621,7 +1524,8 @@ int DispatchManager::detach_nic(
           vm->get_lcm_state() != VirtualMachine::RUNNING ) &&
         vm->get_state()       != VirtualMachine::POWEROFF )
     {
-        oss << "Could not detach NIC from VM " << vid << ", wrong state.";
+        oss << "Could not detach NIC from VM " << vid << ", wrong state "
+            << vm->state_str() << ".";
         error_str = oss.str();
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
@@ -1645,6 +1549,31 @@ int DispatchManager::detach_nic(
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
+        time_t the_time = time(0);
+
+        // Close current history record
+
+        vm->set_vm_info();
+
+        vm->set_running_etime(the_time);
+
+        vm->set_etime(the_time);
+
+        vm->set_action(History::NIC_DETACH_ACTION);
+        vm->set_reason(History::USER);
+
+        vmpool->update_history(vm);
+
+        // Open a new history record
+
+        vm->cp_history();
+
+        vm->set_stime(the_time);
+
+        vm->set_running_stime(the_time);
+
+        vmpool->update_history(vm);
+
         vm->set_state(VirtualMachine::HOTPLUG_NIC);
 
         vm->set_resched(false);
@@ -1652,6 +1581,8 @@ int DispatchManager::detach_nic(
         vmpool->update(vm);
 
         vm->unlock();
+
+        //---------------------------------------------------
 
         vmm->trigger(VirtualMachineManager::DETACH_NIC,vid);
     }

@@ -680,7 +680,7 @@ class VCenterVm
     #  @xml_text XML repsentation of the VM
     ############################################################################
     def self.deploy(xml_text, lcm_state, deploy_id, hostname)
-        if lcm_state == "BOOT"
+        if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
             return clone_vm(xml_text)
         else
             hid         = VIClient::translate_hostname(hostname)

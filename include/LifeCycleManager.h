@@ -20,10 +20,16 @@
 #include "ActionManager.h"
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
+#include "ImagePool.h"
 
 using namespace std;
 
 extern "C" void * lcm_action_loop(void *arg);
+
+//Forward definitions
+class TransferManager;
+class DispatchManager;
+class VirtualMachineManager;
 
 /**
  *  The Virtual Machine Life-cycle Manager module. This class is responsible for
@@ -33,8 +39,8 @@ class LifeCycleManager : public ActionListener
 {
 public:
 
-    LifeCycleManager(VirtualMachinePool * _vmpool, HostPool * _hpool):
-        vmpool(_vmpool),hpool(_hpool)
+    LifeCycleManager():
+        vmpool(0), hpool(0), ipool(0), tm(0), vmm(0), dm(0)
     {
         am.addListener(this);
     };
@@ -51,7 +57,6 @@ public:
         SHUTDOWN_FAILURE, /**< Sent by the VMM when a shutdown action fails   */
         CANCEL_SUCCESS,   /**< Sent by the VMM when a cancel action succeeds  */
         CANCEL_FAILURE,   /**< Sent by the VMM when a cancel action fails     */
-        MONITOR_FAILURE,  /**< Sent by the VMM when a VM has failed while active */
         MONITOR_SUSPEND,  /**< Sent by the VMM when a VM is paused while active */
         MONITOR_DONE,     /**< Sent by the VMM when a Host cannot be monitored*/
         MONITOR_POWEROFF, /**< Sent by the VMM when a VM is not found */
@@ -115,6 +120,12 @@ public:
     int start();
 
     /**
+     * Initializes internal pointers to other managers. Must be called when
+     * all the other managers exist in Nebula::instance
+     */
+    void init_managers();
+
+    /**
      *  Gets the thread identification.
      *    @return pthread_t for the manager thread (that in the action loop).
      */
@@ -129,6 +140,12 @@ public:
      *    @param success trigger successful transition if true, fail otherwise
      */
     void  recover(VirtualMachine * vm, bool success);
+
+	/**
+	 *  Retries the last VM operation that lead to a failure. The underlying
+	 *  driver actions may be invoked and should be "re-entrant".
+	 */
+    void retry(VirtualMachine * vm);
 
 private:
     /**
@@ -145,6 +162,26 @@ private:
      *  Pointer to the Host Pool, to access hosts
      */
     HostPool *              hpool;
+
+    /**
+     *  Pointer to the Image Pool, to access images
+     */
+    ImagePool *             ipool;
+
+    /**
+     * Pointer to TransferManager
+     */
+    TransferManager *       tm;
+
+    /**
+     * Pointer to VirtualMachineManager
+     */
+    VirtualMachineManager * vmm;
+
+    /**
+     * Pointer to DispatchManager
+     */
+    DispatchManager *       dm;
 
     /**
      *  Action engine for the Manager
@@ -188,12 +225,6 @@ private:
     void shutdown_success_action(int vid);
 
     void shutdown_failure_action(int vid);
-
-    void cancel_success_action(int vid);
-
-    void cancel_failure_action(int vid);
-
-    void monitor_failure_action(int vid);
 
     void monitor_suspend_action(int vid);
 
@@ -253,15 +284,13 @@ private:
 
     void stop_action(int vid);
 
-    void cancel_action(int vid);
-
     void checkpoint_action(int vid);
 
     void migrate_action(int vid);
 
     void live_migrate_action(int vid);
 
-    void shutdown_action(int vid);
+    void shutdown_action(int vid, bool hard);
 
     void undeploy_action(int vid, bool hard);
 
@@ -270,8 +299,6 @@ private:
     void poweroff_hard_action(int vid);
 
     void poweroff_action(int vid, bool hard);
-
-    void failure_action(VirtualMachine * vm);
 
     void restart_action(int vid);
 

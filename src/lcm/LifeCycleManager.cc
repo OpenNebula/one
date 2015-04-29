@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "LifeCycleManager.h"
+#include "Nebula.h"
 #include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
@@ -60,6 +61,22 @@ int LifeCycleManager::start()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void LifeCycleManager::init_managers()
+{
+    Nebula& nd = Nebula::instance();
+
+    tm  = nd.get_tm();
+    vmm = nd.get_vmm();
+    dm  = nd.get_dm();
+
+    vmpool = nd.get_vmpool();
+    hpool  = nd.get_hpool();
+    ipool  = nd.get_ipool();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void LifeCycleManager::trigger(Actions action, int _vid)
 {
     int *   vid;
@@ -99,10 +116,6 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case CANCEL_FAILURE:
         aname = "CANCEL_FAILURE";
-        break;
-
-    case MONITOR_FAILURE:
-        aname = "MONITOR_FAILURE";
         break;
 
     case MONITOR_SUSPEND:
@@ -324,15 +337,11 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "CANCEL_SUCCESS")
     {
-        cancel_success_action(vid);
+        shutdown_success_action(vid);
     }
     else if (action == "CANCEL_FAILURE")
     {
-        cancel_failure_action(vid);
-    }
-    else if (action == "MONITOR_FAILURE")
-    {
-        monitor_failure_action(vid);
+        shutdown_failure_action(vid);
     }
     else if (action == "MONITOR_SUSPEND")
     {
@@ -456,7 +465,7 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "CANCEL")
     {
-        cancel_action(vid);
+        shutdown_action(vid, true);
     }
     else if (action == "MIGRATE")
     {
@@ -468,7 +477,7 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     }
     else if (action == "SHUTDOWN")
     {
-        shutdown_action(vid);
+        shutdown_action(vid, false);
     }
     else if (action == "UNDEPLOY")
     {

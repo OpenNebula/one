@@ -399,6 +399,30 @@ void VirtualMachineXML::log(const string &st)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool VirtualMachineXML::clear_log()
+{
+    string st;
+
+    if (user_template == 0)
+    {
+        return false;
+    }
+
+    user_template->get("SCHED_MESSAGE", st);
+
+    if (st.empty())
+    {
+        return false;
+    }
+
+    user_template->erase("SCHED_MESSAGE");
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachineXML::parse_action_name(string& action_st)
 {
     one_util::tolower(action_st);
@@ -412,7 +436,6 @@ int VirtualMachineXML::parse_action_name(string& action_st)
         && action_st != "stop"
         && action_st != "suspend"
         && action_st != "resume"
-        && action_st != "boot"
         && action_st != "delete"
         && action_st != "delete-recreate"
         && action_st != "reboot"
@@ -431,7 +454,7 @@ int VirtualMachineXML::parse_action_name(string& action_st)
 /* -------------------------------------------------------------------------- */
 
 bool VirtualMachineXML::test_image_datastore_capacity(
-    ImageDatastorePoolXML * img_dspool)
+    ImageDatastorePoolXML * img_dspool, string & error_msg) const
 {
     map<int,long long>::const_iterator ds_usage_it;
     DatastoreXML* ds;
@@ -442,6 +465,12 @@ bool VirtualMachineXML::test_image_datastore_capacity(
 
         if (ds == 0 || !ds->test_capacity(ds_usage_it->second))
         {
+            ostringstream oss;
+
+            oss << "Image Datastore " << ds->get_oid()
+                << " does not have enough capacity";
+
+            error_msg = oss.str();
             return false;
         }
     }

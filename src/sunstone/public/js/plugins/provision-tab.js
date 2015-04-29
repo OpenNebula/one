@@ -3498,7 +3498,7 @@ function get_provision_vm_state(data) {
       state_str = tr("ERROR");
       break;
     case tr("ACTIVE"):
-      var lcm_state = OpenNebula.Helper.resource_state("vm_lcm",data.LCM_STATE);
+      var lcm_state = OpenNebula.Helper.resource_state("short_vm_lcm",data.LCM_STATE);
 
       switch (lcm_state) {
         case tr("LCM_INIT"):

@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "DispatchManager.h"
+#include "Nebula.h"
 #include "NebulaLog.h"
 
 /* -------------------------------------------------------------------------- */
@@ -89,10 +90,6 @@ void DispatchManager::trigger(Actions action, int _vid)
         aname = "DONE";
         break;
 
-    case FAILED:
-        aname = "FAILED";
-        break;
-
     case RESUBMIT:
         aname = "RESUBMIT";
         break;
@@ -146,10 +143,6 @@ void DispatchManager::do_action(const string &action, void * arg)
     {
         done_action(vid);
     }
-    else if (action == "FAILED")
-    {
-        failed_action(vid);
-    }
     else if (action == "RESUBMIT")
     {
         resubmit_action(vid);
@@ -166,3 +159,21 @@ void DispatchManager::do_action(const string &action, void * arg)
         NebulaLog::log("DiM", Log::ERROR, oss);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void DispatchManager::init_managers()
+{
+    Nebula& nd = Nebula::instance();
+
+    tm  = nd.get_tm();
+    vmm = nd.get_vmm();
+    lcm = nd.get_lcm();
+
+    imagem = nd.get_imagem();
+
+    hpool  = nd.get_hpool();
+    vmpool = nd.get_vmpool();
+}
+

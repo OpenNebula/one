@@ -111,45 +111,75 @@ public class VirtualMachine extends PoolElement{
         "PROLOG_UNDEPLOY",
         "BOOT_UNDEPLOY",
         "HOTPLUG_PROLOG_POWEROFF",
-        "HOTPLUG_EPILOG_POWEROFF" };
+        "HOTPLUG_EPILOG_POWEROFF",
+        "BOOT_MIGRATE",
+        "BOOT_FAILURE",
+        "BOOT_MIGRATE_FAILURE",
+        "PROLOG_MIGRATE_FAILURE",
+        "PROLOG_FAILURE",
+        "EPILOG_FAILURE",
+        "EPILOG_STOP_FAILURE",
+        "EPILOG_UNDEPLOY_FAILURE",
+        "PROLOG_MIGRATE_POWEROFF",
+        "PROLOG_MIGRATE_POWEROFF_FAILURE",
+        "PROLOG_MIGRATE_SUSPEND",
+        "PROLOG_MIGRATE_SUSPEND_FAILURE",
+        "BOOT_UNDEPLOY_FAILURE",
+        "BOOT_STOPPED_FAILURE"
+    };
 
     private static final String[] SHORT_LCM_STATES =
     {
-        null,
-        "prol",
-        "boot",
-        "runn",
-        "migr",
-        "save",
-        "save",
-        "save",
-        "migr",
-        "prol",
-        "epil",
-        "epil",
-        "shut",
-        "shut",
-        "fail",
-        "clea",
-        "unkn",
-        "hotp",
-        "shut",
-        "boot",
-        "boot",
-        "boot",
-        "boot",
-        "clea",
-        "snap",
-        "hotp",
-        "hotp",
-        "hotp",
-        "hotp",
-        "shut",
-        "epil",
-        "prol",
-        "boot",
-        "hotp",
-        "hotp" };
+        "",         // LCM_INIT
+        "prol",     // PROLOG
+        "boot",     // BOOT
+        "runn",     // RUNNING
+        "migr",     // MIGRATE
+        "save",     // SAVE_STOP
+        "save",     // SAVE_SUSPEND
+        "save",     // SAVE_MIGRATE
+        "migr",     // PROLOG_MIGRATE
+        "prol",     // PROLOG_RESUME
+        "epil",     // EPILOG_STOP
+        "epil",     // EPILOG
+        "shut",     // SHUTDOWN
+        "shut",     // CANCEL
+        "fail",     // FAILURE
+        "clea",     // CLEANUP_RESUBMIT
+        "unkn",     // UNKNOWN
+        "hotp",     // HOTPLUG
+        "shut",     // SHUTDOWN_POWEROFF
+        "boot",     // BOOT_UNKNOWN
+        "boot",     // BOOT_POWEROFF
+        "boot",     // BOOT_SUSPENDED
+        "boot",     // BOOT_STOPPED
+        "clea",     // CLEANUP_DELETE
+        "snap",     // HOTPLUG_SNAPSHOT
+        "hotp",     // HOTPLUG_NIC
+        "hotp",     // HOTPLUG_SAVEAS
+        "hotp",     // HOTPLUG_SAVEAS_POWEROFF
+        "hotp",     // HOTPLUG_SAVEAS_SUSPENDED
+        "shut",     // SHUTDOWN_UNDEPLOY
+        "epil",     // EPILOG_UNDEPLOY
+        "prol",     // PROLOG_UNDEPLOY
+        "boot",     // BOOT_UNDEPLOY
+        "hotp",     // HOTPLUG_PROLOG_POWEROFF
+        "hotp",     // HOTPLUG_EPILOG_POWEROFF
+        "boot",     // BOOT_MIGRATE
+        "fail",     // BOOT_FAILURE
+        "fail",     // BOOT_MIGRATE_FAILURE
+        "fail",     // PROLOG_MIGRATE_FAILURE
+        "fail",     // PROLOG_FAILURE
+        "fail",     // EPILOG_FAILURE
+        "fail",     // EPILOG_STOP_FAILURE
+        "fail",     // EPILOG_UNDEPLOY_FAILURE
+        "migr",     // PROLOG_MIGRATE_POWEROFF
+        "fail",     // PROLOG_MIGRATE_POWEROFF_FAILURE
+        "migr",     // PROLOG_MIGRATE_SUSPEND
+        "fail",     // PROLOG_MIGRATE_SUSPEND_FAILURE
+        "fail",     // BOOT_UNDEPLOY_FAILURE
+        "fail"      // BOOT_STOPPED_FAILURE
+    };
 
     /**
      * Creates a new VM representation.
@@ -466,12 +496,13 @@ public class VirtualMachine extends PoolElement{
      *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
-     * @param success recover by succeeding the missing transaction if true.
+     * @param operation to recover the VM: (0) failure, (1) success or (2)
+     * retry
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse recover(Client client, int id, boolean success)
+    public static OneResponse recover(Client client, int id, int operation)
     {
-        return client.call(RECOVER, id, success);
+        return client.call(RECOVER, id, operation);
     }
 
     // =================================
@@ -533,7 +564,6 @@ public class VirtualMachine extends PoolElement{
      * <li>{@link VirtualMachine#suspend()}</li>
      * <li>{@link VirtualMachine#resume()}</li>
      * <li>{@link VirtualMachine#delete(boolean)}</li>
-     * <li>{@link VirtualMachine#boot()}</li>
      * <li>{@link VirtualMachine#poweroff()}</li>
      * <li>{@link VirtualMachine#resched()}</li>
      * <li>{@link VirtualMachine#unresched()}</li>
@@ -542,7 +572,7 @@ public class VirtualMachine extends PoolElement{
      *
      * @param action The action name to be performed, can be:<br/>
      * "shutdown", "hold", "release", "stop", "shutdown-hard", "suspend",
-     * "resume", "boot", "delete", "delete-recreate", "reboot", "resched",
+     * "resume", "delete", "delete-recreate", "reboot", "resched",
      * "unresched", "reboot-hard", "poweroff", "undeploy", "undeploy-hard"
      * @return If an error occurs the error message contains the reason.
      */
@@ -1022,15 +1052,6 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
-     * @return If an error occurs the error message contains the reason.
-     */
-    public OneResponse boot()
-    {
-        return action("boot");
-    }
-
-    /**
      * Sets the re-scheduling flag for the VM
      * @return If an error occurs the error message contains the reason.
      */
@@ -1209,17 +1230,6 @@ public class VirtualMachine extends PoolElement{
     @Deprecated public OneResponse resubmit()
     {
         return action("resubmit");
-    }
-
-    /**
-     * Forces a re-deployment of a VM in UNKNOWN or BOOT states.
-     * @return If an error occurs the error message contains the reason.
-     *
-     * @deprecated  Replaced by {@link #boot}
-     */
-    @Deprecated public OneResponse restart()
-    {
-        return action("restart");
     }
 
     /**
