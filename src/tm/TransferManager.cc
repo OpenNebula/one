@@ -903,7 +903,7 @@ void TransferManager::prolog_migr_action(int vid)
         xfr << "MV "
             << tm_mad << " "
             << vm->get_previous_hostname() << ":"
-            << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+            << vm->get_previous_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
             << vm->get_remote_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
@@ -914,7 +914,7 @@ void TransferManager::prolog_migr_action(int vid)
     xfr << "MV "
         << vm_tm_mad << " "
         << vm->get_previous_hostname() << ":"
-        << vm->get_remote_system_dir() << " "
+        << vm->get_previous_remote_system_dir() << " "
         << vm->get_hostname() << ":"
         << vm->get_remote_system_dir() << " "
         << vm->get_oid() << " "
@@ -1581,7 +1581,7 @@ int TransferManager::epilog_delete_commands(VirtualMachine *vm,
         }
 
         host       = vm->get_previous_hostname();
-        system_dir = vm->get_remote_system_dir();
+        system_dir = vm->get_previous_remote_system_dir();
 
         vm_tm_mad = vm->get_previous_tm_mad();
         vm_ds_id  = vm->get_previous_ds_id();

@@ -477,6 +477,16 @@ public:
     }
 
     /**
+     *  Returns the remote VM directory for the previous host.
+     *  The hasPreviousHistory() function MUST be called before this one.
+     *    @return the remote system directory for the VM
+     */
+    const string & get_previous_remote_system_dir() const
+    {
+        return previous_history->rsystem_dir;
+    };
+
+    /**
      *  Returns the local VM directory. The VM local dir is in the form:
      *  $SYSTEM_DS_BASE_PATH/$VM_ID. Temporary stores VM disks.
      *    @return the system directory for the VM
@@ -686,6 +696,16 @@ public:
     const string & get_checkpoint_file() const
     {
         return history->checkpoint_file;
+    };
+
+    /**
+     *  Returns the checkpoint filename for the previous host.
+     *  The hasPreviousHistory() function MUST be called before this one.
+     *    @return the checkpoint filename
+     */
+    const string & get_previous_checkpoint_file() const
+    {
+        return previous_history->checkpoint_file;
     };
 
     /**
