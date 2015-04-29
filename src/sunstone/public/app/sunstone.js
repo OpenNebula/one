@@ -805,6 +805,12 @@ define(function(require) {
     return SunstoneCfg["actions"][actionId];
   }
 
+  var _getDataTable = function(tabName) {
+    if (SunstoneCfg['tabs'][tabName]) {
+      return SunstoneCfg['tabs'][tabName].dataTable;
+    }
+  }
+
   var Sunstone = {
     "addMainTab": _addMainTab,
     "addDialogs": _addDialogs,
@@ -825,7 +831,8 @@ define(function(require) {
 
     "runAction" : _runAction,
     "getAction": _getAction,
-    "getButton": _getButton
+    "getButton": _getButton,
+    "getDataTable": _getDataTable
   }
 
   return Sunstone;
