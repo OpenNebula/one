@@ -1782,6 +1782,7 @@ private:
      * IPv4 context variables:
      *   {"IP", "IP"},
      *   {"MAC", "MAC"},
+     *   {"MASK", "NETWORK_MASK"},
      *   {"NETWORK", "NETWORK_ADDRESS"},
      *   {"GATEWAY", "GATEWAY"},
      *   {"DNS", "DNS"},
