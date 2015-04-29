@@ -2,9 +2,10 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Buttons = require('./zones-tab/buttons');
   var Actions = require('./zones-tab/actions');
-  var DataTable = require('./zones-tab/datatable');
+  var Table = require('./zones-tab/datatable');
 
   var TAB_ID = require('./zones-tab/tabId');
+  var DATATABLE_ID = "dataTableZones";
 
   var _dialogs = [
     require('./zones-tab/dialogs/create')
@@ -25,7 +26,7 @@ define(function(require) {
     resource: 'Zone',
     buttons: Buttons,
     actions: Actions,
-    dataTable: DataTable,
+    dataTable: new Table(DATATABLE_ID),
     panels: _panels,
     dialogs: _dialogs
   };

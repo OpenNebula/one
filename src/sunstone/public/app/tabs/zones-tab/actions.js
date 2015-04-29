@@ -31,7 +31,9 @@ define(function(require) {
     "Zone.list" : {
       type: "list",
       call: OpenNebulaZone.list,
-      callback: DataTable.updateView,
+      callback: function(request, response) {
+        Sunstone.getDataTable(TAB_ID).updateView(request, response);
+      },
       error: Notifier.onError
     },
 
@@ -39,13 +41,10 @@ define(function(require) {
       type: "single",
       call: OpenNebulaZone.show,
       callback: function(request, response) {
+        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
         if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
-          // individual view
           Sunstone.insertPanels(TAB_ID, response);
         }
-
-        // datatable row
-        DataTable.updateElement(request, response);
       },
       error: Notifier.onError
     },
@@ -64,7 +63,7 @@ define(function(require) {
         if (Sunstone.rightInfoVisible(tab)) {
           Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
         } else {
-          DataTable.waitingNodes();
+          Sunstone.getDataTable(TAB_ID).waitingNodes();
           Sunstone.runAction("Zone.list", {force: true});
         }
       },
@@ -74,8 +73,12 @@ define(function(require) {
     "Zone.delete" : {
       type: "multiple",
       call : OpenNebulaZone.del,
-      callback : DataTable.deleteElement,
-      elements: DataTable.elements,
+      callback : function(request, response) {
+        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       error : Notifier.onError,
       notify:true
     },
