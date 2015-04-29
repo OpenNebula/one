@@ -2,9 +2,10 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Buttons = require('./images-tab/buttons');
   var Actions = require('./images-tab/actions');
-  var DataTable = require('./images-tab/datatable');
+  var Table = require('./images-tab/datatable');
 
   var TAB_ID = require('./images-tab/tabId');
+  var DATATABLE_ID = "dataTableImages";
 
   //var _dialogs = [
   //  require('./images-tab/dialogs/create')
@@ -26,7 +27,7 @@ define(function(require) {
     content: '<div id="upload_progress_bars" class="large-12 columns"></div>',
     buttons: Buttons,
     actions: Actions,
-    dataTable: DataTable,
+    dataTable: new Table(DATATABLE_ID),
     //panels: _panels,
     //dialogs: _dialogs
   };
