@@ -244,7 +244,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 
         cluster->unlock();
 
-        ds_id = Cluster::get_default_sysetm_ds(ds_ids);
+        ds_id = Cluster::get_default_system_ds(ds_ids);
 
         if (ds_id == -1)
         {
@@ -870,21 +870,23 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 {
     Nebula&             nd = Nebula::instance();
     DispatchManager *   dm = nd.get_dm();
+    DatastorePool * dspool = nd.get_dspool();
 
     VirtualMachine * vm;
 
     string hostname;
     string vmm_mad;
     string vnm_mad;
-    int    cluster_id;
+    int    cluster_id, ds_cluster_id;
     string ds_location;
     bool   is_public_cloud;
-    PoolObjectAuth host_perms;
+    PoolObjectAuth host_perms, ds_perms;
+    PoolObjectAuth * auth_ds_perms;
 
     int    c_hid;
     int    c_cluster_id;
     int    c_ds_id;
-    string c_tm_mad;
+    string c_tm_mad, tm_mad;
     bool   c_is_public_cloud;
 
     bool auth = false;
@@ -897,10 +899,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     int  hid     = xmlrpc_c::value_int(paramList.getInt(2));
     bool live    = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     bool enforce = false;
+    int  ds_id   = -1;
 
     if ( paramList.size() > 4 )
     {
         enforce = xmlrpc_c::value_boolean(paramList.getBoolean(4));
+    }
+
+    if ( paramList.size() > 5 )
+    {
+        ds_id = xmlrpc_c::value_int(paramList.getInt(5));
     }
 
     if (get_host_information(hid,
@@ -916,11 +924,35 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
+    if (ds_id == -1)
+    {
+       auth_ds_perms = 0;
+    }
+    else
+    {
+        Datastore * ds = dspool->get(ds_id, true);
+
+        if (ds == 0 )
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
+                att);
+
+            return;
+        }
+
+        ds->get_permissions(ds_perms);
+
+        ds->unlock();
+
+        auth_ds_perms = &ds_perms;
+    }
+
     // ------------------------------------------------------------------------
     // Authorize request
     // ------------------------------------------------------------------------
 
-    auth = vm_authorization(id, 0, 0, att, &host_perms, 0, auth_op);
+    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, auth_op);
 
     if (auth == false)
     {
@@ -970,10 +1002,14 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    // Check we are not migrating to the same host
+    // Get System DS information from current History record
+    c_ds_id  = vm->get_ds_id();
+    c_tm_mad = vm->get_tm_mad();
+
+    // Check we are not migrating to the same host and the same system DS
     c_hid = vm->get_hid();
 
-    if (c_hid == hid)
+    if (c_hid == hid && (ds_id == -1 || ds_id == c_ds_id))
     {
         ostringstream oss;
 
@@ -988,10 +1024,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    // Get System DS information from current History record
-    c_ds_id  = vm->get_ds_id();
-    c_tm_mad = vm->get_tm_mad();
-
+    // Check the host has enough capacity
     if (enforce)
     {
         int    cpu, mem, disk;
@@ -1053,6 +1086,44 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
+    if (ds_id != -1)
+    {
+        if ( c_ds_id != ds_id && live )
+        {
+            failure_response(ACTION,
+                    request_error(
+                            "A migration to a different system datastore "
+                            "cannot be performed live.",""),
+                    att);
+
+            return;
+        }
+
+        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+        {
+            return;
+        }
+
+        if (c_cluster_id != ds_cluster_id)
+        {
+            ostringstream oss;
+
+            oss << "Cannot migrate to a different cluster. VM running in a host"
+                << " in " << object_name(PoolObjectSQL::CLUSTER) << " ["
+                << c_cluster_id << "] , and new system datastore is in "
+                << object_name(PoolObjectSQL::CLUSTER) << " [" << ds_cluster_id << "]";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            return;
+        }
+    }
+    else
+    {
+        ds_id  = c_ds_id;
+        tm_mad = c_tm_mad;
+    }
+
     // ------------------------------------------------------------------------
     // Add a new history record and migrate the VM
     // ------------------------------------------------------------------------
@@ -1068,9 +1139,9 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                     hostname,
                     vmm_mad,
                     vnm_mad,
-                    c_tm_mad,
+                    tm_mad,
                     ds_location,
-                    c_ds_id,
+                    ds_id,
                     att) != 0)
     {
         vm->unlock();
