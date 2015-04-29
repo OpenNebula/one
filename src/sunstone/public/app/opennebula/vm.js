@@ -55,7 +55,21 @@ define(function(require) {
       "PROLOG_UNDEPLOY"     : 31,
       "BOOT_UNDEPLOY"       : 32,
       "HOTPLUG_PROLOG_POWEROFF"   : 33,
-      "HOTPLUG_EPILOG_POWEROFF"   : 34
+      "HOTPLUG_EPILOG_POWEROFF"   : 34,
+      "BOOT_MIGRATE"              : 35,
+      "BOOT_FAILURE"              : 36,
+      "BOOT_MIGRATE_FAILURE"      : 37,
+      "PROLOG_MIGRATE_FAILURE"    : 38,
+      "PROLOG_FAILURE"            : 39,
+      "EPILOG_FAILURE"            : 40,
+      "EPILOG_STOP_FAILURE"       : 41,
+      "EPILOG_UNDEPLOY_FAILURE"   : 42,
+      "PROLOG_MIGRATE_POWEROFF"   : 43,
+      "PROLOG_MIGRATE_POWEROFF_FAILURE"   : 44,
+      "PROLOG_MIGRATE_SUSPEND"            : 45,
+      "PROLOG_MIGRATE_SUSPEND_FAILURE"    : 46,
+      "BOOT_UNDEPLOY_FAILURE"     : 47,
+      "BOOT_STOPPED_FAILURE"      : 48
     },
 
     "create": function(params) {
@@ -101,9 +115,6 @@ define(function(require) {
     "resume": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "resume");
     },
-    "restart": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "restart");
-    },
     "resubmit": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "resubmit");
     },
@@ -148,6 +159,10 @@ define(function(require) {
     "saveas": function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "saveas", action_obj);
+    },
+    "disk_snapshot_cancel": function(params) {
+      var action_obj = {"disk_id": params.data.extra_param};
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_cancel", action_obj);
     },
     "snapshot_create": function(params) {
       var action_obj = params.data.extra_param;
@@ -227,7 +242,7 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "unresched");
     },
     "recover" : function(params) {
-      var action_obj = {"with": params.data.extra_param};
+      var action_obj = {"result": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "recover", action_obj);
     },
     "accounting": function(params) {
