@@ -310,6 +310,11 @@ var migrate_vm_tmpl ='\
                 </label>\
             </div>\
         </div>\
+        <br>\
+        <fieldset class="migrate_vm_ds_selection">\
+          <legend>'+tr("Select a datastore")+'</legend>\
+          '+generateDatastoreTableSelect("migrate_vm_ds")+'\
+        </fieldset>\
     </div>\
     <div class="form_buttons reveal-footer">\
       <div class="form_buttons">\
@@ -3193,7 +3198,13 @@ function setupMigrateVMDialog(live){
 
     setupHostTableSelect(dialog, "migrate_vm");
 
+    // Show system DS only
+    setupDatastoreTableSelect(dialog, "migrate_vm_ds",
+        { filter_fn: function(ds){ return ds.TYPE == 1; } }
+    );
+
     $('#refresh_button_migrate_vm', dialog).click();
+    $('#refresh_button_migrate_vm_ds', dialog).click();
 
     $('#advanced_migrate', dialog).hide();
     $('#advanced_migrate_toggle',dialog).click(function(){
@@ -3202,6 +3213,10 @@ function setupMigrateVMDialog(live){
     });
 
     setupTips(dialog);
+
+    if (live){
+        $(".migrate_vm_ds_selection", dialog).hide();
+    }
 
     $('#migrate_vm_form',dialog).submit(function(){
         var extra_info = {};
@@ -3213,6 +3228,7 @@ function setupMigrateVMDialog(live){
             return false;
         }
 
+        extra_info['ds_id'] = $("#selected_resource_id_migrate_vm_ds", dialog).val() || -1
         extra_info['enforce'] = $("#enforce", this).is(":checked") ? true : false
 
         $.each(getSelectedNodes(dataTable_vMachines), function(index, elem) {
