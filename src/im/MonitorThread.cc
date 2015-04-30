@@ -184,6 +184,7 @@ void MonitorThread::do_message()
 
     set<int>        lost;
     map<int,string> found;
+    set<int>        found_twice;
 
     ostringstream   oss;
 
@@ -194,8 +195,8 @@ void MonitorThread::do_message()
         return;
     }
 
-    rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds,
-                reserved_cpu, reserved_mem);
+    rc = host->update_info(tmpl, vm_poll, lost, found, found_twice,
+                non_shared_ds, reserved_cpu, reserved_mem);
 
     hpool->update(host);
 
@@ -252,7 +253,26 @@ void MonitorThread::do_message()
 
         for (itm = found.begin(); itm != found.end(); itm++)
         {
-            VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
+            VirtualMachine * vm = vmpool->get(itm->first, true);
+
+            if (vm == 0)
+            {
+                continue;
+            }
+
+            // When a VM in poweroff is found again, it may be because of
+            // outdated poll information. To make sure, we check if VM was
+            // reported twice
+            if (vm->get_state() == VirtualMachine::POWEROFF &&
+                found_twice.count(itm->first) == 0)
+            {
+                vm->unlock();
+                continue;
+            }
+
+            VirtualMachineManagerDriver::process_poll(vm, itm->second);
+
+            vm->unlock();
         }
     }
 };

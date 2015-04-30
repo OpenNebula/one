@@ -165,6 +165,7 @@ public:
                     bool            &with_vm_info,
                     set<int>        &lost,
                     map<int,string> &found,
+                    set<int>        &found_twice,
                     const set<int>  &non_shared_ds,
                     long long       reserved_cpu,
                     long long       reserved_mem);
@@ -526,6 +527,12 @@ private:
      * case they are cleaned.
      */
     set<int>        tmp_zombie_vms;
+
+    /**
+     * Tmp set of found VM IDs. Used to give recovered poweroff VMs one
+     * grace cycle, in case they reappear in outdated poll info.
+     */
+    set<int>        tmp_found_vms;
 
     // -------------------------------------------------------------------------
     //  VM Collection
