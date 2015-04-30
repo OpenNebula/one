@@ -58,7 +58,7 @@ define(function(require) {
   var _addPanels = function(tabId, panels) {
     var indexedPanels = {}
     $.each(panels, function(index, panel) {
-      indexedPanels[panel.panelId] = panel
+      indexedPanels[panel.PANEL_ID] = panel
     })
     SunstoneCfg["tabs"][tabId]['panels'] = indexedPanels;
     return false;
@@ -524,9 +524,10 @@ define(function(require) {
 
     var panels = SunstoneCfg['tabs'][tabName].panels;
     var active = false;
-    var activePanels = []
+    var templatePanelsParams = []
+    var panelInstances = []
 
-    $.each(panels, function(panelName, panel) {
+    $.each(panels, function(panelName, Panel) {
       if (Config.isTabPanelEnabled(tabName, panelName)) {
         if (activaTabHref) {
           if (activaTabHref == "#" + panelName) {
@@ -537,13 +538,15 @@ define(function(require) {
           active = true;
         }
 
-        activePanels.push({
+        var panelInstance = new Panel(info);
+
+        panelInstances.push(panelInstance);
+        templatePanelsParams.push({
           'panelName': panelName,
-          'icon': panel.icon,
-          'title': panel.title,
-          'html': panel.html(info),
-          'active': active,
-          'setup': panel.setup
+          'icon': panelInstance.icon,
+          'title': panelInstance.title,
+          'html': panelInstance.html(),
+          'active': active
         })
 
         active = false;
@@ -553,13 +556,13 @@ define(function(require) {
     var TemplatePanels = require('hbs!./sunstone/panels');
     var html = TemplatePanels({
       'containerId': containerId,
-      'panels': activePanels
+      'panels': templatePanelsParams
     })
 
     context.html(html);
 
-    $.each(panels, function(index, panel) {
-      panel.setup(info, context)
+    $.each(panelInstances, function(index, panel) {
+      panel.setup(context);
     });
 
     $(document).foundation('reflow', 'tab');
