@@ -2663,7 +2663,7 @@ function generate_nic_tab_content(str_nic_tab_id){
       title: tr("Advanced Options"),
       html_id: 'advanced_nic_template_create',
       content: '<fieldset>'+
-        '<legend>'+tr("Network")+'</legend>'+
+        '<legend>'+tr("Choose Network")+'</legend>'+
         '<div class="row  vm_param">'+
           '<div class="large-6 columns">'+
             '<label for="NETWORK_ID">'+tr("ID")+
@@ -2693,20 +2693,95 @@ function generate_nic_tab_content(str_nic_tab_id){
           '</div>'+
         '</div>'+
       '</fieldset>'+
-      '<div class="row vm_param">'+
-        '<div class="large-6 columns">'+
-          '<label for="IP">'+tr("IP")+
-            '<span class="tip">'+tr("Request an specific IP from the Network")+'</span>'+
-          '</label>'+
-          '<input type="text" id="IP" name="IP" size="3" />'+
+      '<fieldset>'+
+        '<legend>'+tr("Override Network Values IPv4")+'</legend>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="IP">'+tr("IP")+
+              '<span class="tip">'+tr("Request an specific IP from the Network")+'</span>'+
+            '</label>'+
+            '<input type="text" id="IP" name="IP" size="3" />'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="MAC">'+tr("MAC")+
+              '<span class="tip">'+tr("Set a specific MAC to the NIC")+'</span>'+
+            '</label>'+
+            '<input type="text" id="MAC" name="MAC"/>'+
+          '</div>'+
         '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_MASK">'+tr("Network Mask")+
+              '<span class="tip">'+tr("Override the network mask of the network. For example, 255.255.255.0")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_MASK" name="NETWORK_MASK"/>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_ADDRESS">'+tr("Network Address")+
+              '<span class="tip">'+tr("Override the base network address. For example, 192.168.1.0")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_ADDRESS" name="NETWORK_ADDRESS"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="GATEWAY">'+tr("Gateway")+
+              '<span class="tip">'+tr("Override the Router of the network.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="GATEWAY" name="GATEWAY"/>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="DNS">'+tr("DNS")+
+              '<span class="tip">'+tr("Override the specific DNS for this network")+'</span>'+
+            '</label>'+
+            '<input type="text" id="DNS" name="DNS"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="SEARCH_DOMAIN">'+tr("Search Domain")+
+              '<span class="tip">'+tr("Override the Search Domain for this network.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="SEARCH_DOMAIN" name="SEARCH_DOMAIN"/>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+      '<fieldset>'+
+        '<legend>'+tr("Override Network Values IPv6")+'</legend>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="IP6_GLOBAL">'+tr("IP6 Global")+
+              '<span class="tip">'+tr("Request an specific IP from the IPv6 Network")+'</span>'+
+            '</label>'+
+            '<input type="text" id="IP6_GLOBAL" name="IP6_GLOBAL" size="3" />'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="GATEWAY6">'+tr("GATEWAY6")+
+              '<span class="tip">'+tr("Override the Router of the IPv6 network.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="GATEWAY6" name="GATEWAY6"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="CONTEXT_FORCE_IPV4">'+tr("Network Mask")+
+              '<span class="tip">'+tr("Override force IPv4 for this IPv6 network. Values: Yes or No.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="CONTEXT_FORCE_IPV4" name="CONTEXT_FORCE_IPV4"/>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+      '<fieldset>'+
+        '<legend>'+tr("Harware")+'</legend>'+
+        '<div class="row  vm_param">'+
         '<div class="large-6 columns">'+
           '<label for="MODEL">'+tr("Model")+
             '<span class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</span>'+
           '</label>'+
           '<input type="text" id="MODEL" name="MODEL" />'+
         '</div>'+
-      '</div>'+
+        '</div>'+
+      '</fieldset>'+ 
       '<br>'+
       '<fieldset>'+
         '<legend>'+tr("Security Groups")+'</legend>'+
