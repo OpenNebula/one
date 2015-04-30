@@ -65,6 +65,7 @@ define(function(require) {
     'getElementData': _getElementData,
     'waitingNodes': _waitingNodes,
     'recountCheckboxes': _recountCheckboxes,
+    'filter': _filter
   }
 
   return TabDatatable;
@@ -85,10 +86,19 @@ define(function(require) {
       that.recountCheckboxes(that.dataTable);
     })
 
-    this.initCheckAllBoxes();
-    this.tableCheckboxesListener();
-    this.infoListener(this.resource + ".show");
+
+    this.dataTable.fnSetColumnVis(0, false);
     this.dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
+
+    if (this.conf.actions) {
+      this.dataTable.fnSetColumnVis(0, true);
+      this.initCheckAllBoxes();
+      this.tableCheckboxesListener();
+    }
+
+    if (this.conf.info) {
+      this.infoListener(this.resource + ".show", this.tabId);
+    }
   }
 
   //Shows run a custom action when clicking on rows.
@@ -378,5 +388,9 @@ define(function(require) {
       }
     };
     return selected_nodes;
+  }
+
+  function _filter(value, columnId) {
+    this.dataTable.fnFilter(value, columnId);
   }
 })
