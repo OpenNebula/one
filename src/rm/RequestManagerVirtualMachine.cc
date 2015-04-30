@@ -1024,6 +1024,25 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
+    // Check the VM state again, in case the system DS is also changed
+    if((ds_id != -1 && ds_id != c_ds_id) &&
+       (vm->get_state() != VirtualMachine::POWEROFF))
+    {
+        ostringstream oss;
+        string tmp_st;
+
+        oss << "System datastore migration is only available for VMs in the "
+            << VirtualMachine::vm_state_to_str(tmp_st, VirtualMachine::POWEROFF)
+            << " state, current state is " << vm->state_str();
+
+        failure_response(ACTION,
+                request_error(oss.str(),""),
+                att);
+
+        vm->unlock();
+        return;
+    }
+
     // Check the host has enough capacity
     if (enforce)
     {
@@ -1112,6 +1131,17 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
                 << " in " << object_name(PoolObjectSQL::CLUSTER) << " ["
                 << c_cluster_id << "] , and new system datastore is in "
                 << object_name(PoolObjectSQL::CLUSTER) << " [" << ds_cluster_id << "]";
+
+            failure_response(ACTION, request_error(oss.str(),""), att);
+
+            return;
+        }
+
+        if (c_tm_mad != tm_mad)
+        {
+            ostringstream oss;
+
+            oss << "Cannot migrate to a system datastore with a different TM driver";
 
             failure_response(ACTION, request_error(oss.str(),""), att);
 
