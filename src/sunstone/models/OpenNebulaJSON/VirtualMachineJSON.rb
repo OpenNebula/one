@@ -100,7 +100,7 @@ module OpenNebulaJSON
         end
 
         def migrate(params=Hash.new, live=false)
-            super(params['host_id'], live, params['enforce'])
+            super(params['host_id'], live, params['enforce'], params['ds_id'])
         end
 
         def save_as(params=Hash.new)

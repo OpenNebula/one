@@ -152,7 +152,7 @@ int Cluster::del_datastore(int id, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Cluster::get_default_sysetm_ds(const set<int>& ds_set)
+int Cluster::get_default_system_ds(const set<int>& ds_set)
 {
     Nebula& nd = Nebula::instance();
 

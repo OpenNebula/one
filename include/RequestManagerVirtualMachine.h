@@ -156,7 +156,7 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("VirtualMachineMigrate",
                                      "Migrates a virtual machine",
-                                     "A:siibb")
+                                     "A:siibbi")
     {
          auth_op = AuthRequest::ADMIN;
     };
