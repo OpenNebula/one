@@ -1,46 +1,63 @@
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var RenameTr = require('utils/panel/rename-tr');
+
+  /*
+    TEMPLATES
+   */
+  
   var TemplateTable = require('utils/panel/template-table');
+
+  /*
+    CONSTANTS
+   */
 
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Zone"
 
-  var _html = function(info) {
-    var element = _element(info);
-    var renameTrHTML = RenameTr.html(RESOURCE, element.NAME);
-    var templateTableHTML = TemplateTable.html(element.TEMPLATE, RESOURCE, 
+  /*
+    CONSTRUCTOR
+   */
+
+  function Panel(info) {
+    this.title = Locale.tr("Info");
+    this.icon = "fa-info-circle";
+
+    this.element = info[RESOURCE.toUpperCase()];
+
+    return this;
+  };
+
+  Panel.PANEL_ID = PANEL_ID;
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
+
+  return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE, 
                                       Locale.tr("Attributes"));
 
     return TemplateInfo({
-      'info': info,
+      'element': this.element,
       'renameTrHTML': renameTrHTML,
       'templateTableHTML': templateTableHTML
     });
   }
 
-  var _setup = function(info, context) {
-    var element = _element(info);
-    RenameTr.setup(RESOURCE, element.ID, context);
-    TemplateTable.setup(element.TEMPLATE, RESOURCE, element.ID, context);
+  function _setup(context) {
+    RenameTr.setup(RESOURCE, this.element.ID, context);
+    TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
     return false;
   }
-
-  /*
-    Returns the object representing the resource, access the root element
-   */
-  var _element = function(info) {
-    return info[RESOURCE.toUpperCase()]
-  }
-
-  var InfoPanel = {
-    title : Locale.tr("Info"),
-    icon: "fa-info-circle",
-    panelId: PANEL_ID,
-    html : _html,
-    setup: _setup
-  }
-
-  return InfoPanel;
 });
