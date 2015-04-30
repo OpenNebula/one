@@ -20,7 +20,8 @@ define(function(require) {
     CONSTRUCTOR
    */
   
-  function Table(dataTableId) {
+  function Table(dataTableId, conf) {
+    this.conf = conf || {};
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
 

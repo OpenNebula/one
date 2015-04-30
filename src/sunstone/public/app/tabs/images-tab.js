@@ -27,7 +27,7 @@ define(function(require) {
     content: '<div id="upload_progress_bars" class="large-12 columns"></div>',
     buttons: Buttons,
     actions: Actions,
-    dataTable: new Table(DATATABLE_ID),
+    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     //panels: _panels,
     //dialogs: _dialogs
   };

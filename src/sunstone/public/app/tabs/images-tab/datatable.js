@@ -4,9 +4,10 @@ define(function(require) {
    */
   
   var TabDataTable = require('utils/tab-datatable');
-  var Locale = require('utils/locale');
   var SunstoneConfig = require('sunstone-config');
+  var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
+  var Notifier = require('utils/notifier');
   var OpenNebulaImage = require('opennebula/image');
 
   /*
@@ -15,12 +16,16 @@ define(function(require) {
   
   var RESOURCE = "Image"
   var TAB_NAME = require('./tabId');
-
+  var COLUMN_IDS = {
+    "DATASTORE": 5
+  }
   /*
     CONSTRUCTOR
    */
   
-  function Table(dataTableId) {
+  function Table(dataTableId, conf, tabId) {
+    this.conf = conf || {};
+    this.tabId = tabId;
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
 
@@ -58,6 +63,8 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.list = _list;
+  Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
 
@@ -88,5 +95,15 @@ define(function(require) {
       element.RUNNING_VMS,
       element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--'
     ];
+  }
+
+  function _list(){
+    var that = this;
+    OpenNebulaImage.list({
+      success: function(req, resp) {
+        that.updateView(req, resp);
+      },
+      error: Notifier.onError
+    });
   }
 });
