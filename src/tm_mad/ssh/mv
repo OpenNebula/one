@@ -41,6 +41,13 @@ fi
 # Return if moving a disk, we will move them when moving the whole system_ds
 # directory for the VM
 #-------------------------------------------------------------------------------
+
+WHOAMI=`hostname -f`
+if [ "$?" != "0" ]; then
+    log "Couldn't get local hostname!?"
+    unset WHOAMI
+fi
+
 SRC=`fix_dir_slashes $SRC`
 DST=`fix_dir_slashes $DST`
 
@@ -71,11 +78,27 @@ log "Moving $SRC to $DST"
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
-TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR'"
-TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'"
+# optimize transfer from local machine to remote machine
+if [ -n "$WHOAMI" ] && [ "$WHOAMI" = "$SRC_HOST" ]; then
+    log "$SRC is local, no need to use an ssh connection"
+    TAR_COPY="$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR"
+else
+    log "$SRC is remote, using an ssh connection"
+    TAR_COPY="$SSH $SRC_HOST '$TAR -C $SRC_DS_DIR --sparse -cf - $SRC_VM_DIR'"
+fi
+
+# optimize transfer from remote machine to local machine
+if [ -n "$WHOAMI" ] && [ "$WHOAMI" = "$DST_HOST" ]; then
+    log "$DST is local, no need to use an ssh connection"
+    TAR_COPY="$TAR_COPY | $TAR -C $DST_DIR --sparse -xf -"
+else
+    log "$DST is remote, using an ssh connection"
+    TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_DIR --sparse -xf -'"
+fi
 
 exec_and_log "eval $TAR_COPY" "Error copying disk directory to target host"
 
-exec_and_log "$SSH $SRC_HOST rm -rf $SRC_PATH"
+ssh_exec_and_log "$SRC_HOST" "rm -rf '$SRC_PATH'" \
+    "Error removing source path after transfer"
 
 exit 0

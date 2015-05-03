@@ -38,8 +38,39 @@ fi
 . $TMCOMMON
 
 #-------------------------------------------------------------------------------
+# Set variables
+#-------------------------------------------------------------------------------
+
+WHOAMI=`hostname -f`
+if [ "$?" != "0" ]; then
+    log "Couldn't get local hostname!?"
+    unset WHOAMI
+fi
+
+SRC_PATH=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+
+SRC_HOST=`arg_host $SRC`
+DST_HOST=`arg_host $DST`
+
+if [ -n "$WHOAMI" ]; then
+    # check if SRC is the local machine
+    if [ "$WHOAMI" = "$SRC_HOST" ]; then
+        log "Replacing $SRC with $SRC_PATH"
+        SRC=$SRC_PATH
+    fi
+
+    # check if DST is the local machine
+    if [ "$WHOAMI" = "$DST_HOST" ]; then
+        log "Replacing $DST with $DST_PATH"
+        DST=$DST_PATH
+    fi
+fi
+
+#-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
+
 log "Moving $SRC to datastore as $DST"
 exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
 

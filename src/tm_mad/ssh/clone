@@ -44,11 +44,18 @@ DRIVER_PATH=$(dirname $0)
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 
+WHOAMI=`hostname -f`
+if [ "$?" != "0" ]; then
+    log "Couldn't get local hostname!?"
+    unset WHOAMI
+fi
+
 SRC_PATH=`arg_path $SRC`
 DST_PATH=`arg_path $DST`
 SRC_PATH_SNAP="${SRC_PATH}.snap"
 DST_PATH_SNAP="${DST_PATH}.snap"
 
+SRC_HOST=`arg_host $SRC`
 DST_HOST=`arg_host $DST`
 
 DST_DIR=`dirname $DST_PATH`
@@ -85,7 +92,21 @@ http://*)
     ;;
 
 *)
-    log "Cloning $SRC in $DST_PATH"
+    if [ -n "$WHOAMI" ]; then
+        # check if SRC is the local machine
+        if [ "$WHOAMI" = "$SRC_HOST" ]; then
+            log "Replacing $SRC with $SRC_PATH"
+            SRC=$SRC_PATH
+        fi
+
+        # check if DST is the local machine
+        if [ "$WHOAMI" = "$DST_HOST" ]; then
+            log "Replacing $DST with $DST_PATH"
+            DST=$DST_PATH
+        fi
+    fi
+
+    log "Cloning $SRC into $DST"
     exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
 
     if [ -d "${SRC_PATH_SNAP}" ]; then
