@@ -11,9 +11,9 @@ define(function(require) {
   //  require('./images-tab/dialogs/create')
   //];
 
-  //var _panels = [
-  //  require('./images-tab/panels/info')
-  //];
+  var _panels = [
+    require('./images-tab/panels/info')
+  ];
 
   var Tab = {
     tabId: TAB_ID,
@@ -28,7 +28,7 @@ define(function(require) {
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    //panels: _panels,
+    panels: _panels,
     //dialogs: _dialogs
   };
 
