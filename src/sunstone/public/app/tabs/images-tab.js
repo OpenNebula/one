@@ -12,7 +12,8 @@ define(function(require) {
   //];
 
   var _panels = [
-    require('./images-tab/panels/info')
+    require('./images-tab/panels/info'),
+    require('./images-tab/panels/vms')
   ];
 
   var Tab = {
