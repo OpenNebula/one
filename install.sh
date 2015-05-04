@@ -209,7 +209,6 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/onegate \
             $SHARE_LOCATION/websockify"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
@@ -463,7 +462,6 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    ONEGATE_SHARE_FILES:$SHARE_LOCATION/onegate
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -1269,13 +1267,6 @@ AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/private.net \
                      share/examples/public.net"
-
-#-------------------------------------------------------------------------------
-# OneGate CLI for guests $SHARE_LOCATION/onegate
-#-------------------------------------------------------------------------------
-
-ONEGATE_SHARE_FILES="share/onegate/init.sh \
-                     share/onegate/onegate"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server
