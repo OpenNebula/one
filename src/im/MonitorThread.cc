@@ -34,6 +34,8 @@ DatastorePool * MonitorThread::dspool;
 
 LifeCycleManager * MonitorThread::lcm;
 
+VirtualMachineManager * MonitorThread::vmm;
+
 MonitorThreadPool * MonitorThread::mthpool;
 
 ClusterPool * MonitorThread::cpool;
@@ -249,6 +251,16 @@ void MonitorThread::do_message()
             {
                 lcm->trigger(LifeCycleManager::MONITOR_POWEROFF, *its);
             }
+            // If the guest is shut down before the poll reports it at least
+            // once, the VM gets stuck in running. An individual poll action
+            // is triggered after 5min (arbitrary number)
+            else if (vm->hasHistory() &&
+                    vm->get_last_poll() == 0 &&
+                    vm->get_lcm_state() == VirtualMachine::RUNNING &&
+                    (time(0) - vm->get_running_stime() > 300))
+            {
+                vmm->trigger(VirtualMachineManager::POLL,vm->get_oid());
+            }
 
             vm->unlock();
         }
@@ -304,6 +316,8 @@ MonitorThreadPool::MonitorThreadPool(int max_thr):concurrent_threads(max_thr),
     MonitorThread::hpool  = Nebula::instance().get_hpool();
 
     MonitorThread::lcm    = Nebula::instance().get_lcm();
+
+    MonitorThread::vmm    = Nebula::instance().get_vmm();
 
     MonitorThread::cpool  = Nebula::instance().get_clpool();
 

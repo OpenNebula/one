@@ -25,6 +25,7 @@ class HostPool;
 class ClusterPool;
 class DatastorePool;
 class LifeCycleManager;
+class VirtualMachineManager;
 class VirtualMachinePool;
 
 class MonitorThreadPool;
@@ -60,6 +61,8 @@ private:
     static DatastorePool * dspool;
 
     static LifeCycleManager *lcm;
+
+    static VirtualMachineManager *vmm;
 
     static VirtualMachinePool * vmpool;
 
