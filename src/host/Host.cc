@@ -248,7 +248,6 @@ int Host::update_info(Template        &tmpl,
                       bool            &with_vm_info,
                       set<int>        &lost,
                       map<int,string> &found,
-                      set<int>        &found_twice,
                       const set<int>  &non_shared_ds,
                       long long       reserved_cpu,
                       long long       reserved_mem)
@@ -272,7 +271,6 @@ int Host::update_info(Template        &tmpl,
 
     set<int> prev_tmp_lost   = tmp_lost_vms;
     set<int> prev_tmp_zombie = tmp_zombie_vms;
-    set<int> prev_tmp_found  = tmp_found_vms;
 
     int num_zombies = 0;
     int num_wilds   = 0;
@@ -339,8 +337,6 @@ int Host::update_info(Template        &tmpl,
 
     tmp_zombie_vms.clear();
 
-    tmp_found_vms.clear();
-
     for (it = vm_att.begin(); it != vm_att.end(); it++)
     {
         vatt = dynamic_cast<VectorAttribute*>(*it);
@@ -366,13 +362,6 @@ int Host::update_info(Template        &tmpl,
             if (tmp_lost_vms.erase(vmid) == 1) //Good, known
             {
                 found.insert(make_pair(vmid, vatt->vector_value("POLL")));
-
-                tmp_found_vms.insert(vmid);
-
-                if (prev_tmp_found.count(vmid) == 1)
-                {
-                    found_twice.insert(vmid);
-                }
             }
             else //Bad, known but should not be here
             {
