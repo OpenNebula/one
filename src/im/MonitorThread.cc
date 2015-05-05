@@ -184,6 +184,7 @@ void MonitorThread::do_message()
 
     set<int>        lost;
     map<int,string> found;
+    set<int>        rediscovered_vms;
 
     ostringstream   oss;
 
@@ -193,6 +194,8 @@ void MonitorThread::do_message()
     {
         return;
     }
+
+    set<int> prev_rediscovered = host->get_prev_rediscovered_vms();
 
     rc = host->update_info(tmpl, vm_poll, lost, found, non_shared_ds,
                 reserved_cpu, reserved_mem);
@@ -252,7 +255,39 @@ void MonitorThread::do_message()
 
         for (itm = found.begin(); itm != found.end(); itm++)
         {
-            VirtualMachineManagerDriver::process_poll(itm->first, itm->second);
+            VirtualMachine * vm = vmpool->get(itm->first, true);
+
+            if (vm == 0)
+            {
+                continue;
+            }
+
+            // When a VM in poweroff is found again, it may be because of
+            // outdated poll information. To make sure, we check if VM was
+            // reported twice
+            if (vm->get_state() == VirtualMachine::POWEROFF &&
+                prev_rediscovered.count(itm->first) == 0)
+            {
+                rediscovered_vms.insert(itm->first);
+
+                vm->unlock();
+                continue;
+            }
+
+            VirtualMachineManagerDriver::process_poll(vm, itm->second);
+
+            vm->unlock();
+        }
+
+        // The rediscovered set is not stored in the DB, the update method
+        // is not needed
+        host = hpool->get(host_id,true);
+
+        if ( host != 0 )
+        {
+            host->set_prev_rediscovered_vms(rediscovered_vms);
+
+            host->unlock();
         }
     }
 };
