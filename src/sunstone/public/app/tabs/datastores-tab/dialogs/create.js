@@ -10,14 +10,6 @@ define(function(require) {
     return TemplateHTML({dialogId: DIALOG_ID});
   }
 
-  var _submit = function() {
-    var name = $('#zonename', this).val();
-    var endpoint = $("#endpoint", this).val();
-    var zoneJSON = {"zone" : {"name" : name, "endpoint" : endpoint}};
-    Sunstone.runAction("Zone.create", zoneJSON);
-    return false;
-  }
-
   var _onShow = function(dialog) {
     $("#name", dialog).focus();
 

@@ -35,7 +35,10 @@ require.config({
     'jquery.cookie': '../bower_components/foundation/js/vendor/jquery.cookie',
     'fastclick': '../bower_components/foundation/js/vendor/fastclick',
     'modernizr': '../bower_components/foundation/js/vendor/modernizr',
-    'placeholder': '../bower_components/foundation/js/vendor/placeholder'
+    'placeholder': '../bower_components/foundation/js/vendor/placeholder',
+
+    /* Resumable */
+    'resumable': '../bower_components/resumablejs/resumable'
   },
   shim: {
     /* jQuery */

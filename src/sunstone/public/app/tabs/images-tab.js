@@ -7,9 +7,9 @@ define(function(require) {
   var TAB_ID = require('./images-tab/tabId');
   var DATATABLE_ID = "dataTableImages";
 
-  //var _dialogs = [
-  //  require('./images-tab/dialogs/create')
-  //];
+  var _dialogs = [
+    require('./images-tab/dialogs/create')
+  ];
 
   var _panels = [
     require('./images-tab/panels/info'),
@@ -30,7 +30,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
-    //dialogs: _dialogs
+    dialogs: _dialogs
   };
 
   return Tab;
