@@ -146,6 +146,8 @@ module KVM
             if !name.match(/^one-\d+/)
                 uuid, template = xml_to_one(xml)
                 values[:template] = Base64.encode64(template).delete("\n")
+                values[:vm_name] = name
+                vm[:name] = uuid
             end
 
             vms_info[vm[:name]] = values
@@ -753,9 +755,12 @@ def print_all_vm_template(hypervisor)
             number = name.split('-').last
         end
 
+        vm_name = data[:vm_name]
+
         string  = "VM=[\n"
         string << "  ID=#{number},\n"
         string << "  DEPLOY_ID=#{name},\n"
+        string << %Q(  VM_NAME="#{vm_name}",\n) if vm_name
 
         if data[:template]
             string << %Q(  IMPORT_TEMPLATE="#{data[:template]}",\n)
