@@ -239,4 +239,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             o.rename(args[1])
         end
     end
+
+    importvm_desc = <<-EOT.unindent
+        Import VM to OpenNebula
+    EOT
+
+    command :importvm, importvm_desc, :hostid, :name do
+        helper.perform_action(args[0], options, "imported") do |o|
+            helper.import_wild(o, args[1])
+        end
+    end
 end

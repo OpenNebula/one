@@ -311,6 +311,41 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
     end
 
+    def get_wilds(host)
+        [host.to_hash['HOST']['TEMPLATE']['VM']].flatten
+    end
+
+    def get_importable_wilds(host)
+        get_wilds(host).select {|w| Hash === w && w['IMPORT_TEMPLATE'] }
+    end
+
+    def import_wild(host, name)
+        host.info
+
+        wilds = get_importable_wilds(host)
+
+        vms = wilds.select {|vm| vm['DEPLOY_ID'] == name }
+
+        if vms.length == 0
+            return OpenNebula::Error.new("No importable wilds with name " <<
+                "'#{name}' found.")
+        elsif vms.length > 1
+            return OpenNebula::Error.new("More than one importable wild " <<
+                "with name '#{name}' found.")
+        end
+
+        wild = vms.first
+
+        template = Base64.decode64(wild['IMPORT_TEMPLATE'])
+
+        xml = OpenNebula::VirtualMachine.build_xml
+        vm = OpenNebula::VirtualMachine.new(xml, @client)
+
+        rc = vm.allocate(template)
+
+        return rc if OpenNebula.is_error?(rc)
+    end
+
     private
 
     def print_update_info(current, total, host)
@@ -358,14 +393,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     def factory_pool(user_flag=-2)
         #TBD OpenNebula::HostPool.new(@client, user_flag)
         OpenNebula::HostPool.new(@client)
-    end
-
-    def get_wilds(host)
-        [host.to_hash['HOST']['TEMPLATE']['VM']].flatten
-    end
-
-    def get_importable_wilds(host)
-        get_wilds(host).select {|w| Hash === w && w['IMPORT_TEMPLATE'] }
     end
 
     def format_resource(host, options = {})
