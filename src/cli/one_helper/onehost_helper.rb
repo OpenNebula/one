@@ -360,6 +360,14 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         OpenNebula::HostPool.new(@client)
     end
 
+    def get_wilds(host)
+        [host.to_hash['HOST']['TEMPLATE']['VM']].flatten
+    end
+
+    def get_importable_wilds(host)
+        get_wilds(host).select {|w| Hash === w && w['IMPORT_TEMPLATE'] }
+    end
+
     def format_resource(host, options = {})
         str    = "%-22s: %-20s"
         str_h1 = "%-80s"
@@ -406,7 +414,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
 
-        wilds = [host.to_hash['HOST']['TEMPLATE']['VM']].flatten
+        wilds = get_wilds(host)
 
         host.delete_element("TEMPLATE/VM")
         host.delete_element("TEMPLATE_WILDS")
@@ -424,24 +432,24 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         wilds.each do |wild|
           if wild['IMPORT_TEMPLATE']
             wild_tmplt = Base64::decode64(wild['IMPORT_TEMPLATE']).split("\n")
-            name   = wild_tmplt.select { |line| 
-                      line[/^NAME/] 
+            name   = wild_tmplt.select { |line|
+                      line[/^NAME/]
                      }[0].split("=")[1].gsub("\"", " ").strip
-            import = wild_tmplt.select { |line| 
-                       line[/^IMPORT_VM_ID/] 
+            import = wild_tmplt.select { |line|
+                       line[/^IMPORT_VM_ID/]
                      }[0].split("=")[1].gsub("\"", " ").strip
-            memory = wild_tmplt.select { |line| 
-                       line[/^MEMORY/] 
+            memory = wild_tmplt.select { |line|
+                       line[/^MEMORY/]
                      }[0].split("=")[1].gsub("\"", " ").strip
-            cpu    = wild_tmplt.select { |line| 
-                        line[/^MEMORY/] 
+            cpu    = wild_tmplt.select { |line|
+                        line[/^CPU/]
                      }[0].split("=")[1].gsub("\"", " ").strip
           else
             name     = wild['DEPLOY_ID']
             import   = memory = cpu = "-"
           end
 
-          puts format % [name, import, memory, cpu]
+          puts format % [name, import, cpu, memory]
         end
 
         puts
