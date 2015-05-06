@@ -406,7 +406,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
 
-        wilds = host.to_hash['HOST']['TEMPLATE']['VM']
+        wilds = [host.to_hash['HOST']['TEMPLATE']['VM']].flatten
 
         host.delete_element("TEMPLATE/VM")
         host.delete_element("TEMPLATE_WILDS")
