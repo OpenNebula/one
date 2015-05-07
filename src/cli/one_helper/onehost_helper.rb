@@ -312,7 +312,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
     end
 
     def get_wilds(host)
-        [host.to_hash['HOST']['TEMPLATE']['VM']].flatten
+        [host.to_hash['HOST']['TEMPLATE']['VM']].flatten.compact
     end
 
     def get_importable_wilds(host)
