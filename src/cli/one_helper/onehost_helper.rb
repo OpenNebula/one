@@ -324,7 +324,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         wilds = get_importable_wilds(host)
 
-        vms = wilds.select {|vm| vm['DEPLOY_ID'] == name }
+        vms = wilds.select {|vm| vm['VM_NAME'] == name }
 
         if vms.length == 0
             return OpenNebula::Error.new("No importable wilds with name " <<
