@@ -1,4 +1,9 @@
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
+  var BaseDialog = require('utils/dialogs/dialog');
   var Resumable = require('resumable');
   var TemplateHTML = require('hbs!./create/html');
   var Sunstone = require('sunstone');
@@ -7,13 +12,39 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select')
+  
+  /*
+    CONSTANTS
+   */
+  
   var DIALOG_ID = require('./create/dialogId');
 
-  var _html = function() {
-    return TemplateHTML({dialogId: DIALOG_ID});
+  /*
+    CONSTRUCTOR
+   */
+
+  function Dialog() {
+    this.dialogId = DIALOG_ID;
+    BaseDialog.call(this);
+  };
+
+  Dialog.DIALOG_ID = DIALOG_ID;
+  Dialog.prototype = Object.create(BaseDialog.prototype);
+  Dialog.prototype.constructor = Dialog;
+  Dialog.prototype.html = _html;
+  Dialog.prototype.onShow = _onShow;
+  Dialog.prototype.setup = _setup;
+
+  return Dialog;
+  /*
+    FUNCTION DEFINITIONS
+   */
+  
+  function _html() {
+    return TemplateHTML({dialogId: this.dialogId});
   }
 
-  var _onShow = function(dialog) {
+  function _onShow(dialog) {
     $("#img_name", dialog).focus();
 
     var ds_id = $('#img_datastore .resource_list_select', dialog).val();
@@ -32,7 +63,7 @@ define(function(require) {
     return false;
   }
 
-  var _setup = function(dialog) {
+  function _setup(dialog) {
     Tips.setup(dialog);
 
     $('.advanced', dialog).hide();
@@ -95,7 +126,6 @@ define(function(require) {
       $('select#custom_var_image_box :selected', dialog).remove();
       return false;
     });
-
 
     var img_obj;
 
@@ -167,7 +197,7 @@ define(function(require) {
       });
     }
 
-    $('#'+DIALOG_ID+'Form', dialog).submit(function() {
+    $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
       var exit = false;
       var upload = false;
       $('.img_man', this).each(function() {
@@ -274,24 +304,16 @@ define(function(require) {
     return false;
   }
 
-  var _getInternetExplorerVersion = function(){
-  // Returns the version of Internet Explorer or a -1
-  // (indicating the use of another browser).
-      var rv = -1; // Return value assumes failure.
-      if (navigator.appName == 'Microsoft Internet Explorer')
-      {
-          var ua = navigator.userAgent;
-          var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-          if (re.exec(ua) != null)
-              rv = parseFloat( RegExp.$1 );
-      }
-      return rv;
-  }
-
-  return {
-    'dialogId': DIALOG_ID,
-    'html': _html,
-    'setup': _setup,
-    'onShow': _onShow
+  function _getInternetExplorerVersion() {
+    // Returns the version of Internet Explorer or a -1
+    // (indicating the use of another browser).
+    var rv = -1; // Return value assumes failure.
+    if (navigator.appName == 'Microsoft Internet Explorer') {
+      var ua = navigator.userAgent;
+      var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+      if (re.exec(ua) != null)
+          rv = parseFloat(RegExp.$1);
+    }
+    return rv;
   }
 });

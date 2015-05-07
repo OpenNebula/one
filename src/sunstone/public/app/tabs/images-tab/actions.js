@@ -12,8 +12,8 @@ define(function(require) {
       type: "create",
       call: OpenNebulaImage.create,
       callback: function(request, response) {
-        Sunstone.hideDialog(CREATE_DIALOG_ID);
-        Sunstone.resetDialog(CREATE_DIALOG_ID);
+        Sunstone.getDialog(CREATE_DIALOG_ID).hide();
+        Sunstone.getDialog(CREATE_DIALOG_ID).reset();
         DataTable.addElement(request, response);
         Notifier.notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false)
       },
@@ -23,7 +23,8 @@ define(function(require) {
     "Image.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.showDialog(CREATE_DIALOG_ID);
+        console.log(Sunstone.getDialog(CREATE_DIALOG_ID))
+        Sunstone.getDialog(CREATE_DIALOG_ID).show();
       }
     },
 

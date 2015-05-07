@@ -15,6 +15,7 @@ define(function(require) {
   var SunstoneCfg = {
     "actions" : {},
     "dialogs" : {},
+    "dialogInstances" : {},
     "tabs" : {},
     "form_panels" : {}
   };
@@ -50,7 +51,7 @@ define(function(require) {
 
   var _addDialogs = function(dialogs) {
     $.each(dialogs, function(index, dialog) {
-      SunstoneCfg['dialogs'][dialog.dialogId] = dialog
+      SunstoneCfg['dialogs'][dialog.DIALOG_ID] = dialog
     })
     return false;
   }
@@ -373,7 +374,7 @@ define(function(require) {
       if (!error && !$(this).hasClass("refresh")) {
         //proceed to close confirm dialog in
         //case it was open
-        _hideDialog(CONFIRM_DIALOG_ID);
+        //TODO _getDialogInstance(CONFIRM_DIALOG_ID).hide();
       };
 
       return false;
@@ -566,48 +567,6 @@ define(function(require) {
     });
 
     $(document).foundation('reflow', 'tab');
-  }
-
-  var _insertDialog = function(dialog) {
-    var dialogElement = $(dialog.html()).appendTo('div#dialogs');
-    dialog.setup(dialogElement);
-    dialogElement.foundation('reveal', 'reflow');
-
-    dialogElement.on('opened.fndtn.reveal', function () {
-      dialog.onShow(dialogElement);
-    });
-
-    dialogElement.on('click', '.resetDialog', function() {
-      _resetDialog(dialog.dialogId);
-      _showDialog(dialog.dialogId);
-    })
-
-    return dialogElement;
-  }
-
-  var _showDialog = function(dialogId) {
-    var dialog = SunstoneCfg['dialogs'][dialogId];
-    var dialogElement = $('#' + dialog.dialogId);
-    if (dialogElement.length == 0) {
-      dialogElement = _insertDialog(dialog);
-    }
-
-    dialogElement.foundation('reveal', 'open');
-    return false;
-  }
-
-  var _hideDialog = function(dialogId) {
-    var dialog = SunstoneCfg['dialogs'][dialogId];
-    var dialogElement = $('#' + dialog.dialogId);
-    dialogElement.foundation('reveal', 'close')
-  }
-
-  var _resetDialog = function(dialogId) {
-    var dialog = SunstoneCfg['dialogs'][dialogId];
-    var dialogElement = $('#' + dialog.dialogId);
-    dialogElement.remove();
-    dialogElement = _insertDialog(dialog);
-    return false;
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
@@ -814,19 +773,27 @@ define(function(require) {
     }
   }
 
+  var _getDialogInstance = function(dialogId) {
+    var dialogInstance = SunstoneCfg['dialogInstances'][dialogId];
+    if (dialogInstance == undefined) {
+      var Dialog = SunstoneCfg['dialogs'][dialogId]
+      var dialogInstance = new Dialog();
+      dialogInstance.insert();
+      SunstoneCfg['dialogInstances'][dialogId] = dialogInstance;
+    }
+    
+    return dialogInstance;
+  }
+
   var Sunstone = {
     "addMainTab": _addMainTab,
     "addDialogs": _addDialogs,
 
     "insertTabs": _insertTabs,
     "insertPanels": _insertPanels,
-    "insertDialog": _insertDialog,
 
     'showTab': _showTab,
     "showElement" : _showElement,
-    "showDialog": _showDialog,
-    "hideDialog": _hideDialog,
-    "resetDialog": _resetDialog,
 
     "rightInfoVisible": _rightInfoVisible,
     "rightListVisible": _rightListVisible,
@@ -835,7 +802,8 @@ define(function(require) {
     "runAction" : _runAction,
     "getAction": _getAction,
     "getButton": _getButton,
-    "getDataTable": _getDataTable
+    "getDataTable": _getDataTable,
+    "getDialog": _getDialogInstance
   }
 
   return Sunstone;
