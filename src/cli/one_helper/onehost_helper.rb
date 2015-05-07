@@ -344,6 +344,8 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         rc = vm.allocate(template)
 
         return rc if OpenNebula.is_error?(rc)
+
+        vm.deploy(host.id, false)
     end
 
     private
