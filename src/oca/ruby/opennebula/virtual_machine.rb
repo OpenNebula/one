@@ -457,13 +457,10 @@ module OpenNebula
         #   to use the default type
         # @param hot [true|false] True to save the disk immediately, false will
         #   perform the operation when the VM shuts down
-        # @param do_template [true|false] True to clone also the VM originating
-        # template and replace the disk with the saved image
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def disk_snapshot(disk_id, image_name, image_type="", hot=false,
-            do_template=false)
+        def disk_snapshot(disk_id, image_name, image_type="", hot=false)
             return Error.new('ID not defined') if !@pe_id
 
             rc = @client.call(VM_METHODS[:savedisk],
@@ -471,8 +468,7 @@ module OpenNebula
                               disk_id,
                               image_name,
                               image_type,
-                              hot,
-                              do_template)
+                              hot)
             return rc
         end
 
@@ -667,6 +663,125 @@ module OpenNebula
             self['DEPLOY_ID']
         end
 
+        # Clones the VM's source Template, replacing the disks with live snapshots
+        # of the current disks. The VM capacity and NICs are also preserved
+        #
+        # @param name [String] Name for the new Template
+        #
+        # @return [Integer, OpenNebula::Error] the new Template ID in case of
+        #   success, error otherwise
+        def save_as_template(name)
+            rc = info()
+            return rc if OpenNebula.is_error?(rc)
+
+            tid = self['TEMPLATE/TEMPLATE_ID']
+            if tid.nil? || tid.empty?
+                return Error.new('VM has no template to be saved')
+            end
+
+            if state_str() != "POWEROFF"
+                return Error.new("VM state must be POWEROFF, "<<
+                    "current state is #{state_str()}, #{lcm_state_str()}")
+            end
+
+            # Clone the source template
+            new_tid = OpenNebula::Template.new_with_id(tid, @client).clone(name)
+            return new_tid if OpenNebula.is_error?(new_tid)
+
+            # Replace the original template's capacity with the actual VM values
+            replace = ""
+
+            cpu = self['TEMPLATE/CPU']
+            if !cpu.nil? && !cpu.empty?
+                replace << "CPU = #{cpu}\n"
+            end
+
+            vcpu = self['TEMPLATE/VCPU']
+            if !vcpu.nil? && !vcpu.empty?
+                replace << "VCPU = #{vcpu}\n"
+            end
+
+            mem = self['TEMPLATE/MEMORY']
+            if !mem.nil? && !mem.empty?
+                replace << "MEMORY = #{mem}\n"
+            end
+
+            self.each('TEMPLATE/DISK') do |disk|
+                # While the previous snapshot is still in progress, we wait
+                # indefinitely
+                rc = info()
+                return rc if OpenNebula.is_error?(rc)
+
+                steps = 0
+                while lcm_state_str() == "HOTPLUG_SAVEAS_POWEROFF"
+                    if steps < 30
+                        sleep 1
+                    else
+                        sleep 15
+                    end
+
+                    rc = info()
+                    return rc if OpenNebula.is_error?(rc)
+
+                    steps += 1
+                end
+
+                # If the VM is not busy with a previous disk snapshot, we wait
+                # but this time with a timeout
+                rc = wait_state("POWEROFF")
+                return rc if OpenNebula.is_error?(rc)
+
+                disk_id = disk["DISK_ID"]
+                if disk_id.nil? || disk_id.empty?
+                    return Error.new('The DISK_ID is missing from the VM template')
+                end
+
+                image_id = disk["IMAGE_ID"]
+
+                if !image_id.nil? && !image_id.empty?
+                    rc = disk_snapshot(disk_id.to_i, "#{name}-disk-#{disk_id}",
+                        "", true)
+
+                    return rc if OpenNebula.is_error?(rc)
+
+                    replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
+                else
+                    # Volatile disks cannot be saved, so the definition is copied
+                    replace << self.template_like_str(
+                        "TEMPLATE", true, "DISK[DISK_ID=#{disk_id}]") << "\n"
+                end
+            end
+
+            self.each('TEMPLATE/NIC') do |nic|
+                nic_id = nic["NIC_ID"]
+                if nic_id.nil? || nic_id.empty?
+                    return Error.new('The NIC_ID is missing from the VM template')
+                end
+
+                net_id = nic["NETWORK_ID"]
+
+                if !net_id.nil? && !net_id.empty?
+                    replace << "NIC = [ NETWORK_ID = #{net_id} ]\n"
+                else
+                    # This NIC does not use a Virtual Network
+                    replace << self.template_like_str(
+                        "TEMPLATE", true, "NIC[NIC_ID=#{nic_id}]") << "\n"
+                end
+            end
+
+            # Required by the Sunstone Cloud View
+            replace << "SAVED_TEMPLATE_ID = #{tid}\n"
+
+            new_tmpl = OpenNebula::Template.new_with_id(new_tid, @client)
+
+            rc = new_tmpl.update(replace, true)
+            return rc if OpenNebula.is_error?(rc)
+
+            return new_tid
+
+            # TODO: rollback in case of error
+        end
+
     private
         def action(name)
             return Error.new('ID not defined') if !@pe_id
@@ -675,6 +790,50 @@ module OpenNebula
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
+        end
+
+        def wait_state(state, timeout=10)
+            vm_state = ""
+            lcm_state = ""
+
+            timeout.times do
+                rc = info()
+                return rc if OpenNebula.is_error?(rc)
+
+                vm_state = state_str()
+                lcm_state = lcm_state_str()
+
+                if vm_state == state
+                    return true
+                end
+
+                sleep 1
+            end
+
+            return Error.new("Timeout expired for state #{state}. "<<
+                "VM is in state #{vm_state}, #{lcm_state}")
+        end
+
+        def wait_lcm_state(state, timeout=10)
+            vm_state = ""
+            lcm_state = ""
+
+            timeout.times do
+                rc = info()
+                return rc if OpenNebula.is_error?(rc)
+
+                vm_state = state_str()
+                lcm_state = lcm_state_str()
+
+                if lcm_state == state
+                    return true
+                end
+
+                sleep 1
+            end
+
+            return Error.new("Timeout expired for state #{state}. "<<
+                "VM is in state #{vm_state}, #{lcm_state}")
         end
     end
 end

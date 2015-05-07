@@ -1226,7 +1226,12 @@ var OpenNebula = {
         },
         "showback": function(params){
             OpenNebula.Action.showback(params,OpenNebula.VM.resource);
-        }
+        },
+        "save_as_template": function(params){
+            var action_obj = params.data.extra_param;
+            OpenNebula.Action.simple_action(params,OpenNebula.VM.resource,
+                                            "save_as_template",action_obj);
+        },
     },
 
     "Group": {

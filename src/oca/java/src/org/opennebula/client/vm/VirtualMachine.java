@@ -399,16 +399,12 @@ public class VirtualMachine extends PoolElement{
      * the default type
      * @param hot True to save the disk immediately, false will perform
      * the operation when the VM shuts down
-     * @param doTemplate True to clone also the VM originating template
-     * and replace the disk with the saved image
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse diskSnapshot(Client client, int id,
-        int diskId, String imageName, String imageType,
-        boolean hot, boolean doTemplate)
+        int diskId, String imageName, String imageType, boolean hot)
     {
-        return client.call(SAVEDISK, id ,diskId, imageName, imageType,
-                            hot, doTemplate);
+        return client.call(SAVEDISK, id ,diskId, imageName, imageType, hot);
     }
 
     /**
@@ -747,15 +743,12 @@ public class VirtualMachine extends PoolElement{
      * the default type
      * @param hot True to save the disk immediately, false will perform
      * the operation when the VM shuts down
-     * @param doTemplate True to clone also the VM originating template
-     * and replace the disk with the saved image
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse diskSnapshot(int diskId, String imageName,
-        String imageType, boolean hot, boolean doTemplate)
+        String imageType, boolean hot)
     {
-        return diskSnapshot(client, id, diskId, imageName, imageType,
-                            hot, doTemplate);
+        return diskSnapshot(client, id, diskId, imageName, imageType, hot);
     }
 
     /**
@@ -768,7 +761,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse diskSnapshot(int diskId, String imageName)
     {
-        return diskSnapshot(diskId, imageName, "", false, false);
+        return diskSnapshot(diskId, imageName, "", false);
     }
 
     /**
@@ -782,7 +775,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse diskSnapshot(int diskId, String imageName, boolean hot)
     {
-        return diskSnapshot(diskId, imageName, "", hot, false);
+        return diskSnapshot(diskId, imageName, "", hot);
     }
 
     /**
@@ -1170,11 +1163,11 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * @deprecated  Replaced by {@link #diskSnapshot(int,String,String,boolean,boolean)}
+     * @deprecated  Replaced by {@link #diskSnapshot(int,String,String,boolean)}
      */
     public OneResponse savedisk(int diskId, String imageName, String imageType)
     {
-        return diskSnapshot(diskId, imageName, imageType, false, false);
+        return diskSnapshot(diskId, imageName, imageType, false);
     }
 
     /**

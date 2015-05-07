@@ -97,13 +97,6 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Recover a VM by retrying the last failed action"
     }
 
-    CLONETEMPLATE={
-        :name => "clonetemplate",
-        :short => "-c",
-        :large => "--clonetemplate",
-        :description => "Clone original VM Template and replace disk with saved one"
-    }
-
     ########################################################################
     # Global Options
     ########################################################################
@@ -310,7 +303,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot", disk_snapshot_desc, :vmid, :diskid, :img_name,
-            :options=>[TYPE, OneVMHelper::LIVE, CLONETEMPLATE] do
+            :options=>[TYPE, OneVMHelper::LIVE] do
         disk_id    = args[1].to_i
         image_name = args[2]
         image_type = options[:type] || ""
@@ -320,7 +313,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         helper.perform_action(args[0],options,verbose) do |vm|
             res = vm.disk_snapshot(disk_id, image_name, image_type,
-                options[:live]==true, options[:clonetemplate]==true)
+                options[:live]==true)
 
             if !OpenNebula.is_error?(res)
                 puts "Image ID: #{res}"
@@ -840,6 +833,23 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
         helper.perform_action(args[0], options, "Resizing VM") do |vm|
             vm.resize(template, enforce)
+        end
+    end
+
+    save_desc = <<-EOT.unindent
+        Clones the VM's source Template, replacing the disks with live snapshots
+        of the current disks. The VM capacity and NICs are also preserved
+    EOT
+
+    command :save, save_desc, :vmid, :name, :options=>[OneVMHelper::LIVE] do
+        helper.perform_action(args[0],options,"Saving VM") do |vm|
+            res = vm.save_as_template(args[1])
+
+            if !OpenNebula.is_error?(res)
+                puts "Template ID: #{res}"
+            end
+
+            res
         end
     end
 

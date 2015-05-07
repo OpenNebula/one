@@ -76,6 +76,7 @@ module OpenNebulaJSON
                  when "resched"      then self.resched
                  when "unresched"    then self.unresched
                  when "recover"      then self.recover(action_hash['params'])
+                 when "save_as_template" then self.save_as_template(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -170,6 +171,10 @@ module OpenNebulaJSON
 
         def recover(params=Hash.new)
             super(params['result'].to_i)
+        end
+
+        def save_as_template(params=Hash.new)
+            super(params['name'])
         end
     end
 end
