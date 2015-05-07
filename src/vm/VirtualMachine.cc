@@ -787,7 +787,6 @@ error_cleanup:
 static void parse_context_network(const char* vars[][2], int num_vars,
         VectorAttribute * context, VectorAttribute * nic)
 {
-    string name   = nic->vector_value("NETWORK");
     string nic_id = nic->vector_value("NIC_ID");
 
     for (int i=0; i < num_vars; i++)
@@ -810,7 +809,7 @@ static void parse_context_network(const char* vars[][2], int num_vars,
         {
             ostringstream cval_ss;
 
-            cval_ss << "$NETWORK["<< vars[i][1] <<", NETWORK=\""<< name <<"\"]";
+            cval_ss << "$NETWORK["<< vars[i][1] <<", NIC_ID=\""<< nic_id <<"\"]";
             cval = cval_ss.str();
         }
 
