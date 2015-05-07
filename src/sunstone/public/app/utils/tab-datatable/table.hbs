@@ -1,3 +1,14 @@
+<div id="{{dataTableId}}Container">
+{{#if conf.select}}
+<div class="row">
+  <div class="large-8 small-2 columns">
+    <a id="refresh_button_{{dataTableId}}" href="#" class="button small radius secondary"> <i class="fa fa-refresh" /></a>
+  </div>
+  <div class="large-4 small-10 columns">
+    <input id="{{dataTableId}}_search" class="search" type="search" placeholder="{{tr "Search"}}"/>
+  </div>
+</div>
+{{/if}}
 <table id="{{dataTableId}}" class="datatable twelve">
   <thead>
     <tr>
@@ -5,9 +16,22 @@
         <input type="checkbox" class="check_all" value=""/>
       </th>
       {{#each columns}}
-        <th>{{this}}</th>
+      <th>{{this}}</th>
       {{/each}}
     </tr>
   </thead>
   <tbody></tbody>
 </table>
+{{#if conf.select}}
+<div class="row">
+  <div class="large-12 columns" id="selected_ids_row_{{dataTableId}}">
+    <label for="selected_resource_id_{{dataTableId}}" id="select_resource_{{dataTableId}}" class="radius secondary label">{{optionsSelect.select_resource}}</label>
+    <span id="selected_resource_{{dataTableId}}" class="radius secondary label" style="display: none;">{{optionsSelect.you_selected}}</span>
+    <span id="select_resource_multiple_{{dataTableId}}" class="radius secondary label" style="display: none;">{{optionsSelect.select_resource_multiple}}</span>
+    <span id="selected_resource_multiple_{{dataTableId}}" class="radius secondary label" style="display: none;">{{optionsSelect.you_selected_multiple}}</span>
+    <input id="selected_resource_id_{{dataTableId}}" type="text"/>
+    <span id="selected_resource_name_{{dataTableId}}" class="radius label" type="text"></span>
+  </div>
+</div>
+{{/if}}
+</div>
