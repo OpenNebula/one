@@ -839,9 +839,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     save_desc = <<-EOT.unindent
         Clones the VM's source Template, replacing the disks with live snapshots
         of the current disks. The VM capacity and NICs are also preserved
+
+        States: POWEROFF
     EOT
 
-    command :save, save_desc, :vmid, :name, :options=>[OneVMHelper::LIVE] do
+    command :save, save_desc, :vmid, :name do
         helper.perform_action(args[0],options,"Saving VM") do |vm|
             res = vm.save_as_template(args[1])
 
