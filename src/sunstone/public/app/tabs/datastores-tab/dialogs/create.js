@@ -1,16 +1,48 @@
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
+  var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./create/html');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select')
+  
+  /*
+    CONSTANTS
+   */
+  
   var DIALOG_ID = require('./create/dialogId');
 
-  var _html = function() {
+  /*
+    CONSTRUCTOR
+   */
+
+  function Dialog() {
+    this.dialogId = DIALOG_ID;
+    BaseDialog.call(this);
+  };
+
+  Dialog.DIALOG_ID = DIALOG_ID;
+  Dialog.prototype = Object.create(BaseDialog.prototype);
+  Dialog.prototype.constructor = Dialog;
+  Dialog.prototype.html = _html;
+  Dialog.prototype.onShow = _onShow;
+  Dialog.prototype.setup = _setup;
+
+  return Dialog;
+  
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
     return TemplateHTML({dialogId: DIALOG_ID});
   }
 
-  var _onShow = function(dialog) {
+  function _onShow(dialog) {
     $("#name", dialog).focus();
 
     var cluster_id = $("div#cluster_id .resource_list_select", dialog).val();
@@ -213,7 +245,7 @@ define(function(require) {
     _selectFilesystem();
   }
 
-  var _hideAll = function(dialog) {
+  function _hideAll(dialog) {
     // Hide all the options that depends on datastore type
     // and reset the selects
 
@@ -247,7 +279,7 @@ define(function(require) {
     $('input[name="ds_tab_custom_tm_mad"]', dialog).parent().hide();
   }
 
-  var _selectFilesystem = function(dialog) {
+  function _selectFilesystem(dialog) {
     $('select#ds_mad').val('fs');
     $('select#tm_mad').val('shared');
     $('select#ds_mad').attr('disabled', 'disabled');
@@ -274,7 +306,7 @@ define(function(require) {
     $('label[for="staging_dir"],input#staging_dir').parent().fadeIn();
   }
 
-  var _selectVmwareVmfs = function(dialog) {
+  function _selectVmwareVmfs(dialog) {
     $('label[for="bridge_list"],input#bridge_list').parent().fadeIn();
     $('label[for="ds_tmp_dir"],input#ds_tmp_dir').parent().fadeIn();
     $('select#ds_mad').val('vmfs');
@@ -292,7 +324,7 @@ define(function(require) {
     $('input#restricted_dirs').removeAttr('disabled');
   }
 
-  var _selectCeph = function(dialog) {
+  function _selectCeph(dialog) {
     $('input#image_ds_type').attr('checked', 'true');
     $('input[name=ds_type]').attr('disabled', 'disabled');
     $('select#ds_mad').val('ceph');
@@ -317,7 +349,7 @@ define(function(require) {
     $('input#restricted_dirs').removeAttr('disabled');
   }
 
-  var _selectBlockLvm = function(dialog) {
+  function _selectBlockLvm(dialog) {
     $('select#ds_mad').val('lvm');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('lvm');
@@ -337,7 +369,7 @@ define(function(require) {
     $('input#restricted_dirs').removeAttr('disabled');
   }
 
-  var _selectFsLvm = function(dialog) {
+  function _selectFsLvm(dialog) {
     $('select#ds_mad').val('fs');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('fs_lvm');
@@ -355,7 +387,7 @@ define(function(require) {
     $('input#restricted_dirs').removeAttr('disabled');
   }
 
-  var _selectGluster = function(dialog) {
+  function _selectGluster(dialog) {
     $('select#ds_mad').val('fs');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('shared');
@@ -382,7 +414,7 @@ define(function(require) {
     $('input#restricted_dirs').removeAttr('disabled');
   }
 
-  var _selectDevices = function(dialog) {
+  function _selectDevices(dialog) {
     $('select#ds_mad').val('dev');
     $('select#ds_mad').attr('disabled', 'disabled');
     $('select#tm_mad').val('dev');
@@ -400,7 +432,7 @@ define(function(require) {
     $('input#restricted_dirs').attr('disabled', 'disabled');
   }
 
-  var _selectCustom = function(dialog) {
+  function _selectCustom(dialog) {
     _hideAll(dialog);
     $('select#ds_mad').val('fs');
     $('select#tm_mad').val('shared');
@@ -412,12 +444,5 @@ define(function(require) {
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw').parent().fadeIn();
     $('label[for="no_decompress"],input#no_decompress').parent().fadeIn();
     $('label[for="datastore_capacity_check"],input#datastore_capacity_check').parent().fadeIn();
-  }
-
-  return {
-    'dialogId': DIALOG_ID,
-    'html': _html,
-    'setup': _setup,
-    'onShow': _onShow
   }
 });
