@@ -1,13 +1,45 @@
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
+  var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./clone/html');
   var Sunstone = require('sunstone');
+  
+  /*
+    CONSTANTS
+   */
+  
   var DIALOG_ID = require('./clone/dialogId');
 
-  var _html = function() {
-    return TemplateHTML({dialogId: DIALOG_ID});
+  /*
+    CONSTRUCTOR
+   */
+
+  function Dialog() {
+    this.dialogId = DIALOG_ID;
+    BaseDialog.call(this);
+  };
+
+  Dialog.DIALOG_ID = DIALOG_ID;
+  Dialog.prototype = Object.create(BaseDialog.prototype);
+  Dialog.prototype.constructor = Dialog;
+  Dialog.prototype.html = _html;
+  Dialog.prototype.onShow = _onShow;
+  Dialog.prototype.setup = _setup;
+
+  return Dialog;
+  
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    return TemplateHTML({dialogId: this.dialogId});
   }
 
-  var _setup = function(dialog) {
+  function _setup(dialog) {
     // TODO: Show DS with the same ds mad only
     setupDatastoreTableSelect(dialog, "image_clone",
         {filter_fn: function(ds) { return ds.TYPE == 0; }}
@@ -55,7 +87,7 @@ define(function(require) {
     return false;
   }
 
-  var _onShow = function(dialog) {
+  function _onShow(dialog) {
     var sel_elems = imageElements();
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
@@ -74,12 +106,5 @@ define(function(require) {
     $("input[name='image_clone_name']", dialog).focus();
 
     return false;
-  }
-
-  return {
-    'dialogId': DIALOG_ID,
-    'html': _html,
-    'setup': _setup,
-    'onShow': _onShow
   }
 });
