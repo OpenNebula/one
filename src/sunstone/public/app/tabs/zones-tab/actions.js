@@ -13,8 +13,8 @@ define(function(require) {
       type: "create",
       call: OpenNebulaZone.create,
       callback: function(request, response) {
-        Sunstone.hideDialog(CREATE_DIALOG_ID);
-        Sunstone.resetDialog(CREATE_DIALOG_ID);
+        Sunstone.getDialog(CREATE_DIALOG_ID).hide();
+        Sunstone.getDialog(CREATE_DIALOG_ID).reset();
         DataTable.addElement(request, response);
       },
       error: Notifier.onError,
@@ -24,7 +24,7 @@ define(function(require) {
     "Zone.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.showDialog(CREATE_DIALOG_ID);
+        Sunstone.getDialog(CREATE_DIALOG_ID).show();
       }
     },
 
