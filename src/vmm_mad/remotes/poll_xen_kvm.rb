@@ -351,6 +351,7 @@ module KVM
         memory = REXML::XPath.first(doc, '/domain/memory').text.to_i / 1024
         arch = REXML::XPath.first(doc, '/domain/os/type').attributes['arch']
 
+=begin
         disks = []
         REXML::XPath.each(doc, '/domain/devices/disk') do |d|
             type = REXML::XPath.first(d, '//disk').attributes['type']
@@ -403,7 +404,7 @@ module KVM
             interfaces_txt << "  MODEL=\"#{interface[:model]}\""
             interfaces_txt << "]\n"
         end
-
+=end
 
         spice = REXML::XPath.first(doc,
             "/domain/devices/graphics[@type='spice']")
