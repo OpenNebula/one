@@ -288,9 +288,12 @@ protected
                             lcm_state == '41' || # EPILOG_STOP_FAILURE
                             lcm_state == '42' || # EPILOG_UNDEPLOY_FAILURE
                             lcm_state == '44' || # PROLOG_MIGRATE_POWEROFF_FAILURE
-                            lcm_state == '46' )  # PROLOG_MIGRATE_SUSPEND_FAILURE
+                            lcm_state == '46' || # PROLOG_MIGRATE_SUSPEND_FAILURE
+                            lcm_state == '47' || # BOOT_UNDEPLOY_FAILURE
+                            lcm_state == '48' || # BOOT_STOPPED_FAILURE
+                            lcm_state == '49' || # PROLOG_RESUME_FAILURE
+                            lcm_state == '50' )  # PROLOG_UNDEPLOY_FAILURE
                     )
-
                     return true
                 end
             end

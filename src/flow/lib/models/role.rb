@@ -860,6 +860,8 @@ module OpenNebula
                             lcm_state_str == 'EPILOG_UNDEPLOY_FAILURE' ||
                             lcm_state_str == 'PROLOG_MIGRATE_POWEROFF_FAILURE' ||
                             lcm_state_str == 'PROLOG_MIGRATE_SUSPEND_FAILURE' ||
+                            lcm_state_str == 'PROLOG_UNDEPLOY_FAILURE' ||
+                            lcm_state_str == 'PROLOG_RESUME_FAILURE' ||
                             lcm_state_str == 'BOOT_UNDEPLOY_FAILURE' ||
                             lcm_state_str == 'BOOT_STOPPED_FAILURE' ))
 

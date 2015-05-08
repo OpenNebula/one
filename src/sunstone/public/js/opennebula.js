@@ -166,7 +166,9 @@ var OpenNebula = {
                                "MIGRATE",   // PROLOG_MIGRATE_SUSPEND
                                "FAILURE",   // PROLOG_MIGRATE_SUSPEND_FAILURE
                                "FAILURE",   // BOOT_UNDEPLOY_FAILURE
-                               "FAILURE"    // BOOT_STOPPED_FAILURE
+                               "FAILURE",   // BOOT_STOPPED_FAILURE
+                               "FAILURE",   // PROLOG_RESUME_FAILURE
+                               "FAILURE"    // PROLOG_UNDEPLOY_FAILURE
                             ][value]);
                     break;
                 case "VM_LCM":
@@ -219,7 +221,9 @@ var OpenNebula = {
                                 "PROLOG_MIGRATE_SUSPEND",
                                 "PROLOG_MIGRATE_SUSPEND_FAILURE",
                                 "BOOT_UNDEPLOY_FAILURE",
-                                "BOOT_STOPPED_FAILURE"
+                                "BOOT_STOPPED_FAILURE",
+                                "PROLOG_RESUME_FAILURE",
+                                "PROLOG_UNDEPLOY_FAILURE"
                             ][value]);
                     break;
                 case "IMAGE":

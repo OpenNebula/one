@@ -880,7 +880,9 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     {
         case VirtualMachine::PROLOG:
         case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_RESUME_FAILURE:
         case VirtualMachine::PROLOG_UNDEPLOY:
+        case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
         case VirtualMachine::PROLOG_FAILURE:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
@@ -1065,7 +1067,9 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_FAILURE:
         case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_RESUME_FAILURE:
         case VirtualMachine::PROLOG_UNDEPLOY:
+        case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
         case VirtualMachine::PROLOG_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
@@ -1295,6 +1299,22 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             vmpool->update(vm);
 
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
+        case VirtualMachine::PROLOG_RESUME_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_RESUME);
+
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::PROLOG_RESUME,vid);
+            break;
+
+        case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_UNDEPLOY);
+
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::PROLOG_RESUME,vid);
             break;
 
         case VirtualMachine::PROLOG_FAILURE:

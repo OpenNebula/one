@@ -100,6 +100,8 @@ module OpenNebula
             PROLOG_MIGRATE_SUSPEND_FAILURE
             BOOT_UNDEPLOY_FAILURE
             BOOT_STOPPED_FAILURE
+            PROLOG_RESUME_FAILURE
+            PROLOG_UNDEPLOY_FAILURE
         }
 
         SHORT_VM_STATES={
@@ -163,7 +165,9 @@ module OpenNebula
             "PROLOG_MIGRATE_SUSPEND"            => "migr",
             "PROLOG_MIGRATE_SUSPEND_FAILURE"    => "fail",
             "BOOT_UNDEPLOY_FAILURE"     => "fail",
-            "BOOT_STOPPED_FAILURE"      => "fail"
+            "BOOT_STOPPED_FAILURE"      => "fail",
+            "PROLOG_RESUME_FAILURE"     => "fail",
+            "PROLOG_UNDEPLOY_FAILURE"   => "fail"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
