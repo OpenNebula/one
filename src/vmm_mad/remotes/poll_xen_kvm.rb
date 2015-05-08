@@ -528,6 +528,7 @@ module XEN
                 dom_hash = Hash.new
 
                 dom_hash[:name]       = name
+                dom_hash[:vm_name]    = name
                 dom_hash[:state]      = get_state(dom_data[1])
                 dom_hash[:usedcpu]    = dom_data[3]
                 dom_hash[:usedmemory] = dom_data[4]
@@ -588,6 +589,7 @@ module XEN
             name = URI.escape(name)
 
             tmp = %Q<NAME = "#{name}"\n>
+            tmp << %Q<IMPORT_VM_ID = "#{name}"\n>
 
             vcpus = dom['config']['b_info']['max_vcpus'].to_i
             vcpus = 1 if vcpus < 1
