@@ -409,6 +409,12 @@ var vm_actions = {
         notify: true
     },
 
+    "VM.silent_deploy_action" : {
+        type: "single",
+        call: OpenNebula.VM.deploy,
+        error: onError
+    },    
+
     "VM.migrate" : {
         type: "custom",
         call: function(){

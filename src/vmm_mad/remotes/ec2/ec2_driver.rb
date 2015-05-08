@@ -198,7 +198,8 @@ class EC2Driver
         :ip_address,
         :subnet_id,
         :security_groups,
-        :instance_type
+        :instance_type,
+        :image_id
     ]
 
     # EC2 constructor, loads credentials and endpoint
@@ -340,11 +341,16 @@ class EC2Driver
 
                 poll_data=parse_poll(i)
 
+                vm_template_to_one = vm_to_one(i)
+                vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
+
                 one_id = i.tags['ONE_ID']
 
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
                 vms_info << "  DEPLOY_ID=#{i.instance_id},\n"
+                vms_info << "  VM_NAME=#{i.instance_id},\n"
+                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
                 vms_info << "  POLL=\"#{poll_data}\" ]\n"
 
                 if one_id
@@ -420,7 +426,7 @@ private
         ec2
     end
 
-    # Retrive the vm information from the EC2 instance
+    # Retrieve the vm information from the EC2 instance
     def parse_poll(instance)
         begin
             info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
@@ -566,6 +572,29 @@ private
             STDERR.puts e.message
             exit(-1)
         end
+    end
+
+    # Build template for importation
+    def vm_to_one(instance)
+        cpu, mem = instance_type_capacity(instance.instance_type)
+
+        mem = mem.to_i / 1024 # Memory for templates expressed in MB
+
+        str = "NAME   = \"Instance from #{instance.id}\"\n"\
+              "CPU    = \"#{cpu}\"\n"\
+              "vCPU   = \"#{cpu}\"\n"\
+              "MEMORY = \"#{mem}\"\n"\
+              "HYPERVISOR = \"ec2\"\n"\
+              "PUBLIC_CLOUD = [\n"\
+              "  TYPE  =\"ec2\",\n"\
+              "  AMI   =\"#{instance.image_id}\"\n"\
+              "]\n"\
+              "IMPORT_VM_ID    = \"#{instance.id}\"\n"\
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
+              "DESCRIPTION = \"Instance imported from EC2, from instance"\
+              " #{instance.id}, AMI #{instance.image_id}\"\n"
+
+        str
     end
 end
 
