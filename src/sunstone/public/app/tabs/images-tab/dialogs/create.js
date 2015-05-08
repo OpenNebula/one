@@ -36,6 +36,7 @@ define(function(require) {
   Dialog.prototype.setup = _setup;
 
   return Dialog;
+  
   /*
     FUNCTION DEFINITIONS
    */
@@ -64,6 +65,7 @@ define(function(require) {
   }
 
   function _setup(dialog) {
+    var that = this;
     Tips.setup(dialog);
 
     $('.advanced', dialog).hide();
@@ -272,8 +274,8 @@ define(function(require) {
       //we this is an image upload we trigger FileUploader
       //to start the upload
       if (upload) {
-        Sunstone.hideDialog(DIALOG_ID);
-        Sunstone.resetDialog(DIALOG_ID);
+        that.hide();
+        that.reset();
         uploader.upload();
       } else {
         Sunstone.runAction("Image.create", img_obj);

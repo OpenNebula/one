@@ -23,7 +23,6 @@ define(function(require) {
     "Image.create_dialog" : {
       type: "custom",
       call: function() {
-        console.log(Sunstone.getDialog(CREATE_DIALOG_ID))
         Sunstone.getDialog(CREATE_DIALOG_ID).show();
       }
     },
