@@ -97,6 +97,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Recover a VM by retrying the last failed action"
     }
 
+    INTERACTIVE={
+        :name  => "interactive",
+        :large => "--interactive",
+        :description => "Enables interactive recovery. Only works alongside "<<
+            " the --retry option."
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -541,7 +548,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :recover, recover_desc, [:range,:vmid_list],
-        :options => [SUCCESS, FAILURE, RETRY] do
+        :options => [SUCCESS, FAILURE, RETRY, INTERACTIVE] do
         if !options[:success].nil?
             result = 1
         elsif !options[:failure].nil?
@@ -557,7 +564,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
 
         helper.perform_actions(args[0], options, "recovering") do |vm|
-            vm.recover(result)
+            if options[:retry] && options[:interactive]
+                helper.recover_retry_interactive(vm)
+            else
+                vm.recover(result)
+            end
         end
     end
 

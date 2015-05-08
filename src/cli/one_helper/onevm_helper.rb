@@ -14,8 +14,38 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+if !ONE_LOCATION
+    MAD_LOCATION      = "/usr/lib/one/mads"
+    VAR_LOCATION      = "/var/lib/one"
+else
+    MAD_LOCATION      = ONE_LOCATION + "/lib/mads"
+    VAR_LOCATION      = ONE_LOCATION + "/var"
+end
+
+VMS_LOCATION = VAR_LOCATION + "/vms"
+
+$: << MAD_LOCATION
+
 require 'one_helper'
 require 'optparse/time'
+require 'one_tm'
+
+class String
+    def red
+        colorize(31)
+    end
+
+    def green
+        colorize(32)
+    end
+
+private
+
+    def colorize(color_code)
+        "\e[#{color_code}m#{self}\e[0m"
+    end
+end
+
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
@@ -288,6 +318,120 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
             vm.update(tmp_str)
         end
+    end
+
+    RECOVER_RETRY_STEPS = {
+        :PROLOG_MIGRATE_FAILURE          => :migrate,
+        :PROLOG_MIGRATE_POWEROFF_FAILURE => :migrate,
+        :PROLOG_MIGRATE_SUSPEND_FAILURE  => :migrate,
+        :PROLOG_FAILURE                  => :prolog,
+        :EPILOG_FAILURE                  => :epilog,
+        :EPILOG_STOP_FAILURE             => :stop,
+        :EPILOG_UNDEPLOY_FAILURE         => :stop
+    }
+
+    def recover_retry_interactive(vm)
+        # Disable CTRL-C in the menu
+        trap("SIGINT") { }
+
+        if !File.readable?(VAR_LOCATION+"/config")
+            STDERR.puts "Error reading #{VAR_LOCATION+'/config'}. The " <<
+                "TM Debug Interactive Environment must be executed as " <<
+                "oneadmin in the frontend."
+            exit -1
+        end
+
+        rc = vm.info
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit -1
+        end
+
+        if !RECOVER_RETRY_STEPS.include?(vm.lcm_state_str.to_sym)
+            STDERR.puts "Current LCM STATE '#{vm.lcm_state_str}' not " <<
+                "compatible with RECOVER RETRY action."
+            exit -1
+        end
+
+        seq = vm['/VM/HISTORY_RECORDS/HISTORY[last()]/SEQ']
+
+        tm_action = RECOVER_RETRY_STEPS[vm.lcm_state_str.to_sym]
+
+        tm_file = "#{VMS_LOCATION}/#{vm.id}/transfer.#{seq}.#{tm_action}"
+
+        if !File.readable?(tm_file)
+            STDERR.puts "Cannot read #{tm_file}"
+            exit -1
+        end
+
+        @tm_action_list = File.read(tm_file)
+
+        puts "TM Debug Interactive Environment.".green
+        puts
+        print_tm_action_list
+
+        @tm = TransferManagerDriver.new(nil)
+        i=0
+        @tm_action_list.lines.each do |tm_command|
+            i+=1
+            success=false
+
+            while !success
+                puts "Current action (#{i}):".green
+                puts tm_command
+                puts
+
+                puts <<-EOF.gsub(/^\s+/,"")
+                Choose action:
+                (r) Run action
+                (n) Skip to next action
+                (a) Show all actions
+                (q) Quit
+                EOF
+
+                ans = ""
+                while !%w(n a r q).include?(ans)
+                    printf "> "
+                    ans = STDIN.gets.strip.downcase
+
+                    puts
+
+                    case ans
+                    when "n"
+                        success = true
+                    when "a"
+                        print_tm_action_list
+                    when "q"
+                        exit -1
+                    when "r"
+                        result, result_message = @tm.do_transfer_action(@id, tm_command.split)
+
+                        if result == "SUCCESS"
+                            success = true
+                            puts "#{result}"
+                            puts
+                        else
+                            puts
+                            puts "#{result}. Repeat command.".red
+                            puts
+                        end
+                    end
+                end
+            end
+        end
+
+        puts "Sending RECOVER SUCCESS"
+        vm.recover(1)
+    end
+
+    def print_tm_action_list
+        puts "TM Action list:".green
+        i=0
+        @tm_action_list.lines.each do |line|
+            i+=1
+            puts "(#{i}) #{line}"
+        end
+        puts
     end
 
     private
