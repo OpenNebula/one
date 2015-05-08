@@ -861,6 +861,12 @@ int DispatchManager::resubmit(
         case VirtualMachine::HOLD: // Move the VM to PENDING in any of these
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
+            if (vm->hasHistory())
+            {
+                vm->set_action(History::DELETE_RECREATE_ACTION);
+                vmpool->update_history(vm);
+            }
+
             vm->set_state(VirtualMachine::LCM_INIT);
             vm->set_state(VirtualMachine::PENDING);
 
