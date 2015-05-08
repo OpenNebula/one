@@ -188,6 +188,37 @@ module OpenNebula
             return call(HOST_METHODS[:rename], @pe_id, name)
         end
 
+        # Imports a wild VM from the host and puts it in running state
+        #
+        # @param name [String] Name of the VM to import
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def import_wild(name)
+            vms = importable_wilds.select {|vm| vm['VM_NAME'] == name }
+
+            if vms.length == 0
+                return OpenNebula::Error.new("No importable wilds with name " <<
+                    "'#{name}' found.")
+            elsif vms.length > 1
+                return OpenNebula::Error.new("More than one importable wild " <<
+                    "with name '#{name}' found.")
+            end
+
+            wild = vms.first
+
+            template = Base64.decode64(wild['IMPORT_TEMPLATE'])
+
+            xml = OpenNebula::VirtualMachine.build_xml
+            vm = OpenNebula::VirtualMachine.new(xml, @client)
+
+            rc = vm.allocate(template)
+
+            return rc if OpenNebula.is_error?(rc)
+
+            vm.deploy(id, false)
+        end
+
         #######################################################################
         # Helpers to get Host information
         #######################################################################
@@ -211,6 +242,16 @@ module OpenNebula
         # indent:: _Boolean_ indents the resulting string, default true
         def template_str(indent=true) 
             template_like_str('TEMPLATE', indent)
+        end
+
+        # Get wild VMs in the host
+        def wilds
+            [self.to_hash['HOST']['TEMPLATE']['VM']].flatten.compact
+        end
+
+        # Get importable wild VMs in the host
+        def importable_wilds
+            wilds.select {|w| Hash === w && w['IMPORT_TEMPLATE'] }
         end
 
     private

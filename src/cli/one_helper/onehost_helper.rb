@@ -311,43 +311,6 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def get_wilds(host)
-        [host.to_hash['HOST']['TEMPLATE']['VM']].flatten.compact
-    end
-
-    def get_importable_wilds(host)
-        get_wilds(host).select {|w| Hash === w && w['IMPORT_TEMPLATE'] }
-    end
-
-    def import_wild(host, name)
-        host.info
-
-        wilds = get_importable_wilds(host)
-
-        vms = wilds.select {|vm| vm['VM_NAME'] == name }
-
-        if vms.length == 0
-            return OpenNebula::Error.new("No importable wilds with name " <<
-                "'#{name}' found.")
-        elsif vms.length > 1
-            return OpenNebula::Error.new("More than one importable wild " <<
-                "with name '#{name}' found.")
-        end
-
-        wild = vms.first
-
-        template = Base64.decode64(wild['IMPORT_TEMPLATE'])
-
-        xml = OpenNebula::VirtualMachine.build_xml
-        vm = OpenNebula::VirtualMachine.new(xml, @client)
-
-        rc = vm.allocate(template)
-
-        return rc if OpenNebula.is_error?(rc)
-
-        vm.deploy(host.id, false)
-    end
-
     private
 
     def print_update_info(current, total, host)
@@ -443,7 +406,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "MONITORING INFORMATION", false)
 
-        wilds = get_wilds(host)
+        wilds = host.wilds
 
         host.delete_element("TEMPLATE/VM")
         host.delete_element("TEMPLATE_WILDS")
