@@ -325,6 +325,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :PROLOG_MIGRATE_POWEROFF_FAILURE => :migrate,
         :PROLOG_MIGRATE_SUSPEND_FAILURE  => :migrate,
         :PROLOG_FAILURE                  => :prolog,
+        :PROLOG_RESUME_FAILURE           => :resume,
+        :PROLOG_UNDEPLOY_FAILURE         => :resume,
         :EPILOG_FAILURE                  => :epilog,
         :EPILOG_STOP_FAILURE             => :stop,
         :EPILOG_UNDEPLOY_FAILURE         => :stop
@@ -420,8 +422,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        puts "Sending RECOVER SUCCESS"
-        vm.recover(1)
+        puts "If all the TM actions have been successful and you want to"
+        puts "recover the Virtual Machine to the RUNNING state execute this command:"
+        puts "$ onevm recover #{vm.id} --success"
     end
 
     def print_tm_action_list
