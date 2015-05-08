@@ -1,19 +1,51 @@
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
+  var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./confirm/html');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
+  
+  /*
+    CONSTANTS
+   */
+  
   var DIALOG_ID = require('./confirm/dialogId');
 
-  var _html = function() {
-    return TemplateHTML({dialogId: DIALOG_ID});
+  /*
+    CONSTRUCTOR
+   */
+
+  function Dialog() {
+    this.dialogId = DIALOG_ID;
+    BaseDialog.call(this);
+  };
+
+  Dialog.DIALOG_ID = DIALOG_ID;
+  Dialog.prototype = Object.create(BaseDialog.prototype);
+  Dialog.prototype.constructor = Dialog;
+  Dialog.prototype.html = _html;
+  Dialog.prototype.onShow = _onShow;
+  Dialog.prototype.setup = _setup;
+
+  return Dialog;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+  
+  function _html() {
+    return TemplateHTML({dialogId: this.dialogId});
   }
 
-  var _setup = function(dialog) {
+  function _setup(dialog) {
     // Submit action is configured in sunstone.js since it's an action_button
     return false;
   }
 
-  var _onShow = function(dialog) {
+  function _onShow(dialog) {
     var actionId = dialog.data('buttonAction');
     var tabId = dialog.data('buttonTab');
     var button = Sunstone.getButton(tabId, actionId);
@@ -34,12 +66,5 @@ define(function(require) {
     }
 
     return false;
-  }
-
-  return {
-    'dialogId': DIALOG_ID,
-    'html': _html,
-    'setup': _setup,
-    'onShow': _onShow
   }
 });

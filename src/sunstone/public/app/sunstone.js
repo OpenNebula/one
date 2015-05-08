@@ -374,7 +374,7 @@ define(function(require) {
       if (!error && !$(this).hasClass("refresh")) {
         //proceed to close confirm dialog in
         //case it was open
-        //TODO _getDialogInstance(CONFIRM_DIALOG_ID).hide();
+        _getDialogInstance(CONFIRM_DIALOG_ID).hide();
       };
 
       return false;
@@ -383,18 +383,20 @@ define(function(require) {
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.
     $(document).on("click", '.confirm_button', function() {
+      var dialogInstance = _getDialogInstance(CONFIRM_DIALOG_ID)
       $('#' + CONFIRM_DIALOG_ID).data('buttonAction', $(this).attr('href'));
       $('#' + CONFIRM_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
-      _showDialog(CONFIRM_DIALOG_ID);
+      dialogInstance.show();
       return false;
     });
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //with a select box before running the action.
     $(document).on("click", '.confirm_with_select_button', function() {
+      var dialogInstance = _getDialogInstance(CONFIRM_WITH_SELECT_DIALOG_ID);
       $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonAction', $(this).attr('href'));
       $('#' + CONFIRM_WITH_SELECT_DIALOG_ID).data('buttonTab', $(this).parents('.tab').attr('id'));
-      _showDialog(CONFIRM_WITH_SELECT_DIALOG_ID);
+      dialogInstance.show();
       return false;
     });
 

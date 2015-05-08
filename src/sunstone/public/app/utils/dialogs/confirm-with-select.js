@@ -1,17 +1,49 @@
 define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
+  var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./confirm-with-select/html');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
+  var ResourceSelect = require('utils/resource-select');
+  
+  /*
+    CONSTANTS
+   */
+  
   var DIALOG_ID = require('./confirm-with-select/dialogId');
 
-  var ResourceSelect = require('utils/resource-select');
+  /*
+    CONSTRUCTOR
+   */
 
-  var _html = function() {
-    return TemplateHTML({dialogId: DIALOG_ID});
+  function Dialog() {
+    this.dialogId = DIALOG_ID;
+    BaseDialog.call(this);
+  };
+
+  Dialog.DIALOG_ID = DIALOG_ID;
+  Dialog.prototype = Object.create(BaseDialog.prototype);
+  Dialog.prototype.constructor = Dialog;
+  Dialog.prototype.html = _html;
+  Dialog.prototype.onShow = _onShow;
+  Dialog.prototype.setup = _setup;
+
+  return Dialog;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+  
+
+  function _html() {
+    return TemplateHTML({dialogId: this.dialogId});
   }
 
-  var _setup = function(dialog) {
+  function _setup(dialog) {
     //when we proceed with a "confirm with select" we need to
     //find out if we are running an action with a parametre on a datatable
     //items or if its just an action
@@ -50,7 +82,7 @@ define(function(require) {
     return false;
   }
 
-  var _onShow = function(dialog) {
+  function _onShow(dialog) {
     var actionId = dialog.data('buttonAction');
     var tabId = dialog.data('buttonTab');
     var button = Sunstone.getButton(tabId, actionId);
@@ -76,12 +108,5 @@ define(function(require) {
     }
 
     return false;
-  }
-
-  return {
-    'dialogId': DIALOG_ID,
-    'html': _html,
-    'setup': _setup,
-    'onShow': _onShow
   }
 });

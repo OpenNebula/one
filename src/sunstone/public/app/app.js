@@ -11,12 +11,9 @@ define(function(require) {
     require('tabs/images-tab')
   ];
 
-  var DialogConfirm = require('utils/dialogs/confirm');
-  var DialogConfirmWithSelect = require('utils/dialogs/confirm-with-select');
-
   var _commonDialogs = [
-    DialogConfirm,
-    DialogConfirmWithSelect
+    require('utils/dialogs/confirm'),
+    require('utils/dialogs/confirm-with-select')
   ]
 
   Sunstone.addDialogs(_commonDialogs);
@@ -27,7 +24,5 @@ define(function(require) {
 
   $(document).ready(function() {
     Sunstone.insertTabs();
-    Sunstone.insertDialog(DialogConfirm);
-    Sunstone.insertDialog(DialogConfirmWithSelect);
   });
 });
