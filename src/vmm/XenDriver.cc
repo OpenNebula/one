@@ -581,6 +581,29 @@ int XenDriver::deployment_description(
                     file <<"']" << endl;
                 }
             }
+            else if ( is_hvm && (type == "spice" || type == "SPICE") )
+            {
+                file << "spice = '1'" << endl;
+
+                if ( !listen.empty() )
+                {
+                    file << "spicehost = '" << listen << "'" << endl;
+                }
+
+                if ( !port.empty() )
+                {
+                    file << "spiceport = '" << port << "'" << endl;
+                }
+
+                if ( !passwd.empty() )
+                {
+                    file << "spicepasswd = '" << passwd << "'" << endl;
+                }
+                else
+                {
+                    file << "spicedisable_ticketing = '1'" << endl;
+                }
+            }
             else
             {
                 vm->log("VMM", Log::WARNING,
