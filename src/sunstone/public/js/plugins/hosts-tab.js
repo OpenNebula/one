@@ -18,9 +18,6 @@
 /* HOST_HISTORY_LENGTH is ignored by server */
 var HOST_HISTORY_LENGTH = 40;
 
-/* Hypervisors from where you can import VMs*/
-var HYPERVISORS_CAN_IMPORT_VM = ["vcenter", "ec2"]
-
 var create_host_tmpl =
 '<div class="row">\
   <div class="large-12 columns">\
@@ -783,8 +780,20 @@ function updateHostInfo(request,host){
 
     var hypervisor_name = host_info.TEMPLATE.HYPERVISOR ? host_info.TEMPLATE.HYPERVISOR.toLowerCase() : "-" ;
 
+    can_import_wilds = false;
 
-    if (!$.inArray(hypervisor_name, HYPERVISORS_CAN_IMPORT_VM))
+    if (host_info.TEMPLATE.VM)
+    {
+      $.each(host_info.TEMPLATE.VM, function(){
+              if (this.IMPORT_TEMPLATE)
+              {
+                 can_import_wilds = true;
+              }
+      });
+    }
+
+
+    if (!can_import_wilds)
     {
       stripped_host_template = host_info.TEMPLATE;
     }
@@ -1041,9 +1050,18 @@ function updateHostInfo(request,host){
     if (hypervisor_name == "vcenter") {
       Sunstone.updateInfoPanelTab("host_info_panel","host_esx_tab",esx_info_tab);
     }
+    else
+    {
+      Sunstone.removeInfoPanelTab("host_info_panel","host_esx_tab");
+    }
 
-    if ($.inArray(hypervisor_name, HYPERVISORS_CAN_IMPORT_VM)) {
+
+    if (can_import_wilds) {
       Sunstone.updateInfoPanelTab("host_info_panel","host_wilds_tab",wilds_info_tab);
+    }
+    else
+    {
+      Sunstone.removeInfoPanelTab("host_info_panel","host_wilds_tab");
     }
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
@@ -1081,7 +1099,7 @@ function updateHostInfo(request,host){
       }
     }
 
-    if ($.inArray(hypervisor_name, HYPERVISORS_CAN_IMPORT_VM)) {
+    if (can_import_wilds) {
       // WILDS datatable
       var dataTable_wilds_hosts = $("#datatable_host_wilds",main_tabs_context).dataTable({
        "bSortClasses" : false,
