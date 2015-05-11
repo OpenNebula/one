@@ -505,7 +505,9 @@ int XenDriver::deployment_description(
             passwd = graphics->vector_value("PASSWD");
             keymap = graphics->vector_value("KEYMAP");
 
-            if ( type == "vnc" || type == "VNC" )
+            one_util::toupper(type);
+
+            if ( type == "VNC" )
             {
                 if ( !is_hvm )
                 {
@@ -581,7 +583,7 @@ int XenDriver::deployment_description(
                     file <<"']" << endl;
                 }
             }
-            else if ( is_hvm && (type == "spice" || type == "SPICE") )
+            else if ( is_hvm && type == "SPICE" )
             {
                 file << "spice = '1'" << endl;
 
@@ -744,7 +746,7 @@ int XenDriver::deployment_description(
 
         type = raw->vector_value("TYPE");
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "XEN" )
         {
