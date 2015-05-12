@@ -46,6 +46,7 @@ source_files=[
     'RequestManagerProxy.cc',
     'RequestManagerVdc.cc',
     'RequestManagerDatastore.cc',
+    'RequestManagerLock.cc',
 ]
 
 # Build library

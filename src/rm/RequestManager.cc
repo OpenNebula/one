@@ -27,6 +27,7 @@
 #include "RequestManagerChmod.h"
 #include "RequestManagerClone.h"
 #include "RequestManagerRename.h"
+#include "RequestManagerLock.h"
 
 #include "RequestManagerVirtualNetwork.h"
 #include "RequestManagerVirtualMachine.h"
@@ -368,6 +369,10 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr doc_info(new DocumentInfo());
     xmlrpc_c::methodPtr secg_info(new SecurityGroupInfo());
 
+    // Lock Methods
+    xmlrpc_c::methodPtr doc_lock(new DocumentLock());
+    xmlrpc_c::methodPtr doc_unlock(new DocumentUnlock());
+
     // PoolInfo Methods
     xmlrpc_c::methodPtr hostpool_info(new HostPoolInfo());
     xmlrpc_c::methodPtr datastorepool_info(new DatastorePoolInfo());
@@ -706,7 +711,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.document.chown",   doc_chown);
     RequestManagerRegistry.addMethod("one.document.chmod",   doc_chmod);
     RequestManagerRegistry.addMethod("one.document.clone",   doc_clone);
-    RequestManagerRegistry.addMethod("one.document.rename",   doc_rename);
+    RequestManagerRegistry.addMethod("one.document.rename",  doc_rename);
+    RequestManagerRegistry.addMethod("one.document.lock",    doc_lock);
+    RequestManagerRegistry.addMethod("one.document.unlock",  doc_unlock);
 
     RequestManagerRegistry.addMethod("one.documentpool.info",docpool_info);
 
