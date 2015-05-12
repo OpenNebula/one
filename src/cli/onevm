@@ -300,7 +300,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     disk_snapshot_desc = <<-EOT.unindent
         Sets the specified VM disk to be saved in a new Image. The Image is
-        created immediately, but the contents are saved only if the VM is
+        created immediately, but the contents are saved only after the VM is
         shut down gracefully (i.e., using 'onevm shutdown' and not
         'onevm delete')
 
