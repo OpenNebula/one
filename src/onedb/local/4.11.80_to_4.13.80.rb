@@ -24,6 +24,42 @@ module Migrator
     end
 
     def up
+
+        init_log_time()
+
+        # 3805
+
+        @db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
+        @db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+        @db.transaction do
+            @db.fetch("SELECT * FROM old_document_pool") do |row|
+                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+                lock_elem = doc.create_element("LOCK")
+                lock_elem.add_child(doc.create_element("LOCKED")).content = "0"
+                lock_elem.add_child(doc.create_element("OWNER")).content = ""
+                lock_elem.add_child(doc.create_element("EXPIRES")).content = "0"
+
+                doc.root.add_child(lock_elem)
+
+                @db[:document_pool].insert(
+                    :oid        => row[:oid],
+                    :name       => row[:name],
+                    :body       => doc.root.to_s,
+                    :type       => row[:type],
+                    :uid        => row[:uid],
+                    :gid        => row[:gid],
+                    :owner_u    => row[:owner_u],
+                    :group_u    => row[:group_u],
+                    :other_u    => row[:other_u])
+            end
+        end
+
+        @db.run "DROP TABLE old_document_pool;"
+
+        log_time()
+
         return true
     end
 end
