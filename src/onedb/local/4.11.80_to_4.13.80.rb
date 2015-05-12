@@ -24,42 +24,66 @@ module Migrator
     end
 
     def up
+      #3654
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts "#{one_version} improves the management of FAILED VMs  "
+      puts "Please remove (onevm delete) any FAILED VM before continuing. "
+      puts
 
-        init_log_time()
+      #2742
+      puts "**************************************************************"
+      puts "*  WARNING  WARNING WARNING WARNING WARNING WARNING WARNING  *"
+      puts "**************************************************************"
+      puts
+      puts
+      puts "The scheduler (and oned) has been update to enforce access    "
+      puts "rights on system datastores. This new version also checks that"
+      puts "the user can access the System DS."
+      puts "This *may require* to update system DS rights of your cloud"
+      puts
+      printf "Do you want to proceed ? [y/N]"
 
-        # 3805
+      ans = STDIN.gets.strip.downcase
 
-        @db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
-        @db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+      return false if ans != "y"
 
-        @db.transaction do
-            @db.fetch("SELECT * FROM old_document_pool") do |row|
-                doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+      init_log_time()
 
-                lock_elem = doc.create_element("LOCK")
-                lock_elem.add_child(doc.create_element("LOCKED")).content = "0"
-                lock_elem.add_child(doc.create_element("OWNER")).content = ""
-                lock_elem.add_child(doc.create_element("EXPIRES")).content = "0"
+      # 3805
+      @db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
+      @db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
-                doc.root.add_child(lock_elem)
+      @db.transaction do
+          @db.fetch("SELECT * FROM old_document_pool") do |row|
+              doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-                @db[:document_pool].insert(
-                    :oid        => row[:oid],
-                    :name       => row[:name],
-                    :body       => doc.root.to_s,
-                    :type       => row[:type],
-                    :uid        => row[:uid],
-                    :gid        => row[:gid],
-                    :owner_u    => row[:owner_u],
-                    :group_u    => row[:group_u],
-                    :other_u    => row[:other_u])
-            end
-        end
+              lock_elem = doc.create_element("LOCK")
+              lock_elem.add_child(doc.create_element("LOCKED")).content = "0"
+              lock_elem.add_child(doc.create_element("OWNER")).content = ""
+              lock_elem.add_child(doc.create_element("EXPIRES")).content = "0"
 
-        @db.run "DROP TABLE old_document_pool;"
+              doc.root.add_child(lock_elem)
 
-        log_time()
+              @db[:document_pool].insert(
+                  :oid        => row[:oid],
+                  :name       => row[:name],
+                  :body       => doc.root.to_s,
+                  :type       => row[:type],
+                  :uid        => row[:uid],
+                  :gid        => row[:gid],
+                  :owner_u    => row[:owner_u],
+                  :group_u    => row[:group_u],
+                  :other_u    => row[:other_u])
+          end
+      end
 
-        return true
+      @db.run "DROP TABLE old_document_pool;"
+
+      log_time()
+
+      return true
     end
 end
