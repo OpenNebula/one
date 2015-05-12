@@ -91,6 +91,20 @@ public class OneResponse{
         return ret;
     }
 
+    /**
+     * Parses the string returned by getMessage
+     *
+     * @return The parsed boolean. False in case of error
+     *
+     * @see #getMessage
+     */
+    public boolean getBooleanMessage()
+    {
+        boolean ret = Boolean.parseBoolean( getMessage() );
+
+        return ret;
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE ATTRIBUTES
     // ------------------------------------------------------------------------

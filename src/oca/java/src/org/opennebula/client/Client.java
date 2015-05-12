@@ -106,8 +106,16 @@ public class Client{
                 }
                 catch (ClassCastException e)
                 {
-                    // The result may be an Integer
-                    msg = ((Integer) result[1]).toString();
+                    try
+                    {
+                        // The result may be an Integer
+                        msg = ((Integer) result[1]).toString();
+                    }
+                    catch (ClassCastException ei)
+                    {
+                        // The result may be a Boolean
+                        msg = ((Boolean) result[1]).toString();
+                    }
                 }
             }
         }
