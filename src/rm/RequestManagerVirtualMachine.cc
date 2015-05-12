@@ -1024,25 +1024,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    // Check the VM state again, in case the system DS is also changed
-    if((ds_id != -1 && ds_id != c_ds_id) &&
-       (vm->get_state() != VirtualMachine::POWEROFF))
-    {
-        ostringstream oss;
-        string tmp_st;
-
-        oss << "System datastore migration is only available for VMs in the "
-            << VirtualMachine::vm_state_to_str(tmp_st, VirtualMachine::POWEROFF)
-            << " state, current state is " << vm->state_str();
-
-        failure_response(ACTION,
-                request_error(oss.str(),""),
-                att);
-
-        vm->unlock();
-        return;
-    }
-
     // Check the host has enough capacity
     if (enforce)
     {
