@@ -594,6 +594,25 @@ public:
      */
     virtual void get_permissions(PoolObjectAuth& auths);
 
+    /**
+     * Tries to get the DB lock. This is a mutex requested by external
+     * applications, not related to the internal mutex lock. The object
+     * must be locked (internal memory mutex) before this method is called
+     *
+     * @param owner String to identify who requested the lock
+     *
+     * @return 0 if the lock was granted, -1 if the object is already locked
+     */
+    int lock_db(const string& owner);
+
+    /**
+     * Unlocks the DB lock for external applications. The object must be locked
+     * (internal memory mutex) before this method is called
+     *
+     * @param owner String to identify who requested the lock
+     */
+    void unlock_db(const string& owner);
+
 protected:
 
     /**
@@ -709,25 +728,6 @@ protected:
     {
         return 0;
     };
-
-    /**
-     * Tries to get the DB lock. This is a mutex requested by external
-     * applications, not related to the internal mutex lock. The object
-     * must be locked (internal memory mutex) before this method is called
-     *
-     * @param owner String to identify who requested the lock
-     *
-     * @return 0 if the lock was granted, -1 if the object is already locked
-     */
-    int lock_db(const string& owner);
-
-    /**
-     * Unlocks the DB lock for external applications. The object must be locked
-     * (internal memory mutex) before this method is called
-     *
-     * @param owner String to identify who requested the lock
-     */
-    void unlock_db(const string& owner);
 
     /**
      * Prints the lock info into a string in XML format

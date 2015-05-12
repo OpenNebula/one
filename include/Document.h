@@ -69,30 +69,6 @@ public:
         return type;
     };
 
-    /**
-     * Tries to get the DB lock. This is a mutex requested by external
-     * applications, not related to the internal mutex lock. The object
-     * must be locked (internal memory mutex) before this method is called
-     *
-     * @param owner String to identify who requested the lock
-     *
-     * @return 0 if the lock was granted, -1 if the object is already locked
-     */
-    int lock_db(const string& owner)
-    {
-        return PoolObjectSQL::lock_db(owner);
-    };
-
-    /**
-     * Unlocks the DB lock for external applications. The object must be locked
-     * (internal memory mutex) before this method is called
-     *
-     * @param owner String to identify who requested the lock
-     */
-    void unlock_db(const string& owner)
-    {
-        return PoolObjectSQL::unlock_db(owner);
-    };
 
 private:
     // -------------------------------------------------------------------------
