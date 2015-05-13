@@ -115,18 +115,18 @@ public:
         VirtualMachine * objsql)
     {
         do_hooks(objsql, Hook::UPDATE);
-        
+
         objsql->set_prev_state();
 
-        return objsql->update(db); 
+        return objsql->update(db);
     };
 
     /**
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
      *  in the import_table.
-     *    @param deploy_id to search the id for    
+     *    @param deploy_id to search the id for
      *    @return -1 if not found or VMID
-     *  
+     *
      */
     int get_vmid(const string& deploy_id);
 
@@ -225,14 +225,14 @@ public:
      *    @return 0 on success
      */
     static int bootstrap(SqlDB * _db)
-    {   
+    {
         int rc;
         ostringstream oss_import(import_db_bootstrap);
-        
+
         rc  = VirtualMachine::bootstrap(_db);
         rc += _db->exec(oss_import);
-        
-        return rc; 
+
+        return rc;
     };
 
     /**
@@ -356,6 +356,12 @@ public:
      */
     void delete_attach_nic(int vid);
 
+    /**
+     * Deletes an entry in the HV-2-vmid mapping table for imported VMs
+     *   @param deploy_id of the VM
+     */
+    void drop_index(const string& deploy_id);
+
 private:
     /**
      *  Factory method to produce VM objects
@@ -405,8 +411,6 @@ private:
      *   @return 0 on success
      */
     int insert_index(const string& deploy_id, int vm_id, bool replace);
-
-    void drop_index(const string& deploy_id);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/
