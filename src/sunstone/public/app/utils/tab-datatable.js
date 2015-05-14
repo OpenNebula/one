@@ -9,6 +9,8 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var OpenNebula = require('opennebula');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -51,20 +53,20 @@ define(function(require) {
     //    
     
     var that = this;
-    if (this.conf.select) {
-      if (!this.selectOptions.select_resource) {
-        this.selectOptions.select_resource = Locale.tr("Please select a resource from the list");
+    if (that.conf.select) {
+      if (!that.selectOptions.select_resource) {
+        that.selectOptions.select_resource = Locale.tr("Please select a resource from the list");
       }
 
-      if (!this.selectOptions.you_selected) {
-        this.selectOptions.you_selected = Locale.tr("You selected the following resource:");
+      if (!that.selectOptions.you_selected) {
+        that.selectOptions.you_selected = Locale.tr("You selected the following resource:");
       }
 
-      if (this.selectOptions.id_index == undefined) {
-        this.selectOptions.id_index = 0;
+      if (that.selectOptions.id_index == undefined) {
+        that.selectOptions.id_index = 0;
       }
 
-      $.extend(that.selectOptions, conf.selectOptions);
+      $.extend(that.selectOptions, that.conf.selectOptions);
 
       that.selectOptions.fixed_ids_map_orig = {};
       if (that.selectOptions.fixed_ids != undefined) {
@@ -78,15 +80,15 @@ define(function(require) {
       }
     }
     
-    this.dataTableHTML = TemplateDataTableHTML({
+    that.dataTableHTML = TemplateDataTableHTML({
                           'dataTableId': this.dataTableId, 
                           'columns': this.columns,
                           'conf': this.conf,
                           'selectOptions': this.selectOptions});
 
-    this.searchInputHTML = TemplateSearchInputHTML({'dataTableSearchId': this.dataTableId + 'Search'});
+    that.searchInputHTML = TemplateSearchInputHTML({'dataTableSearchId': this.dataTableId + 'Search'});
 
-    return this;
+    return that;
   }
 
   TabDatatable.prototype = {
@@ -107,6 +109,8 @@ define(function(require) {
     'retrieveResourceTableSelect': _retrieveResourceTableSelect,
     'refreshResourceTableSelect': _refreshResourceTableSelect,
     'selectResourceTableSelect': _selectResourceTableSelect,
+    'initSelectResourceTableSelect': _initSelectResourceTableSelect,
+    'retrieveResourceTableSelect': _retrieveResourceTableSelect,
     'updateFn': _updateFn
   }
 
@@ -142,7 +146,7 @@ define(function(require) {
     }
 
     if (this.conf.select) {
-      _initSelectResourceTableSelect();
+      this.initSelectResourceTableSelect();
     }
   }
 
@@ -661,7 +665,7 @@ define(function(require) {
     $('#select_resource_' + that.dataTableId, section).show();
   }
 
-  // Returns an ID, or an array of IDs for opts.multiple_choice
+  // Returns an ID, or an array of IDs for that.selectOptions.multiple_choice
   function _retrieveResourceTableSelect() {
     var that = this;
     var section = $('#' + that.dataTableId + 'Container');
@@ -693,7 +697,7 @@ define(function(require) {
     var section = $('#' + that.dataTableId + 'Container');
 
     if (that.selectOptions.multiple_choice) {
-      _refreshResourceTableSelect(section, that.dataTableId);
+      that.refreshResourceTableSelect(section, that.dataTableId);
 
       var data_ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
 
@@ -800,16 +804,16 @@ define(function(require) {
     var success_func = function (request, resource_list) {
       var list_array = [];
 
-      var fixed_ids_map = $.extend({}, fixed_ids_map_orig);
+      var fixed_ids_map = $.extend({}, that.selectOptions.fixed_ids_map_orig);
 
       $.each(resource_list, function() {
         var add = true;
 
-        if (opts.filter_fn) {
-          add = opts.filter_fn(this.DATASTORE);
+        if (that.selectOptions.filter_fn) {
+          add = that.selectOptions.filter_fn(this.DATASTORE);
         }
 
-        if (opts.fixed_ids != undefined) {
+        if (that.selectOptions.fixed_ids != undefined) {
           add = (add && fixed_ids_map[this.DATASTORE.ID]);
         }
 
@@ -820,7 +824,7 @@ define(function(require) {
         }
       });
 
-      var n_columns = that.columns.length() + 1; // SET FOR EACH RESOURCE
+      var n_columns = that.columns.length + 1; // SET FOR EACH RESOURCE
 
       $.each(fixed_ids_map, function(id, v) {
         var empty = [];
@@ -839,10 +843,10 @@ define(function(require) {
 
     var error_func = function(request, error_json, container) {
       success_func(request, []);
-      onError(request, error_json, container);
+      Notifier.onError(request, error_json, container);
     }
 
-    if (opts.zone_id == undefined) {
+    if (that.selectOptions.zone_id == undefined) {
       OpenNebula[that.resource].list({
         timeout: true,
         success: success_func,
@@ -850,7 +854,7 @@ define(function(require) {
       });
     } else {
       OpenNebula[that.resource].list_in_zone({
-        data: {zone_id: opts.zone_id},
+        data: {zone_id: that.selectOptions.zone_id},
         timeout: true,
         success: success_func,
         error: error_func
