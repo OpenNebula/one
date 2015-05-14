@@ -37,9 +37,13 @@ define(function(require) {
 
   /*
     Initialize the table, clicking the edit icon will add an input to edit the value
+    @param {Object} templateJSON Resource template (i.e: ZONE.TEMPLATE, IMAGE.TEMPLATE...)
     @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
     @param {String} resourceId ID of the resource
     @param {jQuery Object} context Selector including the tr
+    @param {Object} unshownValues Values from the origianl resource template that
+      have been deleted from the templateJSON param. Whithout this, a template
+      update would permanently delete the missing values from OpenNebula
    */
   var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues) {
     // Remove previous listeners

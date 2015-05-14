@@ -68,7 +68,7 @@ define(function(require) {
     var month = _pad(d.getMonth() + 1, 2); //getMonths returns 0-11
     var year = d.getFullYear();
 
-    return hour + ":" + mins + ":" + secs + "&nbsp;" + day + "/" + month + "/" + year;
+    return hour + ":" + mins + ":" + secs + " " + day + "/" + month + "/" + year;
   }
 
   return {
