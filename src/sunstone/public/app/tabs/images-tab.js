@@ -8,7 +8,8 @@ define(function(require) {
   var DATATABLE_ID = "dataTableImages";
 
   var _dialogs = [
-    require('./images-tab/dialogs/create')
+    require('./images-tab/dialogs/create'),
+    require('./images-tab/dialogs/clone')
   ];
 
   var _panels = [

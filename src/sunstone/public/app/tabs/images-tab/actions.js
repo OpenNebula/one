@@ -6,6 +6,7 @@ define(function(require) {
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
 
   var _actions = {
     "Image.create" : {
@@ -185,7 +186,9 @@ define(function(require) {
     },
     "Image.clone_dialog" : {
       type: "custom",
-      call: function(){} //TODO popUpImageCloneDialog
+      call: function(){
+        Sunstone.getDialog(CLONE_DIALOG_ID).show();
+      }
     },
     "Image.clone" : {
       type: "single",
