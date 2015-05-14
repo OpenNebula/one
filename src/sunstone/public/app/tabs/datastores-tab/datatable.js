@@ -20,6 +20,20 @@ define(function(require) {
     CONSTRUCTOR
    */
   
+  /*
+    @dataTableId
+    @param {String} dataTableId unique identifier
+    @param {Object} conf
+      conf = {
+        'info': true,     enable on click row will show the element
+        'action': true,   enable actions on row elements
+        'select': true,   enable selecting elements from the table
+        'selectOptions': {
+          'filter_fn': function(ds) { return ds.TYPE == 0; }
+        }
+      }
+    @returns {Table} A new table object
+   */
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.dataTableId = dataTableId;

@@ -43,15 +43,27 @@ define(function(require) {
     CONSTRUCTOR
    */
 
+  /* Child class must define:
+    this.dataTableId
+    this.resource
+    this.dataTableOptions
+    this.columns
+    this.conf = {
+      'info': true,     enable on click row will show the element
+      'action': true,   enable actions on row elements
+      'select': true,   enable selecting elements from the table
+      'selectOptions': {
+        'filter_fn': function(ds) { return ds.TYPE == 0; }
+      }
+    }
+
+    1. The table HTML is returned calling the table.dataTableHTML attr
+    2. The table must be initialized after including it in the DOM,
+        using the table.initilize() method
+    3. After that all the methods can be called on the table,
+        depending on the functionalities enabled (info, action, select)
+  */
   function TabDatatable() {
-    // Child class must define:
-    //    dataTableId
-    //    resource
-    //    dataTableOptions
-    //    columns
-    //    conf {info: true, actions: true, select: true}
-    //    
-    
     var that = this;
     if (that.conf.select) {
       if (!that.selectOptions.select_resource) {
