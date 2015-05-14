@@ -1,6 +1,6 @@
 OpenNebula Open Source Project
 --------------------------------------------------------------------------------
-Copyright 2002-2014, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
+Copyright 2002-2015, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 --------------------------------------------------------------------------------
 
 You can find  more information about the project, release notes and
@@ -20,11 +20,6 @@ The following people have contributed to the development of the technology
 - Carlos Martin Sanchez (cmartin@opennebula.org)
 - Daniel Molina Aranda (dmolina@opennebula.org)
 - Hector Sanjuan Redondo (hsanjuan@opennebula.org)
-
-The new features for service elasticity (oneFlow) introduced in OpenNebula 4.2
-were funded by BlackBerry in the context of the Fund a Feature Program.
-
-OpenNebula Project also acknowledges the contributions of C12G Labs developers.
 
 LICENSE
 
