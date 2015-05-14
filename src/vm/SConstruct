@@ -47,7 +47,8 @@ source_files=[
     'vm_file_var_syntax.cc',
     'VirtualMachinePool.cc',
     'VirtualMachineHook.cc',
-    'VirtualMachineTemplate.cc'
+    'VirtualMachineTemplate.cc',
+    'Snapshots.cc'
 ]
 
 # Build library
