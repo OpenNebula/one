@@ -538,7 +538,8 @@ class VCenterHost < ::OpenNebula::Host
 
     ############################################################################
     # Generate an OpenNebula monitor string for this host. Reference:
-    # https://www.vmware.com/support/developer/vc-sdk/visdk25pubs/ReferenceGuide/vim.ComputeResource.Summary.html
+    # https://www.vmware.com/support/developer/vc-sdk/visdk25pubs/Reference
+    # Guide/vim.ComputeResource.Summary.html
     #   - effectiveCpu: Effective CPU resources (in MHz) available to run
     #     VMs. This is the aggregated from all running hosts excluding hosts in
     #     maintenance mode or unresponsive are not counted.
@@ -1058,6 +1059,8 @@ class VCenterVm
     #
     ########################################################################
     def vm_to_one
+        host_name = @vm.runtime.host.parent.name
+
         str = "NAME   = \"#{@vm.name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
@@ -1068,21 +1071,25 @@ class VCenterVm
               "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
-              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{host_name}\\\"\"\n"
 
-        vp=@vm.config.extraConfig.select{|v| v[:key]=="remotedisplay.vnc.port"}
+        vp     = @vm.config.extraConfig.select{|v|
+                                           v[:key]=="remotedisplay.vnc.port"}
+        keymap = @vm.config.extraConfig.select{|v| 
+                                           v[:key]=="remotedisplay.vnc.keymap"}
 
         if vp.size > 0
             str << "GRAPHICS = [\n"\
                    "  TYPE     =\"vnc\",\n"\
                    "  LISTEN   =\"0.0.0.0\",\n"\
-                   "  PORT     =\"#{vp[0][:value]}\"\n"\
-                   "]\n"
+                   "  PORT     =\"#{vp[0][:value]}\"\n"
+            str << "  KEYMAP   =\"#{keymap[0][:value]}\"\n" if keymap[0]
+            str << "]\n"
         end
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
-            str << "DESCRIPTION = \"vCenter Virtual Machine imported by OpenNebula"\
-                " from Cluster #{@vm.runtime.host.parent.name}\"\n"
+            str << "DESCRIPTION = \"vCenter Virtual Machine imported by"\
+                " OpenNebula from Cluster #{@vm.runtime.host.parent.name}\"\n"
         else
             notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
             str << "DESCRIPTION = \"#{notes}\"\n"
@@ -1257,8 +1264,11 @@ private
 
         vm_uuid = vm.config.uuid
 
+        # VNC Section
+
         vnc_port   = xml.root.elements["/VM/TEMPLATE/GRAPHICS/PORT"]
         vnc_listen = xml.root.elements["/VM/TEMPLATE/GRAPHICS/LISTEN"]
+        vnc_keymap = xml.root.elements["/VM/TEMPLATE/GRAPHICS/KEYMAP"]
 
         if !vnc_listen
             vnc_listen = "0.0.0.0"
@@ -1271,10 +1281,15 @@ private
 
         if vnc_port
             config_array +=
-                     [{:key=>"remotedisplay.vnc.enabled", :value=>"TRUE"},
-                      {:key=>"remotedisplay.vnc.port", :value=>vnc_port.text},
-                      {:key=>"remotedisplay.vnc.ip",   :value=>vnc_listen}]
+                     [{:key=>"remotedisplay.vnc.enabled",:value=>"TRUE"},
+                      {:key=>"remotedisplay.vnc.port",   :value=>vnc_port.text},
+                      {:key=>"remotedisplay.vnc.ip",     :value=>vnc_listen}]
         end
+
+        config_array += [{:key=>"remotedisplay.vnc.keymap",
+                          :value=>vnc_keymap.text}] if vnc_keymap
+
+        # Context section
 
         if context
             # Remove <CONTEXT> (9) and </CONTEXT>\n (11)
@@ -1293,7 +1308,7 @@ private
             context_vnc_spec = {:extraConfig =>config_array}
         end
 
-        # Take care of the NIC section, build the reconfig hash
+        # NIC section, build the reconfig hash
         nics     = xml.root.get_elements("//TEMPLATE/NIC")
         nic_spec = {}
 

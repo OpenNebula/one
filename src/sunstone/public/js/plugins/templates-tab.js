@@ -503,7 +503,7 @@ if (Config.isTemplateCreationTabEnabled('input_output')){
           '</label>'+
           '<input type="text" id="PORT" name="port" />'+
         '</div>'+
-        '<div class="large-6 columns hypervisor only_kvm only_vmware only_xen">'+
+        '<div class="large-6 columns">'+
           '<label for="KEYMAP">'+tr("Keymap")+
             '<span class="tip">'+tr("Keyboard configuration locale to use in the VNC/SPICE display")+'</span>'+
           '</label>'+
