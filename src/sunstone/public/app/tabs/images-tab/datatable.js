@@ -57,6 +57,14 @@ define(function(require) {
       Locale.tr("Target"),
     ]
 
+    this.selectOptions = {
+      "id_index": 1,
+      "name_index": 4,
+      "uname_index": 2,
+      "select_resource": Locale.tr("Please select an image from the list"),
+      "you_selected": Locale.tr("You selected the following image:")
+    };
+
     TabDataTable.call(this);
   };
 
@@ -67,6 +75,38 @@ define(function(require) {
   Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
+
+  // TODO Check if update_fn must be overwritten
+  /*
+    "update_fn": function(datatable){
+        OpenNebula.Image.list({
+            timeout: true,
+            success: function (request, resource_list){
+                var list_array = [];
+
+                $.each(resource_list,function(){
+                    var image = this.IMAGE;
+
+                    // KERNEL || RAMDISK || CONTEXT
+                    var add = ( image.TYPE != "3" &&
+                                image.TYPE != "4" &&
+                                image.TYPE != "5" )
+
+                    if(add && opts.filter_fn){
+                        add = opts.filter_fn(this.IMAGE);
+                    }
+
+                    if(add){
+                        list_array.push(imageElementArray(this));
+                    }
+                });
+
+                updateView(list_array, datatable);
+            },
+            error: onError
+        });
+    },
+   */
 
   /*
     FUNCTION DEFINITIONS
@@ -97,7 +137,7 @@ define(function(require) {
     ];
   }
 
-  function _list(){
+  function _list() {
     var that = this;
     OpenNebulaImage.list({
       success: function(req, resp) {

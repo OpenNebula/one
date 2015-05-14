@@ -80,7 +80,7 @@ define(function(require) {
         for (var i = 0; i < sel_elems.length; i++) {
           //If we are cloning several images we
           //use the name as prefix
-          extra_info['name'] = name // TODO + getImageName(sel_elems[i]);
+          extra_info['name'] = name + Sunstone.getDataTable(IMAGES_TAB_ID).getName(sel_elems[i]);
           Sunstone.runAction('Image.clone', sel_elems[i], extra_info);
         }
       } else {
@@ -109,7 +109,7 @@ define(function(require) {
     } else {
       $('.clone_one', dialog).show();
       $('.clone_several', dialog).hide();
-      $('input[name="image_clone_name"]', dialog).val('Copy of ' /* TODO + getImageName(sel_elems[0])*/);
+      $('input[name="image_clone_name"]', dialog).val('Copy of ' + Sunstone.getDataTable(IMAGES_TAB_ID).getName(sel_elems[0]));
     };
 
     $('#image_clone_advanced', dialog).hide();
