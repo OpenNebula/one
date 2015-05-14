@@ -303,11 +303,11 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 d['AR_ID']
             end
 
-            column :OWNER, "", :left, :size=>10 do |d|
+            column :OWNER, "", :left, :size=>15 do |d|
                 if d['VM']
-                    "VM : #{d['VM']}"
+                    "V:#{d['VM']}"
                 elsif d['VNET']
-                    "NET: #{d['VNET']}"
+                    "N:#{d['VNET']}"
                 end
             end
 
@@ -319,7 +319,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP"]||"-"
             end
 
-            column :IP6_GLOBAL, "", :donottruncate, :size=>31 do |d|
+            column :IP6_GLOBAL, "", :donottruncate, :size=>26 do |d|
                     d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})
