@@ -123,7 +123,8 @@ define(function(require) {
     'selectResourceTableSelect': _selectResourceTableSelect,
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'retrieveResourceTableSelect': _retrieveResourceTableSelect,
-    'updateFn': _updateFn
+    'updateFn': _updateFn,
+    'getName': _getName
   }
 
   return TabDatatable;
@@ -873,4 +874,24 @@ define(function(require) {
       });
     }
   }
+
+  // Returns the value of the column with the resource of specified
+  // id in the dataTable.
+  // TODO do not use datatable to retrieve the names use Resource.show or cache instead
+  function _getName(resourceId) {
+    var that = this;
+    var name = resourceId;
+    if (typeof(that.dataTable) == "undefined") {
+      return name;
+    }
+    var nodes = that.dataTable.fnGetData();
+
+    $.each(nodes, function() {
+      if (resourceId == this[that.selectOptions.id_index]) {
+        name = this[that.selectOptions.name_index];
+        return false;
+      }
+    });
+    return name;
+  };
 })
