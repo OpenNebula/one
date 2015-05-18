@@ -7,6 +7,7 @@ define(function(require) {
     require('tabs/infra-tab'),
     require('tabs/zones-tab'),
     require('tabs/datastores-tab'),
+    require('tabs/hosts-tab'),
     require('tabs/vresources-tab'),
     require('tabs/images-tab')
   ];
