@@ -9,8 +9,7 @@ define(function(require){
   /*
     CONSTANTS
    */
-  
-  var IAMGES_TAB_ID = require('tabs/images-tab/tabId');
+
   var PANEL_ID = require('./images/panelId');
   var IMAGES_TABLE_ID = PANEL_ID + "ImagesTable"
   var RESOURCE = "Datastore"
@@ -24,7 +23,7 @@ define(function(require){
     this.icon = "fa-upload";
 
     this.element = info[RESOURCE.toUpperCase()];
-    this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, {info: true}, IAMGES_TAB_ID);
+    this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, {info: true});
 
     return this;
   };

@@ -11,7 +11,8 @@ define(function(require) {
     CONSTANTS
    */
   
-  var RESOURCE = "Zone"
+  var RESOURCE = "Zone";
+  var XML_ROOT = "ZONE";
   var TAB_NAME = require('./tabId');
 
   /*
@@ -20,8 +21,10 @@ define(function(require) {
   
   function Table(dataTableId, conf) {
     this.conf = conf || {};
+    this.tabId = TAB_NAME;
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
+    this.xmlRoot = XML_ROOT;
 
     this.dataTableOptions = {
       "bAutoWidth": false,

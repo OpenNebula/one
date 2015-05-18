@@ -124,7 +124,8 @@ define(function(require) {
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'retrieveResourceTableSelect': _retrieveResourceTableSelect,
     'updateFn': _updateFn,
-    'getName': _getName
+    'getName': _getName,
+    'list': _list
   }
 
   return TabDatatable;
@@ -518,7 +519,7 @@ define(function(require) {
     $('#refresh_button_' + that.dataTableId, section).off("click");
 
     section.on('click', '#refresh_button_' + that.dataTableId, function() {
-      that.updateFn($('table[id=datatable_' + that.dataTableId + ']', section).dataTable());
+      that.updateFn();
       return false;
     });
 
@@ -823,17 +824,17 @@ define(function(require) {
         var add = true;
 
         if (that.selectOptions.filter_fn) {
-          add = that.selectOptions.filter_fn(this.DATASTORE);
+          add = that.selectOptions.filter_fn(this[that.xmlRoot]);
         }
 
         if (that.selectOptions.fixed_ids != undefined) {
-          add = (add && fixed_ids_map[this.DATASTORE.ID]);
+          add = (add && fixed_ids_map[this[that.xmlRoot].ID]);
         }
 
         if (add) {
           list_array.push(that.elementArray(this));
 
-          delete fixed_ids_map[this.DATASTORE.ID];
+          delete fixed_ids_map[this[that.xmlRoot].ID];
         }
       });
 
@@ -894,4 +895,16 @@ define(function(require) {
     });
     return name;
   };
+
+  // Used by panels that contain tables from other resources.
+  // TODO: This is probably duplicated somewhere
+  function _list() {
+    var that = this;
+    OpenNebula[that.resource].list({
+      success: function(req, resp) {
+        that.updateView(req, resp);
+      },
+      error: Notifier.onError
+    });
+  }
 })

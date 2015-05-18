@@ -15,6 +15,7 @@ define(function(require) {
    */
   
   var RESOURCE = "Image"
+  var XML_ROOT = "Image"
   var TAB_NAME = require('./tabId');
   var COLUMN_IDS = {
     "DATASTORE": 5
@@ -23,11 +24,12 @@ define(function(require) {
     CONSTRUCTOR
    */
   
-  function Table(dataTableId, conf, tabId) {
+  function Table(dataTableId, conf) {
     this.conf = conf || {};
-    this.tabId = tabId;
+    this.tabId = TAB_NAME;
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
+    this.xmlRoot = XML_ROOT;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -71,7 +73,6 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
-  Table.prototype.list = _list;
   Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
@@ -135,15 +136,5 @@ define(function(require) {
       element.RUNNING_VMS,
       element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--'
     ];
-  }
-
-  function _list() {
-    var that = this;
-    OpenNebulaImage.list({
-      success: function(req, resp) {
-        that.updateView(req, resp);
-      },
-      error: Notifier.onError
-    });
   }
 });

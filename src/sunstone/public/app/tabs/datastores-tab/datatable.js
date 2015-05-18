@@ -13,7 +13,8 @@ define(function(require) {
     CONSTANTS
    */
   
-  var RESOURCE = "Datastore"
+  var RESOURCE = "Datastore";
+  var XML_ROOT = "DATASTORE";
   var TAB_NAME = require('./tabId');
 
   /*
@@ -36,8 +37,10 @@ define(function(require) {
    */
   function Table(dataTableId, conf) {
     this.conf = conf || {};
+    this.tabId = TAB_NAME;
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
+    this.xmlRoot = XML_ROOT;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
