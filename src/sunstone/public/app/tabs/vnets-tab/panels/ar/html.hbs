@@ -1,0 +1,63 @@
+<form id="ar_list_form">
+  <div class="row collapse">
+    <div class="large-12 columns">
+      {{#isTabActionEnabled "vnets-tab" "Network.add_ar"}}
+        <button class="button success small radius" id="add_ar_button">
+          <span class="fa fa-plus"></span>{{tr "Add"}}
+        </button>
+      {{/isTabActionEnabled}}
+      <span class="right">
+        {{#isTabActionEnabled "vnets-tab" "Network.update_ar"}}
+          <button class="button secondary small radius" id="update_ar_button" ar_id="" disabled="disabled">
+            <span class="fa fa-pencil-square-o"></span>{{tr "Update"}}
+          </button>
+        {{/isTabActionEnabled}}
+        {{#isTabActionEnabled "vnets-tab" "Network.remove_ar"}}
+          <button class="button secondary small radius" id="rm_ar_button" ar_id="" disabled="disabled">
+            <span class="fa fa-trash-o"></span>{{tr "Remove"}}
+          </button>
+        {{/isTabActionEnabled}}
+      </span>
+    </div>
+  </div>
+  <div class="row collapse">
+    <div class="large-12 columns" style="overflow:auto">
+      <table id="ar_list_datatable" class="datatable twelve">
+        <thead>
+          <tr>
+            <th>{{tr "Address Range"}}</th>
+            <th>{{tr "Type"}}</th>
+            <th>{{tr "Start"}}</th>
+            <th>{{tr "IPv6 Prefix"}}</th>
+            <th>{{tr "Leases"}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each arList}}
+            <tr ar="{{id}}">
+              <td style="white-space: nowrap" class="value_td">{{id}}</td>
+              <td style="white-space: nowrap" class="value_td">{{type}}</td>
+              <td style="white-space: nowrap" class="value_td">{{start}}</td>
+              <td style="white-space: nowrap" class="value_td">{{{prefixHTML}}}</td>
+              <td style="white-space: nowrap" class="value_td">{{{leasesHTML}}}</td>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div id="ar_show_info">
+    {{#if arList}}
+      <div class="text-center">
+        <span class="fa-stack fa-5x" style="color: #dfdfdf">
+          <i class="fa fa-cloud fa-stack-2x"></i>
+          <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>
+        </span>
+        <br>
+        <br>
+        <span style="font-size: 18px; color: #999">
+          {{tr "Select an Address Range to see more information"}}
+        </span>
+      </div>
+    {{/if}}
+  </div>
+</form>

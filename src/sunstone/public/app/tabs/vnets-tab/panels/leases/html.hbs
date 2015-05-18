@@ -1,0 +1,46 @@
+<form id="leases_form">
+  {{#isTabActionEnabled "vnets-tab" "Network.hold_lease"}}
+    <div class="row collapse">
+      <div class="large-4 columns">
+        <input type="text" id="panel_hold_lease"/>
+      </div>
+      <div class="large-2 columns end">
+        <button class="button small secondary radius" id="panel_hold_lease_button">
+          {{tr "Hold IP"}}
+        </button>
+      </div>
+    </div>
+  {{/isTabActionEnabled}}
+  <div class="row collapse">
+    <div class="large-12 columns" style="overflow:auto">
+      <table id="leases_datatable" class="datatable twelve">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>{{tr "IP"}}</th>
+            <th>{{tr "MAC"}}</th>
+            <th>{{tr "IPv6 Link"}}</th>
+            <th>{{tr "IPv6 ULA"}}</th>
+            <th>{{tr "IPv6 Global"}}</th>
+            <th>{{tr "Address Range"}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each leases}}
+            <tr ip="{{IP}}" mac="{{MAC}}">
+              <td class="key_td">{{{col0HTML}}}</td>
+              <td>{{{col1HTML}}}</td>
+              <td style="white-space: nowrap" class="value_td">{{IP}}</td>
+              <td style="white-space: nowrap" class="value_td">{{MAC}}</td>
+              <td style="white-space: nowrap" class="value_td">{{IP6_LINK}}</td>
+              <td style="white-space: nowrap" class="value_td">{{IP6_ULA}}</td>
+              <td style="white-space: nowrap" class="value_td">{{IP6_GLOBAL}}</td>
+              <td style="white-space: nowrap" class="value_td">{{AR_ID}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

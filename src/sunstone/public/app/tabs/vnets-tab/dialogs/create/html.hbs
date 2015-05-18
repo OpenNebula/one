@@ -1,0 +1,218 @@
+<div id="{{dialogId}}" class="reveal-modal medium" role="dialog" data-reveal >
+  <div class="row create_vnet_header">
+    <div class="large-5 columns">
+      <h3 class="subheader">{{tr "Create Virtual Network"}}</h3>
+    </div>
+    <div class="large-7 columns">
+      <dl class="tabs right" data-tab>
+        <dd class="active">
+          <a href="#vnet_easyTab">{{tr "Wizard"}}</a>
+        </dd>
+        <dd>
+          <a href="#vnet_manualTab">{{tr "Advanced mode"}}</a>
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+
+
+    '<form data-abide="ajax" id="create_vnet_form_wizard" class="custom creation">\
+      <div>\
+        <dl id="vnet_create_tabs" class="tabs right-info-tabs text-center" data-tab>\
+          <dd class="active"><a href="#vnetCreateGeneralTab"><i class="fa fa-globe"></i><br>'+tr("General")+'</a></dd>\
+          <dd><a href="#vnetCreateBridgeTab"><i class="fa fa-cog"></i><br>'+tr("Conf")+'</a></dd>\
+          <dd><a href="#vnetCreateARTab"><i class="fa fa-align-justify"></i><br>'+tr("Addresses")+'</a></dd>\
+          <dd><a href="#vnetCreateSecurityTab"><i class="fa fa-shield"></i><br>'+tr("Security")+'</a></dd>\
+          <dd><a href="#vnetCreateContextTab"><i class="fa fa-folder"></i><br>'+tr("Context")+'</a></dd>\
+        </dl>\
+        <div id="vnet_create_tabs_content" class="tabs-content">\
+          <div class="content active" id="vnetCreateGeneralTab">\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="name" >' + tr("Name") + ':\
+                  <span class="tip">'+tr("Name that the Virtual Network will get for description purposes.")+'</span>\
+                </label>\
+                <input type="text" wizard_field="NAME" required name="name" id="name"/>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="DESCRIPTION" >' + tr("Description") + ':\
+                  <span class="tip">'+tr("Description of the Virtual Network")+'</span>\
+                </label>\
+                <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>\
+              </div>\
+            </div>\
+          </div>\
+          <div class="content" id="vnetCreateBridgeTab">\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="bridge">'+tr("Bridge")+':\
+                    <span class="tip">'+tr("Name of the physical bridge in the physical host where the VM should connect its network interface")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="BRIDGE" name="bridge" id="bridge" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="network_mode">'+tr("Network model")+':\
+                  <span class="tip">'+tr("Choose the same networking model you chose for the hosts that will use this newtork")+'</span>\
+                </label>\
+                <select name="network_mode" id="network_mode">\
+                  <option value="default">'+tr("Default")+'</option>\
+                  <option value="802.1Q">'+tr("802.1Q")+'</option>\
+                  <option value="vxlan">'+tr("VXLAN")+'</option>\
+                  <option value="ebtables">'+tr("ebtables")+'</option>\
+                  <option value="openvswitch">'+tr("Open vSwitch")+'</option>\
+                  <option value="vmware">'+tr("VMware")+'</option>\
+                </select>\
+              </div>\
+              <div class="large-12 columns">\
+                <div class="network_mode_description" value="default">'+tr("Default: dummy driver that doesn’t perform any network operation. Firewalling rules are also ignored.")+'</div>\
+                <div class="network_mode_description" value="802.1Q">'+tr("802.1Q: restrict network access through VLAN tagging, which also requires support from the hardware switches.")+'</div>\
+                <div class="network_mode_description" value="vxlan">'+tr("VXLAN: creates a L2 network overlay based on the VXLAN protocol, each VLAN has associated a multicast address in the 239.0.0.0/8 range.")+'</div>\
+                <div class="network_mode_description" value="ebtables">'+tr("ebtables: restrict network access through Ebtables rules. No special hardware configuration required.")+'</div>\
+                <div class="network_mode_description" value="openvswitch">'+tr("Open vSwitch: restrict network access with Open vSwitch Virtual Switch.")+'</div>\
+                <div class="network_mode_description" value="vmware">'+tr("VMware: uses the VMware networking infrastructure to provide an isolated and 802.1Q compatible network for VMs launched with the VMware hypervisor.")+'</div>\
+              </div>\
+            </div>\
+            <br>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="mac_spoofing">\
+                  <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />\
+                  '+tr("Filter MAC spoofing")+'\
+                  <span class="tip">'+tr("Activate the filter to prevent mac spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
+                </label>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <label for="ip_spoofing">\
+                  <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />\
+                  '+tr("Filter IP spoofing")+'\
+                  <span class="tip">'+tr("Activate the filter to prevent IP spoofing. Only works with FW, 802.1Q, VXLAN and Ebtables network drivers.")+'</span>\
+                </label>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                <div class="row">\
+                  <div class="large-6 columns">\
+                    <label for="vlan">'+tr("VLAN")+':\
+                      <span class="tip">'+tr("Whether or not to isolate this virtual network using the Virtual Network Manager drivers")+'</span>\
+                    </label>\
+                    <select wizard_field="VLAN" name="vlan" id="vlan">\
+                        <option value="YES" selected="selected">'+tr("Yes")+'</option>\
+                        <option value="NO">'+tr("No")+'</option>\
+                     </select>\
+                  </div>\
+                  <div class="large-6 columns">\
+                    <label for="vlan_id">'+tr("VLAN ID")+':\
+                      <span class="tip">'+tr("Optional: Set a specific VLAN id")+'</span>\
+                    </label>\
+                    <input type="text" wizard_field="VLAN_ID" name="vlan_id" id="vlan_id" />\
+                  </div>\
+                </div>\
+              </div>\
+              <div class="large-6 columns">\
+                <div class="row">\
+                  <div class="large-12 columns">\
+                    <label for="phydev">'+tr("Physical device")+':\
+                      <span class="tip">'+tr("Name of the physical network device that will be attached to the bridge")+'</span>\
+                    </label>\
+                    <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />\
+                  </div>\
+                </div>\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-3 columns">\
+                <label for="mtu">'+tr("MTU")+':\
+                  <span class="tip">'+tr("Set the MTU for the tagged interface. This MTU will be then inherited by the bridge and by the tagged interface.")+'</span>\
+                </label>\
+                <input type="text" wizard_field="MTU" name="mtu" id="mtu" />\
+              </div>\
+            </div>\
+          </div>\
+          <div class="content" id="vnetCreateARTab">\
+            <div class="row" id="vnetCreateARTabCreate">\
+              <div class="large-12 columns">\
+                <div class="row">\
+                  <dl class="tabs vertical" id="vnet_wizard_ar_tabs" data-tab>\
+                    <dt class="text-center">\
+                      <button type="button" class="button tiny radius" id="vnet_wizard_ar_btn">\
+                        <span class="fa fa-plus"></span> '+tr("Add another Address Range")+'\
+                      </button>\
+                    </dt>\
+                  </dl>\
+                  <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content">\
+                  </div>\
+                </div>\
+              </div>\
+            </div>\
+            <div class="row" id="vnetCreateARTabUpdate">\
+              <div class="large-12 columns">\
+                <p>'+tr("Address Ranges need to be managed in the individual Virtual Network panel")+'</p>\
+              </div>\
+            </div>\
+          </div>\
+          <div class="content" id="vnetCreateSecurityTab">\
+            '+generateSecurityGroupTableSelect("vnet_create")+'\
+            <div class="row" id="default_sg_warning">\
+              <div class="large-12 columns">\
+                <span class="radius secondary label"><i class="fa fa-warning"/> '+tr("The default Security Group 0 is automatically added to new Virtual Networks")+'</span>\
+              </div>\
+            </div>\
+          </div>\
+          <div class="content" id="vnetCreateContextTab">\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_address">'+tr("Network address")+':\
+                    <span class="tip">'+tr("Base network address. For example, 192.168.1.0")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />\
+              </div>\
+              <div class="large-6 columns">\
+                  <label for="net_mask">'+tr("Network mask")+':\
+                    <span class="tip">'+tr("Network mask. For example, 255.255.255.0")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="NETWORK_MASK" name="net_mask" id="net_mask" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_gateway">'+tr("Gateway")+':\
+                    <span class="tip">'+tr("Router for this network. Leave empty if the network is not routable")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />\
+              </div>\
+              <div class="large-6 columns">\
+                  <label for="net_gateway6">'+tr("IPv6 Gateway")+':\
+                    <span class="tip">'+tr("IPv6 Router for this network")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="GATEWAY6" name="net_gateway6" id="net_gateway6" />\
+              </div>\
+            </div>\
+            <div class="row">\
+              <div class="large-6 columns">\
+                  <label for="net_dns">'+tr("DNS")+':\
+                    <span class="tip">'+tr("Specific DNS for this network")+'</span>\
+                  </label>\
+                  <input type="text" wizard_field="DNS" name="net_dns" id="net_dns" />\
+              </div>\
+            </div>\
+            <br>\
+            <div class="row">\
+              <div class="large-12 columns">\
+                <span>' + tr("Custom attributes") + '</span>\
+                <br>\
+                <br>\
+              </div>\
+            </div>'+
+            customTagsHtml()+'\
+          </div>\
+        </div>\
+      </div>\
+    </form>'

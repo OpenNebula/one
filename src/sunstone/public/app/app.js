@@ -9,7 +9,8 @@ define(function(require) {
     require('tabs/datastores-tab'),
     require('tabs/hosts-tab'),
     require('tabs/vresources-tab'),
-    require('tabs/images-tab')
+    require('tabs/images-tab'),
+    require('tabs/vnets-tab')
   ];
 
   var _commonDialogs = [

@@ -1,0 +1,90 @@
+<div class="row collapse">
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr><th colspan="2">{{tr "Address Range"}} {{arId}}</th></tr>
+      </thead>
+      <tbody>
+        {{#each arKnownAttr}}
+          {{#if value}}
+            <tr>
+              <td class="key_td">{{key}}</td>
+              <td class="value_td">{{value}}</td>
+            </tr>
+          {{/if}}
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr><th colspan="2">&nbsp;</th></tr>
+      </thead>
+      <tbody>
+        {{#each arExtraAttr}}
+          <tr>
+           <td class="key_td">{{key}}</td>
+           <td class="value_td">{{value}}</td>
+         </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="row collapse">
+  <div class="large-12 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th>{{tr "Range"}}</th>
+          <th>{{tr "First"}}</th>
+          <th>{{tr "Last"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "MAC"}}</td>
+          <td class="value_td">{{first_mac}}</td>
+          <td class="value_td">{{last_mac}}</td>
+        </tr>
+        {{#if first_ip}}
+          <tr>
+            <td class="key_td">{{tr "IP"}}</td>
+            <td class="value_td">{{first_ip}}</td>
+            <td class="value_td">{{last_ip}}</td>
+          </tr>
+        {{/if}}
+        {{#if first_ip6_global}}
+          <tr>
+            <td class="key_td">{{tr "IP6_GLOBAL"}}</td>
+            <td class="value_td">{{first_ip6_global}}</td>
+            <td class="value_td">{{last_ip6_global}}</td>
+          </tr>
+        {{/if}}
+        {{#if first_ip6_ula}}
+          <tr>
+            <td class="key_td">{{tr "IP6_ULA"}}</td>
+            <td class="value_td">{{first_ip6_ula}}</td>
+            <td class="value_td">{{last_ip6_ula}}</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{#if secgroupTableHTML}}
+  <div class="row collapse">
+    <div class="large-12 columns">
+      <table class="dataTable extended_table">
+        <thead>
+          <tr><th>{{tr "Security Groups"}}</th></tr>
+        </thead>
+        <tbody/>
+      </table>
+    </div>
+    <div class="large-12 columns">
+      {{{secgroupTableHTML}}}
+    </div>
+  </div>
+{{/if}}
