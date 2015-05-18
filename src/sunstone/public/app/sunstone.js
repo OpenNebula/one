@@ -196,7 +196,8 @@ define(function(require) {
         switch (button.layout) {
         case "create":
           buttonContext = $("#" + customId + "create_buttons", buttonsRow);
-          text = button.text ? '<i class="fa fa-plus"/>  ' + button.text : '<i class="fa fa-plus"/>';
+          icon = button.icon ? button.icon : '<i class="fa fa-plus"/>';
+          text = button.text ? icon + ' ' + button.text : icon;
           strClass.push("success", "button", "small", "radius");
           buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
