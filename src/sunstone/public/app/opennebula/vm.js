@@ -69,7 +69,9 @@ define(function(require) {
       "PROLOG_MIGRATE_SUSPEND"            : 45,
       "PROLOG_MIGRATE_SUSPEND_FAILURE"    : 46,
       "BOOT_UNDEPLOY_FAILURE"     : 47,
-      "BOOT_STOPPED_FAILURE"      : 48
+      "BOOT_STOPPED_FAILURE"      : 48,
+      "PROLOG_RESUME_FAILURE"     : 49,
+      "PROLOG_UNDEPLOY_FAILURE"   : 50
     },
 
     "create": function(params) {
