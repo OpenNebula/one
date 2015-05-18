@@ -3,8 +3,36 @@ define(function(require) {
 
   var RESOURCE = "HOST";
 
+  var STATES = [
+    "INIT",
+   "MONITORING_MONITORED",
+   "MONITORED",
+   "ERROR",
+   "DISABLED",
+   "MONITORING_ERROR",
+   "MONITORING_INIT",
+   "MONITORING_DISABLED"
+  ]
+
+  var SIMPLE_STATES = [
+    "INIT",
+    "UPDATE",
+    "ON",
+    "ERROR",
+    "OFF",
+    "RETRY",
+    "INIT",
+    "OFF"
+  ]
+
   var Host = {
     "resource": RESOURCE,
+    "stateStr": function(stateId) {
+      return STATES[stateId];
+    },
+    "simpleStateStr": function(stateId) {
+      return SIMPLE_STATES[stateId];
+    },
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
