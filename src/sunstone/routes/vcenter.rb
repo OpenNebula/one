@@ -87,26 +87,6 @@ get '/vcenter/templates' do
 	end
 end
 
-
-get '/vcenter/vms' do
-    begin
-        vms = vcenter_client.running_vms(
-            $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
-        if vms.nil?
-            msg = "No datacenter found"
-            logger.error("[vCenter] " + msg)
-            error = Error.new(msg)
-            error 404, error.to_json
-        end
-
-        [200, vms.to_json]
-    rescue Exception => e
-        logger.error("[vCenter] " + e.message)
-        error = Error.new(e.message)
-        error 403, error.to_json
-    end
-end
-
 get '/vcenter/networks' do
     begin
         networks = vcenter_client.vcenter_networks(
