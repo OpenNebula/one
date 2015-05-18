@@ -145,4 +145,19 @@ public class DocumentTest
         assertTrue( !foundA );
         assertTrue( foundB );
     }
+
+    @Test
+    public void lock()
+    {
+        res = objA.lock("doctest");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+        assertTrue( res.getMessage(), res.getBooleanMessage() == true );
+
+        res = objA.lock("doctest");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+        assertTrue( res.getMessage(), res.getBooleanMessage() == false );
+
+        res = objA.unlock("doctest");
+        assertTrue( res.getErrorMessage(), !res.isError() );
+    }
 }

@@ -117,6 +117,9 @@ public:
              other_m(0),
              other_a(0),
              obj_template(0),
+             locked(false),
+             lock_owner(""),
+             lock_expires(0),
              table(_table)
     {
         pthread_mutex_init(&mutex,0);
@@ -591,6 +594,25 @@ public:
      */
     virtual void get_permissions(PoolObjectAuth& auths);
 
+    /**
+     * Tries to get the DB lock. This is a mutex requested by external
+     * applications, not related to the internal mutex lock. The object
+     * must be locked (internal memory mutex) before this method is called
+     *
+     * @param owner String to identify who requested the lock
+     *
+     * @return 0 if the lock was granted, -1 if the object is already locked
+     */
+    int lock_db(const string& owner);
+
+    /**
+     * Unlocks the DB lock for external applications. The object must be locked
+     * (internal memory mutex) before this method is called
+     *
+     * @param owner String to identify who requested the lock
+     */
+    void unlock_db(const string& owner);
+
 protected:
 
     /**
@@ -708,6 +730,21 @@ protected:
     };
 
     /**
+     * Prints the lock info into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    string& lock_db_to_xml(string& xml) const;
+
+    /**
+     *  Rebuilds the lock info from the xml. ObjectXML::update_from_str
+     *  must be called before this method
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int lock_db_from_xml();
+
+    /**
      *  The object's unique ID
      */
     int     oid;
@@ -773,11 +810,31 @@ protected:
      */
     Template * obj_template;
 
+    /**
+     *  Flag for the DB lock
+     */
+    bool    locked;
+
+    /**
+     *  Owner of the DB lock
+     */
+    string  lock_owner;
+
+    /**
+     *  Expiration time for the DB lock
+     */
+    time_t  lock_expires;
+
 private:
     /**
      *  Characters that can not be in a name
      */
     static const string INVALID_NAME_CHARS;
+
+    /**
+     * Expiration time for the lock stored in the DB
+     */
+    static const int LOCK_DB_EXPIRATION;
 
     /**
      *  The PoolSQL, friend to easily manipulate its Objects

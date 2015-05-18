@@ -505,7 +505,9 @@ int XenDriver::deployment_description(
             passwd = graphics->vector_value("PASSWD");
             keymap = graphics->vector_value("KEYMAP");
 
-            if ( type == "vnc" || type == "VNC" )
+            one_util::toupper(type);
+
+            if ( type == "VNC" )
             {
                 if ( !is_hvm )
                 {
@@ -579,6 +581,29 @@ int XenDriver::deployment_description(
                 if ( !is_hvm )
                 {
                     file <<"']" << endl;
+                }
+            }
+            else if ( is_hvm && type == "SPICE" )
+            {
+                file << "spice = '1'" << endl;
+
+                if ( !listen.empty() )
+                {
+                    file << "spicehost = '" << listen << "'" << endl;
+                }
+
+                if ( !port.empty() )
+                {
+                    file << "spiceport = '" << port << "'" << endl;
+                }
+
+                if ( !passwd.empty() )
+                {
+                    file << "spicepasswd = '" << passwd << "'" << endl;
+                }
+                else
+                {
+                    file << "spicedisable_ticketing = '1'" << endl;
                 }
             }
             else
@@ -721,7 +746,7 @@ int XenDriver::deployment_description(
 
         type = raw->vector_value("TYPE");
 
-        transform(type.begin(),type.end(),type.begin(),(int(*)(int))toupper);
+        one_util::toupper(type);
 
         if ( type == "XEN" )
         {

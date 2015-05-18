@@ -623,7 +623,9 @@ void LifeCycleManager::prolog_success_action(int vid)
         //                             BOOT STATE
         //---------------------------------------------------------------------
         case VirtualMachine::PROLOG_RESUME:
+        case VirtualMachine::PROLOG_RESUME_FAILURE: //recover success
         case VirtualMachine::PROLOG_UNDEPLOY:
+        case VirtualMachine::PROLOG_UNDEPLOY_FAILURE: //recover success
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover success
         case VirtualMachine::PROLOG:
@@ -631,11 +633,13 @@ void LifeCycleManager::prolog_success_action(int vid)
             switch (lcm_state)
             {
                 case VirtualMachine::PROLOG_RESUME:
+                case VirtualMachine::PROLOG_RESUME_FAILURE:
                     action = VirtualMachineManager::RESTORE;
                     vm->set_state(VirtualMachine::BOOT_STOPPED);
                     break;
 
                 case VirtualMachine::PROLOG_UNDEPLOY:
+                case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
                     action = VirtualMachineManager::DEPLOY;
                     vm->set_state(VirtualMachine::BOOT_UNDEPLOY);
                     break;
@@ -721,108 +725,56 @@ void LifeCycleManager::prolog_success_action(int vid)
 
 void  LifeCycleManager::prolog_failure_action(int vid)
 {
-    VirtualMachine::LcmState    state;
-    VirtualMachine *            vm;
-
-    time_t  the_time = time(0);
-
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
         return;
     }
 
-    state = vm->get_lcm_state();
-
-    if ( state == VirtualMachine::PROLOG )
+    switch(vm->get_lcm_state())
     {
-        vm->set_state(VirtualMachine::PROLOG_FAILURE);
-        vmpool->update(vm);
-    }
-    else if ( state == VirtualMachine::PROLOG_MIGRATE )
-    {
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE_FAILURE);
+        case VirtualMachine::PROLOG:
+            vm->set_state(VirtualMachine::PROLOG_FAILURE);
+            vmpool->update(vm);
+            break;
 
-        vmpool->update(vm);
-    }
-    else if ( state == VirtualMachine::PROLOG_MIGRATE_POWEROFF )
-    {
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE);
-        vmpool->update(vm);
-    }
-    else if ( state == VirtualMachine::PROLOG_MIGRATE_SUSPEND )
-    {
-        vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE);
-        vmpool->update(vm);
-    }
-    else if ( state == VirtualMachine::PROLOG_RESUME )
-    {
-        //----------------------------------------------------
-        //    STOPPED STATE FROM PROLOG_RESUME
-        //----------------------------------------------------
+        case VirtualMachine::PROLOG_MIGRATE:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_FAILURE);
+            vmpool->update(vm);
+            break;
 
-        int                 cpu,mem,disk;
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE);
+            vmpool->update(vm);
+            break;
 
-        vm->set_prolog_etime(the_time);
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE);
+            vmpool->update(vm);
+            break;
 
-        vm->set_resched(false);
+        case VirtualMachine::PROLOG_RESUME:
+            vm->set_state(VirtualMachine::PROLOG_RESUME_FAILURE);
+            vmpool->update(vm);
+            break;
 
-        vmpool->update(vm);
+        case VirtualMachine::PROLOG_UNDEPLOY:
+            vm->set_state(VirtualMachine::PROLOG_UNDEPLOY_FAILURE);
+            vmpool->update(vm);
+            break;
 
-        vm->set_etime(the_time);
+        case VirtualMachine::PROLOG_MIGRATE_FAILURE: //recover failure from failure state
+        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case VirtualMachine::PROLOG_RESUME_FAILURE:
+        case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+        case VirtualMachine::PROLOG_FAILURE:
+            break;
 
-        vm->set_vm_info();
-
-        vm->set_reason(History::ERROR);
-
-        vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
-
-        //----------------------------------------------------
-
-        dm->trigger(DispatchManager::STOP_SUCCESS,vid);
-    }
-    else if ( state == VirtualMachine::PROLOG_UNDEPLOY )
-    {
-        //----------------------------------------------------
-        //    UNDEPLOY STATE FROM PROLOG_UNDEPLOY
-        //----------------------------------------------------
-
-        int                 cpu,mem,disk;
-
-        vm->set_prolog_etime(the_time);
-
-        vm->set_resched(false);
-
-        vmpool->update(vm);
-
-        vm->set_etime(the_time);
-
-        vm->set_vm_info();
-
-        vm->set_reason(History::ERROR);
-
-        vmpool->update_history(vm);
-
-        vm->get_requirements(cpu,mem,disk);
-
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
-
-        //----------------------------------------------------
-
-        dm->trigger(DispatchManager::UNDEPLOY_SUCCESS,vid);
-    }
-    //wrong state + recover failure from failure state
-    else if ( state != VirtualMachine::PROLOG_MIGRATE_FAILURE &&
-              state != VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE &&
-              state != VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE &&
-              state != VirtualMachine::PROLOG_FAILURE )
-    {
-        vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");
+        default: //wrong state
+            vm->log("LCM",Log::ERROR,"prolog_failure_action, VM in a wrong state");
+            break;
     }
 
     vm->unlock();

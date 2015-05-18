@@ -152,7 +152,9 @@ public:
         PROLOG_MIGRATE_SUSPEND          = 45,
         PROLOG_MIGRATE_SUSPEND_FAILURE  = 46,
         BOOT_UNDEPLOY_FAILURE   = 47,
-        BOOT_STOPPED_FAILURE    = 48
+        BOOT_STOPPED_FAILURE    = 48,
+        PROLOG_RESUME_FAILURE   = 49,
+        PROLOG_UNDEPLOY_FAILURE = 50
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -206,6 +208,8 @@ public:
         else if ( st == "PROLOG_MIGRATE_SUSPEND_FAILURE") { state = PROLOG_MIGRATE_SUSPEND_FAILURE;}
         else if ( st == "BOOT_STOPPED_FAILURE") { state = BOOT_STOPPED_FAILURE; }
         else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
+        else if ( st == "PROLOG_RESUME_FAILURE") { state = PROLOG_RESUME_FAILURE; }
+        else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
         else {return -1;}
 
         return 0;
@@ -262,6 +266,8 @@ public:
             case PROLOG_MIGRATE_SUSPEND_FAILURE: st = "PROLOG_MIGRATE_SUSPEND_FAILURE"; break;
             case BOOT_STOPPED_FAILURE: st = "BOOT_STOPPED_FAILURE"; break;
             case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
+            case PROLOG_RESUME_FAILURE: st = "PROLOG_RESUME_FAILURE"; break;
+            case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
         }
 
         return st;
@@ -1790,6 +1796,34 @@ private:
      *    @return 0 on success
      */
     int parse_defaults(string& error_str);
+
+    /** 
+     * Known attributes for network contextualization rendered as:
+     *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
+     *
+     * The context[1] values in the map are searched in the NIC and 
+     * if not found in the AR and VNET. They can be also set in the 
+     * CONTEXT section it self using full name (ETH_).
+     *
+     * IPv4 context variables:
+     *   {"IP", "IP"},
+     *   {"MAC", "MAC"},
+     *   {"MASK", "NETWORK_MASK"},
+     *   {"NETWORK", "NETWORK_ADDRESS"},
+     *   {"GATEWAY", "GATEWAY"},
+     *   {"DNS", "DNS"},
+     *   {"SEARCH_DOMAIN", "SEARCH_DOMAIN"}
+     *
+     * IPv6 context:
+     *   {"IP6", "IP6_GLOBAL"},
+     *   {"GATEWAY6", "GATEWAY6"},
+     *   {"CONTEXT_FORCE_IPV4", "CONTEXT_FORCE_IPV4"}
+     */
+    static const char* NETWORK_CONTEXT[][2];
+    static const int   NUM_NETWORK_CONTEXT;
+
+    static const char* NETWORK6_CONTEXT[][2];
+    static const int   NUM_NETWORK6_CONTEXT;
 
     /**
      *  Parse the "CONTEXT" attribute of the template by substituting

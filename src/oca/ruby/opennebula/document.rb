@@ -44,7 +44,9 @@ module OpenNebula
             :chown      => "document.chown",
             :chmod      => "document.chmod",
             :clone      => "document.clone",
-            :rename     => "document.rename"
+            :rename     => "document.rename",
+            :lock       => "document.lock",
+            :unlock     => "document.unlock"
         }
 
         # Creates a Document Object description with just its identifier
@@ -198,6 +200,32 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(DOCUMENT_METHODS[:rename], @pe_id, name)
+        end
+
+        # Locks this object
+        #
+        # @param owner [String] String to identify the application requestiong
+        #   the lock
+        #
+        # @return [Bool, OpenNebula::Error] In case of success, true if the
+        #   lock was granted, and false if the object is already locked.
+        def lock(owner="")
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(DOCUMENT_METHODS[:lock], @pe_id, owner)
+
+            return rc
+        end
+
+        # Unlocks this object
+        #
+        # @param owner [String] String to identify the application requestiong
+        #   the unlock
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def unlock(owner="")
+            return call(DOCUMENT_METHODS[:unlock], @pe_id, owner)
         end
 
         #######################################################################

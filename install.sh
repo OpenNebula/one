@@ -209,7 +209,6 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/onegate \
             $SHARE_LOCATION/websockify"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
@@ -463,7 +462,6 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_BRCOMPAT_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_brcompat
     NETWORK_VMWARE_FILES:$VAR_LOCATION/remotes/vnm/vmware
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    ONEGATE_SHARE_FILES:$SHARE_LOCATION/onegate
     WEBSOCKIFY_SHARE_FILES:$SHARE_LOCATION/websockify
     INSTALL_GEMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
@@ -1213,7 +1211,8 @@ ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
 ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.7.80_to_4.9.80.rb \
                             src/onedb/local/4.9.80_to_4.10.3.rb \
-                            src/onedb/local/4.10.3_to_4.11.80.rb"
+                            src/onedb/local/4.10.3_to_4.11.80.rb \
+                            src/onedb/local/4.11.80_to_4.13.80.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
@@ -1269,13 +1268,6 @@ AUTH_ETC_FILES="src/authm_mad/remotes/server_x509/server_x509_auth.conf \
 EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/private.net \
                      share/examples/public.net"
-
-#-------------------------------------------------------------------------------
-# OneGate CLI for guests $SHARE_LOCATION/onegate
-#-------------------------------------------------------------------------------
-
-ONEGATE_SHARE_FILES="share/onegate/init.sh \
-                     share/onegate/onegate"
 
 #-------------------------------------------------------------------------------
 # Files required to interact with the websockify server

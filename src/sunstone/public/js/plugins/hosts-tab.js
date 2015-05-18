@@ -778,14 +778,29 @@ function updateHostInfo(request,host){
     var stripped_host_template = {};
     var unshown_values         = {};
 
-    if (host_info.TEMPLATE.HYPERVISOR && host_info.TEMPLATE.HYPERVISOR.toLowerCase() != "vcenter")
+    var hypervisor_name = host_info.TEMPLATE.HYPERVISOR ? host_info.TEMPLATE.HYPERVISOR.toLowerCase() : "-" ;
+
+    can_import_wilds = false;
+
+    if (host_info.TEMPLATE.VM)
+    {
+      $.each(host_info.TEMPLATE.VM, function(){
+              if (this.IMPORT_TEMPLATE)
+              {
+                 can_import_wilds = true;
+              }
+      });
+    }
+
+
+    if (!can_import_wilds)
     {
       stripped_host_template = host_info.TEMPLATE;
     }
     else
     {
       for (key in host_info.TEMPLATE)
-          if(!key.match(/HOST/))
+          if(!key.match(/^HOST$/) && !key.match(/^VM$/) && !key.match(/^WILDS$/))
               stripped_host_template[key]=host_info.TEMPLATE[key];
           else
               unshown_values[key]=host_info.TEMPLATE[key];
@@ -855,10 +870,6 @@ function updateHostInfo(request,host){
             <tr>\
               <td class="key_td">' + tr("Real CPU") + '</td>\
               <td class="value_td" colspan="2" style="width:50%;">'+cpu_bars.real+'</td>\
-            </tr>\
-            <tr>\
-              <td class="key_td">' + tr("Running VMs") + '</td>\
-              <td class="value_td" colspan="2">'+host_info.HOST_SHARE.RUNNING_VMS+'</td>\
             </tr>\
             </tbody>\
          </table>' +
@@ -962,18 +973,101 @@ function updateHostInfo(request,host){
           </div>'
     }
 
+    var wilds_info_tab = {
+        title: tr("WILDS"),
+        icon: "fa-hdd-o",
+        content : '<div id="datatable_host_wilds_info_div" class="row">\
+          <div class="large-12 columns">\
+            <button id="import_wilds" class="button tiny success right radius" >'+tr("Import Wilds")+'</button>\
+            <table id="datatable_host_wilds" class="datatable twelve">\
+              <thead>\
+                <tr>\
+                  <th></th>\
+                  <th>' + tr("VM name") + '</th>\
+                  <th>' + tr("Remote ID") + '</th>\
+                </tr>\
+              </thead>\
+              <tbody id="tbody_host_wilds">\
+              </tbody>\
+            </table>\
+          </div>\
+          </div>'
+    }
+
+    // Add event listener for importing WILDS
+    $('#import_wilds').die( "click" );
+    $('#import_wilds').live('click', function () {
+           $.each($("#import_wild_checker:checked", "#datatable_host_wilds"), function(){
+              var vm_json = {
+                "vm": {
+                  "vm_raw": $(this).data("wild_template")
+                }
+              };
+
+              var import_host_id = $(this).data("host_id");
+              var wild_row       = $(this).closest('tr');
+
+              // Create the VM in OpenNebula
+              OpenNebula.VM.create({
+                  timeout: true,
+                  data: vm_json,
+                  success: function(request, response) {
+                    OpenNebula.Helper.clear_cache("VM");
+
+                    var extra_info = {};
+
+                    extra_info['host_id'] = import_host_id;
+                    extra_info['ds_id']   = -1;
+                    extra_info['enforce'] = false;
+
+                    // Deploy the VM
+                    Sunstone.runAction("VM.silent_deploy_action", 
+                                       response.VM.ID, 
+                                       extra_info);
+
+                    // Notify
+                    notifyCustom(tr("VM imported"), " ID: " + response.VM.ID, false);
+
+                    // Delete row (shouldn't be there in next monitorization)
+                    dataTable_wilds_hosts = $("#datatable_host_wilds").dataTable();
+                    dataTable_wilds_hosts.fnDeleteRow(wild_row);
+
+                  },
+                  error: function (request, error_json){
+                      notifyError(error_json.error.message || tr("Cannot contact server: is it running and reachable?"));
+                  }
+              });
+           })
+    });
+
     //Sunstone.updateInfoPanelTab(info_panel_name,tab_name, new tab object);
     Sunstone.updateInfoPanelTab("host_info_panel","host_info_tab",info_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_monitoring_tab",monitor_tab);
     Sunstone.updateInfoPanelTab("host_info_panel","host_vms_tab",vms_info_tab);
 
-    if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+    hypervisor_name = host_info.TEMPLATE.HYPERVISOR ? host_info.TEMPLATE.HYPERVISOR.toLowerCase() : "-";
+
+    if (hypervisor_name == "vcenter") {
       Sunstone.updateInfoPanelTab("host_info_panel","host_esx_tab",esx_info_tab);
+    }
+    else
+    {
+      Sunstone.removeInfoPanelTab("host_info_panel","host_esx_tab");
+    }
+
+
+    if (can_import_wilds) {
+      Sunstone.updateInfoPanelTab("host_info_panel","host_wilds_tab",wilds_info_tab);
+    }
+    else
+    {
+      Sunstone.removeInfoPanelTab("host_info_panel","host_wilds_tab");
     }
 
     Sunstone.popUpInfoPanel("host_info_panel", "hosts-tab");
 
     if (host_info.TEMPLATE.HYPERVISOR == "vcenter") {
+      // ESX datatable
       var dataTable_esx_hosts = $("#datatable_host_esx",main_tabs_context).dataTable({
             "bSortClasses" : false,
             "bDeferRender": true
@@ -1003,6 +1097,42 @@ function updateHostInfo(request,host){
         dataTable_esx_hosts.fnAddData(host_list_array);
         delete host_info.TEMPLATE.HOST;
       }
+    }
+
+    if (can_import_wilds) {
+      // WILDS datatable
+      var dataTable_wilds_hosts = $("#datatable_host_wilds",main_tabs_context).dataTable({
+       "bSortClasses" : false,
+       "bDeferRender": true
+      });
+
+      var wilds_list_array = [];
+
+      if (host_info.TEMPLATE.VM) {
+        wilds = host_info.TEMPLATE.VM;
+
+        $.each(wilds, function(){
+            name      = this.VM_NAME;
+            safe_name = name.replace(/ /g,"_").replace(/\./g,"_");
+            deploy_id = this.DEPLOY_ID;
+
+            wilds_list_array.push([
+                '<input type="checkbox" id="import_wild_checker" class="import_'+safe_name+'" unchecked/>',
+                name,
+                deploy_id
+            ]);
+
+            dataTable_wilds_hosts.fnAddData(wilds_list_array);
+
+            $(".import_"+safe_name, dataTable_wilds_hosts).data("wild_template", atob(this.IMPORT_TEMPLATE));
+            $(".import_"+safe_name, dataTable_wilds_hosts).data("host_id", host_info.ID);
+
+            wilds_list_array = [];
+          });
+        }
+
+        delete host_info.TEMPLATE.WILDS;
+        delete host_info.TEMPLATE.VM;
     }
 
     var dataTable_host_vMachines = $("#datatable_host_vms", $("#host_info_panel")).dataTable({
@@ -1141,112 +1271,6 @@ function fillVCenterTemplates(opts) {
               $(".template_name", trow).data("template_name", template.name)
               $(".template_name", trow).data("one_template", template.one)
             });
-          };
-        });
-      },
-      error: function(response){
-        opts.container.html("");
-        onError({}, OpenNebula.Error(response));
-      }
-  });
-
-  return false;
-}
-
-/*
-  Retrieve the list of running VMs from vCenter and fill the container with them
-
-  opts = {
-    datacenter: "Datacenter Name",
-    cluster: "Cluster Name",
-    container: Jquery div to inject the html,
-    vcenter_user: vCenter Username,
-    vcenter_password: vCenter Password,
-    vcenter_host: vCenter Host
-  }
- */
-function fillVCenterVMs(opts) {
-  var path = '/vcenter/vms';
-  opts.container.html(generateAdvancedSection({
-    html_id: path,
-    title: tr("Running VMs"),
-    content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
-      '<i class="fa fa-cloud fa-stack-2x"></i>'+
-      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-    '</span>'
-  }))
-
-  $('a', opts.container).trigger("click")
-
-  $.ajax({
-      url: path,
-      type: "GET",
-      data: {timeout: false},
-      dataType: "json",
-      headers: {
-        "X_VCENTER_USER": opts.vcenter_user,
-        "X_VCENTER_PASSWORD": opts.vcenter_password,
-        "X_VCENTER_HOST": opts.vcenter_host
-      },
-      success: function(response){
-        $(".content", opts.container).html("");
-
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<p style="color: #999">' + tr("Please select the vCenter running VMs to be imported to OpenNebula.") + '</p>' +
-            '</div>' +
-          '</div>').appendTo($(".content", opts.container))
-
-        $.each(response, function(datacenter_name, vms){
-          $('<div class="row">' +
-              '<div class="large-12 columns">' +
-                '<h5>' +
-                  datacenter_name + ' ' + tr("DataCenter") +
-                '</h5>' +
-              '</div>' +
-            '</div>').appendTo($(".content", opts.container))
-
-          if (vms.length == 0) {
-              $('<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<label>' +
-                      tr("No new running VMs found in this DataCenter") +
-                    '</label>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", opts.container))
-          } else {
-            $.each(vms, function(id, vm){
-              if (vm.host_id === parseInt(vm.host_id, 10)) {
-                var trow = $('<div class="vcenter_vm">' +
-                    '<div class="row">' +
-                      '<div class="large-10 columns">' +
-                        '<label>' +
-                          '<input type="checkbox" class="vm_name" checked/> ' +
-                          vm.name + '&emsp;<span style="color: #999">' + vm.host + '</span>' +
-                        '</vm>' +
-                        '<div class="large-12 columns vcenter_vm_response">'+
-                        '</div>'+
-                      '</div>' +
-                      '<div class="large-2 columns vcenter_vm_result">'+
-                      '</div>'+
-                    '</div>'+
-                  '</div>').appendTo($(".content", opts.container))
-
-                $(".vm_name", trow).data("vm_name", vm.name)
-                $(".vm_name", trow).data("one_vm", vm.one)
-                $(".vm_name", trow).data("vm_to_host", vm.host_id)
-              }
-            });
-
-            if ($(".vcenter_vm").length == 0) {
-              $('<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<label>' +
-                      tr("No new running VMs found in this DataCenter") +
-                    '</label>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", opts.container))
-            } 
           };
         });
       },
@@ -1575,13 +1599,6 @@ function setupCreateHostDialog(){
 
               fillVCenterTemplates({
                 container: templates_container,
-                vcenter_user: vcenter_user,
-                vcenter_password: vcenter_password,
-                vcenter_host: vcenter_host
-              });
-
-              fillVCenterVMs({
-                container: vms_container,
                 vcenter_user: vcenter_user,
                 vcenter_password: vcenter_password,
                 vcenter_host: vcenter_host

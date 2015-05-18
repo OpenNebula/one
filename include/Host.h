@@ -470,6 +470,26 @@ public:
      */
     int post_update_template(string& error);
 
+    /**
+     * Returns the rediscovered VMs (from poff to running) in the previous
+     * monitorization cycle
+     * @return the previous rediscovered VMs (from poff to running)
+     */
+    const set<int>& get_prev_rediscovered_vms() const
+    {
+        return prev_rediscovered_vms;
+    }
+
+    /**
+     * Sets the previous rediscovered VMs (from poff to running). This set
+     * is not stored in the DB, the pool update method is not needed
+     * @param rediscovered_vms the previous rediscovered VMs (from poff to running)
+     */
+    void set_prev_rediscovered_vms(const set<int>& rediscovered_vms)
+    {
+        prev_rediscovered_vms = rediscovered_vms;
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -526,6 +546,13 @@ private:
      * case they are cleaned.
      */
     set<int>        tmp_zombie_vms;
+
+    /**
+     * Set that stores the VMs reported as found from the poweroff state. This
+     * is managed from outside the host to avoid deadlocks, as the current
+     * VM state is needed
+     */
+    set<int>        prev_rediscovered_vms;
 
     // -------------------------------------------------------------------------
     //  VM Collection

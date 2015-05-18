@@ -191,6 +191,7 @@ string& Document::to_xml(string& xml) const
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
+    string          lock_str;
 
     oss << "<DOCUMENT>"
             << "<ID>"       << oid        << "</ID>"
@@ -201,6 +202,7 @@ string& Document::to_xml(string& xml) const
             << "<NAME>"     << name       << "</NAME>"
             << "<TYPE>"     << type       << "</TYPE>"
             << perms_to_xml(perm_str)
+            << lock_db_to_xml(lock_str)
             << obj_template->to_xml(template_xml)
         << "</DOCUMENT>";
 
@@ -231,6 +233,9 @@ int Document::from_xml(const string& xml)
 
     // Permissions
     rc += perms_from_xml();
+
+    // Lock info
+    rc += lock_db_from_xml();
 
     // Get associated classes
     ObjectXML::get_nodes("/DOCUMENT/TEMPLATE", content);

@@ -19,9 +19,37 @@
 source $(dirname $0)/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
-file=$1
+# Checkpoint file: /var/lib/one//datastores/<DS_ID>/<VM_ID>/checkpoint
+FILE=$1
+FILE_XML=${FILE}.xml
 
-exec_and_log "virsh --connect $LIBVIRT_URI restore $file" \
-    "Could not restore from $file"
+HOST=$2
+DEPLOY_ID=$3
+VMID=$4
 
-rm "$file"
+DS_ID=$(basename $(dirname $(dirname $FILE)))
+DS_LOCATION=$(dirname $(dirname $(dirname $FILE)))
+
+RECALCULATE_CMD=$(cat <<EOF
+set -e
+
+# extract the xml from the checkpoint
+
+virsh --connect $LIBVIRT_URI save-image-dumpxml $FILE > $FILE_XML
+
+# Eeplace all occurrences of the DS_LOCATION/<DS_ID>/<VM_ID> with the specific
+# DS_ID where the checkpoint is placed. This is done in case there was a
+# system DS migration
+
+sed -i "s%$DS_LOCATION/[0-9]\+/$VMID/%$DS_LOCATION/$DS_ID/$VMID/%g" $FILE_XML
+EOF
+)
+
+multiline_exec_and_log "$RECALCULATE_CMD" \
+    "Could not recalculate paths in $FILE_XML"
+
+exec_and_log "virsh --connect $LIBVIRT_URI restore $FILE --xml $FILE_XML" \
+    "Could not restore from $FILE"
+
+rm "$FILE"
+rm "$FILE_XML"

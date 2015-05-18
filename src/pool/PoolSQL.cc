@@ -767,12 +767,31 @@ void PoolSQL::usr_filter(int                uid,
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::MINE_GROUP )
     {
-        uid_filter << " uid = " << uid;
+        uid_filter << "uid = " << uid << " OR ( (";
+
+        string sep = " ";
 
         for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
         {
-            uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+            uid_filter << sep << "( gid = " << *g_it << " )";
+            sep = " OR ";
         }
+
+        uid_filter << ")";
+
+        if ( !all )
+        {
+            uid_filter << " AND ( other_u = 1";
+
+            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            {
+                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+            }
+
+            uid_filter << acl_str << ")";
+        }
+
+        uid_filter << ")";
     }
     else if ( filter_flag == RequestManagerPoolInfoFilter::ALL )
     {

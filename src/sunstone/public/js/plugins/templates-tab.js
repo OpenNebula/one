@@ -503,7 +503,7 @@ if (Config.isTemplateCreationTabEnabled('input_output')){
           '</label>'+
           '<input type="text" id="PORT" name="port" />'+
         '</div>'+
-        '<div class="large-6 columns hypervisor only_kvm only_vmware only_xen">'+
+        '<div class="large-6 columns">'+
           '<label for="KEYMAP">'+tr("Keymap")+
             '<span class="tip">'+tr("Keyboard configuration locale to use in the VNC/SPICE display")+'</span>'+
           '</label>'+
@@ -1387,6 +1387,13 @@ var template_actions = {
         }
     },
 
+    "Template.import_dialog" : {
+        type: "create",
+        call: function(){
+          popUpTemplateImportDialog();
+        }
+    },
+
     "Template.update_dialog" : {
         type: "custom",
         call: function(){
@@ -1611,6 +1618,15 @@ var template_buttons = {
         type: "create_dialog",
         layout: "create"
     },
+
+    "Template.import_dialog" : {
+        type: "create_dialog",
+        layout: "create",
+        text:  tr("Import"),
+        icon: '<i class="fa fa-download">',
+        alwaysActive: true
+    },
+
     "Template.update_dialog" : {
         type: "action",
         layout: "main",
@@ -2663,7 +2679,7 @@ function generate_nic_tab_content(str_nic_tab_id){
       title: tr("Advanced Options"),
       html_id: 'advanced_nic_template_create',
       content: '<fieldset>'+
-        '<legend>'+tr("Network")+'</legend>'+
+        '<legend>'+tr("Choose Network")+'</legend>'+
         '<div class="row  vm_param">'+
           '<div class="large-6 columns">'+
             '<label for="NETWORK_ID">'+tr("ID")+
@@ -2693,20 +2709,95 @@ function generate_nic_tab_content(str_nic_tab_id){
           '</div>'+
         '</div>'+
       '</fieldset>'+
-      '<div class="row vm_param">'+
-        '<div class="large-6 columns">'+
-          '<label for="IP">'+tr("IP")+
-            '<span class="tip">'+tr("Request an specific IP from the Network")+'</span>'+
-          '</label>'+
-          '<input type="text" id="IP" name="IP" size="3" />'+
+      '<fieldset>'+
+        '<legend>'+tr("Override Network Values IPv4")+'</legend>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="IP">'+tr("IP")+
+              '<span class="tip">'+tr("Request an specific IP from the Network")+'</span>'+
+            '</label>'+
+            '<input type="text" id="IP" name="IP" size="3" />'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="MAC">'+tr("MAC")+
+              '<span class="tip">'+tr("Set a specific MAC to the NIC")+'</span>'+
+            '</label>'+
+            '<input type="text" id="MAC" name="MAC"/>'+
+          '</div>'+
         '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_MASK">'+tr("Network Mask")+
+              '<span class="tip">'+tr("Override the network mask of the network. For example, 255.255.255.0")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_MASK" name="NETWORK_MASK"/>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="NETWORK_ADDRESS">'+tr("Network Address")+
+              '<span class="tip">'+tr("Override the base network address. For example, 192.168.1.0")+'</span>'+
+            '</label>'+
+            '<input type="text" id="NETWORK_ADDRESS" name="NETWORK_ADDRESS"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="GATEWAY">'+tr("Gateway")+
+              '<span class="tip">'+tr("Override the Router of the network.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="GATEWAY" name="GATEWAY"/>'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="DNS">'+tr("DNS")+
+              '<span class="tip">'+tr("Override the specific DNS for this network")+'</span>'+
+            '</label>'+
+            '<input type="text" id="DNS" name="DNS"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="SEARCH_DOMAIN">'+tr("Search Domain")+
+              '<span class="tip">'+tr("Override the Search Domain for this network.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="SEARCH_DOMAIN" name="SEARCH_DOMAIN"/>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+      '<fieldset>'+
+        '<legend>'+tr("Override Network Values IPv6")+'</legend>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="IP6_GLOBAL">'+tr("IP6 Global")+
+              '<span class="tip">'+tr("Request an specific IP from the IPv6 Network")+'</span>'+
+            '</label>'+
+            '<input type="text" id="IP6_GLOBAL" name="IP6_GLOBAL" size="3" />'+
+          '</div>'+
+          '<div class="large-6 columns">'+
+            '<label for="GATEWAY6">'+tr("GATEWAY6")+
+              '<span class="tip">'+tr("Override the Router of the IPv6 network.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="GATEWAY6" name="GATEWAY6"/>'+
+          '</div>'+
+        '</div>'+
+        '<div class="row  vm_param">'+
+          '<div class="large-6 columns">'+
+            '<label for="CONTEXT_FORCE_IPV4">'+tr("Network Mask")+
+              '<span class="tip">'+tr("Override force IPv4 for this IPv6 network. Values: Yes or No.")+'</span>'+
+            '</label>'+
+            '<input type="text" id="CONTEXT_FORCE_IPV4" name="CONTEXT_FORCE_IPV4"/>'+
+          '</div>'+
+        '</div>'+
+      '</fieldset>'+
+      '<fieldset>'+
+        '<legend>'+tr("Harware")+'</legend>'+
+        '<div class="row  vm_param">'+
         '<div class="large-6 columns">'+
           '<label for="MODEL">'+tr("Model")+
             '<span class="tip">'+tr("Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")+'</span>'+
           '</label>'+
           '<input type="text" id="MODEL" name="MODEL" />'+
         '</div>'+
-      '</div>'+
+        '</div>'+
+      '</fieldset>'+ 
       '<br>'+
       '<fieldset>'+
         '<legend>'+tr("Security Groups")+'</legend>'+
@@ -4994,6 +5085,227 @@ function popUpTemplateCloneDialog(){
     $(dialog).foundation().foundation('reveal', 'open');
     $("input[name='name']",dialog).focus();
 }
+
+function popUpTemplateImportDialog(){
+    setupTemplateImportDialog();
+    var dialog = $('#template_import_dialog');
+    $(dialog).foundation().foundation('reveal', 'open');
+}
+
+// Template import dialog
+function setupTemplateImportDialog(){
+    //Append to DOM
+    dialogs_context.append('<div id="template_import_dialog"></div>');
+    var dialog = $('#template_import_dialog',dialogs_context);
+
+    //Put HTML in place
+
+    var html = '<div class="row">\
+        <h3 id="import_template_header" class="subheader">'+tr("Import vCenter VM Templates")+'</h3>\
+      </div>\
+      <div class="row vcenter_credentials">\
+        <fieldset>\
+          <legend>'+tr("vCenter")+'</legend>\
+          <div class="row">\
+            <div class="large-6 columns">\
+              <label for="vcenter_user">' + tr("User")  + '</label>\
+              <input type="text" name="vcenter_user" id="vcenter_user" />\
+            </div>\
+            <div class="large-6 columns">\
+              <label for="vcenter_host">' + tr("Hostname")  + '</label>\
+              <input type="text" name="vcenter_host" id="vcenter_host" />\
+            </div>\
+          </div>\
+          <div class="row">\
+            <div class="large-6 columns">\
+              <label for="vcenter_password">' + tr("Password")  + '</label>\
+              <input type="password" name="vcenter_password" id="vcenter_password" />\
+            </div>\
+            <div class="large-6 columns">\
+              <br>\
+              <a class="button radius small right" id="get_vcenter_templates">'+tr("Get VM Templates")+'</a>\
+            </div>\
+          </div>\
+          <div class="vcenter_templates">\
+          </div>\
+          <br>\
+          <div class="row">\
+            <div class="large-12 columns">\
+              <br>\
+              <a class="button radius small right success" id="import_vcenter_templates">'+tr("Import")+'</a>\
+            </div>\
+          </div>\
+        </fieldset>\
+        <a class="close-reveal-modal">&#215;</a>\
+      </div>\
+      ';
+
+
+    dialog.html(html);
+    dialog.addClass("reveal-modal medium").attr("data-reveal", "");
+
+    $("#get_vcenter_templates", dialog).on("click", function(){
+      var templates_container = $(".vcenter_templates", dialog);
+
+      var vcenter_user = $("#vcenter_user", dialog).val();
+      var vcenter_password = $("#vcenter_password", dialog).val();
+      var vcenter_host = $("#vcenter_host", dialog).val();
+
+      fillVCenterTemplates({
+        container: templates_container,
+        vcenter_user: vcenter_user,
+        vcenter_password: vcenter_password,
+        vcenter_host: vcenter_host
+      });
+
+
+      return false;
+    })
+
+    $("#import_vcenter_templates", dialog).on("click", function(){
+      $(this).hide();
+
+      $.each($(".template_name:checked", dialog), function(){
+        var template_context = $(this).closest(".vcenter_template");
+
+        $(".vcenter_template_result:not(.success)", template_context).html(
+            '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+            '</span>');
+
+        var template_json = {
+          "vmtemplate": {
+            "template_raw": $(this).data("one_template")
+          }
+        };
+
+        OpenNebula.Template.create({
+            timeout: true,
+            data: template_json,
+            success: function(request, response) {
+              OpenNebula.Helper.clear_cache("VMTEMPLATE");
+              $(".vcenter_template_result", template_context).addClass("success").html(
+                  '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                    '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                    '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>'+
+                  '</span>');
+
+              $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">'+
+                    tr("Template created successfully")+' ID:'+response.VMTEMPLATE.ID+
+                  '</p>');
+              Sunstone.runAction('Template.refresh');
+            },
+            error: function (request, error_json){
+                $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+                      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                      '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>'+
+                    '</span>');
+
+                $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">'+
+                      (error_json.error.message || tr("Cannot contact server: is it running and reachable?"))+
+                    '</p>');
+                Sunstone.runAction('Template.refresh');
+            }
+        });
+      })
+    });
+}
+
+
+/*
+  Retrieve the list of templates from vCenter and fill the container with them
+
+  opts = {
+    datacenter: "Datacenter Name",
+    cluster: "Cluster Name",
+    container: Jquery div to inject the html,
+    vcenter_user: vCenter Username,
+    vcenter_password: vCenter Password,
+    vcenter_host: vCenter Host
+  }
+ */
+function fillVCenterTemplates(opts) {
+  var path = '/vcenter/templates';
+  opts.container.html(generateAdvancedSection({
+    html_id: path,
+    title: tr("Templates"),
+    content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">'+
+      '<i class="fa fa-cloud fa-stack-2x"></i>'+
+      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+    '</span>'
+  }))
+
+  $('a', opts.container).trigger("click")
+
+  $.ajax({
+      url: path,
+      type: "GET",
+      data: {timeout: false},
+      dataType: "json",
+      headers: {
+        "X_VCENTER_USER": opts.vcenter_user,
+        "X_VCENTER_PASSWORD": opts.vcenter_password,
+        "X_VCENTER_HOST": opts.vcenter_host
+      },
+      success: function(response){
+        $(".content", opts.container).html("");
+
+        $('<div class="row">' +
+            '<div class="large-12 columns">' +
+              '<p style="color: #999">' + tr("Please select the vCenter Templates to be imported to OpenNebula.") + '</p>' +
+            '</div>' +
+          '</div>').appendTo($(".content", opts.container))
+
+        $.each(response, function(datacenter_name, templates){
+          $('<div class="row">' +
+              '<div class="large-12 columns">' +
+                '<h5>' +
+                  datacenter_name + ' ' + tr("DataCenter") +
+                '</h5>' +
+              '</div>' +
+            '</div>').appendTo($(".content", opts.container))
+
+          if (templates.length == 0) {
+              $('<div class="row">' +
+                  '<div class="large-12 columns">' +
+                    '<label>' +
+                      tr("No new templates found in this DataCenter") +
+                    '</label>' +
+                  '</div>' +
+                '</div>').appendTo($(".content", opts.container))
+          } else {
+            $.each(templates, function(id, template){
+              var trow = $('<div class="vcenter_template">' +
+                  '<div class="row">' +
+                    '<div class="large-10 columns">' +
+                      '<label>' +
+                        '<input type="checkbox" class="template_name" checked/> ' +
+                        template.name + '&emsp;<span style="color: #999">' + template.host + '</span>' +
+                      '</label>' +
+                      '<div class="large-12 columns vcenter_template_response">'+
+                      '</div>'+
+                    '</div>' +
+                    '<div class="large-2 columns vcenter_template_result">'+
+                    '</div>'+
+                  '</div>'+
+                '</div>').appendTo($(".content", opts.container))
+
+              $(".template_name", trow).data("template_name", template.name)
+              $(".template_name", trow).data("one_template", template.one)
+            });
+          };
+        });
+      },
+      error: function(response){
+        opts.container.html("");
+        onError({}, OpenNebula.Error(response));
+      }
+  });
+
+  return false;
+}
+
 
 // Instantiate dialog
 // Sets up the instiantiate template dialog and all the processing associated to it

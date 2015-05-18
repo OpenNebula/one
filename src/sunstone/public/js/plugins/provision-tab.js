@@ -3887,22 +3887,18 @@ function setup_info_vm(context) {
       var context = $(".provision_info_vm[vm_id]");
 
       var vm_id = context.attr("vm_id");
-      var image_name = $('.provision_snapshot_name', context).val();
+      var template_name = $('.provision_snapshot_name', context).val();
 
-      OpenNebula.VM.saveas({
+      OpenNebula.VM.save_as_template({
         data : {
           id: vm_id,
           extra_param: {
-            disk_id : "0",
-            image_name : image_name,
-            type: "",
-            clonetemplate: true,
-            hot: true
+            name : template_name
           }
         },
         success: function(request, response){
           OpenNebula.Helper.clear_cache("VMTEMPLATE");
-          notifyMessage(tr("Image") + ' ' + request.request.data[0][1].image_name + ' ' + tr("saved successfully"))
+          notifyMessage(tr("Image") + ' ' + request.request.data[0][1].name + ' ' + tr("saved successfully"))
           update_provision_vm_info(vm_id, context);
           button.removeAttr("disabled");
         },

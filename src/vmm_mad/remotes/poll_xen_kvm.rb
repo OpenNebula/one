@@ -18,6 +18,17 @@
 
 require 'pp'
 require 'rexml/document'
+require 'base64'
+require 'uri'
+
+begin
+    require 'rubygems'
+    require 'json'
+
+    JSON_LOADED = true
+rescue LoadError
+    JSON_LOADED = false
+end
 
 ENV['LANG']='C'
 
@@ -69,7 +80,9 @@ module KVM
         values[:usedcpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
         values[:usedmemory] = [resident_mem, max_mem].max
 
-        values.merge!(get_interface_statistics(one_vm))
+        xml = dump_xml(vmid)
+
+        values.merge!(get_interface_statistics(one_vm, xml))
 
         return values
     end
@@ -125,7 +138,17 @@ module KVM
             values[:usedcpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
             values[:usedmemory] = [resident_mem, max_mem].max
 
-            values.merge!(get_interface_statistics(name))
+            xml = dump_xml(name)
+
+            values.merge!(get_interface_statistics(name, xml))
+            values.merge!(get_disk_usage(xml))
+
+            if !name.match(/^one-\d+/)
+                uuid, template = xml_to_one(xml)
+                values[:template] = Base64.encode64(template).delete("\n")
+                values[:vm_name] = name
+                vm[:name] = uuid
+            end
 
             vms_info[vm[:name]] = values
         end
@@ -213,11 +236,19 @@ module KVM
         hash
     end
 
+    # Get dumpxml output of a VM
+    #   @param the ID of the VM as defined in libvirt
+    #   @return [String] xml output of virsh dumpxml
+    def self.dump_xml(vmid)
+        `#{virsh(:dumpxml)} '#{vmid}'`
+    end
+
     # Aggregate statics of all VM NICs
     #   @param the ID of the VM as defined in libvirt
+    #   @param text [nil, String] dumpxml output or nil to execute dumpxml
     #   @return [Hash] with network stats, by name [symbol] :netrx, :nettx
-    def self.get_interface_statistics(vmid)
-        text = `#{virsh(:dumpxml)} #{vmid}`
+    def self.get_interface_statistics(vmid, text = nil)
+        text = dump_xml(vmid) if !text
 
         return {} if $?.exitstatus != 0
 
@@ -278,6 +309,156 @@ module KVM
                 '-'
         end
     end
+
+    def self.get_disk_usage(xml)
+        return {} if !JSON_LOADED
+
+        doc=REXML::Document.new(xml)
+        size = 0
+
+        data = {
+            :disk_actual_size => 0.0,
+            :disk_virtual_size => 0.0
+        }
+
+        doc.elements.each('domain/devices/disk/source') do |ele|
+            next if !ele.attributes['file']
+
+            text = `qemu-img info --output=json #{ele.attributes['file']}`
+            next if !$? || !$?.success?
+
+            json = JSON.parse(text)
+
+            data[:disk_actual_size] += json['actual-size'].to_f/1024/1024
+            data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+        end
+
+        data[:disk_actual_size] = data[:disk_actual_size].round
+        data[:disk_virtual_size] = data[:disk_virtual_size].round
+
+        data
+    end
+
+    # Convert the output of dumpxml to an OpenNebula template
+    #   @param xml [String] output of dumpxml
+    #   @return [Array] uuid and OpenNebula template encoded in base64
+    def self.xml_to_one(xml)
+        doc = REXML::Document.new(xml)
+
+        name = REXML::XPath.first(doc, '/domain/name').text
+        uuid = REXML::XPath.first(doc, '/domain/uuid').text
+        vcpu = REXML::XPath.first(doc, '/domain/vcpu').text
+        memory = REXML::XPath.first(doc, '/domain/memory').text.to_i / 1024
+        arch = REXML::XPath.first(doc, '/domain/os/type').attributes['arch']
+
+=begin
+        disks = []
+        REXML::XPath.each(doc, '/domain/devices/disk') do |d|
+            type = REXML::XPath.first(d, '//disk').attributes['type']
+            driver = REXML::XPath.first(d, '//disk/driver').attributes['type']
+            source = REXML::XPath.first(d, '//disk/source').attributes[type]
+            target = REXML::XPath.first(d, '//disk/target').attributes['dev']
+
+            disks << {
+                :type => type,
+                :driver => driver,
+                :source => source,
+                :target => target
+            }
+        end
+
+        disks_txt = ''
+
+        disks.each do |disk|
+            disks_txt << "DISK=[\n"
+            disks_txt << "  SOURCE=\"#{disk[:source]}\",\n"
+            disks_txt << "  DRIVER=\"#{disk[:driver]}\",\n"
+            disks_txt << "  TARGET=\"#{disk[:target]}\""
+            disks_txt << "]\n"
+        end
+
+
+        interfaces = []
+        REXML::XPath.each(doc,
+                "/domain/devices/interface[@type='bridge']") do |i|
+            mac = REXML::XPath.first(i, '//interface/mac').
+                attributes['address']
+            bridge = REXML::XPath.first(i, '//interface/source').
+                attributes['bridge']
+            model = REXML::XPath.first(i, '//interface/model').
+                attributes['type']
+
+            interfaces << {
+                :mac => mac,
+                :bridge => bridge,
+                :model => model
+            }
+        end
+
+        interfaces_txt = ''
+
+        interfaces.each do |interface|
+            interfaces_txt << "NIC=[\n"
+            interfaces_txt << "  MAC=\"#{interface[:mac]}\",\n"
+            interfaces_txt << "  BRIDGE=\"#{interface[:bridge]}\",\n"
+            interfaces_txt << "  MODEL=\"#{interface[:model]}\""
+            interfaces_txt << "]\n"
+        end
+=end
+
+        spice = REXML::XPath.first(doc,
+            "/domain/devices/graphics[@type='spice']")
+        spice = spice.attributes['port'] if spice
+
+        spice_txt = ''
+        if spice
+            spice_txt = %Q<GRAPHICS = [ TYPE="spice", PORT="#{spice}" ]>
+        end
+
+        vnc = REXML::XPath.first(doc, "/domain/devices/graphics[@type='vnc']")
+        vnc = vnc.attributes['port'] if vnc
+
+        vnc_txt = ''
+        if vnc
+            vnc_txt = %Q<GRAPHICS = [ TYPE="vnc", PORT="#{vnc}" ]>
+        end
+
+
+        feature_list = %w{acpi apic pae}
+        features = []
+
+        feature_list.each do |feature|
+            if REXML::XPath.first(doc, "/domain/features/#{feature}")
+                features << feature
+            end
+        end
+
+        feat = []
+        features.each do |feature|
+            feat << %Q[  #{feature.upcase}="yes"]
+        end
+
+        features_txt = "FEATURES=[\n"
+        features_txt << feat.join(",\n")
+        features_txt << "]\n"
+
+
+        template = <<EOT
+NAME="#{name}"
+CPU=#{vcpu}
+VCPU=#{vcpu}
+MEMORY=#{memory}
+HYPERVISOR="kvm"
+IMPORT_VM_ID="#{uuid}"
+OS=[ARCH="#{arch}"]
+#{features_txt}
+#{spice_txt}
+#{vnc_txt}
+EOT
+
+
+        return uuid, template
+    end
 end
 
 ################################################################################
@@ -309,6 +490,15 @@ module XEN
     # @return [Hash, nil] Hash with the VM information or nil in case of error
     def self.get_all_vm_info
         begin
+            begin
+                list_long = get_vm_list_long
+            rescue
+                list_long = []
+            end
+
+            vm_templates = get_vm_templates(list_long)
+            vm_disk_stats = get_vm_disk_stats(list_long)
+
             text  = `#{CONF['XM_POLL']}`
 
             return nil if $?.exitstatus != 0
@@ -334,16 +524,26 @@ module XEN
             domain_lines.each do |dom|
                 dom_data = dom.gsub('no limit', 'no-limit').strip.split
 
+                name = dom_data[0]
+
                 dom_hash = Hash.new
 
-                dom_hash[:name]       = dom_data[0]
+                dom_hash[:name]       = name
+                dom_hash[:vm_name]    = name
                 dom_hash[:state]      = get_state(dom_data[1])
                 dom_hash[:usedcpu]    = dom_data[3]
                 dom_hash[:usedmemory] = dom_data[4]
                 dom_hash[:nettx]      = dom_data[10].to_i * 1024
                 dom_hash[:netrx]      = dom_data[11].to_i * 1024
 
-                domains[dom_hash[:name]] = dom_hash
+                if !name.match(/^one-\d/) && vm_templates[name]
+                    dom_hash[:template] =
+                        Base64.encode64(vm_templates[name]).delete("\n")
+                end
+
+                dom_hash.merge!(vm_disk_stats[name]) if vm_disk_stats[name]
+
+                domains[name] = dom_hash
             end
 
             domains
@@ -373,6 +573,72 @@ module XEN
         else
             '-'
         end
+    end
+
+    def self.get_vm_list_long
+        return {} if !JSON_LOADED
+
+        text = `#{CONF['XM_LIST']} -l`
+        doms = JSON.parse(text)
+    end
+
+    def self.get_vm_templates(doms)
+        dom_tmpl = {}
+
+        doms.each do |dom|
+            name = dom['config']['c_info']['name']
+            name = URI.escape(name)
+
+            tmp = %Q<NAME = "#{name}"\n>
+            tmp << %Q<IMPORT_VM_ID = "#{name}"\n>
+
+            vcpus = dom['config']['b_info']['max_vcpus'].to_i
+            vcpus = 1 if vcpus < 1
+
+            tmp << %Q<CPU = #{vcpus}\n>
+            tmp << %Q<VCPU = #{vcpus}\n>
+
+            memory = dom['config']['b_info']['max_memkb']
+            memory /= 1024
+
+            tmp << %Q<MEMORY = #{memory}\n>
+
+            dom_tmpl[name] = tmp
+        end
+
+        dom_tmpl
+    end
+
+    def self.get_vm_disk_stats(doms)
+        dom_disk_stats = {}
+
+        doms.each do |dom|
+            data = {
+                :disk_actual_size => 0.0,
+                :disk_virtual_size => 0.0
+            }
+
+            dom['config']['disks'].each do |disk|
+                next if !disk['pdev_path']
+
+                path = disk['pdev_path']
+
+                text = `qemu-img info --output=json #{path}`
+                next if !$? || !$?.success?
+
+                json = JSON.parse(text)
+
+                data[:disk_actual_size] += json['actual-size'].to_f/1024/1024
+                data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+            end
+
+            data[:disk_actual_size] = data[:disk_actual_size].round
+            data[:disk_virtual_size] = data[:disk_virtual_size].round
+
+            data
+        end
+
+        dom_disk_stats
     end
 end
 
@@ -410,7 +676,7 @@ def setup_hypervisor
     case hypervisor.name
         when 'XEN'
             file = 'xenrc'
-            vars = %w{XM_POLL}
+            vars = %w{XM_POLL XM_LIST}
         when 'KVM'
             file = 'kvmrc'
             vars = %w{LIBVIRT_URI}
@@ -467,7 +733,6 @@ end
 
 def print_all_vm_info(hypervisor)
     require 'yaml'
-    require 'base64'
     require 'zlib'
 
     vms = hypervisor.get_all_vm_info
@@ -493,9 +758,17 @@ def print_all_vm_template(hypervisor)
             number = name.split('-').last
         end
 
+        vm_name = data[:vm_name]
+
         string  = "VM=[\n"
         string << "  ID=#{number},\n"
         string << "  DEPLOY_ID=#{name},\n"
+        string << %Q(  VM_NAME="#{vm_name}",\n) if vm_name
+
+        if data[:template]
+            string << %Q(  IMPORT_TEMPLATE="#{data[:template]}",\n)
+            data.delete(:template)
+        end
 
         values = data.map do |key, value|
             print_data(key, value)

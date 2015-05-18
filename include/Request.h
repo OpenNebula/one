@@ -270,6 +270,14 @@ protected:
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc execute method should return
+     *    @param val to be returned to the client
+     *    @param att the specific request attributes
+     */
+    void success_response(bool val, RequestAttributes& att);
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
      *  the xml-rpc excute method should return
      *    @param ec error code for this call
      *    @param val string representation of the error

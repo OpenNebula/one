@@ -282,14 +282,14 @@ int VirtualMachinePool::allocate (
     bool           on_hold)
 {
     VirtualMachine * vm;
-    
+
     string deploy_id;
 
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
     vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, vm_template);
-    
+
     if ( _submit_on_hold == true || on_hold )
     {
         vm->state = VirtualMachine::HOLD;
@@ -300,7 +300,7 @@ int VirtualMachinePool::allocate (
     }
 
     vm->user_obj_template->get("IMPORT_VM_ID", deploy_id);
-    
+
     if (!deploy_id.empty())
     {
         vm->state = VirtualMachine::HOLD;

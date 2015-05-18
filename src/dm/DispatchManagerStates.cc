@@ -198,6 +198,7 @@ void  DispatchManager::done_action(int vid)
 
     int uid;
     int gid;
+    string deploy_id;
 
     VirtualMachine::LcmState lcm_state;
     VirtualMachine::VmState  dm_state;
@@ -232,11 +233,21 @@ void  DispatchManager::done_action(int vid)
         gid  = vm->get_gid();
         tmpl = vm->clone_template();
 
+        if (vm->isImported())
+        {
+            deploy_id = vm->get_deploy_id();
+        }
+
         vm->unlock();
 
         Quotas::vm_del(uid, gid, tmpl);
 
         delete tmpl;
+
+        if (!deploy_id.empty())
+        {
+            vmpool->drop_index(deploy_id);
+        }
     }
     else
     {

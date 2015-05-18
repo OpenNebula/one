@@ -31,7 +31,7 @@ require 'nokogiri'
 
 module OneDBFsck
     VERSION = "4.11.80"
-    LOCAL_VERSION = "4.11.80"
+    LOCAL_VERSION = "4.13.80"
 
     def check_db_version()
         db_version = read_db_version()
@@ -1614,6 +1614,10 @@ EOT
     def log_error(message)
         @errors += 1
 
+        log_msg(message)
+    end
+
+    def log_msg(message)
         @log_file ||= File.open(LOG, "w")
 
         puts message
@@ -1624,7 +1628,7 @@ EOT
 
     def log_total_errors()
         puts
-        puts "Total errors found: #{@errors}"
+        log_msg "Total errors found: #{@errors}"
         puts "A copy of this output was stored in #{LOG}"
     end
 

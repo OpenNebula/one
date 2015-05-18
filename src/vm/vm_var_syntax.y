@@ -176,7 +176,8 @@ void get_network_attribute(VirtualMachine * vm,
 
     attr_value.clear();
 
-    if ( net_name.empty() || (net_name!="NETWORK" && net_name!="NETWORK_ID") )
+    if ( net_name.empty() ||
+        (net_name!="NETWORK" && net_name!="NETWORK_ID" && net_name!="NIC_ID"))
     {
         return;
     }

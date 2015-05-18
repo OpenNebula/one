@@ -24,7 +24,7 @@ module VNMNetwork
         # Return the command to talk to the Xen hypervisor xm or xl for 
         # Xen 3 and 4
         def self.get_xen_command
-            if system("ps axuww | grep -v grep | grep '\\bxen\\b'")
+            if system("ps axuww | grep -v grep | grep '\\bxend\\b'")
                 "sudo xm"
             else
                 "sudo xl"
