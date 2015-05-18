@@ -252,6 +252,10 @@ define(function(require) {
     },
     "showback": function(params) {
       OpenNebulaAction.showback(params, RESOURCE);
+    },
+    "save_as_template": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebula.Action.simple_action(params, RESOURCE, "save_as_template", action_obj);
     }
   }
 
