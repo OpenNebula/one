@@ -12,10 +12,10 @@ define(function(require) {
   //  require('./hosts-tab/dialogs/clone')
   //];
 
-  //var _panels = [
-  //  require('./hosts-tab/panels/info'),
+  var _panels = [
+    require('./hosts-tab/panels/info'),
   //  require('./hosts-tab/panels/vms')
-  //];
+  ];
 
   var Tab = {
     tabId: TAB_ID,
@@ -33,7 +33,7 @@ define(function(require) {
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    //panels: _panels,
+    panels: _panels,
     //dialogs: _dialogs
   };
 
