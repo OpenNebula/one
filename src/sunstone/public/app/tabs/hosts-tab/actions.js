@@ -42,7 +42,7 @@ define(function(require) {
       call: OpenNebulaHost.show,
       callback: function(request, response) {
         Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
+        if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
           Sunstone.insertPanels(TAB_ID, response);
         }
       },
@@ -101,37 +101,6 @@ define(function(require) {
       error: Notifier.onError,
       notify: true
     },
-
-    /* TODO "Host.monitor" : {
-      type: "monitor",
-      call : OpenNebulaHost.monitor,
-      callback: function(req, response) {
-        var host_graphs = [
-            {
-              monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU",
-              labels : tr("Allocated") + "," + tr("Real") + "," + tr("Total"),
-              humanize_figures : false,
-              div_graph : $("#host_cpu_graph"),
-              div_legend : $("#host_cpu_legend")
-            },
-            {
-              monitor_resources : "HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM",
-              labels : tr("Allocated") + "," + tr("Real") + "," + tr("Total"),
-              humanize_figures : true,
-              div_graph : $("#host_mem_graph"),
-              div_legend : $("#host_mem_legend")
-            }
-            ];
-
-        for (var i = 0; i < host_graphs.length; i++) {
-          plot_graph(
-              response,
-              host_graphs[i]
-          );
-        }
-      },
-      error: hostMonitorError
-    },*/
 
     "Host.update_template" : {
       type: "single",
