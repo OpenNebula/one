@@ -38,7 +38,13 @@ require.config({
     'placeholder': '../bower_components/foundation/js/vendor/placeholder',
 
     /* Resumable */
-    'resumable': '../bower_components/resumablejs/resumable'
+    'resumable': '../bower_components/resumablejs/resumable',
+
+    /* Flot Graphs */
+    'flot': '../bower_components/flot/jquery.flot',
+    'flot.stack': '../bower_components/flot/jquery.flot.stack',
+    'flot.resize': '../bower_components/flot/jquery.flot.resize',
+    'flot.time': '../bower_components/flot/jquery.flot.time'
   },
   shim: {
     /* jQuery */
@@ -119,6 +125,20 @@ require.config({
     },
     'placeholder': {
       exports: 'Placeholders'
+    },
+
+    /* Flot Graphs */
+    'flot': {
+      deps: ['jquery']
+    },
+    'flot.stack': {
+      deps: ['flot']
+    },
+    'flot.resize': {
+      deps: ['flot']
+    },
+    'flot.time': {
+      deps: ['flot']
     }
   }
 });

@@ -1,9 +1,24 @@
 define(function(require) {
   /*
+    CONSTRUCTOR
+   */
+
+  return {
+    'size': _size,
+    'sizeFromMB': _sizeFromMB,
+    'prettyTime': _prettyTime,
+    'prettyTimeAxis': _prettyTimeAxis
+  }
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+  
+  /*
     Returns a human readable size in Kilo, Mega, Giga or Tera bytes
     if no from_bytes, assumes value comes in Ks
   */
-  var _size = function(value, from_bytes, sufix) {
+  function _size(value, from_bytes, sufix) {
     if (typeof(value) === "undefined") {
       value = 0;
     }
@@ -28,7 +43,7 @@ define(function(require) {
     return st;
   }
 
-  var _sizeFromMB = function(value) {
+  function _sizeFromMB(value) {
     if (typeof(value) === "undefined") {
       value = 0;
     }
@@ -49,15 +64,15 @@ define(function(require) {
   }
 
   //introduces 0s before a number until in reaches 'length'.
-  var _pad = function(number,length) {
-      var str = '' + number;
-      while (str.length < length)
-          str = '0' + str;
-      return str;
+  function _pad(number, length) {
+    var str = '' + number;
+    while (str.length < length)
+        str = '0' + str;
+    return str;
   }
 
   //turns a Unix-formatted time into a human readable string
-  var _prettyTime = function(seconds) {
+  function _prettyTime(seconds) {
     var d = new Date();
     d.setTime(seconds * 1000);
 
@@ -71,9 +86,22 @@ define(function(require) {
     return hour + ":" + mins + ":" + secs + " " + day + "/" + month + "/" + year;
   }
 
-  return {
-    'size': _size,
-    'sizeFromMB': _sizeFromMB,
-    'prettyTime': _prettyTime
+  // Format time for plot axis
+  // If show date, only date information is shown
+  function _prettyTimeAxis(time, show_date) {
+    var d = new Date();
+    d.setTime(time * 1000);
+
+    var secs = _pad(d.getSeconds(), 2);
+    var hour = _pad(d.getHours(), 2);
+    var mins = _pad(d.getMinutes(), 2);
+    var day = _pad(d.getDate(), 2);
+    var month = _pad(d.getMonth() + 1, 2); //getMonths returns 0-11
+    var year = d.getFullYear();
+
+    if (show_date)
+        return day + "/" + month;
+    else
+        return hour + ":" + mins;
   }
 })
