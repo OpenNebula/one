@@ -26,7 +26,9 @@ end
 #  TODO : use virsh freecell when available
 ######
 
-nodeinfo_text = `LANG=C virsh -c qemu:///system nodeinfo`
+ENV['LANG'] = 'C'
+
+nodeinfo_text = `virsh -c qemu:///system nodeinfo`
 exit(-1) if $?.exitstatus != 0
 
 nodeinfo_text.split(/\n/).each{|line|
