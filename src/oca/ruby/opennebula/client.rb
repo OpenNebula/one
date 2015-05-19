@@ -143,6 +143,8 @@ module OpenNebula
             else
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
+            
+            @one_endpoint.rstrip!
 
             @async = !options[:sync]
 
