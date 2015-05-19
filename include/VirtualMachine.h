@@ -155,7 +155,8 @@ public:
         BOOT_UNDEPLOY_FAILURE   = 47,
         BOOT_STOPPED_FAILURE    = 48,
         PROLOG_RESUME_FAILURE   = 49,
-        PROLOG_UNDEPLOY_FAILURE = 50
+        PROLOG_UNDEPLOY_FAILURE = 50,
+        DISK_SNAPSHOT_POWEROFF  = 51
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -211,6 +212,7 @@ public:
         else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
         else if ( st == "PROLOG_RESUME_FAILURE") { state = PROLOG_RESUME_FAILURE; }
         else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
+        else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
         else {return -1;}
 
         return 0;
@@ -269,6 +271,7 @@ public:
             case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
             case PROLOG_RESUME_FAILURE: st = "PROLOG_RESUME_FAILURE"; break;
             case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
+            case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
         }
 
         return st;

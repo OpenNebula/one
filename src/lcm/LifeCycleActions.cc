@@ -917,6 +917,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 
         case VirtualMachine::HOTPLUG:
             vm->clear_attach_disk();
+            vmpool->update(vm);
 
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -927,6 +928,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
 
         case VirtualMachine::HOTPLUG_NIC:
             vm->clear_attach_nic();
+            vmpool->update(vm);
 
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -936,11 +938,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::HOTPLUG_SAVEAS:
-        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
-        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
-
             vm->cancel_saveas_disk(image_id);
+            vmpool->update(vm);
 
             vm->set_running_etime(the_time);
             vmpool->update_history(vm);
@@ -949,11 +948,31 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
+        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
+
+            vm->cancel_saveas_disk(image_id);
+            vmpool->update(vm);
+
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+        break;
+
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
             vm->clear_attach_disk();
+            vmpool->update(vm);
 
             tm->trigger(TransferManager::DRIVER_CANCEL,vid);
+            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+            //TODO CLEAR CURRENT SNAPSHOT
+            //vmpool->update(vm);
+
+            tm->trigger(TransferManager::DRIVER_CANCEL, vid);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
         break;
 
@@ -967,7 +986,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
 
-            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
+                    mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP_BOTH,vid);
@@ -992,7 +1012,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vm->set_previous_reason(History::USER);
             vmpool->update_previous_history(vm);
 
-            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
+                    mem, disk);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP_PREVIOUS,vid);
@@ -1220,6 +1241,10 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::HOTPLUG_SNAPSHOT:
             lcm_action = LifeCycleManager::SNAPSHOT_CREATE_FAILURE;
         break;
+
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+            //TODO trigger lcm action
+        break;
     }
 
     if (lcm_action != LifeCycleManager::FINALIZE)
@@ -1420,6 +1445,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
             break;

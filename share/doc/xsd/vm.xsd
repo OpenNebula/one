@@ -96,7 +96,8 @@
           BOOT_UNDEPLOY_FAILURE   = 47,
           BOOT_STOPPED_FAILURE    = 48,
           PROLOG_RESUME_FAILURE   = 49,
-          PROLOG_UNDEPLOY_FAILURE = 50
+          PROLOG_UNDEPLOY_FAILURE = 50,
+          DISK_SNAPSHOT_POWEROFF  = 51
         -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="PREV_STATE" type="xs:integer"/>

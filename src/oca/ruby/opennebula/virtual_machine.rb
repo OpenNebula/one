@@ -104,6 +104,7 @@ module OpenNebula
             BOOT_STOPPED_FAILURE
             PROLOG_RESUME_FAILURE
             PROLOG_UNDEPLOY_FAILURE
+            DISK_SNAPSHOT_POWEROFF
         }
 
         SHORT_VM_STATES={
@@ -169,7 +170,8 @@ module OpenNebula
             "BOOT_UNDEPLOY_FAILURE"     => "fail",
             "BOOT_STOPPED_FAILURE"      => "fail",
             "PROLOG_RESUME_FAILURE"     => "fail",
-            "PROLOG_UNDEPLOY_FAILURE"   => "fail"
+            "PROLOG_UNDEPLOY_FAILURE"   => "fail",
+            "DISK_SNAPSHOT_POWEROFF"    => "snap"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
