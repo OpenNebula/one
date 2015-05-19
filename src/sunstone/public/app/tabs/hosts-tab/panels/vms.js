@@ -11,8 +11,9 @@ define(function(require){
    */
 
   var PANEL_ID = require('./vms/panelId');
-  var IMAGES_TABLE_ID = PANEL_ID + "VMsTable"
-  var RESOURCE = "Host"
+  var IMAGES_TABLE_ID = PANEL_ID + "VMsTable";
+  var RESOURCE = "Host";
+  var XML_ROOT = "HOST";
 
   /*
     CONSTRUCTOR
@@ -22,7 +23,7 @@ define(function(require){
     this.title = Locale.tr("VMs");
     this.icon = "fa-cloud";
 
-    this.element = info[RESOURCE.toUpperCase()];
+    this.element = info[XML_ROOT];
     // TODO this.vmsDataTable = new VMsTable(IMAGES_TABLE_ID, {info: true});
 
     return this;
