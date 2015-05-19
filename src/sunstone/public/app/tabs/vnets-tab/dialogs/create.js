@@ -45,15 +45,10 @@ define(function(require) {
   }
 
   function _submit() {
-    var name = $('#zonename', this).val();
-    var endpoint = $("#endpoint", this).val();
-    var zoneJSON = {"zone" : {"name" : name, "endpoint" : endpoint}};
-    Sunstone.runAction("Zone.create", zoneJSON);
     return false;
   }
 
   function _onShow(dialog) {
-    $("#zonename", dialog).focus();
     return false;
   }
 });
