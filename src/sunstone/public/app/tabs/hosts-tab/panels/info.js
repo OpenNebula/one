@@ -13,6 +13,7 @@ define(function(require) {
   var CPUBars = require('../utils/cpu-bars');
   var MemoryBars = require('../utils/memory-bars');
   var DatastoresCapacityTable = require('../utils/datastores-capacity-table');
+  var CanImportWilds = require('../utils/can-import-wilds');
 
   /*
     TEMPLATES
@@ -40,21 +41,7 @@ define(function(require) {
 
     that.element = info[XML_ROOT];
 
-    // Check if any of the existing VMs in the Host define the IMPORT_TEMPLATE
-    //  attribute to be imported into OpenNebula.
-    that.canImportWilds = false;
-    if (that.element.TEMPLATE.VM) {
-      var vms = that.element.TEMPLATE.VM;
-      if (!$.isArray(vms)) { // If only 1 VM convert to array
-        vms = [vms];
-      }
-      $.each(vms, function() {
-        if (this.IMPORT_TEMPLATE) {
-          that.canImportWilds = true;
-          return false;
-        }
-      });
-    }
+    that.canImportWilds = CanImportWilds(that.element);
 
     // Hide information of the Wild VMs of the Host and the ESX Hosts
     //  in the template table. Unshow values are stored in the unshownTemplate
