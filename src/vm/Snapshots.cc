@@ -14,13 +14,13 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "Snapshot.h"
+#include "Snapshots.h"
 
 Snapshots::Snapshots(int _disk_id):
     snapshot_template(false,'=',"SNAPSHOTS"),
-    next_snapshot(0),
-    disk_id(_disk_id),
-    active(-1)
+    next_snapshot(1),
+    active(0),
+    disk_id(_disk_id)
 {
     snapshot_template.add("DISK_ID",_disk_id);
 };
@@ -71,7 +71,7 @@ int Snapshots::from_xml_node(const xmlNodePtr node)
 
     if (snapshot_template.get("DISK_ID", did))
     {
-        disk_id = id;
+        disk_id = did;
     }
 
     return 0;
@@ -80,23 +80,22 @@ int Snapshots::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::create_snapshot(unsigned int p_id, const string& tag,
-        string& error)
+int Snapshots::create_snapshot(const string& disk_src, const string& tag)
 {
-    VectorAttribute * parent = get_snapshot(p_id);
+    string source;
+    int    parent_id;
 
-    if (parent == 0)
+    if ( active > 0 )
     {
-        error = "Parent snapshot not found.";
-        return -1;
+        VectorAttribute * parent = get_snapshot(active);
+
+        source    = parent->vector_value("SOURCE");
+        parent_id = active;
     }
-
-    string psource = parent->vector_value("SOURCE");
-
-    if (psource.empty())
+    else
     {
-        error = "Parent snapshot has no source.";
-        return -1;
+        source    = disk_src;
+        parent_id = 0;
     }
 
     VectorAttribute * snapshot = new VectorAttribute("SNAPSHOT");
@@ -106,17 +105,17 @@ int Snapshots::create_snapshot(unsigned int p_id, const string& tag,
         snapshot->replace("TAG",tag);
     }
 
-    snapshot->replace("ID", next_snapshot++);
-
+    snapshot->replace("ID", next_snapshot);
     snapshot->replace("DATE", static_cast<long long>(time(0)));
-
-    snapshot->replace("PARENT", psource);
+    snapshot->replace("PARENT_ID", parent_id);
+    snapshot->replace("PARENT", source);
 
     snapshot_template.set(snapshot);
 
-    snapshot_pool.insert(pair<unsigned int, VectorAttribute *>(next_snapshot, snapshot));
+    snapshot_pool.insert(
+            pair<unsigned int, VectorAttribute *>(next_snapshot, snapshot));
 
-    return next_snapshot;
+    return next_snapshot++;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -152,16 +151,27 @@ int Snapshots::delete_snapshot(unsigned int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::active_snapshot(unsigned int id)
+int Snapshots::active_snapshot(unsigned int id, string& error)
 {
-    VectorAttribute * snapshot = get_snapshot(id);
+    VectorAttribute * snapshot;
 
-    if (snapshot == 0)
+    if ( id == active )
     {
-        return -1;
+        return 0;
     }
 
-    snapshot->replace("ACTIVE", true);
+    if ( id != 0 )
+    {
+        snapshot = get_snapshot(id);
+
+        if (snapshot == 0)
+        {
+            error = "Snapshot does not exists";
+            return -1;
+        }
+
+        snapshot->replace("ACTIVE", true);
+    }
 
     snapshot = get_snapshot(active);
 
@@ -174,7 +184,6 @@ int Snapshots::active_snapshot(unsigned int id)
 
     return 0;
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

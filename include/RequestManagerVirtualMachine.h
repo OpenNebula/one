@@ -405,4 +405,35 @@ public:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+class VirtualMachineDiskSnapshotCreate: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotCreate():
+        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotCreate",
+                           "Creates a new virtual machine disk snapshot",
+                           "A:siis"){};
+
+    ~VirtualMachineDiskSnapshotCreate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotRevert: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotRevert():
+        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotRevert",
+                           "Reverts disk state to a snapshot",
+                           "A:siii"){};
+
+    ~VirtualMachineDiskSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 #endif

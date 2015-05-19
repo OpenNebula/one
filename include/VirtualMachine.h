@@ -32,6 +32,7 @@
 using namespace std;
 
 class AuthRequest;
+class Snapshots;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1495,6 +1496,28 @@ public:
      */
     int set_attach_nic(int nic_id);
 
+    // ------------------------------------------------------------------------
+    // Snapshot related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     *  Creates a new snapshot of the given disk
+     *    @param disk_id of the disk
+     *    @param tag a description for this snapshot
+     *    @param error if any
+     *    @return the id of the new snapshot or -1 if error
+     */
+    int new_disk_snapshot(int disk_id, const string& tag, string& error);
+
+    /**
+     *  Sets the snap_id as active, the VM will boot from it next time
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot. It can be 0 to revert to the original
+     *    disk
+     *    @param error if any
+     *    @return -1 if error
+     */
+    int revert_disk_snapshot(int disk_id, int snap_id, string& error);
 
     // ------------------------------------------------------------------------
     // Snapshot related functions
@@ -1651,6 +1674,11 @@ private:
      */
     vector<History *> history_records;
 
+    /**
+     *  Snapshots for each disk
+     */
+    map<int, Snapshots *> snapshots;
+
     // -------------------------------------------------------------------------
     // Logging & Dirs
     // -------------------------------------------------------------------------
@@ -1797,12 +1825,12 @@ private:
      */
     int parse_defaults(string& error_str);
 
-    /** 
+    /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
      *
-     * The context[1] values in the map are searched in the NIC and 
-     * if not found in the AR and VNET. They can be also set in the 
+     * The context[1] values in the map are searched in the NIC and
+     * if not found in the AR and VNET. They can be also set in the
      * CONTEXT section it self using full name (ETH_).
      *
      * IPv4 context variables:
@@ -1924,6 +1952,13 @@ private:
      */
     int get_disk_images(string &error_str);
 
+    /**
+     *  Return the VectorAttribute representation of a disk
+     *    @param disk_id of the disk
+     *    @return pointer to the VectorAttribute
+     */
+    VectorAttribute* get_disk(int disk_id);
+
 protected:
 
     //**************************************************************************
@@ -1998,11 +2033,6 @@ protected:
         return -1;
     }
 
-    // *************************************************************************
-    // Helpers
-    // *************************************************************************
-
-    VectorAttribute* get_disk(int disk_id);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

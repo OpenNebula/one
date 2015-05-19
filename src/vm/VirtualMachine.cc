@@ -30,6 +30,7 @@
 #include "ImagePool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "Snapshots.h"
 
 #include "Nebula.h"
 
@@ -87,6 +88,12 @@ VirtualMachine::~VirtualMachine()
     for (unsigned int i=0 ; i < history_records.size() ; i++)
     {
         delete history_records[i];
+    }
+
+    for (map<int, Snapshots *>::const_iterator it = snapshots.begin();
+            it != snapshots.end() ; it++)
+    {
+        delete it->second;
     }
 
     delete _log;
@@ -883,12 +890,12 @@ int VirtualMachine::parse_context(string& error_str)
                 continue;
             }
 
-            parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT, 
+            parse_context_network(NETWORK_CONTEXT, NUM_NETWORK_CONTEXT,
                     context, vatt);
 
             if (!vatt->vector_value("IP6_GLOBAL").empty())
             {
-                parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT, 
+                parse_context_network(NETWORK6_CONTEXT, NUM_NETWORK6_CONTEXT,
                         context, vatt);
             }
         }
@@ -2987,7 +2994,8 @@ void VirtualMachine::release_security_groups(int id, VectorAttribute const * nic
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::generate_context(string &files, int &disk_id, string& token_password)
+int VirtualMachine::generate_context(string &files, int &disk_id,
+        string& token_password)
 {
     ofstream file;
     string   files_ds;
@@ -3418,7 +3426,8 @@ int VirtualMachine::save_disk_hot(int           disk_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source, int& image_id)
+int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source,
+        int& image_id)
 {
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
@@ -3731,6 +3740,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string user_template_xml;
     string history_xml;
     string perm_xml;
+    string snap_xml;
+
     ostringstream	oss;
 
     oss << "<VM>"
@@ -3778,6 +3789,12 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     else
     {
         oss << "<HISTORY_RECORDS/>";
+    }
+
+    for (map<int, Snapshots *>::const_iterator it = snapshots.begin();
+            it != snapshots.end() ; it++)
+    {
+        oss << it->second->to_xml(snap_xml);
     }
 
     oss << "</VM>";
@@ -3878,6 +3895,32 @@ int VirtualMachine::from_xml(const string &xml_str)
         history_records[history->seq] = history;
 
         ObjectXML::free_nodes(content);
+        content.clear();
+    }
+
+    // Virtual Machine user template
+
+    ObjectXML::get_nodes("/VM/SNAPSHOTS", content);
+
+    for (vector<xmlNodePtr>::iterator it=content.begin();it!=content.end();it++)
+    {
+        Snapshots * snap = new Snapshots(-1);
+
+        rc += snap->from_xml_node(*it);
+
+        if ( rc != 0)
+        {
+            delete snap;
+            break;
+        }
+
+        snapshots.insert(pair<int, Snapshots *>(snap->get_disk_id(), snap));
+    }
+
+    if (!content.empty())
+    {
+        ObjectXML::free_nodes(content);
+        content.clear();
     }
 
     if (rc != 0)
@@ -4078,7 +4121,8 @@ void VirtualMachine::clear_template_monitor_error()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_public_cloud_hypervisors(vector<string> &public_cloud_hypervisors) const
+int VirtualMachine::get_public_cloud_hypervisors(
+        vector<string> &public_cloud_hypervisors) const
 {
     vector<Attribute*>                  attrs;
     vector<Attribute*>::const_iterator  it;
@@ -4115,4 +4159,77 @@ int VirtualMachine::get_public_cloud_hypervisors(vector<string> &public_cloud_hy
     }
 
     return public_cloud_hypervisors.size();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
+{
+    map<int, Snapshots *>::iterator it;
+    int snap_id;
+
+    VectorAttribute * disk;
+    string source;
+
+    disk = get_disk(did);
+
+    if ( disk == 0 )
+    {
+        error = "DISK does not exists";
+        return -1;
+    }
+
+    source = disk->vector_value("SOURCE");
+
+    it = snapshots.find(did);
+
+    if ( it == snapshots.end() )
+    {
+       Snapshots * snap = new Snapshots(did);
+
+       snap_id = snap->create_snapshot(source, tag);
+
+       snapshots.insert(pair<int, Snapshots *>(did, snap));
+    }
+    else
+    {
+        snap_id = it->second->create_snapshot(source, tag);
+    }
+
+    return snap_id;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::revert_disk_snapshot(int did, int snap_id, string& error)
+{
+    map<int, Snapshots *>::iterator it;
+    int rc;
+
+    VectorAttribute * disk;
+    string source;
+
+    disk = get_disk(did);
+
+    if ( disk == 0 )
+    {
+        error = "DISK does not exists";
+        return -1;
+    }
+
+    it = snapshots.find(did);
+
+    if ( it == snapshots.end() && snap_id != 0 )
+    {
+        error = "Snapshot does not exists";
+        return -1;
+    }
+    else if ( it != snapshots.end() )
+    {
+        rc = it->second->active_snapshot(snap_id, error);
+    }
+
+    return rc;
 }

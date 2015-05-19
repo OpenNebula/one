@@ -14,8 +14,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#ifndef SNAPSHOT_POOL_H_
-#define SNAPSHOT_POOL_H_
+#ifndef SNAPSHOTS_H_
+#define SNAPSHOTS_H_
 
 #include <iostream>
 #include <string>
@@ -30,8 +30,18 @@ using namespace std;
 class VectorAttribute;
 
 /**
- *  This class represents the List of Snapshots associated to an image or Virtual
- *  Machine Disk
+ *  This class represents a list of Snapshots associated to an image or Virtual
+ *  Machine Disk. The list is in the form:
+ *  <SNAPSHOTS>
+ *   <DISK_ID>: of the disk the snapshots are taken from (the initial backing)
+ *   <ACTIVE>: the current snapshot in use by the VM. 0 for the original DISK
+ *   <SNAPSHOT>
+ *     <ID>
+ *     <TAG>: Description
+ *     <DATE>: the snapshot was taken
+ *     <PARENT_ID>: backing for this snapshot, 0 for the original image
+ *     <PARENT>: Opaque (driver specific) string representing the parent
+ *     <SOURCE>: Opaque (driver specific) string representing the snapshot
  */
 class Snapshots
 {
@@ -52,15 +62,41 @@ public:
      */
     int from_xml_node(const xmlNodePtr node);
 
-    int create_snapshot(unsigned int p_id, const string& tag, string& error);
+    /**
+     *  XML Representation of the Snapshots
+     */
+    string& to_xml(string& xml) const
+    {
+        return snapshot_template.to_xml(xml);
+    };
 
+    /**
+     * Creates a new (empty) snapshot of the active disk
+     *   @param src source of disk image (inital backing file)
+     *   @param tag description of this snapshot (optional)
+     *   @return id of the new snapshot
+     */
+    int create_snapshot(const string& src, const string& tag);
+
+    /**
+     *  Removes the snapshot from the list
+     *    @param id of the snapshot
+     */
     int delete_snapshot(unsigned int id);
 
     /**
      *  Set the given snapshot as active. Updates the values of the current
      *  snapshot
      */
-    int active_snapshot(unsigned int id);
+    int active_snapshot(unsigned int id, string& error);
+
+    /**
+     *  Return the disk_id of the snapshot list
+     */
+    int get_disk_id()
+    {
+        return disk_id;
+    }
 
 private:
 
@@ -71,15 +107,31 @@ private:
      */
     VectorAttribute * get_snapshot(unsigned int id);
 
+    /**
+     *  Text representation of the snapshot pool. To be stored as part of the
+     *  VM or Image Templates
+     */
     Template snapshot_template;
 
+    /**
+     *  Next id
+     */
     unsigned int next_snapshot;
 
+    /**
+     * Id of the active (current) snapshot, 0 represents the base image
+     */
+    unsigned int active;
+
+    /**
+     * Id of the disk associated with this snapshot list
+     */
     unsigned int disk_id;
 
+    /**
+     * Snapshot pointer map
+     */
     map<unsigned int, VectorAttribute *> snapshot_pool;
-
-    unsigned int active;
 };
 
-#endif /*SNAPSHOT_H_*/
+#endif /*SNAPSHOTS_H_*/

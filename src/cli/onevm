@@ -785,6 +785,34 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    disk_snapshot_create_desc = <<-EOT.unindent
+        Takes a new snapshot of the given disk. This operation needs support
+        from the Datastore drivers: QCOW2 or Ceph.
+
+        States: POWEROFF
+    EOT
+
+    command :"disk-snapshot-create", disk_snapshot_create_desc,
+      :vmid, :diskid, :tag do
+        helper.perform_action(args[0],options,"disk snapshot created") do |o|
+          o.disk_snapshot_create(args[1].to_i, args[2])
+        end
+    end
+
+    disk_snapshot_revert_desc = <<-EOT.unindent
+        Reverts disk state to a previously taken snapshot. To revert
+        disk state to the base disk image use 0 as snapshot id
+
+        States: POWEROFF
+    EOT
+
+    command :"disk-snapshot-revert", disk_snapshot_revert_desc,
+      :vmid, :diskid, :snapshot_id do
+        helper.perform_action(args[0],options,"disk snapshot reverted") do |o|
+          o.disk_snapshot_revert(args[1].to_i, args[2].to_i)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists VMs in the pool
     EOT

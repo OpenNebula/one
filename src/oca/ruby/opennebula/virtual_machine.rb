@@ -44,7 +44,9 @@ module OpenNebula
             :snapshotdelete => "vm.snapshotdelete",
             :attachnic      => "vm.attachnic",
             :detachnic      => "vm.detachnic",
-            :recover        => "vm.recover"
+            :recover        => "vm.recover",
+            :disksnapshotcreate => "vm.disksnapshotcreate",
+            :disksnapshotrevert => "vm.disksnapshotrevert"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -608,6 +610,27 @@ module OpenNebula
         #   otherwise
         def snapshot_delete(snap_id)
             return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
+        end
+
+        # Takes a new snapshot of a disk
+        # 
+        # @param disk_id [Integer] Id of the disk
+        # @param tag [String] description for the snapshot
+        #
+        # @return [Integer, OpenNebula::Error] The new snapshot ID or error
+        def disk_snapshot_create(disk_id, tag)
+          return call(VM_METHODS[:disksnapshotcreate], @pe_id, disk_id, tag)
+        end
+
+        # Reverts disk state to a previously taken snapshot
+        # 
+        # @param disk_id [Integer] Id of the disk
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disk_snapshot_revert(disk_id, snap_id)
+          return call(VM_METHODS[:disksnapshotrevert], @pe_id, disk_id, snap_id)
         end
 
         # Recovers an ACTIVE VM

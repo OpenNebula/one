@@ -1146,10 +1146,10 @@ int DispatchManager::detach(
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::snapshot_create(
-    int         vid,
-    string&     name,
-    int&        snap_id,
-    string&     error_str)
+    int     vid,
+    string& name,
+    int&    snap_id,
+    string& error_str)
 {
     ostringstream oss;
 
@@ -1606,3 +1606,117 @@ int DispatchManager::detach_nic(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_snapshot_create(
+        int           vid,
+        int           did,
+        const string& tag,
+        int&          snap_id,
+        string&       error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not create a new disk snapshot for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
+         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    {
+        oss << "Could not create a new snapshot for VM " << vid
+            << ", wrong state " << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+
+        return -1;
+    }
+
+    //TODO set state (reuse HOTPLUG_SNAPSHOT?)
+    //vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+
+    snap_id = vm->new_disk_snapshot(did, tag, error_str);
+
+    if (snap_id == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    vm->unlock();
+
+    vmpool->update(vm);
+
+    //TODO Trigger snapshot action on the TM
+    //vmm->trigger(VirtualMachineManager::SNAPSHOT_CREATE,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_snapshot_revert(
+        int           vid,
+        int           did,
+        int           snap_id,
+        string&       error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not revert to disk snapshot for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
+         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    {
+        oss << "Could not revert to disk snapshot for VM " << vid
+            << ", wrong state " << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+
+        return -1;
+    }
+
+    //TODO set state (reuse HOTPLUG_SNAPSHOT?)
+    //vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+
+    if (vm->revert_disk_snapshot(did, snap_id, error_str) == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    vm->unlock();
+
+    vmpool->update(vm);
+
+    //TODO Regenerate Deployment FILE (and send it to host?)
+    //vmm->trigger(VirtualMachineManager::SNAPSHOT_CREATE,vid);
+
+    return 0;
+}
