@@ -542,16 +542,19 @@ define(function(require) {
           active = true;
         }
 
-        var panelInstance = new Panel(info);
-
-        panelInstances.push(panelInstance);
-        templatePanelsParams.push({
-          'panelName': panelName,
-          'icon': panelInstance.icon,
-          'title': panelInstance.title,
-          'html': panelInstance.html(),
-          'active': active
-        })
+        try {
+          var panelInstance = new Panel(info);
+          panelInstances.push(panelInstance);
+          templatePanelsParams.push({
+            'panelName': panelName,
+            'icon': panelInstance.icon,
+            'title': panelInstance.title,
+            'html': panelInstance.html(),
+            'active': active
+          })
+        } catch(err) {
+          console.log(err);
+        }
 
         active = false;
       }
