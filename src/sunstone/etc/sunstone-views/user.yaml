@@ -314,6 +314,9 @@ tabs:
         panel_tabs:
             host_info_tab: true
             host_monitoring_tab: true
+            host_vms_tab: true
+            host_wilds_tab: true
+            host_esx_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
