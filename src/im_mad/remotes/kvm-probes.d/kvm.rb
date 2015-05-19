@@ -43,7 +43,7 @@ nodeinfo_text.split(/\n/).each{|line|
 #   for everything else, top & proc
 #####
 
-NETINTERFACE = "eth|bond|em|enp2|p[0-9]+p[0-9]+"
+NETINTERFACE = "eth|bond|em|enp|p[0-9]+p[0-9]+"
 
 stat = `cat /proc/stat`
 
