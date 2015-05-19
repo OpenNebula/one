@@ -50,7 +50,7 @@ stat = `cat /proc/stat`
 stat.each_line do |line|
   if /\Acpu (.*)\Z/.match(line)
     stat_cpu = Regexp.last_match[1].to_s.split
-    stat_total_cpu = stat_cpu.inject(0) {|s,sum| sum.to_i+s.to_i}.to_i
+    stat_total_cpu = stat_cpu.inject(0) {|sum,s| sum.to_i+s.to_i}.to_i
     $free_cpu = $total_cpu * stat_cpu[3].to_f / stat_total_cpu
     $used_cpu = $total_cpu - $free_cpu
   end
