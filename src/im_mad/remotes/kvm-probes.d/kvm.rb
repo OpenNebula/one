@@ -40,22 +40,15 @@ nodeinfo_text.split(/\n/).each{|line|
 }
 
 ######
-#   for everything else, top & proc
-#####
+#  CPU
+######
+vmstat = `vmstat 1 2`
+$free_cpu = $total_cpu * ((vmstat.split("\n").to_a.last.split)[14].to_i)/100
+$used_cpu = $total_cpu - $free_cpu
 
-NETINTERFACE = "eth|bond|em|enp|p[0-9]+p[0-9]+"
-
-stat = `cat /proc/stat`
-
-stat.each_line do |line|
-  if /\Acpu (.*)\Z/.match(line)
-    stat_cpu = Regexp.last_match[1].to_s.split
-    stat_total_cpu = stat_cpu.inject(0) {|sum,s| sum.to_i+s.to_i}.to_i
-    $free_cpu = $total_cpu * stat_cpu[3].to_f / stat_total_cpu
-    $used_cpu = $total_cpu - $free_cpu
-  end
-end
-
+######
+#  MEMORY
+######
 memory = `cat /proc/meminfo`
 meminfo = Hash.new()
 memory.each_line do |line|
@@ -67,6 +60,11 @@ $total_memory = meminfo['MemTotal']
 
 $used_memory = meminfo['MemTotal'] - meminfo['MemFree'] - meminfo['Buffers'] - meminfo['Cached']
 $free_memory = $total_memory - $used_memory
+
+######
+#  INTERFACE
+######
+NETINTERFACE = "eth|bond|em|enp|p[0-9]+p[0-9]+"
 
 net_text=`cat /proc/net/dev`
 exit(-1) if $?.exitstatus != 0
