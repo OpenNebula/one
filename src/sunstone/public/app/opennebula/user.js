@@ -1,4 +1,7 @@
 define(function(require) {
+
+  var Quota = require('utils/quota');
+
   var OpenNebulaAction = require('./action'),
       OpenNebulaHelper = require('./helper'),
       OpenNebulaError  = require('./error');
@@ -26,11 +29,24 @@ define(function(require) {
         data: {timeout: timeout},
         dataType: "json",
         success: function(response) {
-         //TODO  default_user_quotas = Quotas.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS);
+          var list = OpenNebulaHelper.pool(RESOURCE, response);
 
-          var list = OpenNebulaHelper.pool(RESOURCE, response)
+          Quota.setDefaultUserQuotas(
+                Quota.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS));
+
+          // Inject the VM user quota. This info is returned separately in the
+          // pool info call, but the userElementArray expects it inside the USER,
+          // as it is returned by the individual info call
           var quotas_hash = OpenNebulaHelper.pool_hash_processing(
-              'USER_POOL', 'QUOTAS', response);
+                                              'USER_POOL', 'QUOTAS', response);
+
+          $.each(list,function(){
+            var q = quotas_hash[this[RESOURCE].ID];
+
+            if (q != undefined) {
+                this[RESOURCE].VM_QUOTA = q.QUOTAS.VM_QUOTA;
+            }
+          });
 
           return callback ?
               callback(request, list, quotas_hash) : null;

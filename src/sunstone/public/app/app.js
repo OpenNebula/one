@@ -4,14 +4,16 @@ define(function(require) {
   var Sunstone = require('sunstone');
 
   var _tabs = [
+    require('tabs/system-tab'),
+    require('tabs/users-tab'),
+    require('tabs/vresources-tab'),
+    require('tabs/images-tab'),
     require('tabs/infra-tab'),
     require('tabs/zones-tab'),
     require('tabs/datastores-tab'),
     require('tabs/hosts-tab'),
     require('tabs/vnets-tab'),
-    require('tabs/secgroups-tab'),
-    require('tabs/vresources-tab'),
-    require('tabs/images-tab')
+    require('tabs/secgroups-tab')
   ];
 
   var _commonDialogs = [
