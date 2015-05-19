@@ -8,9 +8,10 @@ define(function(require) {
     require('tabs/zones-tab'),
     require('tabs/datastores-tab'),
     require('tabs/hosts-tab'),
+    require('tabs/vnets-tab'),
+    require('tabs/secgroups-tab'),
     require('tabs/vresources-tab'),
-    require('tabs/images-tab'),
-    require('tabs/vnets-tab')
+    require('tabs/images-tab')
   ];
 
   var _commonDialogs = [
