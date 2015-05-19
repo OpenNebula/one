@@ -26,6 +26,8 @@ end
 #  TODO : use virsh freecell when available
 ######
 
+ENV['LANG'] = 'C'
+
 nodeinfo_text = `virsh -c qemu:///system nodeinfo`
 exit(-1) if $?.exitstatus != 0
 
@@ -40,36 +42,31 @@ nodeinfo_text.split(/\n/).each{|line|
 }
 
 ######
-#   for everything else, top & proc
-#####
+#  CPU
+######
+vmstat = `vmstat 1 2`
+$free_cpu = $total_cpu * ((vmstat.split("\n").to_a.last.split)[14].to_i)/100
+$used_cpu = $total_cpu - $free_cpu
 
-NETINTERFACE = "eth|bond|em|p[0-9]+p[0-9]+"
+######
+#  MEMORY
+######
+memory = `cat /proc/meminfo`
+meminfo = Hash.new()
+memory.each_line do |line|
+  key, value = line.split(':')
+  meminfo[key] = /\d+/.match(value)[0].to_i
+end
 
-top_text=`top -bin2`
-exit(-1) if $?.exitstatus != 0
+$total_memory = meminfo['MemTotal']
 
-top_text.gsub!(/^top.*^top.*?$/m, "") # Strip first top output
+$used_memory = meminfo['MemTotal'] - meminfo['MemFree'] - meminfo['Buffers'] - meminfo['Cached']
+$free_memory = $total_memory - $used_memory
 
-top_text.split(/\n/).each{|line|
-    if line.match('^%?Cpu')
-        line[7..-1].split(",").each{|elemento|
-            temp = elemento.strip.split(/[% ]/)
-            if temp[1]=="id"
-            idle = temp[0]
-            $free_cpu = idle.to_f * $total_cpu.to_f / 100
-            $used_cpu = $total_cpu.to_f - $free_cpu
-                break
-            end
-
-        }
-    end
-}
-
-$total_memory = `free -k|grep "Mem:" | awk '{print $2}'`
-tmp=`free -k|grep "buffers\/cache"|awk '{print $3 " " $4}'`.split
-
-$used_memory=tmp[0]
-$free_memory=tmp[1]
+######
+#  INTERFACE
+######
+NETINTERFACE = "eth|bond|em|enp|p[0-9]+p[0-9]+"
 
 net_text=`cat /proc/net/dev`
 exit(-1) if $?.exitstatus != 0
