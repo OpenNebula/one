@@ -12,6 +12,7 @@ define(function(require) {
   var OpenNebulaHost = require('opennebula/host');
   var CPUBars = require('../utils/cpu-bars');
   var MemoryBars = require('../utils/memory-bars');
+  var DatastoresCapacityTable = require('../utils/datastores-capacity-table');
 
   /*
     TEMPLATES
@@ -26,6 +27,7 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Host"
+  var XML_ROOT = "HOST"
 
   /*
     CONSTRUCTOR
@@ -36,7 +38,7 @@ define(function(require) {
     that.title = Locale.tr("Info");
     that.icon = "fa-info-circle";
 
-    that.element = info[RESOURCE.toUpperCase()];
+    that.element = info[XML_ROOT];
 
     // Check if any of the existing VMs in the Host define the IMPORT_TEMPLATE
     //  attribute to be imported into OpenNebula.
@@ -93,6 +95,7 @@ define(function(require) {
     var cpuBars = CPUBars.html(this.element);
     var memoryBars = MemoryBars.html(this.element);
     var stateStr = Locale.tr(OpenNebulaHost.stateStr(this.element.STATE));
+    var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
 
     return TemplateInfo({
       'element': this.element,
@@ -103,6 +106,7 @@ define(function(require) {
       'cpuBars': cpuBars,
       'memoryBars': memoryBars,
       'stateStr': stateStr,
+      'datastoresCapacityTableHTML': datastoresCapacityTableHTML
     });
   }
 

@@ -1,0 +1,16 @@
+<table class="dataTable extended_table">
+  <thead>
+    <tr>
+      <th>{{tr "Datastore ID"}}</th>
+      <th style="width:70%">{{tr "Capacity"}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each datastoreBars}}
+    <tr>
+      <td class="key_td">{{datastoreId}}</td>
+      <td class="value_td" colspan="2">{{{datastoreBar}}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
