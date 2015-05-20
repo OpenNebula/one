@@ -615,6 +615,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end if !options[:all]
         end
 
+        if vm.has_elements?("/VM/SNAPSHOTS")
+            puts
+            CLIHelper.print_header(str_h1 % "VM DISK SNAPSHOTS",false)
+            format_snapshots(vm)
+        end
+
         sg_nics = []
 
         if (vm.has_elements?("/VM/TEMPLATE/NIC/SECURITY_GROUPS"))
@@ -940,5 +946,56 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         history=[vm_hash['VM']['HISTORY_RECORDS']['HISTORY']].flatten
 
         table.show(history)
+    end
+
+    def format_snapshots(vm)
+        table=CLIHelper::ShowTable.new(nil, self) do
+            column :AC , "Is active", :left, :size => 2 do |d|
+                if d["ACTIVE"] == "YES"
+                    "=>"
+                else
+                    ""
+                end
+            end
+            column :ID, "Snapshot ID", :size=>3 do |d|
+                d["ID"]
+            end
+
+            column :DISK, "Disk ID", :size=>4 do |d|
+                d["DISK_ID"]
+            end
+
+            column :PARENT, "Snapshot Parent ID", :size=>6 do |d|
+                d["PARENT_ID"]
+            end
+
+            column :TAG, "Snapshot Tag", :left, :size=>45 do |d|
+                d["TAG"]
+            end
+
+            column :DATE, "Snapshot creation date", :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d["DATE"])
+            end
+
+            default :AC, :ID, :DISK, :PARENT, :DATE, :TAG
+        end
+
+        # Convert snapshot data to an array
+        vm_hash = vm.to_hash
+        vm_snapshots = [vm_hash['VM']['SNAPSHOTS']].flatten
+
+        snapshots = []
+
+        vm_snapshots.each do |disk|
+            disk_id = disk['DISK_ID']
+
+            sshots = [disk['SNAPSHOT']].flatten
+            sshots.each do |snapshot|
+                data = snapshot.merge({ 'DISK_ID' => disk_id })
+                snapshots << data
+            end
+        end
+
+        table.show(snapshots)
     end
 end
