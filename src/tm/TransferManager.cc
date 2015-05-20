@@ -139,6 +139,14 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "DRIVER_CANCEL";
         break;
 
+    case SNAPSHOT_CREATE:
+        aname = "SNAPSHOT_CREATE";
+        break;
+
+    case SNAPSHOT_DELETE:
+        aname = "SNAPSHOT_DELETE";
+        break;
+
     case FINALIZE:
         aname = ACTION_FINALIZE;
         break;
@@ -377,6 +385,14 @@ void TransferManager::do_action(const string &action, void * arg)
     else if (action == "DRIVER_CANCEL")
     {
         driver_cancel_action(vid);
+    }
+    else if (action == "SNAPSHOT_CREATE")
+    {
+        snapshot_create_action(vid);
+    }
+    else if (action == "SNAPSHOT_DELETE")
+    {
+        snapshot_delete_action(vid);
     }
     else
     {
@@ -2082,7 +2098,7 @@ void TransferManager::saveas_hot_action(int vid)
 
     if (vm->get_saveas_disk_hot(disk_id, save_source, image_id) == -1)
     {
-        vm->log("TM", Log::ERROR, "Could not get disk information to saveas it");
+        vm->log("TM", Log::ERROR,"Could not get disk information to saveas it");
         goto error_common;
     }
 
@@ -2189,6 +2205,105 @@ void TransferManager::migrate_transfer_command(
         << vm->get_ds_id()
         << endl;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::snapshot_create_action(int vid)
+{
+    string tm_mad;
+    string ds_id;
+    string parent;
+    string snap_id;
+
+    ostringstream os;
+
+    ofstream xfr;
+    string   xfr_name;
+
+    VirtualMachine * vm;
+
+    const TransferManagerDriver * tm_md;
+
+    // ------------------------------------------------------------------------
+    // Setup & Transfer script
+    // ------------------------------------------------------------------------
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+         vm->log("TM", Log::ERROR, "Could not obtain the VM");
+         goto error_common;
+    }
+
+    if (!vm->hasHistory())
+    {
+        vm->log("TM", Log::ERROR, "The VM has no history");
+        goto error_common;
+    }
+
+    if (vm->get_snapshot_disk(ds_id, tm_mad, parent, snap_id) == -1)
+    {
+        vm->log("TM", Log::ERROR, "Could not get disk information to"
+                "take snapshot");
+        goto error_common;
+    }
+
+    tm_md = get();
+
+    if (tm_md == 0)
+    {
+        goto error_driver;
+    }
+
+    xfr_name = vm->get_transfer_file() + ".disk_snapshot";
+    xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
+
+    if (xfr.fail() == true)
+    {
+        goto error_file;
+    }
+
+    //SNAP_CREATE tm_mad hostname:parent_path vmid dsid
+    xfr << "SNAP_CREATE "
+        << tm_mad << " "
+        << vm->get_hostname() << ":"
+        << parent << " "
+        << snap_id << " "
+        << vm->get_oid() << " "
+        << ds_id
+        << endl;
+
+    xfr.close();
+
+    tm_md->transfer(vid, xfr_name);
+
+    vm->unlock();
+
+    return;
+
+error_driver:
+    os << "saveas_hot_transfer, error getting TM driver.";
+    goto error_common;
+
+error_file:
+    os << "disk_snapshot_create, could not open file: " << xfr_name;
+    os << ". You may need to manually clean hosts (previous & current)";
+    goto error_common;
+
+error_common:
+    vm->log("TM", Log::ERROR, os);
+
+//TODO    (nd.get_lcm())->trigger(LifeCycleManager::SAVEAS_HOT_FAILURE, vid);
+
+    vm->unlock();
+    return;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::snapshot_delete_action(int vid){};
 
 /* ************************************************************************** */
 /* MAD Loading                                                                */

@@ -4163,6 +4163,66 @@ int VirtualMachine::get_public_cloud_hypervisors(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+//TODO SNAPSHOT clear_snapshot_disk (deletes)
+int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
+        string& parent, string& snap_id)
+{
+    vector<Attribute  *> disks;
+    VectorAttribute *    disk;
+
+    int num_disks;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        if ( disk->vector_value("DISK_SNAPSHOT_ACTIVE") == "YES" )
+        {
+            map<int, Snapshots *>::iterator it;
+            int did;
+
+            if (disk->vector_value("DISK_ID", did) == -1)
+            {
+                return -1;
+            }
+
+            it = snapshots.find(did);
+
+            if (it == snapshots.end())
+            {
+                return -1;
+            }
+
+            tm_mad  = disk->vector_value("TM_MAD");
+            ds_id   = disk->vector_value("DATASTORE_ID");
+            snap_id = disk->vector_value("DISK_SNAPSHOT_ID");
+
+            int isnap_id = strtol(snap_id.c_str(),NULL,0);
+
+            parent  = it->second->get_snapshot_attribute(isnap_id, "PARENT");
+
+            if (parent.empty() || snap_id.empty() || tm_mad.empty()
+                    || ds_id.empty())
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 {
@@ -4196,6 +4256,9 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     {
         snap_id = it->second->create_snapshot(source, tag);
     }
+
+    disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
+    disk->replace("DISK_SNAPSHOT_ID", snap_id);
 
     return snap_id;
 }

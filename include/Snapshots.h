@@ -98,6 +98,15 @@ public:
         return disk_id;
     }
 
+    /**
+     *  Get Attribute from the given snapshot
+     *    @param id of the snapshot
+     *    @param name of the attribute
+     *
+     *    @return value or empty if not found
+     */
+    string get_snapshot_attribute(unsigned int id, const char* name);
+
 private:
 
     /**

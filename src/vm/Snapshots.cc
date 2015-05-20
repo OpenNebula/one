@@ -202,3 +202,21 @@ VectorAttribute * Snapshots::get_snapshot(unsigned int id)
     return it->second;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Snapshots::get_snapshot_attribute(unsigned int id, const char * name)
+{
+    VectorAttribute * snapshot = get_snapshot(id);
+
+    if (snapshot == 0)
+    {
+        return "";
+    }
+
+    return snapshot->vector_value(name);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

@@ -60,6 +60,8 @@ public:
         CHECKPOINT,
         DRIVER_CANCEL,
         SAVEAS_HOT,
+        SNAPSHOT_CREATE,
+        SNAPSHOT_DELETE,
         FINALIZE
     };
 
@@ -325,6 +327,16 @@ private:
      * This function starts the saveas of the given disk
      */
     void saveas_hot_action(int vid);
+
+    /**
+     * This function takes an snapshot of a disk
+     */
+    void snapshot_create_action(int vid);
+
+    /**
+     * This function deletes an snapshot of a disk
+     */
+    void snapshot_delete_action(int vid);
 };
 
 #endif /*TRANSFER_MANAGER_H*/

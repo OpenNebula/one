@@ -1522,6 +1522,16 @@ public:
      */
     int revert_disk_snapshot(int disk_id, int snap_id, string& error);
 
+    /**
+     *  Get information about the disk to take the snapshot from
+     *    @param ds_id id of the datastore
+     *    @param tm_mad used by the datastore
+     *    @param parent to take the snapshot from
+     *    @param snap_id of the snapshot
+     */
+    int get_snapshot_disk(string& ds_id, string& tm_mad, string& parent,
+            string& snap_id);
+
     // ------------------------------------------------------------------------
     // Snapshot related functions
     // ------------------------------------------------------------------------

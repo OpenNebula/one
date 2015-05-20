@@ -1643,8 +1643,8 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    //TODO set state (reuse HOTPLUG_SNAPSHOT?)
-    //vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
 
     snap_id = vm->new_disk_snapshot(did, tag, error_str);
 
@@ -1658,8 +1658,7 @@ int DispatchManager::disk_snapshot_create(
 
     vmpool->update(vm);
 
-    //TODO Trigger snapshot action on the TM
-    //vmm->trigger(VirtualMachineManager::SNAPSHOT_CREATE,vid);
+    tm->trigger(TransferManager::SNAPSHOT_CREATE,vid);
 
     return 0;
 }
@@ -1702,8 +1701,8 @@ int DispatchManager::disk_snapshot_revert(
         return -1;
     }
 
-    //TODO set state (reuse HOTPLUG_SNAPSHOT?)
-    //vm->set_state(VirtualMachine::HOTPLUG_SNAPSHOT);
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
 
     if (vm->revert_disk_snapshot(did, snap_id, error_str) == -1)
     {
