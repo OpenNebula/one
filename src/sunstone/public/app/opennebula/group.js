@@ -1,4 +1,7 @@
 define(function(require) {
+
+  var Quota = require('utils/quota');
+
   var OpenNebulaAction = require('./action');
   var OpenNebulaHelper = require('./helper');
   var OpenNebulaError  = require('./error');
@@ -26,12 +29,24 @@ define(function(require) {
         data: {timeout: timeout},
         dataType: "json",
         success: function(response) {
-          // Get the default group quotas
-          //TODO default_group_quotas = Quotas.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS);
+          var list = OpenNebulaHelper.pool(RESOURCE, response);
 
-          var list = OpenNebulaHelper.pool(RESOURCE, response)
+          Quota.setDefaultGroupQuotas(
+                Quota.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS));
+
+          // Inject the VM quota. This info is returned separately in the
+          // pool info call, but the elementArray expects it inside the GROUP,
+          // as it is returned by the individual info call
           var quotas_hash = OpenNebulaHelper.pool_hash_processing(
-              'GROUP_POOL', 'QUOTAS', response);
+                                              'GROUP_POOL', 'QUOTAS', response);
+
+          $.each(list,function(){
+            var q = quotas_hash[this[RESOURCE].ID];
+
+            if (q != undefined) {
+                this[RESOURCE].VM_QUOTA = q.QUOTAS.VM_QUOTA;
+            }
+          });
 
           return callback ?
               callback(request, list, quotas_hash) : null;

@@ -6,6 +6,7 @@ define(function(require) {
   var _tabs = [
     require('tabs/system-tab'),
     require('tabs/users-tab'),
+    require('tabs/groups-tab'),
     require('tabs/vresources-tab'),
     require('tabs/images-tab'),
     require('tabs/infra-tab'),

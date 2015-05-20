@@ -11,13 +11,22 @@ define(function(require) {
 
   // The default quotas returned by the pool.list method are stored here
   var _defaultUserQuotas;
+  var _defaultGroupQuotas;
 
   function _setDefaultUserQuotas(defaultUserQuotas){
     _defaultUserQuotas = defaultUserQuotas;
   }
 
+  function _setDefaultGroupQuotas(defaultGroupQuotas){
+    _defaultGroupQuotas = defaultGroupQuotas;
+  }
+
   function _getDefaultUserQuotas(defaultUserQuotas){
     return _defaultUserQuotas;
+  }
+
+  function _getDefaultGroupQuotas(defaultGroupQuotas){
+    return _defaultGroupQuotas;
   }
 
   // Processes the default quotas as returned by OpenNebula, to be easier to
@@ -163,6 +172,8 @@ define(function(require) {
   return {
     'setDefaultUserQuotas': _setDefaultUserQuotas,
     'getDefaultUserQuotas': _getDefaultUserQuotas,
+    'setDefaultGroupQuotas': _setDefaultGroupQuotas,
+    'getDefaultGroupQuotas': _getDefaultGroupQuotas,
     'initEmptyQuotas': _initEmptyQuotas,
     'default_quotas': _default_quotas,
     'quotaBar': _quotaBar,

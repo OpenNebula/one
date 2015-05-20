@@ -1,0 +1,66 @@
+<div class="row">
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Information"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "ID"}}</td>
+          <td class="value_td">{{element.ID}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Name"}}</td>
+          <td class="value_td">{{element.NAME}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      {{#if adminViews}}
+        <thead>
+          <tr>
+            <th colspan="3">{{tr "Group Admins Views"}}</th>
+          </tr>
+        </thead>
+        {{#each adminViews}}
+          <tr>
+            <td class="key_td">
+              {{name}}
+              {{#if description}}
+                <span class="tip">{{description}}</span>
+              {{/if}}
+            </td>
+          </tr>
+        {{/each}}
+      {{/if}}
+      {{#if userViews}}
+        <thead>
+          <tr>
+            <th colspan="3">{{tr "Group Users Views"}}</th>
+          </tr>
+        </thead>
+        {{#each userViews}}
+          <tr>
+            <td class="key_td">
+              {{name}}
+              {{#if description}}
+                <span class="tip">{{description}}</span>
+              {{/if}}
+            </td>
+          </tr>
+        {{/each}}
+      {{/if}}
+    </table>
+  </div>
+</div>
+<div class="row">
+  <div class="large-9 columns">
+    {{{templateTableHTML}}}
+  </div>
+</div>
