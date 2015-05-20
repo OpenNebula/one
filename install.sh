@@ -1220,6 +1220,7 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
 
 ETC_FILES="share/etc/oned.conf \
            share/etc/defaultrc \
+           src/tm_mad/tmrc \
            src/scheduler/etc/sched.conf"
 
 VMWARE_ETC_FILES="src/vmm_mad/remotes/vmware/vmwarerc"
