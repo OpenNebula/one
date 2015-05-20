@@ -25,6 +25,8 @@ define(function(require) {
       permissionsHTML = TemplatePermissions({'element': element})
     }
 
+    // TODO: bug? if action is not enabled the edit button should be hidden,
+    // but the group/owner info should still be visible
     var ownerHTML = '';
     if (Config.isTabActionEnabled(tabName, resourceType + '.chown')) {
       ownerHTML = TemplateOwner({'element': element});

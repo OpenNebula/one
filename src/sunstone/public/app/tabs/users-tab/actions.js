@@ -132,15 +132,17 @@ define(function(require) {
       },
       error: Notifier.onError,
     },
-    /* TODO
+
     "User.update_template" : {
       type: "single",
       call: OpenNebulaUser.update,
       callback: function(request) {
         Sunstone.runAction('User.show',request.request.data[0][0]);
       },
-      error: onError
+      error: Notifier.onError
     },
+
+    /* TODO
 
     "User.fetch_quotas" : {
       type: "single",

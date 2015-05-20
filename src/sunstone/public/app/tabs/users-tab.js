@@ -11,7 +11,7 @@ define(function(require) {
   ];
 
   var _panels = [
-    //require('./users-tab/panels/info')
+    require('./users-tab/panels/info')
   ];
 
   var Tab = {
