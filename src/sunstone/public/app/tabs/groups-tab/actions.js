@@ -121,17 +121,20 @@ define(function(require) {
         type: "custom",
         call: popUpGroupQuotasDialog
     },
+    */
 
     "Group.set_quota" : {
         type: "multiple",
-        call: OpenNebula.Group.set_quota,
-        elements: groupElements,
-        callback: function(request,response) {
-            Sunstone.runAction('Group.show',request.request.data[0]);
-        },
-        error: onError
+        call: OpenNebulaGroup.set_quota,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      callback: function(request) {
+        Sunstone.runAction('Group.show',request.request.data[0]);
+      },
+      error: Notifier.onError
     },
-
+    /* TODO
     "Group.accounting" : {
         type: "monitor",
         call: OpenNebula.Group.accounting,

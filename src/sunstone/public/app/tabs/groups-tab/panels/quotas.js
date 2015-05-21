@@ -14,8 +14,8 @@ define(function(require) {
 
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./quotas/panelId');
-  var RESOURCE = "User";
-  var XML_ROOT = "USER";
+  var RESOURCE = "Group";
+  var XML_ROOT = "GROUP";
 
   /*
     CONSTRUCTOR

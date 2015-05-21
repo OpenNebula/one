@@ -11,7 +11,8 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./groups-tab/panels/info')
+    require('./groups-tab/panels/info'),
+    require('./groups-tab/panels/quotas')
   ];
 
   var Tab = {
