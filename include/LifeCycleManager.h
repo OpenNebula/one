@@ -278,6 +278,10 @@ private:
 
     void snapshot_delete_failure(int vid);
 
+    void disk_snapshot_success(int vid);
+
+    void disk_snapshot_failure(int vid);
+
     void deploy_action(int vid);
 
     void suspend_action(int vid);

@@ -1707,3 +1707,39 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_snapshot_success(int vid)
+{
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF )
+    {
+        vm->log("LCM", Log::INFO, "VM Disk snapshot successfully taken.");
+
+        vm->clear_snapshot_disk();
+
+        vmpool->update(vm);
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"disk_snapshot_success, VM in a wrong state");
+    }
+
+    vm->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_snapshot_failure(int vid)
+{
+};

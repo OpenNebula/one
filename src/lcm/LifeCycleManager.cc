@@ -222,6 +222,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "SNAPSHOT_DELETE_FAILURE";
         break;
 
+    case DISK_SNAPSHOT_SUCCESS:
+        aname = "DISK_SNAPSHOT_SUCCESS";
+        break;
+
+    case DISK_SNAPSHOT_FAILURE:
+        aname = "DISK_SNAPSHOT_FAILURE";
+        break;
+
     case DEPLOY:
         aname = "DEPLOY";
         break;
@@ -446,6 +454,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "SNAPSHOT_DELETE_FAILURE")
     {
         snapshot_delete_failure(vid);
+    }
+    else if (action == "DISK_SNAPSHOT_SUCCESS")
+    {
+        disk_snapshot_success(vid);
+    }
+    else if (action == "DISK_SNAPSHOT_FAILURE")
+    {
+        disk_snapshot_failure(vid);
     }
     else if (action == "DEPLOY")
     {

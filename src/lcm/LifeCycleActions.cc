@@ -1243,7 +1243,7 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
-            //TODO trigger lcm action
+            lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
         break;
     }
 

@@ -1697,12 +1697,8 @@ int DispatchManager::disk_snapshot_revert(
         NebulaLog::log("DiM", Log::ERROR, error_str);
 
         vm->unlock();
-
         return -1;
     }
-
-    vm->set_state(VirtualMachine::ACTIVE);
-    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
 
     if (vm->revert_disk_snapshot(did, snap_id, error_str) == -1)
     {
@@ -1713,9 +1709,6 @@ int DispatchManager::disk_snapshot_revert(
     vm->unlock();
 
     vmpool->update(vm);
-
-    //TODO Regenerate Deployment FILE (and send it to host?)
-    //vmm->trigger(VirtualMachineManager::SNAPSHOT_CREATE,vid);
 
     return 0;
 }
