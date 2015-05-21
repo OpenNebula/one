@@ -16,7 +16,8 @@ define(function(require) {
     require('./hosts-tab/panels/info'),
     require('./hosts-tab/panels/monitor'),
     require('./hosts-tab/panels/vms'),
-    require('./hosts-tab/panels/wilds')
+    require('./hosts-tab/panels/wilds'),
+    require('./hosts-tab/panels/esx')
   ];
 
   var Tab = {
