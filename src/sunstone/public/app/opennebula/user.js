@@ -1,6 +1,6 @@
 define(function(require) {
 
-  var Quota = require('utils/quota');
+  var QuotaDefaults = require('utils/quotas/quota-defaults');
 
   var OpenNebulaAction = require('./action'),
       OpenNebulaHelper = require('./helper'),
@@ -31,8 +31,9 @@ define(function(require) {
         success: function(response) {
           var list = OpenNebulaHelper.pool(RESOURCE, response);
 
-          Quota.setDefaultUserQuotas(
-                Quota.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS));
+          QuotaDefaults.setDefaultUserQuotas(
+            QuotaDefaults.default_quotas(response.USER_POOL.DEFAULT_USER_QUOTAS)
+          );
 
           // Inject the VM user quota. This info is returned separately in the
           // pool info call, but the userElementArray expects it inside the USER,

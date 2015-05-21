@@ -1,0 +1,61 @@
+<div class="row">
+  <div class="large-6 columns">
+    <table id="info_user_table" class="dataTable extended_table" cellpadding="0" cellspacing="0" border="0">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Information"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "ID"}}</td>
+          <td class="value_td">{{element.ID}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Name"}}</td>
+          <td class="value_td">{{element.NAME}}</td>
+          <td></td>
+        </tr>
+        {{{groupTrHTML}}}
+        <tr>
+          <td class="key_td">{{tr "Secondary groups"}}</td>
+          <td class="value_td">{{secondaryGroups}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Authentication driver"}}</td>
+          <td class="value_td">{{element.AUTH_DRIVER}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns">
+    <table class="dataTable extended_table" cellpadding="0" cellspacing="0" border="0">
+      <thead>
+        <tr>
+          <th>{{tr "Public SSH Key"}}</th>
+          <th>
+            <a class="user_ssh_public_key_edit right" href="#"><i class="fa fa-pencil-square-o"></i></a>
+          </th>
+        </tr>
+      </thead>
+    </table>
+    <textarea rows="6" type="text" id="user_ssh_public_key_textarea" name="ssh_public_key" class="hidden">
+      {{~element.TEMPLATE.SSH_PUBLIC_KEY~}}
+    </textarea>
+    <p id="user_ssh_public_key_text" name="ssh_public_key">
+      {{#if element.TEMPLATE.SSH_PUBLIC_KEY}}
+        {{element.TEMPLATE.SSH_PUBLIC_KEY}}
+      {{else}}
+        {{tr "You can provide a SSH Key for this User clicking on the edit button"}}
+      {{/if}}
+    </p>
+  </div>
+</div>
+<div class="row">
+  <div class="large-9 columns">
+    {{{templateTableHTML}}}
+  </div>
+</div>

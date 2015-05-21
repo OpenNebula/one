@@ -1,17 +1,14 @@
 define(function(require) {
-  // Constants
-  var QUOTA_LIMIT_DEFAULT   = "-1";
-  var QUOTA_LIMIT_UNLIMITED = "-2";
-
-
-  // Dependencies
-  var ProgressBar = require('utils/progress-bar');
-  var Humanize = require('utils/humanize');
-
-
   // The default quotas returned by the pool.list method are stored here
   var _defaultUserQuotas;
   var _defaultGroupQuotas;
+  var QuotaLimits = require('./quota-limits');
+
+
+  // Constants
+  var QUOTA_LIMIT_DEFAULT   = QuotaLimits.QUOTA_LIMIT_DEFAULT;
+  var QUOTA_LIMIT_UNLIMITED = QuotaLimits.QUOTA_LIMIT_UNLIMITED;
+
 
   function _setDefaultUserQuotas(defaultUserQuotas){
     _defaultUserQuotas = defaultUserQuotas;
@@ -21,12 +18,24 @@ define(function(require) {
     _defaultGroupQuotas = defaultGroupQuotas;
   }
 
-  function _getDefaultUserQuotas(defaultUserQuotas){
+  function _getDefaultUserQuotas(){
     return _defaultUserQuotas;
   }
 
-  function _getDefaultGroupQuotas(defaultGroupQuotas){
+  function _getDefaultGroupQuotas(){
     return _defaultGroupQuotas;
+  }
+
+  /**
+   * @param  {string} resource_name User or Group
+   * @return {Object}
+   */
+  function _getDefaultQuotas(resource_name){
+    if(resource_name == "User") {
+      return _getDefaultUserQuotas();
+    } else {
+      return _getDefaultGroupQuotas();
+    }
   }
 
   // Processes the default quotas as returned by OpenNebula, to be easier to
@@ -98,86 +107,13 @@ define(function(require) {
     return default_quotas;
   }
 
-  // If the VM quotas are empty, inits the VM counters to 0, and sets the limit
-  // to 'default'. It is not applied to oneadmin user/group
-  function _initEmptyQuotas(resource){
-    if ($.isEmptyObject(resource.VM_QUOTA) && resource.ID != 0){
-      resource.VM_QUOTA = {
-        VM: {
-          VMS         : QUOTA_LIMIT_DEFAULT,
-          VMS_USED    : 0,
-          CPU         : QUOTA_LIMIT_DEFAULT,
-          CPU_USED    : 0,
-          MEMORY      : QUOTA_LIMIT_DEFAULT,
-          MEMORY_USED : 0,
-          VOLATILE_SIZE      : QUOTA_LIMIT_DEFAULT,
-          VOLATILE_SIZE_USED : 0
-        }
-      };
-    }
-  }
-
-  function _quotaBar(usage, limit, default_limit){
-    var int_usage = parseInt(usage, 10);
-    var int_limit = _quotaIntLimit(limit, default_limit);
-    return ProgressBar.html(int_usage, int_limit, null);
-  }
-
-  function _quotaBarMB(usage, limit, default_limit){
-    var int_usage = parseInt(usage, 10);
-    var int_limit = _quotaIntLimit(limit, default_limit);
-
-    info_str = Humanize.size(int_usage * 1024)+' / ' +
-                  ((int_limit >= 0) ? Humanize.size(int_limit * 1024) : '-');
-
-    return ProgressBar.html(int_usage, int_limit, info_str);
-  }
-
-  function _quotaBarFloat(usage, limit, default_limit){
-    var float_usage = parseFloat(usage, 10);
-    var float_limit = _quotaFloatLimit(limit, default_limit);
-    return ProgressBar.html(float_usage, float_limit, null);
-  }
-
-  function _quotaIntLimit(limit, default_limit){
-    i_limit = parseInt(limit, 10);
-    i_default_limit = parseInt(default_limit, 10);
-
-    if (limit == QUOTA_LIMIT_DEFAULT){
-      i_limit = i_default_limit;
-    }
-
-    if (isNaN(i_limit)){
-      i_limit = 0;
-    }
-
-    return i_limit;
-  }
-
-  function _quotaFloatLimit(limit, default_limit){
-    f_limit = parseFloat(limit, 10);
-    f_default_limit = parseFloat(default_limit, 10);
-
-    if (f_limit == parseFloat(QUOTA_LIMIT_DEFAULT, 10)){
-      f_limit = f_default_limit;
-    }
-
-    if (isNaN(f_limit)){
-      f_limit = 0;
-    }
-
-    return f_limit;
-  }
 
   return {
     'setDefaultUserQuotas': _setDefaultUserQuotas,
     'getDefaultUserQuotas': _getDefaultUserQuotas,
     'setDefaultGroupQuotas': _setDefaultGroupQuotas,
     'getDefaultGroupQuotas': _getDefaultGroupQuotas,
-    'initEmptyQuotas': _initEmptyQuotas,
-    'default_quotas': _default_quotas,
-    'quotaBar': _quotaBar,
-    'quotaBarMB': _quotaBarMB,
-    'quotaBarFloat': _quotaBarFloat
+    'getDefaultQuotas': _getDefaultQuotas,
+    'default_quotas': _default_quotas
   };
 });

@@ -161,17 +161,20 @@ define(function(require) {
       type: "custom",
       call: popUpUserQuotasDialog
     },
-
+  */
+ 
     "User.set_quota" : {
       type: "multiple",
       call: OpenNebulaUser.set_quota,
-      elements: userElements,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
       callback: function(request) {
         Sunstone.runAction('User.show',request.request.data[0]);
       },
-      error: onError
+      error: Notifier.onError
     },
-
+    /* TODO
     "User.accounting" : {
       type: "monitor",
       call: OpenNebulaUser.accounting,

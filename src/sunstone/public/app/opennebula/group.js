@@ -1,7 +1,6 @@
 define(function(require) {
 
-  var Quota = require('utils/quota');
-
+  var QuotaDefaults = require('utils/quotas/quota-defaults');
   var OpenNebulaAction = require('./action');
   var OpenNebulaHelper = require('./helper');
   var OpenNebulaError  = require('./error');
@@ -31,8 +30,9 @@ define(function(require) {
         success: function(response) {
           var list = OpenNebulaHelper.pool(RESOURCE, response);
 
-          Quota.setDefaultGroupQuotas(
-                Quota.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS));
+          QuotaDefaults.setDefaultGroupQuotas(
+            QuotaDefaults.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS)
+          );
 
           // Inject the VM quota. This info is returned separately in the
           // pool info call, but the elementArray expects it inside the GROUP,

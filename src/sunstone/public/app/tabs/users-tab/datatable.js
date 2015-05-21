@@ -6,7 +6,8 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
-  var Quota = require('utils/quota');
+  var QuotaDefaults = require('utils/quotas/quota-defaults');
+  var QuotaWidgets = require('utils/quotas/quota-widgets');
 
   /*
     CONSTANTS
@@ -80,22 +81,22 @@ define(function(require) {
     var memory = '<span class="progress-text right" style="font-size: 12px">-</span>';
     var cpu    = '<span class="progress-text right" style="font-size: 12px">-</span>';
 
-    var default_user_quotas = Quota.getDefaultUserQuotas();
+    var default_user_quotas = QuotaDefaults.getDefaultUserQuotas();
 
-    Quota.initEmptyQuotas(element);
+    QuotaWidgets.initEmptyQuotas(element);
 
     if (!$.isEmptyObject(element.VM_QUOTA)){
-      vms = Quota.quotaBar(
+      vms = QuotaWidgets.quotaBar(
         element.VM_QUOTA.VM.VMS_USED,
         element.VM_QUOTA.VM.VMS,
         default_user_quotas.VM_QUOTA.VM.VMS);
 
-      memory = Quota.quotaBarMB(
+      memory = QuotaWidgets.quotaBarMB(
         element.VM_QUOTA.VM.MEMORY_USED,
         element.VM_QUOTA.VM.MEMORY,
         default_user_quotas.VM_QUOTA.VM.MEMORY);
 
-      cpu = Quota.quotaBarFloat(
+      cpu = QuotaWidgets.quotaBarFloat(
         element.VM_QUOTA.VM.CPU_USED,
         element.VM_QUOTA.VM.CPU,
         default_user_quotas.VM_QUOTA.VM.CPU);
