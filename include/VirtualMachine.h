@@ -1526,12 +1526,17 @@ public:
      *  Get information about the disk to take the snapshot from
      *    @param ds_id id of the datastore
      *    @param tm_mad used by the datastore
-     *    @param parent to take the snapshot from
+     *    @param disk_id of the disk
+     *    @param parent_id to take the snapshot from
      *    @param snap_id of the snapshot
      */
-    int get_snapshot_disk(string& ds_id, string& tm_mad, string& parent,
-            string& snap_id);
+    int get_snapshot_disk(string& ds_id, string& tm_mad,
+        string& disk_id, string& parent_id, string& snap_id);
 
+    /**
+     *  Unset the current disk being snapshotted
+     */
+    void  clear_snapshot_disk();
     // ------------------------------------------------------------------------
     // Snapshot related functions
     // ------------------------------------------------------------------------

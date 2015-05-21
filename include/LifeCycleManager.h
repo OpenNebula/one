@@ -83,6 +83,8 @@ public:
         SNAPSHOT_REVERT_FAILURE, /**< Sent by the VMM on snap. revert failure */
         SNAPSHOT_DELETE_SUCCESS, /**< Sent by the VMM on snap. revert success */
         SNAPSHOT_DELETE_FAILURE, /**< Sent by the VMM on snap. revert failure */
+        DISK_SNAPSHOT_SUCCESS, /**<Sent by TM when a snap. succeeds */
+        DISK_SNAPSHOT_FAILURE, /**<Sent by TM when a snap. fails */
         DEPLOY,           /**< Sent by the DM to deploy a VM on a host        */
         SUSPEND,          /**< Sent by the DM to suspend an running VM        */
         RESTORE,          /**< Sent by the DM to restore a suspended VM       */

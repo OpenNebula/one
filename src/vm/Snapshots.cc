@@ -80,24 +80,8 @@ int Snapshots::from_xml_node(const xmlNodePtr node)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::create_snapshot(const string& disk_src, const string& tag)
+int Snapshots::create_snapshot(const string& tag)
 {
-    string source;
-    int    parent_id;
-
-    if ( active > 0 )
-    {
-        VectorAttribute * parent = get_snapshot(active);
-
-        source    = parent->vector_value("SOURCE");
-        parent_id = active;
-    }
-    else
-    {
-        source    = disk_src;
-        parent_id = 0;
-    }
-
     VectorAttribute * snapshot = new VectorAttribute("SNAPSHOT");
 
     if (!tag.empty())
@@ -107,8 +91,7 @@ int Snapshots::create_snapshot(const string& disk_src, const string& tag)
 
     snapshot->replace("ID", next_snapshot);
     snapshot->replace("DATE", static_cast<long long>(time(0)));
-    snapshot->replace("PARENT_ID", parent_id);
-    snapshot->replace("PARENT", source);
+    snapshot->replace("PARENT_ID", active);
 
     snapshot_template.set(snapshot);
 

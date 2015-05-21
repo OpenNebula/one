@@ -72,11 +72,10 @@ public:
 
     /**
      * Creates a new (empty) snapshot of the active disk
-     *   @param src source of disk image (inital backing file)
      *   @param tag description of this snapshot (optional)
      *   @return id of the new snapshot
      */
-    int create_snapshot(const string& src, const string& tag);
+    int create_snapshot(const string& tag);
 
     /**
      *  Removes the snapshot from the list

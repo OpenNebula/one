@@ -969,8 +969,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
-            //TODO CLEAR CURRENT SNAPSHOT
-            //vmpool->update(vm);
+            vm->clear_snapshot_disk();
+            vmpool->update(vm);
 
             tm->trigger(TransferManager::DRIVER_CANCEL, vid);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);

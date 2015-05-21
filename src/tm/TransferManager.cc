@@ -2213,7 +2213,8 @@ void TransferManager::snapshot_create_action(int vid)
 {
     string tm_mad;
     string ds_id;
-    string parent;
+    string disk_id;
+    string parent_id;
     string snap_id;
 
     ostringstream os;
@@ -2242,7 +2243,7 @@ void TransferManager::snapshot_create_action(int vid)
         goto error_common;
     }
 
-    if (vm->get_snapshot_disk(ds_id, tm_mad, parent, snap_id) == -1)
+    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, parent_id, snap_id) == -1)
     {
         vm->log("TM", Log::ERROR, "Could not get disk information to"
                 "take snapshot");
@@ -2264,11 +2265,12 @@ void TransferManager::snapshot_create_action(int vid)
         goto error_file;
     }
 
-    //SNAP_CREATE tm_mad hostname:parent_path vmid dsid
+    //SNAP_CREATE tm_mad host:remote_system_dir/disk.0 parentid snapid vmid dsid
     xfr << "SNAP_CREATE "
         << tm_mad << " "
         << vm->get_hostname() << ":"
-        << parent << " "
+        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << parent_id << " "
         << snap_id << " "
         << vm->get_oid() << " "
         << ds_id

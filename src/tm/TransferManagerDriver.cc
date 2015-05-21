@@ -147,6 +147,10 @@ void TransferManagerDriver::protocol(const string& message) const
                     lcm_action = LifeCycleManager::DETACH_SUCCESS;
                     break;
 
+                case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                    lcm_action = LifeCycleManager::DISK_SNAPSHOT_SUCCESS;
+                    break;
+
                 default:
                     goto error_state;
             }
