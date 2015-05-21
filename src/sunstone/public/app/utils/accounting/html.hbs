@@ -1,0 +1,112 @@
+<div class="row">
+  <div id="acct_start_time_container" class="left columns">
+    <label for="acct_start_time">{{tr "Start time"}}</label>
+    <input id="acct_start_time" type="date" placeholder="2013-06-30"/>
+  </div>
+  <div id="acct_end_time_container" class="left columns">
+    <label for="acct_end_time">{{tr "End time"}}</label>
+    <input id="acct_end_time" type="date" placeholder="2013-12-30"/>
+  </div>
+  <div id="acct_group_by_container" class="left columns">
+    <label for="acct_group_by">{{tr "Group by"}}</label>
+    <select id="acct_group_by" name="acct_group_by">
+      <option value="user">{{tr "User"}}</option>
+      <option value="group">{{tr "Group"}}</option>
+      <option value="vm">{{tr "VM"}}</option>
+    </select>
+  </div>
+  <div id="acct_owner_container" class="left columns">
+    <label for="acct_owner">{{tr "Filter"}}</label>
+    <div class="row">
+      <div class="large-5 columns">
+        <select id="acct_owner" name="acct_owner">
+          <option value="acct_owner_all">{{tr "All"}}</option>
+          <option value="acct_owner_group">{{tr "Group"}}</option>
+          <option value="acct_owner_user">{{tr "User"}}</option>
+        </select>
+      </div>
+      <div class="large-7 columns">
+        <div id="acct_owner_select"/>
+      </div>
+    </div>
+  </div>
+  <div id="acct_button_container" class="left columns" style="margin-top: 15px">
+    <button class="button radius success large-12" id="acct_submit" type="button">
+      {{tr "Get Accounting"}}
+    </button>
+  </div>
+</div>
+<br>
+<div id="acct_placeholder">
+  <div class="row">
+    <div class="large-8 large-centered columns">
+      <div class="text-center">
+        <span class="fa-stack fa-5x" style="color: #dfdfdf">
+          <i class="fa fa-cloud fa-stack-2x"></i>
+          <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse"></i>
+        </span>
+        <div id="acct_no_data" class="hidden">
+          <br>
+          <p style="font-size: 18px; color: #999">
+            {{tr "There are no accounting records"}}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="acct_content" class="hidden">
+  <div class="row">
+    <div class="large-12 columns graph_legend">
+      <h3 class="subheader"><small>{{tr "CPU hours"}}</small></h3>
+    </div>
+    <div class="large-12 columns">
+      <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 200px;">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns graph_legend">
+      <h3 class="subheader"><small>{{tr "Memory GB hours"}}</small></h3>
+    </div>
+    <div class="large-12 columns">
+      <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 200px;">
+      </div>
+    </div>
+  </div>
+  <br>
+  {{#advancedSection (tr "Accounting Tables") }}
+    <div class="row acct_table">
+      <div class="large-12 columns graph_legend">
+        <h3 class="subheader"><small>{{tr "CPU hours"}}</small></h3>
+      </div>
+      <div class="large-12 columns" style="overflow:auto">
+        <table id="acct_cpu_datatable" class="datatable twelve">
+          <thead>
+            <tr>
+              <th>{{tr "Date"}}</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_acct_cpu_datatable">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row acct_table">
+      <div class="large-12 columns graph_legend">
+        <h3 class="subheader"><small>{{tr "Memory GB hours"}}</small></h3>
+      </div>
+      <div class="large-12 columns" style="overflow:auto">
+        <table id="acct_mem_datatable" class="datatable twelve">
+          <thead>
+            <tr>
+              <th>{{tr "Date"}}</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_acct_mem_datatable">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {{/advancedSection}}
+</div>

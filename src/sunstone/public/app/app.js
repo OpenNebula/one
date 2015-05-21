@@ -30,5 +30,21 @@ define(function(require) {
 
   $(document).ready(function() {
     Sunstone.insertTabs();
+
+    _setupAccordion();
   });
+
+  function _setupAccordion() {
+    $(document).on("click", ".accordion_advanced > a", function() {
+      if ($(this).hasClass("active")){
+        $(this).removeClass("active");
+      } else {
+        $(this).addClass("active");
+      }
+
+      $(this).closest(".accordion_advanced").children(".content").toggle();
+
+      return false;
+    })
+  }
 });

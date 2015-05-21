@@ -44,7 +44,8 @@ require.config({
     'flot': '../bower_components/flot/jquery.flot',
     'flot.stack': '../bower_components/flot/jquery.flot.stack',
     'flot.resize': '../bower_components/flot/jquery.flot.resize',
-    'flot.time': '../bower_components/flot/jquery.flot.time'
+    'flot.time': '../bower_components/flot/jquery.flot.time',
+    'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip.min'
   },
   shim: {
     /* jQuery */
@@ -138,6 +139,9 @@ require.config({
       deps: ['flot']
     },
     'flot.time': {
+      deps: ['flot']
+    },
+    'flot.tooltip': {
       deps: ['flot']
     }
   }
