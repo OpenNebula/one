@@ -33,8 +33,9 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          {"bSortable": false, "aTargets": ["check"]},
+          {"bSortable": false, "aTargets": ["check",4,5,6] },
           {"sWidth": "35px", "aTargets": [0]},
+          {"sWidth": "150px", "aTargets": [4,5,6] },
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
