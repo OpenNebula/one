@@ -6,16 +6,16 @@ define(function(require) {
   var OpenNebulaNetwork = require('opennebula/network');
 
   var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "Network.create" : {
       type: "create",
       call: OpenNebulaNetwork.create,
       callback: function(request, response) {
-        Sunstone.getDialog(CREATE_DIALOG_ID).hide();
-        Sunstone.getDialog(CREATE_DIALOG_ID).reset();
-        DataTable.addElement(request, response);
+        $("a[href=back]", $("#"+TAB_ID)).trigger("click");
+        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: Notifier.onError,
       notify: true
@@ -24,7 +24,7 @@ define(function(require) {
     "Network.create_dialog" : {
       type: "custom",
       call: function(){
-        Sunstone.getDialog(CREATE_DIALOG_ID).show();
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
 
@@ -236,14 +236,12 @@ define(function(require) {
       notify: true
     },
 
-    // TODO: update
-    /*
     "Network.update_dialog" : {
       type: "custom",
       call: function(){
-        var selected_nodes = getSelectedNodes(dataTable_vNetworks);
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
         if ( selected_nodes.length != 1 ) {
-          notifyMessage("Please select one (and just one) Virtual Network to update.");
+          Notifier.notifyMessage("Please select one (and just one) Virtual Network to update.");
           return false;
         }
 
@@ -256,37 +254,26 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.show,
       callback: function(request, response) {
-        // TODO: global var, better use jquery .data
-        vnet_to_update_id = response.VNET.ID;
-
-        Sunstone.popUpFormPanel("create_vnet_form", "vnets-tab", "update", true, function(context){
-          fillVNetUpdateFormPanel(response.VNET, context);
-
-          $("#default_sg_warning").hide();
-        });
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", response.VNET);
       },
       error: Notifier.onError
     },
-    */
 
-    // TODO: update
-    /*
     "Network.update" : {
       type: "single",
       call: OpenNebulaNetwork.update,
       callback: function(request, response){
-        $("a[href=back]", $("#vnets-tab")).trigger("click");
-        popFormDialog("create_vnet_form", $("#vnets-tab"));
-
-        notifyMessage(tr("Virtual Network updated correctly"));
+        $("a[href=back]", $("#"+TAB_ID)).trigger("click");
+        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
+        Notifier.notifyMessage(tr("Virtual Network updated correctly"));
       },
       error: function(request, response){
-        popFormDialog("create_vnet_form", $("#vnets-tab"));
-
-        onError(request, response);
+        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
+        Notifier.onError(request, response);
       }
     },
-    */
+    
 
     "Network.update_template" : {
       type: "single",

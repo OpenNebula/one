@@ -7,9 +7,9 @@ define(function(require) {
   var TAB_ID = require('./vnets-tab/tabId');
   var DATATABLE_ID = "dataTableVNets";
 
-  var _dialogs = [
-    require('./vnets-tab/dialogs/create')
-  ];
+  //var _dialogs = [
+  //  require('./vnets-tab/dialogs/create')
+  //];
 
   var _panels = [
     require('./vnets-tab/panels/info'),
@@ -17,6 +17,10 @@ define(function(require) {
     require('./vnets-tab/panels/leases'),
     require('./vnets-tab/panels/secgroups')
   ];
+
+  var _formPanels = [
+    require('./vnets-tab/form-panels/create')
+  ]
 
   var VNetsTab = {
     tabId: TAB_ID,
@@ -32,7 +36,8 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
-    dialogs: _dialogs
+    formPanels: _formPanels,
+    //dialogs: _dialogs
   };
 
   return VNetsTab;
