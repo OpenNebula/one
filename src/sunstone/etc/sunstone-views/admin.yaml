@@ -84,7 +84,7 @@ tabs:
             group_quotas_tab: true
             group_providers_tab: true
             group_accounting_tab: true
-            group_shoback_tab: true
+            group_showback_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

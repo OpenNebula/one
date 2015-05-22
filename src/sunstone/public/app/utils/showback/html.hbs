@@ -1,0 +1,82 @@
+<div class="row">
+  <div id="showback_user_container" class="left medium-4 columns">
+    <label for="showback_user_select">{{tr "Filter by user"}}</label>
+    <div id="showback_user_select"/>
+  </div>
+  <div id="showback_group_container" class="left medium-4 columns">
+    <label for="showback_group_select">{{tr "Filter by group"}}</label>
+    <div id="showback_group_select"/>
+  </div>
+  <div id="showback_button_container" class="right medium-3 columns">
+    <button class="button radius success right large-12" id="showback_submit" type="button">
+      {{tr "Get Showback"}}
+    </button>
+  </div>
+</div>
+<div id="showback_placeholder">
+  <div class="row">
+    <div class="large-8 large-centered columns">
+      <div class="text-center">
+        <span class="fa-stack fa-5x" style="color: #dfdfdf">
+          <i class="fa fa-cloud fa-stack-2x"></i>
+          <i class="fa fa-money fa-stack-1x fa-inverse"></i>
+        </span>
+        <div id="showback_no_data" class="hidden">
+          <br>
+          <p style="font-size: 18px; color: #999">
+            {{tr "There are no showback records"}}
+          </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="showback_content" class="hidden">
+    <div class="row showback_table">
+      <div class="large-12 columns graph_legend">
+        <h3 class="subheader">{{tr "Showback"}}</h3>
+      </div>
+      <div class="large-6 columns" style="overflow:auto">
+        <table id="showback_datatable" class="datatable twelve">
+          <thead>
+            <tr>
+              <th>dateint</th>
+              <th>{{tr "Year"}}</th>
+              <th>{{tr "Month"}}</th>
+              <th>{{tr "Date"}}</th>
+              <th>{{tr "Cost"}}</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_showback_datatable">
+          </tbody>
+        </table>
+        <span class="label secondary radius showback_select_a_row">
+          {{tr "Select a row to get detailed information of the month"}}
+        </span>
+      </div>
+      <div class="large-6 columns">
+        <div class="large-12 columns centered graph" id="showback_graph" style="height: 200px;">
+        </div>
+      </div>
+    </div>
+    <div class="row showback_vms_table hidden">
+      <div class="large-12 columns graph_legend">
+        <h3 class="subheader" id="showback_vms_title">{{tr "VMs"}}</h3>
+      </div>
+      <div class="large-12 columns" style="overflow:auto">
+        <table id="showback_vms_datatable" class="datatable twelve">
+          <thead>
+            <tr>
+              <th>{{tr "ID"}}</th>
+              <th>{{tr "Name"}}</th>
+              <th>{{tr "Owner"}}</th>
+              <th>{{tr "Hours"}}</th>
+              <th>{{tr "Cost"}}</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_showback_datatable">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
