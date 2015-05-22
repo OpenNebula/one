@@ -7,6 +7,7 @@ define(function(require) {
     require('tabs/system-tab'),
     require('tabs/users-tab'),
     require('tabs/groups-tab'),
+    require('tabs/vdcs-tab'),
     require('tabs/vresources-tab'),
     require('tabs/images-tab'),
     require('tabs/infra-tab'),

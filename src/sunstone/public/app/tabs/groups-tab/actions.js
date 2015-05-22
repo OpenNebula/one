@@ -3,8 +3,9 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
-  var OpenNebulaGroup = require('opennebula/group');
+  var OpenNebulaResource = require('opennebula/group');
 
+  var RESOURCE = "Group";
   var TAB_ID = require('./tabId');
   // TODO
   //var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
@@ -12,7 +13,7 @@ define(function(require) {
   var _actions = {
     "Group.create" : {
       type: "create",
-      call: OpenNebulaGroup.create,
+      call: OpenNebulaResource.create,
       callback : function(request, response) {
         Sunstone.getDialog(CREATE_DIALOG_ID).hide();
         Sunstone.getDialog(CREATE_DIALOG_ID).reset();
@@ -31,7 +32,7 @@ define(function(require) {
 
     "Group.list" : {
       type: "list",
-      call: OpenNebulaGroup.list,
+      call: OpenNebulaResource.list,
       callback: function(request, response) {
         Sunstone.getDataTable(TAB_ID).updateView(request, response);
       },
@@ -40,7 +41,7 @@ define(function(require) {
 
     "Group.show" : {
       type: "single",
-      call: OpenNebulaGroup.show,
+      call: OpenNebulaResource.show,
       callback: function(request, response) {
         Sunstone.getDataTable(TAB_ID).updateElement(request, response);
         if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
@@ -55,10 +56,10 @@ define(function(require) {
       call: function() {
         var tab = $('#' + TAB_ID);
         if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction("Group.show", Sunstone.rightInfoResourceId(tab));
+          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
         } else {
           Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction("Group.list", {force: true});
+          Sunstone.runAction(RESOURCE+".list", {force: true});
         }
       },
       error: Notifier.onError
@@ -66,9 +67,9 @@ define(function(require) {
 
     "Group.update_template" : {
       type: "single",
-      call: OpenNebulaGroup.update,
+      call: OpenNebulaResource.update,
       callback: function(request) {
-        Sunstone.runAction('Group.show',request.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
       },
       error: Notifier.onError
     },
@@ -93,7 +94,7 @@ define(function(require) {
 
     "Group.delete" : {
       type: "multiple",
-      call : OpenNebulaGroup.del,
+      call : OpenNebulaResource.del,
       callback : function(request, response) {
         Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
       },
@@ -125,12 +126,12 @@ define(function(require) {
 
     "Group.set_quota" : {
       type: "multiple",
-      call: OpenNebulaGroup.set_quota,
+      call: OpenNebulaResource.set_quota,
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
       },
       callback: function(request) {
-        Sunstone.runAction('Group.show',request.request.data[0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError
     },
@@ -148,18 +149,18 @@ define(function(require) {
 
     "Group.add_admin" : {
       type: "single",
-      call : OpenNebulaGroup.add_admin,
+      call : OpenNebulaResource.add_admin,
       callback : function (req) {
-        Sunstone.runAction('Group.show',req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
       },
       error: Notifier.onError
     },
 
     "Group.del_admin" : {
       type: "single",
-      call : OpenNebulaGroup.del_admin,
+      call : OpenNebulaResource.del_admin,
       callback : function (req) {
-        Sunstone.runAction('Group.show',req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
       },
       error: Notifier.onError
     }

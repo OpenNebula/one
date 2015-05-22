@@ -3,8 +3,9 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
-  var OpenNebulaUser = require('opennebula/user');
+  var OpenNebulaResource = require('opennebula/user');
 
+  var RESOURCE = "User";
   var TAB_ID = require('./tabId');
   // TODO
   //var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
@@ -12,7 +13,7 @@ define(function(require) {
   var _actions = {
     "User.create" : {
       type: "create",
-      call: OpenNebulaUser.create,
+      call: OpenNebulaResource.create,
       callback : function(request, response) {
         Sunstone.getDialog(CREATE_DIALOG_ID).hide();
         Sunstone.getDialog(CREATE_DIALOG_ID).reset();
@@ -31,7 +32,7 @@ define(function(require) {
 
     "User.list" : {
       type: "list",
-      call: OpenNebulaUser.list,
+      call: OpenNebulaResource.list,
       callback: function(request, response) {
         Sunstone.getDataTable(TAB_ID).updateView(request, response);
       },
@@ -43,10 +44,10 @@ define(function(require) {
       call: function() {
         var tab = $('#' + TAB_ID);
         if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction("User.show", Sunstone.rightInfoResourceId(tab));
+          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
         } else {
           Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction("User.list", {force: true});
+          Sunstone.runAction(RESOURCE+".list", {force: true});
         }
       },
       error: Notifier.onError
@@ -60,16 +61,16 @@ define(function(require) {
 
     "User.passwd" : {
       type: "multiple",
-      call: OpenNebulaUser.passwd,
+      call: OpenNebulaResource.passwd,
       elements: userElements,
       error: onError
     },
     */
     "User.chgrp" : {
       type: "multiple",
-      call: OpenNebulaUser.chgrp,
+      call: OpenNebulaResource.chgrp,
       callback : function(req){
-        Sunstone.runAction("User.show",req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -79,18 +80,18 @@ define(function(require) {
     /* TODO
     "User.addgroup" : {
       type: "multiple",
-      call: OpenNebulaUser.addgroup,
+      call: OpenNebulaResource.addgroup,
       callback : function(req){
-        Sunstone.runAction("User.show",req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
       },
       elements : userElements,
       error: onError
     },
     "User.delgroup" : {
       type: "multiple",
-      call: OpenNebulaUser.delgroup,
+      call: OpenNebulaResource.delgroup,
       callback : function(req){
-        Sunstone.runAction("User.show",req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
       },
       elements : userElements,
       error: onError
@@ -101,9 +102,9 @@ define(function(require) {
     },
     "User.chauth" : {
       type: "multiple",
-      call: OpenNebulaUser.chauth,
+      call: OpenNebulaResource.chauth,
       callback : function(req){
-        Sunstone.runAction("User.show",req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
       },
       elements: userElements,
       error: onError
@@ -111,7 +112,7 @@ define(function(require) {
     */
     "User.show" : {
       type: "single",
-      call: OpenNebulaUser.show,
+      call: OpenNebulaResource.show,
       callback: function(request, response) {
         Sunstone.getDataTable(TAB_ID).updateElement(request, response);
         if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
@@ -123,7 +124,7 @@ define(function(require) {
 
     "User.delete" : {
       type: "multiple",
-      call : OpenNebulaUser.del,
+      call : OpenNebulaResource.del,
       callback : function(request, response) {
         Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
       },
@@ -135,9 +136,9 @@ define(function(require) {
 
     "User.update_template" : {
       type: "single",
-      call: OpenNebulaUser.update,
+      call: OpenNebulaResource.update,
       callback: function(request) {
-        Sunstone.runAction('User.show',request.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
       },
       error: Notifier.onError
     },
@@ -146,7 +147,7 @@ define(function(require) {
 
     "User.fetch_quotas" : {
       type: "single",
-      call: OpenNebulaUser.show,
+      call: OpenNebulaResource.show,
       callback: function (request,response) {
         populateQuotasDialog(
           response.USER,
@@ -165,19 +166,19 @@ define(function(require) {
  
     "User.set_quota" : {
       type: "multiple",
-      call: OpenNebulaUser.set_quota,
+      call: OpenNebulaResource.set_quota,
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
       },
       callback: function(request) {
-        Sunstone.runAction('User.show',request.request.data[0]);
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError
     },
     /* TODO
     "User.accounting" : {
       type: "monitor",
-      call: OpenNebulaUser.accounting,
+      call: OpenNebulaResource.accounting,
       callback: function(req,response) {
         var info = req.request.data[0].monitor;
         plot_graph(response,'#user_acct_tab','user_acct_', info);
