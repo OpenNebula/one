@@ -16,8 +16,7 @@ define(function(require) {
     "actions" : {},
     "dialogs" : {},
     "dialogInstances" : {},
-    "tabs" : {},
-    "form_panels" : {}
+    "tabs" : {}
   };
 
   var _addMainTab = function(tabObj) {
@@ -38,6 +37,11 @@ define(function(require) {
       var dialogs = tabObj.dialogs;
       if (dialogs) {
         _addDialogs(dialogs)
+      }
+
+      var formPanels = tabObj.formPanels;
+      if (formPanels) {
+        _addFormPanels(_tabId, formPanels)
       }
     }
   }
@@ -62,6 +66,16 @@ define(function(require) {
       indexedPanels[panel.PANEL_ID] = panel
     })
     SunstoneCfg["tabs"][tabId]['panels'] = indexedPanels;
+    return false;
+  }
+
+  var _addFormPanels = function(tabId, formPanels) {
+    var indexedFormPanels = {}
+    $.each(formPanels, function(index, formPanel) {
+      indexedFormPanels[formPanel.FORM_PANEL_ID] = formPanel
+    })
+    SunstoneCfg["tabs"][tabId]['formPanels'] = indexedFormPanels;
+    SunstoneCfg["tabs"][tabId]['formPanelInstances'] = {};
     return false;
   }
 
@@ -324,17 +338,12 @@ define(function(require) {
       $('.alwaysActive', actionBlock).attr('disabled', false);
 
       $('#' + customId + 'reset_button', actionBlock).on("click", function() {
-        var formName = $(".right-form", context).attr("form_name");
-        var initializeFunc = $(".right-form", context).data("initialize_func");
-        Sunstone.popUpFormPanel(formName, tabName, null, true, initializeFunc);
-
+        _resetFormPanel(tabName);
         return false;
       })
 
       $('#' + customId + 'submit_button', actionBlock).on("click", function() {
-        var formName = $(".right-form", context).attr("form_name");
-        Sunstone.submitFormPanel(formName, tabName);
-
+        _submitFormPanel(tabName);
         return false;
       })
 
@@ -552,7 +561,7 @@ define(function(require) {
             'html': panelInstance.html(),
             'active': active
           })
-        } catch(err) {
+        } catch (err) {
           console.log(err);
         }
 
@@ -679,71 +688,95 @@ define(function(require) {
     SunstoneCfg["form_panels"][formName] = formObj;
   }
 
-  var _popUpFormPanel = function(formName, selectedTab, action, reset, initalizeFunc) {
-    var context = $("#" + selectedTab);
-    popFormDialogLoading(context);
+  //function _showFormPanel(formName, selectedTab, action, reset, initalizeFunc) {
+  function _showFormPanel(tabId, formPanelId, action, resource) {
+    var context = $("#" + tabId);
+    _popFormPanelLoading(context);
 
-    var formObj = SunstoneCfg["form_panels"][formName];
+    var tab = SunstoneCfg["tabs"][tabId];
+    var formPanelInstance = tab["formPanelInstances"][formPanelId];
+    if (!formPanelInstance) {
+      // Create panelInstance, insert in the DOM and setup
+      var formPanel = tab["formPanels"][formPanelId];
+      if (!formPanel) { return false; } // Panel not defined
 
-    $(".right-form", context).data("initialize_func", initalizeFunc);
+      formPanelInstance = new formPanel();
+      tab["formPanelInstances"][formPanelId] = formPanelInstance;
+      formPanelInstance.insert(context);
+    }
 
-    $(".reset_button", context).show();
+    formPanelInstance.setAction(action);
+    tab["activeFormPanel"] = formPanelInstance;
 
-    if (formObj.advancedHtml) {
+    // Hide wizard/advanced selector if advanced not defined
+    if (formPanelInstance.htmlAdvanced) {
       $(".wizard_tabs", context).show();
     } else {
       $(".wizard_tabs", context).hide();
     }
 
-    if (action) {
-      $(".right-form-title", context).text(formObj["actions"][action]["title"]);
-      $(".submit_button", context).text(formObj["actions"][action]["submit_text"]);
-
-      if (formObj["actions"][action]["reset_button"] == false) {
-        $(".reset_button", context).hide();
-      }
+    // Hide reset button if not defined
+    var actionOptions = formPanelInstance.actions[action];
+    if (!actionOptions) { return false; } // Options for this action not defined
+    if (actionOptions.resetButton) {
+      $(".reset_button", context).show();
+    } else {
+      $(".reset_button", context).hide();
     }
 
-    setTimeout(function() {
-      if (reset) {
-        if (!action) {
-          action = $("#" + formName + "_wizard", context).attr("action")
-        }
+    // Set title and button strings
+    $(".right-form-title", context).text(actionOptions.title);
+    $(".submit_button", context).text(actionOptions.buttonText);
 
-        $("#advancedForms", context).empty();
-        $("#wizardForms", context).empty();
-      }
+    formPanelInstance.onShow(resource, context);
 
-      if ($("#" + formName + "_wizard", context).length == 0) {
-        $("#advancedForms", context).append(formObj.advancedHtml);
-        $("#wizardForms", context).append(formObj.wizardHtml);
-
-        formObj.setup(context)
-      }
-
-      if (initalizeFunc) {
-        initalizeFunc(context);
-      }
-
-      if (action) {
-        $("#" + formName + "_wizard", context).attr("action", action);
-        $("#" + formName + "_advanced", context).attr("action", action);
-      }
-
-      popFormDialog(formName, context);
-
-    }, 13)
+    _hideFormPanelLoading(context);
   }
 
-  var _submitFormPanel = function(formName, selectedTab) {
-    var context = $("#" + selectedTab);
-    popFormDialogLoading(context);
+  var _submitFormPanel = function(tabId) {
+    var context = $("#" + tabId);
+    _popFormPanelLoading(context);
+
+    var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
     if ($("#wizardForms.active", context).length > 0) {
-      $("#" + formName + "_wizard", context).submit();
+      $('#' + formPanelInstance.formPanelId + 'Wizard').submit();
     } else if ($("#advancedForms.active", context).length > 0) {
-      $("#" + formName + "_advanced", context).submit();
+      $('#' + formPanelInstance.formPanelId + 'Advanced').submit();
     }
+  }
+
+  var _resetFormPanel = function(tabId, formPanelId) {
+    var context = $("#" + tabId);
+    _popFormPanelLoading(context);
+
+    var formPanelInstance;
+    if (formPanelId) {
+      formPanelInstance = SunstoneCfg["tabs"][tabId][formPanelInstances][formPanelId];
+    } else {
+      formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
+    }
+
+    formPanelInstance.reset(context);
+    _hideFormPanelLoading(context);
+  }
+
+  function _hideFormPanelLoading(context) {
+    //$(".right-form", context).html(content);
+    $(".loadingForm", context).hide();
+    $(".tabs-contentForm", context).show();
+  }
+
+  function _popFormPanelLoading(context) {
+    $(".right-list", context).hide();
+    $(".right-info", context).hide();
+    $(".right-form", context).show();
+    $(".only-right-list", context).hide();
+    $(".only-right-info", context).hide();
+    $(".only-right-form", context).show();
+
+    $(".tabs-contentForm", context).hide();
+    $(".loadingForm", context).show();
   }
 
   var _getButton = function(tadId, buttonName) {
@@ -800,6 +833,10 @@ define(function(require) {
 
     'showTab': _showTab,
     "showElement" : _showElement,
+
+    "showFormPanel": _showFormPanel,
+    "resetFormPanel": _resetFormPanel,
+    "hideFormPanelLoading": _hideFormPanelLoading,
 
     "rightInfoVisible": _rightInfoVisible,
     "rightListVisible": _rightListVisible,
