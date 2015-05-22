@@ -1,0 +1,72 @@
+define(function(require) {
+  /*
+    DEPENDENCIES
+   */
+  
+  var Locale = require('utils/locale');
+  var GroupsTable = require('tabs/groups-tab/datatable');
+
+  /*
+    CONSTANTS
+   */
+
+  var PANEL_ID = require('./groups/panelId');
+  var GROUPS_TABLE_ID = PANEL_ID + "GroupsTable";
+  var RESOURCE = "Vdc";
+  var XML_ROOT = "VDC";
+
+  /*
+    CONSTRUCTOR
+   */
+
+  function Panel(info) {
+    this.title = Locale.tr("Groups");
+    this.icon = "fa-users";
+
+    this.element = info[XML_ROOT];
+
+    return this;
+  }
+
+  Panel.PANEL_ID = PANEL_ID;
+  Panel.prototype.html = _html;
+  Panel.prototype.setup = _setup;
+
+  return Panel;
+
+  /*
+    FUNCTION DEFINITIONS
+   */
+
+  function _html() {
+    var groups = [];
+
+    if (this.element.GROUPS.ID != undefined){
+      groups = this.element.GROUPS.ID;
+
+      if (!$.isArray(groups)){
+        groups = [groups];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: groups
+      }
+    };
+
+    this.groupsTable = new GroupsTable(GROUPS_TABLE_ID, opts);
+
+    return this.groupsTable.dataTableHTML;
+  }
+
+  function _setup(context) {
+    this.groupsTable.initialize();
+    this.groupsTable.refreshResourceTableSelect();
+
+    return false;
+  }
+});

@@ -11,7 +11,8 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./vdcs-tab/panels/info')
+    require('./vdcs-tab/panels/info'),
+    require('./vdcs-tab/panels/groups')
   ];
 
   var Tab = {
