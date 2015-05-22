@@ -87,6 +87,13 @@ define(function(require) {
         });
       }
 
+      that.selectOptions.starred_ids_map = {};
+      if (that.selectOptions.starred_ids != undefined) {
+        $.each(that.selectOptions.starred_ids, function() {
+          that.selectOptions.starred_ids_map[this] = true;
+        });
+      }
+
       if (that.selectOptions.multiple_choice == undefined) {
         that.selectOptions.multiple_choice = false;
       }
@@ -118,7 +125,6 @@ define(function(require) {
     'recountCheckboxes': _recountCheckboxes,
     'filter': _filter,
     'resetResourceTableSelect': _resetResourceTableSelect,
-    'retrieveResourceTableSelect': _retrieveResourceTableSelect,
     'refreshResourceTableSelect': _refreshResourceTableSelect,
     'selectResourceTableSelect': _selectResourceTableSelect,
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
@@ -832,13 +838,27 @@ define(function(require) {
         }
 
         if (add) {
-          list_array.push(that.elementArray(this));
+          var elementArray = that.elementArray(this);
+
+          if (that.selectOptions.starred_ids != undefined){
+            if (that.selectOptions.starred_ids_map[this[that.xmlRoot].ID]){
+              elementArray[that.selectOptions.name_index] =
+                  ('<i class="fa fa-star fa-fw"></i> ' +
+                    elementArray[that.selectOptions.name_index]);
+            } else {
+              elementArray[that.selectOptions.name_index] =
+                  ('<i class="fa fa-fw"></i> ' +
+                    elementArray[that.selectOptions.name_index]);
+            }
+          }
+
+          list_array.push(elementArray);
 
           delete fixed_ids_map[this[that.xmlRoot].ID];
         }
       });
 
-      var n_columns = that.columns.length + 1; // SET FOR EACH RESOURCE
+      var n_columns = that.columns.length + 1;
 
       $.each(fixed_ids_map, function(id, v) {
         var empty = [];
@@ -847,7 +867,7 @@ define(function(require) {
           empty.push("");
         }
 
-        empty[that.selectOptions.id_index] = id;  // SET FOR EACH RESOURCE, id_index
+        empty[that.selectOptions.id_index] = id;
 
         list_array.push(empty);
       });

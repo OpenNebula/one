@@ -81,8 +81,8 @@ tabs:
     groups-tab:
         panel_tabs:
             group_info_tab: true
+            group_users_tab: true
             group_quotas_tab: true
-            group_providers_tab: true
             group_accounting_tab: true
             group_showback_tab: true
         table_columns:

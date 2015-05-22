@@ -1,0 +1,22 @@
+{{#isTabActionEnabled "groups-tab" "Group.edit_admins"}}
+  <div class="row">
+    <div class="large-4 columns right">
+      <span>
+        <button class="button secondary small radius" id="edit_admins_button" style="width: 100%;">
+          <span class="fa fa-pencil-square-o"></span>{{tr "Edit administrators"}}
+        </button>
+        <button class="button alert small radius" id="cancel_admins_button" style="display: none">
+          {{tr "Cancel"}}
+        </button>
+        <button class="button success small radius" id="submit_admins_button" style="display: none">
+          {{tr "Apply"}}
+        </button>
+      </span>
+    </div>
+  </div>
+{{/isTabActionEnabled}}
+<div class="group_users_info_table">
+  {{{usersTableHTML}}}
+</div>
+
+

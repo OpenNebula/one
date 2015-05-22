@@ -124,8 +124,8 @@ define(function(require) {
     */
 
     "Group.set_quota" : {
-        type: "multiple",
-        call: OpenNebulaGroup.set_quota,
+      type: "multiple",
+      call: OpenNebulaGroup.set_quota,
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
       },
@@ -144,25 +144,25 @@ define(function(require) {
         },
         error: onError
     },
+    */
 
     "Group.add_admin" : {
-        type: "single",
-        call : OpenNebula.Group.add_admin,
-        callback : function (req) {
-            Sunstone.runAction('Group.show',req.request.data[0][0]);
-        },
-        error : onError
+      type: "single",
+      call : OpenNebulaGroup.add_admin,
+      callback : function (req) {
+        Sunstone.runAction('Group.show',req.request.data[0][0]);
+      },
+      error: Notifier.onError
     },
 
     "Group.del_admin" : {
-        type: "single",
-        call : OpenNebula.Group.del_admin,
-        callback : function (req) {
-            Sunstone.runAction('Group.show',req.request.data[0][0]);
-        },
-        error : onError
+      type: "single",
+      call : OpenNebulaGroup.del_admin,
+      callback : function (req) {
+        Sunstone.runAction('Group.show',req.request.data[0][0]);
+      },
+      error: Notifier.onError
     }
-    */
   };
 
   return _actions;
