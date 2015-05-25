@@ -20,6 +20,10 @@ define(function(require) {
     require('./hosts-tab/panels/esx')
   ];
 
+  var _formPanels = [
+    require('./hosts-tab/form-panels/create')
+  ]
+
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Hosts"),
@@ -37,6 +41,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     //dialogs: _dialogs
   };
 

@@ -1,0 +1,139 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="host_type">{{tr "Type"}}</label>
+      <select id="host_type_mad" name="host_type">
+        <option value="kvm">{{tr "KVM"}}</option>
+        <option value="xen">{{tr "XEN"}}</option>
+        <option value="vmware">{{tr "VMware"}}</option>
+        <option value="vcenter">{{tr "vCenter"}}</option>
+        <option value="az">{{tr "Microsoft Azure"}}</option>
+        <option value="ec2">{{tr "Amazon EC2"}}</option>
+        <option value="sl">{{tr "IBM Softlayer"}}</option>
+        <option value="dummy">{{tr "Dummy"}}</option>
+        <option value="custom">{{tr "Custom"}}</option>
+      </select>
+    </div>
+    <div class="large-6 columns" id="cluster_select">
+      <label for="host_cluster_id">{{tr "Cluster"}}</label>
+      <div id="host_cluster_id" name="host_cluster_id"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns" id="name_container">
+      <label for="name">{{tr "Hostname"}}</label>
+      <input type="text" name="name" id="name" />
+    </div>
+    <div class="large-6 columns">
+      <div class="manager clear row" id="vnm_mads">
+        <div class="large-12 columns">
+          <label for="vn">{{tr "Networking"}}</label>
+          <select id="vnm_mad" name="vn">
+            <option value="dummy">{{tr "Default (dummy)"}}</option>
+            <option value="fw">{{tr "Firewall"}}</option>
+            <option value="802.1Q">{{tr "802.1Q"}}</option>
+            <option value="vxlan">{{tr "VXLAN"}}</option>
+            <option value="ebtables">{{tr "ebtables"}}</option>
+            <option value="ovswitch">{{tr "Open vSwitch"}}</option>
+            <option value="vmware">{{tr "VMware"}}</option>
+            <option value="custom">{{tr "Custom"}}</option>
+          </select>
+        </div>
+        <div class="large-12 columns">
+          <label>{{tr "Custom VNM_MAD"}}</label>
+          <input type="text" name="custom_vnm_mad" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="drivers">
+    <fieldset>
+      <legend>{{tr "Drivers"}}</legend>
+      <div class="row">
+        <div class="large-6 columns">
+          <div class="manager clear row" id="vmm_mads">
+            <div class="large-12 columns">
+              <label for="vmm">{{tr "Virtualization"}}</label>
+              <select id="vmm_mad" name="vmm">
+                <option value="kvm">{{tr "KVM"}}</option>
+                <option value="xen">{{tr "XEN"}}</option>
+                <option value="vmware">{{tr "VMware"}}</option>
+                <option value="vcenter">{{tr "vCenter"}}</option>
+                <option value="az">{{tr "Microsoft Azure"}}</option>
+                <option value="ec2">{{tr "Amazon EC2"}}</option>
+                <option value="sl">{{tr "IBM Softlayer"}}</option>
+                <option value="dummy">{{tr "Dummy"}}</option>
+                <option value="custom">{{tr "Custom"}}</option>
+              </select>
+            </div>
+            <div class="large-12 columns">
+              <label>{{tr "Custom VMM_MAD"}}</label>
+              <input type="text" name="custom_vmm_mad" />
+            </div>
+          </div>
+        </div>
+        <div class="large-6 columns">
+          <div class="manager clear row" id="im_mads">
+            <div class="large-12 columns">
+              <label for="im">{{tr "Information"}}</label>
+              <select id="im_mad" name="im">
+                <option value="kvm">{{tr "KVM"}}</option>
+                <option value="xen">{{tr "XEN"}}</option>
+                <option value="vmware">{{tr "VMware"}}</option>
+                <option value="vcenter">{{tr "vCenter"}}</option>
+                <option value="az">{{tr "Microsoft Azure"}}</option>
+                <option value="ec2">{{tr "Amazon EC2"}}</option>
+                <option value="sl">{{tr "IBM Softlayer"}}</option>
+                <option value="dummy">{{tr "Dummy"}}</option>
+                <option value="custom">{{tr "Custom"}}</option>
+              </select>
+            </div>
+            <div class="large-12 columns">
+              <label>{{tr "Custom IM_MAD"}}:</label>
+              <input type="text" name="custom_im_mad" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="row vcenter_credentials hidden">
+    <fieldset>
+      <legend>{{tr "vCenter"}}</legend>
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="vcenter_user">{{tr "User"}}</label>
+          <input type="text" name="vcenter_user" id="vcenter_user" />
+        </div>
+        <div class="large-6 columns">
+          <label for="vcenter_host">{{tr "Hostname"}}</label>
+          <input type="text" name="vcenter_host" id="vcenter_host" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="vcenter_password">{{tr "Password"}}</label>
+          <input type="password" name="vcenter_password" id="vcenter_password" />
+        </div>
+        <div class="large-6 columns">
+          <br>
+          <a class="button radius small right" id="get_vcenter_clusters">{{tr "Get vCenter Clusters"}}</a>
+        </div>
+      </div>
+      <div class="vcenter_clusters"></div>
+      <br>
+      <div class="vcenter_templates"></div>
+      <br>
+      <br>
+      <div class="vcenter_vms"></div>
+      <br>
+      <div class="vcenter_networks"></div>
+      <div class="row import_vcenter_clusters_div hidden">
+        <div class="large-12 columns">
+          <br>
+          <a class="button radius small right success" id="import_vcenter_clusters">{{tr "Import"}}</a>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
