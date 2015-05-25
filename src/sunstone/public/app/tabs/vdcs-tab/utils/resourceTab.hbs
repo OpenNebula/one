@@ -1,0 +1,68 @@
+<div class="row">
+  <div class="large-12 columns">
+    <dl class="tabs right-info-tabs text-center" data-tab>
+      <dd class="active"><a href="#vdcClustersTab_{{unique_id}}"><i class="fa fa-th"></i><br>{{tr "Clusters"}}</a></dd>
+      <dd><a href="#vdcHostsTab_{{unique_id}}"><i class="fa fa-hdd-o"></i><br>{{tr "Hosts"}}</a></dd>
+      <dd><a href="#vdcVnetsTab_{{unique_id}}"><i class="fa fa-globe"></i><br>{{tr "VNets"}}</a></dd>
+      <dd><a href="#vdcDatastoresTab_{{unique_id}}"><i class="fa fa-folder-open"></i><br>{{tr "Datastores"}}</a></dd>
+    </dl>
+    <div class="tabs-content">
+      <div class="content active" id="vdcClustersTab_{{unique_id}}" class="content">
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="all_clusters_{{unique_id}}">
+              <input type="checkbox" name="all_clusters_{{unique_id}}" id="all_clusters_{{unique_id}}" />
+              {{tr "All"}}
+              <span class="tip">{{tr "Selects all current and future clusters"}}</span>
+            </label>
+          </div>
+        </div>
+        <div class="vdc_clusters_select">
+          {{{clustersTableHTML}}}
+        </div>
+      </div>
+      <div id="vdcHostsTab_{{unique_id}}" class="content">
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="all_hosts_{{unique_id}}">
+              <input type="checkbox" name="all_hosts_{{unique_id}}" id="all_hosts_{{unique_id}}" />
+              {{tr "All"}}
+              <span class="tip">{{tr "Selects all current and future hosts"}}</span>
+            </label>
+          </div>
+        </div>
+        <div class="vdc_hosts_select">
+          {{{hostsTableHTML}}}
+        </div>
+      </div>
+      <div id="vdcVnetsTab_{{unique_id}}" class="content">
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="all_vnets_{{unique_id}}">
+              <input type="checkbox" name="all_vnets_{{unique_id}}" id="all_vnets_{{unique_id}}" />
+              {{tr "All"}}
+              <span class="tip">{{tr "Selects all current and future vnets"}}</span>
+            </label>
+          </div>
+        </div>
+        <div class="vdc_vnets_select">
+          {{{vnetsTableHTML}}}
+        </div>
+      </div>
+      <div id="vdcDatastoresTab_{{unique_id}}" class="content">
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="all_datastores_{{unique_id}}">
+              <input type="checkbox" name="all_datastores_{{unique_id}}" id="all_datastores_{{unique_id}}" />
+              {{tr "All"}}
+              <span class="tip">{{tr "Selects all current and future datastores"}}</span>
+            </label>
+          </div>
+        </div>
+        <div class="vdc_datastores_select">
+          {{{datastoresTableHTML}}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
