@@ -52,6 +52,7 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.submitAdvanced = _submitAdvanced;
   FormPanel.prototype.onShow = _onShow;
+  FormPanel.prototype.fill = _fill;
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
@@ -250,7 +251,11 @@ define(function(require) {
     }
   }
 
-  function _onShow(element, context) {
+  function _onShow(context) {
+
+  }
+
+  function _fill(element, context) {
     if (this.action != "update") {return;}
     this.resourceId = element.ID;
 

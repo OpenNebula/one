@@ -13,17 +13,21 @@ define(function(require) {
       type: "create",
       call: OpenNebulaNetwork.create,
       callback: function(request, response) {
-        $("a[href=back]", $("#"+TAB_ID)).trigger("click");
-        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
+        $("a[href=back]", $("#" + TAB_ID)).trigger("click");
+        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
-      error: Notifier.onError,
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
+        Notifier.onError(request, response);
+      },
       notify: true
     },
 
     "Network.create_dialog" : {
       type: "custom",
-      call: function(){
+      call: function() {
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
@@ -52,7 +56,7 @@ define(function(require) {
       call: OpenNebulaNetwork.show,
       callback: function(request, response) {
         Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
+        if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
           Sunstone.insertPanels(TAB_ID, response);
         }
       },
@@ -113,7 +117,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.hold,
       callback: function(req) {
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
+        Sunstone.runAction("Network.show", req.request.data[0][0]);
       },
       error: Notifier.onError
     },
@@ -122,7 +126,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.release,
       callback: function(req) {
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
+        Sunstone.runAction("Network.show", req.request.data[0][0]);
       },
       error: Notifier.onError
     },
@@ -238,14 +242,14 @@ define(function(require) {
 
     "Network.update_dialog" : {
       type: "custom",
-      call: function(){
+      call: function() {
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if ( selected_nodes.length != 1 ) {
+        if (selected_nodes.length != 1) {
           Notifier.notifyMessage("Please select one (and just one) Virtual Network to update.");
           return false;
         }
 
-        var resource_id = ""+selected_nodes[0];
+        var resource_id = "" + selected_nodes[0];
         Sunstone.runAction("Network.show_to_update", resource_id);
       }
     },
@@ -255,7 +259,10 @@ define(function(require) {
       call: OpenNebulaNetwork.show,
       callback: function(request, response) {
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", response.VNET);
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(response.VNET)
+          });
       },
       error: Notifier.onError
     },
@@ -263,23 +270,22 @@ define(function(require) {
     "Network.update" : {
       type: "single",
       call: OpenNebulaNetwork.update,
-      callback: function(request, response){
-        $("a[href=back]", $("#"+TAB_ID)).trigger("click");
-        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
+      callback: function(request, response) {
+        $("a[href=back]", $("#" + TAB_ID)).trigger("click");
+        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
         Notifier.notifyMessage(tr("Virtual Network updated correctly"));
       },
-      error: function(request, response){
-        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
         Notifier.onError(request, response);
       }
     },
     
-
     "Network.update_template" : {
       type: "single",
       call: OpenNebulaNetwork.update,
       callback: function(request) {
-        Sunstone.runAction('Network.show',request.request.data[0][0]);
+        Sunstone.runAction('Network.show', request.request.data[0][0]);
       },
       error: Notifier.onError
     },

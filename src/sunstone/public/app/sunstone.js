@@ -689,7 +689,7 @@ define(function(require) {
   }
 
   //function _showFormPanel(formName, selectedTab, action, reset, initalizeFunc) {
-  function _showFormPanel(tabId, formPanelId, action, resource) {
+  function _showFormPanel(tabId, formPanelId, action, onShow2) {
     var context = $("#" + tabId);
     _popFormPanelLoading(context);
 
@@ -698,7 +698,10 @@ define(function(require) {
     if (!formPanelInstance) {
       // Create panelInstance, insert in the DOM and setup
       var formPanel = tab["formPanels"][formPanelId];
-      if (!formPanel) { return false; } // Panel not defined
+      if (!formPanel) { 
+        console.log("Form Panel not defined"); 
+        return false; 
+      } // Panel not defined
 
       formPanelInstance = new formPanel();
       tab["formPanelInstances"][formPanelId] = formPanelInstance;
@@ -728,7 +731,10 @@ define(function(require) {
     $(".right-form-title", context).text(actionOptions.title);
     $(".submit_button", context).text(actionOptions.buttonText);
 
-    formPanelInstance.onShow(resource, context);
+    formPanelInstance.onShow(context);
+    if (onShow2) {
+      onShow2(formPanelInstance, context);
+    }
 
     _hideFormPanelLoading(context);
   }
@@ -752,12 +758,16 @@ define(function(require) {
 
     var formPanelInstance;
     if (formPanelId) {
-      formPanelInstance = SunstoneCfg["tabs"][tabId][formPanelInstances][formPanelId];
+      formPanelInstance = SunstoneCfg["tabs"][tabId]['formPanelInstances'][formPanelId];
     } else {
       formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
     }
 
-    formPanelInstance.reset(context);
+    if (formPanelInstance) {
+      formPanelInstance.reset(context);
+      formPanelInstance.onShow(context);
+    }
+
     _hideFormPanelLoading(context);
   }
 
