@@ -3,6 +3,7 @@ define(function(require) {
   require('foundation.abide');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
+  var Sunstone = require('sunstone');
 
   function BaseFormPanel() {
     return this;
@@ -34,7 +35,7 @@ define(function(require) {
       if (e.namespace != 'abide.fndtn') { return; };
 
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-      // popFormDialog("create_vnet_form", $("#vnets-tab"));
+      Sunstone.hideFormPanelLoading(that.tabId);
     }).on('valid.fndtn.abide', '#' + that.formPanelId + 'Wizard', function(e) {
       // Fix for valid event firing twice
       if (e.namespace != 'abide.fndtn') { return; };
@@ -50,7 +51,7 @@ define(function(require) {
       if (e.namespace != 'abide.fndtn') { return; };
 
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
-      // popFormDialog("create_vnet_form", $("#vnets-tab"));
+      Sunstone.hideFormPanelLoading(that.tabId);
     }).on('valid.fndtn.abide', '#' + that.formPanelId + 'Advanced', function(e) {
       // Fix for valid event firing twice
       if (e.namespace != 'abide.fndtn') { return; };

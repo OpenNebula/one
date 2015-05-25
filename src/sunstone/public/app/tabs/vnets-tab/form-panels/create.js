@@ -21,6 +21,7 @@ define(function(require) {
    */
   
   var FORM_PANEL_ID = require('./create/formPanelId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -28,6 +29,7 @@ define(function(require) {
 
   function FormPanel() {
     this.formPanelId = FORM_PANEL_ID;
+    this.tabId = TAB_ID;
     this.actions = {
       'create': {
         'title': Locale.tr("Create Virtual Network"),

@@ -13,9 +13,8 @@ define(function(require) {
       type: "create",
       call : OpenNebulaHost.create,
       callback : function(request, response) {
-        $("a[href=back]", $("#"+TAB_ID)).trigger("click");
-        Sunstone.hideFormPanelLoading($("#"+TAB_ID));
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel($("#" + TAB_ID));
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: function(request, response) {

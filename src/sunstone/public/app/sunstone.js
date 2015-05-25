@@ -684,14 +684,9 @@ define(function(require) {
     return 0;
   }
 
-  var _addFormPanel = function(tadId, formName, formObj) {
-    SunstoneCfg["form_panels"][formName] = formObj;
-  }
-
-  //function _showFormPanel(formName, selectedTab, action, reset, initalizeFunc) {
   function _showFormPanel(tabId, formPanelId, action, onShow2) {
     var context = $("#" + tabId);
-    _popFormPanelLoading(context);
+    _popFormPanelLoading(tabId);
 
     var tab = SunstoneCfg["tabs"][tabId];
     var formPanelInstance = tab["formPanelInstances"][formPanelId];
@@ -736,12 +731,12 @@ define(function(require) {
       onShow2(formPanelInstance, context);
     }
 
-    _hideFormPanelLoading(context);
+    _hideFormPanelLoading(tabId);
   }
 
   var _submitFormPanel = function(tabId) {
     var context = $("#" + tabId);
-    _popFormPanelLoading(context);
+    _popFormPanelLoading(tabId);
 
     var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
@@ -754,7 +749,7 @@ define(function(require) {
 
   var _resetFormPanel = function(tabId, formPanelId) {
     var context = $("#" + tabId);
-    _popFormPanelLoading(context);
+    _popFormPanelLoading(tabId);
 
     var formPanelInstance;
     if (formPanelId) {
@@ -768,16 +763,23 @@ define(function(require) {
       formPanelInstance.onShow(context);
     }
 
-    _hideFormPanelLoading(context);
+    _hideFormPanelLoading(tabId);
   }
 
-  function _hideFormPanelLoading(context) {
+  function _hideFormPanelLoading(tabId) {
+    var context = $("#" + tabId);
     //$(".right-form", context).html(content);
     $(".loadingForm", context).hide();
     $(".tabs-contentForm", context).show();
   }
 
-  function _popFormPanelLoading(context) {
+  function _hideFormPanel(tabId) {
+    var context = $("#" + tabId);
+    $("a[href=back]", context).trigger("click");
+  }
+
+  function _popFormPanelLoading(tabId) {
+    var context = $("#" + tabId);
     $(".right-list", context).hide();
     $(".right-info", context).hide();
     $(".right-form", context).show();
@@ -846,6 +848,7 @@ define(function(require) {
 
     "showFormPanel": _showFormPanel,
     "resetFormPanel": _resetFormPanel,
+    "hideFormPanel": _hideFormPanel,
     "hideFormPanelLoading": _hideFormPanelLoading,
 
     "rightInfoVisible": _rightInfoVisible,

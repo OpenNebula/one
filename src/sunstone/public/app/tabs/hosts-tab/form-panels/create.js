@@ -21,6 +21,7 @@ define(function(require) {
    */
   
   var FORM_PANEL_ID = require('./create/formPanelId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -28,6 +29,7 @@ define(function(require) {
 
   function FormPanel() {
     this.formPanelId = FORM_PANEL_ID;
+    this.tabId = TAB_ID;
     this.actions = {
       'create': {
         'title': Locale.tr("Create Host"),
@@ -498,21 +500,21 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
-    var name = $('#name', this).val();
+    var name = $('#name', context).val();
     if (!name) {
-      Sunstone.hideFormPanelLoading(context);
+      Sunstone.hideFormPanelLoading(this.tabId);
       Notifier.notifyError(Locale.tr("Host name missing!"));
       return false;
     }
 
-    var cluster_id = $('#host_cluster_id .resource_list_select', this).val();
+    var cluster_id = $('#host_cluster_id .resource_list_select', context).val();
     if (!cluster_id) cluster_id = "-1";
 
-    var vmm_mad = $('select#vmm_mad', this).val();
+    var vmm_mad = $('select#vmm_mad', context).val();
     vmm_mad = vmm_mad == "custom" ? $('input[name="custom_vmm_mad"]').val() : vmm_mad;
-    var im_mad = $('select#im_mad', this).val();
+    var im_mad = $('select#im_mad', context).val();
     im_mad = im_mad == "custom" ? $('input[name="custom_im_mad"]').val() : im_mad;
-    var vnm_mad = $('select#vnm_mad', this).val();
+    var vnm_mad = $('select#vnm_mad', context).val();
     vnm_mad = vnm_mad == "custom" ? $('input[name="custom_vnm_mad"]').val() : vnm_mad;
 
     var host_json = {

@@ -13,13 +13,12 @@ define(function(require) {
       type: "create",
       call: OpenNebulaNetwork.create,
       callback: function(request, response) {
-        $("a[href=back]", $("#" + TAB_ID)).trigger("click");
-        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: function(request, response) {
-        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
+        Sunstone.hideFormPanelLoading(TAB_ID);
         Notifier.onError(request, response);
       },
       notify: true
@@ -261,7 +260,7 @@ define(function(require) {
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
           function(formPanelInstance, context) {
-            formPanelInstance.fill(response.VNET)
+            formPanelInstance.fill(response.VNET, context)
           });
       },
       error: Notifier.onError
@@ -271,12 +270,12 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.update,
       callback: function(request, response) {
-        $("a[href=back]", $("#" + TAB_ID)).trigger("click");
-        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
         Notifier.notifyMessage(tr("Virtual Network updated correctly"));
       },
       error: function(request, response) {
-        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
+        Sunstone.hideFormPanelLoading(TAB_ID);
         Notifier.onError(request, response);
       }
     },
