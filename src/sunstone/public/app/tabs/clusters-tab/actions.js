@@ -161,7 +161,7 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
+
     "Cluster.update_template" : {
       type: "single",
       call: OpenNebulaResource.update,
