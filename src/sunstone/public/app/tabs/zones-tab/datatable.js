@@ -42,7 +42,16 @@ define(function(require) {
       Locale.tr("ID"),
       Locale.tr("Name"),
       Locale.tr("Endpoint"),
-    ]
+    ];
+
+    this.selectOptions = {
+      "id_index": 1,
+      "name_index": 2,
+      "select_resource": Locale.tr("Please select a Zone from the list"),
+      "you_selected": Locale.tr("You selected the following Zone:"),
+      "select_resource_multiple": Locale.tr("Please select one or more Zones from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following Zones:")
+    };
 
     TabDataTable.call(this);
   };

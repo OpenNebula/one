@@ -6,15 +6,13 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
-  var ProgressBar = require('utils/progress-bar');
-  var Utils = require('./utils/common');
 
   /*
     CONSTANTS
    */
 
-  var RESOURCE = "Network";
-  var XML_ROOT = "VNET";
+  var RESOURCE = "Cluster";
+  var XML_ROOT = "CLUSTER";
   var TAB_NAME = require('./tabId');
 
   /*
@@ -33,37 +31,32 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          {"bSortable": false, "aTargets": ["check"]},
+          {"bSortable": false, "aTargets": ["check"] },
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
-    }
+    };
 
     this.columns = [
       Locale.tr("ID"),
-      Locale.tr("Owner"),
-      Locale.tr("Group"),
       Locale.tr("Name"),
-      Locale.tr("Reservation"),
-      Locale.tr("Cluster"),
-      Locale.tr("Bridge"),
-      Locale.tr("Leases"),
-      Locale.tr("VLAN ID")
+      Locale.tr("Hosts"),
+      Locale.tr("VNets"),
+      Locale.tr("Datastores")
     ];
 
     this.selectOptions = {
       "id_index": 1,
-      "name_index": 4,
-      "uname_index": 2,
-      "select_resource": Locale.tr("Please select a network from the list"),
-      "you_selected": Locale.tr("You selected the following network:"),
-      "select_resource_multiple": Locale.tr("Please select one or more networks from the list"),
-      "you_selected_multiple": Locale.tr("You selected the following networks:")
+      "name_index": 2,
+      "select_resource": Locale.tr("Please select a Cluster from the list"),
+      "you_selected": Locale.tr("You selected the following Cluster:"),
+      "select_resource_multiple": Locale.tr("Please select one or more clusters from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following clusters:")
     };
 
     TabDataTable.call(this);
-  };
+  }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
@@ -78,30 +71,25 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    // TODO: used by the dashboard
-    //addresses_vnets = addresses_vnets + parseInt(network.USED_LEASES);
-
-    var total_size = 0;
-
-    var arList = Utils.getARList(element);
-
-    $.each(arList, function(){
-      total_size += parseInt(this.SIZE);
-    });
-
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
+      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
                            element.ID + '"/>',
       element.ID,
-      element.UNAME,
-      element.GNAME,
       element.NAME,
-      element.PARENT_NETWORK_ID.length ? Locale.tr("Yes") : Locale.tr("No"),
-      element.CLUSTER.length ? element.CLUSTER : "-",
-      element.BRIDGE,
-      ProgressBar.html(element.USED_LEASES, total_size),
-      element.VLAN_ID.length ? element.VLAN_ID : "-"
+      _lengthOf(element.HOSTS.ID),
+      _lengthOf(element.VNETS.ID),
+      _lengthOf(element.DATASTORES.ID)
     ];
+  }
+
+  function _lengthOf(ids){
+    var l = 0;
+    if ($.isArray(ids))
+      l = ids.length;
+    else if (!$.isEmptyObject(ids))
+      l = 1;
+
+    return l;
   }
 });

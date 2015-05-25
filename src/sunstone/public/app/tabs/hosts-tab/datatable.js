@@ -15,7 +15,8 @@ define(function(require) {
     CONSTANTS
    */
   
-  var RESOURCE = "Host"
+  var RESOURCE = "Host";
+  var XML_ROOT = "HOST";
   var TAB_NAME = require('./tabId');
 
   /*
@@ -24,8 +25,10 @@ define(function(require) {
   
   function Table(dataTableId, conf) {
     this.conf = conf || {};
+    this.tabId = TAB_NAME;
     this.dataTableId = dataTableId;
     this.resource = RESOURCE;
+    this.xmlRoot = XML_ROOT;
 
     this.dataTableOptions = {
       "bAutoWidth": false,
@@ -52,7 +55,16 @@ define(function(require) {
       Locale.tr("IM MAD"),
       Locale.tr("VM MAD"),
       Locale.tr("Last monitored on")
-    ]
+    ];
+
+    this.selectOptions = {
+      "id_index": 1,
+      "name_index": 2,
+      "select_resource": Locale.tr("Please select a Host from the list"),
+      "you_selected": Locale.tr("You selected the following Host:"),
+      "select_resource_multiple": Locale.tr("Please select one or more hosts from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following hosts:")
+    };
 
     TabDataTable.call(this);
   };
