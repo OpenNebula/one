@@ -11,7 +11,10 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./clusters-tab/panels/info')
+    require('./clusters-tab/panels/info'),
+    require('./clusters-tab/panels/hosts'),
+    require('./clusters-tab/panels/vnets'),
+    require('./clusters-tab/panels/datastores')
   ];
 
   var Tab = {
