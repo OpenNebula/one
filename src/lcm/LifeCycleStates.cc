@@ -1721,13 +1721,40 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF )
     {
-        vm->log("LCM", Log::INFO, "VM Disk snapshot successfully taken.");
+        vm->log("LCM", Log::INFO, "VM disk snapshot successfully taken.");
 
         vm->clear_snapshot_disk();
 
         vmpool->update(vm);
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+    }
+    else if (vm->get_lcm_state()==VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF)
+    {
+        string disk_id, tm_mad, ds_id, snap_id, err;
+
+        if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
+        {
+            vm->log("LCM", Log::INFO, "Active disk snapshot not found.");
+        }
+        else
+        {
+            int isnap_id = strtol(snap_id.c_str(),NULL,0);
+            int idisk_id = strtol(disk_id.c_str(),NULL,0);
+
+            if (vm->revert_disk_snapshot(idisk_id, isnap_id, err)==-1)
+            {
+                vm->log("LCM", Log::INFO, "Error activating snapshot: " + err);
+            }
+        }
+
+        vm->log("LCM", Log::INFO, "VM disk snapshot successfully reverted.");
+
+        vm->clear_snapshot_disk();
+
+        vmpool->update(vm);
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
     }
     else
     {
@@ -1742,4 +1769,59 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
 void LifeCycleManager::disk_snapshot_failure(int vid)
 {
+    VirtualMachine *    vm;
+
+    vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if ( vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF )
+    {
+        string disk_id, tm_mad, ds_id, snap_id, err;
+
+        vm->log("LCM",Log::ERROR,"Error taking disk snapshot");
+
+        if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
+        {
+            vm->log("LCM", Log::INFO, "Active disk snapshot not found."
+                    " Remove failed snapshot manually.");
+        }
+        else
+        {
+            int isnap_id = strtol(snap_id.c_str(),NULL,0);
+            int idisk_id = strtol(disk_id.c_str(),NULL,0);
+
+            if (vm->delete_disk_snapshot(idisk_id, isnap_id, err) == -1)
+            {
+                vm->log("LCM", Log::INFO, "Error deleting snapshot: " + err
+                        + " Remove failed snapshot manually.");
+            }
+        }
+
+        vm->clear_snapshot_disk();
+
+        vmpool->update(vm);
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+    }
+    else if (vm->get_lcm_state()==VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF)
+    {
+        vm->log("LCM",Log::ERROR,"Could not revert to disk snapshot.");
+
+        vm->clear_snapshot_disk();
+
+        vmpool->update(vm);
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+    }
+    else
+    {
+        vm->log("LCM",Log::ERROR,"disk_snapshot_success, VM in a wrong state.");
+    }
+
+    vm->unlock();
 };
+

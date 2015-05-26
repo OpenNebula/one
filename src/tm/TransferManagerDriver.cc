@@ -148,6 +148,7 @@ void TransferManagerDriver::protocol(const string& message) const
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                     lcm_action = LifeCycleManager::DISK_SNAPSHOT_SUCCESS;
                     break;
 
@@ -207,6 +208,7 @@ void TransferManagerDriver::protocol(const string& message) const
                     break;
 
                 case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
                     lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
                     break;
 

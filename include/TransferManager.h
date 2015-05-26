@@ -61,6 +61,7 @@ public:
         DRIVER_CANCEL,
         SAVEAS_HOT,
         SNAPSHOT_CREATE,
+        SNAPSHOT_REVERT,
         SNAPSHOT_DELETE,
         FINALIZE
     };
@@ -329,9 +330,19 @@ private:
     void saveas_hot_action(int vid);
 
     /**
+     * This function performs a generic snapshot action
+     */
+    void do_snapshot_action(int vid, const char * action);
+
+    /**
      * This function takes an snapshot of a disk
      */
     void snapshot_create_action(int vid);
+
+    /**
+     * This function takes an snapshot of a disk
+     */
+    void snapshot_revert_action(int vid);
 
     /**
      * This function deletes an snapshot of a disk

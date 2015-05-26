@@ -143,6 +143,10 @@ void TransferManager::trigger(Actions action, int _vid)
         aname = "SNAPSHOT_CREATE";
         break;
 
+    case SNAPSHOT_REVERT:
+        aname = "SNAPSHOT_REVERT";
+        break;
+
     case SNAPSHOT_DELETE:
         aname = "SNAPSHOT_DELETE";
         break;
@@ -389,6 +393,10 @@ void TransferManager::do_action(const string &action, void * arg)
     else if (action == "SNAPSHOT_CREATE")
     {
         snapshot_create_action(vid);
+    }
+    else if (action == "SNAPSHOT_REVERT")
+    {
+        snapshot_revert_action(vid);
     }
     else if (action == "SNAPSHOT_DELETE")
     {
@@ -2209,7 +2217,7 @@ void TransferManager::migrate_transfer_command(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::snapshot_create_action(int vid)
+void TransferManager::do_snapshot_action(int vid, const char * snap_action)
 {
     string tm_mad;
     string ds_id;
@@ -2225,6 +2233,8 @@ void TransferManager::snapshot_create_action(int vid)
     VirtualMachine * vm;
 
     const TransferManagerDriver * tm_md;
+
+    Nebula& nd = Nebula::instance();
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -2243,7 +2253,7 @@ void TransferManager::snapshot_create_action(int vid)
         goto error_common;
     }
 
-    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, parent_id, snap_id) == -1)
+    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
     {
         vm->log("TM", Log::ERROR, "Could not get disk information to"
                 "take snapshot");
@@ -2265,12 +2275,11 @@ void TransferManager::snapshot_create_action(int vid)
         goto error_file;
     }
 
-    //SNAP_CREATE tm_mad host:remote_system_dir/disk.0 parentid snapid vmid dsid
-    xfr << "SNAP_CREATE "
+    //SNAP_CREATE tm_mad host:remote_system_dir/disk.0 snapid vmid dsid
+    xfr << snap_action << " "
         << tm_mad << " "
         << vm->get_hostname() << ":"
         << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-        << parent_id << " "
         << snap_id << " "
         << vm->get_oid() << " "
         << ds_id
@@ -2290,22 +2299,31 @@ error_driver:
 
 error_file:
     os << "disk_snapshot_create, could not open file: " << xfr_name;
-    os << ". You may need to manually clean hosts (previous & current)";
     goto error_common;
 
 error_common:
     vm->log("TM", Log::ERROR, os);
 
-//TODO    (nd.get_lcm())->trigger(LifeCycleManager::SAVEAS_HOT_FAILURE, vid);
+   (nd.get_lcm())->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
 
     vm->unlock();
     return;
+}
+
+void TransferManager::snapshot_create_action(int vid)
+{
+    return do_snapshot_action(vid, "SNAP_CREATE");
 };
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+void TransferManager::snapshot_revert_action(int vid)
+{
+    return do_snapshot_action(vid, "SNAP_REVERT");
+};
 
-void TransferManager::snapshot_delete_action(int vid){};
+void TransferManager::snapshot_delete_action(int vid)
+{
+    return do_snapshot_action(vid, "SNAP_DELETE");
+};
 
 /* ************************************************************************** */
 /* MAD Loading                                                                */

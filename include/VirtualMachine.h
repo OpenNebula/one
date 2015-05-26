@@ -156,7 +156,8 @@ public:
         BOOT_STOPPED_FAILURE    = 48,
         PROLOG_RESUME_FAILURE   = 49,
         PROLOG_UNDEPLOY_FAILURE = 50,
-        DISK_SNAPSHOT_POWEROFF  = 51
+        DISK_SNAPSHOT_POWEROFF  = 51,
+        DISK_SNAPSHOT_REVERT_POWEROFF = 52
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -213,6 +214,7 @@ public:
         else if ( st == "PROLOG_RESUME_FAILURE") { state = PROLOG_RESUME_FAILURE; }
         else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
         else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
+        else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF") { state = DISK_SNAPSHOT_REVERT_POWEROFF; }
         else {return -1;}
 
         return 0;
@@ -272,6 +274,7 @@ public:
             case PROLOG_RESUME_FAILURE: st = "PROLOG_RESUME_FAILURE"; break;
             case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
             case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
+            case DISK_SNAPSHOT_REVERT_POWEROFF: st = "DISK_SNAPSHOT_REVERT_POWEROFF"; break;
         }
 
         return st;
@@ -1523,20 +1526,36 @@ public:
     int revert_disk_snapshot(int disk_id, int snap_id, string& error);
 
     /**
+     *  Deletes the snap_id, the snapshot cannot be the current (active) one
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot. It can be 0 to revert to the original
+     *    disk
+     *    @param error if any
+     *    @return -1 if error
+     */
+    int delete_disk_snapshot(int disk_id, int snap_id, string& error);
+
+    /**
      *  Get information about the disk to take the snapshot from
      *    @param ds_id id of the datastore
      *    @param tm_mad used by the datastore
      *    @param disk_id of the disk
-     *    @param parent_id to take the snapshot from
      *    @param snap_id of the snapshot
      */
-    int get_snapshot_disk(string& ds_id, string& tm_mad,
-        string& disk_id, string& parent_id, string& snap_id);
+    int get_snapshot_disk(string& ds_id, string& tm_mad, string& disk_id,
+            string& snap_id);
+    /**
+     *  Unset the current disk being snapshotted (reverted...)
+     */
+    void clear_snapshot_disk();
 
     /**
-     *  Unset the current disk being snapshotted
+     *  Set the disk as being snapshotted (reverted...)
+     *    @param disk_id of the disk
+     *    @param snap_id of the target snap_id
      */
-    void  clear_snapshot_disk();
+    int set_snapshot_disk(int disk_id, int snap_id);
+
     // ------------------------------------------------------------------------
     // Snapshot related functions
     // ------------------------------------------------------------------------

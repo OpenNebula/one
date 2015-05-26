@@ -80,8 +80,10 @@ public:
     /**
      *  Removes the snapshot from the list
      *    @param id of the snapshot
+     *    @param error if any
+     *    @return 0 on success -1 otherwise
      */
-    int delete_snapshot(unsigned int id);
+    int delete_snapshot(unsigned int id, string& error);
 
     /**
      *  Set the given snapshot as active. Updates the values of the current

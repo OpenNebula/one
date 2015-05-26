@@ -4164,6 +4164,25 @@ int VirtualMachine::get_public_cloud_hypervisors(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::set_snapshot_disk(int did, int snap_id)
+{
+    VectorAttribute * disk;
+
+    disk = get_disk(did);
+
+    if ( disk == 0 )
+    {
+        return -1;
+    }
+
+    disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
+    disk->replace("DISK_SNAPSHOT_ID", snap_id);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachine::clear_snapshot_disk()
 {
     int                  num_disks;
@@ -4193,7 +4212,7 @@ void VirtualMachine::clear_snapshot_disk()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
-        string& disk_id, string& parent_id, string& snap_id)
+        string& disk_id, string& snap_id)
 {
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
@@ -4228,17 +4247,12 @@ int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
                 return -1;
             }
 
-            tm_mad    = disk->vector_value("TM_MAD");
-            ds_id     = disk->vector_value("DATASTORE_ID");
-            disk_id   = disk->vector_value("DISK_ID");
-            snap_id   = disk->vector_value("DISK_SNAPSHOT_ID");
+            tm_mad  = disk->vector_value("TM_MAD");
+            ds_id   = disk->vector_value("DATASTORE_ID");
+            disk_id = disk->vector_value("DISK_ID");
+            snap_id = disk->vector_value("DISK_SNAPSHOT_ID");
 
-            int isnap_id = strtol(snap_id.c_str(),NULL,0);
-
-            parent_id =it->second->get_snapshot_attribute(isnap_id,"PARENT_ID");
-
-            if (parent_id.empty() || snap_id.empty() || tm_mad.empty()
-                    || ds_id.empty() || disk_id.empty())
+            if (snap_id.empty()||tm_mad.empty()||ds_id.empty()||disk_id.empty())
             {
                 return -1;
             }
@@ -4267,7 +4281,6 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
         error = "DISK does not exists";
         return -1;
     }
-
 
     it = snapshots.find(did);
 
@@ -4311,15 +4324,50 @@ int VirtualMachine::revert_disk_snapshot(int did, int snap_id, string& error)
 
     it = snapshots.find(did);
 
-    if ( it == snapshots.end() && snap_id != 0 )
+    if (it == snapshots.end())
     {
         error = "Snapshot does not exists";
         return -1;
     }
-    else if ( it != snapshots.end() )
+    else
     {
         rc = it->second->active_snapshot(snap_id, error);
     }
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::delete_disk_snapshot(int did, int snap_id, string& error)
+{
+    map<int, Snapshots *>::iterator it;
+    int rc;
+
+    VectorAttribute * disk;
+    string source;
+
+    disk = get_disk(did);
+
+    if ( disk == 0 )
+    {
+        error = "DISK does not exists";
+        return -1;
+    }
+
+    it = snapshots.find(did);
+
+    if (it == snapshots.end())
+    {
+        error = "Snapshot does not exists";
+        return -1;
+    }
+    else
+    {
+        rc = it->second->delete_snapshot(snap_id, error);
+    }
+
+    return rc;
+}
+

@@ -18,8 +18,8 @@
 
 Snapshots::Snapshots(int _disk_id):
     snapshot_template(false,'=',"SNAPSHOTS"),
-    next_snapshot(1),
-    active(0),
+    next_snapshot(0),
+    active(-1),
     disk_id(_disk_id)
 {
     snapshot_template.add("DISK_ID",_disk_id);
@@ -104,12 +104,13 @@ int Snapshots::create_snapshot(const string& tag)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::delete_snapshot(unsigned int id)
+int Snapshots::delete_snapshot(unsigned int id, string& error)
 {
     VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot == 0)
     {
+        error = "Snapshot does not exists";
         return -1;
     }
 
@@ -119,6 +120,7 @@ int Snapshots::delete_snapshot(unsigned int id)
 
     if (current)
     {
+        error = "Cannot delete the active snapshot";
         return -1;
     }
 

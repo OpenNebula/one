@@ -1643,9 +1643,6 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::ACTIVE);
-    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
-
     snap_id = vm->new_disk_snapshot(did, tag, error_str);
 
     if (snap_id == -1)
@@ -1653,6 +1650,9 @@ int DispatchManager::disk_snapshot_create(
         vm->unlock();
         return -1;
     }
+
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
 
     vm->unlock();
 
@@ -1700,15 +1700,20 @@ int DispatchManager::disk_snapshot_revert(
         return -1;
     }
 
-    if (vm->revert_disk_snapshot(did, snap_id, error_str) == -1)
+    if (vm->set_snapshot_disk(did, snap_id) == -1)
     {
         vm->unlock();
         return -1;
     }
 
-    vm->unlock();
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF);
 
     vmpool->update(vm);
+
+    vm->unlock();
+
+    tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
 
     return 0;
 }

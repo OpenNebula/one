@@ -969,6 +969,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
             vm->clear_snapshot_disk();
             vmpool->update(vm);
 
@@ -1243,6 +1244,7 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
             lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
         break;
     }
@@ -1446,6 +1448,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
             break;
