@@ -13,9 +13,7 @@ define(function(require) {
 
   var _panels = [
     require('./templates-tab/panels/info'),
-    //require('./templates-tab/panels/ar'),
-    //require('./templates-tab/panels/leases'),
-    //require('./templates-tab/panels/secgroups')
+    require('./templates-tab/panels/template')
   ];
 
   /*var _formPanels = [

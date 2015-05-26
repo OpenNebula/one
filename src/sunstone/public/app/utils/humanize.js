@@ -7,7 +7,8 @@ define(function(require) {
     'size': _size,
     'sizeFromMB': _sizeFromMB,
     'prettyTime': _prettyTime,
-    'prettyTimeAxis': _prettyTimeAxis
+    'prettyTimeAxis': _prettyTimeAxis,
+    'prettyPrintJSON': _prettyPrintJSON
   }
 
   /*
@@ -103,5 +104,75 @@ define(function(require) {
         return day + "/" + month;
     else
         return hour + ":" + mins;
+  }
+
+  // Returns an HTML string with the json keys and values
+  // Attempts to css format output, giving different values to
+  // margins etc. according to depth level etc.
+  // See example of use in plugins.
+  function _prettyPrintJSON(template_json, padding, weight, border_bottom, padding_top_bottom) {
+    var str = ""
+    if (!template_json) { return "Not defined";}
+    if (!padding) {padding = 10};
+    if (!weight) {weight = "bold";}
+    if (!border_bottom) {border_bottom = "1px solid #efefef";}
+    if (!padding_top_bottom) {padding_top_bottom = 6;}
+    var field = null;
+
+    if (template_json.constructor == Array) {
+      for (field = 0; field < template_json.length; ++field) {
+        str += _prettyPrintRowJSON(field, template_json[field], padding, weight, border_bottom, padding_top_bottom);
+      }
+    } else {
+      for (field in template_json) {
+        str += _prettyPrintRowJSON(field, template_json[field], padding, weight, border_bottom, padding_top_bottom);
+      }
+    }
+    return str;
+  }
+
+  function _prettyPrintRowJSON(field, value, padding, weight, border_bottom, padding_top_bottom) {
+    var str = "";
+
+    if (typeof value == 'object') {
+      //name of field row
+      str += '<tr>\
+        <td class="key_td" style=\
+            "padding-left:' + padding + 'px;\
+             font-weight:' + weight + ';\
+             border-bottom:' + border_bottom + ';\
+             padding-top:' + padding_top_bottom + 'px;\
+             padding-bottom:' + padding_top_bottom + 'px;">' + 
+          field +
+        '</td>\
+        <td class="value_td" style=\
+            "border-bottom:' + border_bottom + ';\
+             padding-top:' + padding_top_bottom + 'px;\
+             padding-bottom:' + padding_top_bottom + 'px">\
+        </td>\
+      </tr>';
+      //attributes rows
+      //empty row - prettyprint - empty row
+      str += _prettyPrintJSON(value, padding + 25, "normal", "0", 1);
+    } else {
+      str += '<tr>\
+        <td class="key_td" style="\
+            padding-left:' + padding + 'px;\
+            font-weight:' + weight + ';\
+            border-bottom:' + border_bottom + ';\
+            padding-top:' + padding_top_bottom + 'px;\
+            padding-bottom:' + padding_top_bottom + 'px">' +
+          field +
+        '</td>\
+        <td class="value_td" style="\
+            border-bottom:' + border_bottom + ';\
+            padding-top:' + padding_top_bottom + 'px;\
+            padding-bottom:' + padding_top_bottom + 'px">' +
+          value +
+        '</td>\
+      </tr>';
+    };
+
+    return str;
   }
 })
