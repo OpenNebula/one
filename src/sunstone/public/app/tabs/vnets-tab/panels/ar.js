@@ -292,8 +292,6 @@ define(function(require) {
 
     delete ar["SECURITY_GROUPS"];
 
-    // TODO bug: extra attributes are not shown
-
     var arExtraAttr = ar;
 
     return TemplateARInfo({
