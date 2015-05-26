@@ -356,11 +356,18 @@ void OpenNebulaTemplate::set_conf_default()
 #*******************************************************************************
 # Auth Manager Configuration
 #*******************************************************************************
+# DEFAULT_AUTH
 # SESSION_EXPIRATION_TIME
 # ENABLE_OTHER_PERMISSIONS
 # DEFAULT_UMASK
 #*******************************************************************************
 */
+    // DEFAULT_AUTH
+    value = "default";
+
+    attribute = new SingleAttribute("DEFAULT_AUTH",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
     // SESSION_EXPIRATION_TIME
     value = "0";
 

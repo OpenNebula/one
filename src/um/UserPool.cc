@@ -736,11 +736,6 @@ bool UserPool::authenticate_external(const string&  username,
     //Initialize authentication request and call the driver
     nd.get_configuration_attribute("DEFAULT_AUTH",default_auth);
 
-    if (default_auth.empty())
-    {
-        default_auth = "default";
-    }
-
     ar.add_authenticate(default_auth, username,"-",token);
 
     authm->trigger(AuthManager::AUTHENTICATE, &ar);
