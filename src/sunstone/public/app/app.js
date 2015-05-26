@@ -10,6 +10,7 @@ define(function(require) {
     require('tabs/vdcs-tab'),
     require('tabs/vresources-tab'),
     require('tabs/images-tab'),
+    require('tabs/templates-tab'),
     require('tabs/infra-tab'),
     require('tabs/clusters-tab'),
     require('tabs/hosts-tab'),
