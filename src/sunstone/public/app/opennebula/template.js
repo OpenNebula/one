@@ -1,7 +1,7 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
 
-  var RESOURCE = "TEMPLATE";
+  var RESOURCE = "VMTEMPLATE";
 
   var Template = {
     "resource": RESOURCE,

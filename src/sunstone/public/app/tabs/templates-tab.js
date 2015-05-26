@@ -1,7 +1,7 @@
 define(function(require) {
   var Locale = require('utils/locale');
   var Buttons = require('./templates-tab/buttons');
-  //var Actions = require('./templates-tab/actions');
+  var Actions = require('./templates-tab/actions');
   var Table = require('./templates-tab/datatable');
 
   var TAB_ID = require('./templates-tab/tabId');
@@ -32,7 +32,7 @@ define(function(require) {
     subheader: '',
     resource: 'Template',
     buttons: Buttons,
-    //actions: Actions,
+    actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     //panels: _panels,
     //formPanels: _formPanels,
