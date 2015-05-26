@@ -36,7 +36,6 @@
 const char * UserPool::CORE_AUTH    = "core";
 const char * UserPool::SERVER_AUTH  = "server*";
 const char * UserPool::PUBLIC_AUTH  = "public";
-const char * UserPool::DEFAULT_AUTH = "default";
 
 const char * UserPool::SERVER_NAME  = "serveradmin";
 
@@ -248,7 +247,7 @@ error_no_open:
 
 erro_exists:
     oss << "Password file " << filenames[i] << " already exists "
-        << "but OpenNebula is boostraping the database. Check your " 
+        << "but OpenNebula is boostraping the database. Check your "
         << "database configuration in oned.conf.";
     goto error_common;
 
@@ -713,6 +712,7 @@ bool UserPool::authenticate_external(const string&  username,
     string mad_pass;
     string error_str;
     string tmp_str;
+    string default_auth;
 
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
@@ -734,7 +734,14 @@ bool UserPool::authenticate_external(const string&  username,
     }
 
     //Initialize authentication request and call the driver
-    ar.add_authenticate(UserPool::DEFAULT_AUTH, username,"-",token);
+    nd.get_configuration_attribute("DEFAULT_AUTH",default_auth);
+
+    if (default_auth.empty())
+    {
+        default_auth = "default";
+    }
+
+    ar.add_authenticate(default_auth, username,"-",token);
 
     authm->trigger(AuthManager::AUTHENTICATE, &ar);
     ar.wait();
