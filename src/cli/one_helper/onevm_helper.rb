@@ -966,7 +966,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :PARENT, "Snapshot Parent ID", :size=>6 do |d|
-                d["PARENT_ID"]
+                d["PARENT"]
+            end
+
+            column :CHILDREN, "Snapshot Children IDs", :size=>10 do |d|
+                d["CHILDREN"]
             end
 
             column :TAG, "Snapshot Tag", :left, :size=>45 do |d|
@@ -977,7 +981,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :DISK, :PARENT, :DATE, :TAG
+            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :TAG
         end
 
         # Convert snapshot data to an array

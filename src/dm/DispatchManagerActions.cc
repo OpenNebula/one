@@ -1654,9 +1654,9 @@ int DispatchManager::disk_snapshot_create(
     vm->set_state(VirtualMachine::ACTIVE);
     vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
 
-    vm->unlock();
-
     vmpool->update(vm);
+
+    vm->unlock();
 
     tm->trigger(TransferManager::SNAPSHOT_CREATE,vid);
 

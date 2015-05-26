@@ -4290,15 +4290,25 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 
         snap_id = snap->create_snapshot(tag);
 
-        snapshots.insert(pair<int, Snapshots *>(did, snap));
+		if (snap_id != -1)
+		{
+			snapshots.insert(pair<int, Snapshots *>(did, snap));
+		}
+		else
+		{
+			delete snap;
+		}
     }
     else
     {
         snap_id = it->second->create_snapshot(tag);
     }
 
-    disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
-    disk->replace("DISK_SNAPSHOT_ID", snap_id);
+	if (snap_id != -1)
+	{
+		disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
+		disk->replace("DISK_SNAPSHOT_ID", snap_id);
+	}
 
     return snap_id;
 }

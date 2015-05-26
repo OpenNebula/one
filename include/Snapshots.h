@@ -39,9 +39,8 @@ class VectorAttribute;
  *     <ID>
  *     <TAG>: Description
  *     <DATE>: the snapshot was taken
- *     <PARENT_ID>: backing for this snapshot, 0 for the original image
- *     <PARENT>: Opaque (driver specific) string representing the parent
- *     <SOURCE>: Opaque (driver specific) string representing the snapshot
+ *     <PARENT>: backing for this snapshot, -1 for the original image
+ *     <CHILDREN>: comma separated list of children snapshots
  */
 class Snapshots
 {

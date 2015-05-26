@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Snapshots.h"
+#include "NebulaUtil.h"
 
 Snapshots::Snapshots(int _disk_id):
     snapshot_template(false,'=',"SNAPSHOTS"),
@@ -91,7 +92,33 @@ int Snapshots::create_snapshot(const string& tag)
 
     snapshot->replace("ID", next_snapshot);
     snapshot->replace("DATE", static_cast<long long>(time(0)));
-    snapshot->replace("PARENT_ID", active);
+    snapshot->replace("PARENT", active);
+
+    if (active != -1)
+    {
+        VectorAttribute * parent = get_snapshot(active);
+
+        if (parent == 0)
+        {
+            delete snapshot;
+            return -1;
+        }
+
+        string children = parent->vector_value("CHILDREN");
+
+        if (children.empty())
+        {
+            parent->replace("CHILDREN", next_snapshot);
+        }
+        else
+        {
+            ostringstream oss;
+
+            oss << children << "," << next_snapshot;
+
+            parent->replace("CHILDREN", oss.str());
+        }
+    }
 
     snapshot_template.set(snapshot);
 
@@ -106,6 +133,10 @@ int Snapshots::create_snapshot(const string& tag)
 
 int Snapshots::delete_snapshot(unsigned int id, string& error)
 {
+    int    parent_id;
+    bool   current;
+    string children;
+
     VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot == 0)
@@ -114,14 +145,42 @@ int Snapshots::delete_snapshot(unsigned int id, string& error)
         return -1;
     }
 
-    bool current;
-
     snapshot->vector_value("ACTIVE", current);
 
     if (current)
     {
         error = "Cannot delete the active snapshot";
         return -1;
+    }
+
+    snapshot->vector_value("CHILDREN", children);
+
+    if (!children.empty())
+    {
+        error = "Cannot delete snapshot with children";
+        return -1;
+    }
+
+    snapshot->vector_value("PARENT", parent_id);
+
+    if (parent_id != -1)
+    {
+        set<int> child_set;
+
+        VectorAttribute * parent = get_snapshot(parent_id);
+
+        if (parent != 0)
+        {
+            children = parent->vector_value("CHILDREN");
+
+            one_util::split_unique(children, ',', child_set);
+
+            child_set.erase(id);
+
+            children = one_util::join(child_set.begin(), child_set.end(), ',');
+
+            parent->replace("CHILDREN", children);
+        }
     }
 
     snapshot_template.remove(snapshot);
@@ -140,7 +199,7 @@ int Snapshots::active_snapshot(unsigned int id, string& error)
 {
     VectorAttribute * snapshot;
 
-    if ( id == active )
+    if (static_cast<int>(id) == active)
     {
         return 0;
     }
