@@ -28,6 +28,7 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'vmware_driver'
+require 'vi_driver'
 
 #------------------------------------------------------------------------------
 # Wait the VM to shutdown TIMEOUT (xPOLL_INTERVAL) seconds.
@@ -39,12 +40,14 @@ TIMEOUT=300
 deploy_id = ARGV[0]
 host      = ARGV[1]
 
+VIDriver::initialize(host)
+
 vmware_drv = VMwareDriver.new(host)
 
 vmware_drv.shutdown(deploy_id)
 
 count=0
-while (vmware_drv.poll(deploy_id).match(/STATE=(.*)/)[1] != "d") do
+while (VIDriver::poll_vm(deploy_id).match(/STATE=(.*)/)[1] != "d") do
 	sleep POLL_INTERVAL
 	if count > TIMEOUT then
 	    OpenNebula.log_debug("Timeout reached and VM #{deploy_id} is still alive.")
