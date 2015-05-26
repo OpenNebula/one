@@ -145,18 +145,15 @@ int Snapshots::active_snapshot(unsigned int id, string& error)
         return 0;
     }
 
-    if ( id != 0 )
+    snapshot = get_snapshot(id);
+
+    if (snapshot == 0)
     {
-        snapshot = get_snapshot(id);
-
-        if (snapshot == 0)
-        {
-            error = "Snapshot does not exists";
-            return -1;
-        }
-
-        snapshot->replace("ACTIVE", true);
+        error = "Snapshot does not exists";
+        return -1;
     }
+
+    snapshot->replace("ACTIVE", true);
 
     snapshot = get_snapshot(active);
 

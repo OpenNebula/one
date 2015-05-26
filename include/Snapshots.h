@@ -131,7 +131,7 @@ private:
     /**
      * Id of the active (current) snapshot, 0 represents the base image
      */
-    unsigned int active;
+    int active;
 
     /**
      * Id of the disk associated with this snapshot list
