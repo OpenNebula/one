@@ -11,14 +11,14 @@ define(function(require) {
   //  require('./templates-tab/dialogs/create')
   //];
 
-  /*var _panels = [
+  var _panels = [
     require('./templates-tab/panels/info'),
-    require('./templates-tab/panels/ar'),
-    require('./templates-tab/panels/leases'),
-    require('./templates-tab/panels/secgroups')
+    //require('./templates-tab/panels/ar'),
+    //require('./templates-tab/panels/leases'),
+    //require('./templates-tab/panels/secgroups')
   ];
 
-  var _formPanels = [
+  /*var _formPanels = [
     require('./templates-tab/form-panels/create')
   ]*/
 
@@ -34,7 +34,7 @@ define(function(require) {
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    //panels: _panels,
+    panels: _panels,
     //formPanels: _formPanels,
     //dialogs: _dialogs
   };
