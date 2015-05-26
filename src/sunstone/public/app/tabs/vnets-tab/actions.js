@@ -272,7 +272,7 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.hideFormPanel(TAB_ID);
-        Notifier.notifyMessage(tr("Virtual Network updated correctly"));
+        Notifier.notifyMessage(Locale.tr("Virtual Network updated correctly"));
       },
       error: function(request, response) {
         Sunstone.hideFormPanelLoading(TAB_ID);

@@ -2,6 +2,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var TemplateHTML = require('hbs!./custom-tags');
+  var TemplateUtils = require('utils/template-utils');
 
   function _html(){
     return TemplateHTML();
@@ -48,39 +49,38 @@ define(function(require) {
 
     return template_json;
   }
-/*
-  // div is the container div of customTagsHtml()
+
+  // context is the container div of customTagsHtml()
   // template_json are the key:values that will be put into the table
-  function fillCustomTags(div, template_json){
-      $.each(template_json, function(key, value){
-          var table = $('#custom_tags', div)[0];
-          var rowCount = table.rows.length;
-          var row = table.insertRow(rowCount);
+  function _fillCustomTags(context, template_json){
+    $.each(template_json, function(key, value){
+      var table = $('#custom_tags', context)[0];
+      var rowCount = table.rows.length;
+      var row = table.insertRow(rowCount);
 
-          var cell1 = row.insertCell(0);
-          var element1 = document.createElement("input");
-          element1.id = "KEY";
-          element1.type = "text";
-          element1.value = htmlDecode(key);
-          cell1.appendChild(element1);
+      var cell1 = row.insertCell(0);
+      var element1 = document.createElement("input");
+      element1.id = "KEY";
+      element1.type = "text";
+      element1.value = TemplateUtils.htmlDecode(key);
+      cell1.appendChild(element1);
 
-          var cell2 = row.insertCell(1);
-          var element2 = document.createElement("input");
-          element2.id = "VALUE";
-          element2.type = "text";
-          element2.value = htmlDecode(value);
-          cell2.appendChild(element2);
+      var cell2 = row.insertCell(1);
+      var element2 = document.createElement("input");
+      element2.id = "VALUE";
+      element2.type = "text";
+      element2.value = TemplateUtils.htmlDecode(value);
+      cell2.appendChild(element2);
 
-
-          var cell3 = row.insertCell(2);
-          cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
-      });
+      var cell3 = row.insertCell(2);
+      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+    });
   }
-*/
 
   return {
     'html': _html,
     'setup': _setup,
-    'retrieve': _retrieveCustomTags
+    'retrieve': _retrieveCustomTags,
+    'fill': _fillCustomTags
   };
 });

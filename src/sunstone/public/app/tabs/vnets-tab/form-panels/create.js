@@ -11,6 +11,7 @@ define(function(require) {
   var CustomTags = require('utils/form-panels/custom-tags');
   var ArTab = require('tabs/vnets-tab/utils/ar-tab');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -285,7 +286,7 @@ define(function(require) {
       Sunstone.runAction("Network.create", network_json);
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("Network.update", this.resourceId, convert_template_to_string(network_json));
+      Sunstone.runAction("Network.update", this.resourceId, TemplateUtils.convert_template_to_string(network_json));
       return false;
     }
   }
@@ -314,7 +315,7 @@ define(function(require) {
 
     $("#default_sg_warning").hide();
     // Populates the Avanced mode Tab
-    // TODO $('#template',context).val(convert_template_to_string(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template',context).val(TemplateUtils.convert_template_to_string(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
 
     $('[wizard_field="NAME"]',context).val(
         element.NAME). //TODO escapeDoubleQuotes(htmlDecode( element.NAME ))).
@@ -334,23 +335,18 @@ define(function(require) {
     $('input#ip_spoofing,label[for="ip_spoofing"]',context).show().prop('wizard_field_disabled', false);
     $('input#mac_spoofing,label[for="mac_spoofing"]',context).show().prop('wizard_field_disabled', false);
 
-    /* TODO
     if (element.TEMPLATE["SECURITY_GROUPS"] != undefined &&
         element.TEMPLATE["SECURITY_GROUPS"].length != 0){
 
-        var secgroups = element.TEMPLATE["SECURITY_GROUPS"].split(",");
+      var secgroups = element.TEMPLATE["SECURITY_GROUPS"].split(",");
 
-        selectSecurityGroupTableSelect(
-                $("#vnetCreateSecurityTab", context),
-                "vnet_create",
-                { ids: secgroups });
-
+      this.securityGroupsTable.selectResourceTableSelect({ ids : secgroups });
     } else {
-        refreshSecurityGroupTableSelect(context, "vnet_create");
+      this.securityGroupsTable.refreshResourceTableSelect();
     }
 
     // Delete so these attributes don't end in the custom tags table also
-    delete element.TEMPLATE["SECURITY_GROUPS"];*/
+    delete element.TEMPLATE["SECURITY_GROUPS"];
 
     var fields = $('[wizard_field]', context);
 
@@ -361,7 +357,7 @@ define(function(require) {
         delete element.TEMPLATE[field_name];
     });
 
-    // TODO fillCustomTags($("#vnetCreateContextTab", context), element.TEMPLATE);
+    CustomTags.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
 
     // Remove the first AR added in initialize_
     $("#vnetCreateARTab i.remove-tab", context).trigger("click");
