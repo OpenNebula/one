@@ -196,7 +196,7 @@
         </div>
       </div>
       <div class="content" id="vnetCreateSecurityTab">
-        {{! TODO generateSecurityGroupTableSelect("vnet_create")}}
+        {{{securityGroupsTableHTML}}}
         <div class="row" id="default_sg_warning">
           <div class="large-12 columns">
             <span class="radius secondary label">
@@ -254,9 +254,10 @@
           <div class="large-12 columns">
             <span>{{tr "Custom attributes"}}</span>
             <br>
-            <br></div>
+            <br>
+          </div>
         </div>
-        {{! TODO customTagsHtml()}}
+        {{{customTagsHTML}}}
       </div>
     </div>
   </div>

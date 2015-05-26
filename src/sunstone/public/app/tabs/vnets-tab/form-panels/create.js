@@ -8,7 +8,10 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  
+  var CustomTags = require('utils/form-panels/custom-tags');
+  var ArTab = require('tabs/vnets-tab/utils/ar-tab');
+  var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
+
   /*
     TEMPLATES
    */
@@ -41,10 +44,10 @@ define(function(require) {
         'buttonText': Locale.tr("Update"),
         'resetButton': false
       }
-    }
+    };
 
     BaseFormPanel.call(this);
-  };
+  }
 
   FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
   FormPanel.prototype = Object.create(BaseFormPanel.prototype);
@@ -56,6 +59,7 @@ define(function(require) {
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.fill = _fill;
   FormPanel.prototype.setup = _setup;
+  FormPanel.prototype.add_ar_tab = _add_ar_tab;
 
   return FormPanel;
   
@@ -64,7 +68,19 @@ define(function(require) {
    */
 
   function _htmlWizard() {
-    return TemplateWizardHTML({formPanelId: this.formPanelId});
+    var opts = {
+      info: false,
+      select: true,
+      selectOptions: {"multiple_choice": true}
+    };
+
+    this.securityGroupsTable = new SecurityGroupsTable("vnet_create", opts);
+
+    return TemplateWizardHTML({
+      'formPanelId': this.formPanelId,
+      'customTagsHTML': CustomTags.html(),
+      'securityGroupsTableHTML': this.securityGroupsTable.dataTableHTML
+    });
   }
 
   function _htmlAdvanced() {
@@ -72,7 +88,20 @@ define(function(require) {
   }
 
   function _setup(context) {
+    this.arTabObjects = {};
+    var that = this;
+
     var number_of_ar = 0;
+
+    // add new ar tabs
+    $("#vnet_wizard_ar_btn", context).bind("click", function() {
+      that.add_ar_tab(number_of_ar, context);
+      number_of_ar++;
+
+      context.foundation();
+
+      return false;
+    });
 
     // close icon: removing the tab on click
     $("#vnetCreateARTab", context).on("click", "i.remove-tab", function() {
@@ -81,6 +110,8 @@ define(function(require) {
       var dl = $(this).closest('dl');
       var content = $(target);
 
+      var ar_id = content.attr("ar_id");
+
       dd.remove();
       content.remove();
 
@@ -88,14 +119,7 @@ define(function(require) {
         $('a', dl.children('dd').last()).click();
       }
 
-      return false;
-    });
-
-    $("#vnet_wizard_ar_btn", context).bind("click", function() {
-      // TODO add_ar_tab(number_of_ar, context);
-      number_of_ar++;
-
-      context.foundation();
+      delete that.arTabObjects[ar_id];
 
       return false;
     });
@@ -187,18 +211,46 @@ define(function(require) {
     //Initialize shown options
     $('#network_mode', context).trigger("change");
 
-    //TODO setupSecurityGroupTableSelect(context, "vnet_create", {"multiple_choice": true});
-    //TODO setupCustomTags($("#vnetCreateContextTab", context));
-    //
+    this.securityGroupsTable.initialize();
+    this.securityGroupsTable.refreshResourceTableSelect();
+
+    CustomTags.setup( $("#vnetCreateContextTab", context) );
+
     // Add first AR
-    //TODO $("#vnet_wizard_ar_btn", context).trigger("click");
+    $("#vnet_wizard_ar_btn", context).trigger("click");
 
     $(document).foundation('reflow', 'tab');
     Tips.setup();
     return false;
   }
 
+  function _add_ar_tab(ar_id, context) {
+    var str_ar_tab_id  = 'ar' + ar_id;
+
+    var ar_tab = new ArTab();
+    this.arTabObjects[ar_id] = ar_tab;
+
+    var html_tab_content =
+      '<div id="'+str_ar_tab_id+'Tab" class="ar_tab content" ar_id="'+ar_id+'">'+
+        ar_tab.html(str_ar_tab_id) +
+      '</div>';
+
+    // Append the new div containing the tab and add the tab to the list
+    var a = $("<dd><a id='ar_tab"+str_ar_tab_id+"' href='#"+str_ar_tab_id+"Tab'>"+
+        Locale.tr("Address Range")+" <i class='fa fa-times-circle remove-tab'></i></a></dd>"
+        ).appendTo($("dl#vnet_wizard_ar_tabs", context));
+
+    $(html_tab_content).appendTo($("#vnet_wizard_ar_tabs_content", context));
+
+    $("a", a).trigger("click");
+
+    var ar_section = $('#' + str_ar_tab_id + 'Tab', context);
+    ar_tab.setup(ar_section, str_ar_tab_id);
+  }
+
   function _submitWizard(context) {
+    var that = this;
+
     //Fetch values
     var network_json = {};
 
@@ -206,17 +258,16 @@ define(function(require) {
     this.retrieveWizardFields($("#vnetCreateBridgeTab", context), network_json);
     this.retrieveWizardFields($("#vnetCreateContextTab", context), network_json);
 
-    /* TODO
-    var secgroups = retrieveSecurityGroupTableSelect(context, "vnet_create");
+    var secgroups = this.securityGroupsTable.retrieveResourceTableSelect();
     if (secgroups != undefined && secgroups.length != 0) {
       network_json["SECURITY_GROUPS"] = secgroups.join(",");
-    }*/
+    }
 
-    // TODO retrieveCustomTags($("#vnetCreateContextTab", context), network_json);
+    $.extend(network_json, CustomTags.retrieve( $("#vnetCreateContextTab", context) ));
 
-    /* TODO
     $('.ar_tab', context).each(function() {
-      hash = retrieve_ar_tab_data(this);
+      var ar_id = $(this).attr("ar_id");
+      var hash = that.arTabObjects[ar_id].retrieve();
 
       if (!$.isEmptyObject(hash)) {
         if (!network_json["AR"])
@@ -224,7 +275,7 @@ define(function(require) {
 
         network_json["AR"].push(hash);
       }
-    });*/
+    });
 
     if (this.action == "create") {
       network_json = {

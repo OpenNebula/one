@@ -1,0 +1,71 @@
+<div class="row" name="str_ar_tab_id" str_ar_tab_id="{{str_ar_tab_id}}">
+  <div class="large-12 columns">
+    <input wizard_field="TYPE" type="radio" name="{{str_ar_tab_id}}_ar_type" id="{{str_ar_tab_id}}_ar_type_ip4" value="IP4"/><label for="{{str_ar_tab_id}}_ar_type_ip4">{{tr "IPv4"}}</label>
+    <input wizard_field="TYPE" type="radio" name="{{str_ar_tab_id}}_ar_type" id="{{str_ar_tab_id}}_ar_type_ip4_6" value="IP4_6"/><label for="{{str_ar_tab_id}}_ar_type_ip4_6">{{tr "IPv4/6"}}</label>
+    <input wizard_field="TYPE" type="radio" name="{{str_ar_tab_id}}_ar_type" id="{{str_ar_tab_id}}_ar_type_ip6" value="IP6"/><label for="{{str_ar_tab_id}}_ar_type_ip6">{{tr "IPv6"}}</label>
+    <input wizard_field="TYPE" type="radio" name="{{str_ar_tab_id}}_ar_type" id="{{str_ar_tab_id}}_ar_type_ether" value="ETHER"/><label for="{{str_ar_tab_id}}_ar_type_ether">{{tr "Ethernet"}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="large-6 columns">
+    <div class="row collapse ar_input type_ip4 type_ip4_6">
+      <label for="{{str_ar_tab_id}}_ip_start">{{tr "IP Start"}}:
+        <span class="tip">{{tr "First IP address"}}</span>
+      </label>
+      <input wizard_field="IP" type="text" name="IP" id="{{str_ar_tab_id}}_ip_start"/>
+    </div>
+    <div class="row collapse ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
+      <label for="{{str_ar_tab_id}}_mac_start">{{tr "MAC Start"}}:
+        <span class="tip">{{tr "First MAC address"}}</span>
+      </label>
+      <input wizard_field="MAC" type="text" name="MAC" id="{{str_ar_tab_id}}_mac_start" />
+    </div>
+  </div>
+  <div class="large-6 columns ar_input type_ip4 type_ip4_6 type_ip6 type_ether">
+    <label for="{{str_ar_tab_id}}_size">{{tr "Size"}}:
+      <span class="tip">{{tr "Number of addresses in the range"}}</span>
+    </label>
+    <input wizard_field="SIZE" required type="text" name="SIZE" id="{{str_ar_tab_id}}_size" />
+  </div>
+</div>
+<div class="row">
+  <div class="large-6 columns ar_input type_ip4_6 type_ip6">
+    <label for="{{str_ar_tab_id}}_global_prefix">{{tr "Global prefix"}}:
+      <span class="tip">{{tr "IPv6 global address prefix to create leases"}}</span>
+    </label>
+    <input wizard_field="GLOBAL_PREFIX" type="text" name="GLOBAL_PREFIX" id="{{str_ar_tab_id}}_global_prefix"/>
+  </div>
+  <div class="large-6 columns ar_input type_ip4_6 type_ip6">
+    <label for="{{str_ar_tab_id}}_ula_prefix">{{tr "ULA prefix"}}:
+      <span class="tip">{{tr "IPv6 unique local address (ULA) prefix to create leases"}}</span>
+    </label>
+    <input wizard_field="ULA_PREFIX" type="text" name="ULA_PREFIX" id="{{str_ar_tab_id}}_ula_prefix"/>
+  </div>
+</div>
+{{#advancedSection (tr "Advanced Options") }}
+  <div class="row">
+    <div class="large-12 columns">
+      <span>{{tr "Custom attributes"}}</span>
+      <br>
+      <br>
+    </div>
+  </div>
+  <div class="row" id="{{str_ar_tab_id}}_custom_tags">
+    <div class="12 columns">
+      {{{customTagsHTML}}}
+    </div>
+  </div>
+  <div class="row">
+    <br>
+    <br>
+    <hr>
+    <div class="large-12 columns">
+      <span>{{tr "Security Groups"}}</span>
+      <br>
+      <br>
+    </div>
+  </div>
+  <div class="row" id="{{str_ar_tab_id}}_security_groups">
+    {{{securityGroupsTableHTML}}}
+  </div>
+{{/advancedSection}}
