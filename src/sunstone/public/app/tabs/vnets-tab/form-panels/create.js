@@ -286,7 +286,7 @@ define(function(require) {
       Sunstone.runAction("Network.create", network_json);
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("Network.update", this.resourceId, TemplateUtils.convert_template_to_string(network_json));
+      Sunstone.runAction("Network.update", this.resourceId, TemplateUtils.templateToString(network_json));
       return false;
     }
   }
@@ -322,7 +322,7 @@ define(function(require) {
 
     $("#default_sg_warning").hide();
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.convert_template_to_string(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
 
     $('[wizard_field="NAME"]', context).val(
         element.NAME). //TODO escapeDoubleQuotes(htmlDecode( element.NAME ))).

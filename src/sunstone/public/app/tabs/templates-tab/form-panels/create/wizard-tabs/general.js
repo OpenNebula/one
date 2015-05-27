@@ -79,19 +79,19 @@ define(function(require) {
     var wizardTabContext = $('#' + this.wizardTabId, context); 
     Tips.setup(wizardTabContext);
 
-    context.on("change", "#LOGO", function() {
-      $("#template_create_logo", context).show();
-      $("#template_create_logo", context).html('<span  class="">' +
+    wizardTabContext.on("change", "#LOGO", function() {
+      $("#template_create_logo", wizardTabContext).show();
+      $("#template_create_logo", wizardTabContext).html('<span  class="">' +
           '<img src="' + $(this).val() + '">' +
         '</span>');
     });
 
-    context.on("change", "input[name='hypervisor']", function() {
+    wizardTabContext.on("change", "input[name='hypervisor']", function() {
       $(".hypervisor", context).hide();
       $(".only_" + this.value, context).show();
     });
 
-    CapacityInputs.setup(context);
+    CapacityInputs.setup(wizardTabContext);
   }
 
   function _retrieve(context) {
@@ -101,7 +101,7 @@ define(function(require) {
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["PUBLIC_CLOUD"] = {
         'TYPE': 'vcenter',
-        'VM_TEMPLATE': $("#vcenter_template_uuid", context).val()
+        'VM_TEMPLATE': $("#vcenter_template_uuid", wizardTabContext).val()
       }
     }
 

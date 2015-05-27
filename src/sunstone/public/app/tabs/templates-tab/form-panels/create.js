@@ -8,6 +8,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -146,6 +147,10 @@ define(function(require) {
     this.resourceId = element.ID;
 
     var templateJSON = element.TEMPLATE;
+
+    // Populates the Avanced mode Tab
+    $('#template', context).val(
+      TemplateUtils.templateToString(templateJSON).replace(/^[\r\n]+$/g, ""));
 
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.fill(context, templateJSON);

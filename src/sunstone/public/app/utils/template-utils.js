@@ -57,7 +57,7 @@ define(function(require) {
   }
 
   return {
-    'convert_template_to_string': _convert_template_to_string,
+    'templateToString': _convert_template_to_string,
     'htmlDecode': _htmlDecode
   };
 });
