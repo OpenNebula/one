@@ -10,7 +10,7 @@ define(function(require) {
     'show': _show,
     'hide': _hide,
     'reset': _reset,
-  }
+  };
 
   return BaseDialog;
 
@@ -27,26 +27,25 @@ define(function(require) {
     dialogElement.on('click', '.resetDialog', function() {
       that.reset();
       that.show();
-    })
+    });
 
-    return dialogElement;
+    that.dialogElement = dialogElement;
+
+    return that.dialogElement;
   }
 
   function _show() {
-    var dialogElement = $('#' + this.dialogId);
-    dialogElement.foundation('reveal', 'open');
+    this.dialogElement.foundation('reveal', 'open');
     return false;
   }
 
   function _hide() {
-    var dialogElement = $('#' + this.dialogId);
-    dialogElement.foundation('reveal', 'close')
+    this.dialogElement.foundation('reveal', 'close');
   }
 
   function _reset() {
-    var dialogElement = $('#' + this.dialogId);
-    dialogElement.remove();
-    dialogElement = this.insert();
+    this.dialogElement.remove();
+    this.dialogElement = this.insert();
     return false;
   }
 })
