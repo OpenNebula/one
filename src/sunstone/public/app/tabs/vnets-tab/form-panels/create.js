@@ -12,6 +12,7 @@ define(function(require) {
   var ArTab = require('tabs/vnets-tab/utils/ar-tab');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -215,7 +216,7 @@ define(function(require) {
     this.securityGroupsTable.initialize();
     this.securityGroupsTable.refreshResourceTableSelect();
 
-    CustomTags.setup( $("#vnetCreateContextTab", context) );
+    CustomTags.setup($("#vnetCreateContextTab", context));
 
     // Add first AR
     $("#vnet_wizard_ar_btn", context).trigger("click");
@@ -232,13 +233,13 @@ define(function(require) {
     this.arTabObjects[ar_id] = ar_tab;
 
     var html_tab_content =
-      '<div id="'+str_ar_tab_id+'Tab" class="ar_tab content" ar_id="'+ar_id+'">'+
+      '<div id="' + str_ar_tab_id + 'Tab" class="ar_tab content" ar_id="' + ar_id + '">' +
         ar_tab.html(str_ar_tab_id) +
       '</div>';
 
     // Append the new div containing the tab and add the tab to the list
-    var a = $("<dd><a id='ar_tab"+str_ar_tab_id+"' href='#"+str_ar_tab_id+"Tab'>"+
-        Locale.tr("Address Range")+" <i class='fa fa-times-circle remove-tab'></i></a></dd>"
+    var a = $("<dd><a id='ar_tab" + str_ar_tab_id + "' href='#" + str_ar_tab_id + "Tab'>" +
+        Locale.tr("Address Range") + " <i class='fa fa-times-circle remove-tab'></i></a></dd>"
         ).appendTo($("dl#vnet_wizard_ar_tabs", context));
 
     $(html_tab_content).appendTo($("#vnet_wizard_ar_tabs_content", context));
@@ -255,16 +256,16 @@ define(function(require) {
     //Fetch values
     var network_json = {};
 
-    this.retrieveWizardFields($("#vnetCreateGeneralTab", context), network_json);
-    this.retrieveWizardFields($("#vnetCreateBridgeTab", context), network_json);
-    this.retrieveWizardFields($("#vnetCreateContextTab", context), network_json);
+    $.extend(network_json, WizardFields.retrieve($("#vnetCreateGeneralTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vnetCreateBridgeTab", context)));
+    $.extend(network_json, WizardFields.retrieve($("#vnetCreateContextTab", context)));
 
     var secgroups = this.securityGroupsTable.retrieveResourceTableSelect();
     if (secgroups != undefined && secgroups.length != 0) {
       network_json["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
-    $.extend(network_json, CustomTags.retrieve( $("#vnetCreateContextTab", context) ));
+    $.extend(network_json, CustomTags.retrieve($("#vnetCreateContextTab", context)));
 
     $('.ar_tab', context).each(function() {
       var ar_id = $(this).attr("ar_id");
@@ -315,32 +316,32 @@ define(function(require) {
 
     $("#default_sg_warning").hide();
     // Populates the Avanced mode Tab
-    $('#template',context).val(TemplateUtils.convert_template_to_string(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+    $('#template', context).val(TemplateUtils.convert_template_to_string(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
 
-    $('[wizard_field="NAME"]',context).val(
+    $('[wizard_field="NAME"]', context).val(
         element.NAME). //TODO escapeDoubleQuotes(htmlDecode( element.NAME ))).
         prop("disabled", true).
         prop('wizard_field_disabled', true);
 
-    this.fillWizardFields($("#vnetCreateGeneralTab", context), element.TEMPLATE);
-    this.fillWizardFields($("#vnetCreateBridgeTab", context), element.TEMPLATE);
-    this.fillWizardFields($("#vnetCreateContextTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vnetCreateGeneralTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vnetCreateBridgeTab", context), element.TEMPLATE);
+    WizardFields.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
 
     // Show all network mode inputs, and make them not required. This will change
     // if a different network model is selected
-    $('input#bridge,label[for="bridge"]',context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#phydev,label[for="phydev"]',context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('select#vlan,label[for="vlan"]',context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#vlan_id,label[for="vlan_id"]',context).show().prop('wizard_field_disabled', false).removeAttr('required');
-    $('input#ip_spoofing,label[for="ip_spoofing"]',context).show().prop('wizard_field_disabled', false);
-    $('input#mac_spoofing,label[for="mac_spoofing"]',context).show().prop('wizard_field_disabled', false);
+    $('input#bridge,label[for="bridge"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
+    $('input#phydev,label[for="phydev"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
+    $('select#vlan,label[for="vlan"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
+    $('input#vlan_id,label[for="vlan_id"]', context).show().prop('wizard_field_disabled', false).removeAttr('required');
+    $('input#ip_spoofing,label[for="ip_spoofing"]', context).show().prop('wizard_field_disabled', false);
+    $('input#mac_spoofing,label[for="mac_spoofing"]', context).show().prop('wizard_field_disabled', false);
 
     if (element.TEMPLATE["SECURITY_GROUPS"] != undefined &&
-        element.TEMPLATE["SECURITY_GROUPS"].length != 0){
+        element.TEMPLATE["SECURITY_GROUPS"].length != 0) {
 
       var secgroups = element.TEMPLATE["SECURITY_GROUPS"].split(",");
 
-      this.securityGroupsTable.selectResourceTableSelect({ ids : secgroups });
+      this.securityGroupsTable.selectResourceTableSelect({ids : secgroups});
     } else {
       this.securityGroupsTable.refreshResourceTableSelect();
     }
@@ -350,11 +351,11 @@ define(function(require) {
 
     var fields = $('[wizard_field]', context);
 
-    fields.each(function(){
-        var field = $(this);
-        var field_name = field.attr('wizard_field');
+    fields.each(function() {
+      var field = $(this);
+      var field_name = field.attr('wizard_field');
 
-        delete element.TEMPLATE[field_name];
+      delete element.TEMPLATE[field_name];
     });
 
     CustomTags.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
