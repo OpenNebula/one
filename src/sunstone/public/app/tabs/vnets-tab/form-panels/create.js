@@ -316,7 +316,7 @@ define(function(require) {
     });
   }
 
-  function _fill(element, context) {
+  function _fill(context, element) {
     if (this.action != "update") {return;}
     this.resourceId = element.ID;
 

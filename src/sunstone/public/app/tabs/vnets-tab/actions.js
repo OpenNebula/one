@@ -261,7 +261,7 @@ define(function(require) {
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
           function(formPanelInstance, context) {
-            formPanelInstance.fill(response.VNET, context)
+            formPanelInstance.fill(context, response.VNET)
           });
       },
       error: Notifier.onError
