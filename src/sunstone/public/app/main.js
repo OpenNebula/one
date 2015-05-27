@@ -45,7 +45,10 @@ require.config({
     'flot.stack': '../bower_components/flot/jquery.flot.stack',
     'flot.resize': '../bower_components/flot/jquery.flot.resize',
     'flot.time': '../bower_components/flot/jquery.flot.time',
-    'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip.min'
+    'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip.min',
+
+    /* noUiSlider */
+    'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min'
   },
   shim: {
     /* jQuery */
@@ -143,7 +146,12 @@ require.config({
     },
     'flot.tooltip': {
       deps: ['flot']
-    }
+    },
+
+    /* noUiSlider */
+    'nouislider': {
+      deps: ['jquery']
+    },
   }
 });
 

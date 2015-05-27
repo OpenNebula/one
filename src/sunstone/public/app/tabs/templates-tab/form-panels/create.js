@@ -93,7 +93,7 @@ define(function(require) {
 
   function _setup(context) {
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.setup();
+      wizardTab.setup(context);
     });
 
     context.foundation('reflow', 'tab');
@@ -101,7 +101,7 @@ define(function(require) {
   }
 
   function _onShow() {
-
+    
   }
 
   function _submitWizard() {
