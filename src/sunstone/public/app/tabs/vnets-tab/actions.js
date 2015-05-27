@@ -4,6 +4,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
   var OpenNebulaNetwork = require('opennebula/network');
+  var OpenNebulaCluster = require('opennebula/cluster');
+  var OpenNebulaAction = require('opennebula/action');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -149,9 +151,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.rm_ar,
       callback: function(req) {
-        /* TODO
-        OpenNebula.Helper.clear_cache("VNET");
-        */
+        OpenNebulaAction.clear_cache("VNET");
         Sunstone.runAction("Network.show",req.request.data[0][0]);
       },
       error: Notifier.onError
@@ -184,7 +184,7 @@ define(function(require) {
         $reserve_dialog.empty();
         setupReserveDialog();
 
-        OpenNebula.Helper.clear_cache("VNET");
+        OpenNebulaAction.clear_cache("VNET");
         Sunstone.runAction("Network.show",req.request.data[0][0]);
       },
       error: Notifier.onError
@@ -290,8 +290,6 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    // TODO: update
-    /*
     "Network.addtocluster" : {
       type: "multiple",
       call: function(params){
@@ -309,42 +307,43 @@ define(function(require) {
               var current_cluster = vn_info.CLUSTER_ID;
 
               if(current_cluster != -1){
-                OpenNebula.Cluster.delvnet({
+                OpenNebulaCluster.delvnet({
                   data: {
                     id: current_cluster,
                     extra_param: vnet
                   },
                   success: function(){
-                    OpenNebula.Helper.clear_cache("VNET");
+                    OpenNebulaAction.clear_cache("VNET");
                     Sunstone.runAction('Network.show',vnet);
                   },
                   error: Notifier.onError
                 });
               } else {
-                OpenNebula.Helper.clear_cache("VNET");
+                OpenNebulaAction.clear_cache("VNET");
                 Sunstone.runAction('Network.show',vnet);
               }
             },
             error: Notifier.onError
           });
         } else {
-          OpenNebula.Cluster.addvnet({
+          OpenNebulaCluster.addvnet({
             data: {
               id: cluster,
               extra_param: vnet
             },
             success: function(){
-              OpenNebula.Helper.clear_cache("VNET");
+              OpenNebulaAction.clear_cache("VNET");
               Sunstone.runAction('Network.show',vnet);
             },
             error: Notifier.onError
           });
         }
       },
-      elements: vnElements
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      }
     }
-    */
   };
 
   return _actions;
-})
+});
