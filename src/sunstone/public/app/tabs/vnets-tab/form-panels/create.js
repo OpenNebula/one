@@ -60,7 +60,7 @@ define(function(require) {
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.fill = _fill;
   FormPanel.prototype.setup = _setup;
-  FormPanel.prototype.add_ar_tab = _add_ar_tab;
+  FormPanel.prototype.addARTab = _add_ar_tab;
 
   return FormPanel;
   
@@ -96,7 +96,7 @@ define(function(require) {
 
     // add new ar tabs
     $("#vnet_wizard_ar_btn", context).bind("click", function() {
-      that.add_ar_tab(number_of_ar, context);
+      that.addARTab(number_of_ar, context);
       number_of_ar++;
 
       context.foundation();
