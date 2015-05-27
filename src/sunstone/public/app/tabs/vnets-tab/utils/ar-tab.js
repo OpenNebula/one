@@ -2,7 +2,7 @@ define(function(require) {
   // Dependencies
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var CustomTags = require('utils/form-panels/custom-tags');
+  var CustomTagsTable = require('utils/custom-tags-table');
   var WizardFields = require('utils/wizard-fields');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
 
@@ -33,7 +33,7 @@ define(function(require) {
 
     return TemplateHTML({
           'str_ar_tab_id': str_ar_tab_id,
-          'customTagsHTML': CustomTags.html(),
+          'customTagsHTML': CustomTagsTable.html(),
           'securityGroupsTableHTML': this.securityGroupsTable.dataTableHTML
         });
   }
@@ -70,7 +70,7 @@ define(function(require) {
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).prop('checked', true);
     $('input#'+str_ar_tab_id+'_ar_type_ip4',ar_section).change();
 
-    CustomTags.setup($('#'+str_ar_tab_id+'_custom_tags',ar_section));
+    CustomTagsTable.setup($('#'+str_ar_tab_id+'_custom_tags',ar_section));
 
     this.securityGroupsTable.initialize();
 
@@ -116,7 +116,7 @@ define(function(require) {
       data["TYPE"] = ar_type;
     }
 
-    $.extend(data, CustomTags.retrieve(this.ar_section));
+    $.extend(data, CustomTagsTable.retrieve(this.ar_section));
 
     var str_ar_tab_id = $('div[name="str_ar_tab_id"]', this.ar_section).attr("str_ar_tab_id");
 
@@ -161,7 +161,7 @@ define(function(require) {
 
     delete ar_json["SECURITY_GROUPS"];
 
-    CustomTags.fill(this.ar_section, ar_json);
+    CustomTagsTable.fill(this.ar_section, ar_json);
 
     $('input[name$="ar_type"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="IP"]',this.ar_section).prop("disabled", true);

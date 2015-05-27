@@ -1,7 +1,7 @@
 define(function(require) {
 
   var Locale = require('utils/locale');
-  var TemplateHTML = require('hbs!./custom-tags');
+  var TemplateHTML = require('hbs!./custom-tags-table/html');
   var TemplateUtils = require('utils/template-utils');
 
   function _html(){

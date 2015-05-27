@@ -8,7 +8,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var CustomTags = require('utils/form-panels/custom-tags');
+  var CustomTagsTable = require('utils/custom-tags-table');
   var ArTab = require('tabs/vnets-tab/utils/ar-tab');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
@@ -80,7 +80,7 @@ define(function(require) {
 
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'customTagsHTML': CustomTags.html(),
+      'customTagsHTML': CustomTagsTable.html(),
       'securityGroupsTableHTML': this.securityGroupsTable.dataTableHTML
     });
   }
@@ -215,7 +215,7 @@ define(function(require) {
 
     this.securityGroupsTable.initialize();
 
-    CustomTags.setup($("#vnetCreateContextTab", context));
+    CustomTagsTable.setup($("#vnetCreateContextTab", context));
 
     // Add first AR
     $("#vnet_wizard_ar_btn", context).trigger("click");
@@ -264,7 +264,7 @@ define(function(require) {
       network_json["SECURITY_GROUPS"] = secgroups.join(",");
     }
 
-    $.extend(network_json, CustomTags.retrieve($("#vnetCreateContextTab", context)));
+    $.extend(network_json, CustomTagsTable.retrieve($("#vnetCreateContextTab", context)));
 
     $('.ar_tab', context).each(function() {
       var ar_id = $(this).attr("ar_id");
@@ -364,7 +364,7 @@ define(function(require) {
       delete element.TEMPLATE[field_name];
     });
 
-    CustomTags.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
+    CustomTagsTable.fill($("#vnetCreateContextTab", context), element.TEMPLATE);
 
     // Remove the first AR added in initialize_
     $("#vnetCreateARTab i.remove-tab", context).trigger("click");
