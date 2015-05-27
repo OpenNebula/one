@@ -10,6 +10,7 @@ define(function(require) {
   var Config = require('sunstone-config');
   var Utils = require('../utils/common');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
+  var Sunstone = require('sunstone');
 
   /*
     CONSTANTS
@@ -20,6 +21,8 @@ define(function(require) {
   var SG_TABLE_ID = PANEL_ID + "SecurityGroupsTable";
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
+
+  var ADD_AR_DIALOG_ID = require('../dialogs/add-ar/dialogId');
 
   /*
     CONSTRUCTOR
@@ -159,8 +162,8 @@ define(function(require) {
       context.on("click", 'button#add_ar_button', function(){
         var id = that.element.ID;
 
-        // TODO: Add AR dialog
-        //popUpAddAR(id);
+        Sunstone.getDialog(ADD_AR_DIALOG_ID).setId(id);
+        Sunstone.getDialog(ADD_AR_DIALOG_ID).show();
 
         return false;
       });

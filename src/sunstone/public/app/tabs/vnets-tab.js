@@ -7,9 +7,9 @@ define(function(require) {
   var TAB_ID = require('./vnets-tab/tabId');
   var DATATABLE_ID = "dataTableVNets";
 
-  //var _dialogs = [
-  //  require('./vnets-tab/dialogs/create')
-  //];
+  var _dialogs = [
+    require('./vnets-tab/dialogs/add-ar')
+  ];
 
   var _panels = [
     require('./vnets-tab/panels/info'),
@@ -37,7 +37,7 @@ define(function(require) {
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
     formPanels: _formPanels,
-    //dialogs: _dialogs
+    dialogs: _dialogs
   };
 
   return VNetsTab;
