@@ -3,6 +3,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var CustomTags = require('utils/form-panels/custom-tags');
+  var WizardFields = require('utils/wizard-fields');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
 
   var TemplateHTML = require('hbs!./ar-tab');
@@ -15,6 +16,7 @@ define(function(require) {
     'html': _generate_ar_tab_content,
     'setup': _setup_ar_tab_content,
     'onShow': _onShow,
+    'fill': _fill_ar_tab_data,
     'retrieve': _retrieve_ar_tab_data
   };
 
@@ -124,5 +126,45 @@ define(function(require) {
     }
 
     return data;
+  }
+
+  function _fill_ar_tab_data(ar_json){
+    WizardFields.fill(this.ar_section, ar_json);
+
+    var fields = $('[wizard_field]',this.ar_section);
+
+    fields.each(function(){
+      var field = $(this);
+      var field_name = field.attr('wizard_field');
+
+      // Delete so these attributes don't end in the custom tags table also
+      delete ar_json[field_name];
+    });
+
+    delete ar_json["AR_ID"];
+    delete ar_json["USED_LEASES"];
+    delete ar_json["LEASES"];
+    delete ar_json["MAC_END"];
+    delete ar_json["IP_END"];
+    delete ar_json["IP6_ULA"];
+    delete ar_json["IP6_ULA_END"];
+    delete ar_json["IP6_GLOBAL"];
+    delete ar_json["IP6_GLOBAL_END"];
+
+    if (ar_json["SECURITY_GROUPS"] != undefined &&
+        ar_json["SECURITY_GROUPS"].length != 0){
+
+      var secgroups = ar_json["SECURITY_GROUPS"].split(",");
+
+      this.securityGroupsTable.selectResourceTableSelect({ids: secgroups});
+    }
+
+    delete ar_json["SECURITY_GROUPS"];
+
+    CustomTags.fill(this.ar_section, ar_json);
+
+    $('input[name$="ar_type"]',this.ar_section).prop("disabled", true);
+    $('input[wizard_field="IP"]',this.ar_section).prop("disabled", true);
+    $('input[wizard_field="MAC"]',this.ar_section).prop("disabled", true);
   }
 });

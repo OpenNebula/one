@@ -8,7 +8,8 @@ define(function(require) {
   var DATATABLE_ID = "dataTableVNets";
 
   var _dialogs = [
-    require('./vnets-tab/dialogs/add-ar')
+    require('./vnets-tab/dialogs/add-ar'),
+    require('./vnets-tab/dialogs/update-ar')
   ];
 
   var _panels = [

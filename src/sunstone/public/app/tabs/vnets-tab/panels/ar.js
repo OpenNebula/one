@@ -11,6 +11,8 @@ define(function(require) {
   var Utils = require('../utils/common');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
   var Sunstone = require('sunstone');
+  var OpenNebulaNetwork = require('opennebula/network');
+  var Notifier = require('utils/notifier');
 
   /*
     CONSTANTS
@@ -23,6 +25,7 @@ define(function(require) {
   var XML_ROOT = "VNET";
 
   var ADD_AR_DIALOG_ID = require('../dialogs/add-ar/dialogId');
+  var UPDATE_AR_DIALOG_ID = require('../dialogs/update-ar/dialogId');
 
   /*
     CONSTRUCTOR
@@ -175,28 +178,34 @@ define(function(require) {
         var id = that.element.ID;
         var ar_id = $(this).attr('ar_id');
 
-        // TODO: update ar dialog
-        /*
-        OpenNebula.Network.show({
+        OpenNebulaNetwork.show({
           data : {
-              id: id
+            id: id
           },
           timeout: true,
           success: function (request, vn){
-              var vn_info = vn.VNET;
+            var vn_info = vn.VNET;
 
-              var ar = getAR(vn_info, ar_id);
+            var ar = getAR(vn_info, ar_id);
 
-              if(ar != undefined){
-                  popUpUpdateAR(id, ar);
-              } else {
-                  notifyError(tr("The Adress Range was not found"));
-                  Sunstone.runAction("Network.show", id);
-              }
+            if(ar != undefined){
+              Sunstone.getDialog(UPDATE_AR_DIALOG_ID).reset();
+
+              Sunstone.getDialog(UPDATE_AR_DIALOG_ID).setParams({
+                'vnetId': id,
+                'arId': ar_id,
+                'arData': $.extend({}, ar)
+              });
+
+              Sunstone.getDialog(UPDATE_AR_DIALOG_ID).show();
+
+            } else {
+              Notifier.notifyError(Locale.tr("The Adress Range was not found"));
+              Sunstone.runAction("Network.show", id);
+            }
           },
-          error: onError
+          error: Notifier.onError
         });
-        */
 
         return false;
       });

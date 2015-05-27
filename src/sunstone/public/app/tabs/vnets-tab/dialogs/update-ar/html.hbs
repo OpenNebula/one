@@ -1,0 +1,24 @@
+<div id="{{dialogId}}" class="reveal-modal large max-height" data-reveal >
+  <div class="reveal-body">
+    <form data-abide="ajax" id="update_ar_form" action="">
+      <div class="row">
+        <div class="large-12 columns">
+          <h3 class="subheader" id="">
+            {{tr "Virtual Network"}} <span id="vnet_id"/>
+            <br>
+            {{tr "Edit Address Range"}} <span id="ar_id"/>
+          </h3>
+        </div>
+      </div>
+      {{{arTabHTML}}}
+      <div class="reveal-footer">
+        <div class="form_buttons">
+          <button class="button radius right success" id="submit_ar_button" type="submit" value="Network.update_ar">
+            {{tr "Update"}}
+          </button>
+        </div>
+      </div>
+      <a class="close-reveal-modal">&#215;</a>
+    </form>
+  </div>
+</div>

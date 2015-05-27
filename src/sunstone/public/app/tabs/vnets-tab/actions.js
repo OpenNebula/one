@@ -8,6 +8,7 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var ADD_AR_DIALOG_ID = require('./dialogs/add-ar/dialogId');
+  var UPDATE_AR_DIALOG_ID = require('./dialogs/update-ar/dialogId');
 
   var _actions = {
     "Network.create" : {
@@ -160,12 +161,9 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.update_ar,
       callback: function(req) {
-        /* TODO
         // Reset the wizard
-        $update_ar_dialog.foundation('reveal', 'close');
-        $update_ar_dialog.empty();
-        setupUpdateARDialog();
-        */
+        Sunstone.getDialog(UPDATE_AR_DIALOG_ID).hide();
+        Sunstone.getDialog(UPDATE_AR_DIALOG_ID).reset();
 
         Sunstone.runAction("Network.show",req.request.data[0][0]);
       },
