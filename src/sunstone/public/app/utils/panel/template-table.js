@@ -72,7 +72,7 @@ define(function(require) {
         } else {
           templateJSON[$.trim(new_key)] = $.trim(new_value);
         }
-        template_str  = convert_template_to_string(templateJSON, unshownValues);
+        template_str  = TemplateUtils.templateToString(templateJSON, unshownValues);
 
         Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
         templateJSON = templateJSON_bk;
@@ -113,7 +113,7 @@ define(function(require) {
       else
           delete templateJSON[field];
 
-      template_str = convert_template_to_string(templateJSON, unshownValues);
+      template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
       Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
@@ -148,7 +148,7 @@ define(function(require) {
       delete templateJSON[key_str];
       templateJSON[key_str] = value_str;
 
-      template_str = convert_template_to_string(templateJSON, unshownValues);
+      template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
       Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
@@ -217,7 +217,7 @@ define(function(require) {
       else
           templateJSON[vectorial_key][key_str] = value_str;
 
-      template_str = convert_template_to_string(templateJSON, unshownValues);
+      template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
       Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
@@ -253,7 +253,7 @@ define(function(require) {
       else
           delete templateJSON[vectorial_key][field];
 
-      template_str = convert_template_to_string(templateJSON, unshownValues);
+      template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
 
       // Let OpenNebula know
       Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
@@ -320,7 +320,7 @@ define(function(require) {
           templateJSON[vectorial_key][$('#new_key_vectorial').val()] = $.trim($('#new_value_vectorial').val());
         }
 
-        template_str  = convert_template_to_string(templateJSON, unshownValues);
+        template_str  = TemplateUtils.templateToString(templateJSON, unshownValues);
 
         Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
         // This avoids to get a messed template if the update fails
