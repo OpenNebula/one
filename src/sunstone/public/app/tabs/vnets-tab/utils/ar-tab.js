@@ -6,7 +6,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
 
-  var TemplateHTML = require('hbs!./ar-tab');
+  var TemplateHTML = require('hbs!./ar-tab/html');
 
   function ArTab() {
     return this;
@@ -19,6 +19,7 @@ define(function(require) {
     'fill': _fill_ar_tab_data,
     'retrieve': _retrieve_ar_tab_data
   };
+  ArTab.prototype.constructor = ArTab;
 
   return ArTab;
 
