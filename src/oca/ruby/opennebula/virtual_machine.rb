@@ -46,7 +46,8 @@ module OpenNebula
             :detachnic      => "vm.detachnic",
             :recover        => "vm.recover",
             :disksnapshotcreate => "vm.disksnapshotcreate",
-            :disksnapshotrevert => "vm.disksnapshotrevert"
+            :disksnapshotrevert => "vm.disksnapshotrevert",
+            :disksnapshotdelete => "vm.disksnapshotdelete"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -106,6 +107,7 @@ module OpenNebula
             PROLOG_UNDEPLOY_FAILURE
             DISK_SNAPSHOT_POWEROFF
             DISK_SNAPSHOT_REVERT_POWEROFF
+            DISK_SNAPSHOT_DELETE_POWEROFF
         }
 
         SHORT_VM_STATES={
@@ -173,7 +175,8 @@ module OpenNebula
             "PROLOG_RESUME_FAILURE"     => "fail",
             "PROLOG_UNDEPLOY_FAILURE"   => "fail",
             "DISK_SNAPSHOT_POWEROFF"    => "snap",
-            "DISK_SNAPSHOT_REVERT_POWEROFF" => "snap"
+            "DISK_SNAPSHOT_REVERT_POWEROFF" => "snap",
+            "DISK_SNAPSHOT_DELETE_POWEROFF" => "snap"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
@@ -617,7 +620,7 @@ module OpenNebula
         end
 
         # Takes a new snapshot of a disk
-        # 
+        #
         # @param disk_id [Integer] Id of the disk
         # @param tag [String] description for the snapshot
         #
@@ -627,7 +630,7 @@ module OpenNebula
         end
 
         # Reverts disk state to a previously taken snapshot
-        # 
+        #
         # @param disk_id [Integer] Id of the disk
         # @param snap_id [Integer] Id of the snapshot
         #
@@ -635,6 +638,17 @@ module OpenNebula
         #   otherwise
         def disk_snapshot_revert(disk_id, snap_id)
           return call(VM_METHODS[:disksnapshotrevert], @pe_id, disk_id, snap_id)
+        end
+
+        # Deletes a disk snapshot
+        #
+        # @param disk_id [Integer] Id of the disk
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disk_snapshot_delete(disk_id, snap_id)
+          return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
         end
 
         # Recovers an ACTIVE VM

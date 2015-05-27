@@ -2560,5 +2560,43 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
 
     return;
 }
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+
+void VirtualMachineDiskSnapshotDelete::request_execute(
+        xmlrpc_c::paramList const&  paramList,
+        RequestAttributes&          att)
+{
+    Nebula&           nd = Nebula::instance();
+    DispatchManager * dm = nd.get_dm();
+
+    int    rc;
+    string error_str;
+
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int did     = xmlrpc_c::value_int(paramList.getInt(2));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
+
+    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    {
+        return;
+    }
+
+    rc = dm->disk_snapshot_delete(id, did, snap_id, error_str);
+
+    if ( rc != 0 )
+    {
+        failure_response(ACTION,
+                request_error(error_str, ""),
+                att);
+    }
+    else
+    {
+        success_response(id, att);
+    }
+
+    return;
+}
+

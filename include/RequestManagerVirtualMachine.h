@@ -436,4 +436,21 @@ public:
             RequestAttributes& att);
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotDelete: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotDelete():
+        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotDelete",
+                           "Deletes a disk snapshot",
+                           "A:siii"){};
+
+    ~VirtualMachineDiskSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
 #endif

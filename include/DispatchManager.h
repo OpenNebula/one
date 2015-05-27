@@ -396,6 +396,23 @@ public:
         int         did,
         int         snap_id,
         string&     error_str);
+
+    /**
+     * Deletes a disk snapshot
+     *
+     * @param vid VirtualMachine identification
+     * @param did DISK identification
+     * @param snap_id Snapshot to be restored
+     * @param error_str Error reason, if any
+     *
+     * @return 0 on success, -1 otherwise
+     */
+    int disk_snapshot_delete(
+        int           vid,
+        int           did,
+        int           snap_id,
+        string&       error_str);
+
 private:
     /**
      *  Thread id for the Dispatch Manager

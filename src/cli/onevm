@@ -800,8 +800,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     disk_snapshot_revert_desc = <<-EOT.unindent
-        Reverts disk state to a previously taken snapshot. To revert
-        disk state to the base disk image use 0 as snapshot id
+        Reverts disk state to a previously taken snapshot.
 
         States: POWEROFF
     EOT
@@ -810,6 +809,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
       :vmid, :diskid, :snapshot_id do
         helper.perform_action(args[0],options,"disk snapshot reverted") do |o|
           o.disk_snapshot_revert(args[1].to_i, args[2].to_i)
+        end
+    end
+
+    disk_snapshot_delete_desc = <<-EOT.unindent
+        Deletes a disk snapshot.
+
+        States: POWEROFF
+    EOT
+    command :"disk-snapshot-delete", disk_snapshot_delete_desc,
+      :vmid, :diskid, :snapshot_id do
+        helper.perform_action(args[0],options,"disk snapshot deleted") do |o|
+          o.disk_snapshot_delete(args[1].to_i, args[2].to_i)
         end
     end
 

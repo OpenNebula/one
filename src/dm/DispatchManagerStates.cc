@@ -168,6 +168,7 @@ void  DispatchManager::poweroff_success_action(int vid)
          vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF ||
+         vm->get_lcm_state() == VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF ||
          vm->get_lcm_state() == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE))
     {
         vm->set_state(VirtualMachine::POWEROFF);

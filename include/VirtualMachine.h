@@ -157,7 +157,8 @@ public:
         PROLOG_RESUME_FAILURE   = 49,
         PROLOG_UNDEPLOY_FAILURE = 50,
         DISK_SNAPSHOT_POWEROFF  = 51,
-        DISK_SNAPSHOT_REVERT_POWEROFF = 52
+        DISK_SNAPSHOT_REVERT_POWEROFF = 52,
+        DISK_SNAPSHOT_DELETE_POWEROFF = 53
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -215,6 +216,7 @@ public:
         else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
         else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
         else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF") { state = DISK_SNAPSHOT_REVERT_POWEROFF; }
+        else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF") { state = DISK_SNAPSHOT_DELETE_POWEROFF; }
         else {return -1;}
 
         return 0;
@@ -275,6 +277,7 @@ public:
             case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
             case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
             case DISK_SNAPSHOT_REVERT_POWEROFF: st = "DISK_SNAPSHOT_REVERT_POWEROFF"; break;
+            case DISK_SNAPSHOT_DELETE_POWEROFF: st = "DISK_SNAPSHOT_DELETE_POWEROFF"; break;
         }
 
         return st;

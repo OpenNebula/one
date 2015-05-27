@@ -179,7 +179,14 @@ int Snapshots::delete_snapshot(unsigned int id, string& error)
 
             children = one_util::join(child_set.begin(), child_set.end(), ',');
 
-            parent->replace("CHILDREN", children);
+            if (children.empty())
+            {
+                parent->remove("CHILDREN");
+            }
+            else
+            {
+                parent->replace("CHILDREN", children);
+            }
         }
     }
 

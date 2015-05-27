@@ -4278,7 +4278,7 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 
     if ( disk == 0 )
     {
-        error = "DISK does not exists";
+        error = "VM disk does not exists";
         return -1;
     }
 
@@ -4328,7 +4328,7 @@ int VirtualMachine::revert_disk_snapshot(int did, int snap_id, string& error)
 
     if ( disk == 0 )
     {
-        error = "DISK does not exists";
+        error = "VM disk does not exists";
         return -1;
     }
 
@@ -4362,7 +4362,7 @@ int VirtualMachine::delete_disk_snapshot(int did, int snap_id, string& error)
 
     if ( disk == 0 )
     {
-        error = "DISK does not exists";
+        error = "VM disk does not exists";
         return -1;
     }
 

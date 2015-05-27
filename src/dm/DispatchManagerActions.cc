@@ -1717,3 +1717,65 @@ int DispatchManager::disk_snapshot_revert(
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_snapshot_delete(
+        int           vid,
+        int           did,
+        int           snap_id,
+        string&       error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not delete disk snapshot from VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
+         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    {
+        oss << "Could not delete disk snapshot from VM " << vid
+            << ", wrong state " << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    if (vm->delete_disk_snapshot(did, snap_id, error_str) == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    if (vm->set_snapshot_disk(did, snap_id) == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
+
+    return 0;
+}
+

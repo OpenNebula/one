@@ -129,7 +129,8 @@ public class VirtualMachine extends PoolElement{
         "PROLOG_RESUME_FAILURE",
         "PROLOG_UNDEPLOY_FAILURE",
         "DISK_SNAPSHOT_POWEROFF",
-        "DISK_SNAPSHOT_REVERT_POWEROFF"
+        "DISK_SNAPSHOT_REVERT_POWEROFF",
+        "DISK_SNAPSHOT_DELETE_POWEROFF"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -186,7 +187,8 @@ public class VirtualMachine extends PoolElement{
         "fail",     // PROLOG_RESUME_FAILURE
         "fail",     // PROLOG_UNDEPLOY_FAILURE
         "snap",     // DISK_SNAPSHOT_POWEROFF
-        "snap"      // DISK_SNAPSHOT_REVERT_POWEROFF
+        "snap",     // DISK_SNAPSHOT_REVERT_POWEROFF
+        "snap"      // DISK_SNAPSHOT_DELETE_POWEROFF
     };
 
     /**
