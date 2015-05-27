@@ -6,6 +6,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var CapacityInputs = require('./general/capacity-inputs');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -60,12 +61,23 @@ define(function(require) {
     });
   }
 
-  function _onShow() {
-
+  function _onShow(context, panelForm) {
+    if (panelForm.action == 'create') {
+      $('#template_name_form', context).show();
+      $('#template_hypervisor_form', context).removeClass("left");
+      $('#NAME', context).removeAttr('disabled');
+      $('#NAME', context).attr("required", "");
+    } else if (panelForm.action == 'update') {
+      $('#template_name_form', context).hide();
+      $('#template_hypervisor_form', context).addClass("left");
+      $('#NAME', context).attr("disabled", "disabled");
+      $('#NAME', context).removeAttr("required");
+    }
   }
 
   function _setup(context) {
-    Tips.setup(context);
+    var wizardTabContext = $('#' + this.wizardTabId, context); 
+    Tips.setup(wizardTabContext);
 
     context.on("change", "#LOGO", function() {
       $("#template_create_logo", context).show();
@@ -75,7 +87,6 @@ define(function(require) {
     });
 
     context.on("change", "input[name='hypervisor']", function() {
-      var context = $(this).closest("#create_template_form_wizard");
       $(".hypervisor", context).hide();
       $(".only_" + this.value, context).show();
     });
@@ -83,11 +94,48 @@ define(function(require) {
     CapacityInputs.setup(context);
   }
 
-  function _retrieve() {
+  function _retrieve(context) {
+    var wizardTabContext = $('#' + this.wizardTabId, context); 
+    var templateJSON = WizardFields.retrieve(wizardTabContext);
 
+    if (templateJSON["HYPERVISOR"] == 'vcenter') {
+      templateJSON["PUBLIC_CLOUD"] = {
+        'TYPE': 'vcenter',
+        'VM_TEMPLATE': $("#vcenter_template_uuid", context).val()
+      }
+    }
+
+    if ($('#sunstone_capacity_select:checked', wizardTabContext).length > 0) {
+      templateJSON["SUNSTONE_CAPACITY_SELECT"] = "NO"
+    }
+
+    if ($('#sunstone_network_select:checked', wizardTabContext).length > 0) {
+      templateJSON["SUNSTONE_NETWORK_SELECT"] = "NO"
+    }
+
+    return templateJSON;
   }
 
-  function _fill() {
+  function _fill(context, templateJSON) {
+    var wizardTabContext = $('#' + this.wizardTabId, context); 
+    WizardFields.fill(wizardTabContext, templateJSON);
 
+    if (templateJSON["SUNSTONE_CAPACITY_SELECT"] && 
+          (templateJSON["SUNSTONE_CAPACITY_SELECT"].toUpperCase() == "NO")) {
+      $("#sunstone_capacity_select", wizardTabContext).attr("checked", "checked");
+    }
+
+    if (templateJSON["SUNSTONE_NETWORK_SELECT"] && 
+          (templateJSON["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
+      $("#sunstone_network_select", wizardTabContext).attr("checked", "checked");
+    }
+
+    if (templateJSON["HYPERVISOR"]) {
+      $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", wizardTabContext).trigger("click")
+    }
+
+    // TODO vcenter_template_uuid
+
+    // TODO Remove fields from templateJSON
   }
 });

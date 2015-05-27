@@ -97,22 +97,58 @@ define(function(require) {
     });
 
     context.foundation('reflow', 'tab');
-    Tips.setup(context);
   }
 
-  function _onShow() {
-    
+  function _onShow(context) {
+    var that = this;
+    $('a[href="#'+ that.wizardTabs[0].wizardTabId +'"]', context).trigger("click");
+
+    $.each(that.wizardTabs, function(index, wizardTab) {
+      wizardTab.onShow(context, that);
+    });
   }
 
-  function _submitWizard() {
+  function _submitWizard(context) {
+    var templateJSON = {}
+    $.each(this.wizardTabs, function(index, wizardTab) {
+      $.extend(templateJSON, wizardTab.retrieve(context));
+    });
 
+    if (this.action == "create") {
+      Sunstone.runAction("Template.create", 
+                          {'vmtemplate': templateJSON});
+      return false;
+    } else if (this.action == "update") {
+      Sunstone.runAction("Template.update", 
+                          this.resourceId, 
+                          JSON.stringify({'vmtemplate': templateJSON}));
+      return false;
+    }
   }
 
-  function _submitAdvanced() {
+  function _submitAdvanced(context) {
+    var template = $('textarea#template', context).val();
+    if (this.action == "create") {
+      Sunstone.runAction("Template.create",  
+                          {"vmtemplate": {"template_raw": template}});
+      return false;
 
+    } else if (this.action == "update") {
+      Sunstone.runAction("Template.update", 
+                          this.resourceId, 
+                          JSON.stringify({"vmtemplate": {"template_raw": template}}));
+      return false;
+    }
   }
 
-  function _fill() {
+  function _fill(context, element) {
+    if (this.action != "update") {return;}
+    this.resourceId = element.ID;
 
+    var templateJSON = element.TEMPLATE;
+
+    $.each(this.wizardTabs, function(index, wizardTab) {
+      wizardTab.fill(context, templateJSON);
+    });
   }
 });

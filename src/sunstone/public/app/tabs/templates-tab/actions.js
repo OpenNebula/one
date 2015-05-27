@@ -7,6 +7,7 @@ define(function(require) {
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var XML_ROOT = "VMTEMPLATE"
 
   var _actions = {
     "Template.create" : {
@@ -52,11 +53,11 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.show,
       callback: function(request, response) {
-        // TODO Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        // TODO Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
-        // TODO   function(formPanelInstance, context) {
-        // TODO     formPanelInstance.fill(response.VNET, context)
-        // TODO   });
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT])
+          });
       },
       error: Notifier.onError
     },
@@ -64,12 +65,12 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.update,
       callback: function(request, response) {
-        // TODO Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        // TODO Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
         Notifier.notifyMessage(tr("Virtual Template updated correctly"));
       },
       error: function(request, response) {
-        // TODO Sunstone.hideFormPanelLoading(TAB_ID);
+        Sunstone.hideFormPanelLoading(TAB_ID);
         Notifier.onError(request, response);
       }
     },

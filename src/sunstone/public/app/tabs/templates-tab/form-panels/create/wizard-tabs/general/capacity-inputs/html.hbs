@@ -1,5 +1,5 @@
-<div class="vm_param">
-  <input type="hidden" id="MEMORY" name="memory" />
+<div class="">
+  <input type="hidden" wizard_field="MEMORY" id="MEMORY" name="memory" />
 </div>
 <div class="row">
   <div class="large-7 columns">
@@ -22,12 +22,12 @@
     </div>
   </div>
   {{#isFeatureEnabled "showback"}}
-  <div class="large-2 columns vm_param">
+  <div class="large-2 columns">
     <label  for="MEMORY_COST">
       {{tr "Cost"}}
       <span class="tip">{{tr "Cost of each MB per hour"}}</span>
     </label>
-    <input type="text" id="MEMORY_COST" name="name"/>
+    <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
   </div>
   <div class="large-3 columns"></div>
   {{/isFeatureEnabled}}
@@ -43,18 +43,18 @@
     <div class="large-10 columns">
       <div id="cpu_slider"></div>
     </div>
-    <div class="large-2 columns vm_param">
-      <input type="text" id="CPU" name="cpu"/>
+    <div class="large-2 columns">
+      <input type="text" wizard_field="CPU" id="CPU" name="cpu"/>
     </div>
   </div>
   {{#isFeatureEnabled "showback"}}
-  <div class="large-2 columns vm_param">
+  <div class="large-2 columns">
     <label  for="CPU_COST">
       {{tr "Cost"}}
       <span class="tip">{{tr "Cost of each CPU per hour"}}</span>
 
     </label>
-    <input type="text" id="CPU_COST" name="name"/>
+    <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
   </div>
   <div class="large-3 columns"></div>
   {{/isFeatureEnabled}}
@@ -70,8 +70,8 @@
     <div class="large-10 columns">
       <div id="vcpu_slider"></div>
     </div>
-    <div class="large-2 columns vm_param">
-      <input type="text" id="VCPU" name="vcpu"/>
+    <div class="large-2 columns">
+      <input type="text" wizard_field="VCPU" id="VCPU" name="vcpu"/>
     </div>
   </div>
   <div class="large-5 columns"></div>
