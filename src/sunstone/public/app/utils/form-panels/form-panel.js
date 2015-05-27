@@ -14,9 +14,7 @@ define(function(require) {
     'show': _show,
     'hide': _hide,
     'reset': _reset,
-    'setAction': _setAction,
-    'retrieveWizardFields': _retrieveWizardFields,
-    'fillWizardFields': _fillWizardFields
+    'setAction': _setAction
   }
 
   return BaseFormPanel;
@@ -86,58 +84,5 @@ define(function(require) {
 
   function _setAction(action) {
     this.action = action
-  }
-
-  // TODO: other types: radio, checkbox
-  function _retrieveWizardFields(dialog, template_json) {
-    var fields = $('[wizard_field]', dialog);
-
-    fields.each(function() {
-      var field = $(this);
-
-      if (field.prop('wizard_field_disabled') != true &&
-            field.val() != null && field.val().length &&
-            (field.attr("type") != "checkbox" || field.prop("checked"))
-          ) {
-
-        var field_name = field.attr('wizard_field');
-        template_json[field_name] = field.val();
-      }
-    });
-  }
-
-  function _fillWizardFields(dialog, template_json) {
-    var fields = $('[wizard_field]', dialog);
-
-    fields.each(function() {
-      var field = $(this);
-      var field_name = field.attr('wizard_field');
-      if (template_json[field_name]) {
-        switch (field.attr("type")){
-        case "radio":
-          var checked = (field.val() == template_json[field_name]);
-
-          field.prop("checked", checked);
-
-          if (checked) {
-            field.change();
-          }
-          break;
-        case "checkbox":
-          var checked = (field.val().toUpperCase() ==
-                          template_json[field_name].toUpperCase());
-
-          field.prop("checked", checked);
-
-          if (checked) {
-            field.change();
-          }
-          break;
-        default:
-          field.val(template_json[field_name])  //TODO field.val(escapeDoubleQuotes(htmlDecode(template_json[field_name])));
-          field.change();
-        }
-      }
-    });
   }
 })
