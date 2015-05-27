@@ -1,0 +1,72 @@
+<div id="{{dialogId}}" class="reveal-modal large max-height" data-reveal >
+  <div class="reveal-body">
+    <form id="reserve_form" action="">
+      <div class="row">
+        <div class="large-12 columns">
+          <h3 class="subheader" id="">
+            {{tr "Reservation from Virtual Network"}} <span id="vnet_id"/>
+          </h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="reserve_size">{{tr "Number of addresses"}}:</label>
+          <input wizard_field="size" type="text" id="reserve_size"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <input type="radio" name="reserve_target" id="reserve_new" value="NEW"/>
+          <label for="reserve_new">
+            {{tr "Add to a new Virtual Network"}}
+          </label>
+          <input type="radio" name="reserve_target" id="reserve_add" value="ADD"/>
+          <label for="reserve_add">
+            {{tr "Add to an existing Reservation"}}
+          </label>
+        </div>
+      </div>
+      <div id="reserve_new_body">
+        <div class="row">
+          <div class="large-6 columns">
+            <label for="reserve_name">{{tr "Virtual Network Name"}}:</label>
+            <input wizard_field="name" type="text" id="reserve_name"/>
+          </div>
+        </div>
+      </div>
+      <div id="reserve_add_body">
+        {{{vnetsTableHTML}}}
+      </div>
+      <br>
+      {{#advancedSection (tr "Advanced Options") }}
+        <div class="content" id="advanced_reserve">
+          <div class="row">
+            <div class="large-12 columns">
+              <p>{{tr "You can select the addresses from an specific Address Range"}}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="large-12 columns">
+              {{{arsTableHTML}}}
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="large-6 columns">
+              <label for="reserve_addr">{{tr "First address"}}:</label>
+              <input wizard_field="addr" type="text" id="reserve_addr" placeholder="{{tr "IPv4 or MAC"}}"/>
+            </div>
+          </div>
+        </div>
+      {{/advancedSection}}
+      <div class="reveal-footer">
+        <div class="form_buttons">
+          <button class="button radius right success" id="submit_reserve_button" type="submit" value="Network.reserve">
+            {{tr "Reserve"}}
+          </button>
+        </div>
+      </div>
+      <a class="close-reveal-modal">&#215;</a>
+    </form>
+  </div>
+</div>

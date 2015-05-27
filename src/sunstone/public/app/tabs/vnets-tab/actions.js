@@ -11,6 +11,7 @@ define(function(require) {
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var ADD_AR_DIALOG_ID = require('./dialogs/add-ar/dialogId');
   var UPDATE_AR_DIALOG_ID = require('./dialogs/update-ar/dialogId');
+  var RESERVE_DIALOG_ID = require('./dialogs/reserve/dialogId');
 
   var _actions = {
     "Network.create" : {
@@ -169,10 +170,22 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
+
     "Network.reserve_dialog" : {
       type: "custom",
-      call: popUpReserveDialog
+      call: function() {
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) Virtual Network.");
+          return false;
+        }
+
+        var resource_id = "" + selected_nodes[0];
+
+        Sunstone.getDialog(RESERVE_DIALOG_ID).setParams({vnetId: resource_id});
+        Sunstone.getDialog(RESERVE_DIALOG_ID).reset();
+        Sunstone.getDialog(RESERVE_DIALOG_ID).show();
+      }
     },
 
     "Network.reserve" : {
@@ -180,16 +193,14 @@ define(function(require) {
       call: OpenNebulaNetwork.reserve,
       callback: function(req) {
         // Reset the wizard
-        $reserve_dialog.foundation('reveal', 'close');
-        $reserve_dialog.empty();
-        setupReserveDialog();
+        Sunstone.getDialog(RESERVE_DIALOG_ID).hide();
+        Sunstone.getDialog(RESERVE_DIALOG_ID).reset();
 
         OpenNebulaAction.clear_cache("VNET");
         Sunstone.runAction("Network.show",req.request.data[0][0]);
       },
       error: Notifier.onError
     },
-    */
 
     "Network.chown" : {
       type: "multiple",

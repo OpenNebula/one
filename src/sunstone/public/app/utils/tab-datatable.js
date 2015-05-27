@@ -129,6 +129,7 @@ define(function(require) {
     'selectResourceTableSelect': _selectResourceTableSelect,
     'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'retrieveResourceTableSelect': _retrieveResourceTableSelect,
+    'idInput': _idInput,
     'updateFn': _updateFn,
     'getName': _getName,
     'list': _list
@@ -702,6 +703,22 @@ define(function(require) {
       return arr;
     } else {
       return $('#selected_resource_id_' + that.dataTableId, section).val();
+    }
+  }
+
+  /**
+   * Returns the jquery selector for the ID input. Can be used to add attributes
+   * to it, such as 'wizard_field'
+   * @return {Object} jquery selector for the ID input
+   */
+  function _idInput() {
+    var that = this;
+    var section = $('#' + that.dataTableId + 'Container');
+
+    if (that.selectOptions.multiple_choice) {
+      return $('#selected_ids_row_' + that.dataTableId, section);
+    } else {
+      return $('#selected_resource_id_' + that.dataTableId, section);
     }
   }
 
