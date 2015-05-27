@@ -7,7 +7,8 @@ define(function(require) {
   var TemplateHTML = require('hbs!./clone/html');
   var Sunstone = require('sunstone');
   var DatastoreTable = require('tabs/datastores-tab/datatable')
-  
+  var Notifier = require('utils/notifier');
+
   /*
     CONSTANTS
    */
@@ -67,7 +68,7 @@ define(function(require) {
       var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
 
       if (!name || !sel_elems.length)
-          notifyError('A name or prefix is needed!');
+        Notifier.notifyError('A name or prefix is needed!');
 
       var extra_info = {};
 
