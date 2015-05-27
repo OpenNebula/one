@@ -1,0 +1,19 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="bordered-tabs">
+    <dl id="template_create_tabs" class="tabs right-info-tabs text-center" data-tab>
+      {{#each wizardTabs}}
+      <dd class='{{classes}}'>
+        <a href='#{{wizardTabId}}'> <i class='fa {{icon}}'></i>
+          <br>{{title}}</a>
+      </dd>
+      {{/each}}
+    </dl>
+    <div id="template_create_tabs_content" class="tabs-content" style="min-height: 300px">
+      {{#each wizardTabs}}
+        <div id="{{wizardTabId}}" class="wizard_tab content">
+          {{{contentHTML}}}
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</form>

@@ -6,19 +6,19 @@ define(function(require) {
   var OpenNebulaTemplate = require('opennebula/template');
 
   var TAB_ID = require('./tabId');
-  // TODO var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "Template.create" : {
       type: "create",
       call: OpenNebulaTemplate.create,
       callback: function(request, response) {
-        // TODO Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        // TODO Sunstone.hideFormPanel(TAB_ID);
-        // TODO Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: function(request, response) {
-        // TODO Sunstone.hideFormPanelLoading(TAB_ID);
+        Sunstone.hideFormPanelLoading(TAB_ID);
         Notifier.onError(request, response);
       },
       notify: true
@@ -26,7 +26,7 @@ define(function(require) {
     "Template.create_dialog" : {
       type: "custom",
       call: function() {
-        // TODO Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
     "Template.import_dialog" : {
