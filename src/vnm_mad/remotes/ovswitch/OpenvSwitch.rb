@@ -72,7 +72,13 @@ class OpenvSwitchVLAN < VNMMAD::VNMDriver
     def deactivate
         lock
 
+        attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+
         process do |nic|
+            if attach_nic_id && attach_nic_id != nic[:nic_id]
+                next
+            end
+
             @nic = nic
 
             # Remove flows

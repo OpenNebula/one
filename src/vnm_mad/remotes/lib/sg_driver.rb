@@ -23,7 +23,7 @@ module VNMMAD
 
         DRIVER       = "sg"
         XPATH_FILTER = "TEMPLATE/NIC"
-        
+
         # Creates a new SG driver and scans SG Rules
         def initialize(vm, deploy_id = nil, hypervisor = nil)
             super(vm, XPATH_FILTER, deploy_id, hypervisor)
@@ -48,7 +48,7 @@ module VNMMAD
             @security_group_rules = rules
         end
 
-        # Activate the rules, bootstrap iptables chains and set filter rules for 
+        # Activate the rules, bootstrap iptables chains and set filter rules for
         # each VM NIC
         def activate
             deactivate
@@ -68,7 +68,7 @@ module VNMMAD
                 sg_ids.each do |sg_id|
                     rules = @security_group_rules[sg_id]
 
-                    sg = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id, 
+                    sg = SGIPTables::SecurityGroupIPTables.new(@vm, nic, sg_id,
                         rules)
 
                     begin
@@ -92,7 +92,13 @@ module VNMMAD
             lock
 
             begin
+                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+
                 @vm.nics.each do |nic|
+                    if attach_nic_id && attach_nic_id != nic[:nic_id]
+                        next
+                    end
+
                     SGIPTables.nic_deactivate(@vm, nic)
                 end
             rescue Exception => e
