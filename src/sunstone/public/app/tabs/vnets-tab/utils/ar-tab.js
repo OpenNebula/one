@@ -14,6 +14,7 @@ define(function(require) {
   ArTab.prototype = {
     'html': _generate_ar_tab_content,
     'setup': _setup_ar_tab_content,
+    'onShow': _onShow,
     'retrieve': _retrieve_ar_tab_data
   };
 
@@ -70,9 +71,12 @@ define(function(require) {
     CustomTags.setup($('#'+str_ar_tab_id+'_custom_tags',ar_section));
 
     this.securityGroupsTable.initialize();
-    this.securityGroupsTable.refreshResourceTableSelect();
 
     Tips.setup(ar_section);
+  }
+
+  function _onShow(){
+    this.securityGroupsTable.refreshResourceTableSelect();
   }
 
   function _retrieve_ar_tab_data(){

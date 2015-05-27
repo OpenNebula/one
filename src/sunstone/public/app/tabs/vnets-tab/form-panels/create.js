@@ -203,7 +203,7 @@ define(function(require) {
         $('input#phydev', context).removeAttr('required');
         $('input#bridge', context).attr('required', '');
         break;
-      };
+      }
 
       $("div.network_mode_description").hide();
       $('div.network_mode_description[value="' + $(this).val() + '"]').show();
@@ -213,7 +213,6 @@ define(function(require) {
     $('#network_mode', context).trigger("change");
 
     this.securityGroupsTable.initialize();
-    this.securityGroupsTable.refreshResourceTableSelect();
 
     CustomTags.setup( $("#vnetCreateContextTab", context) );
 
@@ -306,7 +305,14 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    var that = this;
 
+    this.securityGroupsTable.refreshResourceTableSelect();
+
+    $('.ar_tab', context).each(function() {
+      var ar_id = $(this).attr("ar_id");
+      that.arTabObjects[ar_id].onShow();
+    });
   }
 
   function _fill(element, context) {
