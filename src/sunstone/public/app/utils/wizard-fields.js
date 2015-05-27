@@ -1,13 +1,18 @@
 define(function(require) {
+  /*
+    Inputs must define wizard_field="KEY"
+    Inputs with the wizard_field attr will not be considered
+   */
+  
   return {
     'retrieve': _retrieveWizardFields,
     'fill': _fillWizardFields
   }
 
   // TODO: other types: radio, checkbox
-  function _retrieveWizardFields(dialog) {
-    var template_json = {};
-    var fields = $('[wizard_field]', dialog);
+  function _retrieveWizardFields(context) {
+    var templateJSON = {};
+    var fields = $('[wizard_field]', context);
 
     fields.each(function() {
       var field = $(this);
@@ -18,22 +23,23 @@ define(function(require) {
           ) {
 
         var field_name = field.attr('wizard_field');
-        template_json[field_name] = field.val();
+        templateJSON[field_name] = field.val();
       }
     });
-    return template_json;
+    
+    return templateJSON;
   }
 
-  function _fillWizardFields(dialog, template_json) {
-    var fields = $('[wizard_field]', dialog);
+  function _fillWizardFields(context, templateJSON) {
+    var fields = $('[wizard_field]', context);
 
     fields.each(function() {
       var field = $(this);
       var field_name = field.attr('wizard_field');
-      if (template_json[field_name]) {
+      if (templateJSON[field_name]) {
         switch (field.attr("type")){
         case "radio":
-          var checked = (field.val() == template_json[field_name]);
+          var checked = (field.val() == templateJSON[field_name]);
 
           field.prop("checked", checked);
 
@@ -43,7 +49,7 @@ define(function(require) {
           break;
         case "checkbox":
           var checked = (field.val().toUpperCase() ==
-                          template_json[field_name].toUpperCase());
+                          templateJSON[field_name].toUpperCase());
 
           field.prop("checked", checked);
 
@@ -52,7 +58,7 @@ define(function(require) {
           }
           break;
         default:
-          field.val(template_json[field_name])  //TODO field.val(escapeDoubleQuotes(htmlDecode(template_json[field_name])));
+          field.val(templateJSON[field_name])  //TODO field.val(escapeDoubleQuotes(htmlDecode(templateJSON[field_name])));
           field.change();
         }
       }
