@@ -23,12 +23,6 @@ SNAP_ID=$2
 VM_ID=$3
 DS_ID=$4
 
-# Example
-# SRC=ceph0:/var/lib/one//datastores/0/76/disk.0
-# SNAP_ID=1
-# VM_ID=76
-# DS_ID=100
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
