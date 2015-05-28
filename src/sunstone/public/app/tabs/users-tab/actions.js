@@ -7,26 +7,28 @@ define(function(require) {
 
   var RESOURCE = "User";
   var TAB_ID = require('./tabId');
-  // TODO
-  //var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "User.create" : {
       type: "create",
       call: OpenNebulaResource.create,
       callback : function(request, response) {
-        Sunstone.getDialog(CREATE_DIALOG_ID).hide();
-        Sunstone.getDialog(CREATE_DIALOG_ID).reset();
-        DataTable.addElement(request, response);
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
-      error: Notifier.onError,
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
       notify: true
     },
 
     "User.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.getDialog(CREATE_DIALOG_ID).show();
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
 
