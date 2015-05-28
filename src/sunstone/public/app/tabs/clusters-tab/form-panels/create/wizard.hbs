@@ -1,0 +1,38 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="name">{{tr "Name"}}</label>
+      <input type="text" required name="name" id="name" />
+    </div>
+    <div class="large-6 columns">
+      <dl class="tabs right-info-tabs text-center right" data-tab>
+        <dd class="active">
+          <a href="#tab-hostsTab">
+            <i class="fa fa-hdd-o"></i><br>{{tr "Hosts"}}
+          </a>
+        </dd>
+        <dd>
+          <a href="#tab-vnetsTab">
+            <i class="fa fa-globe"></i><br>{{tr "VNets"}}
+          </a>
+        </dd>
+        <dd>
+          <a href="#tab-datastoresTab">
+            <i class="fa fa-folder-open"></i><br>{{tr "Datastores"}}
+          </a>
+        </dd>
+      </dl>
+    </div>
+  </div>
+  <div class="tabs-content">
+    <div id="tab-hostsTab" class="active content">
+      {{{hostsTableHTML}}}
+    </div>
+    <div id="tab-vnetsTab" class="content">
+      {{{vnetsTableHTML}}}
+    </div>
+    <div id="tab-datastoresTab" class="content">
+      {{{datastoresTableHTML}}}
+    </div>
+  </div>
+</form>

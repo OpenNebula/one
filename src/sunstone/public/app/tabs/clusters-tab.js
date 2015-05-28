@@ -17,6 +17,10 @@ define(function(require) {
     require('./clusters-tab/panels/datastores')
   ];
 
+  var _formPanels = [
+    require('./clusters-tab/form-panels/create')
+  ];
+
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Clusters"),
@@ -30,6 +34,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     dialogs: _dialogs
   };
 

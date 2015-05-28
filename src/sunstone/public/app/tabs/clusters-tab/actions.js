@@ -4,49 +4,44 @@ define(function(require) {
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
   var OpenNebulaResource = require('opennebula/cluster');
+  var OpenNebulaAction = require('opennebula/action');
 
   var RESOURCE = "Cluster";
+  var XML_ROOT = "CLUSTER";
   var TAB_ID = require('./tabId');
-  // TODO
-  //var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
 
-    /* TODO
     "Cluster.create" : {
       type: "create",
-      call: OpenNebula.Cluster.create,
+      call: OpenNebulaResource.create,
       callback: function(request, response){
-        // Reset the create wizard
-        $create_cluster_dialog.foundation('reveal', 'close');
-        $create_cluster_dialog.empty();
-        setupCreateClusterDialog();
-
-        addClusterElement(request, response);
-        // Sunstone.runAction('Cluster.list');
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
 
         for (var host in request.request.data[0].cluster.hosts)
           if (request.request.data[0].cluster.hosts[host])
-            Sunstone.runAction("Cluster.addhost",response.CLUSTER.ID,host);
+            Sunstone.runAction("Cluster.addhost",response[XML_ROOT].ID,host);
         for (var vnet in request.request.data[0].cluster.vnets)
           if (request.request.data[0].cluster.vnets[vnet])
-            Sunstone.runAction("Cluster.addvnet",response.CLUSTER.ID,vnet);
+            Sunstone.runAction("Cluster.addvnet",response[XML_ROOT].ID,vnet);
         for (var datastore in request.request.data[0].cluster.datastores)
           if (request.request.data[0].cluster.datastores[datastore])
-            Sunstone.runAction("Cluster.adddatastore",response.CLUSTER.ID,datastore);
+            Sunstone.runAction("Cluster.adddatastore",response[XML_ROOT].ID,datastore);
 
-        //Sunstone.runAction('Cluster.list');
-        // Sunstone.runAction('Cluster.show',response.CLUSTER.ID);
-        notifyCustom(tr("Cluster created"), " ID: " + response.CLUSTER.ID, false);
+        Notifier.notifyCustom(Locale.tr("Cluster created"), " ID: " + response[XML_ROOT].ID, false);
       },
       error: Notifier.onError
     },
 
     "Cluster.create_dialog" : {
       type: "custom",
-      call: popUpCreateClusterDialog
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
     },
-    */
 
     "Cluster.list" : {
       type: "list",
@@ -68,14 +63,20 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
+
     "Cluster.show_to_update" : {
       type: "single",
-      call: OpenNebula.Cluster.show,
-      callback: fillPopPup,
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          });
+      },
       error: Notifier.onError
     },
-    */
+
     "Cluster.refresh" : {
       type: "custom",
       call: function() {
@@ -89,12 +90,12 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
+
     "Cluster.addhost" : {
       type: "single",
-      call : OpenNebula.Cluster.addhost,
+      call : OpenNebulaResource.addhost,
       callback : function (req) {
-        OpenNebula.Helper.clear_cache("HOST");
+        OpenNebulaAction.clear_cache("HOST");
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
@@ -102,9 +103,9 @@ define(function(require) {
 
     "Cluster.delhost" : {
       type: "single",
-      call : OpenNebula.Cluster.delhost,
+      call : OpenNebulaResource.delhost,
       callback : function (req) {
-        OpenNebula.Helper.clear_cache("HOST");
+        OpenNebulaAction.clear_cache("HOST");
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
@@ -112,9 +113,9 @@ define(function(require) {
 
     "Cluster.adddatastore" : {
       type: "single",
-      call : OpenNebula.Cluster.adddatastore,
+      call : OpenNebulaResource.adddatastore,
       callback : function (req) {
-        OpenNebula.Helper.clear_cache("DATASTORE");
+        OpenNebulaAction.clear_cache("DATASTORE");
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
@@ -122,9 +123,9 @@ define(function(require) {
 
     "Cluster.deldatastore" : {
       type: "single",
-      call : OpenNebula.Cluster.deldatastore,
+      call : OpenNebulaResource.deldatastore,
       callback : function (req) {
-        OpenNebula.Helper.clear_cache("DATASTORE");
+        OpenNebulaAction.clear_cache("DATASTORE");
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
@@ -132,9 +133,9 @@ define(function(require) {
 
     "Cluster.addvnet" : {
       type: "single",
-      call : OpenNebula.Cluster.addvnet,
+      call : OpenNebulaResource.addvnet,
       callback : function (req) {
-        OpenNebula.Helper.clear_cache("VNET");
+        OpenNebulaAction.clear_cache("VNET");
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
@@ -142,14 +143,14 @@ define(function(require) {
 
     "Cluster.delvnet" : {
       type: "single",
-      call : OpenNebula.Cluster.delvnet,
+      call : OpenNebulaResource.delvnet,
       callback : function (req) {
-        OpenNebula.Helper.clear_cache("VNET");
+        OpenNebulaAction.clear_cache("VNET");
         Sunstone.runAction('Cluster.show',req.request.data[0][0]);
       },
       error : Notifier.onError
     },
-    */
+
     "Cluster.delete" : {
       type: "multiple",
       call: OpenNebulaResource.del,
@@ -170,21 +171,21 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
-    "Cluster.fetch_template" : {
-      type: "single",
-      call: OpenNebula.Cluster.fetch_template,
-      callback: function(request,response){
-        $('#template_update_dialog #template_update_textarea').val(response.template);
-      },
-      error: Notifier.onError
-    },
 
     "Cluster.update_dialog" : {
       type: "single",
-      call: popUpUpdateClusterDialog
+      call: function() {
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) cluster to update.");
+          return false;
+        }
+
+        var resource_id = "" + selected_nodes[0];
+        Sunstone.runAction(RESOURCE+'.show_to_update', resource_id);
+      }
     },
-    */
+
     "Cluster.rename" : {
       type: "single",
       call: OpenNebulaResource.rename,
