@@ -15,7 +15,7 @@ define(function(require) {
    */
   
   var RESOURCE = "Image"
-  var XML_ROOT = "Image"
+  var XML_ROOT = "IMAGE"
   var TAB_NAME = require('./tabId');
   var COLUMN_IDS = {
     "DATASTORE": 5
