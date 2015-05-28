@@ -11,8 +11,6 @@ define(function(require) {
 
   BaseFormPanel.prototype = {
     'insert': _insert,
-    'show': _show,
-    'hide': _hide,
     'reset': _reset,
     'setAction': _setAction
   }
@@ -60,17 +58,6 @@ define(function(require) {
 
     context.foundation('reflow', 'abide');
     that.setup(context);
-  }
-
-  function _show() {
-    var dialogElement = $('#' + this.dialogId);
-    dialogElement.foundation('reveal', 'open');
-    return false;
-  }
-
-  function _hide() {
-    var dialogElement = $('#' + this.dialogId);
-    dialogElement.foundation('reveal', 'close')
   }
 
   function _reset(context) {
