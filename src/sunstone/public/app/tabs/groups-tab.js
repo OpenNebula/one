@@ -18,6 +18,10 @@ define(function(require) {
     require('./groups-tab/panels/showback')
   ];
 
+  var _formPanels = [
+    require('./groups-tab/form-panels/create')
+  ];
+
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Groups"),
@@ -33,6 +37,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     dialogs: _dialogs
   };
 
