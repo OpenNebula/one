@@ -19,9 +19,8 @@ define(function(require) {
 
       if (field.prop('wizard_field_disabled') != true &&
             field.val() != null && field.val().length &&
-            (field.attr("type") != "checkbox" || field.prop("checked"))
-          ) {
-
+            (field.attr("type") != "checkbox" || field.prop("checked")) &&
+            (field.attr("type") != "radio" || field.prop("checked"))) {
         var field_name = field.attr('wizard_field');
         templateJSON[field_name] = field.val();
       }
