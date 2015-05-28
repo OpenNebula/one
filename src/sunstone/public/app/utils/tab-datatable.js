@@ -127,9 +127,9 @@ define(function(require) {
     'resetResourceTableSelect': _resetResourceTableSelect,
     'refreshResourceTableSelect': _refreshResourceTableSelect,
     'selectResourceTableSelect': _selectResourceTableSelect,
-    'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'retrieveResourceTableSelect': _retrieveResourceTableSelect,
     'idInput': _idInput,
+    'initSelectResourceTableSelect': _initSelectResourceTableSelect,
     'updateFn': _updateFn,
     'getName': _getName,
     'list': _list
@@ -141,7 +141,7 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
-  function _initialize() {
+  function _initialize(opts) {
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
 
     var that = this; 
@@ -167,6 +167,10 @@ define(function(require) {
     }
 
     if (this.conf.select) {
+      if (opts && opts.selectOptions) {
+        $.extend(this.selectOptions, opts.selectOptions);
+      }
+
       this.initSelectResourceTableSelect();
     }
   }
@@ -814,8 +818,8 @@ define(function(require) {
         var row_uname = selectedResources.names.uname;
 
         $.each(that.dataTable.fnGetData(), function(index, row) {
-          if (row[options.name_index] == row_name &&
-             row[options.uname_index] == row_uname) {
+          if (row[that.selectOptions.name_index] == row_name &&
+             row[that.selectOptions.uname_index] == row_uname) {
 
             row_id = row[that.selectOptions.id_index];
             return false;
