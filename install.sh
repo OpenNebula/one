@@ -1094,6 +1094,9 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/cpds \
                  src/tm_mad/ceph/premigrate \
                  src/tm_mad/ceph/postmigrate \
+                 src/tm_mad/ceph/snap_create \
+                 src/tm_mad/ceph/snap_delete \
+                 src/tm_mad/ceph/snap_revert \
                  src/tm_mad/ceph/delete"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \

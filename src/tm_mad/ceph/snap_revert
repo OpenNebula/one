@@ -16,13 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/>
-#   - host is the target host to deploy the VM
-#   - remote_system_ds is the path for the system datastore in the host
+# snap_revert host:parent_image snap_id vmid ds_id
 
-DST=$1
-VM_ID=$2
-DS_ID=$3
+SRC=$1
+SNAP_ID=$2
+VM_ID=$3
+DS_ID=$4
+
+# Example
+# SRC=ceph0:/var/lib/one//datastores/0/76/disk.0
+# SNAP_ID=1
+# VM_ID=76
+# DS_ID=100
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -36,28 +41,17 @@ source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
 #-------------------------------------------------------------------------------
-# Process destination
+# Set dst path and dir
 #-------------------------------------------------------------------------------
 
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-
-#-------------------------------------------------------------------------------
-# Delete and exit if directory
-#-------------------------------------------------------------------------------
-
-if [ `is_disk $DST_PATH` -eq 0 ]; then
-    # Directory
-    log "Deleting $DST_PATH"
-    ssh_exec_and_log "$DST_HOST" "rm -rf $DST_PATH" "Error deleting $DST_PATH"
-    exit 0
-fi
+SRC_HOST=`arg_host $SRC`
+SRC_PATH=`arg_path $SRC`
 
 #-------------------------------------------------------------------------------
 # Get Image information
 #-------------------------------------------------------------------------------
 
-DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
+DISK_ID=$(echo "$SRC_PATH" | $AWK -F. '{print $NF}')
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
@@ -67,82 +61,37 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
 
-SRC="${XPATH_ELEMENTS[j++]}"
-CLONE="${XPATH_ELEMENTS[j++]}"
+RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
-# No need to delete no cloned images
-if [ "$CLONE" = "NO" ]; then
-    exit 0
-fi
+RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
+
+#-------------------------------------------------------------------------------
+# Create snapshots
+#-------------------------------------------------------------------------------
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
-# cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
-RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
-RBD_SNAP="${VM_ID}-${DISK_ID}"
-
-#-------------------------------------------------------------------------------
-# Delete the device
-#-------------------------------------------------------------------------------
-
-log "Deleting $DST_PATH"
-
-# Note that this command, as opposed to the rest of $RBD commands in this set of
-# drivers, is executed in the worker node and not in the CEPH frontend.
-
-DELETE_CMD=$(cat <<EOF
-    rm_children(){
-        local rbd_snap rbd snap_id child snap_list
-
-        rbd_snap=\$1
-        rbd=\${rbd_snap%%@*}
-
-        snap_list=\$(set +e; rbd snap ls \$rbd)
-
-        if [ -n "\$snap_list" ]; then
-            CHILDREN=\$(set +e; rbd children \$rbd_snap 2>/dev/null)
-
-            for child in \$CHILDREN; do
-                snap_id=\${child##*-}
-                child=\$child@\$snap_id
-                rm_children \$child
-            done
-
-            $RBD snap unprotect \$rbd_snap
-            $RBD snap rm \$rbd_snap
-        fi
-
-        $RBD rm \$rbd
-    }
+SNAP_REVERT_CMD=$(cat <<EOF
+    set -e
 
     RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
 
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        has_snap_shots=\$($RBD info $RBD_SRC-0@0 2>/dev/null)
-
-        if [ -n "\$has_snap_shots" ]; then
-            rm_children $RBD_SRC-0@0
-        else
-            $RBD rm $RBD_SRC
-        fi
-    else
-        $RBD rm $RBD_SRC
+    if [ "\${RBD_FORMAT}" != "2" ]; then
+        echo "Only RBD Format 2 is supported for this operation" >&2
+        exit 1
     fi
 
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        $RBD snap unprotect $SRC@$RBD_SNAP
-        $RBD snap rm $SRC@$RBD_SNAP
-    fi
+    $RBD rm $RBD_DST
+    $RBD clone $RBD_DST-$SNAP_ID@$SNAP_ID $RBD_DST
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-                 "Error deleting $RBD_SRC in $DST_HOST"
+ssh_exec_and_log "$SRC_HOST" "$SNAP_REVERT_CMD" \
+                 "Error reverting snapshot $RBD_DST-$SNAP_ID@$SNAP_ID"
 
 exit 0
