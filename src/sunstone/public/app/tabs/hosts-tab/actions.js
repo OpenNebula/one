@@ -4,6 +4,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
   var OpenNebulaHost = require('opennebula/host');
+  var OpenNebulaCluster = require('opennebula/cluster');
+  var OpenNebulaAction = require('opennebula/action');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -114,57 +116,59 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    /* TODO "Host.addtocluster" : {
+    "Host.addtocluster" : {
       type: "multiple",
-      call: function(params) {
+      call: function(params){
         var cluster = params.data.extra_param;
         var host = params.data.id;
 
-        if (cluster == -1) {
+        if (cluster == -1){
           OpenNebulaHost.show({
             data : {
               id: host
             },
-            success: function (request, host_info) {
-              var current_cluster = host_info.HOST.CLUSTER_ID;
+            success: function (request, info){
+              var element = info.HOST;
 
-              if (current_cluster != -1) {
-                OpenNebula.Cluster.delhost({
+              var current_cluster = element.CLUSTER_ID;
+
+              if(current_cluster != -1){
+                OpenNebulaCluster.delhost({
                   data: {
                     id: current_cluster,
                     extra_param: host
                   },
-                  success: function() {
-                    OpenNebula.Helper.clear_cache("HOST");
-                    Sunstone.runAction('Host.show', host);
+                  success: function(){
+                    OpenNebulaAction.clear_cache("HOST");
+                    Sunstone.runAction('Host.show',host);
                   },
-                  error: onError
+                  error: Notifier.onError
                 });
               } else {
-                OpenNebula.Helper.clear_cache("HOST");
-                Sunstone.runAction('Host.show', host);
+                OpenNebulaAction.clear_cache("HOST");
+                Sunstone.runAction('Host.show',host);
               }
             },
-            error: onError
+            error: Notifier.onError
           });
         } else {
-          OpenNebula.Cluster.addhost({
+          OpenNebulaCluster.addhost({
             data: {
               id: cluster,
               extra_param: host
             },
-            success: function() {
-              OpenNebula.Helper.clear_cache("HOST");
-              Sunstone.runAction('Host.show', host);
+            success: function(){
+              OpenNebulaAction.clear_cache("HOST");
+              Sunstone.runAction('Host.show',host);
             },
-            error: onError
+            error: Notifier.onError
           });
         }
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
       }
-    },*/
+    },
 
     "Host.rename" : {
       type: "single",
