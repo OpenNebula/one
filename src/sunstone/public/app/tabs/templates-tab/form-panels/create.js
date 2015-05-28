@@ -24,7 +24,8 @@ define(function(require) {
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
   var WIZARD_TABS = [
-    require('./create/wizard-tabs/general')
+    require('./create/wizard-tabs/general'),
+    require('./create/wizard-tabs/storage')
   ]
 
   /*
