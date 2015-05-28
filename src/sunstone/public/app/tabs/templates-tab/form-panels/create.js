@@ -94,7 +94,7 @@ define(function(require) {
 
   function _setup(context) {
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.setup(context);
+      wizardTab.setup($('#' + wizardTab.wizardTabId, context));
     });
 
     context.foundation('reflow', 'tab');
@@ -105,14 +105,14 @@ define(function(require) {
     $('a[href="#'+ that.wizardTabs[0].wizardTabId +'"]', context).trigger("click");
 
     $.each(that.wizardTabs, function(index, wizardTab) {
-      wizardTab.onShow(context, that);
+      wizardTab.onShow($('#' + wizardTab.wizardTabId, context), that);
     });
   }
 
   function _submitWizard(context) {
     var templateJSON = {}
     $.each(this.wizardTabs, function(index, wizardTab) {
-      $.extend(templateJSON, wizardTab.retrieve(context));
+      $.extend(templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
     });
 
     if (this.action == "create") {
@@ -153,7 +153,7 @@ define(function(require) {
       TemplateUtils.templateToString(templateJSON).replace(/^[\r\n]+$/g, ""));
 
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.fill(context, templateJSON);
+      wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);
     });
   }
 });

@@ -76,40 +76,39 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var wizardTabContext = $('#' + this.wizardTabId, context); 
-    Tips.setup(wizardTabContext);
+    Tips.setup(context);
 
-    wizardTabContext.on("change", "#LOGO", function() {
-      $("#template_create_logo", wizardTabContext).show();
-      $("#template_create_logo", wizardTabContext).html('<span  class="">' +
+    context.on("change", "#LOGO", function() {
+      $("#template_create_logo", context).show();
+      $("#template_create_logo", context).html('<span  class="">' +
           '<img src="' + $(this).val() + '">' +
         '</span>');
     });
 
-    wizardTabContext.on("change", "input[name='hypervisor']", function() {
-      $(".hypervisor", context).hide();
-      $(".only_" + this.value, context).show();
+    context.on("change", "input[name='hypervisor']", function() {
+      // TODO define context (for example: this.closest('form'))
+      $(".hypervisor").hide();
+      $(".only_" + this.value).show();
     });
 
-    CapacityInputs.setup(wizardTabContext);
+    CapacityInputs.setup(context);
   }
 
   function _retrieve(context) {
-    var wizardTabContext = $('#' + this.wizardTabId, context); 
-    var templateJSON = WizardFields.retrieve(wizardTabContext);
+    var templateJSON = WizardFields.retrieve(context);
 
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       templateJSON["PUBLIC_CLOUD"] = {
         'TYPE': 'vcenter',
-        'VM_TEMPLATE': $("#vcenter_template_uuid", wizardTabContext).val()
+        'VM_TEMPLATE': $("#vcenter_template_uuid", context).val()
       }
     }
 
-    if ($('#sunstone_capacity_select:checked', wizardTabContext).length > 0) {
+    if ($('#sunstone_capacity_select:checked', context).length > 0) {
       templateJSON["SUNSTONE_CAPACITY_SELECT"] = "NO"
     }
 
-    if ($('#sunstone_network_select:checked', wizardTabContext).length > 0) {
+    if ($('#sunstone_network_select:checked', context).length > 0) {
       templateJSON["SUNSTONE_NETWORK_SELECT"] = "NO"
     }
 
@@ -117,21 +116,20 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
-    var wizardTabContext = $('#' + this.wizardTabId, context); 
-    WizardFields.fill(wizardTabContext, templateJSON);
+    WizardFields.fill(context, templateJSON);
 
     if (templateJSON["SUNSTONE_CAPACITY_SELECT"] && 
           (templateJSON["SUNSTONE_CAPACITY_SELECT"].toUpperCase() == "NO")) {
-      $("#sunstone_capacity_select", wizardTabContext).attr("checked", "checked");
+      $("#sunstone_capacity_select", context).attr("checked", "checked");
     }
 
     if (templateJSON["SUNSTONE_NETWORK_SELECT"] && 
           (templateJSON["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
-      $("#sunstone_network_select", wizardTabContext).attr("checked", "checked");
+      $("#sunstone_network_select", context).attr("checked", "checked");
     }
 
     if (templateJSON["HYPERVISOR"]) {
-      $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", wizardTabContext).trigger("click")
+      $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", context).trigger("click")
     }
 
     // TODO vcenter_template_uuid
