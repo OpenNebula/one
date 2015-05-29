@@ -129,7 +129,6 @@
       <br>
       <div class="kernel_ds">
         {{! TODO kernelFilesTableSelectHTML}}
-        <br>
         <div id="kernel_ds_inputs" class="row">
           <div class="large-12 columns">
             <label for="KERNEL_DS">{{tr "KERNEL_DS"}}</label>
@@ -153,13 +152,12 @@
           <input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked>
           <label for="radioInintrdDs">{{tr "Registered Image "}}</label>
           <input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path">
-          <label for="radioInitrdPath">{{tr "Remote PATH"}}"</label>
+          <label for="radioInitrdPath">{{tr "Remote PATH"}}</label>
         </div>
       </div>
       <br>
       <div class="initrd_ds">
         {{! TODO initrdFilesTableSelectHTML}}
-        <br>
         <div class="row">
           <div class="large-12 columns">
             <label for="INITRD_DS">{{tr "INITRD_DS"}}</label>
@@ -170,7 +168,7 @@
       <div id="initrd_path_inputs" class="initrd_path hidden">
         <div class="row">
           <div class="large-12 columns">
-            <label class="inline" for="INITRD">
+            <label for="INITRD">
               {{tr "PATH"}}
               <span class="tip">{{tr "Path to the initrd image"}}</span>
             </label>

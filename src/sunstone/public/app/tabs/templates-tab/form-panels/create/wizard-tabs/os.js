@@ -161,6 +161,38 @@ define(function(require) {
     Tips.setup(context);
     context.foundation('reflow', 'tab');
 
+    var kernelDSContext = $(".kernel_ds",  context);
+    var kernelDSInputsContext = $("#kernel_path_inputs",  context);
+    $("input[name='kernel_type']", context).change(function() {
+      if ($("input[name='kernel_type']:checked", context).val() == "kernel_ds") {
+        kernelDSContext.toggle();
+        kernelDSInputsContext.hide();
+        $("[wizard_field]", kernelDSContext).prop('wizard_field_disabled', false);
+        $("[wizard_field]", kernelDSInputsContext).prop('wizard_field_disabled', true);
+      } else {
+        kernelDSContext.hide();
+        kernelDSInputsContext.toggle();
+        $("[wizard_field]", kernelDSInputsContext).prop('wizard_field_disabled', false);
+        $("[wizard_field]", kernelDSContext).prop('wizard_field_disabled', true);
+      }
+    });
+
+    var initrdDSContext = $(".initrd_ds",  context);
+    var initrdDSInputsContext = $("#initrd_path_inputs",  context);
+    $("input[name='initrd_type']", context).change(function() {
+      if ($("input[name='initrd_type']:checked", context).val() == "initrd_ds") {
+        initrdDSContext.toggle();
+        initrdDSInputsContext.hide();
+        $("[wizard_field]", initrdDSContext).prop('wizard_field_disabled', false);
+        $("[wizard_field]", initrdDSInputsContext).prop('wizard_field_disabled', true);
+      } else {
+        initrdDSContext.hide();
+        initrdDSInputsContext.toggle();
+        $("[wizard_field]", initrdDSInputsContext).prop('wizard_field_disabled', false);
+        $("[wizard_field]", initrdDSContext).prop('wizard_field_disabled', true);
+      }
+    });
+
     /* TODO
     that.kernelFileTable.initialize({
       'selectOptions': {
