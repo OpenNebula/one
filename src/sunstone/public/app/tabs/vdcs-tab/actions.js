@@ -7,61 +7,69 @@ define(function(require) {
 
   var RESOURCE = "Vdc";
   var TAB_ID = require('./tabId');
-  // TODO
-  //var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
 
-    /* TODO
     "Vdc.create" : {
       type: "create",
       call: OpenNebulaResource.create,
       callback: function(request, response) {
-        $("a[href=back]", $("#vdcs-tab")).trigger("click");
-        popFormDialog("create_vdc_form", $("#vdcs-tab"));
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
 
         var group_ids = request.request.data[0].group_ids;
-        $.each(group_ids,function(){
-          Sunstone.runAction(RESOURCE+".add_group",
-            response.VDC.ID,
-            { group_id : parseInt(this)});
-        });
+        if(group_ids !=undefined){
+          $.each(group_ids,function(){
+            Sunstone.runAction(RESOURCE+".add_group",
+              response.VDC.ID,
+              { group_id : parseInt(this)});
+          });
+        }
 
         var clusters = request.request.data[0].clusters;
-        $.each(clusters,function(){
-          Sunstone.runAction(RESOURCE+".add_cluster",
-            response.VDC.ID,
-            this);
-        });
+        if(clusters !=undefined){
+          $.each(clusters,function(){
+            Sunstone.runAction(RESOURCE+".add_cluster",
+              response.VDC.ID,
+              this);
+          });
+        }
 
         var hosts = request.request.data[0].hosts;
-        $.each(hosts,function(){
-          Sunstone.runAction(RESOURCE+".add_host",
-            response.VDC.ID,
-            this);
-        });
+        if(hosts !=undefined){
+          $.each(hosts,function(){
+            Sunstone.runAction(RESOURCE+".add_host",
+              response.VDC.ID,
+              this);
+          });
+        }
 
         var vnets = request.request.data[0].vnets;
-        $.each(vnets,function(){
-          Sunstone.runAction(RESOURCE+".add_vnet",
-            response.VDC.ID,
-            this);
-        });
+        if(vnets !=undefined){
+          $.each(vnets,function(){
+            Sunstone.runAction(RESOURCE+".add_vnet",
+              response.VDC.ID,
+              this);
+          });
+        }
 
         var datastores = request.request.data[0].datastores;
-        $.each(datastores,function(){
-          Sunstone.runAction(RESOURCE+".add_datastore",
-            response.VDC.ID,
-            this);
-        });
+        if(datastores !=undefined){
+          $.each(datastores,function(){
+            Sunstone.runAction(RESOURCE+".add_datastore",
+              response.VDC.ID,
+              this);
+          });
+        }
 
         // TODO: this vdc.show may get the information before the add/del
         // actions end, showing "outdated" information
 
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
 
-        addVdcElement(request, response);
-        notifyCustom(tr("VDC created"), " ID: " + response.VDC.ID, false);
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Notifier.notifyCustom(Locale.tr("VDC created"), " ID: " + response.VDC.ID, false);
       },
       error: Notifier.onError
     },
@@ -69,37 +77,10 @@ define(function(require) {
     "Vdc.create_dialog" : {
       type: "custom",
       call: function(){
-        Sunstone.popUpFormPanel("create_vdc_form", "vdcs-tab", "create", true, function(context){
-          refreshGroupTableSelect(context, "vdc_wizard_groups");
-
-          var zone_ids = [];
-
-          OpenNebula.Zone.list({
-            timeout: true,
-            success: function (request, obj_list){
-              $.each(obj_list,function(){
-                zone_ids.push(this.ZONE.ID);
-
-                addVdcResourceTab(
-                  "vdc_create_wizard",
-                  this.ZONE.ID,
-                  this.ZONE.NAME,
-                  $("#vdcCreateResourcesTab",context));
-              });
-
-              setupVdcResourceTab("vdc_create_wizard",
-                $("#vdcCreateResourcesTab",context));
-
-              context.data("zone_ids", zone_ids);
-            },
-            error: Notifier.onError
-          });
-
-          $("input#name",context).focus();
-        });
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
-    */
+
     "Vdc.list" : {
       type: "list",
       call: OpenNebulaResource.list,
@@ -209,97 +190,96 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
+
     "Vdc.add_group" : {
-        type: "single",
-        call : OpenNebulaResource.add_group,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.add_group,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.del_group" : {
-        type: "single",
-        call : OpenNebulaResource.del_group,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.del_group,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.add_cluster" : {
-        type: "single",
-        call : OpenNebulaResource.add_cluster,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.add_cluster,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.del_cluster" : {
-        type: "single",
-        call : OpenNebulaResource.del_cluster,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.del_cluster,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.add_host" : {
-        type: "single",
-        call : OpenNebulaResource.add_host,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.add_host,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.del_host" : {
-        type: "single",
-        call : OpenNebulaResource.del_host,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.del_host,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.add_vnet" : {
-        type: "single",
-        call : OpenNebulaResource.add_vnet,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.add_vnet,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.del_vnet" : {
-        type: "single",
-        call : OpenNebulaResource.del_vnet,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.del_vnet,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.add_datastore" : {
-        type: "single",
-        call : OpenNebulaResource.add_datastore,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.add_datastore,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     },
 
     "Vdc.del_datastore" : {
-        type: "single",
-        call : OpenNebulaResource.del_datastore,
-        callback : function (req) {
-            //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
-        },
-        error : Notifier.onError
+      type: "single",
+      call : OpenNebulaResource.del_datastore,
+      callback : function (req) {
+        //Sunstone.runAction(RESOURCE+'.show',req.request.data[0][0]);
+      },
+      error : Notifier.onError
     }
-    */
   };
 
   return _actions;

@@ -1,0 +1,44 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div>
+    <dl id="vdc_create_tabs" class="tabs right-info-tabs text-center" data-tab>
+      <dd class="active"><a href="#vdcCreateGeneralTab"><i class="fa fa-th"></i><br>{{tr "General"}}</a></dd>
+      <dd><a href="#vdcCreateGroupsTab"><i class="fa fa-users"></i><br>{{tr "Groups"}}</a></dd>
+      <dd><a href="#vdcCreateResourcesTab"><i class="fa fa-hdd-o"></i><br>{{tr "Resources"}}</a></dd>
+    </dl>
+    <div id="vdc_create_tabs_content" class="tabs-content">
+      <div class="content active" id="vdcCreateGeneralTab">
+        <div class="row">
+          <div class="large-6 columns">
+            <label for="name" >{{tr "Name"}}:
+              <span class="tip">{{tr "Name that the VDC will get for description purposes."}}</span>
+            </label>
+            <input type="text" wizard_field="NAME" required name="name" id="name"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-6 columns">
+            <label for="DESCRIPTION" >{{tr "Description"}}:
+              <span class="tip">{{tr "Description of the VDC"}}</span>
+            </label>
+            <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="large-12 columns">
+            <span>{{tr "Custom attributes"}}</span>
+            <br>
+            <br>
+          </div>
+        </div>
+        {{{customTagsHTML}}}
+      </div>
+      <div id="vdcCreateGroupsTab" class="content">
+        {{{groupsTableHTML}}}
+      </div>
+      <div id="vdcCreateResourcesTab" class="content">
+        {{{resourcesTabHTML}}}
+      </div>
+    </div>
+  </div>
+</form>

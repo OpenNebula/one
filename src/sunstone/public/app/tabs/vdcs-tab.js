@@ -16,6 +16,10 @@ define(function(require) {
     require('./vdcs-tab/panels/resources')
   ];
 
+  var _formPanels = [
+    require('./vdcs-tab/form-panels/create')
+  ];
+
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("VDCs"),
@@ -31,6 +35,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     dialogs: _dialogs
   };
 
