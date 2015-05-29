@@ -715,15 +715,11 @@ define(function(require) {
       }
 
       // Hide reset button if not defined
-      if (formPanelInstance.resetButton) {
+      if (formPanelInstance.resetButton()) {
         $(".reset_button", context).show();
       } else {
         $(".reset_button", context).hide();
       }
-
-      // Set title and button strings
-      $(".right-form-title", context).text(formPanelInstance.title());
-      $(".submit_button", context).text(formPanelInstance.buttonText());
 
       formPanelInstance.onShow(context);
       if (onShow2) {
@@ -762,10 +758,6 @@ define(function(require) {
       }
 
       if (formPanelInstance) {
-        // Set title and button strings
-        $(".right-form-title", context).text(formPanelInstance.title());
-        $(".submit_button", context).text(formPanelInstance.buttonText());
-
         formPanelInstance.reset(context);
         formPanelInstance.onShow(context);
       }
@@ -777,6 +769,12 @@ define(function(require) {
   function _hideFormPanelLoading(tabId) {
     var context = $("#" + tabId);
     //$(".right-form", context).html(content);
+    var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
+
+    // Set title and button strings
+    $(".right-form-title", context).text(formPanelInstance.title());
+    $(".submit_button", context).text(formPanelInstance.buttonText());
+
     $(".loadingForm", context).hide();
     $(".tabs-contentForm", context).show();
   }
