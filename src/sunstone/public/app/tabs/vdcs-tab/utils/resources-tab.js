@@ -92,6 +92,7 @@ define(function(require) {
     var zoneSection = $('#' +unique_id+'Tab', context);
 
     resourcesZone.setup(zoneSection);
+    resourcesZone.onShow(zoneSection);
 
     this.zones.push(resourcesZone);
   }

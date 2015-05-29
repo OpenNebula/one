@@ -10,7 +10,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var CustomTagsTable = require('utils/custom-tags-table');
   var WizardFields = require('utils/wizard-fields');
-  var GroupsTable = require('tabs/clusters-tab/datatable');
+  var GroupsTable = require('tabs/groups-tab/datatable');
   var OpenNebulaZone = require('opennebula/zone');
   var Utils = require('../utils/common');
   var Notifier = require('utils/notifier');
