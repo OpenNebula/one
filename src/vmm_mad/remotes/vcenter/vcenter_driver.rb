@@ -146,7 +146,50 @@ class VIClient
     # The associated resource pool for this connection
     ########################################################################
     def resource_pool
-        return @cluster.resourcePool
+        rp_name = @one_host["TEMPLATE/VCENTER_RESOURCE_POOL"]
+
+       if rp_name.nil?
+          @cluster.resourcePool
+       else
+          find_resource_pool(rp_name)
+       end
+    end
+
+    ########################################################################
+    # Searches the desired ResourcePool of the DataCenter for the current
+    # connection. Returns a RbVmomi::VIM::ResourcePool or the default pool
+    # if not found
+    # @param rpool [String] the ResourcePool name
+    ########################################################################
+    def find_resource_pool(poolName)  
+        baseEntity = @cluster
+        entityArray = poolName.split('/')
+        entityArray.each do |entityArrItem|
+          if entityArrItem != ''
+            if baseEntity.is_a? RbVmomi::VIM::Folder
+                baseEntity = baseEntity.childEntity.find { |f| 
+                                  f.name == entityArrItem 
+                              } or return @cluster.resourcePool
+            elsif baseEntity.is_a? RbVmomi::VIM::ClusterComputeResource
+                baseEntity = baseEntity.resourcePool.resourcePool.find { |f| 
+                                  f.name == entityArrItem 
+                              } or return @cluster.resourcePool
+            elsif baseEntity.is_a? RbVmomi::VIM::ResourcePool
+                baseEntity = baseEntity.resourcePool.find { |f| 
+                                  f.name == entityArrItem
+                              } or return @cluster.resourcePool
+            else
+                return @cluster.resourcePool
+            end
+          end
+        end
+  
+        if !baseEntity.is_a?(RbVmomi::VIM::ResourcePool) and 
+            baseEntity.respond_to?(:resourcePool)
+              baseEntity = baseEntity.resourcePool 
+        end
+  
+        baseEntity
     end
 
     ########################################################################
@@ -1079,7 +1122,7 @@ class VCenterVm
                    "  TYPE     =\"vnc\",\n"\
                    "  LISTEN   =\"0.0.0.0\",\n"\
                    "  PORT     =\"#{vp[0][:value]}\"\n"
-            str << " ,KEYMAP   =\"#{keymap[0][:value]}\"\n" if keymap[0]
+            str << "  KEYMAP   =\"#{keymap[0][:value]}\"\n" if keymap
             str << "]\n"
         end
 
