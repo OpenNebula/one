@@ -241,31 +241,33 @@ define(function(require) {
 
   function _fill(context, templateJSON) {
     var osJSON = templateJSON['OS'];
-    WizardFields.fill(context, osJSON);
-    
-    if (osJSON && osJSON['BOOT']) {
-      var boot_vals = osJSON['BOOT'].split(",");
+    if (osJSON) {
+      WizardFields.fill(context, osJSON);
+      
+      if (osJSON && osJSON['BOOT']) {
+        var boot_vals = osJSON['BOOT'].split(",");
 
-      for (var i = 0; i < 3 && i < boot_vals.length; i++) {
-        $('#BOOT_' + i, context).val(boot_vals[i]);
+        for (var i = 0; i < 3 && i < boot_vals.length; i++) {
+          $('#BOOT_' + i, context).val(boot_vals[i]);
+        }
       }
+
+      /* TODO
+      var selectedResources = {
+          ids : templateJSON.NETWORK_ID
+        }
+
+      this.kernelFilesTable.selectResourceTableSelect(selectedResources);
+
+
+      var selectedResources = {
+          ids : templateJSON.NETWORK_ID
+        }
+
+      this.initrdFilesTable.selectResourceTableSelect(selectedResources);
+      */
+
+      delete templateJSON['OS'];
     }
-
-    /* TODO
-    var selectedResources = {
-        ids : templateJSON.NETWORK_ID
-      }
-
-    this.kernelFilesTable.selectResourceTableSelect(selectedResources);
-
-
-    var selectedResources = {
-        ids : templateJSON.NETWORK_ID
-      }
-
-    this.initrdFilesTable.selectResourceTableSelect(selectedResources);
-    */
-
-    delete templateJSON.OS;
   }
 });
