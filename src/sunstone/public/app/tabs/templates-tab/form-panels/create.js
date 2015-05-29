@@ -28,7 +28,8 @@ define(function(require) {
     require('./create/wizard-tabs/storage'),
     require('./create/wizard-tabs/network'),
     require('./create/wizard-tabs/os'),
-    require('./create/wizard-tabs/io')
+    require('./create/wizard-tabs/io'),
+    require('./create/wizard-tabs/context')
   ]
 
   /*
