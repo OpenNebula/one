@@ -76,10 +76,13 @@ else
     RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
 fi
 
+if [ -n "$SNAP_ID" ]; then
+    RBD_DST="${RBD_DST}-${SNAP_ID}@${SNAP_ID}"
+fi
+
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
-
 
 ssh_exec_and_log "$SRC_HOST" "$RBD copy $RBD_DST $DST" \
                  "Error cloning $RBD_DST to $DST in $SRC_HOST"

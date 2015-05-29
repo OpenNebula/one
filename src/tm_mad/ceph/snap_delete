@@ -55,15 +55,21 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
-RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
+if [ "$CLONE" = "NO" ]; then
+    RBD_DST="${RBD_SRC}"
+else
+    RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
+fi
 
 #-------------------------------------------------------------------------------
-# Create snapshots
+# Delete snapshots
 #-------------------------------------------------------------------------------
 
 if [ -n "$CEPH_USER" ]; then
