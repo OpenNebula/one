@@ -26,7 +26,8 @@ define(function(require) {
   var WIZARD_TABS = [
     require('./create/wizard-tabs/general'),
     require('./create/wizard-tabs/storage'),
-    require('./create/wizard-tabs/network')
+    require('./create/wizard-tabs/network'),
+    require('./create/wizard-tabs/os')
   ]
 
   /*

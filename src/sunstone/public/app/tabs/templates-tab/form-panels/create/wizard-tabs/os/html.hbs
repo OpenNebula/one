@@ -1,0 +1,285 @@
+<div id="tabs-bootos">
+  <dl class="tabs vertical" data-tab>
+    <dd class="active">
+      <a href="#bootTab">{{tr "Boot"}}</a>
+    </dd>
+    <dd>
+      <a href="#kernelTab">{{tr "Kernel"}}</a>
+    </dd>
+    <dd>
+      <a href="#ramdiskTab">{{tr "Ramdisk"}}</a>
+    </dd>
+    <dd>
+      <a href="#featuresTab">{{tr "Features"}}</a>
+    </dd>
+  </dl>
+  <div class="tabs-content vertical">
+    <div class="wizard_internal_tab active content" id="bootTab">
+      <div class="row">
+        <div class="large-4 columns">
+          <label for="ARCH">
+            {{tr "Arch"}}
+            <span class="tip">{{tr "CPU architecture to virtualization"}}</span>
+          </label>
+          <select wizard_field="ARCH" id="ARCH" name="arch">
+            <option id="no_arch" name="no_arch" value=""></option>
+            <option value="i686">i686</option>
+            <option value="x86_64">x86_64</option>
+          </select>
+        </div>
+        <div class="large-8 columns hypervisor only_kvm">
+          <label for="MACHINE">
+            {{tr "Machine type"}}
+            <span class="tip">{{tr "libvirt machine type, only for KVM"}}</span>
+          </label>
+          <input type="text" wizard_field="MACHINE" id="MACHINE" name="machine" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-4 columns">
+          <label for="ROOT">
+            {{tr "Root"}}
+            <span class="tip">{{tr "Device to be mounted as root"}}</span>
+          </label>
+          <input type="text" wizard_field="ROOT" id="ROOT" name="root"/>
+        </div>
+        <div class="large-8 columns hypervisor only_vmware">
+          <label for="GUESTOS">
+            {{tr "Guest OS"}}
+            <span class="tip">{{tr "Set the OS of the VM, only for VMware"}}</span>
+          </label>
+          <select wizard_field="GUESTOS" id="GUESTOS" name="GUESTOS">
+            <option id="no_guestos" name="no_guestos" value=""></option>
+            {{#each guestOS}}
+            <option value="{{this}}">{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="large-4 columns">
+          <label for="BOOT_0">
+            {{tr "1st Boot"}}
+            <span class="tip">{{tr "1st Boot device type"}}</span>
+          </label>
+          <select id="BOOT_0" name="boot">
+            <option id="no_boot" name="no_boot" value=""></option>
+            <option value="hd">{{tr "HD"}}</option>
+            <option value="fd">{{tr "FD"}}</option>
+            <option value="cdrom">{{tr "CDROM"}}</option>
+            <option value="network">{{tr "NETWORK"}}</option>
+          </select>
+        </div>
+        <div class="large-4 columns">
+          <label for="BOOT_1">
+            {{tr "2nd Boot"}}
+            <span class="tip">{{tr "2nd Boot device type"}}</span>
+          </label>
+          <select id="BOOT_1" name="boot">
+            <option id="no_boot" name="no_boot" value=""></option>
+            <option value="hd">{{tr "HD"}}</option>
+            <option value="fd">{{tr "FD"}}</option>
+            <option value="cdrom">{{tr "CDROM"}}</option>
+            <option value="network">{{tr "NETWORK"}}</option>
+          </select>
+        </div>
+        <div class="large-4 columns">
+          <label for="BOOT_2">
+            {{tr "3rd Boot"}}
+            <span class="tip">{{tr "3rd Boot device type"}}</span>
+          </label>
+          <select id="BOOT_2" name="boot">
+            <option id="no_boot" name="no_boot" value=""></option>
+            <option value="hd">{{tr "HD"}}</option>
+            <option value="fd">{{tr "FD"}}</option>
+            <option value="cdrom">{{tr "CDROM"}}</option>
+            <option value="network">{{tr "NETWORK"}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <label for="KERNEL_CMD">
+            {{tr "Kernel cmd"}}
+            <span class="tip">{{tr "Arguments for the booting kernel"}}</span>
+          </label>
+          <input type="text" wizard_field="KERNEL_CMD" id="KERNEL_CMD" name="kernel_cmd" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <label for="BOOTLOADER">
+            {{tr "Bootloader"}}
+            <span class="tip">{{tr "Path to the bootloader executable"}}</span>
+          </label>
+          <input type="text" wizard_field="BOOTLOADER" id="BOOTLOADER" name="bootloader" />
+        </div>
+      </div>
+    </div>
+    <div id="kernelTab" class="wizard_internal_tab content">
+      <div class="row">
+        <div class="large-12 columns text-center">
+          <input id="radioKernelDs" type="radio" name="kernel_type" value="kernel_ds" checked/>
+          <label for="radioKernelDs">{{tr "Registered Image"}}</label>
+          <input id="radioKernelPath" type="radio" name="kernel_type" value="kernel_path"/>
+          <label for="radioKernelPath">{{tr "Remote PATH"}}</label>
+        </div>
+      </div>
+      <br>
+      <div class="kernel_ds">
+        {{! TODO kernelFilesTableSelectHTML}}
+        <br>
+        <div id="kernel_ds_inputs" class="row">
+          <div class="large-12 columns">
+            <label for="KERNEL_DS">{{tr "KERNEL_DS"}}</label>
+            <input type="text" wizard_field="KERNEL_DS" id="KERNEL_DS" name="KERNEL_DS"/>
+          </div>
+        </div>
+      </div>
+      <div id="kernel_path_inputs" class="kernel_path hidden row">
+        <div class="large-12 columns">
+          <label for="KERNEL">
+            {{tr "PATH"}}
+            <span class="tip">{{tr "Path to the OS kernel to boot the image"}}</span>
+          </label>
+          <input type="text" wizard_field="KERNEL" id="KERNEL" name="kernel" />
+        </div>
+      </div>
+    </div>
+    <div id="ramdiskTab" class="wizard_internal_tab content">
+      <div class="row">
+        <div class="large-12 columns text-center">
+          <input id="radioInintrdDs" type="radio" name="initrd_type" value="initrd_ds" checked>
+          <label for="radioInintrdDs">{{tr "Registered Image "}}</label>
+          <input id="radioInitrdPath" type="radio" name="initrd_type" value="initrd_path">
+          <label for="radioInitrdPath">{{tr "Remote PATH"}}"</label>
+        </div>
+      </div>
+      <br>
+      <div class="initrd_ds">
+        {{! TODO initrdFilesTableSelectHTML}}
+        <br>
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="INITRD_DS">{{tr "INITRD_DS"}}</label>
+            <input type="text" wizard_field="INITRD_DS" id="INITRD_DS" name="initrd_id"/>
+          </div>
+        </div>
+      </div>
+      <div id="initrd_path_inputs" class="initrd_path hidden">
+        <div class="row">
+          <div class="large-12 columns">
+            <label class="inline" for="INITRD">
+              {{tr "PATH"}}
+              <span class="tip">{{tr "Path to the initrd image"}}</span>
+            </label>
+            <input type="text" wizard_field="INITRD" id="INITRD" name="initrd"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wizard_internal_tab content" id="featuresTab">
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="ACPI">
+            {{tr "ACPI"}}
+            <span class="tip">
+              {{tr "Add support in the VM for Advanced Configuration and Power Interface (ACPI)"}}
+            </span>
+          </label>
+          <select wizard_field="ACPI" id="ACPI" name="acpi">
+            <option id="no_apci" name="no_apci" value=""></option>
+            <option value="yes">{{tr "Yes"}}</option>
+            <option value="no">{{tr "No"}}</option>
+          </select>
+        </div>
+        <div class="large-6 columns">
+          <label for="PAE">
+            {{tr "PAE"}}
+            <span class="tip">
+              {{tr "Add support in the VM for Physical Address Extension (PAE)"}}
+            </span>
+          </label>
+          <select wizard_field="PAE" id="PAE" name="pae">
+            <option id="no_pae" name="no_pae" value=""></option>
+            <option value="yes">{{tr "Yes"}}</option>
+            <option value="no">{{tr "No"}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="APIC">
+            {{tr "APIC"}}
+            <span class="tip">{{tr "Enables the advanced programmable IRQ management."}}</span>
+          </label>
+          <select wizard_field="APIC" id="APIC" name="apic">
+            <option id="no_apic" name="no_apic" value=""></option>
+            <option value="yes">{{tr "Yes"}}</option>
+            <option value="no">{{tr "No"}}</option>
+          </select>
+        </div>
+        <div class="large-6 columns">
+          <label for="HYPERV">
+            {{tr "HYPERV"}}
+            <span class="tip">{{tr "Add support in the VM for hyper-v features (HYPERV)"}}</span>
+          </label>
+          <select wizard_field="HYPERV" id="HYPERV" name="hyperv">
+            <option id="no_hyperv" name="no_hyperv" value=""></option>
+            <option value="yes">{{tr "Yes"}}</option>
+            <option value="no">{{tr "No"}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="LOCALTIME">
+            {{tr "Localtime"}}
+            <span class="tip">
+              {{tr "The guest clock will be synchronized to the hosts configured timezone when booted."}}
+            </span>
+          </label>
+          <select wizard_field="LOCALTIME" id="LOCALTIME" name="localtime">
+            <option id="no_localtime" name="no_localtime" value=""></option>
+            <option value="yes">{{tr "Yes"}}</option>
+            <option value="no">{{tr "No"}}</option>
+          </select>
+        </div>
+        <div class="large-6 columns hypervisor only_xen">
+          <label for="DEVICE_MODEL">
+            {{tr "Device model"}}
+            <span class="tip">
+              {{tr "Used to change the IO emulator in Xen HVM. Only XEN."}}
+            </span>
+          </label>
+          <input type="text" wizard_field="DEVICE_MODEL" id="DEVICE_MODEL" name="device_model"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-6 columns hypervisor only_vmware">
+          <label for="PCIBRIDGE">
+            {{tr "PCI BRIDGE"}}
+            <span class="tip">
+              {{tr " Adds a PCI Controller that provides bridge-to-bridge capability, only for VMware."}}
+            </span>
+          </label>
+          <select wizard_field="PCIBRIDGE" id="PCIBRIDGE" name="PCIBRIDGE">
+            <option id="no_pcibridge" name="no_pcibridge" value=""></option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
