@@ -1,0 +1,20 @@
+<dl class="tabs vertical" id="{{linksContainerId}}" data-tab>
+  <dt class="text-center">
+    <button href="#" class="button tiny radius" id="tf_btn_nics">
+      <span class="fa fa-plus"></span>
+      {{tr "Add another interface"}}
+    </button>
+  </dt>
+</dl>
+<div class="tabs-content vertical" id="{{contentsContainerId}}"></div>
+<div class="row">
+  <div class="large-6 columns">
+    <label for="DEFAULT_MODEL">
+      {{tr "Default model"}}
+      <span class="tip">
+        {{tr "Default value for all NICs. Hardware that will emulate the network interface. With Xen this is the type attribute of the vif."}}
+      </span>
+    </label>
+    <input type="text" id="DEFAULT_MODEL" name="DEFAULT_MODEL"/>
+  </div>
+</div>

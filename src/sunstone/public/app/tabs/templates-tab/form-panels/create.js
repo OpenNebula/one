@@ -25,7 +25,8 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var WIZARD_TABS = [
     require('./create/wizard-tabs/general'),
-    require('./create/wizard-tabs/storage')
+    require('./create/wizard-tabs/storage'),
+    require('./create/wizard-tabs/network')
   ]
 
   /*
