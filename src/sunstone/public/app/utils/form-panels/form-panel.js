@@ -12,7 +12,11 @@ define(function(require) {
   BaseFormPanel.prototype = {
     'insert': _insert,
     'reset': _reset,
-    'setAction': _setAction
+    'setAction': _setAction,
+    'title': _title,
+    'buttonText': _buttonText,
+    'resetButton': _resetButton,
+    'actionOptions': _actionOptions
   }
 
   return BaseFormPanel;
@@ -71,5 +75,49 @@ define(function(require) {
 
   function _setAction(action) {
     this.action = action
+  }
+
+  // @return [Object] actionOptions of the form based on the defined action
+  function _actionOptions() {
+    if (this.action) {
+      var actionOptions = this.actions[this.action]
+      if (actionOptions) {
+        return actionOptions;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  // @return [String] The title of the form based on the defined action
+  function _title() {
+    var actionOptions = this.actionOptions();
+    if (actionOptions) {
+      return actionOptions.title;
+    } else {
+      return "";
+    }
+  }
+
+  // @return [String] The buttonText of the form based on the defined action
+  function _buttonText() {
+    var actionOptions = this.actionOptions();
+    if (actionOptions) {
+      return actionOptions.buttonText;
+    } else {
+      return "";
+    }
+  }
+
+  // @return [Boolean] Is enabled the reset button based on the defined action
+  function _resetButton() {
+    var actionOptions = this.actionOptions();
+    if (actionOptions) {
+      return actionOptions.resetButton;
+    } else {
+      return false;
+    }
   }
 })
