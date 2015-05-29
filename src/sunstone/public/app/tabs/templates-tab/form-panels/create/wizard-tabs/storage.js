@@ -71,8 +71,7 @@ define(function(require) {
     that.diskTabObjects = {};
 
     Tips.setup(context);
-    $(document).foundation();
-    //context.foundation('reflow', 'tab');
+    context.foundation('reflow', 'tab');
 
     // close icon: removing the tab on click
     context.on("click", "i.remove-tab", function() {
@@ -103,6 +102,7 @@ define(function(require) {
   }
 
   function _retrieve(context) {
+    var templateJSON = {};
     var disksJSON = [];
     var diskJSON;
     $.each(this.diskTabObjects, function(id, diskTab) {
@@ -110,7 +110,9 @@ define(function(require) {
       if (!$.isEmptyObject(diskJSON)) {disksJSON.push(diskJSON)};
     })
 
-    return {'DISK': disksJSON};
+    if (!$.isEmptyObject(disksJSON)) { templateJSON['DISK'] = disksJSON; };
+
+    return templateJSON;
   }
 
   function _fill(context, templateJSON) {
