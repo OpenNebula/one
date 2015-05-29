@@ -3,9 +3,9 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateHTML = require('hbs!./resources/html');
   var Locale = require('utils/locale');
   var Utils = require('../utils/common');
+  var ResourcesTab = require('../utils/resources-tab');
 
   /*
     CONSTANTS
@@ -29,6 +29,8 @@ define(function(require) {
 
     this.element = info[XML_ROOT];
 
+    this.resourcesTab = new ResourcesTab("vdc_info_panel");
+
     return this;
   }
 
@@ -43,21 +45,23 @@ define(function(require) {
    */
 
   function _html() {
-    return TemplateHTML();
+    return this.resourcesTab.html();
   }
 
   function _setup(context) {
+    var that = this;
+
     var indexed_resources = Utils.indexedVdcResources(this.element);
 
     $.each(indexed_resources, function(zone_id,objects){
-        Utils.addVdcResourceTab(
-            "vdc_info_panel",
-            zone_id,
-            Sunstone.getDataTable(ZONE_TAB_ID).getName(zone_id),
-            context,
-            indexed_resources);
+      that.resourcesTab.addResourcesZone(
+        zone_id,
+        Sunstone.getDataTable(ZONE_TAB_ID).getName(zone_id),
+        context,
+        indexed_resources);
     });
 
-    Utils.setupVdcResourceTab("vdc_info_panel", context);
+    that.resourcesTab.setup(context);
+    that.resourcesTab.onShow(context);
   }
 });
