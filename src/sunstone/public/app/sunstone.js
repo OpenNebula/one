@@ -770,10 +770,11 @@ define(function(require) {
     var context = $("#" + tabId);
     //$(".right-form", context).html(content);
     var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
-
-    // Set title and button strings
-    $(".right-form-title", context).text(formPanelInstance.title());
-    $(".submit_button", context).text(formPanelInstance.buttonText());
+    if (formPanelInstance) {
+      // Set title and button strings
+      $(".right-form-title", context).text(formPanelInstance.title());
+      $(".submit_button", context).text(formPanelInstance.buttonText());
+    }
 
     $(".loadingForm", context).hide();
     $(".tabs-contentForm", context).show();
