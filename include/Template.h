@@ -55,6 +55,8 @@ public:
         separator    = t.separator;
         xml_root     = t.xml_root;
 
+        attributes.clear();
+
         for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
         {
             attributes.insert(make_pair(it->first,(it->second)->clone()));
@@ -126,6 +128,11 @@ public:
      *    @return a reference to the generated string
      */
     string& to_str(string& str) const;
+
+    /**
+     *  Clears all the attributes from the template
+     */
+    void clear();
 
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and

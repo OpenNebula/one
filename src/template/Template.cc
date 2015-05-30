@@ -16,13 +16,12 @@
 
 #include "Template.h"
 #include "template_syntax.h"
+#include "NebulaUtil.h"
 
 #include <iostream>
 #include <sstream>
 #include <cstring>
 #include <cstdio>
-
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -524,7 +523,7 @@ bool Template::get(
         return false;
     }
 
-    TO_UPPER(sval);
+    one_util::toupper(sval);
 
     if ( sval == "YES" )
     {
@@ -747,18 +746,7 @@ void Template::rebuild_attributes(const xmlNode * root_element)
 
     Attribute * attr;
 
-    //Clear the template if not empty
-    if (!attributes.empty())
-    {
-        multimap<string,Attribute *>::iterator  it;
-
-        for ( it = attributes.begin(); it != attributes.end(); it++)
-        {
-            delete it->second;
-        }
-
-        attributes.clear();
-    }
+    clear();
 
     // Get the root's children and try to build attributes.
     for (cur_node = root_element->children;
@@ -976,17 +964,31 @@ void Template::remove_all_except_restricted(const vector<string> &restricted_att
         remove(*res_it);
     }
 
-    multimap<string,Attribute *>::iterator  att_it;
-
-    for ( att_it = attributes.begin(); att_it != attributes.end(); att_it++)
-    {
-        delete att_it->second;
-    }
-
-    attributes.clear();
+    clear();
 
     for (res_it = restricted.begin(); res_it != restricted.end(); res_it++)
     {
         set(*res_it);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::clear()
+{
+    if (attributes.empty())
+    {
+        return;
+    }
+
+    multimap<string,Attribute *>::iterator it;
+
+    for ( it = attributes.begin(); it != attributes.end(); it++)
+    {
+        delete it->second;
+    }
+
+    attributes.clear();
+}
+
