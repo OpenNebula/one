@@ -2495,9 +2495,10 @@ int VirtualMachine::set_attach_nic(int nic_id)
 
 void VirtualMachine::release_disk_images()
 {
-    int     iid;
-    int     save_as_id;
-    int     num_disks;
+    int iid;
+    int save_as_id;
+    int num_disks;
+    int did = -1;
 
     bool img_error;
 
@@ -2523,6 +2524,15 @@ void VirtualMachine::release_disk_images()
 
         img_error = state != ACTIVE || lcm_state != EPILOG;
 
+        disk->vector_value("DISK_ID", did);
+
+        map<int, Snapshots *>::iterator it = snapshots.find(did);
+
+        if (it != snapshots.end())
+        {
+            imagem->set_image_snapshots(iid, *(it->second), img_error);
+        }
+
         if ( disk->vector_value("IMAGE_ID", iid) == 0 )
         {
             imagem->release_image(oid, iid, img_error);
@@ -2532,6 +2542,7 @@ void VirtualMachine::release_disk_images()
         {
             imagem->release_image(oid, save_as_id, img_error);
         }
+
     }
 }
 

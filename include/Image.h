@@ -21,6 +21,7 @@
 #include "ImageTemplate.h"
 #include "NebulaLog.h"
 #include "ObjectCollection.h"
+#include "Snapshots.h"
 
 using namespace std;
 
@@ -486,6 +487,16 @@ public:
      */
     ImageTemplate * clone_template(const string& new_name) const;
 
+    /**
+     *  Set the snapshots for this image
+     *  @param snapshot list
+     */
+    void set_snapshots(const Snapshots& s)
+    {
+        snapshots = s;
+        snapshots.clear_disk_id();
+    }
+
 private:
 
     // -------------------------------------------------------------------------
@@ -578,6 +589,11 @@ private:
      *  Stores a collection with the Images cloning this image
      */
     ObjectCollection img_clone_collection;
+
+    /**
+     * Snapshot list for this image
+     */
+    Snapshots snapshots;
 
     // *************************************************************************
     // DataBase implementation (Private)

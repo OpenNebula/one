@@ -26,6 +26,7 @@ using namespace std;
 extern "C" void * image_action_loop(void *arg);
 
 class Image;
+class Snapshots;
 class Template;
 
 class ImageManager : public MadManager, public ActionListener
@@ -188,6 +189,15 @@ public:
       *    @param ds_id id of the datastore to monitor
       */
      void monitor_datastore(int ds_id);
+
+    /**
+     *  Set the snapshots for the given image. The image MUST be persistent
+     *  and of type OS or DATABLOCK.
+     *    @param iid id of image
+     *    @param s snapshot list
+     *    @param failed the associated VM releasing the images is FAILED
+     */
+     void set_image_snapshots(int iid, const Snapshots& s, bool failed);
 
 private:
     /**

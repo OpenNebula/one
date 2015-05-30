@@ -895,3 +895,49 @@ string * ImageManager::format_message(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ImageManager::set_image_snapshots(int iid, const Snapshots& s, bool failed)
+{
+    Image * img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        return;
+    }
+
+    switch(img->get_type())
+    {
+        case Image::OS:
+        case Image::DATABLOCK:
+            break;
+
+        case Image::KERNEL:
+        case Image::RAMDISK:
+        case Image::CONTEXT:
+        case Image::CDROM:
+            img->unlock();
+            return;
+    }
+
+    switch (img->get_state())
+    {
+        case Image::USED_PERS:
+            break;
+
+        case Image::USED:
+        case Image::LOCKED:
+        case Image::CLONE:
+        case Image::DELETE:
+        case Image::INIT:
+        case Image::DISABLED:
+        case Image::READY:
+        case Image::ERROR:
+            img->unlock();
+            return;
+    }
+
+    img->set_snapshots(s);
+
+    ipool->update(img);
+
+    img->unlock();
+}

@@ -56,7 +56,8 @@ Image::Image(int             _uid,
         ds_id(-1),
         ds_name(""),
         vm_collection("VMS"),
-        img_clone_collection("CLONES")
+        img_clone_collection("CLONES"),
+        snapshots(-1)
 {
     if (_image_template != 0)
     {
@@ -334,11 +335,12 @@ error_common:
 
 string& Image::to_xml(string& xml) const
 {
-    string          template_xml;
-    string          perms_xml;
-    ostringstream   oss;
-    string          vm_collection_xml;
-    string          clone_collection_xml;
+    string        template_xml;
+    string        perms_xml;
+    ostringstream oss;
+    string        vm_collection_xml;
+    string        clone_collection_xml;
+    string        snapshots_xml;
 
     oss <<
         "<IMAGE>" <<
@@ -366,6 +368,7 @@ string& Image::to_xml(string& xml) const
             vm_collection.to_xml(vm_collection_xml)                   <<
             img_clone_collection.to_xml(clone_collection_xml)         <<
             obj_template->to_xml(template_xml)                        <<
+            snapshots.to_xml(snapshots_xml)                           <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -462,6 +465,17 @@ int Image::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
 
+    content.clear();
+
+    ObjectXML::get_nodes("/IMAGE/SNAPSHOTS", content);
+
+    if (!content.empty())
+    {
+        rc += snapshots.from_xml_node(content[0]);
+
+        ObjectXML::free_nodes(content);
+        content.clear();
+    }
 
     if (rc != 0)
     {
