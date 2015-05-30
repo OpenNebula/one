@@ -17,14 +17,27 @@
 #include "Snapshots.h"
 #include "NebulaUtil.h"
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 Snapshots::Snapshots(int _disk_id):
     snapshot_template(false,'=',"SNAPSHOTS"),
     next_snapshot(0),
     active(-1),
     disk_id(_disk_id)
 {
-    snapshot_template.add("DISK_ID",_disk_id);
+    if (_disk_id != -1)
+    {
+        snapshot_template.add("DISK_ID",_disk_id);
+    }
 };
+
+Snapshots::Snapshots(const Snapshots& s)
+{
+    snapshot_template = s.snapshot_template;
+
+    init();
+}
 
 Snapshots::~Snapshots(){};
 
@@ -40,6 +53,15 @@ int Snapshots::from_xml_node(const xmlNodePtr node)
         return -1;
     }
 
+    init();
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void Snapshots::init()
+{
     vector<Attribute *> vsnap;
 
     unsigned int id;
@@ -74,8 +96,6 @@ int Snapshots::from_xml_node(const xmlNodePtr node)
     {
         disk_id = did;
     }
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

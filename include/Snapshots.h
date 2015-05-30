@@ -47,6 +47,8 @@ class Snapshots
 public:
     Snapshots(int _disk_id);
 
+    Snapshots(const Snapshots& s);
+
     virtual ~Snapshots();
 
     // *************************************************************************
@@ -99,6 +101,15 @@ public:
     }
 
     /**
+     *   Removes the DISK_ID attribute to link the list to an Image
+     */
+    void clear_disk_id()
+    {
+        disk_id = -1;
+        snapshot_template.erase("DISK_ID");
+    };
+
+    /**
      *  Get Attribute from the given snapshot
      *    @param id of the snapshot
      *    @param name of the attribute
@@ -115,6 +126,12 @@ private:
      *  @return pointer to the snapshot (VectorAttribute) or null
      */
     VectorAttribute * get_snapshot(unsigned int id);
+
+    /**
+     *  Build the object internal representation from an initialized
+     *  template
+     */
+    void init();
 
     /**
      *  Text representation of the snapshot pool. To be stored as part of the
