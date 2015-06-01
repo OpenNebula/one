@@ -970,6 +970,9 @@ int DispatchManager::attach(int vid,
             imagem->release_image(oid, image_id, false);
         }
 
+        delete snap;
+        delete disk;
+
         oss << "Could not attach a new disk to VM " << vid
             << ", VM does not exist after setting its state to HOTPLUG." ;
         error_str = oss.str();
@@ -1003,7 +1006,7 @@ int DispatchManager::attach(int vid,
     // VM template
     vm->set_vm_info();
 
-    vm->set_attach_disk(disk);
+    vm->set_attach_disk(disk, snap);
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {

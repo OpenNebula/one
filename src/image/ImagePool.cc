@@ -429,6 +429,9 @@ int ImagePool::disk_attribute(int               vm_id,
             imagem->release_image(vm_id, iid, false);
             error_str = "Unknown internal error";
 
+            delete *snap;
+            *snap = 0;
+
             return -1;
         }
 
@@ -438,6 +441,9 @@ int ImagePool::disk_attribute(int               vm_id,
         {
             imagem->release_image(vm_id, iid, false);
             error_str = "Associated datastore for the image does not exist";
+
+            delete *snap;
+            *snap = 0;
 
             return -1;
         }

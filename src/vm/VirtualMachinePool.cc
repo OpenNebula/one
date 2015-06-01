@@ -222,7 +222,7 @@ VirtualMachinePool::VirtualMachinePool(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePool::insert_index(const string& deploy_id, int vmid, 
+int VirtualMachinePool::insert_index(const string& deploy_id, int vmid,
     bool replace)
 {
     ostringstream oss;
@@ -262,7 +262,7 @@ void VirtualMachinePool::drop_index(const string& deploy_id)
         return;
     }
 
-    oss << "DELETE FROM " << import_table << " WHERE deploy_id='" 
+    oss << "DELETE FROM " << import_table << " WHERE deploy_id='"
         << deploy_name << "'";
 
     db->exec(oss);
@@ -541,13 +541,13 @@ int VirtualMachinePool::db_int_cb(void * _int_output, int num, char **values, ch
 int VirtualMachinePool::get_vmid (const string& deploy_id)
 {
     int rc;
-    int vmid = -1; 
+    int vmid = -1;
     ostringstream oss;
 
     set_callback(static_cast<Callbackable::Callback>(&VirtualMachinePool::db_int_cb),
                  static_cast<void *>(&vmid));
 
-    oss << "SELECT vmid FROM " << import_table 
+    oss << "SELECT vmid FROM " << import_table
         << " WHERE deploy_id = '" << db->escape_str(deploy_id.c_str()) << "'";
 
     rc = db->exec(oss, this);
@@ -634,7 +634,7 @@ int VirtualMachinePool::calculate_showback(
     vector<time_t>                  showback_slots;
     vector<time_t>::iterator        slot_it;
 
-    
+
     map<int, map<time_t, SBRecord> >           vm_cost;
     map<int, map<time_t, SBRecord> >::iterator vm_it;
 
@@ -1032,6 +1032,7 @@ void VirtualMachinePool::delete_attach_disk(int vid, bool release_save_as)
 {
     VirtualMachine *  vm;
     VectorAttribute * disk;
+    Snapshots *       snap;
 
     int uid;
     int gid;
@@ -1044,7 +1045,7 @@ void VirtualMachinePool::delete_attach_disk(int vid, bool release_save_as)
         return;
     }
 
-    disk = vm->delete_attach_disk();
+    disk = vm->delete_attach_disk(&snap);
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     oid  = vm->get_oid();
@@ -1067,6 +1068,12 @@ void VirtualMachinePool::delete_attach_disk(int vid, bool release_save_as)
         {
             // Disk using an Image
             Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
+            if (snap != 0)
+            {
+                imagem->set_image_snapshots(image_id, *snap, false);
+                delete snap;
+            }
 
             imagem->release_image(oid, image_id, false);
 

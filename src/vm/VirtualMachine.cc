@@ -2035,6 +2035,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     Image::ImageType img_type;
 
     image_id = -1;
+    *snap    = 0;
 
     // -------------------------------------------------------------------------
     // Get the DISK attribute from the template
@@ -2088,8 +2089,8 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
             imagem->release_image(vm_id, image_id, false);
 
-            delete snap;
             delete new_disk;
+            delete snap;
 
             return 0;
         }
@@ -2184,12 +2185,14 @@ void VirtualMachine::clear_attach_disk()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * VirtualMachine::delete_attach_disk()
+VectorAttribute * VirtualMachine::delete_attach_disk(Snapshots **snap)
 {
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
 
     int num_disks = obj_template->get("DISK", disks);
+
+    *snap = 0;
 
     for(int i=0; i<num_disks; i++)
     {
@@ -2202,6 +2205,18 @@ VectorAttribute * VirtualMachine::delete_attach_disk()
 
         if ( disk->vector_value("ATTACH") == "YES" )
         {
+            int disk_id;
+
+            disk->vector_value("DISK_ID", disk_id);
+
+            map<int, Snapshots *>::iterator it = snapshots.find(disk_id);
+
+            if (it != snapshots.end())
+            {
+                *snap = it->second;
+                snapshots.erase(it);
+            }
+
             return static_cast<VectorAttribute * >(obj_template->remove(disk));
         }
     }
