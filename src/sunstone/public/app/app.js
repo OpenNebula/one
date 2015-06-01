@@ -8,6 +8,7 @@ define(function(require) {
     require('tabs/users-tab'),
     require('tabs/groups-tab'),
     require('tabs/vdcs-tab'),
+    require('tabs/acls-tab'),
     require('tabs/vresources-tab'),
     require('tabs/images-tab'),
     require('tabs/templates-tab'),
