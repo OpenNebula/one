@@ -155,7 +155,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.show,
       callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response.VDC);
@@ -168,7 +167,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(request, response){
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.hideFormPanel(TAB_ID);
         Notifier.notifyMessage(Locale.tr("VDC updated correctly"));
       },

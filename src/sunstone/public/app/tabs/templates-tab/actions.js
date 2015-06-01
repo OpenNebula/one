@@ -53,7 +53,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.show,
       callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response[XML_ROOT])
@@ -65,7 +64,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.update,
       callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.hideFormPanel(TAB_ID);
         Notifier.notifyMessage(Locale.tr("Virtual Template updated correctly"));
       },

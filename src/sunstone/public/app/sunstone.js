@@ -704,7 +704,7 @@ define(function(require) {
         formPanelInstance.insert(context);
       }
 
-      formPanelInstance.setAction(action);
+      formPanelInstance.setAction(context, action);
       tab["activeFormPanel"] = formPanelInstance;
 
       // Hide wizard/advanced selector if advanced not defined

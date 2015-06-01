@@ -269,7 +269,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.show,
       callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response.VNET)
@@ -282,7 +281,6 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.update,
       callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.hideFormPanel(TAB_ID);
         Notifier.notifyMessage(Locale.tr("Virtual Network updated correctly"));
       },

@@ -73,8 +73,14 @@ define(function(require) {
     this.insert(context);
   }
 
-  function _setAction(action) {
-    this.action = action
+  function _setAction(context, action) {
+    var prevAction = this.action;
+
+    this.action = action;
+
+    if (prevAction != action || action == "update") {
+      this.reset(context);
+    }
   }
 
   // @return [Object] actionOptions of the form based on the defined action

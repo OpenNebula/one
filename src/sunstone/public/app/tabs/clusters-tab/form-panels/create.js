@@ -161,7 +161,6 @@ define(function(require) {
         }
       });
 
-      Sunstone.resetFormPanel(TAB_ID, FORM_PANEL_ID);
       Sunstone.hideFormPanel(TAB_ID);
 
       return false;
