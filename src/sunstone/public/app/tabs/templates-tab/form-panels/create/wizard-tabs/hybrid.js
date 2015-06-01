@@ -314,11 +314,6 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID;
     this.icon = 'fa-cloud';
     this.title = Locale.tr("Hybrid");
-
-    /* TODO
-    this.kernelFilesTable = new FilesTable(this.wizardTabId + 'KernelTable', {'select': true});
-    this.initrdFilesTable = new FilesTable(this.wizardTabId + 'InitrdTable', {'select': true});
-    */
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -386,6 +381,13 @@ define(function(require) {
       vm_json["PUBLIC_CLOUD"] = [];
     }*/
 
+    if ($("[wizard_field='HYPERVISOR']:checked").val() == 'vcenter') {
+      publicCloudJSON.push({
+        'TYPE': 'vcenter',
+        'VM_TEMPLATE': $("#vcenter_template_uuid").val()
+      });
+    }
+
     $('.provider', context).each(function() {
       var hash  = WizardFields.retrieve(this);
       if (!$.isEmptyObject(hash)) {
@@ -436,7 +438,7 @@ define(function(require) {
 
       if (providers instanceof Array) {
         $.each(providers, function(index, provider) {
-          clickButton = index > 0;
+          clickButton = clickButton || index > 0;
           that.fillProviderTab(context, provider, "ec2", clickButton);
         });
       } else if (providers instanceof Object) {
@@ -519,17 +521,15 @@ define(function(require) {
   function _fillProviderTab(context, provider, providerType, clickButton) {
     var that = this;
     if (providerType == "vcenter") {
-      $("#vcenter_template_uuid", context).val(provider["VM_TEMPLATE"])
+      $("#vcenter_template_uuid").val(provider["VM_TEMPLATE"])
     } else {
       if (clickButton) {
         $("#tf_btn_hybrid", context).trigger("click");
       }
+
+      var providerContext = $(".provider", context).last();
+      $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
+      WizardFields.fill(providerContext, provider);
     }
-
-    var providerContext = $(".provider", context).last();
-
-    $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
-
-    WizardFields.fill(providerContext, provider);
   }
 });
