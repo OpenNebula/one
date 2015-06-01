@@ -14,7 +14,7 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    //require('./acls-tab/form-panels/create')
+    require('./acls-tab/form-panels/create')
   ];
 
   var Tab = {

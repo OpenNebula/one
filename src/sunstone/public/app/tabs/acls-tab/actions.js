@@ -7,7 +7,7 @@ define(function(require) {
 
   var RESOURCE = "Acl";
   var TAB_ID = require('./tabId');
-  //var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "Acl.create" : {

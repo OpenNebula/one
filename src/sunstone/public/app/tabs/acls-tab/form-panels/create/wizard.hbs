@@ -1,0 +1,172 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="medium-6 columns">
+      <fieldset>
+        <legend>{{tr "This rule applies to"}}</legend>
+        <div class="row">
+          <div class="large-4 columns">
+            <input type="radio" class="applies" name="applies_select" value="*" id="applies_all">
+            <label class="applies" for="applies_all">{{tr "All"}}</label>
+          </div>
+          <div class="large-4 columns">
+            <input type="radio" class="applies" name="applies_select" value="applies_to_user" id="applies_id">
+            <label class="applies" for="applies_id">{{tr "User"}}</label>
+          </div>
+          <div class="large-4 columns">
+            <input type="radio" class="applies" name="applies_select" value="applies_to_group" id="applies_group">
+            <label class="applies" for="applies_group">{{tr "Group"}}</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="applies_to_user">
+              <label for="applies_to_user">{{tr "User"}}:</label>
+              <div name="applies_to_user" id="applies_to_user">
+              </div>
+            </div>
+            <div class="applies_to_group">
+              <label for="applies_to_group">{{tr "Group"}}:</label>
+              <div name="applies_to_group" id="applies_to_group">
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class="medium-6 columns">
+      <label for="zones_applies">{{tr "Zones where the rule applies"}}</label>
+      <div name="zones_applies" id="zones_applies">
+      </div>
+    </div>
+  </div>
+  <fieldset>
+    <legend>{{tr "Affected resources"}}</legend>
+    <div class="row">
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_host" name="res_host" class="resource_cb" value="HOST">
+        <label for="res_host">{{tr "Hosts"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_cluster" name="res_cluster" class="resource_cb" value="CLUSTER">
+        <label for="res_cluster">{{tr "Clusters"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_datastore" name="res_datastore" class="resource_cb" value="DATASTORE">
+        <label for="res_datastore">{{tr "Datastores"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_vm" name="res_vm" class="resource_cb" value="VM">
+        <label for="res_vm">{{tr "Virtual Machines"}}</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_net" name="res_net" class="resource_cb" value="NET">
+        <label for="res_net">{{tr "Virtual Networks"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_image" name="res_image" class="resource_cb" value="IMAGE">
+        <label for="res_image">{{tr "Images"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_template" name="res_template" class="resource_cb" value="TEMPLATE">
+        <label for="res_template">{{tr "Templates"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_user" name="res_user" class="resource_cb" value="USER">
+        <label for="res_user">{{tr "Users"}}</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_group" name="res_group" class="resource_cb" value="GROUP">
+        <label for="res_group">{{tr "Groups"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_document" name="res_document" class="resource_cb" value="DOCUMENT">
+        <label for="res_document">{{tr "Documents"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_zone" name="res_zone" class="resource_cb" value="ZONE">
+        <label for="res_zone">{{tr "Zones"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_secgroup" name="res_secgroup" class="resource_cb" value="SECGROUP">
+        <label for="res_secgroup">{{tr "Security Groups"}}</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="res_vdc" name="res_vdc" class="resource_cb" value="VDC">
+        <label for="res_vdc">{{tr "VDCs"}}</label>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>{{tr "Resource subset"}}</legend>
+    <div class="row">
+      <div class="large-3 columns">
+        <input type="radio" class="res_subgroup" name="mode_select" value="*" id="res_subgroup_all">
+        <label class="res_subgroup" for="res_subgroup_all">{{tr "All"}}</label>
+      </div>
+      <div class="large-3 columns">
+        <input type="radio" class="res_subgroup" name="mode_select" value="res_id" id="res_subgroup_id">
+        <label class="res_subgroup" for="res_subgroup_id">{{tr "ID"}}</label>
+      </div>
+      <div class="large-3 columns">
+        <input type="radio" class="res_subgroup" name="mode_select" value="belonging_to" id="res_subgroup_group">
+        <label class="res_subgroup" for="res_subgroup_group">{{tr "Group"}}</label>
+      </div>
+      <div class="large-3 columns">
+        <input type="radio" class="res_subgroup" name="mode_select" value="in_cluster" id="res_subgroup_cluster">
+        <label class="res_subgroup" for="res_subgroup_cluster">{{tr "Cluster"}}</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-6 columns">
+        <div class="res_id">
+          <label for="res_id">{{tr "Resource ID"}}:</label>
+          <input type="text" name="res_id" id="res_id"></input>
+        </div>
+        <div class="belonging_to">
+          <label for="belonging_to">{{tr "Group"}}:</label>
+          <div name="belonging_to" id="belonging_to">
+          </div>
+        </div>
+        <div class="in_cluster">
+          <label for="in_cluster">{{tr "Cluster"}}:</label>
+          <div name="in_cluster" id="in_cluster">
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>{{tr "Allowed operations"}}</legend>
+    <div class="row">
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="right_delete" name="right_delete" class="right_cb" value="USE">
+        <label for="right_delete">{{tr "Use"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="right_use" name="right_use" class="right_cb" value="MANAGE">
+        <label for="right_use">{{tr "Manage"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="right_manage" name="right_manage" class="right_cb" value="ADMIN">
+        <label for="right_manage">{{tr "Administrate"}}</label>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <input type="checkbox" id="right_create" name="right_create" class="right_cb" value="CREATE">
+        <label for="right_create">{{tr "Create"}}</label>
+      </div>
+    </div>
+  </fieldset>
+  <br>
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="acl_preview">{{tr "ACL String preview"}}:</label>
+      <input type="text" name="acl_preview" id="acl_preview"></input>
+    </div>
+  </div>
+</form>
