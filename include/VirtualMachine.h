@@ -1398,6 +1398,7 @@ public:
                             int                      max_disk_id,
                             int                      uid,
                             int&                     image_id,
+                            Snapshots **             snap,
                             string&                  error_str);
     /**
      * Returns the disk that is waiting for an attachment action

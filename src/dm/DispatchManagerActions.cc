@@ -905,6 +905,7 @@ int DispatchManager::attach(int vid,
 
     set<string>       used_targets;
     VectorAttribute * disk;
+    Snapshots *       snap;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -958,6 +959,7 @@ int DispatchManager::attach(int vid,
                                               max_disk_id,
                                               uid,
                                               image_id,
+                                              &snap,
                                               error_str);
     vm = vmpool->get(vid, true);
 

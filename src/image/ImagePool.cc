@@ -19,6 +19,7 @@
 /* ************************************************************************** */
 
 #include "ImagePool.h"
+#include "Snapshots.h"
 #include "AuthManager.h"
 #include "Nebula.h"
 #include "PoolObjectAuth.h"
@@ -313,6 +314,7 @@ int ImagePool::disk_attribute(int               vm_id,
                               string&           dev_prefix,
                               int               uid,
                               int&              image_id,
+                              Snapshots **      snap,
                               string&           error_str)
 {
     string  source;
@@ -325,6 +327,8 @@ int ImagePool::disk_attribute(int               vm_id,
 
     Nebula&         nd      = Nebula::instance();
     ImageManager *  imagem  = nd.get_imagem();
+
+    *snap = 0;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -411,6 +415,12 @@ int ImagePool::disk_attribute(int               vm_id,
 
         image_id     = img->get_oid();
         datastore_id = img->get_ds_id();
+
+        if (img->snapshots.size() > 0)
+        {
+            *snap = new Snapshots(img->snapshots);
+            (*snap)->set_disk_id(disk_id);
+        }
 
         img->unlock();
 

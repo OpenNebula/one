@@ -1798,6 +1798,8 @@ int VirtualMachine::get_disk_images(string& error_str)
     // -------------------------------------------------------------------------
     for(int i=0; i<num_disks; i++)
     {
+        Snapshots * snap;
+
         disk = dynamic_cast<VectorAttribute * >(disks[i]);
 
         if ( disk == 0 )
@@ -1812,9 +1814,22 @@ int VirtualMachine::get_disk_images(string& error_str)
                                    dev_prefix,
                                    uid,
                                    image_id,
+                                   &snap,
                                    error_str);
         if (rc == 0 )
         {
+            if (snap != 0)
+            {
+                if (img_type == Image::OS || img_type == Image::DATABLOCK)
+                {
+                    snapshots.insert(pair<int, Snapshots *>(i, snap));
+                }
+                else
+                {
+                    delete snap;
+                }
+            }
+
             acquired_images.push_back(image_id);
 
             target = disk->vector_value("TARGET");
@@ -2004,6 +2019,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
                 int                      max_disk_id,
                 int                      uid,
                 int&                     image_id,
+                Snapshots **             snap,
                 string&                  error_str)
 {
     vector<Attribute  *> disks;
@@ -2051,6 +2067,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
                                    dev_prefix,
                                    uid,
                                    image_id,
+                                   snap,
                                    error_str);
     if ( rc != 0 )
     {
@@ -2071,7 +2088,9 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
             imagem->release_image(vm_id, image_id, false);
 
+            delete snap;
             delete new_disk;
+
             return 0;
         }
     }
@@ -2524,17 +2543,18 @@ void VirtualMachine::release_disk_images()
 
         img_error = state != ACTIVE || lcm_state != EPILOG;
 
-        disk->vector_value("DISK_ID", did);
-
-        map<int, Snapshots *>::iterator it = snapshots.find(did);
-
-        if (it != snapshots.end())
-        {
-            imagem->set_image_snapshots(iid, *(it->second), img_error);
-        }
 
         if ( disk->vector_value("IMAGE_ID", iid) == 0 )
         {
+            disk->vector_value("DISK_ID", did);
+
+            map<int, Snapshots *>::iterator it = snapshots.find(did);
+
+            if (it != snapshots.end())
+            {
+                imagem->set_image_snapshots(iid, *(it->second), img_error);
+            }
+
             imagem->release_image(oid, iid, img_error);
         }
 

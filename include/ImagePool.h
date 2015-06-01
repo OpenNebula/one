@@ -29,6 +29,7 @@
 #include <vector>
 
 class AuthRequest;
+class Snapshots;
 
 using namespace std;
 
@@ -158,6 +159,7 @@ public:
      *        or the default one
      *    @param uid of VM owner (to look for the image id within its images)
      *    @param image_id on success returns the acquired image id
+     *    @param snaps list of snapshots associated to this image
      *    @param error_str string describing the error
      *
      *    @return 0 on success, -1 otherwise
@@ -169,6 +171,7 @@ public:
                        string&            dev_prefix,
                        int                uid,
                        int&               image_id,
+                       Snapshots **       snaps,
                        string&            error_str);
     /**
      *  Generates an Authorization token for the DISK attribute
