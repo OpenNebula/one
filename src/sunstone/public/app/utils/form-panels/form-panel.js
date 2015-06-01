@@ -23,9 +23,9 @@ define(function(require) {
 
   function _insert(context) {
     var that = this;
-    $("#wizardForms", context).append(that.htmlWizard());
+    this.wizardElement = $(that.htmlWizard()).appendTo( $("#wizardForms", context) );
     if (that.htmlAdvanced) {
-      $("#advancedForms", context).append(that.htmlAdvanced());
+      this.advancedElement = $(that.htmlAdvanced()).appendTo( $("#advancedForms", context) );
     }
     
     context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
@@ -65,11 +65,11 @@ define(function(require) {
   }
 
   function _reset(context) {
-    $('#' + this.formPanelId + "Wizard").remove();
+    this.wizardElement.remove();
     if (this.htmlAdvanced) {
-      $('#' + this.formPanelId + "Advanced").remove();
+      this.advancedElement.remove();
     }
-    
+
     this.insert(context);
   }
 
