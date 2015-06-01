@@ -1,4 +1,6 @@
 define(function(require) {
+  var TemplateUtils = require('utils/template-utils');
+
   /*
     Inputs must define wizard_field="KEY"
     Inputs with the wizard_field attr will not be considered
@@ -57,9 +59,13 @@ define(function(require) {
           }
           break;
         default:
-          field.val(templateJSON[field_name])  //TODO field.val(escapeDoubleQuotes(htmlDecode(templateJSON[field_name])));
+          field.val(
+            TemplateUtils.escapeDoubleQuotes(
+              TemplateUtils.htmlDecode(templateJSON[field_name])));
           field.change();
         }
+
+        delete templateJSON[field_name];
       }
     });
   }
