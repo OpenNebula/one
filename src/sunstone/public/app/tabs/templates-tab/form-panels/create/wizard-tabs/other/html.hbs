@@ -1,0 +1,66 @@
+<div class="row">
+  <div class="large-12 columns">
+    <fieldset class="hypervisor only_xen only_kvm only_vmware">
+      <legend>{{tr "RAW data"}}</legend>
+      <div class="row">
+        <div class="large-4 columns">
+          <label for="raw_type">{{tr "TYPE"}}</label>
+          <select id="raw_type" name="raw_type">
+            <option value=""></option>
+            <option value="kvm">{{tr "kvm"}}</option>
+            <option value="xen">{{tr "xen"}}</option>
+            <option value="vmware">{{tr "vmware"}}</option>
+          </select>
+        </div>
+        <div class="large-8 columns">
+          <label class="" for="raw_data">
+            {{tr "DATA"}}
+            <span class="tip">{{tr "Raw data to be passed directly to the hypervisor"}}.</span>
+          </label>
+          <textarea rows="2" type="text" id="raw_data" name="raw_data" />
+        </div>
+      </div>
+      <div id="data_vmx_div" class="row hidden">
+        <div class="large-4 columns"></div>
+        <div class="large-8 columns">
+          <label class="" for="raw_data_vmx">
+            {{tr "DATA_VMX"}}
+            <span class="tip">{{tr "Raw data to be added directly to the .vmx file."}}.</span>
+          </label>
+          <textarea rows="2" type="text" id="raw_data_vmx" name="raw_data_vmx" />
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>{{tr "Custom Tags"}}</legend>
+      <div class="row">
+        <div class="large-4 columns">
+          <input type="text" id="KEY" name="key" />
+        </div>
+        <div class="large-6 columns">
+          <textarea type="text" id="VALUE" name="value" />
+        </div>
+        <div class="large-2 columns">
+          <a href="#" class="button secondary small radius" id="add_context">{{tr "Add"}}</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <table id="custom_tags" class="dataTable policies_table">
+            <thead>
+              <tr>
+                <th>{{tr "KEY"}}</th>
+                <th>{{tr "VALUE"}}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbodyinput">
+              <tr></tr>
+              <tr></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</div>
