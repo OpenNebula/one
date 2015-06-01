@@ -120,7 +120,7 @@ define(function(require) {
   function _submitWizard(context) {
     var templateJSON = {}
     $.each(this.wizardTabs, function(index, wizardTab) {
-      $.extend(templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
+      $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
     });
 
     if (this.action == "create") {
