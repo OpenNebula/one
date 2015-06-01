@@ -218,7 +218,10 @@ define(function(require) {
 
   function _retrieve(context) {
     var templateJSON = {};
-    var osJSON = WizardFields.retrieve(context);
+    var osJSON = {}
+    $.extend(osJSON, WizardFields.retrieve('#bootTab', context));
+    $.extend(osJSON, WizardFields.retrieve('#kernelTab', context));
+    $.extend(osJSON, WizardFields.retrieve('#ramdiskTab', context));
 
     var boot = "";
     var val;
@@ -235,6 +238,9 @@ define(function(require) {
     }
 
     if (!$.isEmptyObject(osJSON)) { templateJSON['OS'] = osJSON; };
+
+    var featuresJSON = WizardFields.retrieve('#featuresTab', context)
+    if (!$.isEmptyObject(featuresJSON)) { templateJSON['FEATURES'] = featuresJSON; };
 
     return templateJSON;
   }
@@ -268,6 +274,12 @@ define(function(require) {
       */
 
       delete templateJSON['OS'];
+    }
+
+    var featuresJSON = templateJSON['FEATURES'];
+    if (featuresJSON) {
+      WizardFields.fill(context, featuresJSON);
+      delete templateJSON['FEATURES'];
     }
   }
 });
