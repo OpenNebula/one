@@ -6,35 +6,31 @@ define(function(require) {
   var OpenNebulaSecurityGroup = require('opennebula/securitygroup');
 
   var TAB_ID = require('./tabId');
-  // TODO
-  //var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
-    /*
-    TODO
-    "SecurityGroup.create" : {
-        type: "create",
-        call: OpenNebulaSecurityGroup.create,
-        callback: function(request, response){
-            $("a[href=back]", $("#secgroups-tab")).trigger("click");
-            popFormDialog("create_security_group_form", $("#secgroups-tab"));
 
-            addSecurityGroupElement(request, response);
-            notifyCustom(tr("Security Group created"), " ID: " + response.SECURITY_GROUP.ID, false);
-        },
-        error: function(request, response){
-            popFormDialog("create_security_group_form", $("#secgroups-tab"));
-            onError(request, response);
-        }
+    "SecurityGroup.create" : {
+      type: "create",
+      call: OpenNebulaSecurityGroup.create,
+      callback: function(request, response) {
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
+      notify: true
     },
 
     "SecurityGroup.create_dialog" : {
-        type: "custom",
-        call: function(){
-          Sunstone.popUpFormPanel("create_security_group_form", "secgroups-tab", "create", true);
-        }
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
     },
-    */
 
     "SecurityGroup.list" : {
       type: "list",
