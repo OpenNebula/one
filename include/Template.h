@@ -63,6 +63,27 @@ public:
         }
     }
 
+    Template& operator=(const Template& t)
+    {
+        multimap<string,Attribute *>::const_iterator it;
+
+        if (this != &t)
+        {
+            replace_mode = t.replace_mode;
+            separator    = t.separator;
+            xml_root     = t.xml_root;
+
+            attributes.clear();
+
+            for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
+            {
+                attributes.insert(make_pair(it->first,(it->second)->clone()));
+            }
+        }
+
+        return *this;
+    }
+
     /**
      *  The class destructor frees all the attributes conforming the template
      */
