@@ -7,6 +7,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -149,14 +150,14 @@ define(function(require) {
         var element1 = document.createElement("input");
         element1.id = "INPUT_TYPE";
         element1.type = "text";
-        element1.value = this.TYPE//TODO htmlDecode(this.TYPE);
+        element1.value = TemplateUtils.htmlDecode(this.TYPE);
         cell1.appendChild(element1);
 
         var cell2 = row.insertCell(1);
         var element2 = document.createElement("input");
         element2.id = "INPUT_BUS";
         element2.type = "text";
-        element2.value = this.BUS//TODO htmlDecode(this.BUS);
+        element2.value = TemplateUtils.htmlDecode(this.BUS);
         cell2.appendChild(element2);
 
         var cell3 = row.insertCell(2);

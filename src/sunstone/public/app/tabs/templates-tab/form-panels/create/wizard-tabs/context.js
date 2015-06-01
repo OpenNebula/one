@@ -7,6 +7,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -199,7 +200,7 @@ define(function(require) {
         var parts = value.split("|");
         $(".user_input_name", context).val(key);
         $(".user_input_type", context).val(parts[1]);
-        $(".user_input_description", context).val(parts[2]) //TODO escapeDoubleQuotes(htmlDecode(parts[2])));
+        $(".user_input_description", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(parts[2])));
 
         if (contextJSON) {
           delete contextJSON[key];
@@ -224,16 +225,16 @@ define(function(require) {
           $("#ssh_context", context).prop('checked', 'checked');
 
           if (!publickey_regexp.test(value)) {
-            $("#ssh_public_key", context).val(value)//TODO htmlDecode(value));
+            $("#ssh_public_key", context).val(TemplateUtils.htmlDecode(value));
           }
         } else if (token_regexp.test(key)) {
           $("#token_context", context).prop('checked', 'checked');
         } else if (net_regexp.test(key)) {
           $("#network_context", context).prop('checked', 'checked');
         } else if ("INIT_SCRIPTS" == key) {
-          $("input#INIT_SCRIPTS").val(value)//TODO htmlDecode(value));
+          $("input#INIT_SCRIPTS").val(TemplateUtils.htmlDecode(value));
         } else if ("FILES_DS" == key) {
-          $('#FILES_DS', context).val(contextJSON["FILES_DS"])//TODO escapeDoubleQuotes(htmlDecode(context["FILES_DS"])))
+          $('#FILES_DS', context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(contextJSON["FILES_DS"])))
           /* TODO var files = [];
           while (match = file_ds_regexp.exec(value)) {
             files.push(match[1])
@@ -254,14 +255,14 @@ define(function(require) {
           var element1 = document.createElement("input");
           element1.id = "KEY";
           element1.type = "text";
-          element1.value = key //TODO htmlDecode(key);
+          element1.value = TemplateUtils.htmlDecode(key);
           cell1.appendChild(element1);
 
           var cell2 = row.insertCell(1);
           var element2 = document.createElement("textarea");
           element2.id = "VALUE";
           element2.type = "text";
-          element2.value = value //TODO escapeDoubleQuotes(htmlDecode(value));
+          element2.value = TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value));
           cell2.appendChild(element2);
 
           var cell3 = row.insertCell(2);

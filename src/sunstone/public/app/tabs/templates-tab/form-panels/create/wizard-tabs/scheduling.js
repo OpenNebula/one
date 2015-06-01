@@ -133,24 +133,6 @@ define(function(require) {
           clusters.push(match[1])
       }
 
-      /* TODO
-      if (hosts.length != 0) {
-          var dataTable_template_hosts = $("#datatable_template_hosts").dataTable();
-
-          update_datatable_template_hosts(dataTable_template_hosts, function(){
-          });
-      }
-
-      if (clusters.length != 0) {
-          $('input#clusters_req', req_section).click();
-
-          var dataTable_template_clusters = $("#datatable_template_clusters").dataTable();
-
-          update_datatable_template_clusters(dataTable_template_clusters, function(){
-          });
-      }
-      */
-
       var selectedResources = {
           ids : hosts
         }

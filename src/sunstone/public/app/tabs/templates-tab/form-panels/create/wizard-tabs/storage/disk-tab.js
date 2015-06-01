@@ -74,7 +74,6 @@ define(function(require) {
 
     // Select Image or Volatile disk. The div is hidden depending on the selection, and the
     // vm_param class is included to be computed when the template is generated.
-    // TODO Use wizard_fields
     var imageContext = $("div.image",  context);
     var volatileContext = $("div.volatile",  context);
     $("input[name='" + that.diskTabId + "']", context).change(function() {
