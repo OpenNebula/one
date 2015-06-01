@@ -7,7 +7,7 @@ define(function(require) {
   var VNetsTable = require('tabs/vnets-tab/datatable');
   var DatastoresTable = require('tabs/datastores-tab/datatable');
   var Tips = require('utils/tips');
-  var Utils = require('../utils/common');
+  var Utils = require('./common');
 
   var VDC_ALL_RESOURCES = Utils.VDC_ALL_RESOURCES;
 
@@ -26,7 +26,7 @@ define(function(require) {
   ResourcesZone.prototype.setup = _setup;
   ResourcesZone.prototype.onShow = _onShow;
   ResourcesZone.prototype.retrieve = _retrieve;
-  //ResourcesZone.prototype.fill = _fill;
+  ResourcesZone.prototype.fill = _fill;
   ResourcesZone.prototype.getZoneId = _getZoneId;
 
   return ResourcesZone;
@@ -172,5 +172,55 @@ define(function(require) {
     };
 
     return resources;
+  }
+
+  function _fill(context, selectedResources){
+
+    if (selectedResources[this.zone_id] == undefined){
+      selectedResources[this.zone_id] = {
+        clusters   : [],
+        hosts      : [],
+        vnets      : [],
+        datastores : []
+      };
+    }
+
+    var resourcesZone = selectedResources[this.zone_id];
+
+    if(resourcesZone.clusters.length == 1 &&
+       resourcesZone.clusters[0] == VDC_ALL_RESOURCES){
+
+      $("#all_clusters_"+this.unique_id, context).click();
+    }else{
+      this.clustersTable.selectResourceTableSelect(
+            { ids : resourcesZone.clusters });
+    }
+
+    if(resourcesZone.hosts.length == 1 &&
+       resourcesZone.hosts[0] == VDC_ALL_RESOURCES){
+
+      $("#all_hosts_"+this.unique_id, context).click();
+    }else{
+      this.hostsTable.selectResourceTableSelect(
+            { ids : resourcesZone.hosts });
+    }
+
+    if(resourcesZone.vnets.length == 1 &&
+       resourcesZone.vnets[0] == VDC_ALL_RESOURCES){
+
+      $("#all_vnets_"+this.unique_id, context).click();
+    }else{
+      this.vnetsTable.selectResourceTableSelect(
+            { ids : resourcesZone.vnets });
+    }
+
+    if(resourcesZone.datastores.length == 1 &&
+       resourcesZone.datastores[0] == VDC_ALL_RESOURCES){
+
+      $("#all_datastores_"+this.unique_id, context).click();
+    }else{
+      this.datastoresTable.selectResourceTableSelect(
+            { ids : resourcesZone.datastores });
+    }
   }
 });

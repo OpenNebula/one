@@ -136,13 +136,13 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
+
     "Vdc.update_dialog" : {
       type: "custom",
       call: function(){
-        var selected_nodes = getSelectedNodes(dataTable_vdcs);
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
         if ( selected_nodes.length != 1 ) {
-          notifyMessage("Please select one (and just one) VDC to update.");
+          Notifier.notifyMessage("Please select one (and just one) VDC to update.");
           return false;
         }
 
@@ -152,35 +152,31 @@ define(function(require) {
     },
 
     "Vdc.show_to_update" : {
-        type: "single",
-        call: OpenNebulaResource.show,
-        callback: function(request, response) {
-            // TODO: global var, better use jquery .data
-            vdc_to_update_id = response.VDC.ID;
-
-            Sunstone.popUpFormPanel("create_vdc_form", "vdcs-tab", "update", true, function(context){
-                fillVdcUpdateFormPanel(response.VDC, context);
-            });
-        },
-        error: Notifier.onError
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response.VDC);
+          });
+      },
+      error: Notifier.onError
     },
 
     "Vdc.update" : {
-        type: "single",
-        call: OpenNebulaResource.update,
-        callback: function(request, response){
-            $("a[href=back]", $("#vdcs-tab")).trigger("click");
-            popFormDialog("create_vdc_form", $("#vdcs-tab"));
-
-            notifyMessage(tr("VDC updated correctly"));
-        },
-        error: function(request, response){
-            popFormDialog("create_vdc_form", $("#vdcs-tab"));
-
-            onError(request, response);
-        }
+      type: "single",
+      call: OpenNebulaResource.update,
+      callback: function(request, response){
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
+        Notifier.notifyMessage(Locale.tr("VDC updated correctly"));
+      },
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      }
     },
-    */
 
     "Vdc.update_template" : {
       type: "single",

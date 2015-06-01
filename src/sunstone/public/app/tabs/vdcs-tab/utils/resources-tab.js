@@ -2,6 +2,7 @@ define(function(require) {
 
   var TemplateHTML = require('hbs!./resources-tab/html');
   var ResourcesZone = require('./resources-zone');
+  var Utils = require('./common');
 
   function ResourcesTab(unique_id_prefix) {
     this.unique_id_prefix = unique_id_prefix;
@@ -13,7 +14,8 @@ define(function(require) {
   ResourcesTab.prototype.setup = _setup;
   ResourcesTab.prototype.onShow = _onShow;
   ResourcesTab.prototype.retrieve = _retrieve;
-  //ResourcesTab.prototype.fill = _fill;
+  ResourcesTab.prototype.retrieveIndexed = _retrieveIndexed;
+  ResourcesTab.prototype.fill = _fill;
   ResourcesTab.prototype.addResourcesZone = _addResourcesZone;
 
   return ResourcesTab;
@@ -40,6 +42,17 @@ define(function(require) {
     $("select.vdc_zones_select", context).change();
   }
 
+  /**
+   * Returns the selected resources as needed by the Vdc.create call
+   * @param  {objec} context jquery selector
+   * @return {object}        Resources as:
+   *                   {
+   *                   "clusters" : {zone_id: zone_id, cluster_id: cluster_id},
+   *                   "hosts" : {zone_id: zone_id, host_id: host_id}
+   *                   "vnets" : {zone_id: zone_id, vnet_id: vnet_id}
+   *                   "datastores" : {zone_id: zone_id, ds_id: ds_id}
+   *                   }
+   */
   function _retrieve(context) {
     var clusters    = [];
     var hosts       = [];
@@ -71,6 +84,22 @@ define(function(require) {
       "vnets" : vnets,
       "datastores" : datastores
     };
+  }
+
+  function _retrieveIndexed(context) {
+    var resources = {};
+
+    $.each(this.zones,function(i,resourcesZone){
+      resources[resourcesZone.getZoneId()] = resourcesZone.retrieve(context);
+    });
+
+    return resources;
+  }
+
+  function _fill(context, selectedResources){
+    $.each(this.zones,function(i,resourcesZone){
+      resourcesZone.fill(context, selectedResources);
+    });
   }
 
   function _addResourcesZone(zone_id, zone_name, context, indexed_resources) {
