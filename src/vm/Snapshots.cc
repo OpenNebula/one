@@ -32,11 +32,32 @@ Snapshots::Snapshots(int _disk_id):
     }
 };
 
-Snapshots::Snapshots(const Snapshots& s)
+Snapshots::Snapshots(const Snapshots& s):
+    snapshot_template(s.snapshot_template),
+    next_snapshot(0),
+    active(-1),
+    disk_id(-1)
 {
-    snapshot_template = s.snapshot_template;
-
     init();
+}
+
+
+Snapshots& Snapshots::operator= (const Snapshots& s)
+{
+    if (this != &s)
+    {
+        next_snapshot = s.next_snapshot;
+        active        = s.active;
+        disk_id       = s.disk_id;
+
+        snapshot_template = s.snapshot_template;
+
+        snapshot_pool.clear();
+
+        init();
+    }
+
+    return *this;
 }
 
 Snapshots::~Snapshots(){};

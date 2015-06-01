@@ -49,6 +49,8 @@ public:
 
     Snapshots(const Snapshots& s);
 
+    Snapshots& operator= (const Snapshots& s);
+
     virtual ~Snapshots();
 
     // *************************************************************************
@@ -108,6 +110,24 @@ public:
         disk_id = -1;
         snapshot_template.erase("DISK_ID");
     };
+
+    /**
+     *  Sets the disk id for this snapshot list
+     *    @param did the id
+     */
+    void set_disk_id(int did)
+    {
+        disk_id = did;
+        snapshot_template.replace("DISK_ID", did);
+    }
+
+    /**
+     *  @return number of snapshots in the list
+     */
+    unsigned int size()
+    {
+        return snapshot_pool.size();
+    }
 
     /**
      *  Get Attribute from the given snapshot
