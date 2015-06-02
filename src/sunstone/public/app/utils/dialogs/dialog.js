@@ -20,7 +20,8 @@ define(function(require) {
     that.setup(dialogElement);
     dialogElement.foundation('reveal', 'reflow');
 
-    dialogElement.on('opened.fndtn.reveal', function () {
+    dialogElement.on('opened.fndtn.reveal', function (e) {
+      if (e.namespace !== 'fndtn.reveal') { return; }
       that.onShow(dialogElement);
     });
 
