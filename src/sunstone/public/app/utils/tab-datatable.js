@@ -429,7 +429,7 @@ define(function(require) {
 
   //replaces an element with id 'tag' in a dataTable with a new one
   function _updateElement(request, element_json) {
-    var id = element_json[OpenNebula[this.resource].resource].ID;
+    var id = element_json[this.xmlRoot].ID;
     var element = this.elementArray(element_json);
     var tag = '#' + this.resource.toLowerCase() + '_' + id;
     // fnGetData should be used instead, otherwise it depends on the visible columns
