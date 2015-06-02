@@ -14,12 +14,13 @@ define(function(require) {
     CONSTANTS
    */
   
-  var RESOURCE = "Image"
-  var XML_ROOT = "IMAGE"
+  var RESOURCE = "Image";
+  var XML_ROOT = "IMAGE";
   var TAB_NAME = require('./tabId');
   var COLUMN_IDS = {
     "DATASTORE": 5
-  }
+  };
+
   /*
     CONSTRUCTOR
    */
@@ -41,7 +42,7 @@ define(function(require) {
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
-    }
+    };
 
     this.columns = [
       Locale.tr("ID"),
@@ -56,16 +57,16 @@ define(function(require) {
       Locale.tr("Status"),
       Locale.tr("#VMS"),
       Locale.tr("Target"),
-    ]
+    ];
 
     this.selectOptions = {
       "id_index": 1,
       "name_index": 4,
       "uname_index": 2,
-      "select_resource": Locale.tr("Please select an image from the list"),
-      "you_selected": Locale.tr("You selected the following image:"),
-      "select_resource_multiple": Locale.tr("Please select one or more images from the list"),
-      "you_selected_multiple": Locale.tr("You selected the following images:")
+      "select_resource": Locale.tr("Please select an file from the list"),
+      "you_selected": Locale.tr("You selected the following file:"),
+      "select_resource_multiple": Locale.tr("Please select one or more files from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following files:")
     };
 
     TabDataTable.call(this);
@@ -117,8 +118,8 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json.IMAGE;
 
-    // KERNEL || RAMDISK || CONTEXT
-    if (element.TYPE == "3" ||  element.TYPE == "4" || element.TYPE == "5") {
+    // OS || CDROM || DATABLOCK
+    if (element.TYPE == "0" ||  element.TYPE == "1" || element.TYPE == "2") {
       return false;
     }
 
