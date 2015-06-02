@@ -389,13 +389,20 @@ public:
     {
         ostringstream oss;
 
+        if ((snapshots.size() > 0) && !persis)
+        {
+           error_str = "Image has snapshots.";
+           return -1;
+        }
+
         switch(state)
         {
             case USED:
             case CLONE:
             case USED_PERS:
-                goto error_state;
-                break;
+                oss << "Image cannot be in state " << state_to_str(state) <<".";
+                error_str = oss.str();
+                return -1;
 
             case INIT:
             case READY:
@@ -416,16 +423,6 @@ public:
         }
 
         return 0;
-
-    error_state:
-        oss << "Image cannot be in state " << state_to_str(state) << ".";
-        error_str = oss.str();
-
-        goto error_common;
-
-    error_common:
-        return -1;
-
     }
 
     /**
