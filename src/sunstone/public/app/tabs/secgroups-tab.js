@@ -8,6 +8,7 @@ define(function(require) {
   var DATATABLE_ID = "dataTableSecurityGroups";
 
   var _dialogs = [
+    require('./secgroups-tab/dialogs/clone')
   ];
 
   var _panels = [

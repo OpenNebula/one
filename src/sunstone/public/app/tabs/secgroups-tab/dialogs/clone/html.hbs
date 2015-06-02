@@ -1,0 +1,29 @@
+<div id="{{dialogId}}" class="reveal-modal" role="dialog" data-reveal >
+  <div class="row">
+    <h3 class="subheader">{{tr "Clone Security Group"}}</h3>
+  </div>
+  <form data-abide="ajax" id="{{dialogId}}Form">
+    <div class="row">
+      <div class="large-12 columns">
+        <div class="clone_one"></div>
+        <div class="clone_several">
+          {{tr "Several security groups are selected, please choose a prefix to name the new copies"}}
+          <br>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <label class="clone_one">{{tr "Name"}}</label>
+        <label class="clone_several">{{tr "Prefix"}}</label>
+        <input required type="text" name="name"></input>
+      </div>
+    </div>
+    <div class="form_buttons row">
+      <button type="submit" class="button radius right">
+        {{tr "Clone"}}
+      </button>
+    </div>
+    <a class="close-reveal-modal">&#215;</a>
+  </form>
+</div>

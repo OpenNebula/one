@@ -9,6 +9,7 @@ define(function(require) {
   var XML_ROOT = "SECURITY_GROUP";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
 
   var _actions = {
 
@@ -169,17 +170,21 @@ define(function(require) {
       notify: true
     },
 
-    /*
-    TODO
     "SecurityGroup.clone_dialog" : {
-        type: "custom",
-        call: popUpSecurityGroupCloneDialog
+      type: "custom",
+      call: function(){
+        Sunstone.getDialog(CLONE_DIALOG_ID).show();
+      }
     },
-    */
 
     "SecurityGroup.clone" : {
       type: "single",
       call: OpenNebulaResource.clone,
+      callback: function(request, response) {
+        Sunstone.getDialog(CLONE_DIALOG_ID).hide();
+        Sunstone.getDialog(CLONE_DIALOG_ID).reset();
+        Sunstone.runAction('SecurityGroup.refresh');
+      },
       error: Notifier.onError,
       notify: true
     },
