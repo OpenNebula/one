@@ -200,12 +200,10 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         break;
     }
 
-    rc = image->set_type(type);
+    rc = image->set_type(type, err_msg);
 
     if ( rc != 0  )
     {
-        err_msg = "Unknown type " + type;
-
         failure_response(INTERNAL,request_error(err_msg,""), att);
 
         image->unlock();

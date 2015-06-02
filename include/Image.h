@@ -345,7 +345,7 @@ public:
      * @param _type the new type. It will be transformed to upper case
      * @return 0 on success, -1 otherwise
      */
-    int set_type(string& _type);
+    int set_type(string& _type, string& error);
 
     /**
      *  Check if the image can be used by other users

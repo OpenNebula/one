@@ -125,9 +125,9 @@ int Image::insert(SqlDB *db, string& error_str)
         type_att = ImagePool::default_type();
     }
 
-    if (set_type(type_att) != 0)
+    if (set_type(type_att, error_str) != 0)
     {
-        goto error_type;
+        goto error_common;
     }
 
     // ------------ PERSISTENT & PREFIX --------------------
@@ -218,10 +218,6 @@ int Image::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
-
-error_type:
-    error_str = "Incorrect TYPE in template.";
-    goto error_common;
 
 error_no_path:
     error_str = "No PATH in template.";
@@ -670,11 +666,17 @@ int Image::disk_attribute(  VectorAttribute *       disk,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::set_type(string& _type)
+int Image::set_type(string& _type, string& error)
 {
     int rc = 0;
 
     TO_UPPER(_type);
+
+    if ((_type != "OS" && _type != "DATABLOCK") && (snapshots.size() > 0))
+    {
+        error = "Image with snapshots can be only of type OS or DATABLOCK";
+        return -1;
+    }
 
     if ( _type == "OS" )
     {
@@ -702,6 +704,7 @@ int Image::set_type(string& _type)
     }
     else
     {
+        error = "Unknown type " + type;
         rc = -1;
     }
 
