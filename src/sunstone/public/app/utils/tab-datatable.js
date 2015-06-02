@@ -372,7 +372,10 @@ define(function(require) {
       } else {
         item_list = [];
         $.each(list, function() {
-          item_list.push(that.elementArray(this));
+          var item = that.elementArray(this);
+          if (item){
+            item_list.push(item);
+          }
         });
       }
 
