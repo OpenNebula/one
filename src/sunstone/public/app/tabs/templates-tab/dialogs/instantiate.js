@@ -51,11 +51,17 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
-    $('#' + DIALOG_ID + 'Form', context).on('invalid', function () {
+    
+    context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
+    context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
+    context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
+      // Fix for valid event firing twice
+      if (e.namespace != 'abide.fndtn') { return; };
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
       return false;
-    }).on('valid', function() {
+    }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
+      // Fix for valid event firing twice
+      if (e.namespace != 'abide.fndtn') { return; };
       var vm_name = $('#vm_name', this).val();
       var n_times = $('#vm_n_times', this).val();
       var n_times_int = 1;
