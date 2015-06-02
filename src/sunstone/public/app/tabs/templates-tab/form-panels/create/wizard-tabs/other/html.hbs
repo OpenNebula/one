@@ -33,34 +33,7 @@
     </fieldset>
     <fieldset>
       <legend>{{tr "Custom Tags"}}</legend>
-      <div class="row">
-        <div class="large-4 columns">
-          <input type="text" id="KEY" name="key" />
-        </div>
-        <div class="large-6 columns">
-          <textarea type="text" id="VALUE" name="value" />
-        </div>
-        <div class="large-2 columns">
-          <a href="#" class="button secondary small radius" id="add_context">{{tr "Add"}}</a>
-        </div>
-      </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <table id="custom_tags" class="dataTable policies_table">
-            <thead>
-              <tr>
-                <th>{{tr "KEY"}}</th>
-                <th>{{tr "VALUE"}}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="tbodyinput">
-              <tr></tr>
-              <tr></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {{{customTagsTableHTML}}}
     </fieldset>
   </div>
 </div>

@@ -8,6 +8,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
+  var CustomTagsTable = require('utils/custom-tags-table');
 
   /*
     TEMPLATES
@@ -49,7 +50,9 @@ define(function(require) {
    */
   
   function _html() {
-    return TemplateHTML();
+    return TemplateHTML({
+      'customTagsTableHTML': CustomTagsTable.html()
+    });
   }
 
   function _onShow(context, panelForm) {
@@ -58,32 +61,7 @@ define(function(require) {
   function _setup(context) {
     Tips.setup(context);
 
-    context.on("click", '#add_context', function() {
-      var table = $('#custom_tags', context)[0];
-      var rowCount = table.rows.length;
-      var row = table.insertRow(rowCount);
-
-      var cell1 = row.insertCell(0);
-      var element1 = document.createElement("input");
-      element1.id = "KEY";
-      element1.type = "text";
-      element1.value = $('#KEY', context).val()
-      cell1.appendChild(element1);
-
-      var cell2 = row.insertCell(1);
-      var element2 = document.createElement("input");
-      element2.id = "VALUE";
-      element2.type = "text";
-      element2.value = $('#VALUE', context).val()
-      cell2.appendChild(element2);
-
-      var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
-    });
-
-    context.on("click", "i.remove-tab", function() {
-      $(this).closest("tr").remove()
-    });
+    CustomTagsTable.setup(context);
 
     context.on("change", "#raw_type", function() {
       var choice_str = $(this).val();
@@ -98,7 +76,8 @@ define(function(require) {
   }
 
   function _retrieve(context) {
-    var templateJSON = {};
+    var templateJSON = CustomTagsTable.retrieve(context);
+
     var rawJSON = {}
     t = $('#raw_type', context).val();
     if (t) { rawJSON['TYPE'] = t; }
@@ -108,12 +87,6 @@ define(function(require) {
     if (t) { rawJSON['DATA_VMX'] = t; }
 
     if (!$.isEmptyObject(rawJSON)) { templateJSON['RAW'] = rawJSON; };
-
-    $('#custom_tags tr', context).each(function() {
-      if ($('#KEY', $(this)).val()) {
-        templateJSON[$('#KEY', $(this)).val()] = TemplateUtils.escapeDoubleQuotes($('#VALUE', $(this)).val());
-      }
-    });
 
     return templateJSON;
   }
@@ -129,27 +102,6 @@ define(function(require) {
       delete templateJSON.RAW
     }
 
-    $.each(templateJSON, function(key, value) {
-      var table = $('#custom_tags', context)[0];
-      var rowCount = table.rows.length;
-      var row = table.insertRow(rowCount);
-
-      var cell1 = row.insertCell(0);
-      var element1 = document.createElement("input");
-      element1.id = "KEY";
-      element1.type = "text";
-      element1.value = TemplateUtils.htmlDecode(key);
-      cell1.appendChild(element1);
-
-      var cell2 = row.insertCell(1);
-      var element2 = document.createElement("textarea");
-      element2.id = "VALUE";
-      element2.type = "text";
-      element2.value = TemplateUtils.htmlDecode(value);
-      cell2.appendChild(element2);
-
-      var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
-    });
+    CustomTagsTable.fill(context, templateJSON);
   }
 });

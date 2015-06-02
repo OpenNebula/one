@@ -8,6 +8,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
+  var CustomTagsTable = require('utils/custom-tags-table');
 
   /*
     TEMPLATES
@@ -54,7 +55,9 @@ define(function(require) {
    */
   
   function _html() {
-    return TemplateHTML();
+    return TemplateHTML({
+      'customTagsTableHTML': CustomTagsTable.html()
+    });
   }
 
   function _onShow(context, panelForm) {
@@ -63,34 +66,7 @@ define(function(require) {
   function _setup(context) {
     Tips.setup(context);
 
-    context.off("click", '#add_context');
-    context.on("click", '#add_context', function() {
-      var table = $('#context_table', context)[0];
-      var rowCount = table.rows.length;
-      var row = table.insertRow(rowCount);
-
-      var cell1 = row.insertCell(0);
-      var element1 = document.createElement("input");
-      element1.id = "KEY";
-      element1.type = "text";
-      element1.value = $('input#KEY', context).val()
-      cell1.appendChild(element1);
-
-      var cell2 = row.insertCell(1);
-      var element2 = document.createElement("textarea");
-      element2.id = "VALUE";
-      element2.type = "text";
-      element2.value = $('textarea#VALUE', context).val()
-      cell2.appendChild(element2);
-
-      var cell3 = row.insertCell(2);
-      cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
-    });
-
-    context.off("click", 'i.remove-tab');
-    context.on("click", 'i.remove-tab', function() {
-      $(this).closest("tr").remove()
-    });
+    CustomTagsTable.setup(context);
 
     /* TODO
     that.context.initialize({
@@ -145,12 +121,7 @@ define(function(require) {
   function _retrieve(context) {
     var templateJSON = {};
     var contextJSON = WizardFields.retrieve(context);
-
-    $('#context_table tr', context).each(function() {
-      if ($('#KEY', $(this)).val()) {
-        contextJSON[$('#KEY', $(this)).val()] = $('#VALUE', $(this)).val()
-      }
-    });
+    $.extend(contextJSON, CustomTagsTable.retrieve(context));
 
     if ($("#ssh_context", context).is(":checked")) {
       var public_key = $("#ssh_public_key", context).val();
@@ -220,6 +191,7 @@ define(function(require) {
       var net_flag = false;
       var files = [];
 
+      var customTagsJSON = {};
       $.each(contextJSON, function(key, value) {
         if (ssh_regexp.test(key)) {
           $("#ssh_context", context).prop('checked', 'checked');
@@ -247,29 +219,12 @@ define(function(require) {
           update_datatable_template_files(dataTable_context, function() {
                 });*/
         } else {
-          var table = $('#context_table', context)[0];
-          var rowCount = table.rows.length;
-          var row = table.insertRow(rowCount);
-
-          var cell1 = row.insertCell(0);
-          var element1 = document.createElement("input");
-          element1.id = "KEY";
-          element1.type = "text";
-          element1.value = TemplateUtils.htmlDecode(key);
-          cell1.appendChild(element1);
-
-          var cell2 = row.insertCell(1);
-          var element2 = document.createElement("textarea");
-          element2.id = "VALUE";
-          element2.type = "text";
-          element2.value = TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value));
-          cell2.appendChild(element2);
-
-          var cell3 = row.insertCell(2);
-          cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
+          customTagsJSON[key] = value;
         }
       });
 
+      CustomTagsTable.fill(context, customTagsJSON);
+      
       delete templateJSON['CONTEXT'];
     }
   }
