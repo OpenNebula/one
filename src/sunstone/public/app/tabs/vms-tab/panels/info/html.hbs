@@ -1,0 +1,53 @@
+<div class="row">
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Information"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "ID"}}</td>
+          <td class="value_td" colspan="2">{{element.ID}}</td>
+        </tr>
+        {{{renameTrHTML}}}
+        <tr>
+          <td class="key_td">{{tr "State"}}</td>
+          <td class="value_td">{{stateStr}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "LCM State"}}</td>
+          <td class="value_td">{{lcmStateStr}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Host"}}</td>
+          <td class="value_td">{{hostname}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Start time"}}</td>
+          <td class="value_td">{{prettyStartTime}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Deploy ID"}}</td>
+          <td class="value_td">{{deployId}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Reschedule"}}</td>
+          <td class="value_td">{{resched}}</td>
+          <td></td>
+        </tr>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="large-6 columns">{{{permissionsTableHTML}}}</div>
+</div>
+<div class="row">
+<div class="large-9 columns">{{{templateTableHTML}}}</div>
+</div>

@@ -12,10 +12,10 @@ define(function(require) {
   //  require('./vms-tab/dialogs/instantiate')
   //];
 
-  //var _panels = [
-  //  require('./vms-tab/panels/info'),
+  var _panels = [
+    require('./vms-tab/panels/info'),
   //  require('./vms-tab/panels/template')
-  //];
+  ];
 
   //var _formPanels = [
   //  require('./vms-tab/form-panels/create')
@@ -37,7 +37,7 @@ define(function(require) {
     buttons: Buttons,
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
-    //panels: _panels,
+    panels: _panels,
     //formPanels: _formPanels,
     //dialogs: _dialogs
   };
