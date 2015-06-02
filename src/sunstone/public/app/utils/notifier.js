@@ -1,6 +1,8 @@
 define(function(require) {
   require('jgrowl');
 
+  var Locale = require('utils/locale');
+
   //Notification of submission of action
   var _notifySubmit = function(action, args, extra_param) {
     var action_text = action.replace(/OpenNebula\./, '').replace(/\./, ' ');
@@ -53,7 +55,7 @@ define(function(require) {
     };
 
     if (!message) {
-      _notifyError(tr("Cannot contact server: is it running and reachable?"));
+      _notifyError(Locale.tr("Cannot contact server: is it running and reachable?"));
       return false;
     };
 
@@ -68,7 +70,7 @@ define(function(require) {
     }
 
     if (message.match(/^Network is unreachable .+$/)) {
-      _notifyError(tr("Network is unreachable: is OpenNebula running?"));
+      _notifyError(Locale.tr("Network is unreachable: is OpenNebula running?"));
       return false;
     };
 
@@ -84,7 +86,7 @@ define(function(require) {
     } else if (m = message.match(auth_error)) {
       method = m[1];
       object     = m[3];
-      reason = tr("Unauthorized");
+      reason = Locale.tr("Unauthorized");
     };
 
     if (m) {
