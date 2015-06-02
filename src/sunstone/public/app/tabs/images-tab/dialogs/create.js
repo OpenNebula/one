@@ -68,13 +68,6 @@ define(function(require) {
     var that = this;
     Tips.setup(dialog);
 
-    $('.advanced', dialog).hide();
-
-    $('#advanced_image_create', dialog).click(function() {
-      $('.advanced', dialog).toggle();
-      return false;
-    });
-
     $('select#img_type', dialog).change(function() {
       var value = $(this).val();
       switch (value){

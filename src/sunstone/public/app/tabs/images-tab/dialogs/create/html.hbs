@@ -135,14 +135,7 @@
             </div>
           </div>
         </fieldset>
-        <div class="show_hide" id="advanced_image_create">
-          <h4>
-            <small> <i class=" fa fa-caret-down"/>{{tr "Advanced options"}}
-              <a id="add_os_boot_opts" class="icon_left" href="#"></a>
-            </small>
-          </h4>
-        </div>
-        <div class="advanced">
+        {{#advancedSection (tr "Advanced Options") }}
           <div class="row">
             <div class="large-6 columns">
               <div class="row">
@@ -217,7 +210,7 @@
               </div>
             </fieldset>
           </div>
-        </div>
+        {{/advancedSection}}
         <div class="form_buttons">
           <button class="button success radius right" id="create_image_submit" type="submit" value="image/create">{{tr "Create"}}</button>
           <button id="wizard_image_reset_button"  class="button secondary radius" type="reset" value="reset">{{tr "Reset"}}</button>
