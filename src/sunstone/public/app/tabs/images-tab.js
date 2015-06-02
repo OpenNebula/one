@@ -8,13 +8,16 @@ define(function(require) {
   var DATATABLE_ID = "dataTableImages";
 
   var _dialogs = [
-    require('./images-tab/dialogs/create'),
     require('./images-tab/dialogs/clone')
   ];
 
   var _panels = [
     require('./images-tab/panels/info'),
     require('./images-tab/panels/vms')
+  ];
+
+  var _formPanels = [
+    require('./images-tab/form-panels/create')
   ];
 
   var Tab = {
@@ -31,6 +34,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     dialogs: _dialogs
   };
 

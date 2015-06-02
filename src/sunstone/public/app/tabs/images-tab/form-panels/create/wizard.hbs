@@ -1,0 +1,196 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="img_name">
+        {{tr "Name"}}
+        <span class="tip">
+          {{tr "Name that the Image will get. Every image must have a unique name."}}
+        </span>
+      </label>
+      <input type="text" name="img_name" id="img_name" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="img_desc">
+        {{tr "Description"}}
+        <span class="tip">
+          {{tr "Human readable description of the image for other users."}}
+        </span>
+      </label>
+      <textarea name="img_desc" id="img_desc" rows="4"></textarea>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="img_type">
+        {{tr "Type"}}
+        <span class="tip">
+          {{tr "Type of the image."}}
+          <br/>
+          <br/>
+          {{tr  "OS images contain a working operative system."}}
+          <br/>
+          <br/>
+          {{tr  "CDROM images are readonly data."}}
+          <br/>
+          <br/>
+          {{tr  "DATABLOCK images are a storage for data. They can be created from previous existing data, or as an empty drive."}}
+        </span>
+      </label>
+      <select name="img_type" id="img_type">
+        <option value="OS">{{tr "OS"}}</option>
+        <option value="CDROM">{{tr "CDROM"}}</option>
+        <option value="DATABLOCK">{{tr "DATABLOCK"}}</option>
+      </select>
+    </div>
+    <div class="large-6 columns">
+      <label for="img_datastore">
+        {{tr "Datastore"}}
+        <span class="tip">{{tr "Select the datastore for this image"}}</span>
+      </label>
+      <div id="img_datastore" name="img_datastore"></div>
+    </div>
+    <div class="large-6 columns">
+      {{#if persistentActionEnabled}}
+      <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />
+      <label for="img_persistent">
+        {{tr "Persistent"}}
+        <span class="tip">{{tr "Persistence of the image"}}</span>
+      </label>
+      {{/if}}
+    </div>
+  </div>
+  <br>
+  <fieldset>
+    <legend>{{tr "Image location"}}:</legend>
+    <div class="row" id="src_path_select">
+      <div class="large-12 columns text-center">
+        <input type="radio" name="src_path" id="path_image" value="path">
+        <label for="path_image">{{tr "Provide a path"}}</label>
+        <input type="radio" name="src_path" id="upload_image" value="upload">
+        <label for="upload_image">{{tr "Upload"}}</label>
+        <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled>
+        <label for="datablock_img">{{tr "Empty datablock"}}</label>
+      </div>
+    </div>
+    <br>
+    <div class="img_param row">
+      <div class="large-12 columns">
+        <label for="img_path">
+          {{tr "Path"}}
+          <span class="tip">
+            {{tr "Path to the original file that will be copied to the image repository. If not specified for a DATABLOCK type image, an empty image will be created."}}
+          </span>
+        </label>
+        <input type="text" name="img_path" id="img_path" />
+      </div>
+    </div>
+    <div class="row">
+      <div id="file-uploader" class="large-12 columns text-center">
+        <label id="file-uploader-label" for="file-uploader-input"></label>
+        <input id="file-uploader-input" type="file"/>
+      </div>
+    </div>
+    <div class="img_size row">
+      <div class="large-6 columns">
+        <label for="img_size">
+          {{tr "Size"}}
+          <span class="tip">{{tr "Size of the datablock in MB."}}</span>
+        </label>
+        <input type="text" name="img_size" id="img_size" />
+      </div>
+      <div class="large-6 columns">
+        <label for="img_fstype">
+          {{tr "FS type"}}
+          <span class="tip">
+            {{tr "Type of file system to be built."}}
+            <br>
+            <br>
+            {{tr  "Plain. When the disk image is used directly by the hypervisor we can format the image, and so it is ready to be used by the guest OS. Values: ext2, ext3, ext4, ntfs, reiserfs, jfs, swap. Any other fs supported by mkfs will work if no special option is needed."}}
+            <br>
+            <br>
+            {{tr  "Formatted. The disk image is stored in a hypervisor specific format VMDK or Qcow2. Then we cannot really make a filesystem on the image, just create the device and let the guest OS format the disk. Use raw to not to format the new image. Values: raw, qcow2, vmdk_*."}}
+          </span>
+        </label>
+        <input type="text" name="img_fstype" id="img_fstype" />
+      </div>
+    </div>
+  </fieldset>
+  {{#advancedSection (tr "Advanced Options") }}
+    <div class="row">
+      <div class="large-6 columns">
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="img_dev_prefix">
+              {{tr "Device prefix"}}
+              <span class="tip">
+                {{tr "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”. If omitted, the default value is the one defined in oned.conf (installation default is “hd”)."}}
+              </span>
+            </label>
+            <input type="text" name="img_dev_prefix" id="img_dev_prefix" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="img_driver">
+              {{tr "Driver"}}
+              <span class="tip">
+                {{tr "Specific image mapping driver. KVM: raw, qcow2. XEN: tap:aio, file:"}}
+              </span>
+            </label>
+            <input type="text" name="img_driver" id="img_driver" />
+          </div>
+        </div>
+      </div>
+      <div class="large-6 columns">
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="img_target">
+              {{tr "Target"}}
+              <span class="tip">
+                {{tr "Target on which the image will be mounted at. For example: hda, sdb..."}}
+              </span>
+            </label>
+            <input type="text" name="img_target" id="img_target" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <fieldset>
+        <legend>{{tr "Custom attributes"}}</legend>
+        <div class="row">
+          <div class="large-6 columns">
+            <div class="row">
+              <div class="large-12 columns">
+                <label for="custom_var_image_name">{{tr "Name"}}</label>
+                <input type="text" id="custom_var_image_name" name="custom_var_image_name" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="large-12 columns">
+                <label for="custom_var_image_value">{{tr "Value"}}</label>
+                <input type="text" id="custom_var_image_value" name="custom_var_image_value" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="large-12 columns">
+                <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_image_button" type="button" value="add_custom_image_var">{{tr "Add"}}</button>
+                <button class="add_remove_button secondary button small radius" id="remove_custom_var_image_button" type="button" value="remove_custom_image_var">{{tr "Remove selected"}}</button>
+              </div>
+            </div>
+          </div>
+          <div class="large-6 columns">
+            <div class="row">
+              <div class="eight centered columns">
+                <select id="custom_var_image_box" name="custom_var_image_box" style="height:180px !important; width:100%" multiple></select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  {{/advancedSection}}
+</form>

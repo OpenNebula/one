@@ -3,46 +3,68 @@ define(function(require) {
     DEPENDENCIES
    */
   
-  var BaseDialog = require('utils/dialogs/dialog');
+  var BaseFormPanel = require('utils/form-panels/form-panel');
   var Resumable = require('resumable');
-  var TemplateHTML = require('hbs!./create/html');
   var Sunstone = require('sunstone');
   var OpenNebulaError = require('opennebula/error');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var ResourceSelect = require('utils/resource-select')
-  
+  var ResourceSelect = require('utils/resource-select');
+
+  var TemplateWizardHTML = require('hbs!./create/wizard');
+  var TemplateAdvancedHTML = require('hbs!./create/advanced');
+
   /*
     CONSTANTS
    */
   
-  var DIALOG_ID = require('./create/dialogId');
+  var FORM_PANEL_ID = require('./create/formPanelId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
    */
 
-  function Dialog() {
-    this.dialogId = DIALOG_ID;
-    BaseDialog.call(this);
-  };
+  function FormPanel() {
+    this.formPanelId = FORM_PANEL_ID;
+    this.tabId = TAB_ID;
+    this.actions = {
+      'create': {
+        'title': Locale.tr("Create Image"),
+        'buttonText': Locale.tr("Create"),
+        'resetButton': true
+      }
+    };
 
-  Dialog.DIALOG_ID = DIALOG_ID;
-  Dialog.prototype = Object.create(BaseDialog.prototype);
-  Dialog.prototype.constructor = Dialog;
-  Dialog.prototype.html = _html;
-  Dialog.prototype.onShow = _onShow;
-  Dialog.prototype.setup = _setup;
+    BaseFormPanel.call(this);
+  }
 
-  return Dialog;
-  
+  FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
+  FormPanel.prototype = Object.create(BaseFormPanel.prototype);
+  FormPanel.prototype.constructor = FormPanel;
+  FormPanel.prototype.htmlWizard = _htmlWizard;
+  FormPanel.prototype.htmlAdvanced = _htmlAdvanced;
+  FormPanel.prototype.submitWizard = _submitWizard;
+  FormPanel.prototype.submitAdvanced = _submitAdvanced;
+  FormPanel.prototype.onShow = _onShow;
+  FormPanel.prototype.setup = _setup;
+
+  return FormPanel;
+
+
   /*
     FUNCTION DEFINITIONS
    */
-  
-  function _html() {
-    return TemplateHTML({dialogId: this.dialogId});
+
+  function _htmlWizard() {
+    return TemplateWizardHTML({
+      'formPanelId': this.formPanelId
+    });
+  }
+
+  function _htmlAdvanced() {
+    return TemplateAdvancedHTML({formPanelId: this.formPanelId});
   }
 
   function _onShow(dialog) {
@@ -122,12 +144,10 @@ define(function(require) {
       return false;
     });
 
-    var img_obj;
-
     if (_getInternetExplorerVersion() > -1) {
       $("#upload_image").attr("disabled", "disabled");
     } else {
-      var uploader = new Resumable({
+      that.uploader = new Resumable({
         target: 'upload_chunk',
         chunkSize: 10 * 1024 * 1024,
         maxFiles: 1,
@@ -137,12 +157,12 @@ define(function(require) {
         }
       });
 
-      uploader.assignBrowse($('#file-uploader-input', dialog));
+      that.uploader.assignBrowse($('#file-uploader-input', dialog));
 
       var fileName = '';
       var file_input = false;
 
-      uploader.on('fileAdded', function(file) {
+      that.uploader.on('fileAdded', function(file) {
         fileName = file.fileName;
         file_input = fileName;
 
@@ -150,7 +170,7 @@ define(function(require) {
         $("#file-uploader-label", dialog).html(file.fileName);
       });
 
-      uploader.on('uploadStart', function() {
+      that.uploader.on('uploadStart', function() {
         $('#upload_progress_bars').append('<div id="' + fileName + 'progressBar" class="row" style="margin-bottom:10px">\
             <div id="' + fileName + '-info" class="large-2 columns dataTables_info">\
               ' + Locale.tr("Uploading...") + '\
@@ -164,138 +184,135 @@ define(function(require) {
           </div>');
       });
 
-      uploader.on('progress', function() {
-        $('span.meter', $('div[id="' + fileName + 'progressBar"]')).css('width', uploader.progress() * 100.0 + '%')
+      that.uploader.on('progress', function() {
+        $('span.meter', $('div[id="' + fileName + 'progressBar"]')).css('width', that.uploader.progress() * 100.0 + '%')
       });
+    }
 
-      uploader.on('fileSuccess', function(file) {
-        $('div[id="' + fileName + '-info"]').text(Locale.tr("Registering in OpenNebula"));
+    return false;
+  }
+
+  function _submitWizard(dialog) {
+    var that = this;
+    var upload = false;
+
+    var ds_id = $('#img_datastore .resource_list_select', dialog).val();
+    if (!ds_id) {
+      Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
+      return false;
+    }
+
+    var img_json = {};
+
+    var name = $('#img_name', dialog).val();
+    img_json["NAME"] = name;
+
+    var desc = $('#img_desc', dialog).val();
+    if (desc.length) {
+      img_json["DESCRIPTION"] = desc;
+    }
+
+    var type = $('#img_type', dialog).val();
+    img_json["TYPE"] = type;
+
+    img_json["PERSISTENT"] = $('#img_persistent:checked', dialog).length ? "YES" : "NO";
+
+    var dev_prefix = $('#img_dev_prefix', dialog).val();
+    if (dev_prefix.length) {
+      img_json["DEV_PREFIX"] = dev_prefix;
+    }
+
+    var driver = $('#img_driver', dialog).val();
+    if (driver.length)
+        img_json["DRIVER"] = driver;
+
+    var target = $('#img_target', dialog).val();
+    if (target)
+        img_json["TARGET"] = target;
+
+    switch ($('#src_path_select input:checked', dialog).val()){
+    case "path":
+      path = $('#img_path', dialog).val();
+      if (path) img_json["PATH"] = path;
+      break;
+    case "datablock":
+      size = $('#img_size', dialog).val();
+      fstype = $('#img_fstype', dialog).val();
+      if (size) img_json["SIZE"] = size;
+      if (fstype) img_json["FSTYPE"] = fstype;
+      break;
+    case "upload":
+      upload = true;
+      break;
+    }
+
+    //Time to add custom attributes
+    $('#custom_var_image_box option', dialog).each(function() {
+      var attr_name = $(this).attr('name');
+      var attr_value = $(this).val();
+      img_json[attr_name] = attr_value;
+    });
+
+    var img_obj = {
+      "image" : img_json,
+      "ds_id" : ds_id
+    };
+
+    //this is an image upload we trigger FileUploader
+    //to start the upload
+    if (upload) {
+      Sunstone.resetFormPanel(that.tabId, that.formPanelId);
+      Sunstone.hideFormPanel(that.tabId);
+
+      that.uploader.on('fileSuccess', function(file) {
+        $('div[id="' + file.fileName + '-info"]').text(Locale.tr("Registering in OpenNebula"));
         $.ajax({
           url: 'upload',
           type: "POST",
           data: {
             csrftoken: csrftoken,
             img : JSON.stringify(img_obj),
-            file: fileName,
+            file: file.fileName,
             tempfile: file.uniqueIdentifier
           },
           success: function() {
             Notifier.notifyMessage("Image uploaded correctly");
-            $('div[id="' + fileName + 'progressBar"]').remove();
+            $('div[id="' + file.fileName + 'progressBar"]').remove();
             Sunstone.runAction("Image.refresh");
           },
           error: function(response) {
             Notifier.onError({}, OpenNebulaError(response));
-            $('div[id="' + fileName + 'progressBar"]').remove();
+            $('div[id="' + file.fileName + 'progressBar"]').remove();
           }
         });
       });
+
+      that.uploader.upload();
+    } else {
+      Sunstone.runAction("Image.create", img_obj);
     }
 
-    $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
-      var exit = false;
-      var upload = false;
-      $('.img_man', this).each(function() {
-        if (!$('input', this).val().length) {
-          Notifier.notifyError(Locale.tr("There are mandatory parameters missing"));
-          exit = true;
-          return false;
-        }
-      });
-      if (exit) { return false; }
+    return false;
+  }
 
-      var ds_id = $('#img_datastore .resource_list_select', dialog).val();
-      if (!ds_id) {
-        Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
-        return false;
-      };
+  function _submitAdvanced(dialog) {
+    var template = $('#template', dialog).val();
+    var ds_id = $('#img_datastore_raw .resource_list_select', dialog).val();
 
-      var img_json = {};
-
-      var name = $('#img_name', dialog).val();
-      img_json["NAME"] = name;
-
-      var desc = $('#img_desc', dialog).val();
-      if (desc.length) {
-        img_json["DESCRIPTION"] = desc;
-      }
-
-      var type = $('#img_type', dialog).val();
-      img_json["TYPE"] = type;
-
-      img_json["PERSISTENT"] = $('#img_persistent:checked', dialog).length ? "YES" : "NO";
-
-      var dev_prefix = $('#img_dev_prefix', dialog).val();
-      if (dev_prefix.length) {
-        img_json["DEV_PREFIX"] = dev_prefix;
-      }
-
-      var driver = $('#img_driver', dialog).val();
-      if (driver.length)
-          img_json["DRIVER"] = driver;
-
-      var target = $('#img_target', dialog).val();
-      if (target)
-          img_json["TARGET"] = target;
-
-      switch ($('#src_path_select input:checked', dialog).val()){
-      case "path":
-        path = $('#img_path', dialog).val();
-        if (path) img_json["PATH"] = path;
-        break;
-      case "datablock":
-        size = $('#img_size', dialog).val();
-        fstype = $('#img_fstype', dialog).val();
-        if (size) img_json["SIZE"] = size;
-        if (fstype) img_json["FSTYPE"] = fstype;
-        break;
-      case "upload":
-        upload = true;
-        break;
-      }
-
-      //Time to add custom attributes
-      $('#custom_var_image_box option', dialog).each(function() {
-        var attr_name = $(this).attr('name');
-        var attr_value = $(this).val();
-        img_json[attr_name] = attr_value;
-      });
-
-      img_obj = {"image" : img_json,
-                  "ds_id" : ds_id};
-
-      //we this is an image upload we trigger FileUploader
-      //to start the upload
-      if (upload) {
-        that.hide();
-        that.reset();
-        uploader.upload();
-      } else {
-        Sunstone.runAction("Image.create", img_obj);
-      };
-
+    if (!ds_id) {
+      Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
       return false;
-    });
+    }
 
-    $('#create_image_submit_manual', dialog).click(function() {
-      var template = $('#template', dialog).val();
-      var ds_id = $('#img_datastore_raw .resource_list_select', dialog).val();
+    var img_obj = {
+      "image" : {
+        "image_raw" : template
+      },
+      "ds_id" : ds_id
+    };
 
-      if (!ds_id) {
-        Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
-        return false;
-      };
+    Sunstone.runAction("Image.create", img_obj);
 
-      var img_obj = {
-        "image" : {
-          "image_raw" : template
-        },
-        "ds_id" : ds_id
-      };
-      Sunstone.runAction("Image.create", img_obj);
-
-      return false;
-    });
     return false;
   }
 
