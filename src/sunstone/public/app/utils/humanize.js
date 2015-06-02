@@ -1,4 +1,11 @@
 define(function(require) {
+  var EXTERNAL_IPS_ATTRS = [
+    'GUEST_IP',
+    'AWS_IP_ADDRESS',
+    'AZ_IPADDRESS',
+    'SL_PRIMARYIPADDRESS'
+  ]
+
   /*
     CONSTRUCTOR
    */
@@ -8,7 +15,8 @@ define(function(require) {
     'sizeFromMB': _sizeFromMB,
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
-    'prettyPrintJSON': _prettyPrintJSON
+    'prettyPrintJSON': _prettyPrintJSON,
+    'ipsStr': _ipsStr
   }
 
   /*
@@ -175,4 +183,46 @@ define(function(require) {
 
     return str;
   }
+
+  // Return the IP or several IPs of a VM
+  function _ipsStr(vm, divider) {
+    var divider = divider || "<br>"
+    var nic = vm.TEMPLATE.NIC;
+    var ips = [];
+
+    if (nic != undefined) {
+      if (!$.isArray(nic)) {
+        nic = [nic];
+      }
+
+      $.each(nic, function(index, value) {
+        if (value.IP) {
+          ips.push(value.IP);
+        }
+
+        if (value.IP6_GLOBAL) {
+          ips.push(value.IP6_GLOBAL);
+        }
+
+        if (value.IP6_ULA) {
+          ips.push(value.IP6_ULA);
+        }
+      });
+    }
+
+    var template = vm.TEMPLATE;
+    var externalIP;
+    $.each(EXTERNAL_IPS_ATTRS, function(index, IPAttr) {
+      externalIP = template[IPAttr];
+      if (externalIP && ($.inArray(externalIP, ips) == -1)) {
+        ips.push(externalIP);
+      }
+    })
+
+    if (ips.length > 0) {
+      return ips.join(divider);
+    } else {
+      return '--';
+    }
+  };
 })
