@@ -64,7 +64,9 @@ define(function(require) {
       "name_index": 4,
       "uname_index": 2,
       "select_resource": Locale.tr("Please select an image from the list"),
-      "you_selected": Locale.tr("You selected the following image:")
+      "you_selected": Locale.tr("You selected the following image:"),
+      "select_resource_multiple": Locale.tr("Please select one or more images from the list"),
+      "you_selected_multiple": Locale.tr("You selected the following images:")
     };
 
     TabDataTable.call(this);

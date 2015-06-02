@@ -4,6 +4,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaImage = require('opennebula/image');
 
+  var RESOURCE = "Image";
+  var XML_ROOT = "IMAGE";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
@@ -15,8 +17,8 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.getDialog(CREATE_DIALOG_ID).hide();
         Sunstone.getDialog(CREATE_DIALOG_ID).reset();
-        DataTable.addElement(request, response);
-        Notifier.notifyCustom(tr("Image created"), " ID: " + response.IMAGE.ID, false)
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+        Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + response[XML_ROOT].ID, false);
       },
       error: Notifier.onError,
     },
@@ -54,10 +56,10 @@ define(function(require) {
       call: function () {
         var tab = $('#' + TAB_ID);
         if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction("Image.show", Sunstone.rightInfoResourceId(tab))
+          Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
         } else {
           Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction("Image.list", {force: true});
+          Sunstone.runAction(RESOURCE+".list", {force: true});
         }
       }
     },
@@ -75,7 +77,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaImage.enable,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -88,7 +90,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaImage.disable,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -101,7 +103,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaImage.persistent,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -114,7 +116,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaImage.nonpersistent,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -140,7 +142,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaImage.chown,
       callback:  function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -153,7 +155,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaImage.chgrp,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -166,7 +168,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaImage.chmod,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       error: Notifier.onError,
       notify: true
@@ -176,7 +178,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaImage.chtype,
       callback: function (req) {
-        Sunstone.runAction("Image.show", req.request.data[0][0]);
+        Sunstone.runAction(RESOURCE+".show", req.request.data[0][0]);
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -208,4 +210,4 @@ define(function(require) {
   };
 
   return _actions;
-})
+});
