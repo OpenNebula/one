@@ -7,8 +7,8 @@ define(function(require) {
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var VNetsTable = require('tabs/vnets-tab/datatable')
-  var SecgroupsTable = require('tabs/secgroups-tab/datatable')
+  var VNetsTable = require('tabs/vnets-tab/datatable');
+  var SecgroupsTable = require('tabs/secgroups-tab/datatable');
   var WizardFields = require('utils/wizard-fields');
 
   /*

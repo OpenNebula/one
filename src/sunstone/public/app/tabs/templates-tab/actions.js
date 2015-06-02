@@ -8,6 +8,7 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
   var XML_ROOT = "VMTEMPLATE"
 
   var _actions = {
@@ -148,8 +149,8 @@ define(function(require) {
     },
     "Template.instantiate_vms" : {
       type: "custom",
-      call: function() {
-        // TODO popUpInstantiateVMTemplateDialog();
+      call: function(){
+        Sunstone.getDialog(INSTANTIATE_DIALOG_ID).show();
       }
     },
     "Template.clone_dialog" : {
