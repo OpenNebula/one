@@ -14,7 +14,7 @@ define(function(require) {
     CONSTANTS
    */
   
-  var RESOURCE = "Image";
+  var RESOURCE = "File";
   var XML_ROOT = "IMAGE";
   var TAB_NAME = require('./tabId');
   var COLUMN_IDS = {
@@ -124,7 +124,9 @@ define(function(require) {
     }
 
     return [
-      '<input class="check_item" type="checkbox" id="image_' + element.ID + '" name="selected_items" value="' + element.ID + '"/>',
+      '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>',
       element.ID,
       element.UNAME,
       element.GNAME,

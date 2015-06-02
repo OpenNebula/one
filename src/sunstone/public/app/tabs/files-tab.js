@@ -12,7 +12,7 @@ define(function(require) {
   ];
 
   var _panels = [
-    //require('./files-tab/panels/info')
+    require('./files-tab/panels/info')
   ];
 
   var Tab = {

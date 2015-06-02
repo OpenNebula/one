@@ -1,0 +1,61 @@
+<div class="row">
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Information"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "ID"}}</td>
+          <td class="value_td" colspan="2">{{element.ID}}</td>
+        </tr>
+        {{{renameTrHTML}}}
+        <tr>
+          <td class="key_td">{{tr "Datastore"}}</td>
+          <td class="value_td">{{element.DATASTORE}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Register time"}}</td>
+          <td class="value_td">{{prettyRegTime}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Type"}}</td>
+          <td class="value_td_type">{{typeStr}}</td>
+          <td>
+            <div id="div_edit_chg_type">
+              <a id="div_edit_chg_type_link" class="edit_e" href="#"> <i class="fa fa-pencil-square-o right"/></a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Filesystem type"}}</td>
+          <td class="value_td">{{fsTypeStr}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Size"}}</td>
+          <td class="value_td">{{sizeStr}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "State"}}</td>
+          <td class="value_td">{{stateStr}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Running VMS"}}</td>
+          <td class="value_td">{{element.RUNNING_VMS}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns">{{{permissionsTableHTML}}}</div>
+</div>
+<div class="row">
+  <div class="large-9 columns">{{{templateTableHTML}}}</div>
+</div>
