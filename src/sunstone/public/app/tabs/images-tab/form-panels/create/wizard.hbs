@@ -1,6 +1,6 @@
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
-    <div class="large-12 columns">
+    <div class="medium-4 columns">
       <label for="img_name">
         {{tr "Name"}}
         <span class="tip">
@@ -9,9 +9,7 @@
       </label>
       <input type="text" name="img_name" id="img_name" />
     </div>
-  </div>
-  <div class="row">
-    <div class="large-12 columns">
+    <div class="medium-8 columns">
       <label for="img_desc">
         {{tr "Description"}}
         <span class="tip">
@@ -22,7 +20,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="large-6 columns">
+    <div class="large-4 columns">
       <label for="img_type">
         {{tr "Type"}}
         <span class="tip">
@@ -44,7 +42,7 @@
         <option value="DATABLOCK">{{tr "DATABLOCK"}}</option>
       </select>
     </div>
-    <div class="large-6 columns">
+    <div class="large-8 columns">
       <label for="img_datastore">
         {{tr "Datastore"}}
         <span class="tip">{{tr "Select the datastore for this image"}}</span>
@@ -159,38 +157,12 @@
     </div>
     <br>
     <div class="row">
-      <fieldset>
-        <legend>{{tr "Custom attributes"}}</legend>
-        <div class="row">
-          <div class="large-6 columns">
-            <div class="row">
-              <div class="large-12 columns">
-                <label for="custom_var_image_name">{{tr "Name"}}</label>
-                <input type="text" id="custom_var_image_name" name="custom_var_image_name" />
-              </div>
-            </div>
-            <div class="row">
-              <div class="large-12 columns">
-                <label for="custom_var_image_value">{{tr "Value"}}</label>
-                <input type="text" id="custom_var_image_value" name="custom_var_image_value" />
-              </div>
-            </div>
-            <div class="row">
-              <div class="large-12 columns">
-                <button class="add_remove_button add_button secondary button small radius" id="add_custom_var_image_button" type="button" value="add_custom_image_var">{{tr "Add"}}</button>
-                <button class="add_remove_button secondary button small radius" id="remove_custom_var_image_button" type="button" value="remove_custom_image_var">{{tr "Remove selected"}}</button>
-              </div>
-            </div>
-          </div>
-          <div class="large-6 columns">
-            <div class="row">
-              <div class="eight centered columns">
-                <select id="custom_var_image_box" name="custom_var_image_box" style="height:180px !important; width:100%" multiple></select>
-              </div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
+      <div class="large-12 columns">
+        <span>{{tr "Custom attributes"}}</span>
+        <br>
+        <br>
+      </div>
     </div>
+    {{{customTagsHTML}}}
   {{/advancedSection}}
 </form>

@@ -11,6 +11,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select');
+  var CustomTagsTable = require('utils/custom-tags-table');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -59,7 +60,8 @@ define(function(require) {
 
   function _htmlWizard() {
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId
+      'formPanelId': this.formPanelId,
+      'customTagsHTML': CustomTagsTable.html(),
     });
   }
 
@@ -125,24 +127,7 @@ define(function(require) {
 
     $('#path_image', dialog).click();
 
-    dialog.on('click', '#add_custom_var_image_button', function() {
-      var name = $('#custom_var_image_name', dialog).val();
-      var value = $('#custom_var_image_value', dialog).val();
-      if (!name.length || !value.length) {
-        Notifier.notifyError(Locale.tr("Custom attribute name and value must be filled in"));
-        return false;
-      }
-      option = '<option value=\'' + value + '\' name=\'' + name + '\'>' +
-          name + '=' + value +
-          '</option>';
-      $('select#custom_var_image_box', dialog).append(option);
-      return false;
-    });
-
-    dialog.on('click', '#remove_custom_var_image_button', function() {
-      $('select#custom_var_image_box :selected', dialog).remove();
-      return false;
-    });
+    CustomTagsTable.setup(dialog);
 
     if (_getInternetExplorerVersion() > -1) {
       $("#upload_image").attr("disabled", "disabled");
@@ -246,12 +231,7 @@ define(function(require) {
       break;
     }
 
-    //Time to add custom attributes
-    $('#custom_var_image_box option', dialog).each(function() {
-      var attr_name = $(this).attr('name');
-      var attr_value = $(this).val();
-      img_json[attr_name] = attr_value;
-    });
+    $.extend(img_json, CustomTagsTable.retrieve(dialog));
 
     var img_obj = {
       "image" : img_json,
