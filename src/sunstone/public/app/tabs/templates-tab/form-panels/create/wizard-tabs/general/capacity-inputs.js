@@ -158,7 +158,7 @@ define(function(require) {
     });
 
     // init::start is ignored for some reason
-    memory_input.val(512);
+    memory_input.val(512).change();
 
     // Define the vcpu slider
 
