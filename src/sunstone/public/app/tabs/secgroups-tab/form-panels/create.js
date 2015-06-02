@@ -289,8 +289,45 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    var that = this;
+
     this.resourceId = element.ID;
 
-    // TODO
+    // Populates the Avanced mode Tab
+    $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
+
+    $('#security_group_name',context).val(
+      TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode( element.NAME ))).
+      prop("disabled", true);
+
+    $('#security_group_description', context).val(
+      TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode( element.TEMPLATE.DESCRIPTION )) );
+
+    var rules = element.TEMPLATE.RULE;
+
+    if (!rules) { //empty
+      rules = [];
+    }
+    else if (rules.constructor != Array) { //>1 rule
+      rules = [rules];
+    }
+
+    $.each(rules, function(){
+      var text = Utils.sgRuleToSt(this);
+
+      $(".security_group_rules tbody", context).append(
+        '<tr>\
+        <td>'+text.PROTOCOL+'</td>\
+        <td>'+text.RULE_TYPE+'</td>\
+        <td>'+text.RANGE+'</td>\
+        <td>'+text.NETWORK+'</td>\
+        <td>'+text.ICMP_TYPE+'</td>\
+        <td>\
+        <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+        </td>\
+        </tr>');
+
+      $(".security_group_rules tbody", context).children("tr").last().data("rule", this);
+    });
   }
 });
