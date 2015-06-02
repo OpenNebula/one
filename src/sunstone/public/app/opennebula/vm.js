@@ -5,6 +5,127 @@ define(function(require) {
 
   var RESOURCE = "VM";
 
+  var STATES = [
+    "INIT",
+    "PENDING",
+    "HOLD",
+    "ACTIVE",
+    "STOPPED",
+    "SUSPENDED",
+    "DONE",
+    "FAILED",
+    "POWEROFF",
+    "UNDEPLOYED"
+  ]
+
+  var LCM_STATES = [
+    "LCM_INIT",
+    "PROLOG",
+    "BOOT",
+    "RUNNING",
+    "MIGRATE",
+    "SAVE_STOP",
+    "SAVE_SUSPEND",
+    "SAVE_MIGRATE",
+    "PROLOG_MIGRATE",
+    "PROLOG_RESUME",
+    "EPILOG_STOP",
+    "EPILOG",
+    "SHUTDOWN",
+    "CANCEL",
+    "FAILURE",
+    "CLEANUP_RESUBMIT",
+    "UNKNOWN",
+    "HOTPLUG",
+    "SHUTDOWN_POWEROFF",
+    "BOOT_UNKNOWN",
+    "BOOT_POWEROFF",
+    "BOOT_SUSPENDED",
+    "BOOT_STOPPED",
+    "CLEANUP_DELETE",
+    "HOTPLUG_SNAPSHOT",
+    "HOTPLUG_NIC",
+    "HOTPLUG_SAVEAS",
+    "HOTPLUG_SAVEAS_POWEROFF",
+    "HOTPLUG_SAVEAS_SUSPENDED",
+    "SHUTDOWN_UNDEPLOY",
+    "EPILOG_UNDEPLOY",
+    "PROLOG_UNDEPLOY",
+    "BOOT_UNDEPLOY",
+    "HOTPLUG_PROLOG_POWEROFF",
+    "HOTPLUG_EPILOG_POWEROFF",
+    "BOOT_MIGRATE",
+    "BOOT_FAILURE",
+    "BOOT_MIGRATE_FAILURE",
+    "PROLOG_MIGRATE_FAILURE",
+    "PROLOG_FAILURE",
+    "EPILOG_FAILURE",
+    "EPILOG_STOP_FAILURE",
+    "EPILOG_UNDEPLOY_FAILURE",
+    "PROLOG_MIGRATE_POWEROFF",
+    "PROLOG_MIGRATE_POWEROFF_FAILURE",
+    "PROLOG_MIGRATE_SUSPEND",
+    "PROLOG_MIGRATE_SUSPEND_FAILURE",
+    "BOOT_UNDEPLOY_FAILURE",
+    "BOOT_STOPPED_FAILURE",
+    "PROLOG_RESUME_FAILURE",
+    "PROLOG_UNDEPLOY_FAILURE"
+  ]
+
+  var SHORT_LCM_STATES = [
+    "LCM_INIT", // LCM_INIT
+    "PROLOG",    // PROLOG
+    "BOOT",      // BOOT
+    "RUNNING",   // RUNNING
+    "MIGRATE",   // MIGRATE
+    "SAVE",      // SAVE_STOP
+    "SAVE",      // SAVE_SUSPEND
+    "SAVE",      // SAVE_MIGRATE
+    "MIGRATE",   // PROLOG_MIGRATE
+    "PROLOG",    // PROLOG_RESUME
+    "EPILOG",    // EPILOG_STOP
+    "EPILOG",    // EPILOG
+    "SHUTDOWN",  // SHUTDOWN
+    "SHUTDOWN",  // CANCEL
+    "FAILURE",   // FAILURE
+    "CLEANUP",   // CLEANUP_RESUBMIT
+    "UNKNOWN",   // UNKNOWN
+    "HOTPLUG",   // HOTPLUG
+    "SHUTDOWN",  // SHUTDOWN_POWEROFF
+    "BOOT",      // BOOT_UNKNOWN
+    "BOOT",      // BOOT_POWEROFF
+    "BOOT",      // BOOT_SUSPENDED
+    "BOOT",      // BOOT_STOPPED
+    "CLEANUP",   // CLEANUP_DELETE
+    "SNAPSHOT",  // HOTPLUG_SNAPSHOT
+    "HOTPLUG",   // HOTPLUG_NIC
+    "HOTPLUG",   // HOTPLUG_SAVEAS
+    "HOTPLUG",   // HOTPLUG_SAVEAS_POWEROFF
+    "HOTPLUG",   // HOTPLUG_SAVEAS_SUSPENDED
+    "SHUTDOWN",  // SHUTDOWN_UNDEPLOY
+    "EPILOG",    // EPILOG_UNDEPLOY
+    "PROLOG",    // PROLOG_UNDEPLOY
+    "BOOT",      // BOOT_UNDEPLOY
+    "HOTPLUG",   // HOTPLUG_PROLOG_POWEROFF
+    "HOTPLUG",   // HOTPLUG_EPILOG_POWEROFF
+    "BOOT",      // BOOT_MIGRATE
+    "FAILURE",   // BOOT_FAILURE
+    "FAILURE",   // BOOT_MIGRATE_FAILURE
+    "FAILURE",   // PROLOG_MIGRATE_FAILURE
+    "FAILURE",   // PROLOG_FAILURE
+    "FAILURE",   // EPILOG_FAILURE
+    "FAILURE",   // EPILOG_STOP_FAILURE
+    "FAILURE",   // EPILOG_UNDEPLOY_FAILURE
+    "MIGRATE",   // PROLOG_MIGRATE_POWEROFF
+    "FAILURE",   // PROLOG_MIGRATE_POWEROFF_FAILURE
+    "MIGRATE",   // PROLOG_MIGRATE_SUSPEND
+    "FAILURE",   // PROLOG_MIGRATE_SUSPEND_FAILURE
+    "FAILURE",   // BOOT_UNDEPLOY_FAILURE
+    "FAILURE",   // BOOT_STOPPED_FAILURE
+    "FAILURE",   // PROLOG_RESUME_FAILURE
+    "FAILURE"    // PROLOG_UNDEPLOY_FAILURE
+  ]
+
   var VM = {
     "resource": RESOURCE,
     "state": {
@@ -74,6 +195,15 @@ define(function(require) {
       "PROLOG_UNDEPLOY_FAILURE"   : 50
     },
 
+    "stateStr": function(stateId) {
+      return STATES[stateId];
+    },
+    "lcmStateStr": function(stateId) {
+      return LCM_STATES[stateId];
+    },
+    "shortLcmStateStr": function(stateId) {
+      return SHORT_LCM_STATES[stateId];
+    },
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

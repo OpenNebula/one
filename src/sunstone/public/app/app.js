@@ -13,6 +13,7 @@ define(function(require) {
     require('tabs/templates-tab'),
     require('tabs/images-tab'),
     require('tabs/files-tab'),
+    require('tabs/vms-tab'),
     require('tabs/infra-tab'),
     require('tabs/clusters-tab'),
     require('tabs/hosts-tab'),
