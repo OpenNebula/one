@@ -7,9 +7,9 @@ define(function(require) {
   var TAB_ID = require('./templates-tab/tabId');
   var DATATABLE_ID = "dataTableTemplates";
 
-  //var _dialogs = [
-  //  require('./templates-tab/dialogs/create')
-  //];
+  var _dialogs = [
+    require('./templates-tab/dialogs/clone')
+  ];
 
   var _panels = [
     require('./templates-tab/panels/info'),
@@ -34,7 +34,7 @@ define(function(require) {
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
     formPanels: _formPanels,
-    //dialogs: _dialogs
+    dialogs: _dialogs
   };
 
   return Tab;
