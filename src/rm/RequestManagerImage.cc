@@ -280,6 +280,14 @@ void ImageClone::request_execute(
         return;
     }
 
+    if (img->get_snapshots_size () > 0)
+    {
+        failure_response(ACTION,
+                request_error("Cannot clone images with snapshots",""), att);
+        img->unlock();
+        return;
+    }
+
     tmpl = img->clone_template(name);
 
     img->get_permissions(perms);

@@ -220,6 +220,14 @@ public:
     }
 
     /**
+     *  Return the number of snapshots
+     */
+    unsigned int get_snapshots_size()
+    {
+        return snapshots.size();
+    }
+
+    /**
      *  Sets the source path of the image
      */
     void set_source(const string& _source)
