@@ -2,16 +2,23 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var DataTable = require('./datatable');
   var OpenNebulaTemplate = require('opennebula/template');
+  var CommonActions = require('utils/common-actions');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
   var XML_ROOT = "VMTEMPLATE"
+  var RESOURCE = "Template"
+
+  var _commonActions = new CommonActions(OpenNebulaTemplate, RESOURCE, TAB_ID);
 
   var _actions = {
+    "Template.list" : _commonActions.list(),
+    "Template.show" : _commonActions.show(),
+    "Template.refresh" : _commonActions.refresh(),
+    "Template.delete" : _commonActions.delete(),
     "Template.create" : {
       type: "create",
       call: OpenNebulaTemplate.create,
@@ -74,55 +81,11 @@ define(function(require) {
         Notifier.onError(request, response);
       }
     },
-    "Template.list" : {
-      type: "list",
-      call: OpenNebulaTemplate.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-    "Template.show" : {
-      type: "single",
-      call: OpenNebulaTemplate.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-    "Template.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction("Template.show", Sunstone.rightInfoResourceId(tab));
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction("Template.list", {force: true});
-        }
-      },
-      error: Notifier.onError
-    },
     "Template.rename" : {
       type: "single",
       call: OpenNebulaTemplate.rename,
       callback: function(request) {
         Sunstone.runAction('Template.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-    "Template.delete" : {
-      type: "multiple",
-      call : OpenNebulaTemplate.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
       },
       error: Notifier.onError,
       notify: true
