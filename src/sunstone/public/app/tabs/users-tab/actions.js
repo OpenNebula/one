@@ -74,6 +74,30 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaResource.chgrp,
       callback : function(req){
+        Sunstone.runAction(RESOURCE+".refresh");
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: Notifier.onError,
+    },
+
+    "User.addgroup" : {
+      type: "multiple",
+      call: OpenNebulaResource.addgroup,
+      callback : function(req){
+        Sunstone.runAction(RESOURCE+".refresh");
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: Notifier.onError,
+    },
+
+    "User.delgroup" : {
+      type: "multiple",
+      call: OpenNebulaResource.delgroup,
+      callback : function(req){
         Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
       },
       elements: function() {
@@ -81,26 +105,7 @@ define(function(require) {
       },
       error: Notifier.onError,
     },
-    /* TODO
-    "User.addgroup" : {
-      type: "multiple",
-      call: OpenNebulaResource.addgroup,
-      callback : function(req){
-        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
-      },
-      elements : userElements,
-      error: onError
-    },
-    "User.delgroup" : {
-      type: "multiple",
-      call: OpenNebulaResource.delgroup,
-      callback : function(req){
-        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
-      },
-      elements : userElements,
-      error: onError
-    },
-    */
+
     "User.change_authentication" : {
       type: "custom",
       call: function(){
