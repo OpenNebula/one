@@ -232,10 +232,10 @@ define(function(require) {
     this.dataTable.on("change", '.check_all', function() {
       var table = $(this).closest('.dataTables_wrapper');
       if ($(this).is(":checked")) { //check all
-        $('tbody input.check_item', table).attr('checked', 'checked');
+        $('tbody input.check_item', table).prop('checked', true);
         $('td', table).addClass('markrowchecked');
       } else { //uncheck all
-        $('tbody input.check_item', table).removeAttr('checked');
+        $('tbody input.check_item', table).prop('checked', false);
         $('td', table).removeClass('markrowchecked');
       };
 
@@ -266,23 +266,23 @@ define(function(require) {
 
     if (checked_length) { //at least 1 element checked
       //enable action buttons
-      $('.top_button, .list_button', context).attr('disabled', false);
+      $('.top_button, .list_button', context).prop('disabled', false);
 
       //enable checkall box
       if (total_length == checked_length) {
-        $('.check_all', this.dataTable).attr('checked', 'checked');
+        $('.check_all', this.dataTable).prop('checked', true);
       } else {
-        $('.check_all', this.dataTable).removeAttr('checked');
+        $('.check_all', this.dataTable).prop('checked', false);
       };
     } else { //no elements cheked
       //disable action buttons, uncheck checkAll
-      $('.check_all', this.dataTable).removeAttr('checked');
-      $('.top_button, .list_button', context).attr('disabled', true);
+      $('.check_all', this.dataTable).prop('checked', false);
+      $('.top_button, .list_button', context).prop('disabled', true).attr('disabled', 'disabled');
     };
 
     //any case the create dialog buttons should always be enabled.
-    $('.create_dialog_button', context).attr('disabled', false);
-    $('.alwaysActive', context).attr('disabled', false);
+    $('.create_dialog_button', context).prop('disabled', false);
+    $('.alwaysActive', context).prop('disabled', false);
   }
 
   //Init action buttons and checkboxes listeners
@@ -290,11 +290,11 @@ define(function(require) {
     //Initialization - disable all buttons
     var context = custom_context || this.dataTable.parents('.tab');
 
-    $('.last_action_button', context).attr('disabled', true);
-    $('.top_button, .list_button', context).attr('disabled', true);
+    $('.last_action_button', context).prop('disabled', true);
+    $('.top_button, .list_button', context).prop('disabled', true);
     //These are always enabled
-    $('.create_dialog_button', context).attr('disabled', false);
-    $('.alwaysActive', context).attr('disabled', false);
+    $('.create_dialog_button', context).prop('disabled', false);
+    $('.alwaysActive', context).prop('disabled', false);
 
     //listen to changes in the visible inputs
     var that = this;
@@ -320,9 +320,9 @@ define(function(require) {
     this.dataTable.on("change", 'tbody input.check_item', function() {
       var checked = $(this).is(':checked');
       $('td', that.dataTable).removeClass('markrowchecked');
-      $('input.check_item:checked', that.dataTable).removeAttr('checked');
+      $('input.check_item:checked', that.dataTable).prop('checked', false);
       $("td", $(this).closest('tr')).addClass('markrowchecked')
-      $(this).attr('checked', checked);
+      $(this).prop('checked', checked);
     });
   }
 
@@ -365,6 +365,10 @@ define(function(require) {
       var prev_start = dTable_settings._iDisplayStart;
 
       this.dataTable.fnClearTable(false);
+
+      if (that.onUpdateView) {
+        that.onUpdateView();
+      }
 
       var item_list;
       if (fromArray) {
@@ -436,10 +440,10 @@ define(function(require) {
     var nodes = this.dataTable.fnGetNodes();
     var tr = $(tag, nodes).parents('tr')[0];
     if (tr) {
-      var checked_val = $('input.check_item', tr).attr('checked');
+      var checked_val = $('input.check_item', tr).prop('checked');
       var position = this.dataTable.fnGetPosition(tr);
       this.dataTable.fnUpdate(element, position, undefined, false);
-      $('input.check_item', tr).attr('checked', checked_val);
+      $('input.check_item', tr).prop('checked', checked_val);
       this.recountCheckboxes();
     }
   }
@@ -512,10 +516,10 @@ define(function(require) {
 
         if (ids[row_id]) {
           $("td", nRow).addClass('markrowchecked');
-          $('input.check_item', this).attr('checked', 'checked');
+          $('input.check_item', this).prop('checked', true);
         } else {
           $("td", nRow).removeClass('markrowchecked');
-          $('input.check_item', this).removeAttr('checked');
+          $('input.check_item', this).prop('checked', false);
         }
       };
     } else {
@@ -526,10 +530,10 @@ define(function(require) {
 
         if (row_id == selected_id) {
           $("td", nRow).addClass('markrow');
-          $('input.check_item', this).attr('checked', 'checked');
+          $('input.check_item', this).prop('checked', true);
         } else {
           $("td", nRow).removeClass('markrow');
-          $('input.check_item', this).removeAttr('checked');
+          $('input.check_item', this).prop('checked', false);
         }
       };
     }
@@ -581,7 +585,7 @@ define(function(require) {
           // Happens if row is not yet rendered (i.e. higher unvisited page)
           if (row != undefined) {
             $("td", row).removeClass('markrowchecked');
-            $('input.check_item', row).removeAttr('checked');
+            $('input.check_item', row).prop('checked', false);
           }
 
           $('#selected_ids_row_' + that.dataTableId + ' span[row_id="' + row_id + '"]', section).remove();
@@ -593,7 +597,7 @@ define(function(require) {
           // Happens if row is not yet rendered (i.e. higher unvisited page)
           if (row != undefined) {
             $("td", row).addClass('markrowchecked');
-            $('input.check_item', row).attr('checked', 'checked');
+            $('input.check_item', row).prop('checked', true);
           }
 
           $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fa fa-times blue"></span></span> ');
@@ -655,14 +659,14 @@ define(function(require) {
         var aData = that.dataTable.fnGetData(this);
 
         $("td.markrow", that.dataTable).removeClass('markrow');
-        $('tbody input.check_item', that.dataTable).removeAttr('checked');
+        $('tbody input.check_item', that.dataTable).prop('checked', false);
 
         $('#selected_resource_' + that.dataTableId, section).show();
         $('#select_resource_' + that.dataTableId, section).hide();
         $('.alert-box', section).hide();
 
         $("td", this).addClass('markrow');
-        $('input.check_item', this).attr('checked', 'checked');
+        $('input.check_item', this).prop('checked', true);
 
         $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
         $('#selected_resource_id_' + that.dataTableId, section).hide();
@@ -688,7 +692,7 @@ define(function(require) {
     // TODO: works for more than one page?
 
     $("td.markrow", that.dataTable).removeClass('markrow');
-    $('tbody input.check_item', that.dataTable).removeAttr('checked');
+    $('tbody input.check_item', that.dataTable).prop('checked', false);
 
     $('#' + that.dataTableId + '_search', section).val("").trigger("keyup");
     $('#refresh_button_' + that.dataTableId).click();
@@ -799,7 +803,7 @@ define(function(require) {
       that.dataTable.fnDraw();
     } else {
       $("td.markrow", that.dataTable).removeClass('markrow');
-      $('tbody input.check_item', that.dataTable).removeAttr('checked');
+      $('tbody input.check_item', that.dataTable).prop('checked', false);
 
       $('#selected_resource_' + that.dataTableId, section).show();
       $('#select_resource_' + that.dataTableId, section).hide();
@@ -838,7 +842,7 @@ define(function(require) {
       }
 
       //        $("td", this).addClass('markrow');
-      //        $('input.check_item', this).attr('checked','checked');
+      //        $('input.check_item', this).prop('checked', true);
 
       $('#selected_resource_id_' + that.dataTableId, section).val(row_id).change();
       $('#selected_resource_id_' + that.dataTableId, section).hide();

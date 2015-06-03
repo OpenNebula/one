@@ -146,7 +146,7 @@ define(function(require) {
   };
 
   function disableAllStateActions() {
-    $(".state-dependent").attr("disabled", "disabled").
+    $(".state-dependent").prop("disabled", true).
         removeClass("vm-action-enabled").
         addClass("vm-action-disabled").
         on("click.stateaction", function(e) { return false; });
@@ -156,14 +156,14 @@ define(function(require) {
     $(".state-dependent").
         addClass("vm-action-enabled").
         removeClass("vm-action-disabled").
-        off(".stateaction");
+        off("click.stateaction");
   }
 
   function enableStateButton(button_action) {
     $(".state-dependent[href='" + button_action + "']").removeAttr("disabled").
         addClass("vm-action-enabled").
         removeClass("vm-action-disabled").
-        off(".stateaction");
+        off("click.stateaction");
   }
 
   // state and lcm_state are numeric
