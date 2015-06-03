@@ -868,9 +868,14 @@ define(function(require) {
           add = (add && fixed_ids_map[this[that.xmlRoot].ID]);
         }
 
-        if (add) {
-          var elementArray = that.elementArray(this);
+        var elementArray;
 
+        if (add) {
+          elementArray = that.elementArray(this);
+          add = (elementArray != false);
+        }
+
+        if (add) {
           if (that.selectOptions.starred_ids != undefined){
             if (that.selectOptions.starred_ids_map[this[that.xmlRoot].ID]){
               elementArray[that.selectOptions.name_index] =

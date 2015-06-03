@@ -78,38 +78,6 @@ define(function(require) {
 
   return Table;
 
-  // TODO Check if update_fn must be overwritten
-  /*
-    "update_fn": function(datatable){
-        OpenNebula.Image.list({
-            timeout: true,
-            success: function (request, resource_list){
-                var list_array = [];
-
-                $.each(resource_list,function(){
-                    var image = this.IMAGE;
-
-                    // KERNEL || RAMDISK || CONTEXT
-                    var add = ( image.TYPE != "3" &&
-                                image.TYPE != "4" &&
-                                image.TYPE != "5" )
-
-                    if(add && opts.filter_fn){
-                        add = opts.filter_fn(this.IMAGE);
-                    }
-
-                    if(add){
-                        list_array.push(imageElementArray(this));
-                    }
-                });
-
-                updateView(list_array, datatable);
-            },
-            error: onError
-        });
-    },
-   */
-
   /*
     FUNCTION DEFINITIONS
    */
