@@ -70,7 +70,7 @@ define(function(require) {
     'Template': Template,
     'User': User,
     'Vdc': Vdc,
-    'Vm': Vm,
+    'VM': Vm,
     'Zone': Zone
   }
 
