@@ -202,12 +202,12 @@ define(function(require) {
       var selected_hosts = this.hostsTable.retrieveResourceTableSelect();
       var selected_clusters = this.clustersTable.retrieveResourceTableSelect();
 
-      $.each(selected_hosts, function(key, value) {
-      req_string.push('ID=\\"'+key+'\\"');
+      $.each(selected_hosts, function(index, hostId) {
+        req_string.push('ID=\\"'+hostId+'\\"');
       });
 
-      $.each(selected_clusters, function(key, value) {
-      req_string.push('CLUSTER_ID=\\"'+key+'\\"');
+      $.each(selected_clusters, function(index, clusterId) {
+        req_string.push('CLUSTER_ID=\\"'+clusterId+'\\"');
       });
 
       $('#SCHED_REQUIREMENTS', context).val(req_string.join(" | "));

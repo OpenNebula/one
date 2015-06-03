@@ -18,7 +18,8 @@ define(function(require) {
   var XML_ROOT = "IMAGE";
   var TAB_NAME = require('./tabId');
   var COLUMN_IDS = {
-    "DATASTORE": 5
+    "DATASTORE": 5,
+    "TYPE": 7
   };
 
   /*

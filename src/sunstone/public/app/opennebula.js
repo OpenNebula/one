@@ -60,6 +60,7 @@ define(function(require) {
     'Group': Group,
     'Host': Host,
     'Image': Image,
+    'File': Image,
     'Marketplace': Marketplace,
     'Network': Network,
     'Role': Role,

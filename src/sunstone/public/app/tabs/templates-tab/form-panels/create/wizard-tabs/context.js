@@ -9,6 +9,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
   var CustomTagsTable = require('utils/custom-tags-table');
+  var FilesTable = require('tabs/files-tab/datatable')
 
   /*
     TEMPLATES
@@ -36,9 +37,12 @@ define(function(require) {
     this.title = Locale.tr("Context");
     this.classes = "hypervisor only_kvm only_vmware only_xen only_vcenter";
 
-    /* TODO
-    this.contextFilesTable = new FilesTable(this.wizardTabId + 'ContextTable', {'select': true});
-    */
+    this.contextFilesTable = new FilesTable(this.wizardTabId + 'ContextTable', {
+      'select': true,
+      'selectOptions': {
+        'multiple_choice': true,
+        "filter_fn": function(file) { return file.TYPE == 5; } // CONTEXT
+      }});
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -47,6 +51,7 @@ define(function(require) {
   WizardTab.prototype.onShow = _onShow;
   WizardTab.prototype.retrieve = _retrieve;
   WizardTab.prototype.fill = _fill;
+  WizardTab.prototype.generateContextFiles = _generateContextFiles;
 
   return WizardTab;
   
@@ -56,7 +61,8 @@ define(function(require) {
   
   function _html() {
     return TemplateHTML({
-      'customTagsTableHTML': CustomTagsTable.html()
+      'customTagsTableHTML': CustomTagsTable.html(),
+      'contextFilesTableHTML': this.contextFilesTable.dataTableHTML
     });
   }
 
@@ -64,32 +70,25 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
     Tips.setup(context);
 
     CustomTagsTable.setup(context);
 
-    /* TODO
-    that.context.initialize({
+    var selectOptions = {
       'selectOptions': {
         'select_callback': function(aData, options) {
-          $('#KERNEL', context).text(aData[options.name_index]);
-          $('#KERNEL_DS', context).val("$FILE[IMAGE_ID="+ aData[options.id_index] +"]");
+          that.generateContextFiles(context)
+        },
+        'unselect_callback': function(aData, options) {
+          that.generateContextFiles(context)
         }
       }
-    });
-    that.context.refreshResourceTableSelect();
+    }
 
-    var generate_context_files = function() {
-      var req_string = [];
+    that.contextFilesTable.initialize(selectOptions);
+    that.contextFilesTable.refreshResourceTableSelect();
 
-      $.each($("span.image", $("#selected_files_spans")), function() {
-        req_string.push("$FILE[IMAGE_ID=" + $(this).attr("image_id") + "]");
-      });
-
-      $('#FILES_DS', context).val(req_string.join(" "));
-    };
-    */
-   
     context.on("click", ".add_service_custom_attr", function() {
       $(".service_custom_attrs tbody").append(
         '<tr>' +
@@ -158,6 +157,7 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
+    var that = this;
     $("#ssh_context", context).removeAttr('checked');
     $("#network_context", context).removeAttr('checked');
 
@@ -207,17 +207,15 @@ define(function(require) {
           $("input#INIT_SCRIPTS").val(TemplateUtils.htmlDecode(value));
         } else if ("FILES_DS" == key) {
           $('#FILES_DS', context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(contextJSON["FILES_DS"])))
-          /* TODO var files = [];
+          var files = [];
           while (match = file_ds_regexp.exec(value)) {
             files.push(match[1])
           }
 
-          var dataTable_context = $("#datatable_context").dataTable();
-
-          // TODO updateView should not be required. Currently the dataTable
-          //  is filled twice.
-          update_datatable_template_files(dataTable_context, function() {
-                });*/
+          var selectedResources = {
+              ids : files
+            }
+          that.contextFilesTable.selectResourceTableSelect(selectedResources);
         } else {
           customTagsJSON[key] = value;
         }
@@ -228,4 +226,15 @@ define(function(require) {
       delete templateJSON['CONTEXT'];
     }
   }
+
+  function _generateContextFiles(context) {
+    var req_string=[];
+    var selected_files = this.contextFilesTable.retrieveResourceTableSelect();
+
+    $.each(selected_files, function(index, fileId) {
+      req_string.push("$FILE[IMAGE_ID="+ fileId +"]");
+    });
+
+    $('#FILES_DS', context).val(req_string.join(" "));
+  };
 });

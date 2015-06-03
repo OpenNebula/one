@@ -8,6 +8,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var WizardFields = require('utils/wizard-fields');
+  var FilesTable = require('tabs/files-tab/datatable');
 
   /*
     TEMPLATES
@@ -129,10 +130,18 @@ define(function(require) {
     this.title = Locale.tr("OS Booting");
     this.classes = "hypervisor only_kvm only_vmware only_xen"
 
-    /* TODO
-    this.kernelFilesTable = new FilesTable(this.wizardTabId + 'KernelTable', {'select': true});
-    this.initrdFilesTable = new FilesTable(this.wizardTabId + 'InitrdTable', {'select': true});
-    */
+    this.kernelFilesTable = new FilesTable(this.wizardTabId + 'KernelTable', {
+      'select': true,
+      'selectOptions': {
+        "filter_fn": function(file) { return file.TYPE == 3; } // KERNEL
+      }
+    });
+    this.initrdFilesTable = new FilesTable(this.wizardTabId + 'InitrdTable', {
+      'select': true,
+      'selectOptions': {
+        "filter_fn": function(file) { return file.TYPE == 4; } // RAMDISK
+      }
+    });
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -150,7 +159,9 @@ define(function(require) {
   
   function _html() {
     return TemplateHTML({
-      'guestOS': GUESTOS
+      'guestOS': GUESTOS,
+      'kernelFilesTableHTML': this.kernelFilesTable.dataTableHTML,
+      'initrdFilesTableHTML': this.initrdFilesTable.dataTableHTML
     });
   }
 
@@ -158,6 +169,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
     Tips.setup(context);
     context.foundation('reflow', 'tab');
 
@@ -193,27 +205,24 @@ define(function(require) {
       }
     });
 
-    /* TODO
-    that.kernelFileTable.initialize({
+    that.kernelFilesTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {
-          $('#KERNEL', context).text(aData[options.name_index]);
           $('#KERNEL_DS', context).val("$FILE[IMAGE_ID="+ aData[options.id_index] +"]");
         }
       }
     });
-    that.kernelFileTable.refreshResourceTableSelect();
+    that.kernelFilesTable.refreshResourceTableSelect();
 
 
     that.initrdFilesTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {
-          $('#INITRD', context).text(aData[options.name_index]);
           $('#INITRD_DS', context).val("$FILE[IMAGE_ID="+ aData[options.id_index] +"]");
         }
       }
     });
-    that.initrdFilesTable.refreshResourceTableSelect();*/
+    that.initrdFilesTable.refreshResourceTableSelect();
   }
 
   function _retrieve(context) {
@@ -257,21 +266,6 @@ define(function(require) {
           $('#BOOT_' + i, context).val(boot_vals[i]);
         }
       }
-
-      /* TODO
-      var selectedResources = {
-          ids : templateJSON.NETWORK_ID
-        }
-
-      this.kernelFilesTable.selectResourceTableSelect(selectedResources);
-
-
-      var selectedResources = {
-          ids : templateJSON.NETWORK_ID
-        }
-
-      this.initrdFilesTable.selectResourceTableSelect(selectedResources);
-      */
 
       delete templateJSON['OS'];
     }
