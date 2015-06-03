@@ -17,6 +17,8 @@ define(function(require) {
   CommonActions.prototype.show = _show;
   CommonActions.prototype.refresh = _refresh;
   CommonActions.prototype.delete = _delete;
+  CommonActions.prototype.multipleAction = _multipleAction;
+  CommonActions.prototype.singleAction = _singleAction;
 
   return CommonActions;
 
@@ -71,6 +73,38 @@ define(function(require) {
       call : that.openNebulaResource.del,
       callback : function(request, response) {
         Sunstone.getDataTable(that.tabId).deleteElement(request, response);
+      },
+      elements: function() {
+        return Sunstone.getDataTable(that.tabId).elements();
+      },
+      error: Notifier.onError,
+      notify: true
+    }
+  }
+
+  function _multipleAction(actionStr) {
+    var that = this;
+    return {
+      type: "multiple",
+      call: that.openNebulaResource[actionStr],
+      callback: function (req) {
+        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0]);
+      },
+      elements: function() {
+        return Sunstone.getDataTable(that.tabId).elements();
+      },
+      error: Notifier.onError,
+      notify: true
+    }
+  }
+
+  function _singleAction(actionStr) {
+    var that = this;
+    return {
+      type: "single",
+      call: that.openNebulaResource[actionStr],
+      callback: function (req) {
+        Sunstone.runAction(that.resourceStr + ".show", req.request.data[0][0]);
       },
       elements: function() {
         return Sunstone.getDataTable(that.tabId).elements();

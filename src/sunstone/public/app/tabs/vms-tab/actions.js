@@ -19,7 +19,43 @@ define(function(require) {
     "VM.show":    _commonActions.show(),
     "VM.refresh": _commonActions.refresh(),
     "VM.delete":  _commonActions.delete(),
+    "VM.chown": _commonActions.multipleAction('chown'),
+    "VM.chgrp": _commonActions.multipleAction('chgrp'),
 
+    "VM.hold":    _commonActions.multipleAction('hold'),
+    "VM.release": _commonActions.multipleAction('release'),
+    "VM.suspend": _commonActions.multipleAction('suspend'),
+    "VM.resume": _commonActions.multipleAction('resume'),
+    "VM.stop": _commonActions.multipleAction('stop'),
+    "VM.reboot_hard": _commonActions.multipleAction('reset'),
+    "VM.delete_recreate": _commonActions.multipleAction('resubmit'),
+    "VM.reboot": _commonActions.multipleAction('reboot'),
+    "VM.poweroff": _commonActions.multipleAction('poweroff'),
+    "VM.poweroff_hard": _commonActions.multipleAction('poweroff_hard'),
+    "VM.undeploy": _commonActions.multipleAction('undeploy'),
+    "VM.undeploy_hard": _commonActions.multipleAction('undeploy_hard'),
+    "VM.shutdown": _commonActions.multipleAction('shutdown'),
+    "VM.shutdown_hard": _commonActions.multipleAction('shutdown_hard'),
+    "VM.recover": _commonActions.multipleAction('recover'),
+    "VM.resched": _commonActions.multipleAction('resched'),
+    "VM.unresched": _commonActions.multipleAction('unresched'),
+
+    "VM.chmod": _commonActions.singleAction('chmod'),
+    "VM.rename": _commonActions.singleAction('rename'),
+    "VM.update_template": _commonActions.singleAction('update'),
+    "VM.update_actions": _commonActions.singleAction('update'),
+    "VM.deploy_action": _commonActions.singleAction('deploy'),
+    "VM.migrate_action": _commonActions.singleAction('migrate'),
+    "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),
+    "VM.attachdisk": _commonActions.singleAction('attachdisk'),
+    "VM.detachdisk": _commonActions.singleAction('detachdisk'),
+    "VM.attachnic": _commonActions.singleAction('attachnic'),
+    "VM.detachnic": _commonActions.singleAction('detachnic'),
+    "VM.resize": _commonActions.singleAction('resize'),
+    "VM.snapshot_create": _commonActions.singleAction('snapshot_create'),
+    "VM.snapshot_revert": _commonActions.singleAction('snapshot_revert'),
+    "VM.snapshot_delete": _commonActions.singleAction('snapshot_delete'),
+    
     /*"VM.create" : {
       type: "custom",
       call: function(id, name) {
@@ -46,13 +82,6 @@ define(function(require) {
      }
     },
  
-    "VM.deploy_action" : {
-      type: "single",
-      call: OpenNebula.VM.deploy,
-      callback: vmShow,
-      error: onError,
-      notify: true
-    },
  
     "VM.silent_deploy_action" : {
       type: "single",
@@ -67,13 +96,6 @@ define(function(require) {
      }
     },
  
-    "VM.migrate_action" : {
-      type: "single",
-      call: OpenNebula.VM.migrate,
-      callback: vmShow,
-      error: onError,
-      notify: true
-    },
  
     "VM.migrate_live" : {
       type: "custom",
@@ -82,121 +104,6 @@ define(function(require) {
      }
     },
  
-    "VM.migrate_live_action" : {
-      type: "single",
-      call: OpenNebula.VM.livemigrate,
-      callback: vmShow,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.hold" : {
-      type: "multiple",
-      call: OpenNebula.VM.hold,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.release" : {
-      type: "multiple",
-      call: OpenNebula.VM.release,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.suspend" : {
-      type: "multiple",
-      call: OpenNebula.VM.suspend,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.resume" : {
-      type: "multiple",
-      call: OpenNebula.VM.resume,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.stop" : {
-      type: "multiple",
-      call: OpenNebula.VM.stop,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.reboot_hard" : {
-      type: "multiple",
-      call: OpenNebula.VM.reset,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.delete_recreate" : {
-      type: "multiple",
-      call: OpenNebula.VM.resubmit,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.reboot" : {
-      type: "multiple",
-      call: OpenNebula.VM.reboot,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.poweroff" : {
-      type: "multiple",
-      call: OpenNebula.VM.poweroff,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.poweroff_hard" : {
-      type: "multiple",
-      call: OpenNebula.VM.poweroff_hard,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.undeploy" : {
-      type: "multiple",
-      call: OpenNebula.VM.undeploy,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.undeploy_hard" : {
-      type: "multiple",
-      call: OpenNebula.VM.undeploy_hard,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
  
     "VM.saveas" : {
       type: "single",
@@ -219,81 +126,7 @@ define(function(require) {
       error:onError,
       notify: true
     },
- 
-    "VM.snapshot_create" : {
-      type: "single",
-      call: OpenNebula.VM.snapshot_create,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error:onError,
-      notify: true
-    },
-    "VM.snapshot_revert" : {
-      type: "single",
-      call: OpenNebula.VM.snapshot_revert,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error:onError,
-      notify: true
-    },
-    "VM.snapshot_delete" : {
-      type: "single",
-      call: OpenNebula.VM.snapshot_delete,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error:onError,
-      notify: true
-    },
- 
-    "VM.shutdown" : {
-      type: "multiple",
-      call: OpenNebula.VM.shutdown,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.shutdown_hard" : {
-      type: "multiple",
-      call: OpenNebula.VM.cancel,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
-
- 
-    "VM.recover" : {
-      type: "multiple",
-      call: OpenNebula.VM.recover,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.resched" : {
-      type: "multiple",
-      call: OpenNebula.VM.resched,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.unresched" : {
-      type: "multiple",
-      call: OpenNebula.VM.unresched,
-      callback: vmShow,
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
+  
     "VM.log" : {
       type: "single",
       call: OpenNebula.VM.log,
@@ -415,117 +248,7 @@ define(function(require) {
       },
       error: vmMonitorError
     },
- 
-    "VM.chown" : {
-      type: "multiple",
-      call: OpenNebula.VM.chown,
-      callback: function(request) {
-        Sunstone.runAction('VM.show', request.request.data[0]);
-      },
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
-    "VM.chgrp" : {
-      type: "multiple",
-      call: OpenNebula.VM.chgrp,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      elements: vmElements,
-      error: onError,
-      notify: true
-    },
- 
-    "VM.chmod" : {
-      type: "single",
-      call: OpenNebula.VM.chmod,
-      error: onError,
-      notify: true
-    },
-    "VM.attachdisk" : {
-      type: "single",
-      call: OpenNebula.VM.attachdisk,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0][0]);
-      },
-      error: onError,
-      notify: true
-    },
-    "VM.detachdisk" : {
-      type: "single",
-      call: OpenNebula.VM.detachdisk,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0][0]);
-      },
-      error: onError,
-      notify: true
-    },
-    "VM.attachnic" : {
-      type: "single",
-      call: OpenNebula.VM.attachnic,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error: onError,
-      notify: true
-    },
-    "VM.resize" : {
-      type: "single",
-      call: OpenNebula.VM.resize,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error: onError,
-      notify: true
-    },
-    "VM.detachnic" : {
-      type: "single",
-      call: OpenNebula.VM.detachnic,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error: onError,
-      notify: true
-    },
-    "VM.help" : {
-      type: "custom",
-      call: function() {
-        hideDialog();
-        $('div#vms_tab div.legend_div').slideToggle();
-      }
-    },
- 
-    "VM.rename" : {
-      type: "single",
-      call: OpenNebula.VM.rename,
-      callback: function(request) {
-        notifyMessage(tr("VirtualMachine renamed correctly"));
-        Sunstone.runAction('VM.show', request.request.data[0]);
-      },
-      error: onError,
-      notify: true
-    },
- 
-    "VM.update_template" : {  // Update template
-      type: "single",
-      call: OpenNebula.VM.update,
-      callback: function(request, response) {
-        notifyMessage(tr("VirtualMachine updated correctly"));
-        Sunstone.runAction('VM.show', request.request.data[0]);
-      },
-      error: onError
-    },
- 
-    "VM.update_actions" : {  // Update template
-      type: "single",
-      call: OpenNebula.VM.update,
-      callback: function(request, response) {
-        notifyMessage(tr("VirtualMachine updated correctly"));
-        Sunstone.runAction("VM.show", request.request.data[0]);
-      },
-      error: onError
-    }*/
+ */
   };
 
   return _actions;
