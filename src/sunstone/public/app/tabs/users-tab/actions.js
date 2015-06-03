@@ -8,6 +8,8 @@ define(function(require) {
   var RESOURCE = "User";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var PASSWORD_DIALOG_ID = require('./dialogs/password/dialogId');
+  var AUTH_DRIVER_DIALOG_ID = require('./dialogs/auth-driver/dialogId');
 
   var _actions = {
     "User.create" : {
@@ -55,19 +57,19 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    /* TODO
     "User.update_password" : {
       type: "custom",
-      call: popUpUpdatePasswordDialog
+      call: function(){
+        Sunstone.getDialog(PASSWORD_DIALOG_ID).show();
+      }
     },
 
     "User.passwd" : {
       type: "multiple",
       call: OpenNebulaResource.passwd,
-      elements: userElements,
-      error: onError
+      error: Notifier.onError
     },
-    */
+
     "User.chgrp" : {
       type: "multiple",
       call: OpenNebulaResource.chgrp,
@@ -98,20 +100,20 @@ define(function(require) {
       elements : userElements,
       error: onError
     },
+    */
     "User.change_authentication" : {
       type: "custom",
-      call: popUpChangeAuthenticationDialog
+      call: function(){
+        Sunstone.getDialog(AUTH_DRIVER_DIALOG_ID).show();
+      }
     },
+
     "User.chauth" : {
       type: "multiple",
       call: OpenNebulaResource.chauth,
-      callback : function(req){
-        Sunstone.runAction(RESOURCE+".show",req.request.data[0][0]);
-      },
-      elements: userElements,
-      error: onError
+      error: Notifier.onError,
     },
-    */
+
     "User.show" : {
       type: "single",
       call: OpenNebulaResource.show,

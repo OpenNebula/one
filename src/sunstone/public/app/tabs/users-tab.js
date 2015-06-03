@@ -8,6 +8,8 @@ define(function(require) {
   var DATATABLE_ID = "dataTableUsers";
 
   var _dialogs = [
+    require('./users-tab/dialogs/password'),
+    require('./users-tab/dialogs/auth-driver')
   ];
 
   var _panels = [

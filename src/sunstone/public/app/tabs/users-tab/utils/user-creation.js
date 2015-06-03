@@ -14,14 +14,44 @@ define(function(require) {
     return TemplateHTML();
   }
 
-  function _setup(context){
+  /**
+   * Setups the html
+   * @param  {object} context jquery selector
+   * @param  {object} [options] Options to hide/show each field. Each field is
+   *                            enabled by default.
+   *                            - name: true, false
+   *                            - password: true, false
+   *                            - auth_driver: true, false
+   */
+  function _setup(context, options){
+
+    var passwordEnabled = true;
+
+    if (options != undefined){
+      if (options.name != undefined && options.name == false){
+        $('#username',context).removeAttr('required');
+        $('.name_row', context).hide();
+      }
+
+      if (options.password != undefined && options.password == false){
+        passwordEnabled = false;
+
+        $('#pass',context).removeAttr('required');
+        $('.password_row', context).hide();
+      }
+
+      if (options.auth_driver != undefined && options.auth_driver == false){
+        $('.auth_driver_row', context).hide();
+      }
+    }
+
     $('#driver', context).change(function(){
       if ($(this).val() == "ldap"){
-        $('#pass',context).hide().removeAttr('required');
-        $('label[for="pass"]',context).hide();
-      } else {
-        $('#pass',context).show().attr('required', '');
-        $('label[for="pass"]',context).show();
+        $('#pass',context).removeAttr('required');
+        $('.password_row', context).hide();
+      } else if (passwordEnabled) {
+        $('#pass',context).attr('required', '');
+        $('.password_row', context).show();
       }
     });
 
