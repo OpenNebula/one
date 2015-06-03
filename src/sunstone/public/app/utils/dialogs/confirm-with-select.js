@@ -88,7 +88,7 @@ define(function(require) {
     var button = Sunstone.getButton(tabId, actionId);
 
     var tip = Locale.tr("You have to confirm this action");
-    if (button.tip == undefined) {
+    if (button.tip) {
       tip = button.tip
     }
 
