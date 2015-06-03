@@ -9,7 +9,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
   var OpenNebulaVm = require('opennebula/vm');
-  var VncSpiceUtils = require('utils/vnc-spice-utils');
+  var VncSpiceUtils = require('./utils/vnc-spice-utils');
   
   /*
     CONSTANTS
