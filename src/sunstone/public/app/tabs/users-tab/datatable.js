@@ -8,6 +8,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -102,11 +103,9 @@ define(function(require) {
         element.VM_QUOTA.VM.CPU,
         default_user_quotas.VM_QUOTA.VM.CPU);
     }
-  
-    // TODO
+
     // Build hidden user template
-    //var hidden_template = convert_template_to_string(user);
-    var hidden_template = "";
+    var hidden_template = TemplateUtils.templateToString(element);
 
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
