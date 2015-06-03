@@ -496,8 +496,10 @@ define(function(require) {
     //show tab
     _showRighList(tabName);
 
-    // TODO Add recountCheckboxes
-    //recountCheckboxes($(".dataTable", tab).first());
+    var dataTable = SunstoneCfg['tabs'][tabName]['dataTable'];
+    if (dataTable) {
+      dataTable.recountCheckboxes();
+    }
 
     var res = SunstoneCfg['tabs'][tabName]['resource']
     if (res) {
