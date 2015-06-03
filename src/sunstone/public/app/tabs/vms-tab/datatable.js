@@ -10,6 +10,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var OpenNebulaVm = require('opennebula/vm');
   var VncSpiceUtils = require('./utils/vnc-spice-utils');
+  var StateActions = require('./utils/state-actions');
   
   /*
     CONSTANTS
@@ -72,6 +73,7 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.onUpdateView = _onUpdateView;
 
   return Table;
 
@@ -136,5 +138,9 @@ define(function(require) {
        VncSpiceUtils.vncIcon(element),
        TemplateUtils.templateToString(element)
     ];
+  }
+
+  function _onUpdateView() {
+    StateActions.resetStateButtons();
   }
 });
