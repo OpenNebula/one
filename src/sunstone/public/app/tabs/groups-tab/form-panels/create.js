@@ -43,6 +43,8 @@ define(function(require) {
       }
     };
 
+    this.userCreation = new UserCreation(FORM_PANEL_ID);
+
     BaseFormPanel.call(this);
   }
 
@@ -64,29 +66,31 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'userCreationHTML': UserCreation.html()
+      'userCreationHTML': this.userCreation.html()
     });
   }
 
   function _setup(context) {
-    UserCreation.setup( $("#admin_user_wrapper",context) );
+    var that = this;
+
+    this.userCreation.setup( $("#admin_user_wrapper",context) );
     Tips.setup(context);
 
     $('input#name', context).change(function(){
       var val = $(this).val();
 
-      $('#username',context).val(val + "-admin");
+      that.userCreation.setName(context, val + "-admin");
     });
 
     $('input#admin_user', context).change(function(){
       if ($(this).prop('checked')) {
-        UserCreation.enable( $("#admin_user_wrapper",context) );
+        that.userCreation.enable( $("#admin_user_wrapper",context) );
       } else {
-        UserCreation.disable( $("#admin_user_wrapper",context) );
+        that.userCreation.disable( $("#admin_user_wrapper",context) );
       }
     });
 
-    UserCreation.disable( $("#admin_user_wrapper",context) );
+    this.userCreation.disable( $("#admin_user_wrapper",context) );
 
     $.each($('[id^="group_res"]', context), function(){
       $(this).prop("checked", true);
@@ -116,7 +120,7 @@ define(function(require) {
     var user_json = null;
 
     if ( $('#admin_user', context).prop('checked') ){
-      user_json = UserCreation.retrieve($("#admin_user_wrapper",context));
+      user_json = this.userCreation.retrieve($("#admin_user_wrapper",context));
     }
 
     var group_json = {
@@ -126,7 +130,7 @@ define(function(require) {
     };
 
     if (user_json){
-      group_json["group"]["group_admin"] = user_json["user"];
+      group_json["group"]["group_admin"] = user_json;
     }
 
     var resources = "";

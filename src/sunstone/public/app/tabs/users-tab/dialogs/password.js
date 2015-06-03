@@ -24,6 +24,8 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
+    this.userCreation = new UserCreation(DIALOG_ID, {name: false, auth_driver: false});
+
     BaseDialog.call(this);
   }
 
@@ -43,14 +45,14 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'dialogId': this.dialogId,
-      'userCreationHTML': UserCreation.html()
+      'userCreationHTML': this.userCreation.html()
     });
   }
 
   function _setup(context) {
     var that = this;
 
-    UserCreation.setup(context, {name: false, auth_driver: false});
+    this.userCreation.setup(context);
 
     context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
@@ -64,7 +66,7 @@ define(function(require) {
       // Fix for valid event firing twice
       if (e.namespace != 'abide.fndtn') { return; }
 
-      var inputs = UserCreation.retrieve(context);
+      var inputs = that.userCreation.retrieve(context);
 
       var selElems = Sunstone.getDataTable(TAB_ID).elements();
 

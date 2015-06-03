@@ -37,6 +37,8 @@ define(function(require) {
       }
     };
 
+    this.userCreation = new UserCreation(FORM_PANEL_ID);
+
     BaseFormPanel.call(this);
   }
 
@@ -57,17 +59,17 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'userCreationHTML': UserCreation.html()
+      'userCreationHTML': this.userCreation.html()
     });
   }
 
   function _setup(context) {
-    UserCreation.setup(context);
+    this.userCreation.setup(context);
   }
 
   function _submitWizard(context) {
     var user_json = {
-      "user" : UserCreation.retrieve(context)
+      "user" : this.userCreation.retrieve(context)
     };
 
     Sunstone.runAction("User.create",user_json);

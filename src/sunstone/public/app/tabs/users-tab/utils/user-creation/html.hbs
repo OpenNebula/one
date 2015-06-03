@@ -1,19 +1,24 @@
 <div class="row name_row">
   <div class="large-12 columns">
     <label for="username">{{tr "Username"}}</label>
-    <input required type="text" name="username" id="username" />
+    <input required type="text" name="username" id="{{idPrefix}}_username" />
   </div>
 </div>
 <div class="row password_row">
   <div class="large-12 columns">
     <label for="pass">{{tr "Password"}}</label>
-    <input required type="password" name="pass" id="pass" />
+    <input required type="password" name="pass" id="{{idPrefix}}_pass" />
+  </div>
+  <div class="large-12 columns">
+    <label for="confirm_password">{{tr "Confirm Password"}}</label>
+    <input data-equalto="{{idPrefix}}_pass" type="password" name="confirm_password" id="{{idPrefix}}_confirm_password" />
+    <small class="error">{{tr "Passwords do not match"}}</small>
   </div>
 </div>
 <div class="row auth_driver_row">
   <div class="large-12 columns">
     <label for="driver">{{tr "Authentication"}}</label>
-    <select name="driver" id="driver">
+    <select name="driver" id="{{idPrefix}}_driver">
       <option value="core" selected="selected">{{tr "Core"}}</option>
       <option value="ssh">{{tr "SSH"}}</option>
       <option value="x509">{{tr "x509"}}</option>
@@ -22,7 +27,7 @@
       <option value="custom">{{tr "Custom"}}</option>
     </select>
     <div>
-      <input type="text" id="custom_auth" name="custom_auth" />
+      <input type="text" id="{{idPrefix}}_custom_auth" name="custom_auth" />
     </div>
   </div>
 </div>
