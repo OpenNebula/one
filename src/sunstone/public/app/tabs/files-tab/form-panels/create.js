@@ -168,6 +168,7 @@ define(function(require) {
 
     var ds_id = $('#file_datastore .resource_list_select', context).val();
     if (!ds_id) {
+      Sunstone.hideFormPanelLoading(TAB_ID);
       Notifier.notifyError(Locale.tr("Please select a datastore for this file"));
       return false;
     }
@@ -203,6 +204,12 @@ define(function(require) {
     //this is an image upload we trigger FileUploader
     //to start the upload
     if (upload) {
+      if (that.uploader.files.length == 0) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.notifyError(Locale.tr("Please select a file to upload"));
+        return false;
+      }
+
       Sunstone.resetFormPanel(that.tabId, that.formPanelId);
       Sunstone.hideFormPanel(that.tabId);
 
