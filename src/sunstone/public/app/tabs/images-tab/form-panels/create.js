@@ -69,74 +69,74 @@ define(function(require) {
     return TemplateAdvancedHTML({formPanelId: this.formPanelId});
   }
 
-  function _onShow(dialog) {
-    $("#img_name", dialog).focus();
+  function _onShow(context) {
+    $("#img_name", context).focus();
 
-    var ds_id = $('#img_datastore .resource_list_select', dialog).val();
-    var ds_id_raw = $('#img_datastore_raw .resource_list_select', dialog).val();
+    var ds_id = $('#img_datastore .resource_list_select', context).val();
+    var ds_id_raw = $('#img_datastore_raw .resource_list_select', context).val();
 
     // Filter out DS with type system (1) or file (2)
     var filter_att = ["TYPE", "TYPE"];
     var filter_val = ["1", "2"];
 
-    ResourceSelect.insert('div#img_datastore', dialog, "Datastore",
+    ResourceSelect.insert('div#img_datastore', context, "Datastore",
                         ds_id, false, null, filter_att, filter_val);
 
-    ResourceSelect.insert('div#img_datastore_raw', dialog, "Datastore",
+    ResourceSelect.insert('div#img_datastore_raw', context, "Datastore",
                         ds_id_raw, false, null, filter_att, filter_val);
 
     return false;
   }
 
-  function _setup(dialog) {
+  function _setup(context) {
     var that = this;
-    Tips.setup(dialog);
+    Tips.setup(context);
 
-    $('select#img_type', dialog).change(function() {
+    $('select#img_type', context).change(function() {
       var value = $(this).val();
       switch (value){
       case "DATABLOCK":
-        $('#datablock_img', dialog).removeAttr("disabled");
+        $('#datablock_img', context).removeAttr("disabled");
         break;
       default:
-        $('#datablock_img', dialog).attr('disabled', 'disabled');
-        $('#path_image', dialog).click();
+        $('#datablock_img', context).attr('disabled', 'disabled');
+        $('#path_image', context).click();
 
       }
     });
 
-    $('#img_path,#img_fstype,#img_size,#file-uploader', dialog).closest('.row').hide();
+    $('#img_path,#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
 
-    $("input[name='src_path']", dialog).change(function() {
+    $("input[name='src_path']", context).change(function() {
       var value = $(this).val();
       switch (value){
       case "path":
-        $('#img_fstype,#img_size,#file-uploader', dialog).closest('.row').hide();
-        $('#img_path', dialog).closest('.row').show();
+        $('#img_fstype,#img_size,#file-uploader', context).closest('.row').hide();
+        $('#img_path', context).closest('.row').show();
 
-        $('#img_path', dialog).attr('required', '');
-        $('#img_size', dialog).removeAttr('required');
+        $('#img_path', context).attr('required', '');
+        $('#img_size', context).removeAttr('required');
         break;
       case "datablock":
-        $('#img_path,#file-uploader', dialog).closest('.row').hide();
-        $('#img_fstype,#img_size', dialog).closest('.row').show();
+        $('#img_path,#file-uploader', context).closest('.row').hide();
+        $('#img_fstype,#img_size', context).closest('.row').show();
 
-        $('#img_path', dialog).removeAttr('required');
-        $('#img_size', dialog).attr('required', '');
+        $('#img_path', context).removeAttr('required');
+        $('#img_size', context).attr('required', '');
         break;
       case "upload":
-        $('#img_path,#img_fstype,#img_size', dialog).closest('.row').hide();
-        $('#file-uploader', dialog).closest('.row').show();
+        $('#img_path,#img_fstype,#img_size', context).closest('.row').hide();
+        $('#file-uploader', context).closest('.row').show();
 
-        $('#img_path', dialog).removeAttr('required');
-        $('#img_size', dialog).removeAttr('required');
+        $('#img_path', context).removeAttr('required');
+        $('#img_size', context).removeAttr('required');
         break;
       }
     });
 
-    $('#path_image', dialog).click();
+    $('#path_image', context).click();
 
-    CustomTagsTable.setup(dialog);
+    CustomTagsTable.setup(context);
 
     if (_getInternetExplorerVersion() > -1) {
       $("#upload_image").attr("disabled", "disabled");
@@ -151,7 +151,7 @@ define(function(require) {
         }
       });
 
-      that.uploader.assignBrowse($('#file-uploader-input', dialog));
+      that.uploader.assignBrowse($('#file-uploader-input', context));
 
       var fileName = '';
       var file_input = false;
@@ -160,8 +160,8 @@ define(function(require) {
         fileName = file.fileName;
         file_input = fileName;
 
-        $('#file-uploader-input', dialog).hide()
-        $("#file-uploader-label", dialog).html(file.fileName);
+        $('#file-uploader-input', context).hide()
+        $("#file-uploader-label", context).html(file.fileName);
       });
 
       that.uploader.on('uploadStart', function() {
@@ -186,11 +186,11 @@ define(function(require) {
     return false;
   }
 
-  function _submitWizard(dialog) {
+  function _submitWizard(context) {
     var that = this;
     var upload = false;
 
-    var ds_id = $('#img_datastore .resource_list_select', dialog).val();
+    var ds_id = $('#img_datastore .resource_list_select', context).val();
     if (!ds_id) {
       Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
       return false;
@@ -198,40 +198,40 @@ define(function(require) {
 
     var img_json = {};
 
-    var name = $('#img_name', dialog).val();
+    var name = $('#img_name', context).val();
     img_json["NAME"] = name;
 
-    var desc = $('#img_desc', dialog).val();
+    var desc = $('#img_desc', context).val();
     if (desc.length) {
       img_json["DESCRIPTION"] = desc;
     }
 
-    var type = $('#img_type', dialog).val();
+    var type = $('#img_type', context).val();
     img_json["TYPE"] = type;
 
-    img_json["PERSISTENT"] = $('#img_persistent:checked', dialog).length ? "YES" : "NO";
+    img_json["PERSISTENT"] = $('#img_persistent:checked', context).length ? "YES" : "NO";
 
-    var dev_prefix = $('#img_dev_prefix', dialog).val();
+    var dev_prefix = $('#img_dev_prefix', context).val();
     if (dev_prefix.length) {
       img_json["DEV_PREFIX"] = dev_prefix;
     }
 
-    var driver = $('#img_driver', dialog).val();
+    var driver = $('#img_driver', context).val();
     if (driver.length)
         img_json["DRIVER"] = driver;
 
-    var target = $('#img_target', dialog).val();
+    var target = $('#img_target', context).val();
     if (target)
         img_json["TARGET"] = target;
 
-    switch ($('#src_path_select input:checked', dialog).val()){
+    switch ($('#src_path_select input:checked', context).val()){
     case "path":
-      path = $('#img_path', dialog).val();
+      path = $('#img_path', context).val();
       if (path) img_json["PATH"] = path;
       break;
     case "datablock":
-      size = $('#img_size', dialog).val();
-      fstype = $('#img_fstype', dialog).val();
+      size = $('#img_size', context).val();
+      fstype = $('#img_fstype', context).val();
       if (size) img_json["SIZE"] = size;
       if (fstype) img_json["FSTYPE"] = fstype;
       break;
@@ -240,7 +240,7 @@ define(function(require) {
       break;
     }
 
-    $.extend(img_json, CustomTagsTable.retrieve(dialog));
+    $.extend(img_json, CustomTagsTable.retrieve(context));
 
     var img_obj = {
       "image" : img_json,
@@ -284,9 +284,9 @@ define(function(require) {
     return false;
   }
 
-  function _submitAdvanced(dialog) {
-    var template = $('#template', dialog).val();
-    var ds_id = $('#img_datastore_raw .resource_list_select', dialog).val();
+  function _submitAdvanced(context) {
+    var template = $('#template', context).val();
+    var ds_id = $('#img_datastore_raw .resource_list_select', context).val();
 
     if (!ds_id) {
       Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
