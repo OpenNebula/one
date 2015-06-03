@@ -9,6 +9,8 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
   var OpenNebulaVm = require('opennebula/vm');
+  var StateActions = require('../utils/state-actions');
+  var VncSpiceUtils = require('../utils/vnc-spice-utils');
 
   /*
     TEMPLATES
@@ -84,6 +86,22 @@ define(function(require) {
   }
 
   function _setup(context) {
+    // Enable only action buttons for the current state
+    StateActions.disableAllStateActions();
+    StateActions.enableStateActions(this.element.STATE, this.element.LCM_STATE);
+    // Enable / disable vnc button
+    if (!VncSpiceUtils.VNCEnabled(this.element)) {
+        $(".vnc-right-info").hide();
+    } else {
+        $(".vnc-right-info").show();
+    }
+
+    if (!VncSpiceUtils.SPICEEnabled(this.element)) {
+        $(".spice-right-info").hide();
+    } else {
+        $(".spice-right-info").show();
+    }
+
     RenameTr.setup(RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
