@@ -7,25 +7,28 @@ define(function(require) {
   var RESOURCE = "File";
   var XML_ROOT = "IMAGE";
   var TAB_ID = require('./tabId');
-//  var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "File.create" : {
       type: "create",
       call: OpenNebulaResource.create,
       callback: function(request, response) {
-        Sunstone.getDialog(CREATE_DIALOG_ID).hide();
-        Sunstone.getDialog(CREATE_DIALOG_ID).reset();
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
         Notifier.notifyCustom(Locale.tr("File created"), " ID: " + response[XML_ROOT].ID, false);
       },
-      error: Notifier.onError,
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
     },
 
     "File.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.getDialog(CREATE_DIALOG_ID).show();
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
 

@@ -7,12 +7,14 @@ define(function(require) {
   var TAB_ID = require('./files-tab/tabId');
   var DATATABLE_ID = "dataTableFiles";
 
-  var _dialogs = [
-    //require('./files-tab/dialogs/create')
-  ];
+  var _dialogs = [];
 
   var _panels = [
     require('./files-tab/panels/info')
+  ];
+
+  var _formPanels = [
+    require('./files-tab/form-panels/create')
   ];
 
   var Tab = {
@@ -31,6 +33,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     dialogs: _dialogs
   };
 
