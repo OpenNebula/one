@@ -20,7 +20,10 @@ define(function(require) {
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
         Notifier.notifyCustom(Locale.tr("Image created"), " ID: " + response[XML_ROOT].ID, false);
       },
-      error: Notifier.onError,
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
     },
 
     "Image.create_dialog" : {

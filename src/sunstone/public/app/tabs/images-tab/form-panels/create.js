@@ -113,16 +113,25 @@ define(function(require) {
       case "path":
         $('#img_fstype,#img_size,#file-uploader', dialog).closest('.row').hide();
         $('#img_path', dialog).closest('.row').show();
+
+        $('#img_path', dialog).attr('required', '');
+        $('#img_size', dialog).removeAttr('required');
         break;
       case "datablock":
         $('#img_path,#file-uploader', dialog).closest('.row').hide();
         $('#img_fstype,#img_size', dialog).closest('.row').show();
+
+        $('#img_path', dialog).removeAttr('required');
+        $('#img_size', dialog).attr('required', '');
         break;
       case "upload":
         $('#img_path,#img_fstype,#img_size', dialog).closest('.row').hide();
         $('#file-uploader', dialog).closest('.row').show();
+
+        $('#img_path', dialog).removeAttr('required');
+        $('#img_size', dialog).removeAttr('required');
         break;
-      };
+      }
     });
 
     $('#path_image', dialog).click();

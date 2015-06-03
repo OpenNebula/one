@@ -7,7 +7,7 @@
           {{tr "Name that the Image will get. Every image must have a unique name."}}
         </span>
       </label>
-      <input type="text" name="img_name" id="img_name" />
+      <input required type="text" name="img_name" id="img_name" />
     </div>
     <div class="medium-8 columns">
       <label for="img_desc">
@@ -49,16 +49,18 @@
       </label>
       <div id="img_datastore" name="img_datastore"></div>
     </div>
-    <div class="large-6 columns">
-      {{#if persistentActionEnabled}}
-      <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />
-      <label for="img_persistent">
-        {{tr "Persistent"}}
-        <span class="tip">{{tr "Persistence of the image"}}</span>
-      </label>
-      {{/if}}
-    </div>
   </div>
+  {{#isTabActionEnabled "images-tab" "Image.persistent"}}
+    <div class="row">
+      <div class="large-4 columns">
+        <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />
+        <label for="img_persistent">
+          {{tr "Persistent"}}
+          <span class="tip">{{tr "Persistence of the image"}}</span>
+        </label>
+      </div>
+    </div>
+  {{/isTabActionEnabled}}
   <br>
   <fieldset>
     <legend>{{tr "Image location"}}:</legend>
@@ -73,7 +75,7 @@
       </div>
     </div>
     <br>
-    <div class="img_param row">
+    <div class="row">
       <div class="large-12 columns">
         <label for="img_path">
           {{tr "Path"}}
