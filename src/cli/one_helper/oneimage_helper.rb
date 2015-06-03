@@ -292,6 +292,13 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
 
             puts str % [e,  mask]
         }
+
+        if image.has_elements?("/IMAGE/SNAPSHOTS")
+            puts
+            CLIHelper.print_header(str_h1 % "IMAGE SNAPSHOTS",false)
+            format_snapshots(image)
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
@@ -309,6 +316,44 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             onevm_helper.client=@client
             onevm_helper.list_pool({:ids=>vms}, false)
         end
+    end
+
+    def format_snapshots(image)
+        table=CLIHelper::ShowTable.new(nil, self) do
+            column :AC , "Is active", :left, :size => 2 do |d|
+                if d["ACTIVE"] == "YES"
+                    "=>"
+                else
+                    ""
+                end
+            end
+            column :ID, "Snapshot ID", :size=>3 do |d|
+                d["ID"]
+            end
+
+            column :PARENT, "Snapshot Parent ID", :size=>6 do |d|
+                d["PARENT"]
+            end
+
+            column :CHILDREN, "Snapshot Children IDs", :size=>10 do |d|
+                d["CHILDREN"]
+            end
+
+            column :TAG, "Snapshot Tag", :left, :size=>45 do |d|
+                d["TAG"]
+            end
+
+            column :DATE, "Snapshot creation date", :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d["DATE"])
+            end
+
+            default :AC, :ID, :PARENT, :DATE, :CHILDREN, :TAG
+        end
+
+        # Convert snapshot data to an array
+        image_hash = image.to_hash
+        image_snapshots = [image_hash['IMAGE']['SNAPSHOTS']].flatten.first
+        table.show(image_snapshots)
     end
 
     def self.create_image_variables(options, name)
