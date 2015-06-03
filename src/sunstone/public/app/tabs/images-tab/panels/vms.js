@@ -4,30 +4,29 @@ define(function(require){
    */
   
   var Locale = require('utils/locale');
-  //var VmsTable = require('tabs/vms-tab/datatable');
+  var VMsTable = require('tabs/vms-tab/datatable');
   
   /*
     CONSTANTS
    */
-  
-  //TODO var VMS_TAB_ID = require('tabs/vms-tab/tabId');
+
   var PANEL_ID = require('./vms/panelId');
-  //var VMS_TABLE_ID = PANEL_ID + "VmsTable"
-  var RESOURCE = "Image"
+  var VMS_TABLE_ID = PANEL_ID + "VMsTable";
+  var RESOURCE = "Image";
+  var XML_ROOT = "IMAGE";
 
   /*
     CONSTRUCTOR
    */
 
   function Panel(info) {
-    this.title = Locale.tr("Vms");
+    this.title = Locale.tr("VMs");
     this.icon = "fa-cloud";
 
-    this.element = info[RESOURCE.toUpperCase()];
-    //this.vmsDataTable = new VmsTable(VMS_TABLE_ID, {info: true}, VMS_TAB_ID);
+    this.element = info[XML_ROOT];
 
     return this;
-  };
+  }
 
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
@@ -40,13 +39,33 @@ define(function(require){
    */
 
   function _html() {
-    //return this.vmsDataTable.dataTableHTML;
+    var vms = [];
+
+    if (this.element.VMS.ID != undefined){
+      vms = this.element.VMS.ID;
+
+      if (!$.isArray(vms)){
+        vms = [vms];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: vms
+      }
+    };
+
+    this.vmsTable = new VMsTable(VMS_TABLE_ID, opts);
+
+    return this.vmsTable.dataTableHTML;
   }
 
   function _setup(context) {
-    //this.vmsDataTable.initialize();
-    //this.vmsDataTable.filter(this.element.NAME, VmsTable.COLUMN_IDS.DATASTORE);
-    //this.vmsDataTable.list();
+    this.vmsTable.initialize();
+    this.vmsTable.refreshResourceTableSelect();
 
     return false;
   }
