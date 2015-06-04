@@ -1709,12 +1709,15 @@ int DispatchManager::disk_snapshot_revert(
 
     if (snaps == 0)
     {
+        vm->unlock();
         return -1;
     }
 
     if (snaps->get_active_id() == snap_id)
     {
         error_str = "Snapshot is already the active one";
+
+        vm->unlock();
         return -1;
     }
 
@@ -1777,11 +1780,13 @@ int DispatchManager::disk_snapshot_delete(
 
     if (snaps == 0)
     {
+        vm->unlock();
         return -1;
     }
 
     if (!snaps->test_delete(snap_id, error_str))
     {
+        vm->unlock();
         return -1;
     }
 
