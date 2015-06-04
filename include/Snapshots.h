@@ -81,25 +81,39 @@ public:
     int create_snapshot(const string& tag);
 
     /**
-     *  Removes the snapshot from the list
+     *  Check if an snapshot can be deleted (no children, no active)
      *    @param id of the snapshot
      *    @param error if any
-     *    @return 0 on success -1 otherwise
+     *    @return true if can be deleted, false otherwise
      */
-    int delete_snapshot(unsigned int id, string& error);
+    bool test_delete(unsigned int id, string& error) const;
+
+    /**
+     *  Removes the snapshot from the list
+     *    @param id of the snapshot
+     */
+    void delete_snapshot(unsigned int id);
 
     /**
      *  Set the given snapshot as active. Updates the values of the current
      *  snapshot
      */
-    int active_snapshot(unsigned int id, string& error);
+    int active_snapshot(unsigned int id);
 
     /**
      *  Return the disk_id of the snapshot list
      */
-    int get_disk_id()
+    int get_disk_id() const
     {
         return disk_id;
+    }
+
+    /**
+     *  Return the active snapshot id
+     */
+    int get_active_id() const
+    {
+        return active;
     }
 
     /**
@@ -119,15 +133,15 @@ public:
     {
         disk_id = did;
         snapshot_template.replace("DISK_ID", did);
-    }
+    };
 
     /**
      *  @return number of snapshots in the list
      */
-    unsigned int size()
+    unsigned int size() const
     {
         return snapshot_pool.size();
-    }
+    };
 
     /**
      *  Get Attribute from the given snapshot
@@ -145,7 +159,13 @@ private:
      *  @param id of the snapshot
      *  @return pointer to the snapshot (VectorAttribute) or null
      */
-    VectorAttribute * get_snapshot(unsigned int id);
+    const VectorAttribute * get_snapshot(unsigned int id) const;
+
+    VectorAttribute * get_snapshot(unsigned int id)
+    {
+        return const_cast<VectorAttribute *>(
+                static_cast<const Snapshots&>(*this).get_snapshot(id));
+    };
 
     /**
      *  Build the object internal representation from an initialized

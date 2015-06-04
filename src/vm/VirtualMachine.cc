@@ -3339,19 +3339,19 @@ int VirtualMachine::clear_saveas_state(int disk_id, bool hot)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute* VirtualMachine::get_disk(int disk_id)
+const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 {
     int num_disks;
     int tdisk_id;
 
-    vector<Attribute  *> disks;
-    VectorAttribute *    disk;
+    vector<const Attribute  *> disks;
+    const VectorAttribute *    disk;
 
     num_disks = obj_template->get("DISK", disks);
 
     for(int i=0; i<num_disks; i++)
     {
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+        disk = dynamic_cast<const VectorAttribute * >(disks[i]);
 
         if ( disk == 0 )
         {
@@ -4362,53 +4362,38 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::revert_disk_snapshot(int did, int snap_id, string& error)
+const Snapshots * VirtualMachine::get_disk_snapshots(int did, string& error) const
 {
-    map<int, Snapshots *>::iterator it;
-    int rc;
-
-    VectorAttribute * disk;
-    string source;
-
-    disk = get_disk(did);
+    const VectorAttribute * disk = get_disk(did);
 
     if ( disk == 0 )
     {
         error = "VM disk does not exists";
-        return -1;
+        return 0;
     }
 
-    it = snapshots.find(did);
+    map<int, Snapshots *>::const_iterator it = snapshots.find(did);
 
     if (it == snapshots.end())
     {
         error = "Snapshot does not exists";
-        return -1;
-    }
-    else
-    {
-        rc = it->second->active_snapshot(snap_id, error);
+        return 0;
     }
 
-    return rc;
+    return it->second;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::delete_disk_snapshot(int did, int snap_id, string& error)
+int VirtualMachine::revert_disk_snapshot(int did, int snap_id)
 {
     map<int, Snapshots *>::iterator it;
-    int rc;
 
-    VectorAttribute * disk;
-    string source;
-
-    disk = get_disk(did);
+    VectorAttribute * disk = get_disk(did);
 
     if ( disk == 0 )
     {
-        error = "VM disk does not exists";
         return -1;
     }
 
@@ -4416,14 +4401,32 @@ int VirtualMachine::delete_disk_snapshot(int did, int snap_id, string& error)
 
     if (it == snapshots.end())
     {
-        error = "Snapshot does not exists";
         return -1;
     }
-    else
+
+    return it->second->active_snapshot(snap_id);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
+{
+    map<int, Snapshots *>::iterator it;
+    VectorAttribute * disk = get_disk(did);
+
+    if ( disk == 0 )
     {
-        rc = it->second->delete_snapshot(snap_id, error);
+        return;
     }
 
-    return rc;
+    it = snapshots.find(did);
+
+    if (it == snapshots.end())
+    {
+        return;
+    }
+
+    it->second->delete_snapshot(snap_id);
 }
 

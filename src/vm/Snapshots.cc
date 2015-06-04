@@ -172,34 +172,15 @@ int Snapshots::create_snapshot(const string& tag)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::delete_snapshot(unsigned int id, string& error)
+void Snapshots::delete_snapshot(unsigned int id)
 {
-    int    parent_id;
-    bool   current;
-    string children;
+    int parent_id;
 
     VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot == 0)
     {
-        error = "Snapshot does not exists";
-        return -1;
-    }
-
-    snapshot->vector_value("ACTIVE", current);
-
-    if (current)
-    {
-        error = "Cannot delete the active snapshot";
-        return -1;
-    }
-
-    snapshot->vector_value("CHILDREN", children);
-
-    if (!children.empty())
-    {
-        error = "Cannot delete snapshot with children";
-        return -1;
+        return;
     }
 
     snapshot->vector_value("PARENT", parent_id);
@@ -212,7 +193,7 @@ int Snapshots::delete_snapshot(unsigned int id, string& error)
 
         if (parent != 0)
         {
-            children = parent->vector_value("CHILDREN");
+            string children = parent->vector_value("CHILDREN");
 
             one_util::split_unique(children, ',', child_set);
 
@@ -236,27 +217,22 @@ int Snapshots::delete_snapshot(unsigned int id, string& error)
     delete snapshot;
 
     snapshot_pool.erase(id);
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::active_snapshot(unsigned int id, string& error)
+int Snapshots::active_snapshot(unsigned int id)
 {
-    VectorAttribute * snapshot;
-
     if (static_cast<int>(id) == active)
     {
         return 0;
     }
 
-    snapshot = get_snapshot(id);
+    VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot == 0)
     {
-        error = "Snapshot does not exists";
         return -1;
     }
 
@@ -277,9 +253,9 @@ int Snapshots::active_snapshot(unsigned int id, string& error)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VectorAttribute * Snapshots::get_snapshot(unsigned int id)
+const VectorAttribute * Snapshots::get_snapshot(unsigned int id) const
 {
-    map<unsigned int, VectorAttribute *>::iterator it;
+    map<unsigned int, VectorAttribute *>::const_iterator it;
 
     it = snapshot_pool.find(id);
 
@@ -308,4 +284,36 @@ string Snapshots::get_snapshot_attribute(unsigned int id, const char * name)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+bool Snapshots::test_delete(unsigned int id, string& error) const
+{
+    bool   current;
+    string children;
+
+    const VectorAttribute * snapshot = get_snapshot(id);
+
+    if (snapshot == 0)
+    {
+        error = "Snapshot does not exists";
+        return false;
+    }
+
+    snapshot->vector_value("ACTIVE", current);
+
+    if (current)
+    {
+        error = "Cannot delete the active snapshot";
+        return false;
+    }
+
+    snapshot->vector_value("CHILDREN", children);
+
+    if (!children.empty())
+    {
+        error = "Cannot delete snapshot with children";
+        return false;
+    }
+
+    return true;
+}
 

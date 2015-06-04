@@ -1705,6 +1705,19 @@ int DispatchManager::disk_snapshot_revert(
         return -1;
     }
 
+    const Snapshots * snaps = vm->get_disk_snapshots(did, error_str);
+
+    if (snaps == 0)
+    {
+        return -1;
+    }
+
+    if (snaps->get_active_id() == snap_id)
+    {
+        error_str = "Snapshot is already the active one";
+        return -1;
+    }
+
     if (vm->set_snapshot_disk(did, snap_id) == -1)
     {
         vm->unlock();
@@ -1760,9 +1773,15 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
-    if (vm->delete_disk_snapshot(did, snap_id, error_str) == -1)
+    const Snapshots * snaps = vm->get_disk_snapshots(did, error_str);
+
+    if (snaps == 0)
     {
-        vm->unlock();
+        return -1;
+    }
+
+    if (!snaps->test_delete(snap_id, error_str))
+    {
         return -1;
     }
 

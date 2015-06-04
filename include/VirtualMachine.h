@@ -1520,6 +1520,14 @@ public:
     // ------------------------------------------------------------------------
 
     /**
+     *  Return the snapshot list for the disk
+     *    @param disk_id of the disk
+     *    @param error if any
+     *    @return pointer to Snapshots or 0 if not found
+     */
+    const Snapshots * get_disk_snapshots(int did, string& err) const;
+
+    /**
      *  Creates a new snapshot of the given disk
      *    @param disk_id of the disk
      *    @param tag a description for this snapshot
@@ -1531,22 +1539,19 @@ public:
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
      *    @param disk_id of the disk
-     *    @param snap_id of the snapshot. It can be 0 to revert to the original
-     *    disk
+     *    @param snap_id of the snapshot
      *    @param error if any
      *    @return -1 if error
      */
-    int revert_disk_snapshot(int disk_id, int snap_id, string& error);
+    int revert_disk_snapshot(int disk_id, int snap_id);
 
     /**
-     *  Deletes the snap_id, the snapshot cannot be the current (active) one
+     *  Deletes the snap_id from the list, test_delete_disk_snapshot *MUST* be
+     *  called before actually deleting the snapshot.
      *    @param disk_id of the disk
-     *    @param snap_id of the snapshot. It can be 0 to revert to the original
-     *    disk
-     *    @param error if any
-     *    @return -1 if error
+     *    @param snap_id of the snapshot
      */
-    int delete_disk_snapshot(int disk_id, int snap_id, string& error);
+    void delete_disk_snapshot(int disk_id, int snap_id);
 
     /**
      *  Get information about the disk to take the snapshot from
@@ -2007,7 +2012,13 @@ private:
      *    @param disk_id of the disk
      *    @return pointer to the VectorAttribute
      */
-    VectorAttribute* get_disk(int disk_id);
+    VectorAttribute* get_disk(int disk_id)
+    {
+        return const_cast<VectorAttribute *>(
+                static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
+    };
+
+    const VectorAttribute* get_disk(int disk_id) const;
 
 protected:
 
