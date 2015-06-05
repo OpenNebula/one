@@ -329,10 +329,15 @@ module CLIHelper
 
                 default = config.delete(:default)
                 default_conf = config.delete(:default_conf) || {}
+                listconf = options[:listconf]
 
-                listconf = default_conf[options[:listconf].to_sym]
+                listconf = default_conf[listconf.to_sym] if listconf
 
-                if options[:listconf] && listconf
+                if !listconf && ENV['ONE_LISTCONF']
+                    listconf = default_conf[ENV['ONE_LISTCONF'].to_sym]
+                end
+
+                if listconf
                     @default_columns = listconf
                 else
                     @default_columns = default unless default.empty?
