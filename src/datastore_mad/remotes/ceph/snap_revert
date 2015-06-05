@@ -17,10 +17,11 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to remove a VM image (RBD_SRC) from the image repository
+# This script is used to revert a snapshot of an image
 ###############################################################################
 
-# ------------ Set up the environment to source common tools ------------
+# -------- Set up the environment to source common tools & conf ------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     LIB_LOCATION=/usr/lib/one
 else
@@ -33,24 +34,30 @@ DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 source ${DRIVER_PATH}/ceph.conf
 
-# -------- Get rm and datastore arguments from OpenNebula core ------------
+# -------- Get image and datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
 ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i j XPATH_ELEMENTS
+unset i XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
 
-RBD_SRC="${XPATH_ELEMENTS[j++]}"
-BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
-CEPH_USER="${XPATH_ELEMENTS[j++]}"
+unset i
+
+BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
+RBD_SRC="${XPATH_ELEMENTS[i++]}"
+SNAP_ID="${XPATH_ELEMENTS[i++]}"
+CEPH_USER="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -63,52 +70,20 @@ if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
-# -------- Remove Image from Datastore ------------
-
-log "Removing $RBD_SRC from the rbd image repository in $DST_HOST"
-
-DELETE_CMD=$(cat <<EOF
-    rm_children(){
-        local rbd_snap rbd snap_id child snap_list
-
-        rbd_snap=\$1
-        rbd=\${rbd_snap%%@*}
-
-        snap_list=\$(set +e; rbd snap ls \$rbd)
-
-        if [ -n "\$snap_list" ]; then
-            CHILDREN=\$(set +e; rbd children \$rbd_snap 2>/dev/null)
-
-            for child in \$CHILDREN; do
-                snap_id=\${child##*-}
-                child=\$child@\$snap_id
-                rm_children \$child
-            done
-
-            $RBD snap unprotect \$rbd_snap
-            $RBD snap rm \$rbd_snap
-        fi
-
-        $RBD rm \$rbd
-    }
+SNAP_REVERT_CMD=$(cat <<EOF
+    set -e
 
     RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
 
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        has_snap_shots=\$($RBD info $RBD_SRC-0@0 2>/dev/null)
-
-        if [ -n "\$has_snap_shots" ]; then
-            rm_children $RBD_SRC-0@0
-        else
-            $RBD rm $RBD_SRC
-        fi
-    else
-        $RBD rm $RBD_SRC
+    if [ "\${RBD_FORMAT}" != "2" ]; then
+        echo "Only RBD Format 2 is supported for this operation" >&2
+        exit 1
     fi
+
+    $RBD rm $RBD_SRC
+    $RBD clone $RBD_SRC-$SNAP_ID@$SNAP_ID $RBD_SRC
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-                 "Error deleting $RBD_SRC in $DST_HOST"
-
-exit 0
+ssh_exec_and_log "$DST_HOST" "$SNAP_REVERT_CMD" \
+              "Error reverting snapshot $RBD_SRC-$SNAP_ID@$SNAP_ID"

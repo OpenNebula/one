@@ -135,6 +135,7 @@ DELETE_CMD=$(cat <<EOF
         $RBD rm $RBD_SRC
     fi
 
+    # Remove the snapshot of the original image used to create a CLONE
     if [ "\$RBD_FORMAT" = "2" ]; then
         $RBD snap unprotect $SRC@$RBD_SNAP
         $RBD snap rm $SRC@$RBD_SNAP
