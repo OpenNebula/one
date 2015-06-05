@@ -7,10 +7,10 @@ define(function(require) {
   var TAB_ID = require('./vms-tab/tabId');
   var DATATABLE_ID = "dataTableVms";
 
-  //var _dialogs = [
-  //  require('./vms-tab/dialogs/clone'),
+  var _dialogs = [
+    require('./vms-tab/dialogs/deploy'),
   //  require('./vms-tab/dialogs/instantiate')
-  //];
+  ];
 
   var _panels = [
     require('./vms-tab/panels/info'),
@@ -39,7 +39,7 @@ define(function(require) {
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
     formPanels: _formPanels,
-    //dialogs: _dialogs
+    dialogs: _dialogs
   };
 
   return Tab;

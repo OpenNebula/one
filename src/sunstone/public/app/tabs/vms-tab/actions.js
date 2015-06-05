@@ -7,7 +7,7 @@ define(function(require) {
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  //var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
   //var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -60,6 +60,12 @@ define(function(require) {
       type: "custom",
       call: function(){
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
+    },
+    "VM.deploy" : {
+      type: "custom",
+      call: function(){
+        Sunstone.getDialog(DEPLOY_DIALOG_ID).show();
       }
     },
     /*"VM.create" : {
