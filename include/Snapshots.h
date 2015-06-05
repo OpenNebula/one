@@ -144,6 +144,18 @@ public:
     };
 
     /**
+     *   Check if snapshot exists
+     *   @param snap_id of the snapshot
+     *   @return true if the snapshot with snap_id exisits
+     */
+    bool exists(int snap_id) const
+    {
+        const VectorAttribute * snap = get_snapshot(snap_id);
+
+        return (snap != 0);
+    }
+
+    /**
      *  Get Attribute from the given snapshot
      *    @param id of the snapshot
      *    @param name of the attribute

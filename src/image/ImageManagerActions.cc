@@ -918,21 +918,10 @@ void ImageManager::set_image_snapshots(int iid, const Snapshots& s, bool failed)
             return;
     }
 
-    switch (img->get_state())
+    if (img->get_state() != Image::USED_PERS)
     {
-        case Image::USED_PERS:
-            break;
-
-        case Image::USED:
-        case Image::LOCKED:
-        case Image::CLONE:
-        case Image::DELETE:
-        case Image::INIT:
-        case Image::DISABLED:
-        case Image::READY:
-        case Image::ERROR:
-            img->unlock();
-            return;
+        img->unlock();
+        return;
     }
 
     img->set_snapshots(s);
@@ -957,11 +946,23 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Check action consistency:                                             */
+    /*    state is READY                                                      */
+    /*    snapshot can be deleted (not active, no childs, exists)             */
+    /* ---------------------------------------------------------------------- */
     Image * img = ipool->get(iid,true);
 
     if ( img == 0 )
     {
         error = "Image does not exist";
+        return -1;
+    }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot delete snapshot in state " + Image::state_to_str(img->get_state());
+        img->unlock();
         return -1;
     }
 
@@ -973,6 +974,9 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Get DS data for driver                                                */
+    /* ---------------------------------------------------------------------- */
     int ds_id = img->get_ds_id();
 
     img->unlock();
@@ -993,6 +997,9 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     img = ipool->get(iid,true);
 
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
     if ( img == 0 )
     {
         error = "Image does not exist";
@@ -1005,6 +1012,8 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
 
     imd->snapshot_delete(iid, *drv_msg);
+
+    img->set_state(Image::LOCKED);
 
     ipool->update(img);
 
@@ -1030,6 +1039,13 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Check action consistency:                                             */
+    /*    state is READY                                                      */
+    /*    snapshot exists                                                     */
+    /*    snapshot is not the active one                                      */
+    /* ---------------------------------------------------------------------- */
+
     Image * img = ipool->get(iid,true);
 
     if ( img == 0 )
@@ -1038,7 +1054,22 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot revert to snapshot in state " + Image::state_to_str(img->get_state());
+        img->unlock();
+        return -1;
+    }
+
     const Snapshots& snaps = img->get_snapshots();
+
+    if (!snaps.exists(sid))
+    {
+        error = "Snapshot does not exist";
+
+        img->unlock();
+        return -1;
+    }
 
     if (snaps.get_active_id() == sid)
     {
@@ -1048,6 +1079,9 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
+    /* ---------------------------------------------------------------------- */
+    /*  Get DS data for driver                                                */
+    /* ---------------------------------------------------------------------- */
     int ds_id = img->get_ds_id();
 
     img->unlock();
@@ -1066,6 +1100,9 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     ds->unlock();
 
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
     img = ipool->get(iid,true);
 
     if ( img == 0 )
@@ -1076,10 +1113,12 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
 
     img->set_target_snapshot(sid);
 
-    string img_tmpl;
+    string   img_tmpl;
     string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
 
     imd->snapshot_revert(iid, *drv_msg);
+
+    img->set_state(Image::LOCKED);
 
     ipool->update(img);
 

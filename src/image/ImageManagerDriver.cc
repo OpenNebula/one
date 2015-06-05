@@ -716,11 +716,15 @@ static void snap_delete_action(istringstream& is,
         return;
     }
 
+    image->set_state(Image::READY);
+
     int snap_id = image->get_target_snapshot();
 
     if (snap_id == -1)
     {
         NebulaLog::log("ImM", Log::ERROR, "No target snapshot in callback");
+
+        ipool->update(image);
 
         image->unlock();
         return;
@@ -772,9 +776,13 @@ static void snap_revert_action(istringstream& is,
 
     int snap_id = image->get_target_snapshot();
 
+    image->set_state(Image::READY);
+
     if (snap_id == -1)
     {
         NebulaLog::log("ImM", Log::ERROR, "No target snapshot in callback");
+
+        ipool->update(image);
 
         image->unlock();
         return;
