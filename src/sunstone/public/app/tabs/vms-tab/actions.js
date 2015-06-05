@@ -8,7 +8,8 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
-  //var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
+  var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
+  
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
 
@@ -68,6 +69,22 @@ define(function(require) {
         Sunstone.getDialog(DEPLOY_DIALOG_ID).show();
       }
     },
+    "VM.migrate" : {
+      type: "custom",
+      call: function() {
+       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.setLive(false);
+       dialog.show();
+     }
+    },
+    "VM.migrate_live" : {
+      type: "custom",
+      call: function() {
+       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+       dialog.setLive(true);
+       dialog.show();
+     }
+    },
     /*"VM.create" : {
       type: "custom",
       call: function(id, name) {
@@ -95,20 +112,6 @@ define(function(require) {
       error: onError
     },    
  
-    "VM.migrate" : {
-      type: "custom",
-      call: function() {
-       popUpMigrateVMDialog(false);
-     }
-    },
- 
- 
-    "VM.migrate_live" : {
-      type: "custom",
-      call: function() {
-       popUpMigrateVMDialog(true);
-     }
-    },
  
  
     "VM.saveas" : {

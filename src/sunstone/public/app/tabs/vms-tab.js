@@ -9,7 +9,7 @@ define(function(require) {
 
   var _dialogs = [
     require('./vms-tab/dialogs/deploy'),
-  //  require('./vms-tab/dialogs/instantiate')
+    require('./vms-tab/dialogs/migrate')
   ];
 
   var _panels = [
