@@ -321,6 +321,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    snapshot_flatten_desc = <<-EOT.unindent
+        Flattens the snapshot and removes all other snapshots in the image
+    EOT
+
+    command :"snapshot-flatten", snapshot_flatten_desc, :imageid, :snapshot_id do
+        helper.perform_action(args[0], options, "snapshot flattened") do |o|
+            o.snapshot_flatten(args[1].to_i)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Images in the pool
     EOT

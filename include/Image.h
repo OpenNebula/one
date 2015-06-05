@@ -497,6 +497,14 @@ public:
     };
 
     /**
+     *  Clear all the snapshots in the list
+     */
+    void clear_snapshots()
+    {
+        snapshots.clear();
+    }
+
+    /**
      *  Set the snapshots for this image
      *  @param snapshot list
      */

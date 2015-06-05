@@ -52,7 +52,8 @@ class DatastoreDriver < OpenNebulaDriver
         :clone   => "CLONE",
         :monitor => "MONITOR",
         :snap_delete => "SNAP_DELETE",
-        :snap_revert => "SNAP_REVERT"
+        :snap_revert => "SNAP_REVERT",
+        :snap_flatten=> "SNAP_FLATTEN"
     }
 
     # Register default actions for the protocol
@@ -69,7 +70,8 @@ class DatastoreDriver < OpenNebulaDriver
                 ACTION[:clone]   => nil,
                 ACTION[:monitor] => nil,
                 ACTION[:snap_delete] => nil,
-                ACTION[:snap_revert] => nil
+                ACTION[:snap_revert] => nil,
+                ACTION[:snap_flatten] => nil
             }
         }.merge!(options)
 
@@ -93,6 +95,7 @@ class DatastoreDriver < OpenNebulaDriver
         register_action(ACTION[:monitor].to_sym, method("monitor"))
         register_action(ACTION[:snap_delete].to_sym, method("snap_delete"))
         register_action(ACTION[:snap_revert].to_sym, method("snap_revert"))
+        register_action(ACTION[:snap_flatten].to_sym, method("snap_flatten"))
     end
 
     ############################################################################
@@ -137,6 +140,11 @@ class DatastoreDriver < OpenNebulaDriver
     def snap_revert(id, drv_message)
         ds = get_ds_type(drv_message)
         do_image_action(id, ds, :snap_revert, "#{drv_message} #{id}")
+    end
+
+    def snap_flatten(id, drv_message)
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :snap_flatten, "#{drv_message} #{id}")
     end
 
     private

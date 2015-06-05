@@ -1129,3 +1129,99 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::flatten_snapshot(int iid, int sid, string& error)
+{
+    const ImageManagerDriver* imd = get();
+
+    if ( imd == 0 )
+    {
+        error = "Could not get datastore driver";
+        NebulaLog::log("ImM",Log::ERROR, error);
+
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Check action consistency:                                             */
+    /*    state is READY                                                      */
+    /*    snapshot exists                                                     */
+    /* ---------------------------------------------------------------------- */
+
+    Image * img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot flatten snapshot in state " + Image::state_to_str(img->get_state());
+        img->unlock();
+        return -1;
+    }
+
+    const Snapshots& snaps = img->get_snapshots();
+
+    if (!snaps.exists(sid))
+    {
+        error = "Snapshot does not exist";
+
+        img->unlock();
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Get DS data for driver                                                */
+    /* ---------------------------------------------------------------------- */
+    int ds_id = img->get_ds_id();
+
+    img->unlock();
+
+    string ds_data;
+
+    Datastore * ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+       error = "Datastore no longer exists";
+       return -1;
+    }
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    img->set_target_snapshot(sid);
+
+    string   img_tmpl;
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+
+    imd->snapshot_flatten(iid, *drv_msg);
+
+    img->set_state(Image::LOCKED);
+
+    ipool->update(img);
+
+    img->unlock();
+
+    delete drv_msg;
+
+    return 0;
+}
+

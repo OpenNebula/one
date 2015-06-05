@@ -217,6 +217,15 @@ public:
       */
      int revert_snapshot(int iid, int sid, string& error);
 
+     /**
+      *  Flattens ths snapshot by commiting changes to base image.
+      *    @param iid id of image
+      *    @param sid id of the snapshot
+      *    @param error_str Error reason, if any
+      *    @return 0 on success
+      */
+     int flatten_snapshot(int iid, int sid, string& error);
+
 private:
     /**
      *  Generic name for the Image driver

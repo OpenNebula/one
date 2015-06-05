@@ -399,6 +399,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_clone(new ImageClone());
     xmlrpc_c::methodPtr image_snap_delete(new ImageSnapshotDelete());
     xmlrpc_c::methodPtr image_snap_revert(new ImageSnapshotRevert());
+    xmlrpc_c::methodPtr image_snap_flatten(new ImageSnapshotFlatten());
 
     // Datastore Methods
     xmlrpc_c::methodPtr datastore_enable(new DatastoreEnable());
@@ -657,6 +658,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.rename", image_rename);
     RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
     RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
+    RequestManagerRegistry.addMethod("one.image.snapshotflatten", image_snap_flatten);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 

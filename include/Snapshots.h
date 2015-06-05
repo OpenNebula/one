@@ -101,6 +101,19 @@ public:
     int active_snapshot(unsigned int id);
 
     /**
+     *  Clear all the snapshots in the list
+     */
+    void clear()
+    {
+        next_snapshot = 0;
+        active        = -1;
+        disk_id       = -1;
+
+        snapshot_template.clear();
+        snapshot_pool.clear();
+    }
+
+    /**
      *  Return the disk_id of the snapshot list
      */
     int get_disk_id() const
