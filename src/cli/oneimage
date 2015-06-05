@@ -301,6 +301,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    snapshot_delete_desc = <<-EOT.unindent
+        Deletes a snapshot from the image
+    EOT
+
+    command :"snapshot-delete", snapshot_delete_desc, :imageid, :snapshot_id do
+        helper.perform_action(args[0], options, "snapshot deleted") do |o|
+            o.snapshot_delete(args[1].to_i)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Images in the pool
     EOT

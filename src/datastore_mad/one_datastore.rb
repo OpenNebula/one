@@ -50,7 +50,8 @@ class DatastoreDriver < OpenNebulaDriver
         :log     => "LOG",
         :stat    => "STAT",
         :clone   => "CLONE",
-        :monitor => "MONITOR"
+        :monitor => "MONITOR",
+        :snap_delete => "SNAP_DELETE"
     }
 
     # Register default actions for the protocol
@@ -65,7 +66,8 @@ class DatastoreDriver < OpenNebulaDriver
                 ACTION[:rm]      => nil,
                 ACTION[:mkfs]    => nil,
                 ACTION[:clone]   => nil,
-                ACTION[:monitor] => nil
+                ACTION[:monitor] => nil,
+                ACTION[:snap_delete] => nil
             }
         }.merge!(options)
 
@@ -87,6 +89,7 @@ class DatastoreDriver < OpenNebulaDriver
         register_action(ACTION[:stat].to_sym, method("stat"))
         register_action(ACTION[:clone].to_sym, method("clone"))
         register_action(ACTION[:monitor].to_sym, method("monitor"))
+        register_action(ACTION[:snap_delete].to_sym, method("snap_delete"))
     end
 
     ############################################################################
@@ -121,6 +124,11 @@ class DatastoreDriver < OpenNebulaDriver
     def monitor(id, drv_message)
         ds = get_ds_type(drv_message)
         do_image_action(id, ds, :monitor, "#{drv_message} #{id}", true)
+    end
+
+    def snap_delete(id, drv_message)
+        ds = get_ds_type(drv_message)
+        do_image_action(id, ds, :snap_delete, "#{drv_message} #{id}")
     end
 
     private

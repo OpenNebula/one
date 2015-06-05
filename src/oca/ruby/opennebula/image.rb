@@ -36,7 +36,8 @@ module OpenNebula
             :chmod       => "image.chmod",
             :chtype      => "image.chtype",
             :clone       => "image.clone",
-            :rename      => "image.rename"
+            :rename      => "image.rename",
+            :snapshotdelete => "image.snapshotdelete"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -222,6 +223,15 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(IMAGE_METHODS[:rename], @pe_id, name)
+        end
+
+        # Deletes Image from snapshot
+        #
+        # @param snap_id [Integet] ID of the snapshot to delete
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def snapshot_delete(snap_id)
+            return call(IMAGE_METHODS[:snapshotdelete], @pe_id, snap_id)
         end
 
         #######################################################################
