@@ -754,6 +754,60 @@ static void snap_delete_action(istringstream& is,
 }
 
 /* -------------------------------------------------------------------------- */
+
+static void snap_revert_action(istringstream& is,
+         ImagePool*     ipool,
+         int            id,
+         const string&  result)
+{
+    ostringstream oss;
+    string info;
+
+    Image * image = ipool->get(id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    int snap_id = image->get_target_snapshot();
+
+    if (snap_id == -1)
+    {
+        NebulaLog::log("ImM", Log::ERROR, "No target snapshot in callback");
+
+        image->unlock();
+        return;
+    }
+
+    if ( result == "SUCCESS")
+    {
+        image->revert_snapshot(snap_id);
+    }
+    else
+    {
+        oss << "Error reverting image " << id << " to snapshot " << snap_id;
+
+        getline(is, info);
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->clear_target_snapshot();
+
+    ipool->update(image);
+
+    image->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::protocol(const string& message) const
@@ -831,6 +885,10 @@ void ImageManagerDriver::protocol(const string& message) const
     else if (action == "SNAP_DELETE")
     {
         snap_delete_action(is, ipool, id, result);
+    }
+    else if (action == "SNAP_REVERT")
+    {
+        snap_revert_action(is, ipool, id, result);
     }
     else if (action == "LOG")
     {

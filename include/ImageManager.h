@@ -201,12 +201,21 @@ public:
 
      /**
       *  Deletes the snapshot of an image
-     *    @param iid id of image
-     *    @param sid id of the snapshot
-     *    @param error_str Error reason, if any
-     *    @return 0 on success
+      *    @param iid id of image
+      *    @param sid id of the snapshot
+      *    @param error_str Error reason, if any
+      *    @return 0 on success
       */
      int delete_snapshot(int iid, int sid, string& error);
+
+     /**
+      *  Reverts image state to a previous snapshot
+      *    @param iid id of image
+      *    @param sid id of the snapshot
+      *    @param error_str Error reason, if any
+      *    @return 0 on success
+      */
+     int revert_snapshot(int iid, int sid, string& error);
 
 private:
     /**

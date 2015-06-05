@@ -311,6 +311,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    snapshot_revert_desc = <<-EOT.unindent
+        Reverts image state to a snapshot
+    EOT
+
+    command :"snapshot-revert", snapshot_revert_desc, :imageid, :snapshot_id do
+        helper.perform_action(args[0], options, "image state reverted") do |o|
+            o.snapshot_revert(args[1].to_i)
+        end
+    end
+
     list_desc = <<-EOT.unindent
         Lists Images in the pool
     EOT

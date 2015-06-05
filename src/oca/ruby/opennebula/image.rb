@@ -24,7 +24,6 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         IMAGE_METHODS = {
             :info        => "image.info",
             :allocate    => "image.allocate",
@@ -37,7 +36,8 @@ module OpenNebula
             :chtype      => "image.chtype",
             :clone       => "image.clone",
             :rename      => "image.rename",
-            :snapshotdelete => "image.snapshotdelete"
+            :snapshotdelete => "image.snapshotdelete",
+            :snapshotrevert => "image.snapshotrevert"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -232,6 +232,15 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_delete(snap_id)
             return call(IMAGE_METHODS[:snapshotdelete], @pe_id, snap_id)
+        end
+
+        # Reverts Image state to a previous snapshot
+        #
+        # @param snap_id [Integet] ID of the snapshot to delete
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def snapshot_revert(snap_id)
+            return call(IMAGE_METHODS[:snapshotrevert], @pe_id, snap_id)
         end
 
         #######################################################################

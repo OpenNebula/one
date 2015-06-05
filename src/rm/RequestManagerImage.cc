@@ -498,3 +498,33 @@ void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
     success_response(id, att);
 }
 
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageSnapshotRevert::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
+{
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    string err_msg;
+    int    rc = imagem->revert_snapshot(id, snap_id, err_msg);
+
+    if ( rc < 0 )
+    {
+        failure_response(ACTION, request_error(err_msg, ""), att);
+        return;
+    }
+
+    success_response(id, att);
+}
+

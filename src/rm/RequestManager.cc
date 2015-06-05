@@ -398,6 +398,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_chtype(new ImageChangeType());
     xmlrpc_c::methodPtr image_clone(new ImageClone());
     xmlrpc_c::methodPtr image_snap_delete(new ImageSnapshotDelete());
+    xmlrpc_c::methodPtr image_snap_revert(new ImageSnapshotRevert());
 
     // Datastore Methods
     xmlrpc_c::methodPtr datastore_enable(new DatastoreEnable());
@@ -655,6 +656,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.clone", image_clone);
     RequestManagerRegistry.addMethod("one.image.rename", image_rename);
     RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
+    RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 

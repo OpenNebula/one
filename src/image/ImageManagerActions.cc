@@ -1015,4 +1015,78 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImageManager::revert_snapshot(int iid, int sid, string& error)
+{
+    const ImageManagerDriver* imd = get();
+
+    if ( imd == 0 )
+    {
+        error = "Could not get datastore driver";
+        NebulaLog::log("ImM",Log::ERROR, error);
+
+        return -1;
+    }
+
+    Image * img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    const Snapshots& snaps = img->get_snapshots();
+
+    if (snaps.get_active_id() == sid)
+    {
+        error = "Snapshot is already the active one";
+
+        img->unlock();
+        return -1;
+    }
+
+    int ds_id = img->get_ds_id();
+
+    img->unlock();
+
+    string ds_data;
+
+    Datastore * ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+       error = "Datastore no longer exists";
+       return -1;
+    }
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
+    img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    img->set_target_snapshot(sid);
+
+    string img_tmpl;
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+
+    imd->snapshot_revert(iid, *drv_msg);
+
+    ipool->update(img);
+
+    img->unlock();
+
+    delete drv_msg;
+
+    return 0;
+}
 

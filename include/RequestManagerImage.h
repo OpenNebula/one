@@ -128,7 +128,7 @@ public:
     ImageSnapshotRevert():
         RequestManagerImage("ImageSnapshotRevert",
                 "Reverts image state to a previous snapshot",
-                "A:sis"){};
+                "A:sii"){};
 
     ~ImageSnapshotRevert(){};
 
