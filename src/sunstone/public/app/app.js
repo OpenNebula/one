@@ -10,17 +10,18 @@ define(function(require) {
     require('tabs/vdcs-tab'),
     require('tabs/acls-tab'),
     require('tabs/vresources-tab'),
+    require('tabs/vms-tab'),
     require('tabs/templates-tab'),
     require('tabs/images-tab'),
     require('tabs/files-tab'),
-    require('tabs/vms-tab'),
     require('tabs/infra-tab'),
     require('tabs/clusters-tab'),
     require('tabs/hosts-tab'),
     require('tabs/datastores-tab'),
     require('tabs/vnets-tab'),
     require('tabs/secgroups-tab'),
-    require('tabs/zones-tab')
+    require('tabs/zones-tab'),
+    require('tabs/marketplace-tab')
   ];
 
   var _commonDialogs = [

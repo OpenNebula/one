@@ -1,6 +1,7 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
   var OpenNebulaError = require('./error');
+  var OpenNebulaHelper = require('./helper');
 
   var RESOURCE = "MARKETPLACE";
 
@@ -8,7 +9,7 @@ define(function(require) {
     "resource": RESOURCE,
     "show" : function(params) {
       params.error = function() {
-        return notifyError("Cannot connect to OpenNebula Marketplace")
+        return notifyError(Locale.tr("Cannot connect to OpenNebula Marketplace"));
       };
       OpenNebulaAction.show(params, RESOURCE);
     },
@@ -18,7 +19,7 @@ define(function(require) {
       var callback = params.success;
       var callback_error = params.error;
       var timeout = params.timeout || false;
-      var request = OpenNebula.Helper.request('MARKETPLACE', 'list');
+      var request = OpenNebulaHelper.request('MARKETPLACE', 'list');
 
       $.ajax({
         url: 'marketplace',
@@ -35,7 +36,7 @@ define(function(require) {
         }
       });
     }
-  }
+  };
 
   return Marketplace;
-})
+});
