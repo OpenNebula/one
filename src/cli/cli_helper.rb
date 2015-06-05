@@ -25,6 +25,14 @@ module CLIHelper
         :description => "Selects columns to display with list command"
     }
 
+    LISTCONF = {
+        :name   => "listconf",
+        :short  => "-c conf",
+        :large  => "--listconf conf",
+        :format => String,
+        :description => "Selects a predefined column list"
+    }
+
     CSV_OPT = {
         :name  => "csv",
         :large => "--csv",
@@ -64,7 +72,7 @@ module CLIHelper
     }
 
     #OPTIONS = [LIST, ORDER, FILTER, HEADER, DELAY]
-    OPTIONS = [LIST, DELAY, FILTER, CSV_OPT]
+    OPTIONS = [LIST, LISTCONF, DELAY, FILTER, CSV_OPT]
 
     # Sets bold font
     def CLIHelper.scr_bold
@@ -320,7 +328,15 @@ module CLIHelper
                 config = YAML.load_file(@conf)
 
                 default = config.delete(:default)
-                @default_columns = default unless default.empty?
+                default_conf = config.delete(:default_conf) || {}
+
+                listconf = default_conf[options[:listconf].to_sym]
+
+                if options[:listconf] && listconf
+                    @default_columns = listconf
+                else
+                    @default_columns = default unless default.empty?
+                end
 
                 # Filter show options with available columns
                 @default_columns &= @columns.keys
