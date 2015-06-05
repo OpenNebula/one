@@ -325,7 +325,7 @@ define(function(require) {
     $('#template', context).val(TemplateUtils.templateToString(element.TEMPLATE).replace(/^[\r\n]+$/g, ""));
 
     $('[wizard_field="NAME"]', context).val(
-        element.NAME). //TODO escapeDoubleQuotes(htmlDecode( element.NAME ))).
+        TemplateUtils.escapeDoubleQuotes( TemplateUtils.htmlDecode(element.NAME) )).
         prop("disabled", true).
         prop('wizard_field_disabled', true);
 

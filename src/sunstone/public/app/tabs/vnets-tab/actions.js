@@ -81,29 +81,6 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    // TODO: update
-    /*
-    "Network.publish" : {
-      type: "multiple",
-      call: OpenNebulaNetwork.publish,
-      callback: function(req) {
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
-      },
-      elements: vnElements,
-      error: Notifier.onError
-    },
-
-    "Network.unpublish" : {
-      type: "multiple",
-      call: OpenNebulaNetwork.unpublish,
-      callback: function(req) {
-        Sunstone.runAction("Network.show",req.request.data[0][0]);
-      },
-      elements: vnElements,
-      error: Notifier.onError
-    },
-    */
-
     "Network.delete" : {
       type: "multiple",
       call : OpenNebulaNetwork.del,
