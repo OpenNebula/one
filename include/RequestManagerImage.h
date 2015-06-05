@@ -119,7 +119,57 @@ public:
                          RequestAttributes& att);
 };
 
-/* -------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageSnapshotRevert : public RequestManagerImage
+{
+public:
+    ImageSnapshotRevert():
+        RequestManagerImage("ImageSnapshotRevert",
+                "Reverts image state to a previous snapshot",
+                "A:sis"){};
+
+    ~ImageSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageSnapshotFlatten : public RequestManagerImage
+{
+public:
+    ImageSnapshotFlatten():
+        RequestManagerImage("ImageSnapshotFlatten",
+                "Flattens the selected image snapshot",
+                "A:sii"){};
+
+    ~ImageSnapshotFlatten(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class ImageSnapshotDelete : public RequestManagerImage
+{
+public:
+    ImageSnapshotDelete():
+        RequestManagerImage("ImageSnapshotDelete",
+                "Deletes a snapshot from image",
+                "A:sii"){};
+
+    ~ImageSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att);
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

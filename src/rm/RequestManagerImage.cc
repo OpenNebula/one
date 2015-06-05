@@ -280,7 +280,9 @@ void ImageClone::request_execute(
         return;
     }
 
-    if (img->get_snapshots_size () > 0)
+    const Snapshots& snaps = img->get_snapshots();
+
+    if (snaps.size () > 0)
     {
         failure_response(ACTION,
                 request_error("Cannot clone images with snapshots",""), att);
@@ -467,4 +469,32 @@ void ImageClone::request_execute(
     success_response(new_id, att);
 }
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
+{
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    string err_msg;
+    int    rc = imagem->delete_snapshot(id, snap_id, err_msg);
+
+    if ( rc < 0 )
+    {
+        failure_response(ACTION, request_error(err_msg, ""), att);
+        return;
+    }
+
+    success_response(id, att);
+}
 

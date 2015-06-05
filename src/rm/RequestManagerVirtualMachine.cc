@@ -2494,13 +2494,13 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    int     rc;
-    int     snap_id;
-    string  error_str;
+    int    rc;
+    int    snap_id;
+    string error_str;
 
-    int     id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int     did = xmlrpc_c::value_int(paramList.getInt(2));
-    string  tag = xmlrpc_c::value_string(paramList.getString(3));
+    int    id  = xmlrpc_c::value_int(paramList.getInt(1));
+    int    did = xmlrpc_c::value_int(paramList.getInt(2));
+    string tag = xmlrpc_c::value_string(paramList.getString(3));
 
     if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
     {
