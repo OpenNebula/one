@@ -6,10 +6,12 @@ define(function(require) {
   var OpenNebulaResource = require('opennebula/user');
 
   var RESOURCE = "User";
+  var XML_ROOT = "USER";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var PASSWORD_DIALOG_ID = require('./dialogs/password/dialogId');
   var AUTH_DRIVER_DIALOG_ID = require('./dialogs/auth-driver/dialogId');
+  var QUOTAS_DIALOG_ID = require('./dialogs/quotas/dialogId');
 
   var _actions = {
     "User.create" : {
@@ -152,26 +154,38 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    /* TODO
-
     "User.fetch_quotas" : {
       type: "single",
       call: OpenNebulaResource.show,
       callback: function (request,response) {
-        populateQuotasDialog(
-          response.USER,
-          default_user_quotas,
-          "#user_quotas_dialog",
-          $user_quotas_dialog);
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).setParams({element: response[XML_ROOT]});
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).reset();
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).show();
       },
-      error: onError
+      error: Notifier.onError
     },
 
     "User.quotas_dialog" : {
       type: "custom",
-      call: popUpUserQuotasDialog
+      call: function() {
+        var tab = $('#' + TAB_ID);
+        if (Sunstone.rightInfoVisible(tab)) {
+          $('a[href="#user_quotas_tab"]', tab).click();
+          $('#edit_quotas_button', tab).click();
+        } else {
+          var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
+          //If only one user is selected we fecth the user's quotas
+          if (sel_elems.length == 1){
+            Sunstone.runAction(RESOURCE+'.fetch_quotas',sel_elems[0]);
+          } else {
+            // More than one, shows '0' usage
+            Sunstone.getDialog(QUOTAS_DIALOG_ID).setParams({element: {}});
+            Sunstone.getDialog(QUOTAS_DIALOG_ID).reset();
+            Sunstone.getDialog(QUOTAS_DIALOG_ID).show();
+          }
+        }
+      }
     },
-  */
  
     "User.set_quota" : {
       type: "multiple",
@@ -180,6 +194,8 @@ define(function(require) {
         return Sunstone.getDataTable(TAB_ID).elements();
       },
       callback: function(request) {
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();
+
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError

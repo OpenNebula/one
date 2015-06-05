@@ -1035,13 +1035,13 @@ define(function(require) {
 
   function _quotaBar(usage, limit, default_limit){
     var int_usage = parseInt(usage, 10);
-    var int_limit = __quotaIntLimit(limit, default_limit);
+    var int_limit = _quotaIntLimit(limit, default_limit);
     return ProgressBar.html(int_usage, int_limit, null);
   }
 
   function _quotaBarMB(usage, limit, default_limit){
     var int_usage = parseInt(usage, 10);
-    var int_limit = __quotaIntLimit(limit, default_limit);
+    var int_limit = _quotaIntLimit(limit, default_limit);
 
     info_str = Humanize.size(int_usage * 1024)+' / ' +
                   ((int_limit >= 0) ? Humanize.size(int_limit * 1024) : '-');
@@ -1051,38 +1051,8 @@ define(function(require) {
 
   function _quotaBarFloat(usage, limit, default_limit){
     var float_usage = parseFloat(usage, 10);
-    var float_limit = __quotaFloatLimit(limit, default_limit);
+    var float_limit = _quotaFloatLimit(limit, default_limit);
     return ProgressBar.html(float_usage, float_limit, null);
-  }
-
-  function __quotaIntLimit(limit, default_limit){
-    i_limit = parseInt(limit, 10);
-    i_default_limit = parseInt(default_limit, 10);
-
-    if (limit == QUOTA_LIMIT_DEFAULT){
-      i_limit = i_default_limit;
-    }
-
-    if (isNaN(i_limit)){
-      i_limit = 0;
-    }
-
-    return i_limit;
-  }
-
-  function __quotaFloatLimit(limit, default_limit){
-    f_limit = parseFloat(limit, 10);
-    f_default_limit = parseFloat(default_limit, 10);
-
-    if (f_limit == parseFloat(QUOTA_LIMIT_DEFAULT, 10)){
-      f_limit = f_default_limit;
-    }
-
-    if (isNaN(f_limit)){
-      f_limit = 0;
-    }
-
-    return f_limit;
   }
 
   function _quotaIntLimit(limit, default_limit){
@@ -1117,12 +1087,94 @@ define(function(require) {
     return f_limit
   }
 
+  //============================================================================
+  // Quotas dialog
+  //============================================================================
+
+  function _quotas_tmpl(){
+    return '<div class="row">\
+        <div class="large-12 columns">\
+          <dl class="tabs right-info-tabs text-center" data-tab>\
+               <dd class="active"><a href="#vm_quota"><i class="fa fa-cloud"></i><br>'+Locale.tr("VM")+'</a></dd>\
+               <dd><a href="#datastore_quota"><i class="fa fa-folder-open"></i><br>'+Locale.tr("Datastore")+'</a></dd>\
+               <dd><a href="#image_quota"><i class="fa fa-upload"></i><br>'+Locale.tr("Image")+'</a></dd>\
+               <dd><a href="#network_quota"><i class="fa fa-globe"></i><br>'+Locale.tr("VNet")+'</a></dd>\
+          </dl>\
+        </div>\
+      </div>\
+      <div class="row">\
+        <div class="tabs-content">\
+          <div id="vm_quota" class="content active">\
+          </div>\
+          <div id="datastore_quota" class="content">\
+          </div>\
+          <div id="image_quota" class="content">\
+          </div>\
+          <div id="network_quota" class="content">\
+          </div>\
+        </div>\
+      </div>';
+  }
+
+  /**
+   * Sets up a dialog to edit and update user and group quotas
+   */
+  function _setupQuotasDialog(context){
+    $('form', context).submit(function(){
+      var obj = retrieveQuotasValues(context);
+      var action = $('div.form_buttons button',this).val();
+      var sel_elems = Sunstone.getAction(action).elements();
+      Sunstone.runAction(action,sel_elems,obj);
+
+      return false;
+    });
+  }
+
+  function _populateQuotasDialog(resource_info, default_quotas, context){
+    var vms_quota = _vmsWidget(resource_info, default_quotas);
+    var cpu_quota = _cpuWidget(resource_info, default_quotas);
+    var memory_quota = _memoryWidget(resource_info, default_quotas);
+    var volatile_size_quota = _volatileWidget(resource_info, default_quotas);
+
+    var image_quota = _imageWidget(resource_info, default_quotas);
+    var network_quota = _networkWidget(resource_info, default_quotas);
+    var datastore_quota = _datastoreWidget(resource_info, default_quotas);
+
+    $("#vm_quota", context).html(
+        '<div class="large-6 columns">' + vms_quota + '</div>\
+        <div class="large-6 columns">' + cpu_quota + '</div>\
+        <div class="large-6 columns">' + memory_quota + '</div>\
+        <div class="large-6 columns">' + volatile_size_quota+ '</div>');
+
+    $("#datastore_quota", context).html(
+        '<div class="large-12 columns">' + datastore_quota + '</div>');
+
+    $("#image_quota", context).html(
+        '<div class="large-12 columns">' + image_quota + '</div>');
+
+    $("#network_quota", context).html(
+        '<div class="large-12 columns">' + network_quota + '</div>');
+
+    setupQuotasBarButtons(resource_info, context);
+
+    _setupImageWidget(context, default_quotas);
+    _setupNetworkWidget(context, default_quotas);
+    _setupDatastoreWidget(context, default_quotas);
+
+    quotasPanelEditAction(context);
+
+    context.foundation();
+  }
+
   return {
     'initEmptyQuotas': _initEmptyQuotas,
     'quotaBar': _quotaBar,
     'quotaBarMB': _quotaBarMB,
     'quotaBarFloat': _quotaBarFloat,
     'initQuotasPanel': _initQuotasPanel,
-    'setupQuotasPanel': _setupQuotasPanel
+    'setupQuotasPanel': _setupQuotasPanel,
+    'dialogHTML': _quotas_tmpl,
+    'setupQuotasDialog': _setupQuotasDialog,
+    'populateQuotasDialog': _populateQuotasDialog,
   };
 });

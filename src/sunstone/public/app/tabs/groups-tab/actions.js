@@ -6,8 +6,10 @@ define(function(require) {
   var OpenNebulaResource = require('opennebula/group');
 
   var RESOURCE = "Group";
+  var XML_ROOT = "GROUP";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var QUOTAS_DIALOG_ID = require('./dialogs/quotas/dialogId');
 
   var _actions = {
     "Group.create" : {
@@ -106,25 +108,38 @@ define(function(require) {
       error: Notifier.onError,
     },
 
-    /* TODO
     "Group.fetch_quotas" : {
-        type: "single",
-        call: OpenNebula.Group.show,
-        callback: function (request,response) {
-            populateQuotasDialog(
-                response.GROUP,
-                default_group_quotas,
-                "#group_quotas_dialog",
-                $group_quotas_dialog);
-        },
-        error: onError
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function (request,response) {
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).setParams({element: response[XML_ROOT]});
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).reset();
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).show();
+      },
+      error: Notifier.onError
     },
 
     "Group.quotas_dialog" : {
-        type: "custom",
-        call: popUpGroupQuotasDialog
+      type: "custom",
+      call: function() {
+        var tab = $('#' + TAB_ID);
+        if (Sunstone.rightInfoVisible(tab)) {
+          $('a[href="#group_quotas_tab"]', tab).click();
+          $('#edit_quotas_button', tab).click();
+        } else {
+          var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
+          //If only one group is selected we fecth the group's quotas
+          if (sel_elems.length == 1){
+            Sunstone.runAction(RESOURCE+'.fetch_quotas',sel_elems[0]);
+          } else {
+            // More than one, shows '0' usage
+            Sunstone.getDialog(QUOTAS_DIALOG_ID).setParams({element: {}});
+            Sunstone.getDialog(QUOTAS_DIALOG_ID).reset();
+            Sunstone.getDialog(QUOTAS_DIALOG_ID).show();
+          }
+        }
+      }
     },
-    */
 
     "Group.set_quota" : {
       type: "multiple",
@@ -133,6 +148,8 @@ define(function(require) {
         return Sunstone.getDataTable(TAB_ID).elements();
       },
       callback: function(request) {
+        Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();
+
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError
