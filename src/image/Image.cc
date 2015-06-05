@@ -57,7 +57,8 @@ Image::Image(int             _uid,
         ds_name(""),
         vm_collection("VMS"),
         img_clone_collection("CLONES"),
-        snapshots(-1)
+        snapshots(-1),
+        target_snapshot(-1)
 {
     if (_image_template != 0)
     {
@@ -359,6 +360,7 @@ string& Image::to_xml(string& xml) const
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
             "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
             "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
+            "<TARGET_SNAPSHOT>"<< target_snapshot << "</TARGET_SNAPSHOT>"<<
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             vm_collection.to_xml(vm_collection_xml)                   <<
@@ -408,6 +410,8 @@ int Image::from_xml(const string& xml)
     rc += xpath(running_vms,    "/IMAGE/RUNNING_VMS",   -1);
     rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
     rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
+
+    xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
 
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");

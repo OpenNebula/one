@@ -219,13 +219,6 @@ public:
         return size_mb;
     }
 
-    /**
-     *  Return the number of snapshots
-     */
-    unsigned int get_snapshots_size()
-    {
-        return snapshots.size();
-    }
 
     /**
      *  Sets the source path of the image
@@ -492,6 +485,17 @@ public:
      */
     ImageTemplate * clone_template(const string& new_name) const;
 
+    /* ---------------------------------------------------------------------- */
+    /* Snapshots functions                                                    */
+    /* ---------------------------------------------------------------------- */
+    /**
+     *  Return the snapshot list of this image
+     */
+    const Snapshots& get_snapshots() const
+    {
+        return snapshots;
+    };
+
     /**
      *  Set the snapshots for this image
      *  @param snapshot list
@@ -500,7 +504,32 @@ public:
     {
         snapshots = s;
         snapshots.clear_disk_id();
-    }
+    };
+
+    void delete_snapshot(int snap_id)
+    {
+        snapshots.delete_snapshot(snap_id);
+    };
+
+    void revert_snapshot(int snap_id)
+    {
+        snapshots.active_snapshot(snap_id);
+    };
+
+    void set_target_snapshot(int snap_id)
+    {
+        target_snapshot = snap_id;
+    };
+
+    int get_target_snapshot()
+    {
+        return target_snapshot;
+    };
+
+    void clear_target_snapshot()
+    {
+        target_snapshot = -1;
+    };
 
 private:
 
@@ -599,6 +628,11 @@ private:
      * Snapshot list for this image
      */
     Snapshots snapshots;
+
+    /**
+     * ID of the snapshot being processed (if any)
+     */
+    int target_snapshot;
 
     // *************************************************************************
     // DataBase implementation (Private)
