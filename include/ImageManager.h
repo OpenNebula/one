@@ -199,6 +199,15 @@ public:
      */
      void set_image_snapshots(int iid, const Snapshots& s, bool failed);
 
+     /**
+      *  Deletes the snapshot of an image
+     *    @param iid id of image
+     *    @param sid id of the snapshot
+     *    @param error_str Error reason, if any
+     *    @return 0 on success
+      */
+     int delete_snapshot(int iid, int sid, string& error);
+
 private:
     /**
      *  Generic name for the Image driver

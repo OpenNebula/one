@@ -94,6 +94,39 @@ void ImageManagerDriver::monitor(int oid, const string& drv_msg) const
 }
 
 /* -------------------------------------------------------------------------- */
+
+void ImageManagerDriver::snapshot_delete(int oid, const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "SNAP_DELETE " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManagerDriver::snapshot_revert(int oid, const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "SNAP_REVERT " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManagerDriver::snapshot_flatten(int oid, const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "SNAP_FLATTEN " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 /* ************************************************************************** */
@@ -667,6 +700,60 @@ static void monitor_action(istringstream& is,
 }
 
 /* -------------------------------------------------------------------------- */
+
+static void snap_delete_action(istringstream& is,
+         ImagePool*     ipool,
+         int            id,
+         const string&  result)
+{
+    ostringstream oss;
+    string info;
+
+    Image * image = ipool->get(id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    int snap_id = image->get_target_snapshot();
+
+    if (snap_id == -1)
+    {
+        NebulaLog::log("ImM", Log::ERROR, "No target snapshot in callback");
+
+        image->unlock();
+        return;
+    }
+
+    if ( result == "SUCCESS")
+    {
+        image->delete_snapshot(snap_id);
+    }
+    else
+    {
+        oss << "Error removing snapshot " << snap_id << " from image " << id;
+
+        getline(is, info);
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->clear_target_snapshot();
+
+    ipool->update(image);
+
+    image->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::protocol(const string& message) const
@@ -717,29 +804,33 @@ void ImageManagerDriver::protocol(const string& message) const
     else
         return;
 
-    if ( action == "STAT" )
+    if (action == "STAT")
     {
         stat_action(is, id, result);
     }
-    else if ( action == "CP" )
+    else if (action == "CP")
     {
         ds_id = cp_action(is, ipool, id, result);
     }
-    else if ( action == "CLONE" )
+    else if (action == "CLONE")
     {
         ds_id = clone_action(is, ipool, id, result);
     }
-    else if ( action == "MKFS" )
+    else if (action == "MKFS")
     {
         ds_id = mkfs_action(is, ipool, id, result);
     }
-    else if ( action == "RM" )
+    else if (action == "RM")
     {
         ds_id = rm_action(is, ipool, id, result);
     }
-    else if ( action == "MONITOR" )
+    else if (action == "MONITOR")
     {
         monitor_action(is, dspool, id, result);
+    }
+    else if (action == "SNAP_DELETE")
+    {
+        snap_delete_action(is, ipool, id, result);
     }
     else if (action == "LOG")
     {
