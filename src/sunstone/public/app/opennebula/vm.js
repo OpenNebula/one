@@ -204,6 +204,19 @@ define(function(require) {
     "shortLcmStateStr": function(stateId) {
       return SHORT_LCM_STATES[stateId];
     },
+    "hostnameStr": function(element) {
+      var state = STATES[element.STATE];
+      var hostname = "--";
+      if (state == "ACTIVE" || state == "SUSPENDED" || state == "POWEROFF") {
+        if (element.HISTORY_RECORDS.HISTORY.constructor == Array) {
+          hostname = element.HISTORY_RECORDS.HISTORY[element.HISTORY_RECORDS.HISTORY.length - 1].HOSTNAME;
+        } else {
+          hostname = element.HISTORY_RECORDS.HISTORY.HOSTNAME;
+        };
+      };
+
+      return hostname;
+    },
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

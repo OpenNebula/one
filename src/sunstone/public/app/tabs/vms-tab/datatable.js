@@ -8,7 +8,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
-  var OpenNebulaVm = require('opennebula/vm');
+  var OpenNebulaVM = require('opennebula/vm');
   var VncSpiceUtils = require('./utils/vnc-spice-utils');
   var StateActions = require('./utils/state-actions');
   
@@ -84,16 +84,8 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    var state = OpenNebulaVm.stateStr(element.STATE);
-    var hostname = "--";
-
-    if (state == "ACTIVE" || state == "SUSPENDED" || state == "POWEROFF") {
-      if (element.HISTORY_RECORDS.HISTORY.constructor == Array) {
-        hostname = element.HISTORY_RECORDS.HISTORY[element.HISTORY_RECORDS.HISTORY.length - 1].HOSTNAME;
-      } else {
-        hostname = element.HISTORY_RECORDS.HISTORY.HOSTNAME;
-      };
-    };
+    var state = OpenNebulaVM.stateStr(element.STATE);
+    var hostname = OpenNebulaVM.hostnameStr(element);
 
     /* TODO
     switch (state) {
@@ -118,7 +110,7 @@ define(function(require) {
     }*/
 
     if (state == "ACTIVE") {
-      state = OpenNebulaVm.shortLcmStateStr(element.LCM_STATE);
+      state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
     };
 
     return [

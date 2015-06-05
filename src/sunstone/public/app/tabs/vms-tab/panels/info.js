@@ -8,7 +8,7 @@ define(function(require) {
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
-  var OpenNebulaVm = require('opennebula/vm');
+  var OpenNebulaVM = require('opennebula/vm');
   var StateActions = require('../utils/state-actions');
   var VncSpiceUtils = require('../utils/vnc-spice-utils');
 
@@ -55,16 +55,9 @@ define(function(require) {
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var prettyStartTime = Humanize.prettyTime(this.element.STIME);
 
-    var stateStr = OpenNebulaVm.stateStr(this.element.STATE);
-    var lcmStateStr = OpenNebulaVm.lcmStateStr(this.element.LCM_STATE);
-    var hostname = "--";
-    if (stateStr == "ACTIVE" || stateStr == "SUSPENDED" || stateStr == "POWEROFF") {
-      if (this.element.HISTORY_RECORDS.HISTORY.constructor == Array) {
-        hostname = this.element.HISTORY_RECORDS.HISTORY[this.element.HISTORY_RECORDS.HISTORY.length - 1].HOSTNAME;
-      } else {
-        hostname = this.element.HISTORY_RECORDS.HISTORY.HOSTNAME;
-      };
-    };
+    var stateStr = OpenNebulaVM.stateStr(this.element.STATE);
+    var lcmStateStr = OpenNebulaVM.lcmStateStr(this.element.LCM_STATE);
+    var hostname = OpenNebulaVM.hostnameStr(element);
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "-" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
