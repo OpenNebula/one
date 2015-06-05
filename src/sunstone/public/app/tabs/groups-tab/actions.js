@@ -137,17 +137,6 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    /* TODO
-    "Group.accounting" : {
-        type: "monitor",
-        call: OpenNebula.Group.accounting,
-        callback: function(req,response) {
-            var info = req.request.data[0].monitor;
-            //plot_graph(response,'#group_acct_tabTab','group_acct_', info);
-        },
-        error: onError
-    },
-    */
 
     "Group.add_admin" : {
       type: "single",
@@ -169,4 +158,4 @@ define(function(require) {
   };
 
   return _actions;
-})
+});

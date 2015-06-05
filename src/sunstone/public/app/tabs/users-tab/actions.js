@@ -183,19 +183,8 @@ define(function(require) {
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
       },
       error: Notifier.onError
-    },
-    /* TODO
-    "User.accounting" : {
-      type: "monitor",
-      call: OpenNebulaResource.accounting,
-      callback: function(req,response) {
-        var info = req.request.data[0].monitor;
-        plot_graph(response,'#user_acct_tab','user_acct_', info);
-      },
-      error: onError
     }
-    */
   };
 
   return _actions;
-})
+});
