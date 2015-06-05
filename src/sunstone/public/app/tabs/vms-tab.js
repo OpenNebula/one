@@ -17,9 +17,9 @@ define(function(require) {
   //  require('./vms-tab/panels/template')
   ];
 
-  //var _formPanels = [
-  //  require('./vms-tab/form-panels/create')
-  //]
+  var _formPanels = [
+    require('./vms-tab/form-panels/create')
+  ]
 
   var Tab = {
     tabId: TAB_ID,
@@ -38,7 +38,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
-    //formPanels: _formPanels,
+    formPanels: _formPanels,
     //dialogs: _dialogs
   };
 

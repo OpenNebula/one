@@ -6,7 +6,7 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
 
   var TAB_ID = require('./tabId');
-  //var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   //var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   //var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
   var XML_ROOT = "VM";
@@ -56,6 +56,12 @@ define(function(require) {
     "VM.snapshot_revert": _commonActions.singleAction('snapshot_revert'),
     "VM.snapshot_delete": _commonActions.singleAction('snapshot_delete'),
     
+    "VM.create_dialog" : {
+      type: "custom",
+      call: function(){
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
+    },
     /*"VM.create" : {
       type: "custom",
       call: function(id, name) {
@@ -68,12 +74,6 @@ define(function(require) {
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: onError
-    },
-    "VM.create_dialog" : {
-      type: "custom",
-      call: function(){
-        //Sunstone.getDialog(CREATE_DIALOG_ID).show();
-      }
     },
     "VM.deploy" : {
       type: "custom",
