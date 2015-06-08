@@ -4328,6 +4328,12 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
         return -1;
     }
 
+    if (isVolatile(disk))
+    {
+        error = "Cannot make snapshots on volatile disks";
+        return -1;
+    }
+
     it = snapshots.find(did);
 
     if ( it == snapshots.end() )
