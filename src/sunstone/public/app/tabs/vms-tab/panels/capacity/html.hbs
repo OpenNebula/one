@@ -1,0 +1,60 @@
+<div class="row">
+  <div class="large-9 columns">
+    <table class="info_table dataTable extended_table">
+      <thead>
+        <tr>
+          <th>{{tr "CPU"}}</th>
+          <th>{{tr "VCPU"}}</th>
+          <th>{{tr "MEMORY"}}</th>
+          <th>{{tr "Cost / CPU"}}</th>
+          <th>{{tr "Cost / MByte"}}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="cpu_info">{{valOrDefault element.TEMPLATE.CPU '-'}}</td>
+          <td id="vcpu_info">{{valOrDefault element.TEMPLATE.VCPU '-'}}</td>
+          <td id="memory_info">{{humanizeSize "MB" element.TEMPLATE.MEMORY}}</td>
+          <td id="cpu_cost_info">{{valOrDefault element.TEMPLATE.CPU_COST '-'}}</td>
+          <td id="memory_cost_info" >{{valOrDefault element.TEMPLATE.MEMORY_COST '-'}}</td>
+          <td>
+          {{#isTabActionEnabled "vms-tab" "VM.resize"}}
+          {{#if resizeStateEnabled}}
+            <button id="resize_capacity" class="button tiny success right radius" >{{tr "Resize"}}</button>
+          {{else}}
+            <button id="resize_capacity" class="button tiny success right radius" disabled="disabled">{{tr "Resize"}}</button>
+          {{/if}}
+          {{/isTabActionEnabled}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="row">
+  <div class="large-6 columns">
+    <div class="row text-center">
+      <div class="large-12 columns">
+        <h3 class="subheader">
+          <small>{{tr "REAL CPU"}}</small>
+        </h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <div class="large-12 columns centered graph vm_cpu_graph" style="height: 100px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="large-6 columns">
+    <div class="row text-center">
+      <h3 class="subheader">
+        <small>{{tr "REAL MEMORY"}}</small>
+      </h3>
+    </div>
+    <div class="row">
+      <div class="large-12 columns centered graph vm_memory_graph" style="height: 100px;"></div>
+    </div>
+  </div>
+</div>
