@@ -581,9 +581,17 @@ define(function(require) {
 
     $.each(panelInstances, function(index, panel) {
       panel.setup(context);
+
+      if (panel.onShow) {
+        context.off('click', '[href="#' + panel.panelId + '"]');
+        context.on('click', '[href="#' + panel.panelId + '"]', function(){
+          panel.onShow(context);
+        });
+      }
     });
 
-    $(document).foundation('reflow', 'tab');
+    context.foundation('reflow', 'tab');
+    $('[href=' + activaTabHref + ']', context).trigger("click");
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and
