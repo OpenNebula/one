@@ -77,7 +77,7 @@ define(function(require) {
                              element.ID + '" name="selected_items" value="' +
                              element.ID + '"/>',
         element.ID,
-        element.NAME,
+        element.UNAME,
         element.GNAME,
         element.NAME,
         Humanize.prettyTime(element.REGTIME)
