@@ -28,10 +28,10 @@ define(function(require) {
    */
 
   function Panel(info) {
-    var that = this;
-    that.title = Locale.tr("Graphs");
-    that.icon = "fa-bar-chart-o";
-    that.element = info[XML_ROOT];
+    this.panelId = PANEL_ID;
+    this.title = Locale.tr("Graphs");
+    this.icon = "fa-bar-chart-o";
+    this.element = info[XML_ROOT];
 
     return this;
   };
@@ -39,6 +39,7 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.onShow = _onShow;
 
   return Panel;
 
@@ -51,6 +52,10 @@ define(function(require) {
   }
 
   function _setup(context) {
+    return false;
+  }
+
+  function _onShow(context) {
     OpenNebulaHost.monitor({
       data: {
         id: this.element.ID, 
