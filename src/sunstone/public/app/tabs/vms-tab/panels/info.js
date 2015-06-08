@@ -57,7 +57,7 @@ define(function(require) {
 
     var stateStr = OpenNebulaVM.stateStr(this.element.STATE);
     var lcmStateStr = OpenNebulaVM.lcmStateStr(this.element.LCM_STATE);
-    var hostname = OpenNebulaVM.hostnameStr(element);
+    var hostname = OpenNebulaVM.hostnameStr(this.element);
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "-" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
@@ -110,7 +110,6 @@ define(function(require) {
       }
     })
 
-    var templateTableHTML = TemplateTable.html(
-      strippedTemplate, RESOURCE, this.element.ID, context, unshownValues);
+    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues);
   }
 });
