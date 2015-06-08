@@ -2,6 +2,8 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
   var OpenNebulaError = require('./error');
   var OpenNebulaHelper = require('./helper');
+  var Notifier = require('utils/notifier');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "MARKETPLACE";
 
@@ -9,7 +11,7 @@ define(function(require) {
     "resource": RESOURCE,
     "show" : function(params) {
       params.error = function() {
-        return notifyError(Locale.tr("Cannot connect to OpenNebula Marketplace"));
+        return Notifier.notifyError(Locale.tr("Cannot connect to OpenNebula Marketplace"));
       };
       OpenNebulaAction.show(params, RESOURCE);
     },

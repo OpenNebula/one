@@ -8,6 +8,7 @@ define(function(require) {
   var DATATABLE_ID = "dataTableMarketplace";
 
   var _dialogs = [
+    require('./marketplace-tab/dialogs/import')
   ];
 
   var _panels = [
