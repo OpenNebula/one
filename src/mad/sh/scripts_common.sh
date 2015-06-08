@@ -320,7 +320,7 @@ function mkfs_command {
             OPTS="-F"
             ;;
 
-        "reiserfs")
+        "reiserfs"|"xfs")
             OPTS="-f -q"
             ;;
 
@@ -355,7 +355,9 @@ function mkfs_command {
             return 0
             ;;
         *)
-            OPTS=""
+            echo ""
+            echo "Filesystem '$FSTYPE' not valid." 1>&2
+            return 1
             ;;
     esac
 

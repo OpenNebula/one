@@ -216,84 +216,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     end
 
     vms_desc = <<-EOT.unindent
-        Import vCenter running Virtual Machines into OpenNebula
+        Deprecated action in onevcenter, please use onehost importvm instead
     EOT
 
     command :vms, vms_desc, :options=>[ VCENTER, USER, PASS ] do
-        if  options[:vuser].nil? ||
-            options[:vpass].nil? ||
-            options[:vcenter].nil?
-            STDERR.puts "vCenter connection parameters are mandatory to import"\
-                        " VM templates:\n"\
-                        "\t --vcenter vCenter hostname\n"\
-                        "\t --vuser username to login in vcenter\n"\
-                        "\t --vpass password for the user"
-            exit -1
-        end
+        STDERR.puts "Deprecated action in onevcenter, please use onehost "\
+                    "importvm instead"
 
-        begin
-            STDOUT.print "\nConnecting to vCenter: #{options[:vcenter]}..."
-
-            vc = VCenterDriver::VIClient.new_connection(
-                    :user     => options[:vuser],
-                    :password => options[:vpass],
-                    :host     => options[:vcenter])
-
-            STDOUT.print "done!\n\n"
-
-            STDOUT.print "Looking for running Virtual Machines..."
-
-            rs = vc.running_vms
-
-            STDOUT.print "done!\n"
-
-            rs.each {|dc, tmps|
-                STDOUT.print "\nDo you want to process datacenter #{dc} [y/n]? "
-
-                next if STDIN.gets.strip.downcase != 'y'
-
-                if tmps.empty?
-                    STDOUT.print "    No new running Virtual Machines found in"\
-                                 " #{dc}...\n\n"
-                    next
-                end
-
-                tmps.each{ |v|
-                    STDOUT.print "\n  * Running Virtual Machine found:\n"\
-                                 "      - Name   : #{v[:name]}\n"\
-                                 "      - UUID   : #{v[:uuid]}\n"\
-                                 "      - Cluster: #{v[:host]}\n"\
-                                 "    Import this Virtual Machine [y/n]? "
-
-                    next if STDIN.gets.strip.downcase != 'y'
-
-                    one_v = ::OpenNebula::VirtualMachine.new(
-                                ::OpenNebula::VirtualMachine.build_xml, vc.one)
-
-                    rc = one_v.allocate(v[:one])
-
-                    if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "    Error creating Virtual Machine: "\
-                                    "#{rc.message}\n"
-                    end
-
-                    rc = one_v.deploy v[:host_id]
-
-                    if ::OpenNebula.is_error?(rc)
-                        STDOUT.puts "    Error creating Virtual Machine: "\
-                                    "#{rc.message}\n"
-                    else
-                        STDOUT.puts "    OpenNebula VM #{one_v.id} "\
-                                    "created!\n"
-                    end
-                }
-            }
-        rescue Exception => e
-            STDOUT.puts "error: #{e.message}"
-            exit -1
-        end
-
-        exit 0
+        exit -1
     end
 
     network_desc = <<-EOT.unindent

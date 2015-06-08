@@ -188,11 +188,6 @@ public:
     static const char * PUBLIC_AUTH;
 
     /**
-     *  Name for the default auth driver to be used for not registered users
-     */
-    static const char * DEFAULT_AUTH;
-
-    /**
      *  Name for the default Sunstone server user
      */
     static const char * SERVER_NAME;
