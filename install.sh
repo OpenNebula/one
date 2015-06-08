@@ -1019,6 +1019,9 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/premigrate \
                  src/tm_mad/shared/postmigrate \
                  src/tm_mad/shared/mvds \
+                 src/tm_mad/shared/snap_create \
+                 src/tm_mad/shared/snap_delete \
+                 src/tm_mad/shared/snap_revert \
                  src/tm_mad/shared/cpds"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
@@ -1028,6 +1031,9 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/cpds \
                  src/tm_mad/fs_lvm/premigrate \
                  src/tm_mad/fs_lvm/postmigrate \
+                 src/tm_mad/fs_lvm/snap_create \
+                 src/tm_mad/fs_lvm/snap_delete \
+                 src/tm_mad/fs_lvm/snap_revert \
                  src/tm_mad/fs_lvm/delete"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
@@ -1040,6 +1046,9 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/premigrate \
                  src/tm_mad/qcow2/postmigrate \
                  src/tm_mad/qcow2/mvds \
+                 src/tm_mad/qcow2/snap_create \
+                 src/tm_mad/qcow2/snap_delete \
+                 src/tm_mad/qcow2/snap_revert \
                  src/tm_mad/qcow2/cpds"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
@@ -1052,6 +1061,9 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/premigrate \
               src/tm_mad/ssh/postmigrate \
               src/tm_mad/ssh/mvds \
+              src/tm_mad/ssh/snap_create \
+              src/tm_mad/ssh/snap_delete \
+              src/tm_mad/ssh/snap_revert \
               src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
@@ -1064,6 +1076,9 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/premigrate \
               src/tm_mad/dummy/postmigrate \
               src/tm_mad/dummy/mvds \
+              src/tm_mad/dummy/snap_create \
+              src/tm_mad/dummy/snap_delete \
+              src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/cpds"
 
 TM_VMFS_FILES="src/tm_mad/vmfs/clone \
@@ -1076,6 +1091,9 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/mvds \
                  src/tm_mad/vmfs/cpds \
                  src/tm_mad/vmfs/postmigrate \
+                 src/tm_mad/vmfs/snap_create \
+                 src/tm_mad/vmfs/snap_delete \
+                 src/tm_mad/vmfs/snap_revert \
                  src/tm_mad/vmfs/premigrate"
 
 TM_LVM_FILES="src/tm_mad/lvm/clone \
@@ -1085,6 +1103,9 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/cpds \
                  src/tm_mad/lvm/premigrate \
                  src/tm_mad/lvm/postmigrate \
+                 src/tm_mad/lvm/snap_create \
+                 src/tm_mad/lvm/snap_delete \
+                 src/tm_mad/lvm/snap_revert \
                  src/tm_mad/lvm/delete"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
@@ -1106,6 +1127,9 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/cpds \
                  src/tm_mad/dev/premigrate \
                  src/tm_mad/dev/postmigrate \
+                 src/tm_mad/dev/snap_create \
+                 src/tm_mad/dev/snap_delete \
+                 src/tm_mad/dev/snap_revert \
                  src/tm_mad/dev/delete"
 
 #-------------------------------------------------------------------------------
