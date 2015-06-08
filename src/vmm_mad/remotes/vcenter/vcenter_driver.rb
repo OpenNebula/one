@@ -732,9 +732,12 @@ class VCenterVm
             vm          = connection.find_vm_template(deploy_id)
 
             # Find out if we need to reconfigure capacity
-            expected_cpu, expected_memory = get_cpu_and_memory(xml_text)
-            current_cpu    = vm.config.hardware.numCPU
-            current_memory = vm.config.hardware.memoryMB
+            xml = REXML::Document.new xml_text
+
+            expected_cpu    = xml.root.elements["//TEMPLATE/CPU"].text
+            expected_memory = xml.root.elements["//TEMPLATE/MEMORY"].text
+            current_cpu     = vm.config.hardware.numCPU
+            current_memory  = vm.config.hardware.memoryMB
 
             if current_cpu != expected_cpu or current_memory != expected_memory
                 capacity_hash = {:numCPUs  => expected_cpu.to_i, 
@@ -1244,15 +1247,6 @@ private
                             :macAddress  => mac
                            )
                }
-    end
-
-    def self.get_cpu_and_memory(xml_text)
-        xml = REXML::Document.new xml_text
-
-        cpu    = xml.root.elements["//TEMPLATE/CPU"].text
-        memory = xml.root.elements["//TEMPLATE/MEMORY"].text
-
-        return cpu, memory
     end
 
     ########################################################################
