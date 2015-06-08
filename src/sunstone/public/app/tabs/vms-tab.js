@@ -10,7 +10,8 @@ define(function(require) {
   var _dialogs = [
     require('./vms-tab/dialogs/deploy'),
     require('./vms-tab/dialogs/migrate'),
-    require('./vms-tab/dialogs/resize')
+    require('./vms-tab/dialogs/resize'),
+    require('./vms-tab/dialogs/attach-disk')
   ];
 
   var _panels = [
