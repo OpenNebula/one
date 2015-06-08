@@ -65,6 +65,7 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+      context.off('click', '#resize_capacity');
       context.on('click', '#resize_capacity', function() {
         var dialog = Sunstone.getDialog(RESIZE_DIALOG_ID);
         dialog.setElement(that.element);
