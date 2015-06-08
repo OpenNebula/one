@@ -114,6 +114,7 @@ define(function(require) {
     'initialize': _initialize,
     'initCheckAllBoxes': _initCheckAllBoxes,
     'tableCheckboxesListener': _tableCheckboxesListener,
+    'onlyOneCheckboxListener': _onlyOneCheckboxListener,
     'infoListener': _infoListener,
     'addElement': _addElement,
     'deleteElement': _deleteElement,
@@ -160,6 +161,10 @@ define(function(require) {
       this.dataTable.fnSetColumnVis(0, true);
       this.initCheckAllBoxes();
       this.tableCheckboxesListener();
+    }
+
+    if (this.conf.oneSelection == true) {
+      this.onlyOneCheckboxListener();
     }
 
     if (this.conf.info) {

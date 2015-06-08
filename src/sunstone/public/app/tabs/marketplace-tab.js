@@ -32,7 +32,7 @@ define(function(require) {
     </div>',
     buttons: Buttons,
     actions: Actions,
-    dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
+    dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
     panels: _panels,
     formPanels: _formPanels,
     dialogs: _dialogs
