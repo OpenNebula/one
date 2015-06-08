@@ -4434,5 +4434,14 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
     }
 
     it->second->delete_snapshot(snap_id);
+
+    if (it->second->size() == 0)
+    {
+        Snapshots * tmp = it->second;
+
+        snapshots.erase(it);
+
+        delete tmp;
+    }
 }
 
