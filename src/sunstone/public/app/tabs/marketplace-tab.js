@@ -11,7 +11,7 @@ define(function(require) {
   ];
 
   var _panels = [
-    //require('./marketplace-tab/panels/info')
+    require('./marketplace-tab/panels/info')
   ];
 
   var _formPanels = [
