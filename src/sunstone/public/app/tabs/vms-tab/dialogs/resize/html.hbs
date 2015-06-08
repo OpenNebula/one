@@ -1,0 +1,33 @@
+<div id="{{dialogId}}" class="reveal-modal large" role="dialog" data-reveal >
+<div class="row">
+  <div class="large-12 columns">
+    <h3 class="subheader" id="">{{tr "Resize VM capacity"}}</h3>
+  </div>
+</div>
+<div class="reveal-body">
+  <form id="{{dialogId}}Form" action="">
+    <div class="row centered">
+      <div class="large-6 columns">
+        <label for="vm_id">{{tr "Virtual Machine ID"}}:</label>
+        <label style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>
+      </div>
+      <div class="large-6 columns">
+        <input type="checkbox" name="enforce" id="enforce"/>
+        <label class="inline" for="vm_id">
+          {{tr "Enforce"}}
+          <span class="tip">
+            {{tr "If it is set to true, the host capacity will be checked. This will only affect oneadmin requests, regular users resize requests will always be enforced"}}
+          </span>
+        </label>
+      </div>
+    </div>
+    {{{capacityInputsHTML}}}
+    <div class="reveal-footer">
+      <div class="form_buttons">
+        <button class="button radius right success" id="resize_capacity_button" type="submit" value="VM.resize">{{tr "Resize"}}</button>
+      </div>
+    </div>
+    <a class="close-reveal-modal">&#215;</a>
+  </form>
+</div>
+</div>
