@@ -1125,6 +1125,9 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/stat \
                          src/datastore_mad/remotes/dummy/clone \
                          src/datastore_mad/remotes/dummy/monitor \
+                         src/datastore_mad/remotes/dummy/snap_delete \
+                         src/datastore_mad/remotes/dummy/snap_revert \
+                         src/datastore_mad/remotes/dummy/snap_flatten \
                          src/datastore_mad/remotes/dummy/rm"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
@@ -1132,6 +1135,9 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/stat \
                          src/datastore_mad/remotes/fs/clone \
                          src/datastore_mad/remotes/fs/monitor \
+                         src/datastore_mad/remotes/fs/snap_delete \
+                         src/datastore_mad/remotes/fs/snap_revert \
+                         src/datastore_mad/remotes/fs/snap_flatten \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
@@ -1140,6 +1146,9 @@ DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/clone \
                          src/datastore_mad/remotes/vmfs/monitor \
                          src/datastore_mad/remotes/vmfs/rm \
+                         src/datastore_mad/remotes/vmfs/snap_delete \
+                         src/datastore_mad/remotes/vmfs/snap_revert \
+                         src/datastore_mad/remotes/vmfs/snap_flatten \
                          src/datastore_mad/remotes/vmfs/vmfs.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
@@ -1148,6 +1157,9 @@ DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/rm \
                          src/datastore_mad/remotes/lvm/monitor \
                          src/datastore_mad/remotes/lvm/clone \
+                         src/datastore_mad/remotes/lvm/snap_delete \
+                         src/datastore_mad/remotes/lvm/snap_revert \
+                         src/datastore_mad/remotes/lvm/snap_flatten \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
 DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
@@ -1156,6 +1168,9 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/rm \
                          src/datastore_mad/remotes/ceph/monitor \
                          src/datastore_mad/remotes/ceph/clone \
+                         src/datastore_mad/remotes/ceph/snap_delete \
+                         src/datastore_mad/remotes/ceph/snap_revert \
+                         src/datastore_mad/remotes/ceph/snap_flatten \
                          src/datastore_mad/remotes/ceph/ceph.conf"
 
 DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
@@ -1163,6 +1178,9 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/stat \
                          src/datastore_mad/remotes/dev/rm \
                          src/datastore_mad/remotes/dev/monitor \
+                         src/datastore_mad/remotes/dev/snap_delete \
+                         src/datastore_mad/remotes/dev/snap_revert \
+                         src/datastore_mad/remotes/dev/snap_flatten \
                          src/datastore_mad/remotes/dev/clone"
 
 #-------------------------------------------------------------------------------
