@@ -12,6 +12,8 @@ define(function(require) {
 
   return {
     'size': _size,
+    'sizeFromB': _sizeFromB,
+    'sizeFromKB': _sizeFromKB,
     'sizeFromMB': _sizeFromMB,
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
@@ -50,6 +52,14 @@ define(function(require) {
 
     var st = value + binarySufix[i] + sufix;
     return st;
+  }
+
+  function _sizeFromB(value) {
+    return _size(value, true);
+  }
+
+  function _sizeFromKB(value) {
+    return _size(value);
   }
 
   function _sizeFromMB(value) {
