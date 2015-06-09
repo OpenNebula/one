@@ -170,15 +170,15 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachineSaveDisk : public RequestManagerVirtualMachine
+class VirtualMachineDiskExport : public RequestManagerVirtualMachine
 {
 public:
-    VirtualMachineSaveDisk():
-        RequestManagerVirtualMachine("VirtualMachineSaveDisk",
-                           "Saves a disk from virtual machine as a new image",
-                           "A:siissb"){};
+    VirtualMachineDiskExport():
+        RequestManagerVirtualMachine("VirtualMachineDiskExport",
+                           "Exports a disk from virtual machine as a new image",
+                           "A:siiss"){};
 
-    ~VirtualMachineSaveDisk(){};
+    ~VirtualMachineDiskExport(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);

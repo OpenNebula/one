@@ -1176,7 +1176,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramList,
+void VirtualMachineDiskExport::request_execute(xmlrpc_c::paramList const& paramList,
                                              RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
@@ -1397,6 +1397,8 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     ds->unlock();
 
     success_response(iid, att);
+
+    return;
 
 error_state:
     vm->unlock();

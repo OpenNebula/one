@@ -1623,15 +1623,18 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
 
     vm->clear_saveas_disk();
 
-    vmpool->update(vm);
-
     if (vm->clear_saveas_state() == -1)
     {
         vm->log("LCM",Log::ERROR, "saveas_success_action, VM in a wrong state");
+
+        vmpool->update(vm);
+
         vm->unlock();
 
         return;
     }
+
+    vmpool->update(vm);
 
     vm->unlock();
 
@@ -1676,15 +1679,18 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
 
     vm->clear_saveas_disk();
 
-    vmpool->update(vm);
-
     if (vm->clear_saveas_state() == -1)
     {
         vm->log("LCM",Log::ERROR, "saveas_failure_action, VM in a wrong state");
+
+        vmpool->update(vm);
+
         vm->unlock();
 
         return;
     }
+
+    vmpool->update(vm);
 
     vm->unlock();
 

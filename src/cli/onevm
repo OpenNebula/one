@@ -298,19 +298,16 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         end
     end
 
-    disk_snapshot_desc = <<-EOT.unindent
-        Sets the specified VM disk to be saved in a new Image. The Image is
-        created immediately, but the contents are saved only after the VM is
-        shut down gracefully (i.e., using 'onevm shutdown' and not
-        'onevm delete')
-
-        If '--live' is specified, the Image will be saved immediately.
+    disk_export_desc = <<-EOT.unindent
+        Exports the specified VM disk to a new Image. The Image is
+        created immediately, and the contents of the VM disk will be saved to
+        it.
 
         States: ANY
     EOT
 
-    command :"disk-snapshot", disk_snapshot_desc, :vmid, :diskid, :img_name,
-            :options=>[TYPE, OneVMHelper::LIVE] do
+    command :"disk-export", disk_export_desc, :vmid, :diskid, :img_name,
+            :options=>[TYPE] do
         disk_id    = args[1].to_i
         image_name = args[2]
         image_type = options[:type] || ""
@@ -319,27 +316,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                   "the image #{image_name}"
 
         helper.perform_action(args[0],options,verbose) do |vm|
-            res = vm.disk_snapshot(disk_id, image_name, image_type,
-                options[:live]==true)
+            res = vm.disk_export(disk_id, image_name, image_type)
 
             if !OpenNebula.is_error?(res)
                 puts "Image ID: #{res}"
             end
 
             res
-        end
-    end
-
-    disk_snapshot_cancel_desc = <<-EOT.unindent
-        Cancels a deferred disk snapshot that has been set by disk-snapshot.
-        The target image is also deleted.
-
-        States: ANY
-    EOT
-
-    command :"disk-snapshot-cancel", disk_snapshot_cancel_desc, :vmid, :diskid do
-        helper.perform_action(args[0],options,"disk snapshot canceled") do |vm|
-            vm.disk_snapshot_cancel(args[1].to_i)
         end
     end
 

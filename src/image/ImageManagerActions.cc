@@ -160,7 +160,7 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 
 void ImageManager::release_image(int vm_id, int iid, bool failed)
 {
-    ostringstream disk_file, oss;
+    ostringstream oss;
 
     Image * img = ipool->get(iid,true);
 
@@ -245,11 +245,7 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
 
 void ImageManager::release_cloning_image(int iid, int clone_img_id)
 {
-    Image * img;
-
-    ostringstream disk_file;
-
-    img = ipool->get(iid,true);
+    Image * img = ipool->get(iid,true);
 
     if ( img == 0 )
     {
@@ -276,15 +272,13 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
     {
         case Image::USED:
         case Image::CLONE:
-
             if (img->dec_cloning(clone_img_id) == 0  && img->get_running() == 0)
             {
                 img->set_state(Image::READY);
             }
 
             ipool->update(img);
-
-        break;
+            break;
 
         case Image::DELETE:
         case Image::INIT:
@@ -293,14 +287,13 @@ void ImageManager::release_cloning_image(int iid, int clone_img_id)
         case Image::ERROR:
         case Image::USED_PERS:
         case Image::LOCKED:
+            ostringstream oss;
 
-           ostringstream oss;
-           oss << "Releasing image in wrong state: "
-               << Image::state_to_str(img->get_state());
+            oss << "Releasing image in wrong state: "
+                << Image::state_to_str(img->get_state());
 
-           NebulaLog::log("ImM", Log::ERROR, oss.str());
-
-        break;
+            NebulaLog::log("ImM", Log::ERROR, oss.str());
+            break;
     }
 
     img->unlock();
