@@ -1,5 +1,6 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "DOCUMENT";
   var PATH = 'service';
@@ -42,17 +43,17 @@ define(function(require) {
     },
     "state" : function(state_int) {
       var state = [
-          tr("PENDING"),
-          tr("DEPLOYING"),
-          tr("RUNNING"),
-          tr("UNDEPLOYING"),
-          tr("WARNING"),
-          tr("DONE"),
-          tr("FAILED_UNDEPLOYING"),
-          tr("FAILED_DEPLOYING"),
-          tr("SCALING"),
-          tr("FAILED_SCALING"),
-          tr("COOLDOWN")
+          Locale.tr("PENDING"),
+          Locale.tr("DEPLOYING"),
+          Locale.tr("RUNNING"),
+          Locale.tr("UNDEPLOYING"),
+          Locale.tr("WARNING"),
+          Locale.tr("DONE"),
+          Locale.tr("FAILED_UNDEPLOYING"),
+          Locale.tr("FAILED_DEPLOYING"),
+          Locale.tr("SCALING"),
+          Locale.tr("FAILED_SCALING"),
+          Locale.tr("COOLDOWN")
       ][state_int]
       return state ? state : state_int;
     }

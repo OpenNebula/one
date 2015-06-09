@@ -23,6 +23,7 @@ define(function(require) {
     require('tabs/zones-tab'),
     require('tabs/marketplace-tab'),
     require('tabs/oneflow-dashboard'),
+    require('tabs/oneflow-services-tab'),
     require('tabs/oneflow-templates-tab')
   ];
 
