@@ -44,7 +44,6 @@ define(function(require) {
     "VM.chmod": _commonActions.singleAction('chmod'),
     "VM.rename": _commonActions.singleAction('rename'),
     "VM.update_template": _commonActions.singleAction('update'),
-    "VM.update_actions": _commonActions.singleAction('update'),
     "VM.deploy_action": _commonActions.singleAction('deploy'),
     "VM.migrate_action": _commonActions.singleAction('migrate'),
     "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),
@@ -97,12 +96,6 @@ define(function(require) {
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: onError
-    },
-    "VM.deploy" : {
-      type: "custom",
-      call: function() {
-       popUpDeployVMDialog();
-     }
     },
  
  
