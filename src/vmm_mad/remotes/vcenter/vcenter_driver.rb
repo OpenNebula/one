@@ -1138,7 +1138,7 @@ class VCenterVm
                    "  TYPE     =\"vnc\",\n"\
                    "  LISTEN   =\"0.0.0.0\",\n"\
                    "  PORT     =\"#{vp[0][:value]}\"\n"
-            str << " ,KEYMAP   =\"#{keymap[0][:value]}\"\n" if keymap
+            str << " ,KEYMAP   =\"#{keymap[0][:value]}\"\n" if keymap[0]
             str << "]\n"
         end
 
