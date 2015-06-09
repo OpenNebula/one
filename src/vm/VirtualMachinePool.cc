@@ -1028,7 +1028,7 @@ int VirtualMachinePool::calculate_showback(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_attach_disk(int vid, bool release_save_as)
+void VirtualMachinePool::delete_attach_disk(int vid)
 {
     VirtualMachine *  vm;
     VectorAttribute * disk;
@@ -1076,17 +1076,6 @@ void VirtualMachinePool::delete_attach_disk(int vid, bool release_save_as)
             }
 
             imagem->release_image(oid, image_id, false);
-
-            // Release non-persistent images in the detach event
-            if (release_save_as)
-            {
-                int save_as_id;
-
-                if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
-                {
-                    imagem->release_image(oid, save_as_id, false);
-                }
-            }
         }
         else // Volatile disk
         {

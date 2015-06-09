@@ -1179,63 +1179,68 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramList,
                                              RequestAttributes& att)
 {
-    Nebula& nd  = Nebula::instance();
+    Nebula& nd = Nebula::instance();
 
     ImagePool *     ipool  = nd.get_ipool();
     DatastorePool * dspool = nd.get_dspool();
 
-    int    id          = xmlrpc_c::value_int(paramList.getInt(1));
-    int    disk_id     = xmlrpc_c::value_int(paramList.getInt(2));
-    string img_name    = xmlrpc_c::value_string(paramList.getString(3));
-    string img_type    = xmlrpc_c::value_string(paramList.getString(4));
-    bool   is_hot      = false; //Optional XML-RPC argument
-
-    if ( paramList.size() > 5 )
-    {
-        is_hot = xmlrpc_c::value_boolean(paramList.getBoolean(5));
-    }
+    int    id       = xmlrpc_c::value_int(paramList.getInt(1));
+    int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
+    string img_name = xmlrpc_c::value_string(paramList.getString(3));
+    string img_type = xmlrpc_c::value_string(paramList.getString(4));
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
     VirtualMachine * vm;
     Datastore      * ds;
-    int              iid;
+    Image * img;
+    int iid;
+    int iid_orig;
 
-    string error_str;
+    string         ds_data;
+    PoolObjectAuth ds_perms;
+    long long      avail;
+    bool           ds_check;
 
     string driver;
     string target;
     string dev_prefix;
 
+    int       ds_id;
+    string    ds_name;
+    long long size;
+
+    string iname_orig;
+    string iuname_orig;
+
+    Image::ImageType type;
+    Image::DiskType  ds_disk_type;
+
+    ImageTemplate * itemplate;
+    Template        img_usage;
+
+    int    rc;
+    bool   rc_auth;
+    string error;
+
     // -------------------------------------------------------------------------
-    // Prepare and check the VM/DISK to be saved_as
+    // Prepare and check the VM/DISK to be export
     // -------------------------------------------------------------------------
     if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
 
-    if ( vm->set_saveas_state(disk_id, is_hot) != 0 )
+    if (vm->set_saveas_state() != 0)
     {
-        vm->unlock();
-
-        failure_response(INTERNAL,
-                         request_error("VM has to be RUNNING, POWEROFF or"
-                         " SUSPENDED to snapshot disks.",""), att);
-        return;
+        goto error_state;
     }
 
-    int iid_orig = vm->get_image_from_disk(disk_id, is_hot, error_str);
+    iid_orig = vm->set_saveas_disk(disk_id, error);
 
-    if ( iid_orig == -1 )
+    if (iid_orig == -1)
     {
-        vm->clear_saveas_state(disk_id, is_hot);
-
-        vm->unlock();
-
-        failure_response(INTERNAL,
-                         request_error("Cannot use selected DISK", error_str),
-                         att);
-        return;
+        goto error_disk;
     }
 
     vmpool->update(vm);
@@ -1245,32 +1250,21 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Get the data of the Image to be saved
     // -------------------------------------------------------------------------
-    Image * img = ipool->get(iid_orig, true);
+    img = ipool->get(iid_orig, true);
 
     if ( img == 0 )
     {
-        failure_response(NO_EXISTS,
-                         get_error(object_name(PoolObjectSQL::IMAGE), iid_orig),
-                         att);
-
-        if ((vm = vmpool->get(id, true)) != 0)
-        {
-            vm->clear_saveas_state(disk_id, is_hot);
-
-            vmpool->update(vm);
-            vm->unlock();
-        }
-
-        return;
+        goto error_image;
     }
 
-    int       ds_id   = img->get_ds_id();
-    string    ds_name = img->get_ds_name();
-    long long size    = img->get_size();
+    ds_id   = img->get_ds_id();
+    ds_name = img->get_ds_name();
 
-    string iname_orig  = img->get_name();
-    string iuname_orig = img->get_uname();
-    Image::ImageType type = img->get_type();
+    size = img->get_size();
+    type = img->get_type();
+
+    iname_orig  = img->get_name();
+    iuname_orig = img->get_uname();
 
     img->get_template_attribute("DRIVER", driver);
     img->get_template_attribute("TARGET", target);
@@ -1283,74 +1277,39 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         case Image::OS:
         case Image::DATABLOCK:
         case Image::CDROM:
-        break;
+            break;
 
         case Image::KERNEL:
         case Image::RAMDISK:
         case Image::CONTEXT:
-            failure_response(INTERNAL,
-                    request_error("Cannot save_as image of type " +
-                    Image::type_to_str(type), ""), att);
-        return;
+            goto error_image_type;
     }
 
     // -------------------------------------------------------------------------
-    // Get the data of the DataStore for the new image
+    // Get the data of the DataStore for the new image & size
     // -------------------------------------------------------------------------
     if ((ds = dspool->get(ds_id, true)) == 0 )
     {
-        failure_response(NO_EXISTS,
-                get_error(object_name(PoolObjectSQL::DATASTORE), ds_id),
-                att);
-
-        if ((vm = vmpool->get(id, true)) != 0)
-        {
-            vm->clear_saveas_state(disk_id, is_hot);
-
-            vmpool->update(vm);
-            vm->unlock();
-        }
-
-        return;
+        goto error_ds;
     }
-
-    string         ds_data;
-    PoolObjectAuth ds_perms;
-    long long      avail;
-    bool           ds_check;
 
     ds->get_permissions(ds_perms);
     ds->to_xml(ds_data);
 
-    ds_check = ds->get_avail_mb(avail);
-
-    Image::DiskType ds_disk_type = ds->get_disk_type();
+    ds_check     = ds->get_avail_mb(avail);
+    ds_disk_type = ds->get_disk_type();
 
     ds->unlock();
 
-    // -------------------------------------------------------------------------
-    // Check Datastore Capacity
-    // -------------------------------------------------------------------------
     if (ds_check && (size > avail))
     {
-        failure_response(ACTION, "Not enough space in datastore", att);
-
-        if ((vm = vmpool->get(id, true)) != 0)
-        {
-            vm->clear_saveas_state(disk_id, is_hot);
-
-            vmpool->update(vm);
-            vm->unlock();
-        }
-
-        return;
+        goto error_size;
     }
 
     // -------------------------------------------------------------------------
     // Create a template for the new Image
     // -------------------------------------------------------------------------
-    ImageTemplate * itemplate = new ImageTemplate;
-    Template        img_usage;
+    itemplate = new ImageTemplate;
 
     itemplate->add("NAME", img_name);
     itemplate->add("SIZE", size);
@@ -1358,15 +1317,9 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     itemplate->add("SAVED_IMAGE_ID",iid_orig);
     itemplate->add("SAVED_DISK_ID",disk_id);
     itemplate->add("SAVED_VM_ID", id);
+    itemplate->set_saving_hot();
 
-    itemplate->set_saving();
-
-    if ( is_hot )
-    {
-        itemplate->set_saving_hot();
-    }
-
-    if ( img_type.empty() )
+    if (img_type.empty())
     {
         itemplate->add("TYPE", Image::type_to_str(type));
     }
@@ -1375,17 +1328,17 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
         itemplate->add("TYPE", img_type);
     }
 
-    if ( driver.empty() == false )
+    if (!driver.empty())
     {
         itemplate->add("DRIVER", driver);
     }
 
-    if ( target.empty() == false )
+    if (!target.empty())
     {
         itemplate->add("TARGET", target);
     }
 
-    if ( dev_prefix.empty() == false )
+    if (!dev_prefix.empty())
     {
         itemplate->add("DEV_PREFIX", dev_prefix);
     }
@@ -1396,7 +1349,7 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    bool rc_auth = vm_authorization(id, itemplate, 0, att, 0,&ds_perms,auth_op);
+    rc_auth = vm_authorization(id, itemplate, 0, att, 0,&ds_perms,auth_op);
 
     if ( rc_auth == true )
     {
@@ -1405,216 +1358,109 @@ void VirtualMachineSaveDisk::request_execute(xmlrpc_c::paramList const& paramLis
 
     if ( rc_auth == false)
     {
-        delete itemplate;
-
-        if ((vm = vmpool->get(id, true)) != 0)
-        {
-            vm->clear_saveas_state(disk_id, is_hot);
-
-            vmpool->update(vm);
-            vm->unlock();
-        }
-
-        return;
+        goto error_auth;
     }
 
     // -------------------------------------------------------------------------
     // Create the image
     // -------------------------------------------------------------------------
-    int rc = ipool->allocate(att.uid,
-                             att.gid,
-                             att.uname,
-                             att.gname,
-                             att.umask,
-                             itemplate,
-                             ds_id,
-                             ds_name,
-                             ds_disk_type,
-                             ds_data,
-                             Datastore::IMAGE_DS,
-                             -1,
-                             &iid,
-                             error_str);
+    rc = ipool->allocate(att.uid,
+                         att.gid,
+                         att.uname,
+                         att.gname,
+                         att.umask,
+                         itemplate,
+                         ds_id,
+                         ds_name,
+                         ds_disk_type,
+                         ds_data,
+                         Datastore::IMAGE_DS,
+                         -1,
+                         &iid,
+                         error);
     if (rc < 0)
     {
-        quota_rollback(&img_usage, Quotas::DATASTORE, att);
-
-        if ((vm = vmpool->get(id, true)) != 0)
-        {
-            vm->clear_saveas_state(disk_id, is_hot);
-
-            vmpool->update(vm);
-            vm->unlock();
-        }
-
-        failure_response(INTERNAL,
-                allocate_error(PoolObjectSQL::IMAGE, error_str), att);
-        return;
+        goto error_allocate;
     }
 
     ds = dspool->get(ds_id, true);
 
-    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
+    if (ds == 0)
     {
-        ds->add_image(iid);
-
-        dspool->update(ds);
-
-        ds->unlock();
+        goto error_ds_removed;
     }
+
+    ds->add_image(iid);
+
+    dspool->update(ds);
+
+    ds->unlock();
 
     success_response(iid, att);
-}
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+error_state:
+    vm->unlock();
 
-void VirtualMachineSaveDiskCancel::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    Nebula& nd  = Nebula::instance();
+    failure_response(INTERNAL,request_error("VM has to be RUNNING, POWEROFF or "
+        "SUSPENDED to export disks.",""), att);
+    return;
 
-    AclManager *    aclm   = nd.get_aclm();
-    ImageManager *  imagem = nd.get_imagem();
-    ImagePool *     ipool  = nd.get_ipool();
-    Image *         img;
-    int             img_id;
+error_disk:
+    vm->clear_saveas_state();
 
-    VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
-    VirtualMachine * vm;
-
-    string error_str;
-
-    int    id       = xmlrpc_c::value_int(paramList.getInt(1));
-    int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
-
-    // -------------------------------------------------------------------------
-    // Authorize the VM operation
-    // -------------------------------------------------------------------------
-
-    if (att.uid != UserPool::ONEADMIN_ID)
-    {
-        PoolObjectAuth vm_perms;
-        PoolObjectAuth img_perms;
-
-        if ((vm = get_vm(id, att)) == 0)
-        {
-            return;
-        }
-
-        vm->get_permissions(vm_perms);
-
-        img_id = vm->get_save_disk_image(disk_id);
-
-        vm->unlock();
-
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, vm_perms); // MANAGE VM
-
-        img = ipool->get(img_id, true);
-
-        if ( img != 0 )
-        {
-            img->get_permissions(img_perms);
-
-            img->unlock();
-
-            ar.add_auth(AuthRequest::MANAGE, img_perms);    // MANAGE IMAGE
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            failure_response(AUTHORIZATION,
-                    authorization_error(ar.message, att),
-                    att);
-
-            return;
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Check the VM state
-    // -------------------------------------------------------------------------
-
-    if ((vm = get_vm(id, att)) == 0)
-    {
-        return;
-    }
-
-    if ((vm->get_state() != VirtualMachine::ACTIVE ||
-        (vm->get_lcm_state() != VirtualMachine::RUNNING &&
-         vm->get_lcm_state() != VirtualMachine::UNKNOWN) ) &&
-        vm->get_state() != VirtualMachine::POWEROFF &&
-        vm->get_state() != VirtualMachine::SUSPENDED)
-    {
-        failure_response(ACTION,
-                 request_error("Wrong state to perform action",""),
-                 att);
-
-        vm->unlock();
-        return;
-    }
-
-    // -------------------------------------------------------------------------
-    // Cancel the disk snapshot
-    // -------------------------------------------------------------------------
-
-    img_id = vm->get_save_disk_image(disk_id);
-
-    if ( img_id == -1 )
-    {
-        ostringstream oss;
-        oss << "Disk with ID [" << disk_id << "] is not going to be saved";
-
-        failure_response(ACTION,
-                        request_error(oss.str(), ""),
-                        att);
-
-        vm->unlock();
-
-        return;
-    }
-
-    vm->clear_save_disk(disk_id);
-
-    vmpool->update(vm);
+    vm->clear_saveas_disk();
 
     vm->unlock();
 
-    // -------------------------------------------------------------------------
-    // Delete the target Image
-    // -------------------------------------------------------------------------
+    failure_response(INTERNAL,request_error("Cannot use DISK", error), att);
+    return;
 
-    img = ipool->get(img_id, true);
+error_image:
+    failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::IMAGE),
+        iid_orig), att);
+    goto error_common;
 
-    if ( img != 0 )
+error_image_type:
+    failure_response(INTERNAL, request_error("Cannot save_as image of type " +
+        Image::type_to_str(type), ""), att);
+    goto error_common;
+
+error_ds:
+    failure_response(NO_EXISTS, get_error(object_name(PoolObjectSQL::DATASTORE),
+        ds_id), att);
+    goto error_common;
+
+error_size:
+    failure_response(ACTION, "Not enough space in datastore", att);
+    goto error_common;
+
+error_auth:
+    delete itemplate;
+    goto error_common;
+
+error_allocate:
+    quota_rollback(&img_usage, Quotas::DATASTORE, att);
+    failure_response(INTERNAL, allocate_error(PoolObjectSQL::IMAGE, error),att);
+    goto error_common;
+
+error_ds_removed:
+    failure_response(NO_EXISTS,get_error(object_name(PoolObjectSQL::DATASTORE),
+        ds_id), att);
+    goto error_common;
+
+error_common:
+    if ((vm = vmpool->get(id, true)) != 0)
     {
-        img->unlock();
+        vm->clear_saveas_state();
 
-        int rc = imagem->delete_image(img_id, error_str);
+        vm->clear_saveas_disk();
 
-        if (rc != 0)
-        {
-            ostringstream oss;
-            oss << "The snapshot was canceled, but "
-                << object_name(PoolObjectSQL::IMAGE) << " [" << img_id
-                << "] could not be deleted: " << error_str;
+        vmpool->update(vm);
 
-            failure_response(INTERNAL,
-                    request_error(oss.str(), ""),
-                    att);
-
-            return;
-        }
-
-        aclm->del_resource_rules(img_id, PoolObjectSQL::IMAGE);
+        vm->unlock();
     }
 
-    // TODO: Delete the cloned template
-
-    success_response(id, att);
+    return;
 }
 
 /* -------------------------------------------------------------------------- */

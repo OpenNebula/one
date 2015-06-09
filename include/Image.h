@@ -97,16 +97,16 @@ public:
     {
         switch (ob)
         {
-            case FILE:              return "FILE" ; break;
-            case CD_ROM:            return "CDROM" ; break;
-            case BLOCK:             return "BLOCK" ; break;
-            case RBD:               return "RBD" ; break;
-            case RBD_CDROM:         return "RBD_CDROM" ; break;
-            case GLUSTER:           return "GLUSTER" ; break;
-            case GLUSTER_CDROM:     return "GLUSTER_CDROM" ; break;
-            case SHEEPDOG:	    return "SHEEPDOG" ; break;
-            case SHEEPDOG_CDROM:    return "SHEEPDOG_CDROM" ; break;
-            default:                return "";
+            case FILE:           return "FILE" ; break;
+            case CD_ROM:         return "CDROM" ; break;
+            case BLOCK:          return "BLOCK" ; break;
+            case RBD:            return "RBD" ; break;
+            case RBD_CDROM:      return "RBD_CDROM" ; break;
+            case GLUSTER:        return "GLUSTER" ; break;
+            case GLUSTER_CDROM:  return "GLUSTER_CDROM" ; break;
+            case SHEEPDOG:	     return "SHEEPDOG" ; break;
+            case SHEEPDOG_CDROM: return "SHEEPDOG_CDROM" ; break;
+            default:             return "";
         }
     };
 
@@ -178,7 +178,7 @@ public:
      *  Returns true if the image is persistent
      *     @return true if the image is persistent
      */
-    bool isPersistent() const
+    bool is_persistent() const
     {
         return (persistent_img == 1);
     };
@@ -349,34 +349,12 @@ public:
     int set_type(string& _type, string& error);
 
     /**
-     *  Check if the image can be used by other users
-     *  @return true if group or others can access the image
-     */
-    bool isPublic()
-    {
-       return (group_u == 1 || other_u == 1);
-    }
-
-    /**
      *  Check if the image is used for saving_as a current one
      *  @return true if the image will be used to save an existing image.
      */
-    bool isSaving()
+    bool is_saving()
     {
-        ImageTemplate * it = static_cast<ImageTemplate *>(obj_template);
-
-        return it->is_saving();
-    }
-
-    /**
-     *  Check if the image is a hot snapshot
-     *  @return true if image is a hot snapshot
-     */
-    bool isHot()
-    {
-        ImageTemplate * it = static_cast<ImageTemplate *>(obj_template);
-
-        return it->is_saving_hot();
+        return (static_cast<ImageTemplate *>(obj_template))->is_saving_hot();
     }
 
     /**

@@ -187,23 +187,6 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachineSaveDiskCancel : public RequestManagerVirtualMachine
-{
-public:
-    VirtualMachineSaveDiskCancel():
-        RequestManagerVirtualMachine("VirtualMachineSaveDiskCancel",
-                           "Cancels a disk snapshot set by VirtualMachineSaveDisk",
-                           "A:sii"){};
-
-    ~VirtualMachineSaveDiskCancel(){};
-
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
 class VirtualMachineMonitoring : public RequestManagerVirtualMachine
 {
 public:

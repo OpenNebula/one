@@ -113,7 +113,7 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
         case Image::READY:
             img->inc_running(vm_id);
 
-            if ( img->isPersistent() )
+            if ( img->is_persistent() )
             {
                 img->set_state(Image::USED_PERS);
             }
@@ -160,11 +160,9 @@ int ImageManager::acquire_image(int vm_id, Image *img, string& error)
 
 void ImageManager::release_image(int vm_id, int iid, bool failed)
 {
-    Image * img;
+    ostringstream disk_file, oss;
 
-    ostringstream disk_file;
-
-    img = ipool->get(iid,true);
+    Image * img = ipool->get(iid,true);
 
     if ( img == 0 )
     {
@@ -218,27 +216,10 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         break;
 
         case Image::LOCKED:
-            if ( img->isSaving() ) //SAVE_AS images are LOCKED till released
-            {
-                if (failed == true)
-                {
-                    img->set_state(Image::ERROR);
-                }
-                else
-                {
-                    img->set_state(Image::READY);
-                }
+            oss << "Releasing image in wrong state: "
+                << Image::state_to_str(img->get_state());
 
-                ipool->update(img);
-            }
-            else
-            {
-                stringstream oss;
-                oss << "Releasing image in wrong state: "
-                    << Image::state_to_str(img->get_state());
-
-                NebulaLog::log("ImM", Log::ERROR, oss.str());
-            }
+            NebulaLog::log("ImM", Log::ERROR, oss.str());
 
             img->unlock();
         break;
@@ -249,7 +230,6 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         case Image::DISABLED:
         case Image::READY:
         case Image::ERROR:
-           ostringstream oss;
            oss << "Releasing image in wrong state: "
                << Image::state_to_str(img->get_state());
 
@@ -639,7 +619,7 @@ int ImageManager::clone_image(int   new_id,
         case Image::READY:
             img->inc_cloning(new_id);
 
-            if (img->isPersistent())
+            if (img->is_persistent())
             {
                 img->set_state(Image::CLONE);
             }
@@ -738,12 +718,11 @@ int ImageManager::register_image(int iid, const string& ds_data, string& error)
     {
         string source = img->get_source();
 
-        if ( img->isSaving() || img->get_type() == Image::DATABLOCK )
+        if ( img->is_saving() || img->get_type() == Image::DATABLOCK )
         {
             imd->mkfs(img->get_oid(), *drv_msg);
 
-            oss << "Creating disk at " << source
-                << " of "<<  img->get_size()
+            oss << "Creating disk at " << source << " of "<<  img->get_size()
                 << "Mb (type: " <<  img->get_fstype() << ")";
         }
         else if ( !source.empty() ) //Source in Template

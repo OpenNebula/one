@@ -294,7 +294,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
     xmlrpc_c::methodPtr vm_action(new VirtualMachineAction());
     xmlrpc_c::methodPtr vm_savedisk(new VirtualMachineSaveDisk());
-    xmlrpc_c::methodPtr vm_savedisk_cancel(new VirtualMachineSaveDiskCancel());
     xmlrpc_c::methodPtr vm_monitoring(new VirtualMachineMonitoring());
     xmlrpc_c::methodPtr vm_attach(new VirtualMachineAttach());
     xmlrpc_c::methodPtr vm_detach(new VirtualMachineDetach());
@@ -450,7 +449,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
     RequestManagerRegistry.addMethod("one.vm.migrate", vm_migrate);
     RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
-    RequestManagerRegistry.addMethod("one.vm.savediskcancel", vm_savedisk_cancel);
     RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);

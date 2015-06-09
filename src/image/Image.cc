@@ -183,7 +183,7 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
 
-    if (!isSaving()) //Not a saving image
+    if (!is_saving()) //Not a saving image
     {
         if ( source.empty() && path.empty() )
         {
@@ -624,9 +624,9 @@ int Image::disk_attribute(  VectorAttribute *       disk,
                     new_disk_type = RBD_CDROM;
                     break;
 
-		case SHEEPDOG:
-		    new_disk_type = SHEEPDOG_CDROM;
-		    break;
+                case SHEEPDOG:
+                    new_disk_type = SHEEPDOG_CDROM;
+                    break;
 
                 case GLUSTER:
                     new_disk_type = GLUSTER_CDROM;
@@ -730,7 +730,7 @@ ImageTemplate * Image::clone_template(const string& new_name) const
     tmpl->replace("FSTYPE", fs_type);
     tmpl->replace("SIZE",   size_mb);
 
-    if ( isPersistent() )
+    if ( is_persistent() )
     {
         tmpl->replace("PERSISTENT", "YES");
     }

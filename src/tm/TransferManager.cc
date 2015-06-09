@@ -1233,27 +1233,20 @@ void TransferManager::epilog_transfer_command(
         const VectorAttribute * disk,
         ostream&                xfr)
 {
-    string save;
-    string tm_mad;
     int    disk_id;
 
-    disk->vector_value("DISK_ID", disk_id);
 
-    save  = disk->vector_value("SAVE");
+    string save  = disk->vector_value("SAVE");
+
+    disk->vector_value("DISK_ID", disk_id);
 
     transform(save.begin(),save.end(),save.begin(),(int(*)(int))toupper);
 
     if ( save == "YES" )
     {
-        string source;
-        string save_source;
-        string ds_id;
-
-        source      = disk->vector_value("SOURCE");
-        save_source = disk->vector_value("SAVE_AS_SOURCE");
-
-        tm_mad = disk->vector_value("TM_MAD");
-        ds_id  = disk->vector_value("DATASTORE_ID");
+        string source = disk->vector_value("SOURCE");
+        string tm_mad = disk->vector_value("TM_MAD");
+        string ds_id  = disk->vector_value("DATASTORE_ID");
 
         if ( ds_id.empty() || tm_mad.empty() )
         {
@@ -1261,15 +1254,10 @@ void TransferManager::epilog_transfer_command(
             return;
         }
 
-        if (source.empty() && save_source.empty())
+        if (source.empty())
         {
             vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
             return;
-        }
-
-        if (!save_source.empty())//Use the save_as_source instead
-        {
-            source = save_source;
         }
 
         //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
@@ -1284,6 +1272,8 @@ void TransferManager::epilog_transfer_command(
     }
     else //No saving disk
     {
+        string tm_mad;
+
         int ds_id_i;
         int vv_rc = 0;
 
@@ -2063,29 +2053,19 @@ void TransferManager::saveas_hot_action(int vid)
 {
     int    disk_id;
     int    image_id;
-    string save_source;
-
-    string save;
+    string source;
     string tm_mad;
     string ds_id;
-
-    int num;
-    int disk_id_iter;
 
     ostringstream os;
 
     ofstream xfr;
     string   xfr_name;
 
-    string source;
-
-    const VectorAttribute *   disk;
-    vector<const Attribute *> attrs;
-
     VirtualMachine * vm;
-    Nebula&          nd = Nebula::instance();
-
     const TransferManagerDriver * tm_md;
+
+    Nebula& nd = Nebula::instance();
 
     // ------------------------------------------------------------------------
     // Setup & Transfer script
@@ -2104,7 +2084,7 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_common;
     }
 
-    if (vm->get_saveas_disk_hot(disk_id, save_source, image_id) == -1)
+    if (vm->get_saveas_disk_hot(disk_id, source, image_id, tm_mad, ds_id) != 0)
     {
         vm->log("TM", Log::ERROR,"Could not get disk information to saveas it");
         goto error_common;
@@ -2115,40 +2095,6 @@ void TransferManager::saveas_hot_action(int vid)
     if (tm_md == 0)
     {
         goto error_driver;
-    }
-
-    num = vm->get_template_attribute("DISK",attrs);
-
-    for (int i=0 ; i < num ; i++)
-    {
-        disk = dynamic_cast<const VectorAttribute *>(attrs[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
-
-        disk->vector_value("DISK_ID", disk_id_iter);
-
-        if (disk_id == disk_id_iter)
-        {
-            tm_mad = disk->vector_value("TM_MAD");
-            ds_id  = disk->vector_value("DATASTORE_ID");
-
-            break;
-        }
-    }
-
-    if ( ds_id.empty() || tm_mad.empty() )
-    {
-        vm->log("TM", Log::ERROR, "No DS_ID or TM_MAD to save disk image");
-        goto error_common;
-    }
-
-    if (save_source.empty())
-    {
-        vm->log("TM", Log::ERROR, "No SOURCE to save disk image");
-        goto error_common;
     }
 
     xfr_name = vm->get_transfer_file() + ".saveas_hot";
@@ -2164,7 +2110,7 @@ void TransferManager::saveas_hot_action(int vid)
         << tm_mad << " "
         << vm->get_hostname() << ":"
         << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-        << save_source << " "
+        << source << " "
         << vm->get_oid() << " "
         << ds_id
         << endl;
