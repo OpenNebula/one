@@ -1,0 +1,65 @@
+<div class="row">
+  <div class="large-6 columns">
+    <table class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th colspan="2">{{tr "Information"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="key_td">{{tr "ID"}}</td>
+          <td class="value_td" colspan="2">{{element.ID}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Name"}}</td>
+          <td class="value_td" colspan="2">{{element.NAME}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Description"}}</td>
+          <td class="value_td" colspan="2">{{element.TEMPLATE.BODY.description}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Strategy"}}</td>
+          <td class="value_td">{{element.TEMPLATE.BODY.deployment}}</td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Shutdown action"}}</td>
+          <td class="value_td">
+            {{valOrDefault element.TEMPLATE.BODY.shutdown_action "-"}}
+          </td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "Ready Status Gate"}}</td>
+          <td class="value_td">
+            {{#if element.TEMPLATE.BODY.ready_status_gate}}
+            {{tr "yes"}}
+            {{else}}
+            {{tr "no"}}
+            {{/if}}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    {{#if customAttrs}}
+    <table id="info_template_table" class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th colspan="2">{{tr "Network Configuration"}}</th>
+        </tr>
+      </thead>
+      {{#each customAttrs}}
+      <tr>
+        <td class="key_td">{{name}}</td>
+        <td class="value_td">{{description}}</td>
+      </tr>
+      <tr>
+        <td class="key_td"></td>
+        <td class="value_td">{{tr "Roles"}}: {{roles}}</td>
+      </tr>
+      {{/each}}
+    </table>
+    {{/if}}
+  </div>
+  <div class="large-6 columns">{{{permissionsTableHTML}}}</div>
+</div>
