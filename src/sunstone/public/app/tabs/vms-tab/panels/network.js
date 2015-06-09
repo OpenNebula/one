@@ -11,6 +11,7 @@ define(function(require) {
   var Graphs = require('utils/graphs');
   var StateActions = require('../utils/state-actions');
   var OpenNebulaVM = require('opennebula/vm');
+  var SecGroupsCommon = require('tabs/secgroups-tab/utils/common');
 
   /*
     CONSTANTS
@@ -189,32 +190,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    /* TODO if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
-      setupSaveAsDialog();
-
-      $('a.saveas').live('click', function(){
-          var b = $(this);
-          var vm_id = b.parents('form').attr('vmid');
-          var disk_id = b.parents('tr').attr('disk_id');
-
-          popUpSaveAsDialog(vm_id, disk_id);
-
-          //b.html(spinner);
-          return false;
-      });
-    } */
-
-    /* TODO if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
-      $('a.disk_snapshot_cancel').live('click', function(){
-          var b = $(this);
-          var vm_id = b.parents('form').attr('vmid');
-          var disk_id = b.parents('tr').attr('disk_id');
-
-          Sunstone.runAction('VM.disk_snapshot_cancel', vm_id, disk_id);
-
-          return false;
-      });
-    } */
 
     var nics = []
 
@@ -329,18 +304,18 @@ define(function(require) {
               <table class="extended_table dataTable">\
                 <thead>\
                   <tr>\
-                    <th colspan="2">' + tr("Security Group") + '</th>\
-                    <th>' + tr("Protocol") + '</th>\
-                    <th>' + tr("Type") + '</th>\
-                    <th>' + tr("Range") + '</th>\
-                    <th>' + tr("Network") + '</th>\
-                    <th>' + tr("ICMP Type") + '</th>\
+                    <th colspan="2">' + Locale.tr("Security Group") + '</th>\
+                    <th>' + Locale.tr("Protocol") + '</th>\
+                    <th>' + Locale.tr("Type") + '</th>\
+                    <th>' + Locale.tr("Range") + '</th>\
+                    <th>' + Locale.tr("Network") + '</th>\
+                    <th>' + Locale.tr("ICMP Type") + '</th>\
                   </tr>\
                 <thead>\
                 <tbody>'            ;
 
         $.each(row.data().SECURITY_GROUP_RULES, function(index, elem) {
-          var rule_st = sg_rule_to_st(this);
+          var rule_st = SecGroupsCommon.sgRuleToSt(this);
 
           var new_tr = '<tr>\
                   <td>' + this.SECURITY_GROUP_ID + '</td>\
@@ -371,9 +346,9 @@ define(function(require) {
       });
     }
 
-    if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
-      context.off('click', '.detachdisk');
-      context.on('click', '.detachdisk', function() {
+    if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
+      context.off('click', '.detachnic');
+      context.on('click', '.detachnic', function() {
         var nic_id = $(this).parents('tr').attr('nic_id');
         Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);
         return false;
