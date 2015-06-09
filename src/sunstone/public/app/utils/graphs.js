@@ -14,9 +14,9 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-   return {
+  return {
     'plot': _plotGraph
-   }
+  }
 
   /*
     FUNCTION DEFINITIONS
@@ -90,5 +90,22 @@ define(function(require) {
     if (series.length > 0) {
       $.plot(info.div_graph, series, options);
     };
+  }
+
+  function derivative(data) {
+    for (var i = 0; i < data.length - 1; i++) {
+      // Each elem is [timestamp, cumulative value]
+      var first = data[i];
+      var second = data[i + 1];
+
+      // value now - value before / seconds
+      var speed = (second[1] - first[1]) / (second[0] - first[0]);
+
+      // The first element is replaced with the second one
+      data[i] = [first[0], speed];
+    }
+
+    // The last elem must be removed
+    data.pop();
   }
 });
