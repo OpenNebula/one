@@ -3,7 +3,7 @@ define(function(require) {
 
   var RESOURCE = "DOCUMENT";
   var PATH = 'service_template';
-  var CACHE_NAME = CACHE_NAME;
+  var CACHE_NAME = "SERVICE_TEMPLATE";
 
   var ServiceTemplate = {
     "resource": RESOURCE,
