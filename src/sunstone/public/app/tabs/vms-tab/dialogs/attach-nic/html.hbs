@@ -1,0 +1,24 @@
+<div id="{{dialogId}}" class="reveal-modal large" role="dialog" data-reveal >
+  <div class="row">
+    <div class="large-12 columns">
+      <h3 class="subheader" id="">{{tr "Attach new nic"}}</h3>
+    </div>
+  </div>
+  <div class="reveal-body">
+    <form id="{{dialogId}}Form" action="">
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="vm_id">{{tr "Virtual Machine ID"}}:</label>
+          <input style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>
+        </div>
+      </div>
+      {{{nicTabHTML}}}
+      <div class="reveal-footer">
+        <div class="form_buttons">
+          <button class="button radius right success" id="attach_nic_button" type="submit" value="VM.attachdisk">{{tr "Attach"}}</button>
+        </div>
+      </div>
+      <a class="close-reveal-modal">&#215;</a>
+    </form>
+  </div>
+</div>

@@ -18,7 +18,7 @@ define(function(require) {
   
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./network/panelId');
-  //var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
+  var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -364,9 +364,9 @@ define(function(require) {
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
       context.off('click', '#attach_nic');
       context.on('click', '#attach_nic', function() {
-        //TODO var dialog = Sunstone.getDialog(ATTACH_NIC_DIALOG_ID);
-        //TODO dialog.setElement(that.element);
-        //TODO dialog.show();
+        var dialog = Sunstone.getDialog(ATTACH_NIC_DIALOG_ID);
+        dialog.setElement(that.element);
+        dialog.show();
         return false;
       });
     }
