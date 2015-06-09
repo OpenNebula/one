@@ -12,7 +12,8 @@ define(function(require) {
     require('./vms-tab/dialogs/migrate'),
     require('./vms-tab/dialogs/resize'),
     require('./vms-tab/dialogs/attach-disk'),
-    require('./vms-tab/dialogs/attach-nic')
+    require('./vms-tab/dialogs/attach-nic'),
+    require('./vms-tab/dialogs/snapshot')
   ];
 
   var _panels = [
