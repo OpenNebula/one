@@ -76,9 +76,10 @@ define(function(require) {
   }
 
   function _onShow(context) {
+    var that = this;
     OpenNebulaVM.monitor({
       data: {
-        id: this.element.ID, 
+        id: that.element.ID, 
         monitor: {
           monitor_resources : "CPU,MEMORY"
         }
