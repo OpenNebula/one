@@ -15,6 +15,7 @@ define(function(require) {
     'sizeFromB': _sizeFromB,
     'sizeFromKB': _sizeFromKB,
     'sizeFromMB': _sizeFromMB,
+    'prettyDuration': _prettyDuration,
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
     'prettyPrintJSON': _prettyPrintJSON,
@@ -80,6 +81,25 @@ define(function(require) {
 
     var st = value + binarySufix[i];
     return st;
+  }
+
+  function _prettyDuration(duration) {
+    var days = Math.floor(duration / 86400);
+    duration -= days * 86400;
+
+    var hours = Math.floor(duration / 3600) % 24;
+    duration -= hours * 3600;
+
+    var minutes = Math.floor(duration / 60) % 60;
+    duration -= minutes * 60;
+
+    var seconds = duration % 60;
+
+    var str = "";
+    if (days > 0) { str += days + 'd '};
+    if (hours > 0) { str += hours + 'h '};
+    str += minutes + 'm ';
+    return str;
   }
 
   //introduces 0s before a number until in reaches 'length'.
