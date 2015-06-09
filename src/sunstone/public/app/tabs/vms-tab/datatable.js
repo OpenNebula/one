@@ -9,7 +9,6 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var TemplateUtils = require('utils/template-utils');
   var OpenNebulaVM = require('opennebula/vm');
-  var VncSpiceUtils = require('./utils/vnc-spice-utils');
   var StateActions = require('./utils/state-actions');
   
   /*
@@ -85,7 +84,6 @@ define(function(require) {
     var element = element_json[XML_ROOT];
 
     var state = OpenNebulaVM.stateStr(element.STATE);
-    var hostname = OpenNebulaVM.hostnameStr(element);
 
     /* TODO
     switch (state) {
@@ -113,6 +111,16 @@ define(function(require) {
       state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
     };
 
+    // VNC icon
+    var vncIcon;
+    if (OpenNebulaVM.isVNCSupported(element)) {
+      vncIcon = '<a class="vnc" href="#" vm_id="' + element.ID + '"><i class="fa fa-desktop"/></a>';
+    } else if (OpenNebulaVM.isSPICESupported(element)) {
+      vncIcon = '<a class="spice" href="#" vm_id="' + element.ID + '"><i class="fa fa-desktop"/></a>';
+    } else {
+      vncIcon = '';
+    }
+
     return [
       '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
                              element.ID + '" name="selected_items" value="' +
@@ -124,10 +132,10 @@ define(function(require) {
        state,
        element.CPU,
        Humanize.size(element.MEMORY),
-       hostname,
-       Humanize.ipsStr(element),
+       OpenNebulaVM.hostnameStr(element),
+       OpenNebulaVM.ipsStr(element),
        Humanize.prettyTime(element.STIME),
-       VncSpiceUtils.vncIcon(element),
+       vncIcon,
        TemplateUtils.templateToString(element)
     ];
   }

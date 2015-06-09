@@ -126,6 +126,40 @@ define(function(require) {
     "FAILURE"    // PROLOG_UNDEPLOY_FAILURE
   ]
 
+  var VNC_STATES = [
+    3,  // VM.lcm_state.RUNNING,
+    4,  // VM.lcm_state.MIGRATE,
+    12, // VM.lcm_state.SHUTDOWN,
+    13, // VM.lcm_state.CANCEL,
+    16, // VM.lcm_state.UNKNOWN,
+    17, // VM.lcm_state.HOTPLUG,
+    18, // VM.lcm_state.SHUTDOWN_POWEROFF,
+    24, // VM.lcm_state.HOTPLUG_SNAPSHOT,
+    25, // VM.lcm_state.HOTPLUG_NIC,
+    26, // VM.lcm_state.HOTPLUG_SAVEAS,
+    27, // VM.lcm_state.HOTPLUG_SAVEAS_POWEROFF,
+    28, // VM.lcm_state.HOTPLUG_SAVEAS_SUSPENDED,
+    29, // VM.lcm_state.SHUTDOWN_UNDEPLOY
+  ];
+
+  var EXTERNAL_IP_ATTRS = [
+    'GUEST_IP',
+    'AWS_IP_ADDRESS',
+    'AZ_IPADDRESS',
+    'SL_PRIMARYIPADDRESS'
+  ]
+
+  var EXTERNAL_NETWORK_ATTRIBUTES = [
+    'GUEST_IP',
+    'AWS_IP_ADDRESS',
+    'AWS_DNS_NAME',
+    'AWS_PRIVATE_IP_ADDRESS',
+    'AWS_PRIVATE_DNS_NAME',
+    'AWS_SECURITY_GROUPS',
+    'AZ_IPADDRESS',
+    'SL_PRIMARYIPADDRESS'
+  ]
+
   var VM = {
     "resource": RESOURCE,
     "state": {
@@ -140,7 +174,6 @@ define(function(require) {
       "POWEROFF"  : 8,
       "UNDEPLOYED": 9
     },
-
     "lcm_state": {
       "LCM_INIT"            : 0,
       "PROLOG"              : 1,
@@ -193,29 +226,6 @@ define(function(require) {
       "BOOT_STOPPED_FAILURE"      : 48,
       "PROLOG_RESUME_FAILURE"     : 49,
       "PROLOG_UNDEPLOY_FAILURE"   : 50
-    },
-
-    "stateStr": function(stateId) {
-      return STATES[stateId];
-    },
-    "lcmStateStr": function(stateId) {
-      return LCM_STATES[stateId];
-    },
-    "shortLcmStateStr": function(stateId) {
-      return SHORT_LCM_STATES[stateId];
-    },
-    "hostnameStr": function(element) {
-      var state = STATES[element.STATE];
-      var hostname = "--";
-      if (state == "ACTIVE" || state == "SUSPENDED" || state == "POWEROFF") {
-        if (element.HISTORY_RECORDS.HISTORY.constructor == Array) {
-          hostname = element.HISTORY_RECORDS.HISTORY[element.HISTORY_RECORDS.HISTORY.length - 1].HOSTNAME;
-        } else {
-          hostname = element.HISTORY_RECORDS.HISTORY.HOSTNAME;
-        };
-      };
-
-      return hostname;
     },
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
@@ -399,8 +409,161 @@ define(function(require) {
     "save_as_template": function(params) {
       var action_obj = params.data.extra_param;
       OpenNebula.Action.simple_action(params, RESOURCE, "save_as_template", action_obj);
+    },
+    "stateStr": function(stateId) {
+      return STATES[stateId];
+    },
+    "lcmStateStr": function(stateId) {
+      return LCM_STATES[stateId];
+    },
+    "shortLcmStateStr": function(stateId) {
+      return SHORT_LCM_STATES[stateId];
+    },
+    "hostnameStr": function(element) {
+      var state = STATES[element.STATE];
+      var hostname = "--";
+      if (state == "ACTIVE" || state == "SUSPENDED" || state == "POWEROFF") {
+        var history = retrieveLastHistoryRecord(element)
+        if (history) {
+          hostname = history.HOSTNAME;
+        };
+      };
+
+      return hostname;
+    },
+    "ipsStr": ipsStr,
+    "retrieveExternalIPs": retrieveExternalIPs,
+    "retrieveExternalNetworkAttrs": retrieveExternalNetworkAttrs,
+    "isNICGraphsSupported": isNICGraphsSupported,
+    "isNICAttachSupported": isNICAttachSupported,
+    "isVNCSupported": isVNCSupported,
+    "isSPICESupported": isSPICESupported,
+  }
+
+  function retrieveLastHistoryRecord(element) {
+    if (element.HISTORY_RECORDS && element.HISTORY_RECORDS.HISTORY) {
+      var history = element.HISTORY_RECORDS.HISTORY;
+      if (history.constructor == Array) {
+        return history[history.length - 1];
+      } else {
+        return history;
+      };
+    } else {
+      return null;
     }
   }
 
+  // Return true if the VM has a hybrid section
+  function isNICGraphsSupported(element) {
+    var history = retrieveLastHistoryRecord(element)
+    if (history) {
+      return $.inArray(history.VMMMAD, ['vcenter', 'ec2', 'az', 'sl']) == -1;
+    } else {
+      return false;
+    }
+  }
+
+  function isNICAttachSupported(element) {
+    var history = retrieveLastHistoryRecord(element)
+    if (history) {
+      return $.inArray(history.VMMMAD, ['ec2', 'az', 'sl']) == -1;
+    } else {
+      return false;
+    }
+  }
+
+  function retrieveExternalIPs(element) {
+    var template = element.TEMPLATE;
+    var ips = {};
+    var externalIP;
+
+    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
+      externalIP = template[IPAttr];
+      if (externalIP) {
+        ips[IPAttr] = externalIP;
+      }
+    });
+
+    return ips;
+  }
+
+  function retrieveExternalNetworkAttrs(element) {
+    var template = element.TEMPLATE;
+    var ips = {};
+    var externalAttr;
+
+    $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
+      externalAttr = template[attr];
+      if (externalAttr) {
+        ips[attr] = externalAttr;
+      }
+    });
+
+    return ips;
+  }
+
+  // Return the IP or several IPs of a VM
+  function ipsStr(element, divider) {
+    var divider = divider || "<br>"
+    var nic = element.TEMPLATE.NIC;
+    var ips = [];
+
+    if (nic != undefined) {
+      if (!$.isArray(nic)) {
+        nic = [nic];
+      }
+
+      $.each(nic, function(index, value) {
+        if (value.IP) {
+          ips.push(value.IP);
+        }
+
+        if (value.IP6_GLOBAL) {
+          ips.push(value.IP6_GLOBAL);
+        }
+
+        if (value.IP6_ULA) {
+          ips.push(value.IP6_ULA);
+        }
+      });
+    }
+
+    var template = element.TEMPLATE;
+    var externalIP;
+    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
+      externalIP = template[IPAttr];
+      if (externalIP && ($.inArray(externalIP, ips) == -1)) {
+        ips.push(externalIP);
+      }
+    })
+
+    if (ips.length > 0) {
+      return ips.join(divider);
+    } else {
+      return '--';
+    }
+  };
+
+  // returns true if the vnc button should be enabled
+  function isVNCSupported(element) {
+    var graphics = element.TEMPLATE.GRAPHICS;
+    var state = parseInt(element.LCM_STATE);
+
+    return (graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == "vnc"  &&
+        $.inArray(state, VNC_STATES) != -1);
+  }
+
+  function isSPICESupported(element) {
+    var graphics = element.TEMPLATE.GRAPHICS;
+    var state = parseInt(element.LCM_STATE);
+
+    return (graphics &&
+        graphics.TYPE &&
+        graphics.TYPE.toLowerCase() == "spice" &&
+        $.inArray(state, VNC_STATES) != -1);
+  }
+  
   return VM;
 })

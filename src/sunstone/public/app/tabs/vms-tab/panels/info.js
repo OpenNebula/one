@@ -10,7 +10,6 @@ define(function(require) {
   var TemplateTable = require('utils/panel/template-table');
   var OpenNebulaVM = require('opennebula/vm');
   var StateActions = require('../utils/state-actions');
-  var VncSpiceUtils = require('../utils/vnc-spice-utils');
 
   /*
     TEMPLATES
@@ -83,16 +82,16 @@ define(function(require) {
     StateActions.disableAllStateActions();
     StateActions.enableStateActions(this.element.STATE, this.element.LCM_STATE);
     // Enable / disable vnc button
-    if (!VncSpiceUtils.VNCEnabled(this.element)) {
-        $(".vnc-right-info").hide();
+    if (OpenNebulaVM.isVNCSupported(this.element)) {
+      $(".vnc-right-info").show();
     } else {
-        $(".vnc-right-info").show();
+      $(".vnc-right-info").hide();
     }
 
-    if (!VncSpiceUtils.SPICEEnabled(this.element)) {
-        $(".spice-right-info").hide();
+    if (OpenNebulaVM.isSPICESupported(this.element)) {
+      $(".spice-right-info").show()
     } else {
-        $(".spice-right-info").show();
+      $(".spice-right-info").hide();;
     }
 
     RenameTr.setup(RESOURCE, this.element.ID, context);
