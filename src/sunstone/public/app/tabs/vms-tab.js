@@ -20,6 +20,7 @@ define(function(require) {
     require('./vms-tab/panels/capacity'),
     require('./vms-tab/panels/storage'),
     require('./vms-tab/panels/network'),
+    require('./vms-tab/panels/snapshots'),
   //  require('./vms-tab/panels/template')
   ];
 
