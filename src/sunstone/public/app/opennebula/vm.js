@@ -16,7 +16,7 @@ define(function(require) {
     "FAILED",
     "POWEROFF",
     "UNDEPLOYED"
-  ]
+  ];
 
   var LCM_STATES = [
     "LCM_INIT",
@@ -70,7 +70,7 @@ define(function(require) {
     "BOOT_STOPPED_FAILURE",
     "PROLOG_RESUME_FAILURE",
     "PROLOG_UNDEPLOY_FAILURE"
-  ]
+  ];
 
   var SHORT_LCM_STATES = [
     "LCM_INIT", // LCM_INIT
@@ -124,7 +124,7 @@ define(function(require) {
     "FAILURE",   // BOOT_STOPPED_FAILURE
     "FAILURE",   // PROLOG_RESUME_FAILURE
     "FAILURE"    // PROLOG_UNDEPLOY_FAILURE
-  ]
+  ];
 
   var VNC_STATES = [
     3,  // VM.lcm_state.RUNNING,
@@ -147,7 +147,7 @@ define(function(require) {
     'AWS_IP_ADDRESS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
-  ]
+  ];
 
   var EXTERNAL_NETWORK_ATTRIBUTES = [
     'GUEST_IP',
@@ -158,7 +158,41 @@ define(function(require) {
     'AWS_SECURITY_GROUPS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
-  ]
+  ];
+
+  var MIGRATE_REASON = [
+    "NONE",
+    "ERROR",
+    "USER"
+  ];
+
+  var MIGRATE_ACTION = [
+    "none",
+    "migrate",
+    "live-migrate",
+    "shutdown",
+    "shutdown-hard",
+    "undeploy",
+    "undeploy-hard",
+    "hold",
+    "release",
+    "stop",
+    "suspend",
+    "resume",
+    "boot",
+    "delete",
+    "delete-recreate",
+    "reboot",
+    "reboot-hard",
+    "resched",
+    "unresched",
+    "poweroff",
+    "poweroff-hard",
+    "disk-attach",
+    "disk-detach",
+    "nic-attach",
+    "nic-detach"
+  ];
 
   var VM = {
     "resource": RESOURCE,
@@ -430,6 +464,12 @@ define(function(require) {
       };
 
       return hostname;
+    },
+    "migrateActionStr": function(stateId) {
+      return MIGRATE_ACTION[stateId];
+    },
+    "migrateReasonStr": function(stateId) {
+      return MIGRATE_REASON[stateId];
     },
     "ipsStr": ipsStr,
     "retrieveExternalIPs": retrieveExternalIPs,
