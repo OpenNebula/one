@@ -247,6 +247,7 @@ define(function(require) {
 
     var ar_section = $('#' + str_ar_tab_id + 'Tab', context);
     ar_tab.setup(ar_section, str_ar_tab_id);
+    ar_tab.onShow();
   }
 
   function _submitWizard(context) {
