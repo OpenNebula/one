@@ -3242,6 +3242,30 @@ int VirtualMachine::set_saveas_disk(int disk_id, string& err_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VirtualMachine::set_saveas_disk(int disk_id, const string& source, int iid)
+{
+    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
+        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+    {
+        return -1;
+    }
+
+    VectorAttribute * disk = get_disk(disk_id);
+
+    if ( disk == 0 )
+    {
+        return -1;
+    }
+
+    disk->replace("HOTPLUG_SAVE_AS", iid);
+    disk->replace("HOTPLUG_SAVE_AS_SOURCE", source);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VirtualMachine::set_saveas_state()
 {
     switch (state)
@@ -3339,36 +3363,11 @@ int VirtualMachine::clear_saveas_disk()
     return -1;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int VirtualMachine::save_disk_hot(int           disk_id,
-                                  const string& source,
-                                  int           img_id)
-{
-    if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
-        && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
-    {
-        return -1;
-    }
-
-    VectorAttribute * disk = get_disk(disk_id);
-
-    if ( disk == 0 )
-    {
-        return -1;
-    }
-
-    disk->replace("HOTPLUG_SAVE_AS", img_id);
-    disk->replace("HOTPLUG_SAVE_AS_SOURCE", source);
-
-    return 0;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_saveas_disk_hot(int& disk_id, string& source,
+int VirtualMachine::get_saveas_disk(int& disk_id, string& source,
         int& image_id, string& tm_mad, string& ds_id)
 {
     vector<Attribute  *> disks;

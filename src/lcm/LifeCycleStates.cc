@@ -1604,7 +1604,7 @@ void LifeCycleManager::detach_nic_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::saveas_hot_success_action(int vid)
+void LifeCycleManager::saveas_success_action(int vid)
 {
     int image_id;
     int disk_id;
@@ -1619,7 +1619,7 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
         return;
     }
 
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id, tm_mad, ds_id);
+    int rc = vm->get_saveas_disk(disk_id, source, image_id, tm_mad, ds_id);
 
     vm->clear_saveas_disk();
 
@@ -1638,14 +1638,14 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
 
     vm->unlock();
 
-    if ( rc != 0 )
+    if (rc != 0)
     {
         return;
     }
 
     Image * image = ipool->get(image_id, true);
 
-    if ( image == 0 )
+    if (image == 0)
     {
         return;
     }
@@ -1660,7 +1660,7 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::saveas_hot_failure_action(int vid)
+void LifeCycleManager::saveas_failure_action(int vid)
 {
     int image_id;
     int disk_id;
@@ -1675,7 +1675,7 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
         return;
     }
 
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id, tm_mad, ds_id);
+    int rc = vm->get_saveas_disk(disk_id, source, image_id, tm_mad, ds_id);
 
     vm->clear_saveas_disk();
 
@@ -1694,14 +1694,14 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
 
     vm->unlock();
 
-    if ( rc != 0 )
+    if (rc != 0)
     {
         return;
     }
 
     Image * image = ipool->get(image_id, true);
 
-    if ( image == 0 )
+    if (image == 0)
     {
         return;
     }

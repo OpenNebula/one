@@ -1281,6 +1281,14 @@ public:
     int set_saveas_disk(int disk_id, string& err_str);
 
     /**
+     *  Set export attributes for the disk
+     *    @param  disk_id Index of the disk to export
+     *    @param  source to save the disk
+     *    @param  img_id ID of the image this disk will be saved to
+     */
+    int set_saveas_disk(int disk_id, const string& source, int img_id);
+
+    /**
      *  Sets the corresponding state to export the disk.
      *    @return 0 if the VM can be exported
      */
@@ -1300,24 +1308,17 @@ public:
     int clear_saveas_disk();
 
     /**
-     *  Set the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @param  source to save the disk (SAVE_AS_SOURCE)
-     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
-     */
-    int save_disk_hot(int disk_id,
-                      const string& source,
-                      int img_id);
-    /**
      * Get the original image id of the disk. It also checks that the disk can
      * be saved_as.
      *    @param  disk_id Index of the disk to save
-     *    @param  error_str describes the error
+     *    @param  source of the image to save the disk to
+     *    @param  image_id of the image to save the disk to
+     *    @param  tm_mad in use by the disk
+     *    @param  ds_id of the datastore in use by the disk
      *    @return -1 if failure
      */
-    int get_saveas_disk_hot(int& disk_id, string& source, int& image_id,
+    int get_saveas_disk(int& disk_id, string& source, int& image_id,
             string& tm_mad, string& ds_id);
-
 
     // ------------------------------------------------------------------------
     // Authorization related functions

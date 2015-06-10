@@ -455,7 +455,7 @@ static int mkfs_action(istringstream& is,
         goto error_save_get;
     }
 
-    if ( vm->save_disk_hot(disk_id, source, id) == -1 )
+    if ( vm->set_saveas_disk(disk_id, source, id) == -1 )
     {
         goto error_save_state;
     }

@@ -2084,9 +2084,9 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_common;
     }
 
-    if (vm->get_saveas_disk_hot(disk_id, source, image_id, tm_mad, ds_id) != 0)
+    if (vm->get_saveas_disk(disk_id, source, image_id, tm_mad, ds_id) != 0)
     {
-        vm->log("TM", Log::ERROR,"Could not get disk information to saveas it");
+        vm->log("TM", Log::ERROR,"Could not get disk information to export it");
         goto error_common;
     }
 
@@ -2135,7 +2135,7 @@ error_file:
 error_common:
     vm->log("TM", Log::ERROR, os);
 
-    (nd.get_lcm())->trigger(LifeCycleManager::SAVEAS_HOT_FAILURE, vid);
+    (nd.get_lcm())->trigger(LifeCycleManager::SAVEAS_FAILURE, vid);
 
     vm->unlock();
     return;

@@ -1129,11 +1129,11 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
             if (success)
             {
-                lcm_action = LifeCycleManager::SAVEAS_HOT_SUCCESS;
+                lcm_action = LifeCycleManager::SAVEAS_SUCCESS;
             }
             else
             {
-                lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
+                lcm_action = LifeCycleManager::SAVEAS_FAILURE;
             }
         break;
 
