@@ -752,6 +752,13 @@ define(function(require) {
     $('#refresh_button_' + that.dataTableId, section).click();
   }
 
+  /**
+   * Clears the current selection, and selects the given IDs
+   * @param  {object} selectedResources Two alternatives, ids or names.
+   *                - selectedResources.ids must be a single ID,
+   *                            or an array of IDs for options.multiple_choice
+   *                - selectedResources.names must be an array of {name, uname}
+   */
   function _selectResourceTableSelect(selectedResources) {
     var that = this;
     var section = $('#' + that.dataTableId + 'Container');
@@ -817,9 +824,9 @@ define(function(require) {
       var row_id = undefined;
       var row_name = "";
 
-      if (that.selectOptions.ids != undefined) {
+      if (selectedResources.ids != undefined) {
 
-        row_id = that.selectOptions.ids;
+        row_id = selectedResources.ids;
 
         row_name = "" + row_id;
 
