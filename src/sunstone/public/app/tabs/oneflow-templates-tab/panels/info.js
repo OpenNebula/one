@@ -52,35 +52,37 @@ define(function(require) {
 
     var customAttrs = [];
 
-    $.each(this.element.TEMPLATE.BODY['custom_attrs'], function(key, attr){
-      var parts = attr.split("|");
-      // 0 mandatory; 1 type; 2 desc;
+    if ( ! $.isEmptyObject( this.element.TEMPLATE.BODY['custom_attrs'] ) ) {
+      $.each(this.element.TEMPLATE.BODY['custom_attrs'], function(key, attr){
+        var parts = attr.split("|");
+        // 0 mandatory; 1 type; 2 desc;
 
-      var roles_using_net = [];
+        var roles_using_net = [];
 
-      switch (parts[1]) {
-        case "vnet_id":
-          $.each(that.element.TEMPLATE.BODY.roles, function(index, value){
-            if (value.vm_template_contents){
-              var reg = new RegExp("\\$"+TemplateUtils.htmlDecode(key)+"\\b");
+        switch (parts[1]) {
+          case "vnet_id":
+            $.each(that.element.TEMPLATE.BODY.roles, function(index, value){
+              if (value.vm_template_contents){
+                var reg = new RegExp("\\$"+TemplateUtils.htmlDecode(key)+"\\b");
 
-              if(reg.exec(value.vm_template_contents) != null){
-                roles_using_net.push(value.name);
+                if(reg.exec(value.vm_template_contents) != null){
+                  roles_using_net.push(value.name);
+                }
               }
-            }
-          });
+            });
 
-          break;
-      }
+            break;
+        }
 
-      customAttrs.push({
-        "name": key,
-        "mandatory": parts[0],
-        "type": parts[1],
-        "description": parts[2],
-        "roles": roles_using_net.join(", ")
+        customAttrs.push({
+          "name": key,
+          "mandatory": parts[0],
+          "type": parts[1],
+          "description": parts[2],
+          "roles": roles_using_net.join(", ")
+        });
       });
-    });
+    }
 
     return TemplateHTML({
       'element': this.element,
