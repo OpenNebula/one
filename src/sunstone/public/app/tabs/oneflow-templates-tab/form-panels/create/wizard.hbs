@@ -20,30 +20,32 @@
     </div>
   </div>
   <br>
-  {{#advancedSection (tr "Network Configuration") }}
-  <div class="row">
-    <div class="large-12 columns">
-      <table class="service_networks policies_table dataTable">
-        <thead>
-          <tr>
-            <th style="width:30%">{{tr "Name"}}</th>
-            <th style="width:70%">{{tr "Description"}}</th>
-            <th style="width:3%"></th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3">
-              <a type="button" class="add_service_network button small large-12 secondary radius"><i class="fa fa-plus"></i>{{tr "Add another Network"}}</a>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+  <div id="network_configuration">
+    {{#advancedSection (tr "Network Configuration") }}
+    <div class="row">
+      <div class="large-12 columns">
+        <table class="service_networks policies_table dataTable">
+          <thead>
+            <tr>
+              <th style="width:30%">{{tr "Name"}}</th>
+              <th style="width:70%">{{tr "Description"}}</th>
+              <th style="width:3%"></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <a type="button" class="add_service_network button small large-12 secondary radius"><i class="fa fa-plus"></i>{{tr "Add another Network"}}</a>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
+    {{/advancedSection}}
   </div>
-  {{/advancedSection}}
   <br>
   {{#advancedSection (tr "Advanced Service Parameters") }}
   <div class="row">

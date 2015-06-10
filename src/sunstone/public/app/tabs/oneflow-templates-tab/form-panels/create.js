@@ -9,6 +9,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var RoleTab = require('tabs/oneflow-templates-tab/utils/role-tab');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -266,7 +267,99 @@ define(function(require) {
   }
 
   function _fill(context, element) {
-    // TODO
+    var that = this;
+
+    if (this.action != "update") {return;}
+    this.resourceId = element.ID;
+
+    // Populates the Avanced mode Tab
+    $('#template', context).val(TemplateUtils.htmlDecode(
+                          JSON.stringify(element.TEMPLATE.BODY, null, "  ")));
+
+
+    $("#service_name", context).attr("disabled", "disabled");
+    $("#service_name", context).val(TemplateUtils.htmlDecode(element.NAME));
+
+    $("#description", context).val(TemplateUtils.htmlDecode(element.TEMPLATE.BODY.description));
+
+    $('select[name="deployment"]', context).val(element.TEMPLATE.BODY.deployment);
+    $("select[name='shutdown_action_service']", context).val(element.TEMPLATE.BODY.shutdown_action);
+    $("input[name='ready_status_gate']", context).prop("checked",element.TEMPLATE.BODY.ready_status_gate || false);
+
+
+    $(".service_networks i.remove-tab", context).trigger("click");
+
+    if ( ! $.isEmptyObject( element.TEMPLATE.BODY['custom_attrs'] ) ) {
+      $("div#network_configuration a.accordion_advanced_toggle", context).trigger("click");
+
+      $.each(element.TEMPLATE.BODY['custom_attrs'], function(key, attr){
+        var parts = attr.split("|");
+        // 0 mandatory; 1 type; 2 desc;
+        var attrs = {
+          "name": key,
+          "mandatory": parts[0],
+          "type": parts[1],
+          "description": parts[2],
+        };
+
+        switch (parts[1]) {
+          case "vnet_id":
+            $(".add_service_network", context).trigger("click");
+
+            var tr = $(".service_networks tbody tr", context).last();
+            $(".service_network_name", tr).val(TemplateUtils.htmlDecode(attrs.name)).change();
+            $(".service_network_description", tr).val(TemplateUtils.htmlDecode(attrs.description));
+
+            break;
+        }
+      });
+    }
+
+    $("#roles_tabs i.remove-tab", context).trigger("click");
+
+    var network_names = [];
+
+    $(".service_networks .service_network_name", context).each(function(){
+      if ($(this).val()) {
+        network_names.push($(this).val());
+      }
+    });
+
+    var roles_names = [];
+    $.each(element.TEMPLATE.BODY.roles, function(index, value){
+      roles_names.push(value.name);
+
+      $("#tf_btn_roles", context).click();
+
+      var role_context = $('.role_content', context).last();
+      var role_id = $(role_context).attr("role_id");
+
+      that.roleTabObjects[role_id].fill(role_context, value, network_names);
+    });
+
+    $.each(element.TEMPLATE.BODY.roles, function(index, value){
+        var role_context = $('.role_content', context)[index];
+        var str = "";
+
+        $.each(roles_names, function(){
+          if (this != value.name) {
+            str += "<tr>\
+              <td style='width:10%'>\
+                <input class='check_item' type='checkbox' value='"+this+"' id='"+this+"'/>\
+              </td>\
+              <td>"+this+"</td>\
+            </tr>";
+          }
+        });
+
+        $(".parent_roles_body", role_context).html(str);
+
+        if (value.parents) {
+          $.each(value.parents, function(index, value){
+            $(".parent_roles_body #"+this, role_context).attr('checked', true);
+          });
+        }
+    });
   }
 
   //----------------------------------------------------------------------------
