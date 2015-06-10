@@ -1,0 +1,27 @@
+<tr>
+  <td>
+    <select id="type" name="type">
+      <option value=""></option>
+      <option value="CHANGE">{{tr "Change"}}</option>
+      <option value="CARDINALITY">{{tr "Cardinality"}}</option>
+      <option value="PERCENTAGE_CHANGE">{{tr "Percentage"}}</option>
+    </select>
+  </td>
+  <td>
+    <input type="text" id="adjust" name="adjust"/>
+  </td>
+  <td id="min_adjust_step_td">
+  </td>
+  <td>
+    <select id="time_format" name="time_format">
+      <option value="start_time">{{tr "Start time"}}</option>
+      <option value="recurrence">{{tr "Recurrence"}}</option>
+    </select>
+  </td>
+  <td>
+    <input type="text" id="time" name="time"/>
+  </td>
+  <td>
+    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+  </td>
+</tr>

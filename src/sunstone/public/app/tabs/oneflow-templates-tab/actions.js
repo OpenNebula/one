@@ -6,7 +6,7 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
 
   var TAB_ID = require('./tabId');
-  //var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   //var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";

@@ -18,7 +18,7 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    //require('./oneflow-templates-tab/form-panels/create')
+    require('./oneflow-templates-tab/form-panels/create')
   ];
 
   var Tab = {
