@@ -1176,8 +1176,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDiskExport::request_execute(xmlrpc_c::paramList const& paramList,
-                                             RequestAttributes& att)
+void VirtualMachineDiskSaveas::request_execute(
+        xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
     Nebula& nd = Nebula::instance();
 
@@ -1188,6 +1188,7 @@ void VirtualMachineDiskExport::request_execute(xmlrpc_c::paramList const& paramL
     int    disk_id  = xmlrpc_c::value_int(paramList.getInt(2));
     string img_name = xmlrpc_c::value_string(paramList.getString(3));
     string img_type = xmlrpc_c::value_string(paramList.getString(4));
+    int    snap_id  = xmlrpc_c::value_int(paramList.getInt(5));
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
 
@@ -1224,7 +1225,7 @@ void VirtualMachineDiskExport::request_execute(xmlrpc_c::paramList const& paramL
     string error;
 
     // -------------------------------------------------------------------------
-    // Prepare and check the VM/DISK to be export
+    // Prepare and check the VM/DISK to be saved as
     // -------------------------------------------------------------------------
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -1236,7 +1237,7 @@ void VirtualMachineDiskExport::request_execute(xmlrpc_c::paramList const& paramL
         goto error_state;
     }
 
-    iid_orig = vm->set_saveas_disk(disk_id, error);
+    iid_orig = vm->set_saveas_disk(disk_id, snap_id, error);
 
     if (iid_orig == -1)
     {
@@ -1317,7 +1318,7 @@ void VirtualMachineDiskExport::request_execute(xmlrpc_c::paramList const& paramL
     itemplate->add("SAVED_IMAGE_ID",iid_orig);
     itemplate->add("SAVED_DISK_ID",disk_id);
     itemplate->add("SAVED_VM_ID", id);
-    itemplate->set_saving_hot();
+    itemplate->set_saving();
 
     if (img_type.empty())
     {
@@ -1404,7 +1405,7 @@ error_state:
     vm->unlock();
 
     failure_response(INTERNAL,request_error("VM has to be RUNNING, POWEROFF or "
-        "SUSPENDED to export disks.",""), att);
+        "SUSPENDED to save disks.",""), att);
     return;
 
 error_disk:

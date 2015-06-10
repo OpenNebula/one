@@ -1609,8 +1609,9 @@ void LifeCycleManager::saveas_success_action(int vid)
     int image_id;
     int disk_id;
     string tm_mad;
+    string snap;
     string ds_id;
-    string source;
+    string src;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1619,7 +1620,7 @@ void LifeCycleManager::saveas_success_action(int vid)
         return;
     }
 
-    int rc = vm->get_saveas_disk(disk_id, source, image_id, tm_mad, ds_id);
+    int rc = vm->get_saveas_disk(disk_id, src, image_id, snap, tm_mad, ds_id);
 
     vm->clear_saveas_disk();
 
@@ -1665,8 +1666,9 @@ void LifeCycleManager::saveas_failure_action(int vid)
     int image_id;
     int disk_id;
     string tm_mad;
+    string snap;
     string ds_id;
-    string source;
+    string src;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1675,7 +1677,7 @@ void LifeCycleManager::saveas_failure_action(int vid)
         return;
     }
 
-    int rc = vm->get_saveas_disk(disk_id, source, image_id, tm_mad, ds_id);
+    int rc = vm->get_saveas_disk(disk_id, src, image_id, snap, tm_mad, ds_id);
 
     vm->clear_saveas_disk();
 

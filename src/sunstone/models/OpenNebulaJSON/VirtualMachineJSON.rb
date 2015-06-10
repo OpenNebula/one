@@ -104,7 +104,7 @@ module OpenNebulaJSON
         end
 
         def save_as(params=Hash.new)
-            disk_export(params['disk_id'].to_i, params['image_name'], params['type'])
+            disk_saveas(params['disk_id'].to_i, params['image_name'], params['type'])
         end
 
         def snapshot_create(params=Hash.new)

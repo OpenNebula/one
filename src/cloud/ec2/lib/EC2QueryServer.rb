@@ -218,7 +218,7 @@ class EC2QueryServer < CloudServer
             return rc
         end
 
-        image_id = vm.disk_export(1,
+        image_id = vm.disk_saveas(1,
                       params["Name"],
                       OpenNebula::Image::IMAGE_TYPES[0])
 

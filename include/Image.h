@@ -354,7 +354,7 @@ public:
      */
     bool is_saving()
     {
-        return (static_cast<ImageTemplate *>(obj_template))->is_saving_hot();
+        return (static_cast<ImageTemplate *>(obj_template))->is_saving();
     }
 
     /**

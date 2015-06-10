@@ -59,7 +59,7 @@ public:
         Template::remove_all_except_restricted(restricted_attributes);
     };
 
-    bool is_saving_hot()
+    bool is_saving()
     {
         bool save_as_hot;
 
@@ -68,7 +68,7 @@ public:
         return save_as_hot;
     }
 
-    void set_saving_hot()
+    void set_saving()
     {
         replace("SAVE_AS_HOT", "YES");
     }

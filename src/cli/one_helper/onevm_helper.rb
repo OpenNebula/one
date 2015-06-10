@@ -601,13 +601,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     d["CLONE"]
                 end
 
-                column :"SAVE_AS", "", :size=>7 do |d|
-                    d["SAVE_AS"] || "-"
-                end
-
-
                 default :ID, :TARGET, :IMAGE, :TYPE,
-                    :SAVE, :SAVE_AS
+                    :SAVE
             end.show(vm_disks, {})
 
             while vm.has_elements?("/VM/TEMPLATE/DISK")

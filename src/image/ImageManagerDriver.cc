@@ -473,12 +473,12 @@ error_img:
     goto error;
 
 error_save_get:
-    oss << "Image created for SAVE_AS, but the associated VM does not exist.";
+    oss << "Image created to save as a disk but VM does not exist.";
     goto error_save;
 
 error_save_state:
     vm->unlock();
-    oss << "Image created for SAVE_AS, but VM is no longer running";
+    oss << "Image created to save as disk but VM is no longer running";
 
 error_save:
     image = ipool->get(id, true);

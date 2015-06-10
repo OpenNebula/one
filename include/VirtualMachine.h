@@ -1270,38 +1270,39 @@ public:
     int  generate_context(string &files, int &disk_id, string& token_password);
 
     // -------------------------------------------------------------------------
-    // Export Disk related functions (save_as hot)
+    // "Save as" Disk related functions (save_as hot)
     // -------------------------------------------------------------------------
     /**
-     *  Mark the disk that is going to be exported (saved_as)
+     *  Mark the disk that is going to be "save as"
      *    @param disk_id of the VM
+     *    @param snap_id of the disk to save, -1 to select the active snapshot
      *    @param err_str describing the error
      *    @return -1 if the image cannot saveas or image_id of current disk
      */
-    int set_saveas_disk(int disk_id, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, string& err_str);
 
     /**
-     *  Set export attributes for the disk
-     *    @param  disk_id Index of the disk to export
+     *  Set save attributes for the disk
+     *    @param  disk_id Index of the disk to save
      *    @param  source to save the disk
      *    @param  img_id ID of the image this disk will be saved to
      */
     int set_saveas_disk(int disk_id, const string& source, int img_id);
 
     /**
-     *  Sets the corresponding state to export the disk.
-     *    @return 0 if the VM can be exported
+     *  Sets the corresponding state to save the disk.
+     *    @return 0 if the VM can be saved
      */
     int set_saveas_state();
 
     /**
-     *  Clears the export state, moving the VM to the original state.
-     *    @return 0 if the VM was in an export state
+     *  Clears the save state, moving the VM to the original state.
+     *    @return 0 if the VM was in an saveas state
      */
     int clear_saveas_state();
 
     /**
-     * Clears the export attributes of the disk being saved as
+     * Clears the SAVE_AS_* attributes of the disk being saved as
      *    @return the ID of the image this disk will be saved to or -1 if it
      *    is not found.
      */
@@ -1318,7 +1319,7 @@ public:
      *    @return -1 if failure
      */
     int get_saveas_disk(int& disk_id, string& source, int& image_id,
-            string& tm_mad, string& ds_id);
+            string& snap_id, string& tm_mad, string& ds_id);
 
     // ------------------------------------------------------------------------
     // Authorization related functions

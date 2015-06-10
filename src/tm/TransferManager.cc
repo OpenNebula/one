@@ -2053,7 +2053,8 @@ void TransferManager::saveas_hot_action(int vid)
 {
     int    disk_id;
     int    image_id;
-    string source;
+    string src;
+    string snap_id;
     string tm_mad;
     string ds_id;
 
@@ -2084,7 +2085,7 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_common;
     }
 
-    if (vm->get_saveas_disk(disk_id, source, image_id, tm_mad, ds_id) != 0)
+    if (vm->get_saveas_disk(disk_id, src, image_id, snap_id, tm_mad, ds_id)!= 0)
     {
         vm->log("TM", Log::ERROR,"Could not get disk information to export it");
         goto error_common;
@@ -2097,7 +2098,7 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_driver;
     }
 
-    xfr_name = vm->get_transfer_file() + ".saveas_hot";
+    xfr_name = vm->get_transfer_file() + ".disk_saveas";
     xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
 
     if (xfr.fail() == true)
@@ -2105,12 +2106,13 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_file;
     }
 
-    //MVDS tm_mad hostname:remote_system_dir/disk.0 <fe:SOURCE|SOURCE> vmid dsid
+    //MVDS tm_mad hostname:remote_system_dir/disk.0 source snapid vmid dsid
     xfr << "CPDS "
         << tm_mad << " "
         << vm->get_hostname() << ":"
         << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-        << source << " "
+        << src << " "
+        << snap_id << " "
         << vm->get_oid() << " "
         << ds_id
         << endl;

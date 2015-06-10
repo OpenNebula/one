@@ -2530,7 +2530,6 @@ int VirtualMachine::set_attach_nic(int nic_id)
 void VirtualMachine::release_disk_images()
 {
     int iid;
-    int save_as_id;
     int num_disks;
     int did = -1;
 
@@ -2572,12 +2571,6 @@ void VirtualMachine::release_disk_images()
 
             imagem->release_image(oid, iid, img_error);
         }
-
-        if ( disk->vector_value("SAVE_AS", save_as_id) == 0 )
-        {
-            imagem->release_image(oid, save_as_id, img_error);
-        }
-
     }
 }
 
@@ -3216,25 +3209,49 @@ const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_saveas_disk(int disk_id, string& err_str)
+int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, string& err_str)
 {
     int iid = -1;
 
     VectorAttribute * disk = get_disk(disk_id);
 
-    if ( disk == 0 )
+    if (disk == 0)
     {
         err_str = "DISK does not exist.";
         return -1;
     }
 
-    if ( disk->vector_value("IMAGE_ID", iid) != 0 )
+    if (disk->vector_value("IMAGE_ID", iid) != 0)
     {
         err_str = "DISK does not have a valid IMAGE_ID.";
         return -1;
     }
 
+    const Snapshots * snaps = get_disk_snapshots(disk_id, err_str);
+
+    if (snaps == 0)
+    {
+        if (snap_id != -1)
+        {
+            err_str = "Snapshot does not exists.";
+            return -1;
+        }
+    }
+    else
+    {
+        if (snap_id == -1)
+        {
+            snap_id = snaps->get_active_id();
+        }
+        else if (!snaps->exists(snap_id))
+        {
+            err_str = "Snapshot does not exists.";
+            return -1;
+        }
+    }
+
     disk->replace("HOTPLUG_SAVE_AS_ACTIVE", "YES");
+    disk->replace("HOTPLUG_SAVE_AS_SNAPSHOT_ID", snap_id);
 
     return iid;
 }
@@ -3268,6 +3285,8 @@ int VirtualMachine::set_saveas_disk(int disk_id, const string& source, int iid)
 
 int VirtualMachine::set_saveas_state()
 {
+    string s;
+
     switch (state)
     {
         case ACTIVE:
@@ -3277,21 +3296,23 @@ int VirtualMachine::set_saveas_state()
             }
 
             lcm_state = HOTPLUG_SAVEAS;
-        break;
+            break;
 
         case POWEROFF:
             state     = ACTIVE;
             lcm_state = HOTPLUG_SAVEAS_POWEROFF;
-        break;
+            break;
 
         case SUSPENDED:
             state     = ACTIVE;
             lcm_state = HOTPLUG_SAVEAS_SUSPENDED;
-        break;
+            break;
 
         default:
             return -1;
     }
+
+    log("VM", Log::INFO, "New state is " + lcm_state_to_str(s,lcm_state));
 
     return 0;
 }
@@ -3301,20 +3322,25 @@ int VirtualMachine::set_saveas_state()
 
 int VirtualMachine::clear_saveas_state()
 {
+    string s;
+
     switch (lcm_state)
     {
         case HOTPLUG_SAVEAS:
             lcm_state = RUNNING;
+            log("VM", Log::INFO, "New state is "+lcm_state_to_str(s,lcm_state));
             break;
 
         case HOTPLUG_SAVEAS_POWEROFF:
             state     = POWEROFF;
             lcm_state = LCM_INIT;
+            log("VM", Log::INFO, "New state is " + vm_state_to_str(s,state));
             break;
 
         case HOTPLUG_SAVEAS_SUSPENDED:
             state     = SUSPENDED;
             lcm_state = LCM_INIT;
+            log("VM", Log::INFO, "New state is " + vm_state_to_str(s,state));
             break;
 
         default:
@@ -3355,6 +3381,7 @@ int VirtualMachine::clear_saveas_disk()
             disk->remove("HOTPLUG_SAVE_AS_ACTIVE");
             disk->remove("HOTPLUG_SAVE_AS");
             disk->remove("HOTPLUG_SAVE_AS_SOURCE");
+            disk->remove("HOTPLUG_SAVE_AS_SNAPSHOT_ID");
 
             return image_id;
         }
@@ -3368,7 +3395,7 @@ int VirtualMachine::clear_saveas_disk()
 /* -------------------------------------------------------------------------- */
 
 int VirtualMachine::get_saveas_disk(int& disk_id, string& source,
-        int& image_id, string& tm_mad, string& ds_id)
+        int& image_id, string& snap_id, string& tm_mad, string& ds_id)
 {
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
@@ -3391,6 +3418,7 @@ int VirtualMachine::get_saveas_disk(int& disk_id, string& source,
         {
             rc  = disk->vector_value("HOTPLUG_SAVE_AS_SOURCE", source);
             rc += disk->vector_value("HOTPLUG_SAVE_AS", image_id);
+            rc += disk->vector_value("HOTPLUG_SAVE_AS_SNAPSHOT_ID", snap_id);
             rc += disk->vector_value("DISK_ID",  disk_id);
             rc += disk->vector_value("DATASTORE_ID", ds_id);
             rc += disk->vector_value("TM_MAD", tm_mad);

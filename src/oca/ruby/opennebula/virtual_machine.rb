@@ -43,7 +43,7 @@ module OpenNebula
             :attachnic      => "vm.attachnic",
             :detachnic      => "vm.detachnic",
             :recover        => "vm.recover",
-            :diskexport     => "vm.diskexport",
+            :disksaveas     => "vm.disksaveas",
             :disksnapshotcreate => "vm.disksnapshotcreate",
             :disksnapshotrevert => "vm.disksnapshotrevert",
             :disksnapshotdelete => "vm.disksnapshotdelete"
@@ -459,7 +459,7 @@ module OpenNebula
             migrate(host_id, true, enforce)
         end
 
-        # Set the specified vm's disk to be saved in a new image
+        # Set the specified vm's disk to be saved as a new image
         # when the VirtualMachine shutdowns
         #
         # @param disk_id [Integer] ID of the disk to be saved
@@ -467,17 +467,20 @@ module OpenNebula
         #   disk will be saved
         # @param image_type [String] Type of the new image. Set to empty string
         #   to use the default type
+        # @param snap_id [Integer] ID of the snapshot to save, -1 to use the
+        # current disk image state
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def disk_export(disk_id, image_name, image_type="")
+        def disk_saveas(disk_id, image_name, image_type="", snap_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(VM_METHODS[:diskexport],
+            rc = @client.call(VM_METHODS[:disksaveas],
                               @pe_id,
                               disk_id,
                               image_name,
-                              image_type)
+                              image_type,
+                              snap_id)
             return rc
         end
 
@@ -767,7 +770,7 @@ module OpenNebula
                 image_id = disk["IMAGE_ID"]
 
                 if !image_id.nil? && !image_id.empty?
-                    rc = disk_export(disk_id.to_i,"#{name}-disk-#{disk_id}","")
+                    rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
 
                     return rc if OpenNebula.is_error?(rc)
 
