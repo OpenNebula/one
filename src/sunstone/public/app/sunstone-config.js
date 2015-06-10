@@ -99,7 +99,9 @@ define(function(require) {
     },
 
     'autoRefresh' : _config['view']['autorefresh'],
-    'tableOrder': _config['user_config']['table_order']
+    'tableOrder': _config['user_config']['table_order'],
+    'vncProxyPort': _config['system_config']['vnc_proxy_port'],
+    'vncWSS': _config['user_config']['vnc_wss']
   }
 
   return Config;

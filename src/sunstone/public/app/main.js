@@ -48,7 +48,10 @@ require.config({
     'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip.min',
 
     /* noUiSlider */
-    'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min'
+    'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min',
+
+    /* VNC */
+    'vnc-util': '../bower_components/no-vnc/include/util'
   },
   shim: {
     /* jQuery */
@@ -151,6 +154,11 @@ require.config({
     /* noUiSlider */
     'nouislider': {
       deps: ['jquery']
+    },
+
+    /* VNC */
+    'vnc-util': {
+      exports: 'Util'
     },
   }
 });
