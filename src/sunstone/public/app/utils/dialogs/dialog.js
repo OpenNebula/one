@@ -25,6 +25,12 @@ define(function(require) {
       that.onShow(dialogElement);
     });
 
+    dialogElement.on('opened.fndtn.close', function (e) {
+      if (that.onClose) {
+        that.onClose(dialogElement);
+      }
+    });
+
     dialogElement.on('click', '.resetDialog', function() {
       that.reset();
       that.show();
