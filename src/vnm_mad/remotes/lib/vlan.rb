@@ -24,6 +24,8 @@ module VNMMAD
     class VLANDriver < VNMMAD::VNMDriver
 
         def initialize(vm_tpl, xpath_filter, deploy_id = nil, hypervisor = nil)
+            @locking = true
+
             super(vm_tpl, xpath_filter, deploy_id, hypervisor)
 
             lock
@@ -35,21 +37,28 @@ module VNMMAD
         def activate
             lock
 
-            options = Hash.new
-
             process do |nic|
+                @nic = nic
 
-                options.clear
+                next if @nic[:phydev].nil?
 
-                options[:bridge]     = nic[:bridge]
-                options[:phydev]     = nic[:phydev]
-                options[:vlan_id]    = nic[:vlan_id]
-                options[:network_id] = nic[:network_id]
-                options[:mtu]        = nic[:mtu]
+                # Get the name of the vlan device.
+                get_vlan_dev_name
 
-                return if options[:phydev].nil?
+                # Create the bridge.
+                create_bridge
 
-                set_up_vlan(options)
+                # Return if vlan device is already in the bridge.
+                next if @bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+
+                # Create vlan device.
+                create_vlan_dev
+
+                # Add vlan device to the bridge.
+                OpenNebula.exec_and_log("#{command(:brctl)} addif"\
+                    " #{@nic[:bridge]} #{@nic[:vlan_dev]}")
+
+                @bridges[@nic[:bridge]] << @nic[:vlan_dev]
             end
 
             unlock
@@ -57,56 +66,67 @@ module VNMMAD
             return 0
         end
 
-        # Set ups the VLAN for the VMs.
-        #   @param options [Hash] including
-        #   - :phydev Physical Device to bind the VLAN traffic to
-        #   - :bridge Name of the bridge to attach the VMs and VLAN dev to
-        #   - :network_id
-        def set_up_vlan(options)
-
-            if options[:vlan_id].nil?
-                options[:vlan_id] = CONF[:start_vlan] + options[:network_id].to_i
-            end
-
-            options[:vlan_dev] = "#{options[:phydev]}.#{options[:vlan_id]}"
-
-            create_bridge(options[:bridge])
-
-            return if @bridges[options[:bridge]].include? options[:vlan_dev]
-
-            create_vlan_dev(options)
-
-            OpenNebula.exec_and_log("#{command(:brctl)} addif"\
-                " #{options[:bridge]} #{options[:vlan_dev]}")
-
-            @bridges[options[:bridge]] << options[:vlan_dev]
-        end
-
         # This function needs to be implemented by any VLAN driver to
         # create the VLAN device. The device MUST be set up by this function
-        # Options is a driver specific hash. It includes
-        #   :vlan_dev the name for the VLAN device
-        #   :phydev Physical Device to bind the VLAN traffic to
-        #   :vlan_id the VLAN ID
-        #   : additional driver specific parameters
-        def create_vlan_dev(options)
+        def create_vlan_dev
             OpenNebula.log_error("create_vlan_dev function not implemented.")
 
             exit -1
         end
 
+        # Deactivate the driver and delete bridges and tags devices as needed.
+        def deactivate
+            lock
+
+            attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+
+            process do |nic|
+                next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+                @nic = nic
+
+                next if @nic[:phydev].nil?
+
+                # Get the name of the vlan device.
+                get_vlan_dev_name
+
+                # Return if the vlan device is not the only left device in the bridge.
+                next if @bridges[@nic[:bridge]].length > 1 or !@bridges[@nic[:bridge]].include? @nic[:vlan_dev]
+
+                # Delete the vlan device.
+                OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+                    " #{@nic[:vlan_dev]}")
+                @bridges[@nic[:bridge]].delete(@nic[:vlan_dev])
+
+                # Delete the bridge.
+                OpenNebula.exec_and_log("#{command(:ip)} link delete"\
+                    " #{@nic[:bridge]}")
+                @bridges.delete(@nic[:bridge])
+            end
+
+            unlock
+        end
+
     private
+        # Generate the name of the vlan device which will be added to the bridge.
+        def get_vlan_dev_name
+            if @nic[:vlan_id].nil?
+                @nic[:vlan_id] = CONF[:start_vlan] + @nic[:network_id].to_i
+            end
+
+            @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[:vlan_id]}"
+        end
+
         # Creates a bridge if it does not exists, and brings it up.
         # This function IS FINAL, exits if action cannot be completed
-        #   @param bridge [String] the bridge name
-        def create_bridge(bridge)
-            return if @bridges.keys.include? bridge
+        def create_bridge
+            return if @bridges.keys.include? @nic[:bridge]
 
-            OpenNebula.exec_and_log("#{command(:brctl)} addbr #{bridge}")
+            OpenNebula.exec_and_log("#{command(:brctl)} addbr #{@nic[:bridge]}")
 
-            @bridges[bridge] = Array.new
+            @bridges[@nic[:bridge]] = Array.new
 
-            OpenNebula.exec_and_log("#{command(:ip)} link set #{bridge} up")
+            OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:bridge]} up")
         end
 
         # Get hypervisor bridges
