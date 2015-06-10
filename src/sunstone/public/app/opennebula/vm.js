@@ -375,7 +375,7 @@ define(function(require) {
       var action = OpenNebulaHelper.action(method);
       var request = OpenNebulaHelper.request(resource, method, id);
       $.ajax({
-        url: "vm/" + id + "/" + method,
+        url: "vm/" + id + "/startvnc",
         type: "POST",
         dataType: "json",
         success: function(response) {
@@ -386,9 +386,6 @@ define(function(require) {
               callback_error(request, OpenNebulaError(response)) : null;
         }
       });
-    },
-    "startvnc" : function(params) {
-      OpenNebula.VM.vnc(params, "startvnc");
     },
     "update": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param};

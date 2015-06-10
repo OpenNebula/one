@@ -3,7 +3,7 @@ define(function(require) {
   var Buttons = require('./vms-tab/buttons');
   var Actions = require('./vms-tab/actions');
   var Table = require('./vms-tab/datatable');
-
+  require('utils/vnc');
   var TAB_ID = require('./vms-tab/tabId');
   var DATATABLE_ID = "dataTableVms";
 
@@ -13,7 +13,8 @@ define(function(require) {
     require('./vms-tab/dialogs/resize'),
     require('./vms-tab/dialogs/attach-disk'),
     require('./vms-tab/dialogs/attach-nic'),
-    require('./vms-tab/dialogs/snapshot')
+    require('./vms-tab/dialogs/snapshot'),
+    require('./vms-tab/dialogs/vnc')
   ];
 
   var _panels = [

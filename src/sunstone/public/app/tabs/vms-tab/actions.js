@@ -4,11 +4,13 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaVM = require('opennebula/vm');
   var CommonActions = require('utils/common-actions');
+  var Vnc = require('utils/vnc');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
   var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
+  var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
   
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -58,13 +60,13 @@ define(function(require) {
     
     "VM.create_dialog" : {
       type: "custom",
-      call: function(){
+      call: function() {
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
     "VM.deploy" : {
       type: "custom",
-      call: function(){
+      call: function() {
         Sunstone.getDialog(DEPLOY_DIALOG_ID).show();
       }
     },
@@ -84,6 +86,50 @@ define(function(require) {
        dialog.show();
      }
     },
+    "VM.startvnc" : {
+      type: "custom",
+      call: function() {
+        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
+          if (!Vnc.lockStatus()) {
+            Vnc.lock();
+            Sunstone.runAction("VM.startvnc_action", elem);
+          } else {
+            Notifier.notifyError(Locale.tr("VNC Connection in progress"))
+            return false;
+          }
+        });
+      }
+    },
+    "VM.startvnc_action" : {
+      type: "single",
+      call: OpenNebulaVM.vnc,
+      callback: function(request, response) {
+       var dialog = Sunstone.getDialog(VNC_DIALOG_ID);
+       dialog.setElement(response);
+       dialog.show();
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+        Vnc.unlock();
+      },
+      notify: true
+    },
+    //"VM.startspice" : {
+    //  type: "custom",
+    //  call: function() {
+    //   popUpSPICE();
+    // }
+    //},
+    //"VM.startspice_action" : {
+    //  type: "single",
+    //  call: OpenNebula.VM.startvnc,
+    //  callback: spiceCallback,
+    //  error: function(req, resp) {
+    //    onError(req, resp);
+    //    spice_lock = false;
+    //  },
+    //  notify: true
+    //},
     /*"VM.create" : {
       type: "custom",
       call: function(id, name) {
@@ -129,127 +175,8 @@ define(function(require) {
       notify: true
     },
   
-    "VM.log" : {
-      type: "single",
-      call: OpenNebula.VM.log,
-      callback: function(req, res) {
-        //after calling VM.log we process the answer
-        //update the tab and pop it up again
-        res = res['vm_log'];
-        var log_lines = res.split("\n");
-        var colored_log = '';
-        for (var i = 0; i < log_lines.length; i++) {
-          var line = log_lines[i];
-          if (line.match(/\[E\]/)) {
-            line = '<span class="vm_log_error">' + line + '</span>';
-          }
-          colored_log += line + "<br>";
-        }
  
-        $('#vm_log_tab').html('<div class="row"><div class="large-11 small-centered columns log-tab">' + colored_log + '</div></div>')
-      },
-      error: function(request, error_json) {
-        $("#vm_log pre").html('');
-        onError(request, error_json);
-      }
-    },
- 
-    "VM.startvnc" : {
-      type: "custom",
-      call: function() {
-       popUpVnc();
-     }
-    },
- 
-    "VM.startspice" : {
-      type: "custom",
-      call: function() {
-       popUpSPICE();
-     }
-    },
- 
-    "VM.startvnc_action" : {
-      type: "single",
-      call: OpenNebula.VM.startvnc,
-      callback: vncCallback,
-      error: function(req, resp) {
-        onError(req, resp);
-        vnc_lock = false;
-      },
-      notify: true
-    },
- 
-    "VM.startspice_action" : {
-      type: "single",
-      call: OpenNebula.VM.startvnc,
-      callback: spiceCallback,
-      error: function(req, resp) {
-        onError(req, resp);
-        spice_lock = false;
-      },
-      notify: true
-    },
- 
-    "VM.monitor" : {
-      type: "monitor",
-      call : OpenNebula.VM.monitor,
-      callback: function(req, response) {
-        var vm_graphs = [
-             {
-               monitor_resources : "CPU",
-               labels : "Real CPU",
-               humanize_figures : false,
-               div_graph : $(".vm_cpu_graph")
-             },
-             {
-               monitor_resources : "MEMORY",
-               labels : "Real MEM",
-               humanize_figures : true,
-               div_graph : $(".vm_memory_graph")
-             },
-             {labels : "Network reception",
-               monitor_resources : "NET_RX",
-               humanize_figures : true,
-               convert_from_bytes : true,
-               div_graph : $("#vm_net_rx_graph")
-             },
-             {labels : "Network transmission",
-               monitor_resources : "NET_TX",
-               humanize_figures : true,
-               convert_from_bytes : true,
-               div_graph : $("#vm_net_tx_graph")
-             },
-             {labels : "Network reception speed",
-               monitor_resources : "NET_RX",
-               humanize_figures : true,
-               convert_from_bytes : true,
-               y_sufix : "B/s",
-               derivative : true,
-               div_graph : $("#vm_net_rx_speed_graph")
-             },
-             {labels : "Network transmission speed",
-               monitor_resources : "NET_TX",
-               humanize_figures : true,
-               convert_from_bytes : true,
-               y_sufix : "B/s",
-               derivative : true,
-               div_graph : $("#vm_net_tx_speed_graph")
-             }
-         ];
- 
-        // The network speed graphs require the derivative of the data,
-        // and this process is done in place. They must be the last
-        // graphs to be processed
- 
-        for (var i = 0; i < vm_graphs.length; i++) {
-          plot_graph(
-              response,
-              vm_graphs[i]
-          );
-        }
-      },
-      error: vmMonitorError
-    },
+
  */
   };
 

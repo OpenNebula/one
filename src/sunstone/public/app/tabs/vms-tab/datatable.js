@@ -10,6 +10,9 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var OpenNebulaVM = require('opennebula/vm');
   var StateActions = require('./utils/state-actions');
+  var Sunstone = require('sunstone');
+  var Vnc = require('utils/vnc');
+  var Notifier = require('utils/notifier');
   
   /*
     CONSTANTS
@@ -18,6 +21,7 @@ define(function(require) {
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
   var TAB_NAME = require('./tabId');
+
 
   /*
     CONSTRUCTOR
@@ -73,6 +77,7 @@ define(function(require) {
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
   Table.prototype.onUpdateView = _onUpdateView;
+  Table.prototype.initialize = _initialize;
 
   return Table;
 
@@ -142,5 +147,22 @@ define(function(require) {
 
   function _onUpdateView() {
     StateActions.resetStateButtons();
+  }
+
+  function _initialize(opts) {
+    TabDataTable.prototype.initialize.call(this, opts);
+
+    $('#' + this.dataTableId).on("click", '.vnc', function() {
+      var vmId = $(this).attr('vm_id');
+
+      if (!Vnc.lockStatus()) {
+        Vnc.lock();
+        Sunstone.runAction("VM.startvnc_action", vmId);
+      } else {
+        Notifier.notifyError(tr("VNC Connection in progress"))
+      }
+
+      return false;
+    });
   }
 });
