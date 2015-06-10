@@ -1,0 +1,19 @@
+<div id="{{dialogId}}" class="reveal-modal large max-height" style="width:auto; max-width:70%" data-reveal >
+  <div class="row">
+    <div class="large-12 columns">
+      <h3 class="subheader" id="spice_dialog">
+        {{tr "SPICE"}}
+        <span id="vnc_buttons">
+          <a id="open_in_a_new_window_spice" href="" target="_blank" title="{{tr "Open in a new window"}}"> <i class="fa fa-external-link detach-spice-icon"/></a>
+        </span>
+      </h3>
+    </div>
+  </div>
+  <div class="reveal-body" style="width:100%; overflow-x:overlay">
+    <div id="spice-area">
+      <div id="spice-screen" class="spice-screen"></div>
+    </div>
+  </div>
+  <div id="message-div" class="spice-message"></div>
+  <a class="close-reveal-modal">&#215;</a>
+</div>

@@ -5,12 +5,14 @@ define(function(require) {
   var OpenNebulaVM = require('opennebula/vm');
   var CommonActions = require('utils/common-actions');
   var Vnc = require('utils/vnc');
+  var Vnc = require('utils/spice');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
   var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
   var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
+  var SPICE_DIALOG_ID = require('./dialogs/spice/dialogId');
   
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -111,6 +113,34 @@ define(function(require) {
       error: function(req, resp) {
         Notifier.onError(req, resp);
         Vnc.unlock();
+      },
+      notify: true
+    },
+    "VM.startspice" : {
+      type: "custom",
+      call: function() {
+        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
+          if (!Vnc.lockStatus()) {
+            Spice.lock();
+            Sunstone.runAction("VM.startspice_action", elem);
+          } else {
+            Notifier.notifyError(Locale.tr("VNC Connection in progress"))
+            return false;
+          }
+        });
+      }
+    },
+    "VM.startspice_action" : {
+      type: "single",
+      call: OpenNebulaVM.vnc,
+      callback: function(request, response) {
+       var dialog = Sunstone.getDialog(SPICE_DIALOG_ID);
+       dialog.setElement(response);
+       dialog.show();
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+        Spice.unlock();
       },
       notify: true
     },

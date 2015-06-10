@@ -12,6 +12,7 @@ define(function(require) {
   var StateActions = require('./utils/state-actions');
   var Sunstone = require('sunstone');
   var Vnc = require('utils/vnc');
+  var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
   
   /*
@@ -156,10 +157,23 @@ define(function(require) {
       var vmId = $(this).attr('vm_id');
 
       if (!Vnc.lockStatus()) {
-        Vnc.lock();
+        Spice.lock();
         Sunstone.runAction("VM.startvnc_action", vmId);
       } else {
         Notifier.notifyError(tr("VNC Connection in progress"))
+      }
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", '.spice', function() {
+      var vmId = $(this).attr('vm_id');
+
+      if (!Spice.lockStatus()) {
+        Spice.lock();
+        Sunstone.runAction("VM.startspice_action", vmId);
+      } else {
+        Notifier.notifyError(tr("SPICE Connection in progress"))
       }
 
       return false;

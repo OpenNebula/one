@@ -14,7 +14,8 @@ define(function(require) {
     require('./vms-tab/dialogs/attach-disk'),
     require('./vms-tab/dialogs/attach-nic'),
     require('./vms-tab/dialogs/snapshot'),
-    require('./vms-tab/dialogs/vnc')
+    require('./vms-tab/dialogs/vnc'),
+    require('./vms-tab/dialogs/spice')
   ];
 
   var _panels = [
