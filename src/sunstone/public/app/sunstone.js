@@ -697,11 +697,21 @@ define(function(require) {
   function _showFormPanel(tabId, formPanelId, action, onShow2) {
     var context = $("#" + tabId);
     _popFormPanelLoading(tabId);
+    _enableFormPanelSubmit(tabId);
 
     setTimeout(function() {
       var tab = SunstoneCfg["tabs"][tabId];
       var formPanelInstance = tab["formPanelInstances"][formPanelId];
+
+      var formContext = $("#" + tabId+" div[form-panel-id="+formPanelId+"]");
+
       if (!formPanelInstance) {
+        formContext =
+        $('<div class="tabs-content tabs-contentForm" form-panel-id="'+formPanelId+'">\
+          <div class="content active" id="wizardForms"></div>\
+          <div class="content" id="advancedForms"></div>\
+        </div>').appendTo( $(".contentForm", context) );
+
         // Create panelInstance, insert in the DOM and setup
         var formPanel = tab["formPanels"][formPanelId];
         if (!formPanel) { 
@@ -711,10 +721,10 @@ define(function(require) {
 
         formPanelInstance = new formPanel();
         tab["formPanelInstances"][formPanelId] = formPanelInstance;
-        formPanelInstance.insert(context);
+        formPanelInstance.insert(formContext);
       }
 
-      formPanelInstance.setAction(context, action);
+      formPanelInstance.setAction(formContext, action);
       tab["activeFormPanel"] = formPanelInstance;
 
       // Hide wizard/advanced selector if advanced not defined
@@ -731,9 +741,9 @@ define(function(require) {
         $(".reset_button", context).hide();
       }
 
-      formPanelInstance.onShow(context);
+      formPanelInstance.onShow(formContext);
       if (onShow2) {
-        onShow2(formPanelInstance, context);
+        onShow2(formPanelInstance, formContext);
       }
 
       _hideFormPanelLoading(tabId);
@@ -756,8 +766,8 @@ define(function(require) {
   }
 
   var _resetFormPanel = function(tabId, formPanelId) {
-    var context = $("#" + tabId);
     _popFormPanelLoading(tabId);
+    _enableFormPanelSubmit(tabId);
 
     setTimeout(function() {
       var formPanelInstance;
@@ -768,6 +778,10 @@ define(function(require) {
       }
 
       if (formPanelInstance) {
+        var context = $("#" + tabId+" div[form-panel-id="+formPanelInstance.formPanelId+"]");
+
+        formPanelId = formPanelInstance.formPanelId;
+
         formPanelInstance.reset(context);
         formPanelInstance.onShow(context);
       }
@@ -779,15 +793,19 @@ define(function(require) {
   function _hideFormPanelLoading(tabId) {
     var context = $("#" + tabId);
     //$(".right-form", context).html(content);
+
+    $(".loadingForm", context).hide();
+    $(".tabs-contentForm", context).hide();
+
     var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel;
     if (formPanelInstance) {
       // Set title and button strings
       $(".right-form-title", context).text(formPanelInstance.title());
       $(".submit_button", context).text(formPanelInstance.buttonText());
-    }
 
-    $(".loadingForm", context).hide();
-    $(".tabs-contentForm", context).show();
+      $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).show();
+    }
+    
   }
 
   function _hideFormPanel(tabId) {
@@ -809,6 +827,20 @@ define(function(require) {
 
     $(".tabs-contentForm", context).hide();
     $(".loadingForm", context).show();
+  }
+
+  function _disableFormPanelSubmit(tabId) {
+    var context = $("#" + tabId);
+    $(".submit_button", context).
+        attr("disabled", "disabled").
+        on("click.disable", function(e) { return false; });
+  }
+
+  function _enableFormPanelSubmit(tabId) {
+    var context = $("#" + tabId);
+    $(".submit_button", context).
+        removeAttr("disabled").
+        off("click.disable");
   }
 
   var _getButton = function(tadId, buttonName) {
@@ -870,6 +902,9 @@ define(function(require) {
     "resetFormPanel": _resetFormPanel,
     "hideFormPanel": _hideFormPanel,
     "hideFormPanelLoading": _hideFormPanelLoading,
+    "disableFormPanelSubmit": _disableFormPanelSubmit,
+    "enableFormPanelSubmit": _enableFormPanelSubmit,
+
 
     "rightInfoVisible": _rightInfoVisible,
     "rightListVisible": _rightListVisible,
