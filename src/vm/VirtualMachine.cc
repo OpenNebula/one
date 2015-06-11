@@ -3229,23 +3229,11 @@ int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, string& err_str)
 
     const Snapshots * snaps = get_disk_snapshots(disk_id, err_str);
 
-    if (snaps == 0)
+    if (snap_id != -1)
     {
-        if (snap_id != -1)
+        if (snaps == 0 || !snaps->exists(snap_id))
         {
-            err_str = "Snapshot does not exists.";
-            return -1;
-        }
-    }
-    else
-    {
-        if (snap_id == -1)
-        {
-            snap_id = snaps->get_active_id();
-        }
-        else if (!snaps->exists(snap_id))
-        {
-            err_str = "Snapshot does not exists.";
+            err_str = "Snapshot does not exist.";
             return -1;
         }
     }
