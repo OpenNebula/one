@@ -104,6 +104,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " the --retry option."
     }
 
+    SNAP={
+        :name  => "snapshot",
+        :short => "-s snapshot",
+        :large => "--snapshot snapshot",
+        :format => String,
+        :description => "ID of the Snapshot to save."
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -307,16 +315,27 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-saveas", disk_saveas_desc, :vmid, :diskid, :img_name,
-            :options=>[TYPE] do
-        disk_id    = args[1].to_i
-        image_name = args[2]
-        image_type = options[:type] || ""
+            :options=>[TYPE, SNAP] do
 
-        verbose = "disk #{disk_id} prepared to be saved in " <<
-                  "the image #{image_name}"
+        disk_id     = args[1].to_i
+        image_name  = args[2]
+        image_type  = options[:type] || ""
+        snapshot_id = options[:snapshot]
+
+        if snapshot_id.nil? || snapshot_id.empty?
+            snapshot_id = -1
+
+            verbose = "disk #{disk_id} prepared to be saved in " <<
+                      "the image #{image_name}"
+        else
+            snapshot_id = snapshot_id.to_i
+
+            verbose = "disk #{disk_id} snapshot #{snapshot_id} prepared to " <<
+                      "be saved in the image #{image_name}"
+        end
 
         helper.perform_action(args[0],options,verbose) do |vm|
-            res = vm.disk_saveas(disk_id, image_name, image_type,-1)
+            res = vm.disk_saveas(disk_id, image_name, image_type, snapshot_id)
 
             if !OpenNebula.is_error?(res)
                 puts "Image ID: #{res}"
