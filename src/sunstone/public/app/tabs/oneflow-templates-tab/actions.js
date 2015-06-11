@@ -7,7 +7,7 @@ define(function(require) {
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  //var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
+  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
 
@@ -93,26 +93,39 @@ define(function(require) {
       }
     },
 
-    /* TODO
-
     "ServiceTemplate.instantiate" : {
-        type: "multiple",
-        call: OpenNebula.ServiceTemplate.instantiate,
-        callback: function(req){
-            OpenNebula.Helper.clear_cache("SERVICE");
-        },
-        elements: serviceTemplateElements,
-        error: onError,
-        notify: true
+      type: "multiple",
+      call: OpenNebulaResource.instantiate,
+      callback: function(request, response){
+        Sunstone.hideFormPanel(TAB_ID);
+
+        // TODO
+        //OpenNebulaHelper.clear_cache("SERVICE");
+      },
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
+      notify: true
     },
 
     "ServiceTemplate.instantiate_dialog" : {
-        type: "custom",
-        call: function(){
-            popUpInstantiateServiceTemplateDialog();
+      type: "custom",
+      call: function() {
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) template to instantiate.");
+          return false;
         }
+
+        Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
+        Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate");
+      }
     },
-    */
+
   };
 
   return _actions;
