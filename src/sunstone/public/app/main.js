@@ -54,7 +54,34 @@ require.config({
     'vnc-util': '../bower_components/no-vnc/include/util',
 
     /* VNC */
-    'spice': '../bower_components/spice-html5/main'
+    'spice-main': '../bower_components/spice-html5/main',
+    'spice-spicearraybuffer': '../bower_components/spice-html5/spicearraybuffer',
+    'spice-enums': '../bower_components/spice-html5/enums',
+    'spice-atKeynames': '../bower_components/spice-html5/atKeynames',
+    'spice-utils': '../bower_components/spice-html5/utils',
+    'spice-png': '../bower_components/spice-html5/png',
+    'spice-lz': '../bower_components/spice-html5/lz',
+    'spice-quic': '../bower_components/spice-html5/quic',
+    'spice-bitmap': '../bower_components/spice-html5/bitmap',
+    'spice-spicedataview': '../bower_components/spice-html5/spicedataview',
+    'spice-spicetype': '../bower_components/spice-html5/spicetype',
+    'spice-spicemsg': '../bower_components/spice-html5/spicemsg',
+    'spice-wire': '../bower_components/spice-html5/wire',
+    'spice-spiceconn': '../bower_components/spice-html5/spiceconn',
+    'spice-display': '../bower_components/spice-html5/display',
+    'spice-inputs': '../bower_components/spice-html5/inputs',
+    'spice-webm': '../bower_components/spice-html5/webm',
+    'spice-playback': '../bower_components/spice-html5/playback',
+    'spice-simulatecursor': '../bower_components/spice-html5/simulatecursor',
+    'spice-cursor': '../bower_components/spice-html5/cursor',
+    'spice-jsbn': '../bower_components/spice-html5/thirdparty/jsbn',
+    'spice-rsa': '../bower_components/spice-html5/thirdparty/rsa',
+    'spice-prng4': '../bower_components/spice-html5/thirdparty/prng4',
+    'spice-rng': '../bower_components/spice-html5/thirdparty/rng',
+    'spice-sha1': '../bower_components/spice-html5/thirdparty/sha1',
+    'spice-ticket': '../bower_components/spice-html5/ticket',
+    'spice-resize': '../bower_components/spice-html5/resize',
+    'spice-filexfer': '../bower_components/spice-html5/filexfer'
   },
   shim: {
     /* jQuery */
@@ -195,6 +222,63 @@ require.config({
         '../bower_components/spice-html5/ticket',
         '../bower_components/spice-html5/resize',
         '../bower_components/spice-html5/filexfer'
+      ]
+    },
+
+    'spice-main': {
+      exports: 'SpiceMainConn',
+      deps: [
+        'spice-spiceconn',
+        'spice-spicearraybuffer',
+        'spice-enums',
+        'spice-atKeynames',
+        'spice-utils',
+        'spice-png',
+        'spice-lz',
+        'spice-quic',
+        'spice-bitmap',
+        'spice-spicedataview',
+        'spice-spicetype',
+        'spice-spicemsg',
+        'spice-wire',
+        'spice-display',
+        'spice-inputs',
+        'spice-webm',
+        'spice-playback',
+        'spice-simulatecursor',
+        'spice-cursor',
+        'spice-jsbn',
+        'spice-rsa',
+        'spice-prng4',
+        'spice-rng',
+        'spice-sha1',
+        'spice-ticket',
+        'spice-resize',
+        'spice-filexfer'
+      ]
+    },
+
+    'spice-display': {
+      deps: [
+        'spice-spiceconn'
+      ]
+    },
+
+    'spice-inputs': {
+      deps: [
+        'spice-spiceconn'
+      ]
+    },
+
+    'spice-playback': {
+      deps: [
+        'spice-spiceconn'
+      ]
+    },
+    
+    'spice-cursor': {
+      deps: [
+        'spice-spiceconn'
       ]
     }
   }

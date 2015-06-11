@@ -1,5 +1,5 @@
 define(function(require) {
-  require('spice');
+  require('spice-main');
   var Config = require('sunstone-config');
   var Notifier = require('utils/notifier');
 
