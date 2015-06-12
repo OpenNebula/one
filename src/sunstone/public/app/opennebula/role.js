@@ -1,20 +1,22 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
   var OpenNebulaError = require('./error');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "DOCUMENT";
   var PATH = 'service';
 
-  var generate_batch_action_params = function() {
-    // TODO Defini this function
-    /* var generate_batch_action_params = function(){
+  var TAB_ID = require('tabs/oneflow-services-tab/tabId');
+  var PANEL_ID = require('tabs/oneflow-services-tab/panels/roles/panelId');
+
+  function generate_batch_action_params() {
+    var context = $('#'+TAB_ID+' #'+PANEL_ID);
+
     var action_obj = {
-        "period" : $("#batch_action_period").val(),
-        "number" : $("#batch_action_number").val()};
+        "period" : $("#batch_action_period", context).val(),
+        "number" : $("#batch_action_number", context).val()};
 
     return action_obj;
-    }*/
-    return {}
   }
 
   var Role = {
@@ -22,17 +24,17 @@ define(function(require) {
     "state" : function(state_int) {
       state_int = state_int ? state_int : 0;
       var state = [
-          tr("PENDING"),
-          tr("DEPLOYING"),
-          tr("RUNNING"),
-          tr("UNDEPLOYING"),
-          tr("WARNING"),
-          tr("DONE"),
-          tr("FAILED_UNDEPLOYING"),
-          tr("FAILED_DEPLOYING"),
-          tr("SCALING"),
-          tr("FAILED_SCALING"),
-          tr("COOLDOWN")
+          Locale.tr("PENDING"),
+          Locale.tr("DEPLOYING"),
+          Locale.tr("RUNNING"),
+          Locale.tr("UNDEPLOYING"),
+          Locale.tr("WARNING"),
+          Locale.tr("DONE"),
+          Locale.tr("FAILED_UNDEPLOYING"),
+          Locale.tr("FAILED_DEPLOYING"),
+          Locale.tr("SCALING"),
+          Locale.tr("FAILED_SCALING"),
+          Locale.tr("COOLDOWN")
       ][state_int]
       return state ? state : state_int;
     },
