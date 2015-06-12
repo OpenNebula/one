@@ -914,7 +914,9 @@ define(function(require) {
     "getAction": _getAction,
     "getButton": _getButton,
     "getDataTable": _getDataTable,
-    "getDialog": _getDialogInstance
+    "getDialog": _getDialogInstance,
+
+    "insertButtonsInTab": _insertButtonsInTab
   }
 
   return Sunstone;
