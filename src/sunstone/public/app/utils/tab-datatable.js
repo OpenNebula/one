@@ -55,6 +55,10 @@ define(function(require) {
       'selectOptions': {
         'filter_fn': function(ds) { return ds.TYPE == 0; }
       }
+      'customTabContext': jquery selector used when the datatable has associated
+                          buttons. By default it will be the parent tab
+      'customTrListener': function executed when a tr is clicked. Arguments
+                          are (tableObj, tr)
     }
 
     1. The table HTML is returned calling the table.dataTableHTML attr
@@ -151,7 +155,7 @@ define(function(require) {
     })
 
     this.dataTable.on('draw', function() {
-      that.recountCheckboxes(that.dataTable);
+      that.recountCheckboxes();
     })
 
     this.dataTable.fnSetColumnVis(0, false);
@@ -168,7 +172,11 @@ define(function(require) {
     }
 
     if (this.conf.info) {
-      this.infoListener(this.resource + ".show", this.tabId);
+      this.infoListener(_defaultTrListener);
+    } else if (this.conf.customTrListener) {
+      this.infoListener(this.conf.customTrListener);
+    } else {
+      this.infoListener();
     }
 
     if (this.conf.select) {
@@ -180,32 +188,35 @@ define(function(require) {
     }
   }
 
+  function _defaultTrListener(tableObj, tr) {
+    var aData = tableObj.dataTable.fnGetData(tr);
+    if (!aData) return true;
+    var id = $(aData[0]).val();
+    if (!id) return true;
+
+    Sunstone.showElement(tableObj.tabId, tableObj.resource + ".show", id);
+
+    return false;
+  }
+
   //Shows run a custom action when clicking on rows.
-  function _infoListener(info_action, target_tab) {
+  function _infoListener(info_action) {
     var that = this;
     this.dataTable.on("click", 'tbody tr', function(e) {
       if ($(e.target).is('input') || $(e.target).is('select') || $(e.target).is('option')) {
         return true;
       }
 
-      var aData = that.dataTable.fnGetData(this);
-      if (!aData) return true;
-      var id = $(aData[0]).val();
-      if (!id) return true;
-
       if (info_action) {
         //If ctrl is hold down, make check_box click
         if (e.ctrlKey || e.metaKey || $(e.target).is('input')) {
           $('.check_item', this).trigger('click');
         } else {
-          if (!target_tab) {
-            target_tab = $(that.dataTable).parents(".tab").attr("id");
-          }
-          Sunstone.showElement(target_tab, info_action, id);
-        };
+          info_action(that, this);
+        }
       } else {
         $('.check_item', this).trigger('click');
-      };
+      }
 
       return false;
     });
@@ -232,7 +243,7 @@ define(function(require) {
 
   //Add a listener to the check-all box of a datatable, enabling it to
   //check and uncheck all the checkboxes of its elements.
-  function _initCheckAllBoxes(custom_context) {
+  function _initCheckAllBoxes() {
     var that = this;
     this.dataTable.on("change", '.check_all', function() {
       var table = $(this).closest('.dataTables_wrapper');
@@ -244,19 +255,18 @@ define(function(require) {
         $('td', table).removeClass('markrowchecked');
       };
 
-      var context = custom_context || table.parents('.tab');
-      that.recountCheckboxes(context);
+      that.recountCheckboxes();
     });
   }
 
   //Handle the activation of action buttons and the check_all box
   //when elements in a datatable are modified.
-  function _recountCheckboxes(custom_context) {
+  function _recountCheckboxes() {
     var table = $('tbody', this.dataTable);
 
     var context;
-    if (custom_context) {
-      context = custom_context;
+    if (this.conf.customTabContext) {
+      context = this.conf.customTabContext;
     } else {
       context = table.parents('.tab');
       if ($(".right-info", context).is(':visible')) {
@@ -291,9 +301,9 @@ define(function(require) {
   }
 
   //Init action buttons and checkboxes listeners
-  function _tableCheckboxesListener(custom_context) {
+  function _tableCheckboxesListener() {
     //Initialization - disable all buttons
-    var context = custom_context || this.dataTable.parents('.tab');
+    var context = this.conf.customTabContext || this.dataTable.parents('.tab');
 
     $('.last_action_button', context).prop('disabled', true);
     $('.top_button, .list_button', context).prop('disabled', true);
@@ -312,7 +322,7 @@ define(function(require) {
         $(this).parents('tr').children().removeClass('markrowchecked');
       }
 
-      that.recountCheckboxes(context);
+      that.recountCheckboxes();
     });
   }
 
