@@ -68,12 +68,17 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following images:")
     };
 
+    this.totalImages = 0;
+    this.sizeImages = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
   Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
@@ -90,6 +95,9 @@ define(function(require) {
       return false;
     }
 
+    this.sizeImages = this.sizeImages + parseInt(element.SIZE);
+    this.totalImages++;
+
     return [
       '<input class="check_item" type="checkbox" id="image_' + element.ID + '" name="selected_items" value="' + element.ID + '"/>',
       element.ID,
@@ -105,5 +113,17 @@ define(function(require) {
       element.RUNNING_VMS,
       element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--'
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalImages = 0;
+    this.sizeImages = 0;
+  }
+
+  function _postUpdateView() {
+    var size = Humanize.sizeFromMB(this.sizeImages);
+
+    $(".total_images").text(this.totalImages);
+    $(".size_images").text(size);
   }
 });
