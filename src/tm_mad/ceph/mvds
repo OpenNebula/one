@@ -16,10 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE
-#   - fe is the front-end hostname
-#   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
-#   - host is the target host to deploy the VM
-#   - remote_system_ds is the path for the system datastore in the host
-
 exit 0
