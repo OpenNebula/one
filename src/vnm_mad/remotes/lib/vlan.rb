@@ -27,15 +27,13 @@ module VNMMAD
             @locking = true
 
             super(vm_tpl, xpath_filter, deploy_id, hypervisor)
-
-            lock
-            @bridges = get_bridges
-            unlock
         end
 
         # Activate the driver and creates bridges and tags devices as needed.
         def activate
             lock
+            
+            @bridges = get_bridges
 
             process do |nic|
                 @nic = nic
@@ -77,6 +75,8 @@ module VNMMAD
         # Deactivate the driver and delete bridges and tags devices as needed.
         def deactivate
             lock
+            
+            @bridges = get_bridges
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
 
