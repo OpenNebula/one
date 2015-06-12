@@ -12,7 +12,8 @@ define(function(require) {
   ];
 
   var _panels = [
-    require('./oneflow-services-tab/panels/info')
+    require('./oneflow-services-tab/panels/info'),
+    require('./oneflow-services-tab/panels/roles')
   ];
 
   var _formPanels = [
