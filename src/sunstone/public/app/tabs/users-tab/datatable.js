@@ -63,12 +63,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following users:")
     };
 
+    this.totalUsers = 0;
+
     TabDataTable.call(this);
   }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -77,6 +81,8 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    this.totalUsers++;
+
     var element = element_json[XML_ROOT];
 
     var vms    = '<span class="progress-text right" style="font-size: 12px">-</span>';
@@ -121,5 +127,13 @@ define(function(require) {
       element.GID,
       hidden_template
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalUsers = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_users").text(this.totalUsers);
   }
 });

@@ -59,12 +59,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following groups:")
     };
 
+    this.totalGroups = 0;
+
     TabDataTable.call(this);
   }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -121,5 +125,13 @@ define(function(require) {
       memory,
       cpu
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalGroups = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_groups").text(this.totalGroups);
   }
 });
