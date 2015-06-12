@@ -4,6 +4,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
 
   var _tabs = [
+    require('tabs/dashboard-tab'),
     require('tabs/system-tab'),
     require('tabs/users-tab'),
     require('tabs/groups-tab'),
