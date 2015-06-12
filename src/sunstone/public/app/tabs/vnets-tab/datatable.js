@@ -62,12 +62,17 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following networks:")
     };
 
+    this.usedLeases = 0;
+    this.totalVNets = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -78,8 +83,8 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    // TODO: used by the dashboard
-    //addresses_vnets = addresses_vnets + parseInt(network.USED_LEASES);
+    this.usedLeases = this.usedLeases + parseInt(element.USED_LEASES);
+    this.totalVNets++;
 
     var total_size = 0;
 
@@ -103,5 +108,15 @@ define(function(require) {
       ProgressBar.html(element.USED_LEASES, total_size),
       element.VLAN_ID.length ? element.VLAN_ID : "-"
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalVNets = 0;
+    this.usedLeases = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vnets").text(this.totalVNets);
+    $(".addresses_vnets").text(this.usedLeases);
   }
 });
