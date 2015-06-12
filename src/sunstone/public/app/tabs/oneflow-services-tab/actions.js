@@ -28,8 +28,15 @@ define(function(require) {
   }
 
   function roleVMElements() {
-    // TODO
-    //return getSelectedNodes(serviceroleVMsDataTable, true);
+    var selected_nodes = [];
+
+    var dataTable = $('table[id^=datatable_service_vms]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var nodes = $('tbody input.check_item:checked', dataTable);
+    $.each(nodes, function() {
+      selected_nodes.push($(this).val());
+    });
+
+    return selected_nodes;
   }
 
   function roleCallback() {

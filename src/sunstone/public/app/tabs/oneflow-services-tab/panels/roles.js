@@ -7,8 +7,13 @@ define(function(require) {
   var Tips = require('utils/tips');
   var OpenNebulaRole = require('opennebula/role');
   var roles_buttons = require('./roles/roles-buttons');
+  var roles_vm_buttons = require('./roles/roles-vm-buttons');
   var Sunstone = require('sunstone');
-  var RolesDataTable = require('./roles/roles-datatable');
+  var DomDataTable = require('utils/dom-datatable');
+  var VMsTableUtils = require('tabs/vms-tab/utils/datatable-common');
+  var SunstoneConfig = require('sunstone-config');
+
+  var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
   /*
     TEMPLATES
@@ -85,7 +90,7 @@ define(function(require) {
 
     var roles = this.element.TEMPLATE.BODY.roles;
     if (roles && roles.length) {
-      this.servicerolesDataTable = new RolesDataTable(
+      this.servicerolesDataTable = new DomDataTable(
         'datatable_service_roles',
         {
           actions: true,
@@ -145,17 +150,100 @@ define(function(require) {
 
 
   function _roleHTML(role_index) {
+    var that = this;
+
     var role = this.element.TEMPLATE.BODY.roles[role_index];
 
-    // TODO: role VMs table
+    var vms = [];
+
+    if (role.nodes) {
+      $.each(role.nodes, function(){
+        var vm_info = this.vm_info;
+
+        var info = [];
+        if (this.scale_up) {
+          info.push("<i class='fa fa-arrow-up'/>");
+        } else if (this.disposed) {
+          info.push("<i class='fa fa-arrow-down'/>");
+        } else {
+          info.push("");
+        }
+
+        if (that.element.TEMPLATE.BODY.ready_status_gate) {
+          if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
+            info.push('<span data-tooltip class="has-tip" title="'+tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+
+          } else {
+            info.push('<span data-tooltip class="has-tip" title="'+tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+          }
+        } else {
+          info.push("");
+        }
+
+        if (vm_info) {
+          vms.push(info.concat(VMsTableUtils.elementArray(vm_info)));
+        } else {
+          vms.push(info.concat(VMsTableUtils.emptyElementArray(this.deploy_id)));
+        }
+      });
+    }
 
     return TemplateRoleInfo({
       'role': role,
-      'vmsTableHTML': "<p>TODO</p>"
+      'vmsTableColumns': VMsTableUtils.columns,
+      'vms': vms
     });
   }
 
   function _roleSetup(context, role_index) {
+    var role = this.element.TEMPLATE.BODY.roles[role_index];
+
+    // This table has 2 more columns to the left compared to the normal VM table
+    // The visibility index array needs to be adjusted
+    var visibleColumns = [0,1].concat(
+      SunstoneConfig.tabTableColumns(VMS_TAB_ID).map(function(n){
+        return n+2;
+      }));
+
+    this.serviceroleVMsDataTable = new DomDataTable(
+      'datatable_service_vms_'+role.name,
+      {
+        actions: true,
+        info: false,
+        customTabContext: $('#role_vms_actions', context),
+        dataTableOptions: {
+          "bAutoWidth": false,
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          "aoColumnDefs": [
+            {"bSortable": false, "aTargets": [0,1,"check"]},
+            {"bVisible": true, "aTargets": visibleColumns},
+            {"bVisible": false, "aTargets": ['_all']}
+          ]
+        }
+      });
+
+    // TODO: global vars, see Service.refresh
+    /*
+    if(last_selected_row_rolevm) {
+        last_selected_row_rolevm.children().each(function(){
+            $(this).removeClass('markrowchecked');
+        });
+    }
+
+    last_selected_row_rolevm = $(this);
+    $(this).children().each(function(){
+        $(this).addClass('markrowchecked');
+    });
+    */
+
+    this.serviceroleVMsDataTable.initialize();
+    Sunstone.insertButtonsInTab(
+      "oneflow-services",
+      "service_roles_tab",
+      roles_vm_buttons,
+      $('div#role_vms_actions', context));
+
     Tips.setup(context);
   }
 });

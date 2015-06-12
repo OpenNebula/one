@@ -25,11 +25,34 @@
   <fieldset>
     <legend>{{tr "Virtual Machines"}}</legend>
     <div id="role_vms_actions">
-      <div class="action_blocks columns twelve">
+      <div class="action_blocks large-12 columns">
       </div>
     </div>
     <div class="large-12 columns">
-      {{{vmsTableHTML}}}
+      <br>
+      <table id="datatable_service_vms_{{role.name}}" class="dataTable twelve ">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th class="check">
+              <input type="checkbox" class="check_all" value=""></input>
+            </th>
+            {{#each vmsTableColumns}}
+            <th>{{this}}</th>
+            {{/each}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#each vms}}
+          <tr>
+            {{#each this}}
+            <td>{{{this}}}</td>
+            {{/each}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
     </div>
   </fieldset>
   <div class='large-12 columns'>
