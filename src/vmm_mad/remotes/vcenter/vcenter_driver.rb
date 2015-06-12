@@ -264,7 +264,7 @@ class VIClient
         datacenters.each { |dc|
             vms = get_entities(dc.vmFolder, 'VirtualMachine')
 
-            tmp = vms.select { |v| v.config.template == true }
+            tmp = vms.select { |v| v.config && (v.config.template == true) }
 
             one_tmp = []
 
