@@ -11,43 +11,32 @@ define(function(require) {
     CONSTRUCTOR
    */
   
+  /**
+   * Generic datatable that uses the columns and row data from the html dom,
+   * instead of .list and elementArray methods. Offers the same row check
+   * and row info mechanism as TabDataTable
+   * @param {string} dataTableId dataTable ID
+   * @param {object} conf        Same as tab-datatable.js, plus:
+   *                             - dataTableOptions: replaces the default dataTableOptions
+   */
   function Table(dataTableId, conf) {
     this.conf = conf || {};
-    //this.tabId = TAB_NAME;
     this.dataTableId = dataTableId;
-    //this.resource = RESOURCE;
-    //this.xmlRoot = XML_ROOT;
 
-    // TODO: hide checkbox column
-
-
-    this.dataTableOptions = {
+    this.dataTableOptions = conf.dataTableOptions || {
       "bAutoWidth": false,
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          {"bSortable": false, "aTargets": ["check"]},
-          //{"bVisible": false, "aTargets": [0]}
-          //{"bVisible": true, "aTargets": [1,2,3,4,5]},
-          //{"bVisible": false, "aTargets": ['_all']}
+          {"bSortable": false, "aTargets": ["check"]}
       ]
     };
-
-    //this.columns = [];
-    //this.selectOptions = {};
 
     TabDataTable.call(this);
   }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
-  //Table.prototype.elementArray = _elementArray;
 
   return Table;
-
-  /*
-    FUNCTION DEFINITIONS
-   */
-
-  //function _elementArray(element_json) {}
 });
