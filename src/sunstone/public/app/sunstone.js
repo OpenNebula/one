@@ -503,7 +503,7 @@ define(function(require) {
 
     var res = SunstoneCfg['tabs'][tabName]['resource']
     if (res) {
-      Sunstone.runAction(res + ".list");
+      Sunstone.runAction(res + ".refresh");
     }
   }
 
