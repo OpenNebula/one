@@ -66,12 +66,25 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following hosts:")
     };
 
+    this.totalHosts = 0;
+    this.onHosts = 0;
+    this.offHosts = 0;
+    this.errorHosts = 0;
+    this.maxCPU = 0;
+    this.allocatedCPU = 0;
+    this.realCPU = 0;
+    this.maxMemory = 0;
+    this.allocatedMemory = 0;
+    this.realMemory = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -85,8 +98,31 @@ define(function(require) {
     var cpuBars = CPUBars.html(element);
     var memoryBars = MemoryBars.html(element);
 
-    // TODO Calculate table footer TOTAL ON OFF ERROR
-    // TODO Update dashboard 
+    this.totalHosts++;
+    var stateSimpleStr = OpenNebulaHost.simpleStateStr(element.STATE);
+    switch (stateSimpleStr) {
+      case "INIT":
+      case "UPDATE":
+      case "ON":
+        this.onHosts++;
+        break;
+      case "ERROR":
+      case "RETRY":
+        this.errorHosts++;
+        break;
+      case "OFF":
+        this.offHosts++;
+        break;
+      default:
+        break;
+    }
+
+    this.maxCPU += parseInt(element.HOST_SHARE.MAX_CPU);
+    this.allocatedCPU += parseInt(element.HOST_SHARE.CPU_USAGE);
+    this.realCPU += parseInt(element.HOST_SHARE.USED_CPU);
+    this.maxMemory += parseInt(element.HOST_SHARE.MAX_MEM);
+    this.allocatedMemory += parseInt(element.HOST_SHARE.MEM_USAGE);
+    this.realMemory += parseInt(element.HOST_SHARE.USED_MEM);
 
     return [
         '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
@@ -100,10 +136,122 @@ define(function(require) {
         cpuBars.allocated,
         memoryBars.real,
         memoryBars.allocated,
-        OpenNebulaHost.simpleStateStr(element.STATE),
+        stateSimpleStr,
         element.IM_MAD,
         element.VM_MAD,
         Humanize.prettyTime(element.LAST_MON_TIME)
     ];
+  }
+
+  function _preUpdateView() {
+    this.totalHosts = 0;
+    this.onHosts = 0;
+    this.offHosts = 0;
+    this.errorHosts = 0;
+    this.maxCPU = 0;
+    this.allocatedCPU = 0;
+    this.realCPU = 0;
+    this.maxMemory = 0;
+    this.allocatedMemory = 0;
+    this.realMemory = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_hosts").text(this.totalHosts);
+    $(".on_hosts").text(this.onHosts);
+    $(".off_hosts").text(this.offHosts);
+    $(".error_hosts").text(this.errorHosts);
+    
+    var ratio_allocated_cpu = 0;
+    if (this.maxCPU > 0) {
+      ratio_allocated_cpu = Math.round((this.allocatedCPU / this.maxCPU) * 100);
+      info_str = this.allocatedCPU + ' / ' + this.maxCPU ;
+    } else {
+      info_str = "- / -";
+    }
+
+    //$("#dash_host_allocated_cpu").html(usageBarHtml(allocated_cpu, max_cpu, info_str, true));
+
+    $("#dashboard_host_allocated_cpu").html(quotaDashboard(
+      "dashboard_host_allocated_cpu",
+      Locale.tr("Allocated CPU"),
+      "30px",
+      "14px",
+      {"percentage": ratio_allocated_cpu, "str": info_str})
+    );
+
+    var ratio_real_cpu = 0;
+    if (this.maxCPU > 0) {
+      ratio_real_cpu = Math.round((this.realCPU / this.maxCPU) * 100);
+      info_str = this.realCPU + ' / ' + this.maxCPU;
+    } else {
+      info_str = "- / -";
+    }
+
+    $("#dashboard_host_real_cpu").html(quotaDashboard(
+      "dashboard_host_real_cpu",
+      Locale.tr("Real CPU"),
+      "30px",
+      "14px",
+      {"percentage": ratio_real_cpu, "str": info_str})
+    );
+
+    var ratio_allocated_mem = 0;
+    if (this.maxMemory > 0) {
+      ratio_allocated_mem = Math.round((this.allocatedMemory / this.maxMemory) * 100);
+      info_str = Humanize.size(this.allocatedMemory) + ' / ' + Humanize.size(this.maxMemory);
+    } else {
+      info_str = Humanize.size(this.allocatedMemory) + ' / -';
+    }
+
+    $("#dashboard_host_allocated_mem").html(quotaDashboard(
+      "dashboard_host_allocated_mem",
+      Locale.tr("Allocated Memory"),
+      "30px",
+      "14px",
+      {"percentage": ratio_allocated_mem, "str": info_str})
+    );
+
+    var ratio_real_mem = 0;
+    if (this.maxMemory > 0) {
+      ratio_real_mem = Math.round((this.realMemory / this.maxMemory) * 100);
+      info_str = Humanize.size(this.realMemory) + ' / ' + Humanize.size(this.maxMemory);
+    } else {
+      info_str = Humanize.size(this.realMemory) + ' / -';
+    }
+
+    $("#dashboard_host_real_mem").html(quotaDashboard(
+      "dashboard_host_real_mem",
+      Locale.tr("Real Memory"),
+      "30px",
+      "14px",
+      {"percentage": ratio_real_mem, "str": info_str})
+    );
+
+  }
+
+  function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
+    var percentage = quota.percentage > 100 ? 100 : quota.percentage;
+
+    return '<div class="row">' +
+          '<div class="large-12 columns text-center" style="margin-bottom: 5px">' +
+            '<h4 class="subheader">'+
+              '<small>'+ legend +'</small>'+
+            '</h4>'+
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="large-12 columns text-center">' +
+            '<div class="progress large radius">' +
+            '  <span id="' + html_tag + '_meter" class="meter" style="width: ' + percentage + '%"></span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="large-12 columns text-center">' +
+            '<span id="' + html_tag + '_percentage" class="left" style="font-size:' + font_small_size + ';">' + quota.percentage + ' %</span>' +
+            '<span id="' + html_tag + '_str" class="right" style="color: #999; font-size: ' + font_small_size + ';">' + quota.str + '</span>' +
+          '</div>' +
+        '</div>';
   }
 });
