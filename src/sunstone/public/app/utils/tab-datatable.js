@@ -339,6 +339,10 @@ define(function(require) {
     var checked_row_ids = new Array();
     var that = this;
 
+    if (that.preUpdateView) {
+      that.preUpdateView();
+    }
+
     var row_id_index = this.dataTable.attr("row_id");
 
     if (row_id_index != undefined) {
@@ -370,10 +374,6 @@ define(function(require) {
       var prev_start = dTable_settings._iDisplayStart;
 
       this.dataTable.fnClearTable(false);
-
-      if (that.onUpdateView) {
-        that.onUpdateView();
-      }
 
       var item_list;
       if (fromArray) {
@@ -433,6 +433,10 @@ define(function(require) {
           }
         }
       });
+    }
+
+    if (that.postUpdateView) {
+      that.postUpdateView();
     }
   }
 
