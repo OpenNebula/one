@@ -625,6 +625,7 @@ define(function(require) {
 
   return {
     'html': _html,
-    'setup': _setup
+    'setup': _setup,
+    'fillAccounting': _fillAccounting
   };
 });

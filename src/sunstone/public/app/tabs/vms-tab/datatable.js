@@ -71,14 +71,21 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following VMs:")
     };
 
+    this.totalVms = 0;
+    this.activeVms = 0;
+    this.pendingVms = 0;
+    this.failedVms = 0;
+    this.offVms = 0;
+
     TabDataTable.call(this);
   };
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
-  Table.prototype.onUpdateView = _onUpdateView;
   Table.prototype.initialize = _initialize;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -91,27 +98,27 @@ define(function(require) {
 
     var state = OpenNebulaVM.stateStr(element.STATE);
 
-    /* TODO
+    this.totalVms++;
     switch (state) {
-      case tr("INIT"):
-      case tr("PENDING"):
-      case tr("HOLD"):
-        pending_vms++;
+      case "INIT":
+      case "PENDING":
+      case "HOLD":
+        this.pendingVms++;
         break;
-      case tr("FAILED"):
-        failed_vms++;
+      case "FAILED":
+        this.failedVms++;
         break;
-      case tr("ACTIVE"):
-        active_vms++;
+      case "ACTIVE":
+        this.activeVms++;
         break;
-      case tr("STOPPED"):
-      case tr("SUSPENDED"):
-      case tr("POWEROFF"):
-        off_vms++;
+      case "STOPPED":
+      case "SUSPENDED":
+      case "POWEROFF":
+        this.offVms++;
         break;
       default:
         break;
-    }*/
+    }
 
     if (state == "ACTIVE") {
       state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
@@ -146,8 +153,22 @@ define(function(require) {
     ];
   }
 
-  function _onUpdateView() {
+  function _preUpdateView() {
     StateActions.resetStateButtons();
+
+    this.totalVms = 0;
+    this.activeVms = 0;
+    this.pendingVms = 0;
+    this.failedVms = 0;
+    this.offVms = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vms").text(this.totalVms);
+    $(".active_vms").text(this.activeVms);
+    $(".pending_vms").text(this.pendingVms);
+    $(".failed_vms").text(this.failedVms);
+    $(".off_vms").text(this.offVms);
   }
 
   function _initialize(opts) {
