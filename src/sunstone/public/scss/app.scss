@@ -84,10 +84,6 @@
   margin-top: 15px;
 }
 
-#menu {
-  margin-top: 10px;
-}
-
 .log-tab {
     background: #6f6f6f;
     color: #f2f2f2;
@@ -110,6 +106,7 @@ table {
     }
 
     td {
+        font-size: rem-calc(13px);
         color: #555 !important;
     }
 
@@ -120,6 +117,7 @@ table {
 
 table.dataTable {
     td, th {
+        font-size: rem-calc(13px);
         text-align: left;
         padding: 5px 10px;
 
@@ -219,7 +217,7 @@ input.search {
     }
 
     .subTab {
-        margin-left: 18px;
+        margin-left: 27px;
 
         &:hover {
           border-left: 3px solid #999;
@@ -235,7 +233,8 @@ input.search {
     }
 
     li {
-      border-left: 3px solid #fff;
+      border-left: 3px solid #efefef;
+      font-size: 12px;
 
       a {
         padding: 0.2323rem 0.875rem !important;
@@ -253,6 +252,12 @@ input.search {
     i {
         margin-right: 3px
     }
+
+    padding-bottom: 5px;
+    padding-top: 0px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    border: 1px solid #efefef
 }
 
 .header-row {
