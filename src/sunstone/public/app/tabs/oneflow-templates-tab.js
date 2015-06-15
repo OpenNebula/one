@@ -9,12 +9,11 @@ define(function(require) {
   var RESOURCE = "ServiceTemplate";
 
   var _dialogs = [
-    //require('./oneflow-templates-tab/dialogs/instantiate')
   ];
 
   var _panels = [
     require('./oneflow-templates-tab/panels/info'),
-    //require('./oneflow-templates-tab/panels/roles')
+    require('./oneflow-templates-tab/panels/roles')
   ];
 
   var _formPanels = [

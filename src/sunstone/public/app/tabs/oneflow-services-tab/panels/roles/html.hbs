@@ -1,18 +1,16 @@
 <form class="custom" id="roles_form" action="">
   <div class="row">
+    {{#if servicePanel}}
     <div id="role_actions">
-      <div class="columns large-8">
-        <h4>{{tr "Roles"}}</h4>
-      </div>
-      <div class="columns large-4 right">
+      <div class="columns large-4 medium-6 right">
         <div class="row">
-          <div class="large-6 columns">
+          <div class="small-6 columns">
             <label for="batch_action_period">{{tr "Period"}}:
               <span class="tip">{{tr "Seconds between each group of actions"}}</span>
             </label>
             <input type="text" id="batch_action_period" name="batch_action_period"/>
           </div>
-          <div class="large-6 columns">
+          <div class="small-6 columns">
             <label for="batch_action_number">{{tr "Number"}}:
               <span class="tip">{{tr "Number of VMs to apply the action to each period"}}</span>
             </label>
@@ -23,15 +21,18 @@
       <div class="action_blocks columns large-12">
       </div>
     </div>
+    {{/if}}
     <div id="roles_info" class="columns large-12">
-      <table id="datatable_service_roles" class="dataTable twelve">
+      <table id="datatable_roles_{{panelId}}" class="dataTable twelve">
         <thead>
           <tr>
             <th class="check hidden">
               <input type="checkbox" class="check_all" value=""></input>
             </th>
             <th>{{tr "Name"}}</th>
+            {{#if servicePanel}}
             <th>{{tr "State"}}</th>
+            {{/if}}
             <th>{{tr "Cardinality"}}</th>
             <th>{{tr "VM Template"}}</th>
             <th>{{tr "Parents"}}</th>
@@ -44,7 +45,9 @@
               <input class="check_item" type="checkbox" id="role_{{name}}" name="selected_items" value="{{../element.ID}}/role/{{name}}"/>
             </td>
             <td>{{name}}</td>
+            {{#if ../servicePanel}}
             <td>{{state}}</td>
+            {{/if}}
             <td>{{cardinality}}</td>
             <td>{{vm_template}}</td>
             <td>{{parents}}</td>

@@ -43,6 +43,12 @@ define(function(require) {
 
     this.selected_row_role_id = undefined;
 
+    // Controls visibility of buttons only available to OneFlow services. This
+    // panel is also used by the OneFlow templates
+    this.servicePanel = true;
+
+    this.panelId = PANEL_ID;
+
     return this;
   }
 
@@ -77,6 +83,8 @@ define(function(require) {
 
     return TemplateHTML({
       'element': this.element,
+      'panelId': this.panelId,
+      'servicePanel': this.servicePanel,
       'roleList': roleList
     });
   }
@@ -91,7 +99,7 @@ define(function(require) {
     var roles = this.element.TEMPLATE.BODY.roles;
     if (roles && roles.length) {
       this.servicerolesDataTable = new DomDataTable(
-        'datatable_service_roles',
+        'datatable_roles_'+this.panelId,
         {
           actions: true,
           info: false,
@@ -119,9 +127,6 @@ define(function(require) {
       this.servicerolesDataTable.initialize();
 
       Sunstone.insertButtonsInTab("oneflow-services", "service_roles_tab", roles_buttons, $('#role_actions', context));
-
-      // TODO
-      //setupScaleDialog();
 
       // TODO: global var, see Service.refresh
       /*
@@ -190,59 +195,63 @@ define(function(require) {
 
     return TemplateRoleInfo({
       'role': role,
+      'servicePanel': this.servicePanel,
+      'panelId': this.panelId,
       'vmsTableColumns': VMsTableUtils.columns,
       'vms': vms
     });
   }
 
   function _roleSetup(context, role_index) {
-    var role = this.element.TEMPLATE.BODY.roles[role_index];
+    if(this.servicePanel) {
+      var role = this.element.TEMPLATE.BODY.roles[role_index];
 
-    // This table has 2 more columns to the left compared to the normal VM table
-    // The visibility index array needs to be adjusted
-    var visibleColumns = [0,1].concat(
-      SunstoneConfig.tabTableColumns(VMS_TAB_ID).map(function(n){
-        return n+2;
-      }));
+      // This table has 2 more columns to the left compared to the normal VM table
+      // The visibility index array needs to be adjusted
+      var visibleColumns = [0,1].concat(
+        SunstoneConfig.tabTableColumns(VMS_TAB_ID).map(function(n){
+          return n+2;
+        }));
 
-    this.serviceroleVMsDataTable = new DomDataTable(
-      'datatable_service_vms_'+role.name,
-      {
-        actions: true,
-        info: false,
-        customTabContext: $('#role_vms_actions', context),
-        dataTableOptions: {
-          "bAutoWidth": false,
-          "bSortClasses" : false,
-          "bDeferRender": true,
-          "aoColumnDefs": [
-            {"bSortable": false, "aTargets": [0,1,"check"]},
-            {"bVisible": true, "aTargets": visibleColumns},
-            {"bVisible": false, "aTargets": ['_all']}
-          ]
-        }
-      });
-
-    // TODO: global vars, see Service.refresh
-    /*
-    if(last_selected_row_rolevm) {
-        last_selected_row_rolevm.children().each(function(){
-            $(this).removeClass('markrowchecked');
+      this.serviceroleVMsDataTable = new DomDataTable(
+        'datatable_vms_'+this.panelId+'_'+role.name,
+        {
+          actions: true,
+          info: false,
+          customTabContext: $('#role_vms_actions', context),
+          dataTableOptions: {
+            "bAutoWidth": false,
+            "bSortClasses" : false,
+            "bDeferRender": true,
+            "aoColumnDefs": [
+              {"bSortable": false, "aTargets": [0,1,"check"]},
+              {"bVisible": true, "aTargets": visibleColumns},
+              {"bVisible": false, "aTargets": ['_all']}
+            ]
+          }
         });
+
+      // TODO: global vars, see Service.refresh
+      /*
+      if(last_selected_row_rolevm) {
+          last_selected_row_rolevm.children().each(function(){
+              $(this).removeClass('markrowchecked');
+          });
+      }
+
+      last_selected_row_rolevm = $(this);
+      $(this).children().each(function(){
+          $(this).addClass('markrowchecked');
+      });
+      */
+
+      this.serviceroleVMsDataTable.initialize();
+      Sunstone.insertButtonsInTab(
+        "oneflow-services",
+        "service_roles_tab",
+        roles_vm_buttons,
+        $('div#role_vms_actions', context));
     }
-
-    last_selected_row_rolevm = $(this);
-    $(this).children().each(function(){
-        $(this).addClass('markrowchecked');
-    });
-    */
-
-    this.serviceroleVMsDataTable.initialize();
-    Sunstone.insertButtonsInTab(
-      "oneflow-services",
-      "service_roles_tab",
-      roles_vm_buttons,
-      $('div#role_vms_actions', context));
 
     Tips.setup(context);
   }

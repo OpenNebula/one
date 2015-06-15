@@ -22,6 +22,7 @@
     </table>
     <br>
   </div>
+  {{#if servicePanel}}
   <fieldset>
     <legend>{{tr "Virtual Machines"}}</legend>
     <div id="role_vms_actions">
@@ -30,7 +31,7 @@
     </div>
     <div class="large-12 columns">
       <br>
-      <table id="datatable_service_vms_{{role.name}}" class="dataTable twelve ">
+      <table id="datatable_vms_{{panelId}}_{{role.name}}" class="dataTable twelve ">
         <thead>
           <tr>
             <th></th>
@@ -55,6 +56,7 @@
       </table>
     </div>
   </fieldset>
+  {{/if}}
   <div class='large-12 columns'>
     <br>
     {{#if role.elasticity_policies}}
@@ -101,7 +103,11 @@
           <td>{{valOrDefault expression_evaluated this.expression}}</td>
           <td>
             {{#if period_number}}
+            {{#if servicePanel}}
             {{valOrDefault true_evals "0"}}/{{period_number}}
+            {{else}}
+            {{period_number}}
+            {{/if}}
             {{else}}
             -
             {{/if}}
@@ -150,7 +156,7 @@
         <tr>
           <td>{{type}}</td>
           <td>{{adjust}}</td>
-          <td>{{valOrDefault min_adjust_step ""}}</td>
+          <td>{{valOrDefault min_adjust_step "-"}}</td>
           {{#if start_time}}
           <td>{{tr "Start time"}}</td>
           <td>{{start_time}}</td>
