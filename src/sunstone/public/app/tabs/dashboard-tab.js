@@ -8,6 +8,19 @@ define(function(require) {
 
   var TemplateDashboard = require('hbs!./dashboard-tab/html');
 
+  var VMS_TAB_ID = require('tabs/vms-tab/tabId');
+  var HOSTS_TAB_ID = require('tabs/hosts-tab/tabId');
+  var USERS_TAB_ID = require('tabs/users-tab/tabId');
+  var IMAGES_TAB_ID = require('tabs/images-tab/tabId');
+  var VNETS_TAB_ID = require('tabs/vnets-tab/tabId');
+
+  var VMS_CREATE_FORM_PANEL_ID = require('tabs/vms-tab/form-panels/create/formPanelId');
+  var HOSTS_CREATE_FORM_PANEL_ID = require('tabs/hosts-tab/form-panels/create/formPanelId');
+  var USERS_CREATE_FORM_PANEL_ID = require('tabs/users-tab/form-panels/create/formPanelId');
+  var IMAGES_CREATE_FORM_PANEL_ID = require('tabs/images-tab/form-panels/create/formPanelId');
+  var VNETS_CREATE_FORM_PANEL_ID = require('tabs/vnets-tab/form-panels/create/formPanelId');
+
+  var _initialized = false;
   var _activeWidgets = [];
   var _widgets = {
     'storage': {
@@ -32,7 +45,9 @@ define(function(require) {
         }
 
         var no_table = true;
-
+        $("#acct_cpu_graph, #acct_mem_graph", "#dashboard_vdc_user_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
+          '<i class="fa fa-spinner fa-spin"></i>'+
+        '</span>')
         OpenNebulaVM.accounting({
           success: function(req, response) {
             Accounting.fillAccounting($("#dashboard_vdc_user_accounting"), req, response, no_table);
@@ -70,6 +85,9 @@ define(function(require) {
 
         var no_table = true;
 
+        $("#acct_cpu_graph, #acct_mem_graph", "#dashboard_vm_accounting").html('<span  id="provision_dashboard_total" style="font-size:80px">'+
+          '<i class="fa fa-spinner fa-spin"></i>'+
+        '</span>')
         OpenNebulaVM.accounting({
           success: function(req, response) {
             Accounting.fillAccounting($("#dashboard_vm_accounting"), req, response, no_table);
@@ -111,7 +129,6 @@ define(function(require) {
     tabId: TAB_ID,
     resource: 'Dashboard',
     title: '<i class="fa fa-lg fa-fw fa-tachometer"></i>&emsp;' + Locale.tr("Dashboard"),
-    showOnTopMenu: false,
     listHeader: '<i class="fa fa-lg fa-fw fa-tachometer"></i>&emsp;' + Locale.tr("Dashboard"),
     buttons: _buttons,
     actions: _actions,
@@ -152,10 +169,74 @@ define(function(require) {
   }
 
   function _onShow() {
+    if (!_initialized) {
+      _setup();
+    }
+
     $.each(_activeWidgets, function(id, widgetId) {
       if (_widgets[widgetId].onShow) {
         _widgets[widgetId].onShow();
       }
     });
+  }
+
+  function _setup() {
+    _initialized = true;
+
+
+    $(document).on("click", ".show_vms_tab", function(){
+      Sunstone.showTab(VMS_TAB_ID);
+      return false;
+    })
+
+    $(document).on("click", ".show_hosts_tab", function(){
+      Sunstone.showTab(HOSTS_TAB_ID);
+      return false;
+    })
+
+    $(document).on("click", ".show_users_tab", function(){
+      Sunstone.showTab(USERS_TAB_ID);
+      return false;
+    })
+
+    $(document).on("click", ".show_images_tab", function(){
+      Sunstone.showTab(IMAGES_TAB_ID);
+      return false;
+    })
+
+    $(document).on("click", ".show_vnets_tab", function(){
+      Sunstone.showTab(VNETS_TAB_ID);
+      return false;
+    })
+
+    $(document).on("click", ".show_create_vm", function(){
+      Sunstone.showTab(VMS_TAB_ID);
+      Sunstone.showFormPanel(VMS_TAB_ID, VMS_CREATE_FORM_PANEL_ID, "create");
+      return false;
+    })
+
+    $(document).on("click", ".show_create_host", function(){
+      Sunstone.showTab(HOSTS_TAB_ID);
+      Sunstone.showFormPanel(HOSTS_TAB_ID, HOSTS_CREATE_FORM_PANEL_ID, "create");
+      return false;
+    })
+
+    $(document).on("click", ".show_create_user", function(){
+      Sunstone.showTab(USERS_TAB_ID);
+      Sunstone.showFormPanel(USERS_TAB_ID, USERS_CREATE_FORM_PANEL_ID, "create");
+      return false;
+    })
+
+    $(document).on("click", ".show_create_image", function(){
+      Sunstone.showTab(IMAGES_TAB_ID);
+      Sunstone.showFormPanel(IMAGES_TAB_ID, IMAGES_CREATE_FORM_PANEL_ID, "create");
+      return false;
+    })
+
+    $(document).on("click", ".show_create_vnet", function(){
+      Sunstone.showTab(VNETS_TAB_ID);
+      Sunstone.showFormPanel(VNETS_TAB_ID, VNETS_CREATE_FORM_PANEL_ID, "create");
+      return false;
+    })
   }
 });
