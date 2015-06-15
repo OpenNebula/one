@@ -5,6 +5,7 @@ define(function(require) {
   
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
+  var OpenNebulaVM = require('opennebula/vm');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var StateActions = require('./utils/state-actions');
@@ -79,6 +80,9 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    var element = element_json[XML_ROOT];
+    var state = OpenNebulaVM.stateStr(element.STATE);
+
     this.totalVms++;
     switch (state) {
       case "INIT":
