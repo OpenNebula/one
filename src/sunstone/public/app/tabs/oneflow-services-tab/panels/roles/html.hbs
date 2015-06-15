@@ -15,29 +15,29 @@
           <div class="large-6 columns">
             <label for="batch_action_number">{{tr "Number"}}:
               <span class="tip">{{tr "Number of VMs to apply the action to each period"}}</span>
-              </label>
-              <input type="text" id="batch_action_number" name="batch_action_number"/>
-            </div>
+            </label>
+            <input type="text" id="batch_action_number" name="batch_action_number"/>
           </div>
         </div>
-        <div class="action_blocks columns large-12">
-        </div>
       </div>
-      <div id="roles_info" class="columns large-12">
-        <table id="datatable_service_roles" class="dataTable twelve">
-          <thead>
-            <tr>
-              <th class="check hidden">
-                <input type="checkbox" class="check_all" value=""></input>
-              </th>
-              <th>{{tr "Name"}}</th>
-              <th>{{tr "State"}}</th>
-              <th>{{tr "Cardinality"}}</th>
-              <th>{{tr "VM Template"}}</th>
-              <th>{{tr "Parents"}}</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div class="action_blocks columns large-12">
+      </div>
+    </div>
+    <div id="roles_info" class="columns large-12">
+      <table id="datatable_service_roles" class="dataTable twelve">
+        <thead>
+          <tr>
+            <th class="check hidden">
+              <input type="checkbox" class="check_all" value=""></input>
+            </th>
+            <th>{{tr "Name"}}</th>
+            <th>{{tr "State"}}</th>
+            <th>{{tr "Cardinality"}}</th>
+            <th>{{tr "VM Template"}}</th>
+            <th>{{tr "Parents"}}</th>
+          </tr>
+        </thead>
+        <tbody>
           {{#each roleList}}
           <tr>
             <td class="hidden">
@@ -50,21 +50,20 @@
             <td>{{parents}}</td>
           </tr>
           {{/each}}
-          </tbody>
-        </table>
-      </div>
-      <div id="roles_extended_info" class="columns twelve">
-        <div class="text-center">
-          <span class="fa-stack fa-5x" style="color: #dfdfdf">
-            <i class="fa fa-cloud fa-stack-2x"></i>
-            <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>
-          </span>
-          <br>
-          <br>
-          <span style="font-size: 18px; color: #999">
-            {{tr "Select a role in the table for more information"}}
-          </span>
-        </div>
+        </tbody>
+      </table>
+    </div>
+    <div id="roles_extended_info" class="columns twelve">
+      <div class="text-center">
+        <span class="fa-stack fa-5x" style="color: #dfdfdf">
+          <i class="fa fa-cloud fa-stack-2x"></i>
+          <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>
+        </span>
+        <br>
+        <br>
+        <span style="font-size: 18px; color: #999">
+          {{tr "Select a role in the table for more information"}}
+        </span>
       </div>
     </div>
   </div>
