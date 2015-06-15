@@ -217,11 +217,13 @@ input.search {
     }
 
     .subTab {
-        margin-left: 27px;
+        margin-left: 25px;
 
         &:hover {
-          border-left: 3px solid #999;
+          border-left: 2px solid #999;
         }
+
+        border-left: 3px solid #efefef;
 
         a {
             color: #777 !important;
@@ -233,8 +235,7 @@ input.search {
     }
 
     li {
-      border-left: 3px solid #efefef;
-      font-size: 12px;
+      font-size: rem-calc(12px);
 
       a {
         padding: 0.2323rem 0.875rem !important;
@@ -246,7 +247,7 @@ input.search {
             color: #222 !important;
         }
 
-        border-left: 3px solid #008cba !important;
+        border-left: 2px solid #008cba !important;
     }
 
     i {
@@ -496,12 +497,12 @@ fieldset {
 
     &:not(.vertical) {
       dd.active {
-        border-bottom: 3px solid #008cba;
+        border-bottom: 2px solid #008cba;
       }
 
       dd:not(.active) {
         &:hover {
-          border-bottom: 3px solid #999;
+          border-bottom: 2px solid #999;
         }
       }
     }
@@ -998,7 +999,7 @@ hr {
       &.active {
         background: #fff;
         border: 0px;
-        border-bottom: 3px solid #008cba;
+        border-bottom: 2px solid #008cba;
         font-weight: bold;
 
         .fa-chevron-down {
