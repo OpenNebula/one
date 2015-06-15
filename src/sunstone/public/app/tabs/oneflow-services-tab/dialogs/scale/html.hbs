@@ -1,0 +1,29 @@
+<div id="{{dialogId}}" class="reveal-modal" role="dialog" data-reveal >
+  <div class="row">
+    <h3 class="subheader">{{tr "Scale"}}</h3>
+  </div>
+  <form data-abide="ajax" id="{{dialogId}}Form">
+    <div class="row">
+      <div class="large-12 columns">
+        <label for="cardinality">{{tr "Cardinality"}}
+          <span class="tip">{{tr "Number of VMs to instantiate with this role"}}</span>
+        </label>
+        <input type="text" name="cardinality" id="cardinality"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <input type="checkbox" name="force" id="force"/>
+        <label class="inline" for="force">{{tr "Force"}}
+          <span class="tip">{{tr "Force the new cardinality even if it is outside the limits"}}</span>
+        </label>
+      </div>
+    </div>
+    <div class="form_buttons row">
+      <button type="submit" class="button radius right">
+        {{tr "Scale"}}
+      </button>
+    </div>
+    <a class="close-reveal-modal">&#215;</a>
+  </form>
+</div>

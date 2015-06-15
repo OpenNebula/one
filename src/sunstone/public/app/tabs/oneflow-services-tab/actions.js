@@ -12,6 +12,7 @@ define(function(require) {
   var RESOURCE = "Service";
 
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
+  var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID);
 
@@ -85,21 +86,32 @@ define(function(require) {
 
     //--------------------------------------------------------------------------
 
-    /* TODO
-    "Role.update_dialog" : {
+    "Role.scale_dialog" : {
       type: "custom",
-      call: popUpScaleDialog
+      call: function(){
+        selected = roleElements();
+
+        if(selected.lenght == 0){
+          return;
+        }
+
+        Sunstone.getDialog(SCALE_DIALOG_ID).setParams({roleIds: selected});
+        Sunstone.getDialog(SCALE_DIALOG_ID).reset();
+        Sunstone.getDialog(SCALE_DIALOG_ID).show();
+      }
     },
 
     "Role.update" : {
       type: "multiple",
       call: OpenNebulaRole.update,
-      callback: roleCallback,
+      callback: function() {
+        Sunstone.getDialog(SCALE_DIALOG_ID).hide();
+        roleCallback();
+      },
       elements: roleElements,
       error: Notifier.onError,
       notify: true
     },
-    */
 
     "Role.hold" : {
       type: "multiple",

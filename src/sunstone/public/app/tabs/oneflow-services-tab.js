@@ -9,6 +9,7 @@ define(function(require) {
   var RESOURCE = "Service";
 
   var _dialogs = [
+    require('./oneflow-services-tab/dialogs/scale'),
   ];
 
   var _panels = [

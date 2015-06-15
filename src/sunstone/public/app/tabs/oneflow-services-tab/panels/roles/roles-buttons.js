@@ -2,10 +2,9 @@ define(function(require) {
   var Locale = require('utils/locale');
 
   var Buttons = {
-    "Role.update_dialog" : {
+    "Role.scale_dialog" : {
       type: "action",
       text: Locale.tr("Scale"),
-      tip: Locale.tr("This will hold selected pending VMs from being deployed"),
       layout: "create"
     },
     "Role.hold" : {

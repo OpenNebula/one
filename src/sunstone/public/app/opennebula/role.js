@@ -1,6 +1,7 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
   var OpenNebulaError = require('./error');
+  var OpenNebulaHelper = require('./helper');
   var Locale = require('utils/locale');
 
   var RESOURCE = "DOCUMENT";
@@ -165,7 +166,7 @@ define(function(require) {
                                       PATH);
     },
     "update" : function(params) {
-      var request = OpenNebula.Helper.request(RESOURCE, "update", params.data.id);
+      var request = OpenNebulaHelper.request(RESOURCE, "update", params.data.id);
 
       $.ajax({
         url: PATH + "/" + params.data.id,
