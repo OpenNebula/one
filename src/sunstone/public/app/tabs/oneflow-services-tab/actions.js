@@ -63,24 +63,25 @@ define(function(require) {
       }
     },
 
-    /* TODO
-
     "Service.shutdown" : {
-        type: "multiple",
-        call: OpenNebula.Service.shutdown,
-        elements: serviceElements,
-        error: Notifier.onError,
-        notify: true
+      type: "multiple",
+      call: OpenNebulaResource.shutdown,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: Notifier.onError,
+      notify: true
     },
 
     "Service.recover" : {
-        type: "multiple",
-        call: OpenNebula.Service.recover,
-        elements: serviceElements,
-        error: Notifier.onError,
-        notify: true
-    }
-    */
+      type: "multiple",
+      call: OpenNebulaResource.recover,
+      elements: function() {
+        return Sunstone.getDataTable(TAB_ID).elements();
+      },
+      error: Notifier.onError,
+      notify: true
+    },
 
     //--------------------------------------------------------------------------
 
