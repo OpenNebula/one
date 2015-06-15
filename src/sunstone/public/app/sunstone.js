@@ -524,17 +524,12 @@ define(function(require) {
     $('.top_button, .list_button', context).attr('disabled', false);
   }
 
-  var _insertPanels = function(tabName, info) {
-    var context = $(".right-info", $("#" + tabName));
+  var _insertPanels = function(tabName, info, contextTabId, context) {
+    var context = context || $(".right-info", $("#" + tabName));
     var containerId = tabName + '-panels';
     var activaTab = $("dd.active a", $("#" + containerId));
     if (activaTab) {
       var activaTabHref = activaTab.attr('href');
-    }
-
-    var templateAttrs = {
-      'containerId': containerId,
-      'panels': []
     }
 
     var panels = SunstoneCfg['tabs'][tabName].panels;
@@ -543,7 +538,7 @@ define(function(require) {
     var panelInstances = []
 
     $.each(panels, function(panelName, Panel) {
-      if (Config.isTabPanelEnabled(tabName, panelName)) {
+      if (Config.isTabPanelEnabled((contextTabId||tabName), panelName)) {
         if (activaTabHref) {
           if (activaTabHref == "#" + panelName) {
             active = true;
@@ -554,7 +549,7 @@ define(function(require) {
         }
 
         try {
-          var panelInstance = new Panel(info);
+          var panelInstance = new Panel(info, contextTabId);
           panelInstances.push(panelInstance);
           templatePanelsParams.push({
             'panelName': panelName,

@@ -1,6 +1,7 @@
 define(function(require) {
   require('jquery');
 
+  var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var Sunstone = require('sunstone');
 
   var _tabs = [
@@ -25,7 +26,8 @@ define(function(require) {
     require('tabs/marketplace-tab'),
     require('tabs/oneflow-dashboard'),
     require('tabs/oneflow-services-tab'),
-    require('tabs/oneflow-templates-tab')
+    require('tabs/oneflow-templates-tab'),
+    require('tabs/settings-tab')
   ];
 
   var _commonDialogs = [
@@ -43,6 +45,8 @@ define(function(require) {
     Sunstone.insertTabs();
 
     _setupAccordion();
+
+    Sunstone.showTab(DASHBOARD_TAB_ID);
   });
 
   function _setupAccordion() {

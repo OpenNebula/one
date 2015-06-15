@@ -150,6 +150,35 @@ define(function(require) {
       call: OpenNebulaResource.update,
       callback: function(request) {
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
+        if (request.request.data[0][0] == config['user_id']) {
+          Sunstone.runAction('Settings.refresh');
+        }
+      },
+      error: Notifier.onError
+    },
+
+    "User.update_language" : {
+      type: "single",
+      call: OpenNebulaResource.update,
+      callback: function(request) {
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
+        if (request.request.data[0][0] == config['user_id']) {
+          Sunstone.runAction('Settings.refresh');
+        }
+        Notifier.notifyMessage(Locale.tr("The user must refresh the page for the change to take effect"));
+      },
+      error: Notifier.onError
+    },
+
+    "User.update_view" : {
+      type: "single",
+      call: OpenNebulaResource.update,
+      callback: function(request) {
+        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
+        if (request.request.data[0][0] == config['user_id']) {
+          Sunstone.runAction('Settings.refresh');
+        }
+        Notifier.notifyMessage(Locale.tr("The user must refresh the page for the change to take effect"));
       },
       error: Notifier.onError
     },

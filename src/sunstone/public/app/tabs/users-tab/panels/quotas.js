@@ -21,7 +21,8 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function Panel(info) {
+  function Panel(info, tabId) {
+    this.tabId = tabId || TAB_ID;
     this.title = Locale.tr("Quotas");
     this.icon = "fa-align-left";
 
@@ -44,14 +45,14 @@ define(function(require) {
     return QuotaWidgets.initQuotasPanel(
       this.element,
       QuotaDefaults.getDefaultQuotas(RESOURCE),
-      Config.isTabActionEnabled(TAB_ID, RESOURCE+".quotas_dialog"));
+      Config.isTabActionEnabled(this.tabId, RESOURCE+".quotas_dialog"));
   }
 
   function _setup(context) {
     QuotaWidgets.setupQuotasPanel(
       this.element,
       context,
-      Config.isTabActionEnabled(TAB_ID, RESOURCE+".quotas_dialog"),
+      Config.isTabActionEnabled(this.tabId, RESOURCE+".quotas_dialog"),
       RESOURCE);
 
     return false;
