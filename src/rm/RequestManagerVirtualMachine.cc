@@ -2404,7 +2404,7 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
     }
     else
     {
-        success_response(id, att);
+        success_response(snap_id, att);
     }
 
     return;
@@ -2443,7 +2443,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     }
     else
     {
-        success_response(id, att);
+        success_response(snap_id, att);
     }
 
     return;

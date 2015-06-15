@@ -495,7 +495,7 @@ void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    success_response(id, att);
+    success_response(snap_id, att);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -524,7 +524,7 @@ void ImageSnapshotRevert::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    success_response(id, att);
+    success_response(snap_id, att);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -553,6 +553,6 @@ void ImageSnapshotFlatten::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    success_response(id, att);
+    success_response(snap_id, att);
 }
 
