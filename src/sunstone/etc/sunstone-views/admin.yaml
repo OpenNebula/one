@@ -27,6 +27,7 @@ enabled_tabs:
     community-tab: true
     enterprise-tab: true
     zones-tab: true
+    settings-tab: true
 autorefresh: true
 features:
     showback: true
@@ -529,3 +530,11 @@ tabs:
         actions:
             Support.refresh: true
             Support.create_dialog: true
+    settings-tab:
+        panel_tabs:
+            user_info_tab: true
+            user_quotas_tab: true
+            user_accounting_tab: true
+            user_showback_tab: true
+        actions:
+            User.quotas_dialog: false
