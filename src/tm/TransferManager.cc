@@ -2106,7 +2106,7 @@ void TransferManager::saveas_hot_action(int vid)
         goto error_file;
     }
 
-    //MVDS tm_mad hostname:remote_system_dir/disk.0 source snapid vmid dsid
+    //CPDS tm_mad hostname:remote_system_dir/disk.0 source snapid vmid dsid
     xfr << "CPDS "
         << tm_mad << " "
         << vm->get_hostname() << ":"
