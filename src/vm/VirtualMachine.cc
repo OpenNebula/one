@@ -2227,7 +2227,7 @@ VectorAttribute * VirtualMachine::delete_attach_disk(Snapshots **snap)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::isVolatile(const VectorAttribute * disk)
+bool VirtualMachine::is_volatile(const VectorAttribute * disk)
 {
     string type = disk->vector_value("TYPE");
 
@@ -2239,21 +2239,30 @@ bool VirtualMachine::isVolatile(const VectorAttribute * disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::isVolatile(const Template * tmpl)
+bool VirtualMachine::is_persistent(const VectorAttribute * disk)
+{
+    bool pers_disk;
+
+    disk->vector_value("PERSISTENT", pers_disk);
+
+    return pers_disk;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_volatile(const Template * tmpl)
 {
     vector<const Attribute*> disks;
+    const VectorAttribute *  disk;
+
     int num_disks = tmpl->get("DISK", disks);
 
     for (int i = 0 ; i < num_disks ; i++)
     {
-        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+        disk =static_cast<const VectorAttribute*>(disks[i]);
 
-        if (disk == 0)
-        {
-            continue;
-        }
-
-        if (VirtualMachine::isVolatile(disk))
+        if (is_volatile(disk))
         {
             return true;
         }
@@ -2265,13 +2274,13 @@ bool VirtualMachine::isVolatile(const Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::isImported() const
+bool VirtualMachine::is_imported() const
 {
-    bool is_imported = false;
+    bool imported = false;
 
-    get_template_attribute("IMPORTED", is_imported);
+    get_template_attribute("IMPORTED", imported);
 
-    return is_imported;
+    return imported;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2299,7 +2308,7 @@ long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
             continue;
         }
 
-        if (!VirtualMachine::isVolatile(disk))
+        if (!VirtualMachine::is_volatile(disk))
         {
             continue;
         }
@@ -4168,6 +4177,7 @@ int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
 int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 {
     map<int, Snapshots *>::iterator it;
+    unsigned int size_mb;
     int snap_id;
 
     VectorAttribute * disk;
@@ -4180,9 +4190,15 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
         return -1;
     }
 
-    if (isVolatile(disk))
+    if (is_volatile(disk))
     {
         error = "Cannot make snapshots on volatile disks";
+        return -1;
+    }
+
+    if (disk->vector_value("SIZE", size_mb) != 0 )
+    {
+        error = "Wrong size in disk";
         return -1;
     }
 
@@ -4192,7 +4208,7 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     {
         Snapshots * snap = new Snapshots(did);
 
-        snap_id = snap->create_snapshot(tag);
+        snap_id = snap->create_snapshot(tag, size_mb);
 
 		if (snap_id != -1)
 		{
@@ -4205,7 +4221,7 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     }
     else
     {
-        snap_id = it->second->create_snapshot(tag);
+        snap_id = it->second->create_snapshot(tag, size_mb);
     }
 
 	if (snap_id != -1)

@@ -1233,17 +1233,22 @@ public:
     /**
      *  Check if the given disk is volatile
      */
-    static bool isVolatile(const VectorAttribute * disk);
+    static bool is_volatile(const VectorAttribute * disk);
 
     /**
      *  Check if the template contains a volatile disk
      */
-    static bool isVolatile(const Template * tmpl);
+    static bool is_volatile(const Template * tmpl);
+
+    /**
+     *  Check if the disk is persistent
+     */
+    static bool is_persistent(const VectorAttribute * disk);
 
     /**
      *  Check if the themplate is for an imported VM
      */
-    bool isImported() const;
+    bool is_imported() const;
 
     /**
      *  Return the total SIZE of volatile disks

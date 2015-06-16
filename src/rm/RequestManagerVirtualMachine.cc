@@ -519,7 +519,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->isImported() && (
+    if (vm->is_imported() && (
         action == History::DELETE_RECREATE_ACTION ||
         action == History::UNDEPLOY_ACTION ||
         action == History::UNDEPLOY_HARD_ACTION ||
@@ -848,7 +848,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->isImported())
+    if (vm->is_imported())
     {
         dm->import(vm);
     }
@@ -992,7 +992,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (vm->isImported())
+    if (vm->is_imported())
     {
         failure_response(ACTION,
                 request_error("Migration is not supported for imported VMs",""),
@@ -1561,7 +1561,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    volatile_disk = VirtualMachine::isVolatile(tmpl);
+    volatile_disk = VirtualMachine::is_volatile(tmpl);
 
     if ( volatile_disk )
     {
