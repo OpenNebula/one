@@ -11,6 +11,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var ResourceSelect = require('utils/resource-select');
+  var BrowserInfo = require('utils/browser-info');
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
@@ -114,7 +115,7 @@ define(function(require) {
 
     $('#path_file', context).click();
 
-    if (_getInternetExplorerVersion() > -1) {
+    if (BrowserInfo.getInternetExplorerVersion() > -1) {
       $("#upload_file").attr("disabled", "disabled");
     } else {
       that.uploader = new Resumable({
@@ -263,18 +264,5 @@ define(function(require) {
     Sunstone.runAction("File.create", img_obj);
 
     return false;
-  }
-
-  function _getInternetExplorerVersion() {
-    // Returns the version of Internet Explorer or a -1
-    // (indicating the use of another browser).
-    var rv = -1; // Return value assumes failure.
-    if (navigator.appName == 'Microsoft Internet Explorer') {
-      var ua = navigator.userAgent;
-      var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-      if (re.exec(ua) != null)
-          rv = parseFloat(RegExp.$1);
-    }
-    return rv;
   }
 });
