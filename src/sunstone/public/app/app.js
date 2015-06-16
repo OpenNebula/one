@@ -30,7 +30,8 @@ define(function(require) {
     require('tabs/oneflow-dashboard'),
     require('tabs/oneflow-services-tab'),
     require('tabs/oneflow-templates-tab'),
-    require('tabs/settings-tab')
+    require('tabs/settings-tab'),
+    require('tabs/support-tab')
   ];
 
   var _commonDialogs = [
