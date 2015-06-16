@@ -146,6 +146,12 @@ define(function(require) {
         Sunstone.addFormPanel(tabName, key, value)
       })
     }
+
+    if (tabInfo.setup) {
+      var context = $('div#' + tabName, $('div.right-content'));
+
+      tabInfo.setup(context);
+    }
   };
 
   //If we have defined a block of action buttons in a tab,
@@ -911,7 +917,9 @@ define(function(require) {
     "getDataTable": _getDataTable,
     "getDialog": _getDialogInstance,
 
-    "insertButtonsInTab": _insertButtonsInTab
+    "insertButtonsInTab": _insertButtonsInTab,
+
+    "TOP_INTERVAL": TOP_INTERVAL
   }
 
   return Sunstone;
