@@ -1,0 +1,31 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="subject">Subject</label>
+      <input id="subject" type="text" required></input>
+    </div>
+  </div>
+  <div class="row">
+    <div class="medium-6 columns">
+      <label for="opennebula_version">OpenNebula Version</label>
+      <input id="opennebula_version" type="text" required></input>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="description">Description</label>
+      <textarea id="description" rows="5" placeholder="Please enter the details of your request. A member of our support staff will respond as soon as possible." required></textarea>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="severity">Subject</label>
+      <select id="severity" name="severity">
+        <option value="severity_1">Severity 1. Product Error: Catastrophic problem in running production systems</option>
+        <option value="severity_2">Severity 2. Product Error: High-impact problem in running production systems</option>
+        <option value="severity_3">Severity 3. Product Error: Low impact problem on a running production system </option>
+        <option value="severity_4" selected>Severity 4. Usage, Design, Configuration, or Integration Question</option>
+      </select>
+    </div>
+  </div>
+</form>

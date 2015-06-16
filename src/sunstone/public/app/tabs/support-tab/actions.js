@@ -6,7 +6,7 @@ define(function(require) {
 
   var RESOURCE = "Support";
   var TAB_ID = require('./tabId');
-  //var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "Support.list" : {
@@ -60,42 +60,30 @@ define(function(require) {
         SupportUtils.showSupportConnect();
       }
     },
- /*TODO
     "Support.create" : {
       type: "create",
       call: OpenNebulaSupport.create,
       callback: function(request, response){
-         $("a[href=back]", $("#support-tab")).trigger("click");
-        popFormDialog("create_support_request_form", $("#support-tab"));
-
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
         Sunstone.runAction("Support.refresh");
-        //addTemplateElement(request, response);
-        //notifyCustom(tr("Request created"), " ID: " + response.VMTEMPLATE.ID, false)
       },
       error: function(request, error_json){
-        popFormDialog("create_support_request_form", $("#support-tab"));
         if (error_json.error.http_status=="403") {
-          notifyError(error_json.error.message);
+          Sunstone.hideFormPanelLoading(TAB_ID);
+          Notifier.notifyError(error_json.error.message);
         } else {
-          $("a[href=back]", $("#support-tab")).trigger("click");
+          Sunstone.hideFormPanel(TAB_ID);
           SupportUtils.showSupportConnect();
         }
       }
-
     },
-
     "Support.create_dialog" : {
       type: "custom",
       call: function(){
-        Sunstone.popUpFormPanel(
-          "create_support_request_form",
-          "support-tab",
-          "create",
-          false,
-          function(context){});
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
-    */
     "Support.update" : {
       type: "single",
       call: OpenNebulaSupport.update,

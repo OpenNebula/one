@@ -20,7 +20,7 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    //require('./support-tab/form-panels/create')
+    require('./support-tab/form-panels/create')
   ];
 
   var Tab = {
