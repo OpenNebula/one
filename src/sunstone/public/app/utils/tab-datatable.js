@@ -158,11 +158,9 @@ define(function(require) {
       that.recountCheckboxes();
     })
 
-    this.dataTable.fnSetColumnVis(0, false);
     this.dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
 
     if (this.conf.actions) {
-      this.dataTable.fnSetColumnVis(0, true);
       this.initCheckAllBoxes();
       this.tableCheckboxesListener();
     }
