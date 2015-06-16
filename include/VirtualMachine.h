@@ -1270,82 +1270,56 @@ public:
     int  generate_context(string &files, int &disk_id, string& token_password);
 
     // -------------------------------------------------------------------------
-    // Datastore related functions
+    // "Save as" Disk related functions (save_as hot)
     // -------------------------------------------------------------------------
     /**
-     *  Gest the associated image to the given disk_id
+     *  Mark the disk that is going to be "save as"
      *    @param disk_id of the VM
-     *    @param hot is this a save_as hot operation
+     *    @param snap_id of the disk to save, -1 to select the active snapshot
      *    @param err_str describing the error
-     *    @return -1 if the image cannot saveas
+     *    @return -1 if the image cannot saveas or image_id of current disk
      */
-    int get_image_from_disk(int disk_id, bool hot, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, string& err_str);
 
     /**
-     *  Sets the corresponding SAVE_AS state.
+     *  Set save attributes for the disk
      *    @param  disk_id Index of the disk to save
-     *    @param hot is this a save_as hot operation
-     *    @return 0 if the VM can be saved as
+     *    @param  source to save the disk
+     *    @param  img_id ID of the image this disk will be saved to
      */
-     int set_saveas_state(int disk_id, bool hot);
+    int set_saveas_disk(int disk_id, const string& source, int img_id);
 
     /**
-     *  Clears the SAVE_AS state, moving the VM to the original state.
-     *    @param  disk_id Index of the disk to save
-     *    @param hot is this a save_as hot operation
-     *    @return 0 if the VM was in a SAVE_AS state
+     *  Sets the corresponding state to save the disk.
+     *    @return 0 if the VM can be saved
      */
-     int clear_saveas_state(int disk_id, bool hot);
+    int set_saveas_state();
 
     /**
-     *  Set the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @param  source to save the disk (SAVE_AS_SOURCE)
-     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
+     *  Clears the save state, moving the VM to the original state.
+     *    @return 0 if the VM was in an saveas state
      */
-    int save_disk(int disk_id,
-                  const string& source,
-                  int img_id);
-    /**
-     *  Clears the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @return 0 on success, -1 if the disk does not exist
-     */
-    int clear_save_disk(int disk_id);
+    int clear_saveas_state();
 
     /**
-     * Returns the image ID to be saved-as.
-     * @param disk_id Index of the disk to save
-     * @return The image ID, or -1 if the disk is not going to be saved-as
+     * Clears the SAVE_AS_* attributes of the disk being saved as
+     *    @return the ID of the image this disk will be saved to or -1 if it
+     *    is not found.
      */
-    int get_save_disk_image(int disk_id);
+    int clear_saveas_disk();
 
-    /**
-     *  Set the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @param  source to save the disk (SAVE_AS_SOURCE)
-     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
-     */
-    int save_disk_hot(int disk_id,
-                      const string& source,
-                      int img_id);
     /**
      * Get the original image id of the disk. It also checks that the disk can
      * be saved_as.
      *    @param  disk_id Index of the disk to save
-     *    @param  error_str describes the error
+     *    @param  source of the image to save the disk to
+     *    @param  image_id of the image to save the disk to
+     *    @param  tm_mad in use by the disk
+     *    @param  ds_id of the datastore in use by the disk
      *    @return -1 if failure
      */
-    int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
-
-    /**
-     * Clears the save_as attributes of the disk being (hot) saved as
-     *
-     *    @param  img_id ID of the image this disk will be saved to. Can be
-     *    -1 if it is not found
-     *    @return 0 if a disk with (HOTPLUG_)SAVE_AS was cleaned
-     */
-    int cancel_saveas_disk(int& image_id);
+    int get_saveas_disk(int& disk_id, string& source, int& image_id,
+            string& snap_id, string& tm_mad, string& ds_id);
 
     // ------------------------------------------------------------------------
     // Authorization related functions

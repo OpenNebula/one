@@ -61,52 +61,22 @@ public:
 
     bool is_saving()
     {
-        string saving;
+        bool save_as_hot;
 
-        get(saving_attribute, saving);
+        get("SAVE_AS_HOT", save_as_hot);
 
-        return (saving.empty() == false);
-    }
-
-    bool is_saving_hot()
-    {
-        string save_as_hot;
-
-        get(saving_hot_attribute, save_as_hot);
-
-        return (save_as_hot.empty() == false);
+        return save_as_hot;
     }
 
     void set_saving()
     {
-        SingleAttribute * attr= new SingleAttribute(saving_attribute, "YES");
-
-        erase(saving_attribute);
-
-        set(attr);
-    }
-
-    void set_saving_hot()
-    {
-        SingleAttribute * attr = new SingleAttribute(saving_hot_attribute,"YES");
-
-        erase(saving_hot_attribute);
-
-        set(attr);
-    }
-
-    void unset_saving()
-    {
-        erase(saving_attribute);
+        replace("SAVE_AS_HOT", "YES");
     }
 
 private:
     friend class ImagePool;
 
     static vector<string> restricted_attributes;
-
-    static string saving_attribute;
-    static string saving_hot_attribute;
 
     bool has_restricted()
     {

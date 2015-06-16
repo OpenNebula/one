@@ -369,15 +369,12 @@ static int mkfs_action(istringstream& is,
     string  source;
     Image * image;
     bool    is_saving = false;
-    bool    is_hot    = false;
 
     string info;
-    int    rc;
 
-    int vm_id = -1;
-    int ds_id = -1;
-
-    int disk_id;
+    int vm_id   = -1;
+    int ds_id   = -1;
+    int disk_id = -1;
 
     VirtualMachine * vm;
     ostringstream    oss;
@@ -411,14 +408,13 @@ static int mkfs_action(istringstream& is,
         return ds_id;
     }
 
-    is_saving = image->isSaving();
-    is_hot    = image->isHot();
+    is_saving = image->is_saving();
     ds_id     = image->get_ds_id();
 
     if ( is_saving )
     {
-        image->get_template_attribute("SAVED_VM_ID", vm_id);
         image->get_template_attribute("SAVED_DISK_ID", disk_id);
+        image->get_template_attribute("SAVED_VM_ID", vm_id);
     }
 
     if ( result == "FAILURE" )
@@ -459,28 +455,12 @@ static int mkfs_action(istringstream& is,
         goto error_save_get;
     }
 
-    if ( is_hot ) //Saveas hot, trigger disk copy
+    if ( vm->set_saveas_disk(disk_id, source, id) == -1 )
     {
-        rc = vm->save_disk_hot(disk_id, source, id);
-
-        if ( rc == -1 )
-        {
-            goto error_save_state;
-        }
-
-        tm->trigger(TransferManager::SAVEAS_HOT, vm_id);
+        goto error_save_state;
     }
-    else //setup disk information
-    {
-        rc = vm->save_disk(disk_id, source, id);
 
-        if ( rc == -1 )
-        {
-            goto error_save_state;
-        }
-
-        vm->clear_saveas_state(disk_id, is_hot);
-    }
+    tm->trigger(TransferManager::SAVEAS_HOT, vm_id);
 
     vmpool->update(vm);
 
@@ -493,12 +473,12 @@ error_img:
     goto error;
 
 error_save_get:
-    oss << "Image created for SAVE_AS, but the associated VM does not exist.";
+    oss << "Image created to save as a disk but VM does not exist.";
     goto error_save;
 
 error_save_state:
     vm->unlock();
-    oss << "Image created for SAVE_AS, but VM is no longer running";
+    oss << "Image created to save as disk but VM is no longer running";
 
 error_save:
     image = ipool->get(id, true);
@@ -530,7 +510,10 @@ error:
     {
         if ((vm = vmpool->get(vm_id, true)) != 0)
         {
-            vm->clear_saveas_state(disk_id, is_hot);
+            vm->clear_saveas_state();
+
+            vm->clear_saveas_disk();
+
             vmpool->update(vm);
 
             vm->unlock();

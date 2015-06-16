@@ -293,8 +293,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
     xmlrpc_c::methodPtr vm_action(new VirtualMachineAction());
-    xmlrpc_c::methodPtr vm_savedisk(new VirtualMachineSaveDisk());
-    xmlrpc_c::methodPtr vm_savedisk_cancel(new VirtualMachineSaveDiskCancel());
     xmlrpc_c::methodPtr vm_monitoring(new VirtualMachineMonitoring());
     xmlrpc_c::methodPtr vm_attach(new VirtualMachineAttach());
     xmlrpc_c::methodPtr vm_detach(new VirtualMachineDetach());
@@ -304,6 +302,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_snap_create(new VirtualMachineSnapshotCreate());
     xmlrpc_c::methodPtr vm_snap_revert(new VirtualMachineSnapshotRevert());
     xmlrpc_c::methodPtr vm_snap_delete(new VirtualMachineSnapshotDelete());
+    xmlrpc_c::methodPtr vm_dsaveas(new VirtualMachineDiskSaveas());
     xmlrpc_c::methodPtr vm_dsnap_create(new VirtualMachineDiskSnapshotCreate());
     xmlrpc_c::methodPtr vm_dsnap_revert(new VirtualMachineDiskSnapshotRevert());
     xmlrpc_c::methodPtr vm_dsnap_delete(new VirtualMachineDiskSnapshotDelete());
@@ -449,8 +448,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
     RequestManagerRegistry.addMethod("one.vm.migrate", vm_migrate);
-    RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
-    RequestManagerRegistry.addMethod("one.vm.savediskcancel", vm_savedisk_cancel);
     RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
@@ -466,6 +463,7 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.snapshotcreate", vm_snap_create);
     RequestManagerRegistry.addMethod("one.vm.snapshotrevert", vm_snap_revert);
     RequestManagerRegistry.addMethod("one.vm.snapshotdelete", vm_snap_delete);
+    RequestManagerRegistry.addMethod("one.vm.disksaveas", vm_dsaveas);
     RequestManagerRegistry.addMethod("one.vm.disksnapshotcreate", vm_dsnap_create);
     RequestManagerRegistry.addMethod("one.vm.disksnapshotrevert", vm_dsnap_revert);
     RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);

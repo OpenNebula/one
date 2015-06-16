@@ -938,7 +938,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         break;
 
         case VirtualMachine::HOTPLUG_SAVEAS:
-            vm->cancel_saveas_disk(image_id);
+            image_id = vm->clear_saveas_disk();
             vmpool->update(vm);
 
             vm->set_running_etime(the_time);
@@ -952,7 +952,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
             tm->trigger(TransferManager::DRIVER_CANCEL, vid);
 
-            vm->cancel_saveas_disk(image_id);
+            image_id = vm->clear_saveas_disk();
             vmpool->update(vm);
 
             vm->set_running_etime(the_time);
@@ -1129,11 +1129,11 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
             if (success)
             {
-                lcm_action = LifeCycleManager::SAVEAS_HOT_SUCCESS;
+                lcm_action = LifeCycleManager::SAVEAS_SUCCESS;
             }
             else
             {
-                lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
+                lcm_action = LifeCycleManager::SAVEAS_FAILURE;
             }
         break;
 

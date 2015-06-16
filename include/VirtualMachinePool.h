@@ -344,10 +344,8 @@ public:
      * Images and updates usage quotas
      *
      * @param vid VM id
-     * @param release_save_as true to release non-persistent images
-     * in the detach event
      */
-    void delete_attach_disk(int vid, bool release_save_as);
+    void delete_attach_disk(int vid);
 
     /**
      * Deletes the NIC that was in the process of being attached

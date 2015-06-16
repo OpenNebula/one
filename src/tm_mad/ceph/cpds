@@ -16,16 +16,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE
+# cpds host:remote_system_ds/disk.i fe:SOURCE snapid vmid dsid
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
+#   - snapid is the snapshot id. "-1" for none
 
 SRC=$1
 DST=$2
-VM_ID=$3
-DS_ID=$4
+SNAP_ID=$3
+VM_ID=$4
+DS_ID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -43,13 +45,13 @@ source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 #-------------------------------------------------------------------------------
 
 SRC_HOST=`arg_host $SRC`
-SRC_PATH=`arg_path $SRC`
+RBD_SRC=`arg_path $SRC`
 
 #-------------------------------------------------------------------------------
 # Get Image information
 #-------------------------------------------------------------------------------
 
-DISK_ID=$(echo "$SRC_PATH" | $AWK -F. '{print $NF}')
+DISK_ID=$(echo "$RBD_SRC" | $AWK -F. '{print $NF}')
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
@@ -76,7 +78,7 @@ else
     RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
 fi
 
-if [ -n "$SNAP_ID" ]; then
+if [ "$SNAP_ID" != "-1" ]; then
     RBD_DST="${RBD_DST}-${SNAP_ID}@${SNAP_ID}"
 fi
 
