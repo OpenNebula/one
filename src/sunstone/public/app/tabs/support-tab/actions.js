@@ -7,6 +7,7 @@ define(function(require) {
   var RESOURCE = "Support";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var UPLOAD_DIALOG_ID = require('./dialogs/upload/dialogId');
 
   var _actions = {
     "Support.list" : {
@@ -118,14 +119,17 @@ define(function(require) {
         });
       }
     },
-/* TODO
     "Support.upload" : {
       type: "single",
       call: function() {
-        $upload_support_file.foundation("reveal", "open");
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        var resource_id = "" + selected_nodes[0];
+
+        Sunstone.getDialog(UPLOAD_DIALOG_ID).setParams({requestId: resource_id});
+        Sunstone.getDialog(UPLOAD_DIALOG_ID).reset();
+        Sunstone.getDialog(UPLOAD_DIALOG_ID).show();
       }
     }
-*/
   };
 
   return _actions;

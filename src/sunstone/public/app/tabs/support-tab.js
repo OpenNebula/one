@@ -13,6 +13,7 @@ define(function(require) {
   var DATATABLE_ID = "dataTableSupport";
 
   var _dialogs = [
+    require('./support-tab/dialogs/upload')
   ];
 
   var _panels = [
