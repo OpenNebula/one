@@ -16,6 +16,7 @@ define(function(require) {
   ];
 
   var _panels = [
+    require('./support-tab/panels/info')
   ];
 
   var _formPanels = [
@@ -27,7 +28,7 @@ define(function(require) {
     resource: 'Support',
     title: TemplateTitle(),
     listHeader: '<i class="fa fa-fw fa-support"></i> Commercial Support Requests',
-    info_header: '<i class="fa fa-fw fa-support"></i> Commercial Support Request',
+    infoHeader: '<i class="fa fa-fw fa-support"></i> Commercial Support Request',
     subheader: TemplateSubheader(),
     buttons: Buttons,
     actions: Actions,

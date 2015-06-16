@@ -16,7 +16,13 @@ define(function(require) {
         SupportUtils.showSupportList();
         $(".support_open_value").text(res.open_requests);
         $(".support_pending_value").text(res.pending_requests);
-        Sunstone.getDataTable(TAB_ID).updateView(req, res.REQUEST_POOL.REQUEST);
+
+        var elements = [];
+        if(res.REQUEST_POOL.REQUEST){
+          elements = res.REQUEST_POOL.REQUEST;
+        }
+
+        Sunstone.getDataTable(TAB_ID).updateView(req, elements);
       },
       error: function(request, error_json) {
         if (error_json.error.http_status=="401") {
@@ -62,7 +68,7 @@ define(function(require) {
          $("a[href=back]", $("#support-tab")).trigger("click");
         popFormDialog("create_support_request_form", $("#support-tab"));
 
-        $("a.refresh", $("#support-tab")).trigger("click");
+        Sunstone.runAction("Support.refresh");
         //addTemplateElement(request, response);
         //notifyCustom(tr("Request created"), " ID: " + response.VMTEMPLATE.ID, false)
       },
@@ -89,20 +95,20 @@ define(function(require) {
           function(context){});
       }
     },
-
+    */
     "Support.update" : {
       type: "single",
       call: OpenNebulaSupport.update,
       callback: function(request, response){
-        $("a.refresh", $("#support-tab")).trigger("click");
-        notifyMessage(tr("Comment added correctly"));
+        Sunstone.runAction("Support.refresh");
+        Notifier.notifyMessage("Comment added correctly");
       },
       error: function(request, response){
-        popFormDialog("create_template_form", $("#templates-tab"));
-        SupportUtils.showSupportConnect();
+        Sunstone.runAction("Support.refresh");
+        //Notifier.onError(request, response);
+        Notifier.notifyError("Comment failed to be added");
       }
     },
-    */
     "Support.signout" : {
       type: "single",
       call: function() {
