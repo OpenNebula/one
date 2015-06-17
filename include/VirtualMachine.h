@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "Quotas.h"
 
 #include <time.h>
 #include <set>
@@ -1534,8 +1535,11 @@ public:
      *  called before actually deleting the snapshot.
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
+     *    @param type of quota used by this snapshot
+     *    @param quotas template with snapshot usage
      */
-    void delete_disk_snapshot(int disk_id, int snap_id);
+    void delete_disk_snapshot(int disk_id, int snap_id, Quotas::QuotaType& type,
+            Template **quotas);
 
     /**
      *  Get information about the disk to take the snapshot from

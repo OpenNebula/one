@@ -175,13 +175,20 @@ public:
     unsigned int get_total_size() const;
 
     /**
+     *  Get the size (virtual) in mb of the given snapshot
+     *    @param id of the snapshot
+     *    @return size or 0 if not found
+     */
+	unsigned int get_snapshot_size(unsigned int id) const;
+
+    /**
      *  Get Attribute from the given snapshot
      *    @param id of the snapshot
      *    @param name of the attribute
      *
      *    @return value or empty if not found
      */
-    string get_snapshot_attribute(unsigned int id, const char* name);
+    string get_snapshot_attribute(unsigned int id, const char* name) const;
 
 private:
 
