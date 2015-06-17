@@ -1,6 +1,6 @@
 define(function(require) {
   var Locale = require('utils/locale');
-  var OpenNebulaUser = require('opennebula/user')
+  var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
 
   var TAB_ID = require('./settings-tab/tabId');
@@ -19,14 +19,15 @@ define(function(require) {
       type: "custom",
       call: _onShow
     },
-  }
+  };
 
   var _dialogs = [
   ];
 
-  var _userPanels = [
+  var _panels = [
     require('tabs/users-tab/panels/info'),
     require('tabs/users-tab/panels/quotas'),
+    require('tabs/settings-tab/panels/group-quotas'),
     require('tabs/users-tab/panels/accounting'),
     require('tabs/users-tab/panels/showback')
   ];
@@ -45,7 +46,8 @@ define(function(require) {
       '<i class="fa fa-cloud fa-stack-2x"></i>' +
       '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
     '</span>',
-    dialogs: _dialogs
+    dialogs: _dialogs,
+    panels: _panels,
   };
 
   return Tab;
@@ -56,8 +58,8 @@ define(function(require) {
         id: -1
       },
       success: function(request, user_json) {
-        Sunstone.insertPanels(USERS_TAB_ID, user_json, TAB_ID, $(".right-list", $("#" + TAB_ID)))
+        Sunstone.insertPanels(TAB_ID, user_json, TAB_ID, $(".right-list", $("#" + TAB_ID)))
       }
-    })
+    });
   }
 });

@@ -535,6 +535,7 @@ tabs:
         panel_tabs:
             user_info_tab: true
             user_quotas_tab: true
+            group_quotas_tab: true
             user_accounting_tab: true
             user_showback_tab: true
         actions:
