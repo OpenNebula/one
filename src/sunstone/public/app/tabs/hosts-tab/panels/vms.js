@@ -4,14 +4,14 @@ define(function(require){
    */
   
   var Locale = require('utils/locale');
-  // TODO var VMsTable = require('tabs/vms-tab/datatable');
+  var VMsTable = require('tabs/vms-tab/datatable');
   
   /*
     CONSTANTS
    */
 
   var PANEL_ID = require('./vms/panelId');
-  var IMAGES_TABLE_ID = PANEL_ID + "VMsTable";
+  var VMS_TABLE_ID = PANEL_ID + "VMsTable";
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
 
@@ -24,10 +24,9 @@ define(function(require){
     this.icon = "fa-cloud";
 
     this.element = info[XML_ROOT];
-    // TODO this.vmsDataTable = new VMsTable(IMAGES_TABLE_ID, {info: true});
 
     return this;
-  };
+  }
 
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
@@ -40,14 +39,34 @@ define(function(require){
    */
 
   function _html() {
-    return ''// TODO this.vmsDataTable.dataTableHTML;
+    var vms = [];
+
+    if (this.element.VMS.ID != undefined){
+      vms = this.element.VMS.ID;
+
+      if (!$.isArray(vms)){
+        vms = [vms];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: vms
+      }
+    };
+
+    this.vmsTable = new VMsTable(VMS_TABLE_ID, opts);
+
+    return this.vmsTable.dataTableHTML;
   }
 
   function _setup(context) {
-    // TODO this.vmsDataTable.initialize();
-    // TODO this.vmsDataTable.filter(this.element.NAME, VMsTable.COLUMN_IDS.DATASTORE);
-    // TODO this.vmsDataTable.list();
+    this.vmsTable.initialize();
+    this.vmsTable.refreshResourceTableSelect();
 
     return false;
   }
-})
+});
