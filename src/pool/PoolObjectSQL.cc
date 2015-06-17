@@ -223,6 +223,8 @@ int PoolObjectSQL::replace_template(
         return -1;
     }
 
+    delete old_tmpl;
+
     return 0;
 }
 
