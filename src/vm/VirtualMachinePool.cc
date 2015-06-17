@@ -1063,11 +1063,22 @@ void VirtualMachinePool::delete_attach_disk(int vid)
         int      image_id;
 
         tmpl.set(disk);
+        tmpl.add("VMS", 0);
 
-        if ( disk->vector_value("IMAGE_ID", image_id) == 0 )
+        if (VirtualMachine::is_volatile(disk))
         {
-            // Disk using an Image
+            Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
+        }
+        else
+        {
+            disk->vector_value("IMAGE_ID", image_id);
+
             Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
+            if (!VirtualMachine::is_persistent(disk))
+            {
+                Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
+            }
 
             if (snap != 0)
             {
@@ -1076,14 +1087,6 @@ void VirtualMachinePool::delete_attach_disk(int vid)
             }
 
             imagem->release_image(oid, image_id, false);
-        }
-        else // Volatile disk
-        {
-            // It is an update of the volatile counter without
-            // shutting destroying a VM
-            tmpl.add("VMS", 0);
-
-            Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
         }
     }
 }

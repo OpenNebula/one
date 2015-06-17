@@ -2348,11 +2348,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     PoolObjectAuth   vm_perms;
 
 	const VectorAttribute * disk;
-
 	VectorAttribute * delta_disk = 0;
-	VirtualMachineTemplate * deltas = 0;
 
-    Template ds_deltas;
+    Template deltas;
 
     int    rc;
     int    snap_id;
@@ -2404,28 +2402,25 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 	}
 	else if (persistent)
 	{
-		ds_deltas.add("DATASTORE", ds_id);
-		ds_deltas.add("SIZE", disk_size);
+		deltas.add("DATASTORE", ds_id);
+		deltas.add("SIZE", disk_size);
 
-        if (!quota_authorization(&ds_deltas, Quotas::DATASTORE, att_quota))
+        if (!quota_authorization(&deltas, Quotas::DATASTORE, att_quota))
         {
             return;
         }
 	}
 	else
 	{
-		deltas = new VirtualMachineTemplate();
-
 		delta_disk = new VectorAttribute("DISK");
 		delta_disk->replace("TYPE", "FS");
 		delta_disk->replace("SIZE", disk_size);
 
-        deltas->add("VMS", 0);
-		deltas->set(delta_disk);
+        deltas.add("VMS", 0);
+		deltas.set(delta_disk);
 
-        if (!quota_resize_authorization(id, deltas, att_quota))
+        if (!quota_resize_authorization(id, &deltas, att_quota))
         {
-            delete deltas;
             return;
         }
 	}
@@ -2439,11 +2434,11 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     {
 		if (persistent)
 		{
-			quota_rollback(&ds_deltas, Quotas::DATASTORE, att_quota);
+			quota_rollback(&deltas, Quotas::DATASTORE, att_quota);
 		}
 		else
 		{
-            quota_rollback(deltas, Quotas::VM, att_quota);
+            quota_rollback(&deltas, Quotas::VM, att_quota);
 		}
 
         failure_response(ACTION, request_error(error_str, ""), att);
@@ -2452,8 +2447,6 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     {
         success_response(snap_id, att);
     }
-
-	delete deltas;
 
     return;
 }
