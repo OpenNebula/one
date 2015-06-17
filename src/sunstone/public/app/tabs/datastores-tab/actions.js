@@ -178,7 +178,7 @@ define(function(require) {
               extra_param: ds
             },
             success: function() {
-              OpenNebulaActionr.clear_cache("DATASTORE");
+              OpenNebulaAction.clear_cache("DATASTORE");
               Sunstone.runAction('Datastore.show', ds);
             },
             error: Notifier.onError

@@ -4,6 +4,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaTemplate = require('opennebula/template');
   var CommonActions = require('utils/common-actions');
+  var OpenNebulaAction = require('opennebula/action');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -94,7 +95,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaTemplate.instantiate,
       callback: function(req) {
-        // TODO OpenNebula.Helper.clear_cache("VM");
+        OpenNebulaAction.clear_cache("VM");
       },
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
@@ -106,7 +107,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.instantiate,
       callback: function(req) {
-        // TODO OpenNebula.Helper.clear_cache("VM");
+        OpenNebulaAction.clear_cache("VM");
       },
       error: Notifier.onError
     },

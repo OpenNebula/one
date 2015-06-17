@@ -93,15 +93,8 @@ define(function(require) {
 
         return (p_pool);
       }
-    },
-
-    /* TODO remove if not necessary
-    "clear_cache" : function(cache_name) {
-      list_cache[cache_name] = null;
-      //console.log(cache_name+" cache cleaned");
     }
-    */
-  }
+  };
 
   return Helper;
 });
