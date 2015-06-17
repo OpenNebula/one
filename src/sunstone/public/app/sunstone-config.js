@@ -43,6 +43,10 @@ define(function(require) {
     },
 
     "tabTableColumns": function(tabName) {
+      if (!_config['view']['tabs'][tabName]) {
+        return [];
+      }
+      
       var columns = _config['view']['tabs'][tabName]['table_columns'];
 
       if (columns) {
@@ -62,6 +66,10 @@ define(function(require) {
     },
 
     "dashboardWidgets": function(perRow) {
+      if (!_config['view']['tabs']['dashboard-tab']) {
+        return []
+      }
+
       var widgets = _config['view']['tabs']['dashboard-tab'][perRow];
 
       if (widgets) {

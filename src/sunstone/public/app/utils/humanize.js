@@ -1,10 +1,5 @@
 define(function(require) {
-  var EXTERNAL_IPS_ATTRS = [
-    'GUEST_IP',
-    'AWS_IP_ADDRESS',
-    'AZ_IPADDRESS',
-    'SL_PRIMARYIPADDRESS'
-  ]
+  var Locale = require('utils/locale');
 
   /*
     CONSTRUCTOR
@@ -19,7 +14,7 @@ define(function(require) {
     'prettyTime': _prettyTime,
     'prettyTimeAxis': _prettyTimeAxis,
     'prettyPrintJSON': _prettyPrintJSON,
-    'ipsStr': _ipsStr
+    'prettyTimeAgo': _format_date
   }
 
   /*
@@ -214,45 +209,36 @@ define(function(require) {
     return str;
   }
 
-  // Return the IP or several IPs of a VM
-  function _ipsStr(vm, divider) {
-    var divider = divider || "<br>"
-    var nic = vm.TEMPLATE.NIC;
-    var ips = [];
+  function _format_date(unix_timestamp) {
+    var difference_in_seconds = (Math.round((new Date()).getTime() / 1000)) - unix_timestamp,
+        current_date = new Date(unix_timestamp * 1000), minutes, hours;
 
-    if (nic != undefined) {
-      if (!$.isArray(nic)) {
-        nic = [nic];
+    if(difference_in_seconds < 60) {
+      return difference_in_seconds + "s" + " ago";
+    } else if (difference_in_seconds < 60*60) {
+      minutes = Math.floor(difference_in_seconds/60);
+      return minutes + "m" + " ago";
+    } else if (difference_in_seconds < 60*60*24) {
+      hours = Math.floor(difference_in_seconds/60/60);
+      return hours + "h" + " ago";
+    } else if (difference_in_seconds > 60*60*24){
+      if(current_date.getYear() !== new Date().getYear())
+        return current_date.getDay() + " " + Locale.months[current_date.getMonth()].substr(0,3) + " " + _fourdigits(current_date.getYear());
+      else {
+          return current_date.getDay() + " " + Locale.months[current_date.getMonth()].substr(0,3);
       }
-
-      $.each(nic, function(index, value) {
-        if (value.IP) {
-          ips.push(value.IP);
-        }
-
-        if (value.IP6_GLOBAL) {
-          ips.push(value.IP6_GLOBAL);
-        }
-
-        if (value.IP6_ULA) {
-          ips.push(value.IP6_ULA);
-        }
-      });
     }
 
-    var template = vm.TEMPLATE;
-    var externalIP;
-    $.each(EXTERNAL_IPS_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
-      if (externalIP && ($.inArray(externalIP, ips) == -1)) {
-        ips.push(externalIP);
-      }
-    })
+    return difference_in_seconds;
 
-    if (ips.length > 0) {
-      return ips.join(divider);
-    } else {
-      return '--';
-    }
-  };
+    function _fourdigits(number)  {
+          return (number < 1000) ? number + 1900 : number;}
+
+    //function _plural(number) {
+    //  if(parseInt(number) === 1) {
+    //    return "";
+    //  }
+    //  return "s";
+    //}
+  }
 })

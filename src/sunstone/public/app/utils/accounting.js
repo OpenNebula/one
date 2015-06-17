@@ -299,44 +299,46 @@ define(function(require) {
     //--------------------------------------------------------------------------
 
     // TODO: Allow to change group by dynamically, instead of calling oned again
-
+    var group_by_fn;
+    var group_by_name;
+    var group_by_prefix;
     switch ($("#acct_group_by", context).val()){
     case "user":
-      var group_by_fn = function(history){
+      group_by_fn = function(history){
         return history.VM.UID;
       }
 
-      var group_by_name = function(history){
+      group_by_name = function(history){
         return history.VM.UNAME;
       }
 
-      var group_by_prefix = Locale.tr("User");
+      group_by_prefix = Locale.tr("User");
 
       break;
 
     case "group":
-      var group_by_fn = function(history){
+      group_by_fn = function(history){
         return history.VM.GID;
       }
 
-      var group_by_name = function(history){
+      group_by_name = function(history){
         return history.VM.GNAME;
       }
 
-      var group_by_prefix = Locale.tr("Group");
+      group_by_prefix = Locale.tr("Group");
 
       break;
 
     case "vm":
-      var group_by_fn = function(history){
+      group_by_fn = function(history){
         return history.OID;
       }
 
-      var group_by_name = function(history){
+      group_by_name = function(history){
         return history.VM.NAME;
       }
 
-      var group_by_prefix = Locale.tr("VM");
+      group_by_prefix = Locale.tr("VM");
 
       break;
     }

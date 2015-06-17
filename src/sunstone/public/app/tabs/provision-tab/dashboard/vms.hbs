@@ -1,0 +1,101 @@
+<div class="row">
+  <div class="large-11 large-centered columns">
+    <h2 class="subheader">{{tr "Virtual Machines"}}</h2>
+    <br></div>
+</div>
+<div class="row" id="provision_vms_dashboard">
+  <div class="large-11 large-centered columns">
+    <div class="row">
+      <div class="large-4 columns text-center">
+        <br>
+        <div class="row">
+          <div class="large-12 columns">
+            <span  id="provision_dashboard_total" style="font-size:80px"> <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <br>
+            <span style="color: #999;">{{tr "TOTAL"}}</span>
+          </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+          <div class="large-12 columns text-center">
+            <a href"#" class="medium button success large radius provision_create_vm_button" style="margin-left: 5px; margin-right: 5px"> <i class="fa fa-lg fa-plus-square"/></a>
+            <a href"#" class="medium button large radius provision_vms_list_button" style="margin-left: 5px; margin-right: 5px">
+              <i class="fa fa-lg fa-th"/></a>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="large-12 columns"></div>
+        </div>
+      </div>
+      <div class="large-2 columns">
+        <div class="row">
+          <div class="large-12 columns text-center">
+            <span id="provision_dashboard_running" style="font-size:40px">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <br>
+            <span  style="color: #999; font-size: 14px">{{tr "RUNNING"}}</span>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="large-12 columns text-center ">
+            <span id="provision_dashboard_deploying"  style="font-size:40px">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <br>
+            <span  style="color: #999; font-size: 14px">{{tr "DEPLOYING"}}</span>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="large-12 columns text-center">
+            <span  id="provision_dashboard_off" style="font-size:40px">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <br>
+            <span  style="color: #999; font-size: 14px">{{tr "OFF"}}</span>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="large-12 columns text-center ">
+            <span  id="provision_dashboard_error" style="font-size:40px">
+              <i class="fa fa-spinner fa-spin"></i>
+            </span>
+            <br>
+            <span  style="color: #999; font-size: 14px">{{tr "ERROR"}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="large-6 columns" id="dashboard_vm_accounting">
+        <input style="display:none;" value="vm" id="acct_group_by"/>
+        <div class="row">
+          <div class="large-12 columns graph_legend">
+            <h3 class="subheader">
+              <small>{{tr "CPU hours"}}</small>
+            </h3>
+          </div>
+          <div class="large-12 columns">
+            <div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns graph_legend">
+            <h3 class="subheader">
+              <small>{{tr "Memory GB hours"}}</small>
+            </h3>
+          </div>
+          <div class="large-12 columns">
+            <div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+<br>

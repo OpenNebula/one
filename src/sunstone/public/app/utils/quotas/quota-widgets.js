@@ -1033,6 +1033,56 @@ define(function(require) {
       return html;
   }
 
+  function _quotaInfo(usage, limit, default_limit, not_html){
+      var int_usage = parseInt(usage, 10);
+      var int_limit = _quotaIntLimit(limit, default_limit);
+      return _quotaBaseInfo(int_usage, int_limit, null, not_html);
+  }
+
+  function _quotaMBInfo(usage, limit, default_limit, not_html){
+      var int_usage = parseInt(usage, 10);
+      var int_limit = _quotaIntLimit(limit, default_limit);
+
+      info_str = Humanize.size(int_usage * 1024)+' / '
+              +((int_limit >= 0) ? Humanize.size(int_limit * 1024) : '-')
+
+      return _quotaBaseInfo(int_usage, int_limit, info_str, not_html);
+  }
+
+  function _quotaFloatInfo(usage, limit, default_limit, not_html){
+      var float_usage = parseFloat(usage, 10);
+      var float_limit = _quotaFloatLimit(limit, default_limit);
+      return _quotaBaseInfo(float_usage, float_limit, null, not_html);
+  }
+
+  function _quotaBaseInfo(usage, limit, info_str, not_html){
+      percentage = 0;
+
+      if (limit > 0){
+          percentage = Math.floor((usage / limit) * 100);
+
+          if (percentage > 100){
+              percentage = 100;
+          }
+      } else if (limit == 0 && usage > 0){
+          percentage = 100;
+      }
+
+      info_str = info_str || ( usage+' / '+((limit >= 0) ? limit : '-') );
+
+      if (not_html) {
+          return {
+              "percentage": percentage,
+              "str": info_str
+          }
+      } else {
+          html = '<span class="progress-text right" style="font-size: 12px">'+info_str+'</span><br><div class="progress radius" style="height: 10px; margin-bottom:0px"><span class="meter" style="width: '
+              +percentage+'%"></div>';
+
+          return html;
+      }
+  }
+
   function _quotaBar(usage, limit, default_limit){
     var int_usage = parseInt(usage, 10);
     var int_limit = _quotaIntLimit(limit, default_limit);
@@ -1176,5 +1226,8 @@ define(function(require) {
     'dialogHTML': _quotas_tmpl,
     'setupQuotasDialog': _setupQuotasDialog,
     'populateQuotasDialog': _populateQuotasDialog,
+    'quotaFloatInfo': _quotaFloatInfo,
+    'quotaMBInfo': _quotaMBInfo,
+    'quotaInfo': _quotaInfo
   };
 });
