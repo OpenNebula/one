@@ -10,6 +10,7 @@ define(function(require) {
   var UserCreation = require('tabs/users-tab/utils/user-creation');
   var Tips = require('utils/tips');
   var Views = require('tabs/groups-tab/utils/views');
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -154,79 +155,115 @@ define(function(require) {
 
     $("#group_res_net", context).prop("checked", false);
 
-    _generateViewsSelect(context, "admin", "groupadmin");
     $(context).off("change", ".admin_view_input");
     $(context).on("change", ".admin_view_input", function(){
       _generateViewsSelect(context, "admin");
     });
-
-    _generateViewsSelect(context, "user", "cloud");
+    
     $(context).off("change", ".user_view_input");
     $(context).on("change", ".user_view_input", function(){
       _generateViewsSelect(context, "user");
     });
 
-    $("input#group_view_cloud").attr('checked','checked').change();
-    $("input#group_admin_view_groupadmin").attr('checked','checked').change();
+    if (this.action == "create") {
+      $("input#group_view_cloud").attr('checked','checked').change();
+      $("input#group_admin_view_groupadmin").attr('checked','checked').change();
+
+      _generateViewsSelect(context, "admin", "groupadmin");
+      _generateViewsSelect(context, "user", "cloud");
+    }
   }
 
   function _submitWizard(context) {
-    var name = $('#name',context).val();
-
-    var user_json = null;
-
-    if ( $('#admin_user', context).prop('checked') ){
-      user_json = this.userCreation.retrieve($("#admin_user_wrapper",context));
-    }
-
-    var group_json = {
-      "group" : {
-        "name" : name
-      }
-    };
-
-    if (user_json){
-      group_json["group"]["group_admin"] = user_json;
-    }
-
-    var resources = "";
-    var separator = "";
-
-    $.each($('[id^="group_res"]:checked', context), function(){
-      resources += (separator + $(this).val());
-      separator = "+";
+    var views = [];
+    $.each($('[id^="group_view"]:checked', context), function(){
+      views.push($(this).val());
     });
 
-    group_json['group']['resources'] = resources;
-
-    if ( $('#shared_resources', context).prop('checked') ){
-      group_json['group']['shared_resources'] = "VM+DOCUMENT";
-    }
-
-    group_json['group']['views'] = [];
-
-    $.each($('[id^="group_view"]:checked', context), function(){
-      group_json['group']['views'].push($(this).val());
+    var admin_views = [];
+    $.each($('[id^="group_admin_view"]:checked', context), function(){
+      admin_views.push($(this).val());
     });
 
     var default_view = $('#user_view_default', context).val();
-    if (default_view != undefined){
-      group_json['group']['default_view'] = default_view;
+    var default_admin_view = $('#admin_view_default', context).val();
+
+    if (this.action == "create") {
+      var name = $('#name',context).val();
+
+      var user_json = null;
+
+      if ( $('#admin_user', context).prop('checked') ){
+        user_json = this.userCreation.retrieve($("#admin_user_wrapper",context));
+      }
+
+      var group_json = {
+        "group" : {
+          "name" : name
+        }
+      };
+
+      if (user_json){
+        group_json["group"]["group_admin"] = user_json;
+      }
+
+      var resources = "";
+      var separator = "";
+
+      $.each($('[id^="group_res"]:checked', context), function(){
+        resources += (separator + $(this).val());
+        separator = "+";
+      });
+
+      group_json['group']['resources'] = resources;
+
+      if ( $('#shared_resources', context).prop('checked') ){
+        group_json['group']['shared_resources'] = "VM+DOCUMENT";
+      }
+
+      group_json['group']['views'] = views;
+
+      if (default_view != undefined){
+        group_json['group']['default_view'] = default_view;
+      }
+
+      group_json['group']['admin_views'] = admin_views;
+
+      if (default_admin_view != undefined){
+        group_json['group']['default_admin_view'] = default_admin_view;
+      }
+
+      Sunstone.runAction("Group.create",group_json);
+      return false;
+    } else if (this.action == "update") {
+      var template_json = this.element.TEMPLATE;
+
+      delete template_json["SUNSTONE_VIEWS"];
+      delete template_json["DEFAULT_VIEW"];
+      delete template_json["GROUP_ADMIN_VIEWS"];
+      delete template_json["GROUP_ADMIN_DEFAULT_VIEW"];
+
+      if (views.length != 0){
+        template_json["SUNSTONE_VIEWS"] = views.join(",");
+      }
+
+      if (default_view != undefined){
+        template_json["DEFAULT_VIEW"] = default_view;
+      }
+
+      if (admin_views.length != 0){
+        template_json["GROUP_ADMIN_VIEWS"] = admin_views.join(",");
+      }
+
+      if (default_admin_view != undefined){
+        template_json["GROUP_ADMIN_DEFAULT_VIEW"] = default_admin_view;
+      }
+
+      var template_str = TemplateUtils.templateToString(template_json);
+
+      Sunstone.runAction("Group.update",this.resourceId, template_str);
+      return false;
     }
-
-    group_json['group']['admin_views'] = [];
-
-    $.each($('[id^="group_admin_view"]:checked', context), function(){
-      group_json['group']['admin_views'].push($(this).val());
-    });
-
-    var default_view = $('#admin_view_default', context).val();
-    if (default_view != undefined){
-      group_json['group']['default_admin_view'] = default_view;
-    }
-
-    Sunstone.runAction("Group.create",group_json);
-    return false;
   }
 
   function _onShow(context) {
@@ -234,7 +271,61 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    var that = this;
 
+    if (this.action != "update") {return;}
+    this.resourceId = element.ID;
+    this.element = element;
+
+    // Disable parts of the wizard
+    $("input#name", context).attr("disabled", "disabled");
+
+    $("a[href='#administrators']", context).parents("dd").hide();
+    $("a[href='#resource_creation']", context).parents("dd").hide();
+
+    $("input#name", context).val(element.NAME);
+
+    var views_str = "";
+
+    $('input[id^="group_view"]', context).removeAttr('checked');
+
+    if (element.TEMPLATE.SUNSTONE_VIEWS){
+      views_str = element.TEMPLATE.SUNSTONE_VIEWS;
+
+      var views = views_str.split(",");
+      $.each(views, function(){
+        $('input[id^="group_view"][value="'+this.trim()+'"]',
+          context).attr('checked','checked').change();
+      });
+    }
+
+    $('input[id^="group_default_view"]', context).removeAttr('checked');
+
+    if (element.TEMPLATE.DEFAULT_VIEW){
+      $('#user_view_default', context).val(element.TEMPLATE.DEFAULT_VIEW.trim()).change();
+    } else {
+      $('#user_view_default', context).val("").change();
+    }
+
+    $('input[id^="group_admin_view"]', context).removeAttr('checked');
+
+    if (element.TEMPLATE.GROUP_ADMIN_VIEWS){
+      views_str = element.TEMPLATE.GROUP_ADMIN_VIEWS;
+
+      var views = views_str.split(",");
+      $.each(views, function(){
+        $('input[id^="group_admin_view"][value="'+this.trim()+'"]',
+          context).attr('checked','checked').change();
+      });
+    }
+
+    $('input[id^="group_default_admin_view"]', context).removeAttr('checked');
+
+    if (element.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW){
+      $('#admin_view_default', context).val(element.TEMPLATE.GROUP_ADMIN_DEFAULT_VIEW.trim()).change();
+    } else {
+      $('#admin_view_default', context).val("").change();
+    }
   }
 
   function _generateViewsSelect(context, idPrefix, value) {

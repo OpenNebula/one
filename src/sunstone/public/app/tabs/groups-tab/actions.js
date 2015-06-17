@@ -69,6 +69,18 @@ define(function(require) {
       error: Notifier.onError
     },
 
+    "Group.update" : {
+      type: "single",
+      call: OpenNebulaResource.update,
+      callback: function(request, response){
+        Sunstone.hideFormPanel(TAB_ID);
+      },
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      }
+    },
+
     "Group.update_template" : {
       type: "single",
       call: OpenNebulaResource.update,
@@ -78,23 +90,31 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    /* TODO
     "Group.update_dialog" : {
-        type: "single",
-        call: initUpdateGroupDialog
+      type: "single",
+      call: function() {
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) group to update.");
+          return false;
+        }
+
+        var resource_id = "" + selected_nodes[0];
+        Sunstone.runAction(RESOURCE+".show_to_update", resource_id);
+      }
     },
 
     "Group.show_to_update" : {
-        type: "single",
-        call: OpenNebula.Group.show,
-        callback: function(request, response) {
-            popUpUpdateGroupDialog(
-                response.GROUP,
-                $create_group_dialog);
-        },
-        error: onError
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          });
+      },
+      error: Notifier.onError
     },
-    */
 
     "Group.delete" : {
       type: "multiple",
