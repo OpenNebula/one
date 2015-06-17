@@ -2343,6 +2343,17 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
+    VirtualMachine * vm;
+
+    PoolObjectAuth   vm_perms;
+
+	const VectorAttribute * disk;
+
+	VectorAttribute * delta_disk = 0;
+	VirtualMachineTemplate * deltas = 0;
+
+    Template ds_deltas;
+
     int    rc;
     int    snap_id;
     string error_str;
@@ -2356,18 +2367,93 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         return;
     }
 
+	// ------------------------------------------------------------------------
+	// Check quotas for the new snapshot
+	// ------------------------------------------------------------------------
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+	disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
+
+	if (disk == 0)
+	{
+        failure_response(ACTION, request_error("VM disk does not exists", ""), att);
+
+		vm->unlock();
+
+		return;
+	}
+
+	string disk_size = disk->vector_value("SIZE");
+	string ds_id     = disk->vector_value("DATASTORE_ID");
+	bool persistent  = VirtualMachine::is_persistent(disk);
+
+    vm->get_permissions(vm_perms);
+
+	vm->unlock();
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+	if (VirtualMachine::is_volatile(disk))
+	{
+        failure_response(ACTION, request_error("Cannot make snapshots on "
+					"volatile disks",""), att);
+		return;
+	}
+	else if (persistent)
+	{
+		ds_deltas.add("DATASTORE", ds_id);
+		ds_deltas.add("SIZE", disk_size);
+
+        if (!quota_authorization(&ds_deltas, Quotas::DATASTORE, att_quota))
+        {
+            return;
+        }
+	}
+	else
+	{
+		deltas = new VirtualMachineTemplate();
+
+		delta_disk = new VectorAttribute("DISK");
+		delta_disk->replace("TYPE", "FS");
+		delta_disk->replace("SIZE", disk_size);
+
+        deltas->add("VMS", 0);
+		deltas->set(delta_disk);
+
+        if (!quota_resize_authorization(id, deltas, att_quota))
+        {
+            delete deltas;
+            return;
+        }
+	}
+
+	// ------------------------------------------------------------------------
+	// Do the snapshot
+	// ------------------------------------------------------------------------
     rc = dm->disk_snapshot_create(id, did, tag, snap_id, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION,
-                request_error(error_str, ""),
-                att);
+		if (persistent)
+		{
+			quota_rollback(&ds_deltas, Quotas::DATASTORE, att_quota);
+		}
+		else
+		{
+            quota_rollback(deltas, Quotas::VM, att_quota);
+		}
+
+        failure_response(ACTION, request_error(error_str, ""), att);
     }
     else
     {
         success_response(snap_id, att);
     }
+
+	delete deltas;
 
     return;
 }

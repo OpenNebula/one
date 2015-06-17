@@ -2288,35 +2288,37 @@ bool VirtualMachine::is_imported() const
 
 long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
 {
-    long long size = 0;
+    long long disk_size, size = 0;
 
     vector<const Attribute*> disks;
-    int num_disks = tmpl->get("DISK", disks);
+    const VectorAttribute *  disk;
 
-    if (num_disks == 0)
-    {
-        return size;
-    }
+    int num_disks = tmpl->get("DISK", disks);
 
     for (int i = 0 ; i < num_disks ; i++)
     {
-        long long disk_size;
-        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+        disk = dynamic_cast<const VectorAttribute*>(disks[i]);
 
         if (disk == 0)
         {
             continue;
         }
 
-        if (!VirtualMachine::is_volatile(disk))
+        if (is_volatile(disk))
         {
-            continue;
+            if (disk->vector_value("SIZE", disk_size) == 0)
+            {
+                size += disk_size;
+            }
+        }
+        else if (!is_persistent(disk))
+        {
+            if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", disk_size) == 0)
+            {
+                size += disk_size;
+            }
         }
 
-        if (disk->vector_value("SIZE", disk_size) == 0)
-        {
-            size += disk_size;
-        }
     }
 
     return size;
@@ -4177,7 +4179,7 @@ int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
 int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 {
     map<int, Snapshots *>::iterator it;
-    unsigned int size_mb;
+    unsigned int size_mb, snap_size;
     int snap_id;
 
     VectorAttribute * disk;
@@ -4208,7 +4210,8 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     {
         Snapshots * snap = new Snapshots(did);
 
-        snap_id = snap->create_snapshot(tag, size_mb);
+        snap_id   = snap->create_snapshot(tag, size_mb);
+        snap_size = size_mb;
 
 		if (snap_id != -1)
 		{
@@ -4221,13 +4224,15 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     }
     else
     {
-        snap_id = it->second->create_snapshot(tag, size_mb);
+        snap_id   = it->second->create_snapshot(tag, size_mb);
+        snap_size = it->second->get_total_size();
     }
 
 	if (snap_id != -1)
 	{
 		disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
 		disk->replace("DISK_SNAPSHOT_ID", snap_id);
+        disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 	}
 
     return snap_id;
@@ -4288,6 +4293,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
 {
     map<int, Snapshots *>::iterator it;
     VectorAttribute * disk = get_disk(did);
+    unsigned int snap_size;
 
     if ( disk == 0 )
     {
@@ -4302,6 +4308,10 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
     }
 
     it->second->delete_snapshot(snap_id);
+
+    snap_size = it->second->get_total_size();
+
+    disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
     if (it->second->size() == 0)
     {

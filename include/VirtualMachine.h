@@ -1261,6 +1261,11 @@ public:
      */
     void get_security_groups(set<int>& sgs) const;
 
+	/**
+	 *
+	 */
+    const VectorAttribute* get_disk(int disk_id) const;
+
     // ------------------------------------------------------------------------
     // Context related functions
     // ------------------------------------------------------------------------
@@ -1997,7 +2002,6 @@ private:
                 static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
     };
 
-    const VectorAttribute* get_disk(int disk_id) const;
 
 protected:
 
