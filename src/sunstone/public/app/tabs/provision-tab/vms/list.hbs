@@ -1,0 +1,50 @@
+<dl class="accordion accordion_list provision_list_vms" data-accordion>
+  <dd class="{{#if opts.active}}active{{/if}} accordion-navigation">
+    <a href="#provision_list_vm_accordion{{accordionId}}" class="provision_back right only-not-active">
+      <span class="button medium radius"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
+      </span>
+    </a>
+    <h2 class="subheader">
+      {{opts.title}}
+      <span class="provision_info_vm_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px"></span>
+      <span href"#" class="right only-active button medium radius secondary provision_vms_list_refresh_button" 
+                {{#if opts.refresh}}style="display:none"{{/if}} data-tooltip title=" {{tr "Refresh"}}">
+        <i class="fa fa-fw fa-lg fa-refresh"/></span>
+      <span href"#" class="right only-not-active button medium radius secondary provision_refresh_info" 
+                {{#if opts.refresh}}style="display:none"{{/if}} data-tooltip title=" {{tr "Refresh"}}">
+        <i class="fa fa-fw fa-lg fa-refresh"/>
+      </span>
+      <span href"#" class="right only-active button medium radius secondary provision_vms_list_filter_button" 
+                {{#if opts.filter}}style="display:none"{{/if}} data-tooltip title=" {{tr "Filter by User"}}">
+        <i class="fa fa-fw fa-lg fa-filter"/>
+      </span>
+      <span class="right only-active provision_list_vms_filter" style="display: none"></span>
+      <span>
+        <input type="search" class="right only-active provision_list_vms_search provision-search-input right" placeholder="Search"/>
+        <span href"#" class="right only-active button medium radius success provision_create_vm_button" 
+                {{#if opts.create}}style="display:none"{{/if}}>
+          <i class="fa fa-fw fa-lg fa-plus-square"/>
+        </span>
+      </h2>
+      <div id="provision_list_vm_accordion{{accordionId}}" class="content {{#if opts.active}}active{{/if}}">
+        <div class="row">
+          <div class="large-12 large-centered columns">
+            <table class="provision_vms_table">
+              <thead class="hidden">
+                <tr>
+                  <th>{{tr "ID"}}</th>
+                  <th>{{tr "Name"}}</th>
+                  <th>{{tr "User ID"}}</th>
+                </tr>
+              </thead>
+              <tbody class="hidden"></tbody>
+            </table>
+            <br></div>
+        </div>
+      </div>
+    </dd>
+    <dd class="accordion-navigation">
+      <a class="provision_show_vm_accordion" href="#provision_show_vm_accordion{{accordionId}}"></a>
+      <div id="provision_show_vm_accordion{{accordionId}}" class="content">{{> tabs/provision-tab/vms/info}}</div>
+    </dd>
+  </dl>

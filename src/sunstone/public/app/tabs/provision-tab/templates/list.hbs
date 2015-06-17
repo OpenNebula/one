@@ -1,0 +1,44 @@
+<dl class="accordion accordion_list provision_list_templates" data-accordion="dfsaf">
+  <dd class="{{#if opts.active}}active{{/if}} accordion-navigation">
+    <a class="right only-not-active" href="#provision_list_template_accordion{{accordionId}}">
+      <span class="button medium radius"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
+      </span>
+    </a>
+    <h2 class="subheader">
+      {{opts.title}}
+      <span href"#" class="right only-active button medium radius secondary provision_templates_list_refresh_button" 
+          {{#if opts.refresh}}style="display:none"{{/if}} data-tooltip title=" {{tr "Refresh"}}">
+        <i class="fa fa-fw fa-lg fa-refresh"/></span>
+      <span href"#" class="right only-active button medium radius secondary provision_templates_list_filter_button" 
+          {{#if opts.filter}}style="display:none"{{/if}} data-tooltip title=" {{tr "Filter by User"}}">
+        <i class="fa fa-fw fa-lg fa-filter"/>
+      </span>
+      <span class="right only-active provision_list_templates_filter" style="display: none"></span>
+      <input type="search" class="provision_list_templates_search right only-active provision-search-input right" placeholder="Search"/>
+    </h2>
+    <div id="provision_list_template_accordion{{accordionId}}" class="content {{#if opts.active}}active{{/if}}">
+      <div class="row">
+        <div class="provision_confirm_delete_template_div large-10 large-centered columns"></div>
+      </div>
+      <div class="row">
+        <div class="large-12 large-centered columns">
+          <table class="provision_templates_table">
+            <thead class="hidden">
+              <tr>
+                <th>{{tr "ID"}}</th>
+                <th>{{tr "Name"}}</th>
+                <th>{{tr "Saved"}}</th>
+                <th>{{tr "User ID"}}</th>
+              </tr>
+            </thead>
+            <tbody class="hidden"></tbody>
+          </table>
+          <br></div>
+      </div>
+    </div>
+  </dd>
+  <dd class="accordion-navigation">
+    <a class="provision_show_template_accordion" href="#provision_show_template_accordion{{accordionId}}"></a>
+    <div id="provision_show_template_accordion{{accordionId}}" class="content"></div>
+  </dd>
+</dl>

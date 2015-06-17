@@ -1,0 +1,70 @@
+<form id="provision_create_flow" class="hidden section_content">
+  <div class="row">
+    <div class="large-10 large-centered columns">
+      <h2 class="subheader">{{tr "Create Service"}}</h2>
+      <br></div>
+  </div>
+  <div class="row">
+    <div class="large-8 large-centered columns">
+      <input type="text" id="flow_name"  class="provision-input" placeholder="{{tr "Service Name"}}" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-10 large-centered columns">
+      <dl class="accordion provision_accordion_flow_template" data-accordion="provision_accordion_flow_template">
+        <dd style="border-bottom: 1px solid #efefef;" class="active accordion-navigation">
+          <a href="#provision_dd_flow_template" style="background: #fff; font-size: 30px">
+            <span class="select_template" style="color:#555">{{tr "Select a Template"}}</span>
+            <span class="selected_template" style="display:none; color:#555">
+              <span class="provision-logo selected_template_logo" style="color:#555"></span>
+              <span class="selected_template_name" style="color:#555"></span>
+              <span class="has-tip right" style="cursor: pointer; margin-right:10px;"> <i class="fa fa-pencil"/></span>
+            </span>
+          </a>
+          <div id="provision_dd_flow_template" class="provision_select_flow_template active content">
+            <div class="row">
+              <div class="large-12 large-centered columns">
+                <h3 class="subheader text-right">
+                  <input type="search" class="provision-search-input right" placeholder="Search" id="provision_create_flow_template_search"/>
+                </h3>
+                <br></div>
+            </div>
+            <div class="row">
+              <div class="large-12 large-centered columns">
+                <table id="provision_flow_templates_table">
+                  <thead class="hidden">
+                    <tr>
+                      <th>{{tr "ID"}}</th>
+                      <th>{{tr "Name"}}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="hidden"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </dd>
+      </dl>
+    </div>
+  </div>
+  <br>
+  <br>
+  <br>
+  <div class="row">
+    <div class="provision_network_selector large-9 large-centered columns"></div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="provision_custom_attributes_selector large-9 large-centered columns"></div>
+  </div>
+  <div id="provision_customize_flow_template" style="display: none"></div>
+  <br>
+  <br>
+  <div class="row">
+    <div class="large-7 columns large-centered">
+      <div data-alert class="alert-box alert-box-error radius text-center hidden"></div>
+      <button href="#" class="button large success radius large-12 small-12" type="submit" style="height: 59px">{{tr "Create"}}</button>
+    </div>
+  </div>
+  <br>
+  <br></form>
