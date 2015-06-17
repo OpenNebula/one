@@ -5,7 +5,7 @@ define(function(require) {
   
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
-  var ViewsInfo = require('../utils/viewsInfo');
+  var Views = require('../utils/views');
   var Tips = require('utils/tips');
 
   /*
@@ -113,7 +113,7 @@ define(function(require) {
       $.each(viewsStr.split(','), function(index, view){
         var viewElem;
 
-        var knownView = ViewsInfo[view];
+        var knownView = Views.info[view];
         if (knownView){
           viewElem = {
             'name': knownView.name,

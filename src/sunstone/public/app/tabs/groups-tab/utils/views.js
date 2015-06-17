@@ -1,7 +1,30 @@
 define(function(require) {
   var Locale = require('utils/locale');
 
-  return {
+  var _view_types = {
+    advanced : {
+      name: 'Advanced Layout',
+      description : Locale.tr("This layout exposes a complete view of the cloud, allowing administrators and advanced users to have full control of any physical or virtual resource of the cloud."),
+      preview: "advanced_layout.png"
+    },
+    cloud : {
+      name: 'Cloud Layout',
+      description : Locale.tr("This layout exposes a simplified version of the cloud where group administrators and cloud end-users will be able to manage any virtual resource of the cloud, without taking care of the physical resources management."),
+      preview: "cloud_layout.png"
+    },
+    vcenter : {
+      name: 'vCenter Layout',
+      description : Locale.tr("Set of views to present the valid operation against a vCenter infrastructure"),
+      preview: "vcenter_layout.png"
+    },
+    other : {
+      name: 'Other Layouts',
+      description : '',
+      preview: null
+    }
+  };
+
+  var _views_info = {
     admin : {
       id: 'admin',
       name: "Admin",
@@ -45,4 +68,10 @@ define(function(require) {
       type: "vcenter"
     }
   };
+
+  return {
+    'info': _views_info,
+    'types': _view_types
+  };
+
 });

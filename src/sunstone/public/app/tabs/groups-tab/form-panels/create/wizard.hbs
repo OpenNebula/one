@@ -25,7 +25,65 @@
     </div>
     <div class="row">
       <div class="large-12 columns">
-        {{! TODO insert_views(dialog_name)}}
+        <div class="row">
+          <div class="large-6 columns">
+            <label for="user_view_default">{{tr "Default Users View"}}
+            </label>
+            <select id="user_view_default">
+            </select>
+          </div>
+          <div class="large-6 columns">
+            <label for="admin_view_default">{{tr "Default Admin View"}}
+            </label>
+            <select id="admin_view_default">
+            </select>
+          </div>
+        </div>
+        <br>
+        {{#each viewTypes}}
+        <div class="row">
+          <div class="large-7 columns">
+            <h4>{{name}}
+              {{#if description}}
+              <span class="tip">{{description}}</span>
+              {{/if}}
+            </h4>
+            <table class="dataTable extended_table">
+              <tr>
+                <th style='width: 60%;'></th>
+                <th>{{tr "Group Users"}}</th>
+                <th>{{tr "Group Admins"}}</th>
+              </tr>
+              {{#each views}}
+              <tr>
+                <td>
+                  {{name}} {{tr "View"}}
+                  {{#if description}}
+                  <span class="tip">{{description}}</span>
+                  {{/if}}
+                </td>
+                <td>
+                  <input class="user_view_input" type="checkbox"
+                  id="group_view_{{id}}"
+                  value="{{id}}"/>
+                </td>
+                <td>
+                  <input class="admin_view_input" type="checkbox"
+                  id="group_admin_view_{{id}}"
+                  value="{{id}}"/>
+                </td>
+              </tr>
+              {{/each}}
+            </table>
+          </div>
+          <div class="large-5 columns" style="text-align: center">
+            {{#if preview}}
+            <img src="images/{{preview}}" style="height: 200px;">
+            {{/if}}
+          </div>
+        </div>
+        <br>
+        {{/each}}
       </div>
     </div>
   </div>

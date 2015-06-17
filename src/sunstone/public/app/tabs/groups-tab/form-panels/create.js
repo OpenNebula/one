@@ -9,6 +9,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var UserCreation = require('tabs/users-tab/utils/user-creation');
   var Tips = require('utils/tips');
+  var Views = require('tabs/groups-tab/utils/views');
 
   /*
     TEMPLATES
@@ -64,9 +65,64 @@ define(function(require) {
    */
 
   function _htmlWizard() {
+    var filtered_views = {
+      cloud : [],
+      advanced : [],
+      vcenter : [],
+      other : []
+    };
+
+    var view_info;
+    $.each(config['all_views'], function(index, view_id) {
+      view_info = Views.info[view_id];
+      if (view_info) {
+        switch (view_info.type) {
+          case 'advanced':
+            filtered_views.advanced.push(view_info);
+            break;
+          case 'cloud':
+            filtered_views.cloud.push(view_info);
+            break;
+          case 'vcenter':
+            filtered_views.vcenter.push(view_info);
+            break;
+          default:
+            filtered_views.other.push({
+              id: view_id,
+              name: view_id,
+              description: null,
+              type: "other"
+            });
+            break;
+        }
+      } else {
+        filtered_views.other.push({
+          id: view_id,
+          name: view_id,
+          description: null,
+          type: "other"
+        });
+      }
+    });
+
+    var viewTypes = [];
+
+    $.each(filtered_views, function(view_type, views){
+      if (views.length > 0) {
+        viewTypes.push(
+          {
+            'name': Views.types[view_type].name,
+            'description': Views.types[view_type].description,
+            'preview': Views.types[view_type].preview,
+            'views': views
+          });
+      }
+    });
+
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'userCreationHTML': this.userCreation.html()
+      'userCreationHTML': this.userCreation.html(),
+      'viewTypes': viewTypes
     });
   }
 
@@ -98,20 +154,20 @@ define(function(require) {
 
     $("#group_res_net", context).prop("checked", false);
 
-    /* TODO
-
-    generateAdminViewsSelect(context, "groupadmin");
+    _generateViewsSelect(context, "admin", "groupadmin");
     $(context).off("change", ".admin_view_input");
     $(context).on("change", ".admin_view_input", function(){
-      generateAdminViewsSelect(context);
-    })
+      _generateViewsSelect(context, "admin");
+    });
 
-    generateUserViewsSelect(context, "cloud")
-    $(context).off("change", ".user_view_input")
+    _generateViewsSelect(context, "user", "cloud");
+    $(context).off("change", ".user_view_input");
     $(context).on("change", ".user_view_input", function(){
-      generateUserViewsSelect(context)
-    })
-    */
+      _generateViewsSelect(context, "user");
+    });
+
+    $("input#group_view_cloud").attr('checked','checked').change();
+    $("input#group_admin_view_groupadmin").attr('checked','checked').change();
   }
 
   function _submitWizard(context) {
@@ -146,7 +202,7 @@ define(function(require) {
     if ( $('#shared_resources', context).prop('checked') ){
       group_json['group']['shared_resources'] = "VM+DOCUMENT";
     }
-/*
+
     group_json['group']['views'] = [];
 
     $.each($('[id^="group_view"]:checked', context), function(){
@@ -168,7 +224,7 @@ define(function(require) {
     if (default_view != undefined){
       group_json['group']['default_admin_view'] = default_view;
     }
-*/
+
     Sunstone.runAction("Group.create",group_json);
     return false;
   }
@@ -180,4 +236,24 @@ define(function(require) {
   function _fill(context, element) {
 
   }
+
+  function _generateViewsSelect(context, idPrefix, value) {
+    var views = [];
+    var old_value = value || $("#"+idPrefix+"_view_default", context).val();
+
+    var html = '<option id="" name="" value=""></option>';
+
+    $("."+idPrefix+"_view_input:checked", context).each(function(){
+      var name = (Views.info[this.value] ? Views.info[this.value].name : this.value);
+
+      html += '<option value="'+this.value+'">'+name+'</option>';
+    });
+
+    $("select#"+idPrefix+"_view_default", context).html(html);
+
+    if (old_value) {
+      $("#"+idPrefix+"_view_default", context).val(old_value).change();
+    }
+  }
+
 });
