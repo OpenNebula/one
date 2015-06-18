@@ -42,6 +42,18 @@ define(function(require) {
       });
     },
     "show" : function(params) {
+      var callback = params.success;
+
+      // Before calling the true callback, we update the default quotas
+      // included in the .show response
+      params.success = function(request, response) {
+        QuotaDefaults.setDefaultUserQuotas(
+          QuotaDefaults.default_quotas(response.USER.DEFAULT_USER_QUOTAS)
+        );
+
+        return callback ? callback(request, response) : null;
+      };
+
       OpenNebulaAction.show(params, RESOURCE);
     },
     "passwd": function(params) {

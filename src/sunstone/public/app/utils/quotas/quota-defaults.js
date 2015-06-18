@@ -1,7 +1,33 @@
 define(function(require) {
   // The default quotas returned by the pool.list method are stored here
-  var _defaultUserQuotas;
-  var _defaultGroupQuotas;
+  var _defaultUserQuotas = {
+    "VM_QUOTA": {
+      "VM": {
+        "CPU":      QUOTA_LIMIT_UNLIMITED,
+        "MEMORY":   QUOTA_LIMIT_UNLIMITED,
+        "VMS":      QUOTA_LIMIT_UNLIMITED,
+        "VOLATILE_SIZE":  QUOTA_LIMIT_UNLIMITED,
+      }
+    },
+    "DATASTORE_QUOTA": {},
+    "IMAGE_QUOTA": {},
+    "NETWORK_QUOTA": {}
+  };
+
+  var _defaultGroupQuotas = {
+    "VM_QUOTA": {
+      "VM": {
+        "CPU":      QUOTA_LIMIT_UNLIMITED,
+        "MEMORY":   QUOTA_LIMIT_UNLIMITED,
+        "VMS":      QUOTA_LIMIT_UNLIMITED,
+        "VOLATILE_SIZE":  QUOTA_LIMIT_UNLIMITED,
+      }
+    },
+    "DATASTORE_QUOTA": {},
+    "IMAGE_QUOTA": {},
+    "NETWORK_QUOTA": {}
+  };
+
   var QuotaLimits = require('./quota-limits');
 
 

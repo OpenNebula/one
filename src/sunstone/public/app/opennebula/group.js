@@ -49,6 +49,18 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "set_quota", action_obj);
     },
     "show" : function(params) {
+      var callback = params.success;
+
+      // Before calling the true callback, we update the default quotas
+      // included in the .show response
+      params.success = function(request, response) {
+        QuotaDefaults.setDefaultGroupQuotas(
+          QuotaDefaults.default_quotas(response.GROUP.DEFAULT_GROUP_QUOTAS)
+        );
+
+        return callback ? callback(request, response) : null;
+      };
+
       OpenNebulaAction.show(params, RESOURCE);
     },
     "accounting" : function(params) {
