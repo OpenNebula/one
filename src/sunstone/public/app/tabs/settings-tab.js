@@ -2,23 +2,14 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
+  var _actions = require('./users-tab/actions');
 
   var TAB_ID = require('./settings-tab/tabId');
   var USERS_TAB_ID = require('tabs/users-tab/tabId');
 
-  var _buttons = {
-    "Settings.refresh" : {
-      type: "action",
-      layout: "refresh",
-      alwaysActive: true
-    }
-  };
-
-  var _actions = {
-    "Settings.refresh" : {
-      type: "custom",
-      call: _onShow
-    },
+  _actions["Settings.refresh"] = {
+    type: "custom",
+    call: _onShow
   };
 
   var _dialogs = [
