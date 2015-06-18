@@ -1,0 +1,114 @@
+<div class="row">
+  <div class="large-12 large-centered columns">
+    <h5 class="subheader text-right">
+      <span class="left" style="margin-bottom: 0.5em">{{tr "Running VMs"}}</span>
+    </h5>
+  </div>
+</div>
+<div class="row provision_rvms_quota">
+  <div class="medium-3 small-12 columns">
+    <select class="provision_quota_select">
+      <option value="edit">{{tr "Manual"}}</option>
+      <option value="unlimited">{{tr "Unlimited"}}</option>
+      <option value="default">{{tr "Default"}}</option>
+    </select>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_edit">
+    <div class="row collapse">
+      <div class="small-9 columns">
+        <div class="range-slider radius provision_rvms_quota_slider" data-slider data-options="start: 0; end: 50;">
+          <span class="range-slider-handle"></span>
+          <span class="range-slider-active-segment"></span>
+          <input type="hidden"></div>
+      </div>
+      <div class="large-2 small-2 columns">
+        <input type="text"  class="provision-input provision_rvms_quota_input" style="margin-top: -7px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+      </div>
+    </div>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">
+    <span style="font-size: 18px; color: #999">{{tr "Unlimited. Group quotas will still apply"}}</span>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_default" style="display:none">
+    <span style="font-size: 18px; color: #999">
+      {{tr "Use the default system quotas set by the cloud adminstrator"}}
+    </span>
+  </div>
+</div>
+<div class="row">
+  <div class="large-12 large-centered columns">
+    <h5 class="subheader text-right">
+      <span class="left" style="margin-bottom: 0.5em">{{tr "CPU"}}</span>
+    </h5>
+  </div>
+</div>
+<div class="row provision_cpu_quota">
+  <div class="medium-3 small-12 columns">
+    <select class="provision_quota_select">
+      <option value="edit">{{tr "Manual"}}</option>
+      <option value="unlimited">{{tr "Unlimited"}}</option>
+      <option value="default">{{tr "Default"}}</option>
+    </select>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_edit">
+    <div class="row collapse">
+      <div class="small-9 columns">
+        <div class="range-slider radius provision_cpu_quota_slider" data-slider data-options="start: 0; end: 50;">
+          <span class="range-slider-handle"></span>
+          <span class="range-slider-active-segment"></span>
+          <input type="hidden"></div>
+      </div>
+      <div class="large-2 small-2 columns">
+        <input type="text"  class="provision-input provision_cpu_quota_input" style="margin-top: -7px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+      </div>
+    </div>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">
+    <span style="font-size: 18px; color: #999">{{tr "Unlimited. Group quotas will still apply"}}</span>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_default" style="display:none">
+    <span style="font-size: 18px; color: #999">
+      {{tr "Use the default system quotas set by the cloud adminstrator"}}
+    </span>
+  </div>
+</div>
+<div class="row">
+  <div class="large-12 large-centered columns">
+    <h5 class="subheader text-right">
+      <span class="left" style="margin-bottom: 0.5em">{{tr "Memory (GBs)"}}</span>
+    </h5>
+  </div>
+</div>
+<div class="vm_param">
+  <input type="hidden" class="provision_memory_quota_input"/>
+</div>
+<div class="row provision_memory_quota">
+  <div class="medium-3 small-12 columns">
+    <select class="provision_quota_select">
+      <option value="edit">{{tr "Manual"}}</option>
+      <option value="unlimited">{{tr "Unlimited"}}</option>
+      <option value="default">{{tr "Default"}}</option>
+    </select>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_edit">
+    <div class="row collapse">
+      <div class="small-9 columns">
+        <div class="range-slider radius provision_memory_quota_slider" data-slider data-options="start: 0; end: 50;">
+          <span class="range-slider-handle"></span>
+          <span class="range-slider-active-segment"></span>
+          <input type="hidden"></div>
+      </div>
+      <div class="large-2 small-2 columns">
+        <input type="text"  class="provision-input provision_memory_quota_tmp_input" style="margin-top: -7px; height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>
+      </div>
+    </div>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_unlimited" style="display:none">
+    <span style="font-size: 18px; color: #999">{{tr "Unlimited. Group quotas will still apply"}}</span>
+  </div>
+  <div class="medium-9 small-12 columns provision_quota_default" style="display:none">
+    <span style="font-size: 18px; color: #999">
+      {{tr "Use the default system quotas set by the cloud adminstrator"}}
+    </span>
+  </div>
+</div>
