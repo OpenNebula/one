@@ -601,13 +601,25 @@ fieldset {
 
   .progress {
     height: 10px;
-    background-color: #fff;
+    border: 1px solid #efefef;
+    margin-bottom: 0px;
   }
 
   .progress-text {
   }
 }
+.provision-header {
+  font-size: rem-calc(16px); 
+  border-bottom: 1px solid #efefef;
 
+  li {
+    padding: 0px 10px 5px 0px;
+  }
+
+  li.active {
+    border-bottom: 2px solid #0098c3;
+  }
+}
 
 .quota_table {
   margin-top: 0px !important;
@@ -781,28 +793,45 @@ div.dataTables_scrollFoot table {
   @include pricing-table-container;
   //border: 1px solid #efefef;
   //box-shadow: 0px 1px #dfdfdf;
-  padding: 5px;
-  border: 1px solid #dfdfdf !important;
+  //padding: 5px;
+  border: 1px solid #efefef !important;
+  background: #fff !important;
+  padding-bottom: 5px !important;
 
   .provision-title  {
     @include pricing-table-title;
+    background-color: #f8f8f8 !important;
+    border-bottom: 1px solid #efefef;
+    font-size: rem-calc(14px);
+    margin-bottom: 5px;
 
     font-weight: normal;
     color: #555;
   }
   .provision-price  {
     @include pricing-table-price;
+    font-size: rem-calc(13px);
   }
   .provision-description   {
     @include pricing-table-description;
+    font-size: rem-calc(13px);
   }
   .provision-bullet-item {
     @include pricing-table-bullet;
+    font-size: rem-calc(13px);
 
+    padding: 5px 10px;
+  }
+  .provision-bullet-item-last {
+    @include pricing-table-bullet;
+    font-size: rem-calc(13px);
+    color: #999;
+    margin-top: 10px;
     padding: 5px 10px;
   }
   .provision-cta    {
     @include pricing-table-cta;
+    font-size: rem-calc(13px);
   }
 
 
@@ -816,6 +845,7 @@ div.dataTables_scrollFoot table {
     background: none !important;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
   }
 
   &.hoverable.only-one:not(.selected):hover {
@@ -842,7 +872,14 @@ div.dataTables_scrollFoot table {
     //border: 1px solid #0099c3;
     border: 1px solid #0099c3 !important;
   }
+}
 
+.provision-pricing-table_vm_info,
+.provision-pricing-table_flow_info {
+  li {
+    padding: 5px 0px !important;
+    font-size: rem-calc(14px) !important;
+  }
 }
 
 .deploying-bg {
@@ -901,7 +938,7 @@ div.dataTables_scrollFoot table {
 
 .provision-search-input {
   width: 200px !important;
-  height:39px !important;
+  height:34px !important;
   border-radius: 3px;
   border-color: #efefef;
   margin: 0px !important;
@@ -1058,11 +1095,12 @@ hr {
     }
 
     &>.content {
-      padding: 5px 0px;
+      padding-top: 5px !important;
+      padding: 0px !important;
     }
 
-    &:first-child>h2 {
-      border-bottom: 1px solid #dfdfdf;
+    &:first-child>h3 {
+      border-bottom: 1px solid #efefef;
       padding-bottom: 10px;
 
       .button {
@@ -1077,7 +1115,7 @@ hr {
       }
 
       input {
-        margin: 0px 10px !important;
+        margin: 0px !important;
       }
     }
   }
@@ -1166,3 +1204,17 @@ hr {
     }
 }
 */
+
+.inline-list {
+  margin: 0px;
+
+  li:not(.right) {
+    margin-left: 0px;
+    margin-right: 1.375rem;
+  }
+
+  li.right {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}

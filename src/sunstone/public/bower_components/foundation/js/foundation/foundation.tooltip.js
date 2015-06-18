@@ -12,7 +12,7 @@
       append_to : 'body',
       touch_close_text : 'Tap To Close',
       disable_for_touch : false,
-      hover_delay : 200,
+      hover_delay : 0,
       show_on : 'all',
       tip_template : function (selector, content) {
         return '<span data-selector="' + selector + '" id="' + selector + '" class="'
