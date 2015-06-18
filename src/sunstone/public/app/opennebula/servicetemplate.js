@@ -46,6 +46,9 @@ define(function(require) {
       params.cache_name = CACHE_NAME;
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj, PATH);
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, CACHE_NAME);
     }
   }
 

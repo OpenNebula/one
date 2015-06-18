@@ -56,6 +56,9 @@ define(function(require) {
           Locale.tr("COOLDOWN")
       ][state_int]
       return state ? state : state_int;
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, CACHE_NAME);
     }
   }
 

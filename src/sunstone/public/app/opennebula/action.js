@@ -6,6 +6,8 @@ define(function(require) {
   var listWaiting = {};
   var listCallbacks = {};
 
+  var nameIndex = {};
+
   var CACHE_EXPIRE = 60000; //ms
 
   var _clearCache = function(cache_name) {
@@ -160,6 +162,9 @@ define(function(require) {
           } else {
             list = OpenNebulaHelper.pool(resource, response);
           }
+
+          nameIndex[cache_name] = OpenNebulaHelper.pool_name_processing(
+                                        resource+"_POOL", resource, response);
 
           listCache[cache_name] = {
             timestamp   : new Date().getTime(),
@@ -345,8 +350,22 @@ define(function(require) {
       });
     },
 
+    "getName": function(id, cache_name){
+      if(nameIndex[cache_name] != undefined){
+        var name = nameIndex[cache_name][id];
+        if (name != undefined){
+          return name;
+        }
+
+        // TODO: if name is not found, perform a .list or .show to at least
+        // get it ready for the next call?
+      }
+
+      return ""+id;
+    },
+
     "clear_cache": _clearCache
-  }
+  };
 
   return Action;
 });

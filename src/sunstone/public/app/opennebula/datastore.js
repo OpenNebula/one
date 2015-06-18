@@ -50,6 +50,9 @@ define(function(require) {
     },
     "disable": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "disable");
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, RESOURCE);
     }
   }
 

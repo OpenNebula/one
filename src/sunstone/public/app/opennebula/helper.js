@@ -93,6 +93,39 @@ define(function(require) {
 
         return (p_pool);
       }
+    },
+
+    "pool_name_processing": function(pool_name, resource_name, response) {
+      var pool;
+
+      if (typeof(pool_name) == "undefined") {
+        return Error('Incorrect Pool');
+      }
+
+      var p_pool = {};
+
+      if (response[pool_name]) {
+        pool = response[pool_name][resource_name];
+      } else {
+        pool = null;
+      }
+
+      if (pool == null) {
+        return p_pool;
+      } else if (pool.length) {
+        for (i = 0; i < pool.length; i++) {
+          var res = pool[i];
+
+          p_pool[res['ID']] = res['NAME'];
+        }
+        return (p_pool);
+      } else {
+        var res = pool;
+
+        p_pool[res['ID']] = res['NAME'];
+
+        return (p_pool);
+      }
     }
   };
 

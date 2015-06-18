@@ -77,8 +77,11 @@ define(function(require) {
     "delgroup" : function(params) {
       var action_obj = {"group_id": params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "delgroup", action_obj);
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, RESOURCE);
     }
-  }
+  };
 
   return User;
-})
+});

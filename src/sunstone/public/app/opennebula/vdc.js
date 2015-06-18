@@ -72,6 +72,9 @@ define(function(require) {
     "del_vnet" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "del_vnet", action_obj);
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, RESOURCE);
     }
   }
 

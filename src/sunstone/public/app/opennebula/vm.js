@@ -475,6 +475,9 @@ define(function(require) {
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
     "isSPICESupported": isSPICESupported,
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, RESOURCE);
+    }
   }
 
   function retrieveLastHistoryRecord(element) {

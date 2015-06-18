@@ -61,8 +61,11 @@ define(function(require) {
     "del_admin" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "del_admin", action_obj);
+    },
+    "getName": function(id){
+      return OpenNebulaAction.getName(id, RESOURCE);
     }
-  }
+  };
 
   return Group;
-})
+});
