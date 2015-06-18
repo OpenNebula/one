@@ -35,12 +35,21 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
+  Dialog.prototype.setParams = _setParams;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
+
+  /**
+   * @param {object} params
+   *        - params.selectedElements : Array of user ids
+   */
+  function _setParams(params) {
+    this.selectedElements = params.selectedElements;
+  }
 
   function _html() {
     return TemplateHTML({
@@ -68,9 +77,7 @@ define(function(require) {
 
       var inputs = that.userCreation.retrieve(context);
 
-      var selElems = Sunstone.getDataTable(TAB_ID).elements();
-
-      Sunstone.runAction('User.passwd', selElems, inputs.password);
+      Sunstone.runAction('User.passwd', that.selectedElements, inputs.password);
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();

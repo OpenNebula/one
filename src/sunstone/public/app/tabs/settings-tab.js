@@ -13,6 +13,7 @@ define(function(require) {
   };
 
   var _dialogs = [
+    require('tabs/users-tab/dialogs/password')
   ];
 
   var _panels = [

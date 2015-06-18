@@ -62,6 +62,9 @@ define(function(require) {
     "User.update_password" : {
       type: "custom",
       call: function(){
+        Sunstone.getDialog(PASSWORD_DIALOG_ID).setParams(
+          {selectedElements: Sunstone.getDataTable(TAB_ID).elements()});
+        Sunstone.getDialog(PASSWORD_DIALOG_ID).reset();
         Sunstone.getDialog(PASSWORD_DIALOG_ID).show();
       }
     },

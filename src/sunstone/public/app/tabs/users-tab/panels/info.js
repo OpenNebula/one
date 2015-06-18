@@ -24,6 +24,7 @@ define(function(require) {
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "User";
   var XML_ROOT = "USER";
+  var PASSWORD_DIALOG_ID = require('tabs/users-tab/dialogs/password/dialogId');
 
   /*
     CONSTRUCTOR
@@ -130,6 +131,15 @@ define(function(require) {
     context.on("click", ".user_ssh_public_key_edit", function() {
       $("#user_ssh_public_key_text", context).hide();
       $("#user_ssh_public_key_textarea", context).show().focus();
+    });
+
+    // Password button
+    context.off("click", "#update_password");
+    context.on("click", "#update_password", function(){
+      Sunstone.getDialog(PASSWORD_DIALOG_ID).setParams(
+        {selectedElements: [that.element.ID]});
+      Sunstone.getDialog(PASSWORD_DIALOG_ID).reset();
+      Sunstone.getDialog(PASSWORD_DIALOG_ID).show();
     });
 
     context.off("change", "#user_ssh_public_key_textarea");
