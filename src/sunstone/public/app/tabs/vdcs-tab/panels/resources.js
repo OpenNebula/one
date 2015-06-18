@@ -6,6 +6,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Utils = require('../utils/common');
   var ResourcesTab = require('../utils/resources-tab');
+  var OpenNebulaZone = require('opennebula/zone');
 
   /*
     CONSTANTS
@@ -15,9 +16,6 @@ define(function(require) {
   var PANEL_ID = require('./resources/panelId');
   var RESOURCE = "Vdc";
   var XML_ROOT = "VDC";
-
-  var ZONE_TAB_ID = require('tabs/zones-tab/tabId');
-  var Sunstone = require('sunstone');
 
   /*
     CONSTRUCTOR
@@ -56,7 +54,7 @@ define(function(require) {
     $.each(indexed_resources, function(zone_id,objects){
       that.resourcesTab.addResourcesZone(
         zone_id,
-        Sunstone.getDataTable(ZONE_TAB_ID).getName(zone_id),
+        OpenNebulaZone.getName(zone_id),
         context,
         indexed_resources);
     });

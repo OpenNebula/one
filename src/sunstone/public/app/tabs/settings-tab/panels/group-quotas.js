@@ -8,7 +8,6 @@ define(function(require) {
   var QuotaDefaults = require('utils/quotas/quota-defaults');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var OpenNebulaGroup = require('opennebula/group');
-  var Sunstone = require('sunstone');
 
   /*
     CONSTANTS
@@ -18,8 +17,6 @@ define(function(require) {
   var PANEL_ID = require('./group-quotas/panelId');
   var RESOURCE = "User";
   var XML_ROOT = "USER";
-
-  var GROUP_TAB_ID = require('tabs/groups-tab/tabId');
 
   /*
     CONSTRUCTOR
@@ -71,10 +68,8 @@ define(function(require) {
       groupDropdownOptions +=
       '<option elem_id="'+this+
       '" value="'+this+'">'+
-      Sunstone.getDataTable(GROUP_TAB_ID).getName(this)+' (id:'+this+')</option>';
+      OpenNebulaGroup.getName(this)+' (id:'+this+')</option>';
     });
-
-    // TODO bug Sunstone.getDataTable(GROUP_TAB_ID) fails for user.yaml, groups-tab does not exist
 
     $('select#quota_group_sel', context).html(groupDropdownOptions);
 

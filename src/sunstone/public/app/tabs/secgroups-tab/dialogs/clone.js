@@ -8,6 +8,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
+  var OpenNebulaSecurityGroup = require('opennebula/securitygroup');
 
   /*
     CONSTANTS
@@ -68,7 +69,7 @@ define(function(require) {
           //use name as prefix if several items selected
           Sunstone.runAction('SecurityGroup.clone',
             sel_elems[i],
-            name + Sunstone.getDataTable(TAB_ID).getName(sel_elems[i]));
+            name + OpenNebulaSecurityGroup.getName(sel_elems[i]));
       } else {
         Sunstone.runAction('SecurityGroup.clone',sel_elems[0],name);
       }
@@ -93,7 +94,7 @@ define(function(require) {
       $('.clone_one', context).show();
       $('.clone_several', context).hide();
 
-      $('input',context).val('Copy of ' + Sunstone.getDataTable(TAB_ID).getName(sel_elems[0]));
+      $('input',context).val('Copy of ' + OpenNebulaSecurityGroup.getName(sel_elems[0]));
     }
 
     $("input[name='name']",context).focus();

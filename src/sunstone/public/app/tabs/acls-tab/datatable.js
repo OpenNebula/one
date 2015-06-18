@@ -6,7 +6,10 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
-  var Sunstone = require('sunstone');
+
+  var OpenNebulaUser = require('opennebula/user');
+  var OpenNebulaGroup = require('opennebula/group');
+  var OpenNebulaZone = require('opennebula/zone');
 
   /*
     CONSTANTS
@@ -15,10 +18,6 @@ define(function(require) {
   var RESOURCE = "Acl";
   var XML_ROOT = "ACL";
   var TAB_NAME = require('./tabId');
-
-  var USER_TAB_ID = require('tabs/users-tab/tabId');
-  var GROUP_TAB_ID = require('tabs/groups-tab/tabId');
-  var ZONE_TAB_ID = require('tabs/zones-tab/tabId');
 
   /*
     CONSTRUCTOR
@@ -188,11 +187,11 @@ define(function(require) {
     } else {
       if (user[0] == '#'){
         user_str=Locale.tr("User")+" ";
-        user_str+= Sunstone.getDataTable(USER_TAB_ID).getName(user.substring(1));
+        user_str+= OpenNebulaUser.getName(user.substring(1));
       }
       else if (user[0] == '@'){
         user_str=Locale.tr("Group ");
-        user_str+= Sunstone.getDataTable(GROUP_TAB_ID).getName(user.substring(1));
+        user_str+= OpenNebulaGroup.getName(user.substring(1));
       }
     }
     return user_str;
@@ -210,7 +209,7 @@ define(function(require) {
       }
       else if (user[0] == '@'){
         user_str=Locale.tr("Group")+" ";
-        user_str+= Sunstone.getDataTable(GROUP_TAB_ID).getName(user.substring(1));
+        user_str+= OpenNebulaGroup.getName(user.substring(1));
       }
       else if (user[0] == '%'){
         user_str=Locale.tr("Cluster ID")+" ";
@@ -231,7 +230,7 @@ define(function(require) {
     if (zone[0] == '*'){
       zone_str = Locale.tr("All");
     } else if (zone[0] == '#'){
-      zone_str = Sunstone.getDataTable(ZONE_TAB_ID).getName(zone.substring(1));
+      zone_str = OpenNebulaZone.getName(zone.substring(1));
     }
 
     return zone_str;

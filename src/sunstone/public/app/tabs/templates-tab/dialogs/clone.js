@@ -7,6 +7,7 @@ define(function(require) {
   var TemplateHTML = require('hbs!./clone/html');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
+  var OpenNebulaTemplate = require('opennebula/template');
 
   /*
     CONSTANTS
@@ -59,7 +60,7 @@ define(function(require) {
         for (var i = 0; i < sel_elems.length; i++) {
           //If we are cloning several images we
           //use the name as prefix
-          extra_info = name + Sunstone.getDataTable(TEMPLATES_TAB_ID).getName(sel_elems[i]);
+          extra_info = name + OpenNebulaTemplate.getName(sel_elems[i]);
           Sunstone.runAction('Template.clone', sel_elems[i], extra_info);
         }
       } else {
@@ -88,7 +89,7 @@ define(function(require) {
     } else {
       $('.clone_one', context).show();
       $('.clone_several', context).hide();
-      $('input[name="name"]', context).val('Copy of ' + Sunstone.getDataTable(TEMPLATES_TAB_ID).getName(sel_elems[0]));
+      $('input[name="name"]', context).val('Copy of ' + OpenNebulaTemplate.getName(sel_elems[0]));
     };
 
     $("input[name='name']", context).focus();
