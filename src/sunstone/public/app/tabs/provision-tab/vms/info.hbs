@@ -10,33 +10,33 @@
     <div class="large-12 large-centered columns">
       <ul class="inline-list provision_action_icons">
         <li>
-          <a href"#" data-tooltip title="{{tr "Open a remote console in a new window"}}" class="left button medium radius provision_vnc_button tip-top">
+          <a href"#" data-tooltip title="{{tr "Open a remote console in a new window"}}" class="left button small radius provision_vnc_button tip-top">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          <a data-tooltip title="{{tr "You have to boot the Virtual Machine first"}}" class="left button medium radius white provision_vnc_button_disabled tip-top" style="color: #999">
+          <a data-tooltip title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
           {{#isTabPanelEnabled "provision-tab" "templates"}}
-          <a href"#" data-tooltip title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button medium radius success provision_snapshot_button tip-top">
+          <a href"#" data-tooltip title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
-          <a data-tooltip title="{{tr "You have to power-off the virtual machine first"}}" class="left button medium radius white provision_snapshot_button_disabled tip-top" style="color: #999">
+          <a data-tooltip title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
           {{/isTabPanelEnabled}}
         </li>
         <li class="right">
-          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button medium radius alert provision_delete_confirm_button tip-top right">
+          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button medium radius alert provision_shutdownhard_confirm_button tip-top right">
+          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Power off"}}" class="button medium radius secondary provision_poweroff_confirm_button tip-top right">
+          <a href"#" data-tooltip title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-power-off"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Power on"}}" class="button medium radius secondary provision_poweron_button tip-top right">
+          <a href"#" data-tooltip title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
             <i class="fa fa-fw fa-lg fa-play"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Reboot"}}" class="button medium radius secondary provision_reboot_confirm_button tip-top right">
+          <a href"#" data-tooltip title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-repeat"/>
           </a>
         </li>
@@ -44,21 +44,20 @@
     </div>
   </div>
   <div class="row">
-    <div class="provision_confirm_action large-10 large-centered columns"></div>
+    <div class="provision_confirm_action large-12 large-centered columns"></div>
   </div>
-  <br>
   <div class="row">
-    <div class="large-4 columns">
-      <ul class="provision-pricing-table_vm_info provision-pricing-table" style="border: 0px !important; background: #fff;"></ul>
+    <div class="large-5 columns">
+      <ul class="provision-pricing-table_vm_info provision-pricing-table" style="border: 0px !important; margin-top: 20px;"></ul>
     </div>
-    <div class="large-8 columns">
+    <div class="large-6 columns right">
       <div class="row">
         <div class="large-6 medium-6  columns">
           <div class="row text-center">
             <div class="large-12 columns">
-              <h3 class="subheader">
+              <h4 class="subheader" style="margin: 0px">
                 <small>{{tr "CPU"}}</small>
-              </h3>
+              </h4>
             </div>
           </div>
           <div class="row">
@@ -73,9 +72,9 @@
         <div class="large-6 medium-6 columns">
           <div class="row text-center">
             <div class="large-12 columns">
-              <h3 class="subheader">
-                <small>{{tr "MEMORY"}}</small>
-              </h3>
+              <h4 class="subheader" style="margin: 0px">
+                <small>{{tr "Memory"}}</small>
+              </h4>
             </div>
           </div>
           <div class="row">
@@ -88,76 +87,76 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="large-12 columns">
+      <br>
       <div class="row">
-        <div class="large-6 medium-6 columns">
-          <div class="row text-center">
-            <div class="large-12 columns">
-              <h3 class="subheader">
-                <small>{{tr "NET RX"}}</small>
-              </h3>
-            </div>
-          </div>
-          <div class="row">
-            <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_rx_graph" style="height: 100px;"></div>
-            </div>
-          </div>
-          <div class="row graph_legend">
-            <div class="large-12 columns centered vm_net_rx_legend"></div>
+      <div class="large-3 medium-6 columns">
+        <div class="row text-center">
+          <div class="large-12 columns">
+            <h4 class="subheader" style="margin: 0px">
+              <small>{{tr "Net RX"}}</small>
+            </h4>
           </div>
         </div>
-        <div class="large-6 medium-6  columns">
-          <div class="row text-center">
-            <div class="large-12 columns">
-              <h3 class="subheader">
-                <small>{{tr "NET TX"}}</small>
-              </h3>
-            </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="large-12 columns centered graph vm_net_rx_graph" style="height: 100px;"></div>
           </div>
-          <div class="row">
-            <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_tx_graph" style="height: 100px;"></div>
-            </div>
-          </div>
-          <div class="row graph_legend">
-            <div class="large-12 columns centered vm_net_tx_legend"></div>
-          </div>
+        </div>
+        <div class="row graph_legend">
+          <div class="large-12 columns centered vm_net_rx_legend"></div>
         </div>
       </div>
-      <div class="row">
-        <div class="large-6 medium-6  columns">
-          <div class="row text-center">
-            <div class="large-12 columns">
-              <h3 class="subheader">
-                <small>{{tr "NET DOWNLOAD SPEED"}}</small>
-              </h3>
-            </div>
-          </div>
-          <div class="row">
-            <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_rx_speed_graph" style="height: 100px;"></div>
-            </div>
-          </div>
-          <div class="row graph_legend">
-            <div class="large-12 columns centered vm_net_rx_speed_legend"></div>
+      <div class="large-3 medium-6  columns">
+        <div class="row text-center">
+          <div class="large-12 columns">
+            <h4 class="subheader" style="margin: 0px">
+              <small>{{tr "Net TX"}}</small>
+            </h4>
           </div>
         </div>
-        <div class="large-6 medium-6 columns">
-          <div class="row text-center">
-            <div class="large-12 columns">
-              <h3 class="subheader">
-                <small>{{tr "NET UPLOAD SPEED"}}</small>
-              </h3>
-            </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="large-12 columns centered graph vm_net_tx_graph" style="height: 100px;"></div>
           </div>
-          <div class="row">
-            <div class="large-12 columns">
-              <div class="large-12 columns centered graph vm_net_tx_speed_graph" style="height: 100px;"></div>
-            </div>
+        </div>
+        <div class="row graph_legend">
+          <div class="large-12 columns centered vm_net_tx_legend"></div>
+        </div>
+      </div>
+      <div class="large-3 medium-6  columns">
+        <div class="row text-center">
+          <div class="large-12 columns">
+            <h4 class="subheader" style="margin: 0px">
+              <small>{{tr "Net Download Speed"}}</small>
+            </h4>
           </div>
-          <div class="row graph_legend">
-            <div class="large-12 columns centered vm_net_tx_speed_legend"></div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="large-12 columns centered graph vm_net_rx_speed_graph" style="height: 100px;"></div>
           </div>
+        </div>
+        <div class="row graph_legend">
+          <div class="large-12 columns centered vm_net_rx_speed_legend"></div>
+        </div>
+      </div>
+      <div class="large-3 medium-6 columns">
+        <div class="row text-center">
+          <div class="large-12 columns">
+            <h4 class="subheader" style="margin: 0px">
+              <small>{{tr "Net Upload Speed"}}</small>
+            </h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="large-12 columns centered graph vm_net_tx_speed_graph" style="height: 100px;"></div>
+          </div>
+        </div>
+        <div class="row graph_legend">
+          <div class="large-12 columns centered vm_net_tx_speed_legend"></div>
         </div>
       </div>
     </div>

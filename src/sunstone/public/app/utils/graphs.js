@@ -65,7 +65,10 @@ define(function(require) {
           return Humanize.prettyTimeAxis(val, info.show_date);
         },
         color: "#efefef",
-        size: 8
+        font: {
+          color: "#999",
+          size: 10
+        }
       },
       yaxis : {
         tickFormatter: function(val, axis) {
@@ -73,8 +76,10 @@ define(function(require) {
         },
         min: 0,
         color: "#efefef",
-
-        size: 8
+        font: {
+          color: "#999",
+          size: 10
+        }
       },
       series: {
         lines: {

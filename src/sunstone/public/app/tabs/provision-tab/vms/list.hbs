@@ -1,31 +1,33 @@
 <dl class="accordion accordion_list provision_list_vms" data-accordion>
   <dd class="{{#if opts.active}}active{{/if}} accordion-navigation">
     <a href="#provision_list_vm_accordion{{accordionId}}" class="provision_back right only-not-active">
-      <span class="button medium radius"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
+      <span class="button small radius"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
       </span>
     </a>
-    <h2 class="subheader">
-      {{opts.title}}
-      <span class="provision_info_vm_name only-not-active" style="margin-left: 20px; color: #777; font-size: 20px"></span>
-      <span href"#" class="right only-active button medium radius secondary provision_vms_list_refresh_button" 
-                {{#if opts.refresh}}style="display:none"{{/if}} data-tooltip title=" {{tr "Refresh"}}">
+    <h3 class="subheader">
+      <span style="color: #777">
+      {{!opts.title}}
+      </span>
+      <span class="provision_info_vm_name only-not-active"></span>
+      <span href"#" class="right only-active button small radius secondary provision_vms_list_refresh_button" 
+                {{#unless opts.refresh}}style="display:none"{{/unless}} data-tooltip title=" {{tr "Refresh"}}">
         <i class="fa fa-fw fa-lg fa-refresh"/></span>
-      <span href"#" class="right only-not-active button medium radius secondary provision_refresh_info" 
-                {{#if opts.refresh}}style="display:none"{{/if}} data-tooltip title=" {{tr "Refresh"}}">
+      <span href"#" class="right only-not-active button small radius secondary provision_refresh_info" 
+                {{#unless opts.refresh}}style="display:none"{{/unless}} data-tooltip title=" {{tr "Refresh"}}">
         <i class="fa fa-fw fa-lg fa-refresh"/>
       </span>
-      <span href"#" class="right only-active button medium radius secondary provision_vms_list_filter_button" 
-                {{#if opts.filter}}style="display:none"{{/if}} data-tooltip title=" {{tr "Filter by User"}}">
+      <span href"#" class="right only-active button small radius secondary provision_vms_list_filter_button" 
+                {{#unless opts.filter}}style="display:none"{{/unless}} data-tooltip title=" {{tr "Filter by User"}}">
         <i class="fa fa-fw fa-lg fa-filter"/>
       </span>
       <span class="right only-active provision_list_vms_filter" style="display: none"></span>
       <span>
-        <input type="search" class="right only-active provision_list_vms_search provision-search-input right" placeholder="Search"/>
-        <span href"#" class="right only-active button medium radius success provision_create_vm_button" 
-                {{#if opts.create}}style="display:none"{{/if}}>
+        <span href"#" class="right  only-active button small radius success provision_create_vm_button" 
+                {{#unless opts.create}}style="display:none"{{/unless}}>
           <i class="fa fa-fw fa-lg fa-plus-square"/>
         </span>
-      </h2>
+        <input type="search" class="only-active provision_list_vms_search provision-search-input " placeholder="Search VMs"/>
+      </h3>
       <div id="provision_list_vm_accordion{{accordionId}}" class="content {{#if opts.active}}active{{/if}}">
         <div class="row">
           <div class="large-12 large-centered columns">
