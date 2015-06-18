@@ -2404,6 +2404,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 	{
 		deltas.add("DATASTORE", ds_id);
 		deltas.add("SIZE", disk_size);
+		deltas.add("IMAGES", 0);
 
         if (!quota_authorization(&deltas, Quotas::DATASTORE, att_quota))
         {

@@ -4335,6 +4335,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
 
         (*quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
         (*quotas)->add("SIZE", (long long) ssize);
+		(*quotas)->add("IMAGES",0 );
 
         type = Quotas::DATASTORE;
     }

@@ -33,6 +33,7 @@ bool QuotaDatastore::check(Template * tmpl, Quotas& default_quotas, string& erro
 
     string ds_id;
     int    size;
+    int    images, images_req = 1;
 
     tmpl->get("DATASTORE", ds_id);
 
@@ -48,7 +49,12 @@ bool QuotaDatastore::check(Template * tmpl, Quotas& default_quotas, string& erro
         return false;
     }
 
-    ds_request.insert(make_pair("IMAGES",1));
+    if (tmpl->get("IMAGES", images) && images >= 0)
+    {
+        images_req = images;
+    }
+
+    ds_request.insert(make_pair("IMAGES", images_req));
     ds_request.insert(make_pair("SIZE",  size));
 
     return check_quota(ds_id, ds_request, default_quotas, error);
@@ -63,6 +69,7 @@ void QuotaDatastore::del(Template * tmpl)
 
     string ds_id;
     int    size;
+    int    images, images_req = 1;
 
     tmpl->get("DATASTORE", ds_id);
 
@@ -76,7 +83,12 @@ void QuotaDatastore::del(Template * tmpl)
         return;
     }
 
-    ds_request.insert(make_pair("IMAGES",1));
+    if (tmpl->get("IMAGES", images) && images >= 0)
+    {
+        images_req = images;
+    }
+
+    ds_request.insert(make_pair("IMAGES", images_req));
     ds_request.insert(make_pair("SIZE",  size));
 
     del_quota(ds_id, ds_request);
