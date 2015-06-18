@@ -3,36 +3,47 @@ define(function(require) {
 
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
+  var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
   var Sunstone = require('sunstone');
+  var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
 
-  var _tabs = [
-    require('tabs/dashboard-tab'),
-    require('tabs/system-tab'),
-    require('tabs/users-tab'),
-    require('tabs/groups-tab'),
-    require('tabs/vdcs-tab'),
-    require('tabs/acls-tab'),
-    require('tabs/vresources-tab'),
-    require('tabs/vms-tab'),
-    require('tabs/templates-tab'),
-    require('tabs/images-tab'),
-    require('tabs/files-tab'),
-    require('tabs/infra-tab'),
-    require('tabs/clusters-tab'),
-    require('tabs/hosts-tab'),
-    require('tabs/datastores-tab'),
-    require('tabs/vnets-tab'),
-    require('tabs/secgroups-tab'),
-    require('tabs/zones-tab'),
-    require('tabs/marketplace-tab'),
-    require('tabs/oneflow-dashboard'),
-    require('tabs/oneflow-services-tab'),
-    require('tabs/oneflow-templates-tab'),
-    require('tabs/settings-tab'),
-    require('tabs/support-tab')
-  ];
+  var _tabs;
+  if (Config.isTabEnabled(PROVISION_TAB_ID)) {
+    _tabs = [
+      require('tabs/provision-tab'),
+      require('tabs/users-tab'),
+      require('tabs/settings-tab')
+    ];
+  } else {
+    _tabs = [
+      require('tabs/dashboard-tab'),
+      require('tabs/system-tab'),
+      require('tabs/users-tab'),
+      require('tabs/groups-tab'),
+      require('tabs/vdcs-tab'),
+      require('tabs/acls-tab'),
+      require('tabs/vresources-tab'),
+      require('tabs/vms-tab'),
+      require('tabs/templates-tab'),
+      require('tabs/images-tab'),
+      require('tabs/files-tab'),
+      require('tabs/infra-tab'),
+      require('tabs/clusters-tab'),
+      require('tabs/hosts-tab'),
+      require('tabs/datastores-tab'),
+      require('tabs/vnets-tab'),
+      require('tabs/secgroups-tab'),
+      require('tabs/zones-tab'),
+      require('tabs/marketplace-tab'),
+      require('tabs/oneflow-dashboard'),
+      require('tabs/oneflow-services-tab'),
+      require('tabs/oneflow-templates-tab'),
+      require('tabs/settings-tab'),
+      require('tabs/support-tab')
+    ];
+  }
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -51,7 +62,11 @@ define(function(require) {
     _setupAccordion();
     _insertUserAndZoneSelector();
 
-    Sunstone.showTab(DASHBOARD_TAB_ID);
+    if (Config.isTabEnabled(PROVISION_TAB_ID)) {
+      Sunstone.showTab(PROVISION_TAB_ID);
+    } else if (Config.isTabEnabled(DASHBOARD_TAB_ID)) {
+      Sunstone.showTab(DASHBOARD_TAB_ID);
+    }
   });
 
   function _setupAccordion() {
