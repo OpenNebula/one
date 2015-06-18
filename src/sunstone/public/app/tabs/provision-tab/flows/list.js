@@ -1,0 +1,695 @@
+define(function(require) {
+  var OpenNebula = require('opennebula');
+  var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
+  var Humanize = require('utils/humanize');
+  var ResourceSelect = require('utils/resource-select');
+
+  var ProvisionVmsList = require('tabs/provision-tab/vms/list');
+
+  var TemplateFlowsList = require('hbs!./list');
+
+  var _accordionId = 0;
+
+  return {
+    'generate': generate_provision_flows_list,
+    'show': show_provision_flow_list
+  };
+
+
+  function show_provision_flow_list(timeout) {
+    $(".section_content").hide();
+    $(".provision_flows_list_section").fadeIn();
+
+    $("dd:not(.active) .provision_back", $(".provision_flows_list_section")).trigger("click");
+    $(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
+  }
+
+  function generate_provision_flows_list(context, opts) {
+    context.off();
+    context.html(html(opts));
+    setup_provision_flows_list(context, opts);
+    setup_info_flow(context);
+  }
+
+  function html(opts_arg){
+    opts = $.extend({
+        title: Locale.tr("Services"),
+        active: true,
+        refresh: true,
+        create: true,
+        filter: true
+      },opts_arg)
+
+    _accordionId += 1;
+    return TemplateFlowsList({'accordionId': _accordionId, 'opts': opts});
+  }
+
+  function update_provision_flows_datatable(datatable, timeout) {
+    datatable.html('<div class="text-center">'+
+      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+        '<i class="fa fa-cloud fa-stack-2x"></i>'+
+        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+      '</span>'+
+      '<br>'+
+      '<br>'+
+      '<span style="font-size: 18px; color: #999">'+
+      '</span>'+
+      '</div>');
+
+    setTimeout( function(){
+      OpenNebula.Service.list({
+        timeout: true,
+        success: function (request, item_list){
+          $(".flow_error_message").hide();
+          datatable.fnClearTable(true);
+          if (item_list.length == 0) {
+            datatable.html('<div class="text-center">'+
+              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+                '<i class="fa fa-cloud fa-stack-2x"></i>'+
+                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+              '</span>'+
+              '<br>'+
+              '<br>'+
+              '<span style="font-size: 18px; color: #999">'+
+                Locale.tr("There are no Services")+
+              '</span>'+
+              '<br>'+
+              '<br>'+
+              '</div>');
+          } else {
+            datatable.fnAddData(item_list);
+          }
+        },
+        error: function(request, error_json) {
+          datatable.html('<div class="text-center">'+
+            '<br>'+
+            '<br>'+
+            '<div class="row flow_error_message" id="" hidden>'+
+              '<div class="small-6 columns small-centered text-center">'+
+                  '<div class="alert-box alert radius">'+Locale.tr("Cannot connect to OneFlow server")+'</div>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+            '</span>'+
+            '</div>');
+
+            Notifier.onError(request, error_json, $(".flow_error_message"));
+        }
+      })
+    }, timeout );
+  }
+
+  function setup_provision_flows_list(context, opts){
+    //
+    // List Flows
+    //
+
+    provision_flows_datatable = $('.provision_flows_table', context).dataTable({
+      "iDisplayLength": 6,
+      "sDom" : '<"H">t<"F"lp>',
+      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
+      "aaSorting"  : [[0, "desc"]],
+      "aoColumnDefs": [
+          { "bVisible": false, "aTargets": ["all"]}
+      ],
+      "aoColumns": [
+          { "mDataProp": "DOCUMENT.ID" },
+          { "mDataProp": "DOCUMENT.NAME" },
+          { "mDataProp": "DOCUMENT.UID" }
+      ],
+      "fnPreDrawCallback": function (oSettings) {
+        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
+        if (this.$('tr', {"filter": "applied"} ).length == 0) {
+          this.html('<div class="text-center">'+
+            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+              '<i class="fa fa-cloud fa-stack-2x"></i>'+
+              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<span style="font-size: 18px; color: #999">'+
+              Locale.tr("Looks like you don't have any Service. Click the button below to get started")+
+            '</span>'+
+            '<br>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-6 large-centered columns">'+
+                '<a href"#" class="medium large-12 button radius provision_create_flow_button"">'+Locale.tr("Create a new Service")+'</a>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<br>'+
+            '</div>');
+        } else {
+          $(".provision_flows_table", context).html('<ul class="provision_flows_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
+        }
+
+        return true;
+      },
+      "fnDrawCallback": function (oSettings) {
+        $(".provision_flows_ul", context).foundation('reflow', 'tooltip');
+      },
+      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+        var data = aData.DOCUMENT;
+        var body = data.TEMPLATE.BODY;
+        var state = get_provision_flow_state(body);
+        var start_time = get_provision_flow_start_time(body);
+
+        var roles_li = "";
+        if (body.roles) {
+          $.each(body.roles, function(index, role) {
+            var role_state = get_provision_flow_state(role);
+            var rvms = {
+              str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
+              percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
+            }
+
+            roles_li +=
+              '<li class="provision-bullet-item text-left"">'+
+                '<i class="fa fa-fw fa-lg fa-cube"/>&emsp;'+
+                role.name+
+                '<span class="right" style="font-size: 12px">'+rvms.str+" VMs</span>"+
+              '</li>';
+          });
+        }
+
+        $(".provision_flows_ul", context).append('<li>'+
+            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
+              '<li class="provision-title text-left">'+
+                '<a class="provision_info_flow_button" style="color:#555" href="#">'+ 
+                  '<span class="'+ state.color +'-color" data-tooltip title="'+ state.str +'">'+
+                    '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
+                  '</span>'+
+                  data.NAME + 
+                '</a>'+
+              '</li>'+
+              roles_li +
+              '<li class="provision-bullet-item-last text-right">'+
+                '<span class="left">'+
+                  '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                  data.UNAME+
+                '</span>'+
+                '<span>'+
+                  (start_time ? Humanize.prettyTimeAgo(start_time) : '-') +
+                '</span>'+
+              '</li>'+
+            '</ul>'+
+          '</li>');
+
+        return nRow;
+      }
+    });
+
+    $('.provision_list_flows_search', context).keyup(function(){
+      provision_flows_datatable.fnFilter( $(this).val() );
+    })
+
+    $('.provision_list_flows_search', context).change(function(){
+      provision_flows_datatable.fnFilter( $(this).val() );
+    })
+
+    context.on("click", ".provision_flows_list_refresh_button", function(){
+      OpenNebula.Action.clear_cache("SERVICE");
+      update_provision_flows_datatable(provision_flows_datatable, 0);
+      return false;
+    });
+
+    context.on("click", ".provision_flows_list_search_button", function(){
+      $(".provision_list_flows_search", context).fadeIn();
+    });
+
+    $(".provision_list_flows_filter", context).on("change", ".resource_list_select", function(){
+      if ($(this).val() != "-2"){
+        provision_flows_datatable.fnFilter("^" + $(this).val() + "$", 2, true, false);
+      } else {
+        provision_flows_datatable.fnFilter("", 2);
+      }
+    })
+
+    ResourceSelect.insert(
+      ".provision_list_flows_filter",
+      context,
+      "User",
+      (opts.filter_expression ? opts.filter_expression : "-2"),
+      false,
+      '<option value="-2">'+Locale.tr("ALL")+'</option>',
+      null,
+      null,
+      true,
+      true);
+
+    context.on("click", ".provision_flows_list_filter_button", function(){
+      $(".provision_list_flows_filter", context).fadeIn();
+      return false;
+    });
+
+    OpenNebula.Action.clear_cache("SERVICE");
+    update_provision_flows_datatable(provision_flows_datatable, 0);
+
+    $(document).foundation();
+  }
+
+  function setup_info_flow(context) {
+    function update_provision_flow_info(flow_id, context, role_id) {
+      $(".provision_info_flow_name", context).text("");
+      $(".provision_info_flow", context).css('visibility', 'hidden');
+      $(".provision_info_flow_loading", context).fadeIn();
+      $(".provision_role_vms_container").html("");
+
+      OpenNebula.Service.show({
+        data : {
+          id: flow_id
+        },
+        error: Notifier.onError,
+        success: function(request, response){
+          var data = response.DOCUMENT
+          var body = data.TEMPLATE.BODY;
+          var state = get_provision_flow_state(body);
+          var start_time = get_provision_flow_start_time(body);
+
+          switch (state.color) {
+            case "deploying":
+              $(".provision_recover_button", context).hide();
+              $(".provision_delete_confirm_button", context).show();
+              $(".provision_shutdown_confirm_button", context).show();
+              break;
+            case "running":
+              $(".provision_recover_button", context).hide();
+              $(".provision_delete_confirm_button", context).show();
+              $(".provision_shutdown_confirm_button", context).show();
+              break;
+            case "off":
+              $(".provision_recover_button", context).hide();
+              $(".provision_delete_confirm_button", context).show();
+              $(".provision_shutdown_confirm_button", context).hide();
+              break;
+            case "powering_off":
+            case "error":
+              $(".provision_recover_button", context).show();
+              $(".provision_delete_confirm_button", context).show();
+              $(".provision_shutdown_confirm_button", context).show();
+              break;
+            default:
+              $(".provision_recover_button", context).show();
+              $(".provision_delete_confirm_button", context).show();
+              $(".provision_shutdown_confirm_button", context).show();
+              break;
+          }
+
+          $(".provision_info_flow", context).attr("flow_id", data.ID);
+          $(".provision_info_flow_name", context).text(data.NAME);
+
+          $(".provision-pricing-table_flow_info", context).html(
+              '<li class="text-left provision-bullet-item">'+
+                '<span class="'+ state.color +'-color">'+
+                  '<i class="fa fa-fw fa-lg fa-square"/>&emsp;'+
+                  state.str+
+                '</span>'+
+              '</li>'+
+              '<li class="text-left provision-bullet-item">'+
+                '<hr style="margin: 0px">'+
+              '</li>'+
+              '<li class="text-left provision-bullet-item">'+
+                '<span style="color: #999;">'+
+                  '<i class="fa fa-fw fa-lg fa-user"/>&emsp;'+
+                  data.UNAME+
+                '</span>'+
+                '<span class="right" style="color: #999;">'+
+                  '<i class="fa fa-fw fa-lg fa-clock-o"/>&emsp;'+
+                  (start_time ? Humanize.prettyTimeAgo(start_time) : "...") +
+                  ' - '+
+                  'ID: '+
+                  data.ID+
+                '</span>'+
+              '</li>'+
+            '</ul>');
+
+          $(".provision_roles_ul", context).html("");
+          if (body.roles) {
+            $.each(body.roles, function(index, role) {
+              var role_state = get_provision_flow_state(role);
+              var rvms = {
+                str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
+                percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
+              }
+
+              var li = $(
+                '<li>'+
+                  '<ul class="provision_role_ul provision-pricing-table">'+
+                    '<li class="provision-title text-left">'+
+                      '<i class="fa fa-fw fa-cube"/>&emsp;'+
+                      role.name+
+                    '</li>'+
+                    '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+                      '<div class="progress small radius" style="margin-bottom:0px">'+
+                      '  <span class="meter" style="width: '+rvms.percentage+'%;"></span>'+
+                      '</div>'+
+                    '</li>'+
+                    '<li class="provision-bullet-item text-left" style="padding-top: 0px; margin-left: 10px; margin-right: 10px; font-size: 14px">'+
+                      '<span class="'+ role_state.color +'-color">'+
+                        role_state.str+
+                      '</span>'+
+                      '<span class="right">'+rvms.str+" VMs</span>"+
+                    '</li>'+
+                    '<li class="text-left provision-bullet-item">'+
+                      '<br>'+
+                    '</li>'+
+                    '<li class="provision-bullet-item text-left" style="padding-top: 5px; margin-left: 10px; margin-right: 10px">'+
+                      '<a class="provision_role_vms_button button medium radius">'+
+                        '<i class="fa fa-th fa-lg"></i>'+
+                      '</a>'+
+                      '<a class="provision_role_cardinality_button button medium success right radius">'+
+                        '<i class="fa fa-arrows-h fa-lg"></i>'+
+                      '</a>'+
+                    '</li>'+
+                  '</ul>'+
+                '</li>').appendTo($(".provision_roles_ul", context));
+
+                $(".provision_role_ul", li).data("role", role);
+                if (role_id && role_id == role.name) {
+                  $(".provision_role_vms_button", li).trigger("click");
+                }
+            });
+          }
+
+          $(".provision_info_flow_state_hr", context).html('<div style="height:1px; margin-top:5px; margin-bottom: 5px; background: #cfcfcf"></div>');
+
+          $(".provision_confirm_action:first", context).html("");
+
+          $(".provision_info_flow_loading", context).hide();
+          $(".provision_info_flow", context).css('visibility', 'visible');
+        }
+      })
+    }
+
+    context.on("click", ".provision_role_vms_button", function(){
+      $(".provision_role_vms_container", context).html('<div class="text-center">'+
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
+          '<i class="fa fa-cloud fa-stack-2x"></i>'+
+          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
+        '</span>'+
+        '<br>'+
+        '<br>'+
+        '<span style="font-size: 18px; color: #999">'+
+        '</span>'+
+        '</div>');
+
+      var role = $(this).closest(".provision_role_ul").data('role');
+      $(".provision_info_flow", context).data("role_id", role.name);
+      var vms = []
+
+      if (role.nodes && role.nodes.length > 0) {
+        $.each(role.nodes, function(index, node){
+          vms.push(node.vm_info);
+        })
+      }
+
+      ProvisionVmsList.generate(
+        $(".provision_role_vms_container", context),
+        {
+          title: role.name + ' ' + Locale.tr("VMs"),
+          active: true,
+          refresh: false,
+          create: false,
+          filter: false,
+          data: vms
+        });
+    })
+
+    context.on("click", ".provision_role_cardinality_button", function(){
+      var role = $(this).closest(".provision_role_ul").data('role');
+      var min_vms = (role.min_vms||1);
+      var max_vms = (role.max_vms||100);
+
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+            '<div class="large-12 large-centered columns">'+
+              '<div class="row">'+
+                '<div class="large-4 text-center columns">'+
+                  '<span class="cardinality_value" style="color: #777; font-size:60px">'+role.cardinality+'</span>'+
+                  '<br>'+
+                  '<span style="color: #999; font-size:20px">'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
+                '</div>'+
+                '<div class="large-8 columns text-center">'+
+                '<div class="cardinality_slider_div">'+
+                  '<br>'+
+                  '<span class="left" style="color: #999;">'+min_vms+'</span>'+
+                  '<span class="right" style="color: #999;">'+max_vms+'</span>'+
+                  '<br>'+
+                  '<div class="cardinality_slider">'+
+                  '</div>'+
+                  '<br>'+
+                  '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</a>'+
+                '</div>'+
+                '<div class="cardinality_no_slider_div">'+
+                  '<br>'+
+                  '<br>'+
+                  '<span class="" style="color: #999;">'+Locale.tr("The cardinality for this role cannot be changed")+'</span>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+
+
+      if (max_vms > min_vms) {
+        $( ".cardinality_slider_div", context).show();
+        $( ".cardinality_no_slider_div", context).hide();
+
+        var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
+            handles: 1,
+            connect: "lower",
+            range: [min_vms, max_vms],
+            step: 1,
+            start: role.cardinality,
+            value: role.cardinality,
+            slide: function(type) {
+                if ( type != "move"){
+                  if ($(this).val()) {
+                    $(".cardinality_value", context).html($(this).val());
+                  }
+                }
+            }
+        });
+
+        provision_cardinality_slider.val(role.cardinality)
+
+        provision_cardinality_slider.addClass("noUiSlider");
+      } else {
+        $( ".cardinality_slider_div", context).hide();
+        $( ".cardinality_no_slider_div", context).show();
+      }
+
+      return false;
+    });
+
+    context.on("click", ".provision_change_cardinality_button", function(){
+      var flow_id = $(".provision_info_flow", context).attr("flow_id");
+      var cardinality = $(".cardinality_slider", context).val()
+
+      OpenNebula.Role.update({
+        data : {
+          id: flow_id + '/role/' + $(this).attr("role_id"),
+          extra_param: {
+            cardinality: cardinality
+          }
+        },
+        success: function(request, response){
+          OpenNebula.Action.clear_cache("SERVICE");
+          $(".provision_refresh_info", context).trigger("click");
+        },
+        error: Notifier.onError
+      })
+    });
+
+    context.on("click", ".provision_delete_confirm_button", function(){
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+          '<div class="large-9 columns">'+
+            '<span style="font-size: 14px; line-height: 20px">'+
+              Locale.tr("Be careful, this action will inmediately destroy your Service")+
+              '<br>'+
+              Locale.tr("All the information will be lost!")+
+            '</span>'+
+          '</div>'+
+          '<div class="large-3 columns">'+
+            '<a href"#" class="provision_delete_button alert button large-12 radius right" style="margin-right: 15px">'+Locale.tr("Delete")+'</a>'+
+          '</div>'+
+          '</div>'+
+          '<a href="#" class="close">&times;</a>'+
+        '</div>');
+    });
+
+    context.on("click", ".provision_shutdown_confirm_button", function(){
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+          '<div class="large-9 columns">'+
+            '<span style="font-size: 14px; line-height: 20px">'+
+              Locale.tr("Be careful, this action will inmediately shutdown your Service")+
+              '<br>'+
+              Locale.tr("All the information will be lost!")+
+            '</span>'+
+          '</div>'+
+          '<div class="large-3 columns">'+
+            '<a href"#" class="provision_shutdown_button alert button large-12 radius right" style="margin-right: 15px">'+Locale.tr("Shutdown")+'</a>'+
+          '</div>'+
+          '</div>'+
+          '<a href="#" class="close">&times;</a>'+
+        '</div>');
+    });
+
+    context.on("click", ".provision_recover_button", function(){
+      var flow_id = $(".provision_info_flow", context).attr("flow_id");
+
+      OpenNebula.Service.recover({
+        data : {
+          id: flow_id
+        },
+        success: function(request, response){
+          update_provision_flow_info(flow_id, context);
+        },
+        error: Notifier.onError
+      })
+    });
+
+    context.on("click", ".provision_shutdown_button", function(){
+      var flow_id = $(".provision_info_flow", context).attr("flow_id");
+
+      OpenNebula.Service.shutdown({
+        data : {
+          id: flow_id
+        },
+        success: function(request, response){
+          update_provision_flow_info(flow_id, context);
+        },
+        error: Notifier.onError
+      })
+    });
+
+    context.on("click", ".provision_delete_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+      var flow_id = $(".provision_info_flow", context).attr("flow_id");
+
+      OpenNebula.Service.del({
+        data : {
+          id: flow_id
+        },
+        success: function(request, response){
+          $(".provision_back", context).click();
+          $(".provision_flows_list_refresh_button", context).click();
+          button.removeAttr("disabled");
+        },
+        error: function(request, response){
+          Notifier.onError(request, response);
+          button.removeAttr("disabled");
+        }
+      })
+    });
+
+    context.on("click", ".provision_refresh_info", function(){
+      var flow_id = $(".provision_info_flow", context).attr("flow_id");
+      var role_id = $(".provision_info_flow", context).data("role_id");
+      update_provision_flow_info(flow_id, context, role_id);
+      //$(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
+      return false;
+    });
+
+    //
+    // Info Flow
+    //
+
+    $(".provision_list_flows", context).on("click", ".provision_info_flow_button", function(){
+      $("a.provision_show_flow_accordion", context).trigger("click");
+
+      var flow_id = $(this).parents(".provision-pricing-table").attr("opennebula_id")
+      update_provision_flow_info(flow_id, context);
+      return false;
+    })
+  }
+
+  function get_provision_flow_start_time(data) {
+    if (data.log) {
+      return data.log[0].timestamp
+    } else {
+      return null;
+    }
+  }
+
+  // @params
+  //    data: and BODY object of the Document representing the Service
+  //      Example: data.ID
+  // @returns and object containing the following properties
+  //    color: css class for this state.
+  //      color + '-color' font color class
+  //      color + '-bg' background class
+  //    str: user friendly state string
+  function get_provision_flow_state(data) {
+    var state = OpenNebula.Service.state(data.state);
+    var state_color;
+    var state_str;
+
+    switch (state) {
+      case Locale.tr("PENDING"):
+        state_color = 'deploying';
+        state_str = Locale.tr("PENDING");
+        break;
+      case Locale.tr("DEPLOYING"):
+        state_color = 'deploying';
+        state_str = Locale.tr("DEPLOYING");
+        break;
+      case Locale.tr("UNDEPLOYING"):
+        state_color = 'powering_off';
+        state_str = Locale.tr("UNDEPLOYING");
+        break;
+      case Locale.tr("FAILED_UNDEPLOYING"):
+        state_color = 'error';
+        state_str = Locale.tr("FAILED UNDEPLOYING");
+        break;
+      case Locale.tr("FAILED_DEPLOYING"):
+        state_color = 'error';
+        state_str = Locale.tr("FAILED DEPLOYING");
+        break;
+      case Locale.tr("FAILED_SCALING"):
+        state_color = 'error';
+        state_str = Locale.tr("FAILED SCALING");
+        break;
+      case Locale.tr("WARNING"):
+        state_color = 'error';
+        state_str = Locale.tr("WARNING");
+        break;
+      case Locale.tr("RUNNING"):
+        state_color = 'running';
+        state_str = Locale.tr("RUNNING");
+        break;
+      case Locale.tr("SCALING"):
+        state_color = 'deploying';
+        state_str = Locale.tr("SCALING");
+        break;
+      case Locale.tr("COOLDOWN"):
+        state_color = 'error';
+        state_str = Locale.tr("COOLDOWN");
+        break;
+      case Locale.tr("DONE"):
+        state_color = 'off';
+        state_str = Locale.tr("DONE");
+        break;
+      default:
+        state_color = 'powering_off';
+        state_str = Locale.tr("UNKNOWN");
+        break;
+    }
+
+    return {
+      color: state_color,
+      str: state_str
+    }
+  }
+});
