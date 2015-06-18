@@ -97,7 +97,7 @@ define(function(require) {
       });
     },
 
-    "list": function(params, resource, path) {
+    "list": function(params, resource, path, process) {
       var callback = params.success;
       var callbackError = params.error;
       var timeout = params.timeout || false;
@@ -153,7 +153,13 @@ define(function(require) {
         data: {timeout: timeout},
         dataType: "json",
         success: function(response) {
-          var list = OpenNebulaHelper.pool(resource, response)
+          var list;
+
+          if (process){
+            list = process(response);
+          } else {
+            list = OpenNebulaHelper.pool(resource, response);
+          }
 
           listCache[cache_name] = {
             timestamp   : new Date().getTime(),

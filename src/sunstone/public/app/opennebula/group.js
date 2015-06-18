@@ -16,45 +16,28 @@ define(function(require) {
       OpenNebulaAction.del(params, RESOURCE);
     },
     "list": function(params) {
-      var req_path = RESOURCE.toLowerCase();
-      var callback = params.success;
-      var callback_error = params.error;
-      var timeout = params.timeout || false;
-      var request = OpenNebulaHelper.request(RESOURCE, "list");
+      OpenNebulaAction.list(params, RESOURCE, null, function(response) {
+        var list = OpenNebulaHelper.pool(RESOURCE, response);
 
-      $.ajax({
-        url: req_path,
-        type: "GET",
-        data: {timeout: timeout},
-        dataType: "json",
-        success: function(response) {
-          var list = OpenNebulaHelper.pool(RESOURCE, response);
+        QuotaDefaults.setDefaultGroupQuotas(
+          QuotaDefaults.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS)
+        );
 
-          QuotaDefaults.setDefaultGroupQuotas(
-            QuotaDefaults.default_quotas(response.GROUP_POOL.DEFAULT_GROUP_QUOTAS)
-          );
+        // Inject the VM quota. This info is returned separately in the
+        // pool info call, but the elementArray expects it inside the GROUP,
+        // as it is returned by the individual info call
+        var quotas_hash = OpenNebulaHelper.pool_hash_processing(
+                                            'GROUP_POOL', 'QUOTAS', response);
 
-          // Inject the VM quota. This info is returned separately in the
-          // pool info call, but the elementArray expects it inside the GROUP,
-          // as it is returned by the individual info call
-          var quotas_hash = OpenNebulaHelper.pool_hash_processing(
-                                              'GROUP_POOL', 'QUOTAS', response);
+        $.each(list,function(){
+          var q = quotas_hash[this[RESOURCE].ID];
 
-          $.each(list,function(){
-            var q = quotas_hash[this[RESOURCE].ID];
+          if (q != undefined) {
+              this[RESOURCE].VM_QUOTA = q.QUOTAS.VM_QUOTA;
+          }
+        });
 
-            if (q != undefined) {
-                this[RESOURCE].VM_QUOTA = q.QUOTAS.VM_QUOTA;
-            }
-          });
-
-          return callback ?
-              callback(request, list, quotas_hash) : null;
-        },
-        error: function(response) {
-          return callback_error ?
-              callback_error(request, OpenNebulaError(response)) : null;
-        }
+        return list;
       });
     },
     "update": function(params) {
