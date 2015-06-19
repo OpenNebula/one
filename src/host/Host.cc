@@ -704,10 +704,12 @@ int Host::post_update_template(string& error)
     string new_vm_mad;
     string new_vn_mad;
 
-    erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
+    get_template_attribute("VCENTER_PASSWORD", vcenter_password);
 
-    if (!vcenter_password.empty())
+    if (!vcenter_password.empty() && vcenter_password.size() <= 22)
     {
+        erase_template_attribute("VCENTER_PASSWORD", vcenter_password);
+
         Nebula& nd = Nebula::instance();
         string  one_key;
         string  * encrypted;
