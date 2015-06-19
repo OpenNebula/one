@@ -120,6 +120,13 @@
 
         <!-- NET_RX: Received bytes from the network -->
         <xs:element name="NET_RX" type="xs:integer"/>
+
+        <!-- DISK_ACTUAL_SIZE: Real storage usage for the VM (mb) -->
+        <xs:element name="DISK_ACTUAL_SIZE" type="xs:integer"/>
+
+        <!-- DISK_VIRTUAL_SIZE: Virtual storage usage for the VM (mb) -->
+        <xs:element name="DISK_VIRTUAL_SIZE" type="xs:integer"/>
+
         <xs:element name="TEMPLATE" type="xs:anyType"/>
         <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
         <xs:element name="HISTORY_RECORDS">

@@ -195,7 +195,9 @@ class DummyDriver < VirtualMachineDriver
                        "#{POLL_ATTRIBUTE[:nettx]}=#{prev_nettx+(50*rand(3))} " \
                        "#{POLL_ATTRIBUTE[:netrx]}=#{prev_netrx+(100*rand(4))} " \
                        "#{POLL_ATTRIBUTE[:usedmemory]}=#{max_memory * (rand(80)+20)/100} " \
-                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100}"
+                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100} " \
+                       "#{POLL_ATTRIBUTE[:disk_actual]}=#{rand(1024)} " \
+                       "#{POLL_ATTRIBUTE[:disk_virtual]}=#{1024}"
 
         send_message(ACTION[:poll],result,id,monitor_info)
     end

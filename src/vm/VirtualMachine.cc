@@ -62,6 +62,8 @@ VirtualMachine::VirtualMachine(int           id,
         cpu(0),
         net_tx(0),
         net_rx(0),
+        disk_actual(0),
+        disk_virtual(0),
         history(0),
         previous_history(0),
         _log(0)
@@ -3674,6 +3676,8 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<CPU>"       << cpu       << "</CPU>"
         << "<NET_TX>"    << net_tx    << "</NET_TX>"
         << "<NET_RX>"    << net_rx    << "</NET_RX>"
+        << "<DISK_ACTUAL_SIZE>" << disk_actual << "</DISK_ACTUAL_SIZE>"
+        << "<DISK_VIRTUAL_SIZE>"<< disk_virtual<< "</DISK_VIRTUAL_SIZE>"
         << obj_template->to_xml(template_xml)
         << user_obj_template->to_xml(user_template_xml);
 
@@ -3748,6 +3752,8 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(cpu,       "/VM/CPU",      0);
     rc += xpath(net_tx,    "/VM/NET_TX",   0);
     rc += xpath(net_rx,    "/VM/NET_RX",   0);
+    rc += xpath(disk_actual, "/VM/DISK_ACTUAL_SIZE",  0);
+    rc += xpath(disk_virtual,"/VM/DISK_VIRTUAL_SIZE", 0);
 
     // Permissions
     rc += perms_from_xml();
@@ -3856,10 +3862,12 @@ string VirtualMachine::get_system_dir() const
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::update_info(
-    const int _memory,
-    const int _cpu,
-    const long long _net_tx,
-    const long long _net_rx,
+    int _memory,
+    int _cpu,
+    long long _net_tx,
+    long long _net_rx,
+    long long _disk_actual,
+    long long _disk_virtual,
     const map<string, string> &custom)
 {
     map<string, string>::const_iterator it;
@@ -3884,6 +3892,16 @@ void VirtualMachine::update_info(
     if (_net_rx != -1)
     {
         net_rx = _net_rx;
+    }
+
+    if (_disk_actual != -1)
+    {
+        disk_actual = _disk_actual;
+    }
+
+    if (_disk_virtual != -1)
+    {
+        disk_virtual = _disk_virtual;
     }
 
     for (it = custom.begin(); it != custom.end(); it++)

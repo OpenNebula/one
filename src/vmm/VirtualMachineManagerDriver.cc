@@ -647,7 +647,7 @@ void VirtualMachineManagerDriver::process_poll(
 
     if (vm->get_state() == VirtualMachine::ACTIVE)
     {
-        vm->update_info(memory, cpu, net_tx, net_rx, custom);
+        vm->update_info(memory, cpu, net_tx, net_rx, dactual, dvirtual, custom);
 
         vmpool->update(vm);
 

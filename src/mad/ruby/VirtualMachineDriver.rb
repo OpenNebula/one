@@ -51,11 +51,13 @@ class VirtualMachineDriver < OpenNebulaDriver
     }
 
     POLL_ATTRIBUTE = {
-        :usedmemory => "USEDMEMORY",
-        :usedcpu    => "USEDCPU",
-        :nettx      => "NETTX",
-        :netrx      => "NETRX",
-        :state      => "STATE"
+        :usedmemory  => "USEDMEMORY",
+        :usedcpu     => "USEDCPU",
+        :nettx       => "NETTX",
+        :netrx       => "NETRX",
+        :state       => "STATE",
+        :disk_actual => "DISK_ACTUAL_SIZE",
+        :disk_virtual=> "DISK_VIRTUAL_SIZE"
     }
 
     VM_STATE = {

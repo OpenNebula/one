@@ -400,10 +400,12 @@ public:
      *   @param _net_rx received bytes (total)
      */
     void update_info(
-        const int _memory,
-        const int _cpu,
-        const long long _net_tx,
-        const long long _net_rx,
+        int _memory,
+        int _cpu,
+        long long _net_tx,
+        long long _net_rx,
+        long long _disk_actual,
+        long long _disk_virtual,
         const map<string, string> &custom);
 
     /**
@@ -414,7 +416,7 @@ public:
     {
         map<string,string> empty;
 
-        update_info(0, 0, -1, -1, empty);
+        update_info(0, 0, -1, -1, -1, -1, empty);
     }
 
     /**
@@ -1701,6 +1703,16 @@ private:
      *  Network usage, received bytes
      */
     long long   net_rx;
+
+    /**
+     *  Network usage, received bytes
+     */
+    long long   disk_actual;
+
+    /**
+     *  Network usage, received bytes
+     */
+    long long   disk_virtual;
 
     /**
      *  History record, for the current host
