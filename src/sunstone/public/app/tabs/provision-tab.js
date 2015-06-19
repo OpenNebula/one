@@ -1346,15 +1346,15 @@ define(function(require) {
 
   function show_provision_create_vm() {
     OpenNebula.Action.clear_cache("VMTEMPLATE");
-    update_provision_templates_datatable(provision_system_templates_datatable);
+    ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
     provision_system_templates_datatable.fnFilter("^-$", 2, true, false)
 
-    update_provision_templates_datatable(provision_vdc_templates_datatable);
+    ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
     provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
     provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
 
     if (Config.isTabPanelEnabled("provision-tab", "templates")) {
-      update_provision_templates_datatable(provision_saved_templates_datatable);
+      ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
       provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
       provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
     }
@@ -1867,9 +1867,9 @@ define(function(require) {
 
         $("#provision_create_template_refresh_button").click(function(){
           OpenNebula.Action.clear_cache("VMTEMPLATE");
-          update_provision_templates_datatable(provision_system_templates_datatable);
-          update_provision_templates_datatable(provision_saved_templates_datatable);
-          update_provision_templates_datatable(provision_vdc_templates_datatable);
+          ProvisionTemplatesList.updateDatatable(provision_system_templates_datatable);
+          ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
+          ProvisionTemplatesList.updateDatatable(provision_vdc_templates_datatable);
 
         });
 
@@ -2064,8 +2064,6 @@ define(function(require) {
             var roles_li = "";
             if (body.roles) {
               $.each(body.roles, function(index, role) {
-                var role_state = get_provision_flow_state(role);
-
                 roles_li +=
                   '<li class="provision-bullet-item text-left" style="margin-left: 10px;margin-right: 10px;">'+
                     '<i class="fa fa-fw fa-cube"/>&emsp;'+
