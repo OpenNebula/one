@@ -367,6 +367,8 @@ private:
      *    @param cpu used by the VM (rate)
      *    @param net_tx transmitted bytes (total)
      *    @param net_rx received bytes (total)
+     *    @param disk_actual actual disk usage for VM (total mb)
+     *    @param disk_virtual virtual disk usage for VM (total mb)
      *    @param state of the vm
      *    @param custom monitor information
      */
@@ -376,6 +378,8 @@ private:
         int                &memory,
         long long          &net_tx,
         long long          &net_rx,
+        long long          &disk_actual,
+        long long          &disk_virtual,
         char               &state,
         map<string,string> &custom);
 

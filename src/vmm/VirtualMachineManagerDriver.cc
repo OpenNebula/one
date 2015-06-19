@@ -602,6 +602,8 @@ void VirtualMachineManagerDriver::process_poll(
     int        memory;
     long long  net_tx;
     long long  net_rx;
+    long long  dactual;
+    long long  dvirtual;
     char       state;
 
     map<string, string> custom;
@@ -616,7 +618,8 @@ void VirtualMachineManagerDriver::process_poll(
     /* Parse VM info                                                          */
     /* ---------------------------------------------------------------------- */
 
-    rc = parse_vm_info(monitor_str, cpu, memory, net_tx, net_rx, state, custom);
+    rc = parse_vm_info(monitor_str, cpu, memory, net_tx, net_rx, dactual,
+            dvirtual, state, custom);
 
     if (rc == -1) //Parse error, ignore this monitor data
     {
@@ -724,6 +727,8 @@ int VirtualMachineManagerDriver::parse_vm_info(
     int                &memory,
     long long          &net_tx,
     long long          &net_rx,
+    long long          &disk_actual,
+    long long          &disk_virtual,
     char               &state,
     map<string,string> &custom)
 {
@@ -743,6 +748,9 @@ int VirtualMachineManagerDriver::parse_vm_info(
     net_tx = -1;
     net_rx = -1;
     state  = '-';
+
+    disk_actual  = -1;
+    disk_virtual = -1;
 
     custom.clear();
 
@@ -793,6 +801,14 @@ int VirtualMachineManagerDriver::parse_vm_info(
         else if (var == "STATE")
         {
             tiss >> state;
+        }
+        else if (var == "DISK_ACTUAL_SIZE")
+        {
+            tiss >> disk_actual;
+        }
+        else if (var == "DISK_VIRTUAL_SIZE")
+        {
+            tiss >> disk_virtual;
         }
         else if (!var.empty())
         {
