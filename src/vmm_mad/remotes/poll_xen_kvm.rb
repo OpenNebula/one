@@ -313,27 +313,64 @@ module KVM
     def self.get_disk_usage(xml)
         return {} if !JSON_LOADED
 
-        doc=REXML::Document.new(xml)
+        doc  = REXML::Document.new(xml)
         size = 0
 
         data = {
-            :disk_actual_size => 0.0,
+            :disk_actual_size  => 0.0,
             :disk_virtual_size => 0.0
         }
 
         doc.elements.each('domain/devices/disk/source') do |ele|
-            next if !ele.attributes['file']
+            # read the disk path (for regular disks)
+            file = ele.attributes['file'] rescue nil
 
-            text = `qemu-img info --output=json #{ele.attributes['file']}`
-            next if !$? || !$?.success?
+            # get protocol and name (for ceph)
+            protocol = ele.attributes['protocol'] rescue nil
+            name = ele.attributes['name'] rescue nil
 
-            json = JSON.parse(text)
+            if protocol == "rbd"
+                # Ceph
+                auth = ele.parent.elements["auth"].attributes["username"] rescue nil
+                auth = "--id #{auth}" if !auth.nil?
 
-            data[:disk_actual_size] += json['actual-size'].to_f/1024/1024
-            data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+                pool, image = name.split('/')
+                disk_id = image.split('-')[-1].to_i
+
+                images_list = rbd_pool(pool, auth)
+                images_doc  = REXML::Document.new(images_list)
+
+                xpath = "images/image[image='#{image}']/size"
+                image_size = images_doc.elements[xpath].text.to_f/1024/1024
+
+                data[:disk_actual_size]  += image_size
+                data[:disk_virtual_size] += image_size
+
+                images_doc.elements.each("images/snapshot") do |snap|
+                    next unless snap.elements["image"].text.start_with?(image)
+
+                    snap_id = snap.elements["snapshot"].text.to_i
+
+                    snap_size = snap.elements["size"].text.to_f/1024/1024
+
+                    data["snap_size_#{disk_id}_#{snap_id}".to_sym] = snap_size
+
+                    data[:disk_actual_size]  += snap_size
+                    data[:disk_virtual_size] += snap_size
+                end
+            else file
+                # Regular Disk
+                text = `qemu-img info --output=json #{file}`
+                next if !$? || !$?.success?
+
+                json = JSON.parse(text)
+
+                data[:disk_actual_size]  += json['actual-size'].to_f/1024/1024
+                data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+            end
         end
 
-        data[:disk_actual_size] = data[:disk_actual_size].round
+        data[:disk_actual_size]  = data[:disk_actual_size].round
         data[:disk_virtual_size] = data[:disk_virtual_size].round
 
         data
@@ -456,8 +493,17 @@ OS=[ARCH="#{arch}"]
 #{vnc_txt}
 EOT
 
-
         return uuid, template
+    end
+
+    def self.rbd_pool(pool, auth = nil)
+        @@rbd_pool ||= {}
+
+        if @@rbd_pool[pool].nil?
+            @@rbd_pool[pool] = `rbd #{auth} ls -l -p #{pool} --format xml`
+        end
+
+        @@rbd_pool[pool]
     end
 end
 
