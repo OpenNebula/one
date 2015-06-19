@@ -1,4 +1,5 @@
 define(function(require) {
+  require('foundation.alert');
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');

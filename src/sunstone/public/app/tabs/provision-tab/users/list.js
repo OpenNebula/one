@@ -1,4 +1,5 @@
 define(function(require) {
+  require('foundation.alert');
   var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
@@ -11,6 +12,8 @@ define(function(require) {
 
   var ProvisionQuotaWidget = require('./quota-widget');
   var ProvisionVmsList = require('tabs/provision-tab/vms/list');
+  var ProvisionTemplatesList = require('tabs/provision-tab/templates/list');
+  var ProvisionFlowsList = require('tabs/provision-tab/flows/list');
 
   var TemplateProvisionQuotaWidget = require('hbs!./quota-widget/html');
   var TemplateUsersList = require('hbs!./list');
@@ -121,120 +124,67 @@ define(function(require) {
         var memory = "";
         var cpu = "";
 
-        // Inject the VM user quota. This info is returned separately in the
-        // pool info call, but the userElementArray expects it inside the USER,
-        // as it is returned by the individual info call
-        var q = provision_quotas_list[data.ID];
-
         var quotas_html;
+        QuotaWidgets.initEmptyQuotas(data);
 
-        if (q != undefined) {
-          var quota = q.QUOTAS;
-
-          if ($.isEmptyObject(quota.VM_QUOTA)) {
-            var limit = (data.ID != 0 ? QuotaLimits.QUOTA_LIMIT_DEFAULT : QuotaLimits.QUOTA_LIMIT_UNLIMITED);
-
-            quota.VM_QUOTA = {
-                VM: {
-                  VMS         : limit,
-                  VMS_USED    : 0,
-                  CPU         : limit,
-                  CPU_USED    : 0,
-                  MEMORY      : limit,
-                  MEMORY_USED : 0
-                }
-              }
-          }
-
-          if (!$.isEmptyObject(quota.VM_QUOTA)) {
-            var default_user_quotas = QuotaDefaults.getDefaultUserQuotas();
+        if (!$.isEmptyObject(data.VM_QUOTA)) {
+          var default_user_quotas = QuotaDefaults.getDefaultUserQuotas();
                 
-            quotas = QuotaWidgets.quotaFloatInfo(
-                quota.VM_QUOTA.VM.VMS_USED,
-                quota.VM_QUOTA.VM.VMS,
-                default_user_quotas.VM_QUOTA.VM.VMS,
-                true);
+          quotas = QuotaWidgets.quotaFloatInfo(
+              data.VM_QUOTA.VM.VMS_USED,
+              data.VM_QUOTA.VM.VMS,
+              default_user_quotas.VM_QUOTA.VM.VMS,
+              true);
 
-            quotas_html = "";
-            quotas_html += '<li class="provision-bullet-item text-left">' +
-              Locale.tr("VMs") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>';
+          quotas_html = "";
+          quotas_html += '<li class="provision-bullet-item text-left">' +
+            '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
+            '<span class="right">' + quotas.str + "</span>" +
+          '</li>';
 
-            quotas = QuotaWidgets.quotaFloatInfo(
-                quota.VM_QUOTA.VM.CPU_USED,
-                quota.VM_QUOTA.VM.CPU,
-                default_user_quotas.VM_QUOTA.VM.CPU,
-                true);
+          quotas = QuotaWidgets.quotaFloatInfo(
+              data.VM_QUOTA.VM.CPU_USED,
+              data.VM_QUOTA.VM.CPU,
+              default_user_quotas.VM_QUOTA.VM.CPU,
+              true);
 
-            quotas_html += '<li class="provision-bullet-item text-left">' +
-              Locale.tr("CPU") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>';
+          quotas_html += '<li class="provision-bullet-item text-left">' +
+            '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
+            '<span class="right">' + quotas.str + "</span>" +
+          '</li>';
 
-            quotas = QuotaWidgets.quotaMBInfo(
-                quota.VM_QUOTA.VM.MEMORY_USED,
-                quota.VM_QUOTA.VM.MEMORY,
-                default_user_quotas.VM_QUOTA.VM.MEMORY,
-                true);
+          quotas = QuotaWidgets.quotaMBInfo(
+              data.VM_QUOTA.VM.MEMORY_USED,
+              data.VM_QUOTA.VM.MEMORY,
+              default_user_quotas.VM_QUOTA.VM.MEMORY,
+              true);
 
-            quotas_html += '<li class="provision-bullet-item text-left">' +
-              Locale.tr("Memory") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>';
-          } else {
-            quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
+          quotas_html += '<li class="provision-bullet-item text-left">' +
+            '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
+            '<span class="right">' + quotas.str + "</span>" +
+          '</li>';
+        } else {
+          quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
 
-            quotas_html = "";
-            quotas_html += '<li class="provision-bullet-item text-left">' +
-              Locale.tr("VMs") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>';
+          quotas_html = "";
+          quotas_html += '<li class="provision-bullet-item text-left">' +
+            '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
+            '<span class="right">' + quotas.str + "</span>" +
+          '</li>';
 
-            quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
+          quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
 
-            quotas_html += '<li class="provision-bullet-item text-left">' +
-              Locale.tr("CPU") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>';
+          quotas_html += '<li class="provision-bullet-item text-left">' +
+            '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
+            '<span class="right">' + quotas.str + "</span>" +
+          '</li>';
 
-            quotas = QuotaWidgets.quotaMBInfo(0, 0, null, true);
+          quotas = QuotaWidgets.quotaMBInfo(0, 0, null, true);
 
-            quotas_html += '<li class="provision-bullet-item text-left">' +
-              Locale.tr("Memory") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>';
-          }
+          quotas_html += '<li class="provision-bullet-item text-left">' +
+            '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
+            '<span class="right">' + quotas.str + "</span>" +
+          '</li>';
         }
 
         $(".provision_users_ul", context).append('<li>' +
@@ -267,7 +217,6 @@ define(function(require) {
     $(document).foundation();
   }
 
-
   function setup_provision_user_info(context) {
     function update_provision_vdc_user_info(user_id, context) {
       $(".provision_info_vdc_user_name", context).text("");
@@ -280,11 +229,11 @@ define(function(require) {
           id: user_id
         },
         error: Notifier.onError,
-        success: function(request, response){
+        success: function(request, response) {
           var data = response.USER
 
-          $(".provision_vdc_user_confirm_action",context).html("");
-          $(".provision_info_vdc_user_acct",context).html("");
+          $(".provision_vdc_user_confirm_action", context).html("");
+          $(".provision_info_vdc_user_acct", context).html("");
 
           $(".provision_info_vdc_user", context).attr("opennebula_id", data.ID);
           $(".provision_info_vdc_user", context).attr("uname", data.NAME);
@@ -295,116 +244,109 @@ define(function(require) {
 
           QuotaWidgets.initEmptyQuotas(data);
 
-          if (!$.isEmptyObject(data.VM_QUOTA)){
-              var default_user_quotas = QuotaDefaults.default_quotas(data.DEFAULT_USER_QUOTAS);
-              quotas = QuotaWidgets.quotaFloatInfo(
-                  data.VM_QUOTA.VM.VMS_USED,
-                  data.VM_QUOTA.VM.VMS,
-                  default_user_quotas.VM_QUOTA.VM.VMS,
-                  true);
+          if (!$.isEmptyObject(data.VM_QUOTA)) {
+            var default_user_quotas = QuotaDefaults.default_quotas(data.DEFAULT_USER_QUOTAS);
+            quotas = QuotaWidgets.quotaFloatInfo(
+                data.VM_QUOTA.VM.VMS_USED,
+                data.VM_QUOTA.VM.VMS,
+                default_user_quotas.VM_QUOTA.VM.VMS,
+                true);
 
-              $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">'+
-                Locale.tr("Running VMs")+
-                '<span class="right">'+quotas.str+"</span>"+
-              '</li>'+
-              '<li class="provision-bullet-item text-left">'+
-                '<div class="progress small radius" style="background: #f7f7f7">'+
-                '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
-                '</div>'+
-              '</li>');
+            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
+              '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
+              '<span class="right">' + quotas.str + "</span>" +
+            '</li>' +
+            '<li class="provision-bullet-item text-left">' +
+              '<div class="progress small radius" style="background: #f7f7f7">' +
+              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
+              '</div>' +
+            '</li>');
 
-              quotas = QuotaWidgets.quotaFloatInfo(
-                  data.VM_QUOTA.VM.CPU_USED,
-                  data.VM_QUOTA.VM.CPU,
-                  default_user_quotas.VM_QUOTA.VM.CPU,
-                  true);
+            quotas = QuotaWidgets.quotaFloatInfo(
+                data.VM_QUOTA.VM.CPU_USED,
+                data.VM_QUOTA.VM.CPU,
+                default_user_quotas.VM_QUOTA.VM.CPU,
+                true);
 
-              $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">'+
-                Locale.tr("CPU")+
-                '<span class="right">'+quotas.str+"</span>"+
-              '</li>'+
-              '<li class="provision-bullet-item text-left">'+
-                '<div class="progress small radius" style="background: #f7f7f7">'+
-                '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
-                '</div>'+
-              '</li>');
+            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
+              '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
+              '<span class="right">' + quotas.str + "</span>" +
+            '</li>' +
+            '<li class="provision-bullet-item text-left">' +
+              '<div class="progress small radius" style="background: #f7f7f7">' +
+              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
+              '</div>' +
+            '</li>');
 
-              quotas = QuotaWidgets.quotaMBInfo(
-                  data.VM_QUOTA.VM.MEMORY_USED,
-                  data.VM_QUOTA.VM.MEMORY,
-                  default_user_quotas.VM_QUOTA.VM.MEMORY,
-                  true);
+            quotas = QuotaWidgets.quotaMBInfo(
+                data.VM_QUOTA.VM.MEMORY_USED,
+                data.VM_QUOTA.VM.MEMORY,
+                default_user_quotas.VM_QUOTA.VM.MEMORY,
+                true);
 
-              $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">'+
-                Locale.tr("Memory")+
-                '<span class="right">'+quotas.str+"</span>"+
-              '</li>'+
-              '<li class="provision-bullet-item text-left">'+
-                '<div class="progress small radius" style="background: #f7f7f7">'+
-                '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
-                '</div>'+
-              '</li>');
+            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
+              '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
+              '<span class="right">' + quotas.str + "</span>" +
+            '</li>' +
+            '<li class="provision-bullet-item text-left">' +
+              '<div class="progress small radius" style="background: #f7f7f7">' +
+              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
+              '</div>' +
+            '</li>');
           } else {
             quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
 
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">'+
-              Locale.tr("Running VMs")+
-              '<span class="right">'+quotas.str+"</span>"+
-            '</li>'+
-            '<li class="provision-bullet-item text-left">'+
-              '<div class="progress small radius" style="background: #f7f7f7">'+
-              '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
-              '</div>'+
+            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
+              '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
+              '<span class="right">' + quotas.str + "</span>" +
+            '</li>' +
+            '<li class="provision-bullet-item text-left">' +
+              '<div class="progress small radius" style="background: #f7f7f7">' +
+              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
+              '</div>' +
             '</li>');
 
             quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
 
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">'+
-              Locale.tr("CPU")+
-              '<span class="right">'+quotas.str+"</span>"+
-            '</li>'+
-            '<li class="provision-bullet-item text-left">'+
-              '<div class="progress small radius" style="background: #f7f7f7">'+
-              '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
-              '</div>'+
+            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
+              '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
+              '<span class="right">' + quotas.str + "</span>" +
+            '</li>' +
+            '<li class="provision-bullet-item text-left">' +
+              '<div class="progress small radius" style="background: #f7f7f7">' +
+              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
+              '</div>' +
             '</li>');
 
             quotas = QuotaWidgets.quotaMBInfo(0, 0, null, true);
 
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">'+
-              Locale.tr("Memory")+
-              '<span class="right">'+quotas.str+"</span>"+
-            '</li>'+
-            '<li class="provision-bullet-item text-left">'+
-              '<div class="progress small radius" style="background: #f7f7f7">'+
-              '  <span class="meter" style="width: '+quotas.percentage+'%;"></span>'+
-              '</div>'+
+            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
+              '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
+              '<span class="right">' + quotas.str + "</span>" +
+            '</li>' +
+            '<li class="provision-bullet-item text-left">' +
+              '<div class="progress small radius" style="background: #f7f7f7">' +
+              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
+              '</div>' +
             '</li>');
           }
 
-          $(".provision-pricing-table_user_info", context).append(
-              '<li class="text-left provision-bullet-item">'+
-                '<hr style="margin: 0px">'+
-              '</li>'+
-              '<li class="provision-bullet-item ">'+
-                '<span class="provision_vdc_user_info_show_vms button medium radius" data-tooltip title="'+Locale.tr("User Virtual Machines")+'" style="margin-right: 10px">'+
-                  '<i class="fa fa-th fa-lg"></i>'+
-                '</span>'+
-                '<span class="provision_vdc_user_info_show_templates button medium radius" data-tooltip title="'+Locale.tr("User Saved Templates")+'" style="margin-right: 10px">'+
-                  '<i class="fa fa-save fa-lg"></i>'+
-                '</span>'+
-                '<span class="provision_vdc_user_info_show_flows button medium radius" data-tooltip title="'+Locale.tr("User Services")+'" style="margin-right: 10px">'+
-                  '<i class="fa fa-cubes fa-lg"></i>'+
-                '</span>'+
-                '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="'+Locale.tr("User Accounting")+'" style="margin-right: 10px">'+
-                  '<i class="fa fa-bar-chart-o fa-lg"></i>'+
-                '</span>'+
-                (Config.isFeatureEnabled("showback") ? '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="'+Locale.tr("User Showback")+'" style="margin-right: 10px">'+
-                  '<i class="fa fa-money fa-lg"></i>'+
-                '</span>' : '') +
-              '</li>'+
-              '<li class="provision-bullet-item text-left">'+
-              '</li>')
+          $(".provision-user-resource-header", context).html(
+                '<span class="provision_vdc_user_info_show_vms button medium radius" data-tooltip title="' + Locale.tr("User Virtual Machines") + '" style="margin-right: 10px">' +
+                  '<i class="fa fa-th fa-lg"></i>' +
+                '</span>' +
+                '<span class="provision_vdc_user_info_show_templates button medium radius" data-tooltip title="' + Locale.tr("User Saved Templates") + '" style="margin-right: 10px">' +
+                  '<i class="fa fa-save fa-lg"></i>' +
+                '</span>' +
+                '<span class="provision_vdc_user_info_show_flows button medium radius" data-tooltip title="' + Locale.tr("User Services") + '" style="margin-right: 10px">' +
+                  '<i class="fa fa-cubes fa-lg"></i>' +
+                '</span>' +
+                '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="' + Locale.tr("User Accounting") + '" style="margin-right: 10px">' +
+                  '<i class="fa fa-bar-chart-o fa-lg"></i>' +
+                '</span>' +
+                (Config.isFeatureEnabled("showback") ? '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="' + Locale.tr("User Showback") + '" style="margin-right: 10px">' +
+                  '<i class="fa fa-money fa-lg"></i>' +
+                '</span>' : ''))
 
           var start_time =  Math.floor(new Date().getTime() / 1000);
           // ms to s
@@ -424,11 +366,11 @@ define(function(require) {
           var no_table = true;
 
           OpenNebula.VM.accounting({
-              success: function(req, response){
-                  Accounting.fillAccounting($(".dashboard_vm_accounting", context), req, response, no_table);
-              },
-              error: Notifier.onError,
-              data: options
+            success: function(req, response) {
+              Accounting.fillAccounting($(".dashboard_vm_accounting", context), req, response, no_table);
+            },
+            error: Notifier.onError,
+            data: options
           });
 
           $(".provision_info_vdc_user", context).show();
@@ -443,7 +385,7 @@ define(function(require) {
     // Info User
     //
 
-    $(".provision_list_users", context).on("click", ".provision_info_user_button", function(){
+    $(".provision_list_users", context).on("click", ".provision_info_user_button", function() {
       $("a.provision_show_user_accordion", context).trigger("click");
       // TODO loading
 
@@ -451,16 +393,16 @@ define(function(require) {
       update_provision_vdc_user_info(user_id, context);
     })
 
-    context.on("click", ".provision_vdc_user_info_show_vms", function(){
-      $(".provision_vdc_info_container", context).html('<div class="text-center">'+
-        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-        '</span>'+
-        '<br>'+
-        '<br>'+
-        '<span style="font-size: 18px; color: #999">'+
-        '</span>'+
+    context.on("click", ".provision_vdc_user_info_show_vms", function() {
+      $(".provision_vdc_info_container", context).html('<div class="text-center">' +
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+          '<i class="fa fa-cloud fa-stack-2x"></i>' +
+          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+        '</span>' +
+        '<br>' +
+        '<br>' +
+        '<span style="font-size: 18px; color: #999">' +
+        '</span>' +
         '</div>');
 
       ProvisionVmsList.generate(
@@ -475,19 +417,19 @@ define(function(require) {
         });
     })
 
-    context.on("click", ".provision_vdc_user_info_show_templates", function(){
-      $(".provision_vdc_info_container", context).html('<div class="text-center">'+
-        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-        '</span>'+
-        '<br>'+
-        '<br>'+
-        '<span style="font-size: 18px; color: #999">'+
-        '</span>'+
+    context.on("click", ".provision_vdc_user_info_show_templates", function() {
+      $(".provision_vdc_info_container", context).html('<div class="text-center">' +
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+          '<i class="fa fa-cloud fa-stack-2x"></i>' +
+          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+        '</span>' +
+        '<br>' +
+        '<br>' +
+        '<span style="font-size: 18px; color: #999">' +
+        '</span>' +
         '</div>');
 
-      generate_provision_templates_list(
+      ProvisionTemplatesList.generate(
         $(".provision_vdc_info_container", context),
         {
           title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + Locale.tr("Templates"),
@@ -499,19 +441,19 @@ define(function(require) {
         });
     })
 
-    context.on("click", ".provision_vdc_user_info_show_flows", function(){
-      $(".provision_vdc_info_container", context).html('<div class="text-center">'+
-        '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-          '<i class="fa fa-cloud fa-stack-2x"></i>'+
-          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-        '</span>'+
-        '<br>'+
-        '<br>'+
-        '<span style="font-size: 18px; color: #999">'+
-        '</span>'+
+    context.on("click", ".provision_vdc_user_info_show_flows", function() {
+      $(".provision_vdc_info_container", context).html('<div class="text-center">' +
+        '<span class="fa-stack fa-5x" style="color: #dfdfdf">' +
+          '<i class="fa fa-cloud fa-stack-2x"></i>' +
+          '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+        '</span>' +
+        '<br>' +
+        '<br>' +
+        '<span style="font-size: 18px; color: #999">' +
+        '</span>' +
         '</div>');
 
-      generate_provision_flows_list(
+      ProvisionFlowsList.generate(
         $(".provision_vdc_info_container", context),
         {
           title:  $(".provision_info_vdc_user", context).attr("uname") + ' ' + Locale.tr("Services"),
@@ -523,96 +465,95 @@ define(function(require) {
         });
     })
 
-
-    context.on("click", ".provision_vdc_user_info_show_acct", function(){
+    context.on("click", ".provision_vdc_user_info_show_acct", function() {
       $(".provision_vdc_info_container", context).html("");
 
       $(".provision_vdc_info_container", context).html(Accounting.html());
       Accounting.setup(
         $(".provision_vdc_info_container", context),
-          { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id"),
-            init_group_by: "vm" });
+          {fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id"),
+            init_group_by: "vm"});
 
       $(".provision_vdc_info_container", context).prepend(
-        '<h2 class="subheader">'+
-          $(".provision_info_vdc_user", context).attr("uname") + ' ' + Locale.tr("Accounting")+
+        '<h2 class="subheader">' +
+          $(".provision_info_vdc_user", context).attr("uname") + ' ' + Locale.tr("Accounting") +
         '</h2>')
     })
 
     if (Config.isFeatureEnabled("showback")) { 
-      context.on("click", ".provision_vdc_user_info_show_showback", function(){
+      context.on("click", ".provision_vdc_user_info_show_showback", function() {
         $(".provision_vdc_info_container", context).html("");
 
         $(".provision_vdc_info_container", context).html(Showback.html());
         Showback.setup(
           $(".provision_vdc_info_container", context),
-            { fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id"),
-              fixed_group: "" });
+            {fixed_user: $(".provision_info_vdc_user", context).attr("opennebula_id"),
+              fixed_group: ""});
 
         $(".provision_vdc_info_container", context).prepend(
-          '<h2 class="subheader">'+
-            $(".provision_info_vdc_user", context).attr("uname") + ' ' + Locale.tr("Showback")+
+          '<h2 class="subheader">' +
+            $(".provision_info_vdc_user", context).attr("uname") + ' ' + Locale.tr("Showback") +
           '</h2>')
       })
     };
 
-    context.on("click", ".provision_vdc_user_delete_confirm_button", function(){
+    context.on("click", ".provision_vdc_user_delete_confirm_button", function() {
       $(".provision_vdc_user_confirm_action", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("Be careful, this action will inmediately remove the User from OpenNebula")+
-              '</span>'+
-            '</div>'+
-          '</div>'+
-          '<br>'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<a href"#" class="provision_delete_button alert button large-12 large radius">'+Locale.tr("Delete User")+'</a>'+
-            '</div>'+
-          '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '<div data-alert class="alert-box secondary radius">' +
+          '<div class="row">' +
+            '<div class="large-10 large-centered columns">' +
+              '<span style="font-size: 14px; line-height: 20px">' +
+                Locale.tr("Be careful, this action will inmediately remove the User from OpenNebula") +
+              '</span>' +
+            '</div>' +
+          '</div>' +
+          '<br>' +
+          '<div class="row">' +
+            '<div class="large-10 large-centered columns">' +
+              '<a href"#" class="provision_delete_button alert button large-12 large radius">' + Locale.tr("Delete User") + '</a>' +
+            '</div>' +
+          '</div>' +
+          '<a href="#" class="close" style="top: 20px">&times;</a>' +
         '</div>');
     });
 
-    context.on("click", ".provision_vdc_user_password_confirm_button", function(){
+    context.on("click", ".provision_vdc_user_password_confirm_button", function() {
       $(".provision_vdc_user_confirm_action", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<input type="password" class="provision_vdc_user_new_password provision-input" placeholder="'+Locale.tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<input type="password" class="provision_vdc_user_new_confirm_password provision-input" placeholder="'+Locale.tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-              '<br>'+
-            '</div>'+
-          '</div>'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<button href"#" type="submit" class="provision_vdc_user_change_password_button button success large radius large-12 small-12">'+Locale.tr("Update Password")+'</button>'+
-            '</div>'+
-          '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '<div data-alert class="alert-box secondary radius">' +
+          '<div class="row">' +
+            '<div class="large-10 large-centered columns">' +
+              '<input type="password" class="provision_vdc_user_new_password provision-input" placeholder="' + Locale.tr("New Password") + '" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row">' +
+            '<div class="large-10 large-centered columns">' +
+              '<input type="password" class="provision_vdc_user_new_confirm_password provision-input" placeholder="' + Locale.tr("Confirm Password") + '" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>' +
+              '<br>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row">' +
+            '<div class="large-10 large-centered columns">' +
+              '<button href"#" type="submit" class="provision_vdc_user_change_password_button button success large radius large-12 small-12">' + Locale.tr("Update Password") + '</button>' +
+            '</div>' +
+          '</div>' +
+          '<a href="#" class="close" style="top: 20px">&times;</a>' +
         '</div>');
 
-        context.on("click", ".provision_vdc_user_change_password_button", function(){
+      context.on("click", ".provision_vdc_user_change_password_button", function() {
           var button = $(this);
           button.attr("disabled", "disabled");
           var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
           var pw = $('.provision_vdc_user_new_password', context).val();
           var confirm_password = $('.provision_vdc_user_new_confirm_password', context).val();
 
-          if (!pw.length){
-              Notifier.notifyError(Locale.tr("Fill in a new password"));
-              return false;
+          if (!pw.length) {
+            Notifier.notifyError(Locale.tr("Fill in a new password"));
+            return false;
           }
 
-          if (pw !== confirm_password){
-              Notifier.notifyError(Locale.tr("Passwords do not match"));
-              return false;
+          if (pw !== confirm_password) {
+            Notifier.notifyError(Locale.tr("Passwords do not match"));
+            return false;
           }
 
           OpenNebula.User.passwd({
@@ -620,11 +561,11 @@ define(function(require) {
               id: user_id,
               extra_param: pw
             },
-            success: function(request, response){
+            success: function(request, response) {
               update_provision_vdc_user_info(user_id, context);
               button.removeAttr("disabled");
             },
-            error: function(request, response){
+            error: function(request, response) {
               Notifier.onError(request, response);
               button.removeAttr("disabled");
             }
@@ -633,48 +574,46 @@ define(function(require) {
         });
     });
 
-
-
-    context.on("click", ".provision_vdc_user_quota_confirm_button", function(){
+    context.on("click", ".provision_vdc_user_quota_confirm_button", function() {
       $(".provision_vdc_user_confirm_action", context).html(
-        '<div data-alert class="alert-box secondary radius">'+
+        '<div data-alert class="alert-box secondary radius">' +
           TemplateProvisionQuotaWidget() +
-          '<br>'+
-          '<br>'+
-          '<div class="row">'+
-            '<div class="large-10 large-centered columns">'+
-              '<a href"#" class="provision_update_quota_button success large button large-12 radius" style="margin-right: 15px">'+Locale.tr("Update User Quota")+'</a>'+
-            '</div>'+
-          '</div>'+
-          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+          '<br>' +
+          '<br>' +
+          '<div class="row">' +
+            '<div class="large-10 large-centered columns">' +
+              '<a href"#" class="provision_update_quota_button success large button large-12 radius" style="margin-right: 15px">' + Locale.tr("Update User Quota") + '</a>' +
+            '</div>' +
+          '</div>' +
+          '<a href="#" class="close" style="top: 20px">&times;</a>' +
         '</div>');
 
-        ProvisionQuotaWidget.setup(context);
+      ProvisionQuotaWidget.setup(context);
 
-        $(document).foundation();
+      $(document).foundation();
 
-        var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
-        if (quotas_str) {
-          var quotas = JSON.parse(quotas_str);
+      var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
+      if (quotas_str) {
+        var quotas = JSON.parse(quotas_str);
 
-          var vms_limit = QuotaLimits.QUOTA_LIMIT_DEFAULT;
-          var cpu_limit = QuotaLimits.QUOTA_LIMIT_DEFAULT;
-          var mem_limit = QuotaLimits.QUOTA_LIMIT_DEFAULT;
+        var vms_limit = QuotaLimits.QUOTA_LIMIT_DEFAULT;
+        var cpu_limit = QuotaLimits.QUOTA_LIMIT_DEFAULT;
+        var mem_limit = QuotaLimits.QUOTA_LIMIT_DEFAULT;
 
-          if ( quotas.VM != undefined ){
-            vms_limit = quotas.VM.VMS;
-            cpu_limit = quotas.VM.CPU;
-            mem_limit = quotas.VM.MEMORY;
+        if (quotas.VM != undefined) {
+          vms_limit = quotas.VM.VMS;
+          cpu_limit = quotas.VM.CPU;
+          mem_limit = quotas.VM.MEMORY;
 
-            if(mem_limit != QuotaLimits.QUOTA_LIMIT_UNLIMITED &&
-               mem_limit != QuotaLimits.QUOTA_LIMIT_DEFAULT){
+          if (mem_limit != QuotaLimits.QUOTA_LIMIT_UNLIMITED &&
+             mem_limit != QuotaLimits.QUOTA_LIMIT_DEFAULT) {
 
-              mem_limit = quotas.VM.MEMORY/1024;
-            }
+            mem_limit = quotas.VM.MEMORY / 1024;
           }
+        }
 
-          var fill_limits = function(limit, select, input){
-            switch(limit){
+        var fill_limits = function(limit, select, input) {
+            switch (limit){
               case QuotaLimits.QUOTA_LIMIT_DEFAULT:
                 select.val('default').change();
                 input.val('').change();
@@ -691,24 +630,24 @@ define(function(require) {
             }
           }
 
-          fill_limits(
-            vms_limit,
-            $("div.provision_rvms_quota select.provision_quota_select", context),
-            $(".provision_rvms_quota_input", context) );
+        fill_limits(
+          vms_limit,
+          $("div.provision_rvms_quota select.provision_quota_select", context),
+          $(".provision_rvms_quota_input", context));
 
-          fill_limits(
-            cpu_limit,
-            $("div.provision_cpu_quota select.provision_quota_select", context),
-            $(".provision_cpu_quota_input", context) );
+        fill_limits(
+          cpu_limit,
+          $("div.provision_cpu_quota select.provision_quota_select", context),
+          $(".provision_cpu_quota_input", context));
 
-          fill_limits(
-            mem_limit,
-            $("div.provision_memory_quota select.provision_quota_select", context),
-            $(".provision_memory_quota_tmp_input", context) );
-        }
+        fill_limits(
+          mem_limit,
+          $("div.provision_memory_quota select.provision_quota_select", context),
+          $(".provision_memory_quota_tmp_input", context));
+      }
     });
 
-    context.on("click", ".provision_delete_button", function(){
+    context.on("click", ".provision_delete_button", function() {
       var button = $(this);
       button.attr("disabled", "disabled");
       var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
@@ -716,19 +655,19 @@ define(function(require) {
         data : {
           id: user_id
         },
-        success: function(request, response){
+        success: function(request, response) {
           $(".provision_back", context).click();
           $(".provision_users_list_refresh_button", context).click();
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
       })
     });
 
-    context.on("click", ".provision_update_quota_button", function(){
+    context.on("click", ".provision_update_quota_button", function() {
       var button = $(this);
       button.attr("disabled", "disabled");
       var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
@@ -740,18 +679,18 @@ define(function(require) {
           id: user_id,
           extra_param: quota_json
         },
-        success: function(request, response){
+        success: function(request, response) {
           update_provision_vdc_user_info(user_id, context);
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
       })
     });
 
-    context.on("click", ".provision_refresh_info", function(){
+    context.on("click", ".provision_refresh_info", function() {
       var user_id = $(".provision_info_vdc_user", context).attr("opennebula_id");
       update_provision_vdc_user_info(user_id, context);
       return false;
