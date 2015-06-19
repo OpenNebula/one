@@ -24,7 +24,6 @@ module OpenNebula
         # Constants and Class Methods
         #######################################################################
 
-
         IMAGE_METHODS = {
             :info        => "image.info",
             :allocate    => "image.allocate",
@@ -36,7 +35,10 @@ module OpenNebula
             :chmod       => "image.chmod",
             :chtype      => "image.chtype",
             :clone       => "image.clone",
-            :rename      => "image.rename"
+            :rename      => "image.rename",
+            :snapshotdelete => "image.snapshotdelete",
+            :snapshotrevert => "image.snapshotrevert",
+            :snapshotflatten=> "image.snapshotflatten"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE USED_PERS}
@@ -224,6 +226,32 @@ module OpenNebula
             return call(IMAGE_METHODS[:rename], @pe_id, name)
         end
 
+        # Deletes Image from snapshot
+        #
+        # @param snap_id [Integet] ID of the snapshot to delete
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def snapshot_delete(snap_id)
+            return call(IMAGE_METHODS[:snapshotdelete], @pe_id, snap_id)
+        end
+
+        # Reverts Image state to a previous snapshot
+        #
+        # @param snap_id [Integet] ID of the snapshot to delete
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def snapshot_revert(snap_id)
+            return call(IMAGE_METHODS[:snapshotrevert], @pe_id, snap_id)
+        end
+
+        # Flattens an image snapshot
+        #
+        # @param snap_id [Integet] ID of the snapshot to flatten
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success or Error
+        def snapshot_flatten(snap_id)
+            return call(IMAGE_METHODS[:snapshotflatten], @pe_id, snap_id)
+        end
         #######################################################################
         # Helpers to get Image information
         #######################################################################

@@ -56,7 +56,9 @@ Image::Image(int             _uid,
         ds_id(-1),
         ds_name(""),
         vm_collection("VMS"),
-        img_clone_collection("CLONES")
+        img_clone_collection("CLONES"),
+        snapshots(-1),
+        target_snapshot(-1)
 {
     if (_image_template != 0)
     {
@@ -124,9 +126,9 @@ int Image::insert(SqlDB *db, string& error_str)
         type_att = ImagePool::default_type();
     }
 
-    if (set_type(type_att) != 0)
+    if (set_type(type_att, error_str) != 0)
     {
-        goto error_type;
+        goto error_common;
     }
 
     // ------------ PERSISTENT & PREFIX --------------------
@@ -181,7 +183,7 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
 
-    if (!isSaving()) //Not a saving image
+    if (!is_saving()) //Not a saving image
     {
         if ( source.empty() && path.empty() )
         {
@@ -217,10 +219,6 @@ int Image::insert(SqlDB *db, string& error_str)
     rc = insert_replace(db, false, error_str);
 
     return rc;
-
-error_type:
-    error_str = "Incorrect TYPE in template.";
-    goto error_common;
 
 error_no_path:
     error_str = "No PATH in template.";
@@ -334,11 +332,12 @@ error_common:
 
 string& Image::to_xml(string& xml) const
 {
-    string          template_xml;
-    string          perms_xml;
-    ostringstream   oss;
-    string          vm_collection_xml;
-    string          clone_collection_xml;
+    string        template_xml;
+    string        perms_xml;
+    ostringstream oss;
+    string        vm_collection_xml;
+    string        clone_collection_xml;
+    string        snapshots_xml;
 
     oss <<
         "<IMAGE>" <<
@@ -361,11 +360,13 @@ string& Image::to_xml(string& xml) const
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
             "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
             "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
+            "<TARGET_SNAPSHOT>"<< target_snapshot << "</TARGET_SNAPSHOT>"<<
             "<DATASTORE_ID>"   << ds_id           << "</DATASTORE_ID>"<<
             "<DATASTORE>"      << ds_name         << "</DATASTORE>"   <<
             vm_collection.to_xml(vm_collection_xml)                   <<
             img_clone_collection.to_xml(clone_collection_xml)         <<
             obj_template->to_xml(template_xml)                        <<
+            snapshots.to_xml(snapshots_xml)                           <<
         "</IMAGE>";
 
     xml = oss.str();
@@ -409,6 +410,8 @@ int Image::from_xml(const string& xml)
     rc += xpath(running_vms,    "/IMAGE/RUNNING_VMS",   -1);
     rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
     rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
+
+    xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
 
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
@@ -462,6 +465,17 @@ int Image::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
 
+    content.clear();
+
+    ObjectXML::get_nodes("/IMAGE/SNAPSHOTS", content);
+
+    if (!content.empty())
+    {
+        rc += snapshots.from_xml_node(content[0]);
+
+        ObjectXML::free_nodes(content);
+        content.clear();
+    }
 
     if (rc != 0)
     {
@@ -610,9 +624,9 @@ int Image::disk_attribute(  VectorAttribute *       disk,
                     new_disk_type = RBD_CDROM;
                     break;
 
-		case SHEEPDOG:
-		    new_disk_type = SHEEPDOG_CDROM;
-		    break;
+                case SHEEPDOG:
+                    new_disk_type = SHEEPDOG_CDROM;
+                    break;
 
                 case GLUSTER:
                     new_disk_type = GLUSTER_CDROM;
@@ -656,11 +670,17 @@ int Image::disk_attribute(  VectorAttribute *       disk,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::set_type(string& _type)
+int Image::set_type(string& _type, string& error)
 {
     int rc = 0;
 
     TO_UPPER(_type);
+
+    if ((_type != "OS" && _type != "DATABLOCK") && (snapshots.size() > 0))
+    {
+        error = "Image with snapshots can be only of type OS or DATABLOCK";
+        return -1;
+    }
 
     if ( _type == "OS" )
     {
@@ -688,6 +708,7 @@ int Image::set_type(string& _type)
     }
     else
     {
+        error = "Unknown type " + type;
         rc = -1;
     }
 
@@ -709,7 +730,7 @@ ImageTemplate * Image::clone_template(const string& new_name) const
     tmpl->replace("FSTYPE", fs_type);
     tmpl->replace("SIZE",   size_mb);
 
-    if ( isPersistent() )
+    if ( is_persistent() )
     {
         tmpl->replace("PERSISTENT", "YES");
     }

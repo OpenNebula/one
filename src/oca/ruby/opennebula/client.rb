@@ -130,7 +130,7 @@ module OpenNebula
                 raise "ONE_AUTH file not present"
             end
 
-            @one_auth.rstrip!
+            @one_auth = @one_auth.rstrip
 
             if endpoint
                 @one_endpoint = endpoint
@@ -143,6 +143,8 @@ module OpenNebula
             else
                 @one_endpoint = "http://localhost:2633/RPC2"
             end
+
+            @one_endpoint= @one_endpoint.rstrip
 
             @async = !options[:sync]
 

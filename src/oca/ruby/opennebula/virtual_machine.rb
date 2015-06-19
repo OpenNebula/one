@@ -29,8 +29,6 @@ module OpenNebula
             :action         => "vm.action",
             :migrate        => "vm.migrate",
             :deploy         => "vm.deploy",
-            :savedisk       => "vm.savedisk",
-            :savediskcancel => "vm.savediskcancel",
             :chown          => "vm.chown",
             :chmod          => "vm.chmod",
             :monitoring     => "vm.monitoring",
@@ -44,7 +42,11 @@ module OpenNebula
             :snapshotdelete => "vm.snapshotdelete",
             :attachnic      => "vm.attachnic",
             :detachnic      => "vm.detachnic",
-            :recover        => "vm.recover"
+            :recover        => "vm.recover",
+            :disksaveas     => "vm.disksaveas",
+            :disksnapshotcreate => "vm.disksnapshotcreate",
+            :disksnapshotrevert => "vm.disksnapshotrevert",
+            :disksnapshotdelete => "vm.disksnapshotdelete"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -102,6 +104,9 @@ module OpenNebula
             BOOT_STOPPED_FAILURE
             PROLOG_RESUME_FAILURE
             PROLOG_UNDEPLOY_FAILURE
+            DISK_SNAPSHOT_POWEROFF
+            DISK_SNAPSHOT_REVERT_POWEROFF
+            DISK_SNAPSHOT_DELETE_POWEROFF
         }
 
         SHORT_VM_STATES={
@@ -167,7 +172,10 @@ module OpenNebula
             "BOOT_UNDEPLOY_FAILURE"     => "fail",
             "BOOT_STOPPED_FAILURE"      => "fail",
             "PROLOG_RESUME_FAILURE"     => "fail",
-            "PROLOG_UNDEPLOY_FAILURE"   => "fail"
+            "PROLOG_UNDEPLOY_FAILURE"   => "fail",
+            "DISK_SNAPSHOT_POWEROFF"    => "snap",
+            "DISK_SNAPSHOT_REVERT_POWEROFF" => "snap",
+            "DISK_SNAPSHOT_DELETE_POWEROFF" => "snap"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}
@@ -451,7 +459,7 @@ module OpenNebula
             migrate(host_id, true, enforce)
         end
 
-        # Set the specified vm's disk to be saved in a new image
+        # Set the specified vm's disk to be saved as a new image
         # when the VirtualMachine shutdowns
         #
         # @param disk_id [Integer] ID of the disk to be saved
@@ -459,34 +467,21 @@ module OpenNebula
         #   disk will be saved
         # @param image_type [String] Type of the new image. Set to empty string
         #   to use the default type
-        # @param hot [true|false] True to save the disk immediately, false will
-        #   perform the operation when the VM shuts down
+        # @param snap_id [Integer] ID of the snapshot to save, -1 to use the
+        # current disk image state
         #
         # @return [Integer, OpenNebula::Error] the new Image ID in case of
         #   success, error otherwise
-        def disk_snapshot(disk_id, image_name, image_type="", hot=false)
+        def disk_saveas(disk_id, image_name, image_type="", snap_id=-1)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(VM_METHODS[:savedisk],
+            rc = @client.call(VM_METHODS[:disksaveas],
                               @pe_id,
                               disk_id,
                               image_name,
                               image_type,
-                              hot)
+                              snap_id)
             return rc
-        end
-
-        # @deprecated use {#disk_snapshot}
-        def save_as(disk_id, image_name, image_type="", hot=false)
-            return disk_snapshot(disk_id, image_name, image_type, hot)
-        end
-
-        # Cancels a deferred snapshot that has been set by disk_snapshot.
-        # The target image is also deleted.
-        def disk_snapshot_cancel(disk_id)
-            return call(VM_METHODS[:savediskcancel],
-                              @pe_id,
-                              disk_id)
         end
 
         # Resize the VM
@@ -608,6 +603,38 @@ module OpenNebula
         #   otherwise
         def snapshot_delete(snap_id)
             return call(VM_METHODS[:snapshotdelete], @pe_id, snap_id)
+        end
+
+        # Takes a new snapshot of a disk
+        #
+        # @param disk_id [Integer] Id of the disk
+        # @param tag [String] description for the snapshot
+        #
+        # @return [Integer, OpenNebula::Error] The new snapshot ID or error
+        def disk_snapshot_create(disk_id, tag)
+          return call(VM_METHODS[:disksnapshotcreate], @pe_id, disk_id, tag)
+        end
+
+        # Reverts disk state to a previously taken snapshot
+        #
+        # @param disk_id [Integer] Id of the disk
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disk_snapshot_revert(disk_id, snap_id)
+          return call(VM_METHODS[:disksnapshotrevert], @pe_id, disk_id, snap_id)
+        end
+
+        # Deletes a disk snapshot
+        #
+        # @param disk_id [Integer] Id of the disk
+        # @param snap_id [Integer] Id of the snapshot
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disk_snapshot_delete(disk_id, snap_id)
+          return call(VM_METHODS[:disksnapshotdelete], @pe_id, disk_id, snap_id)
         end
 
         # Recovers an ACTIVE VM
@@ -743,8 +770,7 @@ module OpenNebula
                 image_id = disk["IMAGE_ID"]
 
                 if !image_id.nil? && !image_id.empty?
-                    rc = disk_snapshot(disk_id.to_i, "#{name}-disk-#{disk_id}",
-                        "", true)
+                    rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
 
                     return rc if OpenNebula.is_error?(rc)
 

@@ -1018,7 +1018,11 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/context \
                  src/tm_mad/shared/premigrate \
                  src/tm_mad/shared/postmigrate \
+                 src/tm_mad/shared/failmigrate \
                  src/tm_mad/shared/mvds \
+                 src/tm_mad/shared/snap_create \
+                 src/tm_mad/shared/snap_delete \
+                 src/tm_mad/shared/snap_revert \
                  src/tm_mad/shared/cpds"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
@@ -1028,6 +1032,10 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
                  src/tm_mad/fs_lvm/cpds \
                  src/tm_mad/fs_lvm/premigrate \
                  src/tm_mad/fs_lvm/postmigrate \
+                 src/tm_mad/fs_lvm/snap_create \
+                 src/tm_mad/fs_lvm/snap_delete \
+                 src/tm_mad/fs_lvm/snap_revert \
+                 src/tm_mad/fs_lvm/failmigrate \
                  src/tm_mad/fs_lvm/delete"
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
@@ -1039,7 +1047,11 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/context \
                  src/tm_mad/qcow2/premigrate \
                  src/tm_mad/qcow2/postmigrate \
+                 src/tm_mad/qcow2/failmigrate \
                  src/tm_mad/qcow2/mvds \
+                 src/tm_mad/qcow2/snap_create \
+                 src/tm_mad/qcow2/snap_delete \
+                 src/tm_mad/qcow2/snap_revert \
                  src/tm_mad/qcow2/cpds"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
@@ -1051,7 +1063,11 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/context \
               src/tm_mad/ssh/premigrate \
               src/tm_mad/ssh/postmigrate \
+              src/tm_mad/ssh/failmigrate \
               src/tm_mad/ssh/mvds \
+              src/tm_mad/ssh/snap_create \
+              src/tm_mad/ssh/snap_delete \
+              src/tm_mad/ssh/snap_revert \
               src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
@@ -1063,7 +1079,11 @@ TM_DUMMY_FILES="src/tm_mad/dummy/clone \
               src/tm_mad/dummy/context \
               src/tm_mad/dummy/premigrate \
               src/tm_mad/dummy/postmigrate \
+              src/tm_mad/dummy/failmigrate \
               src/tm_mad/dummy/mvds \
+              src/tm_mad/dummy/snap_create \
+              src/tm_mad/dummy/snap_delete \
+              src/tm_mad/dummy/snap_revert \
               src/tm_mad/dummy/cpds"
 
 TM_VMFS_FILES="src/tm_mad/vmfs/clone \
@@ -1076,6 +1096,10 @@ TM_VMFS_FILES="src/tm_mad/vmfs/clone \
                  src/tm_mad/vmfs/mvds \
                  src/tm_mad/vmfs/cpds \
                  src/tm_mad/vmfs/postmigrate \
+                 src/tm_mad/vmfs/snap_create \
+                 src/tm_mad/vmfs/snap_delete \
+                 src/tm_mad/vmfs/snap_revert \
+                 src/tm_mad/vmfs/failmigrate \
                  src/tm_mad/vmfs/premigrate"
 
 TM_LVM_FILES="src/tm_mad/lvm/clone \
@@ -1085,6 +1109,10 @@ TM_LVM_FILES="src/tm_mad/lvm/clone \
                  src/tm_mad/lvm/cpds \
                  src/tm_mad/lvm/premigrate \
                  src/tm_mad/lvm/postmigrate \
+                 src/tm_mad/lvm/snap_create \
+                 src/tm_mad/lvm/snap_delete \
+                 src/tm_mad/lvm/snap_revert \
+                 src/tm_mad/lvm/failmigrate \
                  src/tm_mad/lvm/delete"
 
 TM_CEPH_FILES="src/tm_mad/ceph/clone \
@@ -1094,6 +1122,10 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/cpds \
                  src/tm_mad/ceph/premigrate \
                  src/tm_mad/ceph/postmigrate \
+                 src/tm_mad/ceph/snap_create \
+                 src/tm_mad/ceph/snap_delete \
+                 src/tm_mad/ceph/snap_revert \
+                 src/tm_mad/ceph/failmigrate \
                  src/tm_mad/ceph/delete"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
@@ -1103,6 +1135,10 @@ TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/cpds \
                  src/tm_mad/dev/premigrate \
                  src/tm_mad/dev/postmigrate \
+                 src/tm_mad/dev/snap_create \
+                 src/tm_mad/dev/snap_delete \
+                 src/tm_mad/dev/snap_revert \
+                 src/tm_mad/dev/failmigrate \
                  src/tm_mad/dev/delete"
 
 #-------------------------------------------------------------------------------
@@ -1122,6 +1158,9 @@ DATASTORE_DRIVER_DUMMY_SCRIPTS="src/datastore_mad/remotes/dummy/cp \
                          src/datastore_mad/remotes/dummy/stat \
                          src/datastore_mad/remotes/dummy/clone \
                          src/datastore_mad/remotes/dummy/monitor \
+                         src/datastore_mad/remotes/dummy/snap_delete \
+                         src/datastore_mad/remotes/dummy/snap_revert \
+                         src/datastore_mad/remotes/dummy/snap_flatten \
                          src/datastore_mad/remotes/dummy/rm"
 
 DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
@@ -1129,6 +1168,9 @@ DATASTORE_DRIVER_FS_SCRIPTS="src/datastore_mad/remotes/fs/cp \
                          src/datastore_mad/remotes/fs/stat \
                          src/datastore_mad/remotes/fs/clone \
                          src/datastore_mad/remotes/fs/monitor \
+                         src/datastore_mad/remotes/fs/snap_delete \
+                         src/datastore_mad/remotes/fs/snap_revert \
+                         src/datastore_mad/remotes/fs/snap_flatten \
                          src/datastore_mad/remotes/fs/rm"
 
 DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
@@ -1137,6 +1179,9 @@ DATASTORE_DRIVER_VMFS_SCRIPTS="src/datastore_mad/remotes/vmfs/cp \
                          src/datastore_mad/remotes/vmfs/clone \
                          src/datastore_mad/remotes/vmfs/monitor \
                          src/datastore_mad/remotes/vmfs/rm \
+                         src/datastore_mad/remotes/vmfs/snap_delete \
+                         src/datastore_mad/remotes/vmfs/snap_revert \
+                         src/datastore_mad/remotes/vmfs/snap_flatten \
                          src/datastore_mad/remotes/vmfs/vmfs.conf"
 
 DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
@@ -1145,6 +1190,9 @@ DATASTORE_DRIVER_LVM_SCRIPTS="src/datastore_mad/remotes/lvm/cp \
                          src/datastore_mad/remotes/lvm/rm \
                          src/datastore_mad/remotes/lvm/monitor \
                          src/datastore_mad/remotes/lvm/clone \
+                         src/datastore_mad/remotes/lvm/snap_delete \
+                         src/datastore_mad/remotes/lvm/snap_revert \
+                         src/datastore_mad/remotes/lvm/snap_flatten \
                          src/datastore_mad/remotes/lvm/lvm.conf"
 
 DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
@@ -1153,6 +1201,9 @@ DATASTORE_DRIVER_CEPH_SCRIPTS="src/datastore_mad/remotes/ceph/cp \
                          src/datastore_mad/remotes/ceph/rm \
                          src/datastore_mad/remotes/ceph/monitor \
                          src/datastore_mad/remotes/ceph/clone \
+                         src/datastore_mad/remotes/ceph/snap_delete \
+                         src/datastore_mad/remotes/ceph/snap_revert \
+                         src/datastore_mad/remotes/ceph/snap_flatten \
                          src/datastore_mad/remotes/ceph/ceph.conf"
 
 DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
@@ -1160,6 +1211,9 @@ DATASTORE_DRIVER_DEV_SCRIPTS="src/datastore_mad/remotes/dev/cp \
                          src/datastore_mad/remotes/dev/stat \
                          src/datastore_mad/remotes/dev/rm \
                          src/datastore_mad/remotes/dev/monitor \
+                         src/datastore_mad/remotes/dev/snap_delete \
+                         src/datastore_mad/remotes/dev/snap_revert \
+                         src/datastore_mad/remotes/dev/snap_flatten \
                          src/datastore_mad/remotes/dev/clone"
 
 #-------------------------------------------------------------------------------

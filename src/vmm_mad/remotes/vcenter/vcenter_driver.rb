@@ -146,7 +146,50 @@ class VIClient
     # The associated resource pool for this connection
     ########################################################################
     def resource_pool
-        return @cluster.resourcePool
+        rp_name = @one_host["TEMPLATE/VCENTER_RESOURCE_POOL"]
+
+       if rp_name.nil?
+          @cluster.resourcePool
+       else
+          find_resource_pool(rp_name)
+       end
+    end
+
+    ########################################################################
+    # Searches the desired ResourcePool of the DataCenter for the current
+    # connection. Returns a RbVmomi::VIM::ResourcePool or the default pool
+    # if not found
+    # @param rpool [String] the ResourcePool name
+    ########################################################################
+    def find_resource_pool(poolName)  
+        baseEntity = @cluster
+        entityArray = poolName.split('/')
+        entityArray.each do |entityArrItem|
+          if entityArrItem != ''
+            if baseEntity.is_a? RbVmomi::VIM::Folder
+                baseEntity = baseEntity.childEntity.find { |f| 
+                                  f.name == entityArrItem 
+                              } or return @cluster.resourcePool
+            elsif baseEntity.is_a? RbVmomi::VIM::ClusterComputeResource
+                baseEntity = baseEntity.resourcePool.resourcePool.find { |f| 
+                                  f.name == entityArrItem 
+                              } or return @cluster.resourcePool
+            elsif baseEntity.is_a? RbVmomi::VIM::ResourcePool
+                baseEntity = baseEntity.resourcePool.find { |f| 
+                                  f.name == entityArrItem
+                              } or return @cluster.resourcePool
+            else
+                return @cluster.resourcePool
+            end
+          end
+        end
+  
+        if !baseEntity.is_a?(RbVmomi::VIM::ResourcePool) and 
+            baseEntity.respond_to?(:resourcePool)
+              baseEntity = baseEntity.resourcePool 
+        end
+  
+        baseEntity
     end
 
     ########################################################################
@@ -221,7 +264,7 @@ class VIClient
         datacenters.each { |dc|
             vms = get_entities(dc.vmFolder, 'VirtualMachine')
 
-            tmp = vms.select { |v| v.config.template == true }
+            tmp = vms.select { |v| v.config && (v.config.template == true) }
 
             one_tmp = []
 
@@ -691,6 +734,22 @@ class VCenterVm
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
             vm          = connection.find_vm_template(deploy_id)
+
+            # Find out if we need to reconfigure capacity
+            xml = REXML::Document.new xml_text
+
+            expected_cpu    = xml.root.elements["//TEMPLATE/VCPU"].text
+            expected_memory = xml.root.elements["//TEMPLATE/MEMORY"].text
+            current_cpu     = vm.config.hardware.numCPU
+            current_memory  = vm.config.hardware.memoryMB
+
+            if current_cpu != expected_cpu or current_memory != expected_memory
+                capacity_hash = {:numCPUs  => expected_cpu.to_i, 
+                                 :memoryMB => expected_memory }
+                spec = RbVmomi::VIM.VirtualMachineConfigSpec(capacity_hash)
+                vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+            end
+
             vm.PowerOnVM_Task.wait_for_completion
             return vm.config.uuid
         end
@@ -1200,7 +1259,6 @@ private
     def self.clone_vm(xml_text)
 
         xml = REXML::Document.new xml_text
-
         pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
         raise "Cannot find VCenter element in VM template." if pcs.nil?
@@ -1217,33 +1275,29 @@ private
         raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
 
         uuid = uuid.text
-
         vmid = xml.root.elements["/VM/ID"].text
-
         hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
         context = xml.root.elements["//TEMPLATE/CONTEXT"]
-
         connection  = VIClient.new(hid)
-
         vc_template = connection.find_vm_template(uuid)
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
-            :diskMoveType => :moveChildMostDiskBacking,
-            :pool         => connection.resource_pool)
+                          :diskMoveType => :moveChildMostDiskBacking,
+                          :pool         => connection.resource_pool)
 
         clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
-            :location => relocate_spec,
-            :powerOn  => false,
-            :template => false)
+                      :location => relocate_spec,
+                      :powerOn  => false,
+                      :template => false)
 
         begin
             vm = vc_template.CloneVM_Task(
-                :folder => vc_template.parent,
-                :name   => "one-#{vmid}",
-                :spec   => clone_spec).wait_for_completion
+                   :folder => vc_template.parent,
+                   :name   => "one-#{vmid}",
+                   :spec   => clone_spec).wait_for_completion
         rescue Exception => e
 
             if !e.message.start_with?('DuplicateName')
@@ -1254,8 +1308,7 @@ private
 
             raise "Cannot clone VM Template" if vm.nil?
 
-            vm.Destroy_Task.wait_for_completion
-            
+            vm.Destroy_Task.wait_for_completion   
             vm = vc_template.CloneVM_Task(
                 :folder => vc_template.parent,
                 :name   => "one-#{vmid}",
@@ -1309,6 +1362,7 @@ private
         end
 
         # NIC section, build the reconfig hash
+
         nics     = xml.root.get_elements("//TEMPLATE/NIC")
         nic_spec = {}
 
@@ -1324,12 +1378,19 @@ private
             nic_spec = {:deviceChange => nic_array}
         end
 
-        if !context_vnc_spec.empty? or !nic_spec.empty?
-            spec_hash = context_vnc_spec.merge(nic_spec)
-            spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
-            vm.ReconfigVM_Task(:spec => spec).wait_for_completion
-        end
+        # Capacity section
 
+        cpu           = xml.root.elements["//TEMPLATE/VCPU"].text
+        memory        = xml.root.elements["//TEMPLATE/MEMORY"].text
+        capacity_spec = {:numCPUs  => cpu.to_i, 
+                         :memoryMB => memory }
+
+        # Perform the VM reconfiguration
+        spec_hash = context_vnc_spec.merge(nic_spec).merge(capacity_spec)
+        spec      = RbVmomi::VIM.VirtualMachineConfigSpec(spec_hash)
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+
+        # Power on the VM
         vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid

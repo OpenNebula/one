@@ -136,7 +136,7 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                    lcm_action = LifeCycleManager::SAVEAS_HOT_SUCCESS;
+                    lcm_action = LifeCycleManager::SAVEAS_SUCCESS;
                     break;
 
                 case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
@@ -145,6 +145,12 @@ void TransferManagerDriver::protocol(const string& message) const
 
                 case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
                     lcm_action = LifeCycleManager::DETACH_SUCCESS;
+                    break;
+
+                case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+                    lcm_action = LifeCycleManager::DISK_SNAPSHOT_SUCCESS;
                     break;
 
                 default:
@@ -191,7 +197,7 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::HOTPLUG_SAVEAS:
                 case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                 case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                    lcm_action = LifeCycleManager::SAVEAS_HOT_FAILURE;
+                    lcm_action = LifeCycleManager::SAVEAS_FAILURE;
                     break;
 
                 case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
@@ -200,6 +206,12 @@ void TransferManagerDriver::protocol(const string& message) const
 
                 case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
                     lcm_action = LifeCycleManager::DETACH_FAILURE;
+                    break;
+
+                case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+                case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+                    lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
                     break;
 
                 default:

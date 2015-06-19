@@ -166,12 +166,12 @@ void LifeCycleManager::trigger(Actions action, int _vid)
         aname = "DETACH_FAILURE";
         break;
 
-    case SAVEAS_HOT_SUCCESS:
-        aname = "SAVEAS_HOT_SUCCESS";
+    case SAVEAS_SUCCESS:
+        aname = "SAVEAS_SUCCESS";
         break;
 
-    case SAVEAS_HOT_FAILURE:
-        aname = "SAVEAS_HOT_FAILURE";
+    case SAVEAS_FAILURE:
+        aname = "SAVEAS_FAILURE";
         break;
 
     case ATTACH_NIC_SUCCESS:
@@ -220,6 +220,14 @@ void LifeCycleManager::trigger(Actions action, int _vid)
 
     case SNAPSHOT_DELETE_FAILURE:
         aname = "SNAPSHOT_DELETE_FAILURE";
+        break;
+
+    case DISK_SNAPSHOT_SUCCESS:
+        aname = "DISK_SNAPSHOT_SUCCESS";
+        break;
+
+    case DISK_SNAPSHOT_FAILURE:
+        aname = "DISK_SNAPSHOT_FAILURE";
         break;
 
     case DEPLOY:
@@ -391,13 +399,13 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     {
         detach_failure_action(vid);
     }
-    else if (action == "SAVEAS_HOT_SUCCESS")
+    else if (action == "SAVEAS_SUCCESS")
     {
-        saveas_hot_success_action(vid);
+        saveas_success_action(vid);
     }
-    else if (action == "SAVEAS_HOT_FAILURE")
+    else if (action == "SAVEAS_FAILURE")
     {
-        saveas_hot_failure_action(vid);
+        saveas_failure_action(vid);
     }
     else if (action == "ATTACH_NIC_SUCCESS")
     {
@@ -446,6 +454,14 @@ void LifeCycleManager::do_action(const string &action, void * arg)
     else if (action == "SNAPSHOT_DELETE_FAILURE")
     {
         snapshot_delete_failure(vid);
+    }
+    else if (action == "DISK_SNAPSHOT_SUCCESS")
+    {
+        disk_snapshot_success(vid);
+    }
+    else if (action == "DISK_SNAPSHOT_FAILURE")
+    {
+        disk_snapshot_failure(vid);
     }
     else if (action == "DEPLOY")
     {

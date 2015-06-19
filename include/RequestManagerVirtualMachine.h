@@ -170,32 +170,15 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
-class VirtualMachineSaveDisk : public RequestManagerVirtualMachine
+class VirtualMachineDiskSaveas : public RequestManagerVirtualMachine
 {
 public:
-    VirtualMachineSaveDisk():
-        RequestManagerVirtualMachine("VirtualMachineSaveDisk",
-                           "Saves a disk from virtual machine as a new image",
-                           "A:siissb"){};
+    VirtualMachineDiskSaveas():
+        RequestManagerVirtualMachine("VirtualMachineDiskSaveas",
+                           "Save a disk from virtual machine as a new image",
+                           "A:siissi"){};
 
-    ~VirtualMachineSaveDisk(){};
-
-    void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-class VirtualMachineSaveDiskCancel : public RequestManagerVirtualMachine
-{
-public:
-    VirtualMachineSaveDiskCancel():
-        RequestManagerVirtualMachine("VirtualMachineSaveDiskCancel",
-                           "Cancels a disk snapshot set by VirtualMachineSaveDisk",
-                           "A:sii"){};
-
-    ~VirtualMachineSaveDiskCancel(){};
+    ~VirtualMachineDiskSaveas(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
@@ -404,5 +387,53 @@ public:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotCreate: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotCreate():
+        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotCreate",
+                           "Creates a new virtual machine disk snapshot",
+                           "A:siis"){};
+
+    ~VirtualMachineDiskSnapshotCreate(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotRevert: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotRevert():
+        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotRevert",
+                           "Reverts disk state to a snapshot",
+                           "A:siii"){};
+
+    ~VirtualMachineDiskSnapshotRevert(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotDelete: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotDelete():
+        RequestManagerVirtualMachine("VirtualMachineDiskSnapshotDelete",
+                           "Deletes a disk snapshot",
+                           "A:siii"){};
+
+    ~VirtualMachineDiskSnapshotDelete(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att);
+};
 
 #endif

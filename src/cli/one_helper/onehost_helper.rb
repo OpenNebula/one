@@ -167,6 +167,11 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
 
     NUM_THREADS = 15
     def sync(host_ids, options)
+        if `id -u`.to_i == 0 || `id -G`.split.collect{|e| e.to_i}.include?(0)
+            STDERR.puts("Cannot run 'onehost sync' as root")
+            exit -1
+        end
+
         begin
             current_version = File.read(REMOTES_LOCATION+'/VERSION').strip
         rescue

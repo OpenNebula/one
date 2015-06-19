@@ -1232,7 +1232,7 @@ void LifeCycleManager::attach_failure_action(int vid)
     {
         vm->unlock();
 
-        vmpool->delete_attach_disk(vid, false);
+        vmpool->delete_attach_disk(vid);
 
         vm = vmpool->get(vid,true);
 
@@ -1282,7 +1282,7 @@ void LifeCycleManager::detach_success_action(int vid)
     {
         vm->unlock();
 
-        vmpool->delete_attach_disk(vid, true);
+        vmpool->delete_attach_disk(vid);
 
         vm = vmpool->get(vid,true);
 
@@ -1604,27 +1604,32 @@ void LifeCycleManager::detach_nic_failure_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::saveas_hot_success_action(int vid)
+void LifeCycleManager::saveas_success_action(int vid)
 {
-    VirtualMachine * vm;
-    Image * image;
-
     int image_id;
     int disk_id;
-    string source;
+    string tm_mad;
+    string snap;
+    string ds_id;
+    string src;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
         return;
     }
 
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
+    int rc = vm->get_saveas_disk(disk_id, src, image_id, snap, tm_mad, ds_id);
 
-    if (vm->clear_saveas_state(disk_id, true) == -1)
+    vm->clear_saveas_disk();
+
+    if (vm->clear_saveas_state() == -1)
     {
-        vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
+        vm->log("LCM",Log::ERROR, "saveas_success_action, VM in a wrong state");
+
+        vmpool->update(vm);
+
         vm->unlock();
 
         return;
@@ -1634,14 +1639,14 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
 
     vm->unlock();
 
-    if ( rc != 0 )
+    if (rc != 0)
     {
         return;
     }
 
-    image = ipool->get(image_id, true);
+    Image * image = ipool->get(image_id, true);
 
-    if ( image == 0 )
+    if (image == 0)
     {
         return;
     }
@@ -1656,27 +1661,32 @@ void LifeCycleManager::saveas_hot_success_action(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::saveas_hot_failure_action(int vid)
+void LifeCycleManager::saveas_failure_action(int vid)
 {
-    VirtualMachine * vm;
-    Image * image;
-
     int image_id;
     int disk_id;
-    string source;
+    string tm_mad;
+    string snap;
+    string ds_id;
+    string src;
 
-    vm = vmpool->get(vid,true);
+    VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
         return;
     }
 
-    int rc = vm->get_saveas_disk_hot(disk_id, source, image_id);
+    int rc = vm->get_saveas_disk(disk_id, src, image_id, snap, tm_mad, ds_id);
 
-    if (vm->clear_saveas_state(disk_id, true) == -1)
+    vm->clear_saveas_disk();
+
+    if (vm->clear_saveas_state() == -1)
     {
-        vm->log("LCM", Log::ERROR, "saveas_hot_success_action, VM in a wrong state");
+        vm->log("LCM",Log::ERROR, "saveas_failure_action, VM in a wrong state");
+
+        vmpool->update(vm);
+
         vm->unlock();
 
         return;
@@ -1686,14 +1696,14 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
 
     vm->unlock();
 
-    if ( rc != 0 )
+    if (rc != 0)
     {
         return;
     }
 
-    image = ipool->get(image_id, true);
+    Image * image = ipool->get(image_id, true);
 
-    if ( image == 0 )
+    if (image == 0)
     {
         return;
     }
@@ -1707,3 +1717,116 @@ void LifeCycleManager::saveas_hot_failure_action(int vid)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_snapshot_success(int vid)
+{
+    string disk_id, tm_mad, ds_id, snap_id;
+
+    VirtualMachine * vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
+    {
+        vm->log("LCM", Log::ERROR, "Snapshot DISK could not be found");
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+
+        vm->unlock();
+
+        return;
+    }
+
+    int isnap_id = strtol(snap_id.c_str(),NULL,0);
+    int idisk_id = strtol(disk_id.c_str(),NULL,0);
+
+    switch (vm->get_lcm_state())
+    {
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+            vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
+            vm->revert_disk_snapshot(idisk_id, isnap_id);
+            break;
+
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+            vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
+            vm->delete_disk_snapshot(idisk_id, isnap_id);
+            break;
+
+        default:
+            vm->log("LCM",Log::ERROR,"disk_snapshot_success, VM in a wrong state");
+            vm->unlock();
+            return;
+    }
+
+    vm->clear_snapshot_disk();
+
+    vmpool->update(vm);
+
+    dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+
+    vm->unlock();
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::disk_snapshot_failure(int vid)
+{
+    string disk_id, tm_mad, ds_id, snap_id;
+
+    VirtualMachine * vm = vmpool->get(vid,true);
+
+    if ( vm == 0 )
+    {
+        return;
+    }
+
+    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
+    {
+        vm->log("LCM", Log::ERROR, "Snapshot DISK could not be found");
+
+        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+
+        vm->unlock();
+
+        return;
+    }
+
+    int isnap_id = strtol(snap_id.c_str(),NULL,0);
+    int idisk_id = strtol(disk_id.c_str(),NULL,0);
+
+    switch (vm->get_lcm_state())
+    {
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+            vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
+            vm->delete_disk_snapshot(idisk_id, isnap_id);
+            break;
+
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+            vm->log("LCM", Log::ERROR, "VM disk snapshot operation failed.");
+            break;
+
+        default:
+            vm->log("LCM",Log::ERROR,"disk_snapshot_failure, VM in a wrong state");
+            vm->unlock();
+            return;
+    }
+
+    vm->clear_snapshot_disk();
+
+    vmpool->update(vm);
+
+    dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+
+    vm->unlock();
+
+    return;
+}
+

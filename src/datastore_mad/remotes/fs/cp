@@ -52,6 +52,7 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SAFE_DIRS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5 \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1 \
@@ -65,6 +66,7 @@ RESTRICTED_DIRS="${XPATH_ELEMENTS[i++]}"
 SAFE_DIRS="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-/var/tmp}"
+TYPE="${XPATH_ELEMENTS[i++]}"
 SRC="${XPATH_ELEMENTS[i++]}"
 MD5="${XPATH_ELEMENTS[i++]}"
 SHA1="${XPATH_ELEMENTS[i++]}"
@@ -75,6 +77,11 @@ DST=`generate_image_path`
 IMAGE_HASH=`basename $DST`
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
+
+# Disable auto-decompress for the 'files' datastores (type 2)
+if [ "$TYPE" = "2" ]; then
+    NO_DECOMPRESS="${NO_DECOMPRESS:-yes}"
+fi
 
 if [ -n "$BRIDGE_LIST" ]; then
     DOWNLOADER_ARGS=`set_downloader_args "$MD5" "$SHA1" "$NO_DECOMPRESS" "$LIMIT_TRANSFER_BW" "$SRC" -`

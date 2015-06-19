@@ -302,10 +302,9 @@ module EBS
 
                 disk_id = vm["TEMPLATE/DISK[IMAGE_ID=#{image_id}]/DISK_ID"]
                 if !disk_id.nil?
-                    snapshot_id = vm.disk_snapshot(disk_id.to_i,
+                    snapshot_id = vm.disk_saveas(disk_id.to_i,
                         params["Description"]||ImageEC2.generate_uuid,
-                        OpenNebula::Image::IMAGE_TYPES[image["TYPE"].to_i],
-                        true)
+                        OpenNebula::Image::IMAGE_TYPES[image["TYPE"].to_i])
 
                     if OpenNebula::is_error?(snapshot_id)
                         return snapshot_id

@@ -200,12 +200,10 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
         break;
     }
 
-    rc = image->set_type(type);
+    rc = image->set_type(type, err_msg);
 
     if ( rc != 0  )
     {
-        err_msg = "Unknown type " + type;
-
         failure_response(INTERNAL,request_error(err_msg,""), att);
 
         image->unlock();
@@ -279,6 +277,16 @@ void ImageClone::request_execute(
                 allocate_error("KERNEL, RAMDISK and CONTEXT files cannot be "
                     "cloned."), att);
             img->unlock();
+        return;
+    }
+
+    const Snapshots& snaps = img->get_snapshots();
+
+    if (snaps.size () > 0)
+    {
+        failure_response(ACTION,
+                request_error("Cannot clone images with snapshots",""), att);
+        img->unlock();
         return;
     }
 
@@ -461,4 +469,90 @@ void ImageClone::request_execute(
     success_response(new_id, att);
 }
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageSnapshotDelete::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
+{
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    string err_msg;
+    int    rc = imagem->delete_snapshot(id, snap_id, err_msg);
+
+    if ( rc < 0 )
+    {
+        failure_response(ACTION, request_error(err_msg, ""), att);
+        return;
+    }
+
+    success_response(snap_id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageSnapshotRevert::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
+{
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    string err_msg;
+    int    rc = imagem->revert_snapshot(id, snap_id, err_msg);
+
+    if ( rc < 0 )
+    {
+        failure_response(ACTION, request_error(err_msg, ""), att);
+        return;
+    }
+
+    success_response(snap_id, att);
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ImageSnapshotFlatten::request_execute(xmlrpc_c::paramList const& paramList,
+                                  RequestAttributes& att)
+{
+    int id      = xmlrpc_c::value_int(paramList.getInt(1));
+    int snap_id = xmlrpc_c::value_int(paramList.getInt(2));
+
+    Nebula&        nd     = Nebula::instance();
+    ImageManager * imagem = nd.get_imagem();
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    string err_msg;
+    int    rc = imagem->flatten_snapshot(id, snap_id, err_msg);
+
+    if ( rc < 0 )
+    {
+        failure_response(ACTION, request_error(err_msg, ""), att);
+        return;
+    }
+
+    success_response(snap_id, att);
+}
 

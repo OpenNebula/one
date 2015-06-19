@@ -32,6 +32,7 @@
 using namespace std;
 
 class AuthRequest;
+class Snapshots;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -154,7 +155,10 @@ public:
         BOOT_UNDEPLOY_FAILURE   = 47,
         BOOT_STOPPED_FAILURE    = 48,
         PROLOG_RESUME_FAILURE   = 49,
-        PROLOG_UNDEPLOY_FAILURE = 50
+        PROLOG_UNDEPLOY_FAILURE = 50,
+        DISK_SNAPSHOT_POWEROFF  = 51,
+        DISK_SNAPSHOT_REVERT_POWEROFF = 52,
+        DISK_SNAPSHOT_DELETE_POWEROFF = 53
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -210,6 +214,9 @@ public:
         else if ( st == "BOOT_UNDEPLOY_FAILURE") { state = BOOT_UNDEPLOY_FAILURE; }
         else if ( st == "PROLOG_RESUME_FAILURE") { state = PROLOG_RESUME_FAILURE; }
         else if ( st == "PROLOG_UNDEPLOY_FAILURE") { state = PROLOG_UNDEPLOY_FAILURE; }
+        else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
+        else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF") { state = DISK_SNAPSHOT_REVERT_POWEROFF; }
+        else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF") { state = DISK_SNAPSHOT_DELETE_POWEROFF; }
         else {return -1;}
 
         return 0;
@@ -268,6 +275,9 @@ public:
             case BOOT_UNDEPLOY_FAILURE: st = "BOOT_UNDEPLOY_FAILURE"; break;
             case PROLOG_RESUME_FAILURE: st = "PROLOG_RESUME_FAILURE"; break;
             case PROLOG_UNDEPLOY_FAILURE: st = "PROLOG_UNDEPLOY_FAILURE"; break;
+            case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
+            case DISK_SNAPSHOT_REVERT_POWEROFF: st = "DISK_SNAPSHOT_REVERT_POWEROFF"; break;
+            case DISK_SNAPSHOT_DELETE_POWEROFF: st = "DISK_SNAPSHOT_DELETE_POWEROFF"; break;
         }
 
         return st;
@@ -1260,82 +1270,56 @@ public:
     int  generate_context(string &files, int &disk_id, string& token_password);
 
     // -------------------------------------------------------------------------
-    // Datastore related functions
+    // "Save as" Disk related functions (save_as hot)
     // -------------------------------------------------------------------------
     /**
-     *  Gest the associated image to the given disk_id
+     *  Mark the disk that is going to be "save as"
      *    @param disk_id of the VM
-     *    @param hot is this a save_as hot operation
+     *    @param snap_id of the disk to save, -1 to select the active snapshot
      *    @param err_str describing the error
-     *    @return -1 if the image cannot saveas
+     *    @return -1 if the image cannot saveas or image_id of current disk
      */
-    int get_image_from_disk(int disk_id, bool hot, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, string& err_str);
 
     /**
-     *  Sets the corresponding SAVE_AS state.
+     *  Set save attributes for the disk
      *    @param  disk_id Index of the disk to save
-     *    @param hot is this a save_as hot operation
-     *    @return 0 if the VM can be saved as
+     *    @param  source to save the disk
+     *    @param  img_id ID of the image this disk will be saved to
      */
-     int set_saveas_state(int disk_id, bool hot);
+    int set_saveas_disk(int disk_id, const string& source, int img_id);
 
     /**
-     *  Clears the SAVE_AS state, moving the VM to the original state.
-     *    @param  disk_id Index of the disk to save
-     *    @param hot is this a save_as hot operation
-     *    @return 0 if the VM was in a SAVE_AS state
+     *  Sets the corresponding state to save the disk.
+     *    @return 0 if the VM can be saved
      */
-     int clear_saveas_state(int disk_id, bool hot);
+    int set_saveas_state();
 
     /**
-     *  Set the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @param  source to save the disk (SAVE_AS_SOURCE)
-     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
+     *  Clears the save state, moving the VM to the original state.
+     *    @return 0 if the VM was in an saveas state
      */
-    int save_disk(int disk_id,
-                  const string& source,
-                  int img_id);
-    /**
-     *  Clears the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @return 0 on success, -1 if the disk does not exist
-     */
-    int clear_save_disk(int disk_id);
+    int clear_saveas_state();
 
     /**
-     * Returns the image ID to be saved-as.
-     * @param disk_id Index of the disk to save
-     * @return The image ID, or -1 if the disk is not going to be saved-as
+     * Clears the SAVE_AS_* attributes of the disk being saved as
+     *    @return the ID of the image this disk will be saved to or -1 if it
+     *    is not found.
      */
-    int get_save_disk_image(int disk_id);
+    int clear_saveas_disk();
 
-    /**
-     *  Set the SAVE_AS attribute for the "disk_id"th disk.
-     *    @param  disk_id Index of the disk to save
-     *    @param  source to save the disk (SAVE_AS_SOURCE)
-     *    @param  img_id ID of the image this disk will be saved to (SAVE_AS).
-     */
-    int save_disk_hot(int disk_id,
-                      const string& source,
-                      int img_id);
     /**
      * Get the original image id of the disk. It also checks that the disk can
      * be saved_as.
      *    @param  disk_id Index of the disk to save
-     *    @param  error_str describes the error
+     *    @param  source of the image to save the disk to
+     *    @param  image_id of the image to save the disk to
+     *    @param  tm_mad in use by the disk
+     *    @param  ds_id of the datastore in use by the disk
      *    @return -1 if failure
      */
-    int get_saveas_disk_hot(int& disk_id, string& source, int& image_id);
-
-    /**
-     * Clears the save_as attributes of the disk being (hot) saved as
-     *
-     *    @param  img_id ID of the image this disk will be saved to. Can be
-     *    -1 if it is not found
-     *    @return 0 if a disk with (HOTPLUG_)SAVE_AS was cleaned
-     */
-    int cancel_saveas_disk(int& image_id);
+    int get_saveas_disk(int& disk_id, string& source, int& image_id,
+            string& snap_id, string& tm_mad, string& ds_id);
 
     // ------------------------------------------------------------------------
     // Authorization related functions
@@ -1388,6 +1372,7 @@ public:
                             int                      max_disk_id,
                             int                      uid,
                             int&                     image_id,
+                            Snapshots **             snap,
                             string&                  error_str);
     /**
      * Returns the disk that is waiting for an attachment action
@@ -1406,18 +1391,27 @@ public:
      *
      * @return the DISK or 0 if no disk was deleted
      */
-    VectorAttribute * delete_attach_disk();
+    VectorAttribute * delete_attach_disk(Snapshots **snap);
 
     /**
      *  Adds a new disk to the virtual machine template. The disk should be
      *  generated by the build_attach_disk
      *    @param new_disk must be allocated in the heap
+     *    @param snap list of snapshots associated to the disk
      */
-    void set_attach_disk(VectorAttribute * new_disk)
+    void set_attach_disk(VectorAttribute * new_disk, Snapshots * snap)
     {
         new_disk->replace("ATTACH", "YES");
 
         obj_template->set(new_disk);
+
+        if (snap != 0)
+        {
+            int disk_id;
+
+            new_disk->vector_value("DISK_ID", disk_id);
+            snapshots.insert(pair<int, Snapshots *>(disk_id, snap));
+        }
     }
 
     /**
@@ -1495,6 +1489,64 @@ public:
      */
     int set_attach_nic(int nic_id);
 
+    // ------------------------------------------------------------------------
+    // Snapshot related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     *  Return the snapshot list for the disk
+     *    @param disk_id of the disk
+     *    @param error if any
+     *    @return pointer to Snapshots or 0 if not found
+     */
+    const Snapshots * get_disk_snapshots(int did, string& err) const;
+
+    /**
+     *  Creates a new snapshot of the given disk
+     *    @param disk_id of the disk
+     *    @param tag a description for this snapshot
+     *    @param error if any
+     *    @return the id of the new snapshot or -1 if error
+     */
+    int new_disk_snapshot(int disk_id, const string& tag, string& error);
+
+    /**
+     *  Sets the snap_id as active, the VM will boot from it next time
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     *    @param error if any
+     *    @return -1 if error
+     */
+    int revert_disk_snapshot(int disk_id, int snap_id);
+
+    /**
+     *  Deletes the snap_id from the list, test_delete_disk_snapshot *MUST* be
+     *  called before actually deleting the snapshot.
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     */
+    void delete_disk_snapshot(int disk_id, int snap_id);
+
+    /**
+     *  Get information about the disk to take the snapshot from
+     *    @param ds_id id of the datastore
+     *    @param tm_mad used by the datastore
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     */
+    int get_snapshot_disk(string& ds_id, string& tm_mad, string& disk_id,
+            string& snap_id);
+    /**
+     *  Unset the current disk being snapshotted (reverted...)
+     */
+    void clear_snapshot_disk();
+
+    /**
+     *  Set the disk as being snapshotted (reverted...)
+     *    @param disk_id of the disk
+     *    @param snap_id of the target snap_id
+     */
+    int set_snapshot_disk(int disk_id, int snap_id);
 
     // ------------------------------------------------------------------------
     // Snapshot related functions
@@ -1651,6 +1703,11 @@ private:
      */
     vector<History *> history_records;
 
+    /**
+     *  Snapshots for each disk
+     */
+    map<int, Snapshots *> snapshots;
+
     // -------------------------------------------------------------------------
     // Logging & Dirs
     // -------------------------------------------------------------------------
@@ -1797,12 +1854,12 @@ private:
      */
     int parse_defaults(string& error_str);
 
-    /** 
+    /**
      * Known attributes for network contextualization rendered as:
      *   ETH_<nicid>_<context[0]> = $NETWORK[context[1], vnet_name]
      *
-     * The context[1] values in the map are searched in the NIC and 
-     * if not found in the AR and VNET. They can be also set in the 
+     * The context[1] values in the map are searched in the NIC and
+     * if not found in the AR and VNET. They can be also set in the
      * CONTEXT section it self using full name (ETH_).
      *
      * IPv4 context variables:
@@ -1924,6 +1981,19 @@ private:
      */
     int get_disk_images(string &error_str);
 
+    /**
+     *  Return the VectorAttribute representation of a disk
+     *    @param disk_id of the disk
+     *    @return pointer to the VectorAttribute
+     */
+    VectorAttribute* get_disk(int disk_id)
+    {
+        return const_cast<VectorAttribute *>(
+                static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
+    };
+
+    const VectorAttribute* get_disk(int disk_id) const;
+
 protected:
 
     //**************************************************************************
@@ -1998,11 +2068,6 @@ protected:
         return -1;
     }
 
-    // *************************************************************************
-    // Helpers
-    // *************************************************************************
-
-    VectorAttribute* get_disk(int disk_id);
 };
 
 #endif /*VIRTUAL_MACHINE_H_*/

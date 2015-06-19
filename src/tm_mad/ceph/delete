@@ -97,12 +97,45 @@ log "Deleting $DST_PATH"
 # drivers, is executed in the worker node and not in the CEPH frontend.
 
 DELETE_CMD=$(cat <<EOF
-    set -e
+    rm_children(){
+        local rbd_snap rbd snap_id child snap_list
+
+        rbd_snap=\$1
+        rbd=\${rbd_snap%%@*}
+
+        snap_list=\$(set +e; rbd snap ls \$rbd)
+
+        if [ -n "\$snap_list" ]; then
+            CHILDREN=\$(set +e; rbd children \$rbd_snap 2>/dev/null)
+
+            for child in \$CHILDREN; do
+                snap_id=\${child##*-}
+                child=\$child@\$snap_id
+                rm_children \$child
+            done
+
+            $RBD snap unprotect \$rbd_snap
+            $RBD snap rm \$rbd_snap
+        fi
+
+        $RBD rm \$rbd
+    }
 
     RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
 
-    $RBD rm $RBD_SRC
+    if [ "\$RBD_FORMAT" = "2" ]; then
+        has_snap_shots=\$($RBD info $RBD_SRC-0@0 2>/dev/null)
 
+        if [ -n "\$has_snap_shots" ]; then
+            rm_children $RBD_SRC-0@0
+        else
+            $RBD rm $RBD_SRC
+        fi
+    else
+        $RBD rm $RBD_SRC
+    fi
+
+    # Remove the snapshot of the original image used to create a CLONE
     if [ "\$RBD_FORMAT" = "2" ]; then
         $RBD snap unprotect $SRC@$RBD_SNAP
         $RBD snap rm $SRC@$RBD_SNAP

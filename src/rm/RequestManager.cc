@@ -293,8 +293,6 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_deploy(new VirtualMachineDeploy());
     xmlrpc_c::methodPtr vm_migrate(new VirtualMachineMigrate());
     xmlrpc_c::methodPtr vm_action(new VirtualMachineAction());
-    xmlrpc_c::methodPtr vm_savedisk(new VirtualMachineSaveDisk());
-    xmlrpc_c::methodPtr vm_savedisk_cancel(new VirtualMachineSaveDiskCancel());
     xmlrpc_c::methodPtr vm_monitoring(new VirtualMachineMonitoring());
     xmlrpc_c::methodPtr vm_attach(new VirtualMachineAttach());
     xmlrpc_c::methodPtr vm_detach(new VirtualMachineDetach());
@@ -304,6 +302,10 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr vm_snap_create(new VirtualMachineSnapshotCreate());
     xmlrpc_c::methodPtr vm_snap_revert(new VirtualMachineSnapshotRevert());
     xmlrpc_c::methodPtr vm_snap_delete(new VirtualMachineSnapshotDelete());
+    xmlrpc_c::methodPtr vm_dsaveas(new VirtualMachineDiskSaveas());
+    xmlrpc_c::methodPtr vm_dsnap_create(new VirtualMachineDiskSnapshotCreate());
+    xmlrpc_c::methodPtr vm_dsnap_revert(new VirtualMachineDiskSnapshotRevert());
+    xmlrpc_c::methodPtr vm_dsnap_delete(new VirtualMachineDiskSnapshotDelete());
     xmlrpc_c::methodPtr vm_recover(new VirtualMachineRecover());
 
     xmlrpc_c::methodPtr vm_pool_acct(new VirtualMachinePoolAccounting());
@@ -394,6 +396,9 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr image_enable(new ImageEnable());
     xmlrpc_c::methodPtr image_chtype(new ImageChangeType());
     xmlrpc_c::methodPtr image_clone(new ImageClone());
+    xmlrpc_c::methodPtr image_snap_delete(new ImageSnapshotDelete());
+    xmlrpc_c::methodPtr image_snap_revert(new ImageSnapshotRevert());
+    xmlrpc_c::methodPtr image_snap_flatten(new ImageSnapshotFlatten());
 
     // Datastore Methods
     xmlrpc_c::methodPtr datastore_enable(new DatastoreEnable());
@@ -443,8 +448,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.deploy", vm_deploy);
     RequestManagerRegistry.addMethod("one.vm.action", vm_action);
     RequestManagerRegistry.addMethod("one.vm.migrate", vm_migrate);
-    RequestManagerRegistry.addMethod("one.vm.savedisk", vm_savedisk);
-    RequestManagerRegistry.addMethod("one.vm.savediskcancel", vm_savedisk_cancel);
     RequestManagerRegistry.addMethod("one.vm.allocate", vm_allocate);
     RequestManagerRegistry.addMethod("one.vm.info", vm_info);
     RequestManagerRegistry.addMethod("one.vm.chown", vm_chown);
@@ -460,6 +463,10 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.vm.snapshotcreate", vm_snap_create);
     RequestManagerRegistry.addMethod("one.vm.snapshotrevert", vm_snap_revert);
     RequestManagerRegistry.addMethod("one.vm.snapshotdelete", vm_snap_delete);
+    RequestManagerRegistry.addMethod("one.vm.disksaveas", vm_dsaveas);
+    RequestManagerRegistry.addMethod("one.vm.disksnapshotcreate", vm_dsnap_create);
+    RequestManagerRegistry.addMethod("one.vm.disksnapshotrevert", vm_dsnap_revert);
+    RequestManagerRegistry.addMethod("one.vm.disksnapshotdelete", vm_dsnap_delete);
     RequestManagerRegistry.addMethod("one.vm.recover", vm_recover);
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
@@ -647,6 +654,9 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.image.chtype", image_chtype);
     RequestManagerRegistry.addMethod("one.image.clone", image_clone);
     RequestManagerRegistry.addMethod("one.image.rename", image_rename);
+    RequestManagerRegistry.addMethod("one.image.snapshotdelete", image_snap_delete);
+    RequestManagerRegistry.addMethod("one.image.snapshotrevert", image_snap_revert);
+    RequestManagerRegistry.addMethod("one.image.snapshotflatten", image_snap_flatten);
 
     RequestManagerRegistry.addMethod("one.imagepool.info", imagepool_info);
 

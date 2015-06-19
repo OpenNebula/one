@@ -905,6 +905,7 @@ int DispatchManager::attach(int vid,
 
     set<string>       used_targets;
     VectorAttribute * disk;
+    Snapshots *       snap;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -958,6 +959,7 @@ int DispatchManager::attach(int vid,
                                               max_disk_id,
                                               uid,
                                               image_id,
+                                              &snap,
                                               error_str);
     vm = vmpool->get(vid, true);
 
@@ -967,6 +969,9 @@ int DispatchManager::attach(int vid,
         {
             imagem->release_image(oid, image_id, false);
         }
+
+        delete snap;
+        delete disk;
 
         oss << "Could not attach a new disk to VM " << vid
             << ", VM does not exist after setting its state to HOTPLUG." ;
@@ -1001,7 +1006,7 @@ int DispatchManager::attach(int vid,
     // VM template
     vm->set_vm_info();
 
-    vm->set_attach_disk(disk);
+    vm->set_attach_disk(disk, snap);
 
     if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
     {
@@ -1146,10 +1151,10 @@ int DispatchManager::detach(
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::snapshot_create(
-    int         vid,
-    string&     name,
-    int&        snap_id,
-    string&     error_str)
+    int     vid,
+    string& name,
+    int&    snap_id,
+    string& error_str)
 {
     ostringstream oss;
 
@@ -1606,3 +1611,200 @@ int DispatchManager::detach_nic(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_snapshot_create(
+        int           vid,
+        int           did,
+        const string& tag,
+        int&          snap_id,
+        string&       error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not create a new disk snapshot for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
+         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    {
+        oss << "Could not create a new snapshot for VM " << vid
+            << ", wrong state " << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+
+        return -1;
+    }
+
+    snap_id = vm->new_disk_snapshot(did, tag, error_str);
+
+    if (snap_id == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    tm->trigger(TransferManager::SNAPSHOT_CREATE,vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_snapshot_revert(
+        int           vid,
+        int           did,
+        int           snap_id,
+        string&       error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not revert to disk snapshot for VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
+         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    {
+        oss << "Could not revert to disk snapshot for VM " << vid
+            << ", wrong state " << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    const Snapshots * snaps = vm->get_disk_snapshots(did, error_str);
+
+    if (snaps == 0)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    if (snaps->get_active_id() == snap_id)
+    {
+        error_str = "Snapshot is already the active one";
+
+        vm->unlock();
+        return -1;
+    }
+
+    if (vm->set_snapshot_disk(did, snap_id) == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int DispatchManager::disk_snapshot_delete(
+        int           vid,
+        int           did,
+        int           snap_id,
+        string&       error_str)
+{
+    ostringstream oss;
+
+    VirtualMachine * vm = vmpool->get(vid, true);
+
+    if ( vm == 0 )
+    {
+        oss << "Could not delete disk snapshot from VM " << vid
+            << ", VM does not exist" ;
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        return -1;
+    }
+
+    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
+         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    {
+        oss << "Could not delete disk snapshot from VM " << vid
+            << ", wrong state " << vm->state_str() << ".";
+        error_str = oss.str();
+
+        NebulaLog::log("DiM", Log::ERROR, error_str);
+
+        vm->unlock();
+        return -1;
+    }
+
+    const Snapshots * snaps = vm->get_disk_snapshots(did, error_str);
+
+    if (snaps == 0)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    if (!snaps->test_delete(snap_id, error_str))
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    if (vm->set_snapshot_disk(did, snap_id) == -1)
+    {
+        vm->unlock();
+        return -1;
+    }
+
+    vm->set_state(VirtualMachine::ACTIVE);
+    vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF);
+
+    vmpool->update(vm);
+
+    vm->unlock();
+
+    tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
+
+    return 0;
+}
+

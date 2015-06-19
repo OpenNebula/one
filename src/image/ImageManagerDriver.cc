@@ -94,6 +94,39 @@ void ImageManagerDriver::monitor(int oid, const string& drv_msg) const
 }
 
 /* -------------------------------------------------------------------------- */
+
+void ImageManagerDriver::snapshot_delete(int oid, const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "SNAP_DELETE " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManagerDriver::snapshot_revert(int oid, const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "SNAP_REVERT " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void ImageManagerDriver::snapshot_flatten(int oid, const string& drv_msg) const
+{
+    ostringstream os;
+
+    os << "SNAP_FLATTEN " << oid << " " << drv_msg << endl;
+
+    write(os);
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 /* ************************************************************************** */
@@ -336,15 +369,12 @@ static int mkfs_action(istringstream& is,
     string  source;
     Image * image;
     bool    is_saving = false;
-    bool    is_hot    = false;
 
     string info;
-    int    rc;
 
-    int vm_id = -1;
-    int ds_id = -1;
-
-    int disk_id;
+    int vm_id   = -1;
+    int ds_id   = -1;
+    int disk_id = -1;
 
     VirtualMachine * vm;
     ostringstream    oss;
@@ -378,14 +408,13 @@ static int mkfs_action(istringstream& is,
         return ds_id;
     }
 
-    is_saving = image->isSaving();
-    is_hot    = image->isHot();
+    is_saving = image->is_saving();
     ds_id     = image->get_ds_id();
 
     if ( is_saving )
     {
-        image->get_template_attribute("SAVED_VM_ID", vm_id);
         image->get_template_attribute("SAVED_DISK_ID", disk_id);
+        image->get_template_attribute("SAVED_VM_ID", vm_id);
     }
 
     if ( result == "FAILURE" )
@@ -426,28 +455,12 @@ static int mkfs_action(istringstream& is,
         goto error_save_get;
     }
 
-    if ( is_hot ) //Saveas hot, trigger disk copy
+    if ( vm->set_saveas_disk(disk_id, source, id) == -1 )
     {
-        rc = vm->save_disk_hot(disk_id, source, id);
-
-        if ( rc == -1 )
-        {
-            goto error_save_state;
-        }
-
-        tm->trigger(TransferManager::SAVEAS_HOT, vm_id);
+        goto error_save_state;
     }
-    else //setup disk information
-    {
-        rc = vm->save_disk(disk_id, source, id);
 
-        if ( rc == -1 )
-        {
-            goto error_save_state;
-        }
-
-        vm->clear_saveas_state(disk_id, is_hot);
-    }
+    tm->trigger(TransferManager::SAVEAS_HOT, vm_id);
 
     vmpool->update(vm);
 
@@ -460,12 +473,12 @@ error_img:
     goto error;
 
 error_save_get:
-    oss << "Image created for SAVE_AS, but the associated VM does not exist.";
+    oss << "Image created to save as a disk but VM does not exist.";
     goto error_save;
 
 error_save_state:
     vm->unlock();
-    oss << "Image created for SAVE_AS, but VM is no longer running";
+    oss << "Image created to save as disk but VM is no longer running";
 
 error_save:
     image = ipool->get(id, true);
@@ -497,7 +510,10 @@ error:
     {
         if ((vm = vmpool->get(vm_id, true)) != 0)
         {
-            vm->clear_saveas_state(disk_id, is_hot);
+            vm->clear_saveas_state();
+
+            vm->clear_saveas_disk();
+
             vmpool->update(vm);
 
             vm->unlock();
@@ -667,6 +683,168 @@ static void monitor_action(istringstream& is,
 }
 
 /* -------------------------------------------------------------------------- */
+
+static void snap_delete_action(istringstream& is,
+         ImagePool*     ipool,
+         int            id,
+         const string&  result)
+{
+    ostringstream oss;
+    string info;
+
+    Image * image = ipool->get(id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    image->set_state(Image::READY);
+
+    int snap_id = image->get_target_snapshot();
+
+    if (snap_id == -1)
+    {
+        NebulaLog::log("ImM", Log::ERROR, "No target snapshot in callback");
+
+        ipool->update(image);
+
+        image->unlock();
+        return;
+    }
+
+    if ( result == "SUCCESS")
+    {
+        image->delete_snapshot(snap_id);
+    }
+    else
+    {
+        oss << "Error removing snapshot " << snap_id << " from image " << id;
+
+        getline(is, info);
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->clear_target_snapshot();
+
+    ipool->update(image);
+
+    image->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+
+static void snap_revert_action(istringstream& is,
+         ImagePool*     ipool,
+         int            id,
+         const string&  result)
+{
+    ostringstream oss;
+    string info;
+
+    Image * image = ipool->get(id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    int snap_id = image->get_target_snapshot();
+
+    image->set_state(Image::READY);
+
+    if (snap_id == -1)
+    {
+        NebulaLog::log("ImM", Log::ERROR, "No target snapshot in callback");
+
+        ipool->update(image);
+
+        image->unlock();
+        return;
+    }
+
+    if ( result == "SUCCESS")
+    {
+        image->revert_snapshot(snap_id);
+    }
+    else
+    {
+        oss << "Error reverting image " << id << " to snapshot " << snap_id;
+
+        getline(is, info);
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->clear_target_snapshot();
+
+    ipool->update(image);
+
+    image->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
+
+static void snap_flatten_action(istringstream& is,
+         ImagePool*     ipool,
+         int            id,
+         const string&  result)
+{
+    ostringstream oss;
+    string info;
+
+    Image * image = ipool->get(id, true);
+
+    if ( image == 0 )
+    {
+        return;
+    }
+
+    if ( result == "SUCCESS")
+    {
+        image->clear_snapshots();
+    }
+    else
+    {
+        oss << "Error flattening image snapshot";
+
+        getline(is, info);
+
+        if (!info.empty() && (info[0] != '-'))
+        {
+            oss << ": " << info;
+        }
+
+        image->set_template_error_message(oss.str());
+
+        NebulaLog::log("ImM", Log::ERROR, oss);
+    }
+
+    image->set_state(Image::READY);
+
+    image->clear_target_snapshot();
+
+    ipool->update(image);
+
+    image->unlock();
+}
+
+/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void ImageManagerDriver::protocol(const string& message) const
@@ -717,29 +895,41 @@ void ImageManagerDriver::protocol(const string& message) const
     else
         return;
 
-    if ( action == "STAT" )
+    if (action == "STAT")
     {
         stat_action(is, id, result);
     }
-    else if ( action == "CP" )
+    else if (action == "CP")
     {
         ds_id = cp_action(is, ipool, id, result);
     }
-    else if ( action == "CLONE" )
+    else if (action == "CLONE")
     {
         ds_id = clone_action(is, ipool, id, result);
     }
-    else if ( action == "MKFS" )
+    else if (action == "MKFS")
     {
         ds_id = mkfs_action(is, ipool, id, result);
     }
-    else if ( action == "RM" )
+    else if (action == "RM")
     {
         ds_id = rm_action(is, ipool, id, result);
     }
-    else if ( action == "MONITOR" )
+    else if (action == "MONITOR")
     {
         monitor_action(is, dspool, id, result);
+    }
+    else if (action == "SNAP_DELETE")
+    {
+        snap_delete_action(is, ipool, id, result);
+    }
+    else if (action == "SNAP_REVERT")
+    {
+        snap_revert_action(is, ipool, id, result);
+    }
+    else if (action == "SNAP_FLATTEN")
+    {
+        snap_flatten_action(is, ipool, id, result);
     }
     else if (action == "LOG")
     {
