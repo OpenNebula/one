@@ -30,10 +30,10 @@ class VXLANDriver < VNMMAD::VLANDriver
     XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
 
     ############################################################################
-    # Creatges the driver device operations are not locked
+    # Create driver device operations are locked
     ############################################################################
     def initialize(vm, deploy_id = nil, hypervisor = nil)
-        @locking = false
+        @locking = true
 
         super(vm, XPATH_FILTER, deploy_id, hypervisor)
     end
@@ -41,15 +41,15 @@ class VXLANDriver < VNMMAD::VLANDriver
     ############################################################################
     # This function creates and activate a VLAN device
     ############################################################################
-    def create_vlan_dev(options)
-        mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + options[:vlan_id].to_i
+    def create_vlan_dev
+        mc  = VNMMAD::VNMNetwork::IPv4.to_i(CONF[:vxlan_mc]) + @nic[:vlan_id].to_i
         mcs = VNMMAD::VNMNetwork::IPv4.to_s(mc)
-        mtu = options[:mtu] ? "mtu #{options[:mtu]}" : ""
+        mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : ""
 
-        OpenNebula.exec_and_log("#{command(:ip)} link add #{options[:vlan_dev]}"\
-            " #{mtu} type vxlan id #{options[:vlan_id]} group #{mcs}"\
-            " dev #{options[:phydev]}")
+        OpenNebula.exec_and_log("#{command(:ip)} link add #{@nic[:vlan_dev]}"\
+            " #{mtu} type vxlan id #{@nic[:vlan_id]} group #{mcs}"\
+            " dev #{@nic[:phydev]}")
 
-        OpenNebula.exec_and_log("#{command(:ip)} link set #{options[:vlan_dev]} up")
+        OpenNebula.exec_and_log("#{command(:ip)} link set #{@nic[:vlan_dev]} up")
     end
 end
