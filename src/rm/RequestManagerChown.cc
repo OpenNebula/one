@@ -60,7 +60,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         tmpl        = new Template;
 
         tmpl->add("DATASTORE", img->get_ds_id());
-        tmpl->add("SIZE", img->get_size());
+        tmpl->add("SIZE",img->get_size()+img->get_snapshots().get_total_size());
 
         qtype = Quotas::DATASTORE;
     }

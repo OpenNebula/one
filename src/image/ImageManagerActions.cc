@@ -498,6 +498,8 @@ int ImageManager::delete_image(int iid, string& error_str)
         ipool->update(img);
     }
 
+    unsigned int snap_size = (img->get_snapshots()).get_total_size();
+
     img->unlock();
 
     delete drv_msg;
@@ -507,7 +509,7 @@ int ImageManager::delete_image(int iid, string& error_str)
     Template img_usage;
 
     img_usage.add("DATASTORE", ds_id);
-    img_usage.add("SIZE", size);
+    img_usage.add("SIZE", size + snap_size);
 
     Quotas::ds_del(uid, gid, &img_usage);
 

@@ -18,6 +18,7 @@
 #include "ImagePool.h"
 
 #include "NebulaLog.h"
+#include "Quotas.h"
 
 #include "Nebula.h"
 #include <sstream>
@@ -692,6 +693,9 @@ static void snap_delete_action(istringstream& is,
     ostringstream oss;
     string info;
 
+    unsigned int snap_size;
+    int          ds_id, uid, gid;
+
     Image * image = ipool->get(id, true);
 
     if ( image == 0 )
@@ -715,6 +719,11 @@ static void snap_delete_action(istringstream& is,
 
     if ( result == "SUCCESS")
     {
+        ds_id     = image->get_ds_id();
+        uid       = image->get_uid();
+        gid       = image->get_gid();
+        snap_size = (image->get_snapshots()).get_snapshot_size(snap_id);
+
         image->delete_snapshot(snap_id);
     }
     else
@@ -738,6 +747,17 @@ static void snap_delete_action(istringstream& is,
     ipool->update(image);
 
     image->unlock();
+
+    if (result == "SUCCESS")
+    {
+        Template quotas;
+
+        quotas.add("DATASTORE", ds_id);
+        quotas.add("SIZE", (long long) snap_size);
+        quotas.add("IMAGES",0 );
+
+        Quotas::ds_del(uid, gid, &quotas);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -808,6 +828,9 @@ static void snap_flatten_action(istringstream& is,
     ostringstream oss;
     string info;
 
+    unsigned int snap_size;
+    int          ds_id, uid, gid;
+
     Image * image = ipool->get(id, true);
 
     if ( image == 0 )
@@ -817,6 +840,11 @@ static void snap_flatten_action(istringstream& is,
 
     if ( result == "SUCCESS")
     {
+        ds_id     = image->get_ds_id();
+        uid       = image->get_uid();
+        gid       = image->get_gid();
+        snap_size = (image->get_snapshots()).get_total_size();
+
         image->clear_snapshots();
     }
     else
@@ -842,6 +870,17 @@ static void snap_flatten_action(istringstream& is,
     ipool->update(image);
 
     image->unlock();
+
+    if (result == "SUCCESS")
+    {
+        Template quotas;
+
+        quotas.add("DATASTORE", ds_id);
+        quotas.add("SIZE", (long long) snap_size);
+        quotas.add("IMAGES",0 );
+
+        Quotas::ds_del(uid, gid, &quotas);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
