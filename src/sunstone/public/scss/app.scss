@@ -609,11 +609,11 @@ fieldset {
   }
 }
 .provision-header {
-  font-size: rem-calc(16px); 
+  font-size: rem-calc(14px); 
   border-bottom: 1px solid #efefef;
 
   li {
-    padding: 0px 10px 5px 0px;
+    padding-bottom: 5px;
   }
 
   li.active {
@@ -1108,7 +1108,7 @@ hr {
       }
 
       select {
-        height: 39px !important;
+        height: 33px !important;
         margin: 0px 5px 0px 0px !important;
         float: right !important;
         width: auto !important;

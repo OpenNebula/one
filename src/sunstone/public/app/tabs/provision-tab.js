@@ -19,6 +19,7 @@ define(function(require) {
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
   var ProvisionVmsList = require('./provision-tab/vms/list');
+  var ProvisionTemplatesList = require('./provision-tab/templates/list');
   var ProvisionUsersList = require('./provision-tab/users/list');
   var ProvisionFlowsList = require('./provision-tab/flows/list');
 
@@ -33,7 +34,6 @@ define(function(require) {
   var TemplateDashboardUsers = require('hbs!./provision-tab/dashboard/users');
 
   var TemplateGroupInfo = require('hbs!./provision-tab/group/info');
-  var TemplateTemplatesList = require('hbs!./provision-tab/templates/list');
 
   var TAB_ID = require('./provision-tab/tabId');
 
@@ -275,21 +275,6 @@ define(function(require) {
       '</div>'+
     '</div>'+
   '</div>';
-
-  var list_templates_accordion_id = 0;
-  function provision_list_templates(opts_arg){
-    opts = $.extend({
-        title: Locale.tr("Saved Templates"),
-        refresh: true,
-        create: true,
-        active: true,
-        filter: true
-      },opts_arg)
-
-    list_templates_accordion_id += 1;
-    return TemplateTemplatesList({'accordionId': list_templates_accordion_id, 'opts': opts});
-  }
-
 
   var povision_actions = {
     "Provision.User.show" : {
@@ -1422,52 +1407,6 @@ define(function(require) {
     Sunstone.runAction('Provision.Group.show', "-1");
   }
 
-  function show_provision_template_list(timeout) {
-    $(".section_content").hide();
-    $(".provision_templates_list_section").fadeIn();
-
-    //$("dd:not(.active) .provision_back", $(".provision_templates_list_section")).trigger("click");
-    $(".provision_templates_list_refresh_button", $(".provision_templates_list_section")).trigger("click");
-  }
-
-  function update_provision_templates_datatable(datatable, timeout) {
-    datatable.html('<div class="text-center">'+
-      '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-        '<i class="fa fa-cloud fa-stack-2x"></i>'+
-        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>'+
-      '</span>'+
-      '<br>'+
-      '<br>'+
-      '<span style="font-size: 18px; color: #999">'+
-      '</span>'+
-      '</div>');
-
-    setTimeout( function(){
-      OpenNebula.Template.list({
-        timeout: true,
-        success: function (request, item_list){
-          datatable.fnClearTable(true);
-          if (item_list.length == 0) {
-            datatable.html('<div class="text-center">'+
-              '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-              '</span>'+
-              '<br>'+
-              '<br>'+
-              '<span style="font-size: 18px; color: #999">'+
-                Locale.tr("There are no templates available")+
-              '</span>'+
-              '</div>');
-          } else {
-            datatable.fnAddData(item_list);
-          }
-        },
-        error: Notifier.onError
-      });
-    }, timeout);
-  }
-
   function update_provision_instance_types_datatable(datatable) {
       datatable.fnClearTable(true);
       if (!config['instance_types'] || config['instance_types'].length == 0) {
@@ -1561,338 +1500,6 @@ define(function(require) {
     }, timeout);
   }
 
-  function setup_provision_templates_list(context, opts) {
-    var provision_templates_datatable = $('.provision_templates_table', context).dataTable({
-      "iDisplayLength": 8,
-      "sDom" : '<"H">t<"F"lp>',
-      "aLengthMenu": [[6, 12, 36, 72], [6, 12, 36, 72]],
-      "aaSorting"  : [[0, "desc"]],
-      "aoColumnDefs": [
-          { "bVisible": false, "aTargets": ["all"]}
-      ],
-      "aoColumns": [
-          { "mDataProp": "VMTEMPLATE.ID" },
-          { "mDataProp": "VMTEMPLATE.NAME" },
-          { "mDataProp": "VMTEMPLATE.TEMPLATE.SAVED_TEMPLATE_ID", "sDefaultContent" : "-"  },
-          { "mDataProp": "VMTEMPLATE.UID" }
-      ],
-      "fnPreDrawCallback": function (oSettings) {
-        // create a thumbs container if it doesn't exist. put it in the dataTables_scrollbody div
-        if (this.$('tr', {"filter": "applied"} ).length == 0) {
-          this.html('<div class="text-center">'+
-            '<span class="fa-stack fa-5x" style="color: #dfdfdf">'+
-              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-              '<i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>'+
-            '</span>'+
-            '<br>'+
-            '<br>'+
-            '<span style="font-size: 18px; color: #999">'+
-              Locale.tr("There are no saved templates available")+
-              '<br>'+
-              Locale.tr("Create a template by saving a running Virtual Machine")+
-            '</span>'+
-            '</div>');
-        } else {
-          $(".provision_templates_table", context).html('<ul class="provision_templates_ul large-block-grid-3 medium-block-grid-3 small-block-grid-1 text-center"></ul>');
-        }
-        return true;
-      },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-        var data = aData.VMTEMPLATE;
-        var actions_html = "";
-        if (Config.isTabActionEnabled("provision-tab", "Template.chmod")) {
-          if (data.UID == config['user_id']) {
-
-            if (data.PERMISSIONS.GROUP_U == "1") {
-              actions_html += '<a class="provision_confirm_unshare_template_button left" data-tooltip title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
-              actions_html += '<span style="font-size:12px; color: #777">' + Locale.tr("SHARED") + '</span>';
-            } else {
-              actions_html += '<a class="provision_confirm_chmod_template_button left" data-tooltip title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
-            }
-          }
-        }
-
-        if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-          actions_html += '<a class="provision_confirm_delete_template_button" data-tooltip title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
-        }
-
-        $(".provision_templates_ul", context).append('<li>'+
-            '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" saved_to_image_id="'+data.TEMPLATE.SAVED_TO_IMAGE_ID+'" datatable_index="'+iDisplayIndexFull+'">'+
-              '<li class="provision-title text-left" title="'+data.NAME+'">'+
-                data.NAME +
-              '</li>'+
-              '<li class="provision-description text-left" style="padding-top:0px; padding-bottom: 5px">'+
-                (data.TEMPLATE.DESCRIPTION || '...')+
-              '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left: 5px">'+
-                '<i class="fa fa-fw fa-file-text-o"/>&emsp;'+
-                  'x'+(data.TEMPLATE.CPU||'-')+' - '+
-                  ((data.TEMPLATE.MEMORY > 1000) ?
-                    (Math.floor(data.TEMPLATE.MEMORY/1024)+'GB') :
-                    ((data.TEMPLATE.MEMORY||'-')+'MB'))+
-              '</li>'+
-              '<li class="provision-bullet-item text-left" style="margin-left: 5px">'+
-                '<i class="fa fa-fw fa-user"/>&emsp;'+
-                data.UNAME+
-              '</li>'+
-              '<li class="provision-description text-right" style="padding-top:5px; margin-right: 5px">'+
-                '<i class="fa fa-fw fa-clock-o"/>'+
-                Humanize.prettyTimeAgo(data.REGTIME)+
-              '</li>'+
-              '<li class="provision-title" style="padding-top:10px">'+
-                actions_html+
-              '</li>'+
-            '</ul>'+
-          '</li>');
-
-        return nRow;
-      }
-    });
-
-    provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
-
-    $('.provision_list_templates_search', context).keyup(function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_templates_search', context).change(function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    context.on("click", ".provision_templates_list_refresh_button", function(){
-      OpenNebula.Action.clear_cache("VMTEMPLATE");
-      $(".provision_confirm_delete_template_div", context).html("");
-      update_provision_templates_datatable(provision_templates_datatable, 0);
-      return false;
-    });
-
-    context.on("click", ".provision_templates_list_search_button", function(){
-      $(".provision_list_templates_search", context).fadeIn();
-    });
-
-    $(".provision_list_templates_filter", context).on("change", ".resource_list_select", function(){
-      if ($(this).val() != "-2"){
-        provision_templates_datatable.fnFilter("^" + $(this).val() + "$", 3, true, false);
-      } else {
-        provision_templates_datatable.fnFilter("", 3);
-      }
-    })
-
-    ResourceSelect.insert(
-      ".provision_list_templates_filter",
-      context,
-      "User",
-      (opts.filter_expression ? opts.filter_expression : "-2"),
-      false,
-      '<option value="-2">'+Locale.tr("ALL")+'</option>',
-      null,
-      null,
-      true,
-      true);
-
-    context.on("click", ".provision_templates_list_filter_button", function(){
-      $(".provision_list_templates_filter", context).fadeIn();
-      return false;
-    });
-
-    if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-      context.on("click", ".provision_confirm_delete_template_button", function(){
-        var ul_context = $(this).parents(".provision-pricing-table");
-        var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
-        var template_name = $(".provision-title", ul_context).text();
-
-        $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
-            '<div class="row">'+
-            '<div class="large-9 columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("Handle with care! This action will inmediately destroy the template")+
-                ' "' + template_name + '" ' +
-                Locale.tr("and the image associated.") +
-              '</span>'+
-            '</div>'+
-            '<div class="large-3 columns">'+
-              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
-            '</div>'+
-            '</div>'+
-            '<a href="#" class="close">&times;</a>'+
-          '</div>');
-      });
-
-      context.on("click", ".provision_delete_template_button", function(){
-        var button = $(this);
-        button.attr("disabled", "disabled");
-
-        var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
-
-        OpenNebula.Image.del({
-          timeout: true,
-          data : {
-            id : image_id
-          },
-          success: function (){
-            OpenNebula.Template.del({
-              timeout: true,
-              data : {
-                id : template_id
-              },
-              success: function (){
-                $(".provision_templates_list_refresh_button", context).trigger("click");
-              },
-              error: function (request,error_json, container) {
-                Notifier.onError(request, error_json, container);
-              }
-            })
-          },
-          error: function (request,error_json, container) {
-            if (error_json.error.http_status=="404") {
-              OpenNebula.Template.del({
-                timeout: true,
-                data : {
-                  id : template_id
-                },
-                success: function (){
-                  $(".provision_templates_list_refresh_button", context).trigger("click");
-                },
-                error: function (request,error_json, container) {
-                  Notifier.onError(request, error_json, container);
-                  $(".provision_templates_list_refresh_button", context).trigger("click");
-                }
-              })
-            } else {
-              Notifier.onError(request, error_json, container);
-            }
-          }
-        })
-      });
-    }
-
-
-    if (Config.isTabActionEnabled("provision-tab", "Template.chmod")) {
-      context.on("click", ".provision_confirm_chmod_template_button", function(){
-        var ul_context = $(this).parents(".provision-pricing-table");
-        var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
-        var template_name = $(".provision-title", ul_context).text();
-
-        $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
-            '<div class="row">'+
-            '<div class="large-8 columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("The template")+
-                ' "' + template_name + '" ' +
-                Locale.tr("and the image associated will be shared and all the users will be able to instantiate new VMs using this template.") +
-              '</span>'+
-            '</div>'+
-            '<div class="large-4 columns">'+
-              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
-            '</div>'+
-            '</div>'+
-            '<a href="#" class="close">&times;</a>'+
-          '</div>');
-      });
-
-      context.on("click", ".provision_chmod_template_button", function(){
-        var button = $(this);
-        button.attr("disabled", "disabled");
-
-        var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
-
-        OpenNebula.Template.chmod({
-          timeout: true,
-          data : {
-            id : template_id,
-            extra_param: {'group_u': 1}
-          },
-          success: function (){
-            $(".provision_templates_list_refresh_button", context).trigger("click");
-
-            OpenNebula.Image.chmod({
-              timeout: true,
-              data : {
-                id : image_id,
-                extra_param: {'group_u': 1}
-              },
-              success: function (){
-              },
-              error: Notifier.onError
-            })
-          },
-          error: Notifier.onError
-        })
-      });
-
-      context.on("click", ".provision_confirm_unshare_template_button", function(){
-        var ul_context = $(this).parents(".provision-pricing-table");
-        var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
-        var template_name = $(".provision-title", ul_context).first().text();
-
-        $(".provision_confirm_delete_template_div", context).html(
-          '<div data-alert class="alert-box secondary radius">'+
-            '<div class="row">'+
-            '<div class="large-8 columns">'+
-              '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("The template")+
-                ' "' + template_name + '" ' +
-                Locale.tr("and the image associated will be unshared and the users will not be able to instantiate new VMs using this template.") +
-              '</span>'+
-            '</div>'+
-            '<div class="large-4 columns">'+
-              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
-            '</div>'+
-            '</div>'+
-            '<a href="#" class="close">&times;</a>'+
-          '</div>');
-      });
-
-      context.on("click", ".provision_unshare_template_button", function(){
-        var button = $(this);
-        button.attr("disabled", "disabled");
-
-        var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
-
-        OpenNebula.Template.chmod({
-          timeout: true,
-          data : {
-            id : template_id,
-            extra_param: {'group_u': 0}
-          },
-          success: function (){
-            $(".provision_templates_list_refresh_button", context).trigger("click");
-
-            OpenNebula.Image.chmod({
-              timeout: true,
-              data : {
-                id : image_id,
-                extra_param: {'group_u': 0}
-              },
-              success: function (){
-              },
-              error: Notifier.onError
-            })
-          },
-          error: Notifier.onError
-        })
-      });
-    }
-
-    OpenNebula.Action.clear_cache("VMTEMPLATE");
-    update_provision_templates_datatable(provision_templates_datatable, 0);
-    context.foundation();
-  }
-
-  function generate_provision_templates_list(context, opts) {
-    context.off();
-    context.html(provision_list_templates(opts));
-    setup_provision_templates_list(context, opts);
-  }
-
   // Closes and resets the create user wizard
   function clear_provision_create_user(){
     OpenNebula.Action.clear_cache("USER");
@@ -1951,7 +1558,7 @@ define(function(require) {
         ProvisionVmsList.generate($(".provision_vms_list_section"), {active: true});
 
         if (Config.isTabPanelEnabled("provision-tab", "templates")) {
-          generate_provision_templates_list($(".provision_templates_list_section"), {active: true});
+          ProvisionTemplatesList.generate($(".provision_templates_list_section"), {active: true});
         }
 
         // TODO check if active
@@ -1976,7 +1583,7 @@ define(function(require) {
 
         $(document).on("click", ".provision_templates_list_button", function(){
           OpenNebula.Action.clear_cache("VMTEMPLATE");
-          show_provision_template_list(0);
+          ProvisionTemplatesList.show(0);
         });
 
         $(document).on("click", ".provision_flows_list_button", function(){
