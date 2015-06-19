@@ -66,11 +66,27 @@ define(function(require) {
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
+    "VM.create" : {
+      type: "custom",
+      call: function(id, name) {
+        Sunstone.runAction("Template.instantiate", [id], name);
+        Sunstone.runAction("VM.refresh");
+      },
+      callback: function(request, response) {
+        Sunstone.getDataTable(TAB_ID).addElement(request, response);
+      },
+      error: Notifier.onError
+    },
     "VM.deploy" : {
       type: "custom",
       call: function() {
         Sunstone.getDialog(DEPLOY_DIALOG_ID).show();
       }
+    },
+    "VM.silent_deploy_action" : {
+      type: "single",
+      call: OpenNebulaVM.deploy,
+      error: Notifier.onError
     },
     "VM.migrate" : {
       type: "custom",
@@ -160,29 +176,8 @@ define(function(require) {
     //  },
     //  notify: true
     //},
-    /*"VM.create" : {
-      type: "custom",
-      call: function(id, name) {
-        Sunstone.runAction("Template.instantiate", [id], name);
-        Sunstone.runAction("VM.list");
-      },
-      callback: function(request, response) {
-        //Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        //Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: onError
-    },
- 
- 
-    "VM.silent_deploy_action" : {
-      type: "single",
-      call: OpenNebula.VM.deploy,
-      error: onError
-    },    
- 
- 
- 
+    /*
+
     "VM.saveas" : {
       type: "single",
       call: OpenNebula.VM.saveas,
