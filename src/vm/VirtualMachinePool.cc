@@ -29,6 +29,7 @@ time_t VirtualMachinePool::_monitor_expiration;
 bool   VirtualMachinePool::_submit_on_hold;
 float VirtualMachinePool::_default_cpu_cost;
 float VirtualMachinePool::_default_mem_cost;
+float VirtualMachinePool::_default_disk_cost;
 
 
 const char * VirtualMachinePool::import_table = "vm_import";
@@ -52,7 +53,8 @@ VirtualMachinePool::VirtualMachinePool(
         time_t                      expire_time,
         bool                        on_hold,
         float                       default_cpu_cost,
-        float                       default_mem_cost)
+        float                       default_mem_cost,
+        float                       default_disk_cost)
     : PoolSQL(db, VirtualMachine::table, true, false)
 {
     const VectorAttribute * vattr;
@@ -67,6 +69,7 @@ VirtualMachinePool::VirtualMachinePool(
     _submit_on_hold = on_hold;
     _default_cpu_cost = default_cpu_cost;
     _default_mem_cost = default_mem_cost;
+    _default_disk_cost= default_disk_cost;
 
     if ( _monitor_expiration == 0 )
     {
@@ -591,20 +594,24 @@ static string put_time(time_t t)
  */
 struct SBRecord {
 
-    SBRecord(float c, float m, float h): cpu_cost(c), mem_cost(m), hours(h){};
-    SBRecord(): cpu_cost(0), mem_cost(0), hours(0){};
+    SBRecord(float c, float m, float d, float h): cpu_cost(c), mem_cost(m),
+        disk_cost(d), hours(h){};
+
+    SBRecord(): cpu_cost(0), mem_cost(0), disk_cost(0), hours(0){};
 
     ostringstream& to_xml(ostringstream &oss)
     {
         string cpuc_s = one_util::float_to_str(cpu_cost);
         string memc_s = one_util::float_to_str(mem_cost);
+        string diskc_s= one_util::float_to_str(disk_cost);
         string hour_s = one_util::float_to_str(hours);
-        string cost_s = one_util::float_to_str(cpu_cost + mem_cost);
+        string cost_s = one_util::float_to_str(cpu_cost + mem_cost + disk_cost);
 
-        oss << "<CPU_COST>"  << cpuc_s << "</CPU_COST>"
+        oss << "<CPU_COST>"   << cpuc_s << "</CPU_COST>"
             << "<MEMORY_COST>"<< memc_s << "</MEMORY_COST>"
+            << "<DISK_COST>"  << diskc_s<< "</DISK_COST>"
             << "<TOTAL_COST>" << cost_s << "</TOTAL_COST>"
-            << "<HOURS>"     << hour_s << "</HOURS>";
+            << "<HOURS>"      << hour_s << "</HOURS>";
 
         return oss;
     };
@@ -613,11 +620,13 @@ struct SBRecord {
     {
         cpu_cost = 0;
         mem_cost = 0;
+        disk_cost= 0;
         hours    = 0;
     };
 
     float cpu_cost;
     float mem_cost;
+    float disk_cost;
     float hours;
 };
 
@@ -650,14 +659,16 @@ int VirtualMachinePool::calculate_showback(
     string          sql_cmd_separator;
     string          sql_cmd_end;
 
-    tm      tmp_tm;
-    int     vid;
-    int     h_stime;
-    int     h_etime;
-    float   cpu_cost;
-    float   mem_cost;
-    float   cpu;
-    int     mem;
+    tm    tmp_tm;
+    int   vid;
+    int   h_stime;
+    int   h_etime;
+    float cpu_cost;
+    float mem_cost;
+    float disk_cost;
+    float cpu;
+    float disk;
+    int   mem;
 
 #ifdef SBDEBUG
     ostringstream debug;
@@ -791,9 +802,11 @@ int VirtualMachinePool::calculate_showback(
 
         history.xpath(cpu,      "/HISTORY/VM/TEMPLATE/CPU", 0);
         history.xpath(mem,      "/HISTORY/VM/TEMPLATE/MEMORY", 0);
+        history.xpath(disk,     "/HISTORY/VM/DISK_ACTUAL_SIZE", 0);
 
         history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", _default_cpu_cost);
         history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", _default_mem_cost);
+        history.xpath(disk_cost,"/HISTORY/VM/TEMPLATE/DISK_COST", _default_disk_cost);
 
 #ifdef SBDDEBUG
         int seq;
@@ -805,8 +818,10 @@ int VirtualMachinePool::calculate_showback(
             << "h_etime   " << h_etime << endl
             << "cpu_cost  " << cpu_cost << endl
             << "mem_cost  " << mem_cost << endl
+            << "disk_cost " << disk_cost << endl
             << "cpu       " << cpu << endl
-            << "mem       " << mem;
+            << "mem       " << mem << endl
+            << "disk      " << disk;
 
         NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
 #endif
@@ -841,6 +856,7 @@ int VirtualMachinePool::calculate_showback(
 
                 totals[t].cpu_cost += cpu_cost * cpu * n_hours;
                 totals[t].mem_cost += mem_cost * mem * n_hours;
+                totals[t].disk_cost+= disk_cost* disk* n_hours;
                 totals[t].hours    += n_hours;
             }
         }

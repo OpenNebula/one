@@ -468,6 +468,7 @@ void Nebula::start(bool bootstrap_only)
         bool    vm_submit_on_hold;
         float   cpu_cost;
         float   mem_cost;
+        float   disk_cost;
 
         vector<const Attribute *> vm_hooks;
         vector<const Attribute *> host_hooks;
@@ -515,6 +516,7 @@ void Nebula::start(bool bootstrap_only)
 
         cpu_cost = 0;
         mem_cost = 0;
+        disk_cost= 0;
 
         if (rc != 0)
         {
@@ -534,6 +536,14 @@ void Nebula::start(bool bootstrap_only)
             {
                 mem_cost = 0;
             }
+
+
+            rc = vatt->vector_value("DISK_COST", disk_cost);
+
+            if (rc != 0)
+            {
+                disk_cost = 0;
+            }
         }
 
         vmpool = new VirtualMachinePool(db,
@@ -544,7 +554,8 @@ void Nebula::start(bool bootstrap_only)
                                         vm_expiration,
                                         vm_submit_on_hold,
                                         cpu_cost,
-                                        mem_cost);
+                                        mem_cost,
+                                        disk_cost);
 
         hpool  = new HostPool(db,
                               host_hooks,

@@ -224,6 +224,7 @@ void OpenNebulaTemplate::set_conf_default()
     vvalue.clear();
     vvalue.insert(make_pair("CPU_COST","0"));
     vvalue.insert(make_pair("MEMORY_COST","0"));
+    vvalue.insert(make_pair("DISK_COST","0"));
 
     vattribute = new VectorAttribute("DEFAULT_COST",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
