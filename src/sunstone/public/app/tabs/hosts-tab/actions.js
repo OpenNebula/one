@@ -16,11 +16,11 @@ define(function(require) {
       call : OpenNebulaHost.create,
       callback : function(request, response) {
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel($("#" + TAB_ID));
+        Sunstone.hideFormPanel(TAB_ID);
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
       },
       error: function(request, response) {
-        Sunstone.hideFormPanelLoading($("#" + TAB_ID));
+        Sunstone.hideFormPanelLoading(TAB_ID);
         Notifier.onError(request, response);
       },
       notify: true
