@@ -841,7 +841,7 @@ define(function(require) {
 
           $.each(item_list, function(index, vm){
             if (vm.VM.UID == config["user_id"]) {
-              var state = get_provision_vm_state(vm.VM);
+              var state = ProvisionVmsList.state(vm.VM);
 
               total = total + 1;
 
