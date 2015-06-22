@@ -69,8 +69,8 @@ define(function(require) {
 
       if (that.element.TEMPLATE.HOST instanceof Array) {
         $.each(that.element.TEMPLATE.HOST, function(){
-          var cpuBars = CPUBars.html(this.element);
-          var memoryBars = MemoryBars.html(this.element);
+          var cpuBars = CPUBars.html(this, true);
+          var memoryBars = MemoryBars.html(this, true);
 
           hostListArray.push([
               this.HOSTNAME,
