@@ -11,7 +11,6 @@ define(function(require) {
   var ResourceSelect = require('utils/resource-select');
   var OpenNebulaError = require('opennebula/error');
   var OpenNebulaHost = require('opennebula/host');
-  var OpenNebulaVM = require('opennebula/vm');
   var VCenterTemplates = require('utils/vcenter/templates');
   var VCenterNetworks = require('utils/vcenter/networks');
   
@@ -176,8 +175,6 @@ define(function(require) {
             }
           });
 
-          var vms_container = $(".vcenter_vms", context);
-
           var vcenter_user = $("#vcenter_user", context).val();
           var vcenter_password = $("#vcenter_password", context).val();
           var vcenter_host = $("#vcenter_host", context).val();
@@ -257,58 +254,6 @@ define(function(require) {
                 '</span>');
 
             $(".vcenter_host_response",  context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
-                '</p>');
-          }
-        });
-      });
-
-      $.each($(".vm_name:checked", context), function() {
-        var vm_context = $(this).closest(".vcenter_vm");
-
-        $(".vcenter_vm_result:not(.success)", vm_context).html(
-            '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-            '</span>');
-
-        var vm_json = {
-          "vm": {
-            "vm_raw": $(this).data("one_vm")
-          }
-        };
-
-        var host_id_to_deploy = $(this).data("vm_to_host");
-
-        OpenNebulaVM.create({
-          timeout: true,
-          data: vm_json,
-          success: function(request, response) {
-            var extra_info = {};
-
-            extra_info['host_id'] = host_id_to_deploy;
-            extra_info['ds_id']   = -1;
-            extra_info['enforce'] = false;
-
-            Sunstone.runAction("VM.deploy_action", response.VM.ID, extra_info);
-
-            $(".vcenter_vm_result", vm_context).addClass("success").html(
-                '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-                '</span>');
-
-            $(".vcenter_vm_response", vm_context).html('<p style="font-size:12px" class="running-color">' +
-                  Locale.tr("VM imported successfully") + ' ID:' + response.VM.ID +
-                '</p>');
-          },
-          error: function (request, error_json) {
-            $(".vcenter_vm_response", vm_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-                '</span>');
-
-            $(".vcenter_vm_response", vm_context).html('<p style="font-size:12px" class="error-color">' +
                   (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
                 '</p>');
           }
