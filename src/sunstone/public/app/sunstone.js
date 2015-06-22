@@ -699,6 +699,7 @@ define(function(require) {
     var context = $("#" + tabId);
     _popFormPanelLoading(tabId);
     _enableFormPanelSubmit(tabId);
+    _showFormPanelSubmit(tabId);
 
     setTimeout(function() {
       var tab = SunstoneCfg["tabs"][tabId];
@@ -844,6 +845,16 @@ define(function(require) {
         off("click.disable");
   }
 
+  function _hideFormPanelSubmit(tabId) {
+    var context = $("#" + tabId);
+    $(".submit_button", context).hide();
+  }
+
+  function _showFormPanelSubmit(tabId) {
+    var context = $("#" + tabId);
+    $(".submit_button", context).show();
+  }
+
   var _getButton = function(tadId, buttonName) {
     var button = null;
     var buttons = SunstoneCfg["tabs"][tadId]["buttons"];
@@ -905,6 +916,8 @@ define(function(require) {
     "hideFormPanelLoading": _hideFormPanelLoading,
     "disableFormPanelSubmit": _disableFormPanelSubmit,
     "enableFormPanelSubmit": _enableFormPanelSubmit,
+    "hideFormPanelSubmit": _hideFormPanelSubmit,
+    "showFormPanelSubmit": _showFormPanelSubmit,
 
 
     "rightInfoVisible": _rightInfoVisible,

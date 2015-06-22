@@ -83,19 +83,19 @@ define(function(require) {
         $(".vcenter_credentials", context).hide();
         $("#vnm_mads", context).show();
         $("#name_container", context).show();
-        $("#"+TAB_ID+"submit_button", "#"+TAB_ID).show();
+        Sunstone.showFormPanelSubmit(TAB_ID);
         $(".drivers", context).show();
       } else if (this.value == "vcenter") {
         $("#vnm_mads", context).hide();
         $("#name_container", context).hide();
         $(".vcenter_credentials", context).show();
-        $("#"+TAB_ID+"submit_button", "#"+TAB_ID).hide();
+        Sunstone.hideFormPanelSubmit(TAB_ID);
         $(".drivers", context).hide();
       } else {
         $(".vcenter_credentials", context).hide();
         $("#vnm_mads", context).show();
         $("#name_container", context).show();
-        $("#"+TAB_ID+"submit_button", "#"+TAB_ID).show();
+        Sunstone.showFormPanelSubmit(TAB_ID);
         $(".drivers", context).hide();
       }
     });
