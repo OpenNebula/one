@@ -1,6 +1,8 @@
 provision_logo: images/one_small_logo.png
 enabled_tabs:
     provision-tab: true
+    users-tab: true
+    settings-tab: true
 features:
     showback: true
 tabs:
@@ -21,3 +23,12 @@ tabs:
         create_vm:
             capacity_select: false
             network_select: true
+    settings-tab:
+        panel_tabs:
+            user_info_tab: false
+            user_config_tab: true
+            user_quotas_tab: true
+            user_accounting_tab: true
+            user_showback_tab: true
+        actions:
+            User.quotas_dialog: false
