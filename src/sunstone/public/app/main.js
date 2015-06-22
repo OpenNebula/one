@@ -24,6 +24,7 @@ require.config({
     'foundation.offcanvas': '../bower_components/foundation/js/foundation/foundation.offcanvas',
     'foundation.orbit': '../bower_components/foundation/js/foundation/foundation.orbit',
     'foundation.reveal': '../bower_components/foundation/js/foundation/foundation.reveal',
+    'foundation.slider': '../bower_components/foundation/js/foundation/foundation.slider',
     'foundation.tab': '../bower_components/foundation/js/foundation/foundation.tab',
     'foundation.tooltip': '../bower_components/foundation/js/foundation/foundation.tooltip',
     'foundation.topbar': '../bower_components/foundation/js/foundation/foundation.topbar',
@@ -138,6 +139,9 @@ require.config({
       deps: ['foundation.core']
     },
     'foundation.reveal': {
+      deps: ['foundation.core']
+    },
+    'foundation.slider': {
       deps: ['foundation.core']
     },
     'foundation.tab': {

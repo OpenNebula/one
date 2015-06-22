@@ -262,13 +262,19 @@ define(function(require) {
         mode: "time",
         timeformat: "%y/%m/%d",
         color: "#efefef",
-        size: 8,
+        font: {
+          color: "#999",
+          size: 10
+        },
         ticks: 4,
         minTickSize: [1, "day"]
       },
       yaxis : { min: 0,
         color: "#efefef",
-        size: 8
+        font: {
+          color: "#999",
+          size: 10
+        }
       },
       series: {
         bars: {
