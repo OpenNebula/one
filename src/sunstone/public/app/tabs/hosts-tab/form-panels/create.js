@@ -11,8 +11,8 @@ define(function(require) {
   var ResourceSelect = require('utils/resource-select');
   var OpenNebulaError = require('opennebula/error');
   var OpenNebulaHost = require('opennebula/host');
-  var OpenNebulaTemplate = require('opennebula/template');
   var OpenNebulaVM = require('opennebula/vm');
+  var VCenterTemplates = require('utils/vcenter/templates');
   var VCenterNetworks = require('utils/vcenter/networks');
   
   /*
@@ -44,6 +44,7 @@ define(function(require) {
     }
 
     this.vCenterNetworks = new VCenterNetworks();
+    this.vCenterTemplates = new VCenterTemplates();
 
     BaseFormPanel.call(this);
   };
@@ -65,7 +66,8 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
-      'vcenterNetworksHTML': this.vCenterNetworks.html()
+      'vCenterTemplatesHTML': this.vCenterTemplates.html(),
+      'vCenterNetworksHTML': this.vCenterNetworks.html()
     });
   }
 
@@ -174,19 +176,18 @@ define(function(require) {
             }
           });
 
-          var templates_container = $(".vcenter_templates", context);
           var vms_container = $(".vcenter_vms", context);
 
           var vcenter_user = $("#vcenter_user", context).val();
           var vcenter_password = $("#vcenter_password", context).val();
           var vcenter_host = $("#vcenter_host", context).val();
 
-          fillVCenterTemplates({
-                container: templates_container,
-                vcenter_user: vcenter_user,
-                vcenter_password: vcenter_password,
-                vcenter_host: vcenter_host
-              });
+          that.vCenterTemplates.insert({
+            container: context,
+            vcenter_user: vcenter_user,
+            vcenter_password: vcenter_password,
+            vcenter_host: vcenter_host
+          });
 
           that.vCenterNetworks.insert({
             container: context,
@@ -262,48 +263,6 @@ define(function(require) {
         });
       });
 
-      $.each($(".template_name:checked", context), function() {
-        var template_context = $(this).closest(".vcenter_template");
-
-        $(".vcenter_template_result:not(.success)", template_context).html(
-            '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-            '</span>');
-
-        var template_json = {
-          "vmtemplate": {
-            "template_raw": $(this).data("one_template")
-          }
-        };
-
-        OpenNebulaTemplate.create({
-          timeout: true,
-          data: template_json,
-          success: function(request, response) {
-            $(".vcenter_template_result", template_context).addClass("success").html(
-                '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-                '</span>');
-
-            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="running-color">' +
-                  Locale.tr("Template created successfully") + ' ID:' + response.VMTEMPLATE.ID +
-                '</p>');
-          },
-          error: function (request, error_json) {
-            $(".vcenter_template_result", template_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-                '</span>');
-
-            $(".vcenter_template_response", template_context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
-                '</p>');
-          }
-        });
-      });
-
       $.each($(".vm_name:checked", context), function() {
         var vm_context = $(this).closest(".vcenter_vm");
 
@@ -355,6 +314,8 @@ define(function(require) {
           }
         });
       });
+
+      that.vCenterTemplates.import();
 
       that.vCenterNetworks.import();
 
@@ -440,93 +401,6 @@ define(function(require) {
     if (!cluster_id) cluster_id = "-1";
 
     ResourceSelect.insert('#host_cluster_id', context, "Cluster", cluster_id, false);
-    return false;
-  }
-
-  /*
-    Retrieve the list of templates from vCenter and fill the container with them
-
-    opts = {
-      datacenter: "Datacenter Name",
-      cluster: "Cluster Name",
-      container: Jquery div to inject the html,
-      vcenter_user: vCenter Username,
-      vcenter_password: vCenter Password,
-      vcenter_host: vCenter Host
-    }
-   */
-  function fillVCenterTemplates(opts) {
-    var path = '/vcenter/templates';
-
-    opts.container.show();
-
-    $(".accordion_advanced_toggle", opts.container).trigger("click");
-
-    $.ajax({
-      url: path,
-      type: "GET",
-      data: {timeout: false},
-      dataType: "json",
-      headers: {
-        "X_VCENTER_USER": opts.vcenter_user,
-        "X_VCENTER_PASSWORD": opts.vcenter_password,
-        "X_VCENTER_HOST": opts.vcenter_host
-      },
-      success: function(response){
-        $(".content", opts.container).html("");
-
-        $('<div class="row">' +
-            '<div class="large-12 columns">' +
-              '<p style="color: #999">' + Locale.tr("Please select the vCenter Templates to be imported to OpenNebula.") + '</p>' +
-            '</div>' +
-          '</div>').appendTo($(".content", opts.container))
-
-        $.each(response, function(datacenter_name, templates){
-          $('<div class="row">' +
-              '<div class="large-12 columns">' +
-                '<h5>' +
-                  datacenter_name + ' ' + Locale.tr("DataCenter") +
-                '</h5>' +
-              '</div>' +
-            '</div>').appendTo($(".content", opts.container))
-
-          if (templates.length == 0) {
-              $('<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<label>' +
-                      Locale.tr("No new templates found in this DataCenter") +
-                    '</label>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", opts.container))
-          } else {
-            $.each(templates, function(id, template){
-              var trow = $('<div class="vcenter_template">' +
-                  '<div class="row">' +
-                    '<div class="large-10 columns">' +
-                      '<label>' +
-                        '<input type="checkbox" class="template_name" checked/> ' +
-                        template.name + '&emsp;<span style="color: #999">' + template.host + '</span>' +
-                      '</label>' +
-                      '<div class="large-12 columns vcenter_template_response">'+
-                      '</div>'+
-                    '</div>' +
-                    '<div class="large-2 columns vcenter_template_result">'+
-                    '</div>'+
-                  '</div>'+
-                '</div>').appendTo($(".content", opts.container))
-
-              $(".template_name", trow).data("template_name", template.name)
-              $(".template_name", trow).data("one_template", template.one)
-            });
-          };
-        });
-      },
-      error: function(response){
-        opts.container.hide();
-        Notifier.onError({}, OpenNebulaError(response));
-      }
-    });
-
     return false;
   }
 });

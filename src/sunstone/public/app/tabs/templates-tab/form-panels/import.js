@@ -7,7 +7,7 @@ define(function(require) {
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  var VCenterNetworks = require('utils/vcenter/networks');
+  var VCenterTemplates = require('utils/vcenter/templates');
 
   /*
     TEMPLATES
@@ -31,13 +31,13 @@ define(function(require) {
     this.tabId = TAB_ID;
     this.actions = {
       'import': {
-        'title': Locale.tr("Import vCenter Networks"),
+        'title': Locale.tr("Import vCenter VM Templates"),
         'buttonText': Locale.tr("Import"),
         'resetButton': true
       }
     };
 
-    this.vCenterNetworks = new VCenterNetworks();
+    this.vCenterTemplates = new VCenterTemplates();
 
     BaseFormPanel.call(this);
   }
@@ -59,7 +59,7 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateHTML({
       'formPanelId': this.formPanelId,
-      'vCenterNetworksHTML': this.vCenterNetworks.html()
+      'vCenterTemplatesHTML': this.vCenterTemplates.html()
     });
   }
 
@@ -68,14 +68,14 @@ define(function(require) {
 
     Sunstone.disableFormPanelSubmit(TAB_ID);
 
-    $("#get_vcenter_networks", context).on("click", function(){
+    $("#get_vcenter_templates", context).on("click", function(){
       Sunstone.enableFormPanelSubmit(TAB_ID);
 
       var vcenter_user = $("#vcenter_user", context).val();
       var vcenter_password = $("#vcenter_password", context).val();
       var vcenter_host = $("#vcenter_host", context).val();
 
-      that.vCenterNetworks.insert({
+      that.vCenterTemplates.insert({
         container: context,
         vcenter_user: vcenter_user,
         vcenter_password: vcenter_password,
@@ -94,7 +94,7 @@ define(function(require) {
     Sunstone.hideFormPanelLoading(TAB_ID);
     Sunstone.disableFormPanelSubmit(TAB_ID);
 
-    this.vCenterNetworks.import();
+    this.vCenterTemplates.import();
 
     return false;
   }

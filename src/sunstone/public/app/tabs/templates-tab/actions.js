@@ -10,6 +10,8 @@ define(function(require) {
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
   var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
+  var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
+
   var XML_ROOT = "VMTEMPLATE"
   var RESOURCE = "Template"
 
@@ -41,10 +43,10 @@ define(function(require) {
       }
     },
     "Template.import_dialog" : {
-      type: "create",
+      type: "custom",
       call: function() {
-          // TODO popUpTemplateImportDialog();
-        }
+        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
+      }
     },
     "Template.update_dialog" : {
       type: "custom",
