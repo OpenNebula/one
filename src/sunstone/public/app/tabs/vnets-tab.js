@@ -21,8 +21,9 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./vnets-tab/form-panels/create')
-  ]
+    require('./vnets-tab/form-panels/create'),
+    require('./vnets-tab/form-panels/import')
+  ];
 
   var VNetsTab = {
     tabId: TAB_ID,

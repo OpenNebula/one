@@ -12,6 +12,7 @@ define(function(require) {
   var ADD_AR_DIALOG_ID = require('./dialogs/add-ar/dialogId');
   var UPDATE_AR_DIALOG_ID = require('./dialogs/update-ar/dialogId');
   var RESERVE_DIALOG_ID = require('./dialogs/reserve/dialogId');
+  var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
 
   var _actions = {
     "Network.create" : {
@@ -36,15 +37,12 @@ define(function(require) {
       }
     },
 
-    // TODO
-    /*
     "Network.import_dialog" : {
-      type: "create",
-      call: function(){
-        popUpNetworkImportDialog();
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
       }
     },
-    */
 
     "Network.list" : {
       type: "list",
