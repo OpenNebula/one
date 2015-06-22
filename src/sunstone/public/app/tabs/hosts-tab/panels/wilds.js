@@ -75,9 +75,12 @@ define(function(require) {
         wilds = [wilds];
       }
 
+      i = 0;
+
       $.each(wilds, function() {
         var name      = this.VM_NAME;
-        var safe_name = name.replace(/ /g, "_").replace(/\./g, "_");
+        var safe_name = i;
+        i += 1;
         var deploy_id = this.DEPLOY_ID;
 
         var wilds_list_array = [
