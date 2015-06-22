@@ -148,7 +148,7 @@ define(function(require) {
         maxFiles: 1,
         testChunks: false,
         query: {
-          csrftoken: ""//TODO csrftoken
+          csrftoken: csrftoken
         }
       });
 

@@ -71,7 +71,7 @@ define(function(require) {
         maxFiles: 1,
         testChunks: false,
         query: {
-          csrftoken: ""//TODO csrftoken
+          csrftoken: csrftoken
         }
       });
 
@@ -115,7 +115,7 @@ define(function(require) {
           url: 'support/request/' + that.requestId + '/upload',
           type: "POST",
           data: {
-            csrftoken: "",//TODO csrftoken,
+            csrftoken: csrftoken,
             file: fileName,
             tempfile: file.uniqueIdentifier
           },
