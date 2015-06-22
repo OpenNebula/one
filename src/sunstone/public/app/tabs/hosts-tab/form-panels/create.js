@@ -9,8 +9,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Notifier = require('utils/notifier');
   var ResourceSelect = require('utils/resource-select');
-  var OpenNebulaError = require('opennebula/error');
-  var OpenNebulaHost = require('opennebula/host');
+  var VCenterClusters = require('utils/vcenter/clusters');
   var VCenterTemplates = require('utils/vcenter/templates');
   var VCenterNetworks = require('utils/vcenter/networks');
   
@@ -42,6 +41,7 @@ define(function(require) {
       }
     }
 
+    this.vCenterClusters = new VCenterClusters();
     this.vCenterNetworks = new VCenterNetworks();
     this.vCenterTemplates = new VCenterTemplates();
 
@@ -65,6 +65,7 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
+      'vCenterClustersHTML': this.vCenterClusters.html(),
       'vCenterTemplatesHTML': this.vCenterTemplates.html(),
       'vCenterNetworksHTML': this.vCenterNetworks.html()
     });
@@ -104,80 +105,22 @@ define(function(require) {
 
     $("#get_vcenter_clusters", context).on("click", function() {
       // TODO notify if credentials empty
-      var container = $(".vcenter_clusters", context);
 
-      container.show();
+      var vcenter_user = $("#vcenter_user", context).val();
+      var vcenter_password = $("#vcenter_password", context).val();
+      var vcenter_host = $("#vcenter_host", context).val();
 
-      $(".accordion_advanced_toggle", container).trigger("click");
-
-      $.ajax({
-        url: 'vcenter',
-        type: "GET",
-        data: {timeout: false},
-        dataType: "json",
-        headers: {
-          "X_VCENTER_USER": $("#vcenter_user", context).val(),
-          "X_VCENTER_PASSWORD": $("#vcenter_password", context).val(),
-          "X_VCENTER_HOST": $("#vcenter_host", context).val()
-        },
-        success: function(response) {
+      that.vCenterClusters.insert({
+        container: context,
+        vcenter_user: vcenter_user,
+        vcenter_password: vcenter_password,
+        vcenter_host: vcenter_host,
+        success: function(){
           $("#vcenter_user", context).attr("disabled", "disabled");
           $("#vcenter_password", context).attr("disabled", "disabled");
           $("#vcenter_host", context).attr("disabled", "disabled");
           $("#get_vcenter_clusters", context).hide();
           $(".import_vcenter_clusters_div", context).show();
-
-          $(".content", container).html("");
-
-          $('<div class="row">' +
-              '<div class="large-12 columns">' +
-                '<p style="color: #999">' + Locale.tr("Please select the vCenter Clusters to be imported to OpenNebula. Each vCenter Cluster will be included as a new OpenNebula Host") + '</p>' +
-              '</div>' +
-            '</div>').appendTo($(".content", container));
-
-          $.each(response, function(datacenter_name, clusters) {
-            $('<div class="row">' +
-                '<div class="large-12 columns">' +
-                  '<h5>' +
-                    datacenter_name + ' ' + Locale.tr("Datacenter") +
-                  '</h5>' +
-                '</div>' +
-              '</div>').appendTo($(".content", container));
-
-            if (clusters.length == 0) {
-              $('<div class="row">' +
-                  '<div class="large-12 columns">' +
-                    '<label>' +
-                      Locale.tr("No clusters found in this DataCenter") +
-                    '</label>' +
-                  '</div>' +
-                '</div>').appendTo($(".content", container));
-            } else {
-              $.each(clusters, function(id, cluster_name) {
-                var row = $('<div class="vcenter_cluster">' +
-                    '<div class="row">' +
-                      '<div class="large-10 columns">' +
-                        '<label>' +
-                          '<input type="checkbox" class="cluster_name"/> ' +
-                          cluster_name +
-                        '</label>' +
-                        '<div class="large-12 columns vcenter_host_response">' +
-                        '</div>' +
-                      '</div>' +
-                      '<div class="large-2 columns vcenter_host_result">' +
-                      '</div>' +
-                    '</div>' +
-                  '</div>').appendTo($(".content", container));
-
-                $(".cluster_name", row).data("cluster_name", cluster_name);
-                //$(".cluster_name", row).data("datacenter_name", datacenter_name);
-              });
-            }
-          });
-
-          var vcenter_user = $("#vcenter_user", context).val();
-          var vcenter_password = $("#vcenter_password", context).val();
-          var vcenter_host = $("#vcenter_host", context).val();
 
           that.vCenterTemplates.insert({
             container: context,
@@ -192,10 +135,6 @@ define(function(require) {
             vcenter_password: vcenter_password,
             vcenter_host: vcenter_host
           });
-        },
-        error: function(response) {
-          $(".vcenter_clusters", context).hide();
-          Notifier.onError({}, OpenNebulaError(response));
         }
       });
 
@@ -208,61 +147,9 @@ define(function(require) {
       var cluster_id = $('#host_cluster_id .resource_list_select', context).val();
       if (!cluster_id) cluster_id = "-1";
 
-      $.each($(".cluster_name:checked", context), function() {
-        var cluster_context = $(this).closest(".vcenter_cluster");
-        $(".vcenter_host_result:not(.success)", cluster_context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-              '<i class="fa fa-cloud fa-stack-2x"></i>' +
-              '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-            '</span>');
-
-        var host_json = {
-          "host": {
-            "name": $(this).data("cluster_name"),
-            "vm_mad": "vcenter",
-            "vnm_mad": "dummy",
-            "im_mad": "vcenter",
-            "cluster_id": cluster_id
-          }
-        };
-
-        OpenNebulaHost.create({
-          timeout: true,
-          data: host_json,
-          success: function(request, response) {
-            $(".vcenter_host_result", cluster_context).addClass("success").html(
-                '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-check fa-stack-1x fa-inverse"></i>' +
-                '</span>');
-
-            $(".vcenter_host_response", cluster_context).html('<p style="font-size:12px" class="running-color">' +
-                  Locale.tr("Host created successfully") + ' ID:' + response.HOST.ID +
-                '</p>');
-
-            var template_raw =
-              "VCENTER_USER=\"" + $("#vcenter_user", context).val() + "\"\n" +
-              "VCENTER_PASSWORD=\"" + $("#vcenter_password", context).val() + "\"\n" +
-              "VCENTER_HOST=\"" + $("#vcenter_host", context).val() + "\"\n";
-
-            Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
-            Sunstone.getDataTable(TAB_ID).addElement(request, response);
-          },
-          error: function (request, error_json) {
-            $(".vcenter_host_result",  context).html('<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-                  '<i class="fa fa-cloud fa-stack-2x"></i>' +
-                  '<i class="fa  fa-warning fa-stack-1x fa-inverse"></i>' +
-                '</span>');
-
-            $(".vcenter_host_response",  context).html('<p style="font-size:12px" class="error-color">' +
-                  (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?")) +
-                '</p>');
-          }
-        });
-      });
-
-      that.vCenterTemplates.import();
-
-      that.vCenterNetworks.import();
+      that.vCenterClusters.import(context, cluster_id);
+      that.vCenterTemplates.import(context);
+      that.vCenterNetworks.import(context);
 
       return false;
     });
@@ -346,6 +233,9 @@ define(function(require) {
     if (!cluster_id) cluster_id = "-1";
 
     ResourceSelect.insert('#host_cluster_id', context, "Cluster", cluster_id, false);
+
+    $("#host_type_mad", context).change();
+
     return false;
   }
 });

@@ -120,13 +120,8 @@
           <a class="button radius small right" id="get_vcenter_clusters">{{tr "Get vCenter Clusters"}}</a>
         </div>
       </div>
-      <div class="vcenter_clusters hidden">
-        {{#advancedSection (tr "Clusters") }}
-        <span class="fa-stack fa-2x" style="color: #dfdfdf">
-          <i class="fa fa-cloud fa-stack-2x"></i>
-          <i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>
-        </span>
-        {{/advancedSection}}
+      <div>
+        {{{vCenterClustersHTML}}}
       </div>
       <br>
       <div>
