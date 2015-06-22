@@ -37,273 +37,7 @@ define(function(require) {
 
   var TAB_ID = require('./provision-tab/tabId');
 
-  var provision_user_info = '<div id="provision_user_info" class="hidden section_content">'+
-    '<div class="row">'+
-      '<div class="large-12 large-centered columns">'+
-        '<h2 class="subheader text-right">'+
-          '<span class="left">'+
-            '<i class="fa fa-fw fa-user"/>&emsp;'+
-            config["display_name"]+
-          '</span>'+
-          '<a href"#" id="provision_user_info_refresh_button" data-tooltip title="'+ Locale.tr("Refresh")+'" class="has-tip tip-top">'+
-            '<i class="fa fa-fw fa-refresh"/>'+
-          '</a>&emsp;'+
-          '<a href"#" class="off-color has-tip tip-top" data-tooltip title="Log out" id="provision_logout"><i class="fa fa-fw fa-sign-out"/></a>'+
-        '</h2>'+
-      '</div>'+
-    '</div>'+
-    '<br>'+
-    '<div class="row">'+
-      '<div class="large-12 large-centered columns">'+
-        '<dl class="tabs text-center" data-tab style="width: 100%">'+
-          '<dd class="active" style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_settings"><i class="fa fa-fw fa-lg fa-cogs"/>&emsp;'+ Locale.tr("Settings") +'</a></dd>'+
-          (Config.isFeatureEnabled("showback") ? '<dd style="width: 25%;"><a href="#provision_info_showback"><i class="fa fa-fw fa-lg fa-money"/>&emsp;'+ Locale.tr("Showback") +'</a></dd>' : '') +
-          '<dd style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_acct"><i class="fa fa-fw fa-lg fa-bar-chart-o"/>&emsp;'+ Locale.tr("Accounting") +'</a></dd>'+
-          '<dd style="width: '+ (Config.isFeatureEnabled("showback") ? '25%' : '33%')+';"><a href="#provision_info_quotas"><i class="fa fa-fw fa-lg fa-align-left"/>&emsp;'+ Locale.tr("Quotas") +'</a></dd>'+
-        '</dl>'+
-        '<br>'+
-      '</div>'+
-    '</div>'+
-    '<div class="tabs-content">'+
-      '<div class="content" id="provision_info_acct">'+
-        '<div class="row">'+
-          '<div id="provision_user_info_acct_div" class="large-9 large-centered columns">'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-      (Config.isFeatureEnabled("showback") ? '<div class="content" id="provision_info_showback">'+
-        '<div class="row">'+
-          '<div id="provision_user_info_showback_div" class="large-12 large-centered columns">'+
-          '</div>'+
-        '</div>'+
-      '</div>' : '')+
-      '<div class="content" id="provision_info_quotas">'+
-        '<div class="row">'+
-          '<div id="provision_user_info_quotas_div" class="large-9 large-centered columns quotas">'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="content active" id="provision_info_settings">'+
-        '<div class="row">'+
-          '<div class="large-6 columns">'+
-            '<div class="row">'+
-              '<div class="large-12 large-centered columns">'+
-                '<dl class="accordion" data-accordion>'+
-                  '<dd class="accordion-navigation">'+
-                    '<a href="#provision_update_language_accordion" class="text-center accordion-a">'+
-                      '<div class="row only-not-active">'+
-                        '<div class="large-12 large-centered columns">'+
-                          '<div class="text-center">'+
-                            '<span class="fa-stack fa-3x" style="color: #777">'+
-                              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                              '<i class="fa fa-comments fa-stack-1x fa-inverse"></i>'+
-                            '</span>'+
-                          '</div>'+
-                        '</div>'+
-                      '</div>'+
-                      '<br class="only-not-active">'+
-                      '<i class="fa fa-lg fa-comments only-active"></i> '+
-                      Locale.tr("Change Language")+
-                    '</a>'+
-                    '<div id="provision_update_language_accordion" class="content">'+
-                      '<br>'+
-                      '<form id="provision_change_language_form">'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<select type="language" id="provision_new_language" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
-                            Locale.language_options +
-                            '</select>'+
-                          '</div>'+
-                        '</div>'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<button href"#" type="submit" class="button large radius large-12 small-12">'+Locale.tr("Update Language")+'</button>'+
-                          '</div>'+
-                        '</div>'+
-                      '</form>'+
-                    '</div>'+
-                  '</dd>'+
-                '</dl>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-          '<div class="large-6 columns">'+
-            '<div class="row">'+
-              '<div class="large-12 large-centered columns">'+
-                '<dl class="accordion" data-accordion>'+
-                  '<dd class="accordion-navigation">'+
-                    '<a href="#provision_update_password_accordion" class="text-center accordion-a">'+
-                      '<div class="row only-not-active">'+
-                        '<div class="large-12 large-centered columns">'+
-                          '<div class="text-center">'+
-                            '<span class="fa-stack fa-3x" style="color: #777">'+
-                              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                              '<i class="fa fa-lock fa-stack-1x fa-inverse"></i>'+
-                            '</span>'+
-                          '</div>'+
-                        '</div>'+
-                      '</div>'+
-                      '<br class="only-not-active">'+
-                      '<i class="fa fa-lg fa-lock only-active"></i> '+
-                      Locale.tr("Change Password")+
-                    '</a>'+
-                    '<div id="provision_update_password_accordion" class="content">'+
-                      '<br>'+
-                      '<form id="provision_change_password_form">'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<input type="password" id="provision_new_password" class="provision-input" placeholder="'+Locale.tr("New Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-                          '</div>'+
-                        '</div>'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="'+Locale.tr("Confirm Password")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
-                          '</div>'+
-                        '</div>'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<button href"#" type="submit" class="button large radius large-12 small-12">'+Locale.tr("Update Password")+'</button>'+
-                          '</div>'+
-                        '</div>'+
-                      '</form>'+
-                    '</div>'+
-                  '</dd>'+
-                '</dl>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-        '<br>'+
-        '<br>'+
-        '<div class="row">'+
-          '<div class="large-6 columns">'+
-            '<div class="row">'+
-              '<div class="large-12 large-centered columns">'+
-                '<dl class="accordion" data-accordion>'+
-                  '<dd class="accordion-navigation">'+
-                    '<a href="#provision_update_view_accordion" class="text-center accordion-a">'+
-                      '<div class="row only-not-active">'+
-                        '<div class="large-12 large-centered columns">'+
-                          '<div class="text-center">'+
-                            '<span class="fa-stack fa-3x" style="color: #777">'+
-                              '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                              '<i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>'+
-                            '</span>'+
-                          '</div>'+
-                        '</div>'+
-                      '</div>'+
-                      '<br class="only-not-active">'+
-                      '<i class="fa fa-lg fa-picture-o only-active"></i> '+
-                      Locale.tr("Change view")+
-                    '</a>'+
-                    '<div id="provision_update_view_accordion" class="content">'+
-                      '<br>'+
-                      '<form id="provision_change_view_form">'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<select id="provision_user_views_select" class="provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;">'+
-                            '</select>'+
-                          '</div>'+
-                        '</div>'+
-                        '<div class="row">'+
-                          '<div class="large-12 columns">'+
-                            '<button href"#" type="submit" class="button large radius large-12 small-12">'+Locale.tr("Update view")+'</button>'+
-                          '</div>'+
-                        '</div>'+
-                      '</form>'+
-                    '</div>'+
-                  '</dd>'+
-                '</dl>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-          '<div class="large-6 columns">'+
-            '<form id="provision_add_ssh_key_form">'+
-              '<div class="row">'+
-                '<div class="large-12 large-centered columns">'+
-                  '<dl class="accordion" data-accordion>'+
-                    '<dd class="accordion-navigation">'+
-                      '<a href="#provision_add_ssh_key_accordion" class="text-center accordion-a">'+
-                        '<div class="row only-not-active">'+
-                          '<div class="large-12 large-centered columns">'+
-                            '<div class="text-center">'+
-                              '<span class="fa-stack fa-3x" style="color: #777">'+
-                                '<i class="fa fa-cloud fa-stack-2x"></i>'+
-                                '<i class="fa fa-key fa-stack-1x fa-inverse"></i>'+
-                              '</span>'+
-                            '</div>'+
-                          '</div>'+
-                        '</div>'+
-                        '<br class="only-not-active">'+
-                        '<i class="fa fa-key fa-lg only-active"></i> '+
-                        '<span class="provision_add_ssh_key_button">'+ Locale.tr("Add SSH Key")+ '</span>'+
-                        '<span class="provision_update_ssh_key_button">'+ Locale.tr("Update SSH Key")+ '</span>'+
-                      '</a>'+
-                      '<div id="provision_add_ssh_key_accordion" class="content">'+
-                        '<br>'+
-                        '<p style="font-size: 16px; color: #999">'+
-                          '<span class="provision_add_ssh_key_button">'+
-                            Locale.tr("Add a public SSH key to your account!")+
-                            '<br>'+
-                            Locale.tr("You will be able to access your Virtual Machines without password")+
-                          '</span>'+
-                          '<span class="provision_update_ssh_key_button">'+
-                            Locale.tr("Update your public SSH key!")+
-                            '<br>'+
-                            Locale.tr("You will be able to access your Virtual Machines without password")+
-                          '</span>'+
-                        '</p>'+
-                        '<div class="row">'+
-                          '<div class="large-12 large-centered columns">'+
-                            '<textarea id="provision_ssh_key" style="height: 100px; font-size: 14px" placeholder="SSH key" class="provision-input"></textarea>'+
-                          '</div>'+
-                        '</div>'+
-                        '<div class="row">'+
-                          '<div class="large-12 large-centered columns">'+
-                            '<button href="#" type="submit" class="provision_add_ssh_key_button button large radius large-12 small-12">'+Locale.tr("Add SSH Key")+'</button>'+
-                            '<button href="#" type="submit" class="provision_update_ssh_key_button button large radius large-12 small-12 hidden">'+Locale.tr("Update SSH Key")+'</button>'+
-                          '</div>'+
-                        '</div>'+
-                      '</div>'+
-                    '</dd>'+
-                  '</dl>'+
-                '</div>'+
-              '</div>'+
-            '</form>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
-    '</div>'+
-  '</div>';
-
   var povision_actions = {
-    "Provision.User.show" : {
-        type: "single",
-        call: OpenNebula.User.show,
-        callback: show_provision_user_info_callback,
-        error: Notifier.onError
-    },
-
-    "Provision.User.passwd" : {
-        type: "single",
-        call: OpenNebula.User.passwd,
-        callback: function() {
-          show_provision_user_info();
-          Notifier.notifyMessage("Password updated successfully");
-        },
-        error: Notifier.onError
-    },
-
-    "Provision.User.update_template" : {
-        type: "single",
-        call: OpenNebula.User.update,
-        callback: function() {
-          show_provision_user_info();
-          Notifier.notifyMessage("SSH key updated successfully");
-        },
-        error: Notifier.onError
-    },
-
     "Provision.User.create" : {
         type: "create",
         call: OpenNebula.User.create,
@@ -1267,49 +1001,6 @@ define(function(require) {
   }
 
 
-  function show_provision_user_info_callback(request, response) {
-    var info = response.USER;
-
-    var default_user_quotas = QuotaDefaults.default_quotas(info.DEFAULT_USER_QUOTAS);
-
-    var quotas_tab_html = QuotaWidgets.initQuotasPanel(info, default_user_quotas,
-                                        "#provision_user_info_quotas_div", false);
-
-    $("#provision_user_info_quotas_div").html(quotas_tab_html);
-
-    QuotaWidgets.setupQuotasPanel(info,
-        "#provision_user_info_quotas_div",
-        false,
-        "User");
-
-    var ssh_key = info.TEMPLATE.SSH_PUBLIC_KEY;
-    if (ssh_key && ssh_key.length) {
-      $("#provision_ssh_key").val(ssh_key);
-      $(".provision_add_ssh_key_button").hide();
-      $(".provision_update_ssh_key_button").show();
-    } else {
-      $(".provision_add_ssh_key_button").show();
-      $(".provision_update_ssh_key_button").hide();
-    }
-
-    $('#provision_new_language option[value="'+config['user_config']["lang"]+'"]').attr('selected','selected');
-    $('#provision_user_views_select option[value="'+config['user_config']["default_view"]+'"]').attr('selected','selected');
-
-    $("#provision_user_info_acct_div").html(Accounting.html());
-    Accounting.setup(
-      $("#provision_user_info_acct_div"),
-        { fixed_user: info.ID,
-          fixed_group_by: "vm" });
-
-
-    if (Config.isFeatureEnabled("showback")) {
-      $("#provision_user_info_showback_div").html(Showback.html());
-      Showback.setup(
-        $("#provision_user_info_showback_div"),
-          { fixed_user: info.ID, fixed_group: ""});
-    }
-  }
-
 
   function show_provision_group_info_callback(request, response) {
     var info = response.GROUP;
@@ -1551,10 +1242,6 @@ define(function(require) {
             return false;
         });
 
-        $(".provision_image_header").on("click", function(){
-          show_provision_dashboard();
-        })
-
         ProvisionVmsList.generate($(".provision_vms_list_section"), {active: true});
 
         if (Config.isTabPanelEnabled("provision-tab", "templates")) {
@@ -1569,9 +1256,20 @@ define(function(require) {
         // Dashboard
         //
 
+        $(".provision_image_header").on("click", function(){
+          Sunstone.showTab(TAB_ID);
+          $('li', '.provision-header').removeClass("active");
+          show_provision_dashboard();
+        })
+
+        $(".configuration").on("click", function(){
+          $('li', '.provision-header').removeClass("active");
+        })
+
         show_provision_dashboard();
 
         $('.provision-header').on('click', 'li', function(){
+          Sunstone.showTab(TAB_ID);
           $('li', '.provision-header').removeClass("active");
           $(this).closest('li').addClass("active");
         })
@@ -1594,138 +1292,6 @@ define(function(require) {
         $(document).on("click", ".provision_users_list_button", function(){
           OpenNebula.Action.clear_cache("USER");
           ProvisionUsersList.show(0);
-        });
-
-        //
-        // User Info
-        //
-
-        $("#provision_user_info_button").on("click", function(){
-          show_provision_user_info();
-        });
-
-        $("#provision_user_info").on("click", "#provision_user_info_refresh_button", function(){
-          show_provision_user_info();
-        });
-
-        $.each( config['available_views'], function(id, view) {
-          $('select#provision_user_views_select').append('<option value="'+view+'">'+view+'</option>')
-        });
-
-        $("#provision_change_password_form").submit(function(){
-          var pw = $('#provision_new_password', this).val();
-          var confirm_password = $('#provision_new_confirm_password', this).val();
-
-          if (!pw.length){
-              Notifier.notifyError(Locale.tr("Fill in a new password"));
-              return false;
-          }
-
-          if (pw !== confirm_password){
-              Notifier.notifyError(Locale.tr("Passwords do not match"));
-              return false;
-          }
-
-          Sunstone.runAction("Provision.User.passwd", "-1", pw);
-          return false;
-        });
-
-        $("#provision_add_ssh_key_form").submit(function(){
-          var keypair = $('#provision_ssh_key', this).val();
-
-          if (!keypair.length){
-              Notifier.notifyError(Locale.tr("You have to provide an SSH key"));
-              return false;
-          }
-
-          OpenNebula.User.show({
-            data : {
-                id: "-1"
-            },
-            success: function(request,user_json){
-              var template = user_json.USER.TEMPLATE;
-
-              template["SSH_PUBLIC_KEY"] = keypair;
-
-              template_str = "";
-              $.each(template,function(key,value){
-                template_str += (key + '=' + '"' + value + '"\n');
-              });
-
-              Sunstone.runAction("Provision.User.update_template", "-1", template_str);
-            }
-          })
-          return false;
-        });
-
-        $("#provision_change_view_form").submit(function(){
-          var view = $('#provision_user_views_select', this).val();
-
-          OpenNebula.User.show({
-            data : {
-                id: "-1"
-            },
-            success: function(request,user_json){
-              var template = user_json.USER.TEMPLATE;
-
-              template["DEFAULT_VIEW"] = view;
-
-              template_str = "";
-              $.each(template,function(key,value){
-                template_str += (key + '=' + '"' + value + '"\n');
-              });
-
-              var data = OpenNebula.Helper.action('update', {"template_raw" : template_str });
-
-              $.ajax({
-                url: 'config',
-                type: "POST",
-                dataType: "json",
-                data: JSON.stringify(data),
-                success: function(){
-                    window.location.href = ".";
-                },
-                error: function(response){
-                }
-              });
-            }
-          })
-          return false;
-        });
-
-        $("#provision_change_language_form").submit(function(){
-          var lang = $('#provision_new_language', this).val();
-
-          OpenNebula.User.show({
-            data : {
-                id: "-1"
-            },
-            success: function(request,user_json){
-              var template = user_json.USER.TEMPLATE;
-
-              template["LANG"] = lang;
-
-              template_str = "";
-              $.each(template,function(key,value){
-                template_str += (key + '=' + '"' + value + '"\n');
-              });
-
-              var data = OpenNebula.Helper.action('update', {"template_raw" : template_str });
-
-              $.ajax({
-                url: 'config',
-                type: "POST",
-                dataType: "json",
-                data: JSON.stringify(data),
-                success: function(){
-                    window.location.href = ".";
-                },
-                error: function(response){
-                }
-              });
-            }
-          })
-          return false;
         });
 
         //

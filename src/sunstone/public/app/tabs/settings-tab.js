@@ -18,6 +18,7 @@ define(function(require) {
 
   var _panels = [
     require('tabs/users-tab/panels/info'),
+    require('tabs/settings-tab/panels/user-config'),
     require('tabs/users-tab/panels/quotas'),
     require('tabs/settings-tab/panels/group-quotas'),
     require('tabs/users-tab/panels/accounting'),
