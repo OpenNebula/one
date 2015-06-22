@@ -7,25 +7,28 @@ define(function(require) {
   var OpenNebulaAction = require('opennebula/action');
 
   var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
   var _actions = {
     "Datastore.create" : {
       type: "create",
       call : OpenNebulaDatastore.create,
       callback : function(request, response) {
-        Sunstone.getDialog(CREATE_DIALOG_ID).hide();
-        Sunstone.getDialog(CREATE_DIALOG_ID).reset();
+        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
+        Sunstone.hideFormPanel(TAB_ID);
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
         Notifier.notifyCustom(Locale.tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
       },
-      error : Notifier.onError
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      },
     },
 
     "Datastore.create_dialog" : {
       type: "custom",
       call: function() {
-        Sunstone.getDialog(CREATE_DIALOG_ID).show();
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
 

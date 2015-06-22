@@ -8,7 +8,10 @@ define(function(require) {
   var DATATABLE_ID = "dataTableDatastores";
 
   var _dialogs = [
-    require('./datastores-tab/dialogs/create')
+  ];
+
+  var _formPanels = [
+    require('./datastores-tab/form-panels/create')
   ];
 
   var _panels = [
@@ -29,6 +32,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    formPanels: _formPanels,
     dialogs: _dialogs
   };
 

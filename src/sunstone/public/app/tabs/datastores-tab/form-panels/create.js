@@ -3,43 +3,70 @@ define(function(require) {
     DEPENDENCIES
    */
   
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./create/html');
+  require('foundation.tab');
+  var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
+  var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
-  var ResourceSelect = require('utils/resource-select')
-  
+  var ResourceSelect = require('utils/resource-select');
+
+  /*
+    TEMPLATES
+   */
+
+  var TemplateWizardHTML = require('hbs!./create/wizard');
+  var TemplateAdvancedHTML = require('hbs!./create/advanced');
+
   /*
     CONSTANTS
    */
   
-  var DIALOG_ID = require('./create/dialogId');
+  var FORM_PANEL_ID = require('./create/formPanelId');
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
    */
 
-  function Dialog() {
-    this.dialogId = DIALOG_ID;
-    BaseDialog.call(this);
-  };
+  function FormPanel() {
+    this.formPanelId = FORM_PANEL_ID;
+    this.tabId = TAB_ID;
+    this.actions = {
+      'create': {
+        'title': Locale.tr("Create Datastore"),
+        'buttonText': Locale.tr("Create"),
+        'resetButton': true
+      }
+    };
 
-  Dialog.DIALOG_ID = DIALOG_ID;
-  Dialog.prototype = Object.create(BaseDialog.prototype);
-  Dialog.prototype.constructor = Dialog;
-  Dialog.prototype.html = _html;
-  Dialog.prototype.onShow = _onShow;
-  Dialog.prototype.setup = _setup;
+    BaseFormPanel.call(this);
+  }
 
-  return Dialog;
+  FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
+  FormPanel.prototype = Object.create(BaseFormPanel.prototype);
+  FormPanel.prototype.constructor = FormPanel;
+  FormPanel.prototype.htmlWizard = _htmlWizard;
+  FormPanel.prototype.htmlAdvanced = _htmlAdvanced;
+  FormPanel.prototype.submitWizard = _submitWizard;
+  FormPanel.prototype.submitAdvanced = _submitAdvanced;
+  FormPanel.prototype.onShow = _onShow;
+  FormPanel.prototype.setup = _setup;
+
+  return FormPanel;
   
   /*
     FUNCTION DEFINITIONS
    */
 
-  function _html() {
-    return TemplateHTML({dialogId: DIALOG_ID});
+  function _htmlWizard() {
+    return TemplateWizardHTML({
+      'formPanelId': this.formPanelId,
+    });
+  }
+
+  function _htmlAdvanced() {
+    return TemplateAdvancedHTML({formPanelId: this.formPanelId});
   }
 
   function _onShow(dialog) {
@@ -111,138 +138,135 @@ define(function(require) {
       }
     });
 
-    $('#create_datastore_submit', dialog).click(function() {
-      var name            = $('#name', dialog).val();
-      var cluster_id      = $(".resource_list_select", $('#cluster_id', dialog)).val();
-      var ds_type         = $('input[name=ds_type]:checked', dialog).val();
-      var ds_mad          = $('#ds_mad', dialog).val();
-      ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]').val() : ds_mad;
-      var tm_mad          = $('#tm_mad', dialog).val();
-      tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]').val() : tm_mad;
-      var type            = $('#disk_type', dialog).val();
-
-      var safe_dirs       = $('#safe_dirs', dialog).val();
-      var base_path       = $('#base_path', dialog).val();
-      var restricted_dirs = $('#restricted_dirs', dialog).val();
-      var limit_transfer_bw = $('#limit_transfer_bw', dialog).val();
-      var datastore_capacity_check = $('#datastore_capacity_check', dialog).is(':checked');
-      var no_decompress   = $('#no_decompress', dialog).is(':checked');
-
-      var bridge_list     = $('#bridge_list', dialog).val();
-      var ds_tmp_dir     = $('#ds_tmp_dir', dialog).val();
-      var vg_name         = $('#vg_name', dialog).val();
-      var limit_mb        = $('#limit_mb', dialog).val();
-      var gluster_host    = $('#gluster_host', dialog).val();
-      var gluster_volume  = $('#gluster_volume', dialog).val();
-      var pool_name       = $('#pool_name', dialog).val();
-      var ceph_host       = $('#ceph_host', dialog).val();
-      var ceph_secret     = $('#ceph_secret', dialog).val();
-      var ceph_user       = $('#ceph_user', dialog).val();
-      var rbd_format      = $('#rbd_format', dialog).val();
-      var staging_dir     = $('#staging_dir', dialog).val();
-
-      if (!name) {
-        Notifier.notifyError("Please provide a name");
-        return false;
-      };
-
-      var ds_obj = {
-        "datastore" : {
-          "name" : name,
-          "tm_mad" : tm_mad,
-          "disk_type" : type,
-          "type" : ds_type
-        },
-        "cluster_id" : cluster_id
-      };
-
-      // If we are adding a system datastore then
-      // we do not use ds_mad
-      if (ds_type != "SYSTEM_DS")
-          ds_obj.datastore.ds_mad = ds_mad;
-
-      if (base_path)
-          ds_obj.datastore.base_path = base_path;
-
-      if (safe_dirs)
-          ds_obj.datastore.safe_dirs = safe_dirs;
-
-      if (restricted_dirs)
-          ds_obj.datastore.restricted_dirs = restricted_dirs;
-
-      if (limit_transfer_bw)
-          ds_obj.datastore.limit_transfer_bw = limit_transfer_bw;
-
-      if (no_decompress)
-          ds_obj.datastore.no_decompress = "YES";
-
-      if (datastore_capacity_check)
-          ds_obj.datastore.datastore_capacity_check = "YES";
-
-      if (bridge_list)
-          ds_obj.datastore.bridge_list = bridge_list;
-
-      if (ds_tmp_dir)
-          ds_obj.datastore.ds_tmp_dir = ds_tmp_dir;
-
-      if (vg_name)
-          ds_obj.datastore.vg_name = vg_name;
-
-      if (limit_mb)
-          ds_obj.datastore.limit_mb = limit_mb;
-
-      if (gluster_host)
-          ds_obj.datastore.gluster_host = gluster_host;
-
-      if (gluster_volume)
-          ds_obj.datastore.gluster_volume = gluster_volume;
-
-      if (pool_name)
-          ds_obj.datastore.pool_name = pool_name;
-
-      if (ceph_host)
-          ds_obj.datastore.ceph_host = ceph_host;
-
-      if (ceph_secret)
-          ds_obj.datastore.ceph_secret = ceph_secret;
-
-      if (ceph_user)
-          ds_obj.datastore.ceph_user = ceph_user;
-
-      if (rbd_format)
-          ds_obj.datastore.rbd_format = rbd_format;
-
-      if (staging_dir)
-          ds_obj.datastore.staging_dir = staging_dir;
-
-      Sunstone.runAction("Datastore.create", ds_obj);
-      return false;
-    });
-
-    $('#create_datastore_submit_manual', dialog).click(function() {
-      var template   = $('#template', dialog).val();
-      var cluster_id = $(".resource_list_select", $('#datastore_cluster_raw', dialog)).val();
-
-      if (!cluster_id) {
-        Notifier.notifyError(tr("Please select a cluster for this datastore"));
-        return false;
-      };
-
-      var ds_obj = {
-        "datastore" : {
-          "datastore_raw" : template
-        },
-        "cluster_id" : cluster_id
-      };
-      Sunstone.runAction("Datastore.create", ds_obj);
-      return false;
-    });
-
     // Hide disk_type
     $('select#disk_type').parent().hide();
 
     _hideAll(dialog);
     _selectFilesystem();
+  }
+
+
+  function _submitWizard(dialog) {
+    var name            = $('#name', dialog).val();
+    var cluster_id      = $(".resource_list_select", $('#cluster_id', dialog)).val();
+    var ds_type         = $('input[name=ds_type]:checked', dialog).val();
+    var ds_mad          = $('#ds_mad', dialog).val();
+    ds_mad              = ds_mad == "custom" ? $('input[name="ds_tab_custom_ds_mad"]').val() : ds_mad;
+    var tm_mad          = $('#tm_mad', dialog).val();
+    tm_mad              = tm_mad == "custom" ? $('input[name="ds_tab_custom_tm_mad"]').val() : tm_mad;
+    var type            = $('#disk_type', dialog).val();
+
+    var safe_dirs       = $('#safe_dirs', dialog).val();
+    var base_path       = $('#base_path', dialog).val();
+    var restricted_dirs = $('#restricted_dirs', dialog).val();
+    var limit_transfer_bw = $('#limit_transfer_bw', dialog).val();
+    var datastore_capacity_check = $('#datastore_capacity_check', dialog).is(':checked');
+    var no_decompress   = $('#no_decompress', dialog).is(':checked');
+
+    var bridge_list     = $('#bridge_list', dialog).val();
+    var ds_tmp_dir     = $('#ds_tmp_dir', dialog).val();
+    var vg_name         = $('#vg_name', dialog).val();
+    var limit_mb        = $('#limit_mb', dialog).val();
+    var gluster_host    = $('#gluster_host', dialog).val();
+    var gluster_volume  = $('#gluster_volume', dialog).val();
+    var pool_name       = $('#pool_name', dialog).val();
+    var ceph_host       = $('#ceph_host', dialog).val();
+    var ceph_secret     = $('#ceph_secret', dialog).val();
+    var ceph_user       = $('#ceph_user', dialog).val();
+    var rbd_format      = $('#rbd_format', dialog).val();
+    var staging_dir     = $('#staging_dir', dialog).val();
+
+    var ds_obj = {
+      "datastore" : {
+        "name" : name,
+        "tm_mad" : tm_mad,
+        "disk_type" : type,
+        "type" : ds_type
+      },
+      "cluster_id" : cluster_id
+    };
+
+    // If we are adding a system datastore then
+    // we do not use ds_mad
+    if (ds_type != "SYSTEM_DS")
+        ds_obj.datastore.ds_mad = ds_mad;
+
+    if (base_path)
+        ds_obj.datastore.base_path = base_path;
+
+    if (safe_dirs)
+        ds_obj.datastore.safe_dirs = safe_dirs;
+
+    if (restricted_dirs)
+        ds_obj.datastore.restricted_dirs = restricted_dirs;
+
+    if (limit_transfer_bw)
+        ds_obj.datastore.limit_transfer_bw = limit_transfer_bw;
+
+    if (no_decompress)
+        ds_obj.datastore.no_decompress = "YES";
+
+    if (datastore_capacity_check)
+        ds_obj.datastore.datastore_capacity_check = "YES";
+
+    if (bridge_list)
+        ds_obj.datastore.bridge_list = bridge_list;
+
+    if (ds_tmp_dir)
+        ds_obj.datastore.ds_tmp_dir = ds_tmp_dir;
+
+    if (vg_name)
+        ds_obj.datastore.vg_name = vg_name;
+
+    if (limit_mb)
+        ds_obj.datastore.limit_mb = limit_mb;
+
+    if (gluster_host)
+        ds_obj.datastore.gluster_host = gluster_host;
+
+    if (gluster_volume)
+        ds_obj.datastore.gluster_volume = gluster_volume;
+
+    if (pool_name)
+        ds_obj.datastore.pool_name = pool_name;
+
+    if (ceph_host)
+        ds_obj.datastore.ceph_host = ceph_host;
+
+    if (ceph_secret)
+        ds_obj.datastore.ceph_secret = ceph_secret;
+
+    if (ceph_user)
+        ds_obj.datastore.ceph_user = ceph_user;
+
+    if (rbd_format)
+        ds_obj.datastore.rbd_format = rbd_format;
+
+    if (staging_dir)
+        ds_obj.datastore.staging_dir = staging_dir;
+
+    Sunstone.runAction("Datastore.create", ds_obj);
+    return false;
+  }
+
+  function _submitAdvanced(dialog) {
+    var template   = $('#template', dialog).val();
+    var cluster_id = $(".resource_list_select", $('#datastore_cluster_raw', dialog)).val();
+
+    if (!cluster_id) {
+      Notifier.notifyError(tr("Please select a cluster for this datastore"));
+      return false;
+    }
+
+    var ds_obj = {
+      "datastore" : {
+        "datastore_raw" : template
+      },
+      "cluster_id" : cluster_id
+    };
+
+    Sunstone.runAction("Datastore.create", ds_obj);
+    return false;
   }
 
   function _hideAll(dialog) {

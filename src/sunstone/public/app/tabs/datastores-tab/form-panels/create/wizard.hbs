@@ -1,0 +1,246 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="name" >{{tr "Name"}}:</label>
+      <input required type="text" name="name" id="name"/>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="presets">{{tr "Presets"}}</label>
+      <select id="presets" name="presets">
+        <option value="fs">{{tr "Filesystem"}}</option>
+        <option value="vmware_vmfs">{{tr "VMware VMFS"}}</option>
+        <option value="block_lvm">{{tr "Block LVM"}}</option>
+        <option value="fs_lvm">{{tr "FS LVM"}}</option>
+        <option value="ceph">{{tr "Ceph"}}</option>
+        <option value="gluster">{{tr "Gluster"}}</option>
+        <option value="dev">{{tr "Devices"}}</option>
+        <option value="custom">{{tr "Custom"}}</option>
+      </select>
+    </div>
+    <div class="large-6 columns">
+      <label for="cluster">{{tr "Cluster"}}</label>
+      <div id="cluster_id" name="cluster_id"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <fieldset>
+        <legend>{{tr "Type"}}</legend>
+        <div class="large-12 columns text-center">
+          <input id="image_ds_type" type="radio" name="ds_type" value="IMAGE_DS" checked/>
+          <label for="image_ds_type">{{tr "Images"}}</label>
+          <input id="system_ds_type" type="radio" name="ds_type" value="SYSTEM_DS" />
+          <label for="system_ds_type">{{tr "System"}}</label>
+          <input id="file_ds_type" type="radio" name="ds_type" value="FILE_DS" />
+          <label for="file_ds_type">{{tr "Files"}}</label>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <fieldset>
+        <legend>{{tr "Managers"}}</legend>
+        <div class="large-6 columns">
+          <label for="ds_mad">{{tr "Datastore"}}</label>
+          <select id="ds_mad" name="ds_mad">
+            <option value="fs">{{tr "Filesystem"}}</option>
+            <option value="vmware">{{tr "VMware"}}</option>
+            <option value="lvm">{{tr "LVM"}}</option>
+            <option value="vmfs">{{tr "VMFS"}}</option>
+            <option value="ceph">{{tr "Ceph"}}</option>
+            <option value="dev">{{tr "Devices"}}</option>
+            <option value="custom">{{tr "Custom"}}</option>
+          </select>
+          <div>
+            <label>{{tr "Custom DS_MAD"}}:</label>
+            <input type="text" name="ds_tab_custom_ds_mad" />
+          </div>
+        </div>
+        <div class="large-6 columns">
+          <label for="tm_mad">{{tr "Transfer"}}:</label>
+          <select id="tm_mad" name="tm_mad">
+            <option value="shared">{{tr "Shared"}}</option>
+            <option value="ssh">{{tr "SSH"}}</option>
+            <option value="qcow2">{{tr "qcow2"}}</option>
+            <option value="lvm">{{tr "LVM"}}</option>
+            <option value="fs_lvm">{{tr "FS LVM"}}</option>
+            <option value="vmfs">{{tr "VMFS"}}</option>
+            <option value="ceph">{{tr "Ceph"}}</option>
+            <option value="dev">{{tr "Devices"}}</option>
+            <option value="custom">{{tr "Custom"}}</option>
+          </select>
+          <div>
+            <label>{{tr "Custom TM_MAD"}}:</label>
+            <input type="text" name="ds_tab_custom_tm_mad" />
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="disk_type">{{tr "Disk type"}}:</label>
+      <select id="disk_type" name="disk_type">
+        <option value="file">{{tr "File"}}</option>
+        <option value="block">{{tr "Block"}}</option>
+        <option value="RBD">{{tr "RBD"}}</option>
+        <option value="gluster">{{tr "Gluster"}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <label for="safe_dirs">
+        {{tr "Safe Directories"}}
+        <span class="tip">
+          {{tr "If you need to un-block a directory under one of the RESTRICTED_DIRS"}}
+        </span>
+      </label>
+      <input type="text" name="safe_dirs" id="safe_dirs" />
+    </div>
+    <div class="large-12 columns">
+      <label for="restricted_dirs">
+        {{tr "Restricted Directories"}}
+        <span class="tip">
+          {{tr "Paths that can not be used to register images. A space separated list of paths. This will prevent users registering important files as VM images and accessing them thourgh their VMs. OpenNebula will automatically add its configuration directories: /var/lib/one, /etc/one and oneadmin's home ($HOME)."}}
+        </span>
+      </label>
+      <input type="text" name="restricted_dirs" id="restricted_dirs" />
+    </div>
+    <div class="large-6 columns">
+      <label for="base_path">
+        {{tr "Base Path"}}
+        <span class="tip">
+          {{tr "When needed, the front-end will access the datastores using BASE_PATH (defaults to /var/lib/one/datastores)."}}
+        </span>
+      </label>
+      <input type="text" name="base_path" id="base_path" />
+    </div>
+    <div class="large-6 columns">
+      <label for="limit_transfer_bw">
+        {{tr "Transfer BW Limit"}}
+        <span class="tip">
+          {{tr "Specify the maximum transfer rate in bytes/second when downloading images from a http/https URL. Suffixes K, M or G can be used."}}
+        </span>
+      </label>
+      <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />
+    </div>
+    <div class="large-6 columns">
+      <label for="limit_mb">
+        {{tr "Limit"}}
+        <span class="tip">
+          {{tr "Optional limit, in MB. If set, OpenNebula will only use this amount of storage, instead of the whole free disk."}}
+        </span>
+      </label>
+      <input type="text" name="limit_mb" id="limit_mb" />
+    </div>
+    <div class="large-12 columns">
+      <input id="no_decompress" type="checkbox" name="no_decompress" value="YES" />
+      <label for="no_decompress">{{tr "Do not try to untar or decompress"}}</label>
+    </div>
+    <div class="large-12 columns">
+      <input id="datastore_capacity_check" type="checkbox" name="datastore_capacity_check" value="YES" />
+      <label for="datastore_capacity_check">
+        {{tr "Check available capacity of the datastore before creating a new image"}}
+      </label>
+    </div>
+    <div class="large-12 columns">
+      <label for="bridge_list">
+        {{tr "Host Bridge List"}}
+        <span class="tip">
+          {{tr "Space separated list of Server names or IPs where OpenNebula will be staging the new images into. This server will act as the entry point for new inmages in the datastore."}}
+        </span>
+      </label>
+      <input type="text" name="bridge_list" id="bridge_list" />
+    </div>
+    <div class="large-6 columns">
+      <label for="ds_tmp_dir">
+        {{tr "DS Tmp Dir"}}
+        <span class="tip">
+          {{tr "Path in the OpenNebula front-end to be used as a buffer to stage in files in vmfs datastores."}}
+        </span>
+      </label>
+      <input type="text" name="ds_tmp_dir" id="ds_tmp_dir" />
+    </div>
+    <div class="large-6 columns">
+      <label for="vg_name">{{tr "Volume Group Name"}}</label>
+      <input type="text" name="vg_name" id="vg_name" />
+    </div>
+    <div class="large-6 columns">
+      <label for="gluster_host">
+        {{tr "Gluster Host"}}
+        <span class="tip">
+          {{tr "Host and port of one (and only one) Gluster server (host:port)"}}
+        </span>
+      </label>
+      <input type="text" name="gluster_host" id="gluster_host" />
+    </div>
+    <div class="large-6 columns">
+      <label for="gluster_volume">
+        {{tr "Gluster Volume"}}
+        <span class="tip">{{tr "Gluster volume to use for the datastore"}}</span>
+      </label>
+      <input type="text" name="gluster_volume" id="gluster_volume" />
+    </div>
+    <div class="large-6 columns">
+      <label for="pool_name">
+        {{tr "Pool Name"}}
+        <span class="tip">
+          {{tr "The OpenNebula Ceph pool name. Defaults to 'one' (this pool must exist before using the drivers)."}}
+        </span>
+      </label>
+      <input type="text" name="pool_name" id="pool_name" />
+    </div>
+    <div class="large-6 columns">
+      <label for="ceph_host">
+        {{tr "Ceph Host"}}
+        <span class="tip">
+          {{tr "Space-separated list of Ceph monitors. Example: host1 host2:port2 host3 host4:port4 (if no port is specified, the default one is chosen) (Required for Libvirt 1.x when cephx is enabled)."}}
+        </span>
+      </label>
+      <input type="text" name="ceph_host" id="ceph_host" />
+    </div>
+    <div class="large-6 columns">
+      <label for="ceph_user">
+        {{tr "Ceph User"}}
+        <span class="tip">
+          {{tr "The OpenNebula Ceph user name. If set it is used by RBD commands. This ceph user must exist before using the drivers. Required for Libvirt 1.x when cephx is enabled ."}}
+        </span>
+      </label>
+      <input type="text" name="ceph_user" id="ceph_user" />
+    </div>
+    <div class="large-6 columns">
+      <label for="ceph_secret">
+        {{tr "Ceph Secret"}}
+        <span class="tip">
+          {{tr "A generated UUID for a LibVirt secret (to hold the CephX authentication key in Libvirt on each hypervisor). This should be generated when creating the Ceph datastore in OpenNebula. (Required for Libvirt 1.x when cephx is enabled)."}}
+        </span>
+      </label>
+      <input type="text" name="ceph_secret" id="ceph_secret" />
+    </div>
+    <div class="large-6 columns">
+      <label class="fs" for="staging_dir">
+        {{tr "Staging Dir"}}
+        <span class="tip">
+          {{tr "FS: Default path where images will be temporarily copied to in the host carrying out the registration operation (chosen from the bridge list). If empty, defaults to /var/tmp."}}
+          <br>
+          <br>
+          {{tr "Ceph: Default path for image operations in the OpenNebula Ceph frontend."}}
+        </span>
+      </label>
+      <input type="text" name="staging_dir" id="staging_dir" />
+    </div>
+    <div class="large-6 columns">
+      <label for="rbd_format">
+        {{tr "RBD Format"}}
+        <span class="tip">
+          {{tr "By default RBD Format 2 will be used. If RBD_FORMAT=2 is specified then when instantiating non-persistent images the Ceph driver will perform rbd snap instead of rbd copy."}}
+        </span>
+      </label>
+      <input type="text" name="rbd_format" id="rbd_format" />
+    </div>
+  </div>
+</form>
