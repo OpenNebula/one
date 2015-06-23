@@ -20,4 +20,5 @@
 
 for lang in $(ls languages/*.po); do
     msgmerge --backup=off --no-wrap --update $lang messages.pot
+    echo
 done
