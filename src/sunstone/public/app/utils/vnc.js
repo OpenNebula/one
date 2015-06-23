@@ -1,14 +1,22 @@
 define(function(require) {
   INCLUDE_URI = "bower_components/no-vnc/include/";
   require('vnc-util');
+  require('vnc-webutil');
+  require('vnc-base64');
+  require('vnc-websock');
+  require('vnc-des');
+  require('vnc-keysymdef');
+  require('vnc-keyboard');
+  require('vnc-input');
+  require('vnc-display');
+  require('vnc-jsunzip');
+  require('vnc-rfb');
+  require('vnc-keysym');
+  
   var Config = require('sunstone-config');
 
   var _lock = false;
   var _rfb;
-
-  Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
-                     "keysymdef.js", "keyboard.js", "input.js", "display.js",
-                     "jsunzip.js", "rfb.js", "keysym.js"]);
 
   return {
     'lockStatus': lockStatus,

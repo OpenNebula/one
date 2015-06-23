@@ -53,8 +53,19 @@ require.config({
 
     /* VNC */
     'vnc-util': '../bower_components/no-vnc/include/util',
+    'vnc-webutil': '../bower_components/no-vnc/include/webutil',
+    'vnc-base64': '../bower_components/no-vnc/include/base64',
+    'vnc-websock': '../bower_components/no-vnc/include/websock',
+    'vnc-des': '../bower_components/no-vnc/include/des',
+    'vnc-keysymdef': '../bower_components/no-vnc/include/keysymdef',
+    'vnc-keyboard': '../bower_components/no-vnc/include/keyboard',
+    'vnc-input': '../bower_components/no-vnc/include/input',
+    'vnc-display': '../bower_components/no-vnc/include/display',
+    'vnc-jsunzip': '../bower_components/no-vnc/include/jsunzip',
+    'vnc-rfb': '../bower_components/no-vnc/include/rfb',
+    'vnc-keysym': '../bower_components/no-vnc/include/keysym',
 
-    /* VNC */
+    /* Spice */
     'spice-main': '../bower_components/spice-html5/main',
     'spice-spicearraybuffer': '../bower_components/spice-html5/spicearraybuffer',
     'spice-enums': '../bower_components/spice-html5/enums',
@@ -127,7 +138,7 @@ require.config({
       deps: ['foundation.core']
     },
     'foundation.joyride': {
-      deps: ['foundation.core', 'foundation.cookie']
+      deps: ['foundation.core', 'jquery.cookie']
     },
     'foundation.magellan': {
       deps: ['foundation.core']
@@ -194,39 +205,38 @@ require.config({
     'vnc-util': {
       exports: 'Util'
     },
-
-    /* VNC */
-    'spice': {
-      exports: 'SpiceMainConn',
-      deps: [
-        '../bower_components/spice-html5/spicearraybuffer',
-        '../bower_components/spice-html5/enums',
-        '../bower_components/spice-html5/atKeynames',
-        '../bower_components/spice-html5/utils',
-        '../bower_components/spice-html5/png',
-        '../bower_components/spice-html5/lz',
-        '../bower_components/spice-html5/quic',
-        '../bower_components/spice-html5/bitmap',
-        '../bower_components/spice-html5/spicedataview',
-        '../bower_components/spice-html5/spicetype',
-        '../bower_components/spice-html5/spicemsg',
-        '../bower_components/spice-html5/wire',
-        '../bower_components/spice-html5/spiceconn',
-        '../bower_components/spice-html5/display',
-        '../bower_components/spice-html5/inputs',
-        '../bower_components/spice-html5/webm',
-        '../bower_components/spice-html5/playback',
-        '../bower_components/spice-html5/simulatecursor',
-        '../bower_components/spice-html5/cursor',
-        '../bower_components/spice-html5/thirdparty/jsbn',
-        '../bower_components/spice-html5/thirdparty/rsa',
-        '../bower_components/spice-html5/thirdparty/prng4',
-        '../bower_components/spice-html5/thirdparty/rng',
-        '../bower_components/spice-html5/thirdparty/sha1',
-        '../bower_components/spice-html5/ticket',
-        '../bower_components/spice-html5/resize',
-        '../bower_components/spice-html5/filexfer'
-      ]
+    'vnc-webutil': {
+      deps: ["vnc-util"]
+    },
+    'vnc-base64': {
+      deps: ["vnc-util"]
+    },
+    'vnc-websock': {
+      deps: ["vnc-util"]
+    },
+    'vnc-des': {
+      deps: ["vnc-util"]
+    },
+    'vnc-keysymdef': {
+      deps: ["vnc-util"]
+    },
+    'vnc-keyboard': {
+      deps: ["vnc-util"]
+    },
+    'vnc-input': {
+      deps: ["vnc-util"]
+    },
+    'vnc-display': {
+      deps: ["vnc-util"]
+    },
+    'vnc-jsunzip': {
+      deps: ["vnc-util"]
+    },
+    'vnc-rfb': {
+      deps: ["vnc-util"]
+    },
+    'vnc-keysym': {
+      deps: ["vnc-util"]
     },
 
     'spice-main': {

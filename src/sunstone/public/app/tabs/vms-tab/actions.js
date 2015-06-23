@@ -5,7 +5,7 @@ define(function(require) {
   var OpenNebulaVM = require('opennebula/vm');
   var CommonActions = require('utils/common-actions');
   var Vnc = require('utils/vnc');
-  var Vnc = require('utils/spice');
+  var Spice = require('utils/spice');
 
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -136,7 +136,7 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          if (!Vnc.lockStatus()) {
+          if (!Spice.lockStatus()) {
             Spice.lock();
             Sunstone.runAction("VM.startspice_action", elem);
           } else {
