@@ -1,32 +1,31 @@
 <!DOCTYPE html>
-<head>
+<html>
+  <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="images/favicon.ico" />
     <title>OpenNebula Sunstone Login</title>
     <link rel="stylesheet" type="text/css" href="css/login.css" />
-    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <!--[if IE]>
     <script type="text/javascript" src="vendor/crypto-js/core-min.js"></script>
     <script type="text/javascript" src="vendor/crypto-js/enc-base64-min.js"></script>
     <![endif]-->
 
-    <script type="text/javascript" src="js/opennebula.js"></script>
-    <script type="text/javascript" src="js/login.js"></script>
+    <script src="bower_components/requirejs/require.js" data-main="dist/login"></script>
+  </head>
 
-</head>
+  <body>
 
+    <% if settings.config[:auth] == "x509" %>
+    <%= erb :_login_x509 %>
+    <% else %>
+    <%= erb :_login_standard %>
+    <% end %>
 
-<body>
-
-<% if settings.config[:auth] == "x509" %>
-  <%= erb :_login_x509 %>
-<% else %>
-  <%= erb :_login_standard %>
-<% end %>
-
-
-<div id="footer" style="overflow:visible;">
-    <a href="http://opennebula.org" target="_blank">OpenNebula 4.12.0</a> by <a href="http://opennebula.systems" target="_blank">OpenNebula Systems</a>.
-</div>
-</body>
+    <div id="footer" style="overflow:visible;">
+      <a href="http://opennebula.org" target="_blank">OpenNebula 4.12.0</a>
+      by
+      <a href="http://opennebula.systems" target="_blank">OpenNebula Systems</a>
+      .
+    </div>
+  </body>
 </html>
