@@ -56,6 +56,10 @@ define(function(require) {
     Sunstone.addMainTab(tab);
   });
 
+  //$(window).load(function() {
+  //   $('#loading').hide();
+  //});
+
   $(document).ready(function() {
     Sunstone.insertTabs();
 
@@ -64,8 +68,10 @@ define(function(require) {
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
       Sunstone.showTab(PROVISION_TAB_ID);
+      $('#loading').hide();
     } else if (Config.isTabEnabled(DASHBOARD_TAB_ID)) {
       Sunstone.showTab(DASHBOARD_TAB_ID);
+      $('#loading').hide();
     }
   });
 
