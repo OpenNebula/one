@@ -1,5 +1,6 @@
 define(function(require) {
   var OpenNebulaHelper = require('./helper');
+  var OpenNebulaError = require('./error');
 
   var RESOURCE = "AUTH";
 
@@ -34,7 +35,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     },
@@ -54,7 +55,7 @@ define(function(require) {
         },
         error: function(response) {
           return callbackError ?
-              callbackError(request, OpenNebula.Error(response)) : null;
+              callbackError(request, OpenNebulaError(response)) : null;
         }
       });
     }
