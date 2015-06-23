@@ -17,7 +17,9 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      grunt: { files: ['Gruntfile.js'] },
+      grunt: { 
+        files: ['Gruntfile.js'] 
+      },
 
       sass: {
         files: 'scss/**/*.scss',
@@ -31,16 +33,170 @@ module.exports = function(grunt) {
     },
 
     requirejs: {
-      compile: {
+      compileCSS: {
         options: {
-          //baseUrl: '../js', // 1
-          out: 'dist/main.min.js', // 2
+          out: './css/app.min.css',
+          cssIn: './css/app.css',
+          optimizeCss: 'default'
+        }
+      },
+      compileJS: {
+        options: {
+          appDir: './app',
+          baseUrl: './', // 1
+          dir: './dist', // 2
           //name: 'vendor/almond', // 3
-          include: 'main', // 4
-          mainConfigFile: 'app/main.js', // 5
+          mainConfigFile: './app/main.js', // 5
           preserveLicenseComments: false,
           optimize: 'uglify2',
-          generateSourceMaps: true
+          generateSourceMaps: true,
+          removeCombined: false,
+          findNestedDependencies: true,
+          modules: [
+            {
+              name: 'main'
+            },
+            {
+              name: 'login'
+            }
+            /*{
+              name: 'main'
+              excludeShallow: [
+                'app'
+              ],
+              include: [
+                'jquery',
+                'datatables',
+                'foundation-datatables',
+                'jgrowl',
+                'foundation.core',
+                'foundation.abide',
+                'foundation.accordion',
+                'foundation.alert',
+                'foundation.clearing',
+                'foundation.dropdown',
+                'foundation.equalizer',
+                'foundation.interchange',
+                'foundation.joyride',
+                'foundation.magellan',
+                'foundation.offcanvas',
+                'foundation.orbit',
+                'foundation.reveal',
+                'foundation.slider',
+                'foundation.tab',
+                'foundation.tooltip',
+                'foundation.topbar',
+                'hbs',
+                'jquery.cookie',
+                'fastclick',
+                'modernizr',
+                'placeholder',
+                'resumable',
+                'flot',
+                'flot.stack',
+                'flot.resize',
+                'flot.time',
+                'flot.tooltip',
+                'nouislider',
+                'vnc-util',
+                'spice-main',
+                'spice-spicearraybuffer',
+                'spice-enums',
+                'spice-atKeynames',
+                'spice-utils',
+                'spice-png',
+                'spice-lz',
+                'spice-quic',
+                'spice-bitmap',
+                'spice-spicedataview',
+                'spice-spicetype',
+                'spice-spicemsg',
+                'spice-wire',
+                'spice-spiceconn',
+                'spice-display',
+                'spice-inputs',
+                'spice-webm',
+                'spice-playback',
+                'spice-simulatecursor',
+                'spice-cursor',
+                'spice-jsbn',
+                'spice-rsa',
+                'spice-prng4',
+                'spice-rng',
+                'spice-sha1',
+                'spice-ticket',
+                'spice-resize',
+                'spice-filexfer'
+              ]
+            },
+            {
+              name: 'app',
+              exclude: [
+                'jquery',
+                'datatables',
+                'foundation-datatables',
+                'jgrowl',
+                'foundation.core',
+                'foundation.abide',
+                'foundation.accordion',
+                'foundation.alert',
+                'foundation.clearing',
+                'foundation.dropdown',
+                'foundation.equalizer',
+                'foundation.interchange',
+                'foundation.joyride',
+                'foundation.magellan',
+                'foundation.offcanvas',
+                'foundation.orbit',
+                'foundation.reveal',
+                'foundation.slider',
+                'foundation.tab',
+                'foundation.tooltip',
+                'foundation.topbar',
+                'hbs',
+                'jquery.cookie',
+                'fastclick',
+                'modernizr',
+                'placeholder',
+                'resumable',
+                'flot',
+                'flot.stack',
+                'flot.resize',
+                'flot.time',
+                'flot.tooltip',
+                'nouislider',
+                'vnc-util',
+                'spice-main',
+                'spice-spicearraybuffer',
+                'spice-enums',
+                'spice-atKeynames',
+                'spice-utils',
+                'spice-png',
+                'spice-lz',
+                'spice-quic',
+                'spice-bitmap',
+                'spice-spicedataview',
+                'spice-spicetype',
+                'spice-spicemsg',
+                'spice-wire',
+                'spice-spiceconn',
+                'spice-display',
+                'spice-inputs',
+                'spice-webm',
+                'spice-playback',
+                'spice-simulatecursor',
+                'spice-cursor',
+                'spice-jsbn',
+                'spice-rsa',
+                'spice-prng4',
+                'spice-rng',
+                'spice-sha1',
+                'spice-ticket',
+                'spice-resize',
+                'spice-filexfer'
+              ]
+            }*/
+          ]
         }
       }
     }
