@@ -4,10 +4,19 @@ define(function(require) {
   var RESOURCE = "DATASTORE";
   var STATES = ["ON", "OFF"];
 
+  var TYPES = [
+    "IMAGE",
+    "SYSTEM",
+    "FILE"
+  ];
+
   var Datastore = {
     "resource": RESOURCE,
     "stateStr": function(stateId) {
       return STATES[stateId];
+    },
+    "typeStr": function(typeId) {
+      return TYPES[typeId];
     },
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);

@@ -59,6 +59,7 @@ define(function(require) {
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
     var stateStr = Locale.tr(OpenNebulaDatastore.stateStr(this.element.STATE));
+    var typeStr = OpenNebulaDatastore.typeStr(this.element.TYPE);
 
     var limitStr = '-';
     if (this.element.TEMPLATE.SHARED == "NO" || this.element.TEMPLATE.LIMIT_MB != undefined) {
@@ -73,6 +74,7 @@ define(function(require) {
       'permissionsTableHTML': permissionsTableHTML,
       'capacityBar': capacityBar,
       'stateStr': stateStr,
+      'typeStr': typeStr,
       'limitStr': limitStr
     });
   }

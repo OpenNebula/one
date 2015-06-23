@@ -95,13 +95,6 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json.DATASTORE;
 
-    var ds_type_str = "IMAGE_DS";
-
-    if (typeof element.TEMPLATE.TYPE != "undefined")
-    {
-      ds_type_str = element.TEMPLATE.TYPE;
-    }
-
     return [
         '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                              element.ID + '" name="selected_items" value="' +
@@ -115,7 +108,7 @@ define(function(require) {
         element.BASE_PATH,
         element.TM_MAD,
         element.DS_MAD,
-        ds_type_str.toLowerCase().split('_')[0],
+        OpenNebulaDatastore.typeStr(element.TYPE),
         Locale.tr(OpenNebulaDatastore.stateStr(element.STATE))
     ];
   }
