@@ -16,19 +16,20 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
+# mvds host:remote_system_ds/disk.i fe:SOURCE snapid vmid dsid
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
+#   - snapid is the snapshot id. "-1" for none
 
 SRC=$1
 DST=$2
-
-VMID=$3
-DSID=$4
+SNAP_ID=$3
+VMID=$4
+DSID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -36,7 +37,28 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+
 . $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${SRC} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -51,6 +73,14 @@ SRC_DS_PATH="$(dirname $(dirname $(dirname $SRC_PATH)))"
 DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
 
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
+
+if [ "$CLONE" != "YES" ]; then
+    SRC_PATH="$DISK_SRC"
+fi
+
+if [ "$SNAP_ID" != "-1" ]; then
+    SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
+fi
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
