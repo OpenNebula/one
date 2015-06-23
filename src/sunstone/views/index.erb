@@ -158,5 +158,12 @@
       </div>
       <div class="large-12 columns" id="dialogs"></div>
     </div>
+
+
+    <% if $conf[:env] == 'dev' %>
+      <script src="bower_components/requirejs/require.js" data-main="app/main"></script> 
+    <% else %>
+      <script src="bower_components/requirejs/require.js" data-main="dist/main"></script> 
+    <% end %>
   </body>
 </html>
