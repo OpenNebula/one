@@ -54,10 +54,13 @@ module.exports = function(grunt) {
           findNestedDependencies: true,
           modules: [
             {
-              name: 'main'
+              name: 'main',
+              include: ['almond']
             },
             {
-              name: 'login'
+              name: 'login',
+              include: ['almond'],
+              insertRequire: ['login']
             }
             /*{
               name: 'main'

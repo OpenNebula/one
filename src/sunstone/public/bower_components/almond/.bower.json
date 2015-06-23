@@ -1,0 +1,20 @@
+{
+  "name": "almond",
+  "version": "0.3.1",
+  "main": "almond.js",
+  "ignore": [
+    "tests",
+    "shrinktest.sh"
+  ],
+  "homepage": "https://github.com/jrburke/almond",
+  "_release": "0.3.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.1",
+    "commit": "8336992b1a3fee8d10310822d4222fb82d24f097"
+  },
+  "_source": "git://github.com/jrburke/almond.git",
+  "_target": "~0.3.1",
+  "_originalSource": "almond",
+  "_direct": true
+}

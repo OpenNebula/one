@@ -1,5 +1,8 @@
 require.config({
   paths: {
+    /* Almond */
+    'almond': '../bower_components/almond/almond',
+
     /* jQuery */
     'jquery': '../bower_components/jquery/dist/jquery.min',
 

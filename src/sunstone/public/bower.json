@@ -13,6 +13,7 @@
     "resumablejs": "*",
     "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5",
     "require-handlebars-plugin": "~0.11.2",
-    "requirejs": "~2.1.17"
+    "requirejs": "~2.1.17",
+    "almond": "~0.3.1"
   }
 }
