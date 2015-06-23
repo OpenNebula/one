@@ -256,7 +256,7 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
 
             is >> deploy_id;
 
-            vm->update_info(deploy_id);
+            vm->set_deploy_id(deploy_id);
 
             vmpool->update(vm);
 

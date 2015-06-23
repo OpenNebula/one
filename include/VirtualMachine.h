@@ -385,8 +385,7 @@ public:
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
      */
-    void update_info(
-        const string& _deploy_id)
+    void set_deploy_id(const string& _deploy_id)
     {
         deploy_id = _deploy_id;
     };

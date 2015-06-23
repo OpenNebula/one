@@ -1180,7 +1180,7 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
 
                     oss << "one-" << vm->get_oid();
 
-                    vm->update_info(oss.str());
+                    vm->set_deploy_id(oss.str());
                 }
 
                 lcm_action = LifeCycleManager::DEPLOY_SUCCESS;
