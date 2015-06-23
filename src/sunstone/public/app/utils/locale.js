@@ -27,9 +27,7 @@ define(function(require) {
         tr("November"), tr("December"));
 
   function tr(str) {
-    // TODO Add locale from the locale folder
-    // var tmp = locale[str];
-    var tmp;
+    var tmp = locale[str];
     if (tmp == null || tmp == "") {
       tmp = str;
     }

@@ -6,11 +6,9 @@
     <title>OpenNebula Sunstone: Cloud Operations Center</title>
     <link href="images/favicon.ico" rel="shortcut icon"></link>
 
-    <!-- TODO
     <% if session[:lang] %>
-      <script src="locale/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
+      <script src="locale/languages/<%= session[:lang] %>/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% end %>
-    -->
     
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script type="text/javascript">

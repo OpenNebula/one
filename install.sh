@@ -306,28 +306,28 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/public/dist \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts \
-               $SUNSTONE_LOCATION/public/locale \
-               $SUNSTONE_LOCATION/public/locale/ca \
-               $SUNSTONE_LOCATION/public/locale/cs_CZ \
-               $SUNSTONE_LOCATION/public/locale/da \
-               $SUNSTONE_LOCATION/public/locale/de \
-               $SUNSTONE_LOCATION/public/locale/el_GR \
-               $SUNSTONE_LOCATION/public/locale/en_US \
-               $SUNSTONE_LOCATION/public/locale/es_ES \
-               $SUNSTONE_LOCATION/public/locale/da \
-               $SUNSTONE_LOCATION/public/locale/fa_IR \
-               $SUNSTONE_LOCATION/public/locale/fr_FR \
-               $SUNSTONE_LOCATION/public/locale/it_IT \
-               $SUNSTONE_LOCATION/public/locale/ja \
-               $SUNSTONE_LOCATION/public/locale/lt_LT \
-               $SUNSTONE_LOCATION/public/locale/nl_NL \
-               $SUNSTONE_LOCATION/public/locale/pl \
-               $SUNSTONE_LOCATION/public/locale/pt_BR \
-               $SUNSTONE_LOCATION/public/locale/pt_PT \
-               $SUNSTONE_LOCATION/public/locale/ru_RU \
-               $SUNSTONE_LOCATION/public/locale/sk_SK \
-               $SUNSTONE_LOCATION/public/locale/zh_TW \
-               $SUNSTONE_LOCATION/public/locale/zh_CN \
+               $SUNSTONE_LOCATION/public/locale/languages \
+               $SUNSTONE_LOCATION/public/locale/languages/ca \
+               $SUNSTONE_LOCATION/public/locale/languages/cs_CZ \
+               $SUNSTONE_LOCATION/public/locale/languages/da \
+               $SUNSTONE_LOCATION/public/locale/languages/de \
+               $SUNSTONE_LOCATION/public/locale/languages/el_GR \
+               $SUNSTONE_LOCATION/public/locale/languages/en_US \
+               $SUNSTONE_LOCATION/public/locale/languages/es_ES \
+               $SUNSTONE_LOCATION/public/locale/languages/da \
+               $SUNSTONE_LOCATION/public/locale/languages/fa_IR \
+               $SUNSTONE_LOCATION/public/locale/languages/fr_FR \
+               $SUNSTONE_LOCATION/public/locale/languages/it_IT \
+               $SUNSTONE_LOCATION/public/locale/languages/ja \
+               $SUNSTONE_LOCATION/public/locale/languages/lt_LT \
+               $SUNSTONE_LOCATION/public/locale/languages/nl_NL \
+               $SUNSTONE_LOCATION/public/locale/languages/pl \
+               $SUNSTONE_LOCATION/public/locale/languages/pt_BR \
+               $SUNSTONE_LOCATION/public/locale/languages/pt_PT \
+               $SUNSTONE_LOCATION/public/locale/languages/ru_RU \
+               $SUNSTONE_LOCATION/public/locale/languages/sk_SK \
+               $SUNSTONE_LOCATION/public/locale/languages/zh_TW \
+               $SUNSTONE_LOCATION/public/locale/languages/zh_CN \
                $SUNSTONE_LOCATION/public/images \
                $SUNSTONE_LOCATION/public/images/logos \
                $SUNSTONE_LOCATION/views"
@@ -497,26 +497,26 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
     SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
     SUNSTONE_PUBLIC_LOGOS_FILES:$SUNSTONE_LOCATION/public/images/logos
-    SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/ca
-    SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/cs_CZ
-    SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/de
-    SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/da
-    SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/el_GR
-    SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/en_US
-    SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/es_ES
-    SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/fa_IR
-    SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/fr_FR
-    SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/it_IT
-    SUNSTONE_PUBLIC_LOCALE_JA:$SUNSTONE_LOCATION/public/locale/ja
-    SUNSTONE_PUBLIC_LOCALE_LT_LT:$SUNSTONE_LOCATION/public/locale/lt_LT
-    SUNSTONE_PUBLIC_LOCALE_NL_NL:$SUNSTONE_LOCATION/public/locale/nl_NL
-    SUNSTONE_PUBLIC_LOCALE_PL:$SUNSTONE_LOCATION/public/locale/pl
-    SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/pt_PT
-    SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/pt_BR
-    SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/ru_RU
-    SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/sk_SK
-    SUNSTONE_PUBLIC_LOCALE_ZH_CN:$SUNSTONE_LOCATION/public/locale/zh_CN
-    SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/zh_TW
+    SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/languages/ca
+    SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/languages/cs_CZ
+    SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/languages/de
+    SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/languages/da
+    SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/languages/el_GR
+    SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/languages/en_US
+    SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/languages/es_ES
+    SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/languages/fa_IR
+    SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/languages/fr_FR
+    SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/languages/it_IT
+    SUNSTONE_PUBLIC_LOCALE_JA:$SUNSTONE_LOCATION/public/locale/languages/ja
+    SUNSTONE_PUBLIC_LOCALE_LT_LT:$SUNSTONE_LOCATION/public/locale/languages/lt_LT
+    SUNSTONE_PUBLIC_LOCALE_NL_NL:$SUNSTONE_LOCATION/public/locale/languages/nl_NL
+    SUNSTONE_PUBLIC_LOCALE_PL:$SUNSTONE_LOCATION/public/locale/languages/pl
+    SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/languages/pt_PT
+    SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/languages/pt_BR
+    SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/languages/ru_RU
+    SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/languages/sk_SK
+    SUNSTONE_PUBLIC_LOCALE_ZH_CN:$SUNSTONE_LOCATION/public/locale/languages/zh_CN
+    SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/languages/zh_TW
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -1662,84 +1662,84 @@ SUNSTONE_PUBLIC_LOGOS_FILES="src/sunstone/public/images/logos/arch.png \
 "
 
 SUNSTONE_PUBLIC_LOCALE_CA="\
-src/sunstone/locale/languages/ca.js \
-src/sunstone/locale/languages/ca_datatable.txt"
+src/sunstone/public/locale/languages/ca.js \
+src/sunstone/public/locale/languages/ca_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_CS_CZ="\
-src/sunstone/locale/languages/cs_CZ.js \
-src/sunstone/locale/languages/cs_datatable.txt"
+src/sunstone/public/locale/languages/cs_CZ.js \
+src/sunstone/public/locale/languages/cs_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_DE="\
-src/sunstone/locale/languages/de.js \
-src/sunstone/locale/languages/de_datatable.txt"
+src/sunstone/public/locale/languages/de.js \
+src/sunstone/public/locale/languages/de_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_DA="\
-src/sunstone/locale/languages/da.js \
-src/sunstone/locale/languages/da_datatable.txt"
+src/sunstone/public/locale/languages/da.js \
+src/sunstone/public/locale/languages/da_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_EL_GR="\
-src/sunstone/locale/languages/el_GR.js \
-src/sunstone/locale/languages/el_datatable.txt"
+src/sunstone/public/locale/languages/el_GR.js \
+src/sunstone/public/locale/languages/el_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_EN_US="\
-src/sunstone/locale/languages/en_US.js \
-src/sunstone/locale/languages/en_datatable.txt"
+src/sunstone/public/locale/languages/en_US.js \
+src/sunstone/public/locale/languages/en_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_ES_ES="\
-src/sunstone/locale/languages/es_ES.js \
-src/sunstone/locale/languages/es_datatable.txt"
+src/sunstone/public/locale/languages/es_ES.js \
+src/sunstone/public/locale/languages/es_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_FA_IR="\
-src/sunstone/locale/languages/fa_IR.js \
-src/sunstone/locale/languages/fa_datatable.txt"
+src/sunstone/public/locale/languages/fa_IR.js \
+src/sunstone/public/locale/languages/fa_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_FR_FR="\
-src/sunstone/locale/languages/fr_FR.js \
-src/sunstone/locale/languages/fr_datatable.txt"
+src/sunstone/public/locale/languages/fr_FR.js \
+src/sunstone/public/locale/languages/fr_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_IT_IT="\
-src/sunstone/locale/languages/it_IT.js \
-src/sunstone/locale/languages/it_datatable.txt"
+src/sunstone/public/locale/languages/it_IT.js \
+src/sunstone/public/locale/languages/it_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_JA="\
-src/sunstone/locale/languages/ja.js \
-src/sunstone/locale/languages/ja_datatable.txt"
+src/sunstone/public/locale/languages/ja.js \
+src/sunstone/public/locale/languages/ja_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_LT_LT="\
-src/sunstone/locale/languages/lt_LT.js \
-src/sunstone/locale/languages/lt_datatable.txt"
+src/sunstone/public/locale/languages/lt_LT.js \
+src/sunstone/public/locale/languages/lt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_NL_NL="\
-src/sunstone/locale/languages/nl_NL.js \
-src/sunstone/locale/languages/nl_datatable.txt"
+src/sunstone/public/locale/languages/nl_NL.js \
+src/sunstone/public/locale/languages/nl_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PL="\
-src/sunstone/locale/languages/pl.js \
-src/sunstone/locale/languages/pl_datatable.txt"
+src/sunstone/public/locale/languages/pl.js \
+src/sunstone/public/locale/languages/pl_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_PT="\
-src/sunstone/locale/languages/pt_PT.js \
-src/sunstone/locale/languages/pt_datatable.txt"
+src/sunstone/public/locale/languages/pt_PT.js \
+src/sunstone/public/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_BR="\
-src/sunstone/locale/languages/pt_BR.js \
-src/sunstone/locale/languages/pt_datatable.txt"
+src/sunstone/public/locale/languages/pt_BR.js \
+src/sunstone/public/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_RU_RU="\
-src/sunstone/locale/languages/ru_RU.js \
-src/sunstone/locale/languages/ru_datatable.txt"
+src/sunstone/public/locale/languages/ru_RU.js \
+src/sunstone/public/locale/languages/ru_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_SK_SK="\
-src/sunstone/locale/languages/sk_SK.js \
-src/sunstone/locale/languages/sk_datatable.txt"
+src/sunstone/public/locale/languages/sk_SK.js \
+src/sunstone/public/locale/languages/sk_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_ZH_CN="\
-src/sunstone/locale/languages/zh_CN.js \
-src/sunstone/locale/languages/zh_datatable.txt"
+src/sunstone/public/locale/languages/zh_CN.js \
+src/sunstone/public/locale/languages/zh_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_ZH_TW="\
-src/sunstone/locale/languages/zh_TW.js \
-src/sunstone/locale/languages/zh_datatable.txt"
+src/sunstone/public/locale/languages/zh_TW.js \
+src/sunstone/public/locale/languages/zh_datatable.txt"
 
 #-----------------------------------------------------------------------------
 # OneGate files
