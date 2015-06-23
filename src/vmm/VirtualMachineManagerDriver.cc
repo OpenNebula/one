@@ -596,18 +596,7 @@ void VirtualMachineManagerDriver::process_poll(
         VirtualMachine* vm,
         const string&   monitor_str)
 {
-    int rc;
-
-    int        cpu;
-    int        memory;
-    long long  net_tx;
-    long long  net_rx;
-    long long  dactual;
-    long long  dvirtual;
-    char       state;
-
-    map<string, string> custom;
-    ostringstream oss;
+    char state;
 
     Nebula &ne = Nebula::instance();
 
@@ -615,45 +604,42 @@ void VirtualMachineManagerDriver::process_poll(
     VirtualMachinePool* vmpool = ne.get_vmpool();
 
     /* ---------------------------------------------------------------------- */
-    /* Parse VM info                                                          */
-    /* ---------------------------------------------------------------------- */
-
-    rc = parse_vm_info(monitor_str, cpu, memory, net_tx, net_rx, dactual,
-            dvirtual, state, custom);
-
-    if (rc == -1) //Parse error, ignore this monitor data
-    {
-        oss << "Ignoring monitoring information, parse error."
-            << " Monitor information was: "
-            << monitor_str;
-
-        NebulaLog::log("VMM", Log::ERROR, oss);
-
-        vm->set_template_error_message(oss.str());
-
-        vm->log("VMM", Log::ERROR, oss);
-
-        vmpool->update(vm);
-
-        return;
-    }
-
-    oss << "VM " << vm->get_oid() << " successfully monitored: " << monitor_str;
-    NebulaLog::log("VMM", Log::DEBUG, oss);
-
-    /* ---------------------------------------------------------------------- */
     /* Update VM info only for VMs in ACTIVE                                  */
     /* ---------------------------------------------------------------------- */
 
     if (vm->get_state() == VirtualMachine::ACTIVE)
     {
-        vm->update_info(memory, cpu, net_tx, net_rx, dactual, dvirtual, custom);
+        if (vm->update_info(monitor_str) == 0)
+        {
+            vmpool->update_history(vm);
+
+            vmpool->update_monitoring(vm);
+        }
 
         vmpool->update(vm);
 
-        vmpool->update_history(vm);
+        const VirtualMachineMonitorInfo &minfo = vm->get_info();
 
-        vmpool->update_monitoring(vm);
+        state = minfo.get_state();
+    }
+    else
+    {
+        VirtualMachineMonitorInfo minfo;
+        string error;
+
+        if (minfo.update(monitor_str, error) != 0)
+        {
+            ostringstream oss;
+
+            oss << "Ignoring monitoring information, error:" << error
+                << ". Monitor information was: " << monitor_str;
+
+            NebulaLog::log("VMM", Log::ERROR, oss);
+
+            return;
+        };
+
+        state = minfo.get_state();
     }
 
     /* ---------------------------------------------------------------------- */

@@ -180,13 +180,13 @@ class DummyDriver < VirtualMachineDriver
         end
 
         prev_nettx = 0
-        if msg.elements["VM/NET_TX"]
-            prev_nettx = msg.elements["VM/NET_TX"].text.to_i
+        if msg.elements["VM/MONITORING/NET_TX"]
+            prev_nettx = msg.elements["VM/MONITORING/NET_TX"].text.to_i
         end
 
         prev_netrx = 0
-        if msg.elements["VM/NET_RX"]
-            prev_netrx = msg.elements["VM/NET_RX"].text.to_i
+        if msg.elements["VM/MONITORING/NET_RX"]
+            prev_netrx = msg.elements["VM/MONITORING/NET_RX"].text.to_i
         end
 
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"

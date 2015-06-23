@@ -58,12 +58,6 @@ VirtualMachine::VirtualMachine(int           id,
         stime(time(0)),
         etime(0),
         deploy_id(""),
-        memory(0),
-        cpu(0),
-        net_tx(0),
-        net_rx(0),
-        disk_actual(0),
-        disk_virtual(0),
         history(0),
         previous_history(0),
         _log(0)
@@ -3664,6 +3658,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
 {
     string template_xml;
     string user_template_xml;
+    string monitoring_xml;
     string history_xml;
     string perm_xml;
     string snap_xml;
@@ -3687,12 +3682,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
-        << "<MEMORY>"    << memory    << "</MEMORY>"
-        << "<CPU>"       << cpu       << "</CPU>"
-        << "<NET_TX>"    << net_tx    << "</NET_TX>"
-        << "<NET_RX>"    << net_rx    << "</NET_RX>"
-        << "<DISK_ACTUAL_SIZE>" << disk_actual << "</DISK_ACTUAL_SIZE>"
-        << "<DISK_VIRTUAL_SIZE>"<< disk_virtual<< "</DISK_VIRTUAL_SIZE>"
+        << monitoring.to_xml(monitoring_xml)
         << obj_template->to_xml(template_xml)
         << user_obj_template->to_xml(user_template_xml);
 
@@ -3763,13 +3753,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(etime,     "/VM/ETIME",    0);
     rc += xpath(deploy_id, "/VM/DEPLOY_ID","");
 
-    rc += xpath(memory,    "/VM/MEMORY",   0);
-    rc += xpath(cpu,       "/VM/CPU",      0);
-    rc += xpath(net_tx,    "/VM/NET_TX",   0);
-    rc += xpath(net_rx,    "/VM/NET_RX",   0);
-    rc += xpath(disk_actual, "/VM/DISK_ACTUAL_SIZE",  0);
-    rc += xpath(disk_virtual,"/VM/DISK_VIRTUAL_SIZE", 0);
-
     // Permissions
     rc += perms_from_xml();
 
@@ -3794,6 +3777,20 @@ int VirtualMachine::from_xml(const string &xml_str)
         return -1;
     }
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Virtual Machine Monitoring
+
+    ObjectXML::get_nodes("/VM/MONITORING", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += monitoring.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -3876,57 +3873,40 @@ string VirtualMachine::get_system_dir() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::update_info(
-    int _memory,
-    int _cpu,
-    long long _net_tx,
-    long long _net_rx,
-    long long _disk_actual,
-    long long _disk_virtual,
-    const map<string, string> &custom)
+int VirtualMachine::update_info(const string& monitor_data)
 {
-    map<string, string>::const_iterator it;
+    int    rc;
+    string error;
+
+    ostringstream oss;
 
     last_poll = time(0);
 
-    if (_memory != -1)
-    {
-        memory = _memory;
-    }
+    rc = monitoring.update(monitor_data, error);
 
-    if (_cpu != -1)
+    if ( rc != 0)
     {
-        cpu    = _cpu;
-    }
+        oss << "Ignoring monitoring information, error:" << error
+            << ". Monitor information was: " << monitor_data;
 
-    if (_net_tx != -1)
-    {
-        net_tx = _net_tx;
-    }
+        NebulaLog::log("VMM", Log::ERROR, oss);
 
-    if (_net_rx != -1)
-    {
-        net_rx = _net_rx;
-    }
+        set_template_error_message(oss.str());
 
-    if (_disk_actual != -1)
-    {
-        disk_actual = _disk_actual;
-    }
+        log("VMM", Log::ERROR, oss);
 
-    if (_disk_virtual != -1)
-    {
-        disk_virtual = _disk_virtual;
-    }
-
-    for (it = custom.begin(); it != custom.end(); it++)
-    {
-        replace_template_attribute(it->first, it->second);
+        return -1;
     }
 
     set_vm_info();
 
     clear_template_monitor_error();
+
+    oss << "VM " << oid << " successfully monitored: " << monitor_data;
+
+    NebulaLog::log("VMM", Log::DEBUG, oss);
+
+    return 0;
 };
 
 /* -------------------------------------------------------------------------- */

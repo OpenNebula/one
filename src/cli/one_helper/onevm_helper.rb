@@ -503,12 +503,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
         poll_attrs = {
-            "USED MEMORY" => "MEMORY",
-            "USED CPU" => "CPU",
-            "NET_TX" => "NET_TX",
-            "NET_RX" => "NET_RX",
-            "DISK SIZE (ACTUAL)" => "DISK_ACTUAL_SIZE",
-            "DISK SIZE (VIRTUAL)" => "DISK_VIRTUAL_SIZE"
+            "USED MEMORY" => "MONITORING/USEDMEMORY",
+            "USED CPU" => "MONITORING/USEDCPU",
+            "NET_TX" => "MONITORING/NETTX",
+            "NET_RX" => "MONITORING/NETRX",
+            "DISK SIZE (ACTUAL)" => "MONITORING/DISK_ACTUAL_SIZE",
+            "DISK SIZE (VIRTUAL)" => "MONITORING/DISK_VIRTUAL_SIZE"
         }
 
         poll_attrs.each { |k,v|

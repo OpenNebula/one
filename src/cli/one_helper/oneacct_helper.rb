@@ -157,22 +157,22 @@ class AcctHelper < OpenNebulaHelper::OneHelper
 
         column :NET_RX, "Data received from the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["NET_RX"].to_i / 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETRX"].to_i / 1024.0, {})
         end
 
         column :NET_TX, "Data sent to the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["NET_TX"].to_i / 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETTX"].to_i / 1024.0, {})
         end
 
         column :DISK_ACTUAL, "Total disk size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["DISK_ACTUAL_SIZE"].to_i * 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/DISK_ACTUAL_SIZE"].to_i * 1024.0, {})
         end
 
         column :DISK_VIRTUAL, "Total disk virtual size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["DISK_VIRTUAL_SIZE"].to_i * 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/DISK_VIRTUAL_SIZE"].to_i * 1024.0, {})
         end
         default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX, :DISK_ACTUAL, :DISK_VIRTUAL
     end
