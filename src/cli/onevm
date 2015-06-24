@@ -56,6 +56,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "Device where the image will be attached"
     }
 
+    PREFIX={
+        :name => "prefix",
+        :large => "--prefix prefix",
+        :format => String,
+        :description => "Overrides the DEV_PREFIX of the image"
+    }
+
     IP={
         :name => "ip",
         :short => "-i ip",
@@ -583,7 +590,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :"disk-attach", disk_attach_desc, :vmid,
             :options => [OneVMHelper::FILE, OneVMHelper::IMAGE,
-                         TARGET, CACHE] do
+                         TARGET, CACHE, PREFIX] do
 
         if options[:file].nil? and options[:image].nil?
             STDERR.puts "Provide a template file or an image:"
@@ -596,13 +603,15 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             template = File.read(options[:file])
         else
             image_id = options[:image]
-            target = options[:target]
+            target   = options[:target]
+            prefix   = options[:prefix] || "sd"
+
             if target
                 template =
                     "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target}"
             else
-                template =
-                    "DISK = [ IMAGE_ID = #{image_id}, DEV_PREFIX = sd"
+                template = "DISK = [ IMAGE_ID = #{image_id}"
+                template << ", DEV_PREFIX = #{prefix}"
             end
 
             if options[:cache]
