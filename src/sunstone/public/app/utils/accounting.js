@@ -1,6 +1,7 @@
 define(function(require) {
   
   var TemplateHTML = require('hbs!./accounting/html');
+  var TemplateEmptyGraph = require('hbs!./accounting/empty-graph');
   var Locale = require('utils/locale');
   var OpenNebulaVM = require('opennebula/vm');
   var Notifier = require('utils/notifier');
@@ -209,6 +210,9 @@ define(function(require) {
   };
 
   function _fillAccounting(context, req, response, no_table) {
+    $("#acct_cpu_graph", context).html(TemplateEmptyGraph());
+    $("#acct_mem_graph", context).html(TemplateEmptyGraph());
+
     var options = req.request.data[0];
 
     //--------------------------------------------------------------------------
