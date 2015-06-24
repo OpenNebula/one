@@ -1,6 +1,7 @@
 define(function(require) {
   require('foundation.alert');
   var OpenNebula = require('opennebula');
+  var OpenNebulaVM = require('opennebula/vm');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var Notifier = require('utils/notifier');
@@ -810,59 +811,99 @@ define(function(require) {
   //      color + '-bg' background class
   //    str: user friendly state string
   function get_provision_vm_state(data) {
-    var state = OpenNebula.VM.stateStr(data.STATE);
+    var state = parseInt(data.STATE);
     var state_color;
     var state_str;
 
     switch (state) {
-      case "INIT":
-      case "PENDING":
-      case "HOLD":
+      case OpenNebulaVM.STATES.INIT:
+      case OpenNebulaVM.STATES.PENDING:
+      case OpenNebulaVM.STATES.HOLD:
         state_color = 'deploying';
         state_str = Locale.tr("DEPLOYING") + " (1/3)";
         break;
-      case "FAILED":
+      case OpenNebulaVM.STATES.FAILED: // TODO: failed does not exist anymore
         state_color = 'error';
         state_str = Locale.tr("ERROR");
         break;
-      case "ACTIVE":
-        var lcm_state = OpenNebula.VM.shortLcmStateStr(data.LCM_STATE);
+      case OpenNebulaVM.STATES.ACTIVE:
+        var lcm_state = parseInt(data.LCM_STATE);
 
         switch (lcm_state) {
-          case "LCM_INIT":
+          case OpenNebulaVM.LCM_STATES.LCM_INIT:
             state_color = 'deploying';
             state_str = Locale.tr("DEPLOYING") + " (1/3)";
             break;
-          case "PROLOG":
+          case OpenNebulaVM.LCM_STATES.PROLOG:
+          case OpenNebulaVM.LCM_STATES.PROLOG_RESUME:
+          case OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY:
             state_color = 'deploying';
             state_str = Locale.tr("DEPLOYING") + " (2/3)";
             break;
-          case "BOOT":
+          case OpenNebulaVM.LCM_STATES.BOOT:
+          case OpenNebulaVM.LCM_STATES.BOOT_UNKNOWN:
+          case OpenNebulaVM.LCM_STATES.BOOT_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.BOOT_SUSPENDED:
+          case OpenNebulaVM.LCM_STATES.BOOT_STOPPED:
+          case OpenNebulaVM.LCM_STATES.BOOT_UNDEPLOY:
             state_color = 'deploying';
             state_str = Locale.tr("DEPLOYING") + " (3/3)";
             break;
-          case "RUNNING":
-          case "SNAPSHOT":
-          case "MIGRATE":
+          case OpenNebulaVM.LCM_STATES.RUNNING:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_SNAPSHOT:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_REVERT_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE_POWEROF:
+          case OpenNebulaVM.LCM_STATES.MIGRATE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND:
             state_color = 'running';
             state_str = Locale.tr("RUNNING");
             break;
-          case "HOTPLUG":
+          case OpenNebulaVM.LCM_STATES.HOTPLUG:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_NIC:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_PROLOG_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_EPILOG_POWEROFF:
             state_color = 'deploying';
             state_str = Locale.tr("SAVING IMAGE");
             break;
-          case "FAILURE":
+          case OpenNebulaVM.LCM_STATES.FAILURE:
+          case OpenNebulaVM.LCM_STATES.BOOT_FAILURE:
+          case OpenNebulaVM.LCM_STATES.BOOT_MIGRATE_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_FAILURE:
+          case OpenNebulaVM.LCM_STATES.EPILOG_FAILURE:
+          case OpenNebulaVM.LCM_STATES.EPILOG_STOP_FAILURE:
+          case OpenNebulaVM.LCM_STATES.EPILOG_UNDEPLOY_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND_FAILURE:
+          case OpenNebulaVM.LCM_STATES.BOOT_UNDEPLOY_FAILURE:
+          case OpenNebulaVM.LCM_STATES.BOOT_STOPPED_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_RESUME_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
             state_color = 'error';
             state_str = Locale.tr("ERROR");
             break;
-          case "SAVE":
-          case "EPILOG":
-          case "SHUTDOWN":
-          case "CLEANUP":
+          case OpenNebulaVM.LCM_STATES.SAVE_STOP:
+          case OpenNebulaVM.LCM_STATES.SAVE_SUSPEND:
+          case OpenNebulaVM.LCM_STATES.SAVE_MIGRATE:
+          case OpenNebulaVM.LCM_STATES.EPILOG_STOP:
+          case OpenNebulaVM.LCM_STATES.EPILOG:
+          case OpenNebulaVM.LCM_STATES.EPILOG_UNDEPLOY:
+          case OpenNebulaVM.LCM_STATES.SHUTDOWN:
+          case OpenNebulaVM.LCM_STATES.CANCEL:
+          case OpenNebulaVM.LCM_STATES.SHUTDOWN_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.SHUTDOWN_UNDEPLOY:
+          case OpenNebulaVM.LCM_STATES.CLEANUP_RESUBMIT:
+          case OpenNebulaVM.LCM_STATES.CLEANUP_DELETE:
             state_color = 'powering_off';
             state_str = Locale.tr("POWERING OFF");
             break;
-          case "UNKNOWN":
+          case OpenNebulaVM.LCM_STATES.UNKNOWN:
             state_color = 'powering_off';
             state_str = Locale.tr("UNKNOWN");
             break;
@@ -873,9 +914,11 @@ define(function(require) {
         }
 
         break;
-      case "STOPPED":
-      case "SUSPENDED":
-      case "POWEROFF":
+      case OpenNebulaVM.STATES.STOPPED:
+      case OpenNebulaVM.STATES.SUSPENDED:
+      case OpenNebulaVM.STATES.POWEROFF:
+      case OpenNebulaVM.STATES.UNDEPLOYED:
+      case OpenNebulaVM.STATES.DONE:
         state_color = 'off';
         state_str = Locale.tr("OFF");
 

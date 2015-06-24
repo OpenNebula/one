@@ -208,11 +208,11 @@ define(function(require) {
         var actions;
         // Attach / Detach
         if (
-           (// ACTIVE
-            that.element.STATE == "3") &&
-           (// HOTPLUG_NIC
-            that.element.LCM_STATE == "25") &&
-           (//
+           (
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
+           (
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_NIC) &&
+           (
             nic.ATTACH == "YES")
            ) {
           actions = Locale.tr("attach/detach in progress")

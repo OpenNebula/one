@@ -19,7 +19,7 @@ define(function(require) {
     Locale.tr("Host"),
     Locale.tr("IPs"),
     Locale.tr("Start Time"),
-    Locale.tr(""),
+    "",
     Locale.tr("Hidden Template")
   ];
 
@@ -32,11 +32,12 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
 
-    var state = OpenNebulaVM.stateStr(element.STATE);
+    var state;
 
-    // TODO bug: will not work if state is translated
-    if (state == "ACTIVE") {
+    if (state == OpenNebulaVM.STATES.ACTIVE) {
       state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
+    } else {
+      state = OpenNebulaVM.stateStr(element.STATE);
     }
 
     // VNC icon

@@ -81,24 +81,24 @@ define(function(require) {
 
   function _elementArray(element_json) {
     var element = element_json[XML_ROOT];
-    var state = OpenNebulaVM.stateStr(element.STATE);
+    var state = parseInt(element.STATE);
 
     this.totalVms++;
     switch (state) {
-      case "INIT":
-      case "PENDING":
-      case "HOLD":
+      case OpenNebulaVM.STATES.INIT:
+      case OpenNebulaVM.STATES.PENDING:
+      case OpenNebulaVM.STATES.HOLD:
         this.pendingVms++;
         break;
-      case "FAILED":
+      case OpenNebulaVM.STATES.FAILED: // TODO: failed does not exist anymore....
         this.failedVms++;
         break;
-      case "ACTIVE":
+      case OpenNebulaVM.STATES.ACTIVE:
         this.activeVms++;
         break;
-      case "STOPPED":
-      case "SUSPENDED":
-      case "POWEROFF":
+      case OpenNebulaVM.STATES.STOPPED:
+      case OpenNebulaVM.STATES.SUSPENDED:
+      case OpenNebulaVM.STATES.POWEROFF:
         this.offVms++;
         break;
       default:

@@ -102,11 +102,13 @@ define(function(require) {
         var save_as;
         // Snapshot deferred
         if (
-           (// ACTIVE
-            that.element.STATE == "3") &&
-           (// HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
-            that.element.LCM_STATE == "26" || that.element.LCM_STATE == "27" || that.element.LCM_STATE == "28") &&
-           (//
+           (
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
+           (
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED) &&
+           (
             disk.SAVE_AS_ACTIVE == "YES")
            ) {
           save_as = Locale.tr("in progress");
@@ -114,11 +116,13 @@ define(function(require) {
         }
         // Snapshot Hot
         else if (
-           (// ACTIVE
-            that.element.STATE == "3") &&
-           (// HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
-            that.element.LCM_STATE == "26" || that.element.LCM_STATE == "27" || that.element.LCM_STATE == "28") &&
-           (//
+           (
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
+           (
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED) &&
+           (
             disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
            ) {
           save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
@@ -126,11 +130,11 @@ define(function(require) {
         }
         // Attach / Detach
         else if (
-           (// ACTIVE
-            that.element.STATE == "3") &&
-           (// HOTPLUG_SAVEAS HOTPLUG_SAVEAS_POWEROFF HOTPLUG_SAVEAS_SUSPENDED
-            that.element.LCM_STATE == "17") &&
-           (//
+           (
+            that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
+           (
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG) &&
+           (
             disk.ATTACH = "YES")
            ) {
           save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');

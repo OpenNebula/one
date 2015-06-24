@@ -25,8 +25,13 @@ define(function(require) {
   var RESIZE_DIALOG_ID = require('../dialogs/resize/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
-  // If VM is not INIT, PENDING, HOLD, FAILED, POWEROFF, UNDEPLOYED,
-  var RESIZE_STATES = ["0", "1", "2", "7", "8", "9"];
+  var RESIZE_STATES = [
+    OpenNebulaVM.STATES.INIT,
+    OpenNebulaVM.STATES.PENDING,
+    OpenNebulaVM.STATES.HOLD,
+    OpenNebulaVM.STATES.POWEROFF,
+    OpenNebulaVM.STATES.UNDEPLOYED
+  ];
 
   /*
     CONSTRUCTOR
@@ -54,7 +59,8 @@ define(function(require) {
    */
 
   function _html() {
-    var resizeStateEnabled = (RESIZE_STATES.indexOf(this.element.STATE) > -1)
+    var resizeStateEnabled =
+      (RESIZE_STATES.indexOf(parseInt(this.element.STATE)) > -1);
 
     return TemplateInfo({
       'element': this.element,

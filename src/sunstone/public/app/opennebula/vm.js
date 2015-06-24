@@ -5,7 +5,7 @@ define(function(require) {
 
   var RESOURCE = "VM";
 
-  var STATES = [
+  var STATES_STR = [
     "INIT",
     "PENDING",
     "HOLD",
@@ -18,7 +18,20 @@ define(function(require) {
     "UNDEPLOYED"
   ];
 
-  var LCM_STATES = [
+  var STATES = {
+    INIT       : 0,
+    PENDING    : 1,
+    HOLD       : 2,
+    ACTIVE     : 3,
+    STOPPED    : 4,
+    SUSPENDED  : 5,
+    DONE       : 6,
+    //FAILED   : 7,
+    POWEROFF   : 8,
+    UNDEPLOYED : 9
+  };
+
+  var LCM_STATES_STR = [
     "LCM_INIT",
     "PROLOG",
     "BOOT",
@@ -69,77 +82,140 @@ define(function(require) {
     "BOOT_UNDEPLOY_FAILURE",
     "BOOT_STOPPED_FAILURE",
     "PROLOG_RESUME_FAILURE",
-    "PROLOG_UNDEPLOY_FAILURE"
+    "PROLOG_UNDEPLOY_FAILURE",
+    "DISK_SNAPSHOT_POWEROFF",
+    "DISK_SNAPSHOT_REVERT_POWEROFF",
+    "DISK_SNAPSHOT_DELETE_POWEROFF",
   ];
 
-  var SHORT_LCM_STATES = [
-    "LCM_INIT", // LCM_INIT
-    "PROLOG",    // PROLOG
-    "BOOT",      // BOOT
-    "RUNNING",   // RUNNING
-    "MIGRATE",   // MIGRATE
-    "SAVE",      // SAVE_STOP
-    "SAVE",      // SAVE_SUSPEND
-    "SAVE",      // SAVE_MIGRATE
-    "MIGRATE",   // PROLOG_MIGRATE
-    "PROLOG",    // PROLOG_RESUME
-    "EPILOG",    // EPILOG_STOP
-    "EPILOG",    // EPILOG
-    "SHUTDOWN",  // SHUTDOWN
-    "SHUTDOWN",  // CANCEL
-    "FAILURE",   // FAILURE
-    "CLEANUP",   // CLEANUP_RESUBMIT
-    "UNKNOWN",   // UNKNOWN
-    "HOTPLUG",   // HOTPLUG
-    "SHUTDOWN",  // SHUTDOWN_POWEROFF
-    "BOOT",      // BOOT_UNKNOWN
-    "BOOT",      // BOOT_POWEROFF
-    "BOOT",      // BOOT_SUSPENDED
-    "BOOT",      // BOOT_STOPPED
-    "CLEANUP",   // CLEANUP_DELETE
-    "SNAPSHOT",  // HOTPLUG_SNAPSHOT
-    "HOTPLUG",   // HOTPLUG_NIC
-    "HOTPLUG",   // HOTPLUG_SAVEAS
-    "HOTPLUG",   // HOTPLUG_SAVEAS_POWEROFF
-    "HOTPLUG",   // HOTPLUG_SAVEAS_SUSPENDED
-    "SHUTDOWN",  // SHUTDOWN_UNDEPLOY
-    "EPILOG",    // EPILOG_UNDEPLOY
-    "PROLOG",    // PROLOG_UNDEPLOY
-    "BOOT",      // BOOT_UNDEPLOY
-    "HOTPLUG",   // HOTPLUG_PROLOG_POWEROFF
-    "HOTPLUG",   // HOTPLUG_EPILOG_POWEROFF
-    "BOOT",      // BOOT_MIGRATE
-    "FAILURE",   // BOOT_FAILURE
-    "FAILURE",   // BOOT_MIGRATE_FAILURE
-    "FAILURE",   // PROLOG_MIGRATE_FAILURE
-    "FAILURE",   // PROLOG_FAILURE
-    "FAILURE",   // EPILOG_FAILURE
-    "FAILURE",   // EPILOG_STOP_FAILURE
-    "FAILURE",   // EPILOG_UNDEPLOY_FAILURE
-    "MIGRATE",   // PROLOG_MIGRATE_POWEROFF
-    "FAILURE",   // PROLOG_MIGRATE_POWEROFF_FAILURE
-    "MIGRATE",   // PROLOG_MIGRATE_SUSPEND
-    "FAILURE",   // PROLOG_MIGRATE_SUSPEND_FAILURE
-    "FAILURE",   // BOOT_UNDEPLOY_FAILURE
-    "FAILURE",   // BOOT_STOPPED_FAILURE
-    "FAILURE",   // PROLOG_RESUME_FAILURE
-    "FAILURE"    // PROLOG_UNDEPLOY_FAILURE
+  var LCM_STATES = {
+    LCM_INIT                        : 0,
+    PROLOG                          : 1,
+    BOOT                            : 2,
+    RUNNING                         : 3,
+    MIGRATE                         : 4,
+    SAVE_STOP                       : 5,
+    SAVE_SUSPEND                    : 6,
+    SAVE_MIGRATE                    : 7,
+    PROLOG_MIGRATE                  : 8,
+    PROLOG_RESUME                   : 9,
+    EPILOG_STOP                     : 10,
+    EPILOG                          : 11,
+    SHUTDOWN                        : 12,
+    //CANCEL                        : 13,
+    //FAILURE                       : 14,
+    CLEANUP_RESUBMIT                : 15,
+    UNKNOWN                         : 16,
+    HOTPLUG                         : 17,
+    SHUTDOWN_POWEROFF               : 18,
+    BOOT_UNKNOWN                    : 19,
+    BOOT_POWEROFF                   : 20,
+    BOOT_SUSPENDED                  : 21,
+    BOOT_STOPPED                    : 22,
+    CLEANUP_DELETE                  : 23,
+    HOTPLUG_SNAPSHOT                : 24,
+    HOTPLUG_NIC                     : 25,
+    HOTPLUG_SAVEAS                  : 26,
+    HOTPLUG_SAVEAS_POWEROFF         : 27,
+    HOTPLUG_SAVEAS_SUSPENDED        : 28,
+    SHUTDOWN_UNDEPLOY               : 29,
+    EPILOG_UNDEPLOY                 : 30,
+    PROLOG_UNDEPLOY                 : 31,
+    BOOT_UNDEPLOY                   : 32,
+    HOTPLUG_PROLOG_POWEROFF         : 33,
+    HOTPLUG_EPILOG_POWEROFF         : 34,
+    BOOT_MIGRATE                    : 35,
+    BOOT_FAILURE                    : 36,
+    BOOT_MIGRATE_FAILURE            : 37,
+    PROLOG_MIGRATE_FAILURE          : 38,
+    PROLOG_FAILURE                  : 39,
+    EPILOG_FAILURE                  : 40,
+    EPILOG_STOP_FAILURE             : 41,
+    EPILOG_UNDEPLOY_FAILURE         : 42,
+    PROLOG_MIGRATE_POWEROFF         : 43,
+    PROLOG_MIGRATE_POWEROFF_FAILURE : 44,
+    PROLOG_MIGRATE_SUSPEND          : 45,
+    PROLOG_MIGRATE_SUSPEND_FAILURE  : 46,
+    BOOT_UNDEPLOY_FAILURE           : 47,
+    BOOT_STOPPED_FAILURE            : 48,
+    PROLOG_RESUME_FAILURE           : 49,
+    PROLOG_UNDEPLOY_FAILURE         : 50,
+    DISK_SNAPSHOT_POWEROFF          : 51,
+    DISK_SNAPSHOT_REVERT_POWEROFF   : 52,
+    DISK_SNAPSHOT_DELETE_POWEROFF   : 53
+  };
+
+  var SHORT_LCM_STATES_STR = [
+    Locale.tr("LCM_INIT"),  // LCM_INIT
+    Locale.tr("PROLOG"),    // PROLOG
+    Locale.tr("BOOT"),      // BOOT
+    Locale.tr("RUNNING"),   // RUNNING
+    Locale.tr("MIGRATE"),   // MIGRATE
+    Locale.tr("SAVE"),      // SAVE_STOP
+    Locale.tr("SAVE"),      // SAVE_SUSPEND
+    Locale.tr("SAVE"),      // SAVE_MIGRATE
+    Locale.tr("MIGRATE"),   // PROLOG_MIGRATE
+    Locale.tr("PROLOG"),    // PROLOG_RESUME
+    Locale.tr("EPILOG"),    // EPILOG_STOP
+    Locale.tr("EPILOG"),    // EPILOG
+    Locale.tr("SHUTDOWN"),  // SHUTDOWN
+    Locale.tr("SHUTDOWN"),  // CANCEL
+    Locale.tr("FAILURE"),   // FAILURE
+    Locale.tr("CLEANUP"),   // CLEANUP_RESUBMIT
+    Locale.tr("UNKNOWN"),   // UNKNOWN
+    Locale.tr("HOTPLUG"),   // HOTPLUG
+    Locale.tr("SHUTDOWN"),  // SHUTDOWN_POWEROFF
+    Locale.tr("BOOT"),      // BOOT_UNKNOWN
+    Locale.tr("BOOT"),      // BOOT_POWEROFF
+    Locale.tr("BOOT"),      // BOOT_SUSPENDED
+    Locale.tr("BOOT"),      // BOOT_STOPPED
+    Locale.tr("CLEANUP"),   // CLEANUP_DELETE
+    Locale.tr("SNAPSHOT"),  // HOTPLUG_SNAPSHOT
+    Locale.tr("HOTPLUG"),   // HOTPLUG_NIC
+    Locale.tr("HOTPLUG"),   // HOTPLUG_SAVEAS
+    Locale.tr("HOTPLUG"),   // HOTPLUG_SAVEAS_POWEROFF
+    Locale.tr("HOTPLUG"),   // HOTPLUG_SAVEAS_SUSPENDED
+    Locale.tr("SHUTDOWN"),  // SHUTDOWN_UNDEPLOY
+    Locale.tr("EPILOG"),    // EPILOG_UNDEPLOY
+    Locale.tr("PROLOG"),    // PROLOG_UNDEPLOY
+    Locale.tr("BOOT"),      // BOOT_UNDEPLOY
+    Locale.tr("HOTPLUG"),   // HOTPLUG_PROLOG_POWEROFF
+    Locale.tr("HOTPLUG"),   // HOTPLUG_EPILOG_POWEROFF
+    Locale.tr("BOOT"),      // BOOT_MIGRATE
+    Locale.tr("FAILURE"),   // BOOT_FAILURE
+    Locale.tr("FAILURE"),   // BOOT_MIGRATE_FAILURE
+    Locale.tr("FAILURE"),   // PROLOG_MIGRATE_FAILURE
+    Locale.tr("FAILURE"),   // PROLOG_FAILURE
+    Locale.tr("FAILURE"),   // EPILOG_FAILURE
+    Locale.tr("FAILURE"),   // EPILOG_STOP_FAILURE
+    Locale.tr("FAILURE"),   // EPILOG_UNDEPLOY_FAILURE
+    Locale.tr("MIGRATE"),   // PROLOG_MIGRATE_POWEROFF
+    Locale.tr("FAILURE"),   // PROLOG_MIGRATE_POWEROFF_FAILURE
+    Locale.tr("MIGRATE"),   // PROLOG_MIGRATE_SUSPEND
+    Locale.tr("FAILURE"),   // PROLOG_MIGRATE_SUSPEND_FAILURE
+    Locale.tr("FAILURE"),   // BOOT_UNDEPLOY_FAILURE
+    Locale.tr("FAILURE"),   // BOOT_STOPPED_FAILURE
+    Locale.tr("FAILURE"),   // PROLOG_RESUME_FAILURE
+    Locale.tr("FAILURE"),   // PROLOG_UNDEPLOY_FAILURE
+    Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_POWEROFF
+    Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_REVERT_POWEROFF
+    Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_DELETE_POWEROF
   ];
 
   var VNC_STATES = [
-    3,  // VM.lcm_state.RUNNING,
-    4,  // VM.lcm_state.MIGRATE,
-    12, // VM.lcm_state.SHUTDOWN,
-    13, // VM.lcm_state.CANCEL,
-    16, // VM.lcm_state.UNKNOWN,
-    17, // VM.lcm_state.HOTPLUG,
-    18, // VM.lcm_state.SHUTDOWN_POWEROFF,
-    24, // VM.lcm_state.HOTPLUG_SNAPSHOT,
-    25, // VM.lcm_state.HOTPLUG_NIC,
-    26, // VM.lcm_state.HOTPLUG_SAVEAS,
-    27, // VM.lcm_state.HOTPLUG_SAVEAS_POWEROFF,
-    28, // VM.lcm_state.HOTPLUG_SAVEAS_SUSPENDED,
-    29, // VM.lcm_state.SHUTDOWN_UNDEPLOY
+    LCM_STATES.RUNNING,
+    LCM_STATES.MIGRATE,
+    LCM_STATES.SHUTDOWN,
+    LCM_STATES.CANCEL,
+    LCM_STATES.UNKNOWN,
+    LCM_STATES.HOTPLUG,
+    LCM_STATES.SHUTDOWN_POWEROFF,
+    LCM_STATES.HOTPLUG_SNAPSHOT,
+    LCM_STATES.HOTPLUG_NIC,
+    LCM_STATES.HOTPLUG_SAVEAS,
+    LCM_STATES.HOTPLUG_SAVEAS_POWEROFF,
+    LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED,
+    LCM_STATES.SHUTDOWN_UNDEPLOY
   ];
 
   var EXTERNAL_IP_ATTRS = [
@@ -166,7 +242,7 @@ define(function(require) {
     "USER"
   ];
 
-  var MIGRATE_ACTION = [
+  var MIGRATE_ACTION_STR = [
     "none",
     "migrate",
     "live-migrate",
@@ -196,71 +272,6 @@ define(function(require) {
 
   var VM = {
     "resource": RESOURCE,
-    "state": {
-      "INIT"      : 0,
-      "PENDING"   : 1,
-      "HOLD"      : 2,
-      "ACTIVE"    : 3,
-      "STOPPED"   : 4,
-      "SUSPENDED" : 5,
-      "DONE"      : 6,
-      "FAILED"    : 7,
-      "POWEROFF"  : 8,
-      "UNDEPLOYED": 9
-    },
-    "lcm_state": {
-      "LCM_INIT"            : 0,
-      "PROLOG"              : 1,
-      "BOOT"                : 2,
-      "RUNNING"             : 3,
-      "MIGRATE"             : 4,
-      "SAVE_STOP"           : 5,
-      "SAVE_SUSPEND"        : 6,
-      "SAVE_MIGRATE"        : 7,
-      "PROLOG_MIGRATE"      : 8,
-      "PROLOG_RESUME"       : 9,
-      "EPILOG_STOP"         : 10,
-      "EPILOG"              : 11,
-      "SHUTDOWN"            : 12,
-      "CANCEL"              : 13,
-      "FAILURE"             : 14,
-      "CLEANUP_RESUBMIT"    : 15,
-      "UNKNOWN"             : 16,
-      "HOTPLUG"             : 17,
-      "SHUTDOWN_POWEROFF"   : 18,
-      "BOOT_UNKNOWN"        : 19,
-      "BOOT_POWEROFF"       : 20,
-      "BOOT_SUSPENDED"      : 21,
-      "BOOT_STOPPED"        : 22,
-      "CLEANUP_DELETE"      : 23,
-      "HOTPLUG_SNAPSHOT"    : 24,
-      "HOTPLUG_NIC"         : 25,
-      "HOTPLUG_SAVEAS"           : 26,
-      "HOTPLUG_SAVEAS_POWEROFF"  : 27,
-      "HOTPLUG_SAVEAS_SUSPENDED" : 28,
-      "SHUTDOWN_UNDEPLOY"   : 29,
-      "EPILOG_UNDEPLOY"     : 30,
-      "PROLOG_UNDEPLOY"     : 31,
-      "BOOT_UNDEPLOY"       : 32,
-      "HOTPLUG_PROLOG_POWEROFF"   : 33,
-      "HOTPLUG_EPILOG_POWEROFF"   : 34,
-      "BOOT_MIGRATE"              : 35,
-      "BOOT_FAILURE"              : 36,
-      "BOOT_MIGRATE_FAILURE"      : 37,
-      "PROLOG_MIGRATE_FAILURE"    : 38,
-      "PROLOG_FAILURE"            : 39,
-      "EPILOG_FAILURE"            : 40,
-      "EPILOG_STOP_FAILURE"       : 41,
-      "EPILOG_UNDEPLOY_FAILURE"   : 42,
-      "PROLOG_MIGRATE_POWEROFF"   : 43,
-      "PROLOG_MIGRATE_POWEROFF_FAILURE"   : 44,
-      "PROLOG_MIGRATE_SUSPEND"            : 45,
-      "PROLOG_MIGRATE_SUSPEND_FAILURE"    : 46,
-      "BOOT_UNDEPLOY_FAILURE"     : 47,
-      "BOOT_STOPPED_FAILURE"      : 48,
-      "PROLOG_RESUME_FAILURE"     : 49,
-      "PROLOG_UNDEPLOY_FAILURE"   : 50
-    },
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
@@ -442,18 +453,20 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "save_as_template", action_obj);
     },
     "stateStr": function(stateId) {
-      return STATES[stateId];
+      return STATES_STR[stateId];
     },
+    "STATES": STATES,
     "lcmStateStr": function(stateId) {
-      return LCM_STATES[stateId];
+      return LCM_STATES_STR[stateId];
     },
+    "LCM_STATES": LCM_STATES,
     "shortLcmStateStr": function(stateId) {
-      return SHORT_LCM_STATES[stateId];
+      return SHORT_LCM_STATES_STR[stateId];
     },
     "hostnameStr": function(element) {
-      var state = STATES[element.STATE];
+      var state = element.STATE;
       var hostname = "--";
-      if (state == "ACTIVE" || state == "SUSPENDED" || state == "POWEROFF") {
+      if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
         var history = retrieveLastHistoryRecord(element)
         if (history) {
           hostname = history.HOSTNAME;
@@ -463,7 +476,7 @@ define(function(require) {
       return hostname;
     },
     "migrateActionStr": function(stateId) {
-      return MIGRATE_ACTION[stateId];
+      return MIGRATE_ACTION_STR[stateId];
     },
     "migrateReasonStr": function(stateId) {
       return MIGRATE_REASON[stateId];
