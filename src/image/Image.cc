@@ -411,7 +411,7 @@ int Image::from_xml(const string& xml)
     rc += xpath(cloning_ops,    "/IMAGE/CLONING_OPS",   -1);
     rc += xpath(cloning_id,     "/IMAGE/CLONING_ID",    -1);
 
-    xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
+    rc += xpath(target_snapshot, "/IMAGE/TARGET_SNAPSHOT", -1);
 
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
