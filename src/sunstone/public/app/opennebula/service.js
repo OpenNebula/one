@@ -6,6 +6,34 @@ define(function(require) {
   var PATH = 'service';
   var CACHE_NAME = 'SERVICE'
 
+  var STATES_STR = [
+    Locale.tr("PENDING"),
+    Locale.tr("DEPLOYING"),
+    Locale.tr("RUNNING"),
+    Locale.tr("UNDEPLOYING"),
+    Locale.tr("WARNING"),
+    Locale.tr("DONE"),
+    Locale.tr("FAILED_UNDEPLOYING"),
+    Locale.tr("FAILED_DEPLOYING"),
+    Locale.tr("SCALING"),
+    Locale.tr("FAILED_SCALING"),
+    Locale.tr("COOLDOWN")
+  ];
+
+  var STATES = {
+    PENDING             : 0,
+    DEPLOYING           : 1,
+    RUNNING             : 2,
+    UNDEPLOYING         : 3,
+    WARNING             : 4,
+    DONE                : 5,
+    FAILED_UNDEPLOYING  : 6,
+    FAILED_DEPLOYING    : 7,
+    SCALING             : 8,
+    FAILED_SCALING      : 9,
+    COOLDOWN            : 10
+  };
+
   var Service = {
     "resource": RESOURCE,
     "del": function(params) {
@@ -41,22 +69,10 @@ define(function(require) {
       params.cache_name = CACHE_NAME;
       OpenNebulaAction.simple_action(params, RESOURCE, "recover", null, PATH);
     },
-    "state" : function(state_int) {
-      var state = [
-          Locale.tr("PENDING"),
-          Locale.tr("DEPLOYING"),
-          Locale.tr("RUNNING"),
-          Locale.tr("UNDEPLOYING"),
-          Locale.tr("WARNING"),
-          Locale.tr("DONE"),
-          Locale.tr("FAILED_UNDEPLOYING"),
-          Locale.tr("FAILED_DEPLOYING"),
-          Locale.tr("SCALING"),
-          Locale.tr("FAILED_SCALING"),
-          Locale.tr("COOLDOWN")
-      ][state_int]
-      return state ? state : state_int;
+    "stateStr" : function(state_int) {
+      return STATES_STR[stateId];
     },
+    "STATES": STATES,
     "getName": function(id){
       return OpenNebulaAction.getName(id, CACHE_NAME);
     }

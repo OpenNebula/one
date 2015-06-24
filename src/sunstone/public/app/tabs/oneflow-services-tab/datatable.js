@@ -80,7 +80,7 @@ define(function(require) {
         element.UNAME,
         element.GNAME,
         element.NAME,
-        OpenNebulaService.state(element.TEMPLATE.BODY.state)
+        OpenNebulaService.stateStr(element.TEMPLATE.BODY.state)
     ];
   }
 });

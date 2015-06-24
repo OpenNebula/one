@@ -633,52 +633,51 @@ define(function(require) {
   //      color + '-bg' background class
   //    str: user friendly state string
   function get_provision_flow_state(data) {
-    var state = OpenNebula.Service.state(data.state);
     var state_color;
     var state_str;
 
-    switch (state) {
-      case Locale.tr("PENDING"):
+    switch (parseInt(data.state)) {
+      case OpenNebula.Service.STATES.PENDING:
         state_color = 'deploying';
         state_str = Locale.tr("PENDING");
         break;
-      case Locale.tr("DEPLOYING"):
+      case OpenNebula.Service.STATES.DEPLOYING:
         state_color = 'deploying';
         state_str = Locale.tr("DEPLOYING");
         break;
-      case Locale.tr("UNDEPLOYING"):
+      case OpenNebula.Service.STATES.UNDEPLOYING:
         state_color = 'powering_off';
         state_str = Locale.tr("UNDEPLOYING");
         break;
-      case Locale.tr("FAILED_UNDEPLOYING"):
+      case OpenNebula.Service.STATES.FAILED_UNDEPLOYING:
         state_color = 'error';
         state_str = Locale.tr("FAILED UNDEPLOYING");
         break;
-      case Locale.tr("FAILED_DEPLOYING"):
+      case OpenNebula.Service.STATES.FAILED_DEPLOYING:
         state_color = 'error';
         state_str = Locale.tr("FAILED DEPLOYING");
         break;
-      case Locale.tr("FAILED_SCALING"):
+      case OpenNebula.Service.STATES.FAILED_SCALING:
         state_color = 'error';
         state_str = Locale.tr("FAILED SCALING");
         break;
-      case Locale.tr("WARNING"):
+      case OpenNebula.Service.STATES.WARNING:
         state_color = 'error';
         state_str = Locale.tr("WARNING");
         break;
-      case Locale.tr("RUNNING"):
+      case OpenNebula.Service.STATES.RUNNING:
         state_color = 'running';
         state_str = Locale.tr("RUNNING");
         break;
-      case Locale.tr("SCALING"):
+      case OpenNebula.Service.STATES.SCALING:
         state_color = 'deploying';
         state_str = Locale.tr("SCALING");
         break;
-      case Locale.tr("COOLDOWN"):
+      case OpenNebula.Service.STATES.COOLDOWN:
         state_color = 'error';
         state_str = Locale.tr("COOLDOWN");
         break;
-      case Locale.tr("DONE"):
+      case OpenNebula.Service.STATES.DONE:
         state_color = 'off';
         state_str = Locale.tr("DONE");
         break;

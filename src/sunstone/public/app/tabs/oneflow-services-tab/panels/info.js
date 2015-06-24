@@ -51,7 +51,7 @@ define(function(require) {
     return TemplateHTML({
       'element': this.element,
       'permissionsTableHTML': permissionsTableHTML,
-      'stateStr': OpenNebulaService.state(this.element.TEMPLATE.BODY.state)
+      'stateStr': OpenNebulaService.stateStr(this.element.TEMPLATE.BODY.state)
     });
   }
 
