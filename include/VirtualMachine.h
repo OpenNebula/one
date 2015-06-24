@@ -1987,14 +1987,14 @@ private:
      * @param nic NIC to release the security groups
      * @return 0 on success, -1 otherwise
      */
-    static void release_security_groups(int vm_id, VectorAttribute const * nic);
+    static void release_security_groups(int vm_id, const VectorAttribute * nic);
 
     /**
      * Returns a set of the security group IDs of this NIC
      * @param nic NIC to get the security groups from
      * @param sgs a set of security group IDs
      */
-    static void get_security_groups(VectorAttribute const * nic, set<int>& sgs)
+    static void get_security_groups(const VectorAttribute * nic, set<int>& sgs)
     {
         one_util::split_unique(nic->vector_value("SECURITY_GROUPS"), ',', sgs);
     }

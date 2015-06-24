@@ -1789,14 +1789,34 @@ int VirtualMachine::get_disk_images(string& error_str)
     num_context = user_obj_template->remove("CONTEXT", context_disks);
     num_disks   = user_obj_template->remove("DISK", disks);
 
-    for (it=context_disks.begin(); it != context_disks.end(); it++)
+    for (it=context_disks.begin(); it != context_disks.end(); )
     {
-        obj_template->set(*it);
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            num_context--;
+            it = context_disks.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
     }
 
-    for (it=disks.begin(); it != disks.end(); it++)
+    for (it=disks.begin(); it != disks.end(); )
     {
-        obj_template->set(*it);
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            num_disks--;
+            it = disks.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
     }
 
     if ( num_disks > 20 )
@@ -1811,12 +1831,7 @@ int VirtualMachine::get_disk_images(string& error_str)
     {
         Snapshots * snap;
 
-        disk = dynamic_cast<VectorAttribute * >(disks[i]);
-
-        if ( disk == 0 )
-        {
-            continue;
-        }
+        disk = static_cast<VectorAttribute * >(disks[i]);
 
         rc = ipool->disk_attribute(oid,
                                    disk,
@@ -1896,34 +1911,31 @@ int VirtualMachine::get_disk_images(string& error_str)
     // -------------------------------------------------------------------------
     if ( num_context > 0 )
     {
-        disk = dynamic_cast<VectorAttribute * >(context_disks[0]);
+        disk = static_cast<VectorAttribute * >(context_disks[0]);
 
-        if ( disk != 0 )
+        target = disk->vector_value("TARGET");
+
+        if ( !target.empty() )
         {
-            target = disk->vector_value("TARGET");
-
-            if ( !target.empty() )
+            if (  used_targets.insert(target).second == false )
             {
-                if (  used_targets.insert(target).second == false )
-                {
-                    goto error_duplicated_target;
-                }
+                goto error_duplicated_target;
             }
-            else
-            {
-                dev_prefix = disk->vector_value("DEV_PREFIX");
-
-                if ( dev_prefix.empty() )
-                {
-                    dev_prefix = ipool->default_cdrom_dev_prefix();
-                }
-
-                cdrom_disks.push(make_pair(dev_prefix, disk));
-            }
-
-            // Disk IDs are 0..num-1, context disk is is num
-            disk->replace("DISK_ID", num_disks);
         }
+        else
+        {
+            dev_prefix = disk->vector_value("DEV_PREFIX");
+
+            if ( dev_prefix.empty() )
+            {
+                dev_prefix = ipool->default_cdrom_dev_prefix();
+            }
+
+            cdrom_disks.push(make_pair(dev_prefix, disk));
+        }
+
+        // Disk IDs are 0..num-1, context disk is is num
+        disk->replace("DISK_ID", num_disks);
     }
 
     assign_disk_targets(os_disk, used_targets);
@@ -2795,21 +2807,26 @@ int VirtualMachine::get_network_leases(string& estr)
 
     set<int> vm_sgs;
 
-    num_nics   = user_obj_template->remove("NIC",nics);
+    num_nics = user_obj_template->remove("NIC",nics);
 
-    for (vector<Attribute*>::iterator it=nics.begin(); it != nics.end(); it++)
+    for (vector<Attribute*>::iterator it=nics.begin(); it != nics.end(); )
     {
-        obj_template->set(*it);
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            num_nics--;
+            it = nics.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
     }
 
     for(int i=0; i<num_nics; i++)
     {
-        nic = dynamic_cast<VectorAttribute * >(nics[i]);
-
-        if ( nic == 0 )
-        {
-            continue;
-        }
+        nic = static_cast<VectorAttribute * >(nics[i]);
 
         merge_nic_defaults(nic);
 
@@ -2943,17 +2960,20 @@ int VirtualMachine::release_network_leases(VectorAttribute const * nic, int vmid
 
 void VirtualMachine::get_security_groups(set<int>& sgs) const
 {
+    vector<Attribute const  * > ns;
 
-    string                        vnid;
-    string                        ip;
-    int                           num_nics;
-    vector<Attribute const  * >   nics;
-
-    num_nics = get_template_attribute("NIC", nics);
+    int num_nics = get_template_attribute("NIC", ns);
 
     for(int i=0; i<num_nics; i++)
     {
-        get_security_groups(dynamic_cast<VectorAttribute const *>(nics[i]),sgs);
+        const VectorAttribute *n = dynamic_cast<const VectorAttribute *>(ns[i]);
+
+        if ( n == 0 )
+        {
+            continue;
+        }
+
+        get_security_groups(n, sgs);
     }
 }
 /* -------------------------------------------------------------------------- */
@@ -3025,7 +3045,7 @@ void VirtualMachine::get_security_group_rules(int id, set<int>& secgroups,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::release_security_groups(int id, VectorAttribute const * nic)
+void VirtualMachine::release_security_groups(int id, const VectorAttribute *nic)
 {
     set<int>::iterator it;
     set<int> secgroups;
