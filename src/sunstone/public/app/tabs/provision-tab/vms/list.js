@@ -822,10 +822,6 @@ define(function(require) {
         state_color = 'deploying';
         state_str = Locale.tr("DEPLOYING") + " (1/3)";
         break;
-      case OpenNebulaVM.STATES.FAILED: // TODO: failed does not exist anymore
-        state_color = 'error';
-        state_str = Locale.tr("ERROR");
-        break;
       case OpenNebulaVM.STATES.ACTIVE:
         var lcm_state = parseInt(data.LCM_STATE);
 

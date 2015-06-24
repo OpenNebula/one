@@ -2,6 +2,7 @@ define(function(require) {
   var OpenNebulaAction = require('./action'),
       OpenNebulaHelper = require('./helper'),
       OpenNebulaError  = require('./error');
+      Locale = require('utils/locale');
 
   var RESOURCE = "VM";
 
@@ -462,6 +463,27 @@ define(function(require) {
     "LCM_STATES": LCM_STATES,
     "shortLcmStateStr": function(stateId) {
       return SHORT_LCM_STATES_STR[stateId];
+    },
+    "isFailureState": function(lcmStateId) {
+      switch(parseInt(lcmStateId)){
+        case LCM_STATES.BOOT_FAILURE:
+        case LCM_STATES.BOOT_MIGRATE_FAILURE:
+        case LCM_STATES.PROLOG_MIGRATE_FAILURE:
+        case LCM_STATES.PROLOG_FAILURE:
+        case LCM_STATES.EPILOG_FAILURE:
+        case LCM_STATES.EPILOG_STOP_FAILURE:
+        case LCM_STATES.EPILOG_UNDEPLOY_FAILURE:
+        case LCM_STATES.PROLOG_MIGRATE_POWEROFF_FAILURE:
+        case LCM_STATES.PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case LCM_STATES.BOOT_UNDEPLOY_FAILURE:
+        case LCM_STATES.BOOT_STOPPED_FAILURE:
+        case LCM_STATES.PROLOG_RESUME_FAILURE:
+        case LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
+          return true;
+
+        default:
+          return false;
+      }
     },
     "hostnameStr": function(element) {
       var state = element.STATE;

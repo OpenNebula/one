@@ -1,5 +1,6 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "IMAGE";
   var STATES_STR = [

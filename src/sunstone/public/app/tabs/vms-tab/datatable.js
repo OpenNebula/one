@@ -90,11 +90,12 @@ define(function(require) {
       case OpenNebulaVM.STATES.HOLD:
         this.pendingVms++;
         break;
-      case OpenNebulaVM.STATES.FAILED: // TODO: failed does not exist anymore....
-        this.failedVms++;
-        break;
       case OpenNebulaVM.STATES.ACTIVE:
-        this.activeVms++;
+        if (OpenNebulaVM.isFailureState(element.LCM_STATE)) {
+          this.failedVms++;
+        } else {
+          this.activeVms++;
+        }
         break;
       case OpenNebulaVM.STATES.STOPPED:
       case OpenNebulaVM.STATES.SUSPENDED:

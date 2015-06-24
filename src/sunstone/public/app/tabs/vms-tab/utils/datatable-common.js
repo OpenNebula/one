@@ -34,7 +34,7 @@ define(function(require) {
 
     var state;
 
-    if (state == OpenNebulaVM.STATES.ACTIVE) {
+    if (element.STATE == OpenNebulaVM.STATES.ACTIVE) {
       state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
     } else {
       state = OpenNebulaVM.stateStr(element.STATE);
