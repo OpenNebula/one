@@ -96,15 +96,6 @@ define(function(require) {
           data: options
         });
       }
-    },
-    'user_quotas': {
-      'html': require('hbs!./dashboard-tab/user-quotas'),
-    },
-    'group_quotas': {
-      'html': require('hbs!./dashboard-tab/group-quotas'),
-    },
-    'accounting': {
-      'html': require('hbs!./dashboard-tab/accounting'),
     }
   }
 

@@ -41,15 +41,12 @@ tabs:
         widgets_two_per_row:
             - network
             - storage
-            - user_quotas
-            - group_quotas
             #- vms
         widgets_one_per_row:
             - vms
             #- hosts
             #- users
         widgets_one_footer:
-            - accounting
     system-tab:
         panel_tabs:
         actions:
