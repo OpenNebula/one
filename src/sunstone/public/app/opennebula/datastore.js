@@ -1,23 +1,39 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "DATASTORE";
-  var STATES = ["ON", "OFF"];
+  var STATES_STR = [
+    Locale.tr("ON"),
+    Locale.tr("OFF")];
 
-  var TYPES = [
-    "IMAGE",
-    "SYSTEM",
-    "FILE"
+  var TYPES_STR = [
+    Locale.tr("IMAGE"),
+    Locale.tr("SYSTEM"),
+    Locale.tr("FILE")
   ];
+
+  var STATES = {
+    READY     : 0,
+    DISABLED  : 1
+  };
+
+  var TYPES = {
+    IMAGE_DS  : 0,
+    SYSTEM_DS : 1,
+    FILE_DS   : 2
+  };
 
   var Datastore = {
     "resource": RESOURCE,
     "stateStr": function(stateId) {
-      return STATES[stateId];
+      return STATES_STR[stateId];
     },
+    "STATES": STATES,
     "typeStr": function(typeId) {
-      return TYPES[typeId];
+      return TYPES_STR[typeId];
     },
+    "TYPES": TYPES,
     "create" : function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

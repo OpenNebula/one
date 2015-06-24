@@ -58,7 +58,7 @@ define(function(require) {
                                       Locale.tr("Attributes"));
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
-    var stateStr = Locale.tr(OpenNebulaDatastore.stateStr(this.element.STATE));
+    var stateStr = OpenNebulaDatastore.stateStr(this.element.STATE);
     var typeStr = OpenNebulaDatastore.typeStr(this.element.TYPE);
 
     var limitStr = '-';

@@ -109,7 +109,7 @@ define(function(require) {
         element.TM_MAD,
         element.DS_MAD,
         OpenNebulaDatastore.typeStr(element.TYPE),
-        Locale.tr(OpenNebulaDatastore.stateStr(element.STATE))
+        OpenNebulaDatastore.stateStr(element.STATE)
     ];
   }
 });
