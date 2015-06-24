@@ -53,24 +53,22 @@ define(function(require) {
     var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
     var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE, Locale.tr("Attributes"));
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var stateStr = Locale.tr(OpenNebulaImage.stateStr(this.element.STATE));
     var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
     var fsTypeStr = this.element.FS_TYPE != undefined ? this.element.FS_TYPE : '-';
     var sizeStr = Humanize.sizeFromMB(this.element.SIZE);
     var persistentStr = parseInt(this.element.PERSISTENT) ? Locale.tr("yes") : Locale.tr("no");
-    var typeStr = Locale.tr(OpenNebulaImage.typeStr(this.element.TYPE));
 
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'templateTableHTML': templateTableHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'stateStr': stateStr,
+      'stateStr': OpenNebulaImage.stateStr(this.element.STATE),
       'prettyRegTime': prettyRegTime,
       'fsTypeStr': fsTypeStr,
       'persistentActionEnabled': Config.isTabActionEnabled('images-tab', "Image.persistent"),
       'persistentStr': persistentStr,
-      'typeStr': typeStr,
+      'typeStr': OpenNebulaImage.typeStr(this.element.TYPE),
       'sizeStr': sizeStr
     });
   }
@@ -86,12 +84,25 @@ define(function(require) {
     context.on("click", "#div_edit_chg_type_link", function() {
       $(".value_td_type", context).html(
                 '<select id="chg_type_select">\
-                      <option value="OS">OS</option>\
-                      <option value="CDROM">CDROM</option>\
-                      <option value="DATABLOCK">DATABLOCK</option>\
+                      <option value="OS">'+Locale.tr("OS")+'</option>\
+                      <option value="CDROM">'+Locale.tr("CDROM")+'</option>\
+                      <option value="DATABLOCK">'+Locale.tr("DATABLOCK")+'</option>\
                   </select>');
 
-      $('#chg_type_select', context).val(OpenNebulaImage.typeStr(that.element.TYPE));
+      var currentVal = "";
+      switch(parseInt(that.element.TYPE)){
+        case OpenNebulaImage.TYPES.OS:
+          currentVal = "OS";
+          break;
+        case OpenNebulaImage.TYPES.CDROM:
+          currentVal = "CDROM";
+          break;
+        case OpenNebulaImage.TYPES.DATABLOCK:
+          currentVal = "DATABLOCK";
+          break;
+      }
+
+      $('#chg_type_select', context).val(currentVal);
     });
 
     context.off("change", "#chg_type_select");

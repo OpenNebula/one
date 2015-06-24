@@ -58,7 +58,6 @@ define(function(require) {
     var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
     var fsTypeStr = this.element.FS_TYPE != undefined ? this.element.FS_TYPE : '-';
     var sizeStr = Humanize.sizeFromMB(this.element.SIZE);
-    var typeStr = Locale.tr(OpenNebulaImage.typeStr(this.element.TYPE));
 
     return TemplateInfo({
       'element': this.element,
@@ -68,7 +67,7 @@ define(function(require) {
       'stateStr': stateStr,
       'prettyRegTime': prettyRegTime,
       'fsTypeStr': fsTypeStr,
-      'typeStr': typeStr,
+      'typeStr': OpenNebulaImage.typeStr(this.element.TYPE),
       'sizeStr': sizeStr
     });
   }
@@ -84,12 +83,25 @@ define(function(require) {
     context.on("click", "#div_edit_chg_type_link", function() {
       $(".value_td_type", context).html(
                 '<select id="chg_type_select">\
-                      <option value="KERNEL">KERNEL</option>\
-                      <option value="RAMDISK">RAMDISK</option>\
-                      <option value="CONTEXT">CONTEXT</option>\
+                      <option value="KERNEL">'+Locale.tr("KERNEL")+'</option>\
+                      <option value="RAMDISK">'+Locale.tr("RAMDISK")+'</option>\
+                      <option value="CONTEXT">'+Locale.tr("CONTEXT")+'</option>\
                   </select>');
 
-      $('#chg_type_select', context).val(OpenNebulaImage.typeStr(that.element.TYPE));
+      var currentVal = "";
+      switch(parseInt(that.element.TYPE)){
+        case OpenNebulaImage.TYPES.KERNEL:
+          currentVal = "KERNEL";
+          break;
+        case OpenNebulaImage.TYPES.RAMDISK:
+          currentVal = "RAMDISK";
+          break;
+        case OpenNebulaImage.TYPES.CONTEXT:
+          currentVal = "CONTEXT";
+          break;
+      }
+
+      $('#chg_type_select', context).val(currentVal);
     });
 
     context.off("change", "#chg_type_select");

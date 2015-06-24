@@ -87,8 +87,9 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json.IMAGE;
 
-    // OS || CDROM || DATABLOCK
-    if (element.TYPE == "0" ||  element.TYPE == "1" || element.TYPE == "2") {
+    if (element.TYPE == OpenNebulaImage.TYPES.OS ||
+        element.TYPE == OpenNebulaImage.TYPES.CDROM ||
+        element.TYPE == OpenNebulaImage.TYPES.DATABLOCK) {
       return false;
     }
 

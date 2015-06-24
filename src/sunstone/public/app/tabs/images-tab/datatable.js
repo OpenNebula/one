@@ -90,8 +90,9 @@ define(function(require) {
   function _elementArray(element_json) {
     var element = element_json.IMAGE;
 
-    // KERNEL || RAMDISK || CONTEXT
-    if (element.TYPE == "3" ||  element.TYPE == "4" || element.TYPE == "5") {
+    if (element.TYPE == OpenNebulaImage.TYPES.KERNEL ||
+        element.TYPE == OpenNebulaImage.TYPES.RAMDISK ||
+        element.TYPE == OpenNebulaImage.TYPES.CONTEXT) {
       return false;
     }
 

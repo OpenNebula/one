@@ -9,6 +9,7 @@ define(function(require) {
   var DatastoreTable = require('tabs/datastores-tab/datatable')
   var Notifier = require('utils/notifier');
   var OpenNebulaImage = require('opennebula/image');
+  var OpenNebulaDatastore = require('opennebula/datastore');
 
   /*
     CONSTANTS
@@ -27,7 +28,9 @@ define(function(require) {
     this.datastoreTable = new DatastoreTable('image_clone', {
       'select': true,
       'selectOptions': {
-        'filter_fn': function(ds) { return ds.TYPE == 0; }
+        'filter_fn': function(ds) {
+          return ds.TYPE == OpenNebulaDatastore.TYPES.IMAGE_DS;
+        }
       }
     });
 

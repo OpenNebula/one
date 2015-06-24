@@ -2,35 +2,58 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
 
   var RESOURCE = "IMAGE";
-  var STATES = [
-    "INIT",
-    "READY",
-    "USED",
-    "DISABLED",
-    "LOCKED",
-    "ERROR",
-    "CLONE",
-    "DELETE",
-    "USED_PERS"
+  var STATES_STR = [
+    Locale.tr("INIT"),
+    Locale.tr("READY"),
+    Locale.tr("USED"),
+    Locale.tr("DISABLED"),
+    Locale.tr("LOCKED"),
+    Locale.tr("ERROR"),
+    Locale.tr("CLONE"),
+    Locale.tr("DELETE"),
+    Locale.tr("USED_PERS")
   ];
 
-  var TYPES = [
-    "OS", 
-    "CDROM", 
-    "DATABLOCK", 
-    "KERNEL", 
-    "RAMDISK", 
-    "CONTEXT"
+  var TYPES_STR = [
+    Locale.tr("OS"),
+    Locale.tr("CDROM"),
+    Locale.tr("DATABLOCK"),
+    Locale.tr("KERNEL"),
+    Locale.tr("RAMDISK"),
+    Locale.tr("CONTEXT")
   ];
+
+  var STATES = {
+    INIT      : 0,
+    READY     : 1,
+    USED      : 2,
+    DISABLED  : 3,
+    LOCKED    : 4,
+    ERROR     : 5,
+    CLONE     : 6,
+    DELETE    : 7,
+    USED_PERS : 8
+  };
+
+  var TYPES = {
+    OS        : 0,
+    CDROM     : 1,
+    DATABLOCK : 2,
+    KERNEL    : 3,
+    RAMDISK   : 4,
+    CONTEXT   : 5
+  };
 
   var Image = {
     "resource": RESOURCE,
     "stateStr": function(stateId) {
-      return STATES[stateId];
+      return STATES_STR[stateId];
     },
+    "STATES": STATES,
     "typeStr": function(typeId) {
-      return TYPES[typeId];
+      return TYPES_STR[typeId];
     },
+    "TYPES": TYPES,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },
