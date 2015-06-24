@@ -1,38 +1,51 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
+  var Locale = require('utils/locale');
 
   var RESOURCE = "HOST";
 
-  var STATES = [
-    "INIT",
-   "MONITORING_MONITORED",
-   "MONITORED",
-   "ERROR",
-   "DISABLED",
-   "MONITORING_ERROR",
-   "MONITORING_INIT",
-   "MONITORING_DISABLED"
-  ]
+  var STATES_STR = [
+    Locale.tr("INIT"),
+    Locale.tr("MONITORING_MONITORED"),
+    Locale.tr("MONITORED"),
+    Locale.tr("ERROR"),
+    Locale.tr("DISABLED"),
+    Locale.tr("MONITORING_ERROR"),
+    Locale.tr("MONITORING_INIT"),
+    Locale.tr("MONITORING_DISABLED")
+  ];
 
-  var SIMPLE_STATES = [
-    "INIT",
-    "UPDATE",
-    "ON",
-    "ERROR",
-    "OFF",
-    "RETRY",
-    "INIT",
-    "OFF"
-  ]
+  var SIMPLE_STATES_STR = [
+    Locale.tr("INIT"),
+    Locale.tr("UPDATE"),
+    Locale.tr("ON"),
+    Locale.tr("ERROR"),
+    Locale.tr("OFF"),
+    Locale.tr("RETRY"),
+    Locale.tr("INIT"),
+    Locale.tr("OFF")
+  ];
+
+  var STATES = {
+    INIT                 : 0,
+    MONITORING_MONITORED : 1,
+    MONITORED            : 2,
+    ERROR                : 3,
+    DISABLED             : 4,
+    MONITORING_ERROR     : 5,
+    MONITORING_INIT      : 6,
+    MONITORING_DISABLED  : 7
+  };
 
   var Host = {
     "resource": RESOURCE,
     "stateStr": function(stateId) {
-      return STATES[stateId];
+      return STATES_STR[stateId];
     },
     "simpleStateStr": function(stateId) {
-      return SIMPLE_STATES[stateId];
+      return SIMPLE_STATES_STR[stateId];
     },
+    "STATES": STATES,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
     },

@@ -81,7 +81,6 @@ define(function(require) {
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var cpuBars = CPUBars.html(this.element);
     var memoryBars = MemoryBars.html(this.element);
-    var stateStr = Locale.tr(OpenNebulaHost.stateStr(this.element.STATE));
     var datastoresCapacityTableHTML = DatastoresCapacityTable.html(this.element);
 
     return TemplateInfo({
@@ -92,7 +91,7 @@ define(function(require) {
       'permissionsTableHTML': permissionsTableHTML,
       'cpuBars': cpuBars,
       'memoryBars': memoryBars,
-      'stateStr': stateStr,
+      'stateStr': OpenNebulaHost.stateStr(this.element.STATE),
       'datastoresCapacityTableHTML': datastoresCapacityTableHTML
     });
   }

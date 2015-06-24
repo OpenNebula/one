@@ -99,18 +99,20 @@ define(function(require) {
     var memoryBars = MemoryBars.html(element);
 
     this.totalHosts++;
-    var stateSimpleStr = OpenNebulaHost.simpleStateStr(element.STATE);
-    switch (stateSimpleStr) {
-      case "INIT":
-      case "UPDATE":
-      case "ON":
+
+    switch (parseInt(element.STATE)) {
+      case OpenNebulaHost.STATES.INIT:
+      case OpenNebulaHost.STATES.MONITORING_INIT:
+      case OpenNebulaHost.STATES.MONITORING_MONITORED:
+      case OpenNebulaHost.STATES.MONITORED:
         this.onHosts++;
         break;
-      case "ERROR":
-      case "RETRY":
+      case OpenNebulaHost.STATES.ERROR:
+      case OpenNebulaHost.STATES.MONITORING_ERROR:
         this.errorHosts++;
         break;
-      case "OFF":
+      case OpenNebulaHost.STATES.DISABLED:
+      case OpenNebulaHost.STATES.MONITORING_DISABLED:
         this.offHosts++;
         break;
       default:
@@ -136,7 +138,7 @@ define(function(require) {
         cpuBars.allocated,
         memoryBars.real,
         memoryBars.allocated,
-        stateSimpleStr,
+        OpenNebulaHost.simpleStateStr(element.STATE),
         element.IM_MAD,
         element.VM_MAD,
         Humanize.prettyTime(element.LAST_MON_TIME)
