@@ -8,6 +8,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Humanize = require('utils/humanize');
   var StateActions = require('../utils/state-actions');
+  var OpenNebulaVM = require('opennebula/vm');
 
   /*
     CONSTANTS

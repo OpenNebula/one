@@ -59,7 +59,7 @@ define(function(require) {
        element.GNAME,
        element.NAME,
        state,
-       element.CPU,
+       "TODO", //TODO new monitoring path for element.CPU,
        Humanize.size(element.MEMORY),
        OpenNebulaVM.hostnameStr(element),
        OpenNebulaVM.ipsStr(element),

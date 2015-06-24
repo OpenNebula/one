@@ -130,7 +130,7 @@ define(function(require) {
       enableStateButton(action);
     });
 
-    if (state == OpenNebulaVM.state.ACTIVE) {
+    if (state == OpenNebulaVM.STATES.ACTIVE) {
       $.each(LCM_STATE_ACTIONS[lcm_state], function(i, action) {
         enableStateButton(action);
       });
