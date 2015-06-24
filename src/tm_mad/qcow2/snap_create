@@ -63,16 +63,13 @@ IMAGE_DS_PATH=$(dirname ${DISK_SRC})
 
 if [ "$CLONE" = "YES" ]; then
     DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
-    SNAP_DIR="${DISK_PATH}.snap"
-    SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-    SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 else
     DISK_PATH=$DISK_SRC
-    SNAP_DIR="${DISK_SRC}.snap"
-    SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-    SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 fi
 
+SNAP_DIR="${DISK_PATH}.snap"
+SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
+SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 CURRENT_PATH=${DISK_PATH}
 
 if [ ! -d ${SNAP_PATH} ]; then
