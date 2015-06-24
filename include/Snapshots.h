@@ -76,9 +76,10 @@ public:
     /**
      * Creates a new (empty) snapshot of the active disk
      *   @param tag description of this snapshot (optional)
+     *   @param size_mb of the snapshot (virtual size)
      *   @return id of the new snapshot
      */
-    int create_snapshot(const string& tag);
+    int create_snapshot(const string& tag, unsigned int size_mb);
 
     /**
      *  Check if an snapshot can be deleted (no children, no active)
@@ -169,13 +170,25 @@ public:
     }
 
     /**
+     *  @return total snapshot size (virtual) in mb
+     */
+    unsigned int get_total_size() const;
+
+    /**
+     *  Get the size (virtual) in mb of the given snapshot
+     *    @param id of the snapshot
+     *    @return size or 0 if not found
+     */
+	unsigned int get_snapshot_size(unsigned int id) const;
+
+    /**
      *  Get Attribute from the given snapshot
      *    @param id of the snapshot
      *    @param name of the attribute
      *
      *    @return value or empty if not found
      */
-    string get_snapshot_attribute(unsigned int id, const char* name);
+    string get_snapshot_attribute(unsigned int id, const char* name) const;
 
 private:
 

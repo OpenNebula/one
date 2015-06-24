@@ -519,7 +519,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->isImported() && (
+    if (vm->is_imported() && (
         action == History::DELETE_RECREATE_ACTION ||
         action == History::UNDEPLOY_ACTION ||
         action == History::UNDEPLOY_HARD_ACTION ||
@@ -848,7 +848,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->isImported())
+    if (vm->is_imported())
     {
         dm->import(vm);
     }
@@ -992,7 +992,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (vm->isImported())
+    if (vm->is_imported())
     {
         failure_response(ACTION,
                 request_error("Migration is not supported for imported VMs",""),
@@ -1561,7 +1561,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    volatile_disk = VirtualMachine::isVolatile(tmpl);
+    volatile_disk = VirtualMachine::is_volatile(tmpl);
 
     if ( volatile_disk )
     {
@@ -2343,6 +2343,15 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
+    VirtualMachine * vm;
+
+    PoolObjectAuth   vm_perms;
+
+	const VectorAttribute * disk;
+	VectorAttribute * delta_disk = 0;
+
+    Template deltas;
+
     int    rc;
     int    snap_id;
     string error_str;
@@ -2356,13 +2365,84 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         return;
     }
 
+	// ------------------------------------------------------------------------
+	// Check quotas for the new snapshot
+	// ------------------------------------------------------------------------
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+	disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
+
+	if (disk == 0)
+	{
+        failure_response(ACTION, request_error("VM disk does not exists", ""), att);
+
+		vm->unlock();
+
+		return;
+	}
+
+	string disk_size = disk->vector_value("SIZE");
+	string ds_id     = disk->vector_value("DATASTORE_ID");
+	bool persistent  = VirtualMachine::is_persistent(disk);
+
+    vm->get_permissions(vm_perms);
+
+	vm->unlock();
+
+    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
+
+	if (VirtualMachine::is_volatile(disk))
+	{
+        failure_response(ACTION, request_error("Cannot make snapshots on "
+					"volatile disks",""), att);
+		return;
+	}
+	else if (persistent)
+	{
+		deltas.add("DATASTORE", ds_id);
+		deltas.add("SIZE", disk_size);
+		deltas.add("IMAGES", 0);
+
+        if (!quota_authorization(&deltas, Quotas::DATASTORE, att_quota))
+        {
+            return;
+        }
+	}
+	else
+	{
+		delta_disk = new VectorAttribute("DISK");
+		delta_disk->replace("TYPE", "FS");
+		delta_disk->replace("SIZE", disk_size);
+
+        deltas.add("VMS", 0);
+		deltas.set(delta_disk);
+
+        if (!quota_resize_authorization(id, &deltas, att_quota))
+        {
+            return;
+        }
+	}
+
+	// ------------------------------------------------------------------------
+	// Do the snapshot
+	// ------------------------------------------------------------------------
     rc = dm->disk_snapshot_create(id, did, tag, snap_id, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION,
-                request_error(error_str, ""),
-                att);
+		if (persistent)
+		{
+			quota_rollback(&deltas, Quotas::DATASTORE, att_quota);
+		}
+		else
+		{
+            quota_rollback(&deltas, Quotas::VM, att_quota);
+		}
+
+        failure_response(ACTION, request_error(error_str, ""), att);
     }
     else
     {

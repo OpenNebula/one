@@ -122,15 +122,16 @@ void Snapshots::init()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::create_snapshot(const string& tag)
+int Snapshots::create_snapshot(const string& tag, unsigned int size_mb)
 {
     VectorAttribute * snapshot = new VectorAttribute("SNAPSHOT");
 
     if (!tag.empty())
     {
-        snapshot->replace("TAG",tag);
+        snapshot->replace("TAG", tag);
     }
 
+    snapshot->replace("SIZE", size_mb);
     snapshot->replace("ID", next_snapshot);
     snapshot->replace("DATE", static_cast<long long>(time(0)));
     snapshot->replace("PARENT", active);
@@ -270,9 +271,9 @@ const VectorAttribute * Snapshots::get_snapshot(unsigned int id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Snapshots::get_snapshot_attribute(unsigned int id, const char * name)
+string Snapshots::get_snapshot_attribute(unsigned int id, const char * name) const
 {
-    VectorAttribute * snapshot = get_snapshot(id);
+    const VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot == 0)
     {
@@ -280,6 +281,22 @@ string Snapshots::get_snapshot_attribute(unsigned int id, const char * name)
     }
 
     return snapshot->vector_value(name);
+}
+
+/* -------------------------------------------------------------------------- */
+
+unsigned int Snapshots::get_snapshot_size(unsigned int id) const
+{
+	unsigned int snap_size = 0;
+
+    const VectorAttribute * snapshot = get_snapshot(id);
+
+    if (snapshot != 0)
+    {
+		snapshot->vector_value("SIZE", snap_size);
+    }
+
+	return snap_size;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -315,5 +332,25 @@ bool Snapshots::test_delete(unsigned int id, string& error) const
     }
 
     return true;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+unsigned int Snapshots::get_total_size() const
+{
+    map<unsigned int, VectorAttribute *>::const_iterator it;
+    unsigned int size_mb, total_mb = 0;
+
+    for ( it = snapshot_pool.begin(); it !=  snapshot_pool.end(); it++)
+    {
+        if (it->second->vector_value("SIZE", size_mb) == 0)
+        {
+            total_mb += size_mb;
+        }
+    }
+
+    return total_mb;
 }
 

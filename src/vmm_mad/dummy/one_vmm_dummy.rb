@@ -180,13 +180,13 @@ class DummyDriver < VirtualMachineDriver
         end
 
         prev_nettx = 0
-        if msg.elements["VM/NET_TX"]
-            prev_nettx = msg.elements["VM/NET_TX"].text.to_i
+        if msg.elements["VM/MONITORING/NET_TX"]
+            prev_nettx = msg.elements["VM/MONITORING/NET_TX"].text.to_i
         end
 
         prev_netrx = 0
-        if msg.elements["VM/NET_RX"]
-            prev_netrx = msg.elements["VM/NET_RX"].text.to_i
+        if msg.elements["VM/MONITORING/NET_RX"]
+            prev_netrx = msg.elements["VM/MONITORING/NET_RX"].text.to_i
         end
 
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
@@ -195,7 +195,9 @@ class DummyDriver < VirtualMachineDriver
                        "#{POLL_ATTRIBUTE[:nettx]}=#{prev_nettx+(50*rand(3))} " \
                        "#{POLL_ATTRIBUTE[:netrx]}=#{prev_netrx+(100*rand(4))} " \
                        "#{POLL_ATTRIBUTE[:usedmemory]}=#{max_memory * (rand(80)+20)/100} " \
-                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100}"
+                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100} " \
+                       "#{POLL_ATTRIBUTE[:disk_actual]}=#{rand(1024)} " \
+                       "#{POLL_ATTRIBUTE[:disk_virtual]}=#{1024}"
 
         send_message(ACTION[:poll],result,id,monitor_info)
     end

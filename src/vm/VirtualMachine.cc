@@ -58,10 +58,6 @@ VirtualMachine::VirtualMachine(int           id,
         stime(time(0)),
         etime(0),
         deploy_id(""),
-        memory(0),
-        cpu(0),
-        net_tx(0),
-        net_rx(0),
         history(0),
         previous_history(0),
         _log(0)
@@ -389,6 +385,17 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         obj_template->add("MEMORY_COST", fvalue);
     }
 
+    if ( user_obj_template->get("DISK_COST", fvalue) == true )
+    {
+        if ( fvalue < 0 )
+        {
+            goto error_disk_cost;
+        }
+
+        user_obj_template->erase("DISK_COST");
+        obj_template->add("DISK_COST", fvalue);
+    }
+
     // ------------------------------------------------------------------------
     // Check the OS attribute
     // ------------------------------------------------------------------------
@@ -541,6 +548,10 @@ error_cpu_cost:
 
 error_memory_cost:
     error_str = "MEMORY_COST attribute must be a positive float or integer value.";
+    goto error_common;
+
+error_disk_cost:
+    error_str = "DISK_COST attribute must be a positive float or integer value.";
     goto error_common;
 
 error_one_vms:
@@ -2227,7 +2238,7 @@ VectorAttribute * VirtualMachine::delete_attach_disk(Snapshots **snap)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::isVolatile(const VectorAttribute * disk)
+bool VirtualMachine::is_volatile(const VectorAttribute * disk)
 {
     string type = disk->vector_value("TYPE");
 
@@ -2239,21 +2250,30 @@ bool VirtualMachine::isVolatile(const VectorAttribute * disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::isVolatile(const Template * tmpl)
+bool VirtualMachine::is_persistent(const VectorAttribute * disk)
+{
+    bool pers_disk;
+
+    disk->vector_value("PERSISTENT", pers_disk);
+
+    return pers_disk;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_volatile(const Template * tmpl)
 {
     vector<const Attribute*> disks;
+    const VectorAttribute *  disk;
+
     int num_disks = tmpl->get("DISK", disks);
 
     for (int i = 0 ; i < num_disks ; i++)
     {
-        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+        disk =static_cast<const VectorAttribute*>(disks[i]);
 
-        if (disk == 0)
-        {
-            continue;
-        }
-
-        if (VirtualMachine::isVolatile(disk))
+        if (is_volatile(disk))
         {
             return true;
         }
@@ -2265,13 +2285,13 @@ bool VirtualMachine::isVolatile(const Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::isImported() const
+bool VirtualMachine::is_imported() const
 {
-    bool is_imported = false;
+    bool imported = false;
 
-    get_template_attribute("IMPORTED", is_imported);
+    get_template_attribute("IMPORTED", imported);
 
-    return is_imported;
+    return imported;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2279,35 +2299,37 @@ bool VirtualMachine::isImported() const
 
 long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
 {
-    long long size = 0;
+    long long disk_size, size = 0;
 
     vector<const Attribute*> disks;
-    int num_disks = tmpl->get("DISK", disks);
+    const VectorAttribute *  disk;
 
-    if (num_disks == 0)
-    {
-        return size;
-    }
+    int num_disks = tmpl->get("DISK", disks);
 
     for (int i = 0 ; i < num_disks ; i++)
     {
-        long long disk_size;
-        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(disks[i]);
+        disk = dynamic_cast<const VectorAttribute*>(disks[i]);
 
         if (disk == 0)
         {
             continue;
         }
 
-        if (!VirtualMachine::isVolatile(disk))
+        if (is_volatile(disk))
         {
-            continue;
+            if (disk->vector_value("SIZE", disk_size) == 0)
+            {
+                size += disk_size;
+            }
+        }
+        else if (!is_persistent(disk))
+        {
+            if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", disk_size) == 0)
+            {
+                size += disk_size;
+            }
         }
 
-        if (disk->vector_value("SIZE", disk_size) == 0)
-        {
-            size += disk_size;
-        }
     }
 
     return size;
@@ -3636,6 +3658,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
 {
     string template_xml;
     string user_template_xml;
+    string monitoring_xml;
     string history_xml;
     string perm_xml;
     string snap_xml;
@@ -3659,10 +3682,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
         << "<STIME>"     << stime     << "</STIME>"
         << "<ETIME>"     << etime     << "</ETIME>"
         << "<DEPLOY_ID>" << deploy_id << "</DEPLOY_ID>"
-        << "<MEMORY>"    << memory    << "</MEMORY>"
-        << "<CPU>"       << cpu       << "</CPU>"
-        << "<NET_TX>"    << net_tx    << "</NET_TX>"
-        << "<NET_RX>"    << net_rx    << "</NET_RX>"
+        << monitoring.to_xml(monitoring_xml)
         << obj_template->to_xml(template_xml)
         << user_obj_template->to_xml(user_template_xml);
 
@@ -3733,11 +3753,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += xpath(etime,     "/VM/ETIME",    0);
     rc += xpath(deploy_id, "/VM/DEPLOY_ID","");
 
-    rc += xpath(memory,    "/VM/MEMORY",   0);
-    rc += xpath(cpu,       "/VM/CPU",      0);
-    rc += xpath(net_tx,    "/VM/NET_TX",   0);
-    rc += xpath(net_rx,    "/VM/NET_RX",   0);
-
     // Permissions
     rc += perms_from_xml();
 
@@ -3762,6 +3777,20 @@ int VirtualMachine::from_xml(const string &xml_str)
         return -1;
     }
     rc += obj_template->from_xml_node(content[0]);
+
+    ObjectXML::free_nodes(content);
+    content.clear();
+
+    // Virtual Machine Monitoring
+
+    ObjectXML::get_nodes("/VM/MONITORING", content);
+
+    if (content.empty())
+    {
+        return -1;
+    }
+
+    rc += monitoring.from_xml_node(content[0]);
 
     ObjectXML::free_nodes(content);
     content.clear();
@@ -3844,45 +3873,40 @@ string VirtualMachine::get_system_dir() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::update_info(
-    const int _memory,
-    const int _cpu,
-    const long long _net_tx,
-    const long long _net_rx,
-    const map<string, string> &custom)
+int VirtualMachine::update_info(const string& monitor_data)
 {
-    map<string, string>::const_iterator it;
+    int    rc;
+    string error;
+
+    ostringstream oss;
 
     last_poll = time(0);
 
-    if (_memory != -1)
-    {
-        memory = _memory;
-    }
+    rc = monitoring.update(monitor_data, error);
 
-    if (_cpu != -1)
+    if ( rc != 0)
     {
-        cpu    = _cpu;
-    }
+        oss << "Ignoring monitoring information, error:" << error
+            << ". Monitor information was: " << monitor_data;
 
-    if (_net_tx != -1)
-    {
-        net_tx = _net_tx;
-    }
+        NebulaLog::log("VMM", Log::ERROR, oss);
 
-    if (_net_rx != -1)
-    {
-        net_rx = _net_rx;
-    }
+        set_template_error_message(oss.str());
 
-    for (it = custom.begin(); it != custom.end(); it++)
-    {
-        replace_template_attribute(it->first, it->second);
+        log("VMM", Log::ERROR, oss);
+
+        return -1;
     }
 
     set_vm_info();
 
     clear_template_monitor_error();
+
+    oss << "VM " << oid << " successfully monitored: " << monitor_data;
+
+    NebulaLog::log("VMM", Log::DEBUG, oss);
+
+    return 0;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -4168,6 +4192,7 @@ int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
 int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 {
     map<int, Snapshots *>::iterator it;
+    unsigned int size_mb, snap_size;
     int snap_id;
 
     VectorAttribute * disk;
@@ -4180,9 +4205,15 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
         return -1;
     }
 
-    if (isVolatile(disk))
+    if (is_volatile(disk))
     {
         error = "Cannot make snapshots on volatile disks";
+        return -1;
+    }
+
+    if (disk->vector_value("SIZE", size_mb) != 0 )
+    {
+        error = "Wrong size in disk";
         return -1;
     }
 
@@ -4192,7 +4223,8 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     {
         Snapshots * snap = new Snapshots(did);
 
-        snap_id = snap->create_snapshot(tag);
+        snap_id   = snap->create_snapshot(tag, size_mb);
+        snap_size = size_mb;
 
 		if (snap_id != -1)
 		{
@@ -4205,13 +4237,15 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     }
     else
     {
-        snap_id = it->second->create_snapshot(tag);
+        snap_id   = it->second->create_snapshot(tag, size_mb);
+        snap_size = it->second->get_total_size();
     }
 
 	if (snap_id != -1)
 	{
 		disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
 		disk->replace("DISK_SNAPSHOT_ID", snap_id);
+        disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 	}
 
     return snap_id;
@@ -4268,10 +4302,16 @@ int VirtualMachine::revert_disk_snapshot(int did, int snap_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
+void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
+        Quotas::QuotaType& type, Template **quotas)
 {
     map<int, Snapshots *>::iterator it;
+    unsigned int snap_size;
+
+    VectorAttribute * delta_disk;
     VectorAttribute * disk = get_disk(did);
+
+    *quotas = 0;
 
     if ( disk == 0 )
     {
@@ -4285,7 +4325,13 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
         return;
     }
 
+    unsigned int ssize = it->second->get_snapshot_size(snap_id);
+
     it->second->delete_snapshot(snap_id);
+
+    snap_size = it->second->get_total_size();
+
+    disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
     if (it->second->size() == 0)
     {
@@ -4294,6 +4340,30 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id)
         snapshots.erase(it);
 
         delete tmp;
+    }
+
+    if ( is_persistent(disk) )
+    {
+        *quotas = new Template();
+
+        (*quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
+        (*quotas)->add("SIZE", (long long) ssize);
+		(*quotas)->add("IMAGES",0 );
+
+        type = Quotas::DATASTORE;
+    }
+    else
+    {
+        *quotas = new Template();
+
+        delta_disk = new VectorAttribute("DISK");
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", ssize);
+
+        (*quotas)->add("VMS", 0);
+        (*quotas)->set(delta_disk);
+
+        type = Quotas::VM;
     }
 }
 

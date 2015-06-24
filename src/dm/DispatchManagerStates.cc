@@ -236,7 +236,7 @@ void  DispatchManager::done_action(int vid)
         gid  = vm->get_gid();
         tmpl = vm->clone_template();
 
-        if (vm->isImported())
+        if (vm->is_imported())
         {
             deploy_id = vm->get_deploy_id();
         }

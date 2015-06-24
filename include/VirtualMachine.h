@@ -18,12 +18,14 @@
 #define VIRTUAL_MACHINE_H_
 
 #include "VirtualMachineTemplate.h"
+#include "VirtualMachineMonitorInfo.h"
 #include "PoolSQL.h"
 #include "History.h"
 #include "Image.h"
 #include "Log.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "Quotas.h"
 
 #include <time.h>
 #include <set>
@@ -384,8 +386,7 @@ public:
      *  Updates VM dynamic information (id).
      *   @param _deploy_id the VMM driver specific id
      */
-    void update_info(
-        const string& _deploy_id)
+    void set_deploy_id (const string& _deploy_id)
     {
         deploy_id = _deploy_id;
     };
@@ -393,17 +394,8 @@ public:
     /**
      *  Updates VM dynamic information (usage counters), and updates last_poll,
      *  and copies it to history record for acct.
-     *   @param _memory Kilobytes used by the VM (total)
-     *   @param _cpu used by the VM (rate)
-     *   @param _net_tx transmitted bytes (total)
-     *   @param _net_rx received bytes (total)
      */
-    void update_info(
-        const int _memory,
-        const int _cpu,
-        const long long _net_tx,
-        const long long _net_rx,
-        const map<string, string> &custom);
+    int update_info(const string& monitor_data);
 
     /**
      *  Clears the VM monitor information: usage counters, last_poll,
@@ -411,9 +403,18 @@ public:
      */
     void reset_info()
     {
-        map<string,string> empty;
+        last_poll = time(0);
 
-        update_info(0, 0, -1, -1, empty);
+        monitoring.clear();
+
+        set_vm_info();
+
+        clear_template_monitor_error();
+    }
+
+    const VirtualMachineMonitorInfo& get_info() const
+    {
+        return monitoring;
     }
 
     /**
@@ -1233,17 +1234,22 @@ public:
     /**
      *  Check if the given disk is volatile
      */
-    static bool isVolatile(const VectorAttribute * disk);
+    static bool is_volatile(const VectorAttribute * disk);
 
     /**
      *  Check if the template contains a volatile disk
      */
-    static bool isVolatile(const Template * tmpl);
+    static bool is_volatile(const Template * tmpl);
+
+    /**
+     *  Check if the disk is persistent
+     */
+    static bool is_persistent(const VectorAttribute * disk);
 
     /**
      *  Check if the themplate is for an imported VM
      */
-    bool isImported() const;
+    bool is_imported() const;
 
     /**
      *  Return the total SIZE of volatile disks
@@ -1255,6 +1261,11 @@ public:
      * @param sgs a set of security group IDs
      */
     void get_security_groups(set<int>& sgs) const;
+
+	/**
+	 *
+	 */
+    const VectorAttribute* get_disk(int disk_id) const;
 
     // ------------------------------------------------------------------------
     // Context related functions
@@ -1524,8 +1535,11 @@ public:
      *  called before actually deleting the snapshot.
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
+     *    @param type of quota used by this snapshot
+     *    @param quotas template with snapshot usage
      */
-    void delete_disk_snapshot(int disk_id, int snap_id);
+    void delete_disk_snapshot(int disk_id, int snap_id, Quotas::QuotaType& type,
+            Template **quotas);
 
     /**
      *  Get information about the disk to take the snapshot from
@@ -1689,6 +1703,16 @@ private:
     long long   net_rx;
 
     /**
+     *  Network usage, received bytes
+     */
+    long long   disk_actual;
+
+    /**
+     *  Network usage, received bytes
+     */
+    long long   disk_virtual;
+
+    /**
      *  History record, for the current host
      */
     History *   history;
@@ -1708,24 +1732,25 @@ private:
      */
     map<int, Snapshots *> snapshots;
 
-    // -------------------------------------------------------------------------
-    // Logging & Dirs
-    // -------------------------------------------------------------------------
+    /**
+     *  User template to store custom metadata. This template can be updated
+     */
+    VirtualMachineTemplate * user_obj_template;
+
+    /**
+     *  Monitoring information for the VM
+     */
+    VirtualMachineMonitorInfo monitoring;
 
     /**
      *  Log class for the virtual machine, it writes log messages in
      *          $ONE_LOCATION/var/$VID/vm.log
      *  or, in case that OpenNebula is installed in root
      *          /var/log/one/$VM_ID.log
-     *  For the syslog... TODO
+     *  For the syslog it will use the predefined /var/log/ locations
      */
     Log * _log;
 
-    /**
-     *  User template to store custom metadata. This template can be updated
-     *
-     */
-    VirtualMachineTemplate * user_obj_template;
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -1992,7 +2017,6 @@ private:
                 static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
     };
 
-    const VectorAttribute* get_disk(int disk_id) const;
 
 protected:
 

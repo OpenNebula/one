@@ -40,7 +40,8 @@ public:
                        time_t                       expire_time,
                        bool                         on_hold,
                        float                        default_cpu_cost,
-                       float                        default_mem_cost);
+                       float                        default_mem_cost,
+                       float                        default_disk_cost);
 
     ~VirtualMachinePool(){};
 
@@ -385,6 +386,7 @@ private:
      */
     static float _default_cpu_cost;
     static float _default_mem_cost;
+    static float _default_disk_cost;
 
     /**
      * Callback used to get an int in the DB it is used by VM Pool in:

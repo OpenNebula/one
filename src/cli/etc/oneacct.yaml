@@ -46,6 +46,14 @@
   :desc: Data sent to the network
   :size: 6
 
+:DISK_ACTUAL:
+  :desc: Total disk size
+  :size: 6
+
+:DISK_VIRTUAL:
+  :desc: Total virtual disk size
+  :size: 6
+
 :default:
 - :VID
 - :HOSTNAME
@@ -56,3 +64,5 @@
 - :CPU
 - :NET_RX
 - :NET_TX
+- :DISK_ACTUAL
+- :DISK_VIRTUAL

@@ -1722,6 +1722,9 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 {
     string disk_id, tm_mad, ds_id, snap_id;
 
+    Quotas::QuotaType qt;
+    Template *quotas = 0;
+
     VirtualMachine * vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
@@ -1743,6 +1746,9 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     int isnap_id = strtol(snap_id.c_str(),NULL,0);
     int idisk_id = strtol(disk_id.c_str(),NULL,0);
 
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
+
     switch (vm->get_lcm_state())
     {
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
@@ -1753,7 +1759,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
-            vm->delete_disk_snapshot(idisk_id, isnap_id);
+            vm->delete_disk_snapshot(idisk_id, isnap_id, qt, &quotas);
             break;
 
         default:
@@ -1770,6 +1776,13 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     vm->unlock();
 
+    if ( quotas != 0 )
+    {
+        Quotas::quota_del(qt, uid, gid, quotas);
+
+        delete quotas;
+    }
+
     return;
 }
 
@@ -1779,6 +1792,9 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 void LifeCycleManager::disk_snapshot_failure(int vid)
 {
     string disk_id, tm_mad, ds_id, snap_id;
+
+    Quotas::QuotaType qt;
+    Template *quotas = 0;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1801,11 +1817,14 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     int isnap_id = strtol(snap_id.c_str(),NULL,0);
     int idisk_id = strtol(disk_id.c_str(),NULL,0);
 
+    int uid = vm->get_uid();
+    int gid = vm->get_gid();
+
     switch (vm->get_lcm_state())
     {
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
             vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
-            vm->delete_disk_snapshot(idisk_id, isnap_id);
+            vm->delete_disk_snapshot(idisk_id, isnap_id, qt, &quotas);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1826,6 +1845,13 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
 
     vm->unlock();
+
+    if ( quotas != 0 )
+    {
+        Quotas::quota_del(qt, uid, gid, quotas);
+
+        delete quotas;
+    }
 
     return;
 }

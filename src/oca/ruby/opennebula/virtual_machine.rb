@@ -535,19 +535,15 @@ module OpenNebula
         #   the requested xpath expressions, and an Array of 'timestamp, value'.
         #
         # @example
-        #   vm.monitoring( ['CPU', 'NET_TX', 'TEMPLATE/CUSTOM_PROBE'] )
+        #   vm.monitoring( ['MONITORING/USEDCPU', 'MONITORING/NETTX'] )
         #
-        #   { "NET_TX" =>
-        #       [["1337264510", "210"],
-        #        ["1337264553", "220"],
-        #        ["1337264584", "230"]],
-        #     "TEMPLATE/CUSTOM_PROBE" =>
-        #       [],
-        #     "CPU" =>
-        #       [["1337264510", "0"],
-        #        ["1337264553", "0"],
-        #        ["1337264584", "0"]]
+        #   {
+        #    "MONITORING/USEDCPU"=>[["1435085098", "47"], ["1435085253", "5"],
+        #      ["1435085410", "48"], ["1435085566", "3"], ["1435088136", "2"]], 
+        #    "MONITORING/NETTX"=>[["1435085098", "0"], ["1435085253", "50"], 
+        #      ["1435085410", "50"], ["1435085566", "50"], ["1435085723", "50"]]
         #   }
+        #
         def monitoring(xpath_expressions)
             return super(VM_METHODS[:monitoring], 'VM',
                 'LAST_POLL', xpath_expressions)

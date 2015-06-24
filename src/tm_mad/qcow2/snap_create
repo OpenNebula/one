@@ -31,17 +31,48 @@ else
     DATASTORES=$ONE_LOCATION/var/datastores
 fi
 
+DRIVER_PATH=$(dirname $0)
+
 . $TMCOMMON
 
 SRC_PATH=`arg_path $SRC`
 
-SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
 
 DISK_ID=$(basename ${SRC} | cut -d. -f2)
-DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
-SNAP_DIR="${DISK_PATH}.snap"
-SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
+
+
+SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
+IMAGE_DS_PATH=$(dirname ${DISK_SRC})
+
+
+if [ "$CLONE" = "YES" ]; then
+    DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+    SNAP_DIR="${DISK_PATH}.snap"
+    SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
+    SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
+else
+    DISK_PATH=$DISK_SRC
+    SNAP_DIR="${DISK_SRC}.snap"
+    SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
+    SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
+fi
+
 CURRENT_PATH=${DISK_PATH}
 
 if [ ! -d ${SNAP_PATH} ]; then
