@@ -223,12 +223,10 @@ define(function(require) {
           break;
         case "refresh":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
-          text = '<span class="fa-stack">' +
-              '<i class="fa fa-refresh fa-stack-lg" style="font-size: 1.5em"></i>' +
-              //'<i class="fa fa-play fa-stack-1x"></i>'+
-            '</span>';
+          icon = button.icon ? button.icon : '<i class="fa fa-refresh fa-lg"/>';
+          text = button.text ? icon + ' ' + button.text : icon;
           strClass.push("white_button", "refresh", "secondary", "button", "small", "radius");
-          buttonCode = '<a class="' + strClass.join(' ') + '" href="' + buttonName + '" style="padding-left: 5px">' + text + '</a>';
+          buttonCode = '<button class="' + strClass.join(' ') + '" href="' + buttonName + '">' + text + '</button>';
           break;
         case "top":
           buttonContext = $("#" + customId + "refresh_buttons", buttonsRow);
@@ -307,41 +305,41 @@ define(function(require) {
       actionBlock.append(buttonsRow);
 
       if ($("#" + customId + "more_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "more_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "more_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsplanification_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "vmsplanification_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "vmsplanification_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsdelete_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "vmsdelete_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "vmsdelete_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsstop_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "vmsstop_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "vmsstop_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmspause_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "vmspause_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "vmspause_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "vmsrepeat_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "vmsrepeat_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "vmsrepeat_buttons]", actionBlock).remove()
       }
 
       if ($("#" + customId + "user_buttons li", actionBlock).length == 0) {
-        $("a[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
+        $("button[data-dropdown=" + customId + "user_buttons]", actionBlock).remove()
       }
       //actionBlock.foundationButtons();
-      $('.top_button, .list_button', actionBlock).attr('disabled', false);
-      $('.top_button, .list_button', actionBlock).attr('disabled', true);
-      $('.create_dialog_button', actionBlock).attr('disabled', false);
-      $('.alwaysActive', actionBlock).attr('disabled', false);
+      $('.top_button, .list_button', actionBlock).prop('disabled', false);
+      $('.top_button, .list_button', actionBlock).prop('disabled', true);
+      $('.create_dialog_button', actionBlock).prop('disabled', false).removeAttr('disabled');
+      $('.alwaysActive', actionBlock).prop('disabled', false).removeAttr('disabled');
 
       $('#' + customId + 'reset_button', actionBlock).on("click", function() {
         _resetFormPanel(tabName);
