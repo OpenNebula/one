@@ -242,7 +242,7 @@ build_scripts=[
     'src/secgroup/SConstruct',
     'src/vdc/SConstruct',
     'share/man/SConstruct',
-    'src/sunstone/locale/languages/SConstruct',
+    'src/sunstone/public/locale/languages/SConstruct',
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct'
