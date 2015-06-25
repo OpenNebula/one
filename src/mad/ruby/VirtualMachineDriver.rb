@@ -51,13 +51,14 @@ class VirtualMachineDriver < OpenNebulaDriver
     }
 
     POLL_ATTRIBUTE = {
-        :usedmemory  => "USEDMEMORY",
-        :usedcpu     => "USEDCPU",
-        :nettx       => "NETTX",
-        :netrx       => "NETRX",
-        :state       => "STATE",
-        :disk_actual => "DISK_ACTUAL_SIZE",
-        :disk_virtual=> "DISK_VIRTUAL_SIZE"
+        :memory          => "MEMORY",
+        :cpu             => "CPU",
+        :net_tx          => "NET_TX",
+        :net_rx          => "NET_RX",
+        :state           => "STATE",
+        :total_disk_size => "TOTAL_DISK_SIZE",
+        :disk_size       => "DISK_SIZE",
+        :snapshot_size   => "SNAPSHOT_SIZE"
     }
 
     VM_STATE = {
@@ -354,7 +355,7 @@ if __FILE__ == $0
             # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
             # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
             monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \
-                           "#{POLL_ATTRIBUTE[:nettx]}=12345"
+                           "#{POLL_ATTRIBUTE[:net_tx]}=12345"
 
             send_message(ACTION[:poll],RESULT[:success],id,monitor_info)
         end
