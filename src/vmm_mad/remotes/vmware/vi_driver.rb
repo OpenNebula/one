@@ -253,8 +253,8 @@ class VIVm
             @used_cpu    = 0
             @used_memory = 0
 
-            @net_rx = 0
-            @net_tx = 0
+            @netrx = 0
+            @nettx = 0
 
             return
         end
@@ -269,24 +269,24 @@ class VIVm
 
         vm_stats = VIDriver::retrieve_stats([@vm],
                                   ["net.packetsRx","net.packetsTx"])
-        @net_rx   = 0
-        @net_tx   = 0
+        @netrx   = 0
+        @nettx   = 0
 
         if vm_stats[@vm] && vm_stats[@vm][:metrics]
             if vm_stats[@vm][:metrics]["net.packetsRx"]
-                @net_rx = vm_stats[@vm][:metrics]["net.packetsRx"].first
+                @netrx = vm_stats[@vm][:metrics]["net.packetsRx"].first
             end
 
             if vm_stats[@vm][:metrics]["net.packetsTx"]
-                @net_tx = vm_stats[@vm][:metrics]["net.packetsTx"].first
+                @nettx = vm_stats[@vm][:metrics]["net.packetsTx"].first
             end
         end
 
         # Check for negative values
         @used_memory = 0 if @used_memory.to_i < 0
         @used_cpu    = 0 if @used_cpu.to_i < 0
-        @net_rx      = 0 if @net_rx.to_i < 0
-        @net_tx      = 0 if @net_tx.to_i < 0
+        @netrx       = 0 if @netrx.to_i < 0
+        @nettx       = 0 if @nettx.to_i < 0
     end
 
     ########################################################################
@@ -300,8 +300,8 @@ class VIVm
       str_info << "STATE="  << @state            << " "
       str_info << "CPU="    << @used_cpu.to_s    << " "
       str_info << "MEMORY=" << @used_memory.to_s << " "
-      str_info << "NET_RX=" << @net_rx.to_s      << " "
-      str_info << "NET_TX=" << @net_tx.to_s
+      str_info << "NETRX="  << @netrx.to_s       << " "
+      str_info << "NETTX="  << @nettx.to_s
     end
 
 private
@@ -367,24 +367,24 @@ class VIHost
 
         net = VIDriver::retrieve_stats([@host],
                                        ["net.packetsRx","net.packetsTx"])
-        @net_rx = 0
-        @net_tx = 0
+        @netrx = 0
+        @nettx = 0
 
         if net[@host] && net[@host][:metrics]
             if net[@host][:metrics]["net.packetsRx"]
-                @net_rx = net[@host][:metrics]["net.packetsRx"].first
+                @netrx = net[@host][:metrics]["net.packetsRx"].first
             end
 
             if net[@host][:metrics]["net.packetsTx"]
-                @net_tx = net[@host][:metrics]["net.packetsTx"].first
+                @nettx = net[@host][:metrics]["net.packetsTx"].first
             end
         end
 
         # Check for negative values
         @used_memory = 0 if @used_memory.to_i < 0
         @used_cpu    = 0 if @used_cpu.to_i < 0
-        @net_rx      = 0 if @net_rx.to_i < 0
-        @net_tx      = 0 if @net_tx.to_i < 0
+        @netrx      = 0 if @netrx.to_i < 0
+        @nettx      = 0 if @nettx.to_i < 0
 
         # Check free datastore space
         @free_ds_info = VIDriver::retrieve_free_ds(@host)
@@ -409,8 +409,8 @@ class VIHost
         str_info << "FREEMEMORY="  << (@total_memory - @used_memory).to_s << "\n"
 
         # Networking
-        str_info << "NETRX=" << @net_rx.to_s << "\n"
-        str_info << "NETTX=" << @net_tx.to_s << "\n"
+        str_info << "NETRX=" << @netrx.to_s << "\n"
+        str_info << "NETTX=" << @nettx.to_s << "\n"
 
         # Datastores
         @free_ds_info.each{|k,v|

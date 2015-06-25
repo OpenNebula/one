@@ -246,7 +246,7 @@ module KVM
     # Aggregate statics of all VM NICs
     #   @param the ID of the VM as defined in libvirt
     #   @param text [nil, String] dumpxml output or nil to execute dumpxml
-    #   @return [Hash] with network stats, by name [symbol] :net_rx, :net_tx
+    #   @return [Hash] with network stats, by name [symbol] :netrx, :nettx
     def self.get_interface_statistics(vmid, text = nil)
         text = dump_xml(vmid) if !text
 
@@ -264,8 +264,8 @@ module KVM
 
         values = Hash.new
 
-        values[:net_rx] = 0
-        values[:net_tx] = 0
+        values[:netrx] = 0
+        values[:nettx] = 0
 
         interfaces.each do |interface|
             text=`#{virsh(:domifstat)} #{vmid} #{interface}`
@@ -277,9 +277,9 @@ module KVM
 
                 case columns[1]
                     when 'rx_bytes'
-                        values[:net_rx] += columns[2].to_i
+                        values[:netrx] += columns[2].to_i
                     when 'tx_bytes'
-                        values[:net_tx]+=columns[2].to_i
+                        values[:nettx]+=columns[2].to_i
                     end
                 end
         end
@@ -581,8 +581,8 @@ module XEN
                 dom_hash[:state]   = get_state(dom_data[1])
                 dom_hash[:cpu]     = dom_data[3]
                 dom_hash[:memory]  = dom_data[4]
-                dom_hash[:net_tx]  = dom_data[10].to_i * 1024
-                dom_hash[:net_rx]  = dom_data[11].to_i * 1024
+                dom_hash[:nettx]  = dom_data[10].to_i * 1024
+                dom_hash[:netrx]  = dom_data[11].to_i * 1024
 
                 if !name.match(/^one-\d/) && vm_templates[name]
                     dom_hash[:template] =

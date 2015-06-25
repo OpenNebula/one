@@ -180,20 +180,20 @@ class DummyDriver < VirtualMachineDriver
         end
 
         prev_nettx = 0
-        if msg.elements["VM/MONITORING/NET_TX"]
-            prev_nettx = msg.elements["VM/MONITORING/NET_TX"].text.to_i
+        if msg.elements["VM/MONITORING/NETTX"]
+            prev_nettx = msg.elements["VM/MONITORING/NETTX"].text.to_i
         end
 
         prev_netrx = 0
-        if msg.elements["VM/MONITORING/NET_RX"]
-            prev_netrx = msg.elements["VM/MONITORING/NET_RX"].text.to_i
+        if msg.elements["VM/MONITORING/NETRX"]
+            prev_netrx = msg.elements["VM/MONITORING/NETRX"].text.to_i
         end
 
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
         monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \
-                       "#{POLL_ATTRIBUTE[:net_tx]}=#{prev_nettx+(50*rand(3))} " \
-                       "#{POLL_ATTRIBUTE[:net_rx]}=#{prev_netrx+(100*rand(4))} " \
+                       "#{POLL_ATTRIBUTE[:nettx]}=#{prev_nettx+(50*rand(3))} " \
+                       "#{POLL_ATTRIBUTE[:netrx]}=#{prev_netrx+(100*rand(4))} " \
                        "#{POLL_ATTRIBUTE[:memory]}=#{max_memory * (rand(80)+20)/100} " \
                        "#{POLL_ATTRIBUTE[:cpu]}=#{max_cpu * (rand(95)+5)/100} " \
                        "#{POLL_ATTRIBUTE[:total_disk_size]}=#{rand(1024)} " \

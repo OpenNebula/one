@@ -384,8 +384,8 @@ private
       begin
         info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
                 "#{POLL_ATTRIBUTE[:cpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:net_tx]}=0 " \
-                "#{POLL_ATTRIBUTE[:net_rx]}=0 "
+                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
+                "#{POLL_ATTRIBUTE[:netrx]}=0 "
 
         state = ""
 

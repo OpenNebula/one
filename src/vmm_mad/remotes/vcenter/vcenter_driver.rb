@@ -719,8 +719,8 @@ class VCenterVm
         @used_cpu    = 0
         @used_memory = 0
 
-        @net_rx = 0
-        @net_tx = 0
+        @netrx = 0
+        @nettx = 0
     end
 
     ############################################################################
@@ -1013,8 +1013,8 @@ class VCenterVm
             @used_cpu    = 0
             @used_memory = 0
 
-            @net_rx = 0
-            @net_tx = 0
+            @netrx = 0
+            @nettx = 0
 
             return
         end
@@ -1054,8 +1054,8 @@ class VCenterVm
       str_info << "STATE="                      << @state                << " "
       str_info << "CPU="                        << @used_cpu.to_s        << " "
       str_info << "MEMORY="                     << @used_memory.to_s     << " "
-      str_info << "NET_RX="                     << @net_rx.to_s          << " "
-      str_info << "NET_TX="                     << @net_tx.to_s          << " "
+      str_info << "NETRX="                      << @netrx.to_s          << " "
+      str_info << "NETTX="                      << @nettx.to_s          << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
