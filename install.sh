@@ -1578,11 +1578,8 @@ SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans.woff \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.eot \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.svg \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.ttf \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff \
-                src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.woff2 \
+                src/sunstone/public/css/novnc-custom.css \
+                src/sunstone/public/css/spice-custom.css \
                 src/sunstone/public/css/login.css"
 
 SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/fonts/fontawesome-webfont.eot \
@@ -1701,8 +1698,7 @@ src/sunstone/public/locale/languages/pt_PT.js \
 src/sunstone/public/locale/languages/pt_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_PT_BR="\
-src/sunstone/public/locale/languages/pt_BR.js \
-src/sunstone/public/locale/languages/pt_datatable.txt"
+src/sunstone/public/locale/languages/pt_BR.js"
 
 SUNSTONE_PUBLIC_LOCALE_RU_RU="\
 src/sunstone/public/locale/languages/ru_RU.js \
@@ -1717,8 +1713,7 @@ src/sunstone/public/locale/languages/zh_CN.js \
 src/sunstone/public/locale/languages/zh_datatable.txt"
 
 SUNSTONE_PUBLIC_LOCALE_ZH_TW="\
-src/sunstone/public/locale/languages/zh_TW.js \
-src/sunstone/public/locale/languages/zh_datatable.txt"
+src/sunstone/public/locale/languages/zh_TW.js"
 
 #-----------------------------------------------------------------------------
 # OneGate files
