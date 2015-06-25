@@ -160,7 +160,10 @@ public:
         PROLOG_UNDEPLOY_FAILURE = 50,
         DISK_SNAPSHOT_POWEROFF  = 51,
         DISK_SNAPSHOT_REVERT_POWEROFF = 52,
-        DISK_SNAPSHOT_DELETE_POWEROFF = 53
+        DISK_SNAPSHOT_DELETE_POWEROFF = 53,
+        DISK_SNAPSHOT_SUSPENDED = 54,
+        DISK_SNAPSHOT_REVERT_SUSPENDED = 55,
+        DISK_SNAPSHOT_DELETE_SUSPENDED = 56
     };
 
     static int lcm_state_from_str(string& st, LcmState& state)
@@ -219,6 +222,9 @@ public:
         else if ( st == "DISK_SNAPSHOT_POWEROFF") { state = DISK_SNAPSHOT_POWEROFF; }
         else if ( st == "DISK_SNAPSHOT_REVERT_POWEROFF") { state = DISK_SNAPSHOT_REVERT_POWEROFF; }
         else if ( st == "DISK_SNAPSHOT_DELETE_POWEROFF") { state = DISK_SNAPSHOT_DELETE_POWEROFF; }
+        else if ( st == "DISK_SNAPSHOT_SUSPENDED") { state = DISK_SNAPSHOT_SUSPENDED; }
+        else if ( st == "DISK_SNAPSHOT_REVERT_SUSPENDED") { state = DISK_SNAPSHOT_REVERT_SUSPENDED; }
+        else if ( st == "DISK_SNAPSHOT_DELETE_SUSPENDED") { state = DISK_SNAPSHOT_DELETE_SUSPENDED; }
         else {return -1;}
 
         return 0;
@@ -280,6 +286,9 @@ public:
             case DISK_SNAPSHOT_POWEROFF: st = "DISK_SNAPSHOT_POWEROFF"; break;
             case DISK_SNAPSHOT_REVERT_POWEROFF: st = "DISK_SNAPSHOT_REVERT_POWEROFF"; break;
             case DISK_SNAPSHOT_DELETE_POWEROFF: st = "DISK_SNAPSHOT_DELETE_POWEROFF"; break;
+            case DISK_SNAPSHOT_SUSPENDED: st = "DISK_SNAPSHOT_SUSPENDED"; break;
+            case DISK_SNAPSHOT_REVERT_SUSPENDED: st = "DISK_SNAPSHOT_REVERT_SUSPENDED"; break;
+            case DISK_SNAPSHOT_DELETE_SUSPENDED: st = "DISK_SNAPSHOT_DELETE_SUSPENDED"; break;
         }
 
         return st;

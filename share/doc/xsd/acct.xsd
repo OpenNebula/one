@@ -166,7 +166,10 @@
                 PROLOG_UNDEPLOY_FAILURE = 50,
                 DISK_SNAPSHOT_POWEROFF  = 51,
                 DISK_SNAPSHOT_REVERT_POWEROFF = 52,
-                DISK_SNAPSHOT_DELETE_POWEROFF = 53
+                DISK_SNAPSHOT_DELETE_POWEROFF = 53,
+                DISK_SNAPSHOT_SUSPENDED  = 54,
+                DISK_SNAPSHOT_REVERT_SUSPENDED = 55,
+                DISK_SNAPSHOT_DELETE_SUSPENDED = 56
               -->
               <xs:element name="LCM_STATE" type="xs:integer"/>
               <xs:element name="PREV_STATE" type="xs:integer"/>

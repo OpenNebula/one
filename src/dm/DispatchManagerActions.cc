@@ -1634,8 +1634,12 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
-         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    VirtualMachine::VmState  state  = vm->get_state();
+    VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+    if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
+        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT)&&
+        (state !=VirtualMachine::ACTIVE   || lstate !=VirtualMachine::RUNNING))
     {
         oss << "Could not create a new snapshot for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1656,14 +1660,43 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::ACTIVE);
-    vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_POWEROFF);
+            break;
+
+        case VirtualMachine::SUSPENDED:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_SUSPENDED);
+            break;
+
+        //case VirtualMachine::ACTIVE:
+          //  vm->set_state(VirtualMachine::ACTIVE);
+          //  vm->set_state(VirtualMachine::DISK_SNAPSHOT);
+          //  break;
+
+        default: break;
+    }
 
     vmpool->update(vm);
 
     vm->unlock();
 
-    tm->trigger(TransferManager::SNAPSHOT_CREATE,vid);
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::SUSPENDED:
+            tm->trigger(TransferManager::SNAPSHOT_CREATE,vid);
+            break;
+
+        //case VirtualMachine::ACTIVE:
+          //  vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
+          //  break;
+
+        default: break;
+    }
 
     return 0;
 }
@@ -1692,8 +1725,12 @@ int DispatchManager::disk_snapshot_revert(
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
-         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    VirtualMachine::VmState    state  = vm->get_state();
+    VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+    if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
+        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT)&&
+        (state !=VirtualMachine::ACTIVE   || lstate !=VirtualMachine::RUNNING))
     {
         oss << "Could not revert to disk snapshot for VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1727,14 +1764,43 @@ int DispatchManager::disk_snapshot_revert(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::ACTIVE);
-    vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF);
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF);
+            break;
+
+        case VirtualMachine::SUSPENDED:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED);
+            break;
+
+        //case VirtualMachine::ACTIVE:
+          //  vm->set_state(VirtualMachine::ACTIVE);
+          //  vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT);
+          //  break;
+
+        default: break;
+    }
 
     vmpool->update(vm);
 
     vm->unlock();
 
-    tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::SUSPENDED:
+            tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
+            break;
+
+        //case VirtualMachine::ACTIVE:
+          //  vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_REVERT, vid);
+          //  break;
+
+        default: break;
+    }
 
     return 0;
 }
@@ -1763,8 +1829,12 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
-    if ( vm->get_state()     != VirtualMachine::POWEROFF ||
-         vm->get_lcm_state() != VirtualMachine::LCM_INIT )
+    VirtualMachine::VmState    state  = vm->get_state();
+    VirtualMachine::LcmState lstate = vm->get_lcm_state();
+
+    if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
+        (state !=VirtualMachine::SUSPENDED|| lstate !=VirtualMachine::LCM_INIT)&&
+        (state !=VirtualMachine::ACTIVE   || lstate !=VirtualMachine::RUNNING))
     {
         oss << "Could not delete disk snapshot from VM " << vid
             << ", wrong state " << vm->state_str() << ".";
@@ -1796,14 +1866,47 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
-    vm->set_state(VirtualMachine::ACTIVE);
-    vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF);
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF);
+            break;
+
+        case VirtualMachine::SUSPENDED:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED);
+            break;
+
+        //case VirtualMachine::ACTIVE:
+          //  vm->set_state(VirtualMachine::ACTIVE);
+          //  vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE);
+          //  break;
+
+        default: break;
+    }
 
     vmpool->update(vm);
 
     vm->unlock();
 
-    tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
+    switch(state)
+    {
+        case VirtualMachine::POWEROFF:
+        case VirtualMachine::SUSPENDED:
+            tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
+            break;
+
+        //case VirtualMachine::ACTIVE:
+          //  vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_DELETE, vid);
+          //  break;
+
+        default: break;
+    }
+
+    vmpool->update(vm);
+
+    vm->unlock();
 
     return 0;
 }

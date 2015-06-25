@@ -107,6 +107,9 @@ module OpenNebula
             DISK_SNAPSHOT_POWEROFF
             DISK_SNAPSHOT_REVERT_POWEROFF
             DISK_SNAPSHOT_DELETE_POWEROFF
+            DISK_SNAPSHOT_SUSPENDED
+            DISK_SNAPSHOT_REVERT_SUSPENDED
+            DISK_SNAPSHOT_DELETE_SUSPENDED
         }
 
         SHORT_VM_STATES={
@@ -173,9 +176,12 @@ module OpenNebula
             "BOOT_STOPPED_FAILURE"      => "fail",
             "PROLOG_RESUME_FAILURE"     => "fail",
             "PROLOG_UNDEPLOY_FAILURE"   => "fail",
-            "DISK_SNAPSHOT_POWEROFF"    => "snap",
+            "DISK_SNAPSHOT_POWEROFF"        => "snap",
             "DISK_SNAPSHOT_REVERT_POWEROFF" => "snap",
-            "DISK_SNAPSHOT_DELETE_POWEROFF" => "snap"
+            "DISK_SNAPSHOT_DELETE_POWEROFF" => "snap",
+            "DISK_SNAPSHOT_SUSPENDED"       => "snap",
+            "DISK_SNAPSHOT_REVERT_SUSPENDED"=> "snap",
+            "DISK_SNAPSHOT_DELETE_SUSPENDED"=> "snap"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

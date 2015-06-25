@@ -1749,15 +1749,20 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     int uid = vm->get_uid();
     int gid = vm->get_gid();
 
-    switch (vm->get_lcm_state())
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
     {
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot operation completed.");
             vm->revert_disk_snapshot(idisk_id, isnap_id);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
             vm->delete_disk_snapshot(idisk_id, isnap_id, qt, &quotas);
             break;
@@ -1770,17 +1775,33 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     vm->clear_snapshot_disk();
 
-    vmpool->update(vm);
-
-    dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
-
     vm->unlock();
+
+    vmpool->update(vm);
 
     if ( quotas != 0 )
     {
         Quotas::quota_del(qt, uid, gid, quotas);
 
         delete quotas;
+    }
+
+    switch (state)
+    {
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+            dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+            break;
+
+        case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+            dm->trigger(DispatchManager::SUSPEND_SUCCESS, vid);
+            break;
+
+        default:
+            return;
     }
 
     return;
@@ -1820,15 +1841,20 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     int uid = vm->get_uid();
     int gid = vm->get_gid();
 
-    switch (vm->get_lcm_state())
+    VirtualMachine::LcmState state = vm->get_lcm_state();
+
+    switch (state)
     {
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
             vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
             vm->delete_disk_snapshot(idisk_id, isnap_id, qt, &quotas);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
             vm->log("LCM", Log::ERROR, "VM disk snapshot operation failed.");
             break;
 
@@ -1842,8 +1868,6 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     vmpool->update(vm);
 
-    dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
-
     vm->unlock();
 
     if ( quotas != 0 )
@@ -1853,6 +1877,23 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         delete quotas;
     }
 
+    switch (state)
+    {
+        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+            dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
+            break;
+
+        case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+            dm->trigger(DispatchManager::SUSPEND_SUCCESS, vid);
+            break;
+
+        default:
+            return;
+    }
     return;
 }
 

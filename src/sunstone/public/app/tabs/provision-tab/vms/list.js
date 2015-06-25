@@ -849,7 +849,10 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SNAPSHOT:
           case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_POWEROFF:
           case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_REVERT_POWEROFF:
-          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE_POWEROF:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE_POWEROFF:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_SUSPENDED:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_REVERT_SUSPENDED:
+          case OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE_SUSPENDED:
           case OpenNebulaVM.LCM_STATES.MIGRATE:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF:
