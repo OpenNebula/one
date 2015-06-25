@@ -662,8 +662,9 @@ module XEN
 
         doms.each do |dom|
             data = {
-                :disk_actual_size => 0.0,
-                :disk_virtual_size => 0.0
+                :total_disk_size => 0.0,
+                :disk_size       => [],
+                :snapshot_size   => []
             }
 
             dom['config']['disks'].each do |disk|
@@ -676,12 +677,15 @@ module XEN
 
                 json = JSON.parse(text)
 
-                data[:disk_actual_size] += json['actual-size'].to_f/1024/1024
-                data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+                disk_id = path.split(".")[-1]
+
+                disk_size = json['actual-size'].to_f/1024/1024
+
+                data[:disk_size] << {:id => disk_id, :size => disk_size.round}
+                data[:total_disk_size] += disk_size
             end
 
-            data[:disk_actual_size] = data[:disk_actual_size].round
-            data[:disk_virtual_size] = data[:disk_virtual_size].round
+            data[:total_disk_size] = data[:total_disk_size].round
 
             data
         end
