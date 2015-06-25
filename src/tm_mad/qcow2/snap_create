@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -35,7 +35,8 @@ DRIVER_PATH=$(dirname $0)
 
 . $TMCOMMON
 
-SRC_PATH=`arg_path $SRC`
+SRC_PATH=$(arg_path $SRC)
+SRC_HOST=$(arg_host $SRC)
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -72,15 +73,18 @@ SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 CURRENT_PATH=${DISK_PATH}
 
-if [ ! -d ${SNAP_PATH} ]; then
-    mkdir ${SNAP_DIR}
+CMD=$(cat <<EOT
+set -ex
+
+if [ ! -d "${SNAP_DIR}" ]; then
+    mkdir "${SNAP_DIR}"
 fi
 
 # Move save current snapshot and create a new one. The snapshot uses
 # absolute path name as the qemu-img has problems with relative backing
 # file paths and symlinks
-mv ${CURRENT_PATH} ${SNAP_PATH}
-qemu-img create -f qcow2 -b ${SNAP_PATH} ${CURRENT_PATH}
+mv "${CURRENT_PATH}" "${SNAP_PATH}"
+qemu-img create -f qcow2 -b "${SNAP_PATH}" "${CURRENT_PATH}"
 
 # TODO: Check that the new snapshot can be created. Roll back in case
 # of error
@@ -90,13 +94,18 @@ qemu-img create -f qcow2 -b ${SNAP_PATH} ${CURRENT_PATH}
 # * It could be a non backed file (persistent)
 # * The backing file is in images directory, is not relative
 if [ "$SNAP_ID" != "0" ]; then
-    BACKING_FILE=$(qemu-img info ${SNAP_PATH} | grep '^backing file:' | \
+    BACKING_FILE=\$(qemu-img info ${SNAP_PATH} | grep '^backing file:' | \
         cut -d: -f2 | sed 's/^ //')
 
-    if [ -n "$BACKING_FILE" ]; then
-        RELATIVE_BACKING_FILE=$(basename ${BACKING_FILE})
+    if [ -n "\$BACKING_FILE" ]; then
+        RELATIVE_BACKING_FILE="\$(basename \${BACKING_FILE})"
 
-        qemu-img rebase -u -b ${RELATIVE_BACKING_FILE} ${SNAP_PATH}
+        qemu-img rebase -u -b "\${RELATIVE_BACKING_FILE}" "${SNAP_PATH}"
     fi
 fi
+EOT
+)
+
+ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+                 "Error creating snapshot ${SNAP_PATH}"
 
