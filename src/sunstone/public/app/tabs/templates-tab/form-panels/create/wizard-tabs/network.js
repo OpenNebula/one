@@ -110,7 +110,7 @@ define(function(require) {
       if (!$.isEmptyObject(nicJSON)) {nicsJSON.push(nicJSON)};
     })
 
-    if (!$.isEmptyObject(nicsJSON)) { templateJSON['NIC'] = nicsJSON; };
+    if (nicsJSON.length > 0) { templateJSON['NIC'] = nicsJSON; };
 
     var nicDefault = $('#DEFAULT_MODEL', context).val();
     if (nicDefault) {
@@ -124,7 +124,7 @@ define(function(require) {
 
   function _fill(context, templateJSON) {
     var that = this;
-    var nics = templateJSON.NIC
+    var nics = templateJSON.NIC;
     if (nics instanceof Array) {
       $.each(nics, function(nicId, nicJSON) {
         if (nicId > 0) {
@@ -141,13 +141,17 @@ define(function(require) {
       nicTab.fill(nicContext, nics);
     }
 
+    if (templateJSON.NIC) {
+      delete templateJSON.NIC;
+    }
+
     var nicDefault = templateJSON.NIC_DEFAULT
     if (nicDefault != undefined) {
       if (nicDefault.MODEL) {
         $('#DEFAULT_MODEL', context).val(nicDefault.MODEL);
       }
 
-      delete template.NIC_DEFAULT;
+      delete templateJSON.NIC_DEFAULT;
     }
   }
 

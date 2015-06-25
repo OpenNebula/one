@@ -110,7 +110,7 @@ define(function(require) {
       if (!$.isEmptyObject(diskJSON)) {disksJSON.push(diskJSON)};
     })
 
-    if (!$.isEmptyObject(disksJSON)) { templateJSON['DISK'] = disksJSON; };
+    if (disksJSON.length > 0) { templateJSON['DISK'] = disksJSON; };
 
     return templateJSON;
   }
@@ -132,6 +132,10 @@ define(function(require) {
       var diskTab = that.diskTabObjects[that.numberOfDisks];
       var diskContext = $('#' + diskTab.diskTabId, context);
       diskTab.fill(diskContext, disks);
+    }
+
+    if (templateJSON.DISK) {
+      delete templateJSON.DISK;
     }
   }
 
