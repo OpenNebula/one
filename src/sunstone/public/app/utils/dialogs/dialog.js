@@ -25,7 +25,9 @@ define(function(require) {
       that.onShow(dialogElement);
     });
 
-    dialogElement.on('opened.fndtn.close', function (e) {
+    dialogElement.on('close.fndtn.reveal', function (e) {
+      if (e.namespace !== 'fndtn.reveal') { return; }
+      console.log("close.reveal")
       if (that.onClose) {
         that.onClose(dialogElement);
       }

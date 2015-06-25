@@ -71,7 +71,7 @@ define(function(require) {
   }
 
   function sendCtrlAltDel() {
-    if (_rfb) { rfb.sendCtrlAltDel(); }
+    if (_rfb) { _rfb.sendCtrlAltDel(); }
   }
 
   //This is taken from noVNC examples

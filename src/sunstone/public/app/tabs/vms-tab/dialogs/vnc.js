@@ -67,7 +67,7 @@ define(function(require) {
     return false;
   }
 
-  function _onClose(context) {   
+  function _onClose(context) {
     Vnc.disconnect();
     Vnc.unlock();
     return false;
