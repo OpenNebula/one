@@ -317,8 +317,9 @@ module KVM
         size = 0
 
         data = {
-            :disk_actual_size  => 0.0,
-            :disk_virtual_size => 0.0
+            :total_disk_size => 0.0,
+            :disk_size       => [],
+            :snapshot_size   => []
         }
 
         doc.elements.each('domain/devices/disk/source') do |ele|
@@ -341,22 +342,20 @@ module KVM
                 images_doc  = REXML::Document.new(images_list)
 
                 xpath = "images/image[image='#{image}']/size"
-                image_size = images_doc.elements[xpath].text.to_f/1024/1024
+                disk_size = images_doc.elements[xpath].text.to_f/1024/1024
 
-                data[:disk_actual_size]  += image_size
-                data[:disk_virtual_size] += image_size
+                data[:disk_size] << {:id => disk_id, :size => disk_size.round}
+                data[:total_disk_size] += disk_size
 
                 images_doc.elements.each("images/snapshot") do |snap|
                     next unless snap.elements["image"].text.start_with?(image)
 
                     snap_id = snap.elements["snapshot"].text.to_i
+                    snapshot_size = snap.elements["size"].text.to_f/1024/1024
 
-                    snap_size = snap.elements["size"].text.to_f/1024/1024
+                    data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
 
-                    data["snap_size_#{disk_id}_#{snap_id}".to_sym] = snap_size
-
-                    data[:disk_actual_size]  += snap_size
-                    data[:disk_virtual_size] += snap_size
+                    data[:total_disk_size] += snapshot_size
                 end
             else file
                 # Regular Disk
@@ -365,13 +364,16 @@ module KVM
 
                 json = JSON.parse(text)
 
-                data[:disk_actual_size]  += json['actual-size'].to_f/1024/1024
-                data[:disk_virtual_size] += json['virtual-size'].to_f/1024/1024
+                disk_id = file.split(".")[-1]
+
+                disk_size = json['actual-size'].to_f/1024/1024
+
+                data[:disk_size] << {:id => disk_id, :size => disk_size.round}
+                data[:total_disk_size] += disk_size
             end
         end
 
-        data[:disk_actual_size]  = data[:disk_actual_size].round
-        data[:disk_virtual_size] = data[:disk_virtual_size].round
+        data[:total_disk_size]  = data[:total_disk_size].round
 
         data
     end
@@ -754,10 +756,23 @@ end
 # @param value [String] of the monitor metric
 # @return [String, nil]
 def print_data(name, value)
-    if value
-        "#{name.to_s.upcase}=#{value}"
+    return nil if value.nil? || (value.respond_to?(:empty?) && value.empty?)
+
+    if value.instance_of? Array
+        data_str = ""
+        value.each do |v|
+            data_str += print_data(name, v)
+        end
+
+        return data_str
+    elsif value.instance_of? Hash
+        values = value.map do |k,v|
+            "#{k.to_s.upcase}=#{v}"
+        end.join(", ")
+
+        return "#{name.to_s.upcase}=[ #{values} ] "
     else
-        nil
+        return "#{name.to_s.upcase}=#{value}"
     end
 end
 
