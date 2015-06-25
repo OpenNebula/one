@@ -1,12 +1,5 @@
-require.config({
-  paths: {
-    /* jQuery */
-    'jquery': '../bower_components/jquery/dist/jquery.min'
-  }
-});
-
 define(function(require) {
-  require('jquery');
+  require('../bower_components/jquery/dist/jquery.min');
   var OpenNebulaAuth = require('opennebula/auth');
 
   function auth_success(req, response) {
