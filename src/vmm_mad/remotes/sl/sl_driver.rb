@@ -87,7 +87,7 @@ class SLDriver
               },
               "BLOCKDEVICE" => {
                   :opt => 'blockDevices',
-                  :proc => lambda {|str| 
+                  :proc => lambda {|str|
                            [{:device=>0, :diskImage=>{:capacity=>str}}]}
 
               },
@@ -109,14 +109,14 @@ class SLDriver
               },
               "SSHKEYS" => {
                   :opt => 'sshKeys', # Array of SSH Keys ids
-                  :proc => lambda {|str| 
+                  :proc => lambda {|str|
                              sshArray = Array.new
                              str.split(",").each { |id|
-                                sshArray << {:id=> id} 
+                                sshArray << {:id=> id}
                              }
                              sshArray
                            }
-                           
+
               },
               "POSTSCRIPT" => {
                   :opt => 'postInstallScriptUri'
@@ -159,7 +159,7 @@ class SLDriver
     # SoftLayer constructor, loads credentials and endpoint
     def initialize(host)
         @host = host
-        
+
         public_cloud_sl_conf  = YAML::load(File.read(SL_DRIVER_CONF))
 
         @instance_types = public_cloud_sl_conf['instance_types']
@@ -270,7 +270,7 @@ class SLDriver
         vms = @sl_client['Account'].getVirtualGuests
 
         vms_info = "VM_POLL=YES\n"
-        
+
         usedcpu    = 0
         usedmemory = 0
 
@@ -279,7 +279,7 @@ class SLDriver
                 vm   = @sl_client['Virtual_Guest'].object_with_id(i['id'].to_i)
                 poll_data = parse_poll(vm)
                 # Retrieve Virtual Guest to consult tags
-                
+
                 tags = vm.getTagReferences
                 # We know that the first one is the ONE identifier
                 one_id=nil
@@ -326,7 +326,7 @@ private
                @instance_types[name]['memory'].to_i * 1024 * 1024
     end
 
-    # Get the SoftLayer section of the template. If more than one SoftLayer 
+    # Get the SoftLayer section of the template. If more than one SoftLayer
     # section, the DATACENTER element is used and matched with the host
     def get_deployment_info(host, xml_text)
         xml = REXML::Document.new xml_text
@@ -334,7 +334,7 @@ private
         sl              = nil
         all_sl_elements = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
-        all_sl_elements = all_sl_elements.select { |element| 
+        all_sl_elements = all_sl_elements.select { |element|
              element.elements["TYPE"].text.downcase.eql? "softlayer"
         }
 
@@ -382,10 +382,10 @@ private
     # Retrieve the VM information from the SoftLayer instance
     def parse_poll(vm)
       begin
-        info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
-                "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0 "
+        info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
+                "#{POLL_ATTRIBUTE[:cpu]}=0 " \
+                "#{POLL_ATTRIBUTE[:net_tx]}=0 " \
+                "#{POLL_ATTRIBUTE[:net_rx]}=0 "
 
         state = ""
 
@@ -518,7 +518,7 @@ private
     end
 
     # Load the default values that will be used to create a new instance, if
-    # not provided in the template. These values are defined in the 
+    # not provided in the template. These values are defined in the
     # SL_DRIVER_DEFAULT file
     def load_default_template_values
         @defaults = Hash.new

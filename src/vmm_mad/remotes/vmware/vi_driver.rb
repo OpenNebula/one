@@ -240,7 +240,7 @@ class VIVm
     ############################################################################
     def reset
         @vm.ResetVM_Task.wait_for_completion
-    end    
+    end
 
     ########################################################################
     #  Initialize the vm monitor information
@@ -297,11 +297,11 @@ class VIVm
 
       str_info = ""
 
-      str_info << "STATE="     << @state            << " "
-      str_info << "USEDCPU="   << @used_cpu.to_s    << " "
-      str_info << "USEDMEMORY="<< @used_memory.to_s << " "
-      str_info << "NETRX="     << @net_rx.to_s      << " "
-      str_info << "NETTX="     << @net_tx.to_s
+      str_info << "STATE="  << @state            << " "
+      str_info << "CPU="    << @used_cpu.to_s    << " "
+      str_info << "MEMORY=" << @used_memory.to_s << " "
+      str_info << "NET_RX=" << @net_rx.to_s      << " "
+      str_info << "NET_TX=" << @net_tx.to_s
     end
 
 private

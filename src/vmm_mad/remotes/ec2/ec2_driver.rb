@@ -253,7 +253,7 @@ class EC2Driver
         end
 
         tags = generate_options(:tags, ec2_info)['tags'] || {}
-        
+
         tags['ONE_ID'] = id
         tags.each{ |key,value|
             begin
@@ -429,10 +429,10 @@ private
     # Retrieve the vm information from the EC2 instance
     def parse_poll(instance)
         begin
-            info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
-                    "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
-                    "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                    "#{POLL_ATTRIBUTE[:netrx]}=0 "
+            info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
+                    "#{POLL_ATTRIBUTE[:cpu]}=0 " \
+                    "#{POLL_ATTRIBUTE[:net_tx]}=0 " \
+                    "#{POLL_ATTRIBUTE[:net_rx]}=0 "
 
             state = ""
             if !instance.exists?

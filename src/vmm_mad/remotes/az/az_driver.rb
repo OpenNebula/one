@@ -149,11 +149,11 @@ class AzureDriver
 
         # Sanitize region data
         if @region['pem_management_cert'].nil?
-            raise "pem_management_cert not defined for #{host}" 
+            raise "pem_management_cert not defined for #{host}"
         end
 
         if @region['subscription_id'].nil?
-            raise "subscription_id not defined for #{host}" 
+            raise "subscription_id not defined for #{host}"
         end
 
         # Set default endpoint if not declared
@@ -268,10 +268,10 @@ class AzureDriver
             @azure_vms.list_virtual_machines.each do |vm|
                 poll_data=parse_poll(vm)
 
-                if vm.vm_name.start_with?('one-') and 
-                   vm.vm_name.match(/([^_]+)_(.+)/) and 
+                if vm.vm_name.start_with?('one-') and
+                   vm.vm_name.match(/([^_]+)_(.+)/) and
                    vm.vm_name.match(/([^_]+)_(.+)/).size > 1
-                  
+
                     one_id = vm.vm_name.match(/([^_]+)_(.+)/)[1].split("-")[1]
                 end
 
@@ -336,7 +336,7 @@ private
         if !az
               # If we don't find an Azure location, and ONE just
               # knows about one Azure location, let's use that
-              if all_az_elements.size == 1 and 
+              if all_az_elements.size == 1 and
                  all_az_elements[0].elements["TYPE"].text.downcase.eql? "azure"
                   az = all_az_elements[0]
               else
@@ -371,10 +371,10 @@ private
     # Retrive the vm information from the Azure instance
     def parse_poll(instance)
       begin
-        info =  "#{POLL_ATTRIBUTE[:usedmemory]}=0 " \
-                "#{POLL_ATTRIBUTE[:usedcpu]}=0 " \
-                "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                "#{POLL_ATTRIBUTE[:netrx]}=0 "
+        info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
+                "#{POLL_ATTRIBUTE[:cpu]}=0 " \
+                "#{POLL_ATTRIBUTE[:net_tx]}=0 " \
+                "#{POLL_ATTRIBUTE[:net_rx]}=0 "
 
         state = ""
         if !instance
@@ -383,7 +383,7 @@ private
             state = case instance.deployment_status
             when "Running", "Starting"
                 VM_STATE[:active]
-            when "Suspended", "Stopping", 
+            when "Suspended", "Stopping",
                 VM_STATE[:paused]
             else
                 VM_STATE[:unknown]
@@ -446,10 +446,10 @@ private
           :winrm_transport => az_value(az_info, 'WIN_RM'),
           :cloud_service_name => csn,
           :tcp_endpoints => az_value(az_info, 'TCP_ENDPOINTS'),
-       # TODO possibly taking the values from user template 
+       # TODO possibly taking the values from user template
        # and create temp files
        #   :private_key_file => 'c:/private_key.key',
-       #   :certificate_file => 'c:/certificate.pem', 
+       #   :certificate_file => 'c:/certificate.pem',
           :ssh_port => az_value(az_info, 'SSHPORT'),
           :vm_size => az_value(az_info, 'INSTANCE_TYPE'),
           :affinity_group_name => az_value(az_info, 'AFFINITY_GROUP'),
@@ -539,9 +539,9 @@ private
           $stderr.reopen orig_stderr
         end
        retval
-    end    
+    end
 
-    # Retrive the instance from Azure. If OpenNebula asks for it, then the 
+    # Retrive the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
     def get_instance(vm_name)
         begin

@@ -192,10 +192,10 @@ class DummyDriver < VirtualMachineDriver
         # monitor_info: string in the form "VAR=VAL VAR=VAL ... VAR=VAL"
         # known VAR are in POLL_ATTRIBUTES. VM states VM_STATES
         monitor_info = "#{POLL_ATTRIBUTE[:state]}=#{VM_STATE[:active]} " \
-                       "#{POLL_ATTRIBUTE[:nettx]}=#{prev_nettx+(50*rand(3))} " \
-                       "#{POLL_ATTRIBUTE[:netrx]}=#{prev_netrx+(100*rand(4))} " \
-                       "#{POLL_ATTRIBUTE[:usedmemory]}=#{max_memory * (rand(80)+20)/100} " \
-                       "#{POLL_ATTRIBUTE[:usedcpu]}=#{max_cpu * (rand(95)+5)/100} " \
+                       "#{POLL_ATTRIBUTE[:net_tx]}=#{prev_nettx+(50*rand(3))} " \
+                       "#{POLL_ATTRIBUTE[:net_rx]}=#{prev_netrx+(100*rand(4))} " \
+                       "#{POLL_ATTRIBUTE[:memory]}=#{max_memory * (rand(80)+20)/100} " \
+                       "#{POLL_ATTRIBUTE[:cpu]}=#{max_cpu * (rand(95)+5)/100} " \
                        "#{POLL_ATTRIBUTE[:disk_actual]}=#{rand(1024)} " \
                        "#{POLL_ATTRIBUTE[:disk_virtual]}=#{1024}"
 

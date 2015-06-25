@@ -161,21 +161,21 @@ class VIClient
     # if not found
     # @param rpool [String] the ResourcePool name
     ########################################################################
-    def find_resource_pool(poolName)  
+    def find_resource_pool(poolName)
         baseEntity = @cluster
         entityArray = poolName.split('/')
         entityArray.each do |entityArrItem|
           if entityArrItem != ''
             if baseEntity.is_a? RbVmomi::VIM::Folder
-                baseEntity = baseEntity.childEntity.find { |f| 
-                                  f.name == entityArrItem 
+                baseEntity = baseEntity.childEntity.find { |f|
+                                  f.name == entityArrItem
                               } or return @cluster.resourcePool
             elsif baseEntity.is_a? RbVmomi::VIM::ClusterComputeResource
-                baseEntity = baseEntity.resourcePool.resourcePool.find { |f| 
-                                  f.name == entityArrItem 
+                baseEntity = baseEntity.resourcePool.resourcePool.find { |f|
+                                  f.name == entityArrItem
                               } or return @cluster.resourcePool
             elsif baseEntity.is_a? RbVmomi::VIM::ResourcePool
-                baseEntity = baseEntity.resourcePool.find { |f| 
+                baseEntity = baseEntity.resourcePool.find { |f|
                                   f.name == entityArrItem
                               } or return @cluster.resourcePool
             else
@@ -183,12 +183,12 @@ class VIClient
             end
           end
         end
-  
-        if !baseEntity.is_a?(RbVmomi::VIM::ResourcePool) and 
+
+        if !baseEntity.is_a?(RbVmomi::VIM::ResourcePool) and
             baseEntity.respond_to?(:resourcePool)
-              baseEntity = baseEntity.resourcePool 
+              baseEntity = baseEntity.resourcePool
         end
-  
+
         baseEntity
     end
 
@@ -300,7 +300,7 @@ class VIClient
 
         vmpool = OpenNebula::VirtualMachinePool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
-        rc = vmpool.info 
+        rc = vmpool.info
 
         hostpool = OpenNebula::HostPool.new((one_client||@one))
         rc = hostpool.info
@@ -312,10 +312,10 @@ class VIClient
             vms     = get_entities(dc.vmFolder, 'VirtualMachine')
             ccrs    = get_entities(dc.hostFolder, 'ClusterComputeResource')
 
-            vm_list = vms.select { |v| 
+            vm_list = vms.select { |v|
                 # Get rid of VM Templates and VMs not in running state
                 v.config &&
-                v.config.template != true &&  
+                v.config.template != true &&
                 v.summary.runtime.powerState == "poweredOn"
             }
 
@@ -326,7 +326,7 @@ class VIClient
 
                 # Do not reimport VMs deployed by OpenNebula
                 # since the core will get confused with the IDs
-                next if vi_tmp.vm.name.match(/one-\d/) 
+                next if vi_tmp.vm.name.match(/one-\d/)
 
                 container_hostname = vi_tmp.vm.runtime.host.parent.name
 
@@ -375,7 +375,7 @@ class VIClient
     end
 
     ########################################################################
-    # Builds a hash with the Datacenter / CCR (Distributed)Networks 
+    # Builds a hash with the Datacenter / CCR (Distributed)Networks
     # for this VCenter
     # @param one_client [OpenNebula::Client] Use this client instead of @one
     # @return [Hash] in the form
@@ -388,7 +388,7 @@ class VIClient
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
         rc = vnpool.info
         # TODO check error
-        # 
+        #
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
@@ -744,7 +744,7 @@ class VCenterVm
             current_memory  = vm.config.hardware.memoryMB
 
             if current_cpu != expected_cpu or current_memory != expected_memory
-                capacity_hash = {:numCPUs  => expected_cpu.to_i, 
+                capacity_hash = {:numCPUs  => expected_cpu.to_i,
                                  :memoryMB => expected_memory }
                 spec = RbVmomi::VIM.VirtualMachineConfigSpec(capacity_hash)
                 vm.ReconfigVM_Task(:spec => spec).wait_for_completion
@@ -971,7 +971,7 @@ class VCenterVm
 
         spec_hash   = calculate_addnic_spec(vm, mac, bridge, model)
 
-        spec        = RbVmomi::VIM.VirtualMachineConfigSpec({:deviceChange => 
+        spec        = RbVmomi::VIM.VirtualMachineConfigSpec({:deviceChange =>
                                                               [spec_hash]})
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
@@ -1000,7 +1000,7 @@ class VCenterVm
         }
 
         vm.ReconfigVM_Task(:spec => spec).wait_for_completion
-    end    
+    end
 
     ########################################################################
     #  Initialize the vm monitor information
@@ -1052,10 +1052,10 @@ class VCenterVm
 
       str_info << "GUEST_IP=" << @guest_ip.to_s << " " if @guest_ip
       str_info << "STATE="                      << @state                << " "
-      str_info << "USEDCPU="                    << @used_cpu.to_s        << " "
-      str_info << "USEDMEMORY="                 << @used_memory.to_s     << " "
-      str_info << "NETRX="                      << @net_rx.to_s          << " "
-      str_info << "NETTX="                      << @net_tx.to_s          << " "
+      str_info << "CPU="                        << @used_cpu.to_s        << " "
+      str_info << "MEMORY="                     << @used_memory.to_s     << " "
+      str_info << "NET_RX="                     << @net_rx.to_s          << " "
+      str_info << "NET_TX="                     << @net_tx.to_s          << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
@@ -1091,7 +1091,7 @@ class VCenterVm
             notes = @vm.config.annotation.gsub("\\", "\\\\").gsub("\"", "\\\"")
             str << "DESCRIPTION = \"#{notes}\"\n"
         end
-        
+
         case @vm.guest.guestFullName
             when /CentOS/i
                 str << "LOGO=images/logos/centos.png"
@@ -1134,7 +1134,7 @@ class VCenterVm
 
         vp     = @vm.config.extraConfig.select{|v|
                                            v[:key]=="remotedisplay.vnc.port"}
-        keymap = @vm.config.extraConfig.select{|v| 
+        keymap = @vm.config.extraConfig.select{|v|
                                            v[:key]=="remotedisplay.vnc.keymap"}
 
         if vp.size > 0
@@ -1204,7 +1204,7 @@ private
 
         vm.config.hardware.device.each{ |dv|
             card_num = card_num + 1 if is_nic?(dv)
-        } 
+        }
 
         nic_card = case model
                         when "virtuale1000", "e1000"
@@ -1231,17 +1231,17 @@ private
                         :network => network)
         else
             port    = RbVmomi::VIM::DistributedVirtualSwitchPortConnection(
-                        :switchUuid => 
+                        :switchUuid =>
                                 network.config.distributedVirtualSwitch.uuid,
                         :portgroupKey => network.key)
-            backing = 
+            backing =
               RbVmomi::VIM.VirtualEthernetCardDistributedVirtualPortBackingInfo(
                  :port => port)
         end
 
         return {:operation => :add,
                 :device => nic_card.new(
-                            :key => 0, 
+                            :key => 0,
                             :deviceInfo => {
                                 :label => "net" + card_num.to_s,
                                 :summary => bridge
@@ -1308,7 +1308,7 @@ private
 
             raise "Cannot clone VM Template" if vm.nil?
 
-            vm.Destroy_Task.wait_for_completion   
+            vm.Destroy_Task.wait_for_completion
             vm = vc_template.CloneVM_Task(
                 :folder => vc_template.parent,
                 :name   => "one-#{vmid}",
@@ -1382,7 +1382,7 @@ private
 
         cpu           = xml.root.elements["//TEMPLATE/VCPU"].text
         memory        = xml.root.elements["//TEMPLATE/MEMORY"].text
-        capacity_spec = {:numCPUs  => cpu.to_i, 
+        capacity_spec = {:numCPUs  => cpu.to_i,
                          :memoryMB => memory }
 
         # Perform the VM reconfiguration
