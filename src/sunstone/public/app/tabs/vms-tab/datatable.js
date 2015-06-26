@@ -150,7 +150,7 @@ define(function(require) {
         Spice.lock();
         Sunstone.runAction("VM.startspice_action", vmId);
       } else {
-        Notifier.notifyError(tr("SPICE Connection in progress"))
+        Notifier.notifyError(Locale.tr("SPICE Connection in progress"))
       }
 
       return false;

@@ -46,7 +46,7 @@ define(function(require) {
   function spiceCallback(response) {
     var host, port, password, scheme = "ws://", uri, token, vm_name;
 
-    if (Config.vncWSS) {
+    if (Config.vncWSS == "yes") {
       scheme = "wss://";
     }
 

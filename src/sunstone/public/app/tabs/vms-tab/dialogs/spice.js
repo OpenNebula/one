@@ -62,7 +62,7 @@ define(function(require) {
     return false;
   }
 
-  function _onClose(context) {   
+  function _onClose(context) {
     Spice.disconnect();
     Spice.unlock();
     return false;
