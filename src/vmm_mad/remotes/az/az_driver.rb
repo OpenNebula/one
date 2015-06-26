@@ -241,7 +241,7 @@ class AzureDriver
     end
 
     # Get the info of all Aure instances. An Azure instance must have
-    # a name compliant with the "one-#####_csn" format, where ##### are intengers
+    # a name compliant with the "one-####_csn" format, where #### are intengers
     def monitor_all_vms
         totalmemory = 0
         totalcpu    = 0
@@ -268,6 +268,10 @@ class AzureDriver
             @azure_vms.list_virtual_machines.each do |vm|
                 poll_data=parse_poll(vm)
 
+                vm_template_to_one = vm_to_one(vm)
+                vm_template_to_one = Base64.encode64(vm_template_to_one)
+                vm_template_to_one = vm_template_to_one.gsub("\n","")
+
                 if vm.vm_name.start_with?('one-') and
                    vm.vm_name.match(/([^_]+)_(.+)/) and
                    vm.vm_name.match(/([^_]+)_(.+)/).size > 1
@@ -278,6 +282,8 @@ class AzureDriver
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
                 vms_info << "  DEPLOY_ID=#{vm.vm_name},\n"
+                vms_info << "  VM_NAME=#{vm.vm_name},\n"
+                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
                 vms_info << "  POLL=\"#{poll_data}\" ]\n"
 
                 if one_id
@@ -307,8 +313,8 @@ private
     # e.g. 800 for 8 cores) and memory (in KB)
     def instance_type_capacity(name)
         return 0, 0 if @instance_types[name].nil?
-        return @instance_types[name]['cpu'].to_i * 100 ,
-               @instance_types[name]['memory'].to_i * 1024 * 1024
+        return (@instance_types[name]['cpu'].to_f * 100).to_i ,
+               (@instance_types[name]['memory'].to_f * 1024 * 1024).to_i
     end
 
     # Get the Azure section of the template. If more than one Azure section
@@ -403,7 +409,8 @@ private
                     value_str = value
                 end
 
-                info << "AZ_#{key.to_s.upcase}=#{value_str.gsub("\"","")} "
+                info << "AZ_#{key.to_s.upcase}="
+                info << "\\\"#{value_str.gsub("\"","")}\\\" "
 
             end
         }
@@ -464,6 +471,9 @@ private
     # +az_action+: Symbol, one of the keys of the Azure hash constant (i.e :run)
     def az_action(deploy_id, az_action)
         name, csn = deploy_id.match(/([^_]+)_(.+)/)[1..-1]
+
+        # Imported VMs do not start with one-
+        deploy_id = name if !name.start_with? "one-"
 
         begin
             in_silence do
@@ -557,6 +567,29 @@ private
             STDERR.puts e.message
             exit(-1)
         end
+    end
+
+    # Build template for importation
+    def vm_to_one(vm)
+        cpu, mem = instance_type_capacity(vm.role_size)
+
+        mem = mem.to_i / 1024 # Memory for templates expressed in MB
+        cpu = cpu.to_f / 100  # CPU expressed in units
+
+        str = "NAME   = \"Instance from #{vm.vm_name}\"\n"\
+              "CPU    = \"#{cpu}\"\n"\
+              "vCPU   = \"#{cpu.ceil}\"\n"\
+              "MEMORY = \"#{mem}\"\n"\
+              "HYPERVISOR = \"AZURE\"\n"\
+              "PUBLIC_CLOUD = [\n"\
+              "  TYPE  =\"azure\"\n"\
+              "]\n"\
+              "IMPORT_VM_ID    = \"#{vm.vm_name}_#{vm.cloud_service_name}\"\n"\
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
+              "DESCRIPTION = \"Instance imported from Azure, from instance"\
+              " #{vm.vm_name}\"\n"
+
+        str
     end
 end
 
