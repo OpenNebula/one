@@ -134,7 +134,7 @@ define(function(require) {
       var vmId = $(this).attr('vm_id');
 
       if (!Vnc.lockStatus()) {
-        Spice.lock();
+        Vnc.lock();
         Sunstone.runAction("VM.startvnc_action", vmId);
       } else {
         Notifier.notifyError(tr("VNC Connection in progress"))
