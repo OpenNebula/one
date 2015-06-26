@@ -175,9 +175,11 @@ module KVM
 
             first_domain = 7
 
+            cpu_field = nil
             valid_lines.each_with_index{ |l,i|
                 if l.match 'PID USER'
                     first_domain=i+1
+                    cpu_field = l.strip.split.index("%CPU")
                     break
                 end
             }
@@ -186,7 +188,7 @@ module KVM
 
             domain_lines.each do |line|
                 d = line.split
-                cpu[d[0]] = d[8]
+                cpu[d[0]] = d[cpu_field]
             end
         end
 
@@ -581,8 +583,8 @@ module XEN
                 dom_hash[:state]   = get_state(dom_data[1])
                 dom_hash[:cpu]     = dom_data[3]
                 dom_hash[:memory]  = dom_data[4]
-                dom_hash[:nettx]  = dom_data[10].to_i * 1024
-                dom_hash[:netrx]  = dom_data[11].to_i * 1024
+                dom_hash[:nettx]   = dom_data[10].to_i * 1024
+                dom_hash[:netrx]   = dom_data[11].to_i * 1024
 
                 if !name.match(/^one-\d/) && vm_templates[name]
                     dom_hash[:template] =
