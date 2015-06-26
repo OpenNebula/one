@@ -101,6 +101,17 @@ when 'memcache'
     use Rack::Session::Memcache,
         :memcache_server => memcache_server,
         :namespace => $conf[:memcache_namespace]
+when 'memcache-dalli'
+    require 'rack/session/dalli'
+    memcache_server=$conf[:memcache_host]+':'<<
+        $conf[:memcache_port].to_s
+
+    STDERR.puts memcache_server
+
+    use Rack::Session::Dalli,
+      memcache_server: memcache_server,
+      namespace: $conf[:memcache_namespace],
+      cache: Dalli::Client.new
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
