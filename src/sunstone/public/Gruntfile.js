@@ -50,8 +50,9 @@ module.exports = function(grunt) {
           preserveLicenseComments: false,
           optimize: 'uglify2',
           generateSourceMaps: true,
-          removeCombined: false,
-          findNestedDependencies: true,
+          removeCombined: true,
+          //skipDirOptimize: false,
+          //findNestedDependencies: true,
           modules: [
             {
               name: 'main',
@@ -61,6 +62,16 @@ module.exports = function(grunt) {
               name: 'login',
               include: ['almond'],
               insertRequire: ['login']
+            },
+            {
+              name: 'console/vnc',
+              include: ['almond'],
+              insertRequire: ['console/vnc']
+            },
+            {
+              name: 'console/spice',
+              include: ['almond'],
+              insertRequire: ['console/spice']
             }
             /*{
               name: 'main'

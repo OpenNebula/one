@@ -304,6 +304,7 @@ SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
                $SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist \
+               $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/locale/languages \
@@ -471,6 +472,7 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
     SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/dist
+    SUNSTONE_PUBLIC_JS_CONSOLE_FILES:$SUNSTONE_LOCATION/public/dist/console
     SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts
     SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
     SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
@@ -1569,6 +1571,11 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/dist/login.js \
                         src/sunstone/public/dist/login.js.map \
                         src/sunstone/public/dist/main.js \
                         src/sunstone/public/dist/main.js.map"
+
+SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
+                        src/sunstone/public/dist/console/vnc.js.map \
+                        src/sunstone/public/dist/console/spice.js \
+                        src/sunstone/public/dist/console/spice.js.map"
 
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
