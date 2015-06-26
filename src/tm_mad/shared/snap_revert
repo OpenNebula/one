@@ -1,1 +1,79 @@
-../common/not_supported.sh
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# snap_create host:parent_image snap_id vmid ds_id
+
+SRC=$1
+SNAP_ID=$2
+VMID=$3
+DSID=$4
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    DATASTORES=/var/lib/one/datastores
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    DATASTORES=$ONE_LOCATION/var/datastores
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+. $TMCOMMON
+
+SRC_PATH=$(arg_path $SRC)
+SRC_HOST=$(arg_host $SRC)
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${SRC} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
+
+
+SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
+IMAGE_DS_PATH=$(dirname ${DISK_SRC})
+
+if [ "$CLONE" = "YES" ]; then
+    DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+else
+    DISK_PATH=$DISK_SRC
+fi
+
+SNAP_DIR="${DISK_PATH}.snap"
+SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
+SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
+CURRENT_PATH=${DISK_PATH}
+
+CMD="rm \"${CURRENT_PATH}\" ; cp \"${SNAP_PATH}\" \"${CURRENT_PATH}\""
+
+ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+                 "Error reverting snapshot to ${SNAP_PATH}"
+
