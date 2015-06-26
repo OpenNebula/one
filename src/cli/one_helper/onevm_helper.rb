@@ -557,7 +557,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         # get monitoring data
         vm_disks.each do |disk|
             disk_id = disk["DISK_ID"]
-            disk["MONITOR_SIZE"] = vm["MONITORING/DISK_SIZE[ID='#{disk_id}']/SIZE"] || "-"
+            disk["MONITOR_SIZE"] = vm["MONITORING/DISK_SIZE[ID='#{disk_id}']/SIZE"]
         end
 
         if !vm_disks.empty?
@@ -594,7 +594,9 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :SIZE, "", :left, :size=>16 do |d|
-                    %Q{#{d["MONITOR_SIZE"]}/#{d["SIZE"]}}
+                    size         = d["SIZE"] || "-"
+                    monitor_size = d["MONITOR_SIZE"] || "-"
+                    "#{monitor_size}/#{size}"
                 end
 
                 column :TYPE, "", :left, :size=>4 do |d|
@@ -980,11 +982,13 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :SIZE, "", :left, :size=>17 do |d|
-                %Q{#{d["MONITOR_SIZE"]}/#{d["SIZE"]}}
+            column :SIZE, "", :left, :size=>16 do |d|
+                size         = d["SIZE"] || "-"
+                monitor_size = d["MONITOR_SIZE"] || "-"
+                "#{monitor_size}/#{size}"
             end
 
-            column :TAG, "Snapshot Tag", :left, :size=>25 do |d|
+            column :TAG, "Snapshot Tag", :left, :size=>26 do |d|
                 d["TAG"]
             end
 
@@ -1016,7 +1020,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             disk_id = snapshot["DISK_ID"]
             snap_id = snapshot["ID"]
             xpath = "SNAPSHOTS[DISK_ID='#{disk_id}']/SNAPSHOT[ID='#{snap_id}']/SIZE"
-            snapshot["MONITOR_SIZE"] = vm[xpath] || "-"
+            snapshot["MONITOR_SIZE"] = vm[xpath]
         end
 
         table.show(snapshots)
