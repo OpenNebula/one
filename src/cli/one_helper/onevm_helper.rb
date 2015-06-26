@@ -503,18 +503,17 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
         poll_attrs = {
-            "USED MEMORY" => "MONITORING/USEDMEMORY",
-            "USED CPU" => "MONITORING/USEDCPU",
-            "NET_TX" => "MONITORING/NETTX",
-            "NET_RX" => "MONITORING/NETRX",
-            "DISK SIZE (ACTUAL)" => "MONITORING/DISK_ACTUAL_SIZE",
-            "DISK SIZE (VIRTUAL)" => "MONITORING/DISK_VIRTUAL_SIZE"
+            "MEMORY"          => "MONITORING/MEMORY",
+            "CPU"             => "MONITORING/CPU",
+            "NETTX"           => "MONITORING/NETTX",
+            "NETRX"           => "MONITORING/NETRX",
+            "TOTAL DISK SIZE" => "MONITORING/TOTAL_DISK_SIZE"
         }
 
         poll_attrs.each { |k,v|
-            if k == "USED CPU"
+            if k == "CPU"
                 puts str % [k,vm[v]]
-            elsif k == "USED MEMORY"
+            elsif k == "MEMORY"
                 puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]
             elsif k =~ /DISK/
               puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i*1024, {})]

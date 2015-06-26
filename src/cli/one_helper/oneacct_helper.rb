@@ -155,26 +155,22 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             d["VM"]["TEMPLATE"]["CPU"]
         end
 
-        column :NET_RX, "Data received from the network", :size=>6 do |d|
+        column :NETRX, "Data received from the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
             OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETRX"].to_i / 1024.0, {})
         end
 
-        column :NET_TX, "Data sent to the network", :size=>6 do |d|
+        column :NETTX, "Data sent to the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
             OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETTX"].to_i / 1024.0, {})
         end
 
-        column :DISK_ACTUAL, "Total disk size used", :size=>6 do |d|
+        column :TOTAL_DISK_SIZE, "Total disk size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/DISK_ACTUAL_SIZE"].to_i * 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/TOTAL_DISK_SIZE"].to_i * 1024.0, {})
         end
 
-        column :DISK_VIRTUAL, "Total disk virtual size used", :size=>6 do |d|
-            # DISK size is measured in mb, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/DISK_VIRTUAL_SIZE"].to_i * 1024.0, {})
-        end
-        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NET_RX, :NET_TX, :DISK_ACTUAL, :DISK_VIRTUAL
+        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :TOTAL_DISK_SIZE
     end
 
     SHOWBACK_TABLE = CLIHelper::ShowTable.new("oneshowback.yaml", nil) do
