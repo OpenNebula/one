@@ -543,17 +543,22 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         if vm.has_elements?("/VM/TEMPLATE/CONTEXT")
             context_disk = vm.to_hash['VM']['TEMPLATE']['CONTEXT']
 
-            context_disk["IMAGE"] = "CONTEXT"
+            context_disk["IMAGE"]     = "CONTEXT"
             context_disk["DATASTORE"] = "-"
-            context_disk["TYPE"] = "-"
-            context_disk["READONLY"] = "-"
-            context_disk["SAVE"] = "-"
-            context_disk["CLONE"] = "-"
-            context_disk["SAVE_AS"] = "-"
+            context_disk["TYPE"]      = "-"
+            context_disk["READONLY"]  = "-"
+            context_disk["SAVE"]      = "-"
+            context_disk["CLONE"]     = "-"
+            context_disk["SAVE_AS"]   = "-"
 
             vm_disks.push(context_disk)
         end
 
+        # get monitoring data
+        vm_disks.each do |disk|
+            disk_id = disk["DISK_ID"]
+            disk["MONITOR_SIZE"] = vm["MONITORING/DISK_SIZE[ID='#{disk_id}']/SIZE"] || "-"
+        end
 
         if !vm_disks.empty?
             puts
@@ -588,6 +593,10 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
+                column :SIZE, "", :left, :size=>16 do |d|
+                    %Q{#{d["MONITOR_SIZE"]}/#{d["SIZE"]}}
+                end
+
                 column :TYPE, "", :left, :size=>4 do |d|
                     d["TYPE"].downcase
                 end
@@ -604,7 +613,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     d["CLONE"]
                 end
 
-                default :ID, :TARGET, :IMAGE, :TYPE,
+                default :ID, :DATASTORE, :TARGET, :IMAGE, :SIZE, :TYPE,
                     :SAVE
             end.show(vm_disks, {})
 
@@ -971,15 +980,19 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :TAG, "Snapshot Tag", :left, :size=>45 do |d|
+            column :SIZE, "", :left, :size=>17 do |d|
+                %Q{#{d["MONITOR_SIZE"]}/#{d["SIZE"]}}
+            end
+
+            column :TAG, "Snapshot Tag", :left, :size=>25 do |d|
                 d["TAG"]
             end
 
-            column :DATE, "Snapshot creation date", :size=>15 do |d|
+            column :DATE, "Snapshot creation date", :size=>10 do |d|
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :TAG
+            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :SIZE, :TAG
         end
 
         # Convert snapshot data to an array
@@ -996,6 +1009,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 data = snapshot.merge({ 'DISK_ID' => disk_id })
                 snapshots << data
             end
+        end
+
+        # get monitoring data
+        snapshots.each do |snapshot|
+            disk_id = snapshot["DISK_ID"]
+            snap_id = snapshot["ID"]
+            xpath = "SNAPSHOTS[DISK_ID='#{disk_id}']/SNAPSHOT[ID='#{snap_id}']/SIZE"
+            snapshot["MONITOR_SIZE"] = vm[xpath] || "-"
         end
 
         table.show(snapshots)
