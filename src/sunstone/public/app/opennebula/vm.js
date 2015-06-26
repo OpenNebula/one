@@ -307,6 +307,10 @@ define(function(require) {
     "shutdown": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "shutdown");
     },
+    "shutdown_hard" : function(params) {
+      var action_obj = {"hard": true};
+      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown", action_obj);
+    },
     "hold": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "hold");
     },
