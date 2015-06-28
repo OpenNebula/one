@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env ruby
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
