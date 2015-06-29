@@ -198,7 +198,7 @@ class DummyDriver < VirtualMachineDriver
                        "#{POLL_ATTRIBUTE[:cpu]}=#{max_cpu * (rand(95)+5)/100} " \
                        "#{POLL_ATTRIBUTE[:disk_size]}=[ID=0, SIZE=#{rand(1024)}] "\
                        "#{POLL_ATTRIBUTE[:disk_size]}=[ID=1, SIZE=#{rand(1024)}] "\
-                       "#{POLL_ATTRIBUTE[:snapshot_size]}=[ID=1, DISK_ID=0, SIZE=#{rand(1024)}] "
+                       "#{POLL_ATTRIBUTE[:snapshot_size]}=[ID=0, DISK_ID=0, SIZE=#{rand(1024)}] "
 
         send_message(ACTION[:poll],result,id,monitor_info)
     end
