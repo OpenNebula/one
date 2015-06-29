@@ -4,14 +4,14 @@ require.config({
     'almond': '../bower_components/almond/almond',
 
     /* jQuery */
-    'jquery': '../bower_components/jquery/dist/jquery.min',
+    'jquery': '../bower_components/jquery/dist/jquery',
 
     /* DataTables */
-    'datatables': '../bower_components/datatables/media/js/jquery.dataTables.min',
-    'foundation-datatables': '../bower_components/foundation-datatables/integration/foundation/dataTables.foundation.min',
+    'datatables': '../bower_components/datatables/media/js/jquery.dataTables',
+    'foundation-datatables': '../bower_components/foundation-datatables/integration/foundation/dataTables.foundation',
 
     /* DataTables */
-    'jgrowl': '../bower_components/jgrowl/jquery.jgrowl.min',
+    'jgrowl': '../bower_components/jgrowl/jquery.jgrowl',
 
     /* Foundation */
     'foundation.core': '../bower_components/foundation/js/foundation/foundation',
@@ -49,7 +49,7 @@ require.config({
     'flot.stack': '../bower_components/flot/jquery.flot.stack',
     'flot.resize': '../bower_components/flot/jquery.flot.resize',
     'flot.time': '../bower_components/flot/jquery.flot.time',
-    'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip.min',
+    'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip',
 
     /* noUiSlider */
     'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min',
