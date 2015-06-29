@@ -12,6 +12,7 @@ define(function(require) {
     require('./vms-tab/dialogs/migrate'),
     require('./vms-tab/dialogs/resize'),
     require('./vms-tab/dialogs/attach-disk'),
+    require('./vms-tab/dialogs/disk-snapshot'),
     require('./vms-tab/dialogs/attach-nic'),
     require('./vms-tab/dialogs/snapshot'),
     require('./vms-tab/dialogs/vnc'),

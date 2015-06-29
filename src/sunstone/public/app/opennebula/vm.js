@@ -390,6 +390,18 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "snapshot_delete", action_obj);
     },
+    "disk_snapshot_create": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_create", action_obj);
+    },
+    "disk_snapshot_revert": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_revert", action_obj);
+    },
+    "disk_snapshot_delete": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_delete", action_obj);
+    },
     "vnc" : function(params, startstop) {
       var callback = params.success;
       var callback_error = params.error;

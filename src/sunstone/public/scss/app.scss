@@ -1247,3 +1247,62 @@ hr {
     height: 34px;
   }
 }
+
+
+.nowrap {
+  white-space: nowrap;
+}
+
+
+/* Tree lists */
+
+.tree, .tree ul{
+  font: inherit;
+  list-style-type: none;
+  margin-left: 1em;
+  padding: 0;
+  position: relative;
+  overflow:hidden;
+}
+
+.tree li{
+  margin: 0;
+  padding: 0 1em;
+  position: relative;
+}
+
+.tree li::before, .tree li::after{
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+/* horizontal line on inner list items */
+.tree li::before{
+  border-top: 1px solid #999;
+  top: 0.5em;
+  width: 10px;
+  height: 0;
+}
+
+/* vertical line on list items */
+.tree li:after{
+  border-left: 1px solid #999;
+  height: 100%;
+  width: 0px;
+  top: -0.5em;
+}
+
+/* lower line on list items from the first level because they don't have parents */
+.tree > li::after{
+  top: 0.5em;
+}
+
+/* hide line from the last of the first level list items */
+.tree > li:last-child::after{
+  display: none;
+}
+
+.tree ul:last-child li:last-child:after{
+  height:1em;
+}

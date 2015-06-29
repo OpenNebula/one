@@ -272,8 +272,8 @@ define(function(require) {
         {"data": "MAC",        "defaultContent": ""},
         {"data": "IP6_ULA",    "defaultContent": ""},
         {"data": "IP6_GLOBAL", "defaultContent": ""},
-        {"data": "ACTIONS",    "defaultContent": ""},
-        {"defaultContent": ""}
+        {"data": "ACTIONS",    "defaultContent": "", "orderable": false},
+        {"defaultContent": "", "orderable": false}
       ],
 
       "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {

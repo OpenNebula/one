@@ -196,6 +196,9 @@ tabs:
             VM.snapshot_create: true
             VM.snapshot_revert: true
             VM.snapshot_delete: true
+            VM.disk_snapshot_create: true
+            VM.disk_snapshot_revert: true
+            VM.disk_snapshot_delete: true
             VM.resched: false
             VM.unresched: false
     templates-tab:

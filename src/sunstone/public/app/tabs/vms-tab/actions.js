@@ -59,6 +59,9 @@ define(function(require) {
     "VM.snapshot_create": _commonActions.singleAction('snapshot_create'),
     "VM.snapshot_revert": _commonActions.singleAction('snapshot_revert'),
     "VM.snapshot_delete": _commonActions.singleAction('snapshot_delete'),
+    "VM.disk_snapshot_create": _commonActions.singleAction('disk_snapshot_create'),
+    "VM.disk_snapshot_revert": _commonActions.singleAction('disk_snapshot_revert'),
+    "VM.disk_snapshot_delete": _commonActions.singleAction('disk_snapshot_delete'),
     
     "VM.create_dialog" : {
       type: "custom",
