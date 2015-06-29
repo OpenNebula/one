@@ -1,7 +1,7 @@
 <div id="{{dialogId}}" class="reveal-modal small" role="dialog" data-reveal >
   <div class="row">
     <div class="large-12 columns">
-      <h3 class="subheader" id="">{{tr "Disk Snapshot"}}</h3>
+      <h3 class="subheader" id="">{{tr "Disk Saveas"}}</h3>
     </div>
   </div>
   <div class="reveal-body">
@@ -16,14 +16,20 @@
           <input style="border-style: inset; background-color: lightgrey" type="text" name="disk_id" id="disk_id" disabled/>
         </div>
       </div>
+      <div class="row snapshot_id_row">
+        <div class="large-6 columns">
+          <label for="snapshot_id">{{tr "Snapshot ID"}}:</label>
+          <input style="border-style: inset; background-color: lightgrey" type="text" name="snapshot_id" id="snapshot_id" disabled/>
+        </div>
+      </div>
       <div class="row">
         <div class="large-12 columns">
-          <label for="snapshot_name">{{tr "Tag"}}:</label>
-          <input type="text" name="snapshot_name" id="snapshot_name" />
+          <label for="image_name">{{tr "New Image name"}}:</label>
+          <input type="text" name="image_name" id="image_name" />
         </div>
       </div>
       <div class="form_buttons">
-        <button class="button radius right success" type="submit">{{tr "Take snapshot"}}</button>
+        <button class="button radius right success" type="submit">{{tr "Save as"}}</button>
       </div>
       <a class="close-reveal-modal">&#215;</a>
     </form>

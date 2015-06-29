@@ -54,7 +54,7 @@ module OpenNebulaJSON
                  when "stop"         then self.stop
                  when "suspend"      then self.suspend
                  when "reset"        then self.reset
-                 when "saveas"       then self.save_as(action_hash['params'])
+                 when "disk_saveas"  then self.disk_saveas(action_hash['params'])
                  when "snapshot_create"       then self.snapshot_create(action_hash['params'])
                  when "snapshot_revert"       then self.snapshot_revert(action_hash['params'])
                  when "snapshot_delete"       then self.snapshot_delete(action_hash['params'])
@@ -106,8 +106,9 @@ module OpenNebulaJSON
             super(params['host_id'], live, params['enforce'], params['ds_id'])
         end
 
-        def save_as(params=Hash.new)
-            disk_saveas(params['disk_id'].to_i, params['image_name'], params['type'])
+        def disk_saveas(params=Hash.new)
+            super(params['disk_id'].to_i, params['image_name'],
+                params['type'], params['snapshot_id'].to_i)
         end
 
         def snapshot_create(params=Hash.new)

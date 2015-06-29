@@ -19,6 +19,7 @@ define(function(require) {
   var PANEL_ID = require('./storage/panelId');
   var ATTACH_DISK_DIALOG_ID = require('../dialogs/attach-disk/dialogId');
   var DISK_SNAPSHOT_DIALOG_ID = require('../dialogs/disk-snapshot/dialogId');
+  var DISK_SAVEAS_DIALOG_ID = require('../dialogs/disk-saveas/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -59,17 +60,19 @@ define(function(require) {
                  <th>' + Locale.tr("Target") + '</th>\
                  <th>' + Locale.tr("Image / Format-Size") + '</th>\
                  <th>' + Locale.tr("Persistent") + '</th>\
-                 <th>' + Locale.tr("Save as") + '</th>\
-                 <th colspan="">' + Locale.tr("Actions") + '</th>\
-                 <th>';
+                 <th>' + Locale.tr("Actions");
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
       if (StateActions.enabledStateAction("VM.attachdisk", that.element.STATE, that.element.LCM_STATE)) {
         html += '\
-            <button id="attach_disk" class="button tiny success right radius" >' + Locale.tr("Attach disk") + '</button>'
+          <span class="right">\
+            <button id="attach_disk" class="button tiny success right radius" >' + Locale.tr("Attach disk") + '</button>\
+          </span>';
       } else {
         html += '\
-            <button id="attach_disk" class="button tiny success right radius" disabled="disabled">' + Locale.tr("Attach disk") + '</button>'
+          <span class="right">\
+            <button id="attach_disk" class="button tiny success right radius" disabled="disabled">' + Locale.tr("Attach disk") + '</button>\
+          </span>';
       }
     }
 
@@ -152,23 +155,8 @@ define(function(require) {
       for (var i = 0; i < disks.length; i++) {
         var disk = disks[i];
 
-        var save_as;
-        // Snapshot deferred
+        // Save as
         if (
-           (
-            that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
-           (
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS ||
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF ||
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED) &&
-           (
-            disk.SAVE_AS_ACTIVE == "YES")
-           ) {
-          save_as = Locale.tr("in progress");
-          actions = Locale.tr('deferred snapshot in progress');
-        }
-        // Snapshot Hot
-        else if (
            (
             that.element.STATE == OpenNebulaVM.STATES.ACTIVE) &&
            (
@@ -178,8 +166,7 @@ define(function(require) {
            (
             disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
            ) {
-          save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-          actions = Locale.tr('hot snapshot in progress');
+          actions = Locale.tr('Save as in progress');
         }
         // Attach / Detach
         else if (
@@ -190,29 +177,20 @@ define(function(require) {
            (
             disk.ATTACH = "YES")
            ) {
-          save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
           actions = Locale.tr('attach/detach in progress');
         } else {
-          save_as = (disk.SAVE_AS ? disk.SAVE_AS : '-');
-
           actions = '';
 
-          if (disk.SAVE == "YES") {
-            /* TODO if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
-              if (StateActions.enabledStateAction("VM.disk_snapshot_cancel", that.element.STATE, that.element.LCM_STATE)) {
-                actions += '<a href="VM.disk_snapshot_cancel" class="disk_snapshot_cancel" >\
-                       <i class="fa fa-times"/></span>' + Locale.tr("Cancel Snapshot") + '</a> &emsp;'
-              }
-            } */
-          } else {
-            /* TODO if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
-              // Check if it's volatile
-              if (disk.IMAGE_ID &&
-                   StateActions.enabledStateAction("VM.saveas", that.element.STATE, that.element.LCM_STATE)) {
-                actions += '<a href="VM.saveas" class="saveas" ><i class="fa fa-save"/>' + Locale.tr("Snapshot") + '</a> &emsp;'
-              }
-            } */
+
+          if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
+            // Check if it's volatile
+            if (disk.IMAGE_ID &&
+                 StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
+              actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+              <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+            }
           }
+
 
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
             if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
@@ -238,7 +216,6 @@ define(function(require) {
           TARGET : disk.TARGET,
           IMAGE : (disk.IMAGE ? disk.IMAGE : (Humanize.sizeFromMB(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : ''))),
           SAVE : ((disk.SAVE && disk.SAVE == 'YES') ? Locale.tr('YES') : Locale.tr('NO')),
-          SAVE_AS : save_as,
           ACTIONS : actions,
           SNAPSHOTS : snapshotsHtml[disk.DISK_ID]
         });
@@ -259,9 +236,7 @@ define(function(require) {
         {"data": "TARGET",    "defaultContent": ""},
         {"data": "IMAGE",     "defaultContent": "", "orderable": false},
         {"data": "SAVE",      "defaultContent": "", "orderable": false},
-        {"data": "SAVE_AS",   "defaultContent": "", "orderable": false},
-        {"data": "ACTIONS",   "defaultContent": "", "orderable": false},
-        {"defaultContent": "", "orderable": false}
+        {"data": "ACTIONS",   "defaultContent": "", "orderable": false}
       ],
 
       "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -298,32 +273,39 @@ define(function(require) {
       }
     });
 
-    /* TODO if (Config.isTabActionEnabled("vms-tab", "VM.saveas")) {
-      setupSaveAsDialog();
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
+      context.off('click', '.disk_saveas');
+      context.on('click', '.disk_saveas', function() {
+        var disk_id = $(this).parents('tr').attr('disk_id');
 
-      $('a.saveas').live('click', function(){
-          var b = $(this);
-          var vm_id = b.parents('form').attr('vmid');
-          var disk_id = b.parents('tr').attr('disk_id');
+        var dialog = Sunstone.getDialog(DISK_SAVEAS_DIALOG_ID);
+        dialog.setParams(
+          { element: that.element,
+            diskId: disk_id
+          });
 
-          popUpSaveAsDialog(vm_id, disk_id);
-
-          //b.html(spinner);
-          return false;
+        dialog.reset();
+        dialog.show();
+        return false;
       });
-    } */
 
-    /* TODO if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_cancel")) {
-      $('a.disk_snapshot_cancel').live('click', function(){
-          var b = $(this);
-          var vm_id = b.parents('form').attr('vmid');
-          var disk_id = b.parents('tr').attr('disk_id');
+      context.off('click', '.disk_snapshot_saveas');
+      context.on('click', '.disk_snapshot_saveas', function() {
+        var disk_id = $(this).parents('.snapshots').attr('disk_id');
+        var snapshot_id = $(this).parents('.snapshot_row').attr('snapshot_id');
 
-          Sunstone.runAction('VM.disk_snapshot_cancel', vm_id, disk_id);
+        var dialog = Sunstone.getDialog(DISK_SAVEAS_DIALOG_ID);
+        dialog.setParams(
+          { element: that.element,
+            diskId: disk_id,
+            snapshotId: snapshot_id
+          });
 
-          return false;
+        dialog.reset();
+        dialog.show();
+        return false;
       });
-    } */
+    }
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
       context.off('click', '#attach_disk');
@@ -355,6 +337,7 @@ define(function(require) {
             diskId: disk_id
           });
 
+        dialog.reset();
         dialog.show();
         return false;
       });
@@ -410,7 +393,7 @@ define(function(require) {
       });
     }
 
-    var html = '<div class="snapshot_row" snapshot_id='+snapshot.ID+'>';
+    var html = '<div class="snapshot_row nowrap" snapshot_id='+snapshot.ID+'>';
 
     var active = (snapshot.ACTIVE == "YES");
 
@@ -422,6 +405,11 @@ define(function(require) {
 
     html += Humanize.prettyTime(snapshot.DATE) + SPACE +
             (snapshot.TAG ? snapshot.TAG + SPACE : '');
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
+      html += '<a href="" class="disk_snapshot_saveas" >\
+              <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+    }
 
     if(!active){
       if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert")) {

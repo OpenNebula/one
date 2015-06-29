@@ -370,13 +370,9 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "migrate", action_obj);
     },
-    "saveas": function(params) {
+    "disk_saveas": function(params) {
       var action_obj = params.data.extra_param;
-      OpenNebulaAction.simple_action(params, RESOURCE, "saveas", action_obj);
-    },
-    "disk_snapshot_cancel": function(params) {
-      var action_obj = {"disk_id": params.data.extra_param};
-      OpenNebulaAction.simple_action(params, RESOURCE, "disk_snapshot_cancel", action_obj);
+      OpenNebulaAction.simple_action(params, RESOURCE, "disk_saveas", action_obj);
     },
     "snapshot_create": function(params) {
       var action_obj = params.data.extra_param;

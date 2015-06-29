@@ -62,7 +62,8 @@ define(function(require) {
     "VM.disk_snapshot_create": _commonActions.singleAction('disk_snapshot_create'),
     "VM.disk_snapshot_revert": _commonActions.singleAction('disk_snapshot_revert'),
     "VM.disk_snapshot_delete": _commonActions.singleAction('disk_snapshot_delete'),
-    
+    "VM.disk_saveas" : _commonActions.singleAction('disk_saveas'),
+
     "VM.create_dialog" : {
       type: "custom",
       call: function() {
@@ -162,50 +163,7 @@ define(function(require) {
         Spice.unlock();
       },
       notify: true
-    },
-    //"VM.startspice" : {
-    //  type: "custom",
-    //  call: function() {
-    //   popUpSPICE();
-    // }
-    //},
-    //"VM.startspice_action" : {
-    //  type: "single",
-    //  call: OpenNebula.VM.startvnc,
-    //  callback: spiceCallback,
-    //  error: function(req, resp) {
-    //    onError(req, resp);
-    //    spice_lock = false;
-    //  },
-    //  notify: true
-    //},
-    /*
-
-    "VM.saveas" : {
-      type: "single",
-      call: OpenNebula.VM.saveas,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-        OpenNebula.Helper.clear_cache("IMAGE");
-      },
-      error:onError,
-      notify: true
-    },
- 
-    "VM.disk_snapshot_cancel" : {
-      type: "single",
-      call: OpenNebula.VM.disk_snapshot_cancel,
-      callback: function(request) {
-        Sunstone.runAction("VM.show", request.request.data[0]);
-        OpenNebula.Helper.clear_cache("IMAGE");
-      },
-      error:onError,
-      notify: true
-    },
-  
- 
-
- */
+    }
   };
 
   return _actions;
