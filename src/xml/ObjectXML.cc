@@ -90,38 +90,59 @@ vector<string> ObjectXML::operator[] (const char * xpath_expr)
     xmlXPathObjectPtr obj;
     vector<string>    content;
 
+    ostringstream oss;
+    xmlNodePtr    cur;
+    xmlChar *     str_ptr;
+
     obj = xmlXPathEvalExpression(
         reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
 
-    if (obj == 0 || obj->nodesetval == 0)
+    if (obj == 0)
     {
         return content;
     }
 
-    xmlNodeSetPtr ns = obj->nodesetval;
-    int           size = ns->nodeNr;
-    xmlNodePtr    cur;
-    xmlChar *     str_ptr;
-
-    for(int i = 0; i < size; ++i)
+    switch (obj->type)
     {
-        cur = ns->nodeTab[i];
+        case XPATH_NUMBER:
+            oss << obj->floatval;
 
-        if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
-        {
-            continue;
-        }
+            content.push_back(oss.str());
+            break;
 
-        str_ptr = xmlNodeGetContent(cur);
+        case XPATH_NODESET:
+            for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
+            {
+                cur = obj->nodesetval->nodeTab[i];
 
-        if (str_ptr != 0)
-        {
-            string element_content = reinterpret_cast<char *>(str_ptr);
+                if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+                {
+                    continue;
+                }
 
-            content.push_back(element_content);
+                str_ptr = xmlNodeGetContent(cur);
 
-            xmlFree(str_ptr);
-        }
+                if (str_ptr != 0)
+                {
+                    string element_content = reinterpret_cast<char *>(str_ptr);
+
+                    content.push_back(element_content);
+
+                    xmlFree(str_ptr);
+                }
+            }
+            break;
+
+        case XPATH_UNDEFINED:
+        case XPATH_BOOLEAN:
+        case XPATH_STRING:
+        case XPATH_POINT:
+        case XPATH_RANGE:
+        case XPATH_LOCATIONSET:
+        case XPATH_USERS:
+        case XPATH_XSLT_TREE:
+            break;
+
     }
 
     xmlXPathFreeObject(obj);

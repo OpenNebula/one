@@ -800,9 +800,10 @@ int VirtualMachinePool::calculate_showback(
         history.xpath(h_stime,  "/HISTORY/STIME", 0);
         history.xpath(h_etime,  "/HISTORY/ETIME", 0);
 
-        history.xpath(cpu,      "/HISTORY/VM/TEMPLATE/CPU", 0);
-        history.xpath(mem,      "/HISTORY/VM/TEMPLATE/MEMORY", 0);
-        history.xpath(disk,     "/HISTORY/VM/DISK_ACTUAL_SIZE", 0);
+        history.xpath(cpu,  "/HISTORY/VM/TEMPLATE/CPU", 0);
+        history.xpath(mem,  "/HISTORY/VM/TEMPLATE/MEMORY", 0);
+        history.xpath(disk, "sum(/HISTORY/VM/TEMPLATE/DISK/SIZE | "
+            "/HISTORY/VM/TEMPLATE/DISK/DISK_SNAPSHOT_TOTAL_SIZE)", 0);
 
         history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", _default_cpu_cost);
         history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", _default_mem_cost);
