@@ -56,7 +56,6 @@ class VirtualMachineDriver < OpenNebulaDriver
         :nettx           => "NETTX",
         :netrx           => "NETRX",
         :state           => "STATE",
-        :total_disk_size => "TOTAL_DISK_SIZE",
         :disk_size       => "DISK_SIZE",
         :snapshot_size   => "SNAPSHOT_SIZE"
     }
