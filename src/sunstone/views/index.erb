@@ -43,7 +43,13 @@
       };
     </script>
 
+
+
+    <% if $conf[:env] == 'dev' %>
+    <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <% else %>
     <link href="css/app.min.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <% end %>
   </head>
   <body class="antialiased">
     <div id="loading">
