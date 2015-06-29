@@ -1019,7 +1019,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         snapshots.each do |snapshot|
             disk_id = snapshot["DISK_ID"]
             snap_id = snapshot["ID"]
-            xpath = "SNAPSHOTS[DISK_ID='#{disk_id}']/SNAPSHOT[ID='#{snap_id}']/SIZE"
+            xpath = "MONITORING/SNAPSHOT_SIZE[ID='#{snap_id}' and DISK_ID='#{disk_id}']/SIZE"
             snapshot["MONITOR_SIZE"] = vm[xpath]
         end
 
