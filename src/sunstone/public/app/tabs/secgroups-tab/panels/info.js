@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var PermissionsTable = require('utils/panel/permissions-table');
@@ -13,7 +13,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateTable = require('utils/panel/template-table');
 
   /*
@@ -81,6 +81,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
     RenameTr.setup(RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 

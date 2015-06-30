@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TemplateInfo = require('hbs!./info/html');
   var TemplateChgrpTr = require('hbs!./info/chgrp-tr');
   var ResourceSelect = require('utils/resource-select');
@@ -13,7 +13,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateTable = require('utils/panel/template-table');
 
   /*
@@ -84,6 +84,8 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+
+    $('.resource-info-header', '#' + TAB_ID).text(that.element.NAME);
 
     // Template update
     // TODO: simplify interface?
@@ -284,4 +286,3 @@ define(function(require) {
     return false;
   }
 });
-  

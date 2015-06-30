@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
@@ -11,7 +11,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateTable = require('utils/panel/template-table');
 
   /*
@@ -20,6 +20,7 @@ define(function(require) {
 
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Marketplace";
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -65,6 +66,8 @@ define(function(require) {
   }
 
   function _setup(context) {
+    $('.resource-id', '#' + TAB_ID).hide();
+    $('.resource-info-header', '#' + TAB_ID).text(this.element.name);
     return false;
   }
 });

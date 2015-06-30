@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var Views = require('../utils/views');
@@ -11,7 +11,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateTable = require('utils/panel/template-table');
 
   /*
@@ -76,6 +76,9 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+
+    $('.resource-info-header', '#' + TAB_ID).text(that.element.NAME);
+    
     Tips.setup(context);
 
     // Template update

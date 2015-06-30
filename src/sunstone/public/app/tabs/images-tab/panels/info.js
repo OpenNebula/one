@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
@@ -15,13 +15,13 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateInfo = require('hbs!./info/html');
 
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Image"
@@ -74,6 +74,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
     RenameTr.setup(RESOURCE, this.element.ID, context);
     TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);

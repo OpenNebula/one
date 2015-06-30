@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var PermissionsTable = require('utils/panel/permissions-table');
   var OpenNebulaService = require('opennebula/service');
@@ -10,7 +10,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateHTML = require('hbs!./info/html');
 
   /*
@@ -56,6 +56,7 @@ define(function(require) {
   }
 
   function _setup(context) {
+    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
   }
 });
