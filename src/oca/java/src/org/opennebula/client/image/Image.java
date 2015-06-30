@@ -39,6 +39,9 @@ public class Image extends PoolElement
     private static final String CHTYPE      = METHOD_PREFIX + "chtype";
     private static final String CLONE       = METHOD_PREFIX + "clone";
     private static final String RENAME      = METHOD_PREFIX + "rename";
+    private static final String SNAPSHOTDELETE  = METHOD_PREFIX + "snapshotdelete";
+    private static final String SNAPSHOTREVERT  = METHOD_PREFIX + "snapshotrevert";
+    private static final String SNAPSHOTFLATTEN = METHOD_PREFIX + "snapshotflatten";
 
     private static final String[] IMAGE_STATES =
         {"INIT", "READY", "USED", "DISABLED", "LOCKED",
@@ -280,6 +283,43 @@ public class Image extends PoolElement
     public static OneResponse rename(Client client, int id, String name)
     {
         return client.call(RENAME, id, name);
+    }
+
+    /**
+     * Deletes Image from snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The Image id of the target Image.
+     * @param snapId ID of the snapshot to delete
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse snapshotDelete(Client client, int id, int snapId)
+    {
+        return client.call(SNAPSHOTDELETE, id, snapId);
+    }
+
+    /**
+     * Reverts Image state to a previous snapshot
+     * @param client XML-RPC Client.
+     * @param id The Image id of the target Image.
+     * @param snapId ID of the snapshot to revert to
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse snapshotRevert(Client client, int id, int snapId)
+    {
+        return client.call(SNAPSHOTREVERT, id, snapId);
+    }
+
+    /**
+     * Flattens an image snapshot
+     * @param client XML-RPC Client.
+     * @param id The Image id of the target Image.
+     * @param snapId ID of the snapshot to flatten
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse snapshotFlatten(Client client, int id, int snapId)
+    {
+        return client.call(SNAPSHOTFLATTEN, id, snapId);
     }
 
     // =================================
@@ -548,6 +588,37 @@ public class Image extends PoolElement
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Deletes Image from snapshot
+     *
+     * @param snapId ID of the snapshot to delete
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse snapshotDelete(int snapId)
+    {
+        return snapshotDelete(client, id, snapId);
+    }
+
+    /**
+     * Reverts Image state to a previous snapshot
+     * @param snapId ID of the snapshot to revert to
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse snapshotRevert(int snapId)
+    {
+        return snapshotRevert(client, id, snapId);
+    }
+
+    /**
+     * Flattens an image snapshot
+     * @param snapId ID of the snapshot to flatten
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse snapshotFlatten(int snapId)
+    {
+        return snapshotFlatten(client, id, snapId);
     }
 
     // =================================

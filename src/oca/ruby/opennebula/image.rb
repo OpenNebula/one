@@ -228,7 +228,7 @@ module OpenNebula
 
         # Deletes Image from snapshot
         #
-        # @param snap_id [Integet] ID of the snapshot to delete
+        # @param snap_id [Integer] ID of the snapshot to delete
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_delete(snap_id)
@@ -237,7 +237,7 @@ module OpenNebula
 
         # Reverts Image state to a previous snapshot
         #
-        # @param snap_id [Integet] ID of the snapshot to delete
+        # @param snap_id [Integer] ID of the snapshot to revert to
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_revert(snap_id)
@@ -246,7 +246,7 @@ module OpenNebula
 
         # Flattens an image snapshot
         #
-        # @param snap_id [Integet] ID of the snapshot to flatten
+        # @param snap_id [Integer] ID of the snapshot to flatten
         #
         # @return [nil, OpenNebula::Error] nil in case of success or Error
         def snapshot_flatten(snap_id)
