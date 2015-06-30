@@ -361,29 +361,6 @@ private:
     }
 
     /**
-     *  Gets VM information from the driver answer
-     *    @param monitor_str from the driver
-     *    @param memory Kilobytes used by the VM (total)
-     *    @param cpu used by the VM (rate)
-     *    @param net_tx transmitted bytes (total)
-     *    @param net_rx received bytes (total)
-     *    @param disk_actual actual disk usage for VM (total mb)
-     *    @param disk_virtual virtual disk usage for VM (total mb)
-     *    @param state of the vm
-     *    @param custom monitor information
-     */
-    static int parse_vm_info(
-        const string&   monitor_str,
-        int                &cpu,
-        int                &memory,
-        long long          &net_tx,
-        long long          &net_rx,
-        long long          &disk_actual,
-        long long          &disk_virtual,
-        char               &state,
-        map<string,string> &custom);
-
-    /**
      *
      */
     void write_drv(const char * aname, const int oid, const string& msg) const
