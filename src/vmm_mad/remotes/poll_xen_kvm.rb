@@ -319,7 +319,6 @@ module KVM
         size = 0
 
         data = {
-            :total_disk_size => 0.0,
             :disk_size       => [],
             :snapshot_size   => []
         }
@@ -347,7 +346,6 @@ module KVM
                 disk_size = images_doc.elements[xpath].text.to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
-                data[:total_disk_size] += disk_size
 
                 images_doc.elements.each("images/snapshot") do |snap|
                     next unless snap.elements["image"].text.start_with?(image)
@@ -357,7 +355,6 @@ module KVM
 
                     data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
 
-                    data[:total_disk_size] += snapshot_size
                 end
             else file
                 # Regular Disk
@@ -371,11 +368,9 @@ module KVM
                 disk_size = json['actual-size'].to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
-                data[:total_disk_size] += disk_size
             end
         end
 
-        data[:total_disk_size]  = data[:total_disk_size].round
 
         data
     end
@@ -664,7 +659,6 @@ module XEN
 
         doms.each do |dom|
             data = {
-                :total_disk_size => 0.0,
                 :disk_size       => [],
                 :snapshot_size   => []
             }
@@ -684,10 +678,8 @@ module XEN
                 disk_size = json['actual-size'].to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
-                data[:total_disk_size] += disk_size
             end
 
-            data[:total_disk_size] = data[:total_disk_size].round
 
             data
         end
