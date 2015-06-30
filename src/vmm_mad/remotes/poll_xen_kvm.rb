@@ -80,7 +80,7 @@ module KVM
         values[:cpu]    = cpu[vm[:pid]] if cpu[vm[:pid]]
         values[:memory] = [resident_mem, max_mem].max
 
-        xml = dump_xml(vmid)
+        xml = dump_xml(one_vm)
 
         values.merge!(get_interface_statistics(one_vm, xml))
 
