@@ -1878,10 +1878,10 @@ int DispatchManager::disk_snapshot_delete(
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED);
             break;
 
-        //case VirtualMachine::ACTIVE:
-          //  vm->set_state(VirtualMachine::ACTIVE);
-          //  vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE);
-          //  break;
+        case VirtualMachine::ACTIVE:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_DELETE);
+            break;
 
         default: break;
     }
@@ -1894,12 +1894,9 @@ int DispatchManager::disk_snapshot_delete(
     {
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
+        case VirtualMachine::ACTIVE:
             tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
             break;
-
-        //case VirtualMachine::ACTIVE:
-          //  vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_DELETE, vid);
-          //  break;
 
         default: break;
     }

@@ -94,6 +94,9 @@ define(function(require) {
   // TODO DISK_SNAPSHOT_SUSPENDED
   // TODO DISK_SNAPSHOT_REVERT_SUSPENDED
   // TODO DISK_SNAPSHOT_DELETE_SUSPENDED
+  // TODO DISK_SNAPSHOT
+  // TODO DISK_SNAPSHOT_REVERT
+  // TODO DISK_SNAPSHOT_DELETE
 
   return {
     'disableAllStateActions': disableAllStateActions,

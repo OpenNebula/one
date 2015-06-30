@@ -110,6 +110,9 @@ module OpenNebula
             DISK_SNAPSHOT_SUSPENDED
             DISK_SNAPSHOT_REVERT_SUSPENDED
             DISK_SNAPSHOT_DELETE_SUSPENDED
+            DISK_SNAPSHOT
+            DISK_SNAPSHOT_REVERT
+            DISK_SNAPSHOT_DELETE
         }
 
         SHORT_VM_STATES={
@@ -181,7 +184,10 @@ module OpenNebula
             "DISK_SNAPSHOT_DELETE_POWEROFF" => "snap",
             "DISK_SNAPSHOT_SUSPENDED"       => "snap",
             "DISK_SNAPSHOT_REVERT_SUSPENDED"=> "snap",
-            "DISK_SNAPSHOT_DELETE_SUSPENDED"=> "snap"
+            "DISK_SNAPSHOT_DELETE_SUSPENDED"=> "snap",
+            "DISK_SNAPSHOT"        => "snap",
+            "DISK_SNAPSHOT_REVERT" => "snap",
+            "DISK_SNAPSHOT_DELETE" => "snap"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

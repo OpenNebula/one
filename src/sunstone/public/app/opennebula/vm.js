@@ -90,6 +90,9 @@ define(function(require) {
     "DISK_SNAPSHOT_SUSPENDED",
     "DISK_SNAPSHOT_REVERT_SUSPENDED",
     "DISK_SNAPSHOT_DELETE_SUSPENDED",
+    "DISK_SNAPSHOT",
+    "DISK_SNAPSHOT_REVERT",
+    "DISK_SNAPSHOT_DELETE",
   ];
 
   var LCM_STATES = {
@@ -149,7 +152,10 @@ define(function(require) {
     DISK_SNAPSHOT_DELETE_POWEROFF   : 53,
     DISK_SNAPSHOT_SUSPENDED         : 54,
     DISK_SNAPSHOT_REVERT_SUSPENDED  : 55,
-    DISK_SNAPSHOT_DELETE_SUSPENDED  : 56
+    DISK_SNAPSHOT_DELETE_SUSPENDED  : 56,
+    DISK_SNAPSHOT                   : 57,
+    DISK_SNAPSHOT_REVERT            : 58,
+    DISK_SNAPSHOT_DELETE            : 59
   };
 
   var SHORT_LCM_STATES_STR = [
@@ -210,6 +216,9 @@ define(function(require) {
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_SUSPENDED
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_REVERT_SUSPENDED
     Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_DELETE_SUSPENDED
+    Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT
+    Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_REVERT
+    Locale.tr("SNAPSHOT"),  // DISK_SNAPSHOT_DELETE
   ];
 
   var VNC_STATES = [

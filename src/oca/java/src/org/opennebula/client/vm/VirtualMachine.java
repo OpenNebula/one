@@ -133,7 +133,10 @@ public class VirtualMachine extends PoolElement{
         "DISK_SNAPSHOT_DELETE_POWEROFF",
         "DISK_SNAPSHOT_SUSPENDED",
         "DISK_SNAPSHOT_REVERT_SUSPENDED",
-        "DISK_SNAPSHOT_DELETE_SUSPENDED"
+        "DISK_SNAPSHOT_DELETE_SUSPENDED",
+        "DISK_SNAPSHOT",
+        "DISK_SNAPSHOT_REVERT",
+        "DISK_SNAPSHOT_DELETE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -194,7 +197,10 @@ public class VirtualMachine extends PoolElement{
         "snap",     // DISK_SNAPSHOT_DELETE_POWEROFF
         "snap",     // DISK_SNAPSHOT_SUSPENDED
         "snap",     // DISK_SNAPSHOT_REVERT_SUSPENDED
-        "snap"      // DISK_SNAPSHOT_DELETE_SUSPENDED
+        "snap",     // DISK_SNAPSHOT_DELETE_SUSPENDED
+        "snap",     // DISK_SNAPSHOT
+        "snap",     // DISK_SNAPSHOT_REVERT
+        "snap"      // DISK_SNAPSHOT_DELETE
     };
 
     /**

@@ -974,11 +974,24 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE:
             vm->clear_snapshot_disk();
             vmpool->update(vm);
 
             tm->trigger(TransferManager::DRIVER_CANCEL, vid);
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
+        break;
+
+        case VirtualMachine::DISK_SNAPSHOT:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT:
+            vm->clear_snapshot_disk();
+            vmpool->update(vm);
+
+            vm->set_running_etime(the_time);
+            vmpool->update_history(vm);
+
+            vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
+            vmm->trigger(VirtualMachineManager::CLEANUP,vid);
         break;
 
         case VirtualMachine::MIGRATE:
@@ -1253,7 +1266,17 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
-            lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
+        case VirtualMachine::DISK_SNAPSHOT:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE:
+            if (success)
+            {
+                lcm_action = LifeCycleManager::DISK_SNAPSHOT_SUCCESS;
+            }
+            else
+            {
+                lcm_action = LifeCycleManager::DISK_SNAPSHOT_FAILURE;
+            }
         break;
     }
 
@@ -1461,6 +1484,9 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+        case VirtualMachine::DISK_SNAPSHOT:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT:
+        case VirtualMachine::DISK_SNAPSHOT_DELETE:
         case VirtualMachine::RUNNING:
         case VirtualMachine::UNKNOWN:
             break;

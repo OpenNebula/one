@@ -1736,8 +1736,6 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     {
         vm->log("LCM", Log::ERROR, "Snapshot DISK could not be found");
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
-
         vm->unlock();
 
         return;
@@ -1761,6 +1759,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
             vm->revert_disk_snapshot(idisk_id, isnap_id);
             break;
 
+        case VirtualMachine::DISK_SNAPSHOT_DELETE:
+            vm->set_state(VirtualMachine::RUNNING);
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
@@ -1775,9 +1775,9 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     vm->clear_snapshot_disk();
 
-    vm->unlock();
-
     vmpool->update(vm);
+
+    vm->unlock();
 
     if ( quotas != 0 )
     {
@@ -1828,8 +1828,6 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     {
         vm->log("LCM", Log::ERROR, "Snapshot DISK could not be found");
 
-        dm->trigger(DispatchManager::POWEROFF_SUCCESS, vid);
-
         vm->unlock();
 
         return;
@@ -1851,6 +1849,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
             vm->delete_disk_snapshot(idisk_id, isnap_id, qt, &quotas);
             break;
 
+        case VirtualMachine::DISK_SNAPSHOT_DELETE:
+            vm->set_state(VirtualMachine::RUNNING);
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
