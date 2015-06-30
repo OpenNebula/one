@@ -268,7 +268,6 @@ input.search {
 
   .resource-id {
     color: #999;
-    display: none;
   }
 
   .resource-info-header {
@@ -612,7 +611,7 @@ fieldset {
   }
 }
 .provision-header {
-  font-size: rem-calc(14px); 
+  font-size: rem-calc(14px);
   border-bottom: 1px solid #efefef;
 
   li {
@@ -932,7 +931,7 @@ div.dataTables_scrollFoot table {
 .provision_show_vm_accordion,
 .provision_show_user_accordion,
 .provision_show_flow_accordion {
-  padding: 0px !important;  
+  padding: 0px !important;
 }
 
 .provision-input {
@@ -1183,11 +1182,11 @@ hr {
 }
 
 #user_ssh_public_key_text, #config_ssh_public_key_text {
-  font-size: 0.875rem; 
-  color: #777; 
-  padding: 0px 10px; 
-  overflow-x:hidden; 
-  text-overflow: 
+  font-size: 0.875rem;
+  color: #777;
+  padding: 0px 10px;
+  overflow-x:hidden;
+  text-overflow:
   ellipsis; height: 120px;
 }
 
