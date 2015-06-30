@@ -506,8 +506,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             "MEMORY"          => "MONITORING/MEMORY",
             "CPU"             => "MONITORING/CPU",
             "NETTX"           => "MONITORING/NETTX",
-            "NETRX"           => "MONITORING/NETRX",
-            "TOTAL DISK SIZE" => "MONITORING/TOTAL_DISK_SIZE"
+            "NETRX"           => "MONITORING/NETRX"
         }
 
         poll_attrs.each { |k,v|
@@ -515,8 +514,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 puts str % [k,vm[v]]
             elsif k == "MEMORY"
                 puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]
-            elsif k =~ /DISK/
-              puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i*1024, {})]
             else
                 puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
             end

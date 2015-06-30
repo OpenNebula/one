@@ -167,7 +167,24 @@ class AcctHelper < OpenNebulaHelper::OneHelper
 
         column :TOTAL_DISK_SIZE, "Total disk size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/TOTAL_DISK_SIZE"].to_i * 1024.0, {})
+            total_disk_size = 0
+
+            vm_id = d["VM"]["ID"].to_i
+
+            disks_all = [d["VM"]["TEMPLATE"]["DISK"]].flatten.compact rescue []
+            disks_all.each do |disk|
+                total_disk_size += disk["SIZE"].to_i
+            end
+
+            snapshots_all = [d["VM"]["SNAPSHOTS"]].flatten.compact rescue []
+            snapshots_all.each do |snapshot|
+                snapshot_disk = [snapshot["SNAPSHOT"]].flatten.compact rescue []
+                snapshot_disk.each do |snapshot|
+                    total_disk_size += snapshot["SIZE"].to_i
+                end
+            end
+
+            OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
         end
 
         default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :TOTAL_DISK_SIZE
