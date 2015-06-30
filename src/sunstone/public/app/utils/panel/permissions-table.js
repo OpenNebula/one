@@ -3,7 +3,7 @@ define(function(require) {
     This module insert a row with the name of the resource.
     The row can be edited and a rename action will be sent
    */
-  
+
   var TemplatePermissionsTable = require('hbs!./permissions-table/html');
   var TemplatePermissions = require('hbs!./permissions-table/permissions');
   var TemplateOwner = require('hbs!./permissions-table/owner');
@@ -25,17 +25,17 @@ define(function(require) {
       permissionsHTML = TemplatePermissions({'element': element})
     }
 
-    // TODO: bug? if action is not enabled the edit button should be hidden,
-    // but the group/owner info should still be visible
-    var ownerHTML = '';
-    if (Config.isTabActionEnabled(tabName, resourceType + '.chown')) {
-      ownerHTML = TemplateOwner({'element': element});
-    }
+    var ownerHTML = TemplateOwner({
+      'tabName': tabName,
+      'action': resourceType + '.chown',
+      'element': element
+    });
 
-    var groupHTML = '';
-    if (Config.isTabActionEnabled(tabName, resourceType + '.chgrp')) {
-      groupHTML = TemplateGroup({'element': element})
-    }
+    var groupHTML = TemplateGroup({
+      'tabName': tabName,
+      'action': resourceType + '.chgrp',
+      'element': element
+    })
 
     var permissionsTableHTML = TemplatePermissionsTable({
       'resourceType': resourceType.toLowerCase(),
