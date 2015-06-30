@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation-datatables');
   var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
   var Sunstone = require('sunstone');
@@ -15,20 +15,20 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateDataTableHTML = require('hbs!./tab-datatable/table');
   var TemplateSearchInputHTML = require('hbs!./tab-datatable/search-input');
 
   /*
     CONSTANTS
    */
-  
+
   var SPINNER = '<img src="images/ajax-loader.gif" alt="retrieving" class="loading_img"/>';
 
   /*
     GLOBAL INITIALIZATION
    */
-  
+
   /* Set the defaults for DataTables initialisation */
   $.extend(true, $.fn.dataTable.defaults, {
     dom: "t<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
@@ -102,9 +102,9 @@ define(function(require) {
         that.selectOptions.multiple_choice = false;
       }
     }
-    
+
     that.dataTableHTML = TemplateDataTableHTML({
-                          'dataTableId': this.dataTableId, 
+                          'dataTableId': this.dataTableId,
                           'columns': this.columns,
                           'conf': this.conf,
                           'selectOptions': this.selectOptions});
@@ -148,7 +148,7 @@ define(function(require) {
   function _initialize(opts) {
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
 
-    var that = this; 
+    var that = this;
     $('#' + this.dataTableId + 'Search').keyup(function() {
       that.dataTable.fnFilter($(this).val());
     })
@@ -173,7 +173,7 @@ define(function(require) {
     } else if (this.conf.customTrListener) {
       this.infoListener(this.conf.customTrListener);
     } else {
-      this.infoListener();
+      //this.infoListener();
     }
 
     if (this.conf.select) {
@@ -499,7 +499,7 @@ define(function(require) {
   /*
     SELECT RESOURCE FUNCTION DEFINITIONS
    */
-  
+
   function _initSelectResourceTableSelect() {
     var that = this;
     var section = $('#' + that.dataTableId + 'Container');
