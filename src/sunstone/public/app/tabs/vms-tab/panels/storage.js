@@ -263,7 +263,8 @@ define(function(require) {
         $(this).children("span").addClass('fa-chevron-down');
         $(this).children("span").removeClass('fa-chevron-up');
       } else {
-        var html = '<div class="snapshots" disk_id='+row.data().DISK_ID+' style="padding-left: 30px;">'+
+        var html = '<div class="snapshots" disk_id='+row.data().DISK_ID+
+                   ' style="padding-left: 30px; width:900px; overflow-x:auto">'+
           row.data().SNAPSHOTS+
           '</div>';
 

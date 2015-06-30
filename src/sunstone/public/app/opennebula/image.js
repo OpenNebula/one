@@ -108,6 +108,18 @@ define(function(require) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj);
     },
+    "snapshot_flatten": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "snapshot_flatten", action_obj);
+    },
+    "snapshot_revert": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "snapshot_revert", action_obj);
+    },
+    "snapshot_delete": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "snapshot_delete", action_obj);
+    },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }

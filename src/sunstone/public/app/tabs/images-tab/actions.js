@@ -3,12 +3,15 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var OpenNebulaImage = require('opennebula/image');
+  var CommonActions = require('utils/common-actions');
 
   var RESOURCE = "Image";
   var XML_ROOT = "IMAGE";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+
+  var _commonActions = new CommonActions(OpenNebulaImage, RESOURCE, TAB_ID);
 
   var _actions = {
     "Image.create" : {
@@ -209,7 +212,10 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    }
+    },
+    "Image.snapshot_flatten": _commonActions.singleAction("snapshot_flatten"),
+    "Image.snapshot_revert": _commonActions.singleAction("snapshot_revert"),
+    "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
   };
 
   return _actions;

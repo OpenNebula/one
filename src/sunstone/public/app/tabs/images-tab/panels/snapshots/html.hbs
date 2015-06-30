@@ -1,0 +1,26 @@
+<div class="row collapse">
+  <div class="large-12 columns">
+    <span class="right">
+      {{#isTabActionEnabled "images-tab" "Image.snapshot_flatten"}}
+        <button class="button secondary small radius" id="snapshot_flatten" disabled="disabled">
+          <span class="fa fa-sort-amount-asc"></span>{{tr "Flatten"}}
+        </button>
+      {{/isTabActionEnabled}}
+      {{#isTabActionEnabled "images-tab" "Image.snapshot_revert"}}
+        <button class="button secondary small radius" id="snapshot_revert" disabled="disabled">
+          <span class="fa fa-reply"></span>{{tr "Revert"}}
+        </button>
+      {{/isTabActionEnabled}}
+      {{#isTabActionEnabled "images-tab" "Image.snapshot_delete"}}
+        <button class="button secondary small radius" id="snapshot_delete" disabled="disabled">
+          <span class="fa fa-times"></span>{{tr "Delete"}}
+        </button>
+      {{/isTabActionEnabled}}
+    </span>
+  </div>
+</div>
+<div class="row collapse">
+  <div class="large-12 columns" style="overflow-x:auto">
+    {{{snapshotsHTML}}}
+  </div>
+</div>

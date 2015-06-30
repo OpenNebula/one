@@ -60,6 +60,9 @@ module OpenNebulaJSON
                  when "chtype"        then self.chtype(action_hash['params'])
                  when "clone"         then self.clone(action_hash['params'])
                  when "rename"        then self.rename(action_hash['params'])
+                 when "snapshot_flatten"    then self.snapshot_flatten(action_hash['params'])
+                 when "snapshot_revert"     then self.snapshot_revert(action_hash['params'])
+                 when "snapshot_delete"     then self.snapshot_delete(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -109,6 +112,18 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def snapshot_flatten(params=Hash.new)
+            super(params['snapshot_id'].to_i)
+        end
+
+        def snapshot_revert(params=Hash.new)
+            super(params['snapshot_id'].to_i)
+        end
+
+        def snapshot_delete(params=Hash.new)
+            super(params['snapshot_id'].to_i)
         end
     end
 end

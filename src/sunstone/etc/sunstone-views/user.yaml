@@ -237,6 +237,7 @@ tabs:
         panel_tabs:
             image_info_tab: true
             image_vms_tab: true
+            image_snapshots_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
@@ -263,6 +264,9 @@ tabs:
             Image.nonpersistent: true
             Image.clone_dialog: true
             Image.delete: true
+            Image.snapshot_flatten: true
+            Image.snapshot_revert: true
+            Image.snapshot_delete: true
     files-tab:
         panel_tabs:
             file_info_tab: true
