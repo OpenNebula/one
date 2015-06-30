@@ -69,7 +69,7 @@ define(function(require) {
       params.cache_name = CACHE_NAME;
       OpenNebulaAction.simple_action(params, RESOURCE, "recover", null, PATH);
     },
-    "stateStr" : function(state_int) {
+    "stateStr" : function(stateId) {
       return STATES_STR[stateId];
     },
     "STATES": STATES,
