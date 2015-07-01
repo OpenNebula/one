@@ -1725,7 +1725,7 @@ int DispatchManager::disk_snapshot_revert(
         return -1;
     }
 
-    VirtualMachine::VmState    state  = vm->get_state();
+    VirtualMachine::VmState  state  = vm->get_state();
     VirtualMachine::LcmState lstate = vm->get_lcm_state();
 
     if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
@@ -1829,7 +1829,7 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
-    VirtualMachine::VmState    state  = vm->get_state();
+    VirtualMachine::VmState  state  = vm->get_state();
     VirtualMachine::LcmState lstate = vm->get_lcm_state();
 
     if ((state !=VirtualMachine::POWEROFF || lstate !=VirtualMachine::LCM_INIT)&&
@@ -1900,10 +1900,6 @@ int DispatchManager::disk_snapshot_delete(
 
         default: break;
     }
-
-    vmpool->update(vm);
-
-    vm->unlock();
 
     return 0;
 }

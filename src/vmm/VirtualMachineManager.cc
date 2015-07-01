@@ -2121,7 +2121,8 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
     string  snap_cmd, snap_cmd_rollback;
     string  disk_path;
 
-    string  ds_id, tm_mad, disk_id, snap_id;
+    string  tm_mad;
+    int     ds_id, disk_id, snap_id;
 
     int rc;
 
@@ -2240,7 +2241,8 @@ void VirtualMachineManager::disk_snapshot_revert_action(int vid)
     string  snap_cmd;
     string  disk_path;
 
-    string  ds_id, tm_mad, disk_id, snap_id;
+    string  tm_mad;
+    int     ds_id, disk_id, snap_id;
 
     int rc;
 

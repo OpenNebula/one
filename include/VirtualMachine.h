@@ -1566,8 +1566,8 @@ public:
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
      */
-    int get_snapshot_disk(string& ds_id, string& tm_mad, string& disk_id,
-            string& snap_id);
+    int get_snapshot_disk(int& ds_id, string& tm_mad, int& disk_id,
+            int& snap_id);
     /**
      *  Unset the current disk being snapshotted (reverted...)
      */

@@ -311,7 +311,7 @@ bool Snapshots::test_delete(unsigned int id, string& error) const
 
     if (snapshot == 0)
     {
-        error = "Snapshot does not exists";
+        error = "Snapshot does not exist";
         return false;
     }
 

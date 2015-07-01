@@ -920,31 +920,11 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    /* ---------------------------------------------------------------------- */
-    /*  Check action consistency:                                             */
-    /*    state is READY                                                      */
-    /*    snapshot can be deleted (not active, no childs, exists)             */
-    /* ---------------------------------------------------------------------- */
     Image * img = ipool->get(iid,true);
 
     if ( img == 0 )
     {
         error = "Image does not exist";
-        return -1;
-    }
-
-    if (img->get_state() != Image::READY)
-    {
-        error = "Cannot delete snapshot in state " + Image::state_to_str(img->get_state());
-        img->unlock();
-        return -1;
-    }
-
-    const Snapshots& snaps = img->get_snapshots();
-
-    if (!snaps.test_delete(sid, error))
-    {
-        img->unlock();
         return -1;
     }
 
@@ -969,17 +949,37 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
 
     ds->unlock();
 
+    /* ---------------------------------------------------------------------- */
+    /*  Check action consistency:                                             */
+    /*    state is READY                                                      */
+    /*    snapshot can be deleted (not active, no childs, exists)             */
+    /* ---------------------------------------------------------------------- */
     img = ipool->get(iid,true);
 
-    /* ---------------------------------------------------------------------- */
-    /*  Format message and send action to driver                              */
-    /* ---------------------------------------------------------------------- */
     if ( img == 0 )
     {
         error = "Image does not exist";
         return -1;
     }
 
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot delete snapshot in state " + Image::state_to_str(img->get_state());
+        img->unlock();
+        return -1;
+    }
+
+    const Snapshots& snaps = img->get_snapshots();
+
+    if (!snaps.test_delete(sid, error))
+    {
+        img->unlock();
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
     img->set_target_snapshot(sid);
 
     string img_tmpl;
@@ -1013,14 +1013,42 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
+    Image * img = ipool->get(iid,true);
+
+    if ( img == 0 )
+    {
+        error = "Image does not exist";
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Get DS data for driver                                                */
+    /* ---------------------------------------------------------------------- */
+    int ds_id = img->get_ds_id();
+
+    img->unlock();
+
+    string ds_data;
+
+    Datastore * ds = dspool->get(ds_id, true);
+
+    if ( ds == 0 )
+    {
+       error = "Datastore no longer exists";
+       return -1;
+    }
+
+    ds->to_xml(ds_data);
+
+    ds->unlock();
+
     /* ---------------------------------------------------------------------- */
     /*  Check action consistency:                                             */
     /*    state is READY                                                      */
     /*    snapshot exists                                                     */
     /*    snapshot is not the active one                                      */
     /* ---------------------------------------------------------------------- */
-
-    Image * img = ipool->get(iid,true);
+    img = ipool->get(iid,true);
 
     if ( img == 0 )
     {
@@ -1054,37 +1082,8 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     }
 
     /* ---------------------------------------------------------------------- */
-    /*  Get DS data for driver                                                */
-    /* ---------------------------------------------------------------------- */
-    int ds_id = img->get_ds_id();
-
-    img->unlock();
-
-    string ds_data;
-
-    Datastore * ds = dspool->get(ds_id, true);
-
-    if ( ds == 0 )
-    {
-       error = "Datastore no longer exists";
-       return -1;
-    }
-
-    ds->to_xml(ds_data);
-
-    ds->unlock();
-
-    /* ---------------------------------------------------------------------- */
     /*  Format message and send action to driver                              */
     /* ---------------------------------------------------------------------- */
-    img = ipool->get(iid,true);
-
-    if ( img == 0 )
-    {
-        error = "Image does not exist";
-        return -1;
-    }
-
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
@@ -1118,34 +1117,11 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
         return -1;
     }
 
-    /* ---------------------------------------------------------------------- */
-    /*  Check action consistency:                                             */
-    /*    state is READY                                                      */
-    /*    snapshot exists                                                     */
-    /* ---------------------------------------------------------------------- */
-
     Image * img = ipool->get(iid,true);
 
     if ( img == 0 )
     {
         error = "Image does not exist";
-        return -1;
-    }
-
-    if (img->get_state() != Image::READY)
-    {
-        error = "Cannot flatten snapshot in state " + Image::state_to_str(img->get_state());
-        img->unlock();
-        return -1;
-    }
-
-    const Snapshots& snaps = img->get_snapshots();
-
-    if (!snaps.exists(sid))
-    {
-        error = "Snapshot does not exist";
-
-        img->unlock();
         return -1;
     }
 
@@ -1171,8 +1147,11 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     ds->unlock();
 
     /* ---------------------------------------------------------------------- */
-    /*  Format message and send action to driver                              */
+    /*  Check action consistency:                                             */
+    /*    state is READY                                                      */
+    /*    snapshot exists                                                     */
     /* ---------------------------------------------------------------------- */
+
     img = ipool->get(iid,true);
 
     if ( img == 0 )
@@ -1180,6 +1159,27 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
         error = "Image does not exist";
         return -1;
     }
+
+    if (img->get_state() != Image::READY)
+    {
+        error = "Cannot flatten snapshot in state " + Image::state_to_str(img->get_state());
+        img->unlock();
+        return -1;
+    }
+
+    const Snapshots& snaps = img->get_snapshots();
+
+    if (!snaps.exists(sid))
+    {
+        error = "Snapshot does not exist";
+
+        img->unlock();
+        return -1;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /*  Format message and send action to driver                              */
+    /* ---------------------------------------------------------------------- */
 
     img->set_target_snapshot(sid);
 

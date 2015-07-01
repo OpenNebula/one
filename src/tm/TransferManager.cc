@@ -2075,20 +2075,17 @@ void TransferManager::saveas_hot_action(int vid)
 
     if (vm == 0)
     {
-         vm->log("TM", Log::ERROR, "Could not obtain the VM");
-         goto error_common;
+        return;
     }
 
     if (!vm->hasHistory())
     {
-        vm->log("TM", Log::ERROR, "The VM has no history");
-        goto error_common;
+        goto error_history;
     }
 
     if (vm->get_saveas_disk(disk_id, src, image_id, snap_id, tm_mad, ds_id)!= 0)
     {
-        vm->log("TM", Log::ERROR,"Could not get disk information to export it");
-        goto error_common;
+        goto error_disk;
     }
 
     tm_md = get();
@@ -2124,6 +2121,14 @@ void TransferManager::saveas_hot_action(int vid)
     vm->unlock();
 
     return;
+
+error_history:
+    os << "saveas_hot_transfer, the VM has no history";
+    goto error_common;
+
+error_disk:
+    os << "saveas_hot_transfer, could not get disk information to export it";
+    goto error_common;
 
 error_driver:
     os << "saveas_hot_transfer, error getting TM driver.";
@@ -2169,13 +2174,13 @@ int TransferManager::snapshot_transfer_command(
         VirtualMachine * vm, const char * snap_action, ostream& xfr)
 {
     string tm_mad;
-    string ds_id;
-    string disk_id;
-    string snap_id;
+    int    ds_id;
+    int    disk_id;
+    int    snap_id;
 
     if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
     {
-        vm->log("TM", Log::ERROR, "Could not get disk information to"
+        vm->log("TM", Log::ERROR, "Could not get disk information to "
                 "take snapshot");
         return -1;
     }
@@ -2221,14 +2226,12 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
 
     if (vm == 0)
     {
-         vm->log("TM", Log::ERROR, "Could not obtain the VM");
-         goto error_common;
+        return;
     }
 
     if (!vm->hasHistory())
     {
-        vm->log("TM", Log::ERROR, "The VM has no history");
-        goto error_common;
+        goto error_history;
     }
 
     xfr_name = vm->get_transfer_file() + ".disk_snapshot";
@@ -2256,6 +2259,10 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
 
 error_driver:
     os << "disk_snapshot, error getting TM driver.";
+    goto error_common;
+
+error_history:
+    os << "disk_snapshot, the VM has no history";
     goto error_common;
 
 error_file:

@@ -2377,7 +2377,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
 	if (disk == 0)
 	{
-        failure_response(ACTION, request_error("VM disk does not exists", ""), att);
+        failure_response(ACTION, request_error("VM disk does not exist", ""), att);
 
 		vm->unlock();
 
@@ -2387,6 +2387,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 	string disk_size = disk->vector_value("SIZE");
 	string ds_id     = disk->vector_value("DATASTORE_ID");
 	bool persistent  = VirtualMachine::is_persistent(disk);
+	bool is_volatile = VirtualMachine::is_volatile(disk);
 
     vm->get_permissions(vm_perms);
 
@@ -2394,7 +2395,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-	if (VirtualMachine::is_volatile(disk))
+	if (is_volatile)
 	{
         failure_response(ACTION, request_error("Cannot make snapshots on "
 					"volatile disks",""), att);
@@ -2484,7 +2485,7 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
     }
     else
     {
-        success_response(snap_id, att);
+        success_response(id, att);
     }
 
     return;
@@ -2492,7 +2493,6 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
 
 void VirtualMachineDiskSnapshotDelete::request_execute(
         xmlrpc_c::paramList const&  paramList,
@@ -2523,7 +2523,7 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     }
     else
     {
-        success_response(snap_id, att);
+        success_response(id, att);
     }
 
     return;

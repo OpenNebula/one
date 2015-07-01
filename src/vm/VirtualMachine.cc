@@ -4153,8 +4153,8 @@ void VirtualMachine::clear_snapshot_disk()
 
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
-        string& disk_id, string& snap_id)
+int VirtualMachine::get_snapshot_disk(int& ds_id, string& tm_mad,
+        int& disk_id, int& snap_id)
 {
     vector<Attribute  *> disks;
     VectorAttribute *    disk;
@@ -4175,7 +4175,7 @@ int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
         if ( disk->vector_value("DISK_SNAPSHOT_ACTIVE") == "YES" )
         {
             map<int, Snapshots *>::iterator it;
-            int did;
+            int did, rc;
 
             if (disk->vector_value("DISK_ID", did) == -1)
             {
@@ -4190,11 +4190,11 @@ int VirtualMachine::get_snapshot_disk(string& ds_id, string& tm_mad,
             }
 
             tm_mad  = disk->vector_value("TM_MAD");
-            ds_id   = disk->vector_value("DATASTORE_ID");
-            disk_id = disk->vector_value("DISK_ID");
-            snap_id = disk->vector_value("DISK_SNAPSHOT_ID");
+            rc =  disk->vector_value("DATASTORE_ID", ds_id);
+            rc += disk->vector_value("DISK_ID", disk_id);
+            rc += disk->vector_value("DISK_SNAPSHOT_ID", snap_id);
 
-            if (snap_id.empty()||tm_mad.empty()||ds_id.empty()||disk_id.empty())
+            if (tm_mad.empty() || rc != 0)
             {
                 return -1;
             }
@@ -4221,7 +4221,7 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
 
     if ( disk == 0 )
     {
-        error = "VM disk does not exists";
+        error = "VM disk does not exist";
         return -1;
     }
 
@@ -4280,7 +4280,7 @@ const Snapshots * VirtualMachine::get_disk_snapshots(int did, string& error) con
 
     if ( disk == 0 )
     {
-        error = "VM disk does not exists";
+        error = "VM disk does not exist";
         return 0;
     }
 
@@ -4288,7 +4288,7 @@ const Snapshots * VirtualMachine::get_disk_snapshots(int did, string& error) con
 
     if (it == snapshots.end())
     {
-        error = "Snapshot does not exists";
+        error = "Snapshot does not exist";
         return 0;
     }
 
