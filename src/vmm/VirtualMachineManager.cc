@@ -1652,6 +1652,7 @@ void VirtualMachineManager::attach_action(
     }
 
     // Get the driver for this VM
+
     vmd = get(vm->get_vmm_mad());
 
     if ( vmd == 0 )
@@ -1665,6 +1666,8 @@ void VirtualMachineManager::attach_action(
     {
         goto error_disk;
     }
+
+    vm_tm_mad = vm->get_tm_mad();
 
     opennebula_hostname = nd.get_nebula_hostname();
 
