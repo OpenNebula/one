@@ -85,8 +85,8 @@ void Snapshots::init()
 {
     vector<Attribute *> vsnap;
 
-    unsigned int id;
-    bool         current;
+    int  id;
+    bool current;
 
     int num_snap = snapshot_template.get("SNAPSHOT", vsnap);
 
@@ -108,7 +108,7 @@ void Snapshots::init()
             next_snapshot = id + 1;
         }
 
-        snapshot_pool.insert(pair<unsigned int, VectorAttribute *>(id, snap));
+        snapshot_pool.insert(pair<int, VectorAttribute *>(id, snap));
     }
 
     int did;
@@ -165,7 +165,7 @@ int Snapshots::create_snapshot(const string& tag, unsigned int size_mb)
     snapshot_template.set(snapshot);
 
     snapshot_pool.insert(
-            pair<unsigned int, VectorAttribute *>(next_snapshot, snapshot));
+            pair<int, VectorAttribute *>(next_snapshot, snapshot));
 
     return next_snapshot++;
 };
@@ -173,7 +173,7 @@ int Snapshots::create_snapshot(const string& tag, unsigned int size_mb)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Snapshots::delete_snapshot(unsigned int id)
+void Snapshots::delete_snapshot(int id)
 {
     int parent_id;
 
@@ -223,7 +223,7 @@ void Snapshots::delete_snapshot(unsigned int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::active_snapshot(unsigned int id)
+int Snapshots::active_snapshot(int id)
 {
     if (static_cast<int>(id) == active)
     {
@@ -254,9 +254,9 @@ int Snapshots::active_snapshot(unsigned int id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const VectorAttribute * Snapshots::get_snapshot(unsigned int id) const
+const VectorAttribute * Snapshots::get_snapshot(int id) const
 {
-    map<unsigned int, VectorAttribute *>::const_iterator it;
+    map<int, VectorAttribute *>::const_iterator it;
 
     it = snapshot_pool.find(id);
 
@@ -271,7 +271,7 @@ const VectorAttribute * Snapshots::get_snapshot(unsigned int id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string Snapshots::get_snapshot_attribute(unsigned int id, const char * name) const
+string Snapshots::get_snapshot_attribute(int id, const char * name) const
 {
     const VectorAttribute * snapshot = get_snapshot(id);
 
@@ -285,7 +285,7 @@ string Snapshots::get_snapshot_attribute(unsigned int id, const char * name) con
 
 /* -------------------------------------------------------------------------- */
 
-unsigned int Snapshots::get_snapshot_size(unsigned int id) const
+unsigned int Snapshots::get_snapshot_size(int id) const
 {
 	unsigned int snap_size = 0;
 
@@ -302,7 +302,7 @@ unsigned int Snapshots::get_snapshot_size(unsigned int id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Snapshots::test_delete(unsigned int id, string& error) const
+bool Snapshots::test_delete(int id, string& error) const
 {
     bool   current;
     string children;
@@ -340,7 +340,7 @@ bool Snapshots::test_delete(unsigned int id, string& error) const
 
 unsigned int Snapshots::get_total_size() const
 {
-    map<unsigned int, VectorAttribute *>::const_iterator it;
+    map<int, VectorAttribute *>::const_iterator it;
     unsigned int size_mb, total_mb = 0;
 
     for ( it = snapshot_pool.begin(); it !=  snapshot_pool.end(); it++)

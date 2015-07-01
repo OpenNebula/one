@@ -87,19 +87,19 @@ public:
      *    @param error if any
      *    @return true if can be deleted, false otherwise
      */
-    bool test_delete(unsigned int id, string& error) const;
+    bool test_delete(int id, string& error) const;
 
     /**
      *  Removes the snapshot from the list
      *    @param id of the snapshot
      */
-    void delete_snapshot(unsigned int id);
+    void delete_snapshot(int id);
 
     /**
      *  Set the given snapshot as active. Updates the values of the current
      *  snapshot
      */
-    int active_snapshot(unsigned int id);
+    int active_snapshot(int id);
 
     /**
      *  Clear all the snapshots in the list
@@ -179,7 +179,7 @@ public:
      *    @param id of the snapshot
      *    @return size or 0 if not found
      */
-	unsigned int get_snapshot_size(unsigned int id) const;
+	unsigned int get_snapshot_size(int id) const;
 
     /**
      *  Get Attribute from the given snapshot
@@ -188,7 +188,7 @@ public:
      *
      *    @return value or empty if not found
      */
-    string get_snapshot_attribute(unsigned int id, const char* name) const;
+    string get_snapshot_attribute(int id, const char* name) const;
 
 private:
 
@@ -197,9 +197,9 @@ private:
      *  @param id of the snapshot
      *  @return pointer to the snapshot (VectorAttribute) or null
      */
-    const VectorAttribute * get_snapshot(unsigned int id) const;
+    const VectorAttribute * get_snapshot(int id) const;
 
-    VectorAttribute * get_snapshot(unsigned int id)
+    VectorAttribute * get_snapshot(int id)
     {
         return const_cast<VectorAttribute *>(
                 static_cast<const Snapshots&>(*this).get_snapshot(id));
@@ -220,7 +220,7 @@ private:
     /**
      *  Next id
      */
-    unsigned int next_snapshot;
+    int next_snapshot;
 
     /**
      * Id of the active (current) snapshot, 0 represents the base image
@@ -230,12 +230,12 @@ private:
     /**
      * Id of the disk associated with this snapshot list
      */
-    unsigned int disk_id;
+    int disk_id;
 
     /**
      * Snapshot pointer map
      */
-    map<unsigned int, VectorAttribute *> snapshot_pool;
+    map<int, VectorAttribute *> snapshot_pool;
 };
 
 #endif /*SNAPSHOTS_H_*/
