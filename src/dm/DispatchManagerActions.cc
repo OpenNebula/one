@@ -1672,10 +1672,10 @@ int DispatchManager::disk_snapshot_create(
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_SUSPENDED);
             break;
 
-        //case VirtualMachine::ACTIVE:
-          //  vm->set_state(VirtualMachine::ACTIVE);
-          //  vm->set_state(VirtualMachine::DISK_SNAPSHOT);
-          //  break;
+        case VirtualMachine::ACTIVE:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT);
+            break;
 
         default: break;
     }
@@ -1691,9 +1691,9 @@ int DispatchManager::disk_snapshot_create(
             tm->trigger(TransferManager::SNAPSHOT_CREATE,vid);
             break;
 
-        //case VirtualMachine::ACTIVE:
-          //  vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
-          //  break;
+        case VirtualMachine::ACTIVE:
+            vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
+            break;
 
         default: break;
     }
@@ -1776,10 +1776,10 @@ int DispatchManager::disk_snapshot_revert(
             vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED);
             break;
 
-        //case VirtualMachine::ACTIVE:
-          //  vm->set_state(VirtualMachine::ACTIVE);
-          //  vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT);
-          //  break;
+        case VirtualMachine::ACTIVE:
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::DISK_SNAPSHOT_REVERT);
+            break;
 
         default: break;
     }
@@ -1795,9 +1795,9 @@ int DispatchManager::disk_snapshot_revert(
             tm->trigger(TransferManager::SNAPSHOT_REVERT, vid);
             break;
 
-        //case VirtualMachine::ACTIVE:
-          //  vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_REVERT, vid);
-          //  break;
+        case VirtualMachine::ACTIVE:
+            vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_REVERT, vid);
+            break;
 
         default: break;
     }

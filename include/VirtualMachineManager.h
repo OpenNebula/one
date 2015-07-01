@@ -67,7 +67,9 @@ public:
         DETACH_NIC,
         SNAPSHOT_CREATE,
         SNAPSHOT_REVERT,
-        SNAPSHOT_DELETE
+        SNAPSHOT_DELETE,
+        DISK_SNAPSHOT_CREATE,
+        DISK_SNAPSHOT_REVERT
     };
 
     /**
@@ -384,6 +386,20 @@ private:
      * @param vid the id of the VM.
      */
     void snapshot_delete_action(int vid);
+
+    /**
+     * Creates a new disk system snapshot.
+     *
+     * @param vid the id of the VM.
+     */
+    void disk_snapshot_create_action(int vid);
+
+    /**
+     * Reverts to a disk snapshot.
+     *
+     * @param vid the id of the VM.
+     */
+    void disk_snapshot_revert_action(int vid);
 
     /**
      *  This function cancels the current driver operation

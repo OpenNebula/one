@@ -28,3 +28,12 @@ DETACH_PARAMS="--domain $DOMAIN --target $TARGET"
 
 exec_and_log "virsh --connect $LIBVIRT_URI detach-disk $DETACH_PARAMS" \
     "Could not detach $TARGET from $DOMAIN"
+
+virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | grep $TARGET > /dev/null 2>&1
+
+if [ $? -eq 0 ] ; then
+    error_message "Could not detach $TARGET from $DOMAIN"
+    exit -1
+fi
+
+exit 0

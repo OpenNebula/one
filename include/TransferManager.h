@@ -146,7 +146,7 @@ public:
         ostream&                xfr);
 
     /**
-     *  This function generates the the epilog_delete sequence for current,
+     *  This function generates the epilog_delete sequence for current,
      *  front-end and previous hosts.
      *    @param vm pointer to VM, locked
      *    @param xfr stream to write the commands
@@ -159,6 +159,17 @@ public:
                                ostream&        xfr,
                                bool            local,
                                bool            previous);
+    /**
+     *  This function generates the TM command for the given snapshot action
+     *    @param vm pointer to VM, locked
+     *    @param snap_action: "SNAP_CREATE, SNAP_DELETE, SNAP_REVERT"
+     *    @param xfr stream to write the commands
+     *
+     *    @return 0 on success
+     */
+    int snapshot_transfer_command(VirtualMachine * vm,
+                                  const char * snap_action,
+                                  ostream& xfr);
 private:
     /**
      *  Thread id for the Transfer Manager

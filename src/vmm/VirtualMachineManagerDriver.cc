@@ -520,6 +520,44 @@ void VirtualMachineManagerDriver::protocol(const string& message) const
             lcm->trigger(LifeCycleManager::SNAPSHOT_DELETE_FAILURE, id);
         }
     }
+    else if ( action == "DISKSNAPSHOTCREATE" )
+    {
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::INFO, "VM disk snapshot successfully created.");
+
+            lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error creating new disk snapshot");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, id);
+        }
+    }
+    else if ( action == "DISKSNAPSHOTREVERT" )
+    {
+        Nebula           &ne  = Nebula::instance();
+        LifeCycleManager *lcm = ne.get_lcm();
+
+        if ( result == "SUCCESS" )
+        {
+            vm->log("VMM", Log::INFO, "VM disk state reverted.");
+
+            lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_SUCCESS, id);
+        }
+        else
+        {
+            log_error(vm, os, is, "Error reverting disk snapshot");
+            vmpool->update(vm);
+
+            lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, id);
+        }
+    }
     else if ( action == "CLEANUP" )
     {
         Nebula           &ne  = Nebula::instance();

@@ -2165,28 +2165,58 @@ void TransferManager::migrate_transfer_command(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void TransferManager::do_snapshot_action(int vid, const char * snap_action)
+int TransferManager::snapshot_transfer_command(
+        VirtualMachine * vm, const char * snap_action, ostream& xfr)
 {
     string tm_mad;
     string ds_id;
     string disk_id;
-    string parent_id;
     string snap_id;
 
+    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
+    {
+        vm->log("TM", Log::ERROR, "Could not get disk information to"
+                "take snapshot");
+        return -1;
+    }
+
+    //SNAP_CREATE tm_mad host:remote_system_dir/disk.0 snapid vmid dsid
+    xfr << snap_action << " "
+        << tm_mad << " "
+        << vm->get_hostname() << ":"
+        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
+        << snap_id << " "
+        << vm->get_oid() << " "
+        << ds_id
+        << endl;
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void TransferManager::do_snapshot_action(int vid, const char * snap_action)
+{
     ostringstream os;
 
     ofstream xfr;
     string   xfr_name;
 
     VirtualMachine * vm;
+    int rc;
 
     const TransferManagerDriver * tm_md;
 
     Nebula& nd = Nebula::instance();
 
-    // ------------------------------------------------------------------------
-    // Setup & Transfer script
-    // ------------------------------------------------------------------------
+    tm_md = get();
+
+    if (tm_md == 0)
+    {
+        goto error_driver;
+    }
+
     vm = vmpool->get(vid,true);
 
     if (vm == 0)
@@ -2201,20 +2231,6 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
         goto error_common;
     }
 
-    if (vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) == -1)
-    {
-        vm->log("TM", Log::ERROR, "Could not get disk information to"
-                "take snapshot");
-        goto error_common;
-    }
-
-    tm_md = get();
-
-    if (tm_md == 0)
-    {
-        goto error_driver;
-    }
-
     xfr_name = vm->get_transfer_file() + ".disk_snapshot";
     xfr.open(xfr_name.c_str(),ios::out | ios::trunc);
 
@@ -2223,17 +2239,14 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
         goto error_file;
     }
 
-    //SNAP_CREATE tm_mad host:remote_system_dir/disk.0 snapid vmid dsid
-    xfr << snap_action << " "
-        << tm_mad << " "
-        << vm->get_hostname() << ":"
-        << vm->get_remote_system_dir() << "/disk." << disk_id << " "
-        << snap_id << " "
-        << vm->get_oid() << " "
-        << ds_id
-        << endl;
+    rc = snapshot_transfer_command(vm, snap_action, xfr);
 
     xfr.close();
+
+    if ( rc == -1 )
+    {
+        goto error_common;
+    }
 
     tm_md->transfer(vid, xfr_name);
 
@@ -2242,17 +2255,17 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
     return;
 
 error_driver:
-    os << "saveas_hot_transfer, error getting TM driver.";
+    os << "disk_snapshot, error getting TM driver.";
     goto error_common;
 
 error_file:
-    os << "disk_snapshot_create, could not open file: " << xfr_name;
+    os << "disk_snapshot, could not open file: " << xfr_name;
     goto error_common;
 
 error_common:
     vm->log("TM", Log::ERROR, os);
 
-   (nd.get_lcm())->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
+    (nd.get_lcm())->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
 
     vm->unlock();
     return;

@@ -361,6 +361,32 @@ private:
     }
 
     /**
+     *  Sends a disk snapshot create request to the MAD:
+     *  "DISKSNAPSHOTCREATE ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void disk_snapshot_create (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("DISKSNAPSHOTCREATE", oid, drv_msg);
+    }
+
+    /**
+     *  Sends a disk snapshot revert request to the MAD:
+     *  "DISKSNAPSHOTREVERT ID XML_DRV_MSG"
+     *    @param oid the virtual machine id.
+     *    @param drv_msg xml data for the mad operation
+     */
+    void disk_snapshot_revert (
+        const int     oid,
+        const string& drv_msg) const
+    {
+        write_drv("DISKSNAPSHOTREVERT", oid, drv_msg);
+    }
+
+    /**
      *
      */
     void write_drv(const char * aname, const int oid, const string& msg) const

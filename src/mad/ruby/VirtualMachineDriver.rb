@@ -47,7 +47,9 @@ class VirtualMachineDriver < OpenNebulaDriver
         :snapshot_delete => "SNAPSHOTDELETE",
         :cleanup         => "CLEANUP",
         :attach_nic  => "ATTACHNIC",
-        :detach_nic  => "DETACHNIC"
+        :detach_nic  => "DETACHNIC",
+        :disk_snapshot_create => "DISKSNAPSHOTCREATE",
+        :disk_snapshot_revert => "DISKSNAPSHOTREVERT"
     }
 
     POLL_ATTRIBUTE = {
@@ -87,26 +89,25 @@ class VirtualMachineDriver < OpenNebulaDriver
 
         @hosts   = Array.new
 
-        register_action(ACTION[:deploy].to_sym,          method("deploy"))
-        register_action(ACTION[:shutdown].to_sym,        method("shutdown"))
-        register_action(ACTION[:reboot].to_sym,          method("reboot"))
-        register_action(ACTION[:reset].to_sym,           method("reset"))
-        register_action(ACTION[:cancel].to_sym,          method("cancel"))
-        register_action(ACTION[:save].to_sym,            method("save"))
-        register_action(ACTION[:restore].to_sym,         method("restore"))
-        register_action(ACTION[:migrate].to_sym,         method("migrate"))
-        register_action(ACTION[:poll].to_sym,            method("poll"))
-        register_action(ACTION[:attach_disk].to_sym,     method("attach_disk"))
-        register_action(ACTION[:detach_disk].to_sym,     method("detach_disk"))
-        register_action(ACTION[:snapshot_create].to_sym,
-                        method("snapshot_create"))
-        register_action(ACTION[:snapshot_revert].to_sym,
-                        method("snapshot_revert"))
-        register_action(ACTION[:snapshot_delete].to_sym,
-                        method("snapshot_delete"))
-        register_action(ACTION[:cleanup].to_sym,         method("cleanup"))
-        register_action(ACTION[:attach_nic].to_sym,  method("attach_nic"))
-        register_action(ACTION[:detach_nic].to_sym,  method("detach_nic"))
+        register_action(ACTION[:deploy].to_sym,      method("deploy"))
+        register_action(ACTION[:shutdown].to_sym,    method("shutdown"))
+        register_action(ACTION[:reboot].to_sym,      method("reboot"))
+        register_action(ACTION[:reset].to_sym,       method("reset"))
+        register_action(ACTION[:cancel].to_sym,      method("cancel"))
+        register_action(ACTION[:save].to_sym,        method("save"))
+        register_action(ACTION[:restore].to_sym,     method("restore"))
+        register_action(ACTION[:migrate].to_sym,     method("migrate"))
+        register_action(ACTION[:poll].to_sym,        method("poll"))
+        register_action(ACTION[:attach_disk].to_sym, method("attach_disk"))
+        register_action(ACTION[:detach_disk].to_sym, method("detach_disk"))
+        register_action(ACTION[:snapshot_create].to_sym, method("snapshot_create"))
+        register_action(ACTION[:snapshot_revert].to_sym, method("snapshot_revert"))
+        register_action(ACTION[:snapshot_delete].to_sym, method("snapshot_delete"))
+        register_action(ACTION[:cleanup].to_sym,    method("cleanup"))
+        register_action(ACTION[:attach_nic].to_sym, method("attach_nic"))
+        register_action(ACTION[:detach_nic].to_sym, method("detach_nic"))
+        register_action(ACTION[:disk_snapshot_create].to_sym, method("disk_snapshot_create"))
+        register_action(ACTION[:disk_snapshot_revert].to_sym, method("disk_snapshot_revert"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -209,6 +210,16 @@ class VirtualMachineDriver < OpenNebulaDriver
     def snapshot_delete(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:snapshot_delete],RESULT[:failure],id,error)
+    end
+
+    def disk_snapshot_create(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:disk_snapshot_create],RESULT[:failure],id,error)
+    end
+
+    def disk_snapshot_revert(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:disk_snapshot_revert],RESULT[:failure],id,error)
     end
 
     def cleanup(id, drv_message)

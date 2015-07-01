@@ -587,8 +587,6 @@ class ExecDriver < VirtualMachineDriver
 
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
-
-
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
         # Bug #1355, argument character limitation in ESX
@@ -885,6 +883,91 @@ class ExecDriver < VirtualMachineDriver
                 :driver       => :vnm,
                 :action       => :clean
             }
+        ]
+
+        action.run(steps)
+    end
+
+    #
+    # DISKSNAPSHOTCREATE action, takes a snapshot of a disk
+    #
+    def disk_snapshot_create(id, drv_message)
+        action   = ACTION[:disk_snapshot_create]
+        xml_data = decode(drv_message)
+
+        tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
+        tm_rollback= xml_data.elements['TM_COMMAND_ROLLBACK'].text.strip
+
+        target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
+        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
+
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
+
+        disk   = xml_data.elements[target_xpath]
+        attach = REXML::Element.new('ATTACH')
+        attach.add_text('YES')
+        disk.add(attach) 
+
+        drv_message = Base64.encode64(xml_data.to_s)
+
+        action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
+
+        steps = [
+            # First detach the disk from the VM
+            #{
+            #    :driver       => :vmm,
+            #    :action       => :detach_disk,
+            #    :parameters   => [
+            #            :deploy_id,
+            #            :disk_target_path,
+            #            target,
+            #            target_index
+            #   ]
+            #},
+            # Save the Virtual Machine state
+            {
+                :driver     => :vmm,
+                :action     => :save,
+                :parameters => [:deploy_id, :checkpoint_file, :host]
+            },
+            # Do the snapshot
+            {
+                :driver     => :tm,
+                :action     => :tm_snap_create,
+                :parameters => tm_command.split
+            },
+            # Restore the Virtual Machine from checkpoint
+            {
+                :driver     => :vmm,
+                :action     => :restore,
+                :parameters => [:checkpoint_file, :host, :deploy_id],
+                :fail_actions => [
+                    {
+                        :driver     => :tm,
+                        :action     => :tm_snap_delete,
+                        :parameters => tm_rollback.split
+                    }
+                ]
+            },
+            # Attach the disk again
+            #{
+            #    :driver       => :vmm,
+            #    :action       => :attach_disk,
+            #    :parameters   => [
+            #            :deploy_id,
+            #            :disk_target_path,
+            #            target,
+            #            target_index,
+            #            drv_message
+            #    ],
+            #    :fail_actions => [
+            #        {
+            #            :driver     => :tm,
+            #            :action     => :tm_snap_delete,
+            #            :parameters => tm_rollback.split
+            #        }
+            #    ]
+            #}
         ]
 
         action.run(steps)

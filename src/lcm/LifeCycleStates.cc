@@ -1751,6 +1751,9 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     switch (state)
     {
+        case VirtualMachine::DISK_SNAPSHOT:
+        case VirtualMachine::DISK_SNAPSHOT_REVERT:
+            vm->set_state(VirtualMachine::RUNNING);
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
@@ -1843,12 +1846,15 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     switch (state)
     {
+        case VirtualMachine::DISK_SNAPSHOT:
+            vm->set_state(VirtualMachine::RUNNING);
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
             vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
             vm->delete_disk_snapshot(idisk_id, isnap_id, qt, &quotas);
             break;
 
+        case VirtualMachine::DISK_SNAPSHOT_REVERT:
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
             vm->set_state(VirtualMachine::RUNNING);
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
