@@ -2152,7 +2152,6 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
         goto error_disk;
     }
 
-
     rc = tm->snapshot_transfer_command( vm, "SNAP_CREATE", os);
 
     snap_cmd = os.str();
@@ -2174,7 +2173,6 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
 
     disk_path = os.str();
 
-
     // Invoke driver method
     drv_msg = format_message(
         vm->get_hostname(),
@@ -2192,9 +2190,9 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
 
     vmd->disk_snapshot_create(vid, *drv_msg);
 
-    delete drv_msg;
-
     vm->unlock();
+
+    delete drv_msg;
 
     return;
 
@@ -2230,6 +2228,112 @@ error_common:
 
 void VirtualMachineManager::disk_snapshot_revert_action(int vid)
 {
+    VirtualMachine *                    vm;
+    const VirtualMachineManagerDriver * vmd;
+
+    ostringstream os;
+
+    string  vm_tmpl;
+    string* drv_msg;
+
+    string  vm_tm_mad;
+    string  snap_cmd;
+    string  disk_path;
+
+    string  ds_id, tm_mad, disk_id, snap_id;
+
+    int rc;
+
+    Nebula& nd           = Nebula::instance();
+    TransferManager * tm = nd.get_tm();
+
+    vm = vmpool->get(vid,true);
+
+    if (vm == 0)
+    {
+        return;
+    }
+
+    if (!vm->hasHistory())
+    {
+        goto error_history;
+    }
+
+    vmd = get(vm->get_vmm_mad());
+
+    if ( vmd == 0 )
+    {
+        goto error_driver;
+    }
+
+    if ( vm->get_snapshot_disk(ds_id, tm_mad, disk_id, snap_id) != 0 )
+    {
+        goto error_disk;
+    }
+
+    rc = tm->snapshot_transfer_command(vm, "SNAP_REVERT", os);
+
+    snap_cmd = os.str();
+
+    os.str("");
+
+    if ( snap_cmd.empty() || rc != 0 )
+    {
+        goto error_no_tm_command;
+    }
+
+    os << vm->get_remote_system_dir() << "/disk." << disk_id;
+
+    disk_path = os.str();
+
+    // Invoke driver method
+    drv_msg = format_message(
+        vm->get_hostname(),
+        vm->get_vnm_mad(),
+        "",
+        "",
+        vm->get_deploy_id(),
+        "",
+        "",
+        vm->get_checkpoint_file(),
+        snap_cmd,
+        "",
+        disk_path,
+        vm->to_xml(vm_tmpl));
+
+    vmd->disk_snapshot_revert(vid, *drv_msg);
+
+    vm->unlock();
+
+    delete drv_msg;
+
+    return;
+
+error_disk:
+    os << "disk_snapshot_revert, could not find disk to revert snapshot";
+    goto error_common;
+
+error_history:
+    os << "disk_snapshot_revert, VM has no history";
+    goto error_common;
+
+error_driver:
+    os << "disk_snapshot_revert, error getting driver " << vm->get_vmm_mad();
+    goto error_common;
+
+error_no_tm_command:
+    os << "Cannot set disk for snapshot.";
+    goto error_common;
+
+error_common:
+    Nebula              &ne = Nebula::instance();
+    LifeCycleManager *  lcm = ne.get_lcm();
+
+    lcm->trigger(LifeCycleManager::DISK_SNAPSHOT_FAILURE, vid);
+
+    vm->log("VMM", Log::ERROR, os);
+    vm->unlock();
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
