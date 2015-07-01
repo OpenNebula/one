@@ -2600,7 +2600,7 @@ void VirtualMachine::release_disk_images()
 
             if (it != snapshots.end())
             {
-                imagem->set_image_snapshots(iid, *(it->second), img_error);
+                imagem->set_image_snapshots(iid, *(it->second));
             }
 
             imagem->release_image(oid, iid, img_error);

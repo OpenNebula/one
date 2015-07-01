@@ -869,7 +869,7 @@ string * ImageManager::format_message(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::set_image_snapshots(int iid, const Snapshots& s, bool failed)
+void ImageManager::set_image_snapshots(int iid, const Snapshots& s)
 {
     Image * img = ipool->get(iid,true);
 

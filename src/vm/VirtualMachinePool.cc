@@ -1099,7 +1099,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 
             if (snap != 0)
             {
-                imagem->set_image_snapshots(image_id, *snap, false);
+                imagem->set_image_snapshots(image_id, *snap);
                 delete snap;
             }
 

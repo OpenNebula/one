@@ -195,9 +195,8 @@ public:
      *  and of type OS or DATABLOCK.
      *    @param iid id of image
      *    @param s snapshot list
-     *    @param failed the associated VM releasing the images is FAILED
      */
-     void set_image_snapshots(int iid, const Snapshots& s, bool failed);
+     void set_image_snapshots(int iid, const Snapshots& s);
 
      /**
       *  Deletes the snapshot of an image
