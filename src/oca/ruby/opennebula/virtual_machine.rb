@@ -472,7 +472,6 @@ module OpenNebula
         end
 
         # Set the specified vm's disk to be saved as a new image
-        # when the VirtualMachine shutdowns
         #
         # @param disk_id [Integer] ID of the disk to be saved
         # @param image_name [String] Name for the new image where the

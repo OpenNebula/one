@@ -33,7 +33,6 @@ public class VirtualMachine extends PoolElement{
     private static final String DEPLOY   = METHOD_PREFIX + "deploy";
     private static final String ACTION   = METHOD_PREFIX + "action";
     private static final String MIGRATE  = METHOD_PREFIX + "migrate";
-    private static final String SAVEDISK = METHOD_PREFIX + "savedisk";
     private static final String CHOWN    = METHOD_PREFIX + "chown";
     private static final String CHMOD    = METHOD_PREFIX + "chmod";
     private static final String MONITORING = METHOD_PREFIX + "monitoring";
@@ -48,6 +47,10 @@ public class VirtualMachine extends PoolElement{
     private static final String SNAPSHOTREVERT = METHOD_PREFIX + "snapshotrevert";
     private static final String SNAPSHOTDELETE = METHOD_PREFIX + "snapshotdelete";
     private static final String RECOVER = METHOD_PREFIX + "recover";
+    private static final String DISKSAVEAS          = METHOD_PREFIX + "disksaveas";
+    private static final String DISKSNAPSHOTCREATE  = METHOD_PREFIX + "disksnapshotcreate";
+    private static final String DISKSNAPSHOTREVERT  = METHOD_PREFIX + "disksnapshotrevert";
+    private static final String DISKSNAPSHOTDELETE  = METHOD_PREFIX + "disksnapshotdelete";
 
     private static final String[] VM_STATES =
     {
@@ -411,7 +414,7 @@ public class VirtualMachine extends PoolElement{
 
 
     /**
-     * Sets the specified vm's disk to be saved in a new image.
+     * Sets the specified vm's disk to be saved as a new image.
      *
      * @param client XML-RPC Client.
      * @param id The virtual machine id (vid) of the target instance.
@@ -419,14 +422,14 @@ public class VirtualMachine extends PoolElement{
      * @param imageName Name of the new Image that will be created.
      * @param imageType Type of the new image. Set to empty string to use
      * the default type
-     * @param hot True to save the disk immediately, false will perform
-     * the operation when the VM shuts down
+     * @param snapId ID of the snapshot to save, -1 to use the
+     * current disk image state
      * @return If an error occurs the error message contains the reason.
      */
-    public static OneResponse diskSnapshot(Client client, int id,
-        int diskId, String imageName, String imageType, boolean hot)
+    public static OneResponse diskSaveas(Client client, int id,
+        int diskId, String imageName, String imageType, int snapId)
     {
-        return client.call(SAVEDISK, id ,diskId, imageName, imageType, hot);
+        return client.call(DISKSAVEAS, id ,diskId, imageName, imageType, snapId);
     }
 
     /**
@@ -507,6 +510,51 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse snapshotDelete(Client client, int id, int snapId)
     {
         return client.call(SNAPSHOTDELETE, id, snapId);
+    }
+
+    /**
+     * Takes a new snapshot of a disk
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param tag description for the snapshot
+     * @return New snapshot Id, or the error message
+     */
+    public static OneResponse diskSnapshotCreate(Client client, int id,
+        int diskId, String tag)
+    {
+        return client.call(DISKSNAPSHOTCREATE, id, diskId, tag);
+    }
+
+    /**
+     * Reverts disk state to a previously taken snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse diskSnapshotRevert(Client client, int id,
+        int diskId, int snapId)
+    {
+        return client.call(DISKSNAPSHOTREVERT, id, diskId, snapId);
+    }
+
+    /**
+     * Deletes a disk snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse diskSnapshotDelete(Client client, int id,
+        int diskId, int snapId)
+    {
+        return client.call(DISKSNAPSHOTDELETE, id, diskId, snapId);
     }
 
     /**
@@ -757,33 +805,32 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Sets the specified vm's disk to be saved in a new image.
+     * Sets the specified vm's disk to be saved as a new image.
      *
      * @param diskId ID of the disk to be saved.
      * @param imageName Name of the new Image that will be created.
      * @param imageType Type of the new image. Set to empty string to use
      * the default type
-     * @param hot True to save the disk immediately, false will perform
-     * the operation when the VM shuts down
+     * @param snapId ID of the snapshot to save, -1 to use the
+     * current disk image state
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse diskSnapshot(int diskId, String imageName,
-        String imageType, boolean hot)
+    public OneResponse diskSaveas(int diskId, String imageName,
+        String imageType, int snapId)
     {
-        return diskSnapshot(client, id, diskId, imageName, imageType, hot);
+        return diskSaveas(client, id, diskId, imageName, imageType, snapId);
     }
 
     /**
-     * Sets the specified vm's disk to be saved in a new image when the
-     * VirtualMachine shuts down.
+     * Sets the specified vm's disk to be saved as a new image.
      *
      * @param diskId ID of the disk to be saved.
      * @param imageName Name of the new Image that will be created.
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse diskSnapshot(int diskId, String imageName)
+    public OneResponse diskSaveas(int diskId, String imageName)
     {
-        return diskSnapshot(diskId, imageName, "", false);
+        return diskSaveas(diskId, imageName, "", -1);
     }
 
     /**
@@ -791,13 +838,13 @@ public class VirtualMachine extends PoolElement{
      *
      * @param diskId ID of the disk to be saved.
      * @param imageName Name of the new Image that will be created.
-     * @param hot True to save the disk immediately, false will perform
-     * the operation when the VM shuts down
+     * @param snapId ID of the snapshot to save, -1 to use the
+     * current disk image state
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse diskSnapshot(int diskId, String imageName, boolean hot)
+    public OneResponse diskSaveas(int diskId, String imageName, int snapId)
     {
-        return diskSnapshot(diskId, imageName, "", hot);
+        return diskSaveas(diskId, imageName, "", snapId);
     }
 
     /**
@@ -906,14 +953,51 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
-     * Recovers a stuck VM.
+     * Takes a new snapshot of a disk
      *
-     * @param success recover by succeeding the missing transaction if true.
+     * @param diskId Id of the disk
+     * @param tag description for the snapshot
+     * @return New snapshot Id, or the error message
+     */
+    public OneResponse diskSnapshotCreate(int diskId, String tag)
+    {
+        return diskSnapshotCreate(client, id, diskId, tag);
+    }
+
+    /**
+     * Reverts disk state to a previously taken snapshot
+     *
+     * @param diskId Id of the disk
+     * @param snapId Id of the snapshot
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse recover(int success)
+    public OneResponse diskSnapshotRevert(int diskId, int snapId)
     {
-        return recover(client, id, success);
+        return diskSnapshotRevert(client, id, diskId, snapId);
+    }
+
+    /**
+     * Deletes a disk snapshot
+     *
+     * @param diskId Id of the disk
+     * @param snapId Id of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse diskSnapshotDelete(int diskId, int snapId)
+    {
+        return diskSnapshotDelete(client, id, diskId, snapId);
+    }
+
+    /**
+     * Recovers a stuck VM.
+     *
+     * @param operation to recover the VM: (0) failure, (1) success or (2)
+     * retry
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse recover(int operation)
+    {
+        return recover(client, id, operation);
     }
 
     // =================================
@@ -1174,22 +1258,6 @@ public class VirtualMachine extends PoolElement{
             int diskId)
     {
         return diskDetach(client, id, diskId);
-    }
-
-    /**
-     * @deprecated  Replaced by {@link #diskSnapshot(int,String)}
-     */
-    @Deprecated public OneResponse savedisk(int diskId, String imageName)
-    {
-        return diskSnapshot(diskId, imageName);
-    }
-
-    /**
-     * @deprecated  Replaced by {@link #diskSnapshot(int,String,String,boolean)}
-     */
-    public OneResponse savedisk(int diskId, String imageName, String imageType)
-    {
-        return diskSnapshot(diskId, imageName, imageType, false);
     }
 
     /**
