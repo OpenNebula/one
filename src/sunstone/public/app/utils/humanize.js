@@ -20,7 +20,7 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   /*
     Returns a human readable size in Kilo, Mega, Giga or Tera bytes
     if no from_bytes, assumes value comes in Ks
@@ -175,7 +175,7 @@ define(function(require) {
              font-weight:' + weight + ';\
              border-bottom:' + border_bottom + ';\
              padding-top:' + padding_top_bottom + 'px;\
-             padding-bottom:' + padding_top_bottom + 'px;">' + 
+             padding-bottom:' + padding_top_bottom + 'px;">' +
           field +
         '</td>\
         <td class="value_td" style=\

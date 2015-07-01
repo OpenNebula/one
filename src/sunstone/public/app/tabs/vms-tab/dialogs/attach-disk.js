@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./attach-disk/html');
   var Sunstone = require('sunstone');
@@ -14,7 +14,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./attach-disk/dialogId');
   var TAB_ID = require('../tabId')
 
@@ -39,7 +39,7 @@ define(function(require) {
   Dialog.prototype.setElement = _setElement;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -73,8 +73,8 @@ define(function(require) {
     return false;
   }
 
-  function _onShow(context) {  
-    this.diskTab.onShow(context);  
+  function _onShow(context) {
+    this.diskTab.onShow(context);
     $("#vm_id", context).val(this.element.ID);
     return false;
   }

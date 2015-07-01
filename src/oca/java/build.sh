@@ -78,7 +78,7 @@ do_documentation()
 {
     echo "Generating javadocs..."
 
-    rm -rf $DOC_DIR > /dev/null 2>&1 
+    rm -rf $DOC_DIR > /dev/null 2>&1
     mkdir -p $DOC_DIR
     javadoc -quiet -classpath $LIB_DIR"/*" -d $DOC_DIR \
       -sourcepath ./src/ \

@@ -40,7 +40,7 @@ public:
     /*   ONE Session Constructors                                             */
     /* ---------------------------------------------------------------------- */
 
-	/**
+    /**
      *  Set the connection values to communicate with ONE
      *  @param oneurl the ONE front-end to interact with, defaults to "localhost".
      *  @param socket the socket where ONE listen to, defaults to 2633.
@@ -62,139 +62,139 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     * 	Add a new VM to the VM pool and starts it.
-     * 	@param template_file path, description of the Virtual Machine template
+     *  Add a new VM to the VM pool and starts it.
+     *  @param template_file path, description of the Virtual Machine template
      *  @param vmid, the id of the new VM
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int allocate(string template_file, int& vmid, string& error);
 
     /**
-     * 	Add a new VM to the VM pool and starts it.
-     * 	@param template description of the Virtual Machine template
+     *  Add a new VM to the VM pool and starts it.
+     *  @param template description of the Virtual Machine template
      *  @param vmid, the id of the new VM
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int allocate_template(const string& template_file,
                           int&          vmid,
                           string&       error);
 
     /**
-     *	Deploys the virtual machine "vmid" into the host "hid".
-     *	@param vmid the virtual machine to deploy.
+     *  Deploys the virtual machine "vmid" into the host "hid".
+     *  @param vmid the virtual machine to deploy.
      *  @param hid  the host id to deploy the VM.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int deploy(int vmid, int hid, string& error);
 
     /**
-     *	Migrate the virtual machine "vmid" to the host "hid".
-     *	@param vmid the virtual machine to migrate.
-     *	@param hid the destination host.
-     *	@param live try a "live migration".
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
-   	 */
+     *  Migrate the virtual machine "vmid" to the host "hid".
+     *  @param vmid the virtual machine to migrate.
+     *  @param hid the destination host.
+     *  @param live try a "live migration".
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
+     */
     int migrate(int vmid, int hid, bool live, string& error);
 
     /**
      *  Shutdown a virtual machine.
-     *  @param vmid	the vm identifier to shutdown.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param vmid the vm identifier to shutdown.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
       */
     int shutdown(int vmid, string& error)
     {
-    	return action(vmid,"shutdown",error);
+        return action(vmid,"shutdown",error);
     };
 
     /**
      *  Sets a VM to hold, scheduler will not deploy it.
-     *	@param vmid the vm identifier to hold.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param vmid the vm identifier to hold.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int hold(int vmid, string& error)
     {
-    	return action(vmid,"hold",error);
+        return action(vmid,"hold",error);
     };
 
     /**
      *  Release a VM from hold state.
      *  @param vmid the vm identifier to release.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int release(int vmid, string& error)
     {
-    	return action(vmid,"release",error);
+        return action(vmid,"release",error);
     };
 
     /**
      *  Stop a running VM
      *  @param vmid the vm identifier to stop.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int stop(int vmid, string& error)
     {
-    	return action(vmid,"stop",error);
+        return action(vmid,"stop",error);
     };
 
     /**
      *  Saves a running VM
      *  @param vmid the vm identifier to suspend.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int suspend(int vmid, string& error)
     {
-    	return action(vmid,"suspend",error);
+        return action(vmid,"suspend",error);
     };
 
     /**
      *  Resumes the execution of a saved VM
      *  @param vmid the vm identifier to resume.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int resume(int vmid, string& error)
     {
-    	return action(vmid,"resume",error);
+        return action(vmid,"resume",error);
     };
 
 
     /**
      *  Cancel the execution of a VM,
      *  @param vmid the vm identifier to resume.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int cancel(int vmid, string& error)
     {
-    	return action(vmid,"cancel",error);
+        return action(vmid,"cancel",error);
     };
 
     /**
      *  Remove the VM from the DB
      *  @param vmid the vm identifier to resume.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int finalize(int vmid, string& error)
     {
-    	return action(vmid,"finalize",error);
+        return action(vmid,"finalize",error);
     };
 
     /**
      *  Gets information on a virtual machine
      *  @param vmid the vm identifier.
-   	 *  @param info the VM information
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param info the VM information
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int info(int vmid, string& info, string& error);
 
@@ -203,80 +203,80 @@ public:
     /* ---------------------------------------------------------------------- */
 
     /**
-     * 	Gets system info from a single host ( "hid" ).
-     *	@param hid	the host id to get for information
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  Gets system info from a single host ( "hid" ).
+     *  @param hid  the host id to get for information
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int host_info(int hid, string& info, string& error);
 
     /**
-     *	Removes a host from the pool
-     *	@param hid 	the host id to remove
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  Removes a host from the pool
+     *  @param hid  the host id to remove
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int host_delete(int hid, string& error);
 
     /**
-     *	Enables a given host.
-     *	@param hid 	the host id to enable.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  Enables a given host.
+     *  @param hid  the host id to enable.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int host_enable(int hid, string& error)
     {
-    	return host_available(hid,true,error);
+        return host_available(hid,true,error);
     };
 
     /**
-     *	Disables a given host.
-     *	@param hid 	the host id to disable.
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  Disables a given host.
+     *  @param hid  the host id to disable.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
      */
     int host_disable(int hid, string& error)
     {
-    	return host_available(hid,false,error);
+        return host_available(hid,false,error);
     };
 
     /**
      *  Adds a new Host to the Pool
      *  @param name hostname of the host to add
-      *	@param im_mad the name of the information driver, from oned.conf
+     *  @param im_mad the name of the information driver, from oned.conf
      *  @param vmm_mad the name of the virtual machine manager driver, from oned.conf
-   	 *  @param error if an error occurs this is the error message
-     * 	@return -1 if an error occurs, 0 on success.
+     *  @param error if an error occurs this is the error message
+     *  @return -1 if an error occurs, 0 on success.
        */
     int host_allocate(string& name,
-    				  string& im_mad,
-    				  string& vmm_mad,
-    				  int&    hid,
-    				  string& error);
+                      string& im_mad,
+                      string& vmm_mad,
+                      int&    hid,
+                      string& error);
 private:
 
     /**
-     *	URl - url to connect to ONE.
+     *  URl - url to connect to ONE.
      */
     string url;
 
     /**
-     *	Session - Client session id
+     *  Session - Client session id
      */
     string session;
 
     /**
-     *	Submits an action to be performed on a VM.
-     *	@param vmid the VM id.
-     *	@param action the "transition" to execute.
+     *  Submits an action to be performed on a VM.
+     *  @param vmid the VM id.
+     *  @param action the "transition" to execute.
      *  @param error if an error occurs this is error message.
      *  @return -1 if an error occurs, otherwise 0.
      */
     int action(int vmid, const char * action, string& error);
 
     /**
-     *	Enables or disables a given host.
-     *	@param hid 	the host id to enable/disable.
+     *  Enables or disables a given host.
+     *  @param hid  the host id to enable/disable.
      *  @param enable true to enavle the target host.
      *  @param error if an error occurs this is error message.
      *  @return -1 if an error occurs, otherwise "0".
@@ -288,34 +288,34 @@ extern "C"
 {
 #endif
 
-	void c_oneStart(void);
+    void c_oneStart(void);
 
-	int c_oneDeploy(int vmid, int hid);
+    int c_oneDeploy(int vmid, int hid);
 
-	int c_oneMigrate(int vmid, int hid, int flag);
+    int c_oneMigrate(int vmid, int hid, int flag);
 
-	int c_oneAllocate(char* vm_template);
+    int c_oneAllocate(char* vm_template);
 
-	int c_oneAllocateTemplate(char* vm_template);
+    int c_oneAllocateTemplate(char* vm_template);
 
-	int c_oneAction(int vmid,char* action);
+    int c_oneAction(int vmid,char* action);
 
-	int c_oneShutdown(int vmid);
+    int c_oneShutdown(int vmid);
 
-	int c_oneSuspend(int vmid);
+    int c_oneSuspend(int vmid);
 
-	int c_oneStop(int vmid);
+    int c_oneStop(int vmid);
 
-	int c_oneResume(int vmid);
+    int c_oneResume(int vmid);
 
     int c_oneCancel(int vmid);
 
     int c_oneFinalize(int vmid);
 
-	int c_oneVmInfo(int vmid, char* ret_info,int leng);
+    int c_oneVmInfo(int vmid, char* ret_info,int leng);
 
-	void c_oneFree(void);
-	
+    void c_oneFree(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,5 @@
 define(function(require) {
-  
+
   var TemplateHTML = require('hbs!./accounting/html');
   var TemplateEmptyGraph = require('hbs!./accounting/empty-graph');
   var Locale = require('utils/locale');

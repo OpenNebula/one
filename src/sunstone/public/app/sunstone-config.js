@@ -1,6 +1,6 @@
 define(function(require) {
   require('jquery');
-  
+
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
 
@@ -46,7 +46,7 @@ define(function(require) {
       if (!_config['view']['tabs'][tabName]) {
         return [];
       }
-      
+
       var columns = _config['view']['tabs'][tabName]['table_columns'];
 
       if (columns) {

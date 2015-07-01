@@ -113,7 +113,7 @@ define(function(require) {
         element.VM_QUOTA.VM.CPU,
         default_group_quotas.VM_QUOTA.VM.CPU);
     }
-  
+
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +

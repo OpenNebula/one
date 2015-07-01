@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./password/html');
   var Sunstone = require('sunstone');
@@ -13,7 +13,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./password/dialogId');
   var TAB_ID = require('../tabId');
 

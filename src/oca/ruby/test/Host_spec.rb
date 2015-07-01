@@ -9,9 +9,9 @@ module OpenNebula
     describe "Host using NOKOGIRI" do
         before(:all) do
             NOKOGIRI=true
-            
+
             @xml = Host.build_xml(7)
-            
+
             client = MockClient.new()
             @host = Host.new(@xml,client)
         end
@@ -25,10 +25,10 @@ module OpenNebula
 
             @host.id.should eql(7)
         end
-        
+
         it "should update the HOST info" do
             @host.info()
-            
+
             @host.id.should eql(7)
             @host.name.should eql('dummyhost')
             @host.state.should eql(2)
@@ -73,9 +73,9 @@ module OpenNebula
     describe "Host using REXML" do
         before(:all) do
             NOKOGIRI=false
-            
+
             @xml = Host.build_xml(7)
-            
+
             client = MockClient.new()
             @host = Host.new(@xml,client)
         end
@@ -89,10 +89,10 @@ module OpenNebula
 
             @host.id.should eql(7)
         end
-        
+
         it "should update the HOST info" do
             @host.info()
-            
+
             @host.id.should eql(7)
             @host.name.should eql('dummyhost')
             @host.state.should eql(2)
@@ -138,9 +138,9 @@ module OpenNebula
     describe "Host using NOKOGIRI without id" do
         before(:all) do
             NOKOGIRI=true
-            
+
             @xml = Host.build_xml()
-            
+
             client = MockClient.new()
             @host = Host.new(@xml,client)
         end
@@ -148,10 +148,10 @@ module OpenNebula
         it "should create a Nokogiri Node" do
             @xml.class.to_s.should eql('Nokogiri::XML::NodeSet')
         end
-        
+
         it "should get Error getting info" do
-            rc = @host.info()        
-            
+            rc = @host.info()
+
             OpenNebula.is_error?(rc).should eql(true)
             @host.id.should eql(nil)
             @host.name.should eql(nil)
@@ -179,9 +179,9 @@ module OpenNebula
     describe "Host using REXML without id" do
         before(:all) do
             NOKOGIRI=false
-            
+
             @xml = Host.build_xml()
-            
+
             client = MockClient.new()
             @host = Host.new(@xml,client)
         end
@@ -189,10 +189,10 @@ module OpenNebula
         it "should create a REXML Element" do
             @xml.class.to_s.should eql('REXML::Element')
         end
-        
+
         it "should get Error getting info" do
             rc = @host.info()
-            
+
             OpenNebula.is_error?(rc).should eql(true)
             @host.id.should eql(nil)
             @host.name.should eql(nil)

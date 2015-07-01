@@ -33,7 +33,7 @@ require 'scripts_common'
 
 user   = ARGV[0]
 pass   = ARGV[1]
-secret = ARGV[2] 
+secret = ARGV[2]
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 begin
@@ -48,6 +48,6 @@ rc = ssh_auth.authenticate(user,secret)
 if rc == true
     exit 0
 else
-    OpenNebula.error_message rc 
+    OpenNebula.error_message rc
     exit -1
 end

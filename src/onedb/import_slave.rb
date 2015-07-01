@@ -307,16 +307,16 @@ EOT
 
         @slave_db.run "ALTER TABLE document_pool RENAME TO old_document_pool;"
         @slave_db.run "CREATE TABLE document_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
-        
+
         @slave_db.run "ALTER TABLE image_pool RENAME TO old_image_pool;"
         @slave_db.run "CREATE TABLE image_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid) );"
-        
+
         @slave_db.run "ALTER TABLE network_pool RENAME TO old_network_pool;"
         @slave_db.run "CREATE TABLE network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, pid INTEGER, UNIQUE(name,uid));"
-        
+
         @slave_db.run "ALTER TABLE template_pool RENAME TO old_template_pool;"
         @slave_db.run "CREATE TABLE template_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
-        
+
         @slave_db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
         @slave_db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
@@ -325,7 +325,7 @@ EOT
 
         @slave_db.run "ALTER TABLE group_quotas RENAME TO old_group_quotas;"
         @slave_db.run "CREATE TABLE group_quotas (group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
-        
+
         @slave_db.run "ALTER TABLE user_quotas RENAME TO old_user_quotas;"
         @slave_db.run "CREATE TABLE user_quotas (user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT);"
 

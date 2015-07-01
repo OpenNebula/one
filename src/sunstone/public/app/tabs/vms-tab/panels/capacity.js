@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
@@ -13,13 +13,13 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateInfo = require('hbs!./capacity/html');
 
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./capacity/panelId');
   var RESIZE_DIALOG_ID = require('../dialogs/resize/dialogId');
@@ -85,7 +85,7 @@ define(function(require) {
     var that = this;
     OpenNebulaVM.monitor({
       data: {
-        id: that.element.ID, 
+        id: that.element.ID,
         monitor: {
           monitor_resources : "CPU,MEMORY"
         }

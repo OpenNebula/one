@@ -2,7 +2,7 @@ define(function(require){
   /*
     CONSTRUCTOR
    */
-  
+
   return _canImportWilds;
 
   /*

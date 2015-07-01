@@ -27,7 +27,7 @@ using namespace std;
 
 /**
  * ActionListener class. Interface to be implemented by any class
- * that need to handle actions. There are two predefined actions 
+ * that need to handle actions. There are two predefined actions
  * (each action is identified with its name, a string):
  *   - ACTION_TIMER, periodic action
  *   - ACTION_FINALIZE, to finalize the action loop
@@ -48,7 +48,7 @@ public:
     static const string ACTION_FINALIZE;
 
     ActionListener(){};
-    
+
     virtual ~ActionListener(){};
 
     /**
@@ -89,7 +89,7 @@ public:
     void loop(
         time_t              timeout,
         void *              timer_args);
-        
+
     /** Register the calling object in this action manager.
      *    @param listener a pointer to the action listner
      */

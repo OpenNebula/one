@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -12,17 +12,17 @@ define(function(require) {
   var VCenterClusters = require('utils/vcenter/clusters');
   var VCenterTemplates = require('utils/vcenter/templates');
   var VCenterNetworks = require('utils/vcenter/networks');
-  
+
   /*
     TEMPLATES
    */
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
 
@@ -57,7 +57,7 @@ define(function(require) {
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -181,8 +181,8 @@ define(function(require) {
     });
 
     $('#create_host_form').on("keyup keypress", function(e) {
-          var code = e.keyCode || e.which; 
-          if (code  == 13) {               
+          var code = e.keyCode || e.which;
+          if (code  == 13) {
             e.preventDefault();
             return false;
           }

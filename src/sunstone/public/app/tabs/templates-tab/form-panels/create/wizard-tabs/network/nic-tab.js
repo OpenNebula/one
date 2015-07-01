@@ -16,7 +16,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./nic-tab/html');
-  
+
   /*
     CONSTANTS
    */
@@ -24,7 +24,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function DiskTab(nicTabId) {
     this.nicTabId = 'nicTab' + nicTabId;
 
@@ -47,11 +47,11 @@ define(function(require) {
   DiskTab.prototype.fill = _fill;
 
   return DiskTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'nicTabId': this.nicTabId,
@@ -121,7 +121,7 @@ define(function(require) {
     } else if (templateJSON.NETWORK != undefined && templateJSON.NETWORK_UNAME != undefined) {
       var selectedResources = {
           names : {
-            name: templateJSON.NETWORK, 
+            name: templateJSON.NETWORK,
             uname: templateJSON.NETWORK_UNAME
           }
         }

@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var OpenNebulaVM = require('opennebula/vm');
@@ -10,7 +10,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./placement/panelId');
   var RESOURCE = "VM";
@@ -41,7 +41,7 @@ define(function(require) {
    */
 
   function _html() {
-    var that = this;   
+    var that = this;
     var html = '<div class="row"><div class="large-12 columns">\
            <table id="vm_history_table" class="extended_table dataTable">\
                     <thead>\

@@ -9,11 +9,11 @@ module OpenNebula
     describe "Host using NOKOGIRI" do
         before(:all) do
             NOKOGIRI=true
-            
+
             client = MockClient.new()
             @host_pool = HostPool.new(client)
         end
-        
+
         it "should update the HOST_POOL info" do
             rc = @host_pool.info()
             rc.nil?.should eql(true)
@@ -42,15 +42,15 @@ module OpenNebula
             }
         end
     end
-    
+
     describe "Host using REXML" do
         before(:all) do
             NOKOGIRI=false
-            
+
             client = MockClient.new()
             @host_pool = HostPool.new(client)
         end
-        
+
         it "should update the HOST_POOL info" do
             rc = @host_pool.info()
             rc.nil?.should eql(true)

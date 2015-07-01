@@ -1,34 +1,34 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for Virtual Network
   :size: 4
 
-:USER: 
+:USER:
   :desc: Username of the Virtual Network owner
   :size: 15
   :left: true
 
-:GROUP: 
+:GROUP:
   :desc: Group of the Virtual Network
   :size: 12
   :left: true
 
-:NAME: 
+:NAME:
   :desc: Name of the Virtual Network
   :size: 19
   :left: true
 
-:CLUSTER: 
+:CLUSTER:
   :desc: Name of the Cluster
   :size: 10
   :left: true
 
-:BRIDGE: 
+:BRIDGE:
   :desc: Bridge associated to the Virtual Network
   :size: 8
   :left: true
 
-:LEASES: 
+:LEASES:
   :desc: Number of this Virtual Networks given leases
   :size: 6
 

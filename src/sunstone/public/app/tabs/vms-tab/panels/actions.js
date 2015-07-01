@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
   var Humanize = require('utils/humanize');
@@ -11,7 +11,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./actions/panelId');
   var RESOURCE = "VM";
@@ -42,7 +42,7 @@ define(function(require) {
    */
 
   function _html() {
-    var that = this;   
+    var that = this;
     var html = '<div class="row">\
       <div class="large-12 columns">\
         <table id="scheduling_actions_table" class="info_table dataTable extended_table">\
@@ -66,7 +66,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var that = this;   
+    var that = this;
     context.off('click', '#add_scheduling_action');
     context.on('click', '#add_scheduling_action', function() {
       $("#add_scheduling_action", context).attr("disabled", "disabled");

@@ -1,24 +1,24 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for the Template
   :size: 4
 
-:NAME: 
+:NAME:
   :desc: Name of the Template
   :size: 27
   :left: true
 
-:USER: 
+:USER:
   :desc: Username of the Template owner
   :size: 15
   :left: true
 
-:GROUP: 
+:GROUP:
   :desc: Group of the Template
   :size: 15
   :left: true
 
-:REGTIME: 
+:REGTIME:
   :desc: Registration time of the Template
   :size: 15
 

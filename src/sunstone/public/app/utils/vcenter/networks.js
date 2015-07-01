@@ -25,7 +25,7 @@ define(function(require) {
 
   /*
     Retrieve the list of networks from vCenter and fill the container with them
-    
+
     opts = {
       datacenter: "Datacenter Name",
       cluster: "Cluster Name",
@@ -90,7 +90,7 @@ define(function(require) {
               if (network.vlan) {
                 var vlan_info = '<div class="vlan_info">' +
                       '<div class="large-4 columns">'+
-                        '<label>' + Locale.tr("VLAN") + 
+                        '<label>' + Locale.tr("VLAN") +
                            '<input type="text" class="vlaninfo" value="'+network.vlan+'" disabled/>' +
                         '</label>'+
                       '</div>'+
@@ -103,7 +103,7 @@ define(function(require) {
                       '<div class="large-12 columns">' +
                         '<label>' +
                           '<input type="checkbox" class="network_name" checked/> ' +
-                          network.name + '&emsp;<span style="color: #999">' + network.type + '</span>' + 
+                          network.name + '&emsp;<span style="color: #999">' + network.type + '</span>' +
                         '</label>' +
                       '</div>'+
                       '<div class="large-2 columns">'+
@@ -116,17 +116,17 @@ define(function(require) {
                           '<select class="type_select">'+
                             '<option value="ETHER">eth</option>' +
                             '<option value="IP4">ipv4</option>'+
-                            '<option value="IP6">ipv6</option>' + 
-                          '</select>' + 
+                            '<option value="IP6">ipv6</option>' +
+                          '</select>' +
                         '</label>' +
                       '</div>'+
                       '<div class="net_options">' +
                         '<div class="large-4 columns">'+
-                          '<label>' + Locale.tr("MAC") + 
-                            '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' + 
+                          '<label>' + Locale.tr("MAC") +
+                            '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                           '</label>'+
                         '</div>'+
-                      '</div>'+ 
+                      '</div>'+
                       vlan_info +
                       '<div class="large-12 columns vcenter_network_response">'+
                       '</div>'+
@@ -145,41 +145,41 @@ define(function(require) {
 
                 switch(type) {
                   case 'ETHER':
-                    net_form_str = 
+                    net_form_str =
                       '<div class="large-4 columns">'+
-                        '<label>' + Locale.tr("MAC") + 
-                          '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' + 
+                        '<label>' + Locale.tr("MAC") +
+                          '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                         '</label>'+
                       '</div>';
                     break;
                   case 'IP4':
-                    net_form_str = 
+                    net_form_str =
                       '<div class="large-4 columns">'+
-                        '<label>' + Locale.tr("IP START") + 
-                          '<input type="text" class="four_ip_net"/>' + 
+                        '<label>' + Locale.tr("IP START") +
+                          '<input type="text" class="four_ip_net"/>' +
                         '</label>'+
                       '</div>'+
                       '<div class="large-4 columns">'+
-                        '<label>' + Locale.tr("MAC") + 
-                          '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' + 
+                        '<label>' + Locale.tr("MAC") +
+                          '<input type="text" class="eth_mac_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                         '</label>'+
                       '</div>';
                     break;
                   case 'IP6':
-                    net_form_str = 
+                    net_form_str =
                       '<div class="large-4 columns">'+
-                        '<label>' + Locale.tr("MAC") + 
-                          '<input type="text" class="eth_mac_net"/>' + 
+                        '<label>' + Locale.tr("MAC") +
+                          '<input type="text" class="eth_mac_net"/>' +
                         '</label>'+
                       '</div>'+
                       '<div class="large-6 columns">'+
-                        '<label>' + Locale.tr("GLOBAL PREFIX") + 
-                          '<input type="text" class="six_global_net" placeholder="'+Locale.tr("Optional")+'"/>' + 
+                        '<label>' + Locale.tr("GLOBAL PREFIX") +
+                          '<input type="text" class="six_global_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                         '</label>'+
                       '</div>'+
                       '<div class="large-6 columns">'+
-                        '<label>' + Locale.tr("ULA_PREFIX") + 
-                          '<input type="text" class="six_ula_net" placeholder="'+Locale.tr("Optional")+'"/>' + 
+                        '<label>' + Locale.tr("ULA_PREFIX") +
+                          '<input type="text" class="six_ula_net" placeholder="'+Locale.tr("Optional")+'"/>' +
                         '</label>'+
                       '</div>';
                     break;
@@ -259,7 +259,7 @@ define(function(require) {
           break;
       }
 
-      network_tmpl += "\nAR=[" 
+      network_tmpl += "\nAR=["
       network_tmpl += ar_array.join(",\n")
       network_tmpl += "]"
 

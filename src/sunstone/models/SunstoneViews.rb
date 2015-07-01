@@ -32,10 +32,10 @@ class SunstoneViews
     VIEWS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-views.yaml"
     VIEWS_CONFIGURATION_DIR  = ETC_LOCATION + "/sunstone-views/"
 
-	def initialize
-		@views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
+    def initialize
+        @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
 
-		base_path = SUNSTONE_ROOT_DIR+'/public/js/'
+        base_path = SUNSTONE_ROOT_DIR+'/public/js/'
 
         @views = Hash.new
 
@@ -45,17 +45,17 @@ class SunstoneViews
                 @views[m[1]] = YAML.load_file(p_path)
             end
         end
-	end
+    end
 
-	def view(user_name, group_name, view_name=nil)
+    def view(user_name, group_name, view_name=nil)
         available_views = available_views(user_name, group_name)
 
-		if view_name && available_views.include?(view_name)
-			return @views[view_name]
-		else
-			return @views[available_views.first]
-		end
-	end
+        if view_name && available_views.include?(view_name)
+            return @views[view_name]
+        else
+            return @views[available_views.first]
+        end
+    end
 
     # Return the name of the views avialable to a user. Those defined in the
     # group template and configured in sunstone. If no view is defined in a

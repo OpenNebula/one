@@ -2,16 +2,16 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "Template";
   var XML_ROOT = "VMTEMPLATE";
   var TAB_NAME = require('./tabId');
@@ -19,7 +19,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;

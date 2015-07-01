@@ -2,18 +2,18 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./confirm-with-select/html');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
   var ResourceSelect = require('utils/resource-select');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./confirm-with-select/dialogId');
 
   /*
@@ -37,7 +37,7 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-  
+
 
   function _html() {
     return TemplateHTML({dialogId: this.dialogId});
@@ -57,14 +57,14 @@ define(function(require) {
         return false;
       };
 
-      if (!action) { 
-        Notifier.notifyError("Action " + action + " not defined."); 
+      if (!action) {
+        Notifier.notifyError("Action " + action + " not defined.");
         return false;
       };
 
       var error;
       switch (action.type){
-      case "multiple": 
+      case "multiple":
         error = Sunstone.runAction(actionId, action.elements(), param);
         break;
       default:

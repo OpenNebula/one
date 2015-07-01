@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var VNetsTable = require('tabs/vnets-tab/datatable');
 

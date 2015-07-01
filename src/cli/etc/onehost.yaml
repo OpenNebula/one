@@ -1,19 +1,19 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for Host
   :size: 4
 
-:NAME: 
+:NAME:
   :desc: Name of the Host
   :size: 15
   :left: true
 
-:CLUSTER: 
+:CLUSTER:
   :desc: Name of the Cluster
   :size: 9
   :left: true
 
-:RVM: 
+:RVM:
   :desc: Number of Virtual Machines running
   :size: 3
 
@@ -21,27 +21,27 @@
   :desc: Number of Virtual Machine zombies
   :size: 3
 
-:TCPU: 
+:TCPU:
   :desc: Total CPU percentage
   :size: 4
 
-:FCPU: 
+:FCPU:
   :desc: Free CPU percentage
   :size: 4
 
-:ACPU: 
+:ACPU:
   :desc: Available cpu percentage (not reserved by VMs)
   :size: 4
 
-:TMEM: 
+:TMEM:
   :desc: Total Memory
   :size: 7
 
-:FMEM: 
+:FMEM:
   :desc: Free Memory
   :size: 7
 
-:AMEM: 
+:AMEM:
   :desc: Available Memory (not reserved by VMs)
   :size: 7
 
@@ -61,7 +61,7 @@
   :desc: Real MEM
   :size: 18
 
-:STAT: 
+:STAT:
   :desc: Host status
   :size: 6
   :left: true

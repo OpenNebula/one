@@ -14,7 +14,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./hybrid/html');
-  
+
   /*
     CONSTANTS
    */
@@ -227,7 +227,7 @@ define(function(require) {
       {
         name: "AFFINITY_GROUP",
         label: Locale.tr("Affinity Group"),
-        tooltip: Locale.tr("Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region") 
+        tooltip: Locale.tr("Affinity groups allow you to group your Azure services to optimize performance. All services and VMs within an affinity group will be located in the same region")
       },
       {
         name: "AVAILABILITY_SET",
@@ -305,7 +305,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     if (!Config.isTemplateCreationTabEnabled('hybrid')) {
       throw "Wizard Tab not enabled";
@@ -326,11 +326,11 @@ define(function(require) {
   WizardTab.prototype.fillProviderTab = _fillProviderTab;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML();
   }

@@ -1,9 +1,9 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for the Group
   :size: 4
 
-:NAME: 
+:NAME:
   :desc: Name of the Group
   :size: 29
   :left: true
@@ -12,7 +12,7 @@
   :desc: Number of Users in this group
   :size: 5
 
-:VMS: 
+:VMS:
   :desc: Number of VMS
   :size: 9
 

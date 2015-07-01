@@ -168,6 +168,6 @@ module Keypair
 
         return nil if keyname.nil? || kp.empty? || kp[keyname].nil?
 
-		kp[keyname]['public_key']
-	end
+        kp[keyname]['public_key']
+    end
 end

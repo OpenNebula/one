@@ -45,7 +45,7 @@ module OpenNebula
         end
 
         #######################################################################
-        # XML-RPC Methods for the Host Pool 
+        # XML-RPC Methods for the Host Pool
         #######################################################################
 
         # Retrieves all the Hosts in the pool.

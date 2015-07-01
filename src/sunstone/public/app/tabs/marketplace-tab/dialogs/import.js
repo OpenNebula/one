@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./import/html');
   var ContentHTML = require('hbs!./import/content');
@@ -16,7 +16,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./import/dialogId');
   var TAB_ID = require('../tabId');
 
@@ -40,7 +40,7 @@ define(function(require) {
   Dialog.prototype.try_to_create_template = _try_to_create_template;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -159,7 +159,7 @@ define(function(require) {
           });
         }
       });
-      
+
       that.try_to_create_template(context);
 
       return false;

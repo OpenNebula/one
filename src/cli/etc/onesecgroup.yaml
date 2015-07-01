@@ -1,19 +1,19 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for the Security Group
   :size: 4
 
-:NAME: 
+:NAME:
   :desc: Name of the Security Group
   :size: 27
   :left: true
 
-:USER: 
+:USER:
   :desc: Username of the Security Group owner
   :size: 15
   :left: true
 
-:GROUP: 
+:GROUP:
   :desc: Group of the Security Group
   :size: 15
   :left: true

@@ -64,7 +64,7 @@ describe 'VirtualNetwork tests' do
         url = '/vnet/0'
         get url
 
-        File.open(FIXTURES_PATH + '/network/network0.json', 'w') { |f| 
+        File.open(FIXTURES_PATH + '/network/network0.json', 'w') { |f|
             f.write last_response.body
         }
 
@@ -111,7 +111,7 @@ describe 'VirtualNetwork tests' do
         url = '/vnet/1'
         get url
 
-        File.open(FIXTURES_PATH + '/network/network1.json', 'w') { |f| 
+        File.open(FIXTURES_PATH + '/network/network1.json', 'w') { |f|
             f.write last_response.body
         }
 
@@ -122,7 +122,7 @@ describe 'VirtualNetwork tests' do
     it "should get vnet_pool information" do
         get '/vnet'
 
-        File.open(FIXTURES_PATH + '/network/network_pool.json', 'w') { |f| 
+        File.open(FIXTURES_PATH + '/network/network_pool.json', 'w') { |f|
             f.write last_response.body
         }
 

@@ -27,21 +27,21 @@ require 'vcenter_driver'
 
 helpers do
     def vcenter_client
-    	vuser = request.env['HTTP_X_VCENTER_USER']
-    	vpass = request.env['HTTP_X_VCENTER_PASSWORD']
-    	vhost = request.env['HTTP_X_VCENTER_HOST']
+        vuser = request.env['HTTP_X_VCENTER_USER']
+        vpass = request.env['HTTP_X_VCENTER_PASSWORD']
+        vhost = request.env['HTTP_X_VCENTER_HOST']
 
-    	if vuser.nil? || vpass.nil? || vhost.nil?
-    		msg = "You have to provide the vCenter username, password and hostname"
-	        logger.error("[vCenter] " + msg)
-	        error = Error.new(msg)
-	        error 404, error.to_json
-	    end
+        if vuser.nil? || vpass.nil? || vhost.nil?
+            msg = "You have to provide the vCenter username, password and hostname"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
 
-	    return VCenterDriver::VIClient.new_connection(
-	        :user     => vuser,
-	        :password => vpass,
-	        :host     => vhost)
+        return VCenterDriver::VIClient.new_connection(
+            :user     => vuser,
+            :password => vpass,
+            :host     => vhost)
     end
 
 #    def af_format_response(resp)
@@ -57,34 +57,34 @@ helpers do
 end
 
 get '/vcenter' do
-	begin
-	    rs = vcenter_client.hierarchy
-	    [200, rs.to_json]
-	rescue Exception => e
+    begin
+        rs = vcenter_client.hierarchy
+        [200, rs.to_json]
+    rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
         error 403, error.to_json
-	end
+    end
 end
 
 get '/vcenter/templates' do
-	begin
-	    templates = vcenter_client.vm_templates(
+    begin
+        templates = vcenter_client.vm_templates(
             $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
-	    if templates.nil?
-    		msg = "No datacenter found"
-	        logger.error("[vCenter] " + msg)
-	        error = Error.new(msg)
-	        error 404, error.to_json
-	    end
+        if templates.nil?
+            msg = "No datacenter found"
+            logger.error("[vCenter] " + msg)
+            error = Error.new(msg)
+            error 404, error.to_json
+        end
 
-	    #ctemplates = templates.select{|t| t[:host] == params[:name]}
-	    [200, templates.to_json]
-	rescue Exception => e
+        #ctemplates = templates.select{|t| t[:host] == params[:name]}
+        [200, templates.to_json]
+    rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
         error 403, error.to_json
-	end
+    end
 end
 
 get '/vcenter/networks' do

@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -27,7 +27,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
 
@@ -66,7 +66,7 @@ define(function(require) {
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -105,7 +105,7 @@ define(function(require) {
     this.groupsTable.initialize();
 
     // If this is an update, the _fill method may be called before the zone.list
-    // finishes. And resourcesTab.fill only works if all the 
+    // finishes. And resourcesTab.fill only works if all the
     // resourcesTab.addResourcesZone have finished.
     // It's better to duplicate this code in _fill and make sure the
     // resourcesTab.fill is executed in the callback

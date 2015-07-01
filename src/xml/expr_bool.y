@@ -75,8 +75,8 @@ extern "C"
 %lex-param {mem_collector * mc}
 
 %union {
-    char * 	val_str;
-    int 	val_int;
+    char *  val_str;
+    int     val_int;
     float   val_float;
 };
 

@@ -45,7 +45,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
     master_oned = nd.get_master_oned();
 
     ostringstream zone_tmpl;
-    zone_tmpl << "NAME=OpenNebula\nENDPOINT="; 
+    zone_tmpl << "NAME=OpenNebula\nENDPOINT=";
 
     if (master_oned.empty())
     {

@@ -44,9 +44,9 @@ public:
     ~DispatchManager(){};
 
      /**
-	  * Initializes internal pointers to other managers. Must be called when
-	  * all the other managers exist in Nebula::instance
-	  */
+      * Initializes internal pointers to other managers. Must be called when
+      * all the other managers exist in Nebula::instance
+      */
     void init_managers();
 
     enum Actions
@@ -429,25 +429,25 @@ private:
      */
     VirtualMachinePool *    vmpool;
 
-	/**
+    /**
      * Pointer to TransferManager
      */
-	TransferManager *       tm;
+    TransferManager *       tm;
 
-	/**
-	 * Pointer to VirtualMachineManager
-	 */
-	VirtualMachineManager * vmm;
+    /**
+     * Pointer to VirtualMachineManager
+     */
+    VirtualMachineManager * vmm;
 
-	/**
-	 * Pointer to LifeCycleManager
-	 */
-	LifeCycleManager *       lcm;
+    /**
+     * Pointer to LifeCycleManager
+     */
+    LifeCycleManager *       lcm;
 
-	/**
-	 * Pointer to ImageManager
-	 */
-	ImageManager *			imagem;
+    /**
+     * Pointer to ImageManager
+     */
+    ImageManager *          imagem;
 
     /**
      *  Action engine for the Manager

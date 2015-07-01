@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -10,11 +10,11 @@ define(function(require) {
   var CPUBars = require('./utils/cpu-bars');
   var MemoryBars = require('./utils/memory-bars');
   var OpenNebulaHost = require('opennebula/host')
-  
+
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
   var TAB_NAME = require('./tabId');
@@ -22,7 +22,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;
@@ -163,7 +163,7 @@ define(function(require) {
     $(".on_hosts").text(this.onHosts);
     $(".off_hosts").text(this.offHosts);
     $(".error_hosts").text(this.errorHosts);
-    
+
     var ratio_allocated_cpu = 0;
     if (this.maxCPU > 0) {
       ratio_allocated_cpu = Math.round((this.allocatedCPU / this.maxCPU) * 100);

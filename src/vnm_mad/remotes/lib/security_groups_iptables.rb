@@ -40,7 +40,7 @@ module SGIPTables
         #   iptables -A one-3-0-o -p udp -m multiport --dports 80,22 -j RETURN
         def process_portrange(cmds, vars)
             chain = @rule_type == :inbound ? vars[:chain_in] : vars[:chain_out]
-            
+
             cmds.add :iptables, "-A #{chain} -p #{@protocol} -m multiport" \
                 " --dports #{@range} -j RETURN"
         end
@@ -117,7 +117,7 @@ module SGIPTables
                 dir = "src,dst"
             else
                 chain = vars[:chain_out]
-                set = "#{vars[:set_sg_out]}-ni"                
+                set = "#{vars[:set_sg_out]}-ni"
                 dir = "dst,dst"
             end
 
@@ -145,12 +145,12 @@ module SGIPTables
 
         def new_rule(rule)
             RuleIPTables.new(rule)
-        end 
+        end
     end
 
     ############################################################################
-    # Methods to configure the hypervisor iptables rules. All the rules are 
-    # added to the GLOBAL_CHAIN chain. By default this chain is "opennebula" 
+    # Methods to configure the hypervisor iptables rules. All the rules are
+    # added to the GLOBAL_CHAIN chain. By default this chain is "opennebula"
     ############################################################################
 
     GLOBAL_CHAIN = "opennebula"
@@ -158,7 +158,7 @@ module SGIPTables
     # Get information from the current iptables rules and chains
     #   @return [Hash] with the following keys:
     #     - :iptables_forwards
-    #     - :iptables_s 
+    #     - :iptables_s
     #     - :ipset_list
     def self.info
         commands = VNMNetwork::Commands.new
@@ -170,7 +170,7 @@ module SGIPTables
 
         if iptables_s.match(/^-N #{GLOBAL_CHAIN}$/)
             commands.add :iptables, "-L #{GLOBAL_CHAIN} --line-numbers"
-            iptables_forwards = commands.run!    
+            iptables_forwards = commands.run!
         end
 
         commands.add :ipset, "list -name"
@@ -186,12 +186,12 @@ module SGIPTables
     # Bootstrap the OpenNebula chains and rules. This method:
     #   1.- Creates the GLOBAL_CHAIN chain
     #   2.- Forwards the bridge traffic to the GLOBAL_CHAIN
-    #   3.- By default ACCEPT all traffic 
+    #   3.- By default ACCEPT all traffic
     def self.global_bootstrap
         info = SGIPTables.info
 
         return if info[:iptables_s].split("\n").include? "-N #{GLOBAL_CHAIN}"
-            
+
         commands = VNMNetwork::Commands.new
 
         commands.add :iptables, "-N #{GLOBAL_CHAIN}"
@@ -205,9 +205,9 @@ module SGIPTables
     #   @param vm  [VM] the virtual machine
     #   @param nic [Nic] of the VM
     #   @param sg_id [Fixnum] ID of the SecurityGroup if any
-    #   
+    #
     #   @return [Hash] with the :chain, :chain_in, :chain_out chain names, and
-    #   :set_sg_in and :set_seg_out ipset names. 
+    #   :set_sg_in and :set_seg_out ipset names.
     def self.vars(vm, nic, sg_id = nil)
         vm_id  = vm['ID']
         nic_id = nic[:nic_id]
@@ -228,24 +228,24 @@ module SGIPTables
         vars
     end
 
-    #  Bootstrap NIC rules for the interface. It creates the :chain_in and 
+    #  Bootstrap NIC rules for the interface. It creates the :chain_in and
     #  :chain_out and sets up FORWARD rules to these chains for inbound and
     #  outbound traffic.
-    #  
+    #
     #  This method also sets mac_spoofing, and ip_spoofing rules
     #
     #  Example, for VM 3 and NIC 0
     #   iptables -N one-3-0-i
     #   iptables -N one-3-0-o
     #   iptables -I opennebula -m physdev --physdev-out vnet0 --physdev-is-bridged -j one-3-0-i"
-    #   iptables -I opennebula -m physdev --physdev-in  vnet0 --physdev-is-bridged -j one-3-0-o" 
+    #   iptables -I opennebula -m physdev --physdev-in  vnet0 --physdev-is-bridged -j one-3-0-o"
     #   iptables -A one-3-0-i -m state --state ESTABLISHED,RELATED -j ACCEPT
     #   iptables -A one-3-0-o -m state --state ESTABLISHED,RELATED -j ACCEPT
     #
     #   Mac spoofing (no output traffic from a different MAC)
     #   iptables -A one-3-0-o -m mac ! --mac-source 02:00:00:00:00:01 -j DROP
     #
-    #   IP spoofing 
+    #   IP spoofing
     #   iptables -A one-3-0-o ! --source 10.0.0.1 -j DROP
     def self.nic_pre(vm, nic)
         commands = VNMNetwork::Commands.new

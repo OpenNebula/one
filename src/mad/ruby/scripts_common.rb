@@ -20,7 +20,7 @@ module OpenNebula
     def self.log_function(severity, message)
         STDERR.puts "#{severity}: #{File.basename $0}: #{message}"
     end
-	
+
     # Logs an info message
     def self.log_info(message)
         log_function("INFO", message)
@@ -51,10 +51,10 @@ module OpenNebula
         error_str = "ERROR MESSAGE --8<------\n"
         error_str << message
         error_str << "\nERROR MESSAGE ------>8--"
-        
+
         return error_str
     end
-     
+
     # Executes a command, if it fails returns error message and exits
     # If a second parameter is present it is used as the error message when
     # the command fails

@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -10,7 +10,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   /**
    * Generic datatable that uses the columns and row data from the html dom,
    * instead of .list and elementArray methods. Offers the same row check

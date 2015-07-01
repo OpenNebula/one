@@ -56,7 +56,7 @@ public:
      */
     void recover();
 
-	/**<id> <hook_name> <LOCAL|host> <script> <args|->
+    /**<id> <hook_name> <LOCAL|host> <script> <args|->
      *  Sends an execution request to the MAD: "EXECUTE id name local cmd args"
      *    @param oid the virtual machine id.
      *    @param hook_name the name of the hook
@@ -69,7 +69,7 @@ public:
         const string&   command,
         const string&   arguments ) const;
 
-	/**
+    /**
      *  Sends an execution request to the MAD: "EXECUTE id name host cmd args"
      *    @param oid the virtual machine id.
      *    @param hook_name the name of the hook

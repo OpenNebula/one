@@ -2,7 +2,7 @@ define(function(require) {
   /*
     Generate an Object containing the html for the real and allocated MEMORY
    */
-  
+
   var ProgressBar = require('utils/progress-bar');
   var Humanize = require('utils/humanize')
 

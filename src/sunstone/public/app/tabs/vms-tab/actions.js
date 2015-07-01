@@ -13,7 +13,7 @@ define(function(require) {
   var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
   var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
   var SPICE_DIALOG_ID = require('./dialogs/spice/dialogId');
-  
+
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
 

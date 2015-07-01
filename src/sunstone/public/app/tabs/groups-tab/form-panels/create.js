@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -60,7 +60,7 @@ define(function(require) {
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -159,7 +159,7 @@ define(function(require) {
     $(context).on("change", ".admin_view_input", function(){
       _generateViewsSelect(context, "admin");
     });
-    
+
     $(context).off("change", ".user_view_input");
     $(context).on("change", ".user_view_input", function(){
       _generateViewsSelect(context, "user");

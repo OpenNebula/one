@@ -146,7 +146,7 @@ define(function(require) {
         $(".provision_vms_ul", context).append('<li>'+
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
-                '<a class="provision_info_vm_button" style="color:#555" href="#">'+ 
+                '<a class="provision_info_vm_button" style="color:#555" href="#">'+
                 '<span class="'+ state.color +'-color"  data-tooltip title="'+state.str+'">'+
                   '<i class="fa fa-fw fa-square"/> '+
                 '</span>'+

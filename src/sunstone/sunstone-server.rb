@@ -515,7 +515,7 @@ get '/:pool' do
 
     if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
-                                            $cloud_auth.client(session[:user], 
+                                            $cloud_auth.client(session[:user],
                                                 session[:active_zone_endpoint]))
 
         rc   = zone.info

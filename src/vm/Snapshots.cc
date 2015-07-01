@@ -287,16 +287,16 @@ string Snapshots::get_snapshot_attribute(int id, const char * name) const
 
 unsigned int Snapshots::get_snapshot_size(int id) const
 {
-	unsigned int snap_size = 0;
+    unsigned int snap_size = 0;
 
     const VectorAttribute * snapshot = get_snapshot(id);
 
     if (snapshot != 0)
     {
-		snapshot->vector_value("SIZE", snap_size);
+        snapshot->vector_value("SIZE", snap_size);
     }
 
-	return snap_size;
+    return snap_size;
 }
 
 /* -------------------------------------------------------------------------- */

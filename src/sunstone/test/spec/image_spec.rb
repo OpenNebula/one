@@ -47,7 +47,7 @@ describe 'Image tests' do
         post '/image', @image0_s
 
 
-        File.open(FIXTURES_PATH + '/image/image0.json', 'w') { |f| 
+        File.open(FIXTURES_PATH + '/image/image0.json', 'w') { |f|
             f.write last_response.body
         }
 
@@ -58,7 +58,7 @@ describe 'Image tests' do
     it "should create a second Image" do
         post '/image', @image1_s
 
-        File.open(FIXTURES_PATH + '/image/image1.json', 'w') { |f| 
+        File.open(FIXTURES_PATH + '/image/image1.json', 'w') { |f|
             f.write last_response.body
         }
 
@@ -239,7 +239,7 @@ describe 'Image tests' do
     it "should get image_pool information" do
         get '/image'
 
-        File.open(FIXTURES_PATH + '/image/image_pool.json', 'w') { |f| 
+        File.open(FIXTURES_PATH + '/image/image_pool.json', 'w') { |f|
             f.write last_response.body
         }
 

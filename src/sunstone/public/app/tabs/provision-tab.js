@@ -1486,7 +1486,7 @@ define(function(require) {
             } else {
               $(".provision_network_selector", create_vm_context).html("");
             }
-            
+
             if (template_json.VMTEMPLATE.TEMPLATE.USER_INPUTS) {
               generate_custom_attrs(
                 $(".provision_custom_attributes_selector", create_vm_context),

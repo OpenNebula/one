@@ -82,7 +82,7 @@ public:
     VirtualMachineChown():
         RequestManagerChown("VirtualMachineChown",
                             "Changes ownership of a virtual machine")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
@@ -134,7 +134,7 @@ public:
     VirtualNetworkChown():
         RequestManagerChown("VirtualNetworkChown",
                            "Changes ownership of a virtual network")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -157,7 +157,7 @@ public:
     ImageChown():
         RequestManagerChown("ImageChown",
                             "Changes ownership of an image")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;

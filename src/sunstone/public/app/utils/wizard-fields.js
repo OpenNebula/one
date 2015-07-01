@@ -5,7 +5,7 @@ define(function(require) {
     Inputs must define wizard_field="KEY"
     Inputs with the wizard_field attr will not be considered
    */
-  
+
   return {
     'retrieve': _retrieveWizardFields,
     'fill': _fillWizardFields
@@ -27,7 +27,7 @@ define(function(require) {
         templateJSON[field_name] = field.val();
       }
     });
-    
+
     return templateJSON;
   }
 

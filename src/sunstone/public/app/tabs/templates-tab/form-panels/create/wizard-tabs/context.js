@@ -16,7 +16,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./context/html');
-  
+
   /*
     CONSTANTS
    */
@@ -26,7 +26,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     if (!Config.isTemplateCreationTabEnabled('context')) {
       throw "Wizard Tab not enabled";
@@ -54,11 +54,11 @@ define(function(require) {
   WizardTab.prototype.generateContextFiles = _generateContextFiles;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'customTagsTableHTML': CustomTagsTable.html(),
@@ -222,7 +222,7 @@ define(function(require) {
       });
 
       CustomTagsTable.fill(context, customTagsJSON);
-      
+
       delete templateJSON['CONTEXT'];
     }
   }

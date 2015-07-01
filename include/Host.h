@@ -506,22 +506,22 @@ private:
      */
     HostState   state;
 
-	/**
+    /**
      *  Name of the IM driver used to monitor this host
      */
-	string      im_mad_name;
+    string      im_mad_name;
 
-	/**
+    /**
      *  Name of the VM driver used to execute VMs in this host
      */
-	string      vmm_mad_name;
+    string      vmm_mad_name;
 
     /**
      *  Name of the VN driver used to manage networking in this host
      */
     string      vnm_mad_name;
 
-	/**
+    /**
      *  If Host State = MONITORED last time it got fully monitored or 1 Jan 1970
      *     Host State = MONITORING* last time it got a signal to be monitored
      */

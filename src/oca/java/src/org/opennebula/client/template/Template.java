@@ -131,7 +131,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The template id of the target template we want to modify.
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
@@ -145,7 +145,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the template permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The template id of the target template.
      * @param owner_u 1 to allow, 0 deny, -1 do not change
@@ -172,7 +172,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -185,7 +185,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the permissions
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The id of the target object.
      * @param octet Permissions octed , e.g. 640
@@ -198,7 +198,7 @@ public class Template extends PoolElement
 
     /**
      * Creates a VM instance from a Template
-     * 
+     *
      * @param client XML-RPC Client.
      * @param id The template id of the target template.
      * @param name A string containing the name of the VM instance, can be empty.
@@ -322,7 +322,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the owner/group
-     * 
+     *
      * @param uid The new owner user ID. Set it to -1 to leave the current one.
      * @param gid The new group ID. Set it to -1 to leave the current one.
      * @return If an error occurs the error message contains the reason.
@@ -334,7 +334,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the owner
-     * 
+     *
      * @param uid The new owner user ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -345,7 +345,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the group
-     * 
+     *
      * @param gid The new group ID.
      * @return If an error occurs the error message contains the reason.
      */
@@ -356,7 +356,7 @@ public class Template extends PoolElement
 
     /**
      * Changes the template permissions
-     * 
+     *
      * @param owner_u 1 to allow, 0 deny, -1 do not change
      * @param owner_m 1 to allow, 0 deny, -1 do not change
      * @param owner_a 1 to allow, 0 deny, -1 do not change
@@ -402,7 +402,7 @@ public class Template extends PoolElement
 
     /**
      * Creates a VM instance from a Template
-     * 
+     *
      * @param name A string containing the name of the VM instance, can be empty.
      * @param onHold False to create this VM in pending state, true on hold
      * @param template User provided Template to merge with the one
@@ -416,7 +416,7 @@ public class Template extends PoolElement
 
     /**
      * Creates a VM instance from a Template
-     * 
+     *
      * @param name A string containing the name of the VM instance, can be empty.
      * @return If successful the message contains the VM Instance ID.
      */
@@ -427,7 +427,7 @@ public class Template extends PoolElement
 
     /**
      * Creates a VM instance from a Template
-     * 
+     *
      * @return If successful the message contains the VM Instance ID.
      */
     public OneResponse instantiate()

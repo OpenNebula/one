@@ -1,5 +1,5 @@
 define(function(require) {
-  
+
   var TemplateHTML = require('hbs!./showback/html');
   var Locale = require('utils/locale');
   var OpenNebulaVM = require('opennebula/vm');

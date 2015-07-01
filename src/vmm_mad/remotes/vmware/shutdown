@@ -48,10 +48,10 @@ vmware_drv.shutdown(deploy_id)
 
 count=0
 while (VIDriver::poll_vm(deploy_id).match(/STATE=(.*)/)[1] != "d") do
-	sleep POLL_INTERVAL
-	if count > TIMEOUT then
-	    OpenNebula.log_debug("Timeout reached and VM #{deploy_id} is still alive.")
-		exit -1
-	end
-	count+=POLL_INTERVAL
+    sleep POLL_INTERVAL
+    if count > TIMEOUT then
+        OpenNebula.log_debug("Timeout reached and VM #{deploy_id} is still alive.")
+        exit -1
+    end
+    count+=POLL_INTERVAL
 end

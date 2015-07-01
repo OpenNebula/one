@@ -42,7 +42,7 @@ public:
 
     ~XMLDriver(){};
 
-private:    
+private:
     /**
      *  Generates a neutral XML deployment file:
      *    @param vm pointer to a virtual machine
@@ -50,7 +50,7 @@ private:
      *    @return 0 on success
      */
     int deployment_description(
-        const VirtualMachine *  vm, 
+        const VirtualMachine *  vm,
         const string&           file_name) const;
 };
 

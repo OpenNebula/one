@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var OpenNebulaHost = require('opennebula/host');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
@@ -11,13 +11,13 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateInfo = require('hbs!./monitor/html');
 
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./monitor/panelId');
   var RESOURCE = "Host"
@@ -58,7 +58,7 @@ define(function(require) {
   function _onShow(context) {
     OpenNebulaHost.monitor({
       data: {
-        id: this.element.ID, 
+        id: this.element.ID,
         monitor: {
           monitor_resources : "HOST_SHARE/CPU_USAGE,HOST_SHARE/USED_CPU,HOST_SHARE/MAX_CPU,HOST_SHARE/MEM_USAGE,HOST_SHARE/USED_MEM,HOST_SHARE/MAX_MEM"
         }

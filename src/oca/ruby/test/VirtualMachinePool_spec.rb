@@ -9,11 +9,11 @@ module OpenNebula
     describe "VirtualMachinePool using NOKOGIRI" do
         before(:all) do
             NOKOGIRI=true
-            
+
             client = MockClient.new()
             @vm_pool = VirtualMachinePool.new(client)
         end
-        
+
         it "should update the VM_POOL info" do
             rc = @vm_pool.info()
             rc.nil?.should eql(true)
@@ -21,7 +21,7 @@ module OpenNebula
 
         it "should iterate the VM_POOL elements and get info from them using to_hash" do
             vm_pool = @vm_pool.to_hash
-            
+
             vm_pool['VM_POOL']['VM'].each{ |vm|
                 if vm['ID'] == 6
                     vm.name.should eql('vm-example')
@@ -46,7 +46,7 @@ module OpenNebula
                 end
             }
         end
-        
+
         it "should iterate the VM_POOL elements and get info from them" do
             rc = @vm_pool.each{ |vm|
                 vm.class.to_s.should eql("OpenNebula::VirtualMachine")
@@ -74,15 +74,15 @@ module OpenNebula
             }
         end
     end
-    
+
     describe "VirtualMachinePool using REXML" do
         before(:all) do
             NOKOGIRI=false
-            
+
             client = MockClient.new()
             @vm_pool = VirtualMachinePool.new(client)
         end
-        
+
         it "should update the VM_POOL info" do
             rc = @vm_pool.info()
             rc.nil?.should eql(true)

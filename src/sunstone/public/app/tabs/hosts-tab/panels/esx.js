@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation-datatables');
   var Locale = require('utils/locale');
   var CPUBars = require('../utils/cpu-bars');
@@ -11,9 +11,9 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateESX = require('hbs!./esx/html');
-  
+
   /*
     CONSTANTS
    */

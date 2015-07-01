@@ -2,16 +2,16 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var OpenNebulaService = require('opennebula/service');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "Service";
   var XML_ROOT = "DOCUMENT";
   var TAB_NAME = require('./tabId');
@@ -19,7 +19,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;

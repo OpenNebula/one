@@ -32,8 +32,8 @@ class TransferManager : public MadManager, public ActionListener
 public:
 
     TransferManager(
-    	VirtualMachinePool *      	_vmpool,
-        HostPool *                	_hpool,
+        VirtualMachinePool *        _vmpool,
+        HostPool *                  _hpool,
         vector<const Attribute*>&   _mads):
             MadManager(_mads),
             vmpool(_vmpool),
@@ -189,7 +189,7 @@ private:
     /**
      *  Action engine for the Manager
      */
-    ActionManager   		am;
+    ActionManager           am;
 
     /**
      *  Generic name for the TransferManager driver

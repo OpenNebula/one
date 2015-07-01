@@ -153,15 +153,15 @@ int main(int argc, char **argv)
 
     if (nl == 0) // OpenNebula in root of FSH
     {
-    	var_location = "/var/lib/one/";
-    	lockfile 	 = "/var/lock/one/one";
+        var_location = "/var/lib/one/";
+        lockfile     = "/var/lock/one/one";
     }
     else
     {
-    	var_location = nl;
-    	var_location += "/var/";
+        var_location = nl;
+        var_location += "/var/";
 
-    	lockfile = var_location + ".lock";
+        lockfile = var_location + ".lock";
     }
 
     fd = open(lockfile.c_str(), O_CREAT|O_EXCL, 0640);

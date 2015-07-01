@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./auth-driver/html');
   var Sunstone = require('sunstone');
@@ -13,7 +13,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./auth-driver/dialogId');
   var TAB_ID = require('../tabId');
 
@@ -37,7 +37,7 @@ define(function(require) {
   Dialog.prototype.setup = _setup;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */

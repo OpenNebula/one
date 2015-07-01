@@ -1,8 +1,8 @@
---- 
+---
 :ID:
   :desc: To which resource owner the rule applies to
   :size: 5
-  :right: true  
+  :right: true
 
 :USER:
   :desc: To which resource owner the rule applies to
@@ -13,12 +13,12 @@
   :desc: Which resource the rule applies to
   :size: 17
 
-:RID: 
+:RID:
   :desc: Resource ID
   :size: 5
   :right: true
 
-:ZONE: 
+:ZONE:
   :desc: Zone ID
   :size: 5
   :right: true
@@ -28,10 +28,10 @@
   :size: 8
   :right: true
 
-:default: 
+:default:
 - :ID
-- :USER 
+- :USER
 - :RES_VHNIUTGDCOZSv
-- :RID 
+- :RID
 - :OPE_UMAC
-- :ZONE 
+- :ZONE

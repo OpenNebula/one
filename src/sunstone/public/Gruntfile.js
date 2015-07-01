@@ -17,8 +17,8 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      grunt: { 
-        files: ['Gruntfile.js'] 
+      grunt: {
+        files: ['Gruntfile.js']
       },
 
       sass: {

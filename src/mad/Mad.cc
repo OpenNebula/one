@@ -21,7 +21,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <string.h> 
+#include <string.h>
 
 #include "Mad.h"
 #include "NebulaLog.h"
@@ -39,12 +39,12 @@ Mad::~Mad()
     char    buf[]="FINALIZE\n";
     int     status;
     pid_t   rp;
-    
+
     if ( pid==-1)
     {
         return;
     }
-    
+
     // Finish the driver
     ::write(nebula_mad_pipe, buf, strlen(buf));
 
@@ -74,7 +74,7 @@ int Mad::start()
     const char *                   executable = 0;
     const char *                   arguments = 0;
     string                         exec_path;
-    
+
     char                           buf[]="INIT\n";
     char                           c;
 
@@ -85,7 +85,7 @@ int Mad::start()
     string                         action;
     string                         result;
     string                         info;
-    
+
     ostringstream                  oss;
 
     // Open communication pipes
@@ -114,14 +114,14 @@ int Mad::start()
             if (it->second[0] != '/') //Look in ONE_LOCATION/lib/mads or in "/usr/lib/one/mads"
             {
                 Nebula& nd = Nebula::instance();
-                                
+
                 exec_path = nd.get_mad_location() + it->second;
                 executable= exec_path.c_str();
             }
             else //Absolute Path
             {
-                executable = it->second.c_str();        
-            } 
+                executable = it->second.c_str();
+            }
         }
     }
 
@@ -147,7 +147,7 @@ int Mad::start()
         goto error_fork;
 
     case 0:  // Child process (MAD)
-    
+
         close(ne_mad_pipe[1]);
         close(mad_ne_pipe[0]);
 
@@ -161,7 +161,7 @@ int Mad::start()
         close(mad_ne_pipe[1]);
 
         close(2);
-        
+
         if ( sudo_execution == true )
         {
             rc = execlp("sudo","sudo","-H","-u",owner,executable,arguments,
@@ -169,7 +169,7 @@ int Mad::start()
         }
         else
         {
-            rc = execlp(executable,executable,arguments,(char*)NULL);            
+            rc = execlp(executable,executable,arguments,(char*)NULL);
         }
 
         goto error_exec;
@@ -177,7 +177,7 @@ int Mad::start()
     default: // Parent process (SE)
         fd_set          rfds;
         struct timeval  tv;
-                
+
         close(ne_mad_pipe[0]);
         close(mad_ne_pipe[1]);
 
@@ -190,7 +190,7 @@ int Mad::start()
         fcntl(mad_nebula_pipe, F_SETFD, FD_CLOEXEC);
 
         ::write(nebula_mad_pipe, buf, strlen(buf));
-                    
+
         do
         {
             FD_ZERO(&rfds);
@@ -201,14 +201,14 @@ int Mad::start()
             tv.tv_usec = 0;
 
             rc = select(mad_nebula_pipe+1,&rfds,0,0, &tv);
-                        
+
             if ( rc <= 0 ) // MAD did not answered
             {
                 goto error_mad_init;
             }
-                                    
+
             rc = read(mad_nebula_pipe, (void *) &c, sizeof(char));
-            mstream.put(c);            
+            mstream.put(c);
         }
         while ( rc > 0 && c != '\n');
 
@@ -242,7 +242,7 @@ error_exec:
     oss << "Cannot load driver " << executable << ", " << strerror(errno);
     NebulaLog::log("MAD", Log::ERROR, oss);
     exit(-1);
-    
+
 error_dup2:
     oss.str("");
     oss << "Cannot duplicate descriptors, " << strerror(errno);
@@ -262,13 +262,13 @@ error_mad_action:
 error_mad_init:
     NebulaLog::log("MAD", Log::ERROR, "MAD did not answer INIT command");
     return -1;
-    
+
 error_fork:
     oss.str("");
     oss << "Error forking to start MAD, " << strerror(errno);
     NebulaLog::log("MAD", Log::ERROR, oss);
     return -1;
-    
+
 error_attributes:
     NebulaLog::log("MAD", Log::ERROR, "Wrong attributes for the driver");
     return -1;

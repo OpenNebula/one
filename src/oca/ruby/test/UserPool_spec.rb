@@ -9,11 +9,11 @@ module OpenNebula
     describe "User using NOKOGIRI" do
         before(:all) do
             NOKOGIRI=true
-            
+
             client = MockClient.new()
             @user_pool = UserPool.new(client)
         end
-        
+
         it "should update the USER_POOL info" do
             rc = @user_pool.info()
             rc.nil?.should eql(true)
@@ -34,15 +34,15 @@ module OpenNebula
             }
         end
     end
-    
+
     describe "User using REXML" do
         before(:all) do
             NOKOGIRI=false
-            
+
             client = MockClient.new()
             @user_pool = UserPool.new(client)
         end
-        
+
         it "should update the USER_POOL info" do
             rc = @user_pool.info()
             rc.nil?.should eql(true)

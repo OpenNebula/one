@@ -239,7 +239,7 @@ public class Cluster extends PoolElement{
     {
         return delete(client, id);
     }
-    
+
     /**
      * Replaces the cluster template.
      *
@@ -343,7 +343,7 @@ public class Cluster extends PoolElement{
     // =================================
     // Helpers
     // =================================
-    
+
     /**
      * Returns whether or not the host is part of this cluster
      *
@@ -354,7 +354,7 @@ public class Cluster extends PoolElement{
     {
         return containsResource("HOSTS", id);
     }
-    
+
     /**
      * Returns whether or not the datastore is part of this cluster
      *

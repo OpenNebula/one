@@ -16,16 +16,16 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   return {
     'html': _html,
     'setup': _setup
   };
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML();
   }

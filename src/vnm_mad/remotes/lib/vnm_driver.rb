@@ -15,7 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 ################################################################################
-# The VNMMAD module provides the basic abstraction to implement custom 
+# The VNMMAD module provides the basic abstraction to implement custom
 # virtual network drivers. The VNMAD module includes:
 #   - VNMNetwork with base classes and main functionality to manage Virtual Nets
 #   - SGIPTables a module with a SG implementation based in iptables/ipset
@@ -43,7 +43,7 @@ module VNMMAD
                 @hypervisor = hypervisor
             end
 
-            @vm = VNMNetwork::VM.new(REXML::Document.new(vm_tpl).root, 
+            @vm = VNMNetwork::VM.new(REXML::Document.new(vm_tpl).root,
                 xpath_filter, deploy_id, @hypervisor)
         end
 
@@ -93,7 +93,7 @@ module VNMMAD
                 nil
             end
         end
-        
+
         # Returns true if the template contains the deprecated firewall attributes:
         # - ICMP
         # - WHITE_PORTS_TCP
@@ -128,7 +128,7 @@ module VNMMAD
             else
                 cmd_str = "#{cmd}"
             end
-            
+
             return cmd_str
         end
     end

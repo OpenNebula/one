@@ -140,7 +140,7 @@ public:
      *  The name of the root element is set when the Template object is created
      *    @param xml string that hold the xml template representation
      *    @return a reference to the generated string
-	 */
+     */
     string& to_xml(string& xml) const;
 
     /**
@@ -488,17 +488,17 @@ private:
     /**
      *  Mutex to perform just one flex-bison parsing at a time
      */
-    static pthread_mutex_t			mutex;
+    static pthread_mutex_t          mutex;
 
     /**
      * Character to separate key from value when dump onto a string
      **/
-    char							separator;
+    char                            separator;
 
     /**
      *  Name of the Root element for the XML document
      */
-    string							xml_root;
+    string                          xml_root;
 
     /**
      *  Builds the template attribute from the node

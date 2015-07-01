@@ -218,7 +218,7 @@ define(function(require) {
         }
       }
     },
- 
+
     "User.set_quota" : {
       type: "multiple",
       call: OpenNebulaResource.set_quota,

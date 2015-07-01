@@ -2,19 +2,19 @@ define(function(require){
   /*
     DEPENDENCIES
    */
-  
+
   var DatastoreCapacityBar = require('tabs/datastores-tab/utils/datastore-capacity-bar');
 
   /*
     TEMPLATES
    */
-  
+
   var TemplateDatastoresCapacityTable = require('hbs!./datastore-capacity-table/html');
 
   /*
     CONSTRUCTOR
    */
-  
+
   return {
     'html': _html
   }
@@ -22,7 +22,7 @@ define(function(require){
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html(element) {
     var hostShare = element.HOST_SHARE;
 

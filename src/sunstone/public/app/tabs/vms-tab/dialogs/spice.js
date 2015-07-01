@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./spice/html');
   var Sunstone = require('sunstone');
@@ -11,7 +11,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./spice/dialogId');
   var TAB_ID = require('../tabId')
 
@@ -35,7 +35,7 @@ define(function(require) {
   Dialog.prototype.setElement = _setElement;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -57,7 +57,7 @@ define(function(require) {
     return false;
   }
 
-  function _onShow(context) {   
+  function _onShow(context) {
     Spice.spiceCallback(this.element);
     return false;
   }

@@ -21,9 +21,9 @@ import org.w3c.dom.Node;
 
 public class SessionTest {
 
-	@Test
-	public void createSession()
-	{
+    @Test
+    public void createSession()
+    {
         Client oneClient = null;
         try
         {
@@ -35,12 +35,12 @@ public class SessionTest {
         }
 
         assertNotNull(oneClient);
-	}
+    }
 
-	@Test
-	public void wrong_url()
-	{
-	    Client oneClient = null;
+    @Test
+    public void wrong_url()
+    {
+        Client oneClient = null;
         try
         {
             // The HTTP is misspelled
@@ -52,7 +52,7 @@ public class SessionTest {
         }
 
         assertNull("Client should complain about misspelled url", oneClient);
-	}
+    }
 
     @Test
     public void version()

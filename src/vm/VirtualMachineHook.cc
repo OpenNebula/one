@@ -33,8 +33,8 @@ void VirtualMachineStateHook::do_hook(void *arg)
         return;
     }
 
-    if ( vm->has_changed_state() && 
-         vm->get_lcm_state() == lcm && 
+    if ( vm->has_changed_state() &&
+         vm->get_lcm_state() == lcm &&
          vm->get_state() == this->vm )
     {
         string  parsed_args = args;

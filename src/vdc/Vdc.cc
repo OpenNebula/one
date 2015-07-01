@@ -35,7 +35,7 @@ const char * Vdc::db_bootstrap = "CREATE TABLE IF NOT EXISTS vdc_pool ("
 /* -------------------------------------------------------------------------- */
 
 Vdc::Vdc(int id, Template* vdc_template):
-        PoolObjectSQL(id, VDC, "", -1, -1, "", "", table), 
+        PoolObjectSQL(id, VDC, "", -1, -1, "", "", table),
         clusters(PoolObjectSQL::CLUSTER),
         hosts(PoolObjectSQL::HOST),
         datastores(PoolObjectSQL::DATASTORE),
@@ -196,9 +196,9 @@ int Vdc::drop(SqlDB * db)
             clusters.del_group_rules(*it);
 
             hosts.del_group_rules(*it);
-    
+
             datastores.del_group_rules(*it);
-    
+
             vnets.del_group_rules(*it);
         }
     }
@@ -305,7 +305,7 @@ int Vdc::from_xml(const string& xml)
     ObjectXML::get_nodes("/VDC/CLUSTERS/CLUSTER", content);
 
     rc += clusters.from_xml_node(content);
-    
+
     ObjectXML::free_nodes(content);
     content.clear();
 
@@ -363,11 +363,11 @@ int Vdc::add_group(int group_id, string& error_msg)
     }
 
     clusters.add_group_rules(group_id);
-    
+
     hosts.add_group_rules(group_id);
-    
+
     datastores.add_group_rules(group_id);
-    
+
     vnets.add_group_rules(group_id);
 
     return 0;
@@ -389,9 +389,9 @@ int Vdc::del_group(int group_id, string& error_msg)
     clusters.del_group_rules(group_id);
 
     hosts.del_group_rules(group_id);
-    
+
     datastores.del_group_rules(group_id);
-    
+
     vnets.del_group_rules(group_id);
 
     return 0;
@@ -426,7 +426,7 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
         // @<gid> DATASTORE+NET/%<cid> USE #<zid>
         case PoolObjectSQL::CLUSTER:
             rules.insert(make_pair(PoolObjectSQL::HOST, AuthRequest::MANAGE));
-            rules.insert(make_pair(PoolObjectSQL::NET|PoolObjectSQL::DATASTORE, 
+            rules.insert(make_pair(PoolObjectSQL::NET|PoolObjectSQL::DATASTORE,
                 AuthRequest::USE));
             xml_name = "CLUSTER";
         break;
@@ -481,7 +481,7 @@ int ResourceSet::from_xml_node(vector<xmlNodePtr>& content)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int ResourceSet::add(const set<int>& groups, int zone_id, int id, 
+int ResourceSet::add(const set<int>& groups, int zone_id, int id,
     string& error_msg)
 {
     set<int>::const_iterator it;
@@ -494,7 +494,7 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
     {
         ostringstream oss;
 
-        oss << PoolObjectSQL::type_to_str(type) << " " << id << " from Zone " 
+        oss << PoolObjectSQL::type_to_str(type) << " " << id << " from Zone "
             << zone_id << " is already assigned to the VDC";
         error_msg = oss.str();
 
@@ -513,7 +513,7 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
 
         vector<int>           del_ids;
         vector<int>::iterator del_it;
-        
+
         set<pair<int, int> >::iterator res_it;
 
         for (res_it = resources.begin(); res_it != resources.end(); res_it++)
@@ -536,7 +536,7 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int ResourceSet::del(const set<int>& groups, int zone_id, int id, 
+int ResourceSet::del(const set<int>& groups, int zone_id, int id,
     string& error_msg)
 {
     set<int>::const_iterator it;
@@ -545,7 +545,7 @@ int ResourceSet::del(const set<int>& groups, int zone_id, int id,
     {
         ostringstream oss;
 
-        oss << PoolObjectSQL::type_to_str(type) << " " << id << " from Zone " 
+        oss << PoolObjectSQL::type_to_str(type) << " " << id << " from Zone "
             << zone_id << " is not assigned to the VDC ";
         error_msg = oss.str();
 
@@ -608,7 +608,7 @@ void ResourceSet::add_rule(int group_id, int zone_id, int id)
     }
     else
     {
-        mask_prefix = AclRule::INDIVIDUAL_ID | id;   
+        mask_prefix = AclRule::INDIVIDUAL_ID | id;
     }
 
     for (it = rules.begin(); it != rules.end(); it++)
@@ -652,7 +652,7 @@ void ResourceSet::del_rule(int group_id, int zone_id, int id)
     }
     else
     {
-        mask_prefix = AclRule::INDIVIDUAL_ID | id;   
+        mask_prefix = AclRule::INDIVIDUAL_ID | id;
     }
 
     for (it = rules.begin(); it != rules.end(); it++)

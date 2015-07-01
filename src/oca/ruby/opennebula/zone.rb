@@ -85,7 +85,7 @@ module OpenNebula
         #   otherwise
         def update(new_template=nil, append=false)
             super(ZONE_METHODS[:update], new_template, append ? 1 : 0)
-        end       
+        end
 
         # Deletes the Zone
         # @return [nil, OpenNebula::Error] nil in case of success, Error

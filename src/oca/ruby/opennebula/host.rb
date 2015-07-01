@@ -240,7 +240,7 @@ module OpenNebula
 
         # Returns the <TEMPLATE> element in text form
         # indent:: _Boolean_ indents the resulting string, default true
-        def template_str(indent=true) 
+        def template_str(indent=true)
             template_like_str('TEMPLATE', indent)
         end
 

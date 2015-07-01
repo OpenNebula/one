@@ -3,7 +3,7 @@ define(function(require) {
     This module insert a row with the name of the resource.
     The row can be edited and a rename action will be sent
    */
-  
+
   var TemplateClusterTr = require('hbs!./cluster-tr/html');
   var ResourceSelect = require('utils/resource-select');
   var Sunstone = require('sunstone');

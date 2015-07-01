@@ -113,7 +113,7 @@ class SshStream
                 rescue #rescue from EOF if ssh command finishes and closes fds
                     next
                 end
- 
+
                 if fd == @stdout
                     @out << c
                     done_out = true if @out.slice!("#{EOF_OUT}\n")
@@ -123,7 +123,7 @@ class SshStream
                     tmp = @err.scan(/^#{SSH_RC_STR}(\d+)$/)
 
                     if tmp[0]
-                        message = "Error connecting to #{@host}" 
+                        message = "Error connecting to #{@host}"
                         code    = tmp[0][0].to_i
 
                         @err << OpenNebula.format_error_message(message)
@@ -237,7 +237,7 @@ if $0 == __FILE__
 
     cssh = SshStreamCommand.new('no_host',
                                 '/tmp',
-                                lambda { |e| STDOUT.puts "error: #{e}" }, 
+                                lambda { |e| STDOUT.puts "error: #{e}" },
                                 nil)
     cssh.run('whoami')
 end

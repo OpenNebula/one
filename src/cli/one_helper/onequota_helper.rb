@@ -74,7 +74,7 @@ class OneQuotaHelper
 
     #  Edits the quota template of a resource
     #  @param [XMLElement] resource to get the current info from
-    #  @param [String] path to the new contents. If nil a editor will be 
+    #  @param [String] path to the new contents. If nil a editor will be
     #         used
     #  @param [True|False] is_default To change the help text
     #  @return [String] contents of the new quotas
@@ -122,7 +122,7 @@ class OneQuotaHelper
 
     #  Retrieves a clean quota template, without any existing resource
     #  information
-    #  @param path [String] path to the new contents. If nil a editor will be 
+    #  @param path [String] path to the new contents. If nil a editor will be
     #         used
     #  @return [String] contents of the new quotas
     def self.get_batch_quota(path)
@@ -159,7 +159,7 @@ class OneQuotaHelper
     #  Edits the quota template of a resource, adding the quotas set in str
     #  @param resource [PoolElement] to get the current info from
     #  @param str [String] quota template, created by get_batch_quota()
-    #  @return [String, OpenNebula::Error] merged contents of the new quotas on 
+    #  @return [String, OpenNebula::Error] merged contents of the new quotas on
     #    success, Error if the user info could not be retrieved
     def self.merge_quota(resource, str)
         rc = resource.info

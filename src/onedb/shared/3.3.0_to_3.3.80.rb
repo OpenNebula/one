@@ -104,7 +104,7 @@ module Migrator
 
         # Insert system datastore
 
-        xml = 
+        xml =
         "<DATASTORE>" <<
         "  <ID>0</ID>" <<
         "  <UID>0</UID>" <<

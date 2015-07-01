@@ -31,7 +31,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
         table = CLIHelper::ShowTable.new(config_file, self) do
             column :CURRENT, "Active Zone", :size=>1 do |d|
-                "*" if helper.client.one_endpoint.strip == 
+                "*" if helper.client.one_endpoint.strip ==
                        d["TEMPLATE"]['ENDPOINT'].strip
             end
 
@@ -45,7 +45,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
 
             column :ENDPOINT, "Endpoint of the Zone", :left, :size=>45 do |d|
                 d["TEMPLATE"]['ENDPOINT']
-            end            
+            end
 
             default :CURRENT, :ID, :NAME, :ENDPOINT
         end
@@ -62,14 +62,14 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
       end
 
       if !zone['TEMPLATE/ENDPOINT']
-        return -1, "No Endpoint defined for Zone #{zone_id}" 
+        return -1, "No Endpoint defined for Zone #{zone_id}"
       end
 
-      File.open(ENV['HOME']+"/.one/one_endpoint", 'w'){|f| 
+      File.open(ENV['HOME']+"/.one/one_endpoint", 'w'){|f|
          f.puts zone['TEMPLATE/ENDPOINT']
       }
 
-      puts "Endpoint changed to \"#{zone['TEMPLATE/ENDPOINT']}\" in " << 
+      puts "Endpoint changed to \"#{zone['TEMPLATE/ENDPOINT']}\" in " <<
            "#{ENV['HOME']}/.one/one_endpoint"
       return 0
     end

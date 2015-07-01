@@ -167,7 +167,7 @@ end
 
 # Command line help functions
 module CloudCLI
-   	def print_xml(xml_text)
+    def print_xml(xml_text)
         begin
             doc = REXML::Document.new(xml_text)
         rescue REXML::ParseException => e

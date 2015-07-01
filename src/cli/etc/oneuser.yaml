@@ -1,24 +1,24 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for the User
   :size: 4
 
-:NAME: 
+:NAME:
   :desc: Name of the User
   :size: 15
   :left: true
 
-:GROUP: 
+:GROUP:
   :desc: Group of the User
   :size: 10
   :left: true
 
-:AUTH: 
+:AUTH:
   :desc: Auth driver of the User
   :size: 8
   :left: true
 
-:VMS: 
+:VMS:
   :desc: Number of VMS
   :size: 9
 
@@ -30,7 +30,7 @@
   :desc: Total CPU allocated to user VMs
   :size: 11
 
-:PASSWORD: 
+:PASSWORD:
   :desc: Password of the User
   :size: 50
 

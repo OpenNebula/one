@@ -31,7 +31,7 @@ VM_ID=`basename $TEMP_PATH`
 TEMP_PATH=`dirname $TEMP_PATH`
 DATASTORE=`basename $TEMP_PATH`
 
-DISK_PATH="/vmfs/volumes/$DATASTORE/$VM_ID/$DISK_NAME/disk.vmdk" 
+DISK_PATH="/vmfs/volumes/$DATASTORE/$VM_ID/$DISK_NAME/disk.vmdk"
 
 # Get the VMware ID corresponding to the deploy_id
 VMWAREID=`$SUDO vim-cmd vmsvc/getallvms|grep $DEPLOYID|cut -d' ' -f 1`

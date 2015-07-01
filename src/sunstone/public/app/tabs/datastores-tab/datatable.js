@@ -2,17 +2,17 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var OpenNebulaDatastore = require('opennebula/datastore');
   var DatastoreCapacityBar = require('./utils/datastore-capacity-bar');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "Datastore";
   var XML_ROOT = "DATASTORE";
   var TAB_NAME = require('./tabId');
@@ -20,7 +20,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   /*
     @dataTableId
     @param {String} dataTableId unique identifier

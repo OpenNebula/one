@@ -1,9 +1,9 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for the Cluster
   :size: 5
 
-:NAME: 
+:NAME:
   :desc: Name of the Cluster
   :size: 25
   :left: true
@@ -17,7 +17,7 @@
   :size: 5
 
 :DATASTORES:
-  :desc: Number of Datastores 
+  :desc: Number of Datastores
   :size: 10
 
 :default:

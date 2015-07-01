@@ -2,7 +2,7 @@ define(function(require){
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var Config = require('sunstone-config');

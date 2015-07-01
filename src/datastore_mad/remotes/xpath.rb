@@ -58,7 +58,7 @@ end
 xml = REXML::Document.new(tmp).root
 
 ARGV.each do |xpath|
-	element = xml.elements[xpath.dup]
+    element = xml.elements[xpath.dup]
     values << element.text.to_s if !element.nil?
     values << "\0"
 end

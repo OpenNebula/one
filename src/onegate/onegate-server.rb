@@ -156,7 +156,7 @@ helpers do
         permissions = settings.config[:permissions]
         unless permissions && permissions[resource] && permissions[resource][action]
             error_msg = "Action (#{action}) on resource (#{resource}) not supported"
-            logger.error {error_msg} 
+            logger.error {error_msg}
             halt 403, error_msg
         end
     end

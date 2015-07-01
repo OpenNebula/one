@@ -2,15 +2,15 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "Zone";
   var XML_ROOT = "ZONE";
   var TAB_NAME = require('./tabId');
@@ -18,7 +18,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;

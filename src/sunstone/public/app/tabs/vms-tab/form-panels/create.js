@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -19,7 +19,7 @@ define(function(require) {
    */
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
-  
+
   /*
     CONSTANTS
    */
@@ -56,11 +56,11 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _htmlWizard() {
 
     return TemplateWizardHTML({

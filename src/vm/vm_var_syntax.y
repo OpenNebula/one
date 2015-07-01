@@ -444,7 +444,7 @@ void insert_vector(VirtualMachine * vm,
 %token <val_str>  VARIABLE
 %token <val_str>  RSTRING
 %token <val_int>  INTEGER
-%type  <void>	  vm_variable
+%type  <void>     vm_variable
 %type  <void>     vm_string
 
 %%

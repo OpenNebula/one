@@ -12,7 +12,7 @@ define(function(require) {
   require('vnc-jsunzip');
   require('vnc-rfb');
   require('vnc-keysym');
-  
+
   var Config = require('sunstone-config');
 
   var _lock = false;

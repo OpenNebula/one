@@ -2,20 +2,20 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
 
   /*
     TEMPLATES
    */
-  
+
   var TemplateInfo = require('hbs!./template/html');
 
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./template/panelId');
   var RESOURCE = "Template"

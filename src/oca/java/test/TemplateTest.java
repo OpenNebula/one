@@ -228,7 +228,7 @@ public class TemplateTest
         assertTrue( template.xpath("PERMISSIONS/OTHER_M").equals("1") );
         assertTrue( template.xpath("PERMISSIONS/OTHER_A").equals("1") );
     }
-    
+
     @Test
     public void attributes()
     {

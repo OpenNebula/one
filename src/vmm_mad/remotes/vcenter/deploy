@@ -41,8 +41,8 @@ lcm_state = vm.lcm_state_str
 deploy_id = vm.deploy_id
 
 begin
-    puts VCenterDriver::VCenterVm.deploy(File.read(dfile), 
-                                         lcm_state, 
+    puts VCenterDriver::VCenterVm.deploy(File.read(dfile),
+                                         lcm_state,
                                          deploy_id,
                                          host)
 rescue Exception => e

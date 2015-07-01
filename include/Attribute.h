@@ -161,12 +161,12 @@ public:
      */
     string * to_xml() const
     {
-    	string * xml = new string;
+        string * xml = new string;
 
-    	*xml = "<" + name() + "><![CDATA[" + attribute_value
-    		 + "]]></"+ name() + ">";
+        *xml = "<" + name() + "><![CDATA[" + attribute_value
+             + "]]></"+ name() + ">";
 
-    	return xml;
+        return xml;
     }
 
     /**
@@ -474,9 +474,9 @@ public:
 
 private:
 
-	static const char * magic_sep;
+    static const char * magic_sep;
 
-	static const int	magic_sep_size;
+    static const int    magic_sep_size;
 
     map<string,string> attribute_value;
 };

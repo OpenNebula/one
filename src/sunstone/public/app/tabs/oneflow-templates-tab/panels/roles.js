@@ -2,13 +2,13 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BasePanel = require('tabs/oneflow-services-tab/panels/roles');
 
   /*
     CONSTANTS
    */
-  
+
   var PANEL_ID = require('./roles/panelId');
 
   /*

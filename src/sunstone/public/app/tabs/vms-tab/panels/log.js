@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
   var OpenNebulaVM = require('opennebula/vm');
@@ -10,7 +10,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./log/panelId');
   var RESOURCE = "VM"
@@ -70,14 +70,14 @@ define(function(require) {
           }
           colored_log += line + "<br>";
         }
-        
+
         $('.vm_log_container', context).html(
           '<div class="row">' +
-            '<div class="large-11 small-centered columns log-tab">' + 
-              colored_log + 
-            '</div>' + 
+            '<div class="large-11 small-centered columns log-tab">' +
+              colored_log +
+            '</div>' +
           '</div>')
-        
+
       },
       error: function(request, error_json) {
         $('.vm_log_container', context).html('');

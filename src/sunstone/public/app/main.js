@@ -292,7 +292,7 @@ require.config({
         'spice-spiceconn'
       ]
     },
-    
+
     'spice-cursor': {
       deps: [
         'spice-spiceconn'

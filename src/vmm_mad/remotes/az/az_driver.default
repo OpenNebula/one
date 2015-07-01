@@ -16,8 +16,8 @@
 <!--
  Default configuration attributes for the Azure driver
  (all domains will use these values as defaults)
- Valid attributes are: INSTANCE_TYPE, IMAGE, VM_USER, VM_PASSWORD, LOCATION, 
- STORAGE_ACCOUNT, WIN_RM, CLOUD_SERVICE, TCP_ENDPOINTS, SSHPORT, AFFINITY_GROUP, 
+ Valid attributes are: INSTANCE_TYPE, IMAGE, VM_USER, VM_PASSWORD, LOCATION,
+ STORAGE_ACCOUNT, WIN_RM, CLOUD_SERVICE, TCP_ENDPOINTS, SSHPORT, AFFINITY_GROUP,
  VIRTUAL_NETWORK_NAME, SUBNET and AVAILABILITY_SET
  Use XML syntax to specify defaults, note elements are UPCASE
  Example:

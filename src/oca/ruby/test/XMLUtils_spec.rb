@@ -74,10 +74,10 @@ require 'opennebula/XMLUtils'
     describe 'NOKOGIRI' do
         before :all do
             xml = "<V1><A1>auno</A1></V1>"
-    
+
             bxml = OpenNebula::XMLElement.build_xml(xml, "V1")
             bxml.class.to_s.should eql('Nokogiri::XML::NodeSet')
-    
+
             @xml_element = OpenNebula::XMLElement.new(bxml)
         end
 
@@ -87,12 +87,12 @@ require 'opennebula/XMLUtils'
     describe 'REXML' do
         before :all do
             OpenNebula::NOKOGIRI = false
-    
+
             xml = "<V1><A1>auno</A1></V1>"
-    
+
             bxml = OpenNebula::XMLElement.build_xml(xml, "V1")
             bxml.class.to_s.should eql('REXML::Element')
-    
+
             @xml_element = OpenNebula::XMLElement.new(bxml)
         end
 

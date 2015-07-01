@@ -83,7 +83,7 @@ define(function(require) {
     });
 
     fillGroupQuotas('-1', context);
-    
+
     return false;
   }
 

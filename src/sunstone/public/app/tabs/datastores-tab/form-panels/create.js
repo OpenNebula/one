@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -21,7 +21,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
 
@@ -54,7 +54,7 @@ define(function(require) {
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -80,7 +80,7 @@ define(function(require) {
 
     ResourceSelect.insert('div#cluster_id', dialog, "Cluster", cluster_id, false);
     ResourceSelect.insert('div#datastore_cluster_raw', dialog, "Cluster", cluster_id_raw, false);
-    
+
     return false;
   }
 

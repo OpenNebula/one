@@ -3,7 +3,7 @@ define(function(require) {
     This module insert a table with the template of the resource.
     New KEY=VALUE entries can be added and existing ones can be edited
    */
-  
+
   var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
@@ -383,7 +383,7 @@ define(function(require) {
                                  <a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fa fa-pencil-square-o"/><i class="fa fa-trash-o"/></a>\
                                </span>\
                              </td>'
-                      
+
           str += fromJSONtoHTMLTable(current_value,
                                      resourceType,
                                      field,

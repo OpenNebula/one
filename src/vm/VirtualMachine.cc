@@ -3683,7 +3683,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
     string perm_xml;
     string snap_xml;
 
-    ostringstream	oss;
+    ostringstream   oss;
 
     oss << "<VM>"
         << "<ID>"        << oid       << "</ID>"
@@ -4246,14 +4246,14 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
         snap_id   = snap->create_snapshot(tag, size_mb);
         snap_size = size_mb;
 
-		if (snap_id != -1)
-		{
-			snapshots.insert(pair<int, Snapshots *>(did, snap));
-		}
-		else
-		{
-			delete snap;
-		}
+        if (snap_id != -1)
+        {
+            snapshots.insert(pair<int, Snapshots *>(did, snap));
+        }
+        else
+        {
+            delete snap;
+        }
     }
     else
     {
@@ -4261,12 +4261,12 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
         snap_size = it->second->get_total_size();
     }
 
-	if (snap_id != -1)
-	{
-		disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
-		disk->replace("DISK_SNAPSHOT_ID", snap_id);
+    if (snap_id != -1)
+    {
+        disk->replace("DISK_SNAPSHOT_ACTIVE", "YES");
+        disk->replace("DISK_SNAPSHOT_ID", snap_id);
         disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
-	}
+    }
 
     return snap_id;
 }
@@ -4368,7 +4368,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
 
         (*quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
         (*quotas)->add("SIZE", (long long) ssize);
-		(*quotas)->add("IMAGES",0 );
+        (*quotas)->add("IMAGES",0 );
 
         type = Quotas::DATASTORE;
     }

@@ -48,8 +48,8 @@ private:
         return -1;
     }
 
-    int add_rule(long long user, 
-                 long long resource, 
+    int add_rule(long long user,
+                 long long resource,
                  long long rights,
                  string&   error_str)
     {
@@ -72,7 +72,7 @@ private:
      *  Loads the ACL rule set from its XML representation:
      *  as obtained by a dump call
      *
-     *    @param xml_str string with the XML document for the ACL 
+     *    @param xml_str string with the XML document for the ACL
      *    @return 0 on success.
      */
     int load_rules(const string& xml_str);

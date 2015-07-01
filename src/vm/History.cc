@@ -63,11 +63,11 @@ History::History(
 /* -------------------------------------------------------------------------- */
 
 History::History(
-    int	_oid,
-    int	_seq,
-    int	_hid,
+    int _oid,
+    int _seq,
+    int _hid,
     const string& _hostname,
-    int _cid,    
+    int _cid,
     const string& _vmm,
     const string& _vnm,
     const string& _tmm,
@@ -345,7 +345,7 @@ int History::rebuild_attributes()
     rc += xpath(seq              , "/HISTORY/SEQ",         -1);
     rc += xpath(hostname         , "/HISTORY/HOSTNAME",    "not_found");
     rc += xpath(hid              , "/HISTORY/HID",         -1);
-    rc += xpath(cid              , "/HISTORY/CID",         -1);    
+    rc += xpath(cid              , "/HISTORY/CID",         -1);
     rc += xpath(stime            , "/HISTORY/STIME",       0);
     rc += xpath(etime            , "/HISTORY/ETIME",       0);
     rc += xpath(vmm_mad_name     , "/HISTORY/VMMMAD",      "not_found");

@@ -90,7 +90,7 @@ SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
 if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
-	echo "Not moving files to image repo, they are the same"
+    echo "Not moving files to image repo, they are the same"
 else
     $QEMU_IMG convert $SRC_PATH -O qcow2 $DST_PATH
 fi

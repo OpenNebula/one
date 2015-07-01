@@ -23,7 +23,7 @@
 #include "vm_var_syntax.h"
 #include "mem_collector.h"
 
-#define YY_NO_INPUT 
+#define YY_NO_INPUT
 
 #define YY_DECL int vm_var_lex (YYSTYPE *lvalp, YYLTYPE *llocp, \
                                 mem_collector *mc)

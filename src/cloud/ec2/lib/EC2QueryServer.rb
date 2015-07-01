@@ -136,7 +136,7 @@ class EC2QueryServer < CloudServer
         if image_id =~ /ami\-(.+)/
             image_id = $1
         end
-        
+
         image = ImageEC2.new(Image.build_xml(image_id.to_i), @client)
         rc = image.info
         if OpenNebula.is_error?(rc)

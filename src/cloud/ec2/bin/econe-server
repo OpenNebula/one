@@ -41,53 +41,53 @@ setup()
         mkdir -p $TMPDIR
     fi
 
-	if [ -f $ECONE_LOCK_FILE ]; then
-		if [ -f  $ECONE_PID ]; then
-			ECONEPID=`cat $ECONE_PID`
-			ps $ECONEPID > /dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo "econe-server is still running (PID:$ECONEPID). Please try 'econe-server stop' first."
-				exit 1
-			fi
-		fi
-		echo "Stale .lock detected. Erasing it."
-		rm $ECONE_LOCK_FILE
-	fi
+    if [ -f $ECONE_LOCK_FILE ]; then
+        if [ -f  $ECONE_PID ]; then
+            ECONEPID=`cat $ECONE_PID`
+            ps $ECONEPID > /dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                echo "econe-server is still running (PID:$ECONEPID). Please try 'econe-server stop' first."
+                exit 1
+            fi
+        fi
+        echo "Stale .lock detected. Erasing it."
+        rm $ECONE_LOCK_FILE
+    fi
 }
 
 start()
 {
-	if [ ! -f "$ECONE_SERVER" ]; then
-		echo "Cannot find $ECONE_SERVER."
-		exit 1
-	fi
+    if [ ! -f "$ECONE_SERVER" ]; then
+        echo "Cannot find $ECONE_SERVER."
+        exit 1
+    fi
 
     touch $ECONE_LOCK_FILE
 
-	# Start the econe-server daemon
-	ruby $ECONE_SERVER >$ECONE_LOG 2>$ECONE_LOG_ERROR &
+    # Start the econe-server daemon
+    ruby $ECONE_SERVER >$ECONE_LOG 2>$ECONE_LOG_ERROR &
 
-	LASTRC=$?
-	LASTPID=$!
+    LASTRC=$?
+    LASTPID=$!
 
-	if [ $LASTRC -ne 0 ]; then
-		echo "Error executing econe-server."
-		echo "Check $ECONE_LOG_ERROR and $ECONE_LOG for more information"
-		exit 1
-	else
-		echo $LASTPID > $ECONE_PID
-	fi
-
-	sleep 2
-	ps $LASTPID > /dev/null 2>&1
-
-	if [ $? -ne 0 ]; then
-		echo "Error executing econe-server."
+    if [ $LASTRC -ne 0 ]; then
+        echo "Error executing econe-server."
         echo "Check $ECONE_LOG_ERROR and $ECONE_LOG for more information"
-		exit 1
-	fi
+        exit 1
+    else
+        echo $LASTPID > $ECONE_PID
+    fi
 
-	echo "econe-server started"
+    sleep 2
+    ps $LASTPID > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo "Error executing econe-server."
+        echo "Check $ECONE_LOG_ERROR and $ECONE_LOG for more information"
+        exit 1
+    fi
+
+    echo "econe-server started"
 }
 
 #
@@ -95,41 +95,41 @@ start()
 #
 stop()
 {
-	if [ ! -f $ECONE_PID ]; then
-		echo "Couldn't find econe-server process pid."
-		exit 1
-	fi
+    if [ ! -f $ECONE_PID ]; then
+        echo "Couldn't find econe-server process pid."
+        exit 1
+    fi
 
-	# Kill the econe-server daemon
+    # Kill the econe-server daemon
 
-	kill -INT `cat $ECONE_PID` > /dev/null 2>&1
+    kill -INT `cat $ECONE_PID` > /dev/null 2>&1
 
-	# Remove pid files
+    # Remove pid files
 
-	rm -f $ECONE_PID > /dev/null 2>&1
+    rm -f $ECONE_PID > /dev/null 2>&1
     rm -f $ECONE_LOCK_FILE > /dev/null 2>&1
 
-	echo "econe-server stopped"
+    echo "econe-server stopped"
 }
 
 
 case "$1" in
   start)
-	setup
-	start
-	;;
+    setup
+    start
+    ;;
   stop)
-	stop
-	;;
+    stop
+    ;;
   restart)
     stop
     setup
     start
     ;;
   *)
-	echo "Usage: econe-server {start|stop|restart}" >&2
-	exit 3
-	;;
+    echo "Usage: econe-server {start|stop|restart}" >&2
+    exit 3
+    ;;
 esac
 
 

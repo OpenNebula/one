@@ -56,7 +56,7 @@ class OneDBBacKEnd
                     ret[:local_timestamp] = row[:timestamp]
                     ret[:local_comment]   = row[:comment]
                     ret[:is_slave]        = row[:is_slave]
-               end 
+               end
             rescue Exception => e
                 if e.class == Sequel::DatabaseConnectionError
                     raise e

@@ -1,13 +1,13 @@
 define(function(require) {
   require('foundation.slider');
   var QuotaLimits = require('utils/quotas/quota-limits');
-  
+
   return {
     'setup': setup_provision_quota_widget,
     'reset': reset_provision_quota_widget,
     'retrieve': retrieve_provision_quota_widget
   }
-  
+
   function setup_provision_quota_widget(context) {
     context.foundation('reflow', 'slider');
     // Mode selector, for the 3 sliders

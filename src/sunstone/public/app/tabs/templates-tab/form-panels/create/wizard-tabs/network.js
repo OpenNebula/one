@@ -15,7 +15,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./network/html');
-  
+
   /*
     CONSTANTS
    */
@@ -27,7 +27,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     if (!Config.isTemplateCreationTabEnabled('network')) {
       throw "Wizard Tab not enabled";
@@ -49,11 +49,11 @@ define(function(require) {
   WizardTab.prototype.addNicTab = _addNicTab;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'linksContainerId': LINKS_CONTAINER_ID,

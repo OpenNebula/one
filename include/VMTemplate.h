@@ -112,8 +112,8 @@ protected:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    VMTemplate(int id, 
-               int uid, 
+    VMTemplate(int id,
+               int uid,
                int gid,
                const string& uname,
                const string& gname,

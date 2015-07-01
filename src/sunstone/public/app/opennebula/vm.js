@@ -669,6 +669,6 @@ define(function(require) {
         graphics.TYPE.toLowerCase() == "spice" &&
         $.inArray(state, VNC_STATES) != -1);
   }
-  
+
   return VM;
 })

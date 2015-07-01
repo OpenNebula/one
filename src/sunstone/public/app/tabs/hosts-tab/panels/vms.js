@@ -2,10 +2,10 @@ define(function(require){
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var VMsTable = require('tabs/vms-tab/datatable');
-  
+
   /*
     CONSTANTS
    */

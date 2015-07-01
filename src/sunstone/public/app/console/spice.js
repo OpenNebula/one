@@ -1,6 +1,6 @@
 define(function(require) {
   require('spice-main');
-  
+
   var host = null, port = null;
   var sc;
 

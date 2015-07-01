@@ -2,7 +2,7 @@ define(function(require) {
   /*
     Generate the HTML representing the capacity of the Datastore
    */
-  
+
   var ProgressBar = require('utils/progress-bar');
   var Humanize = require('utils/humanize')
 

@@ -50,7 +50,7 @@ public:
     VirtualMachineChmod():
         RequestManagerChmod("VirtualMachineChmod",
                             "Changes permission bits of a virtual machine")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
@@ -68,7 +68,7 @@ public:
     TemplateChmod():
         RequestManagerChmod("TemplateChmod",
                             "Changes permission bits of a virtual machine template")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_tpool();
         auth_object = PoolObjectSQL::TEMPLATE;
@@ -86,7 +86,7 @@ public:
     VirtualNetworkChmod():
         RequestManagerChmod("VirtualNetworkChmod",
                            "Changes permission bits of a virtual network")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vnpool();
         auth_object = PoolObjectSQL::NET;
@@ -105,7 +105,7 @@ public:
     ImageChmod():
         RequestManagerChmod("ImageChmod",
                             "Changes permission bits of an image")
-    {    
+    {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_ipool();
         auth_object = PoolObjectSQL::IMAGE;

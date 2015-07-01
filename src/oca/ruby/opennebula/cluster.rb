@@ -188,7 +188,7 @@ module OpenNebula
 
         # Returns whether or not the host with 'id' is part of this cluster
         # @param id [Integer|Array] host ID
-        # @return [Boolean] true if found 
+        # @return [Boolean] true if found
         def contains_host?(id)
             contains_resource?('HOSTS/ID', id)
         end
@@ -207,7 +207,7 @@ module OpenNebula
 
         # Returns whether or not the datastore with 'id' is part of this cluster
         # @param id [Integer|Array] datastore ID
-        # @return [Boolean] true if found 
+        # @return [Boolean] true if found
         def contains_datastore?(id)
             contains_resource?('DATASTORES/ID', id)
         end
@@ -226,7 +226,7 @@ module OpenNebula
 
         # Returns whether or not the vnet with 'id' is part of this cluster
         # @param id [Integer|Arrray] vnet ID
-        # @return [Boolean] true if found 
+        # @return [Boolean] true if found
         def contains_vnet?(id)
             contains_resource?('VNETS/ID', id)
         end
@@ -252,7 +252,7 @@ module OpenNebula
 
             id = [id] if id.class != Array
 
-            id.each { |i| 
+            id.each { |i|
                 return false if !id_array.include?(i.to_s)
             }
 

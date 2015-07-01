@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var SecurityGroupsTable = require('tabs/secgroups-tab/datatable');
 

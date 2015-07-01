@@ -2,10 +2,10 @@ define(function(require){
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var ImagesTable = require('tabs/images-tab/datatable');
-  
+
   /*
     CONSTANTS
    */

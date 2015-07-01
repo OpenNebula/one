@@ -37,11 +37,11 @@ define(function(require) {
 
     OpenNebulaAuth.login({
       data: {
-        username: username, 
+        username: username,
         password: password
-      }, 
-      remember: remember, 
-      success: auth_success, 
+      },
+      remember: remember,
+      success: auth_success,
       error: auth_error
     });
   }

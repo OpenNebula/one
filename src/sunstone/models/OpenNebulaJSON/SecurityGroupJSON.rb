@@ -53,7 +53,7 @@ module OpenNebulaJSON
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
                      OpenNebula::Error.new(error_msg)
-                 end 
+                 end
         end
 
         def update(params=Hash.new)

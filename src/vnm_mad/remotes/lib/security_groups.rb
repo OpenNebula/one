@@ -48,14 +48,14 @@ module VNMNetwork
         # Rule type.
         TYPES = [
             :protocol,      # Type  1: block the whole protocol
-            :portrange,     # Type 2a: block a port range within a protocol 
-            :icmp_type,     # Type 2b: block selected icmp types 
+            :portrange,     # Type 2a: block a port range within a protocol
+            :icmp_type,     # Type 2b: block selected icmp types
             :net,           # Type  3: block a whole protocol for a network
             :net_portrange, # Type 4a: block a port range from a network
-            :net_icmp_type  # Type 4b: block selected icmp types from a network 
+            :net_icmp_type  # Type 4b: block selected icmp types from a network
         ]
 
-        # Initialize a new rule. 
+        # Initialize a new rule.
         def initialize(rule)
             @rule     = rule
             @protocol = @rule[:protocol].downcase.to_sym
@@ -77,13 +77,13 @@ module VNMNetwork
             case @type
                 when :protocol
                     process_protocol(cmds, vars)
-        
+
                 when :portrange
                     process_portrange(cmds, vars)
-                
+
                 when :icmp_type
                     process_icmp_type(cmds, vars)
-                    
+
                 when :net
                     process_net(cmds, vars)
 
@@ -93,17 +93,17 @@ module VNMNetwork
                 when :net_icmp_type
                     process_net_icmp_type(cmds, vars)
             end
-        end        
+        end
 
         # Return the network blocks associated to the rule
-        #   @return [Array<String>] each network block in CIDR. 
+        #   @return [Array<String>] each network block in CIDR.
         def net
             return [] if @ip.nil? || @size.nil?
 
             VNMNetwork::to_nets(@ip, @size.to_i)
         end
 
-        # Expand the ICMP type with associated codes if any 
+        # Expand the ICMP type with associated codes if any
         #   @return [Array<String>] expanded ICMP types to include all codes
         def icmp_type_expand
             if (codes = ICMP_TYPES_EXPANDED[@icmp_type.to_i])
@@ -123,7 +123,7 @@ module VNMNetwork
             12 => [0, 1]
         }
 
-        # Depending on the combination of the rule attributes derive the 
+        # Depending on the combination of the rule attributes derive the
         # rule type:
         #
         # @protocol + @rule_type => Type 1: 'protocol'
@@ -168,7 +168,7 @@ module VNMNetwork
         end
 
         def process_net_icmp_type(cmds, vars)
-        end            
+        end
     end
 
     ############################################################################
@@ -210,7 +210,7 @@ module VNMNetwork
             @commands.uniq!
          end
 
-        # Execute the implementation commands, process_rules MUST be called 
+        # Execute the implementation commands, process_rules MUST be called
         # before this method
         def run!
             @commands.run!

@@ -34,8 +34,8 @@ require 'OpenNebulaDriver'
 require 'getoptlong'
 require 'shellwords'
 
-# This is a generic AuthZ/AuthN driver able to manage multiple authentication 
-# protocols (simultaneosly). It also supports the definition of custom 
+# This is a generic AuthZ/AuthN driver able to manage multiple authentication
+# protocols (simultaneosly). It also supports the definition of custom
 # authorization methods
 class AuthDriver < OpenNebulaDriver
 
@@ -48,7 +48,7 @@ class AuthDriver < OpenNebulaDriver
 
     # Initialize an AuthDriver
     #
-    # @param [String] the authorization method to be used, nil to use the 
+    # @param [String] the authorization method to be used, nil to use the
     #        built-in ACL engine
     # @param [Array] authentication modules enabled, nil will use any
     #        any method existing in remotes directory
@@ -95,10 +95,10 @@ class AuthDriver < OpenNebulaDriver
         }
     end
 
-    # Authenticate a user based in a string of the form user:secret when using the 
+    # Authenticate a user based in a string of the form user:secret when using the
     # driver secret is protocol:token
     # @param [String] the id for this request, used by OpenNebula core
-    #        to identify the request 
+    #        to identify the request
     # @param [String] id of the user, "-1" if not in defined in OpenNebula
     # @param [String] driver to be used
     # @param [Strgin] user filed of the auth string
@@ -132,22 +132,22 @@ class AuthDriver < OpenNebulaDriver
 
         send_message(ACTION[:authN], result, request_id, info)
     end
-    
-    # Authenticate a user based in a string of the form user:secret when using the 
+
+    # Authenticate a user based in a string of the form user:secret when using the
     # driver secret is protocol:token
     # @param [String] the id for this request, used by OpenNebula core
-    #        to identify the request 
+    #        to identify the request
     # @param [String] id of the user, "-1" if not in defined in OpenNebula
-    # @param [Array] of auth strings, last element is the ACL evaluation of 
+    # @param [Array] of auth strings, last element is the ACL evaluation of
     #        the overall request (0 = denied, 1 = granted). Each request is in
     #        the form:
     #        OBJECT:<TEMPLATE_64|OBJECT_ID>:OPERATION:OWNER:ACL_EVAL
     def authZ(request_id, user_id, *requests)
-        
+
         requests.flatten!
 
         #OpenNebula.log_debug("authZ: #{request_id} #{user_id} #{requests}")
-        
+
         if @authZ_cmd == nil
             if requests[-1] == "1"
                 result = RESULT[:success]
@@ -159,7 +159,7 @@ class AuthDriver < OpenNebulaDriver
         else
             command = @authZ_cmd.clone
             command << ' ' << user_id << ' ' << requests.join(' ')
-            
+
             rc = LocalCommand.run(command, log_method(request_id))
 
             result , info = get_info_from_execution(rc)

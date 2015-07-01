@@ -48,7 +48,7 @@ function execute_mad
         MAD_LOG_PATH=/var/log/one/$LOG_FILE.log
     else
         MAD_EXEC_PATH=$ONE_LOCATION/lib/mads/$MAD_FILE.rb
-    	MAD_LOG_PATH=$ONE_LOCATION/var/$LOG_FILE.log
+        MAD_LOG_PATH=$ONE_LOCATION/var/$LOG_FILE.log
     fi
 
     if [ -n "${ONE_MAD_DEBUG}" ]; then

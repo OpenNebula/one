@@ -9,16 +9,16 @@ module OpenNebula
     describe "VirtualNetwork using NOKOGIRI" do
         before(:all) do
             NOKOGIRI=true
-            
+
             client = MockClient.new()
             @vnet_pool = VirtualNetworkPool.new(client)
         end
-        
+
         #it "should get nil, trying to get a hash, if the info method was not called before" do
         #    vnet_hash = @vnet_pool.to_hash
         #    vnet_hash.nil?.should eql(true)
         #end
-        
+
         it "should update the VNET_POOL info" do
             rc = @vnet_pool.info()
             rc.nil?.should eql(true)
@@ -45,11 +45,11 @@ module OpenNebula
             }
         end
     end
-    
+
     describe "VirtualNetwork using REXML" do
         before(:all) do
             NOKOGIRI=false
-            
+
             client = MockClient.new()
             @vnet_pool = VirtualNetworkPool.new(client)
         end
@@ -58,7 +58,7 @@ module OpenNebula
         #    vnet_hash = @vnet_pool.to_hash
         #    vnet_hash.nil?.should eql(true)
         #end
-        
+
         it "should update the VNET_POOL info" do
             rc = @vnet_pool.info()
             rc.nil?.should eql(true)

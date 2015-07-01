@@ -2266,24 +2266,24 @@ void VirtualMachineRecover::request_execute(
 
     switch (op)
     {
-		case 0:
-			lcm->recover(vm, false);
-			break;
-		case 1:
-			lcm->recover(vm, true);
-			break;
-		case 2:
-			lcm->retry(vm);
-			break;
+        case 0:
+            lcm->recover(vm, false);
+            break;
+        case 1:
+            lcm->recover(vm, true);
+            break;
+        case 2:
+            lcm->retry(vm);
+            break;
 
-		default:
-			failure_response(ACTION,
+        default:
+            failure_response(ACTION,
                 request_error("Wrong recovery operation code",""),
                 att);
 
-			vm->unlock();
-			return;
-	}
+            vm->unlock();
+            return;
+    }
 
     success_response(id, att);
 
@@ -2347,8 +2347,8 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     PoolObjectAuth   vm_perms;
 
-	const VectorAttribute * disk;
-	VectorAttribute * delta_disk = 0;
+    const VectorAttribute * disk;
+    VectorAttribute * delta_disk = 0;
 
     Template deltas;
 
@@ -2365,83 +2365,83 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         return;
     }
 
-	// ------------------------------------------------------------------------
-	// Check quotas for the new snapshot
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Check quotas for the new snapshot
+    // ------------------------------------------------------------------------
     if ((vm = get_vm(id, att)) == 0)
     {
         return;
     }
 
-	disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
 
-	if (disk == 0)
-	{
+    if (disk == 0)
+    {
         failure_response(ACTION, request_error("VM disk does not exist", ""), att);
 
-		vm->unlock();
+        vm->unlock();
 
-		return;
-	}
+        return;
+    }
 
-	string disk_size = disk->vector_value("SIZE");
-	string ds_id     = disk->vector_value("DATASTORE_ID");
-	bool persistent  = VirtualMachine::is_persistent(disk);
-	bool is_volatile = VirtualMachine::is_volatile(disk);
+    string disk_size = disk->vector_value("SIZE");
+    string ds_id     = disk->vector_value("DATASTORE_ID");
+    bool persistent  = VirtualMachine::is_persistent(disk);
+    bool is_volatile = VirtualMachine::is_volatile(disk);
 
     vm->get_permissions(vm_perms);
 
-	vm->unlock();
+    vm->unlock();
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-	if (is_volatile)
-	{
+    if (is_volatile)
+    {
         failure_response(ACTION, request_error("Cannot make snapshots on "
-					"volatile disks",""), att);
-		return;
-	}
-	else if (persistent)
-	{
-		deltas.add("DATASTORE", ds_id);
-		deltas.add("SIZE", disk_size);
-		deltas.add("IMAGES", 0);
+                    "volatile disks",""), att);
+        return;
+    }
+    else if (persistent)
+    {
+        deltas.add("DATASTORE", ds_id);
+        deltas.add("SIZE", disk_size);
+        deltas.add("IMAGES", 0);
 
         if (!quota_authorization(&deltas, Quotas::DATASTORE, att_quota))
         {
             return;
         }
-	}
-	else
-	{
-		delta_disk = new VectorAttribute("DISK");
-		delta_disk->replace("TYPE", "FS");
-		delta_disk->replace("SIZE", disk_size);
+    }
+    else
+    {
+        delta_disk = new VectorAttribute("DISK");
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", disk_size);
 
         deltas.add("VMS", 0);
-		deltas.set(delta_disk);
+        deltas.set(delta_disk);
 
         if (!quota_resize_authorization(id, &deltas, att_quota))
         {
             return;
         }
-	}
+    }
 
-	// ------------------------------------------------------------------------
-	// Do the snapshot
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // Do the snapshot
+    // ------------------------------------------------------------------------
     rc = dm->disk_snapshot_create(id, did, tag, snap_id, error_str);
 
     if ( rc != 0 )
     {
-		if (persistent)
-		{
-			quota_rollback(&deltas, Quotas::DATASTORE, att_quota);
-		}
-		else
-		{
+        if (persistent)
+        {
+            quota_rollback(&deltas, Quotas::DATASTORE, att_quota);
+        }
+        else
+        {
             quota_rollback(&deltas, Quotas::VM, att_quota);
-		}
+        }
 
         failure_response(ACTION, request_error(error_str, ""), att);
     }

@@ -95,12 +95,12 @@ module OpenNebulaJSON
                     params['template'].delete("CPU")
                     params['template'].delete("MEMORY")
                 end
-                
+
                 select_network = self['TEMPLATE/SUNSTONE_NETWORK_SELECT']
                 if (select_network && select_network.upcase == "NO")
                     params['template'].delete("NIC")
                 end
-                
+
                 template = template_to_str(params['template'])
                 super(params['vm_name'], params['hold'], template)
             else

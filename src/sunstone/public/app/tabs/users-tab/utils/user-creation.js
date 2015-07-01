@@ -68,7 +68,7 @@ define(function(require) {
     if (this.options.auth_driver == false){
       $('.auth_driver_row', context).hide();
     }
-  
+
     $('#'+that.idPrefix+'_driver', context).change(function(){
       if ($(this).val() == "ldap"){
         $('#'+that.idPrefix+'_pass',context).removeAttr('required');

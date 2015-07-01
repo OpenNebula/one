@@ -348,14 +348,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                 ::OpenNebula::Template.build_xml, vc.one)
 
                     vnet_template =  n[:one] + ar_str
-                    
+
                     rc = one_vn.allocate(vnet_template)
 
                     if ::OpenNebula.is_error?(rc)
                         STDOUT.puts "    Error creating virtual network: " +
                                     " #{rc.message}\n"
                     else
-                        STDOUT.puts "    OpenNebula virtual network " + 
+                        STDOUT.puts "    OpenNebula virtual network " +
                                     "#{one_vn.id} created with size #{size}!\n"
                     end
                 }

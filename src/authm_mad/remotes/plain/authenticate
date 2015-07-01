@@ -32,7 +32,7 @@ require 'scripts_common'
 
 user   = ARGV[0]
 pass   = ARGV[1]
-secret = ARGV[2] 
+secret = ARGV[2]
 
 #OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
 

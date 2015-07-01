@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./resize/html');
   var Sunstone = require('sunstone');
@@ -14,7 +14,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./resize/dialogId');
   var TAB_ID = require('../tabId')
 
@@ -37,7 +37,7 @@ define(function(require) {
   Dialog.prototype.setElement = _setElement;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -87,7 +87,7 @@ define(function(require) {
     return false;
   }
 
-  function _onShow(context) {    
+  function _onShow(context) {
     var that = this;
     $('#vm_id', context).text(that.element.ID);
     $('#CPU', context).val(that.element.TEMPLATE.CPU);

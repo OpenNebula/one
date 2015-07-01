@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TemplateLeases = require('hbs!./leases/html');
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
@@ -65,7 +65,7 @@ define(function(require) {
 
         if (lease.VM == "-1") { //hold
           col0HTML = '<span type="text" class="alert radius label"></span>';
-          
+
           if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
             col1HTML = '<a class="release_lease" href="#"><i class="fa fa-play"/></a>';
           }

@@ -1,51 +1,51 @@
---- 
-:ID: 
+---
+:ID:
   :desc: ONE identifier for the Image
   :size: 4
 
-:USER: 
+:USER:
   :desc: Username of the Virtual Machine owner
   :size: 10
   :left: true
 
-:GROUP: 
+:GROUP:
   :desc: Group of the Virtual Machine
   :size: 10
   :left: true
 
-:NAME: 
+:NAME:
   :desc: Name of the Image
   :size: 15
   :left: true
 
-:DATASTORE: 
+:DATASTORE:
   :desc: Name of the Datastore
   :size: 10
   :left: true
 
-:SIZE: 
+:SIZE:
   :desc: Size of the Image
   :size: 7
 
-:TYPE: 
+:TYPE:
   :desc: Type of the Image
   :size: 4
   :left: true
 
-:REGTIME: 
+:REGTIME:
   :desc: Registration time of the Image
   :size: 15
 
-:PERSISTENT: 
+:PERSISTENT:
   :desc: Whether the Image is persistent or not
   :size: 3
 
-:STAT: 
+:STAT:
   :desc: State of the Image
   :size: 4
   :left: true
 
-:RVMS: 
+:RVMS:
   :desc: Number of VMs currently running from this Image
   :size: 4
 

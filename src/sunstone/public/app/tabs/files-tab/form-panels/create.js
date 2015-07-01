@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Resumable = require('resumable');
   var Sunstone = require('sunstone');
@@ -19,7 +19,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
 

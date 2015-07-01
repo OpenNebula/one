@@ -210,8 +210,8 @@ void  LifeCycleManager::migrate_action(int vid)
 {
     VirtualMachine *    vm;
 
-	int    cpu, mem, disk;
-	time_t the_time = time(0);
+    int    cpu, mem, disk;
+    time_t the_time = time(0);
 
     vm = vmpool->get(vid,true);
 
@@ -254,13 +254,13 @@ void  LifeCycleManager::migrate_action(int vid)
         //   Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF
         //------------------------------------------------------
         if (vm->get_state() == VirtualMachine::POWEROFF)
-		{
-			vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
-		}
-		else // VirtualMachine::SUSPENDED
-		{
-			vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
-		}
+        {
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
+        }
+        else // VirtualMachine::SUSPENDED
+        {
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+        }
 
         vm->set_state(VirtualMachine::ACTIVE);
 
@@ -1291,7 +1291,7 @@ void  LifeCycleManager::recover(VirtualMachine * vm, bool success)
 
 void LifeCycleManager::retry(VirtualMachine * vm)
 {
-	int vid = vm->get_oid();
+    int vid = vm->get_oid();
 
     if ( vm->get_state() != VirtualMachine::ACTIVE )
     {

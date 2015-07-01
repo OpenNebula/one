@@ -15,7 +15,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./other/html');
-  
+
   /*
     CONSTANTS
    */
@@ -25,7 +25,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     if (!Config.isTemplateCreationTabEnabled('other')) {
       throw "Wizard Tab not enabled";
@@ -44,11 +44,11 @@ define(function(require) {
   WizardTab.prototype.fill = _fill;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'customTagsTableHTML': CustomTagsTable.html()

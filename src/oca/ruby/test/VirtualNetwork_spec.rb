@@ -9,9 +9,9 @@ module OpenNebula
     describe "VirtualNetwork using NOKOGIRI" do
         before(:all) do
             NOKOGIRI=true
-            
+
             @xml = VirtualNetwork.build_xml(3)
-            
+
             client = MockClient.new()
             @vnet = VirtualNetwork.new(@xml,client)
         end
@@ -25,10 +25,10 @@ module OpenNebula
 
             @vnet.id.should eql(3)
         end
-        
+
         it "should update the VNET info" do
             @vnet.info()
-            
+
             @vnet.id.should eql(3)
             @vnet.name.should eql('Red LAN')
         end
@@ -53,9 +53,9 @@ module OpenNebula
     describe "VirtualNetwork using REXML" do
         before(:all) do
             NOKOGIRI=false
-            
+
             @xml = VirtualNetwork.build_xml(3)
-            
+
             client = MockClient.new()
             @vnet = VirtualNetwork.new(@xml,client)
         end
@@ -69,10 +69,10 @@ module OpenNebula
 
             @vnet.id.should eql(3)
         end
-        
+
         it "should update the VNET info" do
             @vnet.info()
-            
+
             @vnet.id.should eql(3)
             @vnet.name.should eql('Red LAN')
         end
@@ -98,9 +98,9 @@ module OpenNebula
     describe "VirtualNetwork using NOKOGIRI without id" do
         before(:all) do
             NOKOGIRI=true
-            
+
             @xml = VirtualNetwork.build_xml()
-            
+
             client = MockClient.new()
             @vnet = VirtualNetwork.new(@xml,client)
         end
@@ -108,10 +108,10 @@ module OpenNebula
         it "should create a Nokogiri Node" do
             @xml.class.to_s.should eql('Nokogiri::XML::NodeSet')
         end
-        
+
         it "should get Error getting info" do
-            rc = @vnet.info()        
-            
+            rc = @vnet.info()
+
             OpenNebula.is_error?(rc).should eql(true)
             @vnet.id.should eql(nil)
             @vnet.name.should eql(nil)
@@ -127,9 +127,9 @@ module OpenNebula
     describe "VirtualNetwork using REXML without id" do
         before(:all) do
             NOKOGIRI=false
-            
+
             @xml = VirtualNetwork.build_xml()
-            
+
             client = MockClient.new()
             @vnet = VirtualNetwork.new(@xml,client)
         end
@@ -137,10 +137,10 @@ module OpenNebula
         it "should create a REXML Element" do
             @xml.class.to_s.should eql('REXML::Element')
         end
-        
+
         it "should get Error getting info" do
             rc = @vnet.info()
-            
+
             OpenNebula.is_error?(rc).should eql(true)
             @vnet.id.should eql(nil)
             @vnet.name.should eql(nil)

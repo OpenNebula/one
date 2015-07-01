@@ -28,11 +28,11 @@ using namespace std;
  *  Represents a set of resources in a zone. The class is able to manage
  *  the ACL rules associated to the set.
  */
-class ResourceSet 
+class ResourceSet
 {
 public:
     /**
-     *  Constructor for the ResourceSet, ACL rules are set based on the 
+     *  Constructor for the ResourceSet, ACL rules are set based on the
      *  resource type
      */
     ResourceSet(PoolObjectSQL::ObjectType _type);
@@ -57,7 +57,7 @@ public:
 
     /**
      * Adds a resource to the set. The ACL rules are updated for the groups
-     * 
+     *
      * @param groups set of groups to apply the rules to
      * @param zone_id ID of the zone
      * @param id ID of the vnet
@@ -81,19 +81,19 @@ public:
 
     /**
      * Set ACL rules for a group to access this resource set
-     * 
+     *
      * @param group_id the group
      */
     void add_group_rules(int group_id);
-    
+
     /**
      * Remove ACL access rules to this resource set for a group
-     * 
+     *
      * @param group_id the group
-     */    
+     */
     void del_group_rules(int group_id);
 
-    /** 
+    /**
      *  Add an ACL rule for group and resource
      *
      *  @param group_id of the group
@@ -102,23 +102,23 @@ public:
      */
     void add_rule(int group_id, int zone_id, int id);
 
-    /** 
+    /**
      *  Remove an ACL rule for group and resource
      */
-    void del_rule(int group_id, int zone_id, int id);    
+    void del_rule(int group_id, int zone_id, int id);
 
 private:
     /**
      *  <ZONE_ID, RESOURCE_ID> pairs for the resource set
-     */ 
+     */
     set<pair<int, int> > resources;
 
     /**
      *  <resource, rights> pairs to add/remove to ACL list for this set.
-     */ 
+     */
     set<pair<long long, long long> > rules;
 
-    /** 
+    /**
      *  The resource type of this set.
      */
      PoolObjectSQL::ObjectType type;

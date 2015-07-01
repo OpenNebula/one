@@ -1,5 +1,5 @@
 define(function(require) {
-  var LANGUAGE_OPTIONS = 
+  var LANGUAGE_OPTIONS =
     '<option value="en_US">English (en_US)</option>\
     <option value="ca">Catalan (ca)</option>\
     <option value="cs_CZ">Czech (cs_CZ)</option>\

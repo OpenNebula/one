@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
@@ -13,7 +13,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./snapshots/panelId');
   var SNAPSHOT_DIALOG_ID = require('../dialogs/snapshot/dialogId');
@@ -45,7 +45,7 @@ define(function(require) {
    */
 
   function _html() {
-    var that = this;   
+    var that = this;
     var html = '<form id="snapshot_form" vmid="' + that.element.ID + '" >\
       <div class="row">\
       <div class="large-12 columns">\

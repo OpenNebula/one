@@ -49,8 +49,8 @@ public:
                             bool                     remote,
                             VirtualMachine::LcmState _lcm,
                             VirtualMachine::VmState  _vm):
-        Hook(name, cmd, args, Hook::UPDATE | Hook::ALLOCATE, remote), 
-        lcm(_lcm), 
+        Hook(name, cmd, args, Hook::UPDATE | Hook::ALLOCATE, remote),
+        lcm(_lcm),
         vm(_vm){};
 
     ~VirtualMachineStateHook(){};

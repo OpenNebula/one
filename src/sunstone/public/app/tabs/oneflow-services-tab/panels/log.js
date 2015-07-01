@@ -2,14 +2,14 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
 
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./log/panelId');
   var XML_ROOT = "DOCUMENT";

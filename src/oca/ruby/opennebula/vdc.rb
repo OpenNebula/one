@@ -98,7 +98,7 @@ module OpenNebula
         #   otherwise
         def update(new_template=nil, append=false)
             super(VDC_METHODS[:update], new_template, append ? 1 : 0)
-        end       
+        end
 
         # Deletes the Vdc
         # @return [nil, OpenNebula::Error] nil in case of success, Error

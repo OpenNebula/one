@@ -244,7 +244,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaNetwork.show,
       callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response.VNET)
           });
@@ -264,7 +264,7 @@ define(function(require) {
         Notifier.onError(request, response);
       }
     },
-    
+
     "Network.update_template" : {
       type: "single",
       call: OpenNebulaNetwork.update,

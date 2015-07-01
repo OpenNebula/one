@@ -15,7 +15,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./disk-tab/html');
-  
+
   /*
     CONSTANTS
    */
@@ -23,7 +23,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function DiskTab(diskTabId) {
     this.diskTabId = 'diskTab' + diskTabId;
 
@@ -38,11 +38,11 @@ define(function(require) {
   DiskTab.prototype.fill = _fill;
 
   return DiskTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'diskTabId': this.diskTabId,
@@ -201,7 +201,7 @@ define(function(require) {
       } else if (templateJSON.IMAGE != undefined && templateJSON.IMAGE_UNAME != undefined) {
         var selectedResources = {
           names : {
-            name: templateJSON.IMAGE, 
+            name: templateJSON.IMAGE,
             uname: templateJSON.IMAGE_UNAME
           }
         }
@@ -216,7 +216,7 @@ define(function(require) {
       if (templateJSON.SIZE) {
         $('#SIZE_TMP', context).val(templateJSON.SIZE / 1024)
       }
-      
+
       WizardFields.fill($(".volatile", context), templateJSON);
     }
 

@@ -17,9 +17,9 @@ define(function(require) {
 
   /**
    * Constructor
-   * @param {string} dataTableId 
+   * @param {string} dataTableId
    * @param {object} conf        Same options as TabDatatable constructor, plus
-   *                             conf.vnetId 
+   *                             conf.vnetId
    */
   function Table(dataTableId, conf) {
     this.conf = conf || {};

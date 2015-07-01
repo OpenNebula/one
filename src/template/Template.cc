@@ -543,7 +543,7 @@ bool Template::get(
 string& Template::to_xml(string& xml) const
 {
     multimap<string,Attribute *>::const_iterator  it;
-    ostringstream                   		oss;
+    ostringstream                           oss;
     string *                                s;
 
     oss << "<" << xml_root << ">";
@@ -561,14 +561,14 @@ string& Template::to_xml(string& xml) const
 
     xml = oss.str();
 
-	return xml;
+    return xml;
 }
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& Template::to_str(string& str) const
 {
-	ostringstream os;
+    ostringstream os;
     multimap<string,Attribute *>::const_iterator  it;
     string *                                s;
 
@@ -581,7 +581,7 @@ string& Template::to_str(string& str) const
         delete s;
     }
 
-	str = os.str();
+    str = os.str();
     return str;
 }
 
@@ -608,9 +608,9 @@ bool Template::trim(const string& name)
 
 ostream& operator << (ostream& os, const Template& t)
 {
-	string str;
+    string str;
 
-	os << t.to_str(str);
+    os << t.to_str(str);
 
     return os;
 }

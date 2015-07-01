@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -16,7 +16,7 @@ define(function(require) {
 
   var TemplateWizardHTML = require('hbs!./create/wizard');
   var TemplateAdvancedHTML = require('hbs!./create/advanced');
-  
+
   /*
     CONSTANTS
    */
@@ -62,7 +62,7 @@ define(function(require) {
       try {
         wizardTabInstance = new wizardTab();
         wizardTabInstance.contentHTML = wizardTabInstance.html();
-        that.wizardTabs.push(wizardTabInstance); 
+        that.wizardTabs.push(wizardTabInstance);
       } catch (err) {
         console.log(err);
       }
@@ -83,11 +83,11 @@ define(function(require) {
   FormPanel.prototype.fill = _fill;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _htmlWizard() {
 
     return TemplateWizardHTML({
@@ -124,12 +124,12 @@ define(function(require) {
     });
 
     if (this.action == "create") {
-      Sunstone.runAction("Template.create", 
+      Sunstone.runAction("Template.create",
                           {'vmtemplate': templateJSON});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction("Template.update", 
-                          this.resourceId, 
+      Sunstone.runAction("Template.update",
+                          this.resourceId,
                           JSON.stringify({'vmtemplate': templateJSON}));
       return false;
     }
@@ -138,13 +138,13 @@ define(function(require) {
   function _submitAdvanced(context) {
     var template = $('textarea#template', context).val();
     if (this.action == "create") {
-      Sunstone.runAction("Template.create",  
+      Sunstone.runAction("Template.create",
                           {"vmtemplate": {"template_raw": template}});
       return false;
 
     } else if (this.action == "update") {
-      Sunstone.runAction("Template.update", 
-                          this.resourceId, 
+      Sunstone.runAction("Template.update",
+                          this.resourceId,
                           JSON.stringify({"vmtemplate": {"template_raw": template}}));
       return false;
     }

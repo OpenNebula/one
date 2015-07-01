@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./vnc/html');
   var Sunstone = require('sunstone');
@@ -11,7 +11,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./vnc/dialogId');
   var TAB_ID = require('../tabId')
 
@@ -35,7 +35,7 @@ define(function(require) {
   Dialog.prototype.setElement = _setElement;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -62,7 +62,7 @@ define(function(require) {
     return false;
   }
 
-  function _onShow(context) {   
+  function _onShow(context) {
     Vnc.vncCallback(this.element);
     return false;
   }

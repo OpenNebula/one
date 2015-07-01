@@ -11,7 +11,7 @@ define(function(require) {
       return string;
     }
   }
-  
+
   function _htmlDecode(value) {
     return $('<div/>').html(value).text();
   }

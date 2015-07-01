@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
@@ -20,11 +20,11 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./instantiate/html');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var FORM_PANEL_ID = require('./instantiate/formPanelId');
   var TAB_ID = require('../tabId');
 
@@ -56,7 +56,7 @@ define(function(require) {
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
-  
+
   /*
     FUNCTION DEFINITIONS
    */

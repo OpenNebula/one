@@ -150,7 +150,7 @@ public:
         return lcm;
     };
 
-	InformationManager * get_im()
+    InformationManager * get_im()
     {
         return im;
     };
@@ -248,7 +248,7 @@ public:
     /**
      *  Returns the value of ONE_LOCATION env variable. When this variable is
      *  not defined the nebula location is "/".
-     *  	@return the nebula location.
+     *      @return the nebula location.
      */
     const string& get_nebula_location()
     {
@@ -259,42 +259,42 @@ public:
      *  Returns the path where mad executables are stored, if ONE_LOCATION is
      *  defined this path points to $ONE_LOCATION/bin, otherwise it is
      *  /usr/lib/one/mads.
-     *  	@return the mad execs location.
+     *      @return the mad execs location.
      */
     const string& get_mad_location()
     {
-    	return mad_location;
+        return mad_location;
     };
 
     /**
      *  Returns the path where defaults for mads are stored, if ONE_LOCATION is
      *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
-     *  	@return the mad defaults location.
+     *      @return the mad defaults location.
      */
     const string& get_defaults_location()
     {
-    	return etc_location;
+        return etc_location;
     };
 
     /**
      *  Returns the path where logs (oned.log, schedd.log,...) are generated
      *  if ONE_LOCATION is defined this path points to $ONE_LOCATION/var,
      *  otherwise it is /var/log/one.
-     *  	@return the log location.
+     *      @return the log location.
      */
     const string& get_log_location()
     {
-    	return log_location;
+        return log_location;
     };
 
     /**
      *  Returns the default var location. When ONE_LOCATION is defined this path
      *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
-     *  	@return the log location.
+     *      @return the log location.
      */
     const string& get_var_location()
     {
-    	return var_location;
+        return var_location;
     };
 
     /**
@@ -346,18 +346,18 @@ public:
      */
     string get_vm_log_filename(int oid)
     {
-    	ostringstream oss;
+        ostringstream oss;
 
-    	if (nebula_location == "/")
-    	{
-    		oss << log_location << oid << ".log";
-    	}
-    	else
-    	{
-    		oss << vms_location << oid << "/vm.log";
-    	}
+        if (nebula_location == "/")
+        {
+            oss << log_location << oid << ".log";
+        }
+        else
+        {
+            oss << vms_location << oid << "/vm.log";
+        }
 
-    	return oss.str();
+        return oss.str();
     };
 
     /**
@@ -731,15 +731,15 @@ private:
 
     string  nebula_location;
 
-    string	mad_location;
-    string	etc_location;
-    string	log_location;
-    string	var_location;
+    string  mad_location;
+    string  etc_location;
+    string  log_location;
+    string  var_location;
     string  hook_location;
     string  remotes_location;
     string  vms_location;
 
-    string	hostname;
+    string  hostname;
 
     // ---------------------------------------------------------------
     // Configuration

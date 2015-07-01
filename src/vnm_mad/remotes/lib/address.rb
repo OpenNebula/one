@@ -52,7 +52,7 @@ module VNMNetwork
             ip_i += 2**i
         }
 
-        return nets 
+        return nets
     end
 
     # This implementation module includes IPv4 management functions
@@ -65,13 +65,13 @@ module VNMNetwork
             ip.split(".").inject(0) {|t,e| (t << 8) + e.to_i }
         end
 
-        # Returns the string equivalent  of a IP address 
+        # Returns the string equivalent  of a IP address
         #  @param ip [Fixnum] IP as an integer
         #  @return [String] IP in dot notation
         def self.to_s(ip)
             ip = 3.downto(0).collect {|s| (ip >> 8*s) & 0xff }.join('.')
         end
     end
-end 
+end
 
 end

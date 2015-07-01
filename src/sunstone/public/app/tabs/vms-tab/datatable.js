@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
   var OpenNebulaVM = require('opennebula/vm');
@@ -13,11 +13,11 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
   var TAB_NAME = require('./tabId');
@@ -26,7 +26,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;

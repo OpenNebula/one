@@ -615,7 +615,7 @@ void LifeCycleManager::prolog_success_action(int vid)
         return;
     }
 
-	VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
+    VirtualMachine::LcmState lcm_state = vm->get_lcm_state();
 
     switch (lcm_state)
     {
@@ -699,15 +699,15 @@ void LifeCycleManager::prolog_success_action(int vid)
 
             vmpool->update_history(vm);
 
-			if (lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF||
-			    lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE)
-			{
-				dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
-			}
-			else //PROLOG_MIGRATE_SUSPEND, PROLOG_MIGRATE_SUSPEND_FAILURE
-			{
-				dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
-			}
+            if (lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF||
+                lcm_state == VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE)
+            {
+                dm->trigger(DispatchManager::POWEROFF_SUCCESS,vid);
+            }
+            else //PROLOG_MIGRATE_SUSPEND, PROLOG_MIGRATE_SUSPEND_FAILURE
+            {
+                dm->trigger(DispatchManager::SUSPEND_SUCCESS,vid);
+            }
             break;
 
         default:
@@ -803,7 +803,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     state = vm->get_lcm_state();
 
-	//Recover failure epilog states with success
+    //Recover failure epilog states with success
     if ( state == VirtualMachine::EPILOG_STOP_FAILURE )
     {
         vm->set_state(VirtualMachine::EPILOG_STOP);

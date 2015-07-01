@@ -35,11 +35,11 @@ string * VectorAttribute::marshall(const char * _sep) const
 
     if ( _sep == 0 )
     {
-    	my_sep = magic_sep;
+        my_sep = magic_sep;
     }
     else
     {
-    	my_sep = _sep;
+        my_sep = _sep;
     }
 
     if ( attribute_value.size() == 0 )
@@ -68,15 +68,15 @@ string * VectorAttribute::marshall(const char * _sep) const
 
 string * VectorAttribute::to_xml() const
 {
-	ostringstream oss;
+    ostringstream oss;
 
     to_xml(oss);
 
-	string * xml = new string;
+    string * xml = new string;
 
-	*xml = oss.str();
+    *xml = oss.str();
 
-	return xml;
+    return xml;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -134,25 +134,25 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 
     while(cont)
     {
-    	epos=sattr.find(my_sep,bpos);
+        epos=sattr.find(my_sep,bpos);
 
-    	if (epos == string::npos)
-    	{
-    		tmp  = sattr.substr(bpos);
-    		cont = false;
-    	}
-    	else
-    	{
-    		tmp  = sattr.substr(bpos,epos-bpos);
-    		bpos = epos + my_sep_size;
-    	}
+        if (epos == string::npos)
+        {
+            tmp  = sattr.substr(bpos);
+            cont = false;
+        }
+        else
+        {
+            tmp  = sattr.substr(bpos,epos-bpos);
+            bpos = epos + my_sep_size;
+        }
 
-    	mpos = tmp.find('=');
+        mpos = tmp.find('=');
 
-    	if (mpos == string::npos)
-    	{
-    		continue;
-    	}
+        if (mpos == string::npos)
+        {
+            continue;
+        }
 
         if ( mpos + 1 == tmp.size() )
         {
@@ -170,7 +170,7 @@ void VectorAttribute::unmarshall(const string& sattr, const char * _sep)
 
 void VectorAttribute::replace(const map<string,string>& attr)
 {
-	attribute_value = attr;
+    attribute_value = attr;
 }
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

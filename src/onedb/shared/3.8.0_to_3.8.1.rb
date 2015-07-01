@@ -170,7 +170,7 @@ module Migrator
                     end
                 }
 
-                # re-do list of VM IDs 
+                # re-do list of VM IDs
                 vms_new_elem = doc.root.add_element("VMS")
 
                 counters[:image][oid].each do |id|

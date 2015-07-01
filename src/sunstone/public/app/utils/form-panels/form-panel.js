@@ -27,7 +27,7 @@ define(function(require) {
     if (that.htmlAdvanced) {
       this.advancedElement = $(that.htmlAdvanced()).appendTo( $("#advancedForms", context) );
     }
-    
+
     context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
     context.off('valid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
     context.on('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard', function(e) {

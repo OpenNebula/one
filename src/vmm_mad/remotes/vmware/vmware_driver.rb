@@ -93,7 +93,7 @@ class VMwareDriver
             deploy_id = "one-#{id}"
         end
 
-	   OpenNebula.log_debug("Successfully defined domain #{deploy_id}.")
+        OpenNebula.log_debug("Successfully defined domain #{deploy_id}.")
 
         # Start the VM
         rc, info = do_action("virsh -c #{@uri} start #{deploy_id}")

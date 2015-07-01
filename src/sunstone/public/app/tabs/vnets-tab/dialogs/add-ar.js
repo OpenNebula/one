@@ -37,7 +37,7 @@ define(function(require) {
   Dialog.prototype.setId = _setId;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */

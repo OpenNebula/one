@@ -2,16 +2,16 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./confirm/html');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./confirm/dialogId');
 
   /*
@@ -35,7 +35,7 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({dialogId: this.dialogId});
   }

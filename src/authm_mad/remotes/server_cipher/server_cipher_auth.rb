@@ -23,9 +23,9 @@ require 'fileutils'
 module OpenNebula; end
 
 # Server authentication class. This method can be used by OpenNebula services
-# to let access authenticated users by other means. It is based on OpenSSL 
+# to let access authenticated users by other means. It is based on OpenSSL
 # symmetric ciphers
-class OpenNebula::ServerCipherAuth 
+class OpenNebula::ServerCipherAuth
     ###########################################################################
     #Constants with paths to relevant files and defaults
     ###########################################################################
@@ -36,7 +36,7 @@ class OpenNebula::ServerCipherAuth
 
     def initialize(srv_user, srv_passwd)
         @srv_user   = srv_user
-        @srv_passwd = srv_passwd 
+        @srv_passwd = srv_passwd
 
         if !srv_passwd.empty?
             @key = Digest::SHA1.hexdigest(@srv_passwd)
@@ -53,7 +53,7 @@ class OpenNebula::ServerCipherAuth
 
     # Creates a ServerCipher for client usage
     def self.new_client(srv_user=nil, srv_passwd=nil)
-        if ( srv_user == nil || srv_passwd == nil ) 
+        if ( srv_user == nil || srv_passwd == nil )
             begin
                 if ENV["ONE_CIPHER_AUTH"] and !ENV["ONE_CIPHER_AUTH"].empty?
                     one_auth = File.read(ENV["ONE_CIPHER_AUTH"])
@@ -64,23 +64,23 @@ class OpenNebula::ServerCipherAuth
                 one_auth.rstrip!
 
                 rc =  one_auth.match(/(.*?):(.*)/)
-                
+
                 if rc.nil?
                     raise "Bad format for one_auth token (<user>:<passwd>)"
-                else 
+                else
                     srv_user   = rc[1]
                     srv_passwd = rc[2]
                 end
             rescue => e
                 raise e.message
             end
-        end 
+        end
 
         self.new(srv_user, srv_passwd)
     end
 
     # Generates a login token in the form:
-    #   - server_user:target_user:time_expires 
+    #   - server_user:target_user:time_expires
     # The token is then encrypted with the contents of one_auth
     def login_token(expire, target_user=nil)
         target_user ||= @srv_user
@@ -110,11 +110,11 @@ class OpenNebula::ServerCipherAuth
     def authenticate(srv_user,srv_pass, signed_text)
         begin
             @key = srv_pass
-            
+
             s_user, t_user, expires = decrypt(signed_text).split(':')
 
             return "User name missmatch" if s_user != srv_user
-             
+
             return "login token expired" if Time.now.to_i >= expires.to_i
 
             return true
@@ -125,20 +125,20 @@ class OpenNebula::ServerCipherAuth
 
     private
 
-    def encrypt(data) 
+    def encrypt(data)
         @cipher.encrypt
         @cipher.key = @key
-        
+
         rc = @cipher.update(data)
         rc << @cipher.final
 
         return rc
     end
 
-    def decrypt(data) 
+    def decrypt(data)
         @cipher.decrypt
         @cipher.key = @key
-        
+
         rc = @cipher.update(Base64::decode64(data))
         rc << @cipher.final
 

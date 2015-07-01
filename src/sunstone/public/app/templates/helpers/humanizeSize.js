@@ -1,7 +1,7 @@
 define(function(require) {
   var Handlebars = require('hbs/handlebars');
   var Humanize = require('utils/humanize');
-  
+
   /**
    * Returns a human readable size in Kilo, Mega, Giga or Tera bytes
    * @param  {string} unit    one of MB, KB, B

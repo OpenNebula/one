@@ -21,7 +21,7 @@ module VNMNetwork
     # This module include implementation specific functions. It MUST not be
     # be used in other VNMAD classes.
     module Configuration
-        # Return the command to talk to the Xen hypervisor xm or xl for 
+        # Return the command to talk to the Xen hypervisor xm or xl for
         # Xen 3 and 4
         def self.get_xen_command
             if system("ps axuww | grep -v grep | grep '\\bxend\\b'")
@@ -49,10 +49,10 @@ module VNMNetwork
     }
 
     # Represents an Array of commands to be executed by the networking drivers
-    # The commands 
+    # The commands
     class Commands < Array
 
-        # Adds a new command to the command array 
+        # Adds a new command to the command array
         #  @param cmd [String] the command, it can be a key defined in COMMANDS
         #  @para args[Array<String>] Arguments for the command
         def add (cmd, *args)
@@ -61,7 +61,7 @@ module VNMNetwork
             else
                 cmd_str = "#{cmd} #{args.join(' ')}"
             end
-            
+
             self << cmd_str
         end
 

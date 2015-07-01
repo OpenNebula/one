@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('foundation-datatables');
   var Locale = require('utils/locale');
   var CanImportWilds = require('../utils/can-import-wilds');
@@ -14,9 +14,9 @@ define(function(require) {
   /*
     TEMPLATES
    */
-  
+
   var TemplateWilds = require('hbs!./wilds/html');
-  
+
   /*
     CONSTANTS
    */

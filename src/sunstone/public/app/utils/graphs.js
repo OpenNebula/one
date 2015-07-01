@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   require('flot');
   require('flot.stack');
   require('flot.resize');

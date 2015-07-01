@@ -107,7 +107,7 @@ void ActionManager::loop(
         actions.pop();
 
         unlock();
-        
+
         listener->do_action(action.name,action.args);
 
         if ( action.name == ActionListener::ACTION_TIMER )

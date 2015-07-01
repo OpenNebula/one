@@ -91,12 +91,12 @@ protected:
      *    @param value of the attribute
      */
     void get_default(
-    	const char *  name,
+        const char *  name,
         string&       value) const
     {
-    	string sn = name;
+        string sn = name;
 
-    	driver_conf.get(sn,value);
+        driver_conf.get(sn,value);
     }
 
     /**
@@ -107,8 +107,8 @@ protected:
      *    @param value of the attribute
      */
     void get_default(
-    	const char *  name,
-    	const char *  vname,
+        const char *  name,
+        const char *  vname,
         string&       value) const;
 
     /**
@@ -126,10 +126,10 @@ protected:
         bool&         value) const;
 
 private:
-	/**
-	 *  Configuration file for the driver
-	 */
-	Template	driver_conf;
+    /**
+     *  Configuration file for the driver
+     */
+    Template    driver_conf;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

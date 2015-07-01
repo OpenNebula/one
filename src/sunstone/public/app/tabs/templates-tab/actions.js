@@ -65,7 +65,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.show,
       callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update", 
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response[XML_ROOT])
           });

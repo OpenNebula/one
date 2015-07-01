@@ -2,15 +2,15 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./create/html');
   var Sunstone = require('sunstone');
-  
+
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./create/dialogId');
 
   /*
@@ -30,7 +30,7 @@ define(function(require) {
   Dialog.prototype.setup = _setup;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */

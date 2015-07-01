@@ -143,10 +143,10 @@ public:
      */
     void  recover(VirtualMachine * vm, bool success);
 
-	/**
-	 *  Retries the last VM operation that lead to a failure. The underlying
-	 *  driver actions may be invoked and should be "re-entrant".
-	 */
+    /**
+     *  Retries the last VM operation that lead to a failure. The underlying
+     *  driver actions may be invoked and should be "re-entrant".
+     */
     void retry(VirtualMachine * vm);
 
 private:

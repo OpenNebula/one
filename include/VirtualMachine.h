@@ -310,7 +310,7 @@ public:
      */
     string state_str()
     {
-		string st;
+        string st;
 
         if (state == ACTIVE)
         {
@@ -1280,9 +1280,9 @@ public:
      */
     void get_security_groups(set<int>& sgs) const;
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     const VectorAttribute* get_disk(int disk_id) const;
 
     // ------------------------------------------------------------------------

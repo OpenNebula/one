@@ -249,7 +249,7 @@ module OpenNebula
         # Returns an array with the numeric user ids
         def user_ids
             ids = self.retrieve_elements("USERS/ID")
-            
+
             return [] if ids.nil?
 
             return ids.collect! {|x| x.to_i}

@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./quotas/html');
   var Locale = require('utils/locale');
@@ -12,7 +12,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./quotas/dialogId');
   var TAB_ID = require('../tabId');
   var RESOURCE = "User";
@@ -39,7 +39,7 @@ define(function(require) {
   Dialog.prototype.setParams = _setParams;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */

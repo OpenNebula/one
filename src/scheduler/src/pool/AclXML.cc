@@ -22,7 +22,7 @@
 /* -------------------------------------------------------------------------- */
 
 int AclXML::set_up()
-{    
+{
     xmlrpc_c::value result;
 
     try
@@ -32,7 +32,7 @@ int AclXML::set_up()
                      "s",                           // arguments format
                      &result,                       // resultP
                      client->get_oneauth().c_str());// argument
-        
+
         vector<xmlrpc_c::value> values =
                         xmlrpc_c::value_array(result).vectorValueValue();
 
@@ -93,7 +93,7 @@ int AclXML::load_rules(const string& xml_str)
 
     acl_xml.free_nodes(rules);
 
-    return 0;    
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

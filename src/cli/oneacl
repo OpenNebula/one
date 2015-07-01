@@ -33,7 +33,7 @@ require 'one_helper/oneacl_helper'
 cmd = CommandParser::CmdParser.new(ARGV) do
     usage "`oneacl` <command> [<args>] [<options>]"
     version OpenNebulaHelper::ONE_VERSION
-    
+
     helper = OneAclHelper.new
 
     before_proc do

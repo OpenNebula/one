@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
@@ -13,7 +13,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var RESOURCE = "File";
   var XML_ROOT = "IMAGE";
   var TAB_NAME = require('./tabId');
@@ -25,7 +25,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function Table(dataTableId, conf) {
     this.conf = conf || {};
     this.tabId = TAB_NAME;
@@ -83,7 +83,7 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _elementArray(element_json) {
     var element = element_json.IMAGE;
 

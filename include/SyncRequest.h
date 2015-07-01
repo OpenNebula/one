@@ -41,7 +41,7 @@ public:
     virtual ~SyncRequest(){};
 
     /**
-     *  The result of the request, true if the operation succeeded 
+     *  The result of the request, true if the operation succeeded
      */
     bool   result;
 
@@ -54,7 +54,7 @@ public:
      *  Time out, true if the request ended because of a time out
      */
     bool   timeout;
-    
+
     /**
      *  Identification of this request
      */

@@ -14,7 +14,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./io/html');
-  
+
   /*
     CONSTANTS
    */
@@ -24,7 +24,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     if (!Config.isTemplateCreationTabEnabled('input_output')) {
       throw "Wizard Tab not enabled";
@@ -43,11 +43,11 @@ define(function(require) {
   WizardTab.prototype.fill = _fill;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML();
   }
@@ -134,7 +134,7 @@ define(function(require) {
       WizardFields.fill(context, graphicsJSON);
       delete templateJSON['GRAPHICS']
     }
-    
+
     var inputsJSON = templateJSON['INPUTS'];
     if (inputsJSON) {
       if (!(inputsJSON instanceof Array)) {

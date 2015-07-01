@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
@@ -14,7 +14,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./storage/panelId');
   var ATTACH_DISK_DIALOG_ID = require('../dialogs/attach-disk/dialogId');

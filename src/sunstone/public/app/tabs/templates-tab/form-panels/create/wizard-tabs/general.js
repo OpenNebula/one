@@ -13,7 +13,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./general/html');
-  
+
   /*
     CONSTANTS
    */
@@ -34,7 +34,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     this.wizardTabId = WIZARD_TAB_ID;
     this.icon = 'fa-laptop';
@@ -49,11 +49,11 @@ define(function(require) {
   WizardTab.prototype.fill = _fill;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'capacityInputsHTML': CapacityInputs.html(),
@@ -116,13 +116,13 @@ define(function(require) {
   }
 
   function _fill(context, templateJSON) {
-    if (templateJSON["SUNSTONE_CAPACITY_SELECT"] && 
+    if (templateJSON["SUNSTONE_CAPACITY_SELECT"] &&
           (templateJSON["SUNSTONE_CAPACITY_SELECT"].toUpperCase() == "NO")) {
       $("#sunstone_capacity_select", context).attr("checked", "checked");
       delete templateJSON["SUNSTONE_CAPACITY_SELECT"]
     }
 
-    if (templateJSON["SUNSTONE_NETWORK_SELECT"] && 
+    if (templateJSON["SUNSTONE_NETWORK_SELECT"] &&
           (templateJSON["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
       $("#sunstone_network_select", context).attr("checked", "checked");
       delete templateJSON["SUNSTONE_NETWORK_SELECT"]
@@ -132,7 +132,7 @@ define(function(require) {
       $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", context).trigger("click")
       delete templateJSON["HYPERVISOR"];
     }
-    
+
     WizardFields.fill(context, templateJSON);
   }
 });

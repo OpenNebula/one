@@ -78,7 +78,7 @@ define(function(require) {
     var that = this;
 
     $('.resource-info-header', '#' + TAB_ID).text(that.element.NAME);
-    
+
     Tips.setup(context);
 
     // Template update

@@ -129,7 +129,7 @@ define(function(require) {
 
         if (!$.isEmptyObject(data.VM_QUOTA)) {
           var default_user_quotas = QuotaDefaults.getDefaultUserQuotas();
-                
+
           quotas = QuotaWidgets.quotaFloatInfo(
               data.VM_QUOTA.VM.VMS_USED,
               data.VM_QUOTA.VM.VMS,
@@ -480,7 +480,7 @@ define(function(require) {
         '</h2>')
     })
 
-    if (Config.isFeatureEnabled("showback")) { 
+    if (Config.isFeatureEnabled("showback")) {
       context.on("click", ".provision_vdc_user_info_show_showback", function() {
         $(".provision_vdc_info_container", context).html("");
 

@@ -791,7 +791,7 @@ EOT
             vm_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
             state     = vm_doc.root.at_xpath('STATE').text.to_i
-            lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i            
+            lcm_state = vm_doc.root.at_xpath('LCM_STATE').text.to_i
 
             # Images used by this VM
             vm_doc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each do |e|
@@ -953,7 +953,7 @@ EOT
                 }
 
 
-                # re-do list of VM IDs 
+                # re-do list of VM IDs
                 vms_elem = host_doc.root.elements.delete("VMS")
 
                 vms_new_elem = host_doc.root.add_element("VMS")
@@ -1045,7 +1045,7 @@ EOT
                     end
                 }
 
-                # re-do list of VM IDs 
+                # re-do list of VM IDs
                 vms_elem = doc.root.elements.delete("VMS")
 
                 vms_new_elem = doc.root.add_element("VMS")

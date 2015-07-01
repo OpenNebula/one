@@ -55,6 +55,6 @@ end
 if rc == true
     exit 0
 else
-    OpenNebula.error_message rc 
+    OpenNebula.error_message rc
     exit -1
 end

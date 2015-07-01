@@ -23,7 +23,7 @@ define(function(require) {
     var _tabId = tabObj.tabId;
     if (Config.isTabEnabled(_tabId)) {
       SunstoneCfg["tabs"][_tabId] = tabObj;
-      
+
       var actions = tabObj.actions;
       if (actions) {
         _addActions(actions)
@@ -596,7 +596,7 @@ define(function(require) {
   //Runs a predefined action. Wraps the calls to opennebula.js and
   //can be use to run action depending on conditions and notify them
   //if desired. Returns 1 if some problem has been detected: i.e
-  //the condition to run the action is not met, the action is not found 
+  //the condition to run the action is not met, the action is not found
   var _runAction = function(action, dataArg, extraParam) {
     var actions = SunstoneCfg["actions"];
     if (!actions[action]) {
@@ -714,9 +714,9 @@ define(function(require) {
 
         // Create panelInstance, insert in the DOM and setup
         var formPanel = tab["formPanels"][formPanelId];
-        if (!formPanel) { 
-          console.log("Form Panel not defined"); 
-          return false; 
+        if (!formPanel) {
+          console.log("Form Panel not defined");
+          return false;
         } // Panel not defined
 
         formPanelInstance = new formPanel();
@@ -805,7 +805,7 @@ define(function(require) {
 
       $("div[form-panel-id="+formPanelInstance.formPanelId+"]", context).show();
     }
-    
+
   }
 
   function _hideFormPanel(tabId) {
@@ -894,7 +894,7 @@ define(function(require) {
       dialogInstance.insert();
       SunstoneCfg['dialogInstances'][dialogId] = dialogInstance;
     }
-    
+
     return dialogInstance;
   }
 
@@ -920,7 +920,7 @@ define(function(require) {
 
     "rightInfoVisible": _rightInfoVisible,
     "rightListVisible": _rightListVisible,
-    "rightInfoResourceId": _rightInfoResourceId, 
+    "rightInfoResourceId": _rightInfoResourceId,
 
     "runAction" : _runAction,
     "getAction": _getAction,

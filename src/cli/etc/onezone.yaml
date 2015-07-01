@@ -1,12 +1,12 @@
---- 
+---
 :CURRENT:
   :desc: Active Zone
   :size: 1
-:ID: 
+:ID:
   :desc: ONE identifier for the Zone
   :size: 5
 
-:NAME: 
+:NAME:
   :desc: Name of the Zone
   :size: 25
   :left: true

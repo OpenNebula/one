@@ -104,7 +104,7 @@ public:
             case RBD_CDROM:      return "RBD_CDROM" ; break;
             case GLUSTER:        return "GLUSTER" ; break;
             case GLUSTER_CDROM:  return "GLUSTER_CDROM" ; break;
-            case SHEEPDOG:	     return "SHEEPDOG" ; break;
+            case SHEEPDOG:       return "SHEEPDOG" ; break;
             case SHEEPDOG_CDROM: return "SHEEPDOG_CDROM" ; break;
             default:             return "";
         }

@@ -15,7 +15,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./os/html');
-  
+
   /*
     CONSTANTS
    */
@@ -119,7 +119,7 @@ define(function(require) {
   /*
     CONSTRUCTOR
    */
-  
+
   function WizardTab() {
     if (!Config.isTemplateCreationTabEnabled('os_booting')) {
       throw "Wizard Tab not enabled";
@@ -152,11 +152,11 @@ define(function(require) {
   WizardTab.prototype.fill = _fill;
 
   return WizardTab;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
-  
+
   function _html() {
     return TemplateHTML({
       'guestOS': GUESTOS,
@@ -258,7 +258,7 @@ define(function(require) {
     var osJSON = templateJSON['OS'];
     if (osJSON) {
       WizardFields.fill(context, osJSON);
-      
+
       if (osJSON && osJSON['BOOT']) {
         var boot_vals = osJSON['BOOT'].split(",");
 

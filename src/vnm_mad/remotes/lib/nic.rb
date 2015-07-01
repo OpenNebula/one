@@ -38,13 +38,13 @@ module VNMNetwork
     end
 
     ############################################################################
-    # Hypervisor specific implementation of network interfaces. Each class 
+    # Hypervisor specific implementation of network interfaces. Each class
     # implements the following interface:
     #   - get_info to populste the VM.vm_info Hash
     #   - get_tap to set the [:tap] attribute with the associated NIC
     ############################################################################
 
-    # A NIC using KVM. This class implements functions to get the physical 
+    # A NIC using KVM. This class implements functions to get the physical
     # interface that the NIC is using, based on the MAC address
     class NicKVM < Hash
         def initialize
@@ -68,7 +68,7 @@ module VNMNetwork
             end
         end
 
-        # Look for the tap in 
+        # Look for the tap in
         #   devices/interface[@type='bridge']/mac[@address='<mac>']/../target"
         def get_tap(vm)
             dumpxml = vm.vm_info[:dumpxml]

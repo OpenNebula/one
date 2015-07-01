@@ -557,7 +557,7 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
 
-    	    do_network_hosts(file, sheepdog_host, "tcp", -1);
+            do_network_hosts(file, sheepdog_host, "tcp", -1);
         }
         else if ( type == "GLUSTER" || type == "GLUSTER_CDROM" )
         {

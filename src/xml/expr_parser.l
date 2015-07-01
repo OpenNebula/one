@@ -22,12 +22,12 @@
 #include "expr_arith.h"
 #include "mem_collector.h"
 
-#define YY_NO_INPUT 
+#define YY_NO_INPUT
 
 #define YY_DECL int expr_lex (YYSTYPE *lvalp, YYLTYPE *llocp, mem_collector *mc)
 
-#define YY_USER_ACTION  llocp->first_line = yylineno; 				\
-                        llocp->first_column = llocp->last_column;	\
+#define YY_USER_ACTION  llocp->first_line = yylineno;               \
+                        llocp->first_column = llocp->last_column;   \
                         llocp->last_column += yyleng;
 %}
 

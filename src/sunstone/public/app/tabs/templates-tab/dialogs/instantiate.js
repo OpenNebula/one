@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./instantiate/html');
   var Sunstone = require('sunstone');
@@ -16,7 +16,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var DIALOG_ID = require('./instantiate/dialogId');
   var TEMPLATES_TAB_ID = require('tabs/templates-tab/tabId')
 
@@ -38,7 +38,7 @@ define(function(require) {
   Dialog.prototype.setup = _setup;
 
   return Dialog;
-  
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -51,7 +51,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    
+
     context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {

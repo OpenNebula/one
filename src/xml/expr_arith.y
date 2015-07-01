@@ -89,10 +89,10 @@ extern "C"
 
 %left '+' '-'
 %left '*' '/'
-%token <val_int> 	INTEGER
-%token <val_str> 	STRING
+%token <val_int>    INTEGER
+%token <val_str>    STRING
 %token <val_float>  FLOAT
-%type  <val_int> 	stmt
+%type  <val_int>    stmt
 %type  <val_float>  expr
 
 %%

@@ -2,7 +2,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  
+
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
@@ -16,7 +16,7 @@ define(function(require) {
   /*
     CONSTANTS
    */
-  
+
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./network/panelId');
   var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
@@ -67,9 +67,9 @@ define(function(require) {
                   <th>'                 ;
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachnic")) {
-      if (StateActions.enabledStateAction("VM.attachnic", 
-            that.element.STATE, 
-            that.element.LCM_STATE) && 
+      if (StateActions.enabledStateAction("VM.attachnic",
+            that.element.STATE,
+            that.element.LCM_STATE) &&
           OpenNebulaVM.isNICAttachSupported(that.element)) {
         html += '\
              <button id="attach_nic" class="button tiny success right radius" >' + Locale.tr("Attach nic") + '</button>'
@@ -294,7 +294,7 @@ define(function(require) {
     context.off('click', '#tab_network_form .nics_table td.open-control')
     context.on('click', '#tab_network_form .nics_table td.open-control', function () {
       var row = $(this).closest('table').DataTable().row($(this).closest('tr'));
-    
+
       if (row.child.isShown()) {
         row.child.hide();
         $(this).children("span").addClass('fa-chevron-down');
@@ -326,7 +326,7 @@ define(function(require) {
                   <td>' + rule_st.NETWORK + '</td>\
                   <td>' + rule_st.ICMP_TYPE + '</td>\
                 </tr>'
-          
+
           html += new_tr;
         });
 
@@ -361,7 +361,7 @@ define(function(require) {
     if (OpenNebulaVM.isNICGraphsSupported(that.element)) {
       OpenNebulaVM.monitor({
         data: {
-          id: that.element.ID, 
+          id: that.element.ID,
           monitor: {
             monitor_resources : "NET_TX,NET_RX"
           }

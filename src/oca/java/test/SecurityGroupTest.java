@@ -205,7 +205,7 @@ public class SecurityGroupTest
         assertTrue( sg.xpath("PERMISSIONS/OTHER_M").equals("1") );
         assertTrue( sg.xpath("PERMISSIONS/OTHER_A").equals("1") );
     }
-    
+
     @Test
     public void attributes()
     {
