@@ -18,7 +18,9 @@
 
 script_name=$(basename $0)
 
-echo "$script_name: Operation not supported" &>2
+source $(dirname $0)/../../scripts_common.sh
+
+error_message "$script_name: Operation not supported"
 
 exit 1
 
