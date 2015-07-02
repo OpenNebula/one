@@ -146,6 +146,14 @@ define(function(require) {
    */
 
   function _initialize(opts) {
+    if (this.conf.select) {
+      if (opts && opts.selectOptions) {
+        $.extend(this.selectOptions, opts.selectOptions);
+      }
+
+      this.initSelectResourceTableSelect();
+    }
+
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
 
     var that = this;
@@ -157,7 +165,11 @@ define(function(require) {
       that.recountCheckboxes();
     })
 
-    this.dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
+    if (this.selectOptions && this.selectOptions.id_index) {
+      this.dataTable.fnSort([[this.selectOptions.id_index, config['user_config']['table_order']]]);
+    } else {
+      this.dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
+    }
 
     if (this.conf.actions) {
       this.initCheckAllBoxes();
@@ -435,7 +447,7 @@ define(function(require) {
 
         if (current_id) {
           if ($.inArray(current_id, checked_row_ids) != -1) {
-            $('input.check_item', this).first().click();
+            $('input.check_item:not(:checked)', this).first().click();
             $('td', this).addClass('markrowchecked');
           }
         }
@@ -525,37 +537,35 @@ define(function(require) {
     }
 
     if (that.selectOptions.multiple_choice) {
-      that.selectOptions.dataTable_options.fnRowCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+      that.dataTableOptions.fnRowCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         var row_id = aData[that.selectOptions.id_index];
 
         var ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
-
         if (ids[row_id]) {
           $("td", nRow).addClass('markrowchecked');
-          $('input.check_item', this).prop('checked', true);
+          $('input.check_item', nRow).prop('checked', true);
         } else {
           $("td", nRow).removeClass('markrowchecked');
-          $('input.check_item', this).prop('checked', false);
+          $('input.check_item', nRow).prop('checked', false);
         }
       };
     } else {
-      that.selectOptions.dataTable_options.fnRowCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+      that.dataTableOptions.fnRowCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         var row_id = aData[that.selectOptions.id_index];
 
         var selected_id = $('#selected_resource_id_' + that.dataTableId, section).val();
 
         if (row_id == selected_id) {
           $("td", nRow).addClass('markrow');
-          $('input.check_item', this).prop('checked', true);
+          $('input.check_item', nRow).prop('checked', true);
         } else {
           $("td", nRow).removeClass('markrow');
-          $('input.check_item', this).prop('checked', false);
+          $('input.check_item', nRow).prop('checked', false);
         }
       };
     }
 
     $('#refresh_button_' + that.dataTableId, section).off("click");
-
     section.on('click', '#refresh_button_' + that.dataTableId, function() {
       that.updateFn();
       return false;
@@ -564,8 +574,6 @@ define(function(require) {
     $('#' + that.dataTableId + '_search', section).keyup(function() {
       that.dataTable.fnFilter($(this).val());
     })
-
-    that.dataTable.fnSort([[that.selectOptions.id_index, config['user_config']['table_order']]]);
 
     if (that.selectOptions.read_only) {
       $('#selected_ids_row_' + that.dataTableId, section).hide();
@@ -644,8 +652,9 @@ define(function(require) {
 
         var found = false;
 
+        var aData = that.dataTable.fnGetData();
         // TODO: improve preformance, linear search
-        $.each(that.dataTable.fnGetData(), function(index, row) {
+        $.each(aData, function(index, row) {
           if (row[that.selectOptions.id_index] == row_id) {
             found = true;
             row_click(that.dataTable.fnGetNodes(index), row);
@@ -777,9 +786,7 @@ define(function(require) {
     if (that.selectOptions.multiple_choice) {
       that.refreshResourceTableSelect(section, that.dataTableId);
 
-      var data_ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
-
-      data_ids = {};
+      var data_ids = {};
 
       $('#selected_ids_row_' + that.dataTableId + ' span[row_id]', section).remove();
 
