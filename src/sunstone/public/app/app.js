@@ -47,7 +47,8 @@ define(function(require) {
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
-    require('utils/dialogs/confirm-with-select')
+    require('utils/dialogs/confirm-with-select'),
+    require('utils/dialogs/generic-confirm')
   ]
 
   Sunstone.addDialogs(_commonDialogs);
