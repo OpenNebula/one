@@ -39,6 +39,7 @@ helpers do
             error resp.code.to_i, error.to_json
         else
             body resp.body.to_s
+            status resp.code.to_i
         end
     end
 end

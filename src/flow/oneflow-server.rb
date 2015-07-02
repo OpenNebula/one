@@ -282,7 +282,7 @@ put '/service/:id/role/:name' do
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
-    status 200
+    status 204
 end
 
 post '/service/:id/role/:role_name/action' do
@@ -464,6 +464,7 @@ post '/service_template/:id/action' do
 
         service.info
 
+        status 201
         body service.to_json
     when 'chown'
         if opts && opts['owner_id']
@@ -472,6 +473,7 @@ post '/service_template/:id/action' do
             args << (opts['group_id'].to_i || -1)
 
             service_template.chown(*args)
+            status 204
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a UID")
@@ -479,6 +481,7 @@ post '/service_template/:id/action' do
     when 'chgrp'
         if opts && opts['group_id']
             service_template.chown(-1, opts['group_id'].to_i)
+            status 204
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify a GID")
@@ -486,6 +489,7 @@ post '/service_template/:id/action' do
     when 'chmod'
         if opts && opts['octet']
             service_template.chmod_octet(opts['octet'])
+            status 204
         else
             OpenNebula::Error.new("Action #{action['perform']}: " <<
                     "You have to specify an OCTET")
@@ -494,6 +498,7 @@ post '/service_template/:id/action' do
         if opts && opts['template_json']
             begin
                 rc = service_template.update(opts['template_json'])
+                status 204
             rescue Validator::ParseException, JSON::ParserError
                 OpenNebula::Error.new($!.message)
             end
@@ -507,7 +512,5 @@ post '/service_template/:id/action' do
 
     if OpenNebula.is_error?(rc)
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
-    else
-        status 201
     end
 end
