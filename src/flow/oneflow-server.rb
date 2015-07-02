@@ -112,7 +112,7 @@ before do
     if auth.provided? && auth.basic?
         username, password = auth.credentials
 
-        @client = OpenNebula::Client.new("#{username}:#{password}")
+        @client = OpenNebula::Client.new("#{username}:#{password}", conf[:one_xmlrpc])
     else
         error 401, "A username and password must be provided"
     end
