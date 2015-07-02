@@ -20,6 +20,7 @@ define(function(require) {
   var ATTACH_DISK_DIALOG_ID = require('../dialogs/attach-disk/dialogId');
   var DISK_SNAPSHOT_DIALOG_ID = require('../dialogs/disk-snapshot/dialogId');
   var DISK_SAVEAS_DIALOG_ID = require('../dialogs/disk-saveas/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -367,12 +368,22 @@ define(function(require) {
         var disk_id = $(this).parents('.snapshots').attr('disk_id');
         var snapshot_id = $(this).parents('.snapshot_row').attr('snapshot_id');
 
-        Sunstone.runAction(
-          'VM.disk_snapshot_delete',
-          that.element.ID,
-          { "disk_id": disk_id,
-            "snapshot_id": snapshot_id
-          });
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will delete the disk snapshot "+snapshot_id),
+          //question :
+          submit : function(){
+            Sunstone.runAction(
+              'VM.disk_snapshot_delete',
+              that.element.ID,
+              { "disk_id": disk_id,
+                "snapshot_id": snapshot_id
+              });
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
 
         return false;
       });

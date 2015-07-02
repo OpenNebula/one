@@ -11,6 +11,8 @@ define(function(require){
   var TemplateHtml = require('hbs!./snapshots/html');
   var TemplateEmptyTable = require('hbs!utils/tab-datatable/empty-table');
 
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
+
   /*
     CONSTANTS
    */
@@ -106,8 +108,18 @@ define(function(require){
       $("#snapshot_flatten", context).on('click', function() {
         var snapshot_id = $(".snapshot_check_item:checked", context).attr('snapshot_id');
 
-        Sunstone.runAction('Image.snapshot_flatten', that.element.ID,
-          { "snapshot_id": snapshot_id});
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will delete all the other image snapshots"),
+          //question :
+          submit : function(){
+            Sunstone.runAction('Image.snapshot_flatten', that.element.ID,
+              { "snapshot_id": snapshot_id});
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
 
         return false;
       });
@@ -128,8 +140,18 @@ define(function(require){
       $("#snapshot_delete", context).on('click', function() {
         var snapshot_id = $(".snapshot_check_item:checked", context).attr('snapshot_id');
 
-        Sunstone.runAction('Image.snapshot_delete', that.element.ID,
-          { "snapshot_id": snapshot_id});
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will delete the image snapshot "+snapshot_id),
+          //question :
+          submit : function(){
+            Sunstone.runAction('Image.snapshot_delete', that.element.ID,
+              { "snapshot_id": snapshot_id});
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
 
         return false;
       });
