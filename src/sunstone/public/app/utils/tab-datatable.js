@@ -178,6 +178,7 @@ define(function(require) {
 
     if (this.conf.oneSelection == true) {
       this.onlyOneCheckboxListener();
+      $(".check_all", that.dataTable).hide();
     }
 
     if (this.conf.info) {
@@ -189,11 +190,7 @@ define(function(require) {
     }
 
     if (this.conf.select) {
-      if (opts && opts.selectOptions) {
-        $.extend(this.selectOptions, opts.selectOptions);
-      }
-
-      this.initSelectResourceTableSelect();
+      that.dataTable.fnSetColumnVis(0, false);
     }
   }
 
