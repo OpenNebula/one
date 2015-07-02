@@ -65,7 +65,6 @@ define(function(require) {
       $.ajax({
         url: 'support/credentials',
         type: "POST",
-        dataType: "text",
         data: JSON.stringify(data),
         success: function(){
           $(".submit_support_credentials_button", context).removeAttr("disabled");

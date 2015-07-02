@@ -252,7 +252,7 @@ post '/support/credentials' do
 
     zendesk_client
 
-    [201, ""]
+    [204, ""]
 end
 
 delete '/support/credentials' do
@@ -261,5 +261,5 @@ delete '/support/credentials' do
     session["zendesk_email"] = nil
     session["zendesk_password"] = nil
 
-    [201, ""]
+    [204, ""]
 end

@@ -5,7 +5,6 @@ define(function(require) {
     "Support.refresh" : {
       type: "action",
       layout: "refresh",
-      text: '<i class="fa fa-refresh fa fa-lg">',
       alwaysActive: true
     },
     "Support.upload" : {
