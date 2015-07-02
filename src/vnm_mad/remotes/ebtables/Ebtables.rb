@@ -17,9 +17,9 @@
 require 'vnmmad'
 
 class EbtablesVLAN < VNMMAD::VNMDriver
-    DRIVER = "ebtables"
 
-    XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
+    DRIVER = "ebtables"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ebtables']"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)

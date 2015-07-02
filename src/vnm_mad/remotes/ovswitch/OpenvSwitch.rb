@@ -17,13 +17,12 @@
 require 'vnmmad'
 
 class OpenvSwitchVLAN < VNMMAD::VNMDriver
-    DRIVER = "ovswitch"
 
+    DRIVER = "ovswitch"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ovswitch']"
     FIREWALL_PARAMS =  [:black_ports_tcp,
                         :black_ports_udp,
                         :icmp]
-
-    XPATH_FILTER = "TEMPLATE/NIC"
 
     def initialize(vm, deploy_id = nil, hypervisor = nil)
         super(vm,XPATH_FILTER,deploy_id,hypervisor)

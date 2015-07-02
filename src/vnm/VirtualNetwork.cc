@@ -124,6 +124,12 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
         goto error_name;
     }
 
+    // ------------ VN_MAD --------------------
+
+    erase_template_attribute("VN_MAD", vn_mad);
+
+    add_template_attribute("VN_MAD", vn_mad);
+
     // ------------ PHYDEV --------------------
 
     erase_template_attribute("PHYDEV", phydev);
@@ -262,12 +268,17 @@ int VirtualNetwork::post_update_template(string& error)
 
     /* ---------------------------------------------------------------------- */
     /* Update Configuration Attributes (class & template)                     */
+    /*  - VN_MAD                                                              */
     /*  - PHYDEV                                                              */
     /*  - VLAN_ID                                                             */
     /*  - VLAN                                                                */
     /*  - BRIDGE                                                              */
     /*  - SECURITY_GROUPS                                                     */
     /* ---------------------------------------------------------------------- */
+    erase_template_attribute("VN_MAD", vn_mad);
+
+    add_template_attribute("VN_MAD", vn_mad);
+
     erase_template_attribute("PHYDEV", phydev);
 
     add_template_attribute("PHYDEV", phydev);
@@ -445,6 +456,15 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
         os << "<PARENT_NETWORK_ID/>";
     }
 
+    if (!vn_mad.empty())
+    {
+        os << "<VN_MAD><![CDATA[" << vn_mad << "]]></VN_MAD>";
+    }
+    else
+    {
+        os << "<VN_MAD/>";
+    }
+
     if (!phydev.empty())
     {
         os << "<PHYDEV><![CDATA[" << phydev << "]]></PHYDEV>";
@@ -502,6 +522,7 @@ int VirtualNetwork::from_xml(const string &xml_str)
     // Permissions
     rc += perms_from_xml();
 
+    xpath(vn_mad, "/VNET/VN_MAD", "");
     xpath(phydev, "/VNET/PHYDEV", "");
     xpath(vlan_id,"/VNET/VLAN_ID","");
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
@@ -576,6 +597,11 @@ int VirtualNetwork::nic_attribute(
     else
     {
         nic->replace("VLAN", "NO");
+    }
+
+    if (!vn_mad.empty())
+    {
+        nic->replace("VN_MAD", vn_mad);
     }
 
     if (!phydev.empty())

@@ -19,15 +19,20 @@
 $: << File.dirname(__FILE__)
 $: << File.join(File.dirname(__FILE__), "..")
 
-require 'vnmmad'
 require 'vxlan_driver'
 
-template64 = ARGV[0]
+template64   = ARGV[0]
+deploy_id    = nil
+hypervisor   = nil
+xpath_filter = VXLANDriver::XPATH_FILTER
 
 begin
     hm = VXLANDriver.from_base64(template64)
     hm.deactivate
-    filter_driver = VNMMAD::VNMDriver.filter_driver(template64)
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
+                                                    deploy_id,
+                                                    hypervisor,
+                                                    xpath_filter)
     filter_driver.deactivate
 rescue Exception => e
     OpenNebula.log_error(e.message)

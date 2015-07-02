@@ -27,7 +27,7 @@ class VXLANDriver < VNMMAD::VLANDriver
 
     # DRIVER name and XPATH for relevant NICs
     DRIVER       = "vxlan"
-    XPATH_FILTER = "TEMPLATE/NIC[VLAN='YES']"
+    XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='vxlan']"
 
     ############################################################################
     # Create driver device operations are locked

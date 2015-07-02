@@ -110,13 +110,13 @@ module VNMMAD
         # Returns a filter object based on the contents of the template
         #
         # @return FWDriver or SGDriver object
-        def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil)
+        def self.filter_driver(vm_64, deploy_id = nil, hypervisor = nil, xpath_filter = nil)
             vm_xml =  Base64::decode64(vm_64)
 
             if self.has_fw_attrs?(vm_xml)
                 FWDriver.new(vm_xml, deploy_id, hypervisor)
             else
-                SGDriver.new(vm_xml, deploy_id, hypervisor)
+                SGDriver.new(vm_xml, deploy_id, hypervisor, xpath_filter)
             end
         end
 

@@ -20,6 +20,7 @@ module VNMMAD
     # Filter network driver based on simple iptables rules
     ############################################################################
     class FWDriver < VNMDriver
+
         # Driver name
         DRIVER = "fw"
 

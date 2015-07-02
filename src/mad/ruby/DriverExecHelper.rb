@@ -61,12 +61,13 @@ module DriverExecHelper
     # @param [String, Symbol] action name of the action
     # @param [String] parameters arguments for the script
     # @param [String, nil] default_name alternative name for the script
+    # @param [String, ''] subdirectory of the action
     # @return [String] command line needed to execute the action
-    def action_command_line(action, parameters, default_name=nil)
+    def action_command_line(action, parameters, default_name=nil, subdirectory='')
         if action_is_local? action
-            script_path=@local_scripts_path
+            script_path=File.join(@local_scripts_path, subdirectory)
         else
-            script_path=@remote_scripts_path
+            script_path=File.join(@remote_scripts_path, subdirectory)
         end
 
         File.join(script_path, action_script_name(action, default_name))+
