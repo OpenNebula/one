@@ -92,7 +92,7 @@ define(function(require) {
       call: OpenNebula.Template.instantiate,
       callback: function(){
         OpenNebula.Action.clear_cache("VM");
-        show_provision_vm_list(0);
+        ProvisionVmsList.show(0);
         var context = $("#provision_create_vm");
         $("#vm_name", context).val('');
         $(".provision_selected_networks").html("");
