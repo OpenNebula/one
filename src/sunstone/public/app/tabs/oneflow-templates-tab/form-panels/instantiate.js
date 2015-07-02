@@ -200,7 +200,7 @@ define(function(require) {
 
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
-        Sunstone.runAction("ServiceTemplate.instantiate", [template_id], extra_info);
+        Sunstone.runAction("ServiceTemplate.instantiate", template_id, extra_info);
       }
     } else {
       if (service_name.indexOf("%i") == -1){//no wildcard, all with the same name
@@ -209,7 +209,7 @@ define(function(require) {
         for (var i=0; i< n_times_int; i++){
           Sunstone.runAction(
               "ServiceTemplate.instantiate",
-              [template_id], extra_info);
+              template_id, extra_info);
         }
       } else { //wildcard present: replace wildcard
         for (var i=0; i< n_times_int; i++){
@@ -217,7 +217,7 @@ define(function(require) {
 
           Sunstone.runAction(
               "ServiceTemplate.instantiate",
-              [template_id], extra_info);
+              template_id, extra_info);
         }
       }
     }
