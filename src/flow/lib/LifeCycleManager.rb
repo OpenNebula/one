@@ -37,9 +37,7 @@ class ServiceLCM
                 Log.error LOG_COMP, "Error retrieving the Service Pool: #{rc.message}"
             else
                 srv_pool.each_xpath('DOCUMENT/ID') { |id|
-
-                    service = srv_pool.get(id.to_i) { |service|
-
+                    rc_get = srv_pool.get(id.to_i) { |service|
                         owner_client = @cloud_auth.client(service.owner_name)
                         service.replace_client(owner_client)
 
@@ -150,7 +148,12 @@ class ServiceLCM
                                 "Service #{service.id()} : #{rc.message}"
                         end
                     }
-                }
+
+                    if OpenNebula.is_error?(rc_get)
+                      Log.error LOG_COMP, "Error getting Service " <<
+                        "#{id}: #{rc_get.message}"
+                    end
+              }
             end
 
             sleep @sleep_time
