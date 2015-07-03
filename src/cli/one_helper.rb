@@ -649,13 +649,13 @@ user         #{self.rname} of the user identified by the username
 EOT
         end
 
-        def self.table_conf
-            path = "#{ENV["HOME"]}/.one/cli/#{self.conf_file}"
+        def self.table_conf(conf_file=self.conf_file)
+            path = "#{ENV["HOME"]}/.one/cli/#{conf_file}"
 
             if File.exists?(path)
                 return path
             else
-                return "#{TABLE_CONF_PATH}/#{self.conf_file}"
+                return "#{TABLE_CONF_PATH}/#{conf_file}"
             end
         end
 
