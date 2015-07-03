@@ -159,6 +159,7 @@ define(function(require) {
     var that = this;
     $('#' + this.dataTableId + 'Search').keyup(function() {
       that.dataTable.fnFilter($(this).val());
+      return false;
     })
 
     this.dataTable.on('draw', function() {
@@ -570,6 +571,7 @@ define(function(require) {
 
     $('#' + that.dataTableId + '_search', section).keyup(function() {
       that.dataTable.fnFilter($(this).val());
+      return false;
     })
 
     if (that.selectOptions.read_only) {
