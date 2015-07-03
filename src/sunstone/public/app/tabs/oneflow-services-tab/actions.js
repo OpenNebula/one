@@ -19,7 +19,7 @@ define(function(require) {
   function roleElements() {
     var selected_nodes = [];
 
-    var dataTable = $('#datatable_service_roles', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var dataTable = $('table[id^=datatable_roles]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
     var nodes = $('tbody input.check_item:checked', dataTable);
     $.each(nodes, function() {
       selected_nodes.push($(this).val());
@@ -31,7 +31,7 @@ define(function(require) {
   function roleVMElements() {
     var selected_nodes = [];
 
-    var dataTable = $('table[id^=datatable_service_vms]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var dataTable = $('table[id^=datatable_vms]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
     var nodes = $('tbody input.check_item:checked', dataTable);
     $.each(nodes, function() {
       selected_nodes.push($(this).val());
