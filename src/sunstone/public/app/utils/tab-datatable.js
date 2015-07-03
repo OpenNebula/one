@@ -11,6 +11,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
+  var OpenNebulaUser = require('opennebula/user');
 
   /*
     TEMPLATES
@@ -152,9 +153,37 @@ define(function(require) {
       }
 
       this.initSelectResourceTableSelect();
+    } else {
+      this.dataTableOptions.pageLength = config['page_length'];
     }
 
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
+
+    // Remember page length only for non selectable datatables
+    if (!this.conf.select) {
+      this.dataTable.on( 'length.dt', function ( e, settings, len ) {
+
+        config['page_length'] = len;
+
+        OpenNebulaUser.show({
+          data : {
+            id: config['user_id']
+          },
+          success: function(request, response) {
+            var template = response.USER.TEMPLATE;
+
+            template["TABLE_DEFAULT_PAGE_LENGTH"] = len;
+
+            template_str = "";
+            $.each(template, function(key, value) {
+              template_str += (key + '=' + '"' + value + '"\n');
+            });
+
+            Sunstone.runAction("User.update_template", config['user_id'], template_str);
+          }
+        });
+       });
+    }
 
     var that = this;
     $('#' + this.dataTableId + 'Search').keyup(function() {

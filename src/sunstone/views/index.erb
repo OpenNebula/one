@@ -9,7 +9,7 @@
     <% if session[:lang] %>
       <script src="locale/languages/<%= session[:lang] %>.js?v=<%= OpenNebula::VERSION %>" type="text/javascript"></script>
     <% end %>
-    
+
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
@@ -39,7 +39,8 @@
         'user_gid' : '<%= session[:user_gid] %>',
         'display_name' : '<%= session[:display_name] %>',
         'zone_name' : '<%= session[:zone_name] %>',
-        'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>')
+        'instance_types' : JSON.parse('<%= cloud_view_instance_types().to_json %>'),
+        'page_length' : '<%= session[:page_length] %>'
       };
     </script>
 
@@ -87,9 +88,9 @@
 
 
     <% if $conf[:env] == 'dev' %>
-      <script src="bower_components/requirejs/require.js" data-main="app/main"></script> 
+      <script src="bower_components/requirejs/require.js" data-main="app/main"></script>
     <% else %>
-      <script src="dist/main.js"></script> 
+      <script src="dist/main.js"></script>
     <% end %>
   </body>
 </html>

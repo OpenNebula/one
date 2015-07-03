@@ -229,6 +229,12 @@ helpers do
                 session[:lang] = $conf[:lang]
             end
 
+            if user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
+                session[:page_length] = user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
+            else
+                session[:page_length] = DEFAULT_PAGE_LENGTH
+            end
+
             wss = $conf[:vnc_proxy_support_wss]
             #limit to yes,no options
             session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
