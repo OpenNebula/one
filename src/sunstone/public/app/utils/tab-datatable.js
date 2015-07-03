@@ -186,8 +186,8 @@ define(function(require) {
       this.infoListener(_defaultTrListener);
     } else if (this.conf.customTrListener) {
       this.infoListener(this.conf.customTrListener);
-    } else {
-      //this.infoListener();
+    } else if (!this.conf.select){
+      this.infoListener();
     }
 
     if (this.conf.select) {
