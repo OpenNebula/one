@@ -165,7 +165,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING/NETTX"].to_i / 1024.0, {})
         end
 
-        column :TOTAL_DISK_SIZE, "Total disk size used", :size=>6 do |d|
+        column :DISK, "Total disk size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
             total_disk_size = 0
 
@@ -187,7 +187,7 @@ class AcctHelper < OpenNebulaHelper::OneHelper
             OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
         end
 
-        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :TOTAL_DISK_SIZE
+        default :VID, :HOSTNAME, :ACTION, :REASON, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :DISK
     end
 
     SHOWBACK_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneshowback.yaml"), nil) do
