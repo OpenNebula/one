@@ -67,6 +67,8 @@
  \-\-cache cache_mode        Hypervisor cache mode: default, none,
                            writethrough, writeback, directsync or unsafe\.
                            (Only KVM driver)
+ \-\-discard discard_mode    Hypervisor discard mode: ignore or unmap\.
+                           (Only KVM driver)
  \-n, \-\-network id|name     Selects the virtual network
  \-i, \-\-ip ip               IP address for the new NIC
  \-l, \-\-list x,y,z          Selects columns to display with list command
@@ -370,7 +372,7 @@ disk\-attach \fIvmid\fR Attaches a disk to a running VM\. When using \-\-file ad
 .nf
 
 States: RUNNING
-valid options: file, image, target, cache
+valid options: file, image, target, cache, discard
 .
 .fi
 .
