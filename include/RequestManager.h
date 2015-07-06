@@ -51,6 +51,7 @@ public:
             int _timeout,
             const string _xml_log_file,
             const string call_log_format,
+            const string _listen_address,
             int message_size);
 
     ~RequestManager(){};
@@ -140,6 +141,11 @@ private:
      *  Filename for the log of the xmlrpc server that listens
      */
     string xml_log_file;
+
+    /**
+     *  Specifies the address xmlrpc server will bind to
+     */
+    string listen_address;
 
     /**
      *  Action engine for the Manager
