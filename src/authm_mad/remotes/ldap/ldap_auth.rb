@@ -180,8 +180,6 @@ class OpenNebula::LdapAuth
         [@user['memberOf']].flatten.each do |group|
             if @mapping[group]
                 groups << @mapping[group]
-            else
-                groups << @options[:mapping_default]
             end
         end
 
