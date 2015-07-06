@@ -150,6 +150,7 @@ configure do
 end
 
 DEFAULT_TABLE_ORDER = "desc"
+DEFAULT_PAGE_LENGTH = 10
 
 ##############################################################################
 # Helpers

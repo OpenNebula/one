@@ -240,6 +240,18 @@ define(function(require) {
           });
 
           Sunstone.runAction("User.update_language", user_id, template_str);
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            data: JSON.stringify(template_str),
+            success: function() {
+              window.location.href = ".";
+            },
+            error: function(response) {
+            }
+          });
         }
       });
     });
