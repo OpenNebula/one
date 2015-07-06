@@ -84,6 +84,85 @@ module Migrator
 
       log_time()
 
+      # 3718
+
+      # Move monitoring attributes in VM pool table
+
+      @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
+      @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
+
+      @db.transaction do
+        @db.fetch("SELECT * FROM old_vm_pool") do |row|
+          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+          update_monitoring(doc.root.at_xpath("/VM"))
+
+          @db[:vm_pool].insert(
+            :oid        => row[:oid],
+            :name       => row[:name],
+            :body       => doc.root.to_s,
+            :uid        => row[:uid],
+            :gid        => row[:gid],
+            :last_poll  => row[:last_poll],
+            :state      => row[:state],
+            :lcm_state  => row[:lcm_state],
+            :owner_u    => row[:owner_u],
+            :group_u    => row[:group_u],
+            :other_u    => row[:other_u])
+        end
+      end
+
+      @db.run "DROP TABLE old_vm_pool;"
+
+      log_time()
+
+      # Move monitoring attributes in the history table
+
+      @db.run "ALTER TABLE history RENAME TO old_history;"
+      @db.run "CREATE TABLE history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq));"
+
+      @db.transaction do
+        @db.fetch("SELECT * FROM old_history") do |row|
+          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+          elem = doc.root.at_xpath("/HISTORY/VM")
+          if !elem.nil?
+            update_monitoring(elem)
+          end
+
+          @db[:history].insert(
+            :vid    => row[:vid],
+            :seq    => row[:seq],
+            :body   => doc.root.to_s,
+            :stime  => row[:stime],
+            :etime  => row[:etime])
+        end
+      end
+
+      @db.run "DROP TABLE old_history;"
+
+      log_time()
+
       return true
+    end
+
+    def mv_monitoring(vm_elem, prev_name, new_name)
+      elem = vm_elem.at_xpath(prev_name)
+
+      if (!elem.nil?)
+        vm_elem.at_xpath("MONITORING").add_child(
+          vm_elem.document.create_element(new_name)).content = elem.text
+
+        elem.remove
+      end
+    end
+
+    def update_monitoring(vm_elem)
+      vm_elem.add_child(vm_elem.document.create_element("MONITORING"))
+
+      mv_monitoring(vm_elem, "CPU",    "CPU")
+      mv_monitoring(vm_elem, "MEMORY", "MEMORY")
+      mv_monitoring(vm_elem, "NET_RX", "NETRX")
+      mv_monitoring(vm_elem, "NET_TX", "NETTX")
     end
 end
