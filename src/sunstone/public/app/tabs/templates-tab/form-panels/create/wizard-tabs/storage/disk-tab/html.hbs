@@ -143,6 +143,17 @@
       </select>
     </div>
     <div class="large-6 columns hypervisor only_kvm">
+      <label for="DISCARD">
+        {{tr "DISCARD"}}
+        <span class="tip">{{tr "Set DISCARD feature."}}</span>
+      </label>
+      <select wizard_field="DISCARD" id="DISCARD" name="DISCARD">
+        <option value=""></option>
+        <option value="ignore">{{tr "ignore"}}</option>
+        <option value="unmap">{{tr "unmap"}}</option>
+      </select>
+    </div>
+    <div class="large-6 columns hypervisor only_kvm">
       <label for="TOTAL_BYTES_SEC">
         {{tr "Total Bytes Sec"}}
         <span class="tip">

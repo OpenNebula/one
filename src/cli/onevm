@@ -79,6 +79,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             " writeback, directsync or unsafe. (Only KVM driver)"
     }
 
+    DISCARD={
+        :name => "discard",
+        :large => "--discard discard_mode",
+        :format => String,
+        :description => "Hypervisor discard mode: ignore or unmap."<<
+            " (Only KVM driver)"
+    }
+
     ENFORCE={
         :name  => "enforce",
         :short => "-e",
@@ -590,7 +598,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     command :"disk-attach", disk_attach_desc, :vmid,
             :options => [OneVMHelper::FILE, OneVMHelper::IMAGE,
-                         TARGET, CACHE, PREFIX] do
+                         TARGET, CACHE, DISCARD, PREFIX] do
 
         if options[:file].nil? and options[:image].nil?
             STDERR.puts "Provide a template file or an image:"
@@ -616,6 +624,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
             if options[:cache]
                 template<<", CACHE = \"#{options[:cache]}\""
+            end
+
+            if options[:discard]
+                template<<", DISCARD = \"#{options[:discard]}\""
             end
 
             template << " ]"
