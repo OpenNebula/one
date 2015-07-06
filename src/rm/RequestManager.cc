@@ -50,6 +50,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -65,6 +66,7 @@ RequestManager::RequestManager(
         int _timeout,
         const string _xml_log_file,
         const string call_log_format,
+        const string _listen_address,
         int message_size):
             port(_port),
             socket_fd(-1),
@@ -73,7 +75,8 @@ RequestManager::RequestManager(
             keepalive_timeout(_keepalive_timeout),
             keepalive_max_conn(_keepalive_max_conn),
             timeout(_timeout),
-            xml_log_file(_xml_log_file)
+            xml_log_file(_xml_log_file),
+            listen_address(_listen_address)
 {
     Request::set_call_log_format(call_log_format);
 
@@ -192,7 +195,20 @@ int RequestManager::setup_socket()
 
     rm_addr.sin_family      = AF_INET;
     rm_addr.sin_port        = htons(port);
-    rm_addr.sin_addr.s_addr = INADDR_ANY;
+
+    rc = inet_aton(listen_address.c_str(), &rm_addr.sin_addr);
+
+    if ( rc == 0 )
+    {
+        ostringstream oss;
+
+        oss << "Invalid listen address: " << listen_address;
+        NebulaLog::log("ReM",Log::ERROR,oss);
+
+        close(socket_fd);
+
+        return -1;
+    }
 
     rc = bind(socket_fd,(struct sockaddr *) &(rm_addr),sizeof(struct sockaddr));
 
@@ -200,7 +216,7 @@ int RequestManager::setup_socket()
     {
         ostringstream oss;
 
-        oss << "Cannot bind to port " << port << " : " << strerror(errno);
+        oss << "Cannot bind to " << listen_address << ":" << port << " : " << strerror(errno);
         NebulaLog::log("ReM",Log::ERROR,oss);
 
         close(socket_fd);
