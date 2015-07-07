@@ -39,13 +39,20 @@ define(function(require) {
    */
 
   function _html() {
-    return '<div class="row">\
-      <div class="large-12 columns">\
-        <table id="vm_template_table" class="info_table dataTable">' +
+    return '<div class="row">'+
+      '<div class="large-12 columns">'+
+        '<table class="dataTable extended_table">'+
+          '<thead>'+
+            '<tr>'+
+              '<th colspan="2">' + Locale.tr("Template") + '</th>'+
+            '</tr>'+
+          '</thead>'+
+          '<tbody>'+
             Humanize.prettyPrintJSON(this.element.TEMPLATE) +
-        '</table>\
-      </div>\
-    </div>'
+          '</tbody>'+
+        '</table>'+
+      '</div>'+
+    '</div>'
   }
 
   function _setup(context) {

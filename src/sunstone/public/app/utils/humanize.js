@@ -147,9 +147,9 @@ define(function(require) {
     var str = ""
     if (!template_json) { return "Not defined";}
     if (!padding) {padding = 10};
-    if (!weight) {weight = "bold";}
-    if (!border_bottom) {border_bottom = "1px solid #efefef";}
-    if (!padding_top_bottom) {padding_top_bottom = 6;}
+    if (!weight) {weight = "none";}
+    if (!border_bottom) {border_bottom = "0px solid #efefef";}
+    if (!padding_top_bottom) {padding_top_bottom = 5;}
     var field = null;
 
     if (template_json.constructor == Array) {

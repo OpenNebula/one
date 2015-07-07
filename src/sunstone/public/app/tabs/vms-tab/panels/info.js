@@ -62,6 +62,18 @@ define(function(require) {
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
     var templateTableHTML = TemplateTable.html(this.element.USER_TEMPLATE, RESOURCE, Locale.tr("Attributes"));
 
+    var monitoring = $.extend({}, this.element.MONITORING);
+    delete monitoring.CPU;
+    delete monitoring.MEMORY;
+    delete monitoring.NETTX;
+    delete monitoring.NETRX;
+    delete monitoring.STATE;
+    delete monitoring.DISK_SIZE;
+    var monitoringTableContentHTML;
+    if (!$.isEmptyObject(monitoring)) {
+      monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
+    }
+
     return TemplateInfo({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
@@ -73,6 +85,7 @@ define(function(require) {
       'resched': resched,
       'permissionsTableHTML': permissionsTableHTML,
       'templateTableHTML': templateTableHTML,
+      'monitoringTableContentHTML': monitoringTableContentHTML,
       'renameTrHTML': renameTrHTML
     });
   }

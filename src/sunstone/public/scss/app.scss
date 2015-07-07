@@ -321,10 +321,11 @@ select {
 .value_td {
     text-overflow:ellipsis;
     word-break: break-all;
+    width: 100%;
 }
 
 .key_td {
-  color: #777 !important;
+  color: #999 !important;
 }
 
 .configuration_attrs {
