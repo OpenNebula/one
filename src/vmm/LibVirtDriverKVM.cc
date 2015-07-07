@@ -409,10 +409,7 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     get_default("DISK", "IO", default_driver_disk_io);
-
     get_default("DISK", "DISCARD", default_driver_discard);
-
-
     get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
     get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
     get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
@@ -651,18 +648,13 @@ int LibVirtDriver::deployment_description_kvm(
             file << " io='" << default_driver_disk_io << "'";
         }
 
-       if ( !discard.empty() || !default_driver_discard.empty() )
-       {
-            file << "' discard='";
-
-            if ( !discard.empty() )
-            {
-                file << discard << "'";
-            }
-            else
-            {
-                file << default_driver_discard << "'";
-            }
+        if ( !discard.empty() )
+        {
+            file << "' discard='" << discard << "'";
+        }
+        else if ( !default_driver_discard.empty() )
+        {
+            file << "' discard='" << default_driver_discard << "'";
         }
 
         file << "/>" << endl;
