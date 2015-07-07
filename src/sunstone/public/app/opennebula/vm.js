@@ -578,12 +578,12 @@ define(function(require) {
   }
 
   function retrieveExternalIPs(element) {
-    var template = element.TEMPLATE;
+    var monitoring = element.MONITORING;
     var ips = {};
     var externalIP;
 
     $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
+      externalIP = monitoring[IPAttr];
       if (externalIP) {
         ips[IPAttr] = externalIP;
       }
@@ -593,16 +593,18 @@ define(function(require) {
   }
 
   function retrieveExternalNetworkAttrs(element) {
-    var template = element.TEMPLATE;
     var ips = {};
     var externalAttr;
 
-    $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
-      externalAttr = template[attr];
-      if (externalAttr) {
-        ips[attr] = externalAttr;
-      }
-    });
+    var monitoring = element.MONITORING;
+    if (monitoring) {
+      $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
+        externalAttr = monitoring[attr];
+        if (externalAttr) {
+          ips[attr] = externalAttr;
+        }
+      });
+    }
 
     return ips;
   }
@@ -633,14 +635,16 @@ define(function(require) {
       });
     }
 
-    var template = element.TEMPLATE;
-    var externalIP;
-    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
-      if (externalIP && ($.inArray(externalIP, ips) == -1)) {
-        ips.push(externalIP);
-      }
-    })
+    var monitoring = element.MONITORING;
+    if (monitoring) {
+      var externalIP;
+      $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
+        externalIP = monitoring[IPAttr];
+        if (externalIP && ($.inArray(externalIP, ips) == -1)) {
+          ips.push(externalIP);
+        }
+      })
+    }
 
     if (ips.length > 0) {
       return ips.join(divider);
