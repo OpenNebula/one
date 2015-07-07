@@ -376,40 +376,40 @@ define(function(require) {
               timeout: true,
               id: data.ID,
               monitor: {
-                monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"
+                monitor_resources : "MONITORING/CPU,MONITORING/MEMORY,MONITORING/NETTX,MONITORING/NETRX"
               }
             },
             success: function(request, response){
               var vm_graphs = [
                   {
-                      monitor_resources : "CPU",
+                      monitor_resources : "MONITORING/CPU",
                       labels : "Real CPU",
                       humanize_figures : false,
                       div_graph : $(".vm_cpu_graph", context)
                   },
                   {
-                      monitor_resources : "MEMORY",
+                      monitor_resources : "MONITORING/MEMORY",
                       labels : "Real MEM",
                       humanize_figures : true,
                       div_graph : $(".vm_memory_graph", context)
                   },
                   {
                       labels : "Network reception",
-                      monitor_resources : "NET_RX",
+                      monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       div_graph : $(".vm_net_rx_graph", context)
                   },
                   {
                       labels : "Network transmission",
-                      monitor_resources : "NET_TX",
+                      monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       div_graph : $(".vm_net_tx_graph", context)
                   },
                   {
                       labels : "Network reception speed",
-                      monitor_resources : "NET_RX",
+                      monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       y_sufix : "B/s",
@@ -418,7 +418,7 @@ define(function(require) {
                   },
                   {
                       labels : "Network transmission speed",
-                      monitor_resources : "NET_TX",
+                      monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       y_sufix : "B/s",
