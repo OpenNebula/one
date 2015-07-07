@@ -129,7 +129,7 @@ define(function(require) {
 
       $.each(noParent, function(){
         treeRoot.subTree.push(
-          _makeTree(indexedSnapshots[this], indexedSnapshots)
+          _makeTree(that, indexedSnapshots[this], indexedSnapshots)
         );
       });
 
@@ -214,9 +214,7 @@ define(function(require) {
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
-            // TODO: set disk_snapshot_create in state-actions.js
-            //if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
-            if (!disk.CONTEXT) {
+            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
               <i class="fa fa-camera"></i>' + Locale.tr("Snapshot") +
               '</a>');
@@ -419,7 +417,7 @@ define(function(require) {
     Tree.setup(context);
   }
 
-  function _makeTree(snapshot, indexedSnapshots){
+  function _makeTree(that, snapshot, indexedSnapshots){
     var SPACE = '&nbsp;&nbsp;&nbsp;&nbsp;';
 
     var subTree = [];
@@ -427,7 +425,7 @@ define(function(require) {
     if (snapshot.CHILDREN){
       $.each(snapshot.CHILDREN.split(","), function(){
         subTree.push(
-          _makeTree(indexedSnapshots[this], indexedSnapshots)
+          _makeTree(that, indexedSnapshots[this], indexedSnapshots)
         );
       });
     }
@@ -445,17 +443,23 @@ define(function(require) {
     html += Humanize.prettyTime(snapshot.DATE) + SPACE +
             (snapshot.TAG ? snapshot.TAG + SPACE : '');
 
-    if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas") &&
+        StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
+
       html += '<a href="" class="disk_snapshot_saveas" >\
               <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
     }
 
-    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert")) {
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert") &&
+        StateActions.enabledStateAction("VM.disk_snapshot_revert", that.element.STATE, that.element.LCM_STATE)) {
+
       html += '<a href="VM.disk_snapshot_revert" class="disk_snapshot_revert" ><i class="fa fa-reply"/>' + Locale.tr("Revert") + '</a> &emsp;';
     }
 
     if(!active){
-      if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete")) {
+      if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete") &&
+        StateActions.enabledStateAction("VM.disk_snapshot_delete", that.element.STATE, that.element.LCM_STATE)) {
+
         html += '<a href="VM.disk_snapshot_delete" class="disk_snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>';
       }
     }
