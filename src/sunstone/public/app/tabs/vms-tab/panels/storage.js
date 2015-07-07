@@ -423,11 +423,11 @@ define(function(require) {
               <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
     }
 
-    if(!active){
-      if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert")) {
-        html += '<a href="VM.disk_snapshot_revert" class="disk_snapshot_revert" ><i class="fa fa-reply"/>' + Locale.tr("Revert") + '</a> &emsp;';
-      }
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert")) {
+      html += '<a href="VM.disk_snapshot_revert" class="disk_snapshot_revert" ><i class="fa fa-reply"/>' + Locale.tr("Revert") + '</a> &emsp;';
+    }
 
+    if(!active){
       if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete")) {
         html += '<a href="VM.disk_snapshot_delete" class="disk_snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>';
       }
