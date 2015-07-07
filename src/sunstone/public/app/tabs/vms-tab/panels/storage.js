@@ -60,6 +60,7 @@ define(function(require) {
                  <th>' + Locale.tr("ID") + '</th>\
                  <th>' + Locale.tr("Target") + '</th>\
                  <th>' + Locale.tr("Image / Format-Size") + '</th>\
+                 <th>' + Locale.tr("Size") + '</th>\
                  <th>' + Locale.tr("Persistent") + '</th>\
                  <th>' + Locale.tr("Actions");
 
@@ -150,6 +151,17 @@ define(function(require) {
       disks.push(context_disk);
     }
 
+    var disksSize = {};
+    var monitoringDisks = [];
+    if ($.isArray(that.element.MONITORING.DISK_SIZE))
+      monitoringDisks = that.element.MONITORING.DISK_SIZE;
+    else if (!$.isEmptyObject(that.element.MONITORING.DISK_SIZE))
+      monitoringDisks = [that.element.MONITORING.DISK_SIZE];
+
+    $.each(monitoringDisks, function(index, monitoringDisk){
+      disksSize[monitoringDisk.ID] = monitoringDisk.SIZE;
+    })
+
     var disk_dt_data = [];
     if (disks.length) {
 
@@ -212,10 +224,24 @@ define(function(require) {
           }
         }
 
+        var sizeStr = "";
+        if (disk.SIZE) {
+          sizeStr += Humanize.sizeFromMB(disk.SIZE);
+        } else {
+          sizeStr += '-';
+        }
+        sizeStr += '/';
+        if (disksSize[disk.DISK_ID]) {
+          sizeStr += Humanize.sizeFromMB(disksSize[disk.DISK_ID]);
+        } else {
+          sizeStr += '-';
+        }
+
         disk_dt_data.push({
           DISK_ID : disk.DISK_ID,
           TARGET : disk.TARGET,
           IMAGE : (disk.IMAGE ? disk.IMAGE : (Humanize.sizeFromMB(disk.SIZE) + (disk.FORMAT ? (' - ' + disk.FORMAT) : ''))),
+          SIZE: sizeStr,
           SAVE : ((disk.SAVE && disk.SAVE == 'YES') ? Locale.tr('YES') : Locale.tr('NO')),
           ACTIONS : actions,
           SNAPSHOTS : snapshotsHtml[disk.DISK_ID]
@@ -236,6 +262,7 @@ define(function(require) {
         {"data": "DISK_ID",   "defaultContent": ""},
         {"data": "TARGET",    "defaultContent": ""},
         {"data": "IMAGE",     "defaultContent": "", "orderable": false},
+        {"data": "SIZE",      "defaultContent": ""},
         {"data": "SAVE",      "defaultContent": "", "orderable": false},
         {"data": "ACTIONS",   "defaultContent": "", "orderable": false}
       ],
