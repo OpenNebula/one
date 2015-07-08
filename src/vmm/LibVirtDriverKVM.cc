@@ -650,11 +650,11 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( !discard.empty() )
         {
-            file << "' discard='" << discard << "'";
+            file << " discard='" << discard << "'";
         }
         else if ( !default_driver_discard.empty() )
         {
-            file << "' discard='" << default_driver_discard << "'";
+            file << " discard='" << default_driver_discard << "'";
         }
 
         file << "/>" << endl;
