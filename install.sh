@@ -229,6 +229,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/ruby/onedb/shared \
           $LIB_LOCATION/ruby/onedb/local \
+          $LIB_LOCATION/ruby/onedb/patches \
           $LIB_LOCATION/ruby/vendors \
           $LIB_LOCATION/ruby/vendors/rbvmomi \
           $LIB_LOCATION/ruby/vendors/rbvmomi/lib \
@@ -367,6 +368,7 @@ INSTALL_FILES=(
     ONEDB_FILES:$LIB_LOCATION/ruby/onedb
     ONEDB_SHARED_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/shared
     ONEDB_LOCAL_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/local
+    ONEDB_PATCH_FILES:$LIB_LOCATION/ruby/onedb/patches
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
@@ -1213,6 +1215,8 @@ ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
                             src/onedb/local/4.9.80_to_4.10.3.rb \
                             src/onedb/local/4.10.3_to_4.11.80.rb \
                             src/onedb/local/4.11.80_to_4.13.80.rb"
+
+ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION

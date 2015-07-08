@@ -86,57 +86,67 @@ module Migrator
 
       # 3718
 
-      # Move monitoring attributes in VM pool table
+      # Move monitoring attributes in VM pool table. VMs in the DONE state
+      # will be processed by the onedb patch command.
 
       @db.run "ALTER TABLE vm_pool RENAME TO old_vm_pool;"
       @db.run "CREATE TABLE vm_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, last_poll INTEGER, state INTEGER, lcm_state INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER);"
 
+      @db.run "INSERT INTO vm_pool SELECT * FROM old_vm_pool WHERE state=6;"
+
+      log_time()
+
       @db.transaction do
-        @db.fetch("SELECT * FROM old_vm_pool") do |row|
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+      @db.fetch("SELECT * FROM old_vm_pool WHERE state<>6") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-          update_monitoring(doc.root.at_xpath("/VM"))
+        update_monitoring(doc.root.at_xpath("/VM"))
 
-          @db[:vm_pool].insert(
-            :oid        => row[:oid],
-            :name       => row[:name],
-            :body       => doc.root.to_s,
-            :uid        => row[:uid],
-            :gid        => row[:gid],
-            :last_poll  => row[:last_poll],
-            :state      => row[:state],
-            :lcm_state  => row[:lcm_state],
-            :owner_u    => row[:owner_u],
-            :group_u    => row[:group_u],
-            :other_u    => row[:other_u])
-        end
+        @db[:vm_pool].insert(
+          :oid        => row[:oid],
+          :name       => row[:name],
+          :body       => doc.root.to_s,
+          :uid        => row[:uid],
+          :gid        => row[:gid],
+          :last_poll  => row[:last_poll],
+          :state      => row[:state],
+          :lcm_state  => row[:lcm_state],
+          :owner_u    => row[:owner_u],
+          :group_u    => row[:group_u],
+          :other_u    => row[:other_u])
+      end
       end
 
       @db.run "DROP TABLE old_vm_pool;"
 
       log_time()
 
-      # Move monitoring attributes in the history table
+      # Move monitoring attributes in the history table. Closed records
+      # will be processed by the onedb patch command.
 
       @db.run "ALTER TABLE history RENAME TO old_history;"
       @db.run "CREATE TABLE history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq));"
 
+      @db.run "INSERT INTO history SELECT * FROM old_history WHERE etime<>0;"
+
+      log_time()
+
       @db.transaction do
-        @db.fetch("SELECT * FROM old_history") do |row|
-          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+      @db.fetch("SELECT * FROM old_history WHERE etime=0") do |row|
+        doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
-          elem = doc.root.at_xpath("/HISTORY/VM")
-          if !elem.nil?
-            update_monitoring(elem)
-          end
-
-          @db[:history].insert(
-            :vid    => row[:vid],
-            :seq    => row[:seq],
-            :body   => doc.root.to_s,
-            :stime  => row[:stime],
-            :etime  => row[:etime])
+        elem = doc.root.at_xpath("/HISTORY/VM")
+        if !elem.nil?
+          update_monitoring(elem)
         end
+
+        @db[:history].insert(
+          :vid    => row[:vid],
+          :seq    => row[:seq],
+          :body   => doc.root.to_s,
+          :stime  => row[:stime],
+          :etime  => row[:etime])
+      end
       end
 
       @db.run "DROP TABLE old_history;"

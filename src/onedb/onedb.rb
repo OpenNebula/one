@@ -451,6 +451,71 @@ is preserved.
         end
     end
 
+    def patch(file, ops)
+        ret = @backend.read_db_version
+
+        if ops[:verbose]
+            pretty_print_db_version(ret)
+            puts ""
+        end
+
+        if File.exists? file
+
+            load(file)
+            @backend.extend OneDBPatch
+
+            if (!@backend.is_hot_patch(ops))
+                one_not_running()
+            end
+
+            @backend.check_db_version(ops)
+
+            ops[:backup] = @backend.bck_file if ops[:backup].nil?
+
+            if (!@backend.is_hot_patch(ops))
+                backup(ops[:backup], ops)
+            end
+
+            begin
+                puts "  > Running patch #{file}" if ops[:verbose]
+
+                time0 = Time.now
+
+                result = @backend.patch(ops)
+
+                if !result
+                    raise "Error running patch #{file}"
+                end
+
+                puts "  > Done" if ops[:verbose]
+                puts "" if ops[:verbose]
+
+                time1 = Time.now
+
+                puts "  > Total time: #{"%0.02f" % (time1 - time0).to_s}s" if ops[:verbose]
+
+                return 0
+            rescue Exception => e
+                puts
+                puts e.message
+                puts e.backtrace.join("\n")
+                puts
+
+                puts "Error running patch #{file}"
+                if (!@backend.is_hot_patch(ops))
+                    puts "The database will be restored"
+
+                    ops[:force] = true
+
+                    restore(ops[:backup], ops)
+                end
+
+                return -1
+            end
+        else
+            raise "File was not found: #{file}"
+        end
+    end
 
     private
 
