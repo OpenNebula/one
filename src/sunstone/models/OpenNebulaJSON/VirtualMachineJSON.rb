@@ -43,7 +43,6 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "cancel"       then self.cancel
                  when "deploy"       then self.deploy(action_hash['params'])
                  when "finalize"     then self.finalize
                  when "hold"         then self.hold
@@ -61,7 +60,7 @@ module OpenNebulaJSON
                  when "disk_snapshot_create"  then self.disk_snapshot_create(action_hash['params'])
                  when "disk_snapshot_revert"  then self.disk_snapshot_revert(action_hash['params'])
                  when "disk_snapshot_delete"  then self.disk_snapshot_delete(action_hash['params'])
-                 when "shutdown"     then self.shutdown
+                 when "shutdown"     then self.shutdown(action_hash['params'])
                  when "reboot"       then self.reboot
                  when "poweroff"     then self.poweroff(action_hash['params'])
                  when "resubmit"     then self.resubmit
@@ -95,6 +94,10 @@ module OpenNebulaJSON
         end
 
         def undeploy(params=Hash.new)
+            super(params['hard'])
+        end
+
+        def shutdown(params=Hash.new)
             super(params['hard'])
         end
 

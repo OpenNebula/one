@@ -329,9 +329,6 @@ define(function(require) {
     "stop": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "stop");
     },
-    "cancel": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "cancel");
-    },
     "suspend": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "suspend");
     },

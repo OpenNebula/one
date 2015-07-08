@@ -240,7 +240,7 @@ define(function(require) {
 
     "Role.shutdown_hard" : {
       type: "multiple",
-      call: OpenNebulaRole.cancel,
+      call: OpenNebulaRole.shutdown_hard,
       callback: roleCallback,
       elements: roleElements,
       error: Notifier.onError,
@@ -413,7 +413,7 @@ define(function(require) {
 
     "RoleVM.shutdown_hard" : {
       type: "multiple",
-      call: OpenNebulaVM.cancel,
+      call: OpenNebulaVM.shutdown_hard,
       callback: roleCallback,
       elements: roleVMElements,
       error: Notifier.onError,

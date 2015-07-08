@@ -627,7 +627,7 @@ define(function(require) {
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
-      OpenNebula.VM.cancel({
+      OpenNebula.VM.shutdown_hard({
         data : {
           id: vm_id
         },
