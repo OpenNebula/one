@@ -95,7 +95,7 @@ define(function(require) {
     },
 
     "ServiceTemplate.instantiate" : {
-      type: "multiple",
+      type: "single",
       call: OpenNebulaResource.instantiate,
       callback: function(request, response){
         Sunstone.hideFormPanel(TAB_ID);
