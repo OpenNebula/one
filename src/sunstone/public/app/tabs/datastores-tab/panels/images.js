@@ -4,7 +4,9 @@ define(function(require){
    */
 
   var Locale = require('utils/locale');
+  var OpenNebulaDatastore = require('opennebula/datastore');
   var ImagesTable = require('tabs/images-tab/datatable');
+  var FilesTable = require('tabs/files-tab/datatable');
 
   /*
     CONSTANTS
@@ -23,7 +25,6 @@ define(function(require){
     this.icon = "fa-upload";
 
     this.element = info[RESOURCE.toUpperCase()];
-    this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, {info: true});
 
     return this;
   };
@@ -39,13 +40,37 @@ define(function(require){
    */
 
   function _html() {
+    var imgs = [];
+
+    if (this.element.IMAGES.ID != undefined){
+      imgs = this.element.IMAGES.ID;
+
+      if (!$.isArray(imgs)){
+        imgs = [imgs];
+      }
+    }
+
+    var opts = {
+      info: true,
+      select: true,
+      selectOptions: {
+        read_only: true,
+        fixed_ids: imgs
+      }
+    };
+
+    if (this.element.TYPE == OpenNebulaDatastore.TYPES.FILE_DS){
+      this.imagesDataTable = new FilesTable(IMAGES_TABLE_ID, opts);
+    } else {
+      this.imagesDataTable = new ImagesTable(IMAGES_TABLE_ID, opts);
+    }
+
     return this.imagesDataTable.dataTableHTML;
   }
 
   function _setup(context) {
     this.imagesDataTable.initialize();
-    this.imagesDataTable.filter(this.element.NAME, ImagesTable.COLUMN_IDS.DATASTORE);
-    this.imagesDataTable.list();
+    this.imagesDataTable.refreshResourceTableSelect();
 
     return false;
   }

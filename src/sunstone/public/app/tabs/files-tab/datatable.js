@@ -17,10 +17,6 @@ define(function(require) {
   var RESOURCE = "File";
   var XML_ROOT = "IMAGE";
   var TAB_NAME = require('./tabId');
-  var COLUMN_IDS = {
-    "DATASTORE": 5,
-    "TYPE": 7
-  };
 
   /*
     CONSTRUCTOR
@@ -76,7 +72,6 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
-  Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
 
