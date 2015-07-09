@@ -19,9 +19,7 @@
         <input type="checkbox" name="ssh_context" id="ssh_context" checked>
         <label for="ssh_context">
           {{tr "  Add SSH contextualization"}}
-          <span class="tip">
-            {{tr "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used."}}
-          </span>
+          {{{tip (tr "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")}}}
         </label>
       </div>
     </div>
@@ -37,9 +35,7 @@
         <input type="checkbox" name="network_context" id="network_context" checked>
         <label class="inline" for="network_context">
           {{tr "  Add Network contextualization"}}
-          <span class="tip">
-            {{tr "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine"}}
-          </span>
+          {{{tip (tr "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")}}}
         </label>
       </div>
     </div>
@@ -48,9 +44,7 @@
         <input type="checkbox" name="token_context" id="token_context">
         <label class="inline" for="token_context">
           {{tr "  Add OneGate token"}}
-          <span class="tip">
-            {{tr "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate"}}
-          </span>
+          {{{tip (tr "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")}}}
         </label>
       </div>
     </div>
@@ -61,9 +55,7 @@
       <div class="large-12 columns">
         <label for="FILES_DS">
           {{tr "FILES_DS"}}
-          <span class="tip">
-            {{tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT"}}
-          </span>
+          {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
         </label>
         <input type="text" wizard_field="FILES_DS" id="FILES_DS" name="FILES_DS" />
       </div>
@@ -72,9 +64,7 @@
       <div class="large-12 columns">
         <label for="INIT_SCRIPTS">
           {{tr "Init scripts"}}
-          <span class="tip">
-            {{tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”"}}
-          </span>
+          {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
         </label>
         <input type="text" wizard_field="FILES_DS" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />
       </div>
@@ -90,9 +80,7 @@
           <thead>
             <tr>
               <th colspan="4" style="font-size: 16px !important"> <i class="fa fa-lg fa-fw fa-cogs off-color"/>{{tr "User Inputs"}}
-                <span class="tip">
-                  {{tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context"}}
-                </span>
+                {{{tip (tr "These attributes must be provided by the user when a new VM is intantatiated using each template. They will be included in the VM context")}}}
               </th>
             </tr>
           </thead>

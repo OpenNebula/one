@@ -5,8 +5,7 @@
   <div class="large-7 columns">
     <label class="" for="MEMORY">
       {{tr "Memory"}}
-      <span class="tip ">{{tr "Amount of RAM required for the VM, in Megabytes."}}</span>
-
+      {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
     </label>
     <div class="large-8 columns">
       <div id="memory_slider" class="large-7 columns"></div>
@@ -25,7 +24,7 @@
   <div class="large-2 columns">
     <label  for="MEMORY_COST">
       {{tr "Cost"}}
-      <span class="tip">{{tr "Cost of each MB per hour"}}</span>
+      {{{tip (tr "Cost of each MB per hour")}}}
     </label>
     <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
   </div>
@@ -36,9 +35,7 @@
   <div class="large-7 columns">
     <label class="" for="CPU">
       {{tr "CPU"}}
-      <span class="tip">
-        {{tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5."}}
-      </span>
+      {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
     </label>
     <div class="large-10 columns">
       <div id="cpu_slider"></div>
@@ -51,8 +48,7 @@
   <div class="large-2 columns">
     <label  for="CPU_COST">
       {{tr "Cost"}}
-      <span class="tip">{{tr "Cost of each CPU per hour"}}</span>
-
+      {{{tip (tr "Cost of each CPU per hour")}}}
     </label>
     <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
   </div>
@@ -63,9 +59,7 @@
   <div class="large-7 columns">
     <label class="" for="VCPU">
       {{tr "VCPU"}}
-      <span class="tip">
-        {{tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU."}}
-      </span>
+      {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
     </label>
     <div class="large-10 columns">
       <div id="vcpu_slider"></div>

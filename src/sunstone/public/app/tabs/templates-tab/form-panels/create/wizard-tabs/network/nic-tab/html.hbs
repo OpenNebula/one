@@ -8,18 +8,14 @@
       <div class="large-6 columns">
         <label for="NETWORK_ID">
           {{tr "ID"}}
-          <span class="tip">
-            {{tr "Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."}}
-          </span>
+          {{{tip (tr "Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
         </label>
         <input type="text" wizard_field="NETWORK_ID" id="NETWORK_ID" name="NETWORK_ID"/>
       </div>
       <div class="large-6 columns">
         <label for="NETWORK">
           {{tr "Name"}}
-          <span class="tip">
-            {{tr "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."}}
-          </span>
+          {{{tip (tr "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
         </label>
         <input type="text" wizard_field="NETWORK" id="NETWORK" name="NETWORK" />
       </div>
@@ -28,18 +24,14 @@
       <div class="large-6 columns">
         <label for="NETWORK_UID">
           {{tr "User ID"}}
-          <span class="tip">
-            {{tr "Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."}}
-          </span>
+          {{{tip (tr "Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
         </label>
         <input type="text" wizard_field="NETWORK_UID" id="NETWORK_UID" name="NETWORK_UID"/>
       </div>
       <div class="large-6 columns">
         <label for="NETWORK_UNAME">
           {{tr "User Name"}}
-          <span class="tip">
-            {{tr "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface."}}
-          </span>
+          {{{tip (tr "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
         </label>
         <input type="text" wizard_field="NETWORK_UNAME" id="NETWORK_UNAME" name="NETWORK_UNAME"/>
       </div>
@@ -51,14 +43,14 @@
       <div class="large-6 columns">
         <label for="IP">
           {{tr "IP"}}
-          <span class="tip">{{tr "Request an specific IP from the Network"}}</span>
+          {{{tip (tr "Request an specific IP from the Network")}}}
         </label>
         <input type="text" wizard_field="IP" id="IP" name="IP" size="3" />
       </div>
       <div class="large-6 columns">
         <label for="MAC">
           {{tr "MAC"}}
-          <span class="tip">{{tr "Set a specific MAC to the NIC"}}</span>
+          {{{tip (tr "Set a specific MAC to the NIC")}}}
         </label>
         <input type="text" wizard_field="MAC" id="MAC" name="MAC"/>
       </div>
@@ -67,18 +59,14 @@
       <div class="large-6 columns">
         <label for="NETWORK_MASK">
           {{tr "Network Mask"}}
-          <span class="tip">
-            {{tr "Override the network mask of the network. For example, 255.255.255.0"}}
-          </span>
+          {{{tip (tr "Override the network mask of the network. For example, 255.255.255.0")}}}
         </label>
         <input type="text" wizard_field="NETWORK_MASK" id="NETWORK_MASK" name="NETWORK_MASK"/>
       </div>
       <div class="large-6 columns">
         <label for="NETWORK_ADDRESS">
           {{tr "Network Address"}}
-          <span class="tip">
-            {{tr "Override the base network address. For example, 192.168.1.0"}}
-          </span>
+          {{{tip (tr "Override the base network address. For example, 192.168.1.0")}}}
         </label>
         <input type="text" wizard_field="NETWORK_ADDRESS" id="NETWORK_ADDRESS" name="NETWORK_ADDRESS"/>
       </div>
@@ -87,14 +75,14 @@
       <div class="large-6 columns">
         <label for="GATEWAY">
           {{tr "Gateway"}}
-          <span class="tip">{{tr "Override the Router of the network."}}</span>
+          {{{tip (tr "Override the Router of the network.")}}}
         </label>
         <input type="text" wizard_field="GATEWAY" id="GATEWAY" name="GATEWAY"/>
       </div>
       <div class="large-6 columns">
         <label for="DNS">
           {{tr "DNS"}}
-          <span class="tip">{{tr "Override the specific DNS for this network"}}</span>
+          {{{tip (tr "Override the specific DNS for this network")}}}
         </label>
         <input type="text" wizard_field="DNS" id="DNS" name="DNS"/>
       </div>
@@ -103,7 +91,7 @@
       <div class="large-6 columns">
         <label for="SEARCH_DOMAIN">
           {{tr "Search Domain"}}
-          <span class="tip">{{tr "Override the Search Domain for this network."}}</span>
+          {{{tip (tr "Override the Search Domain for this network.")}}}
         </label>
         <input type="text" wizard_field="SEARCH_DOMAIN" id="SEARCH_DOMAIN" name="SEARCH_DOMAIN"/>
       </div>
@@ -115,14 +103,14 @@
       <div class="large-6 columns">
         <label for="IP6_GLOBAL">
           {{tr "IP6 Global"}}
-          <span class="tip">{{tr "Request an specific IP from the IPv6 Network"}}</span>
+          {{{tip (tr "Request an specific IP from the IPv6 Network")}}}
         </label>
         <input type="text" wizard_field="IP6_GLOBAL" id="IP6_GLOBAL" name="IP6_GLOBAL" size="3" />
       </div>
       <div class="large-6 columns">
         <label for="GATEWAY6">
           {{tr "GATEWAY6"}}
-          <span class="tip">{{tr "Override the Router of the IPv6 network."}}</span>
+          {{{tip (tr "Override the Router of the IPv6 network.")}}}
         </label>
         <input type="text" wizard_field="GATEWAY6" id="GATEWAY6" name="GATEWAY6"/>
       </div>
@@ -131,9 +119,7 @@
       <div class="large-6 columns">
         <label for="CONTEXT_FORCE_IPV4">
           {{tr "Network Mask"}}
-          <span class="tip">
-            {{tr "Override force IPv4 for this IPv6 network. Values: Yes or No."}}
-          </span>
+          {{{tip (tr "Override force IPv4 for this IPv6 network. Values: Yes or No.")}}}
         </label>
         <input type="text" wizard_field="CONTEXT_FORCE_IPV4" id="CONTEXT_FORCE_IPV4" name="CONTEXT_FORCE_IPV4"/>
       </div>
@@ -145,9 +131,7 @@
       <div class="large-6 columns">
         <label for="MODEL">
           {{tr "Model"}}
-          <span class="tip">
-            {{tr "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif."}}
-          </span>
+          {{{tip (tr "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")}}}
         </label>
         <input type="text" wizard_field="MODEL" id="MODEL" name="MODEL" />
       </div>
@@ -178,9 +162,7 @@
         <div class="large-12 columns">
           <label for="TCP_PORTS">
             {{tr "PORTS"}}
-            <span class="tip">
-              {{tr "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"}}
-            </span>
+            {{{tip (tr "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")}}}
           </label>
           <input type="text" id="TCP_PORTS" name="ports" />
         </div>
@@ -200,9 +182,7 @@
         <div class="large-12 columns">
           <label for="UDP_PORTS">
             {{tr "PORTS"}}
-            <span class="tip">
-              {{tr "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000"}}
-            </span>
+            {{{tip (tr "A list of ports separated by commas or a ranges separated by semicolons, e.g.: 22,80,5900:6000")}}}
           </label>
           <input type="text" id="UDP_PORTS" name="ports" />
         </div>

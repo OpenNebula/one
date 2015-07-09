@@ -16,16 +16,14 @@
       <div class="large-6 columns">
         <label for="IMAGE_ID">
           {{tr "ID"}}
-          <span class="tip">{{tr "Image ID to be used in the Virtual Image disk."}}</span>
+          {{{tip (tr "Image ID to be used in the Virtual Image disk.")}}}
         </label>
         <input type="text" wizard_field="IMAGE_ID" id="IMAGE_ID" name="IMAGE_ID"/>
       </div>
       <div class="large-6 columns">
         <label for="IMAGE">
           {{tr "Name"}}
-          <span class="tip">
-            {{tr "Name of the image to be used in the Virtual Image disk."}}
-          </span>
+          {{{tip (tr "Name of the image to be used in the Virtual Image disk.")}}}
         </label>
         <input type="text" wizard_field="IMAGE" id="IMAGE" name="IMAGE"/>
       </div>
@@ -34,18 +32,14 @@
       <div class="large-6 columns">
         <label for="IMAGE_UID">
           {{tr "User ID"}}
-          <span class="tip">
-            {{tr "Identifier of the user owner of the image to reduce ambiguity."}}
-          </span>
+          {{{tip (tr "Identifier of the user owner of the image to reduce ambiguity.")}}}
         </label>
         <input type="text" wizard_field="IMAGE_UID" id="IMAGE_UID" name="IMAGE_UID"/>
       </div>
       <div class="large-6 columns">
         <label for="IMAGE_UNAME">
           {{tr "User Name"}}
-          <span class="tip">
-            {{tr "Name of the user owner of the image to reduce ambiguity."}}
-          </span>
+          {{{tip (tr "Name of the user owner of the image to reduce ambiguity.")}}}
         </label>
         <input type="text" wizard_field="IMAGE_UNAME" id="IMAGE_UNAME" name="IMAGE_UNAME"/>
       </div>
@@ -55,28 +49,14 @@
     <div class="large-6 columns">
       <label for="TARGET">
         {{tr "Target"}}
-        <span class="tip">
-          {{tr "Device to map image disk. If set, it will overwrite the default device mapping"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional"}}
-          <br>
-          {{tr "KVM: Optional"}}
-          <br>{{tr "VMWare: Optional"}}</span>
+        {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
       </label>
       <input type="text" wizard_field="TARGET" id="TARGET" name="target"/>
     </div>
     <div class="large-6 columns hypervisor only_xen only_kvm">
       <label for="DRIVER">
         {{tr "Driver"}}
-        <span class="tip">
-          {{tr "Specific image mapping driver"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional (tap:aio:, file:)"}}
-          <br>
-          {{tr "KVM: Optional (raw, qcow2)"}}
-          <br>{{tr "VMWare: Not supported"}}</span>
+        {{{tip (tr "Specific image mapping driver. Xen: Optional (tap:aio:, file:). KVM: Optional (raw, qcow2). VMWare: Not supported")}}}
       </label>
       <input type="text" wizard_field="DRIVER" id="DRIVER" name="driver" />
     </div>
@@ -85,28 +65,14 @@
     <div class="large-6 columns">
       <label for="DEV_PREFIX">
         {{tr "Device Prefix"}}
-        <span class="tip">
-          {{tr "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional"}}
-          <br>
-          {{tr "KVM: Optional"}}
-          <br>{{tr "VMWare: Optional"}}</span>
+        {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
       </label>
       <input type="text" wizard_field="DEV_PREFIX" id="DEV_PREFIX" name="DEV_PREFIX"/>
     </div>
     <div class="large-6 columns">
       <label for="READONLY">
         {{tr "Read Only"}}
-        <span class="tip">
-          {{tr "Set how the image is exposed by the hypervisor"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional"}}
-          <br>
-          {{tr "KVM: Optional"}}
-          <br>{{tr "VMWare: Optional"}}</span>
+        {{{tip (tr "Set how the image is exposed by the hypervisor. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
       </label>
       <select wizard_field="READONLY" id="READONLY" name="READONLY">
         <option value=""></option>
@@ -119,7 +85,7 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="CACHE">
         {{tr "Cache"}}
-        <span class="tip">{{tr "Selects the cache mechanism for the disk."}}</span>
+        {{{tip (tr "Selects the cache mechanism for the disk.")}}}
       </label>
       <select wizard_field="CACHE" id="CACHE" name="CACHE">
         <option value=""></option>
@@ -134,7 +100,7 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="IO">
         {{tr "IO"}}
-        <span class="tip">{{tr "Set IO policy."}}</span>
+        {{{tip (tr "Set IO policy.")}}}
       </label>
       <select wizard_field="IO" id="IO" name="IO">
         <option value=""></option>
@@ -145,7 +111,7 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="DISCARD">
         {{tr "DISCARD"}}
-        <span class="tip">{{tr "Set DISCARD feature."}}</span>
+        {{{tip (tr "Set DISCARD feature.")}}}
       </label>
       <select wizard_field="DISCARD" id="DISCARD" name="DISCARD">
         <option value=""></option>
@@ -156,54 +122,42 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="TOTAL_BYTES_SEC">
         {{tr "Total Bytes Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="TOTAL_BYTES_SEC" type="text" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="READ_BYTES_SEC">
         {{tr "Read Bytes Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="READ_BYTES_SEC" type="text" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="WRITE_BYTES_SEC">
         {{tr "Write Bytes Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="WRITE_BYTES_SEC" type="text" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="TOTAL_IOPS_SEC">
         {{tr "Total IOPS Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="TOTAL_IOPS_SEC" type="text" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="READ_IOPS_SEC">
         {{tr "Read IOPS Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="READ_IOPS_SEC" type="text" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="WRITE_IOPS_SEC">
         {{tr "Write IOPS Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="WRITE_IOPS_SEC" type="text" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
     </div>
@@ -218,7 +172,7 @@
     <div class="large-2 columns">
       <label class="inline" for="SIZE_TMP">
         {{tr "Size"}}
-        <span class="tip">{{tr "Size of the new disk"}}</span>
+        {{{tip (tr "Size of the new disk")}}}
       </label>
     </div>
     <div class="large-6 columns">
@@ -238,7 +192,7 @@
     <div class="large-6 columns">
       <label for="TYPE">
         {{tr "Type"}}
-        <span class="tip">{{tr "Disk type"}}</span>
+        {{{tip (tr "Disk type")}}}
       </label>
       <select wizard_field="TYPE" id="TYPE" name="type">
         <option value="fs">{{tr "FS"}}</option>
@@ -248,7 +202,7 @@
     <div class="large-6 columns">
       <label for="FORMAT">
         {{tr "Format"}}
-        <span class="tip">{{tr "Filesystem type for the fs images"}}</span>
+        {{{tip (tr "Filesystem type for the fs images")}}}
       </label>
       <input wizard_field="FORMAT" type="text" id="FORMAT" name="format" />
     </div>
@@ -259,28 +213,14 @@
     <div class="large-6 columns">
       <label for="TARGET">
         {{tr "Target"}}
-        <span class="tip">
-          {{tr "Device to map image disk. If set, it will overwrite the default device mapping"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional"}}
-          <br>
-          {{tr "KVM: Optional"}}
-          <br>{{tr "VMWare: Optional"}}</span>
+        {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
       </label>
       <input wizard_field="TARGET" type="text"  id="TARGET" name="target"/>
     </div>
     <div class="large-6 columns hypervisor only_xen only_kvm">
       <label for="DRIVER">
         {{tr "Driver"}}
-        <span class="tip">
-          {{tr "Specific image mapping driver"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional (tap:aio:, file:)"}}
-          <br>
-          {{tr "KVM: Optional (raw, qcow2)"}}
-          <br>{{tr "VMWare: Not supported"}}</span>
+        {{{tip (tr "Specific image mapping driver. Xen: Optional (tap:aio:, file:). KVM: Optional (raw, qcow2). VMWare: Not supported")}}}
       </label>
       <input wizard_field="DRIVER" type="text" id="DRIVER" name="driver" />
     </div>
@@ -289,28 +229,14 @@
     <div class="large-6 columns">
       <label for="DEV_PREFIX">
         {{tr "Device Prefix"}}
-        <span class="tip">
-          {{tr "Prefix for the emulated device this image will be mounted at. For instance, “hd”, “sd”, or “vd” for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional"}}
-          <br>
-          {{tr "KVM: Optional"}}
-          <br>{{tr "VMWare: Optional"}}</span>
+        {{{tip (tr "Prefix for the emulated device this image will be mounted at. For instance, hd, sd, or vd for KVM virtio. If omitted, the dev_prefix attribute of the Image will be used. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
       </label>
       <input wizard_field="DEV_PREFIX" type="text" id="DEV_PREFIX" name="DEV_PREFIX"/>
     </div>
     <div class="large-6 columns">
       <label for="READONLY">
         {{tr "Read Only"}}
-        <span class="tip">
-          {{tr "Set how the image is exposed by the hypervisor"}}
-          <br>
-          <br>
-          {{tr "Xen: Optional"}}
-          <br>
-          {{tr "KVM: Optional"}}
-          <br>{{tr "VMWare: Optional"}}</span>
+        {{{tip (tr "Set how the image is exposed by the hypervisor. Xen: Optional. KVM: Optional. VMWare: Optional")}}}
       </label>
       <select wizard_field="READONLY" id="READONLY" name="READONLY">
         <option value=""></option>
@@ -323,7 +249,7 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="CACHE">
         {{tr "Cache"}}
-        <span class="tip">{{tr "Selects the cache mechanism for the disk."}}</span>
+        {{{tip (tr "Selects the cache mechanism for the disk.")}}}
       </label>
       <select wizard_field="CACHE" id="CACHE" name="CACHE">
         <option value=""></option>
@@ -338,7 +264,7 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="IO">
         {{tr "IO"}}
-        <span class="tip">{{tr "Set IO policy."}}</span>
+        {{{tip (tr "Set IO policy.")}}}
       </label>
       <select wizard_field="IO" id="IO" name="IO">
         <option value=""></option>
@@ -349,54 +275,42 @@
     <div class="large-6 columns hypervisor only_kvm">
       <label for="TOTAL_BYTES_SEC">
         {{tr "Total Bytes Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="TOTAL_BYTES_SEC" type="text" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="READ_BYTES_SEC">
         {{tr "Read Bytes Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="READ_BYTES_SEC" type="text" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="WRITE_BYTES_SEC">
         {{tr "Write Bytes Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="WRITE_BYTES_SEC" type="text" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="TOTAL_IOPS_SEC">
         {{tr "Total IOPS Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="TOTAL_IOPS_SEC" type="text" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="READ_IOPS_SEC">
         {{tr "Read IOPS Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="READ_IOPS_SEC" type="text" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
     </div>
     <div class="large-6 columns hypervisor only_kvm">
       <label for="WRITE_IOPS_SEC">
         {{tr "Write IOPS Sec"}}
-        <span class="tip">
-          {{tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin."}}
-        </span>
+        {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
       </label>
       <input wizard_field="WRITE_IOPS_SEC" type="text" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
     </div>

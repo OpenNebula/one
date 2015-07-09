@@ -490,9 +490,7 @@ define(function(require) {
             required_str += '<div class="large-6 columns">' +
               '<label>' +
                 obj.label +
-                '<span class="tip">' +
-                  obj.tooltip +
-                '</span>' +
+                Tips.html(obj.tooltip) +
               '</label>' +
               '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
             '</div>'
@@ -500,9 +498,7 @@ define(function(require) {
             not_required_str += '<div class="large-6 columns">' +
               '<label>' +
                 obj.label +
-                '<span class="tip">' +
-                  obj.tooltip +
-                '</span>' +
+                Tips.html(obj.tooltip) +
               '</label>' +
               '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
             '</div>'

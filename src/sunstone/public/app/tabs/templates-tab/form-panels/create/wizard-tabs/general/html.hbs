@@ -2,7 +2,7 @@
   <div id="template_name_form"  class="large-6 columns">
     <label  for="NAME">
       {{tr "Name"}}
-      <span class="tip">{{tr "Name that the VM will get for description purposes."}}</span>
+      {{{tip (tr "Name that the VM will get for description purposes.")}}}
       <input type="text" wizard_field="NAME" id="NAME" name="name" required/>
     </label>
   </div>
@@ -22,7 +22,7 @@
   <div class="large-6 columns">
     <label  for="DESCRIPTION">
       {{tr "Description"}}
-      <span class="tip">{{tr "Description of the template"}}</span>
+      {{{tip (tr "Description of the template")}}}
     </label>
     <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION" style="height: 70px;"/>
   </div>
@@ -31,7 +31,7 @@
       <div class="large-6 columns">
         <label  for="LOGO">
           {{tr "Logo"}}
-          <span class="tip">{{tr "Logo for the template."}}</span>
+          {{{tip (tr "Logo for the template.")}}}
         </label>
         <select wizard_field="LOGO" id="LOGO" name="LOGO">
           <option value=""></option>
@@ -59,9 +59,7 @@
     <input type="checkbox" id="sunstone_capacity_select" name="name"/>
     <label  for="sunstone_capacity_select">
       {{tr "Do not allow to change capacity"}}
-      <span class="tip">
-        {{tr "Users using the cloud view will not be able to select a new capacity for this template"}}
-      </span>
+      {{{tip (tr "Users using the cloud view will not be able to select a new capacity for this template")}}}
     </label>
   </div>
 </div>
@@ -70,9 +68,7 @@
     <input type="checkbox" id="sunstone_network_select" name="name"/>
     <label  for="sunstone_network_select">
       {{tr "Do not allow to modify network configuration"}}
-      <span class="tip">
-        {{tr "Users using the cloud view will not be able to remove or add new NICs"}}
-      </span>
+      {{{tip (tr "Users using the cloud view will not be able to remove or add new NICs")}}}
     </label>
   </div>
 </div>
