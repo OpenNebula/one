@@ -656,9 +656,9 @@ void VirtualMachineManagerDriver::process_poll(
 
         vmpool->update(vm);
 
-        const VirtualMachineMonitorInfo &minfo = vm->get_info();
+        VirtualMachineMonitorInfo &minfo = vm->get_info();
 
-        state = minfo.get_state();
+        state = minfo.remove_state();
     }
     else
     {
@@ -677,7 +677,7 @@ void VirtualMachineManagerDriver::process_poll(
             return;
         };
 
-        state = minfo.get_state();
+        state = minfo.remove_state();
     }
 
     /* ---------------------------------------------------------------------- */

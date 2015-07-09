@@ -430,7 +430,7 @@ public:
         clear_template_monitor_error();
     }
 
-    const VirtualMachineMonitorInfo& get_info() const
+    VirtualMachineMonitorInfo& get_info()
     {
         return monitoring;
     }

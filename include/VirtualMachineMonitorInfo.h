@@ -57,11 +57,13 @@ public:
         return rc;
     };
 
-    char get_state() const
+    char remove_state()
     {
         string state_str;
 
         get("STATE", state_str);
+
+        erase("STATE");
 
         if (state_str.empty())
         {
