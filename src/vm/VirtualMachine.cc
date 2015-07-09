@@ -4209,7 +4209,7 @@ int VirtualMachine::get_snapshot_disk(int& ds_id, string& tm_mad,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
+int VirtualMachine::new_disk_snapshot(int did, const string& name, string& error)
 {
     map<int, Snapshots *>::iterator it;
     unsigned int size_mb, snap_size;
@@ -4243,7 +4243,7 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     {
         Snapshots * snap = new Snapshots(did);
 
-        snap_id   = snap->create_snapshot(tag, size_mb);
+        snap_id   = snap->create_snapshot(name, size_mb);
         snap_size = size_mb;
 
         if (snap_id != -1)
@@ -4257,7 +4257,7 @@ int VirtualMachine::new_disk_snapshot(int did, const string& tag, string& error)
     }
     else
     {
-        snap_id   = it->second->create_snapshot(tag, size_mb);
+        snap_id   = it->second->create_snapshot(name, size_mb);
         snap_size = it->second->get_total_size();
     }
 

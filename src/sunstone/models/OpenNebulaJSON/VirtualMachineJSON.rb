@@ -127,7 +127,7 @@ module OpenNebulaJSON
         end
 
         def disk_snapshot_create(params=Hash.new)
-            super(params['disk_id'].to_i, params['tag'])
+            super(params['disk_id'].to_i, params['snapshot_name'])
         end
 
         def disk_snapshot_revert(params=Hash.new)

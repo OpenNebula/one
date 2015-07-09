@@ -1615,7 +1615,7 @@ int DispatchManager::detach_nic(
 int DispatchManager::disk_snapshot_create(
         int           vid,
         int           did,
-        const string& tag,
+        const string& name,
         int&          snap_id,
         string&       error_str)
 {
@@ -1652,7 +1652,7 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    snap_id = vm->new_disk_snapshot(did, tag, error_str);
+    snap_id = vm->new_disk_snapshot(did, name, error_str);
 
     if (snap_id == -1)
     {

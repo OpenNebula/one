@@ -441,7 +441,7 @@ define(function(require) {
     }
 
     html += Humanize.prettyTime(snapshot.DATE) + SPACE +
-            (snapshot.TAG ? snapshot.TAG + SPACE : '');
+            (snapshot.NAME ? snapshot.NAME + SPACE : '');
 
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas") &&
         StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {

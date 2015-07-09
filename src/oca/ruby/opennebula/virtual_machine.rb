@@ -615,11 +615,11 @@ module OpenNebula
         # Takes a new snapshot of a disk
         #
         # @param disk_id [Integer] Id of the disk
-        # @param tag [String] description for the snapshot
+        # @param name [String] description for the snapshot
         #
         # @return [Integer, OpenNebula::Error] The new snapshot ID or error
-        def disk_snapshot_create(disk_id, tag)
-          return call(VM_METHODS[:disksnapshotcreate], @pe_id, disk_id, tag)
+        def disk_snapshot_create(disk_id, name)
+          return call(VM_METHODS[:disksnapshotcreate], @pe_id, disk_id, name)
         end
 
         # Reverts disk state to a previously taken snapshot

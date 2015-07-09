@@ -368,7 +368,7 @@ public:
      *
      * @param vid VirtualMachine identification
      * @param did DISK identification
-     * @param tag Description for the new snapshot
+     * @param name Description for the new snapshot
      * @param snap_id Will contain the new snapshot ID
      * @param error_str Error reason, if any
      *
@@ -377,7 +377,7 @@ public:
     int disk_snapshot_create(
         int           vid,
         int           did,
-        const string& tag,
+        const string& name,
         int&          snap_id,
         string&       error_str);
 

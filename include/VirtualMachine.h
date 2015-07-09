@@ -1533,11 +1533,11 @@ public:
     /**
      *  Creates a new snapshot of the given disk
      *    @param disk_id of the disk
-     *    @param tag a description for this snapshot
+     *    @param name a description for this snapshot
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int new_disk_snapshot(int disk_id, const string& tag, string& error);
+    int new_disk_snapshot(int disk_id, const string& name, string& error);
 
     /**
      *  Sets the snap_id as active, the VM will boot from it next time

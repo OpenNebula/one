@@ -816,7 +816,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"disk-snapshot-create", disk_snapshot_create_desc,
-      :vmid, :diskid, :tag do
+      :vmid, :diskid, :name do
         helper.perform_action(args[0],options,"disk snapshot created") do |o|
           o.disk_snapshot_create(args[1].to_i, args[2])
         end

@@ -2356,9 +2356,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     int    snap_id;
     string error_str;
 
-    int    id  = xmlrpc_c::value_int(paramList.getInt(1));
-    int    did = xmlrpc_c::value_int(paramList.getInt(2));
-    string tag = xmlrpc_c::value_string(paramList.getString(3));
+    int    id   = xmlrpc_c::value_int(paramList.getInt(1));
+    int    did  = xmlrpc_c::value_int(paramList.getInt(2));
+    string name = xmlrpc_c::value_string(paramList.getString(3));
 
     if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
     {
@@ -2430,7 +2430,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     // ------------------------------------------------------------------------
     // Do the snapshot
     // ------------------------------------------------------------------------
-    rc = dm->disk_snapshot_create(id, did, tag, snap_id, error_str);
+    rc = dm->disk_snapshot_create(id, did, name, snap_id, error_str);
 
     if ( rc != 0 )
     {

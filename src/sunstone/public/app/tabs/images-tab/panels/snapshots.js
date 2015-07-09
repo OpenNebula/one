@@ -184,7 +184,7 @@ define(function(require){
     }
 
     html += Humanize.prettyTime(snapshot.DATE) + SPACE +
-            (snapshot.TAG ? snapshot.TAG + SPACE : '');
+            (snapshot.NAME ? snapshot.NAME + SPACE : '');
 
     html += '</div>';
 

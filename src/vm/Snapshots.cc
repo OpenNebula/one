@@ -122,13 +122,13 @@ void Snapshots::init()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::create_snapshot(const string& tag, unsigned int size_mb)
+int Snapshots::create_snapshot(const string& name, unsigned int size_mb)
 {
     VectorAttribute * snapshot = new VectorAttribute("SNAPSHOT");
 
-    if (!tag.empty())
+    if (!name.empty())
     {
-        snapshot->replace("TAG", tag);
+        snapshot->replace("NAME", name);
     }
 
     snapshot->replace("SIZE", size_mb);
