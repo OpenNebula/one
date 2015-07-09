@@ -74,6 +74,15 @@
       </div>
     </div>
   </div>
+  <div class="row">
+    <div class="large-12 columns graph_legend">
+      <h3 class="subheader"><small>{{tr "Disk MB hours"}}</small></h3>
+    </div>
+    <div class="large-12 columns">
+      <div class="large-12 columns centered graph" id="acct_disk_graph" style="height: 200px;">
+      </div>
+    </div>
+  </div>
   <br>
   {{#advancedSection (tr "Accounting Tables") }}
     <div class="row acct_table">
@@ -104,6 +113,22 @@
             </tr>
           </thead>
           <tbody id="tbody_acct_mem_datatable">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row acct_table">
+      <div class="large-12 columns graph_legend">
+        <h3 class="subheader"><small>{{tr "Disk MB hours"}}</small></h3>
+      </div>
+      <div class="large-12 columns" style="overflow:auto">
+        <table id="acct_disk_datatable" class="datatable twelve">
+          <thead>
+            <tr>
+              <th>{{tr "Date"}}</th>
+            </tr>
+          </thead>
+          <tbody id="tbody_acct_disk_datatable">
           </tbody>
         </table>
       </div>

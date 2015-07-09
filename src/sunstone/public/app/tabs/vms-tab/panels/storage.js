@@ -200,7 +200,7 @@ define(function(require) {
             if (disk.IMAGE_ID &&
                  StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
               actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+              <i class="fa fa-save fa-fw"></i>' + Locale.tr("Save as") + '</a> &emsp;';
             }
           }
 
@@ -208,7 +208,7 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
             if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fa fa-times"></i>' + Locale.tr("Detach") +
+              <i class="fa fa-times fa-fw"></i>' + Locale.tr("Detach") +
               '</a> &emsp;');
             }
           }
@@ -216,7 +216,7 @@ define(function(require) {
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
             if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
-              <i class="fa fa-camera"></i>' + Locale.tr("Snapshot") +
+              <i class="fa fa-camera fa-fw"></i>' + Locale.tr("Snapshot") +
               '</a>');
             }
           }
@@ -441,26 +441,27 @@ define(function(require) {
     }
 
     html += Humanize.prettyTime(snapshot.DATE) + SPACE +
+            Humanize.sizeFromMB(snapshot.SIZE) + SPACE +
             (snapshot.NAME ? snapshot.NAME + SPACE : '');
 
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas") &&
         StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
 
       html += '<a href="" class="disk_snapshot_saveas" >\
-              <i class="fa fa-save"></i>' + Locale.tr("Save as") + '</a> &emsp;';
+              <i class="fa fa-save fa-fw"></i>' + Locale.tr("Save as") + '</a> &emsp;';
     }
 
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_revert") &&
         StateActions.enabledStateAction("VM.disk_snapshot_revert", that.element.STATE, that.element.LCM_STATE)) {
 
-      html += '<a href="VM.disk_snapshot_revert" class="disk_snapshot_revert" ><i class="fa fa-reply"/>' + Locale.tr("Revert") + '</a> &emsp;';
+      html += '<a href="VM.disk_snapshot_revert" class="disk_snapshot_revert" ><i class="fa fa-reply fa-fw"/>' + Locale.tr("Revert") + '</a> &emsp;';
     }
 
     if(!active){
       if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_delete") &&
         StateActions.enabledStateAction("VM.disk_snapshot_delete", that.element.STATE, that.element.LCM_STATE)) {
 
-        html += '<a href="VM.disk_snapshot_delete" class="disk_snapshot_delete" ><i class="fa fa-times"/>' + Locale.tr("Delete") + '</a>';
+        html += '<a href="VM.disk_snapshot_delete" class="disk_snapshot_delete" ><i class="fa fa-times fa-fw"/>' + Locale.tr("Delete") + '</a>';
       }
     }
 

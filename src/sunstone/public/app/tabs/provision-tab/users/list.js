@@ -246,88 +246,90 @@ define(function(require) {
 
           if (!$.isEmptyObject(data.VM_QUOTA)) {
             var default_user_quotas = QuotaDefaults.default_quotas(data.DEFAULT_USER_QUOTAS);
-            quotas = QuotaWidgets.quotaFloatInfo(
+            vms_quotas = QuotaWidgets.quotaFloatInfo(
                 data.VM_QUOTA.VM.VMS_USED,
                 data.VM_QUOTA.VM.VMS,
                 default_user_quotas.VM_QUOTA.VM.VMS,
                 true);
 
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
-              '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius" style="background: #f7f7f7">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>');
-
-            quotas = QuotaWidgets.quotaFloatInfo(
+            cpu_quotas = QuotaWidgets.quotaFloatInfo(
                 data.VM_QUOTA.VM.CPU_USED,
                 data.VM_QUOTA.VM.CPU,
                 default_user_quotas.VM_QUOTA.VM.CPU,
                 true);
 
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
-              '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius" style="background: #f7f7f7">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>');
-
-            quotas = QuotaWidgets.quotaMBInfo(
+            mem_quotas = QuotaWidgets.quotaMBInfo(
                 data.VM_QUOTA.VM.MEMORY_USED,
                 data.VM_QUOTA.VM.MEMORY,
                 default_user_quotas.VM_QUOTA.VM.MEMORY,
                 true);
 
             $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
-              '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
-              '<span class="right">' + quotas.str + "</span>" +
+              '<div class="large-4 columns">'+
+                '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
+                '<span class="right">' + vms_quotas.str + "</span>" +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
+                '<span class="right">' + cpu_quotas.str + "</span>" +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
+                '<span class="right">' + mem_quotas.str + "</span>" +
+              '</div>'+
             '</li>' +
             '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius" style="background: #f7f7f7">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
+              '<div class="large-4 columns">'+
+                '<div class="progress small radius" style="background: #f7f7f7">' +
+                  '  <span class="meter" style="width: ' + vms_quotas.percentage + '%;"></span>' +
+                '</div>' +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<div class="progress small radius" style="background: #f7f7f7">' +
+                  '  <span class="meter" style="width: ' + cpu_quotas.percentage + '%;"></span>' +
+                '</div>' +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<div class="progress small radius" style="background: #f7f7f7">' +
+                  '  <span class="meter" style="width: ' + mem_quotas.percentage + '%;"></span>' +
+                '</div>' +
+              '</div>'+
             '</li>');
           } else {
-            quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
+            vms_quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
+            cpu_quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
+            mem_quotas = QuotaWidgets.quotaMBInfo(0, 0, null, true);
 
             $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
-              '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
-              '<span class="right">' + quotas.str + "</span>" +
+              '<div class="large-4 columns">'+
+                '<i class="fa fa-fw fa-th"></i> '+ Locale.tr("VMs") +
+                '<span class="right">' + vms_quotas.str + "</span>" +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
+                '<span class="right">' + cpu_quotas.str + "</span>" +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
+                '<span class="right">' + mem_quotas.str + "</span>" +
+              '</div>'+
             '</li>' +
             '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius" style="background: #f7f7f7">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>');
-
-            quotas = QuotaWidgets.quotaFloatInfo(0, 0, null, true);
-
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
-              '<i class="fa fa-fw fa-tachometer"></i> '+ Locale.tr("CPU") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius" style="background: #f7f7f7">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
-            '</li>');
-
-            quotas = QuotaWidgets.quotaMBInfo(0, 0, null, true);
-
-            $(".provision-pricing-table_user_info", context).append('<li class="provision-bullet-item text-left">' +
-              '<i class="fa fa-fw fa-align-left"></i> '+ Locale.tr("Memory") +
-              '<span class="right">' + quotas.str + "</span>" +
-            '</li>' +
-            '<li class="provision-bullet-item text-left">' +
-              '<div class="progress small radius" style="background: #f7f7f7">' +
-              '  <span class="meter" style="width: ' + quotas.percentage + '%;"></span>' +
-              '</div>' +
+              '<div class="large-4 columns">'+
+                '<div class="progress small radius" style="background: #f7f7f7">' +
+                  '  <span class="meter" style="width: ' + vms_quotas.percentage + '%;"></span>' +
+                '</div>' +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<div class="progress small radius" style="background: #f7f7f7">' +
+                  '  <span class="meter" style="width: ' + cpu_quotas.percentage + '%;"></span>' +
+                '</div>' +
+              '</div>'+
+              '<div class="large-4 columns">'+
+                '<div class="progress small radius" style="background: #f7f7f7">' +
+                  '  <span class="meter" style="width: ' + mem_quotas.percentage + '%;"></span>' +
+                '</div>' +
+              '</div>'+
             '</li>');
           }
 

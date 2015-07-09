@@ -952,7 +952,7 @@ define(function(require) {
   }
 
   function get_provision_ips(data) {
-    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data);
+    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data, ', ');
   }
 
   // @params

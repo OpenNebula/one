@@ -702,106 +702,6 @@ define(function(require) {
 
     $("#provision_dashboard").html("");
 
-    if (Config.provision.dashboard.isEnabled("quotas")) {
-      $("#provision_dashboard").append(TemplateDashboardQuotas());
-
-
-      OpenNebula.User.show({
-        data : {
-            id: "-1"
-        },
-        success: function(request,user_json){
-          var user = user_json.USER;
-
-          QuotaWidgets.initEmptyQuotas(user);
-
-          if (!$.isEmptyObject(user.VM_QUOTA)){
-              var default_user_quotas = QuotasDefault.default_quotas(user.DEFAULT_USER_QUOTAS);
-
-              var vms = QuotaWidgets.quotaInfo(
-                  user.VM_QUOTA.VM.VMS_USED,
-                  user.VM_QUOTA.VM.VMS,
-                  default_user_quotas.VM_QUOTA.VM.VMS,
-                  true);
-
-              $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
-              $("#provision_dashboard_rvms_str").html(vms["str"]);
-              $("#provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
-
-              var memory = QuotaWidgets.quotaMBInfo(
-                  user.VM_QUOTA.VM.MEMORY_USED,
-                  user.VM_QUOTA.VM.MEMORY,
-                  default_user_quotas.VM_QUOTA.VM.MEMORY,
-                  true);
-
-              $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
-              $("#provision_dashboard_memory_str").html(memory["str"]);
-              $("#provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
-
-              var cpu = QuotaWidgets.quotaFloatInfo(
-                  user.VM_QUOTA.VM.CPU_USED,
-                  user.VM_QUOTA.VM.CPU,
-                  default_user_quotas.VM_QUOTA.VM.CPU,
-                  true);
-
-              $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
-              $("#provision_dashboard_cpu_str").html(cpu["str"]);
-              $("#provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
-          }
-        }
-      })
-    }
-
-    if (Config.provision.dashboard.isEnabled("vdcquotas")) {
-      $("#provision_dashboard").append(TemplateDashboardVdcQuotas());
-
-
-      OpenNebula.Group.show({
-        data : {
-            id: "-1"
-        },
-        success: function(request,group_json){
-          var group = group_json.GROUP;
-
-          QuotaWidgets.initEmptyQuotas(group);
-
-          if (!$.isEmptyObject(group.VM_QUOTA)){
-              var default_group_quotas = QuotaDefaults.default_quotas(group.DEFAULT_GROUP_QUOTAS);
-
-              var vms = QuotaWidgets.quotaInfo(
-                  group.VM_QUOTA.VM.VMS_USED,
-                  group.VM_QUOTA.VM.VMS,
-                  default_group_quotas.VM_QUOTA.VM.VMS,
-                  true);
-
-              $("#provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
-              $("#provision_dashboard_vdc_rvms_str").html(vms["str"]);
-              $("#provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
-
-              var memory = QuotaWidgets.quotaMBInfo(
-                  group.VM_QUOTA.VM.MEMORY_USED,
-                  group.VM_QUOTA.VM.MEMORY,
-                  default_group_quotas.VM_QUOTA.VM.MEMORY,
-                  true);
-
-              $("#provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
-              $("#provision_dashboard_vdc_memory_str").html(memory["str"]);
-              $("#provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
-
-              var cpu = QuotaWidgets.quotaFloatInfo(
-                  group.VM_QUOTA.VM.CPU_USED,
-                  group.VM_QUOTA.VM.CPU,
-                  default_group_quotas.VM_QUOTA.VM.CPU,
-                  true);
-
-              $("#provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
-              $("#provision_dashboard_vdc_cpu_str").html(cpu["str"]);
-              $("#provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
-          }
-        }
-      })
-    }
-
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
 
@@ -990,6 +890,105 @@ define(function(require) {
       });
     }
 
+    if (Config.provision.dashboard.isEnabled("quotas")) {
+      $("#provision_dashboard").append(TemplateDashboardQuotas());
+
+
+      OpenNebula.User.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,user_json){
+          var user = user_json.USER;
+
+          QuotaWidgets.initEmptyQuotas(user);
+
+          if (!$.isEmptyObject(user.VM_QUOTA)){
+              var default_user_quotas = QuotasDefault.default_quotas(user.DEFAULT_USER_QUOTAS);
+
+              var vms = QuotaWidgets.quotaInfo(
+                  user.VM_QUOTA.VM.VMS_USED,
+                  user.VM_QUOTA.VM.VMS,
+                  default_user_quotas.VM_QUOTA.VM.VMS,
+                  true);
+
+              $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
+              $("#provision_dashboard_rvms_str").html(vms["str"]);
+              $("#provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
+
+              var memory = QuotaWidgets.quotaMBInfo(
+                  user.VM_QUOTA.VM.MEMORY_USED,
+                  user.VM_QUOTA.VM.MEMORY,
+                  default_user_quotas.VM_QUOTA.VM.MEMORY,
+                  true);
+
+              $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
+              $("#provision_dashboard_memory_str").html(memory["str"]);
+              $("#provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
+
+              var cpu = QuotaWidgets.quotaFloatInfo(
+                  user.VM_QUOTA.VM.CPU_USED,
+                  user.VM_QUOTA.VM.CPU,
+                  default_user_quotas.VM_QUOTA.VM.CPU,
+                  true);
+
+              $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
+              $("#provision_dashboard_cpu_str").html(cpu["str"]);
+              $("#provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
+          }
+        }
+      })
+    }
+
+    if (Config.provision.dashboard.isEnabled("vdcquotas")) {
+      $("#provision_dashboard").append(TemplateDashboardVdcQuotas());
+
+
+      OpenNebula.Group.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,group_json){
+          var group = group_json.GROUP;
+
+          QuotaWidgets.initEmptyQuotas(group);
+
+          if (!$.isEmptyObject(group.VM_QUOTA)){
+              var default_group_quotas = QuotaDefaults.default_quotas(group.DEFAULT_GROUP_QUOTAS);
+
+              var vms = QuotaWidgets.quotaInfo(
+                  group.VM_QUOTA.VM.VMS_USED,
+                  group.VM_QUOTA.VM.VMS,
+                  default_group_quotas.VM_QUOTA.VM.VMS,
+                  true);
+
+              $("#provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
+              $("#provision_dashboard_vdc_rvms_str").html(vms["str"]);
+              $("#provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
+
+              var memory = QuotaWidgets.quotaMBInfo(
+                  group.VM_QUOTA.VM.MEMORY_USED,
+                  group.VM_QUOTA.VM.MEMORY,
+                  default_group_quotas.VM_QUOTA.VM.MEMORY,
+                  true);
+
+              $("#provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
+              $("#provision_dashboard_vdc_memory_str").html(memory["str"]);
+              $("#provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
+
+              var cpu = QuotaWidgets.quotaFloatInfo(
+                  group.VM_QUOTA.VM.CPU_USED,
+                  group.VM_QUOTA.VM.CPU,
+                  default_group_quotas.VM_QUOTA.VM.CPU,
+                  true);
+
+              $("#provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
+              $("#provision_dashboard_vdc_cpu_str").html(cpu["str"]);
+              $("#provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
+          }
+        }
+      })
+    }
   }
 
 
