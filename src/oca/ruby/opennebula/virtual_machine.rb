@@ -546,10 +546,10 @@ module OpenNebula
         #   the requested xpath expressions, and an Array of 'timestamp, value'.
         #
         # @example
-        #   vm.monitoring( ['MONITORING/USEDCPU', 'MONITORING/NETTX'] )
+        #   vm.monitoring( ['MONITORING/CPU', 'MONITORING/NETTX'] )
         #
         #   {
-        #    "MONITORING/USEDCPU"=>[["1435085098", "47"], ["1435085253", "5"],
+        #    "MONITORING/CPU"=>[["1435085098", "47"], ["1435085253", "5"],
         #      ["1435085410", "48"], ["1435085566", "3"], ["1435088136", "2"]],
         #    "MONITORING/NETTX"=>[["1435085098", "0"], ["1435085253", "50"],
         #      ["1435085410", "50"], ["1435085566", "50"], ["1435085723", "50"]]
