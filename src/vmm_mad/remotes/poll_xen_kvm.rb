@@ -357,7 +357,7 @@ module KVM
                     data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
 
                 end
-            else file
+            else
                 # Regular Disk
                 text = `qemu-img info --output=json #{file}`
                 next if !$? || !$?.success?
@@ -369,9 +369,22 @@ module KVM
                 disk_size = json['actual-size'].to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
+
+                # Get snapshots
+                Dir[file + '.snap/*'].each do |snap|
+                    text = `qemu-img info --output=json #{snap}`
+                    next if !$? || !$?.success?
+
+                    json = JSON.parse(text)
+
+                    snap_id = snap.split("/")[-1]
+
+                    snap_size = json['actual-size'].to_f/1024/1024
+
+                    data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snap_size.round}
+                end
             end
         end
-
 
         data
     end
