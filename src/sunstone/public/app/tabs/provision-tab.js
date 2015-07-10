@@ -290,32 +290,18 @@ define(function(require) {
               '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
               Locale.tr("Capacity")+
             '</span>'+
+            '<span>'+
+              '<span class="cpu_value">'+(capacity.CPU ? capacity.CPU : '-')+'</span> '+
+              '<small style="color: #999; margin-right: 10px">'+Locale.tr("CPU")+'</small>'+
+              '<span class="memory_value">'+memory_value+'</span>'+
+              ' '+
+              '<span class="memory_unit">'+memory_unit+'</span> '+
+              '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
+              '<span class="cost_value">0.00</span> '+
+              '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+            '</span>'+
           '</h3>'+
           '<br>'+
-        '</div>'+
-      '</div>'+
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-12 large-centered columns">'+
-          '<div class="row text-center">'+
-            '<div class="large-4 columns">'+
-              '<span class="cpu_value" style="color: #777; font-size:60px">'+(capacity.CPU ? capacity.CPU : '-')+'</span>'+
-              '<br>'+
-              '<span style="color: #999;">'+Locale.tr("CPU")+'</span>'+
-            '</div>'+
-            '<div class="large-4 columns">'+
-              '<span class="memory_value" style="color: #777; font-size:60px">'+memory_value+'</span>'+
-              ' '+
-              '<span class="memory_unit" style="color: #777; font-size:30px">'+memory_unit+'</span>'+
-              '<br>'+
-              '<span style="color: #999;">'+Locale.tr("MEMORY")+'</span>'+
-            '</div>'+
-            '<div class="large-4 columns provision_create_template_cost_div hidden">'+
-              '<span class="cost_value" style="color: #777; font-size:60px"></span>'+
-              '<br>'+
-              '<span style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
-            '</div>'+
-          '</div>'+
         '</div>'+
       '</div>'+
       (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
