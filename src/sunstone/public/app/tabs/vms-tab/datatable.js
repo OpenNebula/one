@@ -128,6 +128,8 @@ define(function(require) {
   }
 
   function _initialize(opts) {
+    var that = this;
+
     TabDataTable.prototype.initialize.call(this, opts);
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {
@@ -155,5 +157,24 @@ define(function(require) {
 
       return false;
     });
+
+    $('#' + this.dataTableId).on("change", 'tbody input.check_item', function() {
+      if ($(this).is(":checked")){
+        StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
+      } else {
+        // First disable all actions
+        StateActions.disableAllStateActions();
+
+        // Enable actions available to any of the selected VMs
+        var nodes = $('tr', that.dataTable); //visible nodes only
+        $.each($('input.check_item:checked', nodes), function(){
+          StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
+        });
+
+      }
+
+      return true;
+    });
+
   }
 });

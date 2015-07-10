@@ -284,10 +284,10 @@ define(function(require) {
     this.dataTable.on("change", '.check_all', function() {
       var table = $(this).closest('.dataTables_wrapper');
       if ($(this).is(":checked")) { //check all
-        $('tbody input.check_item', table).prop('checked', true);
+        $('tbody input.check_item', table).prop('checked', true).change();
         $('td', table).addClass('markrowchecked');
       } else { //uncheck all
-        $('tbody input.check_item', table).prop('checked', false);
+        $('tbody input.check_item', table).prop('checked', false).change();
         $('td', table).removeClass('markrowchecked');
       };
 

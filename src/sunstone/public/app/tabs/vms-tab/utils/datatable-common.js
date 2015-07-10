@@ -63,9 +63,12 @@ define(function(require) {
     }
     
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+      '<input class="check_item" '+
+        'type="checkbox" '+
+        'id="' + RESOURCE.toLowerCase() + '_' + element.ID + '" '+
+        'name="selected_items" '+
+        'value="' + element.ID + '" '+
+        'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>',
        element.ID,
        element.UNAME,
        element.GNAME,
