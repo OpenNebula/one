@@ -594,8 +594,26 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 column :SIZE, "", :left, :size=>16 do |d|
-                    size         = d["SIZE"] || "-"
-                    monitor_size = d["MONITOR_SIZE"] || "-"
+                    if d["SIZE"]
+                        size = OpenNebulaHelper.unit_to_str(
+                                    d['SIZE'].to_i,
+                                    {},
+                                    "M"
+                                )
+                    else
+                        size = "-"
+                    end
+
+                    if d["MONITOR_SIZE"]
+                        monitor_size = OpenNebulaHelper.unit_to_str(
+                                    d['MONITOR_SIZE'].to_i,
+                                    {},
+                                    "M"
+                                )
+                    else
+                        monitor_size = "-"
+                    end
+
                     "#{monitor_size}/#{size}"
                 end
 
@@ -983,8 +1001,26 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :SIZE, "", :left, :size=>16 do |d|
-                size         = d["SIZE"] || "-"
-                monitor_size = d["MONITOR_SIZE"] || "-"
+                if d["SIZE"]
+                    size = OpenNebulaHelper.unit_to_str(
+                                d['SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    size = "-"
+                end
+
+                if d["MONITOR_SIZE"]
+                    monitor_size = OpenNebulaHelper.unit_to_str(
+                                d['MONITOR_SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    monitor_size = "-"
+                end
+
                 "#{monitor_size}/#{size}"
             end
 
