@@ -66,11 +66,12 @@ define(function(require) {
     }
 
     $('#provision_new_language option[value="' + config['user_config']["lang"] + '"]', context).attr('selected', 'selected');
-    $('#provision_user_views_select option[value="' + config['user_config']["default_view"] + '"]', context).attr('selected', 'selected');
 
     $.each(config['available_views'], function(id, view) {
       $('select#provision_user_views_select', context).append('<option value="' + view + '">' + view + '</option>')
     });
+
+    $('#provision_user_views_select option[value="' + config['user_config']["default_view"] + '"]', context).attr('selected', 'selected');
 
     $("#provision_change_password_form").submit(function() {
       var pw = $('#provision_new_password', this).val();
