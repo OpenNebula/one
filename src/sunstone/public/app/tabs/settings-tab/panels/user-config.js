@@ -7,6 +7,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
+  var Sunstone = require('sunstone');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -96,93 +98,26 @@ define(function(require) {
         return false;
       }
 
-      OpenNebula.User.show({
-        data : {
-          id: "-1"
-        },
-        success: function(request, user_json) {
-          var template = user_json.USER.TEMPLATE;
+      var template_str = 'SSH_PUBLIC_KEY = "'+keypair+'"';
 
-          template["SSH_PUBLIC_KEY"] = keypair;
+      Sunstone.runAction("User.append_template", "-1", template_str);
 
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_template", "-1", template_str);
-        }
-      })
       return false;
     });
 
     $("#provision_change_view_form").submit(function() {
-      var view = $('#provision_user_views_select', this).val();
+      var template_str = 'DEFAULT_VIEW = "'+$('#provision_user_views_select', this).val()+'"';
 
-      OpenNebula.User.show({
-        data : {
-          id: "-1"
-        },
-        success: function(request, user_json) {
-          var template = user_json.USER.TEMPLATE;
+      Sunstone.runAction("User.append_template_refresh", "-1", template_str);
 
-          template["DEFAULT_VIEW"] = view;
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          var data = OpenNebula.Helper.action('update', {"template_raw" : template_str});
-
-          $.ajax({
-            url: 'config',
-            type: "POST",
-            dataType: "json",
-            data: JSON.stringify(data),
-            success: function() {
-              window.location.href = ".";
-            },
-            error: function(response) {
-            }
-          });
-        }
-      })
       return false;
     });
 
     $("#provision_change_language_form").submit(function() {
-      var lang = $('#provision_new_language', this).val();
+      var template_str = 'LANG = "'+$('#provision_new_language', this).val()+'"';
 
-      OpenNebula.User.show({
-        data : {
-          id: "-1"
-        },
-        success: function(request, user_json) {
-          var template = user_json.USER.TEMPLATE;
+      Sunstone.runAction("User.append_template_refresh", "-1", template_str);
 
-          template["LANG"] = lang;
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          var data = OpenNebula.Helper.action('update', {"template_raw" : template_str});
-
-          $.ajax({
-            url: 'config',
-            type: "POST",
-            dataType: "json",
-            data: JSON.stringify(data),
-            success: function() {
-              window.location.href = ".";
-            },
-            error: function(response) {
-            }
-          });
-        }
-      })
       return false;
     });
 

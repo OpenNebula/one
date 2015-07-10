@@ -146,27 +146,9 @@ define(function(require) {
 
     context.off("change", "#user_ssh_public_key_textarea");
     context.on("change", "#user_ssh_public_key_textarea", function() {
-      var user_id = that.element.ID;
+      var template_str = 'SSH_PUBLIC_KEY = "'+$(this).val()+'"';
 
-      // TODO: use update --append instead of a show + update
-
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
-
-          template["SSH_PUBLIC_KEY"] = $("#user_ssh_public_key_textarea", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_template", user_id, template_str);
-        }
-      });
+      Sunstone.runAction("User.append_template", that.element.ID, template_str);
     });
 
     context.off("focusout", "#user_ssh_public_key_textarea");
@@ -190,24 +172,9 @@ define(function(require) {
 
     context.off("change", "#table_order_select")
     context.on("change", "#table_order_select", function() {
-      var user_id = that.element.ID;
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
+      var template_str = 'TABLE_ORDER = "'+$(this).val()+'"';
 
-          template["TABLE_ORDER"] = $("#table_order_select", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_template", user_id, template_str);
-        }
-      });
+      Sunstone.runAction("User.append_template", that.element.ID, template_str);
     });
 
     // Change language
@@ -224,36 +191,9 @@ define(function(require) {
 
     context.off("change", "#language_select")
     context.on("change", "#language_select", function() {
-      var user_id = that.element.ID;
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
+      var template_str = 'LANG = "'+$(this).val()+'"';
 
-          template["LANG"] = $("#language_select", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_language", user_id, template_str);
-
-          $.ajax({
-            url: 'config',
-            type: "POST",
-            dataType: "json",
-            data: JSON.stringify(template_str),
-            success: function() {
-              window.location.href = ".";
-            },
-            error: function(response) {
-            }
-          });
-        }
-      });
+      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
     });
 
     // Change view
@@ -275,24 +215,9 @@ define(function(require) {
 
     context.off("change", "#view_select")
     context.on("change", "#view_select", function() {
-      var user_id = that.element.ID;
-      OpenNebulaUser.show({
-        data : {
-          id: user_id
-        },
-        success: function(request, user_json) {
-          var template = that.element.TEMPLATE;
+      var template_str = 'DEFAULT_VIEW = "'+$(this).val()+'"';
 
-          template["DEFAULT_VIEW"] = $("#view_select", context).val();
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_view", user_id, template_str);
-        }
-      });
+      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
     });
 
     return false;

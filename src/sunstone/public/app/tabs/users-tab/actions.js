@@ -152,6 +152,17 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(request) {
+        $.ajax({
+          url: 'config',
+          type: "POST",
+          dataType: "json",
+          success: function() {
+            return false;
+          },
+          error: function(response) {
+          }
+        });
+
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
         if (request.request.data[0][0] == config['user_id']) {
           Sunstone.runAction('Settings.refresh');
@@ -160,28 +171,43 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "User.update_language" : {
+    "User.append_template" : {
       type: "single",
-      call: OpenNebulaResource.update,
+      call: OpenNebulaResource.append,
       callback: function(request) {
+        $.ajax({
+          url: 'config',
+          type: "POST",
+          dataType: "json",
+          success: function() {
+            return false;
+          },
+          error: function(response) {
+          }
+        });
+
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
         if (request.request.data[0][0] == config['user_id']) {
           Sunstone.runAction('Settings.refresh');
         }
-        Notifier.notifyMessage(Locale.tr("The user must refresh the page for the change to take effect"));
       },
       error: Notifier.onError
     },
 
-    "User.update_view" : {
+    "User.append_template_refresh" : {
       type: "single",
-      call: OpenNebulaResource.update,
+      call: OpenNebulaResource.append,
       callback: function(request) {
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-        if (request.request.data[0][0] == config['user_id']) {
-          Sunstone.runAction('Settings.refresh');
-        }
-        Notifier.notifyMessage(Locale.tr("The user must refresh the page for the change to take effect"));
+        $.ajax({
+          url: 'config',
+          type: "POST",
+          dataType: "json",
+          success: function() {
+            window.location.href = ".";
+          },
+          error: function(response) {
+          }
+        });
       },
       error: Notifier.onError
     },

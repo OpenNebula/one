@@ -162,26 +162,11 @@ define(function(require) {
     // Remember page length only for non selectable datatables
     if (!this.conf.select) {
       this.dataTable.on( 'length.dt', function ( e, settings, len ) {
-
         config['page_length'] = len;
 
-        OpenNebulaUser.show({
-          data : {
-            id: config['user_id']
-          },
-          success: function(request, response) {
-            var template = response.USER.TEMPLATE;
+        var template_str = 'TABLE_DEFAULT_PAGE_LENGTH = "'+len+'"';
 
-            template["TABLE_DEFAULT_PAGE_LENGTH"] = len;
-
-            template_str = "";
-            $.each(template, function(key, value) {
-              template_str += (key + '=' + '"' + value + '"\n');
-            });
-
-            Sunstone.runAction("User.update_template", config['user_id'], template_str);
-          }
-        });
+        Sunstone.runAction("User.append_template", config['user_id'], template_str);
        });
     }
 

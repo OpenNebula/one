@@ -454,7 +454,7 @@ post '/config' do
     session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
-    [200, ""]
+    [204, ""]
 end
 
 get '/vm/:id/log' do
