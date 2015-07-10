@@ -152,22 +152,23 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.update,
       callback: function(request) {
-        $.ajax({
-          url: 'config',
-          type: "POST",
-          dataType: "json",
-          success: function() {
-            return false;
-          },
-          error: function(response) {
-          }
-        });
-
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-
         var reqId = request.request.data[0][0];
+
+        Sunstone.runAction(RESOURCE+'.show',reqId);
+
         if (reqId == config['user_id'] || reqId == "-1") {
           Sunstone.runAction('Settings.refresh');
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            success: function() {
+              return false;
+            },
+            error: function(response) {
+            }
+          });
         }
       },
       error: Notifier.onError
@@ -177,22 +178,23 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.append,
       callback: function(request) {
-        $.ajax({
-          url: 'config',
-          type: "POST",
-          dataType: "json",
-          success: function() {
-            return false;
-          },
-          error: function(response) {
-          }
-        });
-
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-
         var reqId = request.request.data[0][0];
+
+        Sunstone.runAction(RESOURCE+'.show',reqId);
+
         if (reqId == config['user_id'] || reqId == "-1") {
           Sunstone.runAction('Settings.refresh');
+
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            success: function() {
+              return false;
+            },
+            error: function(response) {
+            }
+          });
         }
       },
       error: Notifier.onError
@@ -202,16 +204,22 @@ define(function(require) {
       type: "single",
       call: OpenNebulaResource.append,
       callback: function(request) {
-        $.ajax({
-          url: 'config',
-          type: "POST",
-          dataType: "json",
-          success: function() {
-            window.location.href = ".";
-          },
-          error: function(response) {
-          }
-        });
+        var reqId = request.request.data[0][0];
+
+        if (reqId == config['user_id'] || reqId == "-1") {
+          $.ajax({
+            url: 'config',
+            type: "POST",
+            dataType: "json",
+            success: function() {
+              window.location.href = ".";
+            },
+            error: function(response) {
+            }
+          });
+        } else {
+          Sunstone.runAction(RESOURCE+'.show',reqId);
+        }
       },
       error: Notifier.onError
     },
