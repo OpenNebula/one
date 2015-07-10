@@ -59,7 +59,7 @@ define(function(require) {
     if (ssh_key && ssh_key.length) {
       $("#provision_ssh_key", context).val(ssh_key);
       $(".provision_add_ssh_key_button", context).hide();
-      $(".provision_update_ssh_key_button"), context.show();
+      $(".provision_update_ssh_key_button", context).show();
     } else {
       $(".provision_add_ssh_key_button", context).show();
       $(".provision_update_ssh_key_button", context).hide();
