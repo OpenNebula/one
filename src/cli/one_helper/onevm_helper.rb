@@ -518,9 +518,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
             end
         }
-        puts
-        # TODO Remove CPU, MEMORY, NETTX, NETRX, DISK_SIZE from MONITORING
-        puts vm.template_like_str('MONITORING')
+
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
