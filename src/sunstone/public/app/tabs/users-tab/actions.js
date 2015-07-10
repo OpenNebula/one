@@ -164,7 +164,9 @@ define(function(require) {
         });
 
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-        if (request.request.data[0][0] == config['user_id']) {
+
+        var reqId = request.request.data[0][0];
+        if (reqId == config['user_id'] || reqId == "-1") {
           Sunstone.runAction('Settings.refresh');
         }
       },
@@ -187,7 +189,9 @@ define(function(require) {
         });
 
         Sunstone.runAction(RESOURCE+'.show',request.request.data[0][0]);
-        if (request.request.data[0][0] == config['user_id']) {
+
+        var reqId = request.request.data[0][0];
+        if (reqId == config['user_id'] || reqId == "-1") {
           Sunstone.runAction('Settings.refresh');
         }
       },
