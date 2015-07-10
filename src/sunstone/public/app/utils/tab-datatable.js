@@ -154,7 +154,7 @@ define(function(require) {
 
       this.initSelectResourceTableSelect();
     } else {
-      this.dataTableOptions.pageLength = config['page_length'];
+      this.dataTableOptions.pageLength = parseInt(config['page_length']);
     }
 
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
