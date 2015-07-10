@@ -61,6 +61,7 @@ define(function(require) {
     delete strippedTemplate["SUNSTONE_VIEWS"];
     delete strippedTemplate["GROUP_ADMIN_DEFAULT_VIEW"];
     delete strippedTemplate["DEFAULT_VIEW"];
+    delete strippedTemplate["TABLE_DEFAULT_PAGE_LENGTH"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -87,7 +88,8 @@ define(function(require) {
       "GROUP_ADMIN_VIEWS",
       "SUNSTONE_VIEWS",
       "GROUP_ADMIN_DEFAULT_VIEW",
-      "DEFAULT_VIEW"];
+      "DEFAULT_VIEW",
+      "TABLE_DEFAULT_PAGE_LENGTH"];
 
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
 

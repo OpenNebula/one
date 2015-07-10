@@ -69,6 +69,7 @@ define(function(require) {
     delete strippedTemplate["LANG"];
     delete strippedTemplate["TABLE_ORDER"];
     delete strippedTemplate["DEFAULT_VIEW"];
+    delete strippedTemplate["TABLE_DEFAULT_PAGE_LENGTH"];
 
     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
                                               Locale.tr("Attributes"));
@@ -94,6 +95,7 @@ define(function(require) {
     delete strippedTemplate["LANG"];
     delete strippedTemplate["TABLE_ORDER"];
     delete strippedTemplate["DEFAULT_VIEW"];
+    delete strippedTemplate["TABLE_DEFAULT_PAGE_LENGTH"];
 
     var hiddenValues = {};
 
