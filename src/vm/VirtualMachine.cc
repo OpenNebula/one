@@ -1478,14 +1478,20 @@ error_common:
 
 int VirtualMachine::update_monitoring(SqlDB * db)
 {
-    ostringstream   oss;
-    int             rc;
+    ostringstream oss;
+    int           rc;
 
     string xml_body;
     string error_str;
     char * sql_xml;
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    oss << "<VM>"
+        << "<ID>" << oid << "</ID>"
+        << "<LAST_POLL>" << last_poll << "</LAST_POLL>"
+        << monitoring.to_xml(xml_body)
+        << "</VM>";
+
+    sql_xml = db->escape_str(oss.str().c_str());
 
     if ( sql_xml == 0 )
     {
@@ -1496,6 +1502,8 @@ int VirtualMachine::update_monitoring(SqlDB * db)
     {
         goto error_xml;
     }
+
+    oss.str("");
 
     oss << "REPLACE INTO " << monit_table << " ("<< monit_db_names <<") VALUES ("
         <<          oid             << ","
