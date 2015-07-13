@@ -416,14 +416,17 @@ public:
     int update_info(const string& monitor_data);
 
     /**
-     *  Clears the VM monitor information: usage counters, last_poll,
-     *  custom attributes, and copies it to the history record for acct.
+     *  Clears the VM monitor information usage counters (MEMORY, CPU),
+     *  last_poll, custom attributes, and copies it to the history record
+     *  for acct.
      */
     void reset_info()
     {
         last_poll = time(0);
 
-        monitoring.clear();
+        monitoring.replace("CPU","0.0");
+
+        monitoring.replace("MEMORY","0");
 
         set_vm_info();
 

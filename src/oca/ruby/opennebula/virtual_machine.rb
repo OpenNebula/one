@@ -201,7 +201,8 @@ module OpenNebula
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
             undeploy undeploy-hard hold release stop suspend resume boot delete
             delete-recreate reboot reboot-hard resched unresched poweroff
-            poweroff-hard disk-attach disk-detach nic-attach nic-detach}
+            poweroff-hard disk-attach disk-detach nic-attach nic-detach
+            snap-create snap-delete}
 
         EXTERNAL_IP_ATTRS = [
             'GUEST_IP',

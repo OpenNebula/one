@@ -1620,6 +1620,7 @@ int DispatchManager::disk_snapshot_create(
         string&       error_str)
 {
     ostringstream oss;
+    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1651,6 +1652,9 @@ int DispatchManager::disk_snapshot_create(
 
         return -1;
     }
+
+    // Set the VM info in the history before the snapshot is added to VM
+    vm->set_vm_info();
 
     snap_id = vm->new_disk_snapshot(did, name, error_str);
 
@@ -1692,6 +1696,29 @@ int DispatchManager::disk_snapshot_create(
             break;
 
         case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_SNAPSHOT_CREATE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
             vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
             break;
 
@@ -1807,6 +1834,7 @@ int DispatchManager::disk_snapshot_delete(
         string&       error_str)
 {
     ostringstream oss;
+    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1858,6 +1886,9 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
+    // Set the VM info in the history before the snapshot is removed from the VM
+    vm->set_vm_info();
+
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -1884,9 +1915,32 @@ int DispatchManager::disk_snapshot_delete(
 
     switch(state)
     {
+        case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_SNAPSHOT_DELETE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
-        case VirtualMachine::ACTIVE:
             tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
             break;
 
