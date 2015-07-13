@@ -448,10 +448,12 @@ post '/config' do
         error 500, ""
     end
 
+    STDERR.puts user.to_hash
     session[:lang]         = user['TEMPLATE/LANG'] if user['TEMPLATE/LANG']
     session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
     session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
     session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
+    session[:page_length]  = user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH'] if user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
     [204, ""]
