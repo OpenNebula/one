@@ -16,6 +16,7 @@
 
 require 'time'
 require 'rubygems'
+require 'cgi'
 
 begin
     require 'sequel'
@@ -284,7 +285,9 @@ class BackEndMySQL < OneDBBacKEnd
     private
 
     def connect_db
-        endpoint = "mysql://#{@user}:#{@passwd}@#{@server}:#{@port}/#{@db_name}"
+        passwd = CGI.escape(@passwd)
+
+        endpoint = "mysql://#{@user}:#{passwd}@#{@server}:#{@port}/#{@db_name}"
 
         begin
             @db = Sequel.connect(endpoint)
