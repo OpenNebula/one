@@ -12,6 +12,9 @@ define(function(require) {
   var DomDataTable = require('utils/dom-datatable');
   var VMsTableUtils = require('tabs/vms-tab/utils/datatable-common');
   var SunstoneConfig = require('sunstone-config');
+  var Vnc = require('utils/vnc');
+  var Spice = require('utils/spice');
+  var Notifier = require('utils/notifier');
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
@@ -205,6 +208,34 @@ define(function(require) {
   function _roleSetup(context, role_index) {
     if(this.servicePanel) {
       var role = this.element.TEMPLATE.BODY.roles[role_index];
+
+      $(".vnc", context).off("click");
+      $(".vnc", context).on("click", function() {
+        var vmId = $(this).attr('vm_id');
+
+        if (!Vnc.lockStatus()) {
+          Vnc.lock();
+          Sunstone.runAction("VM.startvnc_action", vmId);
+        } else {
+          Notifier.notifyError(tr("VNC Connection in progress"));
+        }
+
+        return false;
+      });
+
+      $(".spice", context).off("click");
+      $(".spice", context).on("click", function() {
+        var vmId = $(this).attr('vm_id');
+
+        if (!Spice.lockStatus()) {
+          Spice.lock();
+          Sunstone.runAction("VM.startspice_action", vmId);
+        } else {
+          Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
+        }
+
+        return false;
+      });
 
       // This table has 2 more columns to the left compared to the normal VM table
       // The visibility index array needs to be adjusted
