@@ -1,0 +1,29 @@
+<form id="tab_storage_form" vmid="{{element.ID}}" >
+  <div class="row">
+    <div class="large-12 columns">
+      <table class="disks_table no-hover info_table dataTable extended_table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{{tr "ID"}}</th>
+            <th>{{tr "Target"}}</th>
+            <th>{{tr "Image / Format-Size"}}</th>
+            <th>{{tr "Size"}}</th>
+            <th>{{tr "Persistent"}}</th>
+            <th>{{tr "Actions"}}
+              {{#isTabActionEnabled "vms-tab" "VM.attachdisk"}}
+              <span class="right">
+                <button id="attach_disk" class="button tiny success right radius">
+                  {{tr "Attach disk"}}
+                </button>
+              </span>
+              {{/isTabActionEnabled}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
