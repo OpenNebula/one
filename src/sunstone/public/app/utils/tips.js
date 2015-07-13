@@ -3,6 +3,10 @@ define(function(require) {
   //Replaces all class"tip" divs with an information icon that
   //displays the tip information on mouseover.
   var _setup = function(context, position) {
+    if (!context) {
+      context = $(document);
+    }
+
     //For each tip in this context
     $('.tip', context).each(function() {
       var obj = $(this);
@@ -16,6 +20,7 @@ define(function(require) {
       //replace the text with an icon and spans
       obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
     });
+
     context.foundation('reflow', 'tooltip');
   }
 
