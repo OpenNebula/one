@@ -502,22 +502,36 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
-        poll_attrs = {
-            "MEMORY"          => "MONITORING/MEMORY",
-            "CPU"             => "MONITORING/CPU",
-            "NETTX"           => "MONITORING/NETTX",
-            "NETRX"           => "MONITORING/NETRX"
-        }
 
-        poll_attrs.each { |k,v|
-            if k == "CPU"
-                puts str % [k,vm[v]]
-            elsif k == "MEMORY"
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]
-            else
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
+        vm_monitoring = vm.to_hash['VM']['MONITORING']
+
+        order_attrs  = %w(CPU MEMORY NETTX NETRX)
+
+        vm_monitoring_sort = []
+        order_attrs.each do |key|
+            if (val = vm_monitoring.delete(key))
+                vm_monitoring_sort << [key, val]
             end
-        }
+        end
+
+        vm_monitoring_sort.sort{|a,b| a[0]<=>b[0]}
+
+        filter_attrs = %w(STATE DISK_SIZE SNAPSHOT_SIZE)
+        vm_monitoring.each do |key, val|
+            if !filter_attrs.include?(key)
+                vm_monitoring_sort << [key, val]
+            end
+        end
+
+        vm_monitoring_sort.each do |k,v|
+            if k == "MEMORY"
+                puts str % [k, OpenNebulaHelper.unit_to_str(v.to_i, {})]
+            elsif k  =~ /NET.X/
+                puts str % [k, OpenNebulaHelper.unit_to_str(v.to_i/1024, {})]
+            else
+                puts str % [k, v]
+            end
+        end
 
         puts
 
