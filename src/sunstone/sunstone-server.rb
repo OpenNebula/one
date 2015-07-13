@@ -109,9 +109,9 @@ when 'memcache-dalli'
     STDERR.puts memcache_server
 
     use Rack::Session::Dalli,
-      memcache_server: memcache_server,
-      namespace: $conf[:memcache_namespace],
-      cache: Dalli::Client.new
+      :memcache_server => memcache_server,
+      :namespace => $conf[:memcache_namespace],
+      :cache => Dalli::Client.new
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
@@ -643,4 +643,3 @@ post '/:resource/:id/action' do
 end
 
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))
-
