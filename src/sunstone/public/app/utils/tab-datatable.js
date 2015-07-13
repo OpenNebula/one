@@ -176,7 +176,7 @@ define(function(require) {
       return false;
     })
 
-    this.dataTable.on('draw', function() {
+    this.dataTable.on('draw.dt', function() {
       that.recountCheckboxes();
     })
 
