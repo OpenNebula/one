@@ -43,6 +43,8 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -411,6 +413,39 @@ define(function(require) {
     }
 
     Tree.setup(context);
+  }
+
+  function _getState(context) {
+    var state = {
+      openDisksDetails : [],
+      checkedSnapshots : []
+    };
+
+    $.each($("#tab_storage_form .disks_table .fa-chevron-up", context), function(){
+      state.openDisksDetails.push($(this).closest("tr").attr("disk_id"));
+    });
+
+    $.each($('#tab_storage_form .disks_table .snapshot_check_item:checked', context), function(){
+      state.checkedSnapshots.push({
+        snapshot_id : $(this).attr("snapshot_id"),
+        disk_id : $(this).closest(".snapshots").attr('disk_id')
+      });
+    });
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    $.each(state["openDisksDetails"], function(){
+      $('#tab_storage_form .disks_table tr[disk_id="'+this+'"] td.open-control', context).click();
+    });
+
+    $.each(state["checkedSnapshots"], function(){
+      $('#tab_storage_form .disks_table .snapshots[disk_id="'+this.disk_id+'"] '+
+        '.snapshot_check_item[snapshot_id="'+this.snapshot_id+'"]', context).click();
+    });
   }
 
   function _makeTree(that, snapshot, indexedSnapshots){
