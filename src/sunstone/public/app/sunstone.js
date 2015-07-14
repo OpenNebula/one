@@ -757,12 +757,12 @@ define(function(require) {
         $(".reset_button", context).hide();
       }
 
+      _hideFormPanelLoading(tabId);
+
       formPanelInstance.onShow(formContext);
       if (onShow2) {
         onShow2(formPanelInstance, formContext);
       }
-
-      _hideFormPanelLoading(tabId);
     }, 13)
   }
 
@@ -799,10 +799,13 @@ define(function(require) {
         formPanelId = formPanelInstance.formPanelId;
 
         formPanelInstance.reset(context);
-        formPanelInstance.onShow(context);
       }
 
       _hideFormPanelLoading(tabId);
+
+      if (formPanelInstance) {
+        formPanelInstance.onShow(context);
+      }
     }, 13)
   }
 
