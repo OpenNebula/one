@@ -47,6 +47,8 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -214,6 +216,23 @@ define(function(require) {
     return false;
   }
 
+  function _getState(context) {
+    var state = {};
+
+    if(this.last_selected_row_ar){
+      state["ar"] = this.last_selected_row_ar.attr("ar");
+    }
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    if(state.ar){
+      $('#ar_list_datatable tr[ar="'+state.ar+'"]',context).click();
+    }
+  }
 
   //============================================================================
   //============================================================================
