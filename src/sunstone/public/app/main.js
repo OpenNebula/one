@@ -51,9 +51,6 @@ require.config({
     'flot.time': '../bower_components/flot/jquery.flot.time',
     'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip',
 
-    /* noUiSlider */
-    'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min',
-
     /* VNC */
     'vnc-util': '../bower_components/no-vnc/include/util',
     'vnc-webutil': '../bower_components/no-vnc/include/webutil',
@@ -197,11 +194,6 @@ require.config({
     },
     'flot.tooltip': {
       deps: ['flot']
-    },
-
-    /* noUiSlider */
-    'nouislider': {
-      deps: ['jquery']
     },
 
     /* VNC */

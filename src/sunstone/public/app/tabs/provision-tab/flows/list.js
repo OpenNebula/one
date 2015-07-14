@@ -435,13 +435,16 @@ define(function(require) {
                   '<br>'+
                   '<span style="color: #999; font-size:20px">'+role.name + ' ' + Locale.tr("VMs")+'</span>'+
                 '</div>'+
-                '<div class="large-8 columns text-center">'+
+                '<div class="large-8 columns">'+
                 '<div class="cardinality_slider_div">'+
                   '<br>'+
                   '<span class="left" style="color: #999;">'+min_vms+'</span>'+
                   '<span class="right" style="color: #999;">'+max_vms+'</span>'+
                   '<br>'+
-                  '<div class="cardinality_slider">'+
+                  '<div class="range-slider cardinality_slider" data-slider>'+
+                    '<span class="range-slider-handle" role="slider" tabindex="0"></span>'+
+                    '<span class="range-slider-active-segment"></span>'+
+                    '<input type="hidden">'+
                   '</div>'+
                   '<br>'+
                   '<a href"#" class="provision_change_cardinality_button success button radius large-12" role_id="'+role.name+'">'+Locale.tr("Change Cardinality")+'</a>'+
@@ -457,30 +460,15 @@ define(function(require) {
           '<a href="#" class="close" style="top: 20px">&times;</a>'+
         '</div>');
 
-
+      context.foundation('slider', 'reflow');
       if (max_vms > min_vms) {
         $( ".cardinality_slider_div", context).show();
         $( ".cardinality_no_slider_div", context).hide();
 
-        var provision_cardinality_slider = $( ".cardinality_slider", context).noUiSlider({
-            handles: 1,
-            connect: "lower",
-            range: [min_vms, max_vms],
-            step: 1,
-            start: role.cardinality,
-            value: role.cardinality,
-            slide: function(type) {
-                if ( type != "move"){
-                  if ($(this).val()) {
-                    $(".cardinality_value", context).html($(this).val());
-                  }
-                }
-            }
+        $( ".cardinality_slider", context).foundation('slider', 'set_value', role.cardinality);
+        $( ".cardinality_slider", context).on('change', function(){
+          $(".cardinality_value",context).html($(this).attr('data-slider'))
         });
-
-        provision_cardinality_slider.val(role.cardinality)
-
-        provision_cardinality_slider.addClass("noUiSlider");
       } else {
         $( ".cardinality_slider_div", context).hide();
         $( ".cardinality_no_slider_div", context).show();
@@ -491,7 +479,7 @@ define(function(require) {
 
     context.on("click", ".provision_change_cardinality_button", function(){
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
-      var cardinality = $(".cardinality_slider", context).val()
+      var cardinality = $(".cardinality_slider", context).attr('data-slider');
 
       OpenNebula.Role.update({
         data : {

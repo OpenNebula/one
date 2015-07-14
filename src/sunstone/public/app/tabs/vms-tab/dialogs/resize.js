@@ -95,6 +95,9 @@ define(function(require) {
     if (that.element.VCPU) {
       $('#VCPU', context).val(that.element.TEMPLATE.VCPU);
     }
+
+    context.foundation('slider', 'reflow');
+    
     return false;
   }
 

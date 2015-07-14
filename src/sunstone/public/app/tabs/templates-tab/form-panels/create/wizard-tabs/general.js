@@ -73,6 +73,8 @@ define(function(require) {
       $('#NAME', context).attr("disabled", "disabled");
       $('#NAME', context).removeAttr("required");
     }
+
+    context.foundation('slider', 'reflow');
   }
 
   function _setup(context) {

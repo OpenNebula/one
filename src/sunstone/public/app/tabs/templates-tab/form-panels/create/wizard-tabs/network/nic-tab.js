@@ -3,7 +3,6 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('nouislider');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
