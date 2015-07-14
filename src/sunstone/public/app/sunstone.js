@@ -536,10 +536,22 @@ define(function(require) {
       var activaTabHref = activaTab.attr('href');
     }
 
+    var isRefresh = (activaTabHref != undefined);
+    var prevPanelInstances = SunstoneCfg['tabs'][tabName]["panelInstances"];
+    var prevPanelStates = {};
+
+    if(isRefresh && prevPanelInstances != undefined){
+      $.each(prevPanelInstances, function(panelName, panel) {
+        if(panel.getState){
+          prevPanelStates[panelName] = panel.getState(context);
+        }
+      });
+    }
+
     var panels = SunstoneCfg['tabs'][tabName].panels;
     var active = false;
     var templatePanelsParams = []
-    var panelInstances = []
+    SunstoneCfg['tabs'][tabName]["panelInstances"] = {};
 
     $.each(panels, function(panelName, Panel) {
       if (Config.isTabPanelEnabled((contextTabId||tabName), panelName)) {
@@ -554,7 +566,7 @@ define(function(require) {
 
         try {
           var panelInstance = new Panel(info, contextTabId);
-          panelInstances.push(panelInstance);
+          SunstoneCfg['tabs'][tabName]["panelInstances"][panelName] = panelInstance;
           templatePanelsParams.push({
             'panelName': panelName,
             'icon': panelInstance.icon,
@@ -578,8 +590,12 @@ define(function(require) {
 
     context.html(html);
 
-    $.each(panelInstances, function(index, panel) {
+    $.each(SunstoneCfg['tabs'][tabName]["panelInstances"], function(panelName, panel) {
       panel.setup(context);
+
+      if(isRefresh && prevPanelStates[panelName] && panel.setState){
+        panel.setState( prevPanelStates[panelName], context );
+      }
 
       if (panel.onShow) {
         context.off('click', '[href="#' + panel.panelId + '"]');
