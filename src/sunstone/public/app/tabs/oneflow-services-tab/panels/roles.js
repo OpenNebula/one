@@ -58,6 +58,8 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
   Panel.prototype.roleHTML = _roleHTML;
   Panel.prototype.roleSetup = _roleSetup;
 
@@ -90,6 +92,46 @@ define(function(require) {
       'servicePanel': this.servicePanel,
       'roleList': roleList
     });
+  }
+
+  function _getState(context) {
+    var state = {};
+
+    if (this.servicerolesDataTable){
+      var selectedCheck = $(".check_item:checked", this.servicerolesDataTable.dataTable);
+
+      if (selectedCheck.length > 0){
+        state["selectedRole"] = selectedCheck.attr("id");
+
+        if(this.serviceroleVMsDataTable){
+          var selectedVMs = [];
+
+          $.each($(".check_item:checked", this.serviceroleVMsDataTable.dataTable), function(){
+            selectedVMs.push($(this).attr("id"));
+          });
+
+          if (selectedVMs.length > 0){
+            state["selectedVMs"] = selectedVMs;
+          }
+        }
+      }
+    }
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    if (this.servicerolesDataTable && state["selectedRole"]){
+      $('.check_item[id="'+state["selectedRole"]+'"]', this.servicerolesDataTable.dataTable).closest('tr').click();
+    }
+
+    if (this.serviceroleVMsDataTable && state["selectedVMs"]){
+      $.each(state["selectedVMs"], function(){
+        $('.check_item[id="'+this+'"]', that.serviceroleVMsDataTable.dataTable).closest('tr').click();
+      });
+    }
   }
 
   function _setup(context) {
@@ -130,29 +172,6 @@ define(function(require) {
       this.servicerolesDataTable.initialize();
 
       Sunstone.insertButtonsInTab("oneflow-services", "service_roles_tab", roles_buttons, $('#role_actions', context));
-
-      // TODO: global var, see Service.refresh
-      /*
-      if(selected_row_role_id) {
-        $.each($(this.servicerolesDataTable.dataTable.fnGetNodes()),function(){
-          if($($('td',this)[1]).html()==selected_row_role_id) {
-            $('td',this)[2].click();
-          }
-        });
-      }
-
-      if(checked_row_rolevm_ids.length!=0) {
-        $.each($(serviceroleVMsDataTable.fnGetNodes()),function(){
-          var current_id = $($('td',this)[1]).html();
-          if (current_id) {
-            if(jQuery.inArray(current_id, checked_row_rolevm_ids)!=-1) {
-              $('input.check_item',this).first().click();
-              $('td',this).addClass('markrowchecked');
-            }
-          }
-        });
-      }
-      //*/
     }
   }
 
@@ -261,20 +280,6 @@ define(function(require) {
             ]
           }
         });
-
-      // TODO: global vars, see Service.refresh
-      /*
-      if(last_selected_row_rolevm) {
-          last_selected_row_rolevm.children().each(function(){
-              $(this).removeClass('markrowchecked');
-          });
-      }
-
-      last_selected_row_rolevm = $(this);
-      $(this).children().each(function(){
-          $(this).addClass('markrowchecked');
-      });
-      */
 
       this.serviceroleVMsDataTable.initialize();
       Sunstone.insertButtonsInTab(
