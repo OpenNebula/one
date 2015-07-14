@@ -110,7 +110,7 @@ define(function(require) {
   }
 
   function _preUpdateView() {
-    StateActions.resetStateButtons();
+    StateActions.disableAllStateActions();
 
     this.totalVms = 0;
     this.activeVms = 0;
