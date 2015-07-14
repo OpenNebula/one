@@ -41,6 +41,8 @@ define(function(require) {
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
   Panel.prototype.onShow = _onShow;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -409,5 +411,25 @@ define(function(require) {
         error: Notifier.onError
       });
     }
+  }
+
+  function _getState(context) {
+    var state = {
+      openNicsDetails : []
+    };
+
+    $.each($("#tab_network_form .nics_table .fa-chevron-up", context), function(){
+      state.openNicsDetails.push($(this).closest("tr").attr("nic_id"));
+    });
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    $.each(state["openNicsDetails"], function(){
+      $('#tab_network_form .nics_table tr[nic_id="'+this+'"] td.open-control', context).click();
+    });
   }
 });
