@@ -448,7 +448,6 @@ post '/config' do
         error 500, ""
     end
 
-    STDERR.puts user.to_hash
     session[:lang]         = user['TEMPLATE/LANG'] if user['TEMPLATE/LANG']
     session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
     session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
