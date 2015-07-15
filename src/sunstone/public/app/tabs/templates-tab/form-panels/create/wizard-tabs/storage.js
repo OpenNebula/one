@@ -70,8 +70,7 @@ define(function(require) {
     that.numberOfDisks = 0;
     that.diskTabObjects = {};
 
-    Tips.setup(context);
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
 
     // close icon: removing the tab on click
     context.on("click", "i.remove-tab", function() {

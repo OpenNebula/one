@@ -70,7 +70,6 @@ define(function(require) {
     that.numberOfNics = 0;
     that.nicTabObjects = {};
 
-    Tips.setup(context);
     context.foundation('reflow', 'tab');
 
     // close icon: removing the tab on click

@@ -71,7 +71,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    Tips.setup(context);
 
     CustomTagsTable.setup(context);
 

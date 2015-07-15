@@ -31,8 +31,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Tips.setup(context);
-
     // Define the cpu slider
     var cpu_input = $("#CPU", context);
     var cpu_slider = $("#cpu_slider", context)

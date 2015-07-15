@@ -55,7 +55,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    Tips.setup(context);
+    context.foundation('tooltip', 'reflow');
     that.imageTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {

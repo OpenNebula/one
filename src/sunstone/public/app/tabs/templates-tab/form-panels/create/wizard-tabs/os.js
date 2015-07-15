@@ -170,7 +170,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    Tips.setup(context);
     context.foundation('reflow', 'tab');
 
     var kernelDSContext = $(".kernel_ds",  context);

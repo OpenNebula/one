@@ -78,7 +78,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Tips.setup(context);
 
     context.on("change", "#LOGO", function() {
       $("#template_create_logo", context).show();
