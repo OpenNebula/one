@@ -193,6 +193,8 @@
                       DISK_DETACH_ACTION      = 22
                       NIC_ATTACH_ACTION       = 23
                       NIC_DETACH_ACTION       = 24
+                      DISK_SNAPSHOT_CREATE_ACTION = 25
+                      DISK_SNAPSHOT_DELETE_ACTION = 26
                     -->
                     <xs:element name="ACTION" type="xs:integer"/>
                   </xs:sequence>

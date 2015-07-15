@@ -286,7 +286,9 @@ define(function(require) {
     "disk-attach",
     "disk-detach",
     "nic-attach",
-    "nic-detach"
+    "nic-detach",
+    "snap-create",
+    "snap-delete"
   ];
 
   var VM = {
