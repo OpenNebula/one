@@ -78,6 +78,9 @@ define(function(require) {
   }
 
   function _setup(context) {
+    $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
+      context.foundation('slider', 'reflow');
+    });
 
     context.on("change", "#LOGO", function() {
       $("#template_create_logo", context).show();
