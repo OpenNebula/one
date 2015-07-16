@@ -1650,6 +1650,9 @@ EOT
         # Image quotas
         img_usage = {}
 
+        # Datastore quotas
+        ds_usage = {}
+
         @db.fetch("SELECT body FROM vm_pool WHERE #{where_filter} AND state<>6") do |vm_row|
             vmdoc = Nokogiri::XML(vm_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
 
@@ -1676,6 +1679,33 @@ EOT
                         vol_used += size_elem.text.to_i
                     }
                 end
+
+                persistent = nil
+
+                if (!e.at_xpath("PERSISTENT").nil?)
+                    persistent = e.at_xpath("PERSISTENT").text.upcase
+                end
+
+                if (persistent == "YES")
+                    ds_id = nil
+
+                    if (!e.at_xpath("DATASTORE_ID").nil?)
+                        ds_id = e.at_xpath("DATASTORE_ID").text
+                    end
+
+                    if (!ds_id.nil?)
+                        vmdoc.root.xpath("SNAPSHOTS[DISK_ID=#{e.at_xpath('DISK_ID').text}]/SNAPSHOT/SIZE").each { |size|
+                            ds_usage[ds_id] = [0,0] if ds_usage[ds_id].nil?
+
+                            ds_usage[ds_id][1] += size.text.to_i
+                        }
+                    end
+                else
+                    vmdoc.root.xpath("SNAPSHOTS[DISK_ID=#{e.at_xpath('DISK_ID').text}]/SNAPSHOT/SIZE").each { |size|
+                        vol_used += size.text.to_i
+                    }
+                end
+
             }
 
             vms_used += 1
@@ -1833,10 +1863,10 @@ EOT
 
         # Datastore quotas
 
-        ds_usage = {}
-
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
             img_doc = Nokogiri::XML(img_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            state = img_doc.root.at_xpath("STATE").text.to_i
 
             img_doc.root.xpath("DATASTORE_ID").each { |e|
                 ds_usage[e.text] = [0,0] if ds_usage[e.text].nil?
@@ -1845,6 +1875,14 @@ EOT
                 img_doc.root.xpath("SIZE").each { |size|
                     ds_usage[e.text][1] += size.text.to_i
                 }
+
+                # If the image is USED_PERS, the disk snapshot size is
+                # taken from the VM
+                if (state != 8)
+                    img_doc.root.xpath("SNAPSHOTS/SNAPSHOT/SIZE").each { |size|
+                        ds_usage[e.text][1] += size.text.to_i
+                    }
+                end
             }
         end
 
