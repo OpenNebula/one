@@ -603,7 +603,10 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
-                src/vmm_mad/remotes/vcenter/vcenter_driver.rb"
+                src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
+                src/vmm_mad/remotes/az/az_driver.rb \
+                src/vmm_mad/remotes/ec2/ec2_driver.rb \
+                src/vmm_mad/remotes/sl/sl_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -777,8 +780,7 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/reset \
                       src/vmm_mad/remotes/ec2/save \
                       src/vmm_mad/remotes/ec2/poll \
-                      src/vmm_mad/remotes/ec2/shutdown \
-                      src/vmm_mad/remotes/ec2/ec2_driver.rb"
+                      src/vmm_mad/remotes/ec2/shutdown"
 
 #------------------------------------------------------------------------------
 # VMM Driver SoftLayer scripts, to be installed under $REMOTES_LOCATION/vmm/sl
@@ -799,8 +801,7 @@ VMM_EXEC_SL_SCRIPTS="src/vmm_mad/remotes/sl/cancel \
                      src/vmm_mad/remotes/sl/reset \
                      src/vmm_mad/remotes/sl/save \
                      src/vmm_mad/remotes/sl/poll \
-                     src/vmm_mad/remotes/sl/shutdown \
-                     src/vmm_mad/remotes/sl/sl_driver.rb"
+                     src/vmm_mad/remotes/sl/shutdown"
 
 #------------------------------------------------------------------------------
 # VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
@@ -821,8 +822,7 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/reset \
                      src/vmm_mad/remotes/az/save \
                      src/vmm_mad/remotes/az/poll \
-                     src/vmm_mad/remotes/az/shutdown \
-                     src/vmm_mad/remotes/az/az_driver.rb"
+                     src/vmm_mad/remotes/az/shutdown"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
