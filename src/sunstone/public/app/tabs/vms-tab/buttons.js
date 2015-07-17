@@ -39,7 +39,6 @@ define(function(require) {
       tip: Locale.tr("This will migrate the selected VMs to the chosen host"),
       layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
-
     },
     "VM.migrate_live" : {
       type: "action",
@@ -194,7 +193,13 @@ define(function(require) {
       text: '<i class="fa fa-desktop" style="color: rgb(111, 111, 111)"/> ' + Locale.tr("SPICE"),
       custom_classes: "only-right-info spice-right-info",
       tip: Locale.tr("SPICE")
-    }
+    },
+    "VM.saveas_template" : {
+      type: "action",
+      text: '<i class="fa fa-save"/>',
+      tip: Locale.tr("This Virtual Machine will be saved in a new Template. You can then create a new Virtual Machine using this Template"),
+      custom_classes : "state-dependent"
+    },
   }
 
   return Buttons;
