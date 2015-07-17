@@ -1911,7 +1911,15 @@ if [ "$CLIENT" = "yes" ]; then
 elif [ "$ONEGATE" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEGATE_FILES[@]}"
 elif [ "$SUNSTONE" = "yes" ]; then
-    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
+  if [ "$SUNSTONE_DEV" = "no" ]; then
+    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} \
+                 ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}
+                 ${INSTALL_SUNSTONE_FILES[@]}"
+  else
+    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} \
+                 ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}
+                 ${INSTALL_SUNSTONE_FILES[@]}"
+  fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
 elif [ "$SUNSTONE_DEV" = "no" ]; then
