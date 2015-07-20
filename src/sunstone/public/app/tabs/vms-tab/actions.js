@@ -8,11 +8,12 @@ define(function(require) {
   var Spice = require('utils/spice');
 
   var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
-  var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
-  var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
-  var SPICE_DIALOG_ID = require('./dialogs/spice/dialogId');
+  var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
+  var DEPLOY_DIALOG_ID           = require('./dialogs/deploy/dialogId');
+  var MIGRATE_DIALOG_ID          = require('./dialogs/migrate/dialogId');
+  var VNC_DIALOG_ID              = require('./dialogs/vnc/dialogId');
+  var SPICE_DIALOG_ID            = require('./dialogs/spice/dialogId');
+  var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
 
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -163,7 +164,18 @@ define(function(require) {
         Spice.unlock();
       },
       notify: true
-    }
+    },
+    "VM.saveas_template" : {
+      type: "single",
+      call: function() {
+       var dialog = Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID);
+       dialog.show();
+       },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+      },
+      notify: false
+    },
   };
 
   return _actions;

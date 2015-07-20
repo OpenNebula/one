@@ -18,6 +18,7 @@
 #include "TransferManager.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+#include "ImageManager.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -1722,9 +1723,16 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 {
     string tm_mad;
     int disk_id, ds_id, snap_id;
+    int img_id = -1;
 
     Quotas::QuotaType qt;
     Template *quotas = 0;
+
+    const VectorAttribute* disk;
+    Snapshots           snaps(-1);
+    const Snapshots*    tmp_snaps;
+    bool                has_snaps = false;
+    string              error_str;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1766,6 +1774,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
             vm->delete_disk_snapshot(disk_id, snap_id, qt, &quotas);
+
             break;
 
         default:
@@ -1776,15 +1785,47 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     vm->clear_snapshot_disk();
 
+    tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
+
+    if(tmp_snaps != 0)
+    {
+        has_snaps = true;
+        snaps = *tmp_snaps;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(disk_id);
+
+    disk->vector_value("IMAGE_ID", img_id);
+
+    bool is_persistent = VirtualMachine::is_persistent(disk);
+
     vmpool->update(vm);
 
     vm->unlock();
 
     if ( quotas != 0 )
     {
+        if (qt == Quotas::DATASTORE)
+        {
+            Image* img = ipool->get(img_id, true);
+
+            if(img != 0)
+            {
+                uid = img->get_uid();
+                gid = img->get_gid();
+
+                img->unlock();
+            }
+        }
+
         Quotas::quota_del(qt, uid, gid, quotas);
 
         delete quotas;
+    }
+
+    if(img_id != -1 && is_persistent && has_snaps)
+    {
+        imagem->set_image_snapshots(img_id, snaps);
     }
 
     switch (state)
@@ -1815,9 +1856,16 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 {
     string tm_mad;
     int disk_id, ds_id, snap_id;
+    int img_id = -1;
 
     Quotas::QuotaType qt;
     Template *quotas = 0;
+
+    const VectorAttribute* disk;
+    Snapshots           snaps(-1);
+    const Snapshots*    tmp_snaps;
+    bool                has_snaps = false;
+    string              error_str;
 
     VirtualMachine * vm = vmpool->get(vid,true);
 
@@ -1868,15 +1916,47 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     vm->clear_snapshot_disk();
 
+    tmp_snaps = vm->get_disk_snapshots(disk_id, error_str);
+
+    if(tmp_snaps != 0)
+    {
+        has_snaps = true;
+        snaps = *tmp_snaps;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(disk_id);
+
+    disk->vector_value("IMAGE_ID", img_id);
+
+    bool is_persistent = VirtualMachine::is_persistent(disk);
+
     vmpool->update(vm);
 
     vm->unlock();
 
     if ( quotas != 0 )
     {
+        if (qt == Quotas::DATASTORE)
+        {
+            Image* img = ipool->get(img_id, true);
+
+            if(img != 0)
+            {
+                uid = img->get_uid();
+                gid = img->get_gid();
+
+                img->unlock();
+            }
+        }
+
         Quotas::quota_del(qt, uid, gid, quotas);
 
         delete quotas;
+    }
+
+    if(img_id != -1 && is_persistent && has_snaps)
+    {
+        imagem->set_image_snapshots(img_id, snaps);
     }
 
     switch (state)

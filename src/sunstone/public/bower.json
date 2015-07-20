@@ -1,19 +1,47 @@
 {
-  "name": "foundation-libsass-template",
+  "name": "opennebula-sunstone",
+  "main": [
+    "dist/login.js",
+    "dist/login.js.map",
+    "dist/main.js",
+    "dist/main.js.map",
+    "css/app.min.css",
+    "css/login.css"
+  ],
   "dependencies": {
-    "foundation": "latest",
-    "flot": "latest",
-    "jquery-migrate": "latest",
-    "datatables": "latest",
-    "jgrowl": "latest",
-    "fontawesome": "latest",
-    "foundation-datatables": "https://github.com/DataTables/Plugins.git",
-    "flot.tooltip": "latest",
-    "no-vnc": "*",
-    "resumablejs": "*",
-    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5",
-    "require-handlebars-plugin": "~0.11.2",
-    "requirejs": "~2.1.17",
-    "almond": "~0.3.1"
+    "jquery": "2.1.4",
+    "flot": "0.8.3",
+    "jgrowl": "1.4.2",
+    "fontawesome": "4.3.0",
+    "foundation-datatables": "https://github.com/DataTables/Plugins.git#1.0.1",
+    "flot.tooltip": "0.8.4",
+    "no-vnc": "0.5.1",
+    "resumablejs": "git://github.com/23/resumable.js.git#420cd351c5",
+    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5#ff42bc7399",
+    "require-handlebars-plugin": "0.11.2",
+    "requirejs": "2.1.17",
+    "almond": "0.3.1",
+    "foundation": "5.5.1",
+    "datatables": "1.10.7"
+  },
+  "version": "4.14",
+  "authors": [
+    "Daniel Molina <dmolina@opennebula.org>"
+  ],
+  "description": "OpenNebula Sunstone",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "Apache",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "resolutions": {
+    "foundation": "5.5.1"
   }
 }

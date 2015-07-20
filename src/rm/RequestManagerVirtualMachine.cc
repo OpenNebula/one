@@ -29,6 +29,7 @@ bool RequestManagerVirtualMachine::vm_authorization(
         RequestAttributes&      att,
         PoolObjectAuth *        host_perm,
         PoolObjectAuth *        ds_perm,
+        PoolObjectAuth *        img_perm,
         AuthRequest::Operation  op)
 {
     PoolObjectSQL * object;
@@ -79,6 +80,11 @@ bool RequestManagerVirtualMachine::vm_authorization(
     if ( ds_perm != 0 )
     {
         ar.add_auth(AuthRequest::USE, *ds_perm);
+    }
+
+    if ( img_perm != 0 )
+    {
+        ar.add_auth(AuthRequest::MANAGE, *img_perm);
     }
 
     if (UserPool::authorize(ar) == -1)
@@ -509,7 +515,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         op = AuthRequest::ADMIN;
     }
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, op) == false )
     {
         return;
     }
@@ -773,7 +779,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     // Authorize request
     // ------------------------------------------------------------------------
 
-    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, auth_op);
+    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0, auth_op);
 
     if (auth == false)
     {
@@ -952,7 +958,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // Authorize request
     // ------------------------------------------------------------------------
 
-    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, auth_op);
+    auth = vm_authorization(id, 0, 0, att, &host_perms, auth_ds_perms, 0, auth_op);
 
     if (auth == false)
     {
@@ -1350,7 +1356,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    rc_auth = vm_authorization(id, itemplate, 0, att, 0,&ds_perms,auth_op);
+    rc_auth = vm_authorization(id, itemplate, 0, att, 0,&ds_perms,0,auth_op);
 
     if ( rc_auth == true )
     {
@@ -1478,7 +1484,7 @@ void VirtualMachineMonitoring::request_execute(
 
     ostringstream oss;
 
-    bool auth = vm_authorization(id, 0, 0, att, 0, 0, auth_op);
+    bool auth = vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op);
 
     if ( auth == false )
     {
@@ -1539,7 +1545,7 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, tmpl, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, tmpl, att, 0, 0, 0, auth_op) == false )
     {
         delete tmpl;
         return;
@@ -1633,7 +1639,7 @@ void VirtualMachineDetach::request_execute(xmlrpc_c::paramList const& paramList,
     // Authorize the operation
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -1707,7 +1713,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
     /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -1983,7 +1989,7 @@ void VirtualMachineSnapshotCreate::request_execute(
     // Authorize the operation
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2024,7 +2030,7 @@ void VirtualMachineSnapshotRevert::request_execute(
     // Authorize the operation
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2065,7 +2071,7 @@ void VirtualMachineSnapshotDelete::request_execute(
     // Authorize the operation
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2124,7 +2130,7 @@ void VirtualMachineAttachNic::request_execute(
     // Authorize the operation, restricted attributes & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2205,7 +2211,7 @@ void VirtualMachineDetachNic::request_execute(
     // Authorize the operation
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2240,7 +2246,7 @@ void VirtualMachineRecover::request_execute(
     Nebula& nd             = Nebula::instance();
     LifeCycleManager*  lcm = nd.get_lcm();
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2360,7 +2366,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     int    did  = xmlrpc_c::value_int(paramList.getInt(2));
     string name = xmlrpc_c::value_string(paramList.getString(3));
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2389,11 +2395,12 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     bool persistent  = VirtualMachine::is_persistent(disk);
     bool is_volatile = VirtualMachine::is_volatile(disk);
 
+    int img_id = -1;
+    disk->vector_value("IMAGE_ID", img_id);
+
     vm->get_permissions(vm_perms);
 
     vm->unlock();
-
-    RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
     if (is_volatile)
     {
@@ -2401,8 +2408,36 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
                     "volatile disks",""), att);
         return;
     }
-    else if (persistent)
+
+    RequestAttributes att_quota;
+
+    if (persistent)
     {
+        PoolObjectAuth img_perms;
+
+        Image* img = ipool->get(img_id, true);
+
+        if (img == 0)
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::IMAGE),img_id),
+                att);
+
+            return;
+        }
+
+        img->get_permissions(img_perms);
+
+        img->unlock();
+
+        // Authorize again, this time to check that the user has IMAGE:MANAGE
+        if ( vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false )
+        {
+            return;
+        }
+
+        att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
+
         deltas.add("DATASTORE", ds_id);
         deltas.add("SIZE", disk_size);
         deltas.add("IMAGES", 0);
@@ -2414,6 +2449,8 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     }
     else
     {
+        att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+
         delta_disk = new VectorAttribute("DISK");
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", disk_size);
@@ -2470,7 +2507,7 @@ void VirtualMachineDiskSnapshotRevert::request_execute(
     int did     = xmlrpc_c::value_int(paramList.getInt(2));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
     }
@@ -2500,6 +2537,9 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
 {
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
+    VirtualMachine *  vm;
+
+    const VectorAttribute * disk;
 
     int    rc;
     string error_str;
@@ -2508,9 +2548,58 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     int did     = xmlrpc_c::value_int(paramList.getInt(2));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
     {
         return;
+    }
+
+    if ((vm = get_vm(id, att)) == 0)
+    {
+        return;
+    }
+
+    disk = (const_cast<const VirtualMachine *>(vm))->get_disk(did);
+
+    if (disk == 0)
+    {
+        failure_response(ACTION, request_error("VM disk does not exist", ""), att);
+
+        vm->unlock();
+
+        return;
+    }
+
+    bool persistent  = VirtualMachine::is_persistent(disk);
+
+    int img_id = -1;
+    disk->vector_value("IMAGE_ID", img_id);
+
+    vm->unlock();
+
+    if (persistent)
+    {
+        PoolObjectAuth img_perms;
+
+        Image* img = ipool->get(img_id, true);
+
+        if (img == 0)
+        {
+            failure_response(NO_EXISTS,
+                get_error(object_name(PoolObjectSQL::IMAGE),img_id),
+                att);
+
+            return;
+        }
+
+        img->get_permissions(img_perms);
+
+        img->unlock();
+
+        // Authorize again, this time to check that the user has IMAGE:MANAGE
+        if ( vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false )
+        {
+            return;
+        }
     }
 
     rc = dm->disk_snapshot_delete(id, did, snap_id, error_str);

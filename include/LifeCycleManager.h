@@ -30,6 +30,7 @@ extern "C" void * lcm_action_loop(void *arg);
 class TransferManager;
 class DispatchManager;
 class VirtualMachineManager;
+class ImageManager;
 
 /**
  *  The Virtual Machine Life-cycle Manager module. This class is responsible for
@@ -40,7 +41,7 @@ class LifeCycleManager : public ActionListener
 public:
 
     LifeCycleManager():
-        vmpool(0), hpool(0), ipool(0), tm(0), vmm(0), dm(0)
+        vmpool(0), hpool(0), ipool(0), tm(0), vmm(0), dm(0), imagem(0)
     {
         am.addListener(this);
     };
@@ -189,6 +190,12 @@ private:
      *  Action engine for the Manager
      */
     ActionManager           am;
+
+    /**
+     * Pointer to ImageManager
+     */
+    ImageManager *          imagem;
+
 
     /**
      *  Function to execute the Manager action loop method within a new pthread

@@ -65,9 +65,10 @@ void LifeCycleManager::init_managers()
 {
     Nebula& nd = Nebula::instance();
 
-    tm  = nd.get_tm();
-    vmm = nd.get_vmm();
-    dm  = nd.get_dm();
+    tm      = nd.get_tm();
+    vmm     = nd.get_vmm();
+    dm      = nd.get_dm();
+    imagem  = nd.get_imagem();
 
     vmpool = nd.get_vmpool();
     hpool  = nd.get_hpool();

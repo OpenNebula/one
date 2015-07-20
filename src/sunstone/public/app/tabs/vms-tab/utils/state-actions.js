@@ -28,7 +28,7 @@ define(function(require) {
     ["VM.delete", "VM.delete_recreate", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.shutdown_hard"];
+    ["VM.delete", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.shutdown_hard", "VM.saveas_template"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.delete", "VM.delete_recreate", "VM.resume", "VM.resize", "VM.deploy"];

@@ -41,6 +41,7 @@ usage() {
  echo "    an absolute path."
  echo "-c: install client utilities: OpenNebula cli and ec2 client files"
  echo "-s: install OpenNebula Sunstone"
+ echo "-p: do not install OpenNebula Sunstone non-minified files"
  echo "-G: install OpenNebula Gate"
  echo "-f: install OpenNebula Flow"
  echo "-r: remove Opennebula, only useful if -d was not specified, otherwise"
@@ -50,7 +51,7 @@ usage() {
 }
 #-------------------------------------------------------------------------------
 
-PARAMETERS="hkrlcsou:g:d:"
+PARAMETERS="hkrlcspou:g:d:"
 
 if [ $(getopt --version | tr -d " ") = "--" ]; then
     TEMP_OPT=`getopt $PARAMETERS "$@"`
@@ -71,6 +72,7 @@ LINK="no"
 CLIENT="no"
 ONEGATE="no"
 SUNSTONE="no"
+SUNSTONE_DEV="yes"
 ONEFLOW="no"
 ONEADMIN_USER=`id -u`
 ONEADMIN_GROUP=`id -g`
@@ -85,6 +87,7 @@ while true ; do
         -c) CLIENT="yes"; INSTALL_ETC="no" ; shift ;;
         -G) ONEGATE="yes"; shift ;;
         -s) SUNSTONE="yes"; shift ;;
+        -p) SUNSTONE_DEV="no"; shift ;;
         -f) ONEFLOW="yes"; shift ;;
         -u) ONEADMIN_USER="$2" ; shift 2;;
         -g) ONEADMIN_GROUP="$2"; shift 2;;
@@ -473,33 +476,40 @@ INSTALL_SUNSTONE_FILES=(
     SUNSTONE_MODELS_FILES:$SUNSTONE_LOCATION/models
     SUNSTONE_MODELS_JSON_FILES:$SUNSTONE_LOCATION/models/OpenNebulaJSON
     SUNSTONE_VIEWS_FILES:$SUNSTONE_LOCATION/views
-    SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/dist
-    SUNSTONE_PUBLIC_JS_CONSOLE_FILES:$SUNSTONE_LOCATION/public/dist/console
-    SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts
     SUNSTONE_ROUTES_FILES:$SUNSTONE_LOCATION/routes
-    SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
-    SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
-    SUNSTONE_PUBLIC_LOGOS_FILES:$SUNSTONE_LOCATION/public/images/logos
-    SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_JA:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_LT_LT:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_NL_NL:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_PL:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_ZH_CN:$SUNSTONE_LOCATION/public/locale/languages
-    SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/languages
+)
+
+INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
+  SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/dist
+  SUNSTONE_PUBLIC_JS_CONSOLE_FILES:$SUNSTONE_LOCATION/public/dist/console
+  SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts
+  SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
+  SUNSTONE_PUBLIC_IMAGES_FILES:$SUNSTONE_LOCATION/public/images
+  SUNSTONE_PUBLIC_LOGOS_FILES:$SUNSTONE_LOCATION/public/images/logos
+  SUNSTONE_PUBLIC_LOCALE_CA:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_CS_CZ:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_DE:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_DA:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_EL_GR:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_EN_US:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_ES_ES:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_FA_IR:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_FR_FR:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_IT_IT:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_JA:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_LT_LT:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_NL_NL:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_PL:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_PT_PT:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_PT_BR:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_RU_RU:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_SK_SK:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_ZH_CN:$SUNSTONE_LOCATION/public/locale/languages
+  SUNSTONE_PUBLIC_LOCALE_ZH_TW:$SUNSTONE_LOCATION/public/locale/languages
+)
+
+INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
+  SUNSTONE_PUBLIC_DEV_DIR:$SUNSTONE_LOCATION
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -593,7 +603,10 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/deprecated/OpenNebula.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
-                src/vmm_mad/remotes/vcenter/vcenter_driver.rb"
+                src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
+                src/vmm_mad/remotes/az/az_driver.rb \
+                src/vmm_mad/remotes/ec2/ec2_driver.rb \
+                src/vmm_mad/remotes/sl/sl_driver.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -767,8 +780,7 @@ VMM_EXEC_EC2_SCRIPTS="src/vmm_mad/remotes/ec2/cancel \
                       src/vmm_mad/remotes/ec2/reset \
                       src/vmm_mad/remotes/ec2/save \
                       src/vmm_mad/remotes/ec2/poll \
-                      src/vmm_mad/remotes/ec2/shutdown \
-                      src/vmm_mad/remotes/ec2/ec2_driver.rb"
+                      src/vmm_mad/remotes/ec2/shutdown"
 
 #------------------------------------------------------------------------------
 # VMM Driver SoftLayer scripts, to be installed under $REMOTES_LOCATION/vmm/sl
@@ -789,8 +801,7 @@ VMM_EXEC_SL_SCRIPTS="src/vmm_mad/remotes/sl/cancel \
                      src/vmm_mad/remotes/sl/reset \
                      src/vmm_mad/remotes/sl/save \
                      src/vmm_mad/remotes/sl/poll \
-                     src/vmm_mad/remotes/sl/shutdown \
-                     src/vmm_mad/remotes/sl/sl_driver.rb"
+                     src/vmm_mad/remotes/sl/shutdown"
 
 #------------------------------------------------------------------------------
 # VMM Driver Azure scripts, to be installed under $REMOTES_LOCATION/vmm/az
@@ -811,8 +822,7 @@ VMM_EXEC_AZ_SCRIPTS="src/vmm_mad/remotes/az/cancel \
                      src/vmm_mad/remotes/az/reset \
                      src/vmm_mad/remotes/az/save \
                      src/vmm_mad/remotes/az/poll \
-                     src/vmm_mad/remotes/az/shutdown \
-                     src/vmm_mad/remotes/az/az_driver.rb"
+                     src/vmm_mad/remotes/az/shutdown"
 
 #-------------------------------------------------------------------------------
 # Information Manager Probes, to be installed under $REMOTES_LOCATION/im
@@ -1581,6 +1591,7 @@ SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/spice.js \
                         src/sunstone/public/dist/console/spice.js.map"
 
+SUNSTONE_PUBLIC_DEV_DIR="src/sunstone/public"
 
 SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
   src/sunstone/routes/vcenter.rb \
@@ -1889,7 +1900,7 @@ do_file() {
         if [ "$LINK" = "yes" ]; then
             ln -s $SRC_DIR/$1 $DESTDIR$2
         else
-            cp $SRC_DIR/$1 $DESTDIR$2
+            cp -R $SRC_DIR/$1 $DESTDIR$2
         fi
     fi
 }
@@ -1900,12 +1911,26 @@ if [ "$CLIENT" = "yes" ]; then
 elif [ "$ONEGATE" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEGATE_FILES[@]}"
 elif [ "$SUNSTONE" = "yes" ]; then
-    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} ${INSTALL_SUNSTONE_FILES[@]}"
+  if [ "$SUNSTONE_DEV" = "no" ]; then
+    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} \
+                 ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}
+                 ${INSTALL_SUNSTONE_FILES[@]}"
+  else
+    INSTALL_SET="${INSTALL_SUNSTONE_RUBY_FILES[@]} \
+                 ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}
+                 ${INSTALL_SUNSTONE_FILES[@]}"
+  fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
+elif [ "$SUNSTONE_DEV" = "no" ]; then
+    INSTALL_SET="${INSTALL_FILES[@]} \
+                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES[@]}\
+                 ${INSTALL_ONEGATE_FILES[@]} \
+                 ${INSTALL_ONEFLOW_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
-                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_ONEGATE_FILES[@]} \
+                 ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
+                 ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]}"
 fi
 

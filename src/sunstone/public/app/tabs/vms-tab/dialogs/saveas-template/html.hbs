@@ -1,0 +1,27 @@
+<div id="{{dialogId}}" class="reveal-modal small" role="dialog" data-reveal >
+  <div class="row">
+    <div class="large-12 columns">
+      <h3 class="subheader" id="">{{tr "Save as Template"}}</h3>
+    </div>
+  </div>
+  <div class="reveal-body">
+    <form id="{{dialogId}}Form" action="">
+      <div class="row">
+        <div class="large-6 columns">
+          <label for="vm_id">{{tr "Virtual Machine ID"}}:</label>
+          <input style="border-style: inset; background-color: lightgrey" type="text" name="vm_id" id="vm_id" disabled/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <label for="template_name">{{tr "Template name"}}:</label>
+          <input type="text" name="template_name" id="template_name" />
+        </div>
+      </div>
+      <div class="form_buttons">
+        <button class="button radius right success" type="submit">{{tr "Save As Template"}}</button>
+      </div>
+      <a class="close-reveal-modal">&#215;</a>
+    </form>
+  </div>
+</div>

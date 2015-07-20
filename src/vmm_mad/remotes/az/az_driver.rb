@@ -184,7 +184,7 @@ class AzureDriver
 
         csn = az_value(az_info, 'CLOUD_SERVICE')
 
-        csn = "OpenNebulaDefaultCloudServiceName-#{id}" if !csn
+        csn = "csn#{id}" if !csn
 
         create_params  = create_params(id,csn,az_info)
         create_options = create_options(id,csn,az_info)
@@ -273,10 +273,10 @@ class AzureDriver
                 vm_template_to_one = vm_template_to_one.gsub("\n","")
 
                 if vm.vm_name.start_with?('one-') and
-                   vm.vm_name.match(/([^_]+)_(.+)/) and
-                   vm.vm_name.match(/([^_]+)_(.+)/).size > 1
+                   vm.vm_name.match(/([^_]+)-(.+)/) and
+                   vm.vm_name.match(/([^_]+)-(.+)/).size > 1
 
-                    one_id = vm.vm_name.match(/([^_]+)_(.+)/)[1].split("-")[1]
+                    one_id = vm.vm_name.match(/([^_]+)-(.+)/)[1].split("-")[1]
                 end
 
                 vms_info << "VM=[\n"
@@ -438,13 +438,14 @@ private
 
     def create_params(id,csn,az_info)
         params = {
-            # Name will always be 'one-<id>_<cloud_service_name>'
-            :vm_name => "one-#{id}_#{csn}",
+            # Name will always be 'one-<id>-<cloud_service_name>'
+            :vm_name => "one-#{id}-#{csn}",
             :vm_user => az_value(az_info, 'VM_USER'),
             :image => az_value(az_info, 'IMAGE'),
             :password => az_value(az_info, 'VM_PASSWORD'),
             :location => az_value(az_info, 'LOCATION')
         }.delete_if { |k, v| v.nil? }
+
     end
 
     def create_options(id,csn,az_info)
@@ -470,7 +471,7 @@ private
     # +deploy_id+: String, VM id in Azure
     # +az_action+: Symbol, one of the keys of the Azure hash constant (i.e :run)
     def az_action(deploy_id, az_action)
-        name, csn = deploy_id.match(/([^_]+)_(.+)/)[1..-1]
+        name, csn = deploy_id.match(/([^_]+)-(.+)/)[1..-1]
 
         # Imported VMs do not start with one-
         deploy_id = name if !name.start_with? "one-"
@@ -551,12 +552,12 @@ private
        retval
     end
 
-    # Retrive the instance from Azure. If OpenNebula asks for it, then the
+    # Retrieve the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
     def get_instance(vm_name)
         begin
-            csn = vm_name.match(/([^_]+)_(.+)/)[2]
-
+            csn = vm_name.match(/([^_]+)-(.+)/)[-1]
+ 
             instance = @azure_vms.get_virtual_machine(vm_name,csn)
             if instance
                 return instance

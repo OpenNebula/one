@@ -1,7 +1,7 @@
-#!/usr/bin/env ruby
+# SConstruct for share/man
 
 # -------------------------------------------------------------------------- #
-# Copyright 2010-2015, C12G Labs S.L                                         #
+# Copyright 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,24 +14,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+import os
 
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-end
+Import('env')
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if env['sunstone']=='yes':
+    print "Generating Sunstone minified files\n"
+    exit_code=os.system("grunt --gruntfile ./Gruntfile.js sass")
+    if exit_code != 0:
+        print "Error generating Sunstone css files\n"
+        exit(-1)
 
-require 'ec2_driver'
-
-checkpoint_file = ARGV[0]
-host            = ARGV[1]
-deploy_id       = ARGV[2]
-
-ec2_drv = EC2Driver.new(host)
-ec2_drv.restore(deploy_id)
+    exit_code=os.system("grunt --gruntfile ./Gruntfile.js requirejs")
+    if exit_code != 0:
+        print "Error generating minifying Susntone files\n"
+        exit(-1)

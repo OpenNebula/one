@@ -1830,9 +1830,7 @@ EOT
             new_elem.add_child(doc.create_element("RVMS_USED")).content = rvms.to_s
         }
 
-
         # Datastore quotas
-
         ds_usage = {}
 
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
@@ -1843,6 +1841,10 @@ EOT
                 ds_usage[e.text][0] += 1
 
                 img_doc.root.xpath("SIZE").each { |size|
+                    ds_usage[e.text][1] += size.text.to_i
+                }
+
+                img_doc.root.xpath("SNAPSHOTS/SNAPSHOT/SIZE").each { |size|
                     ds_usage[e.text][1] += size.text.to_i
                 }
             }
