@@ -10,7 +10,11 @@
     <script type="text/javascript" src="vendor/crypto-js/enc-base64-min.js"></script>
     <![endif]-->
 
-    <script src="dist/login.js"></script>
+    <% if $conf[:env] == 'dev' %>
+      <script src="bower_components/requirejs/require.js" data-main="app/login"></script>
+    <% else %>
+      <script src="dist/login.js"></script>
+    <% end %>
   </head>
 
   <body>
