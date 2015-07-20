@@ -900,7 +900,7 @@ class ExecDriver < VirtualMachineDriver
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
         if @options[:detach_snap]
-          disk   = xml_data.elements[target_xpath]
+          disk   = xml_data.elements[target_xpath].parent
           attach = REXML::Element.new('ATTACH')
 
           attach.add_text('YES')
@@ -973,7 +973,7 @@ class ExecDriver < VirtualMachineDriver
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
         if @options[:detach_snap]
-            disk   = xml_data.elements[target_xpath]
+            disk   = xml_data.elements[target_xpath].parent
             attach = REXML::Element.new('ATTACH')
 
             attach.add_text('YES')
