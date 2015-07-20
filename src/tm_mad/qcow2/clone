@@ -38,6 +38,8 @@ fi
 
 . $TMCOMMON
 
+DRIVER_PATH=$(dirname $0)
+
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
@@ -51,6 +53,26 @@ DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
 SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
 
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+
+SIZE="${XPATH_ELEMENTS[j++]}"
+ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+
 
 ssh_make_path $DST_HOST $DST_DIR
 
@@ -68,7 +90,17 @@ http://*)
 *)
     log "Cloning $SRC_PATH in $DST"
 
-    CLONE_CMD="cd $DST_DIR; rm -f $DST_PATH; $QEMU_IMG create -b $SRC_PATH -f qcow2 $DST_PATH"
+    if [ -n $ORIGINAL_SIZE ]; then
+        ORIGINAL_SIZE="0"
+    fi
+
+    if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
+       RESIZE_CMD="; qemu-img resize ${DST_PATH} ${SIZE}M"
+    fi
+
+    CLONE_CMD="cd $DST_DIR; \
+        rm -f $DST_PATH; $QEMU_IMG create -b $SRC_PATH -f qcow2 $DST_PATH \
+        ${RESIZE_CMD}"
     ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" "Error copying $SRC to $DST"
     ;;
 esac
