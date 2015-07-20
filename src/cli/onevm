@@ -932,7 +932,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     deprecated_command(:attachdisk, 'disk-attach')
     deprecated_command(:detachdisk, 'disk-detach')
-    deprecated_command(:saveas, 'disk-snapshot')
+    deprecated_command(:'disk-snapshot', 'disk-saveas')
     deprecated_command(:livemigrate, 'migrate --live')
     deprecated_command(:cancel, 'shutdown --hard')
     deprecated_command(:reset, 'reboot --hard')
