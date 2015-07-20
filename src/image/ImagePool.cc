@@ -504,6 +504,9 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 
     img->get_permissions(perm);
 
+    // TODO: we could have img->authorize_disk, to add only SIZE and CLONE attrs.
+    img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
+
     img->unlock();
 
     ar->add_auth(AuthRequest::USE, perm);
