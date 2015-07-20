@@ -306,15 +306,16 @@ VAR_DIRS="$VAR_LOCATION/remotes \
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
                $SUNSTONE_LOCATION/models/OpenNebulaJSON \
-               $SUNSTONE_LOCATION/public \
+               $SUNSTONE_LOCATION/views"
+
+SUNSTONE_MINIFIED_DIRS="SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist \
                $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/locale/languages \
                $SUNSTONE_LOCATION/public/images \
-               $SUNSTONE_LOCATION/public/images/logos \
-               $SUNSTONE_LOCATION/views"
+               $SUNSTONE_LOCATION/public/images/logos"
 
 ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/strategy \
@@ -344,9 +345,16 @@ if [ "$CLIENT" = "yes" ]; then
 elif [ "$ONEGATE" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $LIB_OCA_CLIENT_DIRS"
 elif [ "$SUNSTONE" = "yes" ]; then
+  if [ "$SUNSTONE_DEV" = "no" ]; then
+    MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $SUNSTONE_MINIFIED_DIRS $LIB_OCA_CLIENT_DIRS"
+  else
     MAKE_DIRS="$MAKE_DIRS $SUNSTONE_DIRS $LIB_OCA_CLIENT_DIRS"
+  fi
 elif [ "$ONEFLOW" = "yes" ]; then
     MAKE_DIRS="$MAKE_DIRS $ONEFLOW_DIRS $LIB_OCA_CLIENT_DIRS"
+elif [ "$SUNSTONE_DEV" = "no" ]; then
+    MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
+                $SUNSTONE_DIRS $SUNSTONE_MINIFIED_DIRS $ONEFLOW_DIRS"
 else
     MAKE_DIRS="$MAKE_DIRS $SHARE_DIRS $ETC_DIRS $LIB_DIRS $VAR_DIRS \
                 $SUNSTONE_DIRS $ONEFLOW_DIRS"
