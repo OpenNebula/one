@@ -500,19 +500,19 @@ int Image::disk_attribute(  VectorAttribute *       disk,
 
     bool ro;
 
-    ostringstream iid;
-
     vector<string>::const_iterator it;
 
     img_type   = type;
     target     = disk->vector_value("TARGET");
     driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
-    iid << oid;
+
+    long long size = -1;
 
     string template_target;
     string template_driver;
     string template_ptype;
+    string template_size;
 
     get_template_attribute("TARGET", template_target);
     get_template_attribute("DRIVER", template_driver);
@@ -546,9 +546,17 @@ int Image::disk_attribute(  VectorAttribute *       disk,
     //                       BASE DISK ATTRIBUTES
     //--------------------------------------------------------------------------
     disk->replace("IMAGE",    name);
-    disk->replace("IMAGE_ID", iid.str());
+    disk->replace("IMAGE_ID", oid);
     disk->replace("SOURCE",   source);
-    disk->replace("SIZE",     size_mb);
+
+    if ( disk->vector_value("SIZE", size) == 0 && size != size_mb)
+    {
+        disk->replace("ORIGINAL_SIZE", size_mb);
+    }
+    else
+    {
+        disk->replace("SIZE", size_mb);
+    }
 
     if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
@@ -570,7 +578,7 @@ int Image::disk_attribute(  VectorAttribute *       disk,
         }
         else
         {
-            disk->replace("READONLY", "NO");
+            disk->replace("READONLY", false);
         }
     }
 
