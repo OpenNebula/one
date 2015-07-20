@@ -2317,12 +2317,16 @@ bool VirtualMachine::is_imported() const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
+long long VirtualMachine::get_system_disk_size(Template * tmpl)
 {
-    long long disk_size, size = 0;
+    long long size = 0;
+    long long disk_size, snapshot_size;
 
     vector<const Attribute*> disks;
     const VectorAttribute *  disk;
+
+    string  st;
+    bool    clone;
 
     int num_disks = tmpl->get("DISK", disks);
 
@@ -2335,21 +2339,41 @@ long long VirtualMachine::get_volatile_disk_size(Template * tmpl)
             continue;
         }
 
-        if (is_volatile(disk))
+        if (disk->vector_value("SIZE", disk_size) != 0)
         {
-            if (disk->vector_value("SIZE", disk_size) == 0)
-            {
-                size += disk_size;
-            }
-        }
-        else if (!is_persistent(disk))
-        {
-            if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", disk_size) == 0)
-            {
-                size += disk_size;
-            }
+            continue;
         }
 
+        if (is_volatile(disk))
+        {
+            size += disk_size;
+        }
+        else
+        {
+            if (disk->vector_value("CLONE", clone) != 0)
+            {
+                continue;
+            }
+
+            if (clone)
+            {
+                st = disk->vector_value("CLONE_TARGET");
+            }
+            else
+            {
+                st = disk->vector_value("LN_TARGET");
+            }
+
+            if ( one_util::toupper(st) != "NONE") // self or system
+            {
+                size += disk_size;
+
+                if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0)
+                {
+                    size += snapshot_size;
+                }
+            }
+        }
     }
 
     return size;

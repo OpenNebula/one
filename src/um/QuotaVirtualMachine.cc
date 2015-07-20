@@ -73,7 +73,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,
         return false;
     }
 
-    size = VirtualMachine::get_volatile_disk_size(tmpl);
+    size = VirtualMachine::get_system_disk_size(tmpl);
 
     vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
@@ -109,7 +109,7 @@ void QuotaVirtualMachine::del(Template * tmpl)
         vms = 1;
     }
 
-    size = VirtualMachine::get_volatile_disk_size(tmpl);
+    size = VirtualMachine::get_system_disk_size(tmpl);
 
     vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
@@ -153,7 +153,7 @@ bool QuotaVirtualMachine::update(Template * tmpl,
         vm_request.insert(make_pair("CPU", delta_cpu));
     }
 
-    delta_size = VirtualMachine::get_volatile_disk_size(tmpl);
+    delta_size = VirtualMachine::get_system_disk_size(tmpl);
 
     if ( delta_size != 0 )
     {

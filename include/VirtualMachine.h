@@ -1273,9 +1273,9 @@ public:
     bool is_imported() const;
 
     /**
-     *  Return the total SIZE of volatile disks
+     *  Return the total disk SIZE that the VM instance needs in the system DS
      */
-    static long long get_volatile_disk_size(Template * tmpl);
+    static long long get_system_disk_size(Template * tmpl);
 
     /**
      * Returns a set of the security group IDs in use in this VM

@@ -465,6 +465,8 @@ int ImagePool::disk_attribute(int               vm_id,
 void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
     string          source;
+    string          dev_prefix;
+    Image::ImageType img_type;
     Image *         img = 0;
 
     PoolObjectAuth  perm;
