@@ -52,6 +52,8 @@ module OpenNebulaJSON
                  when "rename"      then self.rename(action_hash['params'])
                  when "delete_from_provision"
                           then self.delete_from_provision(action_hash['params'])
+                 when "chmod_from_provision"
+                          then self.chmod_from_provision(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -122,7 +124,7 @@ module OpenNebulaJSON
             # Delete associated images
             self.each("TEMPLATE/DISK/IMAGE_ID"){|image_id|
                 img = OpenNebula::Image.new_with_id(image_id.text, @client)
-                rc = img.delete
+                rc  = img.delete
                 if OpenNebula::is_error?(rc)
                    error_msg = "Some of the resources associated with " <<
                       "this template couldn't be deleted. Error: " << rc.message
@@ -132,6 +134,22 @@ module OpenNebulaJSON
 
             # Delete template
             self.delete
+        end
+
+        def chmod_from_provision(params=Hash.new)
+            # Chmod associated images
+            self.each("TEMPLATE/DISK/IMAGE_ID"){|image_id|
+                img = OpenNebulaJSON::ImageJSON.new_with_id(image_id.text, @client)
+                rc  = img.chmod_json(params)
+                if OpenNebula::is_error?(rc)
+                   error_msg = "Some of the resources associated with " <<
+                    "this template couldn't be published. Error: " << rc.message
+                   return OpenNebula::Error.new(error_msg)
+                end
+            }
+
+            # Chmod template
+            self.chmod_json(params)
         end
     end
 end
