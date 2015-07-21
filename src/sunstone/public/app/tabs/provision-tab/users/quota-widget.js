@@ -128,7 +128,7 @@ define(function(require) {
 
     return {
       "VM" : {
-        "VOLATILE_SIZE": QuotaLimits.QUOTA_LIMIT_DEFAULT,
+        "SYSTEM_DISK_SIZE": QuotaLimits.QUOTA_LIMIT_DEFAULT,
         "VMS":    vms_limit,
         "MEMORY": mem_limit,
         "CPU":    cpu_limit

@@ -22,7 +22,7 @@
 /* -------------------------------------------------------------------------- */
 
 const char * QuotaVirtualMachine::VM_METRICS[] =
-    {"VMS", "CPU", "MEMORY", "VOLATILE_SIZE"};
+    {"VMS", "CPU", "MEMORY", "SYSTEM_DISK_SIZE"};
 
 const int QuotaVirtualMachine::NUM_VM_METRICS  = 4;
 
@@ -78,7 +78,7 @@ bool QuotaVirtualMachine::check(Template * tmpl,
     vm_request.insert(make_pair("VMS",1));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
-    vm_request.insert(make_pair("VOLATILE_SIZE", size));
+    vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
 
     return check_quota("", vm_request, default_quotas, error);
 }
@@ -114,7 +114,7 @@ void QuotaVirtualMachine::del(Template * tmpl)
     vm_request.insert(make_pair("VMS", vms));
     vm_request.insert(make_pair("MEMORY", memory));
     vm_request.insert(make_pair("CPU", cpu));
-    vm_request.insert(make_pair("VOLATILE_SIZE", size));
+    vm_request.insert(make_pair("SYSTEM_DISK_SIZE", size));
 
     del_quota("", vm_request);
 }
@@ -157,7 +157,7 @@ bool QuotaVirtualMachine::update(Template * tmpl,
 
     if ( delta_size != 0 )
     {
-        vm_request.insert(make_pair("VOLATILE_SIZE", delta_size));
+        vm_request.insert(make_pair("SYSTEM_DISK_SIZE", delta_size));
     }
 
     return check_quota("", vm_request, default_quotas, error);

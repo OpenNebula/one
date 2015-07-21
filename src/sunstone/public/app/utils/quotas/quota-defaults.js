@@ -6,7 +6,7 @@ define(function(require) {
         "CPU":      QUOTA_LIMIT_UNLIMITED,
         "MEMORY":   QUOTA_LIMIT_UNLIMITED,
         "VMS":      QUOTA_LIMIT_UNLIMITED,
-        "VOLATILE_SIZE":  QUOTA_LIMIT_UNLIMITED,
+        "SYSTEM_DISK_SIZE": QUOTA_LIMIT_UNLIMITED,
       }
     },
     "DATASTORE_QUOTA": {},
@@ -20,7 +20,7 @@ define(function(require) {
         "CPU":      QUOTA_LIMIT_UNLIMITED,
         "MEMORY":   QUOTA_LIMIT_UNLIMITED,
         "VMS":      QUOTA_LIMIT_UNLIMITED,
-        "VOLATILE_SIZE":  QUOTA_LIMIT_UNLIMITED,
+        "SYSTEM_DISK_SIZE": QUOTA_LIMIT_UNLIMITED,
       }
     },
     "DATASTORE_QUOTA": {},
@@ -74,7 +74,7 @@ define(function(require) {
           "VMS"           : QUOTA_LIMIT_UNLIMITED,
           "MEMORY"        : QUOTA_LIMIT_UNLIMITED,
           "CPU"           : QUOTA_LIMIT_UNLIMITED,
-          "VOLATILE_SIZE" : QUOTA_LIMIT_UNLIMITED
+          "SYSTEM_DISK_SIZE" : QUOTA_LIMIT_UNLIMITED
         }
       };
     }
