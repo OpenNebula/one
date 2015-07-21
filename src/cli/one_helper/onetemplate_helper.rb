@@ -43,12 +43,39 @@ EOT
         :description => "Integrate userdata into the EC2 section"
     }
 
+    EXTENDED={
+        :name => "extended",
+        :large => "--extended",
+        :description => "Process the template and included extended "+
+                        "information, such as the SIZE for each DISK"
+    }
+
     def self.rname
         "VMTEMPLATE"
     end
 
     def self.conf_file
         "onetemplate.yaml"
+    end
+
+
+    def show_resource(id, options)
+        resource = retrieve_resource(id)
+
+        if !options[:extended].nil?
+            rc = resource.info(options[:extended])
+        else
+            rc = resource.info
+        end
+
+        return -1, rc.message if OpenNebula.is_error?(rc)
+
+        if options[:xml]
+            return 0, resource.to_xml(true)
+        else
+            format_resource(resource, options)
+            return 0
+        end
     end
 
     def format_pool(options)
