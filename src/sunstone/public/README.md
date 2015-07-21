@@ -1,14 +1,17 @@
-Sunstone depnedencies
+Sunstone dependencies
 =====================
 
 1. Install nodejs and npm
 2. Install the following npm packages:
+
   ```
   sudo npm install -g bower
   sudo npm install -g grunt
   sudo npm install -g grunt-cli
   ```
+
 3. Move to the Sunstone public folder and run:
+
   ```
   npm install
   bower install
@@ -32,7 +35,7 @@ These are the files generate by the grunt requirejs command:
   css
     app.min.css
   dist
-    login.js, login.js.map main.js main.js.map 
+    login.js, login.js.map main.js main.js.map
     console
       spice.js spice.js.map vnc.js vnc.js.map
   ```
