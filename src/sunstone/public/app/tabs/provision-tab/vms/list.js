@@ -448,7 +448,7 @@ define(function(require) {
                 '<span style="font-size: 14px; line-height: 20px">'+
                   Locale.tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
                 '<br>'+
-                  Locale.tr("You can then create a new Virtual Machine using this Template")+
+                  Locale.tr("You can then create a new Virtual Machine using this Template.")+
                 '</span>'+
               '</div>'+
             '</div>'+
@@ -483,6 +483,7 @@ define(function(require) {
               name : template_name
             }
           },
+          timeout: false,
           success: function(request, response){
             OpenNebula.Action.clear_cache("VMTEMPLATE");
             Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + request.request.data[0][1].name + ' ' + Locale.tr("saved successfully"))
@@ -490,7 +491,13 @@ define(function(require) {
             button.removeAttr("disabled");
           },
           error: function(request, response){
-            Notifier.onError(request, response);
+            if(response.error.http_status == 0){   // Failed due to cloning template taking too long
+                OpenNebula.Action.clear_cache("VMTEMPLATE");
+                update_provision_vm_info(vm_id, context);
+                Notifier.notifyMessage(Locale.tr("VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."));
+            } else {
+                Notifier.onError(request, response);
+            }
             button.removeAttr("disabled");
           }
         })
