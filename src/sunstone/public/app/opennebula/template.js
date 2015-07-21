@@ -11,6 +11,9 @@ define(function(require) {
     "del" : function(params) {
       OpenNebulaAction.del(params, RESOURCE);
     },
+    "delete_from_provision": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "delete_from_provision");
+    },
     "list" : function(params) {
       OpenNebulaAction.list(params, RESOURCE);
     },

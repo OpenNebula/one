@@ -50,6 +50,8 @@ module OpenNebulaJSON
                  when "instantiate" then self.instantiate(action_hash['params'])
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
+                 when "delete_from_provision"
+                          then self.delete_from_provision(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -114,6 +116,22 @@ module OpenNebulaJSON
 
         def rename(params=Hash.new)
             super(params['name'])
+        end
+
+        def delete_from_provision(params=Hash.new)
+            # Delete associated images
+            self.each("TEMPLATE/DISK/IMAGE_ID"){|image_id|
+                img = OpenNebula::Image.new_with_id(image_id.text, @client)
+                rc = img.delete
+                if OpenNebula::is_error?(rc)
+                   error_msg = "Some of the resources associated with " <<
+                      "this template couldn't be deleted. Error: " << rc.message
+                   return OpenNebula::Error.new(error_msg)
+                end
+            }
+
+            # Delete template
+            self.delete
         end
     end
 end
