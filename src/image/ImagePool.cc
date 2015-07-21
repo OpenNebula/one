@@ -410,6 +410,35 @@ int ImagePool::disk_attribute(int               vm_id,
         DatastorePool * ds_pool = nd.get_dspool();
         Datastore *     ds;
 
+        long long size = 0;
+        bool has_size = (disk->vector_value("SIZE", size) == 0);
+
+        if (has_size && img->is_persistent() && size != img->get_size())
+        {
+            img->unlock();
+
+            imagem->release_image(vm_id, iid, false);
+
+            oss << "SIZE attribute is not supported for persistent image ["
+                << img->get_oid() << "].";
+            error_str = oss.str();
+
+            return -1;
+        }
+
+        if (has_size && size < img->get_size())
+        {
+            img->unlock();
+
+            imagem->release_image(vm_id, iid, false);
+
+            oss << "SIZE of " << size << "MB is less than the image ["
+                << img->get_oid() << "] size of " << img->get_size() << "MB.";
+            error_str = oss.str();
+
+            return -1;
+        }
+
         iid = img->get_oid();
         rc  = img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
 
@@ -453,8 +482,7 @@ int ImagePool::disk_attribute(int               vm_id,
         ds->unlock();
     }
 
-    oss << disk_id;
-    disk->replace("DISK_ID",oss.str());
+    disk->replace("DISK_ID", disk_id);
 
     return rc;
 }
