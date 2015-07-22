@@ -53,7 +53,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    that.diskTab.setup();
+    that.diskTab.setup(context);
 
     Tips.setup(context);
 

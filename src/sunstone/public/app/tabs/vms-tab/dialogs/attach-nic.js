@@ -53,7 +53,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    that.nicTab.setup();
+    that.nicTab.setup(context);
 
     Tips.setup(context);
 

@@ -1908,7 +1908,7 @@ do_file() {
         if [ "$LINK" = "yes" ]; then
             ln -s $SRC_DIR/$1 $DESTDIR$2
         else
-            cp -R $SRC_DIR/$1 $DESTDIR$2
+            cp -RL $SRC_DIR/$1 $DESTDIR$2
         fi
     fi
 }

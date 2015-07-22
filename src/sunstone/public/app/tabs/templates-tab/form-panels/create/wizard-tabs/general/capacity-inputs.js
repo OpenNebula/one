@@ -38,11 +38,17 @@ define(function(require) {
     //cpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
 
     cpu_slider.on('change.fndtn.slider', function(){
-      cpu_input.val($(this).attr('data-slider') / 100);
+      if ($(this).attr('data-slider') >= 0) {
+        cpu_input.val($(this).attr('data-slider') / 100);
+      }
     });
 
     cpu_input.on('change', function() {
-      cpu_slider.foundation('slider', 'set_value', this.value * 100);
+      if (this.value && this.value >= 0) {
+        cpu_slider.foundation('slider', 'set_value', this.value * 100);
+      } else {
+        cpu_slider.foundation('slider', 'set_value', -1);
+      }
     });
 
     cpu_slider.foundation('slider', 'set_value', 100);
@@ -64,18 +70,30 @@ define(function(require) {
     }
 
     memory_input.on('change', function() {
-      $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
-      update_final_memory_input();
+      if (this.value && this.value >= 0) {
+        $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
+        update_final_memory_input();
+      } else {
+        $("#memory_slider", context).foundation('slider', 'set_value', -1);
+        final_memory_input.val("");
+      }
     });
 
     final_memory_input.on('change', function() {
-      $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
-      memory_input.val(Math.floor(this.value));
+      if (this.value && this.value >= 0) {
+        $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
+        memory_input.val(Math.floor(this.value));
+      } else {
+        $("#memory_slider", context).foundation('slider', 'set_value', -1);
+        memory_input.val("");
+      }
     });
 
     $("#memory_slider", context).on('change.fndtn.slider', function() {
-      memory_input.val($(this).attr('data-slider') / 100);
-      update_final_memory_input();
+      if ($(this).attr('data-slider') >= 0) {
+        memory_input.val($(this).attr('data-slider') / 100);
+        update_final_memory_input();
+      }
     });
 
     memory_unit.on('change', function() {
@@ -110,8 +128,10 @@ define(function(require) {
         memory_input.val(new_val);
         $("#memory_slider", context).foundation('slider', 'set_value', new_val * 100);
         $("#memory_slider", context).on('change.fndtn.slider', function() {
-          memory_input.val($(this).attr('data-slider') / 100);
-          update_final_memory_input();
+          if ($(this).attr('data-slider') >= 0) {
+            memory_input.val($(this).attr('data-slider') / 100);
+            update_final_memory_input();
+          }
         });
 
         update_final_memory_input();
@@ -127,13 +147,18 @@ define(function(require) {
     var vcpu_slider = $("#vcpu_slider", context)
 
     //vcpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
-
     vcpu_slider.on('change.fndtn.slider', function(){
-      vcpu_input.val($(this).attr('data-slider') / 100);
+      if ($(this).attr('data-slider') > 0) {
+        vcpu_input.val($(this).attr('data-slider') / 100);
+      }
     });
 
     vcpu_input.on('change', function() {
-      vcpu_slider.foundation('slider', 'set_value', this.value * 100);
+      if (this.value && this.value > 0) {
+        vcpu_slider.foundation('slider', 'set_value', this.value * 100);
+      } else {
+        vcpu_slider.foundation('slider', 'set_value', -1);
+      }
     });
 
     vcpu_slider.foundation('slider', 'set_value', 0);
