@@ -898,10 +898,12 @@ int DispatchManager::attach(int vid,
 {
     ostringstream oss;
 
+    int rc;
     int max_disk_id;
     int uid;
     int oid;
     int image_id;
+    int image_cluster_id;
 
     set<string>       used_targets;
     VectorAttribute * disk;
@@ -1000,6 +1002,44 @@ int DispatchManager::attach(int vid,
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
         return -1;
+    }
+
+    // Check that we don't have a cluster incompatibility.
+    rc = disk->vector_value("CLUSTER_ID", image_cluster_id);
+
+    if (rc == 0) 
+    {
+      int cluster_id;
+
+      cluster_id = vm->get_cid();
+      
+      if (cluster_id != image_cluster_id) 
+      {
+          imagem->release_image(oid, image_id, false);
+
+          delete snap;
+          delete disk;
+
+          if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+          {
+              vm->set_state(VirtualMachine::RUNNING);
+          }
+          else
+          {
+              vm->set_state(VirtualMachine::LCM_INIT);
+              vm->set_state(VirtualMachine::POWEROFF);
+          }
+
+          vmpool->update(vm);
+          
+          vm->unlock();
+
+          oss << "Could not attach disk because of cluster incompatibility." ;
+          error_str = oss.str();
+
+          NebulaLog::log("DiM", Log::ERROR, error_str);
+          return -1;
+      }
     }
 
     // Set the VM info in the history before the disk is attached to the
