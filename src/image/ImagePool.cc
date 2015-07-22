@@ -307,7 +307,7 @@ int ImagePool::get_disk_id(const string& id_s)
 
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::disk_attribute(int               vm_id,
+int ImagePool::acquire_disk(  int               vm_id,
                               VectorAttribute * disk,
                               int               disk_id,
                               Image::ImageType& img_type,
@@ -440,7 +440,7 @@ int ImagePool::disk_attribute(int               vm_id,
         }
 
         iid = img->get_oid();
-        rc  = img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
+        img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
 
         image_id     = img->get_oid();
         datastore_id = img->get_ds_id();
@@ -452,17 +452,6 @@ int ImagePool::disk_attribute(int               vm_id,
         }
 
         img->unlock();
-
-        if (rc == -1)
-        {
-            imagem->release_image(vm_id, iid, false);
-            error_str = "Unknown internal error";
-
-            delete *snap;
-            *snap = 0;
-
-            return -1;
-        }
 
         ds = ds_pool->get(datastore_id, true);
 
@@ -490,13 +479,71 @@ int ImagePool::disk_attribute(int               vm_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ImagePool::disk_attribute(
+        VectorAttribute *   disk,
+        int                 disk_id,
+        int                 uid)
+{
+    string  source;
+    Image * img = 0;
+    int     datastore_id;
+
+    string           dev_prefix;
+    Image::ImageType img_type;
+
+    ostringstream oss;
+
+    Nebula&         nd      = Nebula::instance();
+    DatastorePool * ds_pool = nd.get_dspool();
+    Datastore *     ds;
+
+    if (!(source = disk->vector_value("IMAGE")).empty())
+    {
+        int uiid = get_disk_uid(disk,uid);
+
+        if ( uiid != -1)
+        {
+            img = get(source, uiid, true);
+        }
+    }
+    else if (!(source = disk->vector_value("IMAGE_ID")).empty())
+    {
+        int iid = get_disk_id(source);
+
+        if ( iid != -1)
+        {
+            img = get(iid, true);
+        }
+    }
+
+    if ( img != 0 )
+    {
+        img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
+
+        datastore_id = img->get_ds_id();
+
+        img->unlock();
+
+        ds = ds_pool->get(datastore_id, true);
+
+        if ( ds != 0 )
+        {
+            ds->disk_attribute(disk, inherit_datastore_attrs);
+
+            ds->unlock();
+        }
+    }
+
+    disk->replace("DISK_ID", disk_id);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
 {
     string          source;
-    string          dev_prefix;
-    Image::ImageType img_type;
     Image *         img = 0;
-
     PoolObjectAuth  perm;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
@@ -533,9 +580,6 @@ void ImagePool::authorize_disk(VectorAttribute * disk,int uid, AuthRequest * ar)
     }
 
     img->get_permissions(perm);
-
-    // TODO: we could have img->authorize_disk, to add only SIZE and CLONE attrs.
-    img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
 
     img->unlock();
 

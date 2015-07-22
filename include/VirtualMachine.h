@@ -1367,6 +1367,15 @@ public:
                                  AuthRequest& ar,
                                  VirtualMachineTemplate *tmpl);
 
+    /**
+     *  Adds extra info to the given template:
+     *  DISK/IMAGE_ID and SIZE
+     *    @param  uid for template owner
+     *    @param  tmpl the virtual machine template
+     */
+    static void disk_extended_info(int uid,
+                                  VirtualMachineTemplate *tmpl);
+
     // -------------------------------------------------------------------------
     // Hotplug related functions
     // -------------------------------------------------------------------------

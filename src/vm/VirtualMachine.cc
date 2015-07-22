@@ -1841,7 +1841,7 @@ int VirtualMachine::get_disk_images(string& error_str)
 
         disk = static_cast<VectorAttribute * >(disks[i]);
 
-        rc = ipool->disk_attribute(oid,
+        rc = ipool->acquire_disk(  oid,
                                    disk,
                                    i,
                                    img_type,
@@ -2092,7 +2092,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     // Acquire the new disk image
     // -------------------------------------------------------------------------
 
-    int rc = ipool->disk_attribute(vm_id,
+    int rc = ipool->acquire_disk(  vm_id,
                                    new_disk,
                                    max_disk_id + 1,
                                    img_type,
@@ -3492,7 +3492,6 @@ int VirtualMachine::get_saveas_disk(int& disk_id, string& source,
     return -1;
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -3559,6 +3558,32 @@ void VirtualMachine::set_auth_request(int uid,
                 ar.add_auth(AuthRequest::USE, perm);
             }
         }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::disk_extended_info(int uid,
+                                       VirtualMachineTemplate *tmpl)
+{
+    int                   num;
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+    ImagePool *           ipool  = Nebula::instance().get_ipool();
+
+    num = tmpl->get("DISK",disks);
+
+    for(int i=0; i<num; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 )
+        {
+            continue;
+        }
+
+        ipool->disk_attribute(disk, i, uid);
     }
 }
 

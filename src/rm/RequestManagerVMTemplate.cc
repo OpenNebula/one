@@ -163,6 +163,8 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
+        VirtualMachine::disk_extended_info(att.uid, tmpl);
+
         if ( quota_authorization(tmpl, Quotas::VIRTUALMACHINE, att) == false )
         {
             delete tmpl;

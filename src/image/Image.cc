@@ -488,7 +488,7 @@ int Image::from_xml(const string& xml)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Image::disk_attribute(  VectorAttribute *       disk,
+void Image::disk_attribute( VectorAttribute *       disk,
                             ImageType&              img_type,
                             string&                 dev_prefix,
                             const vector<string>&   inherit_attrs)
@@ -508,6 +508,7 @@ int Image::disk_attribute(  VectorAttribute *       disk,
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
     long long size = -1;
+    unsigned int snap_size;
 
     string template_target;
     string template_driver;
@@ -557,6 +558,9 @@ int Image::disk_attribute(  VectorAttribute *       disk,
     {
         disk->replace("SIZE", size_mb);
     }
+
+    snap_size = snapshots.get_total_size();
+    disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
     if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
     {
@@ -671,8 +675,6 @@ int Image::disk_attribute(  VectorAttribute *       disk,
             disk->replace(*it, inherit_val);
         }
     }
-
-    return 0;
 }
 
 /* ------------------------------------------------------------------------ */
