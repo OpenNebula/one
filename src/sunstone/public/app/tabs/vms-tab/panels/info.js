@@ -69,6 +69,7 @@ define(function(require) {
     delete monitoring.NETRX;
     delete monitoring.STATE;
     delete monitoring.DISK_SIZE;
+    delete monitoring.SNAPSHOT_SIZE;
     var monitoringTableContentHTML;
     if (!$.isEmptyObject(monitoring)) {
       monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
