@@ -833,6 +833,24 @@ public:
     }
 
     /**
+     *  Get cluster id where the VM is or is going to execute. The hasHistory()
+     *  function MUST be called before this one.
+     */
+    int get_cid()
+    {
+        return history->cid;
+    }
+
+    /**
+     *  Get cluster id where the VM was executing. The hasPreviousHistory()
+     *  function MUST be called before this one.
+     */
+    int get_previous_cid()
+    {
+        return previous_history->cid;
+    }
+
+    /**
      *  Sets start time of a VM.
      *    @param _stime time when the VM started
      */

@@ -2092,15 +2092,15 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
     // Acquire the new disk image
     // -------------------------------------------------------------------------
 
-    int rc = ipool->acquire_disk(  vm_id,
-                                   new_disk,
-                                   max_disk_id + 1,
-                                   img_type,
-                                   dev_prefix,
-                                   uid,
-                                   image_id,
-                                   snap,
-                                   error_str);
+    int rc = ipool->acquire_disk(vm_id,
+                                 new_disk,
+                                 max_disk_id + 1,
+                                 img_type,
+                                 dev_prefix,
+                                 uid,
+                                 image_id,
+                                 snap,
+                                 error_str);
     if ( rc != 0 )
     {
         delete new_disk;
@@ -2122,6 +2122,9 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
 
             delete new_disk;
             delete snap;
+
+            *snap    = 0;
+            image_id = -1;
 
             return 0;
         }

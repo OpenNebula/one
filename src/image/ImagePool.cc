@@ -307,15 +307,15 @@ int ImagePool::get_disk_id(const string& id_s)
 
 /* -------------------------------------------------------------------------- */
 
-int ImagePool::acquire_disk(  int               vm_id,
-                              VectorAttribute * disk,
-                              int               disk_id,
-                              Image::ImageType& img_type,
-                              string&           dev_prefix,
-                              int               uid,
-                              int&              image_id,
-                              Snapshots **      snap,
-                              string&           error_str)
+int ImagePool::acquire_disk(int               vm_id,
+                            VectorAttribute * disk,
+                            int               disk_id,
+                            Image::ImageType& img_type,
+                            string&           dev_prefix,
+                            int               uid,
+                            int&              image_id,
+                            Snapshots **      snap,
+                            string&           error_str)
 {
     string  source;
     Image * img = 0;

@@ -902,6 +902,7 @@ int DispatchManager::attach(int vid,
     int uid;
     int oid;
     int image_id;
+    int image_cluster_id;
 
     set<string>       used_targets;
     VectorAttribute * disk;
@@ -965,20 +966,17 @@ int DispatchManager::attach(int vid,
 
     if ( vm == 0 )
     {
-        if ( image_id != -1 )
-        {
-            imagem->release_image(oid, image_id, false);
-        }
+		if ( disk != 0 )
+		{
+			imagem->release_image(oid, image_id, false);
 
-        delete snap;
-        delete disk;
+			delete snap;
+			delete disk;
+		}
 
-        oss << "Could not attach a new disk to VM " << vid
-            << ", VM does not exist after setting its state to HOTPLUG." ;
-        error_str = oss.str();
+        error_str = "VM does not exist after setting its state to HOTPLUG.";
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
-
         return -1;
     }
 
@@ -1000,6 +998,37 @@ int DispatchManager::attach(int vid,
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
         return -1;
+    }
+
+    // Check that we don't have a cluster incompatibility.
+    if (disk->vector_value("CLUSTER_ID", image_cluster_id) == 0)
+    {
+      if (vm->get_cid() != image_cluster_id)
+      {
+          imagem->release_image(oid, image_id, false);
+
+          delete snap;
+          delete disk;
+
+          if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+          {
+              vm->set_state(VirtualMachine::RUNNING);
+          }
+          else
+          {
+              vm->set_state(VirtualMachine::LCM_INIT);
+              vm->set_state(VirtualMachine::POWEROFF);
+          }
+
+          vmpool->update(vm);
+
+          vm->unlock();
+
+          error_str = "Could not attach disk because of cluster incompatibility.";
+
+          NebulaLog::log("DiM", Log::ERROR, error_str);
+          return -1;
+      }
     }
 
     // Set the VM info in the history before the disk is attached to the
