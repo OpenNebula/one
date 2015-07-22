@@ -2366,10 +2366,6 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     int    did  = xmlrpc_c::value_int(paramList.getInt(2));
     string name = xmlrpc_c::value_string(paramList.getString(3));
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
-    {
-        return;
-    }
 
     // ------------------------------------------------------------------------
     // Check quotas for the new snapshot
@@ -2430,8 +2426,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
         img->unlock();
 
-        // Authorize again, this time to check that the user has IMAGE:MANAGE
-        if ( vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false )
+        if (vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false)
         {
             return;
         }
@@ -2449,6 +2444,11 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     }
     else
     {
+        if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+        {
+            return;
+        }
+
         att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
 
         delta_disk = new VectorAttribute("DISK");
@@ -2548,11 +2548,6 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
     int did     = xmlrpc_c::value_int(paramList.getInt(2));
     int snap_id = xmlrpc_c::value_int(paramList.getInt(3));
 
-    if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
-    {
-        return;
-    }
-
     if ((vm = get_vm(id, att)) == 0)
     {
         return;
@@ -2595,20 +2590,21 @@ void VirtualMachineDiskSnapshotDelete::request_execute(
 
         img->unlock();
 
-        // Authorize again, this time to check that the user has IMAGE:MANAGE
-        if ( vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false )
+        if (vm_authorization(id, 0, 0, att, 0, 0, &img_perms, auth_op) == false)
         {
             return;
         }
+    }
+    else if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
+    {
+        return;
     }
 
     rc = dm->disk_snapshot_delete(id, did, snap_id, error_str);
 
     if ( rc != 0 )
     {
-        failure_response(ACTION,
-                request_error(error_str, ""),
-                att);
+        failure_response(ACTION, request_error(error_str, ""), att);
     }
     else
     {
