@@ -2345,16 +2345,13 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
         {
             size += disk_size;
         }
-        else
+        else if ( disk_target(disk) != "NONE") // self or system
         {
-            if ( disk_target(disk) != "NONE") // self or system
-            {
-                size += disk_size;
+            size += disk_size;
 
-                if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0)
-                {
-                    size += snapshot_size;
-                }
+            if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0)
+            {
+                size += snapshot_size;
             }
         }
     }
