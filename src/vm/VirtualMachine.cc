@@ -4437,7 +4437,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         (*ds_quotas)->add("IMAGES",0 );
     }
 
-    if (disk_target(disk) != "NONE"); // self or system
+    if (disk_target(disk) != "NONE") // self or system
     {
         *vm_quotas = new Template();
 
