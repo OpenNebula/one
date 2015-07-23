@@ -508,7 +508,7 @@ void Image::disk_attribute( VectorAttribute *       disk,
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
     long long size = -1;
-    unsigned int snap_size;
+    long long snap_size;
 
     string template_target;
     string template_driver;

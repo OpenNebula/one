@@ -4277,7 +4277,7 @@ int VirtualMachine::get_snapshot_disk(int& ds_id, string& tm_mad,
 int VirtualMachine::new_disk_snapshot(int did, const string& name, string& error)
 {
     map<int, Snapshots *>::iterator it;
-    unsigned int size_mb, snap_size;
+    long long size_mb, snap_size;
     int snap_id;
 
     VectorAttribute * disk;
@@ -4391,7 +4391,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         Template **ds_quotas, Template **vm_quotas)
 {
     map<int, Snapshots *>::iterator it;
-    unsigned int snap_size;
+    long long snap_size;
 
     VectorAttribute * delta_disk;
     VectorAttribute * disk = get_disk(did);
@@ -4411,7 +4411,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         return;
     }
 
-    unsigned int ssize = it->second->get_snapshot_size(snap_id);
+    long long ssize = it->second->get_snapshot_size(snap_id);
 
     it->second->delete_snapshot(snap_id);
 
@@ -4433,7 +4433,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         *ds_quotas = new Template();
 
         (*ds_quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
-        (*ds_quotas)->add("SIZE", (long long) ssize);
+        (*ds_quotas)->add("SIZE", ssize);
         (*ds_quotas)->add("IMAGES",0 );
     }
 

@@ -122,7 +122,7 @@ void Snapshots::init()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Snapshots::create_snapshot(const string& name, unsigned int size_mb)
+int Snapshots::create_snapshot(const string& name, long long size_mb)
 {
     VectorAttribute * snapshot = new VectorAttribute("SNAPSHOT");
 
@@ -285,9 +285,9 @@ string Snapshots::get_snapshot_attribute(int id, const char * name) const
 
 /* -------------------------------------------------------------------------- */
 
-unsigned int Snapshots::get_snapshot_size(int id) const
+long long Snapshots::get_snapshot_size(int id) const
 {
-    unsigned int snap_size = 0;
+    long long snap_size = 0;
 
     const VectorAttribute * snapshot = get_snapshot(id);
 
@@ -338,10 +338,10 @@ bool Snapshots::test_delete(int id, string& error) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-unsigned int Snapshots::get_total_size() const
+long long Snapshots::get_total_size() const
 {
     map<int, VectorAttribute *>::const_iterator it;
-    unsigned int size_mb, total_mb = 0;
+    long long size_mb, total_mb = 0;
 
     for ( it = snapshot_pool.begin(); it !=  snapshot_pool.end(); it++)
     {
