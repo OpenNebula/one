@@ -2325,9 +2325,6 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
     vector<const Attribute*> disks;
     const VectorAttribute *  disk;
 
-    string  st;
-    bool    clone;
-
     int num_disks = tmpl->get("DISK", disks);
 
     for (int i = 0 ; i < num_disks ; i++)
@@ -2350,21 +2347,7 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
         }
         else
         {
-            if (disk->vector_value("CLONE", clone) != 0)
-            {
-                continue;
-            }
-
-            if (clone)
-            {
-                st = disk->vector_value("CLONE_TARGET");
-            }
-            else
-            {
-                st = disk->vector_value("LN_TARGET");
-            }
-
-            if ( one_util::toupper(st) != "NONE") // self or system
+            if ( disk_target(disk) != "NONE") // self or system
             {
                 size += disk_size;
 
@@ -2377,6 +2360,31 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
     }
 
     return size;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string VirtualMachine::disk_target(const VectorAttribute *  disk)
+{
+    bool    clone;
+    string  target;
+
+    if (disk->vector_value("CLONE", clone) != 0)
+    {
+        return "";
+    }
+
+    if (clone)
+    {
+        target = disk->vector_value("CLONE_TARGET");
+    }
+    else
+    {
+        target = disk->vector_value("LN_TARGET");
+    }
+
+    return one_util::toupper(target);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4380,7 +4388,7 @@ int VirtualMachine::revert_disk_snapshot(int did, int snap_id)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
-        Quotas::QuotaType& type, Template **quotas)
+        Template **ds_quotas, Template **vm_quotas)
 {
     map<int, Snapshots *>::iterator it;
     unsigned int snap_size;
@@ -4388,7 +4396,8 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
     VectorAttribute * delta_disk;
     VectorAttribute * disk = get_disk(did);
 
-    *quotas = 0;
+    *ds_quotas = 0;
+    *vm_quotas = 0;
 
     if ( disk == 0 )
     {
@@ -4421,26 +4430,23 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
 
     if ( is_persistent(disk) )
     {
-        *quotas = new Template();
+        *ds_quotas = new Template();
 
-        (*quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
-        (*quotas)->add("SIZE", (long long) ssize);
-        (*quotas)->add("IMAGES",0 );
-
-        type = Quotas::DATASTORE;
+        (*ds_quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
+        (*ds_quotas)->add("SIZE", (long long) ssize);
+        (*ds_quotas)->add("IMAGES",0 );
     }
-    else
+
+    if (disk_target(disk) != "NONE"); // self or system
     {
-        *quotas = new Template();
+        *vm_quotas = new Template();
 
         delta_disk = new VectorAttribute("DISK");
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", ssize);
 
-        (*quotas)->add("VMS", 0);
-        (*quotas)->set(delta_disk);
-
-        type = Quotas::VM;
+        (*vm_quotas)->add("VMS", 0);
+        (*vm_quotas)->set(delta_disk);
     }
 }
 

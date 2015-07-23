@@ -1278,6 +1278,13 @@ public:
     static long long get_system_disk_size(Template * tmpl);
 
     /**
+     * Returns the disk CLONE_TARGET or LN_TARGET
+     * @param disk
+     * @return NONE, SYSTEM, SELF. Empty string if it could not be determined
+     */
+    static string disk_target(const VectorAttribute *  disk);
+
+    /**
      * Returns a set of the security group IDs in use in this VM
      * @param sgs a set of security group IDs
      */
@@ -1561,15 +1568,14 @@ public:
     int revert_disk_snapshot(int disk_id, int snap_id);
 
     /**
-     *  Deletes the snap_id from the list, test_delete_disk_snapshot *MUST* be
-     *  called before actually deleting the snapshot.
+     *  Deletes the snap_id from the list
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
-     *    @param type of quota used by this snapshot
-     *    @param quotas template with snapshot usage
+     *    @param ds_quotas template with snapshot usage for the DS quotas
+     *    @param vm_quotas template with snapshot usage for the VM quotas
      */
-    void delete_disk_snapshot(int disk_id, int snap_id, Quotas::QuotaType& type,
-            Template **quotas);
+    void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
+            Template **vm_quotas);
 
     /**
      *  Get information about the disk to take the snapshot from
