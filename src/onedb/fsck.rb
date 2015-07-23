@@ -1642,7 +1642,7 @@ EOT
         cpu_used = 0
         mem_used = 0
         vms_used = 0
-        vol_used = 0
+        sys_used = 0
 
         # VNet quotas
         vnet_usage = {}
@@ -1671,10 +1671,34 @@ EOT
                     type = t_elem.text.upcase
                 }
 
+                size = 0
+
+                if !e.at_xpath("SIZE").nil?
+                    size = e.at_xpath("SIZE").text.to_i
+                end
+
                 if ( type == "SWAP" || type == "FS")
-                    e.xpath("SIZE").each { |size_elem|
-                        vol_used += size_elem.text.to_i
-                    }
+                    sys_used += size
+                else
+                    if !e.at_xpath("CLONE").nil?
+                        clone = (e.at_xpath("CLONE").text.upcase == "YES")
+
+                        target = nil
+
+                        if clone
+                            target = e.at_xpath("CLONE_TARGET").text if !e.at_xpath("CLONE_TARGET").nil?
+                        else
+                            target = e.at_xpath("LN_TARGET").text if !e.at_xpath("LN_TARGET").nil?
+                        end
+
+                        if !target.nil? && target != "NONE" # self or system
+                            sys_used += size
+
+                            if !e.at_xpath("DISK_SNAPSHOT_TOTAL_SIZE").nil?
+                                sys_used += e.at_xpath("DISK_SNAPSHOT_TOTAL_SIZE").text.to_i
+                            end
+                        end
+                    end
                 end
             }
 
@@ -1714,8 +1738,8 @@ EOT
             vm_elem.add_child(doc.create_element("VMS")).content         = "-1"
             vm_elem.add_child(doc.create_element("VMS_USED")).content    = "0"
 
-            vm_elem.add_child(doc.create_element("VOLATILE_SIZE")).content       = "-1"
-            vm_elem.add_child(doc.create_element("VOLATILE_SIZE_USED")).content  = "0"
+            vm_elem.add_child(doc.create_element("SYSTEM_DISK_SIZE")).content       = "-1"
+            vm_elem.add_child(doc.create_element("SYSTEM_DISK_SIZE_USED")).content  = "0"
         end
 
 
@@ -1754,10 +1778,10 @@ EOT
             end
         }
 
-        vm_elem.xpath("VOLATILE_SIZE_USED").each { |e|
-            if e.text != vol_used.to_s
-                log_error("#{resource} #{oid} quotas: VOLATILE_SIZE_USED has #{e.text} \tis\t#{vol_used}")
-                e.content = vol_used.to_s
+        vm_elem.xpath("SYSTEM_DISK_SIZE_USED").each { |e|
+            if e.text != sys_used.to_s
+                log_error("#{resource} #{oid} quotas: SYSTEM_DISK_SIZE_USED has #{e.text} \tis\t#{sys_used}")
+                e.content = sys_used.to_s
             end
         }
 
