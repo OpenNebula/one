@@ -1503,7 +1503,6 @@ define(function(require) {
                     extended: true
                 },
                 success: function(request, extendedTemplateJSON) {
-                  console.log(extendedTemplateJSON)
                   var extendedTemplateDisk = extendedTemplateJSON.VMTEMPLATE.TEMPLATE.DISK;
                   var extendedDisks = []
                   if ($.isArray(extendedTemplateDisk)) {
@@ -1626,7 +1625,7 @@ define(function(require) {
               disk = $(this).data("template_disk");
               original_size = $(this).data("original_size");
               size = $("#SIZE", this).val();
-              if (size && size != original_size && size > 0) {
+              if (size && size > original_size && size > 0) {
                 disk['SIZE'] = Math.ceil(size * 1024);
               }
             }
