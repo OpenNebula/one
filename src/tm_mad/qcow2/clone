@@ -90,9 +90,7 @@ http://*)
 *)
     log "Cloning $SRC_PATH in $DST"
 
-    if [ -n $ORIGINAL_SIZE ]; then
-        ORIGINAL_SIZE="0"
-    fi
+    ORIGINAL_SIZE=${ORIGINAL_SIZE:-0}
 
     if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
        RESIZE_CMD="; qemu-img resize ${DST_PATH} ${SIZE}M"
