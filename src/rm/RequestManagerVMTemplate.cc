@@ -42,6 +42,7 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     VMTemplatePool *    tpool   = static_cast<VMTemplatePool *>(pool);
 
     VirtualMachineTemplate * tmpl;
+    VirtualMachineTemplate * extended_tmpl = 0;
     VirtualMachineTemplate   uattrs;
     VMTemplate *             rtmpl;
 
@@ -163,16 +164,17 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
             return;
         }
 
-        VirtualMachine::disk_extended_info(att.uid, tmpl);
+        extended_tmpl = new VirtualMachineTemplate(*tmpl);
 
-        if ( quota_authorization(tmpl, Quotas::VIRTUALMACHINE, att) == false )
+        VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
+
+        if ( quota_authorization(extended_tmpl, Quotas::VIRTUALMACHINE, att) == false )
         {
             delete tmpl;
+            delete extended_tmpl;
             return;
         }
     }
-
-    Template tmpl_back(*tmpl);
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
             tmpl, &vid, error_str, on_hold);
@@ -183,10 +185,17 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
                 allocate_error(PoolObjectSQL::VM,error_str),
                 att);
 
-        quota_rollback(&tmpl_back, Quotas::VIRTUALMACHINE, att);
+        if (extended_tmpl != 0)
+        {
+            quota_rollback(extended_tmpl, Quotas::VIRTUALMACHINE, att);
+        }
+
+        delete extended_tmpl;
 
         return;
     }
+
+    delete extended_tmpl;
 
     success_response(vid, att);
 }
