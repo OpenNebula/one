@@ -82,8 +82,8 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
-    def get_resource(kind, id)
-        resource = retrieve_resource(kind, id)
+    def get_resource(kind, id, extended=false)
+        resource = retrieve_resource(kind, id, extended)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         else
@@ -428,7 +428,7 @@ class SunstoneServer < CloudServer
     ############################################################################
     #
     ############################################################################
-    def retrieve_resource(kind, id)
+    def retrieve_resource(kind, id, extended=false)
         resource = case kind
             when "group"      then GroupJSON.new_with_id(id, @client)
             when "cluster"    then ClusterJSON.new_with_id(id, @client)
@@ -448,7 +448,7 @@ class SunstoneServer < CloudServer
                 return error
         end
 
-        rc = resource.info
+        rc = extended ? resource.info(true) : resource.info
         if OpenNebula.is_error?(rc)
             return rc
         else

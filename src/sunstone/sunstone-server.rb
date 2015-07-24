@@ -546,7 +546,11 @@ get '/:resource/:id/template' do
 end
 
 get '/:resource/:id' do
-    @SunstoneServer.get_resource(params[:resource], params[:id])
+    if params[:extended]
+        @SunstoneServer.get_resource(params[:resource], params[:id], true)
+    else
+        @SunstoneServer.get_resource(params[:resource], params[:id])
+    end
 end
 
 ##############################################################################
