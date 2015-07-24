@@ -1,0 +1,24 @@
+<label class="" for="{{name}}">
+  {{label}}
+  {{#if tip}}
+    {{{tip tip}}}  
+  {{/if}}
+</label>
+<div class="large-10 columns">
+  <div id="{{name}}Slider" class="range-slider radius" data-slider data-options="start: {{start}}; end: {{end}}; step: {{step}};">
+    <span class="range-slider-handle"></span>
+    <span class="range-slider-active-segment"></span>
+    <input type="hidden"></div>
+</div>
+<div class="large-2 columns">  
+  {{#if unitLabel}}
+    <div class="small-9 columns">
+      <input type="text" wizard_field="{{name}}" id="{{name}}" name="{{name}}"/>
+    </div>
+    <div class="small-3 columns">
+      <span style="font-size: 18px; color: #999;">{{unitLabel}}</span>
+    </div>
+  {{else}}
+    <input type="text" wizard_field="{{name}}" id="{{name}}" name="{{name}}"/>
+  {{/if}}
+</div>
