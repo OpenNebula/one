@@ -15,6 +15,7 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var QuotaLimits = require('utils/quotas/quota-limits');
   var Graphs = require('utils/graphs');
+  var RangeSlider = require('utils/range-slider');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -297,16 +298,16 @@ define(function(require) {
               ' '+
               '<span class="memory_unit">'+memory_unit+'</span> '+
               '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
-              '<span class="cost_value">0.00</span> '+
-              '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+              '<span class="provision_create_template_cost_div hidden">' +
+                '<span class="cost_value">0.00</span> '+
+                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+              '</span>'+
             '</span>'+
           '</h3>'+
           '<br>'+
         '</div>'+
       '</div>'+
       (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
-      '<br>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
@@ -660,7 +661,6 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
@@ -1039,6 +1039,7 @@ define(function(require) {
     $(".provision_accordion_template .select_template").show();
 
     $("#provision_create_vm .provision_capacity_selector").html("");
+    $("#provision_create_vm .provision_disk_selector").html("");
     $("#provision_create_vm .provision_network_selector").html("");
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
@@ -1428,6 +1429,7 @@ define(function(require) {
           var create_vm_context = $("#provision_create_vm");
 
           if ($(this).hasClass("selected")){
+            $(".provision_disk_selector", create_vm_context).html("");
             $(".provision_network_selector", create_vm_context).html("");
             $(".provision_capacity_selector", create_vm_context).html("");
 
@@ -1458,6 +1460,108 @@ define(function(require) {
             generate_provision_instance_type_accordion(
               $(".provision_capacity_selector", create_vm_context),
               template_json.VMTEMPLATE.TEMPLATE);
+
+            var template_disk = template_json.VMTEMPLATE.TEMPLATE.DISK
+            var disks = []
+            if ($.isArray(template_disk)) {
+              disks = template_disk
+            } else if (!$.isEmptyObject(template_disk)) {
+              disks = [template_disk]
+            }
+
+            var disksContext = $(".provision_disk_selector", create_vm_context);
+            if (disks.length > 0 && Config.provision.create_vm.isEnabled("disk_resize")) {
+              disksContext.html(
+                '<br>'+
+                '<div class="row">'+
+                  '<div class="large-12 columns">'+
+                    '<h3 class="subheader text-right">'+
+                      '<span class="left">'+
+                        '<i class="fa fa-tasks fa-lg"></i>&emsp;'+
+                        Locale.tr("Disks")+
+                      '</span>'+
+                      '<span class="provision_create_template_disk_cost_div hidden">' +
+                        '<span class="cost_value">0.00</span> '+
+                        '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+                      '</span>'+
+                    '</h3>'+
+                    '<br>'+
+                  '</div>'+
+                '</div>'+
+                '<div class="row">'+
+                  '<div class="large-12 large-centered columns disksContainer">'+
+                    '<span class="text-center" style="font-size:80px">'+
+                      '<i class="fa fa-spinner fa-spin"></i>'+
+                    '</span>'+
+                  '</div>'+
+                '</div>'+
+                '<br>')
+
+              OpenNebula.Template.show({
+                data : {
+                    id: template_id,
+                    extended: true
+                },
+                success: function(request, extendedTemplateJSON) {
+                  console.log(extendedTemplateJSON)
+                  var extendedTemplateDisk = extendedTemplateJSON.VMTEMPLATE.TEMPLATE.DISK;
+                  var extendedDisks = []
+                  if ($.isArray(extendedTemplateDisk)) {
+                    extendedDisks = extendedTemplateDisk
+                  } else if (!$.isEmptyObject(extendedTemplateDisk)) {
+                    extendedDisks = [extendedTemplateDisk]
+                  }
+
+
+                  var disk_cost = template_json.VMTEMPLATE.TEMPLATE.DISK_COST;
+                  if (disk_cost && Config.isFeatureEnabled("showback")) {
+                    $(".provision_create_template_disk_cost_div", disksContext).show();
+
+                    disksContext.on("change.fndtn.slider", '.range-slider', function(){
+                      /*if ($(this).attr('data-slider') <= 0) {
+                        var diskContainer = $(this).parent('.diskContainer');
+                        $("#SIZE", diskContainer).val(diskContainer.data('original_size'));
+                      }*/
+
+                      var cost = 0;
+                      $('.range-slider', disksContext).each(function(){
+                        if ($(this).attr('data-slider') > 0) {
+                          cost += $(this).attr('data-slider') * disk_cost
+                        }
+                      })
+                      $(".cost_value", disksContext).html(cost.toFixed(2));
+                    });
+                  } else {
+                    $(".provision_create_template_disk_cost_div", disksContext).hide();
+                  }
+
+                  var diskContext;
+                  $(".disksContainer", disksContext).html("");
+                  $.each(extendedDisks, function(disk_id, disk) {
+                    diskContext = $('<div class="row diskContainer">'+
+                        '<div class="large-12 columns diskSlider">' +
+                        '</div>' +
+                      '</div>').appendTo($(".disksContainer", disksContext));
+
+                    diskContext.data('template_disk', disks[disk_id]);
+
+                    var sizeGB = disk.SIZE / 1024;
+                    diskContext.data('original_size', sizeGB);
+                    RangeSlider.insert({
+                      'label': disk.IMAGE,
+                      'unitLabel': 'GBs',
+                      'name': 'SIZE',
+                      'start': sizeGB,
+                      'end': sizeGB + 500,
+                      'step': 10,
+                      'startValue': sizeGB
+                    }, $(".diskSlider", diskContext))
+                  })
+                }
+              })
+            } else {
+              $(".provision_disk_selector", create_vm_context).html("");
+            }
 
             if (Config.provision.create_vm.isEnabled("network_select") && (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO")) {
               generate_provision_network_accordion(
@@ -1515,6 +1619,23 @@ define(function(require) {
             }
           });
 
+          var disks = [];
+          var disk, size;
+          $(".diskContainer", context).each(function(){
+            if ($(this).data("template_disk")) {
+              disk = $(this).data("template_disk");
+              original_size = $(this).data("original_size");
+              size = $("#SIZE", this).val();
+              if (size && size != original_size && size > 0) {
+                disk['SIZE'] = Math.ceil(size * 1024);
+              }
+            }
+
+            if (disk) {
+              disks.push(disk);
+            }
+          });
+
           var instance_type = $(".provision_instance_types_ul .selected", context);
 
           if (!template_id) {
@@ -1530,6 +1651,10 @@ define(function(require) {
 
           if (nics.length > 0) {
             extra_info.template.nic = nics;
+          }
+
+          if (disks.length > 0) {
+            extra_info.template.DISK = disks;
           }
 
           if (instance_type.length > 0) {
