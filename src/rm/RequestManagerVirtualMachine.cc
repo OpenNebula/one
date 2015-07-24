@@ -1569,25 +1569,27 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     volatile_disk = VirtualMachine::is_volatile(tmpl);
 
-    if ( volatile_disk )
+    deltas = new VirtualMachineTemplate(*tmpl);
+    VirtualMachine::disk_extended_info(att.uid, deltas);
+
+    deltas->add("VMS", 0);
+
+    if (quota_resize_authorization(id, deltas, att_quota) == false)
     {
-        deltas = new VirtualMachineTemplate(*tmpl);
+        delete tmpl;
+        delete deltas;
 
-        deltas->add("VMS", 0);
-
-        if (quota_resize_authorization(id, deltas, att_quota) == false)
-        {
-            delete tmpl;
-            delete deltas;
-
-            return;
-        }
+        return;
     }
-    else
+
+    if (volatile_disk == false)
     {
         if ( quota_authorization(tmpl, Quotas::IMAGE, att_quota) == false )
         {
+            quota_rollback(deltas, Quotas::VM, att_quota);
+
             delete tmpl;
+            delete deltas;
             return;
         }
     }
@@ -1596,11 +1598,9 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( rc != 0 )
     {
-        if ( volatile_disk )
-        {
-            quota_rollback(deltas, Quotas::VM, att_quota);
-        }
-        else
+        quota_rollback(deltas, Quotas::VM, att_quota);
+
+        if (volatile_disk == false)
         {
             quota_rollback(tmpl, Quotas::IMAGE, att_quota);
         }
