@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs
+# Copyright (C) YEAR 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
@@ -7,7 +7,7 @@
 # Arnaud Bitterlin <inactive+Djankai@transifex.com>, 2013
 # CyrilleDuverne <cyrille.duverne@gmail.com>, 2013
 # Damien Raude-Morvan <drazzib@drazzib.com>, 2012
-# Emmanuel Cohen <atmaniak@gmail.com>, 2013-2014
+# Emmanuel Cohen <atmaniak@gmail.com>, 2013-2015
 # gapany <gapany@icare.ch>, 2012
 # Imad Soltani <imad@netopenservices.com>, 2013
 # Nadley-Nahir Mohamed <nahirmoha@gmail.com>, 2012

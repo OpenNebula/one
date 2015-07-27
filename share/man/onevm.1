@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "March 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "July 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR
@@ -54,21 +54,24 @@
                            \-\-schedule "09/23 14:15"
  \-\-recreate                Resubmits a fresh VM
  \-t, \-\-type type           Type of the new Image
- \-\-live                    Do the action with the VM running
- \-c, \-\-clonetemplate       Clone original VM Template and replace disk with
-                           saved one
+ \-s, \-\-snapshot snapshot   ID of the Snapshot to save\.
  \-\-hard                    Does not communicate with the guest OS
  \-e, \-\-enforce             Enforce that the host capacity is not exceeded
+ \-\-live                    Do the action with the VM running
  \-\-success                 Recover a VM by succeeding the pending action
  \-\-failure                 Recover a VM by failing the pending action
+ \-\-retry                   Recover a VM by retrying the last failed action
+ \-\-interactive             Enables interactive recovery\. Only works
+                           alongside the \-\-retry option\.
  \-f, \-\-file file           Selects the template file
  \-i, \-\-image id|name       Selects the image
  \-t, \-\-target target       Device where the image will be attached
  \-\-cache cache_mode        Hypervisor cache mode: default, none,
                            writethrough, writeback, directsync or unsafe\.
                            (Only KVM driver)
- \-\-discard discard_mode    Hypervisor discard mode: ignore or unmap\.
-                           (Only KVM driver)
+ \-\-discard discard_mode    Hypervisor discard mode: ignore or unmap\. (Only
+                           KVM driver)
+ \-\-prefix prefix           Overrides the DEV_PREFIX of the image
  \-n, \-\-network id|name     Selects the virtual network
  \-i, \-\-ip ip               IP address for the new NIC
  \-l, \-\-list x,y,z          Selects columns to display with list command
@@ -173,16 +176,14 @@ valid options: schedule
 
 .
 .IP "\(bu" 4
-disk\-snapshot \fIvmid\fR \fIdiskid\fR \fIimg_name\fR Sets the specified VM disk to be saved in a new Image\. The Image is created immediately, but the contents are saved only if the VM is shut down gracefully (i\.e\., using \'onevm shutdown\' and not \'onevm delete\')
+disk\-saveas \fIvmid\fR \fIdiskid\fR \fIimg_name\fR Saves the specified VM disk as a new Image\. The Image is created immediately, and the contents of the VM disk will be saved to it\.
 .
 .IP "" 4
 .
 .nf
 
-If \'\-\-live\' is specified, the Image will be saved immediately\.
-
 States: ANY
-valid options: type, live, clonetemplate
+valid options: type, snapshot
 .
 .fi
 .
@@ -262,7 +263,7 @@ deploy \fIrange|vmid_list\fR \fIhostid\fR [\fIdatastoreid\fR] Deploys the given 
 .
 .nf
 
-States: PENDING
+States: PENDING, HOLD, STOPPED, UNDEPLOYED
 valid options: enforce
 .
 .fi
@@ -271,7 +272,7 @@ valid options: enforce
 
 .
 .IP "\(bu" 4
-migrate \fIrange|vmid_list\fR \fIhostid\fR Migrates the given running VM to another Host\. If used with \-\-live parameter the miration is done without downtime\.
+migrate \fIrange|vmid_list\fR \fIhostid\fR [\fIdatastoreid\fR] Migrates the given running VM to another Host\. If used with \-\-live parameter the miration is done without downtime\.
 .
 .IP "" 4
 .
@@ -279,21 +280,6 @@ migrate \fIrange|vmid_list\fR \fIhostid\fR Migrates the given running VM to anot
 
 States: RUNNING
 valid options: enforce, live
-.
-.fi
-.
-.IP "" 0
-
-.
-.IP "\(bu" 4
-boot \fIrange|vmid_list\fR Boots the given VM\.
-.
-.IP "" 4
-.
-.nf
-
-States: UNKNOWN, BOOT
-valid options: schedule
 .
 .fi
 .
@@ -337,7 +323,7 @@ resume \fIrange|vmid_list\fR Resumes the execution of the a saved VM
 .
 .nf
 
-States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF
+States: STOPPED, SUSPENDED, UNDEPLOYED, POWEROFF, UNKNOWN
 valid options: schedule
 .
 .fi
@@ -346,7 +332,7 @@ valid options: schedule
 
 .
 .IP "\(bu" 4
-recover \fIrange|vmid_list\fR Recovers a stuck VM that is waiting for a driver operation\. The recovery may be done by failing or succeeding the pending operation\. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation was successful or not\.
+recover \fIrange|vmid_list\fR Recovers a stuck VM that is waiting for a driver operation\. The recovery may be done by failing, succeeding or retrying the current operation\. YOU NEED TO MANUALLY CHECK THE VM STATUS ON THE HOST, to decide if the operation was successful or not, or if it can be retried\.
 .
 .IP "" 4
 .
@@ -356,8 +342,9 @@ Example: A VM is stuck in "migrate" because of a hardware failure\. You
 need to check if the VM is running in the new host or not to recover
 the vm with \-\-success or \-\-failure, respectively\.
 
-States: Any ACTIVE state\.
-valid options: success, failure
+States for success/failure recovers: Any ACTIVE state\.
+States for a retry recover: Any *FAILURE state
+valid options: success, failure, retry, interactive
 .
 .fi
 .
@@ -371,8 +358,8 @@ disk\-attach \fIvmid\fR Attaches a disk to a running VM\. When using \-\-file ad
 .
 .nf
 
-States: RUNNING
-valid options: file, image, target, cache, discard
+States: RUNNING, POWEROFF
+valid options: file, image, target, cache, discard, prefix
 .
 .fi
 .
@@ -386,7 +373,7 @@ disk\-detach \fIvmid\fR \fIdiskid\fR Detaches a disk from a running VM
 .
 .nf
 
-States: RUNNING
+States: RUNNING, POWEROFF
 .
 .fi
 .
@@ -400,7 +387,7 @@ nic\-attach \fIvmid\fR Attaches a NIC to a running VM\. When using \-\-file add 
 .
 .nf
 
-States: RUNNING
+States: RUNNING, POWEROFF
 valid options: file, network, ip
 .
 .fi
@@ -415,7 +402,7 @@ nic\-detach \fIvmid\fR \fInicid\fR Detaches a NIC from a running VM
 .
 .nf
 
-States: RUNNING
+States: RUNNING, POWEROFF
 .
 .fi
 .
@@ -472,6 +459,48 @@ snapshot\-revert \fIvmid\fR \fIsnapshot_id\fR Reverts a VM to a saved snapshot
 snapshot\-delete \fIvmid\fR \fIsnapshot_id\fR Delets a snapshot of a VM
 .
 .IP "\(bu" 4
+disk\-snapshot\-create \fIvmid\fR \fIdiskid\fR \fIname\fR Takes a new snapshot of the given disk\. This operation needs support from the Datastore drivers: QCOW2 or Ceph\.
+.
+.IP "" 4
+.
+.nf
+
+States: POWEROFF
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+disk\-snapshot\-revert \fIvmid\fR \fIdiskid\fR \fIsnapshot_id\fR Reverts disk state to a previously taken snapshot\.
+.
+.IP "" 4
+.
+.nf
+
+States: POWEROFF
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+disk\-snapshot\-delete \fIvmid\fR \fIdiskid\fR \fIsnapshot_id\fR Deletes a disk snapshot\.
+.
+.IP "" 4
+.
+.nf
+
+States: POWEROFF
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
 list [\fIfilterflag\fR] Lists VMs in the pool valid options: list, delay, filter, csv, xml, numeric, kilobytes, describe
 .
 .IP "\(bu" 4
@@ -482,6 +511,20 @@ top [\fIfilterflag\fR] Lists Images continuously valid options: list, delay, fil
 .
 .IP "\(bu" 4
 resize \fIvmid\fR Resizes the capacity of a Virtual Machine (offline, the VM cannot be RUNNING) valid options: cpu, vcpu, memory, enforce, file
+.
+.IP "\(bu" 4
+save \fIvmid\fR \fIname\fR Clones the VM\'s source Template, replacing the disks with live snapshots of the current disks\. The VM capacity and NICs are also preserved
+.
+.IP "" 4
+.
+.nf
+
+States: POWEROFF
+.
+.fi
+.
+.IP "" 0
+
 .
 .IP "" 0
 .
@@ -523,7 +566,7 @@ diskid Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.12\.0 Copyright 2002\-2015, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.13\.80 Copyright 2002\-2015, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

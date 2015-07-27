@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR 2002-2014, OpenNebula Project (OpenNebula.org), C12G Labs
+# Copyright (C) YEAR 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
@@ -9,7 +9,7 @@
 # Daniel Molina <dmolina@opennebula.org>, 2012
 # Paco Bernabé Pellicer <fjbp1@hotmail.com>, 2012
 # hsanjuan <hsanjuan@opennebula.org>, 2012
-# Jaime Montaña <jaime@etsii.upm.es>, 2013-2014
+# Jaime Montaña <jaime@etsii.upm.es>, 2013-2015
 # j.melis <j.melis@gmail.com>, 2014
 # skymix <joseangel.diaz@cenatic.es>, 2014
 # lrlopez <lrlopez@gmail.com>, 2013

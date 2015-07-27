@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEIMAGE" "1" "March 2015" "" "oneimage(1) -- manages OpenNebula images"
+.TH "ONEIMAGE" "1" "July 2015" "" "oneimage(1) -- manages OpenNebula images"
 .
 .SH "NAME"
 \fBoneimage\fR
@@ -63,7 +63,7 @@ create [\fIfile\fR] Creates a new Image Examples:
 
     oneimage create \-d default centOS\.tmpl
 
-  \- new image "arch" using a path of type centOS:
+  \- new image "arch" using a path:
 
     oneimage create \-d default \-\-name arch \-\-path /tmp/arch\.img
 
@@ -121,6 +121,15 @@ chmod \fIrange|imageid_list\fR \fIoctet\fR Changes the Image permissions
 rename \fIimageid\fR \fIname\fR Renames the Image
 .
 .IP "\(bu" 4
+snapshot\-delete \fIimageid\fR \fIsnapshot_id\fR Deletes a snapshot from the image
+.
+.IP "\(bu" 4
+snapshot\-revert \fIimageid\fR \fIsnapshot_id\fR Reverts image state to a snapshot
+.
+.IP "\(bu" 4
+snapshot\-flatten \fIimageid\fR \fIsnapshot_id\fR Flattens the snapshot and removes all other snapshots in the image
+.
+.IP "\(bu" 4
 list [\fIfilterflag\fR] Lists Images in the pool valid options: list, delay, filter, csv, xml, numeric, describe
 .
 .IP "\(bu" 4
@@ -163,7 +172,7 @@ type Image type: OS, CDROM, DATABLOCK, KERNEL, RAMDISK, CONTEXT
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.12\.0 Copyright 2002\-2015, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.13\.80 Copyright 2002\-2015, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
