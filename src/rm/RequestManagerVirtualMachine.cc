@@ -1513,9 +1513,8 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
-    VirtualMachineTemplate * deltas = 0;
-    PoolObjectAuth           vm_perms;
+    VirtualMachineTemplate tmpl;
+    PoolObjectAuth         vm_perms;
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine *     vm;
@@ -1531,13 +1530,11 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     // Parse Disk template
     // -------------------------------------------------------------------------
 
-    rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
         failure_response(INTERNAL, error_str, att);
-        delete tmpl;
-
         return;
     }
 
@@ -1545,9 +1542,8 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, tmpl, att, 0, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
     {
-        delete tmpl;
         return;
     }
 
@@ -1567,42 +1563,36 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    volatile_disk = VirtualMachine::is_volatile(tmpl);
+    volatile_disk = VirtualMachine::is_volatile(&tmpl);
 
-    deltas = new VirtualMachineTemplate(*tmpl);
-    VirtualMachine::disk_extended_info(att.uid, deltas);
+    VirtualMachineTemplate deltas(tmpl);
+    VirtualMachine::disk_extended_info(att.uid, &deltas);
 
-    deltas->add("VMS", 0);
+    deltas.add("VMS", 0);
 
-    if (quota_resize_authorization(id, deltas, att_quota) == false)
+    if (quota_resize_authorization(id, &deltas, att_quota) == false)
     {
-        delete tmpl;
-        delete deltas;
-
         return;
     }
 
     if (volatile_disk == false)
     {
-        if ( quota_authorization(tmpl, Quotas::IMAGE, att_quota) == false )
+        if ( quota_authorization(&tmpl, Quotas::IMAGE, att_quota) == false )
         {
-            quota_rollback(deltas, Quotas::VM, att_quota);
-
-            delete tmpl;
-            delete deltas;
+            quota_rollback(&deltas, Quotas::VM, att_quota);
             return;
         }
     }
 
-    rc = dm->attach(id, tmpl, error_str);
+    rc = dm->attach(id, &tmpl, error_str);
 
     if ( rc != 0 )
     {
-        quota_rollback(deltas, Quotas::VM, att_quota);
+        quota_rollback(&deltas, Quotas::VM, att_quota);
 
         if (volatile_disk == false)
         {
-            quota_rollback(tmpl, Quotas::IMAGE, att_quota);
+            quota_rollback(&tmpl, Quotas::IMAGE, att_quota);
         }
 
         failure_response(ACTION,
@@ -1613,9 +1603,6 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     {
         success_response(id, att);
     }
-
-    delete tmpl;
-    delete deltas;
 
     return;
 }
