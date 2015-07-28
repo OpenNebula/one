@@ -276,24 +276,8 @@ protected
                 vm_state = node['vm_info']['VM']['STATE']
                 lcm_state = node['vm_info']['VM']['LCM_STATE']
 
-                if vm_state == '7' ||            # FAILED
-                    (vm_state == '3' &&          # ACTIVE
-                        (   lcm_state == '14' || # FAILURE
-                            lcm_state == '16' || # UNKNOWN
-                            lcm_state == '36' || # BOOT_FAILURE
-                            lcm_state == '37' || # BOOT_MIGRATE_FAILURE
-                            lcm_state == '38' || # PROLOG_MIGRATE_FAILURE
-                            lcm_state == '39' || # PROLOG_FAILURE
-                            lcm_state == '40' || # EPILOG_FAILURE
-                            lcm_state == '41' || # EPILOG_STOP_FAILURE
-                            lcm_state == '42' || # EPILOG_UNDEPLOY_FAILURE
-                            lcm_state == '44' || # PROLOG_MIGRATE_POWEROFF_FAILURE
-                            lcm_state == '46' || # PROLOG_MIGRATE_SUSPEND_FAILURE
-                            lcm_state == '47' || # BOOT_UNDEPLOY_FAILURE
-                            lcm_state == '48' || # BOOT_STOPPED_FAILURE
-                            lcm_state == '49' || # PROLOG_RESUME_FAILURE
-                            lcm_state == '50' )  # PROLOG_UNDEPLOY_FAILURE
-                    )
+                # Failure or UNKNOWN
+                if vm_failure?(node) || (vm_state == '3' && lcm_state == '16')
                     return true
                 end
             end
@@ -307,12 +291,8 @@ protected
     # @return [true|false]
     def any_node_failed?(role)
         role.get_nodes.each { |node|
-            if node && node['vm_info']
-                vm_state = node['vm_info']['VM']['STATE']
-
-                if vm_state == '7' # FAILED
-                    return true
-                end
+            if vm_failure?(node)
+                return true
             end
         }
 
@@ -343,9 +323,9 @@ protected
     # @return [true|false]
     def any_node_failed_scaling?(role)
         role.get_nodes.each { |node|
-            if node && node['vm_info'] &&
+            if  node && node['vm_info'] &&
                 (node['disposed'] == '1' || node['scale_up'] == '1') &&
-                node['vm_info']['VM']['STATE'] == '7' # FAILED
+                vm_failure?(node)
 
                 return true
             end
@@ -371,5 +351,15 @@ protected
 
         # For scale down, it will finish when scaling nodes are deleted
         return role.get_nodes.size() == role.cardinality()
+    end
+
+    def vm_failure?(node)
+        if node && node['vm_info']
+            return Role.vm_failure?(
+                vm_state = node['vm_info']['VM']['STATE'],
+                lcm_state = node['vm_info']['VM']['LCM_STATE'])
+        end
+
+        return false
     end
 end
