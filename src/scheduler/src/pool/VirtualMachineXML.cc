@@ -309,6 +309,7 @@ void VirtualMachineXML::init_storage_usage()
     vector<Attribute*>::iterator    it;
 
     long long   size;
+    long long   snapshot_size;
     string      st;
     int         ds_id;
     bool        clone;
@@ -329,6 +330,11 @@ void VirtualMachineXML::init_storage_usage()
         if (disk->vector_value("SIZE", size) != 0)
         {
             continue;
+        }
+
+        if (disk->vector_value("DISK_SNAPSHOT_TOTAL_SIZE", snapshot_size) == 0)
+        {
+            size += snapshot_size;
         }
 
         if (isVolatile(disk))
