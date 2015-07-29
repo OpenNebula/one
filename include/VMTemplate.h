@@ -37,6 +37,17 @@ public:
      */
     string& to_xml(string& xml) const;
 
+
+    /**
+     * Function to print the VMTemplate object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @param tmpl a template to replace the internal obj_template. It is only
+     *  used to create the resulting xml string, the internal obj_template is
+     *  not altered
+     *  @return a reference to the generated string
+     */
+    string& to_xml(string& xml, const Template* tmpl) const;
+
     // ------------------------------------------------------------------------
     // Template Contents
     // ------------------------------------------------------------------------

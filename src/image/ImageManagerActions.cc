@@ -498,7 +498,7 @@ int ImageManager::delete_image(int iid, string& error_str)
         ipool->update(img);
     }
 
-    unsigned int snap_size = (img->get_snapshots()).get_total_size();
+    long long snap_size = (img->get_snapshots()).get_total_size();
 
     img->unlock();
 

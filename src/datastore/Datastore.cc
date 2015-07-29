@@ -101,7 +101,7 @@ int Datastore::enable(bool enable, string& error_str)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-int Datastore::disk_attribute(
+void Datastore::disk_attribute(
         VectorAttribute *       disk,
         const vector<string>&   inherit_attrs)
 {
@@ -148,8 +148,6 @@ int Datastore::disk_attribute(
             disk->replace(*it, inherit_val);
         }
     }
-
-    return 0;
 }
 
 /* ************************************************************************ */

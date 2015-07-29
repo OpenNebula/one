@@ -173,7 +173,7 @@ public class UserTest
         res = system.getUserQuotas();
         assertTrue( res.getErrorMessage(), !res.isError() );
 
-        res = system.setUserQuotas("VM = [ VMS = 7, MEMORY = 0, CPU = 3, VOLATILE_SIZE = 1 ]");
+        res = system.setUserQuotas("VM = [ VMS = 7, MEMORY = 0, CPU = 3, SYSTEM_DISK_SIZE = 1 ]");
         assertTrue( res.getErrorMessage(), !res.isError() );
 
         Node node = system.getUserQuotasXML();

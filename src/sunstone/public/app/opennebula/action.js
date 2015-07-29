@@ -234,6 +234,7 @@ define(function(require) {
       var callback = params.success;
       var callbackError = params.error;
       var id = params.data.id;
+      var data = params.data;
       var request = subresource ?
           OpenNebulaHelper.request(resource, subresource, id) :
           OpenNebulaHelper.request(resource, "show", id);
@@ -246,6 +247,7 @@ define(function(require) {
         url: url,
         type: "GET",
         dataType: "json",
+        data: data,
         success: function(response) {
           return callback ? callback(request, response) : null;
         },

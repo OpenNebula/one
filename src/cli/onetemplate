@@ -319,7 +319,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Template
     EOT
 
-    command :show, show_desc, :templateid, :options=>OpenNebulaHelper::XML do
+    command :show, show_desc, :templateid,
+        :options=>[OpenNebulaHelper::XML,OneTemplateHelper::EXTENDED] do
+
         helper.show_resource(args[0],options)
     end
 

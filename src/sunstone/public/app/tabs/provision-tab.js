@@ -15,6 +15,8 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var QuotaLimits = require('utils/quotas/quota-limits');
   var Graphs = require('utils/graphs');
+  var RangeSlider = require('utils/range-slider');
+  var DisksResize = require('utils/disks-resize');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -297,16 +299,16 @@ define(function(require) {
               ' '+
               '<span class="memory_unit">'+memory_unit+'</span> '+
               '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
-              '<span class="cost_value">0.00</span> '+
-              '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+              '<span class="provision_create_template_cost_div hidden">' +
+                '<span class="cost_value">0.00</span> '+
+                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+              '</span>'+
             '</span>'+
           '</h3>'+
           '<br>'+
         '</div>'+
       '</div>'+
       (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
-      '<br>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
@@ -660,7 +662,6 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
@@ -1039,6 +1040,7 @@ define(function(require) {
     $(".provision_accordion_template .select_template").show();
 
     $("#provision_create_vm .provision_capacity_selector").html("");
+    $("#provision_create_vm .provision_disk_selector").html("");
     $("#provision_create_vm .provision_network_selector").html("");
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
@@ -1428,6 +1430,7 @@ define(function(require) {
           var create_vm_context = $("#provision_create_vm");
 
           if ($(this).hasClass("selected")){
+            $(".provision_disk_selector", create_vm_context).html("");
             $(".provision_network_selector", create_vm_context).html("");
             $(".provision_capacity_selector", create_vm_context).html("");
 
@@ -1458,6 +1461,13 @@ define(function(require) {
             generate_provision_instance_type_accordion(
               $(".provision_capacity_selector", create_vm_context),
               template_json.VMTEMPLATE.TEMPLATE);
+
+            var disksContext = $(".provision_disk_selector", create_vm_context);
+            if (Config.provision.create_vm.isEnabled("disk_resize")) {
+              DisksResize.insert(template_json, disksContext);
+            } else {
+              disksContext.html("");
+            }
 
             if (Config.provision.create_vm.isEnabled("network_select") && (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO")) {
               generate_provision_network_accordion(
@@ -1515,6 +1525,8 @@ define(function(require) {
             }
           });
 
+          var disks = DisksResize.retrieve($(".provision_disk_selector", context));
+
           var instance_type = $(".provision_instance_types_ul .selected", context);
 
           if (!template_id) {
@@ -1530,6 +1542,10 @@ define(function(require) {
 
           if (nics.length > 0) {
             extra_info.template.nic = nics;
+          }
+
+          if (disks.length > 0) {
+            extra_info.template.DISK = disks;
           }
 
           if (instance_type.length > 0) {

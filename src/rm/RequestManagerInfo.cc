@@ -68,6 +68,99 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    VMTemplatePool *         tpool   = static_cast<VMTemplatePool *>(pool);
+    VirtualMachineTemplate * extended_tmpl = 0;
+    VMTemplate *             vm_tmpl;
+
+    PoolObjectAuth perms;
+
+    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
+    bool            extended = false;
+    string          str;
+
+    if ( paramList.size() > 2 )
+    {
+        extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    vm_tmpl = tpool->get(oid,true);
+
+    if ( vm_tmpl == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
+
+        return;
+    }
+
+    if (extended)
+    {
+        extended_tmpl = vm_tmpl->clone_template();
+    }
+
+    vm_tmpl->get_permissions(perms);
+
+    vm_tmpl->unlock();
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(auth_op, perms); //USE TEMPLATE
+
+    if (extended)
+    {
+        VirtualMachine::disk_extended_info(att.uid, extended_tmpl);
+    }
+
+    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    {
+        if (UserPool::authorize(ar) == -1)
+        {
+            failure_response(AUTHORIZATION,
+                    authorization_error(ar.message, att),
+                    att);
+
+            delete extended_tmpl;
+            return;
+        }
+    }
+
+    vm_tmpl = tpool->get(oid,true);
+
+    if ( vm_tmpl == 0 )
+    {
+        failure_response(NO_EXISTS,
+                get_error(object_name(auth_object),oid),
+                att);
+
+        delete extended_tmpl;
+        return;
+    }
+
+    if (extended)
+    {
+        vm_tmpl->to_xml(str, extended_tmpl);
+
+        delete extended_tmpl;
+    }
+    else
+    {
+        vm_tmpl->to_xml(str);
+    }
+
+    vm_tmpl->unlock();
+
+    success_response(str, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void VirtualNetworkInfo::to_xml(RequestAttributes& att, PoolObjectSQL * object,
     string& str)
 {

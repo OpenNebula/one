@@ -26,7 +26,7 @@ require 'nokogiri'
 
 module OneDBPatch
     VERSION = "4.11.80"
-    LOCAL_VERSION = "4.13.80"
+    LOCAL_VERSION = "4.13.85"
 
     def is_hot_patch(ops)
         return true

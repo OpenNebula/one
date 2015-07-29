@@ -79,7 +79,7 @@ public:
      *   @param size_mb of the snapshot (virtual size)
      *   @return id of the new snapshot
      */
-    int create_snapshot(const string& name, unsigned int size_mb);
+    int create_snapshot(const string& name, long long size_mb);
 
     /**
      *  Check if an snapshot can be deleted (no children, no active)
@@ -172,14 +172,14 @@ public:
     /**
      *  @return total snapshot size (virtual) in mb
      */
-    unsigned int get_total_size() const;
+    long long get_total_size() const;
 
     /**
      *  Get the size (virtual) in mb of the given snapshot
      *    @param id of the snapshot
      *    @return size or 0 if not found
      */
-    unsigned int get_snapshot_size(int id) const;
+    long long get_snapshot_size(int id) const;
 
     /**
      *  Get Attribute from the given snapshot

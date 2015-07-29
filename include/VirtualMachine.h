@@ -1273,9 +1273,16 @@ public:
     bool is_imported() const;
 
     /**
-     *  Return the total SIZE of volatile disks
+     *  Return the total disk SIZE that the VM instance needs in the system DS
      */
-    static long long get_volatile_disk_size(Template * tmpl);
+    static long long get_system_disk_size(Template * tmpl);
+
+    /**
+     * Returns the disk CLONE_TARGET or LN_TARGET
+     * @param disk
+     * @return NONE, SYSTEM, SELF. Empty string if it could not be determined
+     */
+    static string disk_target(const VectorAttribute *  disk);
 
     /**
      * Returns a set of the security group IDs in use in this VM
@@ -1366,6 +1373,15 @@ public:
     static void set_auth_request(int uid,
                                  AuthRequest& ar,
                                  VirtualMachineTemplate *tmpl);
+
+    /**
+     *  Adds extra info to the given template:
+     *  DISK/IMAGE_ID and SIZE
+     *    @param  uid for template owner
+     *    @param  tmpl the virtual machine template
+     */
+    static void disk_extended_info(int uid,
+                                  VirtualMachineTemplate *tmpl);
 
     // -------------------------------------------------------------------------
     // Hotplug related functions
@@ -1552,15 +1568,14 @@ public:
     int revert_disk_snapshot(int disk_id, int snap_id);
 
     /**
-     *  Deletes the snap_id from the list, test_delete_disk_snapshot *MUST* be
-     *  called before actually deleting the snapshot.
+     *  Deletes the snap_id from the list
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
-     *    @param type of quota used by this snapshot
-     *    @param quotas template with snapshot usage
+     *    @param ds_quotas template with snapshot usage for the DS quotas
+     *    @param vm_quotas template with snapshot usage for the VM quotas
      */
-    void delete_disk_snapshot(int disk_id, int snap_id, Quotas::QuotaType& type,
-            Template **quotas);
+    void delete_disk_snapshot(int disk_id, int snap_id, Template **ds_quotas,
+            Template **vm_quotas);
 
     /**
      *  Get information about the disk to take the snapshot from

@@ -1513,9 +1513,8 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     Nebula&           nd = Nebula::instance();
     DispatchManager * dm = nd.get_dm();
 
-    VirtualMachineTemplate * tmpl = new VirtualMachineTemplate();
-    VirtualMachineTemplate * deltas = 0;
-    PoolObjectAuth           vm_perms;
+    VirtualMachineTemplate tmpl;
+    PoolObjectAuth         vm_perms;
 
     VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
     VirtualMachine *     vm;
@@ -1531,13 +1530,11 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     // Parse Disk template
     // -------------------------------------------------------------------------
 
-    rc = tmpl->parse_str_or_xml(str_tmpl, error_str);
+    rc = tmpl.parse_str_or_xml(str_tmpl, error_str);
 
     if ( rc != 0 )
     {
         failure_response(INTERNAL, error_str, att);
-        delete tmpl;
-
         return;
     }
 
@@ -1545,9 +1542,8 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
 
-    if ( vm_authorization(id, 0, tmpl, att, 0, 0, 0, auth_op) == false )
+    if ( vm_authorization(id, 0, &tmpl, att, 0, 0, 0, auth_op) == false )
     {
-        delete tmpl;
         return;
     }
 
@@ -1567,42 +1563,36 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
 
-    volatile_disk = VirtualMachine::is_volatile(tmpl);
+    volatile_disk = VirtualMachine::is_volatile(&tmpl);
 
-    if ( volatile_disk )
+    VirtualMachineTemplate deltas(tmpl);
+    VirtualMachine::disk_extended_info(att.uid, &deltas);
+
+    deltas.add("VMS", 0);
+
+    if (quota_resize_authorization(id, &deltas, att_quota) == false)
     {
-        deltas = new VirtualMachineTemplate(*tmpl);
-
-        deltas->add("VMS", 0);
-
-        if (quota_resize_authorization(id, deltas, att_quota) == false)
-        {
-            delete tmpl;
-            delete deltas;
-
-            return;
-        }
+        return;
     }
-    else
+
+    if (volatile_disk == false)
     {
-        if ( quota_authorization(tmpl, Quotas::IMAGE, att_quota) == false )
+        if ( quota_authorization(&tmpl, Quotas::IMAGE, att_quota) == false )
         {
-            delete tmpl;
+            quota_rollback(&deltas, Quotas::VM, att_quota);
             return;
         }
     }
 
-    rc = dm->attach(id, tmpl, error_str);
+    rc = dm->attach(id, &tmpl, error_str);
 
     if ( rc != 0 )
     {
-        if ( volatile_disk )
+        quota_rollback(&deltas, Quotas::VM, att_quota);
+
+        if (volatile_disk == false)
         {
-            quota_rollback(deltas, Quotas::VM, att_quota);
-        }
-        else
-        {
-            quota_rollback(tmpl, Quotas::IMAGE, att_quota);
+            quota_rollback(&tmpl, Quotas::IMAGE, att_quota);
         }
 
         failure_response(ACTION,
@@ -1613,9 +1603,6 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
     {
         success_response(id, att);
     }
-
-    delete tmpl;
-    delete deltas;
 
     return;
 }
@@ -2356,7 +2343,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     const VectorAttribute * disk;
     VectorAttribute * delta_disk = 0;
 
-    Template deltas;
+    Template ds_deltas;
+    Template vm_deltas;
+    bool     do_vm_quota;
 
     int    rc;
     int    snap_id;
@@ -2366,9 +2355,8 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     int    did  = xmlrpc_c::value_int(paramList.getInt(2));
     string name = xmlrpc_c::value_string(paramList.getString(3));
 
-
     // ------------------------------------------------------------------------
-    // Check quotas for the new snapshot
+    // Check request consistency (VM & disk exists, no volatile)
     // ------------------------------------------------------------------------
     if ((vm = get_vm(id, att)) == 0)
     {
@@ -2405,8 +2393,10 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
         return;
     }
 
-    RequestAttributes att_quota;
+    RequestAttributes ds_att_quota;
+    RequestAttributes vm_att_quota;
 
+    //--------------------------- Persistent Images ----------------------------
     if (persistent)
     {
         PoolObjectAuth img_perms;
@@ -2431,35 +2421,44 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
             return;
         }
 
-        att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
+        ds_att_quota = RequestAttributes(img_perms.uid, img_perms.gid, att);
 
-        deltas.add("DATASTORE", ds_id);
-        deltas.add("SIZE", disk_size);
-        deltas.add("IMAGES", 0);
+        ds_deltas.add("DATASTORE", ds_id);
+        ds_deltas.add("SIZE", disk_size);
+        ds_deltas.add("IMAGES", 0);
 
-        if (!quota_authorization(&deltas, Quotas::DATASTORE, att_quota))
+        if (!quota_authorization(&ds_deltas, Quotas::DATASTORE, ds_att_quota))
         {
             return;
         }
     }
-    else
+
+    //--------------------- Account for System DS storage ----------------------
+    do_vm_quota = (VirtualMachine::disk_target(disk) != "NONE"); // self or system
+
+    if (do_vm_quota)
     {
         if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
         {
             return;
         }
 
-        att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
+        vm_att_quota = RequestAttributes(vm_perms.uid, vm_perms.gid, att);
 
         delta_disk = new VectorAttribute("DISK");
         delta_disk->replace("TYPE", "FS");
         delta_disk->replace("SIZE", disk_size);
 
-        deltas.add("VMS", 0);
-        deltas.set(delta_disk);
+        vm_deltas.add("VMS", 0);
+        vm_deltas.set(delta_disk);
 
-        if (!quota_resize_authorization(id, &deltas, att_quota))
+        if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
         {
+            if (persistent)
+            {
+                quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
+            }
+
             return;
         }
     }
@@ -2473,11 +2472,12 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     {
         if (persistent)
         {
-            quota_rollback(&deltas, Quotas::DATASTORE, att_quota);
+            quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
         }
-        else
+
+        if (do_vm_quota)
         {
-            quota_rollback(&deltas, Quotas::VM, att_quota);
+            quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
         }
 
         failure_response(ACTION, request_error(error_str, ""), att);

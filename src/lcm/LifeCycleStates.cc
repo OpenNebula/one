@@ -1725,8 +1725,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
     int disk_id, ds_id, snap_id;
     int img_id = -1;
 
-    Quotas::QuotaType qt;
-    Template *quotas = 0;
+    Template *ds_quotas = 0;
+    Template *vm_quotas = 0;
 
     const VectorAttribute* disk;
     Snapshots           snaps(-1);
@@ -1750,8 +1750,8 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         return;
     }
 
-    int uid = vm->get_uid();
-    int gid = vm->get_gid();
+    int vm_uid = vm->get_uid();
+    int vm_gid = vm->get_gid();
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
@@ -1773,7 +1773,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
             vm->log("LCM", Log::INFO, "VM disk snapshot deleted.");
-            vm->delete_disk_snapshot(disk_id, snap_id, qt, &quotas);
+            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
 
             break;
 
@@ -1803,24 +1803,28 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     vm->unlock();
 
-    if ( quotas != 0 )
+    if ( ds_quotas != 0 )
     {
-        if (qt == Quotas::DATASTORE)
+        Image* img = ipool->get(img_id, true);
+
+        if(img != 0)
         {
-            Image* img = ipool->get(img_id, true);
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
 
-            if(img != 0)
-            {
-                uid = img->get_uid();
-                gid = img->get_gid();
+            img->unlock();
 
-                img->unlock();
-            }
+            Quotas::quota_del(Quotas::DATASTORE, img_uid, img_gid, ds_quotas);
         }
 
-        Quotas::quota_del(qt, uid, gid, quotas);
+        delete ds_quotas;
+    }
 
-        delete quotas;
+    if ( vm_quotas != 0 )
+    {
+        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
     }
 
     if(img_id != -1 && is_persistent && has_snaps)
@@ -1858,8 +1862,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
     int disk_id, ds_id, snap_id;
     int img_id = -1;
 
-    Quotas::QuotaType qt;
-    Template *quotas = 0;
+    Template *ds_quotas = 0;
+    Template *vm_quotas = 0;
 
     const VectorAttribute* disk;
     Snapshots           snaps(-1);
@@ -1883,8 +1887,8 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         return;
     }
 
-    int uid = vm->get_uid();
-    int gid = vm->get_gid();
+    int vm_uid = vm->get_uid();
+    int vm_gid = vm->get_gid();
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
 
@@ -1895,7 +1899,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
             vm->log("LCM", Log::ERROR, "Could not take disk snapshot.");
-            vm->delete_disk_snapshot(disk_id, snap_id, qt, &quotas);
+            vm->delete_disk_snapshot(disk_id, snap_id, &ds_quotas, &vm_quotas);
             break;
 
         case VirtualMachine::DISK_SNAPSHOT_REVERT:
@@ -1934,24 +1938,28 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     vm->unlock();
 
-    if ( quotas != 0 )
+    if ( ds_quotas != 0 )
     {
-        if (qt == Quotas::DATASTORE)
+        Image* img = ipool->get(img_id, true);
+
+        if(img != 0)
         {
-            Image* img = ipool->get(img_id, true);
+            int img_uid = img->get_uid();
+            int img_gid = img->get_gid();
 
-            if(img != 0)
-            {
-                uid = img->get_uid();
-                gid = img->get_gid();
+            img->unlock();
 
-                img->unlock();
-            }
+            Quotas::quota_del(Quotas::DATASTORE, img_uid, img_gid, ds_quotas);
         }
 
-        Quotas::quota_del(qt, uid, gid, quotas);
+        delete ds_quotas;
+    }
 
-        delete quotas;
+    if ( vm_quotas != 0 )
+    {
+        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, vm_quotas);
+
+        delete vm_quotas;
     }
 
     if(img_id != -1 && is_persistent && has_snaps)

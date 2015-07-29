@@ -1,10 +1,12 @@
-<div id="{{dialogId}}" class="reveal-modal" role="dialog" data-reveal >
+<div id="{{dialogId}}" class="reveal-modal large" role="dialog" data-reveal >
   <div class="row">
-    <h3 id="create_vnet_header" class="subheader">{{tr "Instantiate VM Template"}}</h3>
+    <div class="large-12 columns">
+      <h3 id="create_vnet_header" class="subheader">{{tr "Instantiate VM Template"}}</h3>
+    </div>
   </div>
   <form data-abide="ajax" id="{{dialogId}}Form" action="" class="custom creation">
     <div class="row">
-      <div class="large-12 columns">
+      <div class="large-4 columns">
         <label for="vm_name">
           {{tr "VM Name"}}
           <span class="tip">
@@ -12,20 +14,17 @@
           </span>
         </label>
         <input type="text" name="vm_name" id="vm_name" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
+      </div> 
+      <div class="large-4 columns">
         <label for="vm_n_times">
           {{tr "Number of instances"}}
           <span class="tip">
             {{tr "Number of Virtual Machines that will be created using this template"}}.
           </span>
         </label>
-        <input type="text" name="vm_n_times" id="vm_n_times" value="1"></div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
+        <input type="text" name="vm_n_times" id="vm_n_times" value="1">
+      </div>
+      <div class="large-4 columns">
         <input type="checkbox" name="hold" id="hold"/>
         <label for="hold">
           {{tr "Hold"}}
@@ -35,7 +34,9 @@
         </label>
       </div>
     </div>
-    <div id="instantiate_vm_user_inputs"> <i class="fa fa-spinner fa-spin"></i>
+    <div class="row">
+      <div class="large-11 large-centered columns list_of_templates">
+      </div>
     </div>
     <div class="form_buttons">
       <button class="button radius right success" id="instantiate_vm_template_proceed" value="Template.instantiate_vms">{{tr "Instantiate"}}</button>

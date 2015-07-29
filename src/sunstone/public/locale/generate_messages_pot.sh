@@ -19,13 +19,13 @@
 COPYRIGHT_HOLDER="2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs"
 PACKAGE_NAME="OpenNebula"
 
-find ../public/app -name \*.js > file_list.txt
+find ../app -name \*.js > file_list.txt
 xgettext --from-code=utf-8 --copyright-holder="$COPYRIGHT_HOLDER" --package-name="$PACKAGE_NAME" --no-wrap --keyword= --keyword=tr -L JavaScript -f file_list.txt -p .
 
 # xgettext-template project: https://github.com/gmarty/xgettext
 # tail removes the first configuration lines for msgid ""
 
-find ../public/app -name \*.hbs -exec sh -c "xgettext-template -L Handlebars --from-code utf-8 --force-po --keyword tr {}| tail -n +3 >> messages.po" \;
+find ../app -name \*.hbs -exec sh -c "xgettext-template -L Handlebars --from-code utf-8 --force-po --keyword tr {}| tail -n +3 >> messages.po" \;
 
 mv messages.po messages.pot
 

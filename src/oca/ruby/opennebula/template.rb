@@ -65,8 +65,22 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Template.
-        def info()
-            super(TEMPLATE_METHODS[:info], 'VMTEMPLATE')
+        # @param extended [true,false] optional flag to process the template and
+        # include extended information, such as the SIZE for each DISK
+        def info(extended=false)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended)
+
+            if !OpenNebula.is_error?(rc)
+                initialize_xml(rc, 'VMTEMPLATE')
+                rc   = nil
+
+                @pe_id = self['ID'].to_i if self['ID']
+                @name  = self['NAME'] if self['NAME']
+            end
+
+            return rc
         end
 
         alias_method :info!, :info

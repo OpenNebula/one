@@ -693,8 +693,8 @@ static void snap_delete_action(istringstream& is,
     ostringstream oss;
     string info;
 
-    unsigned int snap_size;
-    int          ds_id, uid, gid;
+    long long   snap_size;
+    int         ds_id, uid, gid;
 
     Image * image = ipool->get(id, true);
 
@@ -753,7 +753,7 @@ static void snap_delete_action(istringstream& is,
         Template quotas;
 
         quotas.add("DATASTORE", ds_id);
-        quotas.add("SIZE", (long long) snap_size);
+        quotas.add("SIZE", snap_size);
         quotas.add("IMAGES",0 );
 
         Quotas::ds_del(uid, gid, &quotas);
@@ -828,8 +828,8 @@ static void snap_flatten_action(istringstream& is,
     ostringstream oss;
     string info;
 
-    unsigned int snap_size;
-    int          ds_id, uid, gid;
+    long long   snap_size;
+    int         ds_id, uid, gid;
 
     Image * image = ipool->get(id, true);
 
@@ -876,7 +876,7 @@ static void snap_flatten_action(istringstream& is,
         Template quotas;
 
         quotas.add("DATASTORE", ds_id);
-        quotas.add("SIZE", (long long) snap_size);
+        quotas.add("SIZE", snap_size);
         quotas.add("IMAGES",0 );
 
         Quotas::ds_del(uid, gid, &quotas);
