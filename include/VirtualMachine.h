@@ -1282,7 +1282,7 @@ public:
      * @param disk
      * @return NONE, SYSTEM, SELF. Empty string if it could not be determined
      */
-    static string disk_target(const VectorAttribute *  disk);
+    static string disk_tm_target(const VectorAttribute *  disk);
 
     /**
      * Returns a set of the security group IDs in use in this VM

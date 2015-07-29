@@ -2434,7 +2434,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     }
 
     //--------------------- Account for System DS storage ----------------------
-    do_vm_quota = (VirtualMachine::disk_target(disk) != "NONE"); // self or system
+    do_vm_quota = (VirtualMachine::disk_tm_target(disk) != "NONE");// self or system
 
     if (do_vm_quota)
     {

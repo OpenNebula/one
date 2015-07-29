@@ -2345,7 +2345,7 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
         {
             size += disk_size;
         }
-        else if ( disk_target(disk) != "NONE") // self or system
+        else if ( disk_tm_target(disk) != "NONE") // self or system
         {
             size += disk_size;
 
@@ -2362,7 +2362,7 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string VirtualMachine::disk_target(const VectorAttribute *  disk)
+string VirtualMachine::disk_tm_target(const VectorAttribute *  disk)
 {
     bool    clone;
     string  target;
@@ -4434,7 +4434,7 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         (*ds_quotas)->add("IMAGES",0 );
     }
 
-    if (disk_target(disk) != "NONE") // self or system
+    if (disk_tm_target(disk) != "NONE") // self or system
     {
         *vm_quotas = new Template();
 
