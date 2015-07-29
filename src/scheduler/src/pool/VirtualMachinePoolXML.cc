@@ -35,7 +35,8 @@ int VirtualMachinePoolXML::set_up()
         {
             oss << "Pending/rescheduling VM and capacity requirements:" << endl;
 
-            oss << right << setw(8)  << "VM"        << " "
+            oss << right << setw(8)  << "ACTION"    << " "
+                << right << setw(8)  << "VM"        << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
                 << right << setw(11) << "System DS" << " "
@@ -46,12 +47,23 @@ int VirtualMachinePoolXML::set_up()
             {
                 int cpu, mem;
                 long long disk;
+                string action = "DEPLOY";
 
                 VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
 
                 vm->get_requirements(cpu, mem, disk);
 
+                if (vm->is_resched())
+                {
+                    action = "RESCHED";
+                }
+                else if (vm->is_resume())
+                {
+                    action = "RESUME";
+                }
+
                 oss << endl
+                    << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
                     << right << setw(4)  << cpu         << " "
                     << right << setw(11) << mem         << " "

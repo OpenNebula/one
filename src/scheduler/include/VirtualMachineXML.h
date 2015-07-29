@@ -91,6 +91,11 @@ public:
         return (resched == 1);
     }
 
+    bool is_resume() const
+    {
+        return resume;
+    }
+
     const string& get_rank()
     {
         return rank;
@@ -335,6 +340,7 @@ protected:
     int   dsid;
 
     int   resched;
+    bool  resume;
 
     int         memory;
     float       cpu;

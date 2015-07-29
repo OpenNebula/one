@@ -20,11 +20,14 @@
 #include "DatastoreXML.h"
 #include "DatastorePoolXML.h"
 #include "NebulaUtil.h"
+#include "History.h"
 
 void VirtualMachineXML::init_attributes()
 {
     vector<string>     result;
     vector<xmlNodePtr> nodes;
+
+    int action;
 
     string automatic_requirements;
 
@@ -171,6 +174,12 @@ void VirtualMachineXML::init_attributes()
     {
         resched = 0;
     }
+
+    this->xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
+
+    resume = (action == History::STOP_ACTION ||
+              action == History::UNDEPLOY_ACTION ||
+              action == History::UNDEPLOY_HARD_ACTION );
 
     if (get_nodes("/VM/TEMPLATE", nodes) > 0)
     {
