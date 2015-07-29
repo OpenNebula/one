@@ -35,20 +35,21 @@ const char * DatastoreXML::ds_paths[] = {
 
 void DatastoreXML::init_attributes()
 {
-    oid        = atoi(((*this)["/DATASTORE/ID"] )[0].c_str() );
-    cluster_id = atoi(((*this)["/DATASTORE/CLUSTER_ID"] )[0].c_str() );
-    free_mb    = atoll(((*this)["/DATASTORE/FREE_MB"])[0].c_str());
+    xpath(oid,        "/DATASTORE/ID",          -1);
+    xpath(cluster_id, "/DATASTORE/CLUSTER_ID",  -1);
+    xpath(free_mb,    "/DATASTORE/FREE_MB",     0);
 
-    long long total_mb  = atoll(((*this)["/DATASTORE/TOTAL_MB"])[0].c_str());
-    long long used_mb   = atoll(((*this)["/DATASTORE/USED_MB"])[0].c_str());
+    long long total_mb, used_mb, limit_mb;
+
+    xpath(total_mb, "/DATASTORE/TOTAL_MB", 0);
+    xpath(used_mb,  "/DATASTORE/USED_MB",  0);
 
     monitored = (free_mb != 0 || total_mb != 0 || used_mb != 0);
 
-    vector<string> strings = ((*this)["/DATASTORE/TEMPLATE/LIMIT_MB"]);
+    int rc = xpath(limit_mb, "/DATASTORE/TEMPLATE/LIMIT_MB", 0);
 
-    if (!strings.empty())
+    if (rc == 0)
     {
-        long long limit_mb = atoll(strings[0].c_str());
         long long free_limited = limit_mb - used_mb;
 
         if (free_limited < 0)

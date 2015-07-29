@@ -24,91 +24,47 @@
 
 void VirtualMachineXML::init_attributes()
 {
-    vector<string>     result;
     vector<xmlNodePtr> nodes;
 
+    int rc;
     int action;
 
     string automatic_requirements;
 
-    oid = atoi(((*this)["/VM/ID"] )[0].c_str());
-    uid = atoi(((*this)["/VM/UID"])[0].c_str());
-    gid = atoi(((*this)["/VM/GID"])[0].c_str());
+    xpath(oid, "/VM/ID", -1);
+    xpath(uid, "/VM/UID", -1);
+    xpath(gid, "/VM/GID", -1);
 
-    result = ((*this)["/VM/TEMPLATE/MEMORY"]);
-
-    if (result.size() > 0)
-    {
-        memory = atoi(result[0].c_str());
-    }
-    else
-    {
-        memory = 0;
-    }
-
-    result = ((*this)["/VM/TEMPLATE/CPU"]);
-
-    if (result.size() > 0)
-    {
-        istringstream   iss;
-        iss.str( result[0] );
-        iss >> cpu;
-    }
-    else
-    {
-        cpu = 0;
-    }
+    xpath(memory, "/VM/TEMPLATE/MEMORY", 0);
+    xpath(cpu,    "/VM/TEMPLATE/CPU", 0);
 
     // ------------------------ RANK & DS_RANK ---------------------------------
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_RANK"]);
+    rc = xpath(rank, "/VM/USER_TEMPLATE/SCHED_RANK", "");
 
-    if (result.size() > 0)
-    {
-        rank = result[0];
-    }
-    else
+    if (rc != 0)
     {
         // Compatibility with previous versions
-        result = ((*this)["/VM/USER_TEMPLATE/RANK"]);
-
-        if (result.size() > 0)
-        {
-            rank = result[0];
-        }
+        xpath(rank, "/VM/USER_TEMPLATE/RANK", "");
     }
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_RANK"]);
-
-    if (result.size() > 0)
-    {
-        ds_rank = result[0];
-    }
+    xpath(ds_rank, "/VM/USER_TEMPLATE/SCHED_DS_RANK", "");
 
     // ------------------- HOST REQUIREMENTS -----------------------------------
 
-    result = ((*this)["/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS"]);
+    xpath(automatic_requirements, "/VM/TEMPLATE/AUTOMATIC_REQUIREMENTS", "");
 
-    if (result.size() > 0)
-    {
-        automatic_requirements = result[0];
-    }
+    rc = xpath(requirements, "/VM/USER_TEMPLATE/SCHED_REQUIREMENTS", "");
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_REQUIREMENTS"]);
-
-    if (result.size() > 0)
+    if (rc == 0)
     {
         if ( !automatic_requirements.empty() )
         {
             ostringstream oss;
 
-            oss << automatic_requirements << " & ( " << result[0] << " )";
+            oss << automatic_requirements << " & ( " << requirements << " )";
 
             requirements = oss.str();
-        }
-        else
-        {
-            requirements = result[0];
         }
     }
     else if ( !automatic_requirements.empty() )
@@ -118,21 +74,17 @@ void VirtualMachineXML::init_attributes()
 
     // ------------------- DS REQUIREMENTS -------------------------------------
 
-    result = ((*this)["/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS"]);
+    rc = xpath(ds_requirements, "/VM/USER_TEMPLATE/SCHED_DS_REQUIREMENTS", "");
 
-    if (result.size() > 0)
+    if (rc == 0)
     {
         if ( !automatic_requirements.empty() )
         {
             ostringstream oss;
 
-            oss << automatic_requirements << " & ( " << result[0] << " )";
+            oss << automatic_requirements << " & ( " << ds_requirements << " )";
 
             ds_requirements = oss.str();
-        }
-        else
-        {
-            ds_requirements = result[0];
         }
     }
     else if ( !automatic_requirements.empty() )
@@ -142,40 +94,12 @@ void VirtualMachineXML::init_attributes()
 
     // ---------------- HISTORY HID, DSID, RESCHED & TEMPLATE ------------------
 
-    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/HID"]);
+    xpath(hid,  "/VM/HISTORY_RECORDS/HISTORY/HID", -1);
+    xpath(dsid, "/VM/HISTORY_RECORDS/HISTORY/DS_ID", -1);
 
-    if (result.size() > 0)
-    {
-        hid = atoi(result[0].c_str());
-    }
-    else
-    {
-        hid = -1;
-    }
+    xpath(resched, "/VM/RESCHED", 0);
 
-    result = ((*this)["/VM/HISTORY_RECORDS/HISTORY/DS_ID"]);
-
-    if (result.size() > 0)
-    {
-        dsid = atoi(result[0].c_str());
-    }
-    else
-    {
-        dsid = -1;
-    }
-
-    result = ((*this)["/VM/RESCHED"]);
-
-    if (result.size() > 0)
-    {
-        resched = atoi(result[0].c_str());
-    }
-    else
-    {
-        resched = 0;
-    }
-
-    this->xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
+    xpath(action, "/VM/HISTORY_RECORDS/HISTORY/ACTION", -1);
 
     resume = (action == History::STOP_ACTION ||
               action == History::UNDEPLOY_ACTION ||

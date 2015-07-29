@@ -36,31 +36,19 @@ const char *HostXML::host_paths[] = {
 
 void HostXML::init_attributes()
 {
-    oid         = atoi(((*this)["/HOST/ID"] )[0].c_str() );
-    cluster_id  = atoi(((*this)["/HOST/CLUSTER_ID"] )[0].c_str() );
+    xpath(oid,          "/HOST/ID",                     -1);
+    xpath(cluster_id,   "/HOST/CLUSTER_ID",             -1);
+    xpath(mem_usage,    "/HOST/HOST_SHARE/MEM_USAGE",   0);
+    xpath(cpu_usage,    "/HOST/HOST_SHARE/CPU_USAGE",   0);
+    xpath(max_mem,      "/HOST/HOST_SHARE/MAX_MEM",     0);
+    xpath(max_cpu,      "/HOST/HOST_SHARE/MAX_CPU",     0);
+    xpath(free_disk,    "/HOST/HOST_SHARE/FREE_DISK",   0);
+    xpath(running_vms,  "/HOST/HOST_SHARE/RUNNING_VMS", 0);
 
-    mem_usage   = atoll(((*this)["/HOST/HOST_SHARE/MEM_USAGE"])[0].c_str());
-    cpu_usage   = atoll(((*this)["/HOST/HOST_SHARE/CPU_USAGE"])[0].c_str());
+    string public_cloud_st;
 
-    max_mem     = atoll(((*this)["/HOST/HOST_SHARE/MAX_MEM"])[0].c_str());
-    max_cpu     = atoll(((*this)["/HOST/HOST_SHARE/MAX_CPU"])[0].c_str());
-
-    free_disk   = atoll(((*this)["/HOST/HOST_SHARE/FREE_DISK"])[0].c_str());
-
-    running_vms = atoll(((*this)["/HOST/HOST_SHARE/RUNNING_VMS"])[0].c_str());
-
-    public_cloud = false;
-
-    vector<string> public_cloud_vector = (*this)["/HOST/TEMPLATE/PUBLIC_CLOUD"];
-
-    if (public_cloud_vector.size() > 0)
-    {
-        string pc = public_cloud_vector[0];
-
-        one_util::toupper(pc);
-
-        public_cloud = pc == "YES";
-    }
+    xpath(public_cloud_st, "/HOST/TEMPLATE/PUBLIC_CLOUD", "");
+    public_cloud = (one_util::toupper(public_cloud_st) == "YES");
 
     vector<string> ds_ids     = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
     vector<string> ds_free_mb = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
