@@ -67,9 +67,11 @@ module OpenNebula
                     return rc
                 end
 
-                block.call(service)
+                rc = block.call(service)
 
                 service.unlock()
+
+                return rc
             else
                 rc = service.info
 
