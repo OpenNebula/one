@@ -217,10 +217,11 @@ define(function(require) {
 
     CustomTagsTable.setup($("#vnetCreateContextTab", context));
 
+    context.foundation('tab', 'reflow');
+
     // Add first AR
     $("#vnet_wizard_ar_btn", context).trigger("click");
 
-    $(document).foundation('reflow', 'tab');
     Tips.setup();
     return false;
   }
