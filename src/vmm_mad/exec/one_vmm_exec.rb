@@ -911,6 +911,19 @@ class ExecDriver < VirtualMachineDriver
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 
+        vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
+        tm_driver_path = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
+
+        vmm_driver = ensure_xpath(xml_data, id, action, vmm_driver_path) ||
+            return
+        tm_driver = ensure_xpath(xml_data, id, action, tm_driver_path) ||
+            return
+
+        # live_snapshots option is an array of VM and TM pairs
+        # For example "kvm-qcow2". If found then only TM action is called.
+        # Extra actions (suspend or attach) will be skipped
+        live_snapshot = @options[:live_snapshots].include? "#{vmm_driver}-#{tm_driver}"
+
         if @options[:detach_snap]
           pre_action = :detach_disk
           pre_params = [:deploy_id, :disk_target_path, target, target_index]
@@ -926,22 +939,28 @@ class ExecDriver < VirtualMachineDriver
           post_params = [:checkpoint_file, :host, :deploy_id]
         end
 
-        steps = [
+        steps = []
+
+        if !live_snapshot
             # Save VM state / detach the disk
-            {
+            steps << {
                 :driver     => :vmm,
                 :action     => pre_action,
                 :parameters => pre_params
-            },
-            # Do the snapshot
-            {
-                :driver     => :tm,
-                :action     => :tm_snap_create,
-                :parameters => tm_command.split,
-                :no_fail    => true
-            },
+            }
+        end
+
+        # Do the snapshot
+        steps << {
+            :driver     => :tm,
+            :action     => :tm_snap_create,
+            :parameters => tm_command.split,
+            :no_fail    => true
+        }
+
+        if !live_snapshot
             # Restore VM / attach the disk
-            {
+            steps << {
                 :driver     => :vmm,
                 :action     => post_action,
                 :parameters => post_params,
@@ -953,7 +972,7 @@ class ExecDriver < VirtualMachineDriver
                     }
                 ]
             }
-        ]
+        end
 
         action.run(steps)
     end
@@ -1046,12 +1065,13 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--parallel',   '-p', GetoptLong::NO_ARGUMENT ],
-    [ '--detach-snap','-d', GetoptLong::NO_ARGUMENT ]
+    [ '--retries',        '-r', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--threads',        '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--local',          '-l', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--shell',          '-s', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--parallel',       '-p', GetoptLong::NO_ARGUMENT ],
+    [ '--detach-snap',    '-d', GetoptLong::NO_ARGUMENT ],
+    [ '--live-snapshots', '-i', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
 hypervisor    = ''
@@ -1061,6 +1081,7 @@ shell         = 'bash'
 local_actions = {}
 single_host   = true
 detach_snap   = false
+live_snapshots= ['kvm-qcow2']
 
 begin
     opts.each do |opt, arg|
@@ -1077,6 +1098,8 @@ begin
                 single_host = false
             when '--detach-snap'
                 detach_snap = true
+            when '--live-snapshots'
+                live_snapshots = arg.split(',')
         end
     end
 rescue Exception => e
@@ -1095,6 +1118,7 @@ exec_driver = ExecDriver.new(hypervisor,
                 :local_actions => local_actions,
                 :shell => shell,
                 :single_host => single_host,
-                :detach_snap => detach_snap)
+                :detach_snap => detach_snap,
+                :live_snapshots => live_snapshots)
 
 exec_driver.start_driver
