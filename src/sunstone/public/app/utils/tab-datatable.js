@@ -171,10 +171,10 @@ define(function(require) {
     }
 
     var that = this;
-    $('#' + this.dataTableId + 'Search').keyup(function() {
+    $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
       return false;
-    })
+    });
 
     this.dataTable.on('draw.dt', function() {
       that.recountCheckboxes();
@@ -583,7 +583,7 @@ define(function(require) {
       return false;
     });
 
-    $('#' + that.dataTableId + '_search', section).keyup(function() {
+    $('#' + that.dataTableId + '_search', section).on('input', function() {
       that.dataTable.fnFilter($(this).val());
       return false;
     })
@@ -732,7 +732,7 @@ define(function(require) {
     $("td.markrow", that.dataTable).removeClass('markrow');
     $('tbody input.check_item', that.dataTable).prop('checked', false);
 
-    $('#' + that.dataTableId + '_search', section).val("").trigger("keyup");
+    $('#' + that.dataTableId + '_search', section).val("").trigger("input");
     $('#refresh_button_' + that.dataTableId).click();
 
     $('#selected_resource_id_' + that.dataTableId, section).val("").hide();

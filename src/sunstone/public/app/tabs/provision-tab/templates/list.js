@@ -174,11 +174,7 @@ define(function(require) {
 
     provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
 
-    $('.provision_list_templates_search', context).keyup(function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_templates_search', context).change(function(){
+    $('.provision_list_templates_search', context).on('input',function(){
       provision_templates_datatable.fnFilter( $(this).val() );
     })
 

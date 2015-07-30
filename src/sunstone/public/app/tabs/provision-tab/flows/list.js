@@ -204,11 +204,7 @@ define(function(require) {
       }
     });
 
-    $('.provision_list_flows_search', context).keyup(function(){
-      provision_flows_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_flows_search', context).change(function(){
+    $('.provision_list_flows_search', context).on('input',function(){
       provision_flows_datatable.fnFilter( $(this).val() );
     })
 

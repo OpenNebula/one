@@ -182,11 +182,7 @@ define(function(require) {
       }
     });
 
-    $('.provision_list_vms_search', context).keyup(function(){
-      provision_vms_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_vms_search', context).change(function(){
+    $('.provision_list_vms_search', context).on('input',function(){
       provision_vms_datatable.fnFilter( $(this).val() );
     })
 

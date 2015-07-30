@@ -433,11 +433,7 @@ define(function(require) {
       });
 
 
-      $('.provision-search-input', context).on('keyup',function(){
-        provision_instance_types_datatable.fnFilter( $(this).val() );
-      })
-
-      $('.provision-search-input', context).on('change',function(){
+      $('.provision-search-input', context).on('input',function(){
         provision_instance_types_datatable.fnFilter( $(this).val() );
       })
 
@@ -616,11 +612,7 @@ define(function(require) {
     });
 
 
-    $('.provision-search-input', dd_context).on('keyup',function(){
-      provision_networks_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision-search-input', dd_context).on('change',function(){
+    $('.provision-search-input', dd_context).on('input',function(){
       provision_networks_datatable.fnFilter( $(this).val() );
     })
 
@@ -1406,13 +1398,7 @@ define(function(require) {
         });
 
 
-        $('#provision_create_template_search').on('keyup',function(){
-          provision_system_templates_datatable.fnFilter( $(this).val() );
-          provision_saved_templates_datatable.fnFilter( $(this).val() );
-          provision_vdc_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('#provision_create_template_search').on('change',function(){
+        $('#provision_create_template_search').on('input',function(){
           provision_system_templates_datatable.fnFilter( $(this).val() );
           provision_saved_templates_datatable.fnFilter( $(this).val() );
           provision_vdc_templates_datatable.fnFilter( $(this).val() );
@@ -1671,11 +1657,7 @@ define(function(require) {
           }
         });
 
-        $('#provision_create_flow_template_search').on('keyup',function(){
-          provision_flow_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('#provision_create_flow_template_search').on('change',function(){
+        $('#provision_create_flow_template_search').on('input',function(){
           provision_flow_templates_datatable.fnFilter( $(this).val() );
         })
 

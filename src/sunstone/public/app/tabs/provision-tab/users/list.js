@@ -200,11 +200,7 @@ define(function(require) {
       }
     });
 
-    $('.provision_list_users_search', context).keyup(function() {
-      provision_users_datatable.fnFilter($(this).val());
-    })
-
-    $('.provision_list_users_search', context).change(function() {
+    $('.provision_list_users_search', context).on('input',function(){
       provision_users_datatable.fnFilter($(this).val());
     })
 
