@@ -73,7 +73,7 @@ define(function(require) {
 
   function _setup(context) {
     var  that = this;
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
 
     context.on("change", "input[name='req_select']", function() {
       if ($("input[name='req_select']:checked").val() == "host_select") {

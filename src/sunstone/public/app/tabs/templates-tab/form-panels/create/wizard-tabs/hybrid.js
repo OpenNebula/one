@@ -340,7 +340,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
     that.numberOfProviders = 0;
 
     // close icon: removing the tab on click
