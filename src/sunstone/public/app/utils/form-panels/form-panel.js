@@ -31,15 +31,9 @@ define(function(require) {
     context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
     context.off('valid.fndtn.abide', '#' + that.formPanelId + 'Wizard');
     context.on('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; };
-
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
       Sunstone.hideFormPanelLoading(that.tabId);
     }).on('valid.fndtn.abide', '#' + that.formPanelId + 'Wizard', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; };
-
       that.submitWizard(this);
       return false;
     });
@@ -47,20 +41,15 @@ define(function(require) {
     context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Advanced');
     context.off('valid.fndtn.abide', '#' + that.formPanelId + 'Advanced');
     context.on('invalid.fndtn.abide', '#' + that.formPanelId + 'Advanced', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; };
-
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
       Sunstone.hideFormPanelLoading(that.tabId);
     }).on('valid.fndtn.abide', '#' + that.formPanelId + 'Advanced', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; };
-
       that.submitAdvanced(this);
       return false;
     });
 
-    context.foundation('reflow', 'abide');
+    context.foundation('abide', 'reflow');
+
     that.setup(context);
   }
 
@@ -78,7 +67,7 @@ define(function(require) {
 
     this.action = action;
 
-    if (prevAction != action || action == "update") {
+    if ((prevAction && prevAction != action) || action == "update") {
       this.reset(context);
     }
   }
