@@ -51,7 +51,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    CapacityInputs.setup();
+    CapacityInputs.setup(context);
 
     Tips.setup(context);
 
