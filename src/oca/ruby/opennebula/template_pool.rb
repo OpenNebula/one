@@ -49,7 +49,7 @@ module OpenNebula
         # XML-RPC Methods for the Template Object
         #######################################################################
 
-        # Retrieves all or part of the VirtualMachines in the pool.
+        # Retrieves all or part of the Templates in the pool.
         def info(*args)
             case args.size
                 when 0
