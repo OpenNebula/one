@@ -2629,8 +2629,8 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        img_error = state != ACTIVE || lcm_state != EPILOG;
-
+        img_error = (state == ACTIVE && lcm_state != EPILOG) ||
+                    (state != PENDING && state != HOLD);
 
         if ( disk->vector_value("IMAGE_ID", iid) == 0 )
         {
