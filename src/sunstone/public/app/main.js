@@ -267,6 +267,12 @@ require.config({
       ]
     },
 
+    'spice-rng': {
+      deps: [
+        'spice-prng4'
+      ]
+    },
+
     'spice-display': {
       deps: [
         'spice-spiceconn'
