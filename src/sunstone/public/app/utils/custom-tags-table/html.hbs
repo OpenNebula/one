@@ -1,19 +1,6 @@
 <div class="row">
-  <div class="large-4 columns">
-    <input type="text" id="KEY" name="key" />
-  </div>
-  <div class="large-6 columns">
-    <input type="text" id="VALUE" name="value" />
-  </div>
-  <div class="large-2 columns">
-    <button type="button" class="button secondary small radius" id="add_custom">
-      {{tr "Add"}}
-    </button>
-  </div>
-</div>
-<div class="row">
   <div class="large-12 columns">
-    <table id="custom_tags" class="dataTable policies_table">
+    <table class="custom_tags dataTable policies_table">
       <thead>
         <tr>
           <th>{{tr "KEY"}}</th>
@@ -21,12 +8,17 @@
           <th></th>
         </tr>
       </thead>
-      <tbody id="tbodyinput">
-        <tr>
-        </tr>
-        <tr>
-        </tr>
+      <tbody>
       </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">
+            <a type="button" class="add_custom_tag button small large-12 secondary radius">
+              <i class="fa fa-plus"></i> {{tr "Add another attribute"}}
+            </a>
+          </td>
+        </tr>
+      </tfoot>
     </table>
   </div>
 </div>
