@@ -35,6 +35,8 @@ define(function(require) {
     var cpu_input = $("#CPU", context);
     var cpu_slider = $("#cpu_slider", context)
 
+    context.foundation('slider', 'reflow');
+
     //cpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
 
     cpu_slider.on('change.fndtn.slider', function(){
