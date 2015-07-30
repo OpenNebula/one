@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -62,7 +62,7 @@ SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 CURRENT_PATH=${DISK_PATH}
 
-rm ${DISK_PATH}
-qemu-img convert -O qcow2 ${SNAP_PATH} ${CURRENT_PATH}
+qemu-img convert -O qcow2 ${SNAP_PATH} ${CURRENT_PATH}.tmp
+mv "${CURRENT_PATH}.tmp" "${CURRENT_PATH}"
 rm -rf ${SNAP_DIR}
 
