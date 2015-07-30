@@ -20,7 +20,6 @@ define(function(require) {
     @returns {String} HTML row
    */
   function _insert(opts, context) {
-    console.log(opts)
     context.html(TemplateHTML(opts));
     context.foundation('slider', 'reflow');
     
