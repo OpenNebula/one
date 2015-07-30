@@ -147,7 +147,7 @@ define(function(require) {
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
                 '<a class="provision_info_vm_button" style="color:#555" href="#">'+
-                '<span class="'+ state.color +'-color"  data-tooltip title="'+state.str+'">'+
+                '<span class="'+ state.color +'-color" title="'+state.str+'">'+
                   '<i class="fa fa-fw fa-square"/> '+
                 '</span>'+
                 data.NAME + '</a>'+

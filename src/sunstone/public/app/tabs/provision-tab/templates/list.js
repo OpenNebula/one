@@ -124,16 +124,16 @@ define(function(require) {
           if (data.UID == config['user_id']) {
 
             if (data.PERMISSIONS.GROUP_U == "1") {
-              actions_html += '<a class="provision_confirm_unshare_template_button left" data-tooltip title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
               actions_html += '<span style="font-size:12px; color: #777">' + Locale.tr("SHARED") + '</span>';
             } else {
-              actions_html += '<a class="provision_confirm_chmod_template_button left" data-tooltip title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
             }
           }
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-          actions_html += '<a class="provision_confirm_delete_template_button" data-tooltip title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
         }
 
         $(".provision_templates_ul", context).append('<li>'+

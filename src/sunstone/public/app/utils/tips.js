@@ -18,14 +18,14 @@ define(function(require) {
         tip_classes.push(position)
       }
       //replace the text with an icon and spans
-      obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
+      //obj.html('<span data-tooltip class="' + tip_classes.join(' ') + '" data-width="210" title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
+      obj.html('<span title="' + tip + '"><i class="fa fa-question-circle"></i></span>');
     });
-
-    context.foundation('reflow', 'tooltip');
   }
 
   var _html = function(str) {
-    return '<span data-tooltip class="" data-width="210" title="' + str + '"><i class="fa fa-question-circle"></i></span>'
+    //return '<span data-tooltip class="" data-width="210" title="' + str + '"><i class="fa fa-question-circle"></i></span>'
+    return '<span title="' + str + '"><i class="fa fa-question-circle"></i></span>';
   }
 
   return {

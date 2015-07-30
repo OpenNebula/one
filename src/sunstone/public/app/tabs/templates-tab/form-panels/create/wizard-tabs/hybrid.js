@@ -509,8 +509,6 @@ define(function(require) {
         required_str +
         '<br><hr><br>' +
         not_required_str);
-
-      providerSection.foundation('tooltip', 'reflow');
     })
   }
 

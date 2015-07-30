@@ -65,7 +65,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('tooltip', 'reflow');
     that.vnetsTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {

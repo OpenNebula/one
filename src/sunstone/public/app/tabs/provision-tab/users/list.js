@@ -330,19 +330,19 @@ define(function(require) {
           }
 
           $(".provision-user-resource-header", context).html(
-                '<span class="provision_vdc_user_info_show_vms button medium radius" data-tooltip title="' + Locale.tr("User Virtual Machines") + '" style="margin-right: 10px">' +
+                '<span class="provision_vdc_user_info_show_vms button medium radius" title="' + Locale.tr("User Virtual Machines") + '" style="margin-right: 10px">' +
                   '<i class="fa fa-th fa-lg"></i>' +
                 '</span>' +
-                '<span class="provision_vdc_user_info_show_templates button medium radius" data-tooltip title="' + Locale.tr("User Saved Templates") + '" style="margin-right: 10px">' +
+                '<span class="provision_vdc_user_info_show_templates button medium radius" title="' + Locale.tr("User Saved Templates") + '" style="margin-right: 10px">' +
                   '<i class="fa fa-save fa-lg"></i>' +
                 '</span>' +
-                '<span class="provision_vdc_user_info_show_flows button medium radius" data-tooltip title="' + Locale.tr("User Services") + '" style="margin-right: 10px">' +
+                '<span class="provision_vdc_user_info_show_flows button medium radius" title="' + Locale.tr("User Services") + '" style="margin-right: 10px">' +
                   '<i class="fa fa-cubes fa-lg"></i>' +
                 '</span>' +
-                '<span class="provision_vdc_user_info_show_acct button medium radius" data-tooltip title="' + Locale.tr("User Accounting") + '" style="margin-right: 10px">' +
+                '<span class="provision_vdc_user_info_show_acct button medium radius" title="' + Locale.tr("User Accounting") + '" style="margin-right: 10px">' +
                   '<i class="fa fa-bar-chart-o fa-lg"></i>' +
                 '</span>' +
-                (Config.isFeatureEnabled("showback") ? '<span class="provision_vdc_user_info_show_showback button medium radius" data-tooltip title="' + Locale.tr("User Showback") + '" style="margin-right: 10px">' +
+                (Config.isFeatureEnabled("showback") ? '<span class="provision_vdc_user_info_show_showback button medium radius" title="' + Locale.tr("User Showback") + '" style="margin-right: 10px">' +
                   '<i class="fa fa-money fa-lg"></i>' +
                 '</span>' : ''))
 

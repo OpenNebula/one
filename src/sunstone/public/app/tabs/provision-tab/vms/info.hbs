@@ -10,33 +10,33 @@
     <div class="large-12 large-centered columns">
       <ul class="inline-list provision_action_icons">
         <li>
-          <a href"#" data-tooltip title="{{tr "Open a remote console in a new window"}}" class="left button small radius provision_vnc_button tip-top">
+          <a href"#" title="{{tr "Open a remote console in a new window"}}" class="left button small radius provision_vnc_button tip-top">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          <a data-tooltip title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top" style="color: #999">
+          <a title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
           {{#isTabPanelEnabled "provision-tab" "templates"}}
-          <a href"#" data-tooltip title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
+          <a href"#" title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
-          <a data-tooltip title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top" style="color: #999">
+          <a title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
           {{/isTabPanelEnabled}}
         </li>
         <li class="right">
-          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
+          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
+          <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
+          <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-power-off"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
+          <a href"#" title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
             <i class="fa fa-fw fa-lg fa-play"/>
           </a>
-          <a href"#" data-tooltip title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
+          <a href"#" title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-repeat"/>
           </a>
         </li>
