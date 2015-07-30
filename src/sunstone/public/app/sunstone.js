@@ -768,7 +768,12 @@ define(function(require) {
 
   var _submitFormPanel = function(tabId) {
     var context = $("#" + tabId);
-    _popFormPanelLoading(tabId);
+    //_popFormPanelLoading(tabId);
+    // Workaround until Foundation.abide support hidden forms
+    
+    var context = $("#" + tabId);
+    $(".right-form-title", context).text(Locale.tr("Submitting..."));
+    $(".submit_button", context).text(Locale.tr("Submitting..."));
 
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
