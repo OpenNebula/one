@@ -1,5 +1,6 @@
 define(function(require) {
   require('jquery');
+  require('foundation.dropdown');
 
   var DASHBOARD_TAB_ID = require('tabs/dashboard-tab/tabId');
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
@@ -91,14 +92,14 @@ define(function(require) {
   }
 
   function _insertUserAndZoneSelector() {
-    var user_login_content =  '<a href="#" data-dropdown="drop1" class="button small radius secondary dropdown" id="logout">\
-      <i class="fa fa-user fa-lg fa-fw header-icon"></i> ' + config['display_name'] + '</a>\
-      <ul id="drop1" data-dropdown-content class="f-dropdown">\
+    var user_login_content =  '<button href="#" data-dropdown="userSelectDropdown" class="button small radius secondary dropdown" id="logout">\
+      <i class="fa fa-user fa-lg fa-fw header-icon"></i> ' + config['display_name'] + '</button>\
+      <ul id="userSelectDropdown" data-dropdown-content class="f-dropdown">\
         <li><a href="#" class="configuration"><i class="fa fa-cog"></i> Settings</a></li>\
         <li><a href="#" class="logout"><i class="fa fa-power-off"></i> Sign Out</a></li>\
       </ul>\
-    <a href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
-      <i class="fa fa-home fa-lg fa-fw header-icon"></i> ' + config['zone_name'] + '</a>\
+    <button href="#" data-dropdown="drop2" class="button small radius secondary dropdown" id="zonelector">\
+      <i class="fa fa-home fa-lg fa-fw header-icon"></i> ' + config['zone_name'] + '</button>\
       <ul id="drop2" data-dropdown-content class="zone-ul f-dropdown"></ul>';
 
     $(".user-zone-info").html(user_login_content);
@@ -137,8 +138,6 @@ define(function(require) {
          }
        });
      });
-
-    $(".user-zone-info").foundation('reflow', 'dropdown');
 
     $("a.logout", $(".user-zone-info ")).click(function() {
       OpenNebula.Auth.logout({
