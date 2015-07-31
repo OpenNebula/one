@@ -9,7 +9,6 @@ define(function(require) {
   }
 
   function setup_provision_quota_widget(context) {
-    context.foundation('reflow', 'slider');
     // Mode selector, for the 3 sliders
     $("select.provision_quota_select", context).on('change', function() {
         var row = $(this).closest(".row");
@@ -44,7 +43,7 @@ define(function(require) {
 
     var provision_rvms_quota_input = $(".provision_rvms_quota_input", context);
 
-    $(".provision_rvms_quota_slider", context).on('change', function() {
+    $(".provision_rvms_quota_slider", context).on('change.fndtn.slider', function() {
         provision_rvms_quota_input.val($(this).attr('data-slider'))
       });
 
@@ -55,7 +54,7 @@ define(function(require) {
 
     var provision_cpu_quota_input = $(".provision_cpu_quota_input", context);
 
-    $(".provision_cpu_quota_slider", context).on('change', function() {
+    $(".provision_cpu_quota_slider", context).on('change.fndtn.slider', function() {
         provision_cpu_quota_input.val($(this).attr('data-slider'))
       });
 
@@ -76,7 +75,7 @@ define(function(require) {
         }
       }
 
-    $(".provision_memory_quota_slider", context).on('change', function() {
+    $(".provision_memory_quota_slider", context).on('change.fndtn.slider', function() {
         provision_memory_quota_tmp_input.val($(this).attr('data-slider'));
         update_final_memory_input();
       });

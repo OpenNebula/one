@@ -459,7 +459,7 @@ define(function(require) {
         $( ".cardinality_no_slider_div", context).hide();
 
         $( ".cardinality_slider", context).foundation('slider', 'set_value', role.cardinality);
-        $( ".cardinality_slider", context).on('change', function(){
+        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
           $(".cardinality_value",context).html($(this).attr('data-slider'))
         });
       } else {

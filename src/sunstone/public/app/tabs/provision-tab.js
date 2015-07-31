@@ -257,7 +257,7 @@ define(function(require) {
 
         $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
 
-        $( ".cardinality_slider", context).on('change', function(){
+        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
           $(".cardinality_value",context).html($(this).attr('data-slider'))
           var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
           $(".cost_value", context).html(cost_value.toFixed(2));
@@ -1908,11 +1908,16 @@ define(function(require) {
         ProvisionQuotaWidget.setup(context);
 
         // Workaround to fix sliders. Apparently the setup fails while they are hidden
-        $('a[href="#provision_create_user_manual_quota"]', context).on("click", function(){
+        context.on('click', 'a[href="#provision_create_user_manual_quota"]', function(){
           $(".provision_rvms_quota_input", context).change();
           $(".provision_memory_quota_input", context).change();
           $(".provision_memory_quota_tmp_input", context).change();
           $(".provision_cpu_quota_input", context).change();
+
+          // Workaround until hidden Foundation.slider can be initialized
+          setInterval(function() {
+            context.foundation('slider', 'reflow');
+          }, 20);
         });
 
         $("#provision_create_user").submit(function(){
