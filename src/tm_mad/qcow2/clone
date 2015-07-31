@@ -93,7 +93,7 @@ http://*)
     ORIGINAL_SIZE=${ORIGINAL_SIZE:-0}
 
     if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
-       RESIZE_CMD="; qemu-img resize ${DST_PATH} ${SIZE}M"
+       RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
     fi
 
     CLONE_CMD="cd $DST_DIR; rm -f $DST_PATH; \
