@@ -28,16 +28,26 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'ec2_driver'
+require 'opennebula'
 
 dfile = ARGV[0]
 host  = ARGV[1]
 id    = ARGV[2]
 
+vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+vm.info
+
+lcm_state = vm.lcm_state_str
+deploy_id = vm.deploy_id
+
 ec2_drv = EC2Driver.new(host)
 
 text=File.read(dfile)
 
-puts ec2_drv.deploy(id, host, text)
-
-exit 0
-
+begin
+	puts ec2_drv.deploy(id, host, text, lcm_state, deploy_id)
+rescue Exception => e
+    STDERR.puts "Deploy of VM #{id} on host #{host} with #{dfile} failed " +
+                "due to \"#{e.message}\""
+    exit -1
+end

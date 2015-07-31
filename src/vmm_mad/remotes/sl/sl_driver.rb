@@ -178,7 +178,8 @@ class SLDriver
     end
 
     # DEPLOY action
-    def deploy(id, host, xml_text)
+    def deploy(id, host, xml_text, lcm_state, deploy_id)
+      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
         load_default_template_values
 
         sl_info = get_deployment_info(host, xml_text)
@@ -212,11 +213,20 @@ class SLDriver
         end
 
         puts(vgid)
+      else
+        restore(deploy_id)
+        deploy_id
+      end
     end
 
     # Shutdown a SoftLayer instance
-    def shutdown(deploy_id)
-        sl_action(deploy_id, :terminate)
+    def shutdown(deploy_id, lcm_state)
+        case lcm_state
+        when "SHUTDOWN"
+          sl_action(deploy_id, :terminate)
+        when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+          sl_action(deploy_id, :stop)
+        end
     end
 
     # Reboot a SoftLayer instance
@@ -235,7 +245,7 @@ class SLDriver
     end
 
     # Start a SoftLayer instance
-    def restore(deploy_id)0
+    def restore(deploy_id)
         sl_action(deploy_id, :start)
     end
 

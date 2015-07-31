@@ -162,7 +162,6 @@ class AzureDriver
         end
 
         Azure.configure do |config|
-          # Configure these 3 properties to use Storage
           config.management_certificate = @region['pem_management_cert']
           config.subscription_id        = @region['subscription_id']
           config.management_endpoint    = @region['management_endpoint']
@@ -172,14 +171,14 @@ class AzureDriver
     end
 
     # DEPLOY action
-    def deploy(id, host, xml_text)
+    def deploy(id, host, xml_text, lcm_state, deploy_id)
+      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
         load_default_template_values
 
         az_info = get_deployment_info(host, xml_text)
 
         if !az_value(az_info, 'IMAGE')
             STDERR.puts("Cannot find IMAGE in deployment file")
-            exit(-1)
         end
 
         csn = az_value(az_info, 'CLOUD_SERVICE')
@@ -197,21 +196,28 @@ class AzureDriver
           end
         rescue => e
             STDERR.puts(e.message)
-            exit(-1)
         end
 
         if instance.class == Azure::VirtualMachineManagement::VirtualMachine
             puts(instance.vm_name)
         else
             STDERR.puts(instance)
-            exit (-1)
         end
+      else
+        restore(deploy_id)
+        deploy_id
+      end
     end
 
     # Shutdown an Azure instance
-    def shutdown(deploy_id)
-        az_action(deploy_id, :shutdown)
-        az_action(deploy_id, :delete)
+    def shutdown(deploy_id, lcm_state)
+        case lcm_state
+          when "SHUTDOWN"
+            az_action(deploy_id, :shutdown)
+            az_action(deploy_id, :delete)
+          when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+            az_action(deploy_id, :shutdown)
+        end
     end
 
     # Reboot an Azure instance
@@ -229,7 +235,7 @@ class AzureDriver
         az_action(deploy_id, :shutdown)
     end
 
-    # Cancel an Azure instance
+    # Resume an Azure instance
     def restore(deploy_id)
         az_action(deploy_id, :start)
     end
@@ -557,7 +563,7 @@ private
     def get_instance(vm_name)
         begin
             csn = vm_name.match(/([^_]+)-(.+)/)[-1]
- 
+
             instance = @azure_vms.get_virtual_machine(vm_name,csn)
             if instance
                 return instance

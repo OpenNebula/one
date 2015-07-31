@@ -28,10 +28,17 @@ $: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'sl_driver'
+require 'opennebula'
 
 deploy_id = ARGV[0]
 host      = ARGV[1]
+vm_id     = ARGV[-2]
+
+vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
+vm.info
+
+lcm_state     = vm.lcm_state_str
 
 sl_drv = SLDriver.new(host)
 
-sl_drv.shutdown(deploy_id)
+sl_drv.shutdown(deploy_id, lcm_state)

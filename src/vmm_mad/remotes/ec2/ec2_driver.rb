@@ -231,7 +231,8 @@ class EC2Driver
     end
 
     # DEPLOY action, also sets ports and ip if needed
-    def deploy(id, host, xml_text)
+    def deploy(id, host, xml_text, lcm_state, deploy_id)
+      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
         ec2_info = get_deployment_info(host, xml_text)
 
         load_default_template_values
@@ -274,11 +275,20 @@ class EC2Driver
         end
 
         puts(instance.id)
+      else
+        restore(deploy_id)
+        deploy_id
+      end
     end
 
     # Shutdown a EC2 instance
-    def shutdown(deploy_id)
-        ec2_action(deploy_id, :terminate)
+    def shutdown(deploy_id, lcm_state)
+        case lcm_state
+            when "SHUTDOWN"
+                ec2_action(deploy_id, :terminate)
+            when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+                ec2_action(deploy_id, :stop)
+        end
     end
 
     # Reboot a EC2 instance
@@ -291,12 +301,12 @@ class EC2Driver
         ec2_action(deploy_id, :terminate)
     end
 
-    # Stop a EC2 instance
+    # Save a EC2 instance
     def save(deploy_id)
         ec2_action(deploy_id, :stop)
     end
 
-    # Cancel a EC2 instance
+    # Resumes a EC2 instance
     def restore(deploy_id)
         ec2_action(deploy_id, :start)
     end
