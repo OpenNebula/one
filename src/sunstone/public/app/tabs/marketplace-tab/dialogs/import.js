@@ -159,8 +159,6 @@ define(function(require) {
       return false;
     });
 
-    context.foundation('reflow', 'abide');
-
     return false;
   }
 

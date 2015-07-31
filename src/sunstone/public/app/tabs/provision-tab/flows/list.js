@@ -150,9 +150,6 @@ define(function(require) {
 
         return true;
       },
-      "fnDrawCallback": function (oSettings) {
-        $(".provision_flows_ul", context).foundation('reflow', 'tooltip');
-      },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.DOCUMENT;
         var body = data.TEMPLATE.BODY;

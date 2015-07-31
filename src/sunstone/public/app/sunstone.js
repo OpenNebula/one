@@ -414,7 +414,7 @@ define(function(require) {
       return false;
     });
 
-    $(document).foundation('reflow', 'dropdown');
+    $(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
     $(document).on("click", "a[href='back']", function(e) {
@@ -605,7 +605,7 @@ define(function(require) {
       }
     });
 
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
     $('[href=' + activaTabHref + ']', context).trigger("click");
   }
 

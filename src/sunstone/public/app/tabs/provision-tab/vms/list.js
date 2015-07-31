@@ -134,11 +134,6 @@ define(function(require) {
 
         return true;
       },
-      "fnDrawCallback": function (oSettings) {
-        $(".provision_vms_ul", context).foundation('reflow', 'tooltip');
-
-        return true;
-      },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VM;
         var state = get_provision_vm_state(data);
