@@ -710,114 +710,139 @@ module OpenNebula
         # @return [Integer, OpenNebula::Error] the new Template ID in case of
         #   success, error otherwise
         def save_as_template(name)
-            rc = info()
-            return rc if OpenNebula.is_error?(rc)
+            img_ids = []
+            new_tid = nil
 
-            tid = self['TEMPLATE/TEMPLATE_ID']
-            if tid.nil? || tid.empty?
-                return Error.new('VM has no template to be saved')
-            end
-
-            if state_str() != "POWEROFF"
-                return Error.new("VM state must be POWEROFF, "<<
-                    "current state is #{state_str()}, #{lcm_state_str()}")
-            end
-
-            # Clone the source template
-            new_tid = OpenNebula::Template.new_with_id(tid, @client).clone(name)
-            return new_tid if OpenNebula.is_error?(new_tid)
-
-            # Replace the original template's capacity with the actual VM values
-            replace = ""
-
-            cpu = self['TEMPLATE/CPU']
-            if !cpu.nil? && !cpu.empty?
-                replace << "CPU = #{cpu}\n"
-            end
-
-            vcpu = self['TEMPLATE/VCPU']
-            if !vcpu.nil? && !vcpu.empty?
-                replace << "VCPU = #{vcpu}\n"
-            end
-
-            mem = self['TEMPLATE/MEMORY']
-            if !mem.nil? && !mem.empty?
-                replace << "MEMORY = #{mem}\n"
-            end
-
-            self.each('TEMPLATE/DISK') do |disk|
-                # While the previous snapshot is still in progress, we wait
-                # indefinitely
+            begin
                 rc = info()
-                return rc if OpenNebula.is_error?(rc)
+                raise if OpenNebula.is_error?(rc)
 
-                steps = 0
-                while lcm_state_str() == "HOTPLUG_SAVEAS_POWEROFF"
-                    if steps < 30
-                        sleep 1
-                    else
-                        sleep 15
+                tid = self['TEMPLATE/TEMPLATE_ID']
+                if tid.nil? || tid.empty?
+                    rc = Error.new('VM has no template to be saved')
+                    raise
+                end
+
+                if state_str() != "POWEROFF"
+                    rc = Error.new("VM state must be POWEROFF, "<<
+                        "current state is #{state_str()}, #{lcm_state_str()}")
+                    raise
+                end
+
+                # Clone the source template
+                rc = OpenNebula::Template.new_with_id(tid, @client).clone(name)
+                raise if OpenNebula.is_error?(rc)
+
+                new_tid = rc
+
+                # Replace the original template's capacity with the actual VM values
+                replace = ""
+
+                cpu = self['TEMPLATE/CPU']
+                if !cpu.nil? && !cpu.empty?
+                    replace << "CPU = #{cpu}\n"
+                end
+
+                vcpu = self['TEMPLATE/VCPU']
+                if !vcpu.nil? && !vcpu.empty?
+                    replace << "VCPU = #{vcpu}\n"
+                end
+
+                mem = self['TEMPLATE/MEMORY']
+                if !mem.nil? && !mem.empty?
+                    replace << "MEMORY = #{mem}\n"
+                end
+
+                self.each('TEMPLATE/DISK') do |disk|
+                    # While the previous snapshot is still in progress, we wait
+                    # indefinitely
+                    rc = info()
+                    raise if OpenNebula.is_error?(rc)
+
+                    steps = 0
+                    while lcm_state_str() == "HOTPLUG_SAVEAS_POWEROFF"
+                        if steps < 30
+                            sleep 1
+                        else
+                            sleep 15
+                        end
+
+                        rc = info()
+                        raise if OpenNebula.is_error?(rc)
+
+                        steps += 1
                     end
 
-                    rc = info()
-                    return rc if OpenNebula.is_error?(rc)
+                    # If the VM is not busy with a previous disk snapshot, we wait
+                    # but this time with a timeout
+                    rc = wait_state("POWEROFF")
+                    raise if OpenNebula.is_error?(rc)
 
-                    steps += 1
+                    disk_id = disk["DISK_ID"]
+                    if disk_id.nil? || disk_id.empty?
+                        rc = Error.new('The DISK_ID is missing from the VM template')
+                        raise
+                    end
+
+                    image_id = disk["IMAGE_ID"]
+
+                    if !image_id.nil? && !image_id.empty?
+                        rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
+
+                        raise if OpenNebula.is_error?(rc)
+
+                        img_ids << rc.to_i
+
+                        replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
+                    else
+                        # Volatile disks cannot be saved, so the definition is copied
+                        replace << self.template_like_str(
+                            "TEMPLATE", true, "DISK[DISK_ID=#{disk_id}]") << "\n"
+                    end
                 end
 
-                # If the VM is not busy with a previous disk snapshot, we wait
-                # but this time with a timeout
-                rc = wait_state("POWEROFF")
-                return rc if OpenNebula.is_error?(rc)
+                self.each('TEMPLATE/NIC') do |nic|
+                    nic_id = nic["NIC_ID"]
+                    if nic_id.nil? || nic_id.empty?
+                        rc = Error.new('The NIC_ID is missing from the VM template')
+                        raise
+                    end
 
-                disk_id = disk["DISK_ID"]
-                if disk_id.nil? || disk_id.empty?
-                    return Error.new('The DISK_ID is missing from the VM template')
+                    net_id = nic["NETWORK_ID"]
+
+                    if !net_id.nil? && !net_id.empty?
+                        replace << "NIC = [ NETWORK_ID = #{net_id} ]\n"
+                    else
+                        # This NIC does not use a Virtual Network
+                        replace << self.template_like_str(
+                            "TEMPLATE", true, "NIC[NIC_ID=#{nic_id}]") << "\n"
+                    end
                 end
 
-                image_id = disk["IMAGE_ID"]
+                # Required by the Sunstone Cloud View
+                replace << "SAVED_TEMPLATE_ID = #{tid}\n"
 
-                if !image_id.nil? && !image_id.empty?
-                    rc = disk_saveas(disk_id.to_i,"#{name}-disk-#{disk_id}","",-1)
+                new_tmpl = OpenNebula::Template.new_with_id(new_tid, @client)
 
-                    return rc if OpenNebula.is_error?(rc)
+                rc = new_tmpl.update(replace, true)
+                raise if OpenNebula.is_error?(rc)
 
-                    replace << "DISK = [ IMAGE_ID = #{rc} ]\n"
-                else
-                    # Volatile disks cannot be saved, so the definition is copied
-                    replace << self.template_like_str(
-                        "TEMPLATE", true, "DISK[DISK_ID=#{disk_id}]") << "\n"
+                return new_tid
+
+            rescue
+                # Rollback. Delete the template and the images created
+                if !new_tid.nil?
+                    new_tmpl = OpenNebula::Template.new_with_id(new_tid, @client)
+                    new_tmpl.delete()
                 end
+
+                img_ids.each do |id|
+                    img = OpenNebula::Image.new_with_id(id, @client)
+                    img.delete()
+                end
+
+                return rc
             end
-
-            self.each('TEMPLATE/NIC') do |nic|
-                nic_id = nic["NIC_ID"]
-                if nic_id.nil? || nic_id.empty?
-                    return Error.new('The NIC_ID is missing from the VM template')
-                end
-
-                net_id = nic["NETWORK_ID"]
-
-                if !net_id.nil? && !net_id.empty?
-                    replace << "NIC = [ NETWORK_ID = #{net_id} ]\n"
-                else
-                    # This NIC does not use a Virtual Network
-                    replace << self.template_like_str(
-                        "TEMPLATE", true, "NIC[NIC_ID=#{nic_id}]") << "\n"
-                end
-            end
-
-            # Required by the Sunstone Cloud View
-            replace << "SAVED_TEMPLATE_ID = #{tid}\n"
-
-            new_tmpl = OpenNebula::Template.new_with_id(new_tid, @client)
-
-            rc = new_tmpl.update(replace, true)
-            return rc if OpenNebula.is_error?(rc)
-
-            return new_tid
-
-            # TODO: rollback in case of error
         end
 
     private
