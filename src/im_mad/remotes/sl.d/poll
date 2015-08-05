@@ -16,7 +16,15 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
-$: << File.join(File.dirname(__FILE__), '../../vmm/sl')
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
 
 require 'sl_driver'
 

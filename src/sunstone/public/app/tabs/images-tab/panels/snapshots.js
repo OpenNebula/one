@@ -179,12 +179,12 @@ define(function(require){
     var active = (snapshot.ACTIVE == "YES");
 
     if(active){
-      html += '<i class="fa fa-play-circle-o fa-lg" data-tooltip title="'+
+      html += '<i class="fa fa-play-circle-o fa-lg" title="'+
               Locale.tr("Active")+'"/>' + SPACE;
     }
 
     html += Humanize.prettyTime(snapshot.DATE) + SPACE +
-            (snapshot.TAG ? snapshot.TAG + SPACE : '');
+            (snapshot.NAME ? snapshot.NAME + SPACE : '');
 
     html += '</div>';
 

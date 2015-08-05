@@ -162,7 +162,6 @@ class AzureDriver
         end
 
         Azure.configure do |config|
-          # Configure these 3 properties to use Storage
           config.management_certificate = @region['pem_management_cert']
           config.subscription_id        = @region['subscription_id']
           config.management_endpoint    = @region['management_endpoint']
@@ -172,19 +171,19 @@ class AzureDriver
     end
 
     # DEPLOY action
-    def deploy(id, host, xml_text)
+    def deploy(id, host, xml_text, lcm_state, deploy_id)
+      if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
         load_default_template_values
 
         az_info = get_deployment_info(host, xml_text)
 
         if !az_value(az_info, 'IMAGE')
             STDERR.puts("Cannot find IMAGE in deployment file")
-            exit(-1)
         end
 
         csn = az_value(az_info, 'CLOUD_SERVICE')
 
-        csn = "OpenNebulaDefaultCloudServiceName-#{id}" if !csn
+        csn = "csn#{id}" if !csn
 
         create_params  = create_params(id,csn,az_info)
         create_options = create_options(id,csn,az_info)
@@ -197,21 +196,28 @@ class AzureDriver
           end
         rescue => e
             STDERR.puts(e.message)
-            exit(-1)
         end
 
         if instance.class == Azure::VirtualMachineManagement::VirtualMachine
             puts(instance.vm_name)
         else
             STDERR.puts(instance)
-            exit (-1)
         end
+      else
+        restore(deploy_id)
+        deploy_id
+      end
     end
 
     # Shutdown an Azure instance
-    def shutdown(deploy_id)
-        az_action(deploy_id, :shutdown)
-        az_action(deploy_id, :delete)
+    def shutdown(deploy_id, lcm_state)
+        case lcm_state
+          when "SHUTDOWN"
+            az_action(deploy_id, :shutdown)
+            az_action(deploy_id, :delete)
+          when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
+            az_action(deploy_id, :shutdown)
+        end
     end
 
     # Reboot an Azure instance
@@ -229,7 +235,7 @@ class AzureDriver
         az_action(deploy_id, :shutdown)
     end
 
-    # Cancel an Azure instance
+    # Resume an Azure instance
     def restore(deploy_id)
         az_action(deploy_id, :start)
     end
@@ -273,10 +279,10 @@ class AzureDriver
                 vm_template_to_one = vm_template_to_one.gsub("\n","")
 
                 if vm.vm_name.start_with?('one-') and
-                   vm.vm_name.match(/([^_]+)_(.+)/) and
-                   vm.vm_name.match(/([^_]+)_(.+)/).size > 1
+                   vm.vm_name.match(/([^_]+)-(.+)/) and
+                   vm.vm_name.match(/([^_]+)-(.+)/).size > 1
 
-                    one_id = vm.vm_name.match(/([^_]+)_(.+)/)[1].split("-")[1]
+                    one_id = vm.vm_name.match(/([^_]+)-(.+)/)[1].split("-")[1]
                 end
 
                 vms_info << "VM=[\n"
@@ -438,13 +444,14 @@ private
 
     def create_params(id,csn,az_info)
         params = {
-            # Name will always be 'one-<id>_<cloud_service_name>'
-            :vm_name => "one-#{id}_#{csn}",
+            # Name will always be 'one-<id>-<cloud_service_name>'
+            :vm_name => "one-#{id}-#{csn}",
             :vm_user => az_value(az_info, 'VM_USER'),
             :image => az_value(az_info, 'IMAGE'),
             :password => az_value(az_info, 'VM_PASSWORD'),
             :location => az_value(az_info, 'LOCATION')
         }.delete_if { |k, v| v.nil? }
+
     end
 
     def create_options(id,csn,az_info)
@@ -470,7 +477,7 @@ private
     # +deploy_id+: String, VM id in Azure
     # +az_action+: Symbol, one of the keys of the Azure hash constant (i.e :run)
     def az_action(deploy_id, az_action)
-        name, csn = deploy_id.match(/([^_]+)_(.+)/)[1..-1]
+        name, csn = deploy_id.match(/([^_]+)-(.+)/)[1..-1]
 
         # Imported VMs do not start with one-
         deploy_id = name if !name.start_with? "one-"
@@ -551,11 +558,11 @@ private
        retval
     end
 
-    # Retrive the instance from Azure. If OpenNebula asks for it, then the
+    # Retrieve the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
     def get_instance(vm_name)
         begin
-            csn = vm_name.match(/([^_]+)_(.+)/)[2]
+            csn = vm_name.match(/([^_]+)-(.+)/)[-1]
 
             instance = @azure_vms.get_virtual_machine(vm_name,csn)
             if instance

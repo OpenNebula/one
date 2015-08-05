@@ -119,6 +119,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  driver          = "";
     string  cache           = "";
     string  disk_io         = "";
+    string  discard         = "";
     string  source          = "";
     string  clone           = "";
     string  ceph_host       = "";
@@ -146,6 +147,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  default_driver          = "";
     string  default_driver_cache    = "";
     string  default_driver_disk_io  = "";
+    string  default_driver_discard  = "";
     bool    readonly;
 
     const VectorAttribute * nic;
@@ -407,7 +409,7 @@ int LibVirtDriver::deployment_description_kvm(
     }
 
     get_default("DISK", "IO", default_driver_disk_io);
-
+    get_default("DISK", "DISCARD", default_driver_discard);
     get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
     get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
     get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
@@ -434,6 +436,7 @@ int LibVirtDriver::deployment_description_kvm(
         driver          = disk->vector_value("DRIVER");
         cache           = disk->vector_value("CACHE");
         disk_io         = disk->vector_value("IO");
+        discard         = disk->vector_value("DISCARD");
         source          = disk->vector_value("SOURCE");
         clone           = disk->vector_value("CLONE");
 
@@ -643,6 +646,15 @@ int LibVirtDriver::deployment_description_kvm(
         else if ( !default_driver_disk_io.empty() )
         {
             file << " io='" << default_driver_disk_io << "'";
+        }
+
+        if ( !discard.empty() )
+        {
+            file << " discard='" << discard << "'";
+        }
+        else if ( !default_driver_discard.empty() )
+        {
+            file << " discard='" << default_driver_discard << "'";
         }
 
         file << "/>" << endl;

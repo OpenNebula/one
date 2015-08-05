@@ -12,6 +12,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
+  var DisksResize = require('utils/disks-resize');
 
   /*
     CONSTANTS
@@ -51,17 +52,14 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+    context.foundation('abide', 'reflow');
 
     context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; };
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
       return false;
     }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; };
       var vm_name = $('#vm_name', this).val();
       var n_times = $('#vm_n_times', this).val();
       var n_times_int = 1;
@@ -87,6 +85,10 @@ define(function(require) {
         };
 
         var tmp_json = WizardFields.retrieve($(".template_user_inputs" + template_id, context));
+        var disks = DisksResize.retrieve($(".disksContext"  + template_id, context));
+        if (disks.length > 0) {
+          tmp_json.DISK = disks;
+        }
 
         extra_info['template'] = tmp_json;
 
@@ -128,17 +130,8 @@ define(function(require) {
     $("#instantiate_vm_template_proceed", context).attr("disabled", "disabled");
     var selected_nodes = Sunstone.getDataTable(TEMPLATES_TAB_ID).elements();
 
-    $("#instantiate_vm_user_inputs", context).html(
-      '<br>' +
-      '<div class="row">' +
-        '<div class="large-12 large-centered columns">' +
-          '<div class="subheader">' +
-            Locale.tr("Templates to be instantiated") +
-          '</div>' +
-          '<ul class="disc list_of_templates">' +
-          '</ul>' +
-        '</div>' +
-      '</div>');
+    var templatesContext = $(".list_of_templates", context)
+    templatesContext.html("");
 
     $.each(selected_nodes, function(index, template_id) {
       OpenNebulaTemplate.show({
@@ -147,15 +140,24 @@ define(function(require) {
         },
         timeout: true,
         success: function (request, template_json) {
-          $(".list_of_templates", context).append("<li>" + template_json.VMTEMPLATE.NAME + '</li>')
+          templatesContext.append(
+            '<h3 style="border-bottom: 1px solid #efefef; padding-bottom: 10px;">' + 
+              '<span style="border-bottom: 2px solid #0098c3; padding: 0px 50px 10px 0px;">' +
+                template_json.VMTEMPLATE.NAME + 
+              '</span>' +
+            '</h3>'+
+            '<div class="large-11 columns large-centered disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
+            '<div class="large-11 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
+            '<br>');
 
-          var inputs_div = $("<div class='template_user_inputs" + template_json.VMTEMPLATE.ID + "'></div>").appendTo(
-            $("#instantiate_vm_user_inputs", context));
+          DisksResize.insert(template_json, $(".disksContext"  + template_json.VMTEMPLATE.ID, context));
+
+          var inputs_div = $(".template_user_inputs" + template_json.VMTEMPLATE.ID, context);
 
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: template_json.VMTEMPLATE.NAME});
+              {text_header: Locale.tr("Custom Attributes")});
 
           inputs_div.data("opennebula_id", template_json.VMTEMPLATE.ID)
         },

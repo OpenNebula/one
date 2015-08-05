@@ -49,10 +49,10 @@ define(function(require) {
   FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
   FormPanel.prototype = Object.create(BaseFormPanel.prototype);
   FormPanel.prototype.constructor = FormPanel;
+  FormPanel.prototype.setTemplateId = _setTemplateId;
   FormPanel.prototype.htmlWizard = _html;
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.onShow = _onShow;
-  FormPanel.prototype.fill = _fill;
   FormPanel.prototype.setup = _setup;
 
   return FormPanel;
@@ -75,18 +75,18 @@ define(function(require) {
   }
 
   function _onShow(context) {
+  }
+
+  function _setTemplateId(context, templateId) {
     var that = this;
 
-    Sunstone.disableFormPanelSubmit(TAB_ID);
-
-    var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-    var template_id = ""+selected_nodes[0];
+    this.templateId = templateId;
 
     this.service_template_json = {};
 
     OpenNebulaServiceTemplate.show({
       data : {
-        id: template_id
+        id: templateId
       },
       timeout: true,
       success: function (request, template_json){
@@ -145,7 +145,6 @@ define(function(require) {
         $("#instantiate_service_user_inputs", context).empty();
       }
     });
-
   }
 
   function _submitWizard(context) {
@@ -154,14 +153,6 @@ define(function(require) {
     var service_name = $('#service_name',context).val();
     var n_times = $('#service_n_times',context).val();
     var n_times_int=1;
-
-    var template_id;
-    if ($("#TEMPLATE_ID", context).val()) {
-      template_id = $("#TEMPLATE_ID", context).val();
-    } else {
-      var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-      template_id = ""+selected_nodes[0];
-    }
 
     if (n_times.length){
       n_times_int=parseInt(n_times,10);
@@ -200,7 +191,7 @@ define(function(require) {
 
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
-        Sunstone.runAction("ServiceTemplate.instantiate", template_id, extra_info);
+        Sunstone.runAction("ServiceTemplate.instantiate", that.templateId, extra_info);
       }
     } else {
       if (service_name.indexOf("%i") == -1){//no wildcard, all with the same name
@@ -209,7 +200,7 @@ define(function(require) {
         for (var i=0; i< n_times_int; i++){
           Sunstone.runAction(
               "ServiceTemplate.instantiate",
-              template_id, extra_info);
+              that.templateId, extra_info);
         }
       } else { //wildcard present: replace wildcard
         for (var i=0; i< n_times_int; i++){
@@ -217,16 +208,12 @@ define(function(require) {
 
           Sunstone.runAction(
               "ServiceTemplate.instantiate",
-              template_id, extra_info);
+              that.templateId, extra_info);
         }
       }
     }
 
     return false;
-  }
-
-  function _fill(context, element) {
-    var that = this;
   }
 
 });

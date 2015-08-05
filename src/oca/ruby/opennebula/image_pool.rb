@@ -49,7 +49,7 @@ module OpenNebula
         # XML-RPC Methods for the Image Object
         #######################################################################
 
-        # Retrieves all or part of the VirtualMachines in the pool.
+        # Retrieves all or part of the Images in the pool.
         def info(*args)
             case args.size
                 when 0

@@ -282,7 +282,7 @@ def show_service(client, args, options)
 
                             column :'EVALS', "", :right, :size=>5 do |d|
                                 if d['period_number']
-                                    "#{d['true_evals'].to_i} / #{d['period_number']}"
+                                    "#{d['true_evals'].to_i}/#{d['period_number']}"
                                 else
                                     "-"
                                 end

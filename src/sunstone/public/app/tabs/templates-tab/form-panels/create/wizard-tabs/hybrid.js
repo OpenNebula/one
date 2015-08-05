@@ -340,7 +340,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
     that.numberOfProviders = 0;
 
     // close icon: removing the tab on click
@@ -480,42 +480,36 @@ define(function(require) {
     var providerSection = $('#' + htmlId + 'Tab', context);
 
     providerSection.on("change", "input.hybridRadio", function() {
-        $(".hybrid_inputs", providerSection).html("");
+      $(".hybrid_inputs", providerSection).html("");
 
-        var required_str = "";
-        var not_required_str = "";
+      var required_str = "";
+      var not_required_str = "";
 
-        $.each(HYBRID_INPUTS[this.value], function(index, obj) {
-          if (obj.required) {
-            required_str += '<div class="large-6 columns">' +
-              '<label>' +
-                obj.label +
-                '<span class="tip">' +
-                  obj.tooltip +
-                '</span>' +
-              '</label>' +
-              '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
-            '</div>'
-          } else {
-            not_required_str += '<div class="large-6 columns">' +
-              '<label>' +
-                obj.label +
-                '<span class="tip">' +
-                  obj.tooltip +
-                '</span>' +
-              '</label>' +
-              '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
-            '</div>'
-          }
-        });
+      $.each(HYBRID_INPUTS[this.value], function(index, obj) {
+        if (obj.required) {
+          required_str += '<div class="large-6 columns">' +
+            '<label>' +
+              obj.label + ' ' +
+              Tips.html(obj.tooltip) +
+            '</label>' +
+            '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
+          '</div>'
+        } else {
+          not_required_str += '<div class="large-6 columns">' +
+            '<label>' +
+              obj.label + ' ' +
+              Tips.html(obj.tooltip) +
+            '</label>' +
+            '<input wizard_field="' + obj.name + '" type="text" id="' + obj.name + '">' +
+          '</div>'
+        }
+      });
 
-        $(".hybrid_inputs", providerSection).append(
-          required_str +
-          '<br><hr><br>' +
-          not_required_str)
-
-        Tips.setup($(".hybrid_inputs", providerSection));
-      })
+      $(".hybrid_inputs", providerSection).append(
+        required_str +
+        '<br><hr><br>' +
+        not_required_str);
+    })
   }
 
   function _fillProviderTab(context, provider, providerType, clickButton) {

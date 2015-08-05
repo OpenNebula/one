@@ -31,7 +31,7 @@ require 'nokogiri'
 
 module OneDBFsck
     VERSION = "4.11.80"
-    LOCAL_VERSION = "4.13.80"
+    LOCAL_VERSION = "4.13.85"
 
     def check_db_version()
         db_version = read_db_version()
@@ -136,6 +136,9 @@ EOT
         init_log_time()
 
         @errors = 0
+        @repaired_errors = 0
+        @unrepaired_errors = 0
+
         puts
 
         db_version = read_db_version()
@@ -175,12 +178,14 @@ EOT
             end
 
             if ( max_oid > control_oid )
-                log_error("pool_control for table #{table} has last_oid #{control_oid}, but it is #{max_oid}")
+                msg = "pool_control for table #{table} has last_oid #{control_oid}, but it is #{max_oid}"
 
                 if control_oid != -1
                     if db_version[:is_slave] && federated_tables.include?(table)
-                        log_error("^ Needs to be fixed in the master OpenNebula")
+                        log_error(msg, false)
+                        log_msg("^ Needs to be fixed in the master OpenNebula")
                     else
+                        log_error(msg)
                         @db.run("UPDATE pool_control SET last_oid=#{max_oid} WHERE tablename='#{table}'")
                     end
                 else
@@ -221,7 +226,7 @@ EOT
             user_gids = Set.new
 
             if group[gid].nil?
-                log_error("User #{row[:oid]} has primary group #{gid}, but it does not exist")
+                log_error("User #{row[:oid]} has primary group #{gid}, but it does not exist", !db_version[:is_slave])
 
                 user_gid = 1
 
@@ -247,7 +252,7 @@ EOT
             }
 
             if !user_gids.include?(user_gid)
-                log_error("User #{row[:oid]} does not have his primary group #{user_gid} in the list of secondary groups")
+                log_error("User #{row[:oid]} does not have his primary group #{user_gid} in the list of secondary groups", !db_version[:is_slave])
 
                 doc.root.xpath("GROUPS").each { |e|
                     e.add_child(doc.create_element("ID")).content = user_gid.to_s
@@ -260,7 +265,7 @@ EOT
 
             user_gids.each do |secondary_gid|
                 if group[secondary_gid].nil?
-                    log_error("User #{row[:oid]} has secondary group #{secondary_gid}, but it does not exist")
+                    log_error("User #{row[:oid]} has secondary group #{secondary_gid}, but it does not exist", !db_version[:is_slave])
 
                     doc.root.xpath("GROUPS").each { |e|
                         e.xpath("ID[.=#{secondary_gid}]").each{|x| x.remove}
@@ -275,7 +280,7 @@ EOT
             if gid != row[:gid]
                 log_error(
                     "User #{row[:oid]} is in group #{gid}, but the DB "<<
-                    "table has GID column #{row[:gid]}")
+                    "table has GID column #{row[:gid]}", !db_version[:is_slave])
 
                 users_fix[row[:oid]] = {:body => doc.root.to_s, :gid => user_gid}
             end
@@ -290,7 +295,7 @@ EOT
                 end
             end
         elsif !users_fix.empty?
-            log_error("^ User errors need to be fixed in the master OpenNebula")
+            log_msg("^ User errors need to be fixed in the master OpenNebula")
         end
 
         log_time()
@@ -316,7 +321,7 @@ EOT
                     id_elem = users_elem.at_xpath("ID[.=#{id}]")
 
                     if id_elem.nil?
-                        log_error("User #{id} is missing from Group #{gid} users id list")
+                        log_error("User #{id} is missing from Group #{gid} users id list", !db_version[:is_slave])
                         error_found = true
                     else
                         id_elem.remove
@@ -326,7 +331,7 @@ EOT
                 end
 
                 users_elem.xpath("ID").each do |id_elem|
-                    log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not")
+                    log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not", !db_version[:is_slave])
                     error_found = true
                 end
 
@@ -336,7 +341,7 @@ EOT
                     # commit
                     @db[:group_pool_new].insert(row)
                 elsif error_found
-                    log_error("^ Group errors need to be fixed in the master OpenNebula")
+                    log_msg("^ Group errors need to be fixed in the master OpenNebula")
                 end
             end
         end
@@ -650,7 +655,7 @@ EOT
                         "    #{doc.root.get_text('SOURCE')}\n"<<
                         "  * The DB entry can be then deleted with the command:\n"<<
                         "    DELETE FROM image_pool WHERE oid=#{row[:oid]};\n"<<
-                        "  * Run fsck again.\n")
+                        "  * Run fsck again.\n", false)
                 else
                     if ds_name != ds_entry[:name]
                         log_error("Image #{row[:oid]} has a wrong name for datastore #{ds_id}, #{ds_name}. It will be changed to #{ds_entry[:name]}")
@@ -799,7 +804,7 @@ EOT
 
                 if counters[:image][img_id].nil?
                     log_error("VM #{row[:oid]} is using Image #{img_id}, but "<<
-                        "it does not exist")
+                        "it does not exist", false)
                 else
                     counters[:image][img_id][:vms].add(row[:oid])
                 end
@@ -815,7 +820,7 @@ EOT
                 if !net_id.nil?
                     if counters[:vnet][net_id].nil?
                         log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
-                            "but it does not exist")
+                            "but it does not exist", false)
                     else
                         mac = nic.at_xpath("MAC").nil? ? nil : nic.at_xpath("MAC").text
 
@@ -824,7 +829,7 @@ EOT
                         if ar_id_e.nil?
                             if !counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)].nil?
                                 log_error("VNet has more than one VM with the same MAC address (#{mac}). "<<
-                                    "FSCK can't handle this, and consistency is not guaranteed")
+                                    "FSCK can't handle this, and consistency is not guaranteed", false)
                             end
 
                             counters[:vnet][net_id][:no_ar_leases][mac_s_to_i(mac)] = {
@@ -841,7 +846,7 @@ EOT
 
                             if counters[:vnet][net_id][:ar_leases][ar_id].nil?
                                 log_error("VM #{row[:oid]} is using VNet #{net_id}, AR #{ar_id}, "<<
-                                    "but the AR does not exist")
+                                    "but the AR does not exist", false)
                             else
                                 counters[:vnet][net_id][:ar_leases][ar_id][mac_s_to_i(mac)] = {
                                     :ip         => nic.at_xpath("IP").nil? ? nil : nic.at_xpath("IP").text,
@@ -885,7 +890,7 @@ EOT
 
             if counters_host.nil?
                 log_error("VM #{row[:oid]} is using Host #{hid}, "<<
-                    "but it does not exist")
+                    "but it does not exist", false)
             else
                 if counters_host[:name] != hostname
                     log_error("VM #{row[:oid]} has a wrong hostname for "<<
@@ -1169,7 +1174,7 @@ EOT
                         log_error(
                             "VNet #{row[:oid]} is using parent "<<
                             "VNet #{parent_vnet}, AR #{parent_ar}, "<<
-                            "but the AR does not exist")
+                            "but the AR does not exist", false)
                     end
 
                     # MAC
@@ -1437,7 +1442,7 @@ EOT
                                     "#{lease_obj} #{lease_oid}. #{key.to_s.upcase} "<<
                                     "does not match: "<<
                                     "#{counter_lease[key]} != #{lease[key]}. "<<
-                                    "This can't be fixed")
+                                    "This can't be fixed", false)
                                 end
                             end
                         end
@@ -1493,7 +1498,7 @@ EOT
 
             counter_no_ar.each do |mac, counter_lease|
                 log_error("VM #{counter_lease[:vm]} has a lease from "<<
-                    "VNet #{oid}, but it could not be matched to any AR")
+                    "VNet #{oid}, but it could not be matched to any AR", false)
             end
 
             row[:body] = doc.root.to_s
@@ -1611,8 +1616,18 @@ EOT
         return true
     end
 
-    def log_error(message)
+    def log_error(message, repaired=true)
         @errors += 1
+
+        if repaired
+            @repaired_errors += 1
+        else
+            @unrepaired_errors += 1
+        end
+
+        if !repaired
+            message = "[UNREPAIRED] " + message
+        end
 
         log_msg(message)
     end
@@ -1629,6 +1644,9 @@ EOT
     def log_total_errors()
         puts
         log_msg "Total errors found: #{@errors}"
+        log_msg "Total errors repaired: #{@repaired_errors}"
+        log_msg "Total errors unrepaired: #{@unrepaired_errors}"
+
         puts "A copy of this output was stored in #{LOG}"
     end
 
@@ -1642,7 +1660,7 @@ EOT
         cpu_used = 0
         mem_used = 0
         vms_used = 0
-        vol_used = 0
+        sys_used = 0
 
         # VNet quotas
         vnet_usage = {}
@@ -1671,10 +1689,34 @@ EOT
                     type = t_elem.text.upcase
                 }
 
+                size = 0
+
+                if !e.at_xpath("SIZE").nil?
+                    size = e.at_xpath("SIZE").text.to_i
+                end
+
                 if ( type == "SWAP" || type == "FS")
-                    e.xpath("SIZE").each { |size_elem|
-                        vol_used += size_elem.text.to_i
-                    }
+                    sys_used += size
+                else
+                    if !e.at_xpath("CLONE").nil?
+                        clone = (e.at_xpath("CLONE").text.upcase == "YES")
+
+                        target = nil
+
+                        if clone
+                            target = e.at_xpath("CLONE_TARGET").text if !e.at_xpath("CLONE_TARGET").nil?
+                        else
+                            target = e.at_xpath("LN_TARGET").text if !e.at_xpath("LN_TARGET").nil?
+                        end
+
+                        if !target.nil? && target != "NONE" # self or system
+                            sys_used += size
+
+                            if !e.at_xpath("DISK_SNAPSHOT_TOTAL_SIZE").nil?
+                                sys_used += e.at_xpath("DISK_SNAPSHOT_TOTAL_SIZE").text.to_i
+                            end
+                        end
+                    end
                 end
             }
 
@@ -1714,8 +1756,8 @@ EOT
             vm_elem.add_child(doc.create_element("VMS")).content         = "-1"
             vm_elem.add_child(doc.create_element("VMS_USED")).content    = "0"
 
-            vm_elem.add_child(doc.create_element("VOLATILE_SIZE")).content       = "-1"
-            vm_elem.add_child(doc.create_element("VOLATILE_SIZE_USED")).content  = "0"
+            vm_elem.add_child(doc.create_element("SYSTEM_DISK_SIZE")).content       = "-1"
+            vm_elem.add_child(doc.create_element("SYSTEM_DISK_SIZE_USED")).content  = "0"
         end
 
 
@@ -1754,10 +1796,10 @@ EOT
             end
         }
 
-        vm_elem.xpath("VOLATILE_SIZE_USED").each { |e|
-            if e.text != vol_used.to_s
-                log_error("#{resource} #{oid} quotas: VOLATILE_SIZE_USED has #{e.text} \tis\t#{vol_used}")
-                e.content = vol_used.to_s
+        vm_elem.xpath("SYSTEM_DISK_SIZE_USED").each { |e|
+            if e.text != sys_used.to_s
+                log_error("#{resource} #{oid} quotas: SYSTEM_DISK_SIZE_USED has #{e.text} \tis\t#{sys_used}")
+                e.content = sys_used.to_s
             end
         }
 
@@ -1830,9 +1872,7 @@ EOT
             new_elem.add_child(doc.create_element("RVMS_USED")).content = rvms.to_s
         }
 
-
         # Datastore quotas
-
         ds_usage = {}
 
         @db.fetch("SELECT body FROM image_pool WHERE #{where_filter}") do |img_row|
@@ -1843,6 +1883,10 @@ EOT
                 ds_usage[e.text][0] += 1
 
                 img_doc.root.xpath("SIZE").each { |size|
+                    ds_usage[e.text][1] += size.text.to_i
+                }
+
+                img_doc.root.xpath("SNAPSHOTS/SNAPSHOT/SIZE").each { |size|
                     ds_usage[e.text][1] += size.text.to_i
                 }
             }

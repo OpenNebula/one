@@ -117,8 +117,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                             "CPU_USED"    => "0",
                             "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "MEMORY_USED" => "0",
-                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VOLATILE_SIZE_USED" => "0"
+                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
                         }
 
                         quotas[d['ID']] = q
@@ -154,8 +154,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                             "CPU_USED"    => "0",
                             "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "MEMORY_USED" => "0",
-                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VOLATILE_SIZE_USED" => "0"
+                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
                         }
 
                         quotas[d['ID']] = q
@@ -194,8 +194,8 @@ class OneGroupHelper < OpenNebulaHelper::OneHelper
                             "CPU_USED"    => "0",
                             "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "MEMORY_USED" => "0",
-                            "VOLATILE_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VOLATILE_SIZE_USED" => "0"
+                            "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
+                            "SYSTEM_DISK_SIZE_USED" => "0"
                         }
 
                         quotas[d['ID']] = q

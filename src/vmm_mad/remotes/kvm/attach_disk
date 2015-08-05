@@ -44,6 +44,7 @@ done < <($XPATH     /VMM_DRIVER_ACTION_DATA/VM/ID \
                     $DISK_XPATH/TYPE \
                     $DISK_XPATH/READONLY \
                     $DISK_XPATH/CACHE \
+                    $DISK_XPATH/DISCARD \
                     $DISK_XPATH/SOURCE \
                     $DISK_XPATH/DISK_ID \
                     $DISK_XPATH/CLONE \
@@ -56,6 +57,7 @@ DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
 TYPE="${XPATH_ELEMENTS[j++]}"
 READONLY="${XPATH_ELEMENTS[j++]}"
 CACHE="${XPATH_ELEMENTS[j++]}"
+DISCARD="${XPATH_ELEMENTS[j++]}"
 IMG_SRC="${XPATH_ELEMENTS[j++]}"
 DISK_ID="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
@@ -127,6 +129,10 @@ esac
     CACHE="$DEFAULT_ATTACH_CACHE"
 [ -n "$CACHE" ] && CACHE="cache='$CACHE'"
 
+[ -z "$DISCARD" ] && [ -n "$DEFAULT_ATTACH_DISCARD" ] && \
+    DISCARD="$DEFAULT_ATTACH_DISCARD"
+[ -n "$DISCARD" ] && DISCARD="discard='$DISCARD'"
+
 if [ "$READONLY" = "YES" ]; then
     READONLY="<readonly/>"
 else
@@ -135,7 +141,7 @@ fi
 
 cat <<EOF > $ATTACH_FILE
 <disk type='$TYPE_XML' device='$DEVICE'>
-  <driver name='qemu' type='$DRIVER' $CACHE/>
+  <driver name='qemu' type='$DRIVER' $CACHE $DISCARD/>
   <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS>
   $SOURCE_HOST
   </source>

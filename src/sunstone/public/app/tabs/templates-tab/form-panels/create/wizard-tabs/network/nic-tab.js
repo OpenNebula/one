@@ -3,7 +3,6 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('nouislider');
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
@@ -66,7 +65,6 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    Tips.setup(context);
     that.vnetsTable.initialize({
       'selectOptions': {
         'select_callback': function(aData, options) {

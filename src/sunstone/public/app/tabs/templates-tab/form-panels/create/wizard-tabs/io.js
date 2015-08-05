@@ -56,8 +56,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Tips.setup(context);
-
     $("input[name='graphics_type']", context).change(function() {
       $("#TYPE", context).val($(this).attr("value"))
       $("#LISTEN", context).val("0.0.0.0")

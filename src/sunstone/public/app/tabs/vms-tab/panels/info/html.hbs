@@ -51,3 +51,19 @@
 <div class="row">
 <div class="large-9 columns">{{{templateTableHTML}}}</div>
 </div>
+{{#if monitoringTableContentHTML}}
+<div class="row">
+<div class="large-9 columns">
+  <table class="dataTable extended_table">
+    <thead>
+      <tr>
+        <th colspan="2">{{tr "Monitoring"}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{{monitoringTableContentHTML}}}
+    </tbody>
+  </table>
+</div>
+</div>
+{{/if}}

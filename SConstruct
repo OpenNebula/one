@@ -155,6 +155,9 @@ else:
 # Rubygem generation
 main_env.Append(rubygems=ARGUMENTS.get('rubygems', 'no'))
 
+# Sunstone minified files generation
+main_env.Append(sunstone=ARGUMENTS.get('sunstone', 'no'))
+
 if not main_env.GetOption('clean'):
     try:
         if mysql=='yes':
@@ -243,6 +246,7 @@ build_scripts=[
     'src/vdc/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
+    'src/sunstone/public/SConstruct',
     'share/rubygems/SConstruct',
     'src/im_mad/collectd/SConstruct',
     'src/client/SConstruct'

@@ -51,7 +51,7 @@ define(function(require) {
     }
 
     var humanize = info.humanize_figures ?
-        Humanize.size : function(val) { return val };
+        Humanize.size : function(val) { return (val * 100).toFixed() / 100 };
 
     var options = {
       //        colors: [ "#cdebf5", "#2ba6cb", "#6f6f6f" ]

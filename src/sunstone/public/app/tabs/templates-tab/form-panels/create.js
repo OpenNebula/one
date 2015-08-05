@@ -105,7 +105,7 @@ define(function(require) {
       wizardTab.setup($('#' + wizardTab.wizardTabId, context));
     });
 
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
   }
 
   function _onShow(context) {

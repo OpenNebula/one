@@ -11,6 +11,9 @@ define(function(require) {
     "del" : function(params) {
       OpenNebulaAction.del(params, RESOURCE);
     },
+    "delete_from_provision": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "delete_from_provision");
+    },
     "list" : function(params) {
       OpenNebulaAction.list(params, RESOURCE);
     },
@@ -26,6 +29,10 @@ define(function(require) {
     "chmod" : function(params) {
       var action_obj = params.data.extra_param;
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
+    },
+    "chmod_from_provision": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "chmod_from_provision", action_obj);
     },
     "update" : function(params) {
       var action_obj = params.data.extra_param;

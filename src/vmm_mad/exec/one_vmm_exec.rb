@@ -669,7 +669,6 @@ class ExecDriver < VirtualMachineDriver
     # SNAPSHOTCREATE action, creates a new system snapshot
     #
     def snapshot_create(id, drv_message)
-        action   = ACTION[:snapshot_create]
         xml_data = decode(drv_message)
 
         host      = xml_data.elements['HOST'].text
@@ -689,7 +688,6 @@ class ExecDriver < VirtualMachineDriver
     # SNAPSHOTREVERT action, reverts to a system snapshot
     #
     def snapshot_revert(id, drv_message)
-        action   = ACTION[:snapshot_revert]
         xml_data = decode(drv_message)
 
         host      = xml_data.elements['HOST'].text
@@ -709,7 +707,6 @@ class ExecDriver < VirtualMachineDriver
     # SNAPSHOTDELETE action, deletes a system snapshot
     #
     def snapshot_delete(id, drv_message)
-        action   = ACTION[:snapshot_delete]
         xml_data = decode(drv_message)
 
         host      = xml_data.elements['HOST'].text
@@ -729,7 +726,6 @@ class ExecDriver < VirtualMachineDriver
     # CLEANUP action, frees resources allocated in a host: VM and disk images
     #
     def cleanup(id, drv_message)
-        aname    = ACTION[:cleanup]
         xml_data = decode(drv_message)
 
         tm_command = xml_data.elements['TM_COMMAND'].text
@@ -899,48 +895,75 @@ class ExecDriver < VirtualMachineDriver
         tm_rollback= xml_data.elements['TM_COMMAND_ROLLBACK'].text.strip
 
         target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
-        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
+        target       = ensure_xpath(xml_data, id, action, target_xpath) ||return
 
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
-        disk   = xml_data.elements[target_xpath]
-        attach = REXML::Element.new('ATTACH')
-        attach.add_text('YES')
-        disk.add(attach)
+        if @options[:detach_snap]
+          disk   = xml_data.elements[target_xpath].parent
+          attach = REXML::Element.new('ATTACH')
 
-        drv_message = Base64.encode64(xml_data.to_s)
+          attach.add_text('YES')
+          disk.add(attach)
+
+          drv_message = Base64.encode64(xml_data.to_s)
+        end
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 
-        steps = [
-            # First detach the disk from the VM
-            #{
-            #    :driver       => :vmm,
-            #    :action       => :detach_disk,
-            #    :parameters   => [
-            #            :deploy_id,
-            #            :disk_target_path,
-            #            target,
-            #            target_index
-            #   ]
-            #},
-            # Save the Virtual Machine state
-            {
+        vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
+        tm_driver_path = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
+
+        vmm_driver = ensure_xpath(xml_data, id, action, vmm_driver_path) ||
+            return
+        tm_driver = ensure_xpath(xml_data, id, action, tm_driver_path) ||
+            return
+
+        # live_snapshots option is an array of VM and TM pairs
+        # For example "kvm-qcow2". If found then only TM action is called.
+        # Extra actions (suspend or attach) will be skipped
+        live_snapshot = @options[:live_snapshots].include? "#{vmm_driver}-#{tm_driver}"
+
+        if @options[:detach_snap]
+          pre_action = :detach_disk
+          pre_params = [:deploy_id, :disk_target_path, target, target_index]
+
+          post_action = :attach_disk
+          post_params = [:deploy_id, :disk_target_path, target, target_index,
+                         drv_message]
+        else
+          pre_action = :save
+          pre_params = [:deploy_id, :checkpoint_file, :host]
+
+          post_action = :restore
+          post_params = [:checkpoint_file, :host, :deploy_id]
+        end
+
+        steps = []
+
+        if !live_snapshot
+            # Save VM state / detach the disk
+            steps << {
                 :driver     => :vmm,
-                :action     => :save,
-                :parameters => [:deploy_id, :checkpoint_file, :host]
-            },
-            # Do the snapshot
-            {
-                :driver     => :tm,
-                :action     => :tm_snap_create,
-                :parameters => tm_command.split
-            },
-            # Restore the Virtual Machine from checkpoint
-            {
+                :action     => pre_action,
+                :parameters => pre_params
+            }
+        end
+
+        # Do the snapshot
+        steps << {
+            :driver     => :tm,
+            :action     => :tm_snap_create,
+            :parameters => tm_command.split,
+            :no_fail    => true
+        }
+
+        if !live_snapshot
+            # Restore VM / attach the disk
+            steps << {
                 :driver     => :vmm,
-                :action     => :restore,
-                :parameters => [:checkpoint_file, :host, :deploy_id],
+                :action     => post_action,
+                :parameters => post_params,
                 :fail_actions => [
                     {
                         :driver     => :tm,
@@ -948,27 +971,8 @@ class ExecDriver < VirtualMachineDriver
                         :parameters => tm_rollback.split
                     }
                 ]
-            },
-            # Attach the disk again
-            #{
-            #    :driver       => :vmm,
-            #    :action       => :attach_disk,
-            #    :parameters   => [
-            #            :deploy_id,
-            #            :disk_target_path,
-            #            target,
-            #            target_index,
-            #            drv_message
-            #    ],
-            #    :fail_actions => [
-            #        {
-            #            :driver     => :tm,
-            #            :action     => :tm_snap_delete,
-            #            :parameters => tm_rollback.split
-            #        }
-            #    ]
-            #}
-        ]
+            }
+        end
 
         action.run(steps)
     end
@@ -983,61 +987,57 @@ class ExecDriver < VirtualMachineDriver
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
         target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
-        target     = ensure_xpath(xml_data, id, action, target_xpath) || return
+        target       = ensure_xpath(xml_data, id, action, target_xpath) ||return
 
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
-        disk   = xml_data.elements[target_xpath]
-        attach = REXML::Element.new('ATTACH')
-        attach.add_text('YES')
-        disk.add(attach)
+        if @options[:detach_snap]
+            disk   = xml_data.elements[target_xpath].parent
+            attach = REXML::Element.new('ATTACH')
 
-        drv_message = Base64.encode64(xml_data.to_s)
+            attach.add_text('YES')
+            disk.add(attach)
+
+            drv_message = Base64.encode64(xml_data.to_s)
+        end
 
         action = VmmAction.new(self, id, :disk_snapshot_revert, drv_message)
 
+        if @options[:detach_snap]
+          pre_action = :detach_disk
+          pre_params = [:deploy_id, :disk_target_path, target, target_index]
+
+          post_action = :attach_disk
+          post_params = [:deploy_id, :disk_target_path, target, target_index,
+                         drv_message]
+        else
+          pre_action = :save
+          pre_params = [:deploy_id, :checkpoint_file, :host]
+
+          post_action = :restore
+          post_params = [:checkpoint_file, :host, :deploy_id]
+        end
+
         steps = [
-            # First detach the disk from the VM
-            #{
-            #    :driver       => :vmm,
-            #    :action       => :detach_disk,
-            #    :parameters   => [
-            #            :deploy_id,
-            #            :disk_target_path,
-            #            target,
-            #            target_index
-            #   ]
-            #},
-            # Save the Virtual Machine state
+            # Save VM state / detach the disk
             {
                 :driver     => :vmm,
-                :action     => :save,
-                :parameters => [:deploy_id, :checkpoint_file, :host]
+                :action     => pre_action,
+                :parameters => pre_params
             },
             # Do the snapshot
             {
                 :driver     => :tm,
                 :action     => :tm_snap_revert,
-                :parameters => tm_command.split
+                :parameters => tm_command.split,
+                :no_fail    => true,
             },
-            # Restore the Virtual Machine from checkpoint
+            # Restore VM / attach the disk
             {
                 :driver     => :vmm,
-                :action     => :restore,
-                :parameters => [:checkpoint_file, :host, :deploy_id]
-            },
-            # Attach the disk again
-            #{
-            #    :driver       => :vmm,
-            #    :action       => :attach_disk,
-            #    :parameters   => [
-            #            :deploy_id,
-            #            :disk_target_path,
-            #            target,
-            #            target_index,
-            #            drv_message
-            #    ]
-            #}
+                :action     => post_action,
+                :parameters => post_params
+            }
         ]
 
         action.run(steps)
@@ -1065,19 +1065,23 @@ end
 ################################################################################
 
 opts = GetoptLong.new(
-    [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--shell',      '-s', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--parallel',   '-p', GetoptLong::NO_ARGUMENT ]
+    [ '--retries',        '-r', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--threads',        '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--local',          '-l', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--shell',          '-s', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--parallel',       '-p', GetoptLong::NO_ARGUMENT ],
+    [ '--detach-snap',    '-d', GetoptLong::NO_ARGUMENT ],
+    [ '--live-snapshots', '-i', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
-hypervisor      = ''
-retries         = 0
-threads         = 15
-shell           = 'bash'
-local_actions   = {}
-single_host     = true
+hypervisor    = ''
+retries       = 0
+threads       = 15
+shell         = 'bash'
+local_actions = {}
+single_host   = true
+detach_snap   = false
+live_snapshots= ['kvm-qcow2']
 
 begin
     opts.each do |opt, arg|
@@ -1092,6 +1096,10 @@ begin
                 shell   = arg
             when '--parallel'
                 single_host = false
+            when '--detach-snap'
+                detach_snap = true
+            when '--live-snapshots'
+                live_snapshots = arg.split(',')
         end
     end
 rescue Exception => e
@@ -1109,6 +1117,8 @@ exec_driver = ExecDriver.new(hypervisor,
                 :retries => retries,
                 :local_actions => local_actions,
                 :shell => shell,
-                :single_host => single_host)
+                :single_host => single_host,
+                :detach_snap => detach_snap,
+                :live_snapshots => live_snapshots)
 
 exec_driver.start_driver

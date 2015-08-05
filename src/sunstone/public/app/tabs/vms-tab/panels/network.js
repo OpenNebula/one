@@ -41,6 +41,8 @@ define(function(require) {
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
   Panel.prototype.onShow = _onShow;
+  Panel.prototype.getState = _getState;
+  Panel.prototype.setState = _setState;
 
   return Panel;
 
@@ -363,28 +365,28 @@ define(function(require) {
         data: {
           id: that.element.ID,
           monitor: {
-            monitor_resources : "NET_TX,NET_RX"
+            monitor_resources : "MONITORING/NETTX,MONITORING/NETRX"
           }
         },
         success: function(req, response) {
           var vmGraphs = [
             {
               labels : Locale.tr("Network reception"),
-              monitor_resources : "NET_RX",
+              monitor_resources : "MONITORING/NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_rx_graph")
             },
             {
               labels : Locale.tr("Network transmission"),
-              monitor_resources : "NET_TX",
+              monitor_resources : "MONITORING/NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               div_graph : $("#vm_net_tx_graph")
             },
             {
               labels : Locale.tr("Network reception speed"),
-              monitor_resources : "NET_RX",
+              monitor_resources : "MONITORING/NETRX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -393,7 +395,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Network transmission speed"),
-              monitor_resources : "NET_TX",
+              monitor_resources : "MONITORING/NETTX",
               humanize_figures : true,
               convert_from_bytes : true,
               y_sufix : "B/s",
@@ -409,5 +411,25 @@ define(function(require) {
         error: Notifier.onError
       });
     }
+  }
+
+  function _getState(context) {
+    var state = {
+      openNicsDetails : []
+    };
+
+    $.each($("#tab_network_form .nics_table .fa-chevron-up", context), function(){
+      state.openNicsDetails.push($(this).closest("tr").attr("nic_id"));
+    });
+
+    return state;
+  }
+
+  function _setState(state, context) {
+    var that = this;
+
+    $.each(state["openNicsDetails"], function(){
+      $('#tab_network_form .nics_table tr[nic_id="'+this+'"] td.open-control', context).click();
+    });
   }
 });

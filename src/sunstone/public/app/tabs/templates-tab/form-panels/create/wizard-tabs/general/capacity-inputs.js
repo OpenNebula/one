@@ -3,7 +3,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('nouislider');
+  require('foundation.slider');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
 
@@ -31,38 +31,29 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Tips.setup(context);
-
     // Define the cpu slider
-
     var cpu_input = $("#CPU", context);
+    var cpu_slider = $("#cpu_slider", context)
 
-    var cpu_slider = $("#cpu_slider", context).noUiSlider({
-      handles: 1,
-      connect: "lower",
-      range: [0, 1600],
-      //            start: 100,
-      step: 50,
-      start: 1,
-      slide: function(type) {
-        if (type != "move") {
-          var values = $(this).val();
+    context.foundation('slider', 'reflow');
 
-          cpu_input.val(values / 100);
-        }
-      },
+    //cpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
+
+    cpu_slider.on('change.fndtn.slider', function(){
+      if ($(this).attr('data-slider') >= 0) {
+        cpu_input.val($(this).attr('data-slider') / 100);
+      }
     });
 
-    cpu_slider.addClass("noUiSlider");
-
-    cpu_input.change(function() {
-      cpu_slider.val(this.value * 100)
+    cpu_input.on('change', function() {
+      if (this.value && this.value >= 0) {
+        cpu_slider.foundation('slider', 'set_value', this.value * 100);
+      } else {
+        cpu_slider.foundation('slider', 'set_value', -1);
+      }
     });
 
-    cpu_input.val(1);
-
-    // init::start is ignored for some reason
-    cpu_slider.val(100);
+    cpu_slider.foundation('slider', 'set_value', 100);
 
     // Define the memory slider
 
@@ -80,112 +71,98 @@ define(function(require) {
       }
     }
 
-    var memory_slider_change = function(type) {
-      if (type != "move") {
-        var values = $(this).val();
+    memory_input.on('change', function() {
+      if (this.value && this.value >= 0) {
+        $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
+        update_final_memory_input();
+      } else {
+        $("#memory_slider", context).foundation('slider', 'set_value', -1);
+        final_memory_input.val("");
+      }
+    });
 
-        memory_input.val(values / 100);
+    final_memory_input.on('change', function() {
+      if (this.value && this.value >= 0) {
+        $("#memory_slider", context).foundation('slider', 'set_value', this.value * 100);
+        memory_input.val(Math.floor(this.value));
+      } else {
+        $("#memory_slider", context).foundation('slider', 'set_value', -1);
+        memory_input.val("");
+      }
+    });
 
+    $("#memory_slider", context).on('change.fndtn.slider', function() {
+      if ($(this).attr('data-slider') >= 0) {
+        memory_input.val($(this).attr('data-slider') / 100);
         update_final_memory_input();
       }
-    };
-
-    var memory_slider = $("#memory_slider", context).noUiSlider({
-      handles: 1,
-      connect: "lower",
-      range: [0, 409600],
-      step: 12800,
-      start: 51200,
-      value: 512,
-      slide: memory_slider_change,
     });
 
-    memory_slider.addClass("noUiSlider");
-
-    memory_input.change(function() {
-      memory_slider.val(this.value * 100)
-
-      update_final_memory_input();
-    });
-
-    final_memory_input.change(function() {
-          memory_slider.val(this.value * 100);
-          memory_input.val(Math.floor(final_memory_input.val()));
-        })
-
-    memory_unit.change(function() {
+    memory_unit.on('change', function() {
       var memory_unit_val = $('#memory_unit :selected', context).val();
 
       if (current_memory_unit != memory_unit_val) {
         current_memory_unit = memory_unit_val
-
+        var new_val;
         if (memory_unit_val == 'GB') {
+          $("#memory_slider", context).detach();
+          $(".memory_slider_container", context).html(
+            '<div id="memory_slider" class="range-slider radius" data-slider data-options="start: 0; end: 1600; step: 50;">'+
+              '<span class="range-slider-handle"></span>'+
+              '<span class="range-slider-active-segment"></span>'+
+              '<input type="hidden">'+
+            '</div>');
 
-          memory_slider.empty().noUiSlider({
-            handles: 1,
-            connect: "lower",
-            range: [0, 1600],
-            start: 1,
-            step: 50,
-            value: 51200,
-            slide: memory_slider_change,
-          });
-
-          var new_val = memory_input.val() / 1024;
-
-          memory_input.val(new_val);
-          memory_slider.val(new_val * 100);
+          new_val = memory_input.val() / 1024;
         } else if (memory_unit_val == 'MB') {
+          $("#memory_slider", context).detach();
+          $(".memory_slider_container", context).html(
+            '<div id="memory_slider" class="range-slider radius" data-slider data-options="start: 0; end: 409600; step: 12800;">'+
+              '<span class="range-slider-handle"></span>'+
+              '<span class="range-slider-active-segment"></span>'+
+              '<input type="hidden">'+
+            '</div>');
 
-          memory_slider.empty().noUiSlider({
-            handles: 1,
-            connect: "lower",
-            range: [0, 409600],
-            start: 1,
-            value: 51200,
-            step: 12800,
-            slide: memory_slider_change,
-          });
-
-          var new_val = Math.floor(memory_input.val() * 1024);
-
-          memory_input.val(new_val);
-          memory_slider.val(new_val * 100);
+          new_val = Math.floor(memory_input.val() * 1024);
         }
+
+        context.foundation('slider', 'reflow');
+        memory_input.val(new_val);
+        $("#memory_slider", context).foundation('slider', 'set_value', new_val * 100);
+        $("#memory_slider", context).on('change.fndtn.slider', function() {
+          if ($(this).attr('data-slider') >= 0) {
+            memory_input.val($(this).attr('data-slider') / 100);
+            update_final_memory_input();
+          }
+        });
 
         update_final_memory_input();
       }
     });
 
     // init::start is ignored for some reason
-    memory_input.val(512).change();
+    $("#memory_slider", context).foundation('slider', 'set_value', 51200);
 
     // Define the vcpu slider
 
     var vcpu_input = $("#VCPU", context);
+    var vcpu_slider = $("#vcpu_slider", context)
 
-    var vcpu_slider = $("#vcpu_slider", context).noUiSlider({
-      handles: 1,
-      connect: "lower",
-      range: [1, 16],
-      start: 1,
-      step: 1,
-      slide: function(type) {
-        if (type != "move") {
-          var values = $(this).val();
-
-          vcpu_input.val(values);
-        }
-      },
+    //vcpu_slider.attr('data-options', 'start: 0; end: 1600; step: 50;');
+    vcpu_slider.on('change.fndtn.slider', function(){
+      if ($(this).attr('data-slider') > 0) {
+        vcpu_input.val($(this).attr('data-slider') / 100);
+      }
     });
 
-    vcpu_slider.addClass("noUiSlider");
-
-    vcpu_input.change(function() {
-      vcpu_slider.val(this.value)
+    vcpu_input.on('change', function() {
+      if (this.value && this.value > 0) {
+        vcpu_slider.foundation('slider', 'set_value', this.value * 100);
+      } else {
+        vcpu_slider.foundation('slider', 'set_value', -1);
+      }
     });
 
-    // init::start is ignored for some reason
-    vcpu_slider.val(0);
+    vcpu_slider.foundation('slider', 'set_value', 0);
   }
 });

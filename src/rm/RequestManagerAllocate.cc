@@ -114,7 +114,11 @@ bool VirtualMachineAllocate::allocate_authorization(
 
     // -------------------------- Check Quotas  ----------------------------
 
-    if ( quota_authorization(tmpl, Quotas::VIRTUALMACHINE, att) == false )
+    VirtualMachineTemplate aux_tmpl(*ttmpl);
+
+    VirtualMachine::disk_extended_info(att.uid, &aux_tmpl);
+
+    if ( quota_authorization(&aux_tmpl, Quotas::VIRTUALMACHINE, att) == false )
     {
         return false;
     }

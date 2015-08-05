@@ -59,8 +59,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    Tips.setup(context);
-
     CustomTagsTable.setup(context);
 
     context.on("change", "#raw_type", function() {

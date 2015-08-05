@@ -10,13 +10,13 @@
     <div class="large-12 large-centered columns">
       <ul class="inline-list provision_action_icons">
         <li class="">
-          <a href"#" data-tooltip title="{{tr "Update the User Quotas"}}" class="left button small secondary radius provision_vdc_user_quota_confirm_button tip-top">
+          <a href"#" title="{{tr "Update the User Quotas"}}" class="left button small secondary radius provision_vdc_user_quota_confirm_button tip-top">
             <i class="fa fa-fw fa-lg fa-align-left"/></a>
-          <a href"#" data-tooltip title="{{tr "Change the password of the User"}}" class="left button small secondary radius provision_vdc_user_password_confirm_button tip-top">
+          <a href"#" title="{{tr "Change the password of the User"}}" class="left button small secondary radius provision_vdc_user_password_confirm_button tip-top">
             <i class="fa fa-fw fa-lg fa-lock"/></a>
         </li>
         <li class="right">
-          <a href"#" data-tooltip title="{{tr "Delete the User"}}" class="right button small radius alert provision_vdc_user_delete_confirm_button tip-top">
+          <a href"#" title="{{tr "Delete the User"}}" class="right button small radius alert provision_vdc_user_delete_confirm_button tip-top">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
         </li>
@@ -28,13 +28,23 @@
   </div>
   <br>
   <div class="row">
-    <div class="large-4 columns">
+    <div class="large-12 columns">
       <ul class="provision-pricing-table_user_info provision-pricing-table" style="border: 0px !important; background: #fff;"></ul>
     </div>
-    <div class="large-8 columns">
+    <div class="large-12 columns">
       <div class="row dashboard_vm_accounting">
         <div id="acct_content">
-          <div class="large-6 columns">
+          <div class="large-4 columns">
+            <div class="row">
+              <div class="large-12 columns graph_legend text-center">
+                <span style="color: #777; font-size: 14px">{{tr "Disk MB hours"}}</span>
+              </div>
+              <div class="large-12 columns">
+                <div class="large-12 columns centered graph" id="acct_disk_graph" style="height: 100px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="large-4 columns">
             <input style="display:none;" value="vm" id="acct_group_by"/>
             <div class="row">
               <div class="large-12 columns graph_legend text-center">
@@ -46,7 +56,7 @@
               </div>
             </div>
           </div>
-          <div class="large-6 columns">
+          <div class="large-4 columns">
             <div class="row">
               <div class="large-12 columns graph_legend text-center">
                 <span style="color: #777; font-size: 14px">{{tr "Memory GB hours"}}</span>

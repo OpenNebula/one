@@ -339,15 +339,15 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :TAG, "Snapshot Tag", :left, :size=>45 do |d|
-                d["TAG"]
+            column :NAME, "Snapshot Name", :left, :size=>45 do |d|
+                d["NAME"]
             end
 
             column :DATE, "Snapshot creation date", :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :PARENT, :DATE, :CHILDREN, :TAG
+            default :AC, :ID, :PARENT, :DATE, :CHILDREN, :NAME
         end
 
         # Convert snapshot data to an array

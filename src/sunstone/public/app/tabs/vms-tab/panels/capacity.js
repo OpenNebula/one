@@ -87,19 +87,19 @@ define(function(require) {
       data: {
         id: that.element.ID,
         monitor: {
-          monitor_resources : "CPU,MEMORY"
+          monitor_resources : "MONITORING/CPU,MONITORING/MEMORY"
         }
       },
       success: function(req, response) {
         var vmGraphs = [
           {
-            monitor_resources : "CPU",
+            monitor_resources : "MONITORING/CPU",
             labels : Locale.tr("Real CPU"),
             humanize_figures : false,
             div_graph : $(".vm_cpu_graph")
           },
           {
-            monitor_resources : "MEMORY",
+            monitor_resources : "MONITORING/MEMORY",
             labels : Locale.tr("Real MEM"),
             humanize_figures : true,
             div_graph : $(".vm_memory_graph")

@@ -286,7 +286,9 @@ define(function(require) {
     "disk-attach",
     "disk-detach",
     "nic-attach",
-    "nic-detach"
+    "nic-detach",
+    "snap-create",
+    "snap-delete"
   ];
 
   var VM = {
@@ -329,11 +331,11 @@ define(function(require) {
     "stop": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "stop");
     },
-    "cancel": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "cancel");
-    },
     "suspend": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "suspend");
+    },
+    "save_as_template": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "save_as_template");
     },
     "resume": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "resume");
@@ -578,12 +580,12 @@ define(function(require) {
   }
 
   function retrieveExternalIPs(element) {
-    var template = element.TEMPLATE;
+    var monitoring = element.MONITORING;
     var ips = {};
     var externalIP;
 
     $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
+      externalIP = monitoring[IPAttr];
       if (externalIP) {
         ips[IPAttr] = externalIP;
       }
@@ -593,16 +595,18 @@ define(function(require) {
   }
 
   function retrieveExternalNetworkAttrs(element) {
-    var template = element.TEMPLATE;
     var ips = {};
     var externalAttr;
 
-    $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
-      externalAttr = template[attr];
-      if (externalAttr) {
-        ips[attr] = externalAttr;
-      }
-    });
+    var monitoring = element.MONITORING;
+    if (monitoring) {
+      $.each(EXTERNAL_NETWORK_ATTRIBUTES, function(index, attr) {
+        externalAttr = monitoring[attr];
+        if (externalAttr) {
+          ips[attr] = externalAttr;
+        }
+      });
+    }
 
     return ips;
   }
@@ -633,14 +637,16 @@ define(function(require) {
       });
     }
 
-    var template = element.TEMPLATE;
-    var externalIP;
-    $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-      externalIP = template[IPAttr];
-      if (externalIP && ($.inArray(externalIP, ips) == -1)) {
-        ips.push(externalIP);
-      }
-    })
+    var monitoring = element.MONITORING;
+    if (monitoring) {
+      var externalIP;
+      $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
+        externalIP = monitoring[IPAttr];
+        if (externalIP && ($.inArray(externalIP, ips) == -1)) {
+          ips.push(externalIP);
+        }
+      })
+    }
 
     if (ips.length > 0) {
       return ips.join(divider);

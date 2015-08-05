@@ -17,9 +17,7 @@ define(function(require) {
   var RESOURCE = "Image"
   var XML_ROOT = "IMAGE"
   var TAB_NAME = require('./tabId');
-  var COLUMN_IDS = {
-    "DATASTORE": 5
-  }
+
   /*
     CONSTRUCTOR
    */
@@ -79,7 +77,6 @@ define(function(require) {
   Table.prototype.elementArray = _elementArray;
   Table.prototype.preUpdateView = _preUpdateView;
   Table.prototype.postUpdateView = _postUpdateView;
-  Table.COLUMN_IDS = COLUMN_IDS;
 
   return Table;
 

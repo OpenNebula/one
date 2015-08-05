@@ -1,0 +1,26 @@
+<div class="snapshots large-12 columns" disk_id="{{diskId}}" style="padding-left: 30px;">
+  <div class="row collapse">
+    <div class="large-12 columns" style="padding-bottom: 1em;">
+      {{#isTabActionEnabled "vms-tab" "VM.disk_saveas"}}
+      <button class="disk_snapshot_saveas button secondary small radius" disabled="disabled">
+        <span class="fa fa-save fa-fw"></span>{{tr "Save as"}}
+      </button>
+      {{/isTabActionEnabled}}
+      {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_revert"}}
+      <button class="disk_snapshot_revert button secondary small radius" disabled="disabled">
+        <span class="fa fa-reply fa-fw"></span>{{tr "Revert"}}
+      </button>
+      {{/isTabActionEnabled}}
+      {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_delete"}}
+      <button class="disk_snapshot_delete button secondary small radius" disabled="disabled">
+        <span class="fa fa-times fa-fw"></span>{{tr "Delete"}}
+      </button>
+      {{/isTabActionEnabled}}
+    </div>
+  </div>
+  <div class="row collapse">
+    <div class="large-12 columns" style="width:800px; overflow-x:auto">
+      {{{snapshotsHTML}}}
+    </div>
+  </div>
+</div>

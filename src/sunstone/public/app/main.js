@@ -51,9 +51,6 @@ require.config({
     'flot.time': '../bower_components/flot/jquery.flot.time',
     'flot.tooltip': '../bower_components/flot.tooltip/js/jquery.flot.tooltip',
 
-    /* noUiSlider */
-    'nouislider': '../vendor/4.0/nouislider/jquery.nouislider.min',
-
     /* VNC */
     'vnc-util': '../bower_components/no-vnc/include/util',
     'vnc-webutil': '../bower_components/no-vnc/include/webutil',
@@ -199,11 +196,6 @@ require.config({
       deps: ['flot']
     },
 
-    /* noUiSlider */
-    'nouislider': {
-      deps: ['jquery']
-    },
-
     /* VNC */
     'vnc-util': {
       exports: 'Util'
@@ -272,6 +264,12 @@ require.config({
         'spice-ticket',
         'spice-resize',
         'spice-filexfer'
+      ]
+    },
+
+    'spice-rng': {
+      deps: [
+        'spice-prng4'
       ]
     },
 

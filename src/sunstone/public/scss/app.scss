@@ -1,6 +1,5 @@
 @import "../bower_components/fontawesome/css/font-awesome.min.css";
 @import "../bower_components/jgrowl/jquery.jgrowl.min.css";
-@import "../vendor/4.0/nouislider/nouislider.css";
 @import "settings";
 @import "foundation";
 
@@ -321,10 +320,11 @@ select {
 .value_td {
     text-overflow:ellipsis;
     word-break: break-all;
+    width: 100%;
 }
 
 .key_td {
-  color: #777 !important;
+  color: #999 !important;
 }
 
 .configuration_attrs {
@@ -1303,4 +1303,12 @@ hr {
 
 .tree ul:last-child li:last-child:after{
   height:1em;
+}
+
+.diskSlider {
+  label {
+    font-size: 24px;
+    color: #777;
+    padding: 0 0.5rem;
+  }
 }

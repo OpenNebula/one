@@ -15,6 +15,8 @@ define(function(require) {
   var Humanize = require('utils/humanize');
   var QuotaLimits = require('utils/quotas/quota-limits');
   var Graphs = require('utils/graphs');
+  var RangeSlider = require('utils/range-slider');
+  var DisksResize = require('utils/disks-resize');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -255,7 +257,7 @@ define(function(require) {
 
         $( ".cardinality_slider", context).foundation('slider', 'set_value', role_template.cardinality);
 
-        $( ".cardinality_slider", context).on('change', function(){
+        $( ".cardinality_slider", context).on('change.fndtn.slider', function(){
           $(".cardinality_value",context).html($(this).attr('data-slider'))
           var cost_value = $(".provision_create_service_cost_div", context).data("cost")*$(this).attr('data-slider');
           $(".cost_value", context).html(cost_value.toFixed(2));
@@ -290,37 +292,23 @@ define(function(require) {
               '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
               Locale.tr("Capacity")+
             '</span>'+
+            '<span>'+
+              '<span class="cpu_value">'+(capacity.CPU ? capacity.CPU : '-')+'</span> '+
+              '<small style="color: #999; margin-right: 10px">'+Locale.tr("CPU")+'</small>'+
+              '<span class="memory_value">'+memory_value+'</span>'+
+              ' '+
+              '<span class="memory_unit">'+memory_unit+'</span> '+
+              '<small style="color: #999; margin-right: 10px">'+Locale.tr("MEMORY")+'</small>'+
+              '<span class="provision_create_template_cost_div hidden">' +
+                '<span class="cost_value">0.00</span> '+
+                '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
+              '</span>'+
+            '</span>'+
           '</h3>'+
           '<br>'+
         '</div>'+
       '</div>'+
-      '<br>'+
-      '<div class="row">'+
-        '<div class="large-12 large-centered columns">'+
-          '<div class="row text-center">'+
-            '<div class="large-4 columns">'+
-              '<span class="cpu_value" style="color: #777; font-size:60px">'+(capacity.CPU ? capacity.CPU : '-')+'</span>'+
-              '<br>'+
-              '<span style="color: #999;">'+Locale.tr("CPU")+'</span>'+
-            '</div>'+
-            '<div class="large-4 columns">'+
-              '<span class="memory_value" style="color: #777; font-size:60px">'+memory_value+'</span>'+
-              ' '+
-              '<span class="memory_unit" style="color: #777; font-size:30px">'+memory_unit+'</span>'+
-              '<br>'+
-              '<span style="color: #999;">'+Locale.tr("MEMORY")+'</span>'+
-            '</div>'+
-            '<div class="large-4 columns provision_create_template_cost_div hidden">'+
-              '<span class="cost_value" style="color: #777; font-size:60px"></span>'+
-              '<br>'+
-              '<span style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</span>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-      '</div>'+
       (Config.provision.create_vm.isEnabled("capacity_select") && (capacity.SUNSTONE_CAPACITY_SELECT != "NO") ?
-      '<br>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion" data-accordion="provision_accordion_'+provision_instance_type_accordion_id+'">'+
@@ -445,11 +433,7 @@ define(function(require) {
       });
 
 
-      $('.provision-search-input', context).on('keyup',function(){
-        provision_instance_types_datatable.fnFilter( $(this).val() );
-      })
-
-      $('.provision-search-input', context).on('change',function(){
+      $('.provision-search-input', context).on('input',function(){
         provision_instance_types_datatable.fnFilter( $(this).val() );
       })
 
@@ -628,11 +612,7 @@ define(function(require) {
     });
 
 
-    $('.provision-search-input', dd_context).on('keyup',function(){
-      provision_networks_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision-search-input', dd_context).on('change',function(){
+    $('.provision-search-input', dd_context).on('input',function(){
       provision_networks_datatable.fnFilter( $(this).val() );
     })
 
@@ -674,7 +654,6 @@ define(function(require) {
           '<br>'+
         '</div>'+
       '</div>'+
-      '<br>'+
       '<div class="row">'+
         '<div class="large-12 large-centered columns">'+
           '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_'+provision_nic_accordion_id+'">'+
@@ -701,106 +680,6 @@ define(function(require) {
     $("#provision_dashboard").fadeIn();
 
     $("#provision_dashboard").html("");
-
-    if (Config.provision.dashboard.isEnabled("quotas")) {
-      $("#provision_dashboard").append(TemplateDashboardQuotas());
-
-
-      OpenNebula.User.show({
-        data : {
-            id: "-1"
-        },
-        success: function(request,user_json){
-          var user = user_json.USER;
-
-          QuotaWidgets.initEmptyQuotas(user);
-
-          if (!$.isEmptyObject(user.VM_QUOTA)){
-              var default_user_quotas = QuotasDefault.default_quotas(user.DEFAULT_USER_QUOTAS);
-
-              var vms = QuotaWidgets.quotaInfo(
-                  user.VM_QUOTA.VM.VMS_USED,
-                  user.VM_QUOTA.VM.VMS,
-                  default_user_quotas.VM_QUOTA.VM.VMS,
-                  true);
-
-              $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
-              $("#provision_dashboard_rvms_str").html(vms["str"]);
-              $("#provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
-
-              var memory = QuotaWidgets.quotaMBInfo(
-                  user.VM_QUOTA.VM.MEMORY_USED,
-                  user.VM_QUOTA.VM.MEMORY,
-                  default_user_quotas.VM_QUOTA.VM.MEMORY,
-                  true);
-
-              $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
-              $("#provision_dashboard_memory_str").html(memory["str"]);
-              $("#provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
-
-              var cpu = QuotaWidgets.quotaFloatInfo(
-                  user.VM_QUOTA.VM.CPU_USED,
-                  user.VM_QUOTA.VM.CPU,
-                  default_user_quotas.VM_QUOTA.VM.CPU,
-                  true);
-
-              $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
-              $("#provision_dashboard_cpu_str").html(cpu["str"]);
-              $("#provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
-          }
-        }
-      })
-    }
-
-    if (Config.provision.dashboard.isEnabled("vdcquotas")) {
-      $("#provision_dashboard").append(TemplateDashboardVdcQuotas());
-
-
-      OpenNebula.Group.show({
-        data : {
-            id: "-1"
-        },
-        success: function(request,group_json){
-          var group = group_json.GROUP;
-
-          QuotaWidgets.initEmptyQuotas(group);
-
-          if (!$.isEmptyObject(group.VM_QUOTA)){
-              var default_group_quotas = QuotaDefaults.default_quotas(group.DEFAULT_GROUP_QUOTAS);
-
-              var vms = QuotaWidgets.quotaInfo(
-                  group.VM_QUOTA.VM.VMS_USED,
-                  group.VM_QUOTA.VM.VMS,
-                  default_group_quotas.VM_QUOTA.VM.VMS,
-                  true);
-
-              $("#provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
-              $("#provision_dashboard_vdc_rvms_str").html(vms["str"]);
-              $("#provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
-
-              var memory = QuotaWidgets.quotaMBInfo(
-                  group.VM_QUOTA.VM.MEMORY_USED,
-                  group.VM_QUOTA.VM.MEMORY,
-                  default_group_quotas.VM_QUOTA.VM.MEMORY,
-                  true);
-
-              $("#provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
-              $("#provision_dashboard_vdc_memory_str").html(memory["str"]);
-              $("#provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
-
-              var cpu = QuotaWidgets.quotaFloatInfo(
-                  group.VM_QUOTA.VM.CPU_USED,
-                  group.VM_QUOTA.VM.CPU,
-                  default_group_quotas.VM_QUOTA.VM.CPU,
-                  true);
-
-              $("#provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
-              $("#provision_dashboard_vdc_cpu_str").html(cpu["str"]);
-              $("#provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
-          }
-        }
-      })
-    }
 
     if (Config.provision.dashboard.isEnabled("vms")) {
       $("#provision_dashboard").append(TemplateDashboardVms());
@@ -990,6 +869,105 @@ define(function(require) {
       });
     }
 
+    if (Config.provision.dashboard.isEnabled("quotas")) {
+      $("#provision_dashboard").append(TemplateDashboardQuotas());
+
+
+      OpenNebula.User.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,user_json){
+          var user = user_json.USER;
+
+          QuotaWidgets.initEmptyQuotas(user);
+
+          if (!$.isEmptyObject(user.VM_QUOTA)){
+              var default_user_quotas = QuotasDefault.default_quotas(user.DEFAULT_USER_QUOTAS);
+
+              var vms = QuotaWidgets.quotaInfo(
+                  user.VM_QUOTA.VM.VMS_USED,
+                  user.VM_QUOTA.VM.VMS,
+                  default_user_quotas.VM_QUOTA.VM.VMS,
+                  true);
+
+              $("#provision_dashboard_rvms_percentage").html(vms["percentage"]);
+              $("#provision_dashboard_rvms_str").html(vms["str"]);
+              $("#provision_dashboard_rvms_meter").css("width", vms["percentage"]+"%");
+
+              var memory = QuotaWidgets.quotaMBInfo(
+                  user.VM_QUOTA.VM.MEMORY_USED,
+                  user.VM_QUOTA.VM.MEMORY,
+                  default_user_quotas.VM_QUOTA.VM.MEMORY,
+                  true);
+
+              $("#provision_dashboard_memory_percentage").html(memory["percentage"]);
+              $("#provision_dashboard_memory_str").html(memory["str"]);
+              $("#provision_dashboard_memory_meter").css("width", memory["percentage"]+"%");
+
+              var cpu = QuotaWidgets.quotaFloatInfo(
+                  user.VM_QUOTA.VM.CPU_USED,
+                  user.VM_QUOTA.VM.CPU,
+                  default_user_quotas.VM_QUOTA.VM.CPU,
+                  true);
+
+              $("#provision_dashboard_cpu_percentage").html(cpu["percentage"]);
+              $("#provision_dashboard_cpu_str").html(cpu["str"]);
+              $("#provision_dashboard_cpu_meter").css("width", cpu["percentage"]+"%");
+          }
+        }
+      })
+    }
+
+    if (Config.provision.dashboard.isEnabled("vdcquotas")) {
+      $("#provision_dashboard").append(TemplateDashboardVdcQuotas());
+
+
+      OpenNebula.Group.show({
+        data : {
+            id: "-1"
+        },
+        success: function(request,group_json){
+          var group = group_json.GROUP;
+
+          QuotaWidgets.initEmptyQuotas(group);
+
+          if (!$.isEmptyObject(group.VM_QUOTA)){
+              var default_group_quotas = QuotaDefaults.default_quotas(group.DEFAULT_GROUP_QUOTAS);
+
+              var vms = QuotaWidgets.quotaInfo(
+                  group.VM_QUOTA.VM.VMS_USED,
+                  group.VM_QUOTA.VM.VMS,
+                  default_group_quotas.VM_QUOTA.VM.VMS,
+                  true);
+
+              $("#provision_dashboard_vdc_rvms_percentage").html(vms["percentage"]);
+              $("#provision_dashboard_vdc_rvms_str").html(vms["str"]);
+              $("#provision_dashboard_vdc_rvms_meter").css("width", vms["percentage"]+"%");
+
+              var memory = QuotaWidgets.quotaMBInfo(
+                  group.VM_QUOTA.VM.MEMORY_USED,
+                  group.VM_QUOTA.VM.MEMORY,
+                  default_group_quotas.VM_QUOTA.VM.MEMORY,
+                  true);
+
+              $("#provision_dashboard_vdc_memory_percentage").html(memory["percentage"]);
+              $("#provision_dashboard_vdc_memory_str").html(memory["str"]);
+              $("#provision_dashboard_vdc_memory_meter").css("width", memory["percentage"]+"%");
+
+              var cpu = QuotaWidgets.quotaFloatInfo(
+                  group.VM_QUOTA.VM.CPU_USED,
+                  group.VM_QUOTA.VM.CPU,
+                  default_group_quotas.VM_QUOTA.VM.CPU,
+                  true);
+
+              $("#provision_dashboard_vdc_cpu_percentage").html(cpu["percentage"]);
+              $("#provision_dashboard_vdc_cpu_str").html(cpu["str"]);
+              $("#provision_dashboard_vdc_cpu_meter").css("width", cpu["percentage"]+"%");
+          }
+        }
+      })
+    }
   }
 
 
@@ -1054,6 +1032,7 @@ define(function(require) {
     $(".provision_accordion_template .select_template").show();
 
     $("#provision_create_vm .provision_capacity_selector").html("");
+    $("#provision_create_vm .provision_disk_selector").html("");
     $("#provision_create_vm .provision_network_selector").html("");
     $("#provision_create_vm .provision_custom_attributes_selector").html("")
 
@@ -1419,13 +1398,7 @@ define(function(require) {
         });
 
 
-        $('#provision_create_template_search').on('keyup',function(){
-          provision_system_templates_datatable.fnFilter( $(this).val() );
-          provision_saved_templates_datatable.fnFilter( $(this).val() );
-          provision_vdc_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('#provision_create_template_search').on('change',function(){
+        $('#provision_create_template_search').on('input',function(){
           provision_system_templates_datatable.fnFilter( $(this).val() );
           provision_saved_templates_datatable.fnFilter( $(this).val() );
           provision_vdc_templates_datatable.fnFilter( $(this).val() );
@@ -1443,6 +1416,7 @@ define(function(require) {
           var create_vm_context = $("#provision_create_vm");
 
           if ($(this).hasClass("selected")){
+            $(".provision_disk_selector", create_vm_context).html("");
             $(".provision_network_selector", create_vm_context).html("");
             $(".provision_capacity_selector", create_vm_context).html("");
 
@@ -1473,6 +1447,13 @@ define(function(require) {
             generate_provision_instance_type_accordion(
               $(".provision_capacity_selector", create_vm_context),
               template_json.VMTEMPLATE.TEMPLATE);
+
+            var disksContext = $(".provision_disk_selector", create_vm_context);
+            if (Config.provision.create_vm.isEnabled("disk_resize")) {
+              DisksResize.insert(template_json, disksContext);
+            } else {
+              disksContext.html("");
+            }
 
             if (Config.provision.create_vm.isEnabled("network_select") && (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_NETWORK_SELECT != "NO")) {
               generate_provision_network_accordion(
@@ -1530,6 +1511,8 @@ define(function(require) {
             }
           });
 
+          var disks = DisksResize.retrieve($(".provision_disk_selector", context));
+
           var instance_type = $(".provision_instance_types_ul .selected", context);
 
           if (!template_id) {
@@ -1545,6 +1528,10 @@ define(function(require) {
 
           if (nics.length > 0) {
             extra_info.template.nic = nics;
+          }
+
+          if (disks.length > 0) {
+            extra_info.template.DISK = disks;
           }
 
           if (instance_type.length > 0) {
@@ -1670,11 +1657,7 @@ define(function(require) {
           }
         });
 
-        $('#provision_create_flow_template_search').on('keyup',function(){
-          provision_flow_templates_datatable.fnFilter( $(this).val() );
-        })
-
-        $('#provision_create_flow_template_search').on('change',function(){
+        $('#provision_create_flow_template_search').on('input',function(){
           provision_flow_templates_datatable.fnFilter( $(this).val() );
         })
 
@@ -1925,11 +1908,16 @@ define(function(require) {
         ProvisionQuotaWidget.setup(context);
 
         // Workaround to fix sliders. Apparently the setup fails while they are hidden
-        $('a[href="#provision_create_user_manual_quota"]', context).on("click", function(){
+        context.on('click', 'a[href="#provision_create_user_manual_quota"]', function(){
           $(".provision_rvms_quota_input", context).change();
           $(".provision_memory_quota_input", context).change();
           $(".provision_memory_quota_tmp_input", context).change();
           $(".provision_cpu_quota_input", context).change();
+
+          // Workaround until hidden Foundation.slider can be initialized
+          setInterval(function() {
+            context.foundation('slider', 'reflow');
+          }, 20);
         });
 
         $("#provision_create_user").submit(function(){

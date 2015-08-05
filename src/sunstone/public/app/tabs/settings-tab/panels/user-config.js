@@ -7,6 +7,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
+  var Sunstone = require('sunstone');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -57,18 +59,19 @@ define(function(require) {
     if (ssh_key && ssh_key.length) {
       $("#provision_ssh_key", context).val(ssh_key);
       $(".provision_add_ssh_key_button", context).hide();
-      $(".provision_update_ssh_key_button"), context.show();
+      $(".provision_update_ssh_key_button", context).show();
     } else {
       $(".provision_add_ssh_key_button", context).show();
       $(".provision_update_ssh_key_button", context).hide();
     }
 
     $('#provision_new_language option[value="' + config['user_config']["lang"] + '"]', context).attr('selected', 'selected');
-    $('#provision_user_views_select option[value="' + config['user_config']["default_view"] + '"]', context).attr('selected', 'selected');
 
     $.each(config['available_views'], function(id, view) {
       $('select#provision_user_views_select', context).append('<option value="' + view + '">' + view + '</option>')
     });
+
+    $('#provision_user_views_select option[value="' + config['user_config']["default_view"] + '"]', context).attr('selected', 'selected');
 
     $("#provision_change_password_form").submit(function() {
       var pw = $('#provision_new_password', this).val();
@@ -96,93 +99,26 @@ define(function(require) {
         return false;
       }
 
-      OpenNebula.User.show({
-        data : {
-          id: "-1"
-        },
-        success: function(request, user_json) {
-          var template = user_json.USER.TEMPLATE;
+      var template_str = 'SSH_PUBLIC_KEY = "'+keypair+'"';
 
-          template["SSH_PUBLIC_KEY"] = keypair;
+      Sunstone.runAction("User.append_template", "-1", template_str);
 
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          Sunstone.runAction("User.update_template", "-1", template_str);
-        }
-      })
       return false;
     });
 
     $("#provision_change_view_form").submit(function() {
-      var view = $('#provision_user_views_select', this).val();
+      var template_str = 'DEFAULT_VIEW = "'+$('#provision_user_views_select', this).val()+'"';
 
-      OpenNebula.User.show({
-        data : {
-          id: "-1"
-        },
-        success: function(request, user_json) {
-          var template = user_json.USER.TEMPLATE;
+      Sunstone.runAction("User.append_template_refresh", "-1", template_str);
 
-          template["DEFAULT_VIEW"] = view;
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          var data = OpenNebula.Helper.action('update', {"template_raw" : template_str});
-
-          $.ajax({
-            url: 'config',
-            type: "POST",
-            dataType: "json",
-            data: JSON.stringify(data),
-            success: function() {
-              window.location.href = ".";
-            },
-            error: function(response) {
-            }
-          });
-        }
-      })
       return false;
     });
 
     $("#provision_change_language_form").submit(function() {
-      var lang = $('#provision_new_language', this).val();
+      var template_str = 'LANG = "'+$('#provision_new_language', this).val()+'"';
 
-      OpenNebula.User.show({
-        data : {
-          id: "-1"
-        },
-        success: function(request, user_json) {
-          var template = user_json.USER.TEMPLATE;
+      Sunstone.runAction("User.append_template_refresh", "-1", template_str);
 
-          template["LANG"] = lang;
-
-          template_str = "";
-          $.each(template, function(key, value) {
-            template_str += (key + '=' + '"' + value + '"\n');
-          });
-
-          var data = OpenNebula.Helper.action('update', {"template_raw" : template_str});
-
-          $.ajax({
-            url: 'config',
-            type: "POST",
-            dataType: "json",
-            data: JSON.stringify(data),
-            success: function() {
-              window.location.href = ".";
-            },
-            error: function(response) {
-            }
-          });
-        }
-      })
       return false;
     });
 

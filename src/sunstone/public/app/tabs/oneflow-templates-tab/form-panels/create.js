@@ -183,10 +183,11 @@ define(function(require) {
     });
 
 
+    $(document).foundation('tab', 'reflow');
+    
     // Add first role
     $("#tf_btn_roles", context).trigger("click");
 
-    $(document).foundation('reflow', 'tab');
     Tips.setup(context);
     return false;
   }

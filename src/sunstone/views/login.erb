@@ -10,7 +10,11 @@
     <script type="text/javascript" src="vendor/crypto-js/enc-base64-min.js"></script>
     <![endif]-->
 
-    <script src="dist/login.js"></script>
+    <% if $conf[:env] == 'dev' %>
+      <script src="bower_components/requirejs/require.js" data-main="app/login"></script>
+    <% else %>
+      <script src="dist/login.js"></script>
+    <% end %>
   </head>
 
   <body>
@@ -22,7 +26,7 @@
     <% end %>
 
     <div id="footer" style="overflow:visible;">
-      <a href="http://opennebula.org" target="_blank">OpenNebula 4.12.0</a>
+      <a href="http://opennebula.org" target="_blank">OpenNebula 4.13.80</a>
       by
       <a href="http://opennebula.systems" target="_blank">OpenNebula Systems</a>
       .

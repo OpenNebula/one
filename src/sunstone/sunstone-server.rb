@@ -109,9 +109,9 @@ when 'memcache-dalli'
     STDERR.puts memcache_server
 
     use Rack::Session::Dalli,
-      memcache_server: memcache_server,
-      namespace: $conf[:memcache_namespace],
-      cache: Dalli::Client.new
+      :memcache_server => memcache_server,
+      :namespace => $conf[:memcache_namespace],
+      :cache => Dalli::Client.new
 else
     STDERR.puts "Wrong value for :sessions in configuration file"
     exit(-1)
@@ -150,6 +150,7 @@ configure do
 end
 
 DEFAULT_TABLE_ORDER = "desc"
+DEFAULT_PAGE_LENGTH = 10
 
 ##############################################################################
 # Helpers
@@ -451,9 +452,10 @@ post '/config' do
     session[:vnc_wss]      = user['TEMPLATE/VNC_WSS'] if user['TEMPLATE/VNC_WSS']
     session[:default_view] = user['TEMPLATE/DEFAULT_VIEW'] if user['TEMPLATE/DEFAULT_VIEW']
     session[:table_order]  = user['TEMPLATE/TABLE_ORDER'] if user['TEMPLATE/TABLE_ORDER']
+    session[:page_length]  = user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH'] if user['TEMPLATE/TABLE_DEFAULT_PAGE_LENGTH']
     session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
 
-    [200, ""]
+    [204, ""]
 end
 
 get '/vm/:id/log' do
@@ -544,7 +546,11 @@ get '/:resource/:id/template' do
 end
 
 get '/:resource/:id' do
-    @SunstoneServer.get_resource(params[:resource], params[:id])
+    if params[:extended]
+        @SunstoneServer.get_resource(params[:resource], params[:id], true)
+    else
+        @SunstoneServer.get_resource(params[:resource], params[:id])
+    end
 end
 
 ##############################################################################
@@ -642,4 +648,3 @@ post '/:resource/:id/action' do
 end
 
 Sinatra::Application.run! if(!defined?(WITH_RACKUP))
-

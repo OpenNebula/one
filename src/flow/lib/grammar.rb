@@ -49,7 +49,7 @@ module ElasticityGrammar
     if node_cache[:expression].has_key?(index)
       cached = node_cache[:expression][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:expression][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -62,10 +62,12 @@ module ElasticityGrammar
       i2 = index
       r3 = _nt_boolean_exp
       if r3
+        r3 = SyntaxNode.new(input, (index-1)...index) if r3 == true
         r2 = r3
       else
         r4 = _nt_logic_cond
         if r4
+          r4 = SyntaxNode.new(input, (index-1)...index) if r4 == true
           r2 = r4
         else
           @index = i2
@@ -165,7 +167,7 @@ module ElasticityGrammar
     if node_cache[:boolean_exp].has_key?(index)
       cached = node_cache[:boolean_exp][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:boolean_exp][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -180,24 +182,26 @@ module ElasticityGrammar
       s1 << r3
       if r3
         i4 = index
-        if has_terminal?('&&', false, index)
-          r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
+        if (match_len = has_terminal?('&&', false, index))
+          r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+          @index += match_len
         else
           terminal_parse_failure('&&')
           r5 = nil
         end
         if r5
+          r5 = SyntaxNode.new(input, (index-1)...index) if r5 == true
           r4 = r5
         else
-          if has_terminal?('&', false, index)
-            r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
+          if (match_len = has_terminal?('&', false, index))
+            r6 = true
+            @index += match_len
           else
             terminal_parse_failure('&')
             r6 = nil
           end
           if r6
+            r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
             r4 = r6
           else
             @index = i4
@@ -224,6 +228,7 @@ module ElasticityGrammar
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i9, s9 = index, []
@@ -234,24 +239,26 @@ module ElasticityGrammar
         s9 << r11
         if r11
           i12 = index
-          if has_terminal?('||', false, index)
-            r13 = instantiate_node(SyntaxNode,input, index...(index + 2))
-            @index += 2
+          if (match_len = has_terminal?('||', false, index))
+            r13 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+            @index += match_len
           else
             terminal_parse_failure('||')
             r13 = nil
           end
           if r13
+            r13 = SyntaxNode.new(input, (index-1)...index) if r13 == true
             r12 = r13
           else
-            if has_terminal?('|', false, index)
-              r14 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+            if (match_len = has_terminal?('|', false, index))
+              r14 = true
+              @index += match_len
             else
               terminal_parse_failure('|')
               r14 = nil
             end
             if r14
+              r14 = SyntaxNode.new(input, (index-1)...index) if r14 == true
               r12 = r14
             else
               @index = i12
@@ -278,6 +285,7 @@ module ElasticityGrammar
         r9 = nil
       end
       if r9
+        r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
         r0 = r9
       else
         @index = i0
@@ -383,7 +391,7 @@ module ElasticityGrammar
     if node_cache[:logic_cond].has_key?(index)
       cached = node_cache[:logic_cond][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:logic_cond][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -418,12 +426,13 @@ module ElasticityGrammar
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i7, s7 = index, []
-      if has_terminal?('!', false, index)
-        r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('!', false, index))
+        r8 = true
+        @index += match_len
       else
         terminal_parse_failure('!')
         r8 = nil
@@ -446,12 +455,13 @@ module ElasticityGrammar
         r7 = nil
       end
       if r7
+        r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
         r0 = r7
       else
         i11, s11 = index, []
-        if has_terminal?('(', false, index)
-          r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('(', false, index))
+          r12 = true
+          @index += match_len
         else
           terminal_parse_failure('(')
           r12 = nil
@@ -467,9 +477,9 @@ module ElasticityGrammar
               r15 = _nt_space
               s11 << r15
               if r15
-                if has_terminal?(')', false, index)
-                  r16 = instantiate_node(SyntaxNode,input, index...(index + 1))
-                  @index += 1
+                if (match_len = has_terminal?(')', false, index))
+                  r16 = true
+                  @index += match_len
                 else
                   terminal_parse_failure(')')
                   r16 = nil
@@ -488,6 +498,7 @@ module ElasticityGrammar
           r11 = nil
         end
         if r11
+          r11 = SyntaxNode.new(input, (index-1)...index) if r11 == true
           r0 = r11
         else
           @index = i0
@@ -542,7 +553,7 @@ module ElasticityGrammar
     if node_cache[:comp_op].has_key?(index)
       cached = node_cache[:comp_op][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:comp_op][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -550,25 +561,27 @@ module ElasticityGrammar
 
     i0 = index
     i1 = index
-    if has_terminal?('==', false, index)
-      r2 = instantiate_node(SyntaxNode,input, index...(index + 2))
-      @index += 2
+    if (match_len = has_terminal?('==', false, index))
+      r2 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+      @index += match_len
     else
       terminal_parse_failure('==')
       r2 = nil
     end
     if r2
+      r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
       r1 = r2
       r1.extend(CompOp0)
     else
-      if has_terminal?('=', false, index)
-        r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('=', false, index))
+        r3 = true
+        @index += match_len
       else
         terminal_parse_failure('=')
         r3 = nil
       end
       if r3
+        r3 = SyntaxNode.new(input, (index-1)...index) if r3 == true
         r1 = r3
         r1.extend(CompOp0)
       else
@@ -577,28 +590,31 @@ module ElasticityGrammar
       end
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i4 = index
-      if has_terminal?('!=', false, index)
-        r5 = instantiate_node(SyntaxNode,input, index...(index + 2))
-        @index += 2
+      if (match_len = has_terminal?('!=', false, index))
+        r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+        @index += match_len
       else
         terminal_parse_failure('!=')
         r5 = nil
       end
       if r5
+        r5 = SyntaxNode.new(input, (index-1)...index) if r5 == true
         r4 = r5
         r4.extend(CompOp1)
       else
-        if has_terminal?('<>', false, index)
-          r6 = instantiate_node(SyntaxNode,input, index...(index + 2))
-          @index += 2
+        if (match_len = has_terminal?('<>', false, index))
+          r6 = instantiate_node(SyntaxNode,input, index...(index + match_len))
+          @index += match_len
         else
           terminal_parse_failure('<>')
           r6 = nil
         end
         if r6
+          r6 = SyntaxNode.new(input, (index-1)...index) if r6 == true
           r4 = r6
           r4.extend(CompOp1)
         else
@@ -607,50 +623,55 @@ module ElasticityGrammar
         end
       end
       if r4
+        r4 = SyntaxNode.new(input, (index-1)...index) if r4 == true
         r0 = r4
       else
-        if has_terminal?('>=', false, index)
-          r7 = instantiate_node(SyntaxNode,input, index...(index + 2))
+        if (match_len = has_terminal?('>=', false, index))
+          r7 = instantiate_node(SyntaxNode,input, index...(index + match_len))
           r7.extend(CompOp2)
-          @index += 2
+          @index += match_len
         else
           terminal_parse_failure('>=')
           r7 = nil
         end
         if r7
+          r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
           r0 = r7
         else
-          if has_terminal?('>', false, index)
-            r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
+          if (match_len = has_terminal?('>', false, index))
+            r8 = instantiate_node(SyntaxNode,input, index...(index + match_len))
             r8.extend(CompOp3)
-            @index += 1
+            @index += match_len
           else
             terminal_parse_failure('>')
             r8 = nil
           end
           if r8
+            r8 = SyntaxNode.new(input, (index-1)...index) if r8 == true
             r0 = r8
           else
-            if has_terminal?('<=', false, index)
-              r9 = instantiate_node(SyntaxNode,input, index...(index + 2))
+            if (match_len = has_terminal?('<=', false, index))
+              r9 = instantiate_node(SyntaxNode,input, index...(index + match_len))
               r9.extend(CompOp4)
-              @index += 2
+              @index += match_len
             else
               terminal_parse_failure('<=')
               r9 = nil
             end
             if r9
+              r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
               r0 = r9
             else
-              if has_terminal?('<', false, index)
-                r10 = instantiate_node(SyntaxNode,input, index...(index + 1))
+              if (match_len = has_terminal?('<', false, index))
+                r10 = instantiate_node(SyntaxNode,input, index...(index + match_len))
                 r10.extend(CompOp5)
-                @index += 1
+                @index += match_len
               else
                 terminal_parse_failure('<')
                 r10 = nil
               end
               if r10
+                r10 = SyntaxNode.new(input, (index-1)...index) if r10 == true
                 r0 = r10
               else
                 @index = i0
@@ -684,7 +705,7 @@ module ElasticityGrammar
     if node_cache[:operand].has_key?(index)
       cached = node_cache[:operand][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:operand][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -693,10 +714,12 @@ module ElasticityGrammar
     i0 = index
     r1 = _nt_number
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       r2 = _nt_variable
       if r2
+        r2 = SyntaxNode.new(input, (index-1)...index) if r2 == true
         r0 = r2
       else
         @index = i0
@@ -738,7 +761,7 @@ module ElasticityGrammar
     if node_cache[:number].has_key?(index)
       cached = node_cache[:number][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:number][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -746,9 +769,9 @@ module ElasticityGrammar
 
     i0 = index
     i1, s1 = index, []
-    if has_terminal?('-', false, index)
-      r3 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('-', false, index))
+      r3 = true
+      @index += match_len
     else
       terminal_parse_failure('-')
       r3 = nil
@@ -762,10 +785,11 @@ module ElasticityGrammar
     if r2
       s4, i4 = [], index
       loop do
-        if has_terminal?('\G[0-9]', true, index)
+        if has_terminal?(@regexps[gr = '\A[0-9]'] ||= Regexp.new(gr), :regexp, index)
           r5 = true
           @index += 1
         else
+          terminal_parse_failure('[0-9]')
           r5 = nil
         end
         if r5
@@ -782,9 +806,9 @@ module ElasticityGrammar
       end
       s1 << r4
       if r4
-        if has_terminal?('.', false, index)
-          r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-          @index += 1
+        if (match_len = has_terminal?('.', false, index))
+          r6 = true
+          @index += match_len
         else
           terminal_parse_failure('.')
           r6 = nil
@@ -793,10 +817,11 @@ module ElasticityGrammar
         if r6
           s7, i7 = [], index
           loop do
-            if has_terminal?('\G[0-9]', true, index)
+            if has_terminal?(@regexps[gr = '\A[0-9]'] ||= Regexp.new(gr), :regexp, index)
               r8 = true
               @index += 1
             else
+              terminal_parse_failure('[0-9]')
               r8 = nil
             end
             if r8
@@ -824,12 +849,13 @@ module ElasticityGrammar
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
     else
       i9, s9 = index, []
-      if has_terminal?('-', false, index)
-        r11 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('-', false, index))
+        r11 = true
+        @index += match_len
       else
         terminal_parse_failure('-')
         r11 = nil
@@ -843,10 +869,11 @@ module ElasticityGrammar
       if r10
         s12, i12 = [], index
         loop do
-          if has_terminal?('\G[0-9]', true, index)
+          if has_terminal?(@regexps[gr = '\A[0-9]'] ||= Regexp.new(gr), :regexp, index)
             r13 = true
             @index += 1
           else
+            terminal_parse_failure('[0-9]')
             r13 = nil
           end
           if r13
@@ -872,6 +899,7 @@ module ElasticityGrammar
         r9 = nil
       end
       if r9
+        r9 = SyntaxNode.new(input, (index-1)...index) if r9 == true
         r0 = r9
       else
         @index = i0
@@ -916,11 +944,14 @@ module ElasticityGrammar
                 if node['vm_info']['VM']['USER_TEMPLATE'][att]
                     total += (node['vm_info']['VM']['USER_TEMPLATE'][att]).to_f
                     n_nodes += 1
-                elsif node['vm_info']['VM'][att]
-                    total += (node['vm_info']['VM'][att]).to_f
+                elsif node['vm_info']['VM']['MONITORING'][att]
+                    total += (node['vm_info']['VM']['MONITORING'][att]).to_f
                     n_nodes += 1
                 elsif node['vm_info']['VM']['TEMPLATE'][att]
                     total += (node['vm_info']['VM']['TEMPLATE'][att]).to_f
+                    n_nodes += 1
+                elsif node['vm_info']['VM'][att]
+                    total += (node['vm_info']['VM'][att]).to_f
                     n_nodes += 1
                 end
             end
@@ -931,7 +962,7 @@ module ElasticityGrammar
             val = nil
             st = "#{att}[--]"
         else
-            val = ((total / n_nodes)*100).round/100.0
+            val = (total / n_nodes).round(2)
             st = "#{att}[#{val.to_s}]"
         end
 
@@ -944,7 +975,7 @@ module ElasticityGrammar
     if node_cache[:variable].has_key?(index)
       cached = node_cache[:variable][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:variable][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -952,29 +983,31 @@ module ElasticityGrammar
 
     i0 = index
     i1, s1 = index, []
-    if has_terminal?('"', false, index)
-      r2 = instantiate_node(SyntaxNode,input, index...(index + 1))
-      @index += 1
+    if (match_len = has_terminal?('"', false, index))
+      r2 = true
+      @index += match_len
     else
       terminal_parse_failure('"')
       r2 = nil
     end
     s1 << r2
     if r2
-      if has_terminal?('\G[a-zA-Z]', true, index)
+      if has_terminal?(@regexps[gr = '\A[a-zA-Z]'] ||= Regexp.new(gr), :regexp, index)
         r3 = true
         @index += 1
       else
+        terminal_parse_failure('[a-zA-Z]')
         r3 = nil
       end
       s1 << r3
       if r3
         s4, i4 = [], index
         loop do
-          if has_terminal?('\G[0-9a-zA-Z_]', true, index)
+          if has_terminal?(@regexps[gr = '\A[0-9a-zA-Z_]'] ||= Regexp.new(gr), :regexp, index)
             r5 = true
             @index += 1
           else
+            terminal_parse_failure('[0-9a-zA-Z_]')
             r5 = nil
           end
           if r5
@@ -986,9 +1019,9 @@ module ElasticityGrammar
         r4 = instantiate_node(SyntaxNode,input, i4...index, s4)
         s1 << r4
         if r4
-          if has_terminal?('"', false, index)
-            r6 = instantiate_node(SyntaxNode,input, index...(index + 1))
-            @index += 1
+          if (match_len = has_terminal?('"', false, index))
+            r6 = true
+            @index += match_len
           else
             terminal_parse_failure('"')
             r6 = nil
@@ -1005,33 +1038,36 @@ module ElasticityGrammar
       r1 = nil
     end
     if r1
+      r1 = SyntaxNode.new(input, (index-1)...index) if r1 == true
       r0 = r1
       r0.extend(Variable3)
     else
       i7, s7 = index, []
-      if has_terminal?('\'', false, index)
-        r8 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?('\'', false, index))
+        r8 = true
+        @index += match_len
       else
         terminal_parse_failure('\'')
         r8 = nil
       end
       s7 << r8
       if r8
-        if has_terminal?('\G[a-zA-Z]', true, index)
+        if has_terminal?(@regexps[gr = '\A[a-zA-Z]'] ||= Regexp.new(gr), :regexp, index)
           r9 = true
           @index += 1
         else
+          terminal_parse_failure('[a-zA-Z]')
           r9 = nil
         end
         s7 << r9
         if r9
           s10, i10 = [], index
           loop do
-            if has_terminal?('\G[0-9a-zA-Z_]', true, index)
+            if has_terminal?(@regexps[gr = '\A[0-9a-zA-Z_]'] ||= Regexp.new(gr), :regexp, index)
               r11 = true
               @index += 1
             else
+              terminal_parse_failure('[0-9a-zA-Z_]')
               r11 = nil
             end
             if r11
@@ -1043,9 +1079,9 @@ module ElasticityGrammar
           r10 = instantiate_node(SyntaxNode,input, i10...index, s10)
           s7 << r10
           if r10
-            if has_terminal?('\'', false, index)
-              r12 = instantiate_node(SyntaxNode,input, index...(index + 1))
-              @index += 1
+            if (match_len = has_terminal?('\'', false, index))
+              r12 = true
+              @index += match_len
             else
               terminal_parse_failure('\'')
               r12 = nil
@@ -1062,24 +1098,27 @@ module ElasticityGrammar
         r7 = nil
       end
       if r7
+        r7 = SyntaxNode.new(input, (index-1)...index) if r7 == true
         r0 = r7
         r0.extend(Variable3)
       else
         i13, s13 = index, []
-        if has_terminal?('\G[a-zA-Z]', true, index)
+        if has_terminal?(@regexps[gr = '\A[a-zA-Z]'] ||= Regexp.new(gr), :regexp, index)
           r14 = true
           @index += 1
         else
+          terminal_parse_failure('[a-zA-Z]')
           r14 = nil
         end
         s13 << r14
         if r14
           s15, i15 = [], index
           loop do
-            if has_terminal?('\G[0-9a-zA-Z_]', true, index)
+            if has_terminal?(@regexps[gr = '\A[0-9a-zA-Z_]'] ||= Regexp.new(gr), :regexp, index)
               r16 = true
               @index += 1
             else
+              terminal_parse_failure('[0-9a-zA-Z_]')
               r16 = nil
             end
             if r16
@@ -1099,6 +1138,7 @@ module ElasticityGrammar
           r13 = nil
         end
         if r13
+          r13 = SyntaxNode.new(input, (index-1)...index) if r13 == true
           r0 = r13
           r0.extend(Variable3)
         else
@@ -1118,7 +1158,7 @@ module ElasticityGrammar
     if node_cache[:space].has_key?(index)
       cached = node_cache[:space][index]
       if cached
-        cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
+        node_cache[:space][index] = cached = SyntaxNode.new(input, index...(index + 1)) if cached == true
         @index = cached.interval.end
       end
       return cached
@@ -1126,9 +1166,9 @@ module ElasticityGrammar
 
     s0, i0 = [], index
     loop do
-      if has_terminal?(' ', false, index)
-        r1 = instantiate_node(SyntaxNode,input, index...(index + 1))
-        @index += 1
+      if (match_len = has_terminal?(' ', false, index))
+        r1 = true
+        @index += match_len
       else
         terminal_parse_failure(' ')
         r1 = nil

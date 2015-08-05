@@ -416,9 +416,8 @@ public:
      * @param inherit_attrs Attributes to be inherited from the image template
      *   into the disk
      *
-     * @return 0 on success, -1 otherwise
      */
-    int disk_attribute( VectorAttribute *       disk,
+    void disk_attribute(VectorAttribute *       disk,
                         ImageType&              img_type,
                         string&                 dev_prefix,
                         const vector<string>&   inherit_attrs);

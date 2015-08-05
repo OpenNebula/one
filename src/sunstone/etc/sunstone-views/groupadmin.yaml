@@ -23,6 +23,7 @@ tabs:
         create_vm:
             capacity_select: true
             network_select: true
+            disk_resize: true
     settings-tab:
         panel_tabs:
             user_info_tab: false

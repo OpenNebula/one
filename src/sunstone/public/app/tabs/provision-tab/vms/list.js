@@ -134,11 +134,6 @@ define(function(require) {
 
         return true;
       },
-      "fnDrawCallback": function (oSettings) {
-        $(".provision_vms_ul", context).foundation('reflow', 'tooltip');
-
-        return true;
-      },
       "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
         var data = aData.VM;
         var state = get_provision_vm_state(data);
@@ -147,7 +142,7 @@ define(function(require) {
             '<ul class="provision-pricing-table" opennebula_id="'+data.ID+'" datatable_index="'+iDisplayIndexFull+'">'+
               '<li class="provision-title text-left">'+
                 '<a class="provision_info_vm_button" style="color:#555" href="#">'+
-                '<span class="'+ state.color +'-color"  data-tooltip title="'+state.str+'">'+
+                '<span class="'+ state.color +'-color" title="'+state.str+'">'+
                   '<i class="fa fa-fw fa-square"/> '+
                 '</span>'+
                 data.NAME + '</a>'+
@@ -182,11 +177,7 @@ define(function(require) {
       }
     });
 
-    $('.provision_list_vms_search', context).keyup(function(){
-      provision_vms_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_vms_search', context).change(function(){
+    $('.provision_list_vms_search', context).on('input',function(){
       provision_vms_datatable.fnFilter( $(this).val() );
     })
 
@@ -376,40 +367,40 @@ define(function(require) {
               timeout: true,
               id: data.ID,
               monitor: {
-                monitor_resources : "CPU,MEMORY,NET_TX,NET_RX"
+                monitor_resources : "MONITORING/CPU,MONITORING/MEMORY,MONITORING/NETTX,MONITORING/NETRX"
               }
             },
             success: function(request, response){
               var vm_graphs = [
                   {
-                      monitor_resources : "CPU",
+                      monitor_resources : "MONITORING/CPU",
                       labels : "Real CPU",
                       humanize_figures : false,
                       div_graph : $(".vm_cpu_graph", context)
                   },
                   {
-                      monitor_resources : "MEMORY",
+                      monitor_resources : "MONITORING/MEMORY",
                       labels : "Real MEM",
                       humanize_figures : true,
                       div_graph : $(".vm_memory_graph", context)
                   },
                   {
                       labels : "Network reception",
-                      monitor_resources : "NET_RX",
+                      monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       div_graph : $(".vm_net_rx_graph", context)
                   },
                   {
                       labels : "Network transmission",
-                      monitor_resources : "NET_TX",
+                      monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       div_graph : $(".vm_net_tx_graph", context)
                   },
                   {
                       labels : "Network reception speed",
-                      monitor_resources : "NET_RX",
+                      monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       y_sufix : "B/s",
@@ -418,7 +409,7 @@ define(function(require) {
                   },
                   {
                       labels : "Network transmission speed",
-                      monitor_resources : "NET_TX",
+                      monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
                       y_sufix : "B/s",
@@ -448,7 +439,7 @@ define(function(require) {
                 '<span style="font-size: 14px; line-height: 20px">'+
                   Locale.tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
                 '<br>'+
-                  Locale.tr("You can then create a new Virtual Machine using this Template")+
+                  Locale.tr("You can then create a new Virtual Machine using this Template.")+
                 '</span>'+
               '</div>'+
             '</div>'+
@@ -483,14 +474,21 @@ define(function(require) {
               name : template_name
             }
           },
+          timeout: false,
           success: function(request, response){
             OpenNebula.Action.clear_cache("VMTEMPLATE");
-            Notifier.notifyMessage(Locale.tr("Image") + ' ' + request.request.data[0][1].name + ' ' + Locale.tr("saved successfully"))
+            Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + request.request.data[0][1].name + ' ' + Locale.tr("saved successfully"))
             update_provision_vm_info(vm_id, context);
             button.removeAttr("disabled");
           },
           error: function(request, response){
-            Notifier.onError(request, response);
+            if(response.error.http_status == 0){   // Failed due to cloning template taking too long
+                OpenNebula.Action.clear_cache("VMTEMPLATE");
+                update_provision_vm_info(vm_id, context);
+                Notifier.notifyMessage(Locale.tr("VM cloning in the background. The Template will appear as soon as it is ready, and the VM unlocked."));
+            } else {
+                Notifier.onError(request, response);
+            }
             button.removeAttr("disabled");
           }
         })
@@ -627,7 +625,7 @@ define(function(require) {
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
 
-      OpenNebula.VM.cancel({
+      OpenNebula.VM.shutdown_hard({
         data : {
           id: vm_id
         },
@@ -952,7 +950,7 @@ define(function(require) {
   }
 
   function get_provision_ips(data) {
-    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data);
+    return '<i class="fa fa-fw fa-lg fa-globe"></i> ' + OpenNebula.VM.ipsStr(data, ', ');
   }
 
   // @params

@@ -654,9 +654,11 @@ static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdis
 
     // -------------------------------------------------------------------------
     // Check datastore capacity for shared systems DS (non-shared will be
-    // checked in a per host basis during dispatch)
+    // checked in a per host basis during dispatch). Resume actions do not
+    // add to shared system DS usage, and are skipped also
     // -------------------------------------------------------------------------
-    if (ds->is_shared() && ds->is_monitored() && !ds->test_capacity(vdisk, error))
+    if (ds->is_shared() && ds->is_monitored() && !vm->is_resume() &&
+        !ds->test_capacity(vdisk, error))
     {
         return false;
     }
@@ -757,9 +759,9 @@ void Scheduler::match_schedule()
         n_error   = 0;
 
         //----------------------------------------------------------------------
-        // Test Image Datastore capacity, but not for migrations
+        // Test Image Datastore capacity, but not for migrations or resume
         //----------------------------------------------------------------------
-        if (!vm->is_resched())
+        if (!vm->is_resched() && !vm->is_resume())
         {
             if (vm->test_image_datastore_capacity(img_dspool, m_error) == false)
             {
@@ -1054,10 +1056,10 @@ void Scheduler::dispatch()
 
         const vector<Resource *> resources = vm->get_match_hosts();
 
-        //--------------------------------------------------------------
-        // Test Image Datastore capacity, but not for migrations
-        //--------------------------------------------------------------
-        if (!resources.empty() && !vm->is_resched())
+        //----------------------------------------------------------------------
+        // Test Image Datastore capacity, but not for migrations or resume
+        //----------------------------------------------------------------------
+        if (!resources.empty() && !vm->is_resched() && !vm->is_resume())
         {
             if (vm->test_image_datastore_capacity(img_dspool) == false)
             {
@@ -1157,7 +1159,16 @@ void Scheduler::dispatch()
                 {
                     if (ds->is_shared() && ds->is_monitored())
                     {
-                        test_cap_result = ds->test_capacity(dsk);
+                        // A resume action tests DS capacity only
+                        // for non-shared system DS
+                        if (vm->is_resume())
+                        {
+                            test_cap_result = true;
+                        }
+                        else
+                        {
+                            test_cap_result = ds->test_capacity(dsk);
+                        }
                     }
                     else
                     {
@@ -1199,7 +1210,11 @@ void Scheduler::dispatch()
             {
                 if (ds->is_shared() && ds->is_monitored())
                 {
-                    ds->add_capacity(dsk);
+                    // Resumed VMs do not add to shared system DS capacity
+                    if (!vm->is_resume())
+                    {
+                        ds->add_capacity(dsk);
+                    }
                 }
                 else
                 {

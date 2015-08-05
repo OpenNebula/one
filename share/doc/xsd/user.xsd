@@ -64,8 +64,8 @@
                     <xs:element name="MEMORY_USED" type="xs:string"/>
                     <xs:element name="VMS" type="xs:string"/>
                     <xs:element name="VMS_USED" type="xs:string"/>
-                    <xs:element name="VOLATILE_SIZE" type="xs:string"/>
-                    <xs:element name="VOLATILE_SIZE_USED" type="xs:string"/>
+                    <xs:element name="SYSTEM_DISK_SIZE" type="xs:string"/>
+                    <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:string"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

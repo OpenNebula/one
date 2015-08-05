@@ -73,10 +73,14 @@ define(function(require) {
       $('#NAME', context).attr("disabled", "disabled");
       $('#NAME', context).removeAttr("required");
     }
+
+    context.foundation('slider', 'reflow');
   }
 
   function _setup(context) {
-    Tips.setup(context);
+    $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
+      context.foundation('slider', 'reflow');
+    });
 
     context.on("change", "#LOGO", function() {
       $("#template_create_logo", context).show();

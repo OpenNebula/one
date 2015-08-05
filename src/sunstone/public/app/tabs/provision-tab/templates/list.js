@@ -124,16 +124,16 @@ define(function(require) {
           if (data.UID == config['user_id']) {
 
             if (data.PERMISSIONS.GROUP_U == "1") {
-              actions_html += '<a class="provision_confirm_unshare_template_button left" data-tooltip title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_unshare_template_button left" title="'+ Locale.tr("Unshare")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-ban only-on-hover"/></a>';
               actions_html += '<span style="font-size:12px; color: #777">' + Locale.tr("SHARED") + '</span>';
             } else {
-              actions_html += '<a class="provision_confirm_chmod_template_button left" data-tooltip title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
+              actions_html += '<a class="provision_confirm_chmod_template_button left" title="'+ Locale.tr("Share")+'" style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-share-alt only-on-hover"/></a>';
             }
           }
         }
 
         if (Config.isTabActionEnabled("provision-tab", "Template.delete")) {
-          actions_html += '<a class="provision_confirm_delete_template_button" data-tooltip title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
+          actions_html += '<a class="provision_confirm_delete_template_button" title="'+ Locale.tr("Delete")+'"  style="color:#555" href="#"><i class="fa fa-fw fa-lg fa-trash-o right only-on-hover"/></a>';
         }
 
         $(".provision_templates_ul", context).append('<li>'+
@@ -174,11 +174,7 @@ define(function(require) {
 
     provision_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
 
-    $('.provision_list_templates_search', context).keyup(function(){
-      provision_templates_datatable.fnFilter( $(this).val() );
-    })
-
-    $('.provision_list_templates_search', context).change(function(){
+    $('.provision_list_templates_search', context).on('input',function(){
       provision_templates_datatable.fnFilter( $(this).val() );
     })
 
@@ -222,7 +218,6 @@ define(function(require) {
       context.on("click", ".provision_confirm_delete_template_button", function(){
         var ul_context = $(this).parents(".provision-pricing-table");
         var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
@@ -236,7 +231,7 @@ define(function(require) {
               '</span>'+
             '</div>'+
             '<div class="large-3 columns">'+
-              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
+              '<a href"#" class="provision_delete_template_button alert button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Delete")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -244,55 +239,25 @@ define(function(require) {
       });
 
       context.on("click", ".provision_delete_template_button", function(){
-        /* TODO SAVED_TO_IMAGE_ID does not exists anymore and now all the images of the template
-            are cloned instead of only the main disk, therefore all the images should be deleted now.
-            Probably this could be done in the core
 
         var button = $(this);
         button.attr("disabled", "disabled");
 
         var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
 
-        OpenNebula.Image.del({
+        OpenNebula.Template.delete_from_provision({
           timeout: true,
           data : {
-            id : image_id
+            id : template_id
           },
           success: function (){
-            OpenNebula.Template.del({
-              timeout: true,
-              data : {
-                id : template_id
-              },
-              success: function (){
-                $(".provision_templates_list_refresh_button", context).trigger("click");
-              },
-              error: function (request,error_json, container) {
-                Notifier.onError(request, error_json, container);
-              }
-            })
+            $(".provision_templates_list_refresh_button", context).trigger("click");
           },
           error: function (request,error_json, container) {
-            if (error_json.error.http_status=="404") {
-              OpenNebula.Template.del({
-                timeout: true,
-                data : {
-                  id : template_id
-                },
-                success: function (){
-                  $(".provision_templates_list_refresh_button", context).trigger("click");
-                },
-                error: function (request,error_json, container) {
-                  Notifier.onError(request, error_json, container);
-                  $(".provision_templates_list_refresh_button", context).trigger("click");
-                }
-              })
-            } else {
-              Notifier.onError(request, error_json, container);
-            }
+            Notifier.onError(request, error_json, container);
+            $(".provision_templates_list_refresh_button", context).trigger("click");
           }
-        })*/
+        })
       });
     }
 
@@ -301,7 +266,6 @@ define(function(require) {
       context.on("click", ".provision_confirm_chmod_template_button", function(){
         var ul_context = $(this).parents(".provision-pricing-table");
         var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
         var template_name = $(".provision-title", ul_context).text();
 
         $(".provision_confirm_delete_template_div", context).html(
@@ -315,7 +279,7 @@ define(function(require) {
               '</span>'+
             '</div>'+
             '<div class="large-4 columns">'+
-              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
+              '<a href"#" class="provision_chmod_template_button success button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Share template")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -323,16 +287,13 @@ define(function(require) {
       });
 
       context.on("click", ".provision_chmod_template_button", function(){
-        /* TODO SAVED_TO_IMAGE_ID does not exists anymore and now all the images of the template
-            are cloned instead of only the main disk, therefore all the images should be chmod now.
-            Probably this could be done in the core
+
         var button = $(this);
         button.attr("disabled", "disabled");
 
         var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
 
-        OpenNebula.Template.chmod({
+        OpenNebula.Template.chmod_from_provision({
           timeout: true,
           data : {
             id : template_id,
@@ -340,26 +301,14 @@ define(function(require) {
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
-
-            OpenNebula.Image.chmod({
-              timeout: true,
-              data : {
-                id : image_id,
-                extra_param: {'group_u': 1}
-              },
-              success: function (){
-              },
-              error: Notifier.onError
-            })
           },
           error: Notifier.onError
-        })*/
+        })
       });
 
       context.on("click", ".provision_confirm_unshare_template_button", function(){
         var ul_context = $(this).parents(".provision-pricing-table");
         var template_id = ul_context.attr("opennebula_id");
-        var image_id = ul_context.attr("saved_to_image_id");
         var template_name = $(".provision-title", ul_context).first().text();
 
         $(".provision_confirm_delete_template_div", context).html(
@@ -373,7 +322,7 @@ define(function(require) {
               '</span>'+
             '</div>'+
             '<div class="large-4 columns">'+
-              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" style="margin-right: 15px" image_id="'+image_id+'" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
+              '<a href"#" class="provision_unshare_template_button success button large-12 radius right" style="margin-right: 15px" template_id="'+template_id+'">'+Locale.tr("Unshare template")+'</a>'+
             '</div>'+
             '</div>'+
             '<a href="#" class="close">&times;</a>'+
@@ -385,9 +334,8 @@ define(function(require) {
         button.attr("disabled", "disabled");
 
         var template_id = $(this).attr("template_id");
-        var image_id = $(this).attr("image_id");
 
-        OpenNebula.Template.chmod({
+        OpenNebula.Template.chmod_from_provision({
           timeout: true,
           data : {
             id : template_id,
@@ -395,17 +343,6 @@ define(function(require) {
           },
           success: function (){
             $(".provision_templates_list_refresh_button", context).trigger("click");
-
-            OpenNebula.Image.chmod({
-              timeout: true,
-              data : {
-                id : image_id,
-                extra_param: {'group_u': 0}
-              },
-              success: function (){
-              },
-              error: Notifier.onError
-            })
           },
           error: Notifier.onError
         })

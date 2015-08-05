@@ -518,13 +518,13 @@ public class VirtualMachine extends PoolElement{
      * @param client XML-RPC Client.
      * @param id The VM id of the target VM.
      * @param diskId Id of the disk
-     * @param tag description for the snapshot
+     * @param name description for the snapshot
      * @return New snapshot Id, or the error message
      */
     public static OneResponse diskSnapshotCreate(Client client, int id,
-        int diskId, String tag)
+        int diskId, String name)
     {
-        return client.call(DISKSNAPSHOTCREATE, id, diskId, tag);
+        return client.call(DISKSNAPSHOTCREATE, id, diskId, name);
     }
 
     /**
@@ -956,12 +956,12 @@ public class VirtualMachine extends PoolElement{
      * Takes a new snapshot of a disk
      *
      * @param diskId Id of the disk
-     * @param tag description for the snapshot
+     * @param name description for the snapshot
      * @return New snapshot Id, or the error message
      */
-    public OneResponse diskSnapshotCreate(int diskId, String tag)
+    public OneResponse diskSnapshotCreate(int diskId, String name)
     {
-        return diskSnapshotCreate(client, id, diskId, tag);
+        return diskSnapshotCreate(client, id, diskId, name);
     }
 
     /**

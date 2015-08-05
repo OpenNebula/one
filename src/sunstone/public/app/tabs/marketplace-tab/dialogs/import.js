@@ -54,6 +54,7 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    context.foundation('abide', 'reflow');
     $("#market_import_dialog_content", context).html(
       ContentHTML({'element': this.element})
     );
@@ -69,15 +70,8 @@ define(function(require) {
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
 
     context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; }
-
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
     }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; }
-
-
       that.number_of_files = that.element['files'].length;
       that.template_created = false;
       that.images_information = [];
@@ -164,8 +158,6 @@ define(function(require) {
 
       return false;
     });
-
-    context.foundation('reflow', 'abide');
 
     return false;
   }

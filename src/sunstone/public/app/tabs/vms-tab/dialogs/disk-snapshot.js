@@ -54,7 +54,7 @@ define(function(require) {
       var snapshot_name = $('#snapshot_name', this).val();
       var obj = {
         "disk_id" : that.diskId,
-        "tag": snapshot_name
+        "snapshot_name": snapshot_name
       };
 
       Sunstone.runAction('VM.disk_snapshot_create', that.element.ID, obj);

@@ -212,6 +212,7 @@ define(function(require) {
   function _fillAccounting(context, req, response, no_table) {
     $("#acct_cpu_graph", context).html(TemplateEmptyGraph());
     $("#acct_mem_graph", context).html(TemplateEmptyGraph());
+    $("#acct_disk_graph", context).html(TemplateEmptyGraph());
 
     var options = req.request.data[0];
 
@@ -402,6 +403,9 @@ define(function(require) {
         series[group_by].data_points[times[0]].MEM_HOURS = 0;
         series[group_by].data_points[times[times.length-2]].MEM_HOURS = 0;
 
+        series[group_by].data_points[times[0]].DISK_HOURS = 0;
+        series[group_by].data_points[times[times.length-2]].DISK_HOURS = 0;
+
         var name = group_by_name(history);
         series[group_by].name = name;
         series[group_by].label = group_by_prefix+" "+group_by+" "+name;
@@ -420,6 +424,7 @@ define(function(require) {
           serie[t] = {};
           serie[t].CPU_HOURS = 0;
           serie[t].MEM_HOURS = 0;
+          serie[t].DISK_HOURS = 0;
         }
 
         if( (history.ETIME*1000 > t || history.ETIME == 0) &&
@@ -437,9 +442,11 @@ define(function(require) {
 
           var n_hours = (etime - stime) / 1000 / 60 / 60;
 
+          var template = history.VM.TEMPLATE;
+
           // --- cpu ---
 
-          var val = parseFloat(history.VM.TEMPLATE.CPU) * n_hours;
+          var val = parseFloat(template.CPU) * n_hours;
 
           if (!isNaN(val)){
             serie[t].CPU_HOURS += val;
@@ -447,10 +454,47 @@ define(function(require) {
 
           // --- mem ---
 
-          var val = parseInt(history.VM.TEMPLATE.MEMORY)/1024 * n_hours;
+          var val = parseInt(template.MEMORY)/1024 * n_hours;
 
           if (!isNaN(val)){
             serie[t].MEM_HOURS += val;
+          }
+
+          // --- DISK ---
+
+          var disks = [];
+          if ($.isArray(template.DISK))
+            disks = template.DISK;
+          else if (!$.isEmptyObject(template.DISK))
+            disks = [template.DISK];
+
+          var snapshots = [];
+          if ($.isArray(template.SNAPSHOTS)){
+            snapshots = template.SNAPSHOTS;
+          } else if (!$.isEmptyObject(template.SNAPSHOTS)) {
+            snapshots = [template.SNAPSHOTS];
+          }
+
+          var val = 0;
+          $.each(disks, function(index, disk){
+            val += parseInt(disk.SIZE) * n_hours;
+          })
+
+          // snapshots is an array that contains the snapshots for each DISK
+          $.each(snapshots, function(index, snapshotForDisk){
+            var diskSnapshots = []
+            if (!$.isArray(snapshotForDisk.SNAPSHOT)){
+              diskSnapshots = [snapshotForDisk.SNAPSHOT];
+            }
+
+            // diskSnapshots contains the snapshots for a specific DISK
+            $.each(diskSnapshots, function(index, snapshot){
+              val += parseInt(snapshot.SIZE) * n_hours;
+            })
+          })
+
+          if (!isNaN(val)){
+            serie[t].DISK_HOURS += val;
           }
         }
       }
@@ -462,14 +506,17 @@ define(function(require) {
 
     var cpu_plot_series = [];
     var mem_plot_series = [];
+    var disk_plot_series = [];
 
     $.each(series, function(key, val){
       var cpu_data = [];
       var mem_data = [];
+      var disk_data = [];
 
       $.each(val.data_points, function(time,num){
         cpu_data.push([parseInt(time),num.CPU_HOURS]);
         mem_data.push([parseInt(time),num.MEM_HOURS]);
+        disk_data.push([parseInt(time),num.DISK_HOURS]);
       });
 
       cpu_plot_series.push(
@@ -487,10 +534,19 @@ define(function(require) {
         id: key,
         data: mem_data
       });
+
+      disk_plot_series.push(
+      {
+        label: val.label,
+        name: val.name,
+        id: key,
+        data: disk_data
+      });
     });
 
     var cpu_plot = $.plot($("#acct_cpu_graph", context), cpu_plot_series, options);
     var mem_plot = $.plot($("#acct_mem_graph", context), mem_plot_series, options);
+    var disk_plot = $.plot($("#acct_disk_graph", context), disk_plot_series, options);
 
     //--------------------------------------------------------------------------
     // Init dataTables
@@ -513,8 +569,16 @@ define(function(require) {
       $("#acct_mem_datatable",context).width("100%");
 
 
+      $("#acct_disk_datatable",context).dataTable().fnClearTable();
+      $("#acct_disk_datatable",context).dataTable().fnDestroy();
+
+      $("#acct_disk_datatable thead",context).remove();
+      $("#acct_disk_datatable",context).width("100%");
+
+
       cpu_plot_data = cpu_plot.getData();
       mem_plot_data = mem_plot.getData();
+      disk_plot_data = disk_plot.getData();
 
       var thead =
         '<thead>\
@@ -550,26 +614,48 @@ define(function(require) {
 
       $("#acct_mem_datatable",context).append(thead);
 
+      thead =
+        '<thead>\
+          <tr>\
+            <th>'+Locale.tr("Date UTC")+'</th>\
+            <th>'+Locale.tr("Total")+'</th>';
+
+      $.each(disk_plot_data, function(i, serie){
+        thead += '<th style="border-bottom: '+serie.color+' 4px solid !important;'+
+              ' border-left: 10px solid white; border-right: 5px solid white;'+
+              ' white-space: nowrap">'+
+              group_by_prefix+' '+serie.id+'<br/>'+serie.name+'</th>';
+      });
+
+      thead += '</tr></thead>';
+
+      $("#acct_disk_datatable",context).append(thead);
+
 
       var cpu_dataTable_data = [];
       var mem_dataTable_data = [];
+      var disk_dataTable_data = [];
 
       for (var i = 0; i<times.length-1; i++){
         var t = times[i];
 
         var cpu_row = [];
         var mem_row = [];
+        var disk_row = [];
 
         var time_st = time_UTC(t);
 
         cpu_row.push(time_st);
         mem_row.push(time_st);
+        disk_row.push(time_st);
 
         cpu_row.push(0);
         mem_row.push(0);
+        disk_row.push(0);
 
         var cpu_total = 0;
         var mem_total = 0;
+        var disk_total = 0;
 
         $.each(series, function(key, val){
           var v = val.data_points[t];
@@ -577,23 +663,29 @@ define(function(require) {
           if(v != undefined){
             var cpu_v = (v.CPU_HOURS * 100).toFixed() / 100;
             var mem_v = (v.MEM_HOURS * 100).toFixed() / 100;
+            var disk_v = (v.DISK_HOURS * 100).toFixed() / 100;
 
             cpu_total += cpu_v;
             mem_total += mem_v;
+            disk_total += disk_v;
 
             cpu_row.push(cpu_v);
             mem_row.push(mem_v);
+            disk_row.push(disk_v);
           } else {
             cpu_row.push(0);
             mem_row.push(0);
+            disk_row.push(0);
           }
         });
 
         cpu_row[1] = (cpu_total * 100).toFixed() / 100;
         mem_row[1] = (mem_total * 100).toFixed() / 100;
+        disk_row[1] = (disk_total * 100).toFixed() / 100;
 
         cpu_dataTable_data.push(cpu_row);
         mem_dataTable_data.push(mem_row);
+        disk_dataTable_data.push(disk_row);
       }
 
       var acct_cpu_dataTable = $("#acct_cpu_datatable",context).dataTable({
@@ -612,12 +704,24 @@ define(function(require) {
         ]
       });
 
+      var acct_disk_dataTable = $("#acct_disk_datatable",context).dataTable({
+        "bSortClasses" : false,
+        "bDeferRender": true,
+        "aoColumnDefs": [
+        { "bSortable": false, "aTargets": ['_all'] },
+        ]
+      });
+
       if (cpu_dataTable_data.length > 0) {
         acct_cpu_dataTable.fnAddData(cpu_dataTable_data);
       }
 
       if (mem_dataTable_data.length > 0) {
         acct_mem_dataTable.fnAddData(mem_dataTable_data);
+      }
+
+      if (disk_dataTable_data.length > 0) {
+        acct_disk_dataTable.fnAddData(disk_dataTable_data);
       }
     }
 

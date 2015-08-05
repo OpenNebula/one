@@ -154,7 +154,7 @@ define(function(require) {
 
       this.initSelectResourceTableSelect();
     } else {
-      this.dataTableOptions.pageLength = config['page_length'];
+      this.dataTableOptions.pageLength = parseInt(config['page_length']);
     }
 
     this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
@@ -162,36 +162,21 @@ define(function(require) {
     // Remember page length only for non selectable datatables
     if (!this.conf.select) {
       this.dataTable.on( 'length.dt', function ( e, settings, len ) {
-
         config['page_length'] = len;
 
-        OpenNebulaUser.show({
-          data : {
-            id: config['user_id']
-          },
-          success: function(request, response) {
-            var template = response.USER.TEMPLATE;
+        var template_str = 'TABLE_DEFAULT_PAGE_LENGTH = "'+len+'"';
 
-            template["TABLE_DEFAULT_PAGE_LENGTH"] = len;
-
-            template_str = "";
-            $.each(template, function(key, value) {
-              template_str += (key + '=' + '"' + value + '"\n');
-            });
-
-            Sunstone.runAction("User.update_template", config['user_id'], template_str);
-          }
-        });
+        Sunstone.runAction("User.append_template", config['user_id'], template_str);
        });
     }
 
     var that = this;
-    $('#' + this.dataTableId + 'Search').keyup(function() {
+    $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
       return false;
-    })
+    });
 
-    this.dataTable.on('draw', function() {
+    this.dataTable.on('draw.dt', function() {
       that.recountCheckboxes();
     })
 
@@ -284,10 +269,10 @@ define(function(require) {
     this.dataTable.on("change", '.check_all', function() {
       var table = $(this).closest('.dataTables_wrapper');
       if ($(this).is(":checked")) { //check all
-        $('tbody input.check_item', table).prop('checked', true);
+        $('tbody input.check_item', table).prop('checked', true).change();
         $('td', table).addClass('markrowchecked');
       } else { //uncheck all
-        $('tbody input.check_item', table).prop('checked', false);
+        $('tbody input.check_item', table).prop('checked', false).change();
         $('td', table).removeClass('markrowchecked');
       };
 
@@ -598,7 +583,7 @@ define(function(require) {
       return false;
     });
 
-    $('#' + that.dataTableId + '_search', section).keyup(function() {
+    $('#' + that.dataTableId + '_search', section).on('input', function() {
       that.dataTable.fnFilter($(this).val());
       return false;
     })
@@ -747,7 +732,7 @@ define(function(require) {
     $("td.markrow", that.dataTable).removeClass('markrow');
     $('tbody input.check_item', that.dataTable).prop('checked', false);
 
-    $('#' + that.dataTableId + '_search', section).val("").trigger("keyup");
+    $('#' + that.dataTableId + '_search', section).val("").trigger("input");
     $('#refresh_button_' + that.dataTableId).click();
 
     $('#selected_resource_id_' + that.dataTableId, section).val("").hide();

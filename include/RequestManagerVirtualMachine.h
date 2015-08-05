@@ -54,6 +54,7 @@ protected:
                           RequestAttributes&      att,
                           PoolObjectAuth *        host_perms,
                           PoolObjectAuth *        ds_perm,
+                          PoolObjectAuth *        img_perm,
                           AuthRequest::Operation  op);
 
     bool quota_resize_authorization(
@@ -394,12 +395,18 @@ public:
     VirtualMachineDiskSnapshotCreate():
         RequestManagerVirtualMachine("VirtualMachineDiskSnapshotCreate",
                            "Creates a new virtual machine disk snapshot",
-                           "A:siis"){};
+                           "A:siis"){
+        Nebula& nd  = Nebula::instance();
+        ipool       = nd.get_ipool();
+    };
 
     ~VirtualMachineDiskSnapshotCreate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+private:
+    ImagePool* ipool;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -428,12 +435,18 @@ public:
     VirtualMachineDiskSnapshotDelete():
         RequestManagerVirtualMachine("VirtualMachineDiskSnapshotDelete",
                            "Deletes a disk snapshot",
-                           "A:siii"){};
+                           "A:siii"){
+        Nebula& nd  = Nebula::instance();
+        ipool       = nd.get_ipool();
+    };
 
     ~VirtualMachineDiskSnapshotDelete(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
             RequestAttributes& att);
+
+private:
+    ImagePool* ipool;
 };
 
 #endif

@@ -144,7 +144,7 @@ define(function(require) {
                                       generate_batch_action_params(),
                                       PATH);
     },
-    "cancel" : function(params) {
+    "shutdown_hard" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,
                                       "shutdown-hard",

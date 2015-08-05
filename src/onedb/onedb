@@ -339,4 +339,21 @@ cmd=CommandParser::CmdParser.new(ARGV) do
             [-1, e.message]
         end
     end
+
+    ###########################################################################
+    # Patch
+    ###########################################################################
+    patch_desc = <<-EOT.unindent
+        Applies a database patch file
+    EOT
+
+    command :patch , patch_desc, :file, :options=>[BACKUP] do
+        begin
+            helper = OneDB.new(options)
+            helper.patch(args[0], options)
+        rescue Exception => e
+            [-1, e.message]
+        end
+    end
+
 end

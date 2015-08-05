@@ -95,7 +95,7 @@ define(function(require) {
     },
 
     "ServiceTemplate.instantiate" : {
-      type: "multiple",
+      type: "single",
       call: OpenNebulaResource.instantiate,
       callback: function(request, response){
         Sunstone.hideFormPanel(TAB_ID);
@@ -120,8 +120,13 @@ define(function(require) {
           return false;
         }
 
+        var templateId = "" + selected_nodes[0];
+
         Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
-        Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate");
+        Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
+          function(formPanelInstance, context) {
+            formPanelInstance.setTemplateId(context, templateId);
+          });
       }
     },
 

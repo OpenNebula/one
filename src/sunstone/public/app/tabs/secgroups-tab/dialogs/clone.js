@@ -49,18 +49,13 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    context.foundation('abide', 'reflow');
     context.off('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form');
     context.off('valid.fndtn.abide', '#' + DIALOG_ID + 'Form');
 
     context.on('invalid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; }
-
       Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
     }).on('valid.fndtn.abide', '#' + DIALOG_ID + 'Form', function(e) {
-      // Fix for valid event firing twice
-      if (e.namespace != 'abide.fndtn') { return; }
-
       var name = $('input', this).val();
       var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
 
@@ -76,8 +71,6 @@ define(function(require) {
 
       return false;
     });
-
-    context.foundation('reflow', 'abide');
 
     return false;
   }

@@ -105,6 +105,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  VM_INDIVIDUAL_MONITORING
 #  VM_PER_INTERVAL
 #  VM_MONITORING_EXPIRATION_TIME
+#  LISTEN_ADDRESS
 #  PORT
 #  DB
 #  VNC_BASE_PORT
@@ -158,6 +159,12 @@ void OpenNebulaTemplate::set_conf_default()
     value = "2633";
 
     attribute = new SingleAttribute("PORT",value);
+    conf_default.insert(make_pair(attribute->name(),attribute));
+
+    //XML-RPC Server listen address
+    value = "0.0.0.0";
+
+    attribute = new SingleAttribute("LISTEN_ADDRESS",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
     //DB CONFIGURATION

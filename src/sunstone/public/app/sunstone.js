@@ -414,7 +414,7 @@ define(function(require) {
       return false;
     });
 
-    $(document).foundation('reflow', 'dropdown');
+    $(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
     $(document).on("click", "a[href='back']", function(e) {
@@ -536,10 +536,22 @@ define(function(require) {
       var activaTabHref = activaTab.attr('href');
     }
 
+    var isRefresh = (activaTabHref != undefined);
+    var prevPanelInstances = SunstoneCfg['tabs'][tabName]["panelInstances"];
+    var prevPanelStates = {};
+
+    if(isRefresh && prevPanelInstances != undefined){
+      $.each(prevPanelInstances, function(panelName, panel) {
+        if(panel.getState){
+          prevPanelStates[panelName] = panel.getState(context);
+        }
+      });
+    }
+
     var panels = SunstoneCfg['tabs'][tabName].panels;
     var active = false;
     var templatePanelsParams = []
-    var panelInstances = []
+    SunstoneCfg['tabs'][tabName]["panelInstances"] = {};
 
     $.each(panels, function(panelName, Panel) {
       if (Config.isTabPanelEnabled((contextTabId||tabName), panelName)) {
@@ -554,7 +566,7 @@ define(function(require) {
 
         try {
           var panelInstance = new Panel(info, contextTabId);
-          panelInstances.push(panelInstance);
+          SunstoneCfg['tabs'][tabName]["panelInstances"][panelName] = panelInstance;
           templatePanelsParams.push({
             'panelName': panelName,
             'icon': panelInstance.icon,
@@ -578,8 +590,12 @@ define(function(require) {
 
     context.html(html);
 
-    $.each(panelInstances, function(index, panel) {
+    $.each(SunstoneCfg['tabs'][tabName]["panelInstances"], function(panelName, panel) {
       panel.setup(context);
+
+      if(isRefresh && prevPanelStates[panelName] && panel.setState){
+        panel.setState( prevPanelStates[panelName], context );
+      }
 
       if (panel.onShow) {
         context.off('click', '[href="#' + panel.panelId + '"]');
@@ -589,7 +605,7 @@ define(function(require) {
       }
     });
 
-    context.foundation('reflow', 'tab');
+    context.foundation('tab', 'reflow');
     $('[href=' + activaTabHref + ']', context).trigger("click");
   }
 
@@ -741,18 +757,23 @@ define(function(require) {
         $(".reset_button", context).hide();
       }
 
+      _hideFormPanelLoading(tabId);
+
       formPanelInstance.onShow(formContext);
       if (onShow2) {
         onShow2(formPanelInstance, formContext);
       }
-
-      _hideFormPanelLoading(tabId);
     }, 13)
   }
 
   var _submitFormPanel = function(tabId) {
     var context = $("#" + tabId);
-    _popFormPanelLoading(tabId);
+    //_popFormPanelLoading(tabId);
+    // Workaround until Foundation.abide support hidden forms
+    
+    var context = $("#" + tabId);
+    $(".right-form-title", context).text(Locale.tr("Submitting..."));
+    $(".submit_button", context).text(Locale.tr("Submitting..."));
 
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
@@ -783,10 +804,13 @@ define(function(require) {
         formPanelId = formPanelInstance.formPanelId;
 
         formPanelInstance.reset(context);
-        formPanelInstance.onShow(context);
       }
 
       _hideFormPanelLoading(tabId);
+
+      if (formPanelInstance) {
+        formPanelInstance.onShow(context);
+      }
     }, 13)
   }
 

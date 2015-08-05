@@ -226,14 +226,20 @@ EOT
             :name   => 'disk',
             :large  => '--disk image0,image1',
             :description => "Disks to attach. To use an image owned by"<<
-                            " other user use user[disk]",
+                            " other user use user[disk]. Add any additional"<<
+                            " attributes separated by ':' and in the shape of"<<
+                            " KEY=VALUE. For example, if the disk must be"<<
+                            " resized, use image0:size=1000 . Or"<<
+                            " image0:size=1000:target=vda,image1:target=vdb",
             :format => Array
         },
         {
             :name   => 'nic',
             :large  => '--nic network0,network1',
             :description => "Networks to attach. To use a network owned by"<<
-                            " other user use user[network]",
+                            " other user use user[network]. Additional"<<
+                            " attributes are supported like with the --disk"<<
+                            " option.",
             :format => Array
         },
         {
@@ -879,12 +885,17 @@ EOT
         template=''
 
         objects.each do |obj|
+            obj, *extra_attributes = obj.split(":")
             res=parse_user_object(obj)
             return [-1, "#{section.capitalize} \"#{obj}\" malformed"] if !res
             user, object=*res
 
             template<<"#{section.upcase}=[\n"
             template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
+            extra_attributes.each do |extra_attribute|
+                key, value = extra_attribute.split("=")
+                template<<"  #{key.upcase}=\"#{value}\",\n"
+            end
             if object.match(/^\d+$/)
                 template<<"  #{name.upcase}_ID=#{object}\n"
             else

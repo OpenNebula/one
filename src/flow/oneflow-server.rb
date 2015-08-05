@@ -258,7 +258,7 @@ post '/service/:id/action' do
         error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
-    status 201
+    status 204
 end
 
 put '/service/:id/role/:name' do

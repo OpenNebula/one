@@ -50,17 +50,32 @@ define(function(require) {
       vncIcon = '';
     }
 
+    var cpuMonitoring = 0;
+    var memoryMonitoring = 0;
+    if (element.MONITORING) {
+      if (element.MONITORING.CPU) {
+        cpuMonitoring = element.MONITORING.CPU
+      }
+
+      if (element.MONITORING.MEMORY) {
+        memoryMonitoring = element.MONITORING.MEMORY
+      }
+    }
+    
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+      '<input class="check_item" '+
+        'type="checkbox" '+
+        'id="' + RESOURCE.toLowerCase() + '_' + element.ID + '" '+
+        'name="selected_items" '+
+        'value="' + element.ID + '" '+
+        'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>',
        element.ID,
        element.UNAME,
        element.GNAME,
        element.NAME,
        state,
-       "TODO", //TODO new monitoring path for element.CPU,
-       Humanize.size(element.MEMORY),
+       cpuMonitoring,
+       Humanize.size(memoryMonitoring),
        OpenNebulaVM.hostnameStr(element),
        OpenNebulaVM.ipsStr(element),
        Humanize.prettyTime(element.STIME),

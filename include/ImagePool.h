@@ -150,7 +150,8 @@ public:
     }
 
     /**
-     *  Generates a DISK attribute for VM templates using the Image metadata
+     *  Generates a DISK attribute for VM templates using the Image metadata.
+     *  If the disk uses an Image, it tries to acquire it.
      *
      *    @param disk the disk to be generated
      *    @param disk_id the id for this disk
@@ -164,7 +165,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int disk_attribute(int                vm_id,
+    int acquire_disk(  int                vm_id,
                        VectorAttribute *  disk,
                        int                disk_id,
                        Image::ImageType&  img_type,
@@ -173,6 +174,19 @@ public:
                        int&               image_id,
                        Snapshots **       snaps,
                        string&            error_str);
+
+    /**
+     *  Generates a DISK attribute for VM templates using the Image metadata
+     *
+     *    @param disk the disk to be generated
+     *    @param disk_id the id for this disk
+     *    @param uid of VM owner (to look for the image id within its images)
+     *
+     */
+    void disk_attribute(VectorAttribute *   disk,
+                        int                 disk_id,
+                        int                 uid);
+
     /**
      *  Generates an Authorization token for the DISK attribute
      *    @param disk the disk to be authorized

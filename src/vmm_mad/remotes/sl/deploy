@@ -16,18 +16,38 @@
 # limitations under the License.                                             #
 # -------------------------------------------------------------------------- #
 
+ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+else
+    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+end
+
+$: << RUBY_LIB_LOCATION
 $: << File.dirname(__FILE__)
 
 require 'sl_driver'
+require 'opennebula'
 
 dfile = ARGV[0]
 host  = ARGV[1]
 id    = ARGV[2]
 
+vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+vm.info
+
+lcm_state = vm.lcm_state_str
+deploy_id = vm.deploy_id
+
 sl_drv = SLDriver.new(host)
 
 text=File.read(dfile)
 
-puts sl_drv.deploy(id, host, text)
-
-exit 0
+begin
+	puts sl_drv.deploy(id, host, text, lcm_state, deploy_id)
+rescue Exception => e
+    STDERR.puts "Deploy of VM #{id} on host #{host} with #{dfile} failed " +
+                "due to \"#{e.message}\""
+    exit -1
+end

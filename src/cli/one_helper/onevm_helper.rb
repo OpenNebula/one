@@ -178,7 +178,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
-            external_ip = vm["TEMPLATE"][attr]
+            external_ip = vm["MONITORING"][attr]
 
             if !external_ip.nil? && !ips.include?(external_ip)
                 ips.push(external_ip)
@@ -502,22 +502,37 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         puts
 
         CLIHelper.print_header(str_h1 % "VIRTUAL MACHINE MONITORING",false)
-        poll_attrs = {
-            "MEMORY"          => "MONITORING/MEMORY",
-            "CPU"             => "MONITORING/CPU",
-            "NETTX"           => "MONITORING/NETTX",
-            "NETRX"           => "MONITORING/NETRX"
-        }
 
-        poll_attrs.each { |k,v|
-            if k == "CPU"
-                puts str % [k,vm[v]]
-            elsif k == "MEMORY"
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i, {})]
-            else
-                puts str % [k, OpenNebulaHelper.unit_to_str(vm[v].to_i/1024, {})]
+        vm_monitoring = vm.to_hash['VM']['MONITORING']
+
+        order_attrs  = %w(CPU MEMORY NETTX NETRX)
+
+        vm_monitoring_sort = []
+        order_attrs.each do |key|
+            if (val = vm_monitoring.delete(key))
+                vm_monitoring_sort << [key, val]
             end
-        }
+        end
+
+        vm_monitoring_sort.sort{|a,b| a[0]<=>b[0]}
+
+        filter_attrs = %w(STATE DISK_SIZE SNAPSHOT_SIZE)
+        vm_monitoring.each do |key, val|
+            if !filter_attrs.include?(key)
+                vm_monitoring_sort << [key, val]
+            end
+        end
+
+        vm_monitoring_sort.each do |k,v|
+            if k == "MEMORY"
+                puts str % [k, OpenNebulaHelper.unit_to_str(v.to_i, {})]
+            elsif k  =~ /NET.X/
+                puts str % [k, OpenNebulaHelper.unit_to_str(v.to_i/1024, {})]
+            else
+                puts str % [k, v]
+            end
+        end
+
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
@@ -590,9 +605,27 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                     end
                 end
 
-                column :SIZE, "", :left, :size=>16 do |d|
-                    size         = d["SIZE"] || "-"
-                    monitor_size = d["MONITOR_SIZE"] || "-"
+                column :SIZE, "", :left, :size=>9 do |d|
+                    if d["SIZE"]
+                        size = OpenNebulaHelper.unit_to_str(
+                                    d['SIZE'].to_i,
+                                    {},
+                                    "M"
+                                )
+                    else
+                        size = "-"
+                    end
+
+                    if d["MONITOR_SIZE"]
+                        monitor_size = OpenNebulaHelper.unit_to_str(
+                                    d['MONITOR_SIZE'].to_i,
+                                    {},
+                                    "M"
+                                )
+                    else
+                        monitor_size = "-"
+                    end
+
                     "#{monitor_size}/#{size}"
                 end
 
@@ -979,21 +1012,39 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :SIZE, "", :left, :size=>16 do |d|
-                size         = d["SIZE"] || "-"
-                monitor_size = d["MONITOR_SIZE"] || "-"
+            column :SIZE, "", :left, :size=>9 do |d|
+                if d["SIZE"]
+                    size = OpenNebulaHelper.unit_to_str(
+                                d['SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    size = "-"
+                end
+
+                if d["MONITOR_SIZE"]
+                    monitor_size = OpenNebulaHelper.unit_to_str(
+                                d['MONITOR_SIZE'].to_i,
+                                {},
+                                "M"
+                            )
+                else
+                    monitor_size = "-"
+                end
+
                 "#{monitor_size}/#{size}"
             end
 
-            column :TAG, "Snapshot Tag", :left, :size=>26 do |d|
-                d["TAG"]
+            column :NAME, "Snapshot Name", :left, :size=>26 do |d|
+                d["NAME"]
             end
 
             column :DATE, "Snapshot creation date", :size=>10 do |d|
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :SIZE, :TAG
+            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :SIZE, :NAME
         end
 
         # Convert snapshot data to an array

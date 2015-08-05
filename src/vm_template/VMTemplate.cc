@@ -173,6 +173,14 @@ error_common:
 
 string& VMTemplate::to_xml(string& xml) const
 {
+    return to_xml(xml, obj_template);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
+{
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
@@ -186,7 +194,7 @@ string& VMTemplate::to_xml(string& xml) const
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
-            << obj_template->to_xml(template_xml)
+            << tmpl->to_xml(template_xml)
         << "</VMTEMPLATE>";
 
     xml = oss.str();

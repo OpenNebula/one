@@ -902,6 +902,7 @@ int DispatchManager::attach(int vid,
     int uid;
     int oid;
     int image_id;
+    int image_cluster_id;
 
     set<string>       used_targets;
     VectorAttribute * disk;
@@ -965,20 +966,17 @@ int DispatchManager::attach(int vid,
 
     if ( vm == 0 )
     {
-        if ( image_id != -1 )
-        {
-            imagem->release_image(oid, image_id, false);
-        }
+		if ( disk != 0 )
+		{
+			imagem->release_image(oid, image_id, false);
 
-        delete snap;
-        delete disk;
+			delete snap;
+			delete disk;
+		}
 
-        oss << "Could not attach a new disk to VM " << vid
-            << ", VM does not exist after setting its state to HOTPLUG." ;
-        error_str = oss.str();
+        error_str = "VM does not exist after setting its state to HOTPLUG.";
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
-
         return -1;
     }
 
@@ -1000,6 +998,37 @@ int DispatchManager::attach(int vid,
 
         NebulaLog::log("DiM", Log::ERROR, error_str);
         return -1;
+    }
+
+    // Check that we don't have a cluster incompatibility.
+    if (disk->vector_value("CLUSTER_ID", image_cluster_id) == 0)
+    {
+      if (vm->get_cid() != image_cluster_id)
+      {
+          imagem->release_image(oid, image_id, false);
+
+          delete snap;
+          delete disk;
+
+          if ( vm->get_lcm_state() == VirtualMachine::HOTPLUG )
+          {
+              vm->set_state(VirtualMachine::RUNNING);
+          }
+          else
+          {
+              vm->set_state(VirtualMachine::LCM_INIT);
+              vm->set_state(VirtualMachine::POWEROFF);
+          }
+
+          vmpool->update(vm);
+
+          vm->unlock();
+
+          error_str = "Could not attach disk because of cluster incompatibility.";
+
+          NebulaLog::log("DiM", Log::ERROR, error_str);
+          return -1;
+      }
     }
 
     // Set the VM info in the history before the disk is attached to the
@@ -1615,11 +1644,12 @@ int DispatchManager::detach_nic(
 int DispatchManager::disk_snapshot_create(
         int           vid,
         int           did,
-        const string& tag,
+        const string& name,
         int&          snap_id,
         string&       error_str)
 {
     ostringstream oss;
+    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1652,7 +1682,10 @@ int DispatchManager::disk_snapshot_create(
         return -1;
     }
 
-    snap_id = vm->new_disk_snapshot(did, tag, error_str);
+    // Set the VM info in the history before the snapshot is added to VM
+    vm->set_vm_info();
+
+    snap_id = vm->new_disk_snapshot(did, name, error_str);
 
     if (snap_id == -1)
     {
@@ -1692,6 +1725,29 @@ int DispatchManager::disk_snapshot_create(
             break;
 
         case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_SNAPSHOT_CREATE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
             vmm->trigger(VirtualMachineManager::DISK_SNAPSHOT_CREATE, vid);
             break;
 
@@ -1746,14 +1802,6 @@ int DispatchManager::disk_snapshot_revert(
 
     if (snaps == 0)
     {
-        vm->unlock();
-        return -1;
-    }
-
-    if (snaps->get_active_id() == snap_id)
-    {
-        error_str = "Snapshot is already the active one";
-
         vm->unlock();
         return -1;
     }
@@ -1815,6 +1863,7 @@ int DispatchManager::disk_snapshot_delete(
         string&       error_str)
 {
     ostringstream oss;
+    time_t        the_time;
 
     VirtualMachine * vm = vmpool->get(vid, true);
 
@@ -1866,6 +1915,9 @@ int DispatchManager::disk_snapshot_delete(
         return -1;
     }
 
+    // Set the VM info in the history before the snapshot is removed from the VM
+    vm->set_vm_info();
+
     switch(state)
     {
         case VirtualMachine::POWEROFF:
@@ -1892,9 +1944,32 @@ int DispatchManager::disk_snapshot_delete(
 
     switch(state)
     {
+        case VirtualMachine::ACTIVE:
+            the_time = time(0);
+
+            // Close current history record
+
+            vm->set_running_etime(the_time);
+
+            vm->set_etime(the_time);
+
+            vm->set_action(History::DISK_SNAPSHOT_DELETE_ACTION);
+            vm->set_reason(History::USER);
+
+            vmpool->update_history(vm);
+
+            // Open a new history record
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vmpool->update_history(vm);
+
         case VirtualMachine::POWEROFF:
         case VirtualMachine::SUSPENDED:
-        case VirtualMachine::ACTIVE:
             tm->trigger(TransferManager::SNAPSHOT_DELETE, vid);
             break;
 
