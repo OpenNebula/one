@@ -179,7 +179,7 @@ define(function(require) {
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
-            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
+            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
               <i class="fa fa-camera fa-fw"></i>' + Locale.tr("Snapshot") +
               '</a>');
