@@ -6,6 +6,7 @@ define(function(require) {
   require('foundation.slider');
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -19,7 +20,10 @@ define(function(require) {
 
   return {
     'html': _html,
-    'setup': _setup
+    'setup': _setup,
+    'fill': _fill,
+    'retrieve': _retrieve,
+    'retrieveResize': _retrieveResize
   };
 
   /*
@@ -164,5 +168,57 @@ define(function(require) {
     });
 
     vcpu_slider.foundation('slider', 'set_value', 0);
+  }
+
+  /**
+   * Fills the capacity inputs
+   * @param  {Object} context  JQuery selector
+   * @param  {Object} template VM or VMTemplate object
+   */
+  function _fill(context, element) {
+    var fields = $('[wizard_field]', context);
+
+    fields.each(function() {
+      var field_name = $(this).attr('wizard_field');
+      $(this).data("original_value", element.TEMPLATE[field_name]);
+    });
+
+    WizardFields.fill(context, element.TEMPLATE);
+  }
+
+  /**
+   * Retrieves the input values
+   * @param  {Object} context  JQuery selector
+   * @return {Object}         If the input is not empty, returns:
+   *                                  - CPU
+   *                                  - MEMORY
+   *                                  - VCPU
+   */
+  function _retrieve(context) {
+    return WizardFields.retrieve(context);
+  }
+
+  /**
+   * Retrieves the input values, but only if the value has changed from the
+   * original set in fill()
+   * @param  {Object} context  JQuery selector
+   * @return {Object}         If the input has changed, returns:
+   *                                  - CPU
+   *                                  - MEMORY
+   *                                  - VCPU
+   */
+  function _retrieveResize(context) {
+    var templateJSON = WizardFields.retrieve(context);
+
+    var fields = $('[wizard_field]', context);
+
+    fields.each(function() {
+      var field_name = $(this).attr('wizard_field');
+      if (templateJSON[field_name] == $(this).data("original_value")){
+        delete templateJSON[field_name];
+      }
+    });
+
+    return templateJSON;
   }
 });

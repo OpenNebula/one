@@ -56,19 +56,7 @@ define(function(require) {
     Tips.setup(context);
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var templateJSON = WizardFields.retrieve(context);
-
-      if (templateJSON["CPU"] == that.element.TEMPLATE.CPU) {
-        delete templateJSON["CPU"];
-      };
-
-      if (templateJSON["MEMORY"] == that.element.TEMPLATE.MEMORY) {
-        delete templateJSON["MEMORY"];
-      };
-
-      if (templateJSON["VCPU"] == that.element.TEMPLATE.VCPU) {
-        delete templateJSON["VCPU"];
-      };
+      var templateJSON = CapacityInputs.retrieveResize(context);
 
       var enforce = $("#enforce", this).is(":checked");
 
@@ -90,11 +78,7 @@ define(function(require) {
   function _onShow(context) {
     var that = this;
     $('#vm_id', context).text(that.element.ID);
-    $('#CPU', context).val(that.element.TEMPLATE.CPU);
-    $('#MEMORY_TMP', context).val(that.element.TEMPLATE.MEMORY);
-    if (that.element.VCPU) {
-      $('#VCPU', context).val(that.element.TEMPLATE.VCPU);
-    }
+    CapacityInputs.fill(context, that.element);
 
     context.foundation('slider', 'reflow');
     
