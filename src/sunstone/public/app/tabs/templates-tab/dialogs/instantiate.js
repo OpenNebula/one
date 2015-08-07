@@ -13,6 +13,7 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var DisksResize = require('utils/disks-resize');
+  var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
 
   /*
     CONSTANTS
@@ -90,6 +91,9 @@ define(function(require) {
           tmp_json.DISK = disks;
         }
 
+        capacityContext = $(".capacityContext"  + template_id, context);
+        $.extend(tmp_json, CapacityInputs.retrieveResize(capacityContext));
+
         extra_info['template'] = tmp_json;
 
         if (!vm_name.length) { //empty name use OpenNebula core default
@@ -146,6 +150,21 @@ define(function(require) {
                 template_json.VMTEMPLATE.NAME + 
               '</span>' +
             '</h3>'+
+            '<div class="large-11 columns large-centered capacityContext' + template_json.VMTEMPLATE.ID + '">' +
+              '<div class="row">'+
+                '<div class="large-12 columns">'+
+                  '<h3 class="subheader text-right">'+
+                    '<span class="left">'+
+                      '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
+                      Locale.tr("Capacity")+
+                    '</span>'+
+                  '</h3>'+
+                '</div>'+
+              '</div>'+
+              '<div class="row">'+
+                CapacityInputs.html() +
+              '</div>'+
+            '</div>' +
             '<div class="large-11 columns large-centered disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
             '<div class="large-11 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
             '<br>');
@@ -157,9 +176,19 @@ define(function(require) {
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: Locale.tr("Custom Attributes")});
+              {text_header: '<i class="fa fa-gears fa-lg"></i>&emsp;'+Locale.tr("Custom Attributes")});
 
           inputs_div.data("opennebula_id", template_json.VMTEMPLATE.ID)
+
+          capacityContext = $(".capacityContext"  + template_json.VMTEMPLATE.ID, context);
+          CapacityInputs.setup(capacityContext);
+          CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
+
+          if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_CAPACITY_SELECT &&
+              template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_CAPACITY_SELECT.toUpperCase() == "NO"){
+
+            capacityContext.hide();
+          }
         },
         error: function(request, error_json, container) {
           Notifier.onError(request, error_json, container);
