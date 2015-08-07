@@ -9,7 +9,7 @@ define(function(require) {
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
-  var INSTANTIATE_DIALOG_ID = require('./dialogs/instantiate/dialogId');
+  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
   var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
 
   var XML_ROOT = "VMTEMPLATE"
@@ -97,6 +97,7 @@ define(function(require) {
       type: "multiple",
       call: OpenNebulaTemplate.instantiate,
       callback: function(req) {
+        Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
       },
       elements: function() {
@@ -109,6 +110,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaTemplate.instantiate,
       callback: function(req) {
+        Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
       },
       error: Notifier.onError
@@ -116,7 +118,13 @@ define(function(require) {
     "Template.instantiate_vms" : {
       type: "custom",
       call: function(){
-        Sunstone.getDialog(INSTANTIATE_DIALOG_ID).show();
+        //Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
+        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
+
+        Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
+          function(formPanelInstance, context) {
+            formPanelInstance.setTemplateIds(context, selected_nodes);
+          });
       }
     },
     "Template.clone_dialog" : {

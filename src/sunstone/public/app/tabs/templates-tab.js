@@ -8,8 +8,7 @@ define(function(require) {
   var DATATABLE_ID = "dataTableTemplates";
 
   var _dialogs = [
-    require('./templates-tab/dialogs/clone'),
-    require('./templates-tab/dialogs/instantiate')
+    require('./templates-tab/dialogs/clone')
   ];
 
   var _panels = [
@@ -19,8 +18,9 @@ define(function(require) {
 
   var _formPanels = [
     require('./templates-tab/form-panels/create'),
-    require('./templates-tab/form-panels/import')
-  ]
+    require('./templates-tab/form-panels/import'),
+    require('./templates-tab/form-panels/instantiate')
+  ];
 
   var Tab = {
     tabId: TAB_ID,
