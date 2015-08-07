@@ -23,6 +23,8 @@ else
     ZENDESK_API_GEM = true
 end
 
+require 'pp'
+
 helpers do
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
@@ -62,8 +64,17 @@ helpers do
           # When getting the error 'hostname does not match the server certificate'
           # use the API at https://yoursubdomain.zendesk.com/api/v2
         end
-
-        if client.current_user.nil? || client.current_user.id.nil?
+=begin
+`echo 'vvvvv zendesk_client vvvvv' >> /tmp/carlos`
+`echo 'client.current_user #{client.current_user}' >> /tmp/carlos`
+`echo '' >> /tmp/carlos`
+`echo 'client.current_user.nil? || client.current_user.id.nil? #{(client.current_user.nil? || client.current_user.id.nil?).to_s}' >> /tmp/carlos`
+`echo 'client.current_user.created_at.nil? #{client.current_user.created_at.nil?}' >> /tmp/carlos`
+`echo 'client.current_user.created_at #{client.current_user.created_at}' >> /tmp/carlos`
+`echo 'client.current_user.created_at.class #{client.current_user.created_at.class}' >> /tmp/carlos`
+`echo '~~~~~ zendesk_client ~~~~~' >> /tmp/carlos`
+=end
+        if client.current_user.nil? || client.current_user.id.nil? || client.current_user.created_at.nil?
             error 401, "Zendesk account credentials are incorrect"
         else
             return client
@@ -71,8 +82,18 @@ helpers do
     end
 
     def zrequest_to_one(zrequest)
+
+`echo 'vvvvv zrequest_to_one vvvvv' >> /tmp/carlos`
+`echo '' >> /tmp/carlos`
+`echo 'zrequest #{zrequest}' >> /tmp/carlos`
+`echo 'zrequest.id #{zrequest.id}' >> /tmp/carlos`
+`echo 'zrequest.comments #{zrequest.comments}' >> /tmp/carlos`
+`echo 'zrequest.comments.count #{zrequest.comments.count}' >> /tmp/carlos`
+`echo 'zrequest.comments.class #{zrequest.comments.class}' >> /tmp/carlos`
+#`echo '~~~~~ zrequest_to_one ~~~~~' >> /tmp/carlos`
+
         one_zrequest = {
-            "id" => zrequest.id,
+            "id" => zrequest.id, ### TODO: .id in 1.8.7 fails!!
             "url" => zrequest.url,
             "subject" => zrequest.subject,
             "description" => zrequest.description,
@@ -83,7 +104,7 @@ helpers do
         }
 
         zrequest.custom_fields.each { |field|
-            case field.id
+            case field.id ### TODO: .id in 1.8.7 fails!!
             when 391130
                 one_zrequest["opennebula_version"] = field.value
             when 391197
@@ -91,8 +112,15 @@ helpers do
             end
         }
 
+`echo 'each comment' >> /tmp/carlos`
+zrequest.comments.each{ |comment|
+    `echo 'comment #{comment}' >> /tmp/carlos`
+}
+
+
         if zrequest.comments
             comment = zrequest.comments.delete_at(0)
+`echo '#0 comment #{comment}' >> /tmp/carlos`
             one_zrequest["html_description"] = comment.html_body
 
             zrequest.comments.each{ |comment|

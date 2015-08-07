@@ -94,7 +94,7 @@ define(function(require){
             diskContext.data('original_size', sizeGB);
             RangeSlider.insert({
               'label': disk.IMAGE,
-              'unitLabel': 'GBs',
+              'unitLabel': 'GB',
               'name': 'SIZE',
               'start': sizeGB,
               'end': sizeGB + 500,

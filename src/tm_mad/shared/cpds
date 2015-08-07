@@ -68,6 +68,8 @@ EOF
 
 log "Copying $SRC_PATH to datastore as $DST_PATH"
 
+sleep 10
+
 ssh_exec_and_log $SRC_HOST "$CPSCRIPT" "Could not copy image $DST_PATH"
 
 exit 0

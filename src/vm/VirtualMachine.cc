@@ -3355,8 +3355,6 @@ int VirtualMachine::set_saveas_disk(int disk_id, const string& source, int iid)
 
 int VirtualMachine::set_saveas_state()
 {
-    string s;
-
     switch (state)
     {
         case ACTIVE:
@@ -3365,24 +3363,22 @@ int VirtualMachine::set_saveas_state()
                 return -1;
             }
 
-            lcm_state = HOTPLUG_SAVEAS;
+            set_state(HOTPLUG_SAVEAS);
             break;
 
         case POWEROFF:
-            state     = ACTIVE;
-            lcm_state = HOTPLUG_SAVEAS_POWEROFF;
+            set_state(ACTIVE);
+            set_state(HOTPLUG_SAVEAS_POWEROFF);
             break;
 
         case SUSPENDED:
-            state     = ACTIVE;
-            lcm_state = HOTPLUG_SAVEAS_SUSPENDED;
+            set_state(ACTIVE);
+            set_state(HOTPLUG_SAVEAS_SUSPENDED);
             break;
 
         default:
             return -1;
     }
-
-    log("VM", Log::INFO, "New state is " + lcm_state_to_str(s,lcm_state));
 
     return 0;
 }
@@ -3392,25 +3388,20 @@ int VirtualMachine::set_saveas_state()
 
 int VirtualMachine::clear_saveas_state()
 {
-    string s;
-
     switch (lcm_state)
     {
         case HOTPLUG_SAVEAS:
-            lcm_state = RUNNING;
-            log("VM", Log::INFO, "New state is "+lcm_state_to_str(s,lcm_state));
+            set_state(RUNNING);
             break;
 
         case HOTPLUG_SAVEAS_POWEROFF:
-            state     = POWEROFF;
-            lcm_state = LCM_INIT;
-            log("VM", Log::INFO, "New state is " + vm_state_to_str(s,state));
+            set_state(POWEROFF);
+            set_state(LCM_INIT);
             break;
 
         case HOTPLUG_SAVEAS_SUSPENDED:
-            state     = SUSPENDED;
-            lcm_state = LCM_INIT;
-            log("VM", Log::INFO, "New state is " + vm_state_to_str(s,state));
+            set_state(SUSPENDED);
+            set_state(LCM_INIT);
             break;
 
         default:
