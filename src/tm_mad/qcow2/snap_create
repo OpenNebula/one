@@ -54,25 +54,20 @@ done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
-                    "/VM/SNAPSHOTS[DISK_ID=$DISK_ID]/SNAPSHOT[last()]/ID" \
                     /VM/HISTORY_RECORDS/HISTORY/VMMMAD \
                     /VM/STATE \
                     /VM/LCM_STATE \
+                    /VM/DEPLOY_ID \
                     '%m%/VM/TEMPLATE/DISK/TARGET')
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 TARGET="${XPATH_ELEMENTS[j++]}"
-LAST_SNAP_ID="${XPATH_ELEMENTS[j++]}"
-VMMAD="${XPATH_ELEMENTS[j++]}"
+VMMMAD="${XPATH_ELEMENTS[j++]}"
 STATE="${XPATH_ELEMENTS[j++]}"
 LCM_STATE="${XPATH_ELEMENTS[j++]}"
+DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 ALL_DISKS="${XPATH_ELEMENTS[j++]}"
-
-if [ -z "$LAST_SNAP_ID" ]; then
-    LAST_SNAP_ID=0
-fi
-
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 IMAGE_DS_PATH=$(dirname ${DISK_SRC})
@@ -87,13 +82,10 @@ else
     DISK_PATH_ORIG=$DISK_PATH
 fi
 
-SNAP_ID=$(( $LAST_SNAP_ID + 1 ))
+NEXT_SNAP_ID=$(($SNAP_ID+1))
 
 SNAP_DIR="${DISK_PATH}.snap"
-SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-LAST_SNAP_PATH="${SNAP_DIR}/${LAST_SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
+SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
 
 # virsh snapshot-create by default creates snapshots for all the disks that
 # are not read only. To be able to make a snapshot in only one of the disks
@@ -112,11 +104,10 @@ CURRENT_PATH=${DISK_PATH}
 #   </disks>
 # </domainsnapshot>
 
-
 DOC="
 <domainsnapshot>
-  <name>${SNAP_ID}</name>
-  <description>snap ${SNAP_ID}</description>
+  <name>${DISK_ID}-${SNAP_ID}</name>
+  <description>snap ${DISK_ID}-${SNAP_ID}</description>
   <disks>"
 
 for disk in $ALL_DISKS; do
@@ -142,43 +133,29 @@ if [ ! -d "${SNAP_DIR}" ]; then
     mkdir "${SNAP_DIR}"
 fi
 
+PREVIOUS_SNAP=$(readlink $SYSTEM_DS_DISK_PATH)
+
 # 57 is DISK_SNAPSHOT. When the snapshot is done with the VM in running state
+# TODO: LCM_STATE will *always* be 57. Need to check virsh status.
 if [ "$LCM_STATE" = "57" ] && [ "$VMMMAD" = "kvm" ] ; then
     # The file must be created beforehand or libvirt complains with
     # "permission denied"
     touch $SNAP_PATH
 
     # Temporary xml file
-    FILENAME="/tmp/snapshot-\$(date +%s)"
+    FILENAME="/tmp/snapshot-$VMID-$DISK_ID-$SNAP_ID"
     echo -e "$DOC" > \$FILENAME
 
-    virsh -c qemu:///system snapshot-create one-$VMID --disk-only --atomic \
-        --xmlfile \$FILENAME --quiesce
+    virsh -c qemu:///system snapshot-create $DEPLOY_ID --disk-only --atomic \
+        --xmlfile \$FILENAME
 
+    rm \${FILENAME}
+
+    qemu-img rebase -u -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
     ln -sf $SNAP_PATH $SYSTEM_DS_DISK_PATH
-
-    rm \$FILENAME
 else
-    if [ "$SNAP_ID" = "1" ]; then
-        ORIG="$DISK_PATH_ORIG"
-    else
-        ORIG="$LAST_SNAP_PATH"
-    fi
-
-    qemu-img create -f qcow2 -b "\${ORIG}" "${SNAP_PATH}"
+    qemu-img create -f qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
     ln -sf $SNAP_PATH $SYSTEM_DS_DISK_PATH
-fi
-
-if [ "$SNAP_ID" = "1" ] && [ "$CLONE" != "YES" ]; then
-    ln -sf "${DISK_PATH_ORIG}" "${SNAP_DIR}/0"
-fi
-
-BACKING_FILE=\$(qemu-img info ${SNAP_PATH} | grep '^backing file:' | \
-    cut -d: -f2 | sed 's/^ //')
-
-if [ "\${BACKING_FILE}" = "${SYSTEM_DS_DISK_PATH}" ]; then
-    REAL_BACKING_FILE="${DISK_PATH_ORIG}"
-    qemu-img rebase -u -b "\${REAL_BACKING_FILE}" "${SNAP_PATH}"
 fi
 EOT
 )
