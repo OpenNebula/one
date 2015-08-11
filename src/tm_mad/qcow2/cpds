@@ -79,7 +79,7 @@ if [ "$CLONE" != "YES" ]; then
 fi
 
 if [ "$SNAP_ID" != "-1" ]; then
-    SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
+    SRC_PATH="$SRC_PATH.snap/$(($SNAP_ID+1))"
 fi
 
 #-------------------------------------------------------------------------------
