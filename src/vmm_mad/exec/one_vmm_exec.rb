@@ -888,90 +888,72 @@ class ExecDriver < VirtualMachineDriver
     # DISKSNAPSHOTCREATE action, takes a snapshot of a disk
     #
     def disk_snapshot_create(id, drv_message)
-        action   = ACTION[:disk_snapshot_create]
-        xml_data = decode(drv_message)
+        snap_action  = prepare_snap_action(id, drv_message, ACTION[:disk_snapshot_create])
+        action       = snap_action[:action]
+        strategy     = snap_action[:strategy]
+        drv_message  = snap_action[:drv_message]
+        target       = snap_action[:target]
+        target_index = snap_action[:target_index]
+        xml_data     = snap_action[:xml_data]
 
+        # Get TM command
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
         tm_rollback= xml_data.elements['TM_COMMAND_ROLLBACK'].text.strip
 
-        target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
-        target       = ensure_xpath(xml_data, id, action, target_xpath) ||return
+        # Build the process
+        if strategy == :live
+            tm_command_split = tm_command.split
+            tm_command_split[0] += "_LIVE"
 
-        target_index = target.downcase[-1..-1].unpack('c').first - 97
-
-        if @options[:detach_snap]
-          disk   = xml_data.elements[target_xpath].parent
-          attach = REXML::Element.new('ATTACH')
-
-          attach.add_text('YES')
-          disk.add(attach)
-
-          drv_message = Base64.encode64(xml_data.to_s)
-        end
-
-        action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
-
-        vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
-        tm_driver_path = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
-
-        vmm_driver = ensure_xpath(xml_data, id, action, vmm_driver_path) ||
-            return
-        tm_driver = ensure_xpath(xml_data, id, action, tm_driver_path) ||
-            return
-
-        # live_snapshots option is an array of VM and TM pairs
-        # For example "kvm-qcow2". If found then only TM action is called.
-        # Extra actions (suspend or attach) will be skipped
-        live_snapshot = @options[:live_snapshots].include? "#{vmm_driver}-#{tm_driver}"
-
-        if @options[:detach_snap]
-          pre_action = :detach_disk
-          pre_params = [:deploy_id, :disk_target_path, target, target_index]
-
-          post_action = :attach_disk
-          post_params = [:deploy_id, :disk_target_path, target, target_index,
-                         drv_message]
+            steps = [
+                {
+                    :driver     => :tm,
+                    :action     => :tm_snap_create_live,
+                    :parameters => tm_command_split,
+                    :no_fail    => true
+                }
+            ]
         else
-          pre_action = :save
-          pre_params = [:deploy_id, :checkpoint_file, :host]
+            if strategy == :detach
+                pre_action = :detach_disk
+                pre_params = [:deploy_id, :disk_target_path, target, target_index]
 
-          post_action = :restore
-          post_params = [:checkpoint_file, :host, :deploy_id]
-        end
+                post_action = :attach_disk
+                post_params = [:deploy_id, :disk_target_path, target, target_index,
+                               drv_message]
+            else # suspend
+                pre_action = :save
+                pre_params = [:deploy_id, :checkpoint_file, :host]
 
-        steps = []
+                post_action = :restore
+                post_params = [:checkpoint_file, :host, :deploy_id]
+            end
 
-        if !live_snapshot
-            # Save VM state / detach the disk
-            steps << {
-                :driver     => :vmm,
-                :action     => pre_action,
-                :parameters => pre_params
-            }
-        end
-
-        # Do the snapshot
-        steps << {
-            :driver     => :tm,
-            :action     => :tm_snap_create,
-            :parameters => tm_command.split,
-            :no_fail    => true
-        }
-
-        if !live_snapshot
-            # Restore VM / attach the disk
-            steps << {
-                :driver     => :vmm,
-                :action     => post_action,
-                :parameters => post_params,
-                :fail_actions => [
-                    {
-                        :driver     => :tm,
-                        :action     => :tm_snap_delete,
-                        :parameters => tm_rollback.split
-                    }
-                ]
-            }
+            steps = [
+                {
+                    :driver     => :vmm,
+                    :action     => pre_action,
+                    :parameters => pre_params
+                },
+                {
+                    :driver     => :tm,
+                    :action     => :tm_snap_create,
+                    :parameters => tm_command.split,
+                    :no_fail    => true
+                },
+                {
+                    :driver     => :vmm,
+                    :action     => post_action,
+                    :parameters => post_params,
+                    :fail_actions => [
+                        {
+                            :driver     => :tm,
+                            :action     => :tm_snap_delete,
+                            :parameters => tm_rollback.split
+                        }
+                    ]
+                }
+            ]
         end
 
         action.run(steps)
@@ -981,36 +963,26 @@ class ExecDriver < VirtualMachineDriver
     # DISKSNAPSHOTREVERT action, takes a snapshot of a disk
     #
     def disk_snapshot_revert(id, drv_message)
-        action   = ACTION[:disk_snapshot_revert]
-        xml_data = decode(drv_message)
+        snap_action  = prepare_snap_action(id, drv_message, ACTION[:disk_snapshot_revert])
+        action       = snap_action[:action]
+        strategy     = @options[:snapshots_strategy]
+        drv_message  = snap_action[:drv_message]
+        target       = snap_action[:target]
+        target_index = snap_action[:target_index]
+        xml_data     = snap_action[:xml_data]
 
+        # Get TM command
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
-        target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
-        target       = ensure_xpath(xml_data, id, action, target_xpath) ||return
-
-        target_index = target.downcase[-1..-1].unpack('c').first - 97
-
-        if @options[:detach_snap]
-            disk   = xml_data.elements[target_xpath].parent
-            attach = REXML::Element.new('ATTACH')
-
-            attach.add_text('YES')
-            disk.add(attach)
-
-            drv_message = Base64.encode64(xml_data.to_s)
-        end
-
-        action = VmmAction.new(self, id, :disk_snapshot_revert, drv_message)
-
-        if @options[:detach_snap]
+        # Build the process
+        if strategy == :detach
           pre_action = :detach_disk
           pre_params = [:deploy_id, :disk_target_path, target, target_index]
 
           post_action = :attach_disk
           post_params = [:deploy_id, :disk_target_path, target, target_index,
                          drv_message]
-        else
+        else # suspend
           pre_action = :save
           pre_params = [:deploy_id, :checkpoint_file, :host]
 
@@ -1042,6 +1014,7 @@ class ExecDriver < VirtualMachineDriver
 
         action.run(steps)
     end
+
 private
 
     def ensure_xpath(xml_data, id, action, xpath)
@@ -1056,6 +1029,46 @@ private
         end
     end
 
+    def prepare_snap_action(id, drv_message, action)
+        xml_data = decode(drv_message)
+
+        # Make sure disk target has been defined
+        target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
+        target       = ensure_xpath(xml_data, id, action, target_xpath) || return
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
+
+        # Always send ATTACH='YES' for the selected target in case it will end
+        # up being a 'detach' strategy
+        disk   = xml_data.elements[target_xpath].parent
+        attach = REXML::Element.new('ATTACH')
+
+        attach.add_text('YES')
+        disk.add(attach)
+
+        drv_message = Base64.encode64(xml_data.to_s)
+        action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
+
+        # Determine the strategy
+        vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
+        tm_driver_path  = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
+
+        vmm_driver = ensure_xpath(xml_data, id, action, vmm_driver_path) || return
+        tm_driver  = ensure_xpath(xml_data, id, action, tm_driver_path)  || return
+
+        strategy = @options[:snapshots_strategy]
+        if @options[:live_snapshots] && LIVE_DISK_SNAPSHOTS.include?("#{vmm_driver}-#{tm_driver}")
+            strategy = :live
+        end
+
+        {
+            :action       => action,
+            :strategy     => strategy,
+            :drv_message  => drv_message,
+            :target       => target,
+            :target_index => target_index,
+            :xml_data     => xml_data
+        }
+    end
 end
 
 ################################################################################
@@ -1064,42 +1077,44 @@ end
 #
 ################################################################################
 
+LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS'].split rescue []
+
 opts = GetoptLong.new(
-    [ '--retries',        '-r', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--threads',        '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',          '-l', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--shell',          '-s', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--parallel',       '-p', GetoptLong::NO_ARGUMENT ],
-    [ '--detach-snap',    '-d', GetoptLong::NO_ARGUMENT ],
-    [ '--live-snapshots', '-i', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--threads',           '-t', GetoptLong::OPTIONAL_ARGUMENT ],
+    [ '--local',             '-l', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--shell',             '-s', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--parallel',          '-p', GetoptLong::NO_ARGUMENT ],
+    [ '--live-snapshots',    '-i', GetoptLong::NO_ARGUMENT ],
+    [ '--default-snapshots', '-d', GetoptLong::REQUIRED_ARGUMENT ]
 )
 
-hypervisor    = ''
-retries       = 0
-threads       = 15
-shell         = 'bash'
-local_actions = {}
-single_host   = true
-detach_snap   = false
-live_snapshots= ['kvm-qcow2']
+hypervisor         = ''
+retries            = 0
+threads            = 15
+shell              = 'bash'
+local_actions      = {}
+single_host        = true
+live_snapshots     = false
+snapshots_strategy = :suspend # Either :detach or :suspend
 
 begin
     opts.each do |opt, arg|
         case opt
             when '--retries'
-                retries   = arg.to_i
+                retries = arg.to_i
             when '--threads'
-                threads   = arg.to_i
+                threads = arg.to_i
             when '--local'
-                local_actions=OpenNebulaDriver.parse_actions_list(arg)
+                local_actions = OpenNebulaDriver.parse_actions_list(arg)
             when '--shell'
-                shell   = arg
+                shell = arg
             when '--parallel'
                 single_host = false
-            when '--detach-snap'
-                detach_snap = true
+            when '--default-snapshots'
+                snapshots_strategy = arg.to_sym
             when '--live-snapshots'
-                live_snapshots = arg.split(',')
+                live_snapshots = true
         end
     end
 rescue Exception => e
@@ -1113,12 +1128,12 @@ else
 end
 
 exec_driver = ExecDriver.new(hypervisor,
-                :concurrency => threads,
-                :retries => retries,
-                :local_actions => local_actions,
-                :shell => shell,
-                :single_host => single_host,
-                :detach_snap => detach_snap,
-                :live_snapshots => live_snapshots)
+                :concurrency        => threads,
+                :retries            => retries,
+                :local_actions      => local_actions,
+                :shell              => shell,
+                :single_host        => single_host,
+                :snapshots_strategy => snapshots_strategy,
+                :live_snapshots     => live_snapshots)
 
 exec_driver.start_driver

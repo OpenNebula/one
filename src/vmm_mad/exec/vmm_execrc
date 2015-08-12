@@ -13,3 +13,7 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+# Space separated list of VMM-TM pairs that support live disk snapshots. VMM
+# and TM must be separated by '-'
+LIVE_DISK_SNAPSHOTS="kvm-qcow2"
