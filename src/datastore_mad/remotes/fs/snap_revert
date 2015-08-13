@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -38,31 +38,32 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT )
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD )
 
-unset i
-
-DISK_SRC="${XPATH_ELEMENTS[i++]}"
-SNAP_ID="${XPATH_ELEMENTS[i++]}"
-
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+SNAP_ID="${XPATH_ELEMENTS[j++]}"
+TM_MAD="${XPATH_ELEMENTS[j++]}"
 
 SRC_PATH=`arg_path $SRC`
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 
-DISK_ID=$(basename ${SRC} | cut -d. -f2)
-#DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
-DISK_PATH="${DISK_SRC}"
-SNAP_DIR="${DISK_PATH}.snap"
+SNAP_DIR="${DISK_SRC}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
 
-rm ${CURRENT_PATH}
-qemu-img create -f qcow2 -b ${SNAP_PATH} ${CURRENT_PATH}
+if [ "$TM_MAD" = "qcow2" ]; then
+    ACTIVE_SNAP_ID=$(ls ${SNAP_DIR} | sort -n | tail -n 1)
+    ACTIVE_SNAP_PATH="${SNAP_DIR}/${ACTIVE_SNAP_ID}"
+
+    rm ${ACTIVE_SNAP_PATH}
+    qemu-img create -f qcow2 -b ${SNAP_PATH} ${ACTIVE_SNAP_PATH}
+else
+    mv ${SNAP_PATH} ${DISK_SRC}
+fi
 

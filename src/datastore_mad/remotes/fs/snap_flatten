@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
@@ -38,18 +38,17 @@ ID=$2
 
 XPATH="${DRIVER_PATH}/../xpath.rb -b $DRV_ACTION"
 
-unset i XPATH_ELEMENTS
+unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT )
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD )
 
-unset i
-
-DISK_SRC="${XPATH_ELEMENTS[i++]}"
-SNAP_ID="${XPATH_ELEMENTS[i++]}"
-
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+SNAP_ID="${XPATH_ELEMENTS[j++]}"
+TM_MAD="${XPATH_ELEMENTS[j++]}"
 
 SRC_PATH=`arg_path $SRC`
 
@@ -57,12 +56,15 @@ SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 
 DISK_ID=$(basename ${SRC} | cut -d. -f2)
 DISK_PATH="${DISK_SRC}"
+
 SNAP_DIR="${DISK_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
 
-qemu-img convert -O qcow2 ${SNAP_PATH} ${CURRENT_PATH}.tmp
-mv "${CURRENT_PATH}.tmp" "${CURRENT_PATH}"
+if [ "$TM_MAD" = "qcow2" ]; then
+    qemu-img convert -O qcow2 ${SNAP_PATH} ${DISK_PATH}.tmp
+    mv "${DISK_PATH}.tmp" "${DISK_PATH}"
+else
+    mv ${SNAP_PATH} ${DISK_PATH}
+fi
+
 rm -rf ${SNAP_DIR}
-

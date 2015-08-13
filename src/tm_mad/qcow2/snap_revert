@@ -57,27 +57,20 @@ done < <(onevm show -x $VMID| $XPATH \
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 
-
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 IMAGE_DS_PATH=$(dirname ${DISK_SRC})
 
-if [ "$CLONE" = "YES" ]; then
-    DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+
+if [ "${CLONE}" = "YES" ]; then
+    SNAP_DIR="${DISK_PATH}.snap"
 else
-    DISK_PATH=$DISK_SRC
+    SNAP_DIR="${DISK_SRC}.snap"
 fi
 
-NEXT_ID=$(( $SNAP_ID + 1 ))
-SNAP_DIR="${DISK_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_NEXT="${SNAP_DIR}/${NEXT_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
 
-CMD="set -ex ; \
-qemu-img create -f qcow2 -b \"${SNAP_PATH}\" \"${CURRENT_PATH}\"; \
-"
+SNAP_CMD="qemu-img create -f qcow2 -b \"${SNAP_PATH}\" \"\$(readlink ${DISK_PATH})\""
 
-ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+ssh_exec_and_log "${SRC_HOST}" "${SNAP_CMD}" \
                  "Error reverting snapshot to ${SNAP_PATH}"
-

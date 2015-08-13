@@ -79,6 +79,17 @@ ssh_make_path $DST_HOST $DST_DIR
 #-------------------------------------------------------------------------------
 # Clone (cp) SRC into DST
 #-------------------------------------------------------------------------------
+
+CLONE_CMD=$(cat <<EOF
+cd $DST_DIR
+mkdir -p ${DST_PATH}.snap
+rm -f $DST_PATH
+$QEMU_IMG create -b $SRC_PATH -f qcow2 ${DST_PATH}.snap/0
+ln -s ${DST_PATH}.snap/0 ${DST_PATH}
+${RESIZE_CMD}
+EOF
+)
+
 case $SRC in
 http://*)
     log "Downloading $SRC into $DST_PATH"
@@ -90,16 +101,9 @@ http://*)
 *)
     log "Cloning $SRC_PATH in $DST"
 
-    ORIGINAL_SIZE=${ORIGINAL_SIZE:-0}
-
-    if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
        RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
     fi
-
-    CLONE_CMD="cd $DST_DIR; rm -f $DST_PATH; \
-        $QEMU_IMG create -b $SRC_PATH -f qcow2 ${DST_PATH}.orig; \
-        ln -s ${DST_PATH}.orig ${DST_PATH}; \
-        ${RESIZE_CMD}"
 
     ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" "Error copying $SRC to $DST"
     ;;
