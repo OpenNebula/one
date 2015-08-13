@@ -66,7 +66,7 @@ while IFS= read -r -d '' element; do
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
-ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]:-0}"
+ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Clone the image
@@ -91,7 +91,7 @@ CLONE_CMD=$(cat <<EOF
         $RBD copy $SRC_PATH $RBD_DST
     fi
 
-    if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
         $RBD resize $RBD_DST --size $SIZE
     fi
 EOF
