@@ -1,10 +1,10 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "July 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "August 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
-\fBonevm\fR
+\fBonevm\fR \- manages OpenNebula virtual machines
 .
 .SH "SYNOPSIS"
 \fBonevm\fR \fIcommand\fR [\fIargs\fR] [\fIoptions\fR]
@@ -25,9 +25,15 @@
                            unit is megabytes\. To use gigabytes add a \'g\',
                            floats can be used: 8g=8192, 0\.5g=512
  \-\-disk image0,image1      Disks to attach\. To use an image owned by other
-                           user use user[disk]
+                           user use user[disk]\. Add any additional
+                           attributes separated by \':\' and in the shape of
+                           KEY=VALUE\. For example, if the disk must be
+                           resized, use image0:size=1000 \. Or
+                           image0:size=1000:target=vda,image1:target=vdb
  \-\-nic network0,network1   Networks to attach\. To use a network owned by
-                           other user use user[network]
+                           other user use user[network]\. Additional
+                           attributes are supported like with the \-\-disk
+                           option\.
  \-\-raw string              Raw string to add to the template\. Not to be
                            confused with the RAW attribute
  \-\-vnc                     Add VNC server to the VM
