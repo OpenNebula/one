@@ -29,7 +29,7 @@ using namespace std;
 class HostShareTemplate : public Template
 {
 public:
-    HostShareTemplate() : Template(false,'=',"DATASTORES"){};
+    HostShareTemplate(const char * name) : Template(false, '=', name){};
 
     ~HostShareTemplate(){};
 };
@@ -125,6 +125,8 @@ public:
 
     void set_ds_monitorization(const vector<Attribute*> &ds_att);
 
+    void set_pci_monitorization(const vector<Attribute*> &pci_att);
+
 private:
 
     long long disk_usage; /**< Disk allocated to VMs (in MB).        */
@@ -146,6 +148,7 @@ private:
     long long running_vms;/**< Number of running VMs in this Host   */
 
     HostShareTemplate ds_template;
+    HostShareTemplate pci_template;
 
     // ----------------------------------------
     // Friends

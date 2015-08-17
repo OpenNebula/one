@@ -256,6 +256,7 @@ int Host::update_info(Template        &tmpl,
     vector<Attribute*>::iterator it;
     vector<Attribute*>           vm_att;
     vector<Attribute*>           ds_att;
+    vector<Attribute*>           pci_att;
     vector<Attribute*>           local_ds_att;
 
     int   rc;
@@ -464,6 +465,10 @@ int Host::update_info(Template        &tmpl,
     }
 
     host_share.set_ds_monitorization(local_ds_att);
+
+    obj_template->remove("PCI", pci_att);
+
+    host_share.set_pci_monitorization(pci_att);
 
     return 0;
 }

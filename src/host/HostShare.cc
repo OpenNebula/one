@@ -41,7 +41,9 @@ HostShare::HostShare(long long _max_disk,long long _max_mem,long long _max_cpu):
         used_disk(0),
         used_mem(0),
         used_cpu(0),
-        running_vms(0){};
+        running_vms(0),
+        ds_template("DATASTORES"),
+        pci_template("PCI_DEVICES"){};
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {
@@ -57,7 +59,7 @@ ostream& operator<<(ostream& os, HostShare& hs)
 
 string& HostShare::to_xml(string& xml) const
 {
-    string template_xml;
+    string ds_xml, pci_xml;
     ostringstream   oss;
 
     oss << "<HOST_SHARE>"
@@ -74,7 +76,8 @@ string& HostShare::to_xml(string& xml) const
           << "<USED_MEM>"   << used_mem   << "</USED_MEM>"
           << "<USED_CPU>"   << used_cpu   << "</USED_CPU>"
           << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
-          << ds_template.to_xml(template_xml)
+          << ds_template.to_xml(ds_xml)
+          << pci_template.to_xml(pci_xml)
         << "</HOST_SHARE>";
 
     xml = oss.str();
@@ -131,8 +134,32 @@ int HostShare::from_xml_node(const xmlNodePtr node)
         return -1;
     }
 
+    // ------------ DS Template ---------------
+
+    ObjectXML::get_nodes("/HOST_SHARE/PCI_DEVICES", content);
+
+    if( content.empty())
+    {
+        return -1;
+    }
+
+    rc += pci_template.from_xml_node( content[0] );
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
     return 0;
 }
+
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
 
 void HostShare::set_ds_monitorization(const vector<Attribute*> &ds_att)
 {
@@ -145,3 +172,19 @@ void HostShare::set_ds_monitorization(const vector<Attribute*> &ds_att)
         ds_template.set(*it);
     }
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+void HostShare::set_pci_monitorization(const vector<Attribute*> &pci_att)
+{
+    vector<Attribute*>::const_iterator it;
+
+    pci_template.erase("PCI");
+
+    for (it = pci_att.begin(); it != pci_att.end(); it++)
+    {
+        pci_template.set(*it);
+    }
+}
+
