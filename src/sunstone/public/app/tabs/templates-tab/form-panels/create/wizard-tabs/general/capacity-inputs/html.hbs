@@ -3,10 +3,12 @@
     <div class="">
       <input type="hidden" wizard_field="MEMORY" id="MEMORY" name="memory" />
     </div>
-    <label class="" for="MEMORY">
-      {{tr "Memory"}}
-      {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
-    </label>
+    <div class="large-12 columns">
+      <label class="" for="MEMORY">
+        {{tr "Memory"}}
+        {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
+      </label>
+    </div>
     <div class="large-8 columns memory_slider_container">
       <div id="memory_slider" class="range-slider radius" data-slider data-options="start: 0; end: 409600; step: 12800;">
         <span class="range-slider-handle"></span>
@@ -27,10 +29,12 @@
 </div>
 <div class="row">
   <div class="large-12 columns">
-    <label class="" for="CPU">
-      {{tr "CPU"}}
-      {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
-    </label>
+    <div class="large-12 columns">
+      <label class="" for="CPU">
+        {{tr "CPU"}}
+        {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
+      </label>
+    </div>
     <div class="large-10 columns">
       <div id="cpu_slider" class="range-slider radius" data-slider data-options="start: 0; end: 1600; step: 50;">
         <span class="range-slider-handle"></span>
@@ -43,12 +47,16 @@
     </div>
   </div>
 </div>
+<br>
+{{#advancedSection (tr "Advanced Capacity") }}
 <div class="row">
   <div class="large-12 columns">
-    <label class="" for="VCPU">
-      {{tr "VCPU"}}
-      {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
-    </label>
+    <div class="large-12 columns">
+      <label class="" for="VCPU">
+        {{tr "VCPU"}}
+        {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
+      </label>
+    </div>
     <div class="large-10 columns">
       <div id="vcpu_slider" class="range-slider radius" data-slider data-options="start: 100; end: 1600; step: 100;">
         <span class="range-slider-handle"></span>
@@ -62,3 +70,4 @@
   </div>
   <div class="large-5 columns"></div>
 </div>
+{{/advancedSection}}
