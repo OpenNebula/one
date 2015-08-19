@@ -66,6 +66,12 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
+    if (!this.selected_nodes || this.selected_nodes.length == 0) {
+      Notifier.notifyError(Locale.tr("No template selected"));
+      Sunstone.hideFormPanelLoading(this.tabId);
+      return false;
+    }
+
     var vm_name = $('#vm_name', context).val();
     var n_times = $('#vm_n_times', context).val();
     var n_times_int = 1;
