@@ -67,7 +67,7 @@ define(function(require) {
     d.setMonth(d.getMonth() - 1);
 
     $("#acct_start_time", context).val(
-      d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
+      d.getFullYear() + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + ('0'+d.getDate()).slice(-2));
 
     //--------------------------------------------------------------------------
     // Init end time to today
@@ -76,7 +76,7 @@ define(function(require) {
     d = new Date();
 
     $("#acct_end_time", context).val(
-      d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2));
+      d.getFullYear() + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + ('0'+d.getDate()).slice(-2));
 
     //--------------------------------------------------------------------------
     // VM owner: all, group, user
