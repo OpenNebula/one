@@ -13,6 +13,7 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var WizardFields = require('utils/wizard-fields');
   var DisksResize = require('utils/disks-resize');
+  var NicsSection = require('utils/nics-section');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
 
   /*
@@ -100,6 +101,11 @@ define(function(require) {
         tmp_json.DISK = disks;
       }
 
+      var nics = NicsSection.retrieve($(".nicsContext"  + template_id, context));
+      if (nics.length > 0) {
+        tmp_json.NIC = nics;
+      }
+
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveResize(capacityContext));
 
@@ -157,7 +163,7 @@ define(function(require) {
                 template_json.VMTEMPLATE.NAME + 
               '</span>' +
             '</h3>'+
-            '<div class="large-11 columns large-centered capacityContext' + template_json.VMTEMPLATE.ID + '">' +
+            '<div class="large-8 columns left capacityContext' + template_json.VMTEMPLATE.ID + '">' +
               '<div class="row">'+
                 '<div class="large-12 columns">'+
                   '<h3 class="subheader text-right">'+
@@ -165,18 +171,27 @@ define(function(require) {
                       '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
                       Locale.tr("Capacity")+
                     '</span>'+
+                    '<br>'+
                   '</h3>'+
                 '</div>'+
               '</div>'+
               '<div class="row">'+
-                CapacityInputs.html() +
+                '<div class="large-12 columns">'+
+                  CapacityInputs.html() +
+                  '<br>' +
+                '</div>'+
               '</div>'+
             '</div>' +
-            '<div class="large-11 columns large-centered disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
-            '<div class="large-11 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
+            '<div class="large-8 columns left disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
+            '<div class="large-12 columns nicsContext' + template_json.VMTEMPLATE.ID + '">'+
+              '<div class="provision_network_selector"></div>' +
+              '<br>' +
+            '</div>' +
+            '<div class="large-12 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
             '<br>');
 
           DisksResize.insert(template_json, $(".disksContext"  + template_json.VMTEMPLATE.ID, context));
+          NicsSection.insert(template_json, $(".nicsContext"  + template_json.VMTEMPLATE.ID, context));
 
           var inputs_div = $(".template_user_inputs" + template_json.VMTEMPLATE.ID, context);
 
