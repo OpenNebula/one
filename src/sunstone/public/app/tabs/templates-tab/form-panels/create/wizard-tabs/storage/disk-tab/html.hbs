@@ -120,6 +120,13 @@
       </select>
     </div>
     <div class="large-6 columns hypervisor only_kvm">
+      <label for="SIZE">
+        {{tr "Size (MB)"}}
+        {{{tip (tr "The size of the disk will be modified to match this size when the template is instantiated")}}}
+      </label>
+      <input wizard_field="SIZE" type="text" id="SIZE" name="SIZE" />
+    </div>
+    <div class="large-6 columns hypervisor only_kvm">
       <label for="TOTAL_BYTES_SEC">
         {{tr "Total Bytes Sec"}}
         {{{tip (tr "IO throttling attributes for the disk. They are specified in bytes or IOPS (IO Operations) and can be specified for the total (read+write) or specific for read or write. Total and read or write can not be used at the same time. By default these parameters are only allowed to be used by oneadmin.")}}}
