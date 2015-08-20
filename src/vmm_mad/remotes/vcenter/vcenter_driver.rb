@@ -244,8 +244,7 @@ class VIClient
             ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
             vc_hosts[dc.name] = []
             ccrs.each { |c|
-                puts c.name
-                if !hpool["HOST[NAME=\"c.name\"]"]
+                if !hpool["HOST[NAME=\"#{c.name}\"]"]
                     vc_hosts[dc.name] << c.name
                 end
               }
@@ -266,7 +265,9 @@ class VIClient
         tpool = OpenNebula::TemplatePool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
         rc = tpool.info
-        # TODO check error
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
 
         datacenters = get_entities(@root, 'Datacenter')
 
@@ -312,8 +313,10 @@ class VIClient
         rc = vmpool.info
 
         hostpool = OpenNebula::HostPool.new((one_client||@one))
-        rc = hostpool.info
-        # TODO check error
+        rc       = hostpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
 
         datacenters = get_entities(@root, 'Datacenter')
 
@@ -395,9 +398,11 @@ class VIClient
 
         vnpool = OpenNebula::VirtualNetworkPool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
-        rc = vnpool.info
-        # TODO check error
-        #
+        rc     = vnpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
