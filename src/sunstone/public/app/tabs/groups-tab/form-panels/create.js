@@ -130,6 +130,7 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    context.foundation('tab', 'reflow');
     this.userCreation.setup( $("#admin_user_wrapper",context) );
     Tips.setup(context);
 
@@ -267,7 +268,6 @@ define(function(require) {
   }
 
   function _onShow(context) {
-
   }
 
   function _fill(context, element) {
