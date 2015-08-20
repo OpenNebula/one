@@ -316,7 +316,8 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
     },
     "shutdown": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown");
+      var action_obj = {"hard": false};
+      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown", action_obj);
     },
     "shutdown_hard" : function(params) {
       var action_obj = {"hard": true};
