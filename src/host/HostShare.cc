@@ -30,7 +30,7 @@ using namespace std;
 
 int HostSharePCI::from_xml_node(const xmlNodePtr node)
 {
-    int rc = from_xml_node(node);
+    int rc = Template::from_xml_node(node);
 
     if (rc != 0)
     {

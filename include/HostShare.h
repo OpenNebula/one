@@ -28,7 +28,7 @@
 class HostShareDatastore : public Template
 {
 public:
-    HostShareDatastore() : Template(false, '=', "DATASTORE"){};
+    HostShareDatastore() : Template(false, '=', "DATASTORES"){};
 
     virtual ~HostShareDatastore(){};
 };
