@@ -770,7 +770,9 @@ class VCenterVm
                 vm          = connection.find_vm_template(deploy_id)
 
                 begin
-                    vm.PowerOffVM_Task.wait_for_completion
+                    if vm.summary.runtime.powerState == "poweredOn"
+                        vm.PowerOffVM_Task.wait_for_completion
+                    end
                 rescue
                 end
                 vm.Destroy_Task.wait_for_completion
