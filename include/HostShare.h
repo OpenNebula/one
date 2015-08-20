@@ -20,22 +20,149 @@
 #include "ObjectXML.h"
 #include "Template.h"
 #include <time.h>
-
-using namespace std;
+#include <set>
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-class HostShareTemplate : public Template
+class HostShareDatastore : public Template
 {
 public:
-    HostShareTemplate(const char * name) : Template(false, '=', name){};
+    HostShareDatastore() : Template(false, '=', "DATASTORE"){};
 
-    ~HostShareTemplate(){};
+    virtual ~HostShareDatastore(){};
 };
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/**
+ *  This class represents a PCI DEVICE list for the host. The list is in the
+ *  form:
+ *  <PCI>
+ *    <TYPE>: Three 4-hex digits groups representing <vendor>:<device>:<class>
+ *    <DESCRIPTION>: The corresponding device description
+ *    <ADDRESS>: PCI address, bus, slot and function
+ */
+class HostSharePCI : public Template
+{
+public:
+
+    HostSharePCI() : Template(false, '=', "PCI_DEVICES"){};
+
+    virtual ~HostSharePCI()
+    {
+        map<string, PCIDevice *>::iterator it;
+
+        for (it=pci_devices.begin(); it != pci_devices.end(); it++)
+        {
+            delete it->second;
+        };
+    };
+
+    /**
+     *  Builds the devices list from its XML representation. This function
+     *  is used when importing it from the DB.
+     *    @param node xmlNode for the template
+     *    @return 0 on success
+     */
+    int from_xml_node(const xmlNodePtr node);
+
+    /**
+     *  Test wether this PCI device set has the requested devices available.
+     *    @param devs list of requested devices by the VM.
+     *    @return true if all the devices are available.
+     */
+    bool test(vector<Attribute *> &devs)
+    {
+        return test_set(devs, -1);
+    }
+
+    /**
+     *  Assign the requested devices to the given VM. The assgined devices will
+     *  be labeled with the VM and the PCI attribute of the VM extended with
+     *  the address of the assigned devices.
+     *    @param devs list of requested PCI devices, will include address of
+    *    assgined devices.
+     *    @param vmid of the VM
+     */
+    void add(vector<Attribute *> &devs, int vmid)
+    {
+        test_set(devs, vmid);
+    }
+
+    /**
+     *  Remove the VM assigment from the PCI device list
+     */
+    void del(const vector<Attribute *> &devs);
+
+    /**
+     *  Updates the PCI list with monitor data, it will create or
+     *  remove PCIDevices as needed.
+     */
+    void set_monitorization(vector<Attribute*> &pci_att);
+
+private:
+    /**
+     *  Sets the internal class structures from the template
+     */
+    int init();
+
+    /**
+     *  Test if a PCIDevice matches the vendor, device and class request spec
+     *  and can be assigned. It will assgin it if requested.
+     *    @param vendor_id id in uint form 0 means *
+     *    @param device_id id in uint form 0 means *
+     *    @param class_id  id in uint form 0 means *
+     *    @param pci requested pci device
+     *    @param vmid if not -1 it will also assign the PCI device to the VM,
+     *    and the pci attribute will be extended with device information.
+     *    @param assgined set of addresses already assgined devices, it will
+     *    include the  selected device if found; useful to iterate.
+     *
+     *    @return true if a device was found.
+     */
+    bool test_set(unsigned int vendor_id, unsigned int device_id,
+        unsigned int class_id, VectorAttribute *pci, int vmid,
+        std::set<string> &assigned);
+
+    /**
+     *  Test if the given list of PCIDevices can be assigned to the VM
+     *    @param devs, list of PCI devices
+     *    @param vmid if not -1 it will assign the devices to the VM
+     *
+     *    @return true if the PCIDevice list can be assgined.
+     */
+    bool test_set(vector<Attribute *> &devs, int vmid);
+
+    /**
+     *  Gets a 4 hex digits value from attribute
+     *    @param name of the attribute
+     *    @pci_device VectorAttribute representing the device
+     *    @return the value as unsigned int or 0 if was not found
+     */
+    static unsigned int get_pci_value(const char * name,
+                                      const VectorAttribute * pci_device);
+    /**
+     *  Internal structure to represent PCI devices for fast look up and
+     *  update
+     */
+    struct PCIDevice
+    {
+        PCIDevice(VectorAttribute * _attrs);
+
+        ~PCIDevice(){};
+
+        unsigned int vendor_id;
+        unsigned int device_id;
+        unsigned int class_id;
+
+        int vmid;
+
+        string address;
+
+        VectorAttribute * attrs;
+    };
+
+    map <string, PCIDevice *> pci_devices;
+};
 
 /**
  *  The HostShare class. It represents a logical partition of a host...
@@ -125,7 +252,10 @@ public:
 
     void set_ds_monitorization(const vector<Attribute*> &ds_att);
 
-    void set_pci_monitorization(const vector<Attribute*> &pci_att);
+    void set_pci_monitorization(vector<Attribute*> &pci_att)
+    {
+        pci.set_monitorization(pci_att);
+    }
 
 private:
 
@@ -147,8 +277,8 @@ private:
 
     long long running_vms;/**< Number of running VMs in this Host   */
 
-    HostShareTemplate ds_template;
-    HostShareTemplate pci_template;
+    HostShareDatastore ds;
+    HostSharePCI       pci;
 
     // ----------------------------------------
     // Friends
