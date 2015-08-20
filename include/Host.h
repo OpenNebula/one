@@ -379,13 +379,15 @@ public:
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
+     *    @param pci devicesneeded by th VM
      *    @return 0 on success
      */
-    void add_capacity(int vm_id, long long cpu, long long mem, long long disk)
+    void add_capacity(int vm_id, long long cpu, long long mem, long long disk,
+            vector<Attribute *> pci)
     {
         if ( vm_collection.add_collection_id(vm_id) == 0 )
         {
-            host_share.add(cpu,mem,disk);
+            host_share.add(vm_id, cpu, mem, disk, pci);
         }
         else
         {

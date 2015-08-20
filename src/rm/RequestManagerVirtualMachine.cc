@@ -816,10 +816,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (enforce)
     {
-        int    cpu, mem, disk;
+        int cpu, mem, disk;
+        vector<Attribute *> pci;
+
         string error;
 
-        vm->get_requirements(cpu, mem, disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         vm->unlock();
 
@@ -1033,10 +1035,12 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // Check the host has enough capacity
     if (enforce)
     {
-        int    cpu, mem, disk;
+        int cpu, mem, disk;
+        vector<Attribute *> pci;
+
         string error;
 
-        vm->get_requirements(cpu, mem, disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         vm->unlock();
 

@@ -281,6 +281,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     ostringstream oss;
 
+    vector<Attribute *> pci;
+
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
@@ -440,6 +442,26 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         // The get_disk_images method has an internal rollback for
         // the acquired images, release_disk_images() would release all disks
         goto error_leases_rollback;
+    }
+
+    // ------------------------------------------------------------------------
+    // PCI Devices
+    // ------------------------------------------------------------------------
+
+    user_obj_template->remove("PCI", pci);
+
+    for (vector<Attribute *>::iterator it = pci.begin(); it !=pci.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            it = pci.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1649,10 +1671,13 @@ void VirtualMachine::cp_previous_history()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
+void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
+        vector<Attribute *>& pci_devs)
 {
     istringstream   iss;
     float           fcpu;
+
+    obj_template->get("PCI", pci_devs);
 
     if ((get_template_attribute("MEMORY",memory) == false) ||
         (get_template_attribute("CPU",fcpu) == false))

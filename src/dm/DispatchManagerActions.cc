@@ -92,10 +92,11 @@ int DispatchManager::import (
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
+    vector<Attribute *> pci;
 
-    vm->get_requirements(cpu, mem, disk);
+    vm->get_requirements(cpu, mem, disk, pci);
 
-    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     vm->set_state(VirtualMachine::ACTIVE);
 
@@ -770,6 +771,8 @@ int DispatchManager::finalize(
     VirtualMachine * vm;
     ostringstream oss;
 
+    vector<Attribute *> pci;
+
     VirtualMachine::VmState state;
 
     vm = vmpool->get(vid,true);
@@ -790,7 +793,7 @@ int DispatchManager::finalize(
         case VirtualMachine::POWEROFF:
             int cpu, mem, disk;
 
-            vm->get_requirements(cpu,mem,disk);
+            vm->get_requirements(cpu, mem, disk, pci);
             hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
             tm->trigger(TransferManager::EPILOG_DELETE,vid);

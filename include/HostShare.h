@@ -180,15 +180,20 @@ public:
 
     /**
      *  Add a new VM to this share
+     *    @param vmid of the VM
      *    @param cpu requested by the VM, in percentage
      *    @param mem requested by the VM, in KB
      *    @param disk requested by the VM
+     *    @param pci_devs requested by the VM
      */
-    void add(long long cpu, long long mem, long long disk)
+    void add(int vmid, long long cpu, long long mem, long long disk,
+        vector<Attribute *> pci_devs)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
         disk_usage += disk;
+
+        pci.add(pci_devs, vmid);
 
         running_vms++;
     }

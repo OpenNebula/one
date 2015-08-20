@@ -123,17 +123,19 @@ public:
      *   @param cpu amount of CPU, in percentage
      *   @param mem amount of main memory, in KB
      *   @param disk amount of disk
+     *   @param pci devices requested by the VM
      *
      *   @return 0 on success -1 in case of failure
      */
-    int add_capacity(int oid, int vm_id, int cpu, int mem, int disk)
+    int add_capacity(int oid, int vm_id, int cpu, int mem, int disk,
+            vector<Attribute *> pci)
     {
         int rc = 0;
         Host * host = get(oid, true);
 
         if ( host != 0 )
         {
-          host->add_capacity(vm_id, cpu, mem, disk);
+          host->add_capacity(vm_id, cpu, mem, disk, pci);
 
           update(host);
 

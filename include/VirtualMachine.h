@@ -1222,8 +1222,10 @@ public:
      *    @param cpu
      *    @param memory
      *    @param disk
+     *    @param pci_dev
      */
-    void get_requirements (int& cpu, int& memory, int& disk);
+    void get_requirements (int& cpu, int& memory, int& disk,
+            vector<Attribute *>& pci_dev);
 
     /**
      *  Checks if the resize parameters are valid

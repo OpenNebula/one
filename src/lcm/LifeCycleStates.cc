@@ -37,8 +37,10 @@ void  LifeCycleManager::save_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int                 cpu,mem,disk;
-        time_t              the_time = time(0);
+        int    cpu, mem, disk;
+        vector<Attribute *> pci;
+
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //                PROLOG_MIGRATE STATE
@@ -66,7 +68,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
@@ -154,8 +156,10 @@ void  LifeCycleManager::save_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::SAVE_MIGRATE )
     {
-        int                     cpu,mem,disk;
-        time_t                  the_time = time(0);
+        int    cpu, mem, disk;
+        vector<Attribute *> pci;
+
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //           RUNNING STATE FROM SAVE_MIGRATE
@@ -171,7 +175,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
@@ -256,8 +260,10 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
-        int     cpu,mem,disk;
-        time_t  the_time = time(0);
+        int    cpu,mem,disk;
+        vector<Attribute *> pci;
+
+        time_t the_time = time(0);
 
         vm->set_running_stime(the_time);
 
@@ -275,7 +281,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
 
@@ -328,8 +334,10 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
-        int     cpu,mem,disk;
-        time_t  the_time = time(0);
+        int    cpu, mem, disk;
+        vector<Attribute *> pci;
+
+        time_t the_time = time(0);
 
         //----------------------------------------------------
         //           RUNNING STATE FROM MIGRATE
@@ -357,7 +365,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vmpool->update_previous_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
@@ -789,8 +797,10 @@ void  LifeCycleManager::prolog_failure_action(int vid)
 void  LifeCycleManager::epilog_success_action(int vid)
 {
     VirtualMachine *    vm;
-    time_t              the_time = time(0);
-    int                 cpu,mem,disk;
+    vector<Attribute *> pci;
+
+    time_t the_time = time(0);
+    int    cpu,mem,disk;
 
     VirtualMachine::LcmState state;
     DispatchManager::Actions action;
@@ -859,7 +869,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     vmpool->update_history(vm);
 
-    vm->get_requirements(cpu,mem,disk);
+    vm->get_requirements(cpu, mem, disk, pci);
 
     hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
