@@ -768,11 +768,18 @@ int DispatchManager::finalize(
     string& error_str)
 {
     VirtualMachine * vm;
+    Host * host;
     ostringstream oss;
 
     VirtualMachine::VmState state;
+    bool is_public_host;
 
-    vm = vmpool->get(vid,true);
+    vm   = vmpool->get(vid,true);
+
+    host           = hpool->get(vm->get_hid(),true);
+    is_public_host = host->is_public_cloud();
+    host->unlock();
+    
 
     if ( vm == 0 )
     {
@@ -793,13 +800,29 @@ int DispatchManager::finalize(
             vm->get_requirements(cpu,mem,disk);
             hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
 
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            if (is_public_host)
+            {
+                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+            }
+            else
+            {
+                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            }
+
             finalize_cleanup(vm);
         break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
-            tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
+            if (is_public_host)
+            {
+                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+            }
+            else
+            {
+                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            }
+
             finalize_cleanup(vm);
         break;
 

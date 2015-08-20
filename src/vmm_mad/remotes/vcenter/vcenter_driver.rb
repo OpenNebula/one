@@ -232,14 +232,23 @@ class VIClient
     # @return [Hash] in the form
     #   {dc_name [String] => ClusterComputeResources Names [Array - String]}
     ########################################################################
-    def hierarchy
+    def hierarchy(one_client=nil)
         vc_hosts = {}
 
         datacenters = get_entities(@root, 'Datacenter')
 
+        hpool = OpenNebula::HostPool.new((one_client||@one))
+        rc    = hpool.info
+
         datacenters.each { |dc|
             ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
-            vc_hosts[dc.name] = ccrs.collect { |c| c.name }
+            vc_hosts[dc.name] = []
+            ccrs.each { |c|
+                puts c.name
+                if !hpool["HOST[NAME=\"c.name\"]"]
+                    vc_hosts[dc.name] << c.name
+                end
+              }
         }
 
         return vc_hosts
