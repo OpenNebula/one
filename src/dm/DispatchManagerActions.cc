@@ -772,14 +772,16 @@ int DispatchManager::finalize(
     ostringstream oss;
 
     VirtualMachine::VmState state;
-    bool is_public_host;
+    bool is_public_host = false;
 
     vm   = vmpool->get(vid,true);
 
-    host           = hpool->get(vm->get_hid(),true);
-    is_public_host = host->is_public_cloud();
-    host->unlock();
-    
+    if(vm->hasHistory())
+    {
+        host           = hpool->get(vm->get_hid(),true);
+        is_public_host = host->is_public_cloud();
+        host->unlock();
+    }
 
     if ( vm == 0 )
     {
