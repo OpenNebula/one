@@ -19,6 +19,8 @@ define(function(require) {
   CommonActions.prototype.del = _del;
   CommonActions.prototype.multipleAction = _multipleAction;
   CommonActions.prototype.singleAction = _singleAction;
+  CommonActions.prototype.create = _create;
+  CommonActions.prototype.showCreate = _showCreate;
 
   return CommonActions;
 
@@ -111,6 +113,34 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
+    }
+  }
+
+  function _create(formPanelId) {
+    var that = this;
+    return {
+      type: "create",
+      call: that.openNebulaResource.create,
+      callback : function(request, response) {
+        Sunstone.resetFormPanel(that.tabId, formPanelId);
+        Sunstone.hideFormPanel(that.tabId);
+        Sunstone.getDataTable(that.tabId).addElement(request, response);
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(that.tabId);
+        Notifier.onError(request, response);
+      },
+      notify: true
+    }
+  }
+
+  function _showCreate(formPanelId) {
+    var that = this;
+    return {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(that.tabId, formPanelId, "create");
+      }
     }
   }
 });
