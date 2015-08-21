@@ -36,36 +36,50 @@ const char *HostXML::host_paths[] = {
 
 void HostXML::init_attributes()
 {
-    xpath(oid,          "/HOST/ID",                     -1);
-    xpath(cluster_id,   "/HOST/CLUSTER_ID",             -1);
-    xpath(mem_usage,    "/HOST/HOST_SHARE/MEM_USAGE",   0);
-    xpath(cpu_usage,    "/HOST/HOST_SHARE/CPU_USAGE",   0);
-    xpath(max_mem,      "/HOST/HOST_SHARE/MAX_MEM",     0);
-    xpath(max_cpu,      "/HOST/HOST_SHARE/MAX_CPU",     0);
-    xpath(free_disk,    "/HOST/HOST_SHARE/FREE_DISK",   0);
-    xpath(running_vms,  "/HOST/HOST_SHARE/RUNNING_VMS", 0);
+    xpath(oid,         "/HOST/ID",                     -1);
+    xpath(cluster_id,  "/HOST/CLUSTER_ID",             -1);
+    xpath(mem_usage,   "/HOST/HOST_SHARE/MEM_USAGE",   0);
+    xpath(cpu_usage,   "/HOST/HOST_SHARE/CPU_USAGE",   0);
+    xpath(max_mem,     "/HOST/HOST_SHARE/MAX_MEM",     0);
+    xpath(max_cpu,     "/HOST/HOST_SHARE/MAX_CPU",     0);
+    xpath(free_disk,   "/HOST/HOST_SHARE/FREE_DISK",   0);
+    xpath(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
 
     string public_cloud_st;
 
     xpath(public_cloud_st, "/HOST/TEMPLATE/PUBLIC_CLOUD", "");
     public_cloud = (one_util::toupper(public_cloud_st) == "YES");
 
-    vector<string> ds_ids     = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
-    vector<string> ds_free_mb = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
+    //-------------------- HostShare Datastores ------------------------------
+    vector<string> ds_ids  = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/ID"];
+    vector<string> ds_free = (*this)["/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB"];
 
     int id;
     long long disk;
 
-    for (size_t i = 0; i < ds_ids.size() && i < ds_free_mb.size(); i++)
+    for (size_t i = 0; i < ds_ids.size() && i < ds_free.size(); i++)
     {
         id   = atoi(ds_ids[i].c_str());
-        disk = atoll(ds_free_mb[i].c_str());
+        disk = atoll(ds_free[i].c_str());
 
         ds_free_disk[id] = disk;
     }
 
-    //Init search xpath routes
+    //-------------------- HostShare PCI Devices ------------------------------
+    vector<xmlNodePtr> content;
 
+    get_nodes("/HOST/HOST_SHARE/PCI_DEVICES", content);
+
+    if( !content.empty())
+    {
+        pci.from_xml_node(content[0]);
+
+        free_nodes(content);
+
+        content.clear();
+    }
+
+    //-------------------- Init search xpath routes ---------------------------
     ObjectXML::paths     = host_paths;
     ObjectXML::num_paths = host_num_paths;
 }
@@ -169,3 +183,31 @@ void HostXML::add_ds_capacity(int dsid, long long vm_disk_mb)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+ostream& operator<<(ostream& o, const HostXML& p)
+{
+    map<int, long long>::const_iterator it;
+
+    o << "ID          : " << p.oid          << endl;
+    o << "CLUSTER_ID  : " << p.cluster_id   << endl;
+    o << "MEM_USAGE   : " << p.mem_usage    << endl;
+    o << "CPU_USAGE   : " << p.cpu_usage    << endl;
+    o << "MAX_MEM     : " << p.max_mem      << endl;
+    o << "MAX_CPU     : " << p.max_cpu      << endl;
+    o << "FREE_DISK   : " << p.free_disk    << endl;
+    o << "RUNNING_VMS : " << p.running_vms  << endl;
+    o << "PUBLIC      : " << p.public_cloud << endl;
+
+    o << "DATASTORES" << endl;
+    o << "----------" << endl;
+        for (it = p.ds_free_disk.begin() ; it != p.ds_free_disk.end() ; it++)
+        {
+            o <<"\tDSID: "<< it->first << "\t\tFREE_MB: " << it->second << endl;
+        }
+
+    o << "PCI DEVICES"<< endl;
+    o << "-----------"<< endl;
+    o << p.pci;
+
+    return o;
+}

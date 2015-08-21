@@ -99,6 +99,12 @@ public:
      */
     void set_monitorization(vector<Attribute*> &pci_att);
 
+    /**
+     *  Prints the PCI device list to an output stream. This function is used
+     *  for logging purposes and *not* for generating DB content.
+     */
+    friend ostream& operator<<(ostream& o, const HostSharePCI& p);
+
 private:
     /**
      *  Sets the internal class structures from the template

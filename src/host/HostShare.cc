@@ -233,6 +233,9 @@ unsigned int HostSharePCI::get_pci_value(const char * name,
     return pci_value;
 }
 
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
 HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
     : vmid(-1), attrs(_attrs)
 {
@@ -248,6 +251,27 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
     attrs->vector_value("ADDRESS", address);
 };
 
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+ostream& operator<<(ostream& os, const HostSharePCI& pci)
+{
+    map<string, HostSharePCI::PCIDevice *>::const_iterator it;
+
+    for (it=pci.pci_devices.begin(); it!=pci.pci_devices.end(); it++)
+    {
+        HostSharePCI::PCIDevice * dev = it->second;
+
+        os << endl << "CLASS   : " << dev->class_id;
+        os << endl << "VENDOR  : " << dev->vendor_id;
+        os << endl << "DEVICE  : " << dev->device_id;
+        os << endl << "ADDRESS : " << dev->address;
+        os << endl << "VMID    : " << dev->vmid;
+		os << endl;
+    }
+
+	return os;
+}
 /* ************************************************************************ */
 /* HostShare :: Constructor/Destructor                                      */
 /* ************************************************************************ */
@@ -266,9 +290,7 @@ HostShare::HostShare(long long _max_disk,long long _max_mem,long long _max_cpu):
         used_disk(0),
         used_mem(0),
         used_cpu(0),
-        running_vms(0),
-        ds(),
-        pci(){};
+        running_vms(0){};
 
 ostream& operator<<(ostream& os, HostShare& hs)
 {

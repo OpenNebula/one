@@ -20,6 +20,7 @@
 
 #include <map>
 #include "ObjectXML.h"
+#include "HostShare.h"
 
 using namespace std;
 
@@ -131,6 +132,12 @@ public:
         return public_cloud;
     }
 
+    /**
+     *  Prints the Host information to an output stream. This function is used
+     *  for logging purposes.
+     */
+    friend ostream& operator<<(ostream& o, const HostXML& p);
+
 private:
     int oid;
     int cluster_id;
@@ -149,6 +156,8 @@ private:
     long long running_vms; /**< Number of running VMs in this Host   */
 
     bool public_cloud;
+
+    HostSharePCI pci;
 
     // Configuration attributes
     static const char *host_paths[]; /**< paths for search function */
