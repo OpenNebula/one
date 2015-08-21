@@ -794,7 +794,7 @@ int DispatchManager::finalize(
             int cpu, mem, disk;
 
             vm->get_requirements(cpu, mem, disk, pci);
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+            hpool->del_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
             tm->trigger(TransferManager::EPILOG_DELETE,vid);
             finalize_cleanup(vm);

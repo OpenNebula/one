@@ -379,7 +379,7 @@ public:
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
      *    @param disk needed by the VM
-     *    @param pci devicesneeded by th VM
+     *    @param pci devices needed by th VM
      *    @return 0 on success
      */
     void add_capacity(int vm_id, long long cpu, long long mem, long long disk,
@@ -406,13 +406,15 @@ public:
      *    @param cpu used by the VM (percentage)
      *    @param mem used by the VM (in KB)
      *    @param disk used by the VM
+     *    @param pci devices needed by th VM
      *    @return 0 on success
      */
-    void del_capacity(int vm_id, long long cpu, long long mem, long long disk)
+    void del_capacity(int vm_id, long long cpu, long long mem, long long disk,
+            vector<Attribute *> pci)
     {
         if ( vm_collection.del_collection_id(vm_id) == 0 )
         {
-            host_share.del(cpu,mem,disk);
+            host_share.del(cpu, mem, disk, pci);
         }
         else
         {

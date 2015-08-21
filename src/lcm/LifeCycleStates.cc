@@ -70,7 +70,7 @@ void  LifeCycleManager::save_success_action(int vid)
 
         vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
         //----------------------------------------------------
 
@@ -177,7 +177,7 @@ void  LifeCycleManager::save_failure_action(int vid)
 
         vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         vm->set_previous_etime(the_time);
 
@@ -283,7 +283,7 @@ void  LifeCycleManager::deploy_success_action(int vid)
 
         vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
         vm->set_state(VirtualMachine::RUNNING);
 
@@ -367,7 +367,7 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         // --- Add new record by copying the previous one
 
@@ -871,7 +871,7 @@ void  LifeCycleManager::epilog_success_action(int vid)
 
     vm->get_requirements(cpu, mem, disk, pci);
 
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     //----------------------------------------------------
 

@@ -216,12 +216,15 @@ public:
      *    @param cpu requested by the VM
      *    @param mem requested by the VM
      *    @param disk requested by the VM
+     *    @param pci_devs requested by the VM
      */
-    void del(long long cpu, long long mem, long long disk)
+    void del(long long cpu, long long mem, long long disk, vector<Attribute *> pci_devs)
     {
         cpu_usage  -= cpu;
         mem_usage  -= mem;
         disk_usage -= disk;
+
+        pci.del(pci_devs);
 
         running_vms--;
     }

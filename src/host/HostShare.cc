@@ -240,7 +240,11 @@ HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
     device_id = get_pci_value("DEVICE", attrs);
     class_id  = get_pci_value("CLASS", attrs);
 
-    attrs->vector_value("VMID", vmid);
+    if (attrs->vector_value("VMID", vmid) == -1)
+	{
+		attrs->replace("VMID", -1);
+	}
+
     attrs->vector_value("ADDRESS", address);
 };
 

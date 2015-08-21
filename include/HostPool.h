@@ -156,14 +156,16 @@ public:
      *   @param cpu amount of CPU
      *   @param mem amount of main memory
      *   @param disk amount of disk
+     *   @param pci devices requested by the VM
      */
-    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk)
+    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk,
+            vector<Attribute *> pci)
     {
         Host *  host = get(oid, true);
 
         if ( host != 0 )
         {
-            host->del_capacity(vm_id, cpu, mem, disk);
+            host->del_capacity(vm_id, cpu, mem, disk, pci);
 
             update(host);
 

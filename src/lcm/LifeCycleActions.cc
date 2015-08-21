@@ -285,7 +285,8 @@ void  LifeCycleManager::migrate_action(int vid)
 
         hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
+            disk, pci);
 
         //----------------------------------------------------
 
@@ -328,7 +329,8 @@ void  LifeCycleManager::migrate_action(int vid)
 
         hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
+            disk, pci);
 
         //----------------------------------------------------
 
@@ -879,7 +881,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     vm->set_reason(History::USER);
 
     vm->get_requirements(cpu, mem, disk, pci);
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     switch (state)
     {
@@ -1010,7 +1012,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vmpool->update_previous_history(vm);
 
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
-                    mem, disk);
+                    mem, disk, pci);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP_BOTH,vid);
@@ -1036,7 +1038,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vmpool->update_previous_history(vm);
 
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
-                    mem, disk);
+                    mem, disk, pci);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP_PREVIOUS,vid);
