@@ -116,7 +116,8 @@ public:
         return ds_requirements;
     }
 
-    void get_requirements (int& cpu, int& memory, long long& disk);
+    void get_requirements (int& cpu, int& memory, long long& disk,
+        vector<Attribute *> &pci);
 
     map<int,long long> get_storage_usage();
 

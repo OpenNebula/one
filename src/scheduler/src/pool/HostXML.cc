@@ -16,6 +16,8 @@
 
 #include <math.h>
 #include <sstream>
+#include <stdexcept>
+#include <iomanip>
 
 #include "HostXML.h"
 #include "NebulaUtil.h"
@@ -125,30 +127,46 @@ int HostXML::search(const char *name, int& value)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool HostXML::test_capacity(long long cpu, long long mem, string & error) const
+bool HostXML::test_capacity(long long cpu, long long mem,
+    vector<Attribute *>& p, string & error)
 {
-    bool fits = (((max_cpu  - cpu_usage ) >= cpu) &&
-                ((max_mem  - mem_usage ) >= mem));
-
+    bool pci_fits = pci.test(p);
+    bool fits     = ((max_cpu  - cpu_usage ) >= cpu) &&
+                    ((max_mem  - mem_usage ) >= mem) &&
+                    pci_fits;
     if (!fits)
     {
         if (NebulaLog::log_level() >= Log::DDEBUG)
         {
-            ostringstream oss;
+            if ( pci_fits )
+            {
+                ostringstream oss;
 
-            oss << "Not enough capacity. "
-                << "Requested: "
-                << cpu << " CPU, "
-                << mem << " KB MEM; "
-                << "Available: "
-                << (max_cpu  - cpu_usage ) << " CPU, "
-                << (max_mem  - mem_usage ) << " KB MEM";
+                oss << "Not enough capacity. "
+                    << "Requested: "
+                    << cpu << " CPU, "
+                    << mem << " KB MEM; "
+                    << "Available: "
+                    << (max_cpu  - cpu_usage ) << " CPU, "
+                    << (max_mem  - mem_usage ) << " KB MEM";
 
-            error = oss.str();
+                error = oss.str();
+            }
+            else
+            {
+                error = "Unavailable PCI device.";
+            }
         }
         else
         {
-            error = "Not enough capacity.";
+            if ( pci_fits )
+            {
+                error = "Not enough capacity.";
+            }
+            else
+            {
+                error = "Unavailable PCI device.";
+            }
         }
     }
 
@@ -198,16 +216,18 @@ ostream& operator<<(ostream& o, const HostXML& p)
     o << "RUNNING_VMS : " << p.running_vms  << endl;
     o << "PUBLIC      : " << p.public_cloud << endl;
 
-    o << "DATASTORES" << endl;
-    o << "----------" << endl;
+    o << endl
+      << right << setw(5)  << "DSID" << " "
+      << right << setw(15) << "FREE_MB" << " "
+      << endl << setw(30) << setfill('-') << "-" << setfill (' ') << endl;
+
         for (it = p.ds_free_disk.begin() ; it != p.ds_free_disk.end() ; it++)
         {
-            o <<"\tDSID: "<< it->first << "\t\tFREE_MB: " << it->second << endl;
+            o << right << setw(5) << it->first << " "
+              << right << setw(15)<< it->second<< " " <<  endl;
         }
 
-    o << "PCI DEVICES"<< endl;
-    o << "-----------"<< endl;
-    o << p.pci;
+    o << endl << p.pci;
 
     return o;
 }

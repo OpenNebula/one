@@ -51,21 +51,24 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param pci devices needed byt the VM
      *    @param error error message
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, string & error) const;
+    bool test_capacity(long long cpu, long long mem, vector<Attribute *> &pci,
+        string & error);
 
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param pci devices needed byt the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem) const
+    bool test_capacity(long long cpu,long long mem,vector<Attribute *> &p)
     {
         string tmp_st;
-        return test_capacity(cpu, mem, tmp_st);
+        return test_capacity(cpu, mem, p, tmp_st);
     };
 
     /**
@@ -75,10 +78,13 @@ public:
      *    @param mem needed by the VM (in KB)
      *    @return 0 on success
      */
-    void add_capacity(long long cpu, long long mem)
+    void add_capacity(int vmid, long long cpu, long long mem,
+        vector<Attribute *> &p)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
+
+        pci.add(p, vmid);
 
         running_vms++;
     };

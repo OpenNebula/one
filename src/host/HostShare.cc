@@ -18,7 +18,8 @@
 
 #include <iostream>
 #include <sstream>
-#include <algorithm>
+#include <stdexcept>
+#include <iomanip>
 
 #include "HostShare.h"
 
@@ -258,16 +259,22 @@ ostream& operator<<(ostream& os, const HostSharePCI& pci)
 {
     map<string, HostSharePCI::PCIDevice *>::const_iterator it;
 
+	os  << right << setw(15)<< "PCI ADDRESS"<< " "
+		<< right << setw(8) << "CLASS"  << " "
+		<< right << setw(8) << "VENDOR" << " "
+		<< right << setw(8) << "DEVICE" << " "
+		<< right << setw(8) << "VMID"   << " "
+		<< endl << setw(55) << setfill('-') << "-" << setfill(' ') << endl;
+
     for (it=pci.pci_devices.begin(); it!=pci.pci_devices.end(); it++)
     {
         HostSharePCI::PCIDevice * dev = it->second;
 
-        os << endl << "CLASS   : " << dev->class_id;
-        os << endl << "VENDOR  : " << dev->vendor_id;
-        os << endl << "DEVICE  : " << dev->device_id;
-        os << endl << "ADDRESS : " << dev->address;
-        os << endl << "VMID    : " << dev->vmid;
-		os << endl;
+		os << right << setw(15)<< dev->address   << " "
+		   << right << setw(8) << dev->class_id  << " "
+		   << right << setw(8) << dev->vendor_id << " "
+		   << right << setw(8) << dev->device_id << " "
+		   << right << setw(8) << dev->vmid      << " " << endl;
     }
 
 	return os;
