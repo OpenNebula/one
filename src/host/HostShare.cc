@@ -76,10 +76,10 @@ bool HostSharePCI::test_set(unsigned int vendor_id, unsigned int device_id,
     {
         PCIDevice * dev = it->second;
 
-        if (dev->class_id  == class_id  &&
-            dev->vendor_id == vendor_id &&
-            dev->device_id == device_id &&
-            dev->vmid      == -1 &&
+        if ((class_id  == 0 || dev->class_id  == class_id)  &&
+		    (vendor_id == 0 || dev->vendor_id == vendor_id) &&
+            (device_id == 0 || dev->device_id == device_id) &&
+            dev->vmid  == -1 &&
             assigned.find(dev->address) == assigned.end())
         {
             assigned.insert(dev->address);
