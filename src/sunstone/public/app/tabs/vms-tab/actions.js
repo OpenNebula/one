@@ -24,7 +24,7 @@ define(function(require) {
     "VM.list":    _commonActions.list(),
     "VM.show":    _commonActions.show(),
     "VM.refresh": _commonActions.refresh(),
-    "VM.delete":  _commonActions.delete(),
+    "VM.delete":  _commonActions.del(),
     "VM.chown": _commonActions.multipleAction('chown'),
     "VM.chgrp": _commonActions.multipleAction('chgrp'),
 

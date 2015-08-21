@@ -16,7 +16,7 @@ define(function(require) {
   CommonActions.prototype.list = _list;
   CommonActions.prototype.show = _show;
   CommonActions.prototype.refresh = _refresh;
-  CommonActions.prototype.delete = _delete;
+  CommonActions.prototype.del = _del;
   CommonActions.prototype.multipleAction = _multipleAction;
   CommonActions.prototype.singleAction = _singleAction;
 
@@ -66,7 +66,7 @@ define(function(require) {
     }
   }
 
-  function _delete() {
+  function _del() {
     var that = this;
     return {
       type: "multiple",

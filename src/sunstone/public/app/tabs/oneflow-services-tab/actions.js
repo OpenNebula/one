@@ -47,7 +47,7 @@ define(function(require) {
   var _actions = {
     "Service.show" : _commonActions.show(),
     "Service.refresh" : _commonActions.refresh(),
-    "Service.delete" : _commonActions.delete(),
+    "Service.delete" : _commonActions.del(),
     "Service.chown": _commonActions.multipleAction('chown'),
     "Service.chgrp": _commonActions.multipleAction('chgrp'),
     "Service.chmod": _commonActions.singleAction('chmod'),
