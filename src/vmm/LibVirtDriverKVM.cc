@@ -173,6 +173,13 @@ int LibVirtDriver::deployment_description_kvm(
 
     const VectorAttribute * input;
 
+    const VectorAttribute * pci;
+
+    string  domain          = "";
+    /* bus is already defined for disks */
+    string  slot            = "";
+    string  func            = "";
+
     const VectorAttribute * features;
 
     bool pae        = false;
@@ -945,6 +952,42 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "/>" << endl;
             }
         }
+    }
+
+    attrs.clear();
+
+    // ------------------------------------------------------------------------
+    // PCI Passthrough
+    // ------------------------------------------------------------------------
+
+    num = vm->get_template_attribute("PCI",attrs);
+
+    for (int i=0; i < num ;i++)
+    {
+        pci = dynamic_cast<const VectorAttribute *>(attrs[i]);
+
+        if ( pci == 0 )
+        {
+            continue;
+        }
+
+        domain  = pci->vector_value("DOMAIN");
+        bus     = pci->vector_value("BUS");
+        slot    = pci->vector_value("SLOT");
+        func    = pci->vector_value("FUNCTION");
+
+        file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>";
+        file << endl;
+        file << "\t\t\t<source>" << endl;
+
+        file << "\t\t\t\t<address ";
+        file << "domain='0x" << domain << "' ";
+        file << "bus='0x" << bus << "' ";
+        file << "slot='0x" << slot << "' ";
+        file << "function='0x" << func << "'/>" << endl;
+
+        file << "\t\t\t</source>" << endl;
+        file << "\t\t</hostdev>" << endl;
     }
 
     attrs.clear();
