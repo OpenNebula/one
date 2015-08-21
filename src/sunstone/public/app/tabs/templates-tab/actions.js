@@ -2,7 +2,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var OpenNebulaTemplate = require('opennebula/template');
+  var OpenNebulaResource = require('opennebula/template');
   var CommonActions = require('utils/common-actions');
   var OpenNebulaAction = require('opennebula/action');
 
@@ -15,7 +15,7 @@ define(function(require) {
   var XML_ROOT = "VMTEMPLATE"
   var RESOURCE = "Template"
 
-  var _commonActions = new CommonActions(OpenNebulaTemplate, RESOURCE, TAB_ID);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
     "Template.list" : _commonActions.list(),
@@ -28,7 +28,7 @@ define(function(require) {
     "Template.rename": _commonActions.singleAction('rename'),
     "Template.create" : {
       type: "create",
-      call: OpenNebulaTemplate.create,
+      call: OpenNebulaResource.create,
       callback: function(request, response) {
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.hideFormPanel(TAB_ID);
@@ -67,7 +67,7 @@ define(function(require) {
     },
     "Template.show_to_update" : {
       type: "single",
-      call: OpenNebulaTemplate.show,
+      call: OpenNebulaResource.show,
       callback: function(request, response) {
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
           function(formPanelInstance, context) {
@@ -78,7 +78,7 @@ define(function(require) {
     },
     "Template.update" : {
       type: "single",
-      call: OpenNebulaTemplate.update,
+      call: OpenNebulaResource.update,
       callback: function(request, response) {
         Sunstone.hideFormPanel(TAB_ID);
         Notifier.notifyMessage(Locale.tr("Virtual Template updated correctly"));
@@ -90,7 +90,7 @@ define(function(require) {
     },
     "Template.instantiate" : {
       type: "multiple",
-      call: OpenNebulaTemplate.instantiate,
+      call: OpenNebulaResource.instantiate,
       callback: function(req) {
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
@@ -103,7 +103,7 @@ define(function(require) {
     },
     "Template.instantiate_quiet" : {
       type: "single",
-      call: OpenNebulaTemplate.instantiate,
+      call: OpenNebulaResource.instantiate,
       callback: function(req) {
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
@@ -130,7 +130,7 @@ define(function(require) {
     },
     "Template.clone" : {
       type: "single",
-      call: OpenNebulaTemplate.clone,
+      call: OpenNebulaResource.clone,
       error: Notifier.onError,
       notify: true
     }
