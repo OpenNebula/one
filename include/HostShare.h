@@ -37,9 +37,18 @@ public:
  *  This class represents a PCI DEVICE list for the host. The list is in the
  *  form:
  *  <PCI>
- *    <TYPE>: Three 4-hex digits groups representing <vendor>:<device>:<class>
- *    <DESCRIPTION>: The corresponding device description
- *    <ADDRESS>: PCI address, bus, slot and function
+ *    <DOMAIN> PCI address domain
+ *    <BUS>    PCI address bus
+ *    <SLOT>   PCI address slot
+ *    <FUNCTION> PCI address function
+ *    <ADDRESS> PCI address, bus, slot and function
+ *    <VENDOR> ID of PCI device vendor
+ *    <DEVICE> ID of PCI device
+ *    <CLASS> ID of PCI device class
+ *    <VMID> ID using this device, -1 if free
+ *
+ *  The monitor probe may report additional information such as VENDOR_NAME,
+ *  DEVICE_NAME, CLASS_NAME...
  */
 class HostSharePCI : public Template
 {

@@ -1677,6 +1677,8 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
     istringstream   iss;
     float           fcpu;
 
+    pci_devs.clear();
+
     obj_template->get("PCI", pci_devs);
 
     if ((get_template_attribute("MEMORY",memory) == false) ||

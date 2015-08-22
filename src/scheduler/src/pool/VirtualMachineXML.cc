@@ -205,13 +205,11 @@ ostream& operator<<(ostream& os, VirtualMachineXML& vm)
 void VirtualMachineXML::get_requirements (int& cpu, int& memory,
     long long& disk, vector<Attribute *> &pci)
 {
+    pci.clear();
+
     if (vm_template != 0)
     {
         vm_template->get("PCI", pci);
-    }
-    else
-    {
-        pci.clear();
     }
 
     if (this->memory == 0 || this->cpu == 0)

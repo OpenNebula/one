@@ -368,7 +368,7 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     rc += xpath(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
 
-    // ------------ DS Template ---------------
+    // ------------ Datastores ---------------
 
     ObjectXML::get_nodes("/HOST_SHARE/DATASTORES", content);
 
@@ -388,7 +388,7 @@ int HostShare::from_xml_node(const xmlNodePtr node)
         return -1;
     }
 
-    // ------------ DS Template ---------------
+    // ------------ PCI Devices ---------------
 
     ObjectXML::get_nodes("/HOST_SHARE/PCI_DEVICES", content);
 
