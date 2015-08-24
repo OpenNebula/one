@@ -2,7 +2,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var OpenNebulaImage = require('opennebula/image');
+  var OpenNebulaResource = require('opennebula/image');
   var CommonActions = require('utils/common-actions');
 
   var RESOURCE = "Image";
@@ -11,7 +11,7 @@ define(function(require) {
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaImage, RESOURCE, TAB_ID, XML_ROOT);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
     "Image.create" : _commonActions.create(CREATE_DIALOG_ID),
@@ -42,7 +42,7 @@ define(function(require) {
     },
     "Image.clone" : {
       type: "single",
-      call: OpenNebulaImage.clone,
+      call: OpenNebulaResource.clone,
       error: Notifier.onError,
       notify: true
     }
