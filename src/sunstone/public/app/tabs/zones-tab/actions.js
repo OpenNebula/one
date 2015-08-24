@@ -3,15 +3,20 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
-  var OpenNebulaZone = require('opennebula/zone');
+  var OpenNebulaResource = require('opennebula/zone');
+  var CommonActions = require('utils/common-actions');
 
+  var XML_ROOT = "ZONE"
+  var RESOURCE = "Zone"
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./dialogs/create/dialogId');
+
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
     "Zone.create" : {
       type: "create",
-      call: OpenNebulaZone.create,
+      call: OpenNebulaResource.create,
       callback: function(request, response) {
         Sunstone.getDialog(CREATE_DIALOG_ID).hide();
         Sunstone.getDialog(CREATE_DIALOG_ID).reset();
@@ -20,97 +25,34 @@ define(function(require) {
       error: Notifier.onError,
       notify: true
     },
-
+    
     "Zone.create_dialog" : {
       type: "custom",
       call: function() {
         Sunstone.getDialog(CREATE_DIALOG_ID).show();
       }
     },
-
-    "Zone.list" : {
-      type: "list",
-      call: OpenNebulaZone.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "Zone.show" : {
-      type: "single",
-      call: OpenNebulaZone.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
+    "Zone.list" : _commonActions.list(),
+    "Zone.show" : _commonActions.show(),
+    "Zone.refresh" : _commonActions.refresh(),
+    "Zone.delete" : _commonActions.del(),
+    "Zone.update_template" : _commonActions.updateTemplate(),
+    "Zone.rename": _commonActions.singleAction('rename'),
 
     "Zone.show_to_update" : {
       type: "single",
-      call: OpenNebulaZone.show,
+      call: OpenNebulaResource.show,
       // TODO callback: fillPopPup,
-      error: Notifier.onError
-    },
-
-    "Zone.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction("Zone.show", Sunstone.rightInfoResourceId(tab))
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction("Zone.list", {force: true});
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Zone.delete" : {
-      type: "multiple",
-      call : OpenNebulaZone.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error : Notifier.onError,
-      notify:true
-    },
-
-    "Zone.update_template" : {  // Update template
-      type: "single",
-      call: OpenNebulaZone.update,
-      callback: function(request, response) {
-        Notifier.notifyMessage(Locale.tr("Zone updated correctly"));
-        Sunstone.runAction('Zone.show', request.request.data[0][0]);
-      },
       error: Notifier.onError
     },
 
     "Zone.fetch_template" : {
       type: "single",
-      call: OpenNebulaZone.fetch_template,
+      call: OpenNebulaResource.fetch_template,
       callback: function(request, response) {
         $('#template_update_dialog #template_update_textarea').val(response.template);
       },
       error: Notifier.onError
-    },
-
-    "Zone.rename" : {
-      type: "single",
-      call: OpenNebulaZone.rename,
-      callback: function(request) {
-        Notifier.notifyMessage(Locale.tr("Zone renamed correctly"));
-        Sunstone.runAction('Zone.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError,
-      notify: true
     }
   };
 
