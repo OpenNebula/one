@@ -26,68 +26,12 @@ define(function(require) {
     "Template.chgrp": _commonActions.multipleAction('chgrp'),
     "Template.chmod": _commonActions.singleAction('chmod'),
     "Template.rename": _commonActions.singleAction('rename'),
-    "Template.create" : {
-      type: "create",
-      call: OpenNebulaResource.create,
-      callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      },
-      notify: true
-    },
-    "Template.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-    "Template.import_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
-      }
-    },
-    "Template.update_dialog" : {
-      type: "custom",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) Virtual Template to update.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction("Template.show_to_update", resource_id);
-      }
-    },
-    "Template.show_to_update" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
-          function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response[XML_ROOT])
-          });
-      },
-      error: Notifier.onError
-    },
-    "Template.update" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request, response) {
-        Sunstone.hideFormPanel(TAB_ID);
-        Notifier.notifyMessage(Locale.tr("Virtual Template updated correctly"));
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      }
-    },
+    "Template.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "Template.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Template.import_dialog" : _commonActions.showCreate(IMPORT_DIALOG_ID),
+    "Template.update_template" : _commonActions.updateTemplate(),
+    "Template.update_dialog" : _commonActions.checkAndShowUpdate(),
+    "Template.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
     "Template.instantiate" : {
       type: "multiple",
       call: OpenNebulaResource.instantiate,
