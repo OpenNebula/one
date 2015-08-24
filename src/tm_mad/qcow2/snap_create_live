@@ -122,7 +122,7 @@ set -ex
 
 mkdir -p "${SNAP_DIR}"
 
-PREVIOUS_SNAP=$(readlink $SYSTEM_DS_DISK_PATH)
+PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
 
 # The file must be created beforehand or libvirt complains with
 # "permission denied"
@@ -130,7 +130,7 @@ touch $SNAP_PATH
 
 # Temporary xml file
 FILENAME="/tmp/snapshot-$VMID-$DISK_ID-$SNAP_ID"
-echo -e "$DOC" > \$FILENAME
+echo "$DOC" > \$FILENAME
 
 virsh -c qemu:///system snapshot-create $DEPLOY_ID --disk-only --atomic \
     --xmlfile \$FILENAME
