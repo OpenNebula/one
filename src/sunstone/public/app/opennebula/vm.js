@@ -618,26 +618,6 @@ define(function(require) {
     var nic = element.TEMPLATE.NIC;
     var ips = [];
 
-    if (nic != undefined) {
-      if (!$.isArray(nic)) {
-        nic = [nic];
-      }
-
-      $.each(nic, function(index, value) {
-        if (value.IP) {
-          ips.push(value.IP);
-        }
-
-        if (value.IP6_GLOBAL) {
-          ips.push(value.IP6_GLOBAL);
-        }
-
-        if (value.IP6_ULA) {
-          ips.push(value.IP6_ULA);
-        }
-      });
-    }
-
     var monitoring = element.MONITORING;
     if (monitoring) {
       var externalIP;
@@ -647,6 +627,28 @@ define(function(require) {
           ips.push(externalIP);
         }
       })
+    }
+    else
+    {
+      if (nic != undefined) {
+        if (!$.isArray(nic)) {
+          nic = [nic];
+        }
+
+        $.each(nic, function(index, value) {
+          if (value.IP) {
+            ips.push(value.IP);
+          }
+
+          if (value.IP6_GLOBAL) {
+            ips.push(value.IP6_GLOBAL);
+          }
+
+          if (value.IP6_ULA) {
+            ips.push(value.IP6_ULA);
+          }
+        });
+      }
     }
 
     if (ips.length > 0) {
