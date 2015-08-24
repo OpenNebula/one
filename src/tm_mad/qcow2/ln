@@ -77,6 +77,7 @@ if [ -z "\${SNAP}" ]; then
 fi
 
 ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
+ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
 EOT
 )
 
