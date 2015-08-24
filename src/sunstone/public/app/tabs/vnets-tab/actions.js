@@ -3,10 +3,13 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
   var DataTable = require('./datatable');
-  var OpenNebulaNetwork = require('opennebula/network');
+  var OpenNebulaResource = require('opennebula/network');
   var OpenNebulaCluster = require('opennebula/cluster');
   var OpenNebulaAction = require('opennebula/action');
+  var CommonActions = require('utils/common-actions');
 
+  var RESOURCE = "Network";
+  var XML_ROOT = "VNET";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var ADD_AR_DIALOG_ID = require('./dialogs/add-ar/dialogId');
@@ -14,105 +17,30 @@ define(function(require) {
   var RESERVE_DIALOG_ID = require('./dialogs/reserve/dialogId');
   var IMPORT_DIALOG_ID = require('./form-panels/import/formPanelId');
 
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+
   var _actions = {
-    "Network.create" : {
-      type: "create",
-      call: OpenNebulaNetwork.create,
-      callback: function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      },
-      notify: true
-    },
-
-    "Network.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-
-    "Network.import_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
-      }
-    },
-
-    "Network.list" : {
-      type: "list",
-      call: OpenNebulaNetwork.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "Network.show" : {
-      type: "single",
-      call: OpenNebulaNetwork.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Network.refresh" : {
-      type: "custom",
-      call: function() {
-        var tab = $('#' + TAB_ID);
-        if (Sunstone.rightInfoVisible(tab)) {
-          Sunstone.runAction("Network.show", Sunstone.rightInfoResourceId(tab));
-        } else {
-          Sunstone.getDataTable(TAB_ID).waitingNodes();
-          Sunstone.runAction("Network.list", {force: true});
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Network.delete" : {
-      type: "multiple",
-      call : OpenNebulaNetwork.del,
-      callback : function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error : Notifier.onError,
-      notify:true
-    },
-
-    "Network.hold" : {
-      type: "single",
-      call: OpenNebulaNetwork.hold,
-      callback: function(req) {
-        Sunstone.runAction("Network.show", req.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
-    "Network.release" : {
-      type: "single",
-      call: OpenNebulaNetwork.release,
-      callback: function(req) {
-        Sunstone.runAction("Network.show", req.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
+    "Network.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "Network.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Network.import_dialog" :  _commonActions.showCreate(IMPORT_DIALOG_ID),
+    "Network.list" : _commonActions.list(),
+    "Network.show" : _commonActions.show(),
+    "Network.refresh" : _commonActions.refresh(),
+    "Network.delete" : _commonActions.del(),
+    "Network.hold": _commonActions.singleAction('hold'),
+    "Network.release": _commonActions.singleAction('release'),
+    "Network.chown": _commonActions.multipleAction('chown'),
+    "Network.chgrp": _commonActions.multipleAction('chgrp'),
+    "Network.chmod": _commonActions.singleAction('chmod'),
+    "Network.rename": _commonActions.singleAction('rename'),
+    "Network.update" : _commonActions.updateTemplate(),
+    "Network.update_template" : _commonActions.updateTemplate(),
+    "Network.update_dialog" : _commonActions.checkAndShowUpdate(),
+    "Network.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 
     "Network.add_ar" : {
       type: "single",
-      call: OpenNebulaNetwork.add_ar,
+      call: OpenNebulaResource.add_ar,
       callback: function(req) {
         // Reset the wizard
         Sunstone.getDialog(ADD_AR_DIALOG_ID).hide();
@@ -125,7 +53,7 @@ define(function(require) {
 
     "Network.rm_ar" : {
       type: "single",
-      call: OpenNebulaNetwork.rm_ar,
+      call: OpenNebulaResource.rm_ar,
       callback: function(req) {
         OpenNebulaAction.clear_cache("VNET");
         Sunstone.runAction("Network.show",req.request.data[0][0]);
@@ -135,7 +63,7 @@ define(function(require) {
 
     "Network.update_ar" : {
       type: "single",
-      call: OpenNebulaNetwork.update_ar,
+      call: OpenNebulaResource.update_ar,
       callback: function(req) {
         // Reset the wizard
         Sunstone.getDialog(UPDATE_AR_DIALOG_ID).hide();
@@ -165,7 +93,7 @@ define(function(require) {
 
     "Network.reserve" : {
       type: "single",
-      call: OpenNebulaNetwork.reserve,
+      call: OpenNebulaResource.reserve,
       callback: function(req) {
         // Reset the wizard
         Sunstone.getDialog(RESERVE_DIALOG_ID).hide();
@@ -177,103 +105,6 @@ define(function(require) {
       error: Notifier.onError
     },
 
-    "Network.chown" : {
-      type: "multiple",
-      call: OpenNebulaNetwork.chown,
-      callback:  function (req) {
-        Sunstone.runAction("Network.show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Network.chgrp" : {
-      type: "multiple",
-      call: OpenNebulaNetwork.chgrp,
-      callback:  function (req) {
-        Sunstone.runAction("Network.show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Network.chmod" : {
-      type: "single",
-      call: OpenNebulaNetwork.chmod,
-      callback:  function (req) {
-        Sunstone.runAction("Network.show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Network.rename" : {
-      type: "single",
-      call: OpenNebulaNetwork.rename,
-      callback: function(request) {
-        Sunstone.runAction('Network.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Network.update_dialog" : {
-      type: "custom",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) Virtual Network to update.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction("Network.show_to_update", resource_id);
-      }
-    },
-
-    "Network.show_to_update" : {
-      type: "single",
-      call: OpenNebulaNetwork.show,
-      callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
-          function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response.VNET)
-          });
-      },
-      error: Notifier.onError
-    },
-
-    "Network.update" : {
-      type: "single",
-      call: OpenNebulaNetwork.update,
-      callback: function(request, response) {
-        Sunstone.hideFormPanel(TAB_ID);
-        Notifier.notifyMessage(Locale.tr("Virtual Network updated correctly"));
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      }
-    },
-
-    "Network.update_template" : {
-      type: "single",
-      call: OpenNebulaNetwork.update,
-      callback: function(request) {
-        Sunstone.runAction('Network.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
     "Network.addtocluster" : {
       type: "multiple",
       call: function(params){
@@ -281,7 +112,7 @@ define(function(require) {
         var vnet = params.data.id;
 
         if (cluster == -1){
-          OpenNebulaNetwork.show({
+          OpenNebulaResource.show({
             data : {
               id: vnet
             },
