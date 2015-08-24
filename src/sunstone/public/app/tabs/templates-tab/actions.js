@@ -29,7 +29,7 @@ define(function(require) {
     "Template.create" : _commonActions.create(CREATE_DIALOG_ID),
     "Template.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
     "Template.import_dialog" : _commonActions.showCreate(IMPORT_DIALOG_ID),
-    "Template.update_template" : _commonActions.updateTemplate(),
+    "Template.update" : _commonActions.update(),
     "Template.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Template.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
     "Template.instantiate" : {
