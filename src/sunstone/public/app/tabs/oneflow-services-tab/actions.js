@@ -14,7 +14,7 @@ define(function(require) {
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   function roleElements() {
     var selected_nodes = [];
@@ -51,6 +51,8 @@ define(function(require) {
     "Service.chown": _commonActions.multipleAction('chown'),
     "Service.chgrp": _commonActions.multipleAction('chgrp'),
     "Service.chmod": _commonActions.singleAction('chmod'),
+    "Service.shutdown":    _commonActions.multipleAction('shutdown'),
+    "Service.recover":    _commonActions.multipleAction('recover'),
 
     "Service.list" : {
       type: "list",
@@ -62,26 +64,6 @@ define(function(require) {
       error: function(request, error_json) {
         Notifier.onError(request, error_json, $(".oneflow_services_error_message"));
       }
-    },
-
-    "Service.shutdown" : {
-      type: "multiple",
-      call: OpenNebulaResource.shutdown,
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Service.recover" : {
-      type: "multiple",
-      call: OpenNebulaResource.recover,
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
     },
 
     //--------------------------------------------------------------------------
