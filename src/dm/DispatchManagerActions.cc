@@ -773,20 +773,30 @@ int DispatchManager::finalize(
 
     VirtualMachine::VmState state;
     bool is_public_host = false;
+    int  host_id = -1;
 
-    vm   = vmpool->get(vid,true);
-
-    if(vm->hasHistory())
-    {
-        host           = hpool->get(vm->get_hid(),true);
-        is_public_host = host->is_public_cloud();
-        host->unlock();
-    }
+    vm = vmpool->get(vid,true);
 
     if ( vm == 0 )
     {
         return -1;
     }
+
+    if(vm->hasHistory())
+    {
+        host_id = vm->get_hid();
+    }
+
+    vm->unlock();
+
+    if(host_id != -1)
+    {
+        host = hpool->get(host_id,true);
+        is_public_host = host->is_public_cloud();
+        host->unlock();
+    }
+
+    vm = vmpool->get(vid,true);
 
     state = vm->get_state();
 
