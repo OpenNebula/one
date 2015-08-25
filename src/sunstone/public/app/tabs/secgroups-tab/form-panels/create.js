@@ -88,6 +88,7 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+    context.foundation('abide', 'reflow');
 
     context.off("change", '.security_group_rule_protocol');
     context.on("change", '.security_group_rule_protocol', function(){
@@ -150,12 +151,12 @@ define(function(require) {
       }
     });
 
-    $('#rules_form_wizard',context).off('invalid');
-    $('#rules_form_wizard',context).off('valid');
+    $('#rules_form_wizard',context).off('invalid.fndtn.abide');
+    $('#rules_form_wizard',context).off('valid.fndtn.abide');
 
-    $('#rules_form_wizard',context).on('invalid', function () {
+    $('#rules_form_wizard',context).on('invalid.fndtn.abide', function () {
 
-    }).on('valid', function() {
+    }).on('valid.fndtn.abide', function() {
       var rule = {};
 
       rule["PROTOCOL"] = $(".security_group_rule_protocol", context).val();
