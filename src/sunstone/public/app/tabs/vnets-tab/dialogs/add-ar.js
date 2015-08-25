@@ -50,7 +50,8 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
+    context.foundation('abide', 'reflow');
+    
     that.arTab.setup(context, "add_ar");
 
     $('#submit_ar_reset_button', context).click(function(){
@@ -58,9 +59,9 @@ define(function(require) {
       Sunstone.getDialog(DIALOG_ID).show();
     });
 
-    $('#add_ar_form',context).on('invalid', function () {
+    $('#add_ar_form',context).on('invalid.fndtn.abide', function () {
         Notifier.notifyError(Locale.tr("One or more required fields are missing."));
-    }).on('valid', function () {
+    }).on('valid.fndtn.abide', function () {
         var data = that.arTab.retrieve();
 
         var obj = {AR: data};
