@@ -44,15 +44,6 @@ define(function(require) {
       call: OpenNebulaResource.show,
       // TODO callback: fillPopPup,
       error: Notifier.onError
-    },
-
-    "Zone.fetch_template" : {
-      type: "single",
-      call: OpenNebulaResource.fetch_template,
-      callback: function(request, response) {
-        $('#template_update_dialog #template_update_textarea').val(response.template);
-      },
-      error: Notifier.onError
     }
   };
 

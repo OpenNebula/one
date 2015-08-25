@@ -229,7 +229,7 @@ define(function(require) {
       });
     },
 
-    //Subresource examples: "fetch_template", "log"...
+    //Subresource examples: "log"...
     "show": function(params, resource, subresource, path) {
       var callback = params.success;
       var callbackError = params.error;
