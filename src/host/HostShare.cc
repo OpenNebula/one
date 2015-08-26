@@ -67,11 +67,71 @@ int HostSharePCI::init()
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 
+bool HostSharePCI::test(unsigned int vendor_id, unsigned int device_id,
+        unsigned int class_id, const VectorAttribute * devreq,
+        std::set<string>& assigned) const
+{
+    map<string, PCIDevice *>::const_iterator it;
+
+    for (it=pci_devices.begin(); it!=pci_devices.end(); it++)
+    {
+        PCIDevice * dev = it->second;
+
+        if ((class_id  == 0 || dev->class_id  == class_id)  &&
+            (vendor_id == 0 || dev->vendor_id == vendor_id) &&
+            (device_id == 0 || dev->device_id == device_id) &&
+            dev->vmid  == -1 &&
+            assigned.find(dev->address) == assigned.end())
+        {
+            assigned.insert(dev->address);
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/* ------------------------------------------------------------------------*/
+
+bool HostSharePCI::test(vector<Attribute *> &devs) const
+{
+    vector<Attribute *>::iterator it;
+    std::set<string> assigned;
+
+    unsigned int vendor_id, device_id, class_id;
+
+    for ( it=devs.begin(); it!= devs.end(); it++)
+    {
+        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
+
+        if ( pci == 0 )
+        {
+            return false;
+        }
+
+        vendor_id = get_pci_value("VENDOR", pci);
+        device_id = get_pci_value("DEVICE", pci);
+        class_id  = get_pci_value("CLASS", pci);
+
+        if (!test(vendor_id, device_id, class_id, pci, assigned))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
 bool HostSharePCI::test_set(unsigned int vendor_id, unsigned int device_id,
         unsigned int class_id, VectorAttribute * devreq, int vmid,
-        std::set<string>& assigned)
+        std::set<string>& assigned) const
 {
-    map<string, PCIDevice *>::iterator it;
+    map<string, PCIDevice *>::const_iterator it;
 
     for (it=pci_devices.begin(); it!=pci_devices.end(); it++)
     {
@@ -107,7 +167,7 @@ bool HostSharePCI::test_set(unsigned int vendor_id, unsigned int device_id,
 
 /* ------------------------------------------------------------------------*/
 
-bool HostSharePCI::test_set(vector<Attribute *> &devs, int vmid)
+bool HostSharePCI::test_set(vector<Attribute *> &devs, int vmid) const
 {
     vector<Attribute *>::iterator it;
     std::set<string> assigned;

@@ -375,17 +375,20 @@ int RequestManagerVirtualMachine::get_host_information(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool RequestManagerVirtualMachine::check_host(int     hid,
-                                              int     cpu,
-                                              int     mem,
-                                              int     disk,
-                                              string& error)
+bool RequestManagerVirtualMachine::check_host(
+        int hid, bool enforce, VirtualMachine* vm, string& error)
 {
     Nebula&    nd    = Nebula::instance();
     HostPool * hpool = nd.get_hpool();
 
     Host * host;
     bool   test;
+    string capacity_error;
+
+    int cpu, mem, disk;
+    vector<Attribute *> pci;
+
+    vm->get_requirements(cpu, mem, disk, pci);
 
     host = hpool->get(hid, true);
 
@@ -395,14 +398,22 @@ bool RequestManagerVirtualMachine::check_host(int     hid,
         return false;
     }
 
-    test = host->test_capacity(cpu, mem, disk);
+    if (!enforce)
+    {
+        cpu  = 0;
+        mem  = 0;
+        disk = 0;
+    }
+
+    test = host->test_capacity(cpu, mem, disk, pci, capacity_error);
 
     if (!test)
     {
         ostringstream oss;
 
-        oss << object_name(PoolObjectSQL::HOST)
-            << " " << hid << " does not have enough capacity.";
+        oss << object_name(PoolObjectSQL::VM) << " [" << vm->get_oid()
+            << "] does not fit in " << object_name(PoolObjectSQL::HOST)
+            << " [" << hid << "]. " << capacity_error;
 
         error = oss.str();
     }
@@ -662,6 +673,8 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
 
     bool auth = false;
 
+    string error;
+
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
     // ------------------------------------------------------------------------
@@ -814,27 +827,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (enforce)
+    if (check_host(hid, enforce, vm, error) == false)
     {
-        int cpu, mem, disk;
-        vector<Attribute *> pci;
-
-        string error;
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
         vm->unlock();
 
-        if (check_host(hid, cpu, mem, disk, error) == false)
-        {
-            failure_response(ACTION, request_error(error,""), att);
-            return;
-        }
-
-        if ((vm = get_vm(id, att)) == 0)
-        {
-            return;
-        }
+        failure_response(ACTION, request_error(error,""), att);
+        return;
     }
 
     // ------------------------------------------------------------------------
@@ -898,6 +896,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     bool   c_is_public_cloud;
 
     bool auth = false;
+
+    string error;
 
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
@@ -1033,27 +1033,15 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // Check the host has enough capacity
-    if (enforce)
-    {
-        int cpu, mem, disk;
-        vector<Attribute *> pci;
-
-        string error;
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        vm->unlock();
-
-        if (check_host(hid, cpu, mem, disk, error) == false)
-        {
-            failure_response(ACTION, request_error(error,""), att);
-            return;
-        }
-    }
-    else
+    if (check_host(hid, enforce, vm, error) == false)
     {
         vm->unlock();
+
+        failure_response(ACTION, request_error(error,""), att);
+        return;
     }
+
+    vm->unlock();
 
     // Check we are in the same cluster
     Host * host = nd.get_hpool()->get(c_hid, true);
@@ -1835,6 +1823,9 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
         int dcpu_host = (int) (dcpu * 100);//now in 100%
         int dmem_host = dmemory * 1024;    //now in Kilobytes
 
+        vector<Attribute *> empty_pci;
+        string error;
+
         host = hpool->get(hid, true);
 
         if (host == 0)
@@ -1848,7 +1839,7 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             return;
         }
 
-        if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0) == false)
+        if ( enforce && host->test_capacity(dcpu_host, dmem_host, 0, empty_pci, error) == false)
         {
             ostringstream oss;
 

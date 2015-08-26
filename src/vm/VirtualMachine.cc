@@ -1679,8 +1679,6 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
 
     pci_devs.clear();
 
-    obj_template->get("PCI", pci_devs);
-
     if ((get_template_attribute("MEMORY",memory) == false) ||
         (get_template_attribute("CPU",fcpu) == false))
     {
@@ -1694,6 +1692,8 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
     cpu    = (int) (fcpu * 100);//now in 100%
     memory = memory * 1024;     //now in Kilobytes
     disk   = 0;
+
+    obj_template->get("PCI", pci_devs);
 
     return;
 }

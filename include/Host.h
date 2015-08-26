@@ -444,11 +444,14 @@ public:
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in Kb)
      *    @param disk needed by the VM
+     *    @param pci devices needed by the VM
+     *    @param error Returns the error reason, if any
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, long long disk)
+    bool test_capacity(long long cpu, long long mem, long long disk,
+                       vector<Attribute *> &pci, string& error)
     {
-        return host_share.test(cpu, mem, disk);
+        return host_share.test(cpu, mem, disk, pci, error);
     }
 
     /**

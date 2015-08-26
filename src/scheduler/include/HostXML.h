@@ -51,7 +51,7 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param pci devices needed byt the VM
+     *    @param pci devices needed by the VM
      *    @param error error message
      *    @return true if the share can host the VM
      */
@@ -62,7 +62,7 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
-     *    @param pci devices needed byt the VM
+     *    @param pci devices needed by the VM
      *    @return true if the share can host the VM
      */
     bool test_capacity(long long cpu,long long mem,vector<Attribute *> &p)

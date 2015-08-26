@@ -75,21 +75,18 @@ public:
     int from_xml_node(const xmlNodePtr node);
 
     /**
-     *  Test wether this PCI device set has the requested devices available.
+     *  Test whether this PCI device set has the requested devices available.
      *    @param devs list of requested devices by the VM.
      *    @return true if all the devices are available.
      */
-    bool test(vector<Attribute *> &devs)
-    {
-        return test_set(devs, -1);
-    }
+    bool test(vector<Attribute *> &devs) const;
 
     /**
-     *  Assign the requested devices to the given VM. The assgined devices will
+     *  Assign the requested devices to the given VM. The assigned devices will
      *  be labeled with the VM and the PCI attribute of the VM extended with
      *  the address of the assigned devices.
      *    @param devs list of requested PCI devices, will include address of
-    *    assgined devices.
+     *    assigned devices.
      *    @param vmid of the VM
      */
     void add(vector<Attribute *> &devs, int vmid)
@@ -98,7 +95,7 @@ public:
     }
 
     /**
-     *  Remove the VM assigment from the PCI device list
+     *  Remove the VM assignment from the PCI device list
      */
     void del(const vector<Attribute *> &devs);
 
@@ -122,30 +119,48 @@ private:
 
     /**
      *  Test if a PCIDevice matches the vendor, device and class request spec
-     *  and can be assigned. It will assgin it if requested.
+     *  and can be assigned. If free, it is stored in the assigned set
      *    @param vendor_id id in uint form 0 means *
      *    @param device_id id in uint form 0 means *
      *    @param class_id  id in uint form 0 means *
      *    @param pci requested pci device
      *    @param vmid if not -1 it will also assign the PCI device to the VM,
      *    and the pci attribute will be extended with device information.
-     *    @param assgined set of addresses already assgined devices, it will
+     *    @param assigned set of addresses already assigned devices, it will
+     *    include the  selected device if found; useful to iterate.
+     *
+     *    @return true if a device was found.
+     */
+    bool test(unsigned int vendor_id, unsigned int device_id,
+        unsigned int class_id, const VectorAttribute *pci,
+        std::set<string> &assigned) const;
+
+    /**
+     *  Test if a PCIDevice matches the vendor, device and class request spec
+     *  and can be assigned. It will assign it if requested.
+     *    @param vendor_id id in uint form 0 means *
+     *    @param device_id id in uint form 0 means *
+     *    @param class_id  id in uint form 0 means *
+     *    @param pci requested pci device
+     *    @param vmid if not -1 it will also assign the PCI device to the VM,
+     *    and the pci attribute will be extended with device information.
+     *    @param assigned set of addresses already assigned devices, it will
      *    include the  selected device if found; useful to iterate.
      *
      *    @return true if a device was found.
      */
     bool test_set(unsigned int vendor_id, unsigned int device_id,
         unsigned int class_id, VectorAttribute *pci, int vmid,
-        std::set<string> &assigned);
+        std::set<string> &assigned) const;
 
     /**
      *  Test if the given list of PCIDevices can be assigned to the VM
      *    @param devs, list of PCI devices
      *    @param vmid if not -1 it will assign the devices to the VM
      *
-     *    @return true if the PCIDevice list can be assgined.
+     *    @return true if the PCIDevice list can be assigned.
      */
-    bool test_set(vector<Attribute *> &devs, int vmid);
+    bool test_set(vector<Attribute *> &devs, int vmid) const;
 
     /**
      *  Gets a 4 hex digits value from attribute
@@ -249,15 +264,35 @@ public:
      *    @param cpu requested by the VM
      *    @param mem requested by the VM
      *    @param disk requested by the VM
+     *    @param pci_devs requested by the VM
+     *    @param error Returns the error reason, if any
      *
      *    @return true if the share can host the VM or it is the only one
      *    configured
      */
-    bool test(long long cpu, long long mem, long long disk) const
+    bool test(long long cpu, long long mem, long long disk,
+              vector<Attribute *>& pci_devs, string& error) const
     {
-            return (((max_cpu  - cpu_usage ) >= cpu) &&
-                    ((max_mem  - mem_usage ) >= mem) &&
-                    ((max_disk - disk_usage) >= disk));
+        bool pci_fits = pci.test(pci_devs);
+
+        bool fits = (((max_cpu  - cpu_usage ) >= cpu) &&
+                     ((max_mem  - mem_usage ) >= mem) &&
+                     ((max_disk - disk_usage) >= disk)&&
+                     pci_fits);
+
+        if (!fits)
+        {
+            if ( pci_fits )
+            {
+                error = "Not enough capacity.";
+            }
+            else
+            {
+                error = "Unavailable PCI device.";
+            }
+        }
+
+        return fits;
     }
 
     /**

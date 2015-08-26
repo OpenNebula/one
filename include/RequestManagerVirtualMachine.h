@@ -90,10 +90,9 @@ protected:
         string& tm_mad,
         RequestAttributes& att);
 
-    bool check_host(int     hid,
-                    int     cpu,
-                    int     mem,
-                    int     disk,
+    bool check_host(int hid,
+                    bool enforce,
+                    VirtualMachine* vm,
                     string& error);
 
     int add_history(VirtualMachine * vm,
