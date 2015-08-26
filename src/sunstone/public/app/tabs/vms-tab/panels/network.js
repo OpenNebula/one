@@ -231,7 +231,7 @@ define(function(require) {
         var secgroups = [];
 
         var nic_secgroups = {};
-        if (nic.SECURITY_GROUPS != undefined) {
+        if (!$.isEmptyObject(nic.SECURITY_GROUPS)) {
           $.each(nic.SECURITY_GROUPS.split(","), function() {
             nic_secgroups[this] = true;
           });
