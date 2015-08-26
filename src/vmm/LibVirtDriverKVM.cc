@@ -1118,6 +1118,15 @@ int LibVirtDriver::deployment_description_kvm(
         file << "\t" << default_raw << endl;
     }
 
+    // ------------------------------------------------------------------------
+    // Metadata used by drivers
+    // ------------------------------------------------------------------------
+
+    file << "\t<metadata>" << endl;
+    file << "\t\t<system_datastore>" << vm->get_remote_system_dir() <<
+        "</system_datastore>" << endl;
+    file << "\t</metadata>" << endl;
+
     file << "</domain>" << endl;
 
     file.close();

@@ -318,6 +318,8 @@ module KVM
 
         doc  = REXML::Document.new(xml)
         size = 0
+        systemds = doc.elements['domain/metadata/system_datastore'] rescue nil
+        systemds = systemds.text.gsub(/\/+/, '/') if systemds
 
         data = {
             :disk_size       => [],
@@ -358,6 +360,24 @@ module KVM
 
                 end
             else
+                # Search the disk in system datastore when the source
+                # is a persistent image with snapshots
+                if !file.match(/.*disk\.\d+$/) && systemds
+                    source = file.gsub(%r{/+}, '/')
+
+                    disks = Dir["#{systemds}/disk.*"]
+
+                    disks.each do |disk|
+                        next if !File.symlink?(disk)
+                        link = File.readlink(disk).gsub(%r{/+}, '/')
+
+                        if link == source
+                            file = disk
+                            break
+                        end
+                    end
+                end
+
                 # Regular Disk
                 text = `qemu-img info --output=json #{file}`
                 next if !$? || !$?.success?
