@@ -41,12 +41,12 @@ module Market
         end
 
         def get(path)
-            req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Get.new(@uri.path + path)
             do_request(req)
         end
 
         def post(path, body)
-            req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
+            req = Net::HTTP::Proxy(@host, @port)::Post.new(@uri.path + path)
             req.body = body
 
             do_request(req)
