@@ -29,11 +29,13 @@ int HostPoolXML::set_up()
         {
             oss << "Discovered Hosts (enabled):" << endl;
 
-            map<int,ObjectXML*>::iterator it;
+            map<int, ObjectXML*>::iterator it;
 
             for (it=objects.begin();it!=objects.end();it++)
             {
-                oss << " " << it->first;
+                HostXML * h = dynamic_cast<HostXML *>(it->second);
+
+                oss << *h << endl;
             }
         }
         else

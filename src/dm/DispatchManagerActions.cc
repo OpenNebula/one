@@ -92,10 +92,11 @@ int DispatchManager::import (
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
+    vector<Attribute *> pci;
 
-    vm->get_requirements(cpu, mem, disk);
+    vm->get_requirements(cpu, mem, disk, pci);
 
-    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     vm->set_state(VirtualMachine::ACTIVE);
 
@@ -771,6 +772,8 @@ int DispatchManager::finalize(
     Host * host;
     ostringstream oss;
 
+    vector<Attribute *> pci;
+
     VirtualMachine::VmState state;
     bool is_public_host = false;
     int  host_id = -1;
@@ -809,8 +812,8 @@ int DispatchManager::finalize(
         case VirtualMachine::POWEROFF:
             int cpu, mem, disk;
 
-            vm->get_requirements(cpu,mem,disk);
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+            vm->get_requirements(cpu, mem, disk, pci);
+            hpool->del_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
             if (is_public_host)
             {

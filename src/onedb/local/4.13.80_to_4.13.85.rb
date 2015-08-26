@@ -113,6 +113,34 @@ module Migrator
 
       log_time()
 
+      @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
+      @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+
+      @db.transaction do
+        @db.fetch("SELECT * FROM old_host_pool") do |row|
+          doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+          doc.root.at_xpath("HOST_SHARE").add_child(doc.create_element("PCI_DEVICES"))
+
+          @db[:host_pool].insert(
+            :oid            => row[:oid],
+            :name           => row[:name],
+            :body           => doc.root.to_s,
+            :state          => row[:state],
+            :last_mon_time  => row[:last_mon_time],
+            :uid            => row[:uid],
+            :gid            => row[:gid],
+            :owner_u        => row[:owner_u],
+            :group_u        => row[:group_u],
+            :other_u        => row[:other_u],
+            :cid            => row[:cid])
+        end
+      end
+
+      @db.run "DROP TABLE old_host_pool;"
+
+      log_time()
+
       return true
     end
 
