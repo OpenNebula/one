@@ -702,6 +702,12 @@ module OpenNebula
             self['DEPLOY_ID']
         end
 
+        # Returns the deploy_id of the VirtualMachine (numeric value)
+        def keep_disks?
+            !self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].nil? &&
+                self['USER_TEMPLATE/KEEP_DISKS_ON_DONE'].downcase=="yes"
+        end
+
         # Clones the VM's source Template, replacing the disks with live snapshots
         # of the current disks. The VM capacity and NICs are also preserved
         #

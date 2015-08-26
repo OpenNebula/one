@@ -36,10 +36,11 @@ vm_id     = ARGV[-2]
 vm = OpenNebula::VirtualMachine.new_with_id(vm_id, OpenNebula::Client.new)
 vm.info
 
-lcm_state = vm.lcm_state_str
+lcm_state   = vm.lcm_state_str
+keep_disks  = vm.keep_disks?
 
 begin
-    VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state)
+    VCenterDriver::VCenterVm.cancel(deploy_id, host, lcm_state, keep_disks)
 rescue Exception => e
     STDERR.puts "Cancel of VM #{deploy_id} on host #{host} failed " +
                 "due to \"#{e.message}\""

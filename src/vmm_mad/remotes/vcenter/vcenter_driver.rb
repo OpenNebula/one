@@ -774,7 +774,7 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.cancel(deploy_id, hostname, lcm_state)
+    def self.cancel(deploy_id, hostname, lcm_state, keep_disks)
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 shutdown(deploy_id, hostname, lcm_state)
@@ -789,6 +789,7 @@ class VCenterVm
                     end
                 rescue
                 end
+                detach_all_disks(vm) if keep_disks
                 vm.Destroy_Task.wait_for_completion
         end
     end
@@ -857,7 +858,7 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.shutdown(deploy_id, hostname, lcm_state)
+    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
@@ -870,6 +871,7 @@ class VCenterVm
                 rescue
                 end
                 vm.PowerOffVM_Task.wait_for_completion
+                detach_all_disks(vm) if keep_disks
                 vm.Destroy_Task.wait_for_completion
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
@@ -1203,6 +1205,13 @@ private
     end
 
     ########################################################################
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
+    ########################################################################
+    def self.is_disk?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualDisk).nil?
+    end
+
+    ########################################################################
     # Returns the spec to reconfig a VM and add a NIC
     ########################################################################
     def self.calculate_addnic_spec(vm, mac, bridge, model)
@@ -1410,6 +1419,26 @@ private
         vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid
+    end
+
+    ############################################################################
+    # Detach all disks from a VM
+    ############################################################################
+    def self.detach_all_disks(vm)
+        disks  = vm.config.hardware.device.select { |d| is_disk?(d) }
+
+        return if disks.nil?
+
+        spec = { :deviceChange => [] }
+
+        disks.each{|disk|
+            spec[:deviceChange] <<  {
+                :operation => :remove,
+                :device => disk
+            }
+        }
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 end
 end
