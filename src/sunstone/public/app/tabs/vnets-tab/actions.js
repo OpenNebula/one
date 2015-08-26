@@ -33,7 +33,7 @@ define(function(require) {
     "Network.chgrp": _commonActions.multipleAction('chgrp'),
     "Network.chmod": _commonActions.singleAction('chmod'),
     "Network.rename": _commonActions.singleAction('rename'),
-    "Network.update" : _commonActions.updateTemplate(),
+    "Network.update" : _commonActions.update(),
     "Network.update_template" : _commonActions.updateTemplate(),
     "Network.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Network.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
