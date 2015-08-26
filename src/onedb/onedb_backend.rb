@@ -232,13 +232,13 @@ class BackEndMySQL < OneDBBacKEnd
 
     def bck_file
         t = Time.now
-        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}.sql_"<<
-        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.bck"
+        "#{VAR_LOCATION}/mysql_#{@server}_#{@db_name}_"<<
+        "#{t.year}-#{t.month}-#{t.day}_#{t.hour}:#{t.min}:#{t.sec}.sql"
     end
 
     def backup(bck_file)
         cmd = "mysqldump -u #{@user} -p'#{@passwd}' -h #{@server} " +
-              "-P #{@port} #{@db_name} > #{bck_file}"
+              "-P #{@port} --add-drop-table #{@db_name} > #{bck_file}"
 
         rc = system(cmd)
         if !rc
@@ -259,22 +259,7 @@ class BackEndMySQL < OneDBBacKEnd
                   " use -f to overwrite."
         end
 
-        mysql_cmd = "mysql -u #{@user} -p'#{@passwd}' -h #{@server} -P #{@port} "
-
-        drop_cmd = mysql_cmd + "-e 'DROP DATABASE IF EXISTS #{@db_name};'"
-        rc = system(drop_cmd)
-        if !rc
-            raise "Error dropping MySQL DB #{@db_name} at #{@server}."
-        end
-
-        create_cmd = mysql_cmd+"-e 'CREATE DATABASE IF NOT EXISTS #{@db_name};'"
-        rc = system(create_cmd)
-        if !rc
-            raise "Error creating MySQL DB #{@db_name} at #{@server}."
-        end
-
-        restore_cmd = mysql_cmd + "#{@db_name} < #{bck_file}"
-        rc = system(restore_cmd)
+        rc = system("mysql -u #{@user} -p'#{@passwd}' -h #{@server} -P #{@port} #{@db_name} < #{bck_file}")
         if !rc
             raise "Error while restoring MySQL DB #{@db_name} at #{@server}."
         end
