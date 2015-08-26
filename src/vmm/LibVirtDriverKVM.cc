@@ -976,6 +976,14 @@ int LibVirtDriver::deployment_description_kvm(
         slot    = pci->vector_value("SLOT");
         func    = pci->vector_value("FUNCTION");
 
+        if ( domain.empty() || bus.empty() || slot.empty() || func.empty() )
+        {
+            vm->log("VMM", Log::WARNING,
+                    "DOMAIN, BUS, SLOT and FUNC must be defined for PCI "
+                    "passthrough. Ignored.");
+            continue;
+        }
+
         file << "\t\t<hostdev mode='subsystem' type='pci' managed='yes'>";
         file << endl;
         file << "\t\t\t<source>" << endl;
