@@ -475,7 +475,7 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
         puts
 
         table=CLIHelper::ShowTable.new(nil, self) do
-            column :VM, "Used by VM", :size => 4, :left => false do |d|
+            column :VM, "Used by VM", :size => 5, :left => false do |d|
                 if d["VMID"] == "-1"
                     ""
                 else
@@ -495,13 +495,15 @@ class OneHostHelper < OpenNebulaHelper::OneHelper
                 d["CLASS_NAME"]
             end
 
-            column :NAME, "Name", :size => 30, :left => true do |d|
+            column :NAME, "Name", :size => 50, :left => true do |d|
                 d["DEVICE_NAME"]
             end
 
             column :VENDOR, "Vendor", :size => 8, :left => true do |d|
                 d["VENDOR_NAME"]
             end
+
+            default :VM, :ADDR, :TYPE, :NAME
 
         end
 
