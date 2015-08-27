@@ -149,6 +149,15 @@ define(function(require) {
       }
     });
 
+    var start_script = $("#START_SCRIPT", context).val();
+    if (start_script != "") {
+      if ($("#ENCODE_START_SCRIPT", context).is(":checked")) {
+        contextJSON["START_SCRIPT_BASE64"] = btoa(start_script);
+      } else {
+        contextJSON["START_SCRIPT"] = start_script;
+      }
+    }
+
     if (!$.isEmptyObject(contextJSON)) { templateJSON['CONTEXT'] = contextJSON; };
     if (!$.isEmptyObject(userInputsJSON)) { templateJSON['USER_INPUTS'] = userInputsJSON; };
 
@@ -215,6 +224,11 @@ define(function(require) {
               ids : files
             }
           that.contextFilesTable.selectResourceTableSelect(selectedResources);
+        } else if ("START_SCRIPT_BASE64" == key) {
+          $("#ENCODE_START_SCRIPT", context).prop('checked', 'checked');
+          $("#START_SCRIPT", context).val(atob(value));
+        } else if ("START_SCRIPT" ==  key) {
+          $("#START_SCRIPT", context).val(value);
         } else {
           customTagsJSON[key] = value;
         }

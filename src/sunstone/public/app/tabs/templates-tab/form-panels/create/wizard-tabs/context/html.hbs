@@ -1,12 +1,9 @@
 <dl id="context_tabs" class="tabs vertical" data-tab>
   <dd class="active">
-    <a href="#netsshTab">{{tr "Network & SSH"}}</a>
+    <a href="#netsshTab">{{tr "Configuration"}}</a>
   </dd>
   <dd>
     <a href="#filesTab">{{tr "Files"}}</a>
-  </dd>
-  <dd>
-    <a href="#userinputsTab">{{tr "User Inputs"}}</a>
   </dd>
   <dd>
     <a href="#zcustomTab">{{tr "Custom vars"}}</a>
@@ -15,65 +12,57 @@
 <div class="tabs-content vertical">
   <div class="wizard_internal_tab active content" id="netsshTab">
     <div class="row">
-      <div class="columns large-12">
-        <input type="checkbox" name="ssh_context" id="ssh_context" checked>
-        <label for="ssh_context">
-          {{tr "  Add SSH contextualization"}}
-          {{{tip (tr "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")}}}
-        </label>
+      <div class="columns large-6">
+        <div class="row">
+          <div class="columns large-12">
+            <input type="checkbox" name="ssh_context" id="ssh_context" checked>
+            <label for="ssh_context">
+              {{tr "  Add SSH contextualization"}}
+              {{{tip (tr "Add an ssh public key to the context. If the Public Key textarea is empty then the user variable SSH_PUBLIC_KEY will be used.")}}}
+            </label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="ssh_public_key">{{tr "Public Key"}}:</label>
+            <textarea rows="2" type="text" id="ssh_public_key" name="ssh_public_key" />
+          </div>
+        </div>
+      </div>
+      <div class="columns large-6">
+        <div class="row">
+          <div class="columns large-12">
+            <input type="checkbox" name="network_context" id="network_context" checked>
+            <label for="network_context">
+              {{tr "  Add Network contextualization"}}
+              {{{tip (tr "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")}}}
+            </label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="columns large-12">
+            <input type="checkbox" name="token_context" id="token_context">
+            <label for="token_context">
+              {{tr "  Add OneGate token"}}
+              {{{tip (tr "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")}}}
+            </label>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row">
       <div class="large-12 columns">
-        <label for="ssh_public_key">{{tr "Public Key"}}:</label>
-        <textarea rows="4" type="text" id="ssh_public_key" name="ssh_public_key" />
-      </div>
-    </div>
-    <br>
-    <div class="row">
-      <div class="columns large-12">
-        <input type="checkbox" name="network_context" id="network_context" checked>
-        <label class="inline" for="network_context">
-          {{tr "  Add Network contextualization"}}
-          {{{tip (tr "Add network contextualization parameters. For each NIC defined in the NETWORK section, ETH$i_IP, ETH$i_NETWORK... parameters will be included in the CONTEXT section and will be available in the Virtual Machine")}}}
+        <label for="START_SCRIPT">
+          {{tr "Start Script"}}
+          {{{tip (tr "Text of the script executed when the machine starts up. It can contain shebang in case it is not shell script. For example 'yum upgrade'")}}}
+        </label>
+        <textarea rows="4" type="text" id="START_SCRIPT" name="START_SCRIPT" />
+        <input type="checkbox" name="ENCODE_START_SCRIPT" id="ENCODE_START_SCRIPT">
+        <label for="ENCODE_START_SCRIPT">
+          {{tr "  Encode Script in Base64"}}
         </label>
       </div>
     </div>
-    <div class="row">
-      <div class="columns large-12">
-        <input type="checkbox" name="token_context" id="token_context">
-        <label class="inline" for="token_context">
-          {{tr "  Add OneGate token"}}
-          {{{tip (tr "Add a file (token.txt) to the context contaning the token to push custom metrics to the VirtualMachine through OneGate")}}}
-        </label>
-      </div>
-    </div>
-  </div>
-  <div class="wizard_internal_tab content" id="filesTab">
-    {{{contextFilesTableHTML}}}
-    <div class="row">
-      <div class="large-12 columns">
-        <label for="FILES_DS">
-          {{tr "FILES_DS"}}
-          {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
-        </label>
-        <input type="text" wizard_field="FILES_DS" id="FILES_DS" name="FILES_DS" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
-        <label for="INIT_SCRIPTS">
-          {{tr "Init scripts"}}
-          {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
-        </label>
-        <input type="text" wizard_field="FILES_DS" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />
-      </div>
-    </div>
-  </div>
-  <div class="wizard_internal_tab content" id="zcustomTab">
-    {{{customTagsTableHTML}}}
-  </div>
-  <div class="wizard_internal_tab content" id="userinputsTab">
     <div class="row">
       <div class="large-12 columns">
         <table class="service_custom_attrs policies_table dataTable">
@@ -106,5 +95,29 @@
         </table>
       </div>
     </div>
+  </div>
+  <div class="wizard_internal_tab content" id="filesTab">
+    {{{contextFilesTableHTML}}}
+    <div class="row">
+      <div class="large-12 columns">
+        <label for="FILES_DS">
+          {{tr "FILES_DS"}}
+          {{{tip (tr "Raw String for the FILE_DS attribute of the VM template, representing files that will be included in the contextualization image. Each file must be stored in a FILE_DS Datastore and must be of type CONTEXT")}}}
+        </label>
+        <input type="text" wizard_field="FILES_DS" id="FILES_DS" name="FILES_DS" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <label for="INIT_SCRIPTS">
+          {{tr "Init scripts"}}
+          {{{tip (tr "If the VM uses the OpenNebula contextualization package the init.sh file is executed by default. When the init script added is not called init.sh or more than one init script is added, this list contains the scripts to run and the order. Ex. “init.sh users.sh mysql.sh”")}}}
+        </label>
+        <input type="text" wizard_field="FILES_DS" id="INIT_SCRIPTS" name="INIT_SCRIPTS" />
+      </div>
+    </div>
+  </div>
+  <div class="wizard_internal_tab content" id="zcustomTab">
+    {{{customTagsTableHTML}}}
   </div>
 </div>
