@@ -312,6 +312,7 @@ SUNSTONE_MINIFIED_DIRS="SUNSTONE_LOCATION/public \
                $SUNSTONE_LOCATION/public/dist \
                $SUNSTONE_LOCATION/public/dist/console \
                $SUNSTONE_LOCATION/public/css \
+               $SUNSTONE_LOCATION/public/css/opensans \
                $SUNSTONE_LOCATION/public/bower_components/fontawesome/fonts \
                $SUNSTONE_LOCATION/public/locale/languages \
                $SUNSTONE_LOCATION/public/images \
@@ -1618,7 +1619,7 @@ SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
 
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
-                src/sunstone/public/css/opensans.woff \
+                src/sunstone/public/css/opensans/opensans.woff \
                 src/sunstone/public/css/novnc-custom.css \
                 src/sunstone/public/css/spice-custom.css \
                 src/sunstone/public/css/login.css"
