@@ -66,6 +66,7 @@ define(function(require) {
     Sunstone.insertTabs();
 
     _setupAccordion();
+    _setupCloseDropdownsOnClick();
     _insertUserAndZoneSelector();
 
     if (Config.isTabEnabled(PROVISION_TAB_ID)) {
@@ -76,6 +77,13 @@ define(function(require) {
       $('#loading').hide();
     }
   });
+
+  function _setupCloseDropdownsOnClick() {
+    $(document).on("click", '[data-dropdown-content] a', function() {
+      var id = $(this).closest('ul').attr('id');
+      $('[data-dropdown=' + id + ']').trigger('click');
+    });
+  }
 
   function _setupAccordion() {
     $(document).on("click", ".accordion_advanced > a", function() {
