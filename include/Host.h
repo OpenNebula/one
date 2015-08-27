@@ -449,7 +449,7 @@ public:
      *    @return true if the share can host the VM
      */
     bool test_capacity(long long cpu, long long mem, long long disk,
-                       vector<Attribute *> &pci, string& error)
+                       vector<Attribute *> &pci, string& error) const
     {
         return host_share.test(cpu, mem, disk, pci, error);
     }

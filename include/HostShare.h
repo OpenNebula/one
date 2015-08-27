@@ -79,7 +79,7 @@ public:
      *    @param devs list of requested devices by the VM.
      *    @return true if all the devices are available.
      */
-    bool test(vector<Attribute *> &devs) const;
+    bool test(const vector<Attribute *> &devs) const;
 
     /**
      *  Assign the requested devices to the given VM. The assigned devices will
@@ -89,10 +89,7 @@ public:
      *    assigned devices.
      *    @param vmid of the VM
      */
-    void add(vector<Attribute *> &devs, int vmid)
-    {
-        test_set(devs, vmid);
-    }
+    void add(vector<Attribute *> &devs, int vmid);
 
     /**
      *  Remove the VM assignment from the PCI device list
@@ -116,51 +113,6 @@ private:
      *  Sets the internal class structures from the template
      */
     int init();
-
-    /**
-     *  Test if a PCIDevice matches the vendor, device and class request spec
-     *  and can be assigned. If free, it is stored in the assigned set
-     *    @param vendor_id id in uint form 0 means *
-     *    @param device_id id in uint form 0 means *
-     *    @param class_id  id in uint form 0 means *
-     *    @param pci requested pci device
-     *    @param vmid if not -1 it will also assign the PCI device to the VM,
-     *    and the pci attribute will be extended with device information.
-     *    @param assigned set of addresses already assigned devices, it will
-     *    include the  selected device if found; useful to iterate.
-     *
-     *    @return true if a device was found.
-     */
-    bool test(unsigned int vendor_id, unsigned int device_id,
-        unsigned int class_id, const VectorAttribute *pci,
-        std::set<string> &assigned) const;
-
-    /**
-     *  Test if a PCIDevice matches the vendor, device and class request spec
-     *  and can be assigned. It will assign it if requested.
-     *    @param vendor_id id in uint form 0 means *
-     *    @param device_id id in uint form 0 means *
-     *    @param class_id  id in uint form 0 means *
-     *    @param pci requested pci device
-     *    @param vmid if not -1 it will also assign the PCI device to the VM,
-     *    and the pci attribute will be extended with device information.
-     *    @param assigned set of addresses already assigned devices, it will
-     *    include the  selected device if found; useful to iterate.
-     *
-     *    @return true if a device was found.
-     */
-    bool test_set(unsigned int vendor_id, unsigned int device_id,
-        unsigned int class_id, VectorAttribute *pci, int vmid,
-        std::set<string> &assigned) const;
-
-    /**
-     *  Test if the given list of PCIDevices can be assigned to the VM
-     *    @param devs, list of PCI devices
-     *    @param vmid if not -1 it will assign the devices to the VM
-     *
-     *    @return true if the PCIDevice list can be assigned.
-     */
-    bool test_set(vector<Attribute *> &devs, int vmid) const;
 
     /**
      *  Gets a 4 hex digits value from attribute

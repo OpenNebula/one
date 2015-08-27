@@ -41,6 +41,8 @@ int HostSharePCI::from_xml_node(const xmlNodePtr node)
     return init();
 }
 
+/* ------------------------------------------------------------------------*/
+
 int HostSharePCI::init()
 {
     vector<Attribute *> devices;
@@ -67,43 +69,19 @@ int HostSharePCI::init()
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 
-bool HostSharePCI::test(unsigned int vendor_id, unsigned int device_id,
-        unsigned int class_id, const VectorAttribute * devreq,
-        std::set<string>& assigned) const
+bool HostSharePCI::test(const vector<Attribute *> &devs) const
 {
-    map<string, PCIDevice *>::const_iterator it;
+    vector<Attribute *>::const_iterator it;
+    map<string, PCIDevice *>::const_iterator jt;
 
-    for (it=pci_devices.begin(); it!=pci_devices.end(); it++)
-    {
-        PCIDevice * dev = it->second;
-
-        if ((class_id  == 0 || dev->class_id  == class_id)  &&
-            (vendor_id == 0 || dev->vendor_id == vendor_id) &&
-            (device_id == 0 || dev->device_id == device_id) &&
-            dev->vmid  == -1 &&
-            assigned.find(dev->address) == assigned.end())
-        {
-            assigned.insert(dev->address);
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/* ------------------------------------------------------------------------*/
-
-bool HostSharePCI::test(vector<Attribute *> &devs) const
-{
-    vector<Attribute *>::iterator it;
     std::set<string> assigned;
 
     unsigned int vendor_id, device_id, class_id;
+    bool found;
 
     for ( it=devs.begin(); it!= devs.end(); it++)
     {
-        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
+        const VectorAttribute* pci = dynamic_cast<const VectorAttribute *>(*it);
 
         if ( pci == 0 )
         {
@@ -114,7 +92,24 @@ bool HostSharePCI::test(vector<Attribute *> &devs) const
         device_id = get_pci_value("DEVICE", pci);
         class_id  = get_pci_value("CLASS", pci);
 
-        if (!test(vendor_id, device_id, class_id, pci, assigned))
+        for (jt=pci_devices.begin(), found=false; jt!=pci_devices.end(); jt++)
+        {
+            PCIDevice * dev = jt->second;
+
+            if ((class_id  == 0 || dev->class_id  == class_id)  &&
+                (vendor_id == 0 || dev->vendor_id == vendor_id) &&
+                (device_id == 0 || dev->device_id == device_id) &&
+                dev->vmid  == -1 &&
+                assigned.find(dev->address) == assigned.end())
+            {
+                assigned.insert(dev->address);
+                found=true;
+
+                break;
+            }
+        }
+
+        if (!found)
         {
             return false;
         }
@@ -127,73 +122,47 @@ bool HostSharePCI::test(vector<Attribute *> &devs) const
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 
-bool HostSharePCI::test_set(unsigned int vendor_id, unsigned int device_id,
-        unsigned int class_id, VectorAttribute * devreq, int vmid,
-        std::set<string>& assigned) const
+void HostSharePCI::add(vector<Attribute *> &devs, int vmid)
 {
-    map<string, PCIDevice *>::const_iterator it;
+    vector<Attribute *>::iterator it;
+    map<string, PCIDevice *>::const_iterator jt;
 
-    for (it=pci_devices.begin(); it!=pci_devices.end(); it++)
+    unsigned int vendor_id, device_id, class_id;
+
+    for ( it=devs.begin(); it!= devs.end(); it++)
     {
-        PCIDevice * dev = it->second;
+        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
 
-        if ((class_id  == 0 || dev->class_id  == class_id)  &&
-		    (vendor_id == 0 || dev->vendor_id == vendor_id) &&
-            (device_id == 0 || dev->device_id == device_id) &&
-            dev->vmid  == -1 &&
-            assigned.find(dev->address) == assigned.end())
+        if ( pci == 0 )
         {
-            assigned.insert(dev->address);
+            return;
+        }
 
-            if (vmid != -1)
+        vendor_id = get_pci_value("VENDOR", pci);
+        device_id = get_pci_value("DEVICE", pci);
+        class_id  = get_pci_value("CLASS", pci);
+
+        for (jt=pci_devices.begin(); jt!=pci_devices.end(); jt++)
+        {
+            PCIDevice * dev = jt->second;
+
+            if ((class_id  == 0 || dev->class_id  == class_id)  &&
+                (vendor_id == 0 || dev->vendor_id == vendor_id) &&
+                (device_id == 0 || dev->device_id == device_id) &&
+                dev->vmid  == -1 )
             {
                 dev->vmid = vmid;
                 dev->attrs->replace("VMID", vmid);
 
-                devreq->replace("DOMAIN",dev->attrs->vector_value("DOMAIN"));
-                devreq->replace("BUS",dev->attrs->vector_value("BUS"));
-                devreq->replace("SLOT",dev->attrs->vector_value("SLOT"));
-                devreq->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
+                pci->replace("DOMAIN",dev->attrs->vector_value("DOMAIN"));
+                pci->replace("BUS",dev->attrs->vector_value("BUS"));
+                pci->replace("SLOT",dev->attrs->vector_value("SLOT"));
+                pci->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
 
-                devreq->replace("ADDRESS",dev->attrs->vector_value("ADDRESS"));
+                pci->replace("ADDRESS",dev->attrs->vector_value("ADDRESS"));
             }
-
-            return true;
         }
     }
-
-    return false;
-}
-
-/* ------------------------------------------------------------------------*/
-
-bool HostSharePCI::test_set(vector<Attribute *> &devs, int vmid) const
-{
-    vector<Attribute *>::iterator it;
-    std::set<string> assigned;
-
-    unsigned int vendor_id, device_id, class_id;
-
-    for ( it=devs.begin(); it!= devs.end(); it++)
-    {
-        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
-
-        if ( pci == 0 )
-        {
-            return false;
-        }
-
-        vendor_id = get_pci_value("VENDOR", pci);
-        device_id = get_pci_value("DEVICE", pci);
-        class_id  = get_pci_value("CLASS", pci);
-
-        if (!test_set(vendor_id, device_id, class_id, pci, vmid, assigned))
-        {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 /* ------------------------------------------------------------------------*/
@@ -233,6 +202,14 @@ void HostSharePCI::set_monitorization(vector<Attribute*> &pci_att)
 
     string address;
 
+    std::set<string> missing;
+    std::set<string>::iterator jt;
+
+    for (pci_it = pci_devices.begin(); pci_it != pci_devices.end(); pci_it++)
+    {
+        missing.insert(pci_it->first);
+    }
+
     for (it = pci_att.begin(); it != pci_att.end(); it++)
     {
         VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
@@ -254,7 +231,9 @@ void HostSharePCI::set_monitorization(vector<Attribute*> &pci_att)
 
         if (pci_it != pci_devices.end())
         {
+            missing.erase(address);
             delete pci;
+
             continue;
         }
 
@@ -263,6 +242,20 @@ void HostSharePCI::set_monitorization(vector<Attribute*> &pci_att)
         pci_devices.insert(make_pair(address, dev));
 
         set(pci);
+    }
+
+    for ( jt = missing.begin() ; jt != missing.end(); jt ++ )
+    {
+        pci_it = pci_devices.find(*jt);
+
+        remove(pci_it->second->attrs);
+
+        delete pci_it->second->attrs;
+
+        delete pci_it->second;
+
+        pci_devices.erase(pci_it);
+
     }
 };
 
