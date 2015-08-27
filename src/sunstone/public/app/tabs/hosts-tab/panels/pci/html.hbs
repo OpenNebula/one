@@ -1,0 +1,28 @@
+<div class="row">
+  <div class="large-12 columns">
+    <table id="datatable_pci_{{panelId}}" class="dataTable extended_table">
+      <thead>
+        <tr>
+          <th>{{tr "VM"}}</th>
+          <th>{{tr "PCI Address"}}</th>
+          <th>{{tr "Type"}}</th>
+          <th>{{tr "Class"}}</th>
+          <th>{{tr "Name"}}</th>
+          <th>{{tr "Vendor"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each element.HOST_SHARE.PCI_DEVICES.PCI}}
+          <tr>
+            <td>{{VMID}}</td>
+            <td>{{SHORT_ADDRESS}}</td>
+            <td>{{TYPE}}</td>
+            <td>{{CLASS_NAME}}</td>
+            <td>{{DEVICE_NAME}}</td>
+            <td>{{VENDOR_NAME}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>

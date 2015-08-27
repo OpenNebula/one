@@ -31,6 +31,34 @@
         </div>
       </div>
     </fieldset>
+    <fieldset class="hypervisor only_kvm">
+      <legend>{{tr "PCI Devices"}}</legend>
+      <div class="row">
+        <div class="large-12 columns">
+          <table class="dataTable pci_devices">
+            <thead>
+              <tr>
+                <th>{{tr "Vendor"}}</th>
+                <th>{{tr "Device"}}</th>
+                <th>{{tr "Class"}}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4">
+                  <a type="button" class="add_pci button small large-12 secondary radius">
+                    <i class="fa fa-plus"></i> {{tr "Add PCI device"}}
+                  </a>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </fieldset>
     <fieldset>
       <legend>{{tr "Custom Tags"}}</legend>
       {{{customTagsTableHTML}}}
