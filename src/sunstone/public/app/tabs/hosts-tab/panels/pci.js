@@ -52,11 +52,19 @@ define(function(require) {
    */
 
   function _html() {
+    var pcis = [];
+
     if(this.element.HOST_SHARE &&
        this.element.HOST_SHARE.PCI_DEVICES &&
        this.element.HOST_SHARE.PCI_DEVICES.PCI){
 
-      $.each(this.element.HOST_SHARE.PCI_DEVICES.PCI, function(){
+      pcis = this.element.HOST_SHARE.PCI_DEVICES.PCI;
+
+      if (!$.isArray(pcis)){ // If only 1 convert to array
+        pcis = [pcis];
+      }
+
+      $.each(pcis, function(){
         if(this.VMID == "-1"){
           this.VMID = "";
         }
@@ -64,7 +72,7 @@ define(function(require) {
     }
 
     return TemplateHTML({
-      'element': this.element,
+      'pcis': pcis,
       'panelId': this.panelId
     });
   }
