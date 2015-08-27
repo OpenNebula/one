@@ -23,6 +23,7 @@ class CloudAuth
         "sunstone"   => 'SunstoneCloudAuth' ,
         "ec2"        => 'EC2CloudAuth',
         "x509"       => 'X509CloudAuth',
+        "remote"     => 'RemoteCloudAuth',
         "opennebula" => 'OpenNebulaCloudAuth',
         "onegate"    => 'OneGateCloudAuth'
     }
