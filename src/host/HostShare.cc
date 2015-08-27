@@ -248,6 +248,11 @@ void HostSharePCI::set_monitorization(vector<Attribute*> &pci_att)
     {
         pci_it = pci_devices.find(*jt);
 
+		if ( pci_it->second->vmid != -1 )
+		{
+			continue;
+		}
+
         remove(pci_it->second->attrs);
 
         delete pci_it->second->attrs;
