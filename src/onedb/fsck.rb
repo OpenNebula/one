@@ -680,7 +680,7 @@ EOT
 
         log_time()
 
-        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+        @db.run "CREATE TABLE datastore_pool_new (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER);"
 
         @db.transaction do
             @db.fetch("SELECT * from datastore_pool") do |row|
@@ -933,7 +933,7 @@ EOT
                 "name VARCHAR(128), body MEDIUMTEXT, state INTEGER, " <<
                 "last_mon_time INTEGER, uid INTEGER, gid INTEGER, " <<
                 "owner_u INTEGER, group_u INTEGER, other_u INTEGER, " <<
-                "cid INTEGER, UNIQUE(name));"
+                "cid INTEGER);"
 
         # Calculate the host's xml and write them to host_pool_new
         @db.transaction do

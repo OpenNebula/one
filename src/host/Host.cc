@@ -74,7 +74,7 @@ const char * Host::db_names =
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
-    "group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name))";
+    "group_u INTEGER, other_u INTEGER, cid INTEGER)";
 
 
 const char * Host::monit_table = "host_monitoring";

@@ -114,7 +114,7 @@ module Migrator
       log_time()
 
       @db.run "ALTER TABLE host_pool RENAME TO old_host_pool;"
-      @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name));"
+      @db.run "CREATE TABLE host_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER);"
 
       @db.transaction do
         @db.fetch("SELECT * FROM old_host_pool") do |row|
@@ -138,6 +138,17 @@ module Migrator
       end
 
       @db.run "DROP TABLE old_host_pool;"
+
+      log_time()
+
+      @db.transaction do
+        @db.run "ALTER TABLE datastore_pool RENAME TO old_datastore_pool;"
+        @db.run "CREATE TABLE datastore_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, cid INTEGER);"
+
+        @db.run "INSERT INTO datastore_pool SELECT * FROM old_datastore_pool;"
+
+        @db.run "DROP TABLE old_datastore_pool;"
+      end
 
       log_time()
 
