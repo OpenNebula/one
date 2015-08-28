@@ -598,7 +598,6 @@ define(function(require) {
       $('#select_resource_multiple_' + that.dataTableId, section).show();
     }
 
-    $('#selected_resource_id_' + that.dataTableId, section).hide();
     $('#selected_resource_name_' + that.dataTableId, section).hide();
 
     $('#selected_ids_row_' + that.dataTableId, section).data("options", that.selectOptions);
@@ -707,7 +706,6 @@ define(function(require) {
         $('input.check_item', this).prop('checked', true);
 
         $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).change();
-        $('#selected_resource_id_' + that.dataTableId, section).hide();
 
         $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).change();
         $('#selected_resource_name_' + that.dataTableId, section).show();
@@ -735,7 +733,6 @@ define(function(require) {
     $('#' + that.dataTableId + '_search', section).val("").trigger("input");
     $('#refresh_button_' + that.dataTableId).click();
 
-    $('#selected_resource_id_' + that.dataTableId, section).val("").hide();
     $('#selected_resource_name_' + that.dataTableId, section).text("").hide();
 
     $('#selected_resource_' + that.dataTableId, section).hide();
@@ -888,7 +885,6 @@ define(function(require) {
       //        $('input.check_item', this).prop('checked', true);
 
       $('#selected_resource_id_' + that.dataTableId, section).val(row_id).change();
-      $('#selected_resource_id_' + that.dataTableId, section).hide();
 
       $('#selected_resource_name_' + that.dataTableId, section).text(row_name).change();
       $('#selected_resource_name_' + that.dataTableId, section).show();
