@@ -163,32 +163,40 @@ define(function(require) {
                 template_json.VMTEMPLATE.NAME + 
               '</span>' +
             '</h3>'+
-            '<div class="large-8 columns left capacityContext' + template_json.VMTEMPLATE.ID + '">' +
-              '<div class="row">'+
-                '<div class="large-12 columns">'+
-                  '<h3 class="subheader text-right">'+
-                    '<span class="left">'+
-                      '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
-                      Locale.tr("Capacity")+
-                    '</span>'+
-                    '<br>'+
-                  '</h3>'+
+            '<div class="row">'+
+              '<div class="large-8 columns left capacityContext' + template_json.VMTEMPLATE.ID + '">' +
+                '<div class="row">'+
+                  '<div class="large-12 columns">'+
+                    '<h3 class="subheader text-right">'+
+                      '<span class="left">'+
+                        '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
+                        Locale.tr("Capacity")+
+                      '</span>'+
+                      '<br>'+
+                    '</h3>'+
+                  '</div>'+
                 '</div>'+
-              '</div>'+
-              '<div class="row">'+
-                '<div class="large-12 columns">'+
-                  CapacityInputs.html() +
-                  '<br>' +
+                '<div class="row">'+
+                  '<div class="large-12 columns">'+
+                    CapacityInputs.html() +
+                    '<br>' +
+                  '</div>'+
                 '</div>'+
-              '</div>'+
+              '</div>' +
             '</div>' +
-            '<div class="large-8 columns left disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
-            '<div class="large-12 columns nicsContext' + template_json.VMTEMPLATE.ID + '">'+
-              '<div class="provision_network_selector"></div>' +
+            '<div class="row">'+
+              '<div class="large-8 columns left disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
+            '</div>' +
+            '<div class="row">'+
+              '<div class="large-12 columns nicsContext' + template_json.VMTEMPLATE.ID + '">'+
+                '<div class="provision_network_selector"></div>' +
+                '<br>' +
+              '</div>' +
+            '</div>' +
+            '<div class="row">'+
+              '<div class="large-12 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
               '<br>' +
-            '</div>' +
-            '<div class="large-12 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
-            '<br>');
+            '</div>');
 
           DisksResize.insert(template_json, $(".disksContext"  + template_json.VMTEMPLATE.ID, context));
           NicsSection.insert(template_json, $(".nicsContext"  + template_json.VMTEMPLATE.ID, context));
