@@ -628,7 +628,8 @@ define(function(require) {
         }
       })
     }
-    else
+
+    if(ips.length==0)
     {
       if (nic != undefined) {
         if (!$.isArray(nic)) {
