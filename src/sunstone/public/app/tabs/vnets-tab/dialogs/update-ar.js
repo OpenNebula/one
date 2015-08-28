@@ -55,7 +55,7 @@ define(function(require) {
     that.arTab.setup(context, "update_ar");
 
     $('#update_ar_form',context).on('invalid.fndtn.abide', function () {
-        Notifier.notifyError(tr("One or more required fields are missing."));
+        Notifier.notifyError(Locale.tr("One or more required fields are missing."));
     }).on('valid.fndtn.abide', function () {
         var data = that.arTab.retrieve();
 

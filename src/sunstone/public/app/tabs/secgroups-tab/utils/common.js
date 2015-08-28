@@ -103,7 +103,7 @@ define(function(require) {
 
   function _icmpToSt(icmp_type){
     switch( icmp_type ){
-      case "":    return tr("All");
+      case "":    return Locale.tr("All");
       case "0":   return "0: Echo Reply";
       case "3":   return "3: Destination Unreachable";
       case "4":   return "4: Source Quench";

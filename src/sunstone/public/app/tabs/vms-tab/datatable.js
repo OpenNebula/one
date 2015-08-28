@@ -139,7 +139,7 @@ define(function(require) {
         Vnc.lock();
         Sunstone.runAction("VM.startvnc_action", vmId);
       } else {
-        Notifier.notifyError(tr("VNC Connection in progress"))
+        Notifier.notifyError(Locale.tr("VNC Connection in progress"))
       }
 
       return false;

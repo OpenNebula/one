@@ -198,10 +198,10 @@ define(function(require) {
 
         if (that.element.TEMPLATE.BODY.ready_status_gate) {
           if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
-            info.push('<span class="has-tip" title="'+tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+            info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
 
           } else {
-            info.push('<span class="has-tip" title="'+tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+            info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
           }
         } else {
           info.push("");
@@ -236,7 +236,7 @@ define(function(require) {
           Vnc.lock();
           Sunstone.runAction("VM.startvnc_action", vmId);
         } else {
-          Notifier.notifyError(tr("VNC Connection in progress"));
+          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
         }
 
         return false;

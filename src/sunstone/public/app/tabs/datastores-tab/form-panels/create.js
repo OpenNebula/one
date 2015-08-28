@@ -254,7 +254,7 @@ define(function(require) {
     var cluster_id = $(".resource_list_select", $('#datastore_cluster_raw', dialog)).val();
 
     if (!cluster_id) {
-      Notifier.notifyError(tr("Please select a cluster for this datastore"));
+      Notifier.notifyError(Locale.tr("Please select a cluster for this datastore"));
       return false;
     }
 
