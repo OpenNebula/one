@@ -26,6 +26,7 @@ define(function(require) {
 
   var ADD_AR_DIALOG_ID = require('../dialogs/add-ar/dialogId');
   var UPDATE_AR_DIALOG_ID = require('../dialogs/update-ar/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
   /*
     CONSTRUCTOR
@@ -152,11 +153,22 @@ define(function(require) {
     if (Config.isTabActionEnabled("vnets-tab", "Network.remove_ar")) {
       context.off("click", 'button#rm_ar_button');
       context.on("click", 'button#rm_ar_button', function(){
-        // TODO: confirm?
         var ar_id = $(this).attr('ar_id');
 
-        var obj = {ar_id: ar_id};
-        Sunstone.runAction('Network.rm_ar',that.element.ID,obj);
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will delete all the addresses in this range"),
+          //question :
+          submit : function(){
+            var obj = {ar_id: ar_id};
+            Sunstone.runAction('Network.rm_ar',that.element.ID,obj);
+
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
 
         return false;
       });
