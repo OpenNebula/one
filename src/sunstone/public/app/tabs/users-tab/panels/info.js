@@ -176,7 +176,7 @@ define(function(require) {
     context.on("change", "#table_order_select", function() {
       var template_str = 'TABLE_ORDER = "'+$(this).val()+'"';
 
-      Sunstone.runAction("User.append_template", that.element.ID, template_str);
+      Sunstone.runAction("User.append_template_refresh", that.element.ID, template_str);
     });
 
     // Change language
