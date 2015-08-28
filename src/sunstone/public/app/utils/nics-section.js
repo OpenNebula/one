@@ -231,7 +231,7 @@ define(function(require) {
           '<dl class="accordion provision_nic_accordion" data-accordion="provision_accordion_' + provision_nic_accordion_id + '">' +
           '</dl>' +
           '<br>' +
-          '<a class="button large-12 medium radius secondary provision_add_network_interface" style="padding: 1rem; color: #555; ' + (hide_add_button ? 'display:none;' : '') + '">' +
+          '<a class="button radius secondary provision_add_network_interface" style="width:inherit; padding: 1rem; color: #555; ' + (hide_add_button ? 'display:none;' : '') + '">' +
             Locale.tr("Add another Network Interface") +
           '</a>' +
         '</div>' +

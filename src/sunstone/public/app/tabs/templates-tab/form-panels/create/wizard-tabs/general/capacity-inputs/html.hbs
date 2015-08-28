@@ -9,17 +9,17 @@
         {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
       </label>
     </div>
-    <div class="large-8 columns memory_slider_container">
+    <div class="medium-8 columns memory_slider_container">
       <div id="memory_slider" class="range-slider radius" data-slider data-options="start: 0; end: 409600; step: 12800;">
         <span class="range-slider-handle"></span>
         <span class="range-slider-active-segment"></span>
         <input type="hidden">
       </div>
     </div>
-    <div class="large-2 columns">
+    <div class="medium-2 small-6 columns">
       <input type="text" id="MEMORY_TMP" name="memory_tmp" size="4" />
     </div>
-    <div class="large-2 columns">
+    <div class="medium-2 small-6 columns">
       <select id="memory_unit" name="MEMORY_UNIT">
         <option value="MB">{{tr "MB"}}</option>
         <option value="GB">{{tr "GB"}}</option>
@@ -35,14 +35,14 @@
         {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
       </label>
     </div>
-    <div class="large-10 columns">
+    <div class="large-10 medium-10 columns">
       <div id="cpu_slider" class="range-slider radius" data-slider data-options="start: 0; end: 1600; step: 50;">
         <span class="range-slider-handle"></span>
         <span class="range-slider-active-segment"></span>
         <input type="hidden">
       </div>
     </div>
-    <div class="large-2 columns">
+    <div class="large-2 medium-2 columns">
       <input type="text" wizard_field="CPU" id="CPU" name="cpu"/>
     </div>
   </div>
@@ -57,17 +57,16 @@
         {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
       </label>
     </div>
-    <div class="large-10 columns">
+    <div class="large-10 medium-10 columns">
       <div id="vcpu_slider" class="range-slider radius" data-slider data-options="start: 100; end: 1600; step: 100;">
         <span class="range-slider-handle"></span>
         <span class="range-slider-active-segment"></span>
         <input type="hidden">
       </div>
     </div>
-    <div class="large-2 columns">
+    <div class="large-2 medium-2 columns">
       <input type="text" wizard_field="VCPU" id="VCPU" name="vcpu"/>
     </div>
   </div>
-  <div class="large-5 columns"></div>
 </div>
 {{/advancedSection}}
