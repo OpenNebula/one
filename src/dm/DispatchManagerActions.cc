@@ -795,6 +795,12 @@ int DispatchManager::finalize(
     if(host_id != -1)
     {
         host = hpool->get(host_id,true);
+        if ( host == 0 )
+        {
+            oss << "Error getting host " << host_id;
+            NebulaLog::log("DiM",Log::ERROR,oss);
+            return -1;
+        }
         is_public_host = host->is_public_cloud();
         host->unlock();
     }
