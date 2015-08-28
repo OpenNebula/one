@@ -5,6 +5,7 @@ define(function(require) {
 
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var TemplateHTML = require('hbs!./instantiate/html');
+  var TemplateRowHTML = require('hbs!./instantiate/templateRow');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var OpenNebulaTemplate = require('opennebula/template');
@@ -158,45 +159,10 @@ define(function(require) {
         timeout: true,
         success: function (request, template_json) {
           templatesContext.append(
-            '<h3 style="border-bottom: 1px solid #efefef; padding-bottom: 10px;">' + 
-              '<span style="border-bottom: 2px solid #0098c3; padding: 0px 50px 10px 0px;">' +
-                template_json.VMTEMPLATE.NAME + 
-              '</span>' +
-            '</h3>'+
-            '<div class="row">'+
-              '<div class="large-8 columns left capacityContext' + template_json.VMTEMPLATE.ID + '">' +
-                '<div class="row">'+
-                  '<div class="large-12 columns">'+
-                    '<h3 class="subheader text-right">'+
-                      '<span class="left">'+
-                        '<i class="fa fa-laptop fa-lg"></i>&emsp;'+
-                        Locale.tr("Capacity")+
-                      '</span>'+
-                      '<br>'+
-                    '</h3>'+
-                  '</div>'+
-                '</div>'+
-                '<div class="row">'+
-                  '<div class="large-12 columns">'+
-                    CapacityInputs.html() +
-                    '<br>' +
-                  '</div>'+
-                '</div>'+
-              '</div>' +
-            '</div>' +
-            '<div class="row">'+
-              '<div class="large-8 columns left disksContext' + template_json.VMTEMPLATE.ID + '"></div>' +
-            '</div>' +
-            '<div class="row">'+
-              '<div class="large-12 columns nicsContext' + template_json.VMTEMPLATE.ID + '">'+
-                '<div class="provision_network_selector"></div>' +
-                '<br>' +
-              '</div>' +
-            '</div>' +
-            '<div class="row">'+
-              '<div class="large-12 columns large-centered template_user_inputs' + template_json.VMTEMPLATE.ID + '"></div>'+
-              '<br>' +
-            '</div>');
+            TemplateRowHTML(
+              { element: template_json.VMTEMPLATE,
+                capacityInputsHTML: CapacityInputs.html()
+              }) );
 
           DisksResize.insert(template_json, $(".disksContext"  + template_json.VMTEMPLATE.ID, context));
           NicsSection.insert(template_json, $(".nicsContext"  + template_json.VMTEMPLATE.ID, context));
