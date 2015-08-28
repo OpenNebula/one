@@ -19,7 +19,7 @@
 
   <body>
 
-    <% if settings.config[:auth] == "x509" %>
+    <% if (settings.config[:auth] == "x509") || (settings.config[:auth] == "remote") %>
     <%= erb :_login_x509 %>
     <% else %>
     <%= erb :_login_standard %>
