@@ -11,6 +11,7 @@
     <% end %>
 
     <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
+    <% halt 500, "OpenNebula is unreachable" if view.nil? %>
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
       var view = JSON.parse('<%= view.to_json %>')
