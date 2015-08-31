@@ -362,6 +362,9 @@ module KVM
             else
                 # Search the disk in system datastore when the source
                 # is a persistent image with snapshots
+                source = nil
+                current_snap_id = nil
+
                 if !file.match(/.*disk\.\d+$/) && systemds
                     source = file.gsub(%r{/+}, '/')
 
@@ -373,6 +376,7 @@ module KVM
 
                         if link == source
                             file = disk
+                            current_snap_id = link.split('/').last
                             break
                         end
                     end
@@ -392,6 +396,12 @@ module KVM
 
                 # Get snapshots
                 Dir[file + '.snap/*'].each do |snap|
+                    if current_snap_id
+                        next if snap.split('/').last == current_snap_id
+                    else
+                        next if source == snap
+                    end
+
                     text = `qemu-img info --output=json #{snap}`
                     next if !$? || !$?.success?
 
