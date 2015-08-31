@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+UNSUPPORTED_RUBY = (RUBY_VERSION =~ /^1.8/) != nil
+
 begin
     require 'zendesk_api'
 rescue LoadError
@@ -72,7 +74,7 @@ helpers do
 
     def zrequest_to_one(zrequest)
         one_zrequest = {
-            "id" => zrequest.id, ### TODO: .id in 1.8.7 fails!!
+            "id" => zrequest.id,
             "url" => zrequest.url,
             "subject" => zrequest.subject,
             "description" => zrequest.description,
@@ -83,7 +85,7 @@ helpers do
         }
 
         zrequest.custom_fields.each { |field|
-            case field.id ### TODO: .id in 1.8.7 fails!!
+            case field.id
             when 391130
                 one_zrequest["opennebula_version"] = field.value
             when 391197
@@ -109,6 +111,10 @@ helpers do
     end
 
     def check_zendesk_api_gem
+        if UNSUPPORTED_RUBY
+            error 500, "Ruby version >= 1.9 is required"
+        end
+
         if !ZENDESK_API_GEM
             error 500, "zendesk_api gem missing"
         end
