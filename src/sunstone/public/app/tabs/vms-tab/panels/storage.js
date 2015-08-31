@@ -179,7 +179,7 @@ define(function(require) {
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
-            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
+            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
               <i class="fa fa-camera fa-fw"></i>' + Locale.tr("Snapshot") +
               '</a>');
@@ -300,7 +300,20 @@ define(function(require) {
       context.off('click', '.detachdisk');
       context.on('click', '.detachdisk', function() {
         var disk_id = $(this).parents('tr').attr('disk_id');
-        Sunstone.runAction('VM.detachdisk', that.element.ID, disk_id);
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will detach the disk inmediately"),
+          //question :
+          submit : function(){
+            Sunstone.runAction('VM.detachdisk', that.element.ID, disk_id);
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
         return false;
       });
     }

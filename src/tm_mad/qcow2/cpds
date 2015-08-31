@@ -74,18 +74,16 @@ DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
 
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
-if [ "$CLONE" != "YES" ]; then
-    SRC_PATH="$DISK_SRC"
-fi
-
 if [ "$SNAP_ID" != "-1" ]; then
+    [ "$CLONE" != "YES" ] && SRC_PATH="$DISK_SRC"
     SRC_PATH="$SRC_PATH.snap/$SNAP_ID"
 fi
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
-CPSCRIPT=$(cat <<EOF
+
+CPDS_CMD=$(cat <<EOF
 SRC_READLN=\$($READLINK -f $SRC_PATH)
 DST_READLN=\$($READLINK -f $DST_PATH)
 
@@ -97,8 +95,23 @@ fi
 EOF
 )
 
+# TODO: after taking a snapshot, if you try to save the current state, and if
+# cache='none', it will fail, as the changes are not commited to the image. This
+# happens even after running 'sync' inside the guest and in the hypervisor. A
+# solution that does work is to run:
+#
+#     $ touch $DST_PATH
+#     $ virsh blockcopy --domain $DEPLOY_ID $TARGET $DST_PATH --wait --verbose
+#
+# However this is in turn problematic because there is no easy way to tell if the
+# global configuration for taking snapshot is live, detach or suspend. If it's
+# live, and the VM is running, the virsh blockcopy can be run, otherwise it should
+# never be run. If we can detect this configuration parameter in this script, and
+# check with libvirt if the vm is running, we should have all the information we
+# need to do choose whether to run the blockcopy or not.
+
 log "Copying $SRC_PATH to datastore as $DST_PATH"
 
-ssh_exec_and_log $SRC_HOST "$CPSCRIPT" "Could not move image $DST_PATH"
+ssh_exec_and_log $SRC_HOST "$CPDS_CMD" "Could not move image $DST_PATH"
 
 exit 0

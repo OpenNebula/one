@@ -1,0 +1,147 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# snap_create host:parent_image snap_id vmid ds_id
+
+SRC=$1
+SNAP_ID=$2
+VMID=$3
+DSID=$4
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    DATASTORES=/var/lib/one/datastores
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    DATASTORES=$ONE_LOCATION/var/datastores
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+. $TMCOMMON
+
+SRC_PATH=$(arg_path $SRC)
+SRC_HOST=$(arg_host $SRC)
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${SRC} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
+                    /VM/DEPLOY_ID \
+                    '%m%/VM/TEMPLATE/DISK/TARGET')
+
+DISK_SRC="${XPATH_ELEMENTS[j++]}"
+CLONE="${XPATH_ELEMENTS[j++]}"
+TARGET="${XPATH_ELEMENTS[j++]}"
+DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
+ALL_DISKS="${XPATH_ELEMENTS[j++]}"
+
+SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
+
+SYSTEM_DS_DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
+
+if [ "$CLONE" = "YES" ]; then
+    DISK_PATH="${SYSTEM_DS_DISK_PATH}"
+else
+    DISK_PATH=$DISK_SRC
+fi
+
+NEXT_SNAP_ID=$(($SNAP_ID+1))
+
+SNAP_DIR="${DISK_PATH}.snap"
+SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
+
+# virsh snapshot-create by default creates snapshots for all the disks that
+# are not read only. To be able to make a snapshot in only one of the disks
+# an xml must be created describing all of the disks and setting the value
+# snapshot='no' to the disks that are not going to be snapshotted.
+
+# <domainsnapshot>
+#   <name>1</name>
+#   <description>snap 1</description>
+#   <disks>
+#     <disk name='vda' snapshot='no'/>
+#     <disk name='vdb'>
+#       <source file='/var/lib/one/datastores/1/09eec196c67b38dea41048a628978600.snap/1'/>
+#     </disk>
+#     <disk name='vdc' snapshot='no'/>
+#   </disks>
+# </domainsnapshot>
+
+DOC="
+<domainsnapshot>
+  <name>${DISK_ID}-${SNAP_ID}</name>
+  <description>snap ${DISK_ID}-${SNAP_ID}</description>
+  <disks>"
+
+for disk in $ALL_DISKS; do
+    if [ "$disk" = "$TARGET" ]; then
+        DOC="$DOC
+    <disk name='$disk' snapshot='external'>
+      <source file='$SNAP_PATH'/>
+    </disk>"
+    else
+        DOC="$DOC
+    <disk name='$disk' snapshot='no'/>"
+    fi
+done
+
+DOC="$DOC
+  </disks>
+</domainsnapshot>"
+
+CMD=$(cat <<EOT
+set -ex
+
+mkdir -p "${SNAP_DIR}"
+
+PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
+
+# The file must be created beforehand or libvirt complains with
+# "permission denied"
+touch $SNAP_PATH
+
+# Temporary xml file
+FILENAME="/tmp/snapshot-$VMID-$DISK_ID-$SNAP_ID"
+echo "$DOC" > \$FILENAME
+
+virsh -c qemu:///system snapshot-create $DEPLOY_ID --disk-only --atomic \
+    --xmlfile \$FILENAME
+
+rm \${FILENAME}
+
+qemu-img rebase -u -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
+ln -sf $SNAP_PATH $SYSTEM_DS_DISK_PATH
+EOT
+)
+
+ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+                 "Error creating snapshot ${SNAP_PATH}"
+

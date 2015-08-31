@@ -31,6 +31,7 @@ define(function(require){
                 '<span class="cost_value">0.00</span> '+
                 '<small style="color: #999;">'+Locale.tr("COST")+' / ' + Locale.tr("HOUR") + '</small>'+
               '</span>'+
+              '<br>'+
             '</h3>'+
           '</div>'+
         '</div>'+
@@ -40,8 +41,7 @@ define(function(require){
               '<i class="fa fa-spinner fa-spin"></i>'+
             '</span>'+
           '</div>'+
-        '</div>'+
-        '<br>')
+        '</div>')
 
       OpenNebula.Template.show({
         data : {
@@ -94,7 +94,7 @@ define(function(require){
             diskContext.data('original_size', sizeGB);
             RangeSlider.insert({
               'label': disk.IMAGE,
-              'unitLabel': 'GBs',
+              'unitLabel': 'GB',
               'name': 'SIZE',
               'start': sizeGB,
               'end': sizeGB + 500,

@@ -156,7 +156,7 @@ define(function(require) {
       });
 
       that.uploader.on('progress', function() {
-        $('span.meter', $('div[id="files-' + fileName + 'progressBar"]')).css('width', that.uploader.progress() * 100.0 + '%')
+        $('span.meter', $('div[id="files-' + fileName + 'progressBar"]')).css('width', this.progress() * 100.0 + '%')
       });
     }
 

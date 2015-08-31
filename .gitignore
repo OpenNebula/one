@@ -20,3 +20,8 @@ src/oca/java/share/doc
 
 src/sunstone/public/.sass-cache
 src/sunstone/public/node_modules
+src/sunstone/public/bower_components
+src/sunstone/public/css/app.css
+src/sunstone/public/css/app.min.css
+src/sunstone/public/dist/
+.tx/config

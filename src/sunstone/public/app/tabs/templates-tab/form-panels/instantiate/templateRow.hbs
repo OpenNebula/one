@@ -1,0 +1,40 @@
+<h3 style="border-bottom: 1px solid #efefef; padding-bottom: 10px;">
+  <span style="border-bottom: 2px solid #0098c3; padding: 0px 50px 10px 0px;">
+    {{element.NAME}}
+  </span>
+</h3>
+<div class="row">
+  <div class="large-8 columns left capacityContext{{element.ID}}">
+    <div class="row">
+      <div class="large-12 columns">
+        <h3 class="subheader text-right">
+          <span class="left">
+            <i class="fa fa-laptop fa-lg"></i>&emsp;{{tr "Capacity"}}
+          </span>
+          <br>
+        </h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        {{{capacityInputsHTML}}}
+        <br>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="large-8 columns left disksContext{{element.ID}}"></div>
+</div>
+<div class="row">
+  <div class="large-12 columns nicsContext{{element.ID}}">
+    <div class="provision_network_selector">
+    </div>
+    <br>
+  </div>
+</div>
+<div class="row">
+  <div class="large-12 columns large-centered template_user_inputs{{element.ID}}">
+  </div>
+  <br>
+</div>

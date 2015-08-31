@@ -106,7 +106,7 @@ define(function(require) {
       });
 
       uploader.on('progress', function() {
-        $('span.meter', $('div[id="'+fileName+'progressBar"]', tabContext)).css('width', uploader.progress()*100.0+'%')
+        $('span.meter', $('div[id="'+fileName+'progressBar"]', tabContext)).css('width', this.progress()*100.0+'%')
       });
 
       uploader.on('fileSuccess', function(file) {

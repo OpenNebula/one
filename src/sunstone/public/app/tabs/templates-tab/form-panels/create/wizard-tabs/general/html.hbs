@@ -53,7 +53,39 @@
     <input type="text" id="vcenter_template_uuid" name="name"/>
   </div>
 </div>
-{{{capacityInputsHTML}}}
+<div class="row">
+  <div class="large-7 columns">
+    {{{capacityInputsHTML}}}
+  </div>
+  <div class="large-5 columns">
+    {{#isFeatureEnabled "showback"}}
+    <fieldset>
+      <legend>{{tr "Cost"}}</legend>
+        <div class="large-6 columns">
+          <label  for="MEMORY_COST">
+            {{tr "Memory"}}
+            {{{tip (tr "Cost of each MB per hour")}}}
+          </label>
+          <input type="text" wizard_field="MEMORY_COST" id="MEMORY_COST" name="name"/>
+        </div>
+        <div class="large-6 columns">
+          <label  for="CPU_COST">
+            {{tr "CPU"}}
+            {{{tip (tr "Cost of each CPU per hour")}}}
+          </label>
+          <input type="text" wizard_field="CPU_COST" id="CPU_COST" name="name"/>
+        </div>
+        <div class="large-6 columns left">
+          <label  for="DISK_COST">
+            {{tr "Disk"}}
+            {{{tip (tr "Cost of each MB per hour")}}}
+          </label>
+          <input type="text" wizard_field="DISK_COST" id="DISK_COST" name="name"/>
+        </div>
+    </fieldset>
+    {{/isFeatureEnabled}}
+  </div>
+</div>
 <div class="row">
   <div class="large-6 columns">
     <input type="checkbox" id="sunstone_capacity_select" name="name"/>

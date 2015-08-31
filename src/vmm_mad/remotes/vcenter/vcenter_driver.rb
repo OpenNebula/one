@@ -232,14 +232,22 @@ class VIClient
     # @return [Hash] in the form
     #   {dc_name [String] => ClusterComputeResources Names [Array - String]}
     ########################################################################
-    def hierarchy
+    def hierarchy(one_client=nil)
         vc_hosts = {}
 
         datacenters = get_entities(@root, 'Datacenter')
 
+        hpool = OpenNebula::HostPool.new((one_client||@one))
+        rc    = hpool.info
+
         datacenters.each { |dc|
             ccrs = get_entities(dc.hostFolder, 'ClusterComputeResource')
-            vc_hosts[dc.name] = ccrs.collect { |c| c.name }
+            vc_hosts[dc.name] = []
+            ccrs.each { |c|
+                if !hpool["HOST[NAME=\"#{c.name}\"]"]
+                    vc_hosts[dc.name] << c.name
+                end
+              }
         }
 
         return vc_hosts
@@ -257,7 +265,9 @@ class VIClient
         tpool = OpenNebula::TemplatePool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
         rc = tpool.info
-        # TODO check error
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
 
         datacenters = get_entities(@root, 'Datacenter')
 
@@ -303,8 +313,10 @@ class VIClient
         rc = vmpool.info
 
         hostpool = OpenNebula::HostPool.new((one_client||@one))
-        rc = hostpool.info
-        # TODO check error
+        rc       = hostpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
 
         datacenters = get_entities(@root, 'Datacenter')
 
@@ -386,9 +398,11 @@ class VIClient
 
         vnpool = OpenNebula::VirtualNetworkPool.new(
             (one_client||@one), OpenNebula::Pool::INFO_ALL)
-        rc = vnpool.info
-        # TODO check error
-        #
+        rc     = vnpool.info
+        if OpenNebula.is_error?(rc)
+            raise "Error contacting OpenNebula #{rc.message}"
+        end
+
         datacenters = get_entities(@root, 'Datacenter')
 
         datacenters.each { |dc|
@@ -760,7 +774,7 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.cancel(deploy_id, hostname, lcm_state)
+    def self.cancel(deploy_id, hostname, lcm_state, keep_disks)
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 shutdown(deploy_id, hostname, lcm_state)
@@ -770,9 +784,12 @@ class VCenterVm
                 vm          = connection.find_vm_template(deploy_id)
 
                 begin
-                    vm.PowerOffVM_Task.wait_for_completion
+                    if vm.summary.runtime.powerState == "poweredOn"
+                        vm.PowerOffVM_Task.wait_for_completion
+                    end
                 rescue
                 end
+                detach_all_disks(vm) if keep_disks
                 vm.Destroy_Task.wait_for_completion
         end
     end
@@ -841,7 +858,7 @@ class VCenterVm
     #  @param deploy_id vcenter identifier of the VM
     #  @param hostname name of the host (equals the vCenter cluster)
     ############################################################################
-    def self.shutdown(deploy_id, hostname, lcm_state)
+    def self.shutdown(deploy_id, hostname, lcm_state, keep_disks)
         hid         = VIClient::translate_hostname(hostname)
         connection  = VIClient.new(hid)
 
@@ -854,6 +871,7 @@ class VCenterVm
                 rescue
                 end
                 vm.PowerOffVM_Task.wait_for_completion
+                detach_all_disks(vm) if keep_disks
                 vm.Destroy_Task.wait_for_completion
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 begin
@@ -1187,6 +1205,13 @@ private
     end
 
     ########################################################################
+    #  Checks if a RbVmomi::VIM::VirtualDevice is a disk
+    ########################################################################
+    def self.is_disk?(device)
+        !device.class.ancestors.index(RbVmomi::VIM::VirtualDisk).nil?
+    end
+
+    ########################################################################
     # Returns the spec to reconfig a VM and add a NIC
     ########################################################################
     def self.calculate_addnic_spec(vm, mac, bridge, model)
@@ -1394,6 +1419,26 @@ private
         vm.PowerOnVM_Task.wait_for_completion
 
         return vm_uuid
+    end
+
+    ############################################################################
+    # Detach all disks from a VM
+    ############################################################################
+    def self.detach_all_disks(vm)
+        disks  = vm.config.hardware.device.select { |d| is_disk?(d) }
+
+        return if disks.nil?
+
+        spec = { :deviceChange => [] }
+
+        disks.each{|disk|
+            spec[:deviceChange] <<  {
+                :operation => :remove,
+                :device => disk
+            }
+        }
+
+        vm.ReconfigVM_Task(:spec => spec).wait_for_completion
     end
 end
 end

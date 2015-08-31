@@ -15,14 +15,328 @@
 /* ------------------------------------------------------------------------*/
 
 #include <limits.h>
-#include <string.h>
 
 #include <iostream>
 #include <sstream>
-#include <algorithm>
+#include <stdexcept>
+#include <iomanip>
 
 #include "HostShare.h"
 
+using namespace std;
+
+/* ************************************************************************ */
+/* HostSharePCI                                                             */
+/* ************************************************************************ */
+
+int HostSharePCI::from_xml_node(const xmlNodePtr node)
+{
+    int rc = Template::from_xml_node(node);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return init();
+}
+
+/* ------------------------------------------------------------------------*/
+
+int HostSharePCI::init()
+{
+    vector<Attribute *> devices;
+
+    int num_devs = get("PCI", devices);
+
+    for (int i=0; i < num_devs; i++)
+    {
+        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(devices[i]);
+
+        if (pci == 0)
+        {
+            return -1;
+        }
+
+        PCIDevice * pcidev = new PCIDevice(pci);
+
+        pci_devices.insert(make_pair(pcidev->address, pcidev));
+    }
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+bool HostSharePCI::test(const vector<Attribute *> &devs) const
+{
+    vector<Attribute *>::const_iterator it;
+    map<string, PCIDevice *>::const_iterator jt;
+
+    std::set<string> assigned;
+
+    unsigned int vendor_id, device_id, class_id;
+    bool found;
+
+    for ( it=devs.begin(); it!= devs.end(); it++)
+    {
+        const VectorAttribute* pci = dynamic_cast<const VectorAttribute *>(*it);
+
+        if ( pci == 0 )
+        {
+            return false;
+        }
+
+        vendor_id = get_pci_value("VENDOR", pci);
+        device_id = get_pci_value("DEVICE", pci);
+        class_id  = get_pci_value("CLASS", pci);
+
+        for (jt=pci_devices.begin(), found=false; jt!=pci_devices.end(); jt++)
+        {
+            PCIDevice * dev = jt->second;
+
+            if ((class_id  == 0 || dev->class_id  == class_id)  &&
+                (vendor_id == 0 || dev->vendor_id == vendor_id) &&
+                (device_id == 0 || dev->device_id == device_id) &&
+                dev->vmid  == -1 &&
+                assigned.find(dev->address) == assigned.end())
+            {
+                assigned.insert(dev->address);
+                found=true;
+
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+void HostSharePCI::add(vector<Attribute *> &devs, int vmid)
+{
+    vector<Attribute *>::iterator it;
+    map<string, PCIDevice *>::const_iterator jt;
+
+    unsigned int vendor_id, device_id, class_id;
+
+    for ( it=devs.begin(); it!= devs.end(); it++)
+    {
+        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
+
+        if ( pci == 0 )
+        {
+            return;
+        }
+
+        vendor_id = get_pci_value("VENDOR", pci);
+        device_id = get_pci_value("DEVICE", pci);
+        class_id  = get_pci_value("CLASS", pci);
+
+        for (jt=pci_devices.begin(); jt!=pci_devices.end(); jt++)
+        {
+            PCIDevice * dev = jt->second;
+
+            if ((class_id  == 0 || dev->class_id  == class_id)  &&
+                (vendor_id == 0 || dev->vendor_id == vendor_id) &&
+                (device_id == 0 || dev->device_id == device_id) &&
+                dev->vmid  == -1 )
+            {
+                dev->vmid = vmid;
+                dev->attrs->replace("VMID", vmid);
+
+                pci->replace("DOMAIN",dev->attrs->vector_value("DOMAIN"));
+                pci->replace("BUS",dev->attrs->vector_value("BUS"));
+                pci->replace("SLOT",dev->attrs->vector_value("SLOT"));
+                pci->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
+
+                pci->replace("ADDRESS",dev->attrs->vector_value("ADDRESS"));
+            }
+        }
+    }
+}
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+void HostSharePCI::del(const vector<Attribute *> &devs)
+{
+    vector<Attribute *>::const_iterator it;
+    map<string, PCIDevice *>::iterator pci_it;
+
+    for ( it=devs.begin(); it!= devs.end(); it++)
+    {
+        const VectorAttribute * pci = dynamic_cast<const VectorAttribute *>(*it);
+
+        if ( pci == 0 )
+        {
+            continue;
+        }
+
+        pci_it = pci_devices.find(pci->vector_value("ADDRESS"));
+
+        if (pci_it != pci_devices.end())
+        {
+            pci_it->second->vmid = -1;
+            pci_it->second->attrs->replace("VMID",-1);
+        }
+    }
+};
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+void HostSharePCI::set_monitorization(vector<Attribute*> &pci_att)
+{
+    vector<Attribute*>::iterator it;
+    map<string, PCIDevice*>::iterator pci_it;
+
+    string address;
+
+    std::set<string> missing;
+    std::set<string>::iterator jt;
+
+    for (pci_it = pci_devices.begin(); pci_it != pci_devices.end(); pci_it++)
+    {
+        missing.insert(pci_it->first);
+    }
+
+    for (it = pci_att.begin(); it != pci_att.end(); it++)
+    {
+        VectorAttribute * pci = dynamic_cast<VectorAttribute *>(*it);
+
+        if ( pci == 0 )
+        {
+            continue;
+        }
+
+        address = pci->vector_value("ADDRESS");
+
+        if (address.empty())
+        {
+            delete pci;
+            continue;
+        }
+
+        pci_it = pci_devices.find(address);
+
+        if (pci_it != pci_devices.end())
+        {
+            missing.erase(address);
+            delete pci;
+
+            continue;
+        }
+
+        PCIDevice * dev = new PCIDevice(pci);
+
+        pci_devices.insert(make_pair(address, dev));
+
+        set(pci);
+    }
+
+    for ( jt = missing.begin() ; jt != missing.end(); jt ++ )
+    {
+        pci_it = pci_devices.find(*jt);
+
+		if ( pci_it->second->vmid != -1 )
+		{
+			continue;
+		}
+
+        remove(pci_it->second->attrs);
+
+        delete pci_it->second->attrs;
+
+        delete pci_it->second;
+
+        pci_devices.erase(pci_it);
+
+    }
+};
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+unsigned int HostSharePCI::get_pci_value(const char * name,
+    const VectorAttribute * pci_device)
+{
+    string temp;
+
+    temp = pci_device->vector_value(name);
+
+    if (temp.empty())
+    {
+        return 0;
+    }
+
+    unsigned int  pci_value;
+    istringstream iss(temp);
+
+    iss >> hex >> pci_value;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return 0;
+    }
+
+    return pci_value;
+}
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
+    : vmid(-1), attrs(_attrs)
+{
+    vendor_id = get_pci_value("VENDOR", attrs);
+    device_id = get_pci_value("DEVICE", attrs);
+    class_id  = get_pci_value("CLASS", attrs);
+
+    if (attrs->vector_value("VMID", vmid) == -1)
+	{
+		attrs->replace("VMID", -1);
+	}
+
+    attrs->vector_value("ADDRESS", address);
+};
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+ostream& operator<<(ostream& os, const HostSharePCI& pci)
+{
+    map<string, HostSharePCI::PCIDevice *>::const_iterator it;
+
+	os  << right << setw(15)<< "PCI ADDRESS"<< " "
+		<< right << setw(8) << "CLASS"  << " "
+		<< right << setw(8) << "VENDOR" << " "
+		<< right << setw(8) << "DEVICE" << " "
+		<< right << setw(8) << "VMID"   << " "
+		<< endl << setw(55) << setfill('-') << "-" << setfill(' ') << endl;
+
+    for (it=pci.pci_devices.begin(); it!=pci.pci_devices.end(); it++)
+    {
+        HostSharePCI::PCIDevice * dev = it->second;
+
+		os << right << setw(15)<< dev->address   << " "
+		   << right << setw(8) << dev->class_id  << " "
+		   << right << setw(8) << dev->vendor_id << " "
+		   << right << setw(8) << dev->device_id << " "
+		   << right << setw(8) << dev->vmid      << " " << endl;
+    }
+
+	return os;
+}
 /* ************************************************************************ */
 /* HostShare :: Constructor/Destructor                                      */
 /* ************************************************************************ */
@@ -57,7 +371,7 @@ ostream& operator<<(ostream& os, HostShare& hs)
 
 string& HostShare::to_xml(string& xml) const
 {
-    string template_xml;
+    string ds_xml, pci_xml;
     ostringstream   oss;
 
     oss << "<HOST_SHARE>"
@@ -74,7 +388,8 @@ string& HostShare::to_xml(string& xml) const
           << "<USED_MEM>"   << used_mem   << "</USED_MEM>"
           << "<USED_CPU>"   << used_cpu   << "</USED_CPU>"
           << "<RUNNING_VMS>"<<running_vms <<"</RUNNING_VMS>"
-          << ds_template.to_xml(template_xml)
+          << ds.to_xml(ds_xml)
+          << pci.to_xml(pci_xml)
         << "</HOST_SHARE>";
 
     xml = oss.str();
@@ -111,7 +426,7 @@ int HostShare::from_xml_node(const xmlNodePtr node)
 
     rc += xpath(running_vms,"/HOST_SHARE/RUNNING_VMS",-1);
 
-    // ------------ DS Template ---------------
+    // ------------ Datastores ---------------
 
     ObjectXML::get_nodes("/HOST_SHARE/DATASTORES", content);
 
@@ -120,7 +435,27 @@ int HostShare::from_xml_node(const xmlNodePtr node)
         return -1;
     }
 
-    rc += ds_template.from_xml_node( content[0] );
+    rc += ds.from_xml_node( content[0] );
+
+    ObjectXML::free_nodes(content);
+
+    content.clear();
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    // ------------ PCI Devices ---------------
+
+    ObjectXML::get_nodes("/HOST_SHARE/PCI_DEVICES", content);
+
+    if( content.empty())
+    {
+        return -1;
+    }
+
+    rc += pci.from_xml_node( content[0] );
 
     ObjectXML::free_nodes(content);
 
@@ -134,14 +469,22 @@ int HostShare::from_xml_node(const xmlNodePtr node)
     return 0;
 }
 
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 void HostShare::set_ds_monitorization(const vector<Attribute*> &ds_att)
 {
     vector<Attribute*>::const_iterator it;
 
-    ds_template.erase("DS");
+    ds.erase("DS");
 
     for (it = ds_att.begin(); it != ds_att.end(); it++)
     {
-        ds_template.set(*it);
+        ds.set(*it);
     }
 }
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+

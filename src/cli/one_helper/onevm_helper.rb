@@ -46,6 +46,13 @@ private
     end
 end
 
+EXTERNAL_IP_ATTRS = [
+    'GUEST_IP',
+    'AWS_IP_ADDRESS',
+    'AZ_IPADDRESS',
+    'SL_PRIMARYIPADDRESS'
+];
+
 
 class OneVMHelper < OpenNebulaHelper::OneHelper
     MULTIPLE={
@@ -505,6 +512,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
 
         vm_monitoring = vm.to_hash['VM']['MONITORING']
 
+        # Find out if it is a hybrid VM to avoid showing local IPs
+        isHybrid=false
+        vm_monitoring.each{|key, value|
+            if EXTERNAL_IP_ATTRS.include? key
+                isHybrid=true
+            end
+        }
+
         order_attrs  = %w(CPU MEMORY NETTX NETRX)
 
         vm_monitoring_sort = []
@@ -674,7 +689,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC")
+        if vm.has_elements?("/VM/TEMPLATE/NIC") and !isHybrid
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
 
@@ -777,7 +792,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm.delete_element("/VM/TEMPLATE/NIC")
         end if !options[:all]
 
-        if vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE")
+        if vm.has_elements?("/VM/TEMPLATE/SECURITY_GROUP_RULE") and !isHybrid
             puts
             CLIHelper.print_header(str_h1 % "SECURITY",false)
             puts

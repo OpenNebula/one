@@ -316,7 +316,8 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "chmod", action_obj);
     },
     "shutdown": function(params) {
-      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown");
+      var action_obj = {"hard": false};
+      OpenNebulaAction.simple_action(params, RESOURCE, "shutdown", action_obj);
     },
     "shutdown_hard" : function(params) {
       var action_obj = {"hard": true};
@@ -617,26 +618,6 @@ define(function(require) {
     var nic = element.TEMPLATE.NIC;
     var ips = [];
 
-    if (nic != undefined) {
-      if (!$.isArray(nic)) {
-        nic = [nic];
-      }
-
-      $.each(nic, function(index, value) {
-        if (value.IP) {
-          ips.push(value.IP);
-        }
-
-        if (value.IP6_GLOBAL) {
-          ips.push(value.IP6_GLOBAL);
-        }
-
-        if (value.IP6_ULA) {
-          ips.push(value.IP6_ULA);
-        }
-      });
-    }
-
     var monitoring = element.MONITORING;
     if (monitoring) {
       var externalIP;
@@ -646,6 +627,29 @@ define(function(require) {
           ips.push(externalIP);
         }
       })
+    }
+
+    if(ips.length==0)
+    {
+      if (nic != undefined) {
+        if (!$.isArray(nic)) {
+          nic = [nic];
+        }
+
+        $.each(nic, function(index, value) {
+          if (value.IP) {
+            ips.push(value.IP);
+          }
+
+          if (value.IP6_GLOBAL) {
+            ips.push(value.IP6_GLOBAL);
+          }
+
+          if (value.IP6_ULA) {
+            ips.push(value.IP6_ULA);
+          }
+        });
+      }
     }
 
     if (ips.length > 0) {

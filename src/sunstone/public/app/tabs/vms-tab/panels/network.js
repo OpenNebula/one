@@ -20,6 +20,7 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./network/panelId');
   var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
 
@@ -231,7 +232,7 @@ define(function(require) {
         var secgroups = [];
 
         var nic_secgroups = {};
-        if (nic.SECURITY_GROUPS != undefined) {
+        if (!$.isEmptyObject(nic.SECURITY_GROUPS)) {
           $.each(nic.SECURITY_GROUPS.split(","), function() {
             nic_secgroups[this] = true;
           });
@@ -352,7 +353,20 @@ define(function(require) {
       context.off('click', '.detachnic');
       context.on('click', '.detachnic', function() {
         var nic_id = $(this).parents('tr').attr('nic_id');
-        Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          body : Locale.tr("This will detach the nic inmediately"),
+          //question :
+          submit : function(){
+            Sunstone.runAction('VM.detachnic', that.element.ID, nic_id);
+            return false;
+          }
+        });
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+
         return false;
       });
     }

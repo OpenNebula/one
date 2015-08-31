@@ -1,0 +1,39 @@
+<form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="large-12 large-centered columns selectTemplateTable">
+    </div>
+  </div>
+  <div class="row nameContainer">
+    <div class="medium-4 columns">
+      <label for="vm_name">
+        {{tr "VM Name"}}
+        <span class="tip">
+          {{tr "Defaults to template name when emtpy. You can use the wildcard &#37;i. When creating several VMs, &#37;i will be replaced with a different number starting from 0 in each of them"}}.
+        </span>
+      </label>
+      <input type="text" name="vm_name" id="vm_name" />
+    </div> 
+    <div class="medium-4 columns">
+      <label for="vm_n_times">
+        {{tr "Number of instances"}}
+        <span class="tip">
+          {{tr "Number of Virtual Machines that will be created using this template"}}.
+        </span>
+      </label>
+      <input type="text" name="vm_n_times" id="vm_n_times" value="1">
+    </div>
+    <div class="medium-4 columns">
+      <input type="checkbox" name="hold" id="hold"/>
+      <label for="hold">
+        {{tr "Hold"}}
+        <span class="tip">
+          {{tr "Sets the new VM to hold state, instead of pending. The scheduler will not deploy VMs in this state. It can be released later, or deployed manually."}}
+        </span>
+      </label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 large-centered columns list_of_templates">
+    </div>
+  </div>
+</form>

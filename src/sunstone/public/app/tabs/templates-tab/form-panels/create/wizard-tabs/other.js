@@ -15,6 +15,7 @@ define(function(require) {
    */
 
   var TemplateHTML = require('hbs!./other/html');
+  var RowTemplateHTML = require('hbs!./other/pciRow');
 
   /*
     CONSTANTS
@@ -71,6 +72,18 @@ define(function(require) {
         $("#data_vmx_div", context).hide();
       }
     });
+
+    context.off("click", ".add_pci");
+    context.on("click", ".add_pci", function(){
+      $(".pci_devices tbody", context).append(RowTemplateHTML());
+    });
+
+    $(".add_pci", context).trigger("click");
+
+    context.on("click", ".pci_devices i.remove-tab", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
+    });
   }
 
   function _retrieve(context) {
@@ -86,6 +99,18 @@ define(function(require) {
 
     if (!$.isEmptyObject(rawJSON)) { templateJSON['RAW'] = rawJSON; };
 
+    $('.pci_devices tbody tr', context).each(function(i,row){
+      var pci = WizardFields.retrieve(row);
+
+      if (!$.isEmptyObject(pci)){
+        if (templateJSON['PCI'] == undefined){
+          templateJSON['PCI'] = [];
+        }
+
+        templateJSON['PCI'].push(pci);
+      }
+    });
+
     return templateJSON;
   }
 
@@ -99,6 +124,15 @@ define(function(require) {
 
       delete templateJSON.RAW
     }
+
+    $(".pci_devices i.remove-tab", context).trigger("click");
+
+    $.each(templateJSON['PCI'], function(i, pci){
+      var tr = $(RowTemplateHTML()).appendTo( $(".pci_devices tbody", context) );
+      WizardFields.fill(tr, pci);
+    });
+
+    delete templateJSON.PCI;
 
     CustomTagsTable.fill(context, templateJSON);
   }

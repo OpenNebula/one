@@ -92,10 +92,11 @@ int DispatchManager::import (
 
     time_t the_time = time(0);
     int    cpu, mem, disk;
+    vector<Attribute *> pci;
 
-    vm->get_requirements(cpu, mem, disk);
+    vm->get_requirements(cpu, mem, disk, pci);
 
-    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     vm->set_state(VirtualMachine::ACTIVE);
 
@@ -768,9 +769,14 @@ int DispatchManager::finalize(
     string& error_str)
 {
     VirtualMachine * vm;
+    Host * host;
     ostringstream oss;
 
+    vector<Attribute *> pci;
+
     VirtualMachine::VmState state;
+    bool is_public_host = false;
+    int  host_id = -1;
 
     vm = vmpool->get(vid,true);
 
@@ -778,6 +784,28 @@ int DispatchManager::finalize(
     {
         return -1;
     }
+
+    if(vm->hasHistory())
+    {
+        host_id = vm->get_hid();
+    }
+
+    vm->unlock();
+
+    if(host_id != -1)
+    {
+        host = hpool->get(host_id,true);
+        if ( host == 0 )
+        {
+            oss << "Error getting host " << host_id;
+            NebulaLog::log("DiM",Log::ERROR,oss);
+            return -1;
+        }
+        is_public_host = host->is_public_cloud();
+        host->unlock();
+    }
+
+    vm = vmpool->get(vid,true);
 
     state = vm->get_state();
 
@@ -790,16 +818,32 @@ int DispatchManager::finalize(
         case VirtualMachine::POWEROFF:
             int cpu, mem, disk;
 
-            vm->get_requirements(cpu,mem,disk);
-            hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+            vm->get_requirements(cpu, mem, disk, pci);
+            hpool->del_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
 
-            tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            if (is_public_host)
+            {
+                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+            }
+            else
+            {
+                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            }
+
             finalize_cleanup(vm);
         break;
 
         case VirtualMachine::STOPPED:
         case VirtualMachine::UNDEPLOYED:
-            tm->trigger(TransferManager::EPILOG_DELETE_STOP,vid);
+            if (is_public_host)
+            {
+                vmm->trigger(VirtualMachineManager::CLEANUP,vid);
+            }
+            else
+            {
+                tm->trigger(TransferManager::EPILOG_DELETE,vid);
+            }
+
             finalize_cleanup(vm);
         break;
 

@@ -20,22 +20,131 @@
 #include "ObjectXML.h"
 #include "Template.h"
 #include <time.h>
-
-using namespace std;
+#include <set>
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-class HostShareTemplate : public Template
+class HostShareDatastore : public Template
 {
 public:
-    HostShareTemplate() : Template(false,'=',"DATASTORES"){};
+    HostShareDatastore() : Template(false, '=', "DATASTORES"){};
 
-    ~HostShareTemplate(){};
+    virtual ~HostShareDatastore(){};
 };
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
+/**
+ *  This class represents a PCI DEVICE list for the host. The list is in the
+ *  form:
+ *  <PCI>
+ *    <DOMAIN> PCI address domain
+ *    <BUS>    PCI address bus
+ *    <SLOT>   PCI address slot
+ *    <FUNCTION> PCI address function
+ *    <ADDRESS> PCI address, bus, slot and function
+ *    <VENDOR> ID of PCI device vendor
+ *    <DEVICE> ID of PCI device
+ *    <CLASS> ID of PCI device class
+ *    <VMID> ID using this device, -1 if free
+ *
+ *  The monitor probe may report additional information such as VENDOR_NAME,
+ *  DEVICE_NAME, CLASS_NAME...
+ */
+class HostSharePCI : public Template
+{
+public:
+
+    HostSharePCI() : Template(false, '=', "PCI_DEVICES"){};
+
+    virtual ~HostSharePCI()
+    {
+        map<string, PCIDevice *>::iterator it;
+
+        for (it=pci_devices.begin(); it != pci_devices.end(); it++)
+        {
+            delete it->second;
+        };
+    };
+
+    /**
+     *  Builds the devices list from its XML representation. This function
+     *  is used when importing it from the DB.
+     *    @param node xmlNode for the template
+     *    @return 0 on success
+     */
+    int from_xml_node(const xmlNodePtr node);
+
+    /**
+     *  Test whether this PCI device set has the requested devices available.
+     *    @param devs list of requested devices by the VM.
+     *    @return true if all the devices are available.
+     */
+    bool test(const vector<Attribute *> &devs) const;
+
+    /**
+     *  Assign the requested devices to the given VM. The assigned devices will
+     *  be labeled with the VM and the PCI attribute of the VM extended with
+     *  the address of the assigned devices.
+     *    @param devs list of requested PCI devices, will include address of
+     *    assigned devices.
+     *    @param vmid of the VM
+     */
+    void add(vector<Attribute *> &devs, int vmid);
+
+    /**
+     *  Remove the VM assignment from the PCI device list
+     */
+    void del(const vector<Attribute *> &devs);
+
+    /**
+     *  Updates the PCI list with monitor data, it will create or
+     *  remove PCIDevices as needed.
+     */
+    void set_monitorization(vector<Attribute*> &pci_att);
+
+    /**
+     *  Prints the PCI device list to an output stream. This function is used
+     *  for logging purposes and *not* for generating DB content.
+     */
+    friend ostream& operator<<(ostream& o, const HostSharePCI& p);
+
+private:
+    /**
+     *  Sets the internal class structures from the template
+     */
+    int init();
+
+    /**
+     *  Gets a 4 hex digits value from attribute
+     *    @param name of the attribute
+     *    @pci_device VectorAttribute representing the device
+     *    @return the value as unsigned int or 0 if was not found
+     */
+    static unsigned int get_pci_value(const char * name,
+                                      const VectorAttribute * pci_device);
+    /**
+     *  Internal structure to represent PCI devices for fast look up and
+     *  update
+     */
+    struct PCIDevice
+    {
+        PCIDevice(VectorAttribute * _attrs);
+
+        ~PCIDevice(){};
+
+        unsigned int vendor_id;
+        unsigned int device_id;
+        unsigned int class_id;
+
+        int vmid;
+
+        string address;
+
+        VectorAttribute * attrs;
+    };
+
+    map <string, PCIDevice *> pci_devices;
+};
 
 /**
  *  The HostShare class. It represents a logical partition of a host...
@@ -53,15 +162,20 @@ public:
 
     /**
      *  Add a new VM to this share
+     *    @param vmid of the VM
      *    @param cpu requested by the VM, in percentage
      *    @param mem requested by the VM, in KB
      *    @param disk requested by the VM
+     *    @param pci_devs requested by the VM
      */
-    void add(long long cpu, long long mem, long long disk)
+    void add(int vmid, long long cpu, long long mem, long long disk,
+        vector<Attribute *> pci_devs)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
         disk_usage += disk;
+
+        pci.add(pci_devs, vmid);
 
         running_vms++;
     }
@@ -84,12 +198,15 @@ public:
      *    @param cpu requested by the VM
      *    @param mem requested by the VM
      *    @param disk requested by the VM
+     *    @param pci_devs requested by the VM
      */
-    void del(long long cpu, long long mem, long long disk)
+    void del(long long cpu, long long mem, long long disk, vector<Attribute *> pci_devs)
     {
         cpu_usage  -= cpu;
         mem_usage  -= mem;
         disk_usage -= disk;
+
+        pci.del(pci_devs);
 
         running_vms--;
     }
@@ -99,15 +216,35 @@ public:
      *    @param cpu requested by the VM
      *    @param mem requested by the VM
      *    @param disk requested by the VM
+     *    @param pci_devs requested by the VM
+     *    @param error Returns the error reason, if any
      *
      *    @return true if the share can host the VM or it is the only one
      *    configured
      */
-    bool test(long long cpu, long long mem, long long disk) const
+    bool test(long long cpu, long long mem, long long disk,
+              vector<Attribute *>& pci_devs, string& error) const
     {
-            return (((max_cpu  - cpu_usage ) >= cpu) &&
-                    ((max_mem  - mem_usage ) >= mem) &&
-                    ((max_disk - disk_usage) >= disk));
+        bool pci_fits = pci.test(pci_devs);
+
+        bool fits = (((max_cpu  - cpu_usage ) >= cpu) &&
+                     ((max_mem  - mem_usage ) >= mem) &&
+                     ((max_disk - disk_usage) >= disk)&&
+                     pci_fits);
+
+        if (!fits)
+        {
+            if ( pci_fits )
+            {
+                error = "Not enough capacity.";
+            }
+            else
+            {
+                error = "Unavailable PCI device.";
+            }
+        }
+
+        return fits;
     }
 
     /**
@@ -124,6 +261,11 @@ public:
     string& to_xml(string& xml) const;
 
     void set_ds_monitorization(const vector<Attribute*> &ds_att);
+
+    void set_pci_monitorization(vector<Attribute*> &pci_att)
+    {
+        pci.set_monitorization(pci_att);
+    }
 
 private:
 
@@ -145,7 +287,8 @@ private:
 
     long long running_vms;/**< Number of running VMs in this Host   */
 
-    HostShareTemplate ds_template;
+    HostShareDatastore ds;
+    HostSharePCI       pci;
 
     // ----------------------------------------
     // Friends

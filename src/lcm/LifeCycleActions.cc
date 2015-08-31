@@ -35,6 +35,7 @@ void  LifeCycleManager::deploy_action(int vid)
     {
         time_t thetime = time(0);
         int    cpu,mem,disk;
+        vector<Attribute *> pci;
 
         VirtualMachine::LcmState vm_state;
         TransferManager::Actions tm_action;
@@ -43,7 +44,7 @@ void  LifeCycleManager::deploy_action(int vid)
         //                 PROLOG STATE
         //----------------------------------------------------
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
         vm_state  = VirtualMachine::PROLOG;
         tm_action = TransferManager::PROLOG;
@@ -75,7 +76,7 @@ void  LifeCycleManager::deploy_action(int vid)
 
         //----------------------------------------------------
 
-        if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk) == -1)
+        if (hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci) == -1)
         {
             //The host has been deleted, move VM to FAILURE
             this->trigger(LifeCycleManager::PROLOG_FAILURE, vid);
@@ -211,6 +212,8 @@ void  LifeCycleManager::migrate_action(int vid)
     VirtualMachine *    vm;
 
     int    cpu, mem, disk;
+    vector<Attribute *> pci;
+
     time_t the_time = time(0);
 
     vm = vmpool->get(vid,true);
@@ -239,9 +242,9 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         //----------------------------------------------------
 
@@ -278,11 +281,12 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
+            disk, pci);
 
         //----------------------------------------------------
 
@@ -321,11 +325,12 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
+            disk, pci);
 
         //----------------------------------------------------
 
@@ -359,7 +364,8 @@ void  LifeCycleManager::live_migrate_action(int vid)
     if (vm->get_state()     == VirtualMachine::ACTIVE &&
         vm->get_lcm_state() == VirtualMachine::RUNNING)
     {
-        int                     cpu,mem,disk;
+        int cpu, mem, disk;
+        vector<Attribute *> pci;
 
         //----------------------------------------------------
         //                   MIGRATE STATE
@@ -377,9 +383,9 @@ void  LifeCycleManager::live_migrate_action(int vid)
 
         vmpool->update_history(vm);
 
-        vm->get_requirements(cpu,mem,disk);
+        vm->get_requirements(cpu, mem, disk, pci);
 
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
         //----------------------------------------------------
 
@@ -845,6 +851,7 @@ void  LifeCycleManager::clean_action(int vid)
 void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& image_id)
 {
     int    cpu, mem, disk;
+    vector<Attribute *> pci;
     time_t the_time = time(0);
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
@@ -873,8 +880,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
     vm->set_vm_info();
     vm->set_reason(History::USER);
 
-    vm->get_requirements(cpu,mem,disk);
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk);
+    vm->get_requirements(cpu, mem, disk, pci);
+    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
 
     switch (state)
     {
@@ -1005,7 +1012,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vmpool->update_previous_history(vm);
 
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
-                    mem, disk);
+                    mem, disk, pci);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP_BOTH,vid);
@@ -1031,7 +1038,7 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
             vmpool->update_previous_history(vm);
 
             hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
-                    mem, disk);
+                    mem, disk, pci);
 
             vmm->trigger(VirtualMachineManager::DRIVER_CANCEL,vid);
             vmm->trigger(VirtualMachineManager::CLEANUP_PREVIOUS,vid);

@@ -379,6 +379,7 @@ int ImageManager::delete_image(int iid, string& error_str)
     int uid;
     int gid;
     int cloning_id = -1;
+    int vm_saving_id = -1;
 
     ostringstream oss;
 
@@ -452,6 +453,11 @@ int ImageManager::delete_image(int iid, string& error_str)
 
         case Image::LOCKED:
             cloning_id = img->get_cloning_id();
+
+            if ( img->is_saving() )
+            {
+                img->get_template_attribute("SAVED_VM_ID", vm_saving_id);
+            }
         break;
 
     }
@@ -528,6 +534,28 @@ int ImageManager::delete_image(int iid, string& error_str)
         dspool->update(ds);
 
         ds->unlock();
+    }
+
+    /* --------------- Release VM in hotplug -------------------------------- */
+
+    // This is only needed if the image is deleted before the mkfs action
+    // is completed
+
+    if ( vm_saving_id != -1 )
+    {
+        VirtualMachine*     vm;
+        VirtualMachinePool* vmpool = Nebula::instance().get_vmpool();
+
+        if ((vm = vmpool->get(vm_saving_id, true)) != 0)
+        {
+            vm->clear_saveas_state();
+
+            vm->clear_saveas_disk();
+
+            vmpool->update(vm);
+
+            vm->unlock();
+        }
     }
 
     return 0;

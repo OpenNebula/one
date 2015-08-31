@@ -321,6 +321,7 @@ tabs:
             host_vms_tab: true
             host_wilds_tab: true
             host_esx_tab: true
+            host_pci_tab: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID

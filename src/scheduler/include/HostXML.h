@@ -20,6 +20,7 @@
 
 #include <map>
 #include "ObjectXML.h"
+#include "HostShare.h"
 
 using namespace std;
 
@@ -50,21 +51,24 @@ public:
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param pci devices needed by the VM
      *    @param error error message
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem, string & error) const;
+    bool test_capacity(long long cpu, long long mem, vector<Attribute *> &pci,
+        string & error);
 
     /**
      *  Tests whether a new VM can be hosted by the host or not
      *    @param cpu needed by the VM (percentage)
      *    @param mem needed by the VM (in KB)
+     *    @param pci devices needed by the VM
      *    @return true if the share can host the VM
      */
-    bool test_capacity(long long cpu, long long mem) const
+    bool test_capacity(long long cpu,long long mem,vector<Attribute *> &p)
     {
         string tmp_st;
-        return test_capacity(cpu, mem, tmp_st);
+        return test_capacity(cpu, mem, p, tmp_st);
     };
 
     /**
@@ -74,10 +78,13 @@ public:
      *    @param mem needed by the VM (in KB)
      *    @return 0 on success
      */
-    void add_capacity(long long cpu, long long mem)
+    void add_capacity(int vmid, long long cpu, long long mem,
+        vector<Attribute *> &p)
     {
         cpu_usage  += cpu;
         mem_usage  += mem;
+
+        pci.add(p, vmid);
 
         running_vms++;
     };
@@ -131,6 +138,12 @@ public:
         return public_cloud;
     }
 
+    /**
+     *  Prints the Host information to an output stream. This function is used
+     *  for logging purposes.
+     */
+    friend ostream& operator<<(ostream& o, const HostXML& p);
+
 private:
     int oid;
     int cluster_id;
@@ -149,6 +162,8 @@ private:
     long long running_vms; /**< Number of running VMs in this Host   */
 
     bool public_cloud;
+
+    HostSharePCI pci;
 
     // Configuration attributes
     static const char *host_paths[]; /**< paths for search function */

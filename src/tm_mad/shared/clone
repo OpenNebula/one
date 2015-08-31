@@ -84,6 +84,10 @@ ssh_make_path $DST_HOST $DST_DIR
 # Clone (cp) SRC into DST
 #-------------------------------------------------------------------------------
 
+if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+   RESIZE_CMD="; qemu-img resize ${DST_PATH} ${SIZE}M"
+fi
+
 case $SRC in
 http://*)
     log "Downloading $SRC into $DST_PATH"
@@ -94,12 +98,6 @@ http://*)
 
 *)
     log "Cloning $SRC_PATH in $DST"
-
-    ORIGINAL_SIZE=${ORIGINAL_SIZE:-0}
-
-    if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
-       RESIZE_CMD="; qemu-img resize ${DST_PATH} ${SIZE}M"
-    fi
 
     CLONE_CMD="cd ${DST_DIR}; \
         cp ${SRC_PATH} ${DST_PATH} \

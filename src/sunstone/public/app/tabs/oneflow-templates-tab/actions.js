@@ -12,15 +12,20 @@ define(function(require) {
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
 
-  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID);
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
 
   var _actions = {
+    "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "ServiceTemplate.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
     "ServiceTemplate.refresh" : _commonActions.refresh(),
-    "ServiceTemplate.delete" : _commonActions.delete(),
+    "ServiceTemplate.delete" : _commonActions.del(),
     "ServiceTemplate.chown": _commonActions.multipleAction('chown'),
     "ServiceTemplate.chgrp": _commonActions.multipleAction('chgrp'),
     "ServiceTemplate.chmod": _commonActions.singleAction('chmod'),
+    "ServiceTemplate.update" : _commonActions.update(),
+    "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
+    "ServiceTemplate.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
 
     "ServiceTemplate.list" : {
       type: "list",
@@ -34,65 +39,6 @@ define(function(require) {
       }
     },
 
-    "ServiceTemplate.create" : {
-      type: "create",
-      call: OpenNebulaResource.create,
-      callback: function(request, response){
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-      },
-      error: function(request, response){
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      }
-    },
-
-    "ServiceTemplate.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-
-    "ServiceTemplate.update_dialog" : {
-      type: "custom",
-      call: function() {
-        var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) template to update.");
-          return false;
-        }
-
-        var resource_id = "" + selected_nodes[0];
-        Sunstone.runAction(RESOURCE+".show_to_update", resource_id);
-      }
-    },
-
-    "ServiceTemplate.show_to_update" : {
-      type: "single",
-      call: OpenNebulaResource.show,
-      callback: function(request, response) {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
-          function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response[XML_ROOT]);
-          });
-      },
-      error: Notifier.onError
-    },
-
-    "ServiceTemplate.update" : {
-      type: "single",
-      call: OpenNebulaResource.update,
-      callback: function(request, response){
-        Sunstone.hideFormPanel(TAB_ID);
-        Notifier.notifyMessage(Locale.tr("ServiceTemplate updated correctly"));
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      }
-    },
 
     "ServiceTemplate.instantiate" : {
       type: "single",

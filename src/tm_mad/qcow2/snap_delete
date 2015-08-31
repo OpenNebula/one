@@ -69,8 +69,6 @@ fi
 
 SNAP_DIR="${DISK_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
 
 ssh_exec_and_log "${SRC_HOST}" "rm ${SNAP_PATH}" \
                  "Error deleting snapshot ${SNAP_PATH}"

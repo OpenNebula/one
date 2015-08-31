@@ -149,7 +149,7 @@ define(function(require) {
 
       var v = $("#acct_end_time", context).val();
       if (v != ""){
-        end_time = new Date(v+' UTC');
+        end_time = new Date(dateFromString(v));
 
         if (isNaN(end_time)){
           Notifier.notifyError(Locale.tr("Time range end is not a valid date. It must be YYYY/MM/DD"));

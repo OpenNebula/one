@@ -93,9 +93,7 @@ http://*)
             "Error copying $SRC to $DST"
     fi
 
-    ORIGINAL_SIZE=${ORIGINAL_SIZE:-0}
-
-    if [ "$SIZE" -ge "$ORIGINAL_SIZE" ]; then
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
        RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
        ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
            "Error resizing image $DST"

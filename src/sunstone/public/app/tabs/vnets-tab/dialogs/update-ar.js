@@ -50,12 +50,13 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
+    context.foundation('abide', 'reflow');
+    
     that.arTab.setup(context, "update_ar");
 
-    $('#update_ar_form',context).on('invalid', function () {
-        Notifier.notifyError(tr("One or more required fields are missing."));
-    }).on('valid', function () {
+    $('#update_ar_form',context).on('invalid.fndtn.abide', function () {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing."));
+    }).on('valid.fndtn.abide', function () {
         var data = that.arTab.retrieve();
 
         data['AR_ID'] = that.arId;

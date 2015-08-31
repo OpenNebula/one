@@ -502,6 +502,7 @@ int Scheduler::set_up_pools()
  *  @param vm the virtual machine
  *  @param vm_memory vm requirement
  *  @param vm_cpu vm requirement
+ *  @param vm_pci vm requirement
  *  @param host to evaluate vm assgiment
  *  @param n_auth number of hosts authorized for the user, incremented if needed
  *  @param n_error number of requirement errors, incremented if needed
@@ -511,8 +512,8 @@ int Scheduler::set_up_pools()
  *  @return true for a positive match
  */
 static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
-    HostXML * host, int &n_auth, int& n_error, int &n_fits, int &n_matched,
-    string &error)
+    vector<Attribute *>& vpci, HostXML * host, int &n_auth, int& n_error,
+    int &n_fits, int &n_matched, string &error)
 {
     // -------------------------------------------------------------------------
     // Filter current Hosts for resched VMs
@@ -560,7 +561,7 @@ static bool match_host(AclXML * acls, VirtualMachineXML* vm, int vmem, int vcpu,
     // -------------------------------------------------------------------------
     // Check host capacity
     // -------------------------------------------------------------------------
-    if (host->test_capacity(vcpu,vmem,error) != true)
+    if (host->test_capacity(vcpu, vmem, vpci, error) != true)
     {
         return false;
     }
@@ -720,6 +721,7 @@ void Scheduler::match_schedule()
     int vm_memory;
     int vm_cpu;
     long long vm_disk;
+    vector<Attribute *> vm_pci;
 
     int n_resources;
     int n_matched;
@@ -750,7 +752,7 @@ void Scheduler::match_schedule()
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
-        vm->get_requirements(vm_cpu,vm_memory,vm_disk);
+        vm->get_requirements(vm_cpu, vm_memory, vm_disk, vm_pci);
 
         n_resources = 0;
         n_fits    = 0;
@@ -790,8 +792,8 @@ void Scheduler::match_schedule()
         {
             host = static_cast<HostXML *>(h_it->second);
 
-            if (match_host(acls, vm, vm_memory, vm_cpu, host, n_auth, n_error,
-                    n_fits, n_matched, m_error))
+            if (match_host(acls, vm, vm_memory, vm_cpu, vm_pci, host, n_auth,
+                    n_error, n_fits, n_matched, m_error))
             {
                 vm->add_match_host(host->get_hid());
 
@@ -1026,6 +1028,8 @@ void Scheduler::dispatch()
 
     int cpu, mem;
     long long dsk;
+    vector<Attribute *> pci;
+
     int hid, dsid, cid;
     bool test_cap_result;
 
@@ -1074,7 +1078,7 @@ void Scheduler::dispatch()
             }
         }
 
-        vm->get_requirements(cpu,mem,dsk);
+        vm->get_requirements(cpu, mem, dsk, pci);
 
         //----------------------------------------------------------------------
         // Get the highest ranked host and best System DS for it
@@ -1094,7 +1098,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             // Test host capacity
             //------------------------------------------------------------------
-            if (host->test_capacity(cpu,mem) != true)
+            if (host->test_capacity(cpu, mem, pci) != true)
             {
                 continue;
             }
@@ -1224,7 +1228,7 @@ void Scheduler::dispatch()
                 vm->add_image_datastore_capacity(img_dspool);
             }
 
-            host->add_capacity(cpu,mem);
+            host->add_capacity(vm->get_oid(), cpu, mem, pci);
 
             host_vms[hid]++;
 

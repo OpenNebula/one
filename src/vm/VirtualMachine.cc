@@ -281,6 +281,8 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     ostringstream oss;
 
+    vector<Attribute *> pci;
+
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
@@ -440,6 +442,26 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         // The get_disk_images method has an internal rollback for
         // the acquired images, release_disk_images() would release all disks
         goto error_leases_rollback;
+    }
+
+    // ------------------------------------------------------------------------
+    // PCI Devices
+    // ------------------------------------------------------------------------
+
+    user_obj_template->remove("PCI", pci);
+
+    for (vector<Attribute *>::iterator it = pci.begin(); it !=pci.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            it = pci.erase(it);
+        }
+        else
+        {
+            obj_template->set(*it);
+            ++it;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1649,10 +1671,13 @@ void VirtualMachine::cp_previous_history()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
+void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk,
+        vector<Attribute *>& pci_devs)
 {
     istringstream   iss;
     float           fcpu;
+
+    pci_devs.clear();
 
     if ((get_template_attribute("MEMORY",memory) == false) ||
         (get_template_attribute("CPU",fcpu) == false))
@@ -1667,6 +1692,8 @@ void VirtualMachine::get_requirements (int& cpu, int& memory, int& disk)
     cpu    = (int) (fcpu * 100);//now in 100%
     memory = memory * 1024;     //now in Kilobytes
     disk   = 0;
+
+    obj_template->get("PCI", pci_devs);
 
     return;
 }
@@ -2629,8 +2656,8 @@ void VirtualMachine::release_disk_images()
             continue;
         }
 
-        img_error = (state == ACTIVE && lcm_state != EPILOG) ||
-                    (state != PENDING && state != HOLD);
+        img_error = (state == ACTIVE && lcm_state != EPILOG) &&
+                     state != PENDING && state != HOLD;
 
         if ( disk->vector_value("IMAGE_ID", iid) == 0 )
         {
@@ -3355,8 +3382,6 @@ int VirtualMachine::set_saveas_disk(int disk_id, const string& source, int iid)
 
 int VirtualMachine::set_saveas_state()
 {
-    string s;
-
     switch (state)
     {
         case ACTIVE:
@@ -3365,24 +3390,22 @@ int VirtualMachine::set_saveas_state()
                 return -1;
             }
 
-            lcm_state = HOTPLUG_SAVEAS;
+            set_state(HOTPLUG_SAVEAS);
             break;
 
         case POWEROFF:
-            state     = ACTIVE;
-            lcm_state = HOTPLUG_SAVEAS_POWEROFF;
+            set_state(ACTIVE);
+            set_state(HOTPLUG_SAVEAS_POWEROFF);
             break;
 
         case SUSPENDED:
-            state     = ACTIVE;
-            lcm_state = HOTPLUG_SAVEAS_SUSPENDED;
+            set_state(ACTIVE);
+            set_state(HOTPLUG_SAVEAS_SUSPENDED);
             break;
 
         default:
             return -1;
     }
-
-    log("VM", Log::INFO, "New state is " + lcm_state_to_str(s,lcm_state));
 
     return 0;
 }
@@ -3392,25 +3415,20 @@ int VirtualMachine::set_saveas_state()
 
 int VirtualMachine::clear_saveas_state()
 {
-    string s;
-
     switch (lcm_state)
     {
         case HOTPLUG_SAVEAS:
-            lcm_state = RUNNING;
-            log("VM", Log::INFO, "New state is "+lcm_state_to_str(s,lcm_state));
+            set_state(RUNNING);
             break;
 
         case HOTPLUG_SAVEAS_POWEROFF:
-            state     = POWEROFF;
-            lcm_state = LCM_INIT;
-            log("VM", Log::INFO, "New state is " + vm_state_to_str(s,state));
+            set_state(POWEROFF);
+            set_state(LCM_INIT);
             break;
 
         case HOTPLUG_SAVEAS_SUSPENDED:
-            state     = SUSPENDED;
-            lcm_state = LCM_INIT;
-            log("VM", Log::INFO, "New state is " + vm_state_to_str(s,state));
+            set_state(SUSPENDED);
+            set_state(LCM_INIT);
             break;
 
         default:

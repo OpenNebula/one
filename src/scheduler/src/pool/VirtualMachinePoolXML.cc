@@ -39,6 +39,7 @@ int VirtualMachinePoolXML::set_up()
                 << right << setw(8)  << "VM"        << " "
                 << right << setw(4)  << "CPU"       << " "
                 << right << setw(11) << "Memory"    << " "
+                << right << setw(3)  << "PCI"       << " "
                 << right << setw(11) << "System DS" << " "
                 << " Image DS"
                 << endl << setw(60) << setfill('-') << "-" << setfill(' ');
@@ -47,11 +48,13 @@ int VirtualMachinePoolXML::set_up()
             {
                 int cpu, mem;
                 long long disk;
+                vector<Attribute *> pci;
+
                 string action = "DEPLOY";
 
                 VirtualMachineXML * vm = static_cast<VirtualMachineXML *>(it->second);
 
-                vm->get_requirements(cpu, mem, disk);
+                vm->get_requirements(cpu, mem, disk, pci);
 
                 if (vm->is_resched())
                 {
@@ -67,6 +70,7 @@ int VirtualMachinePoolXML::set_up()
                     << right << setw(8)  << it->first   << " "
                     << right << setw(4)  << cpu         << " "
                     << right << setw(11) << mem         << " "
+                    << right << setw(3)  << pci.size()  << " "
                     << right << setw(11) << disk        << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();

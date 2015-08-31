@@ -24,7 +24,7 @@ define(function(require) {
     "VM.list":    _commonActions.list(),
     "VM.show":    _commonActions.show(),
     "VM.refresh": _commonActions.refresh(),
-    "VM.delete":  _commonActions.delete(),
+    "VM.delete":  _commonActions.del(),
     "VM.chown": _commonActions.multipleAction('chown'),
     "VM.chgrp": _commonActions.multipleAction('chgrp'),
 
@@ -48,7 +48,7 @@ define(function(require) {
 
     "VM.chmod": _commonActions.singleAction('chmod'),
     "VM.rename": _commonActions.singleAction('rename'),
-    "VM.update_template": _commonActions.singleAction('update'),
+    "VM.update_template": _commonActions.updateTemplate(),
     "VM.deploy_action": _commonActions.singleAction('deploy'),
     "VM.migrate_action": _commonActions.singleAction('migrate'),
     "VM.migrate_live_action": _commonActions.singleAction('livemigrate'),

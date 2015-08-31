@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+UNSUPPORTED_RUBY = (RUBY_VERSION =~ /^1.8/) != nil
+
 begin
     require 'zendesk_api'
 rescue LoadError
@@ -109,6 +111,10 @@ helpers do
     end
 
     def check_zendesk_api_gem
+        if UNSUPPORTED_RUBY
+            error 500, "Ruby version >= 1.9 is required"
+        end
+
         if !ZENDESK_API_GEM
             error 500, "zendesk_api gem missing"
         end

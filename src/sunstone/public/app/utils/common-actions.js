@@ -7,18 +7,25 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  function CommonActions(openNebulaResource, resourceStr, tabId) {
+  function CommonActions(openNebulaResource, resourceStr, tabId, xmlRoot) {
     this.openNebulaResource = openNebulaResource;
     this.tabId = tabId;
     this.resourceStr = resourceStr;
+    this.xmlRoot = xmlRoot;
   }
 
   CommonActions.prototype.list = _list;
   CommonActions.prototype.show = _show;
   CommonActions.prototype.refresh = _refresh;
-  CommonActions.prototype.delete = _delete;
+  CommonActions.prototype.del = _del;
   CommonActions.prototype.multipleAction = _multipleAction;
   CommonActions.prototype.singleAction = _singleAction;
+  CommonActions.prototype.create = _create;
+  CommonActions.prototype.showCreate = _showCreate;
+  CommonActions.prototype.showUpdate = _showUpdate;
+  CommonActions.prototype.checkAndShowUpdate = _checkAndShowUpdate;
+  CommonActions.prototype.update = _update;
+  CommonActions.prototype.updateTemplate = _updateTemplate;
 
   return CommonActions;
 
@@ -66,7 +73,7 @@ define(function(require) {
     }
   }
 
-  function _delete() {
+  function _del() {
     var that = this;
     return {
       type: "multiple",
@@ -111,6 +118,93 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
+    }
+  }
+
+  function _create(formPanelId) {
+    var that = this;
+    return {
+      type: "create",
+      call: that.openNebulaResource.create,
+      callback : function(request, response) {
+        Sunstone.resetFormPanel(that.tabId, formPanelId);
+        Sunstone.hideFormPanel(that.tabId);
+        Sunstone.getDataTable(that.tabId).addElement(request, response);
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(that.tabId);
+        Notifier.onError(request, response);
+      },
+      notify: true
+    }
+  }
+
+  function _showCreate(formPanelId) {
+    var that = this;
+    return {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(that.tabId, formPanelId, "create");
+      }
+    }
+  }
+
+  function _showUpdate(formPanelId) {
+    var that = this;
+    return {
+      type: "single",
+      call: that.openNebulaResource.show,
+      callback: function(request, response) {
+        Sunstone.showFormPanel(that.tabId, formPanelId, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[that.xmlRoot]);
+          });
+      },
+      error: Notifier.onError
+    }
+  }
+
+  function _checkAndShowUpdate() {
+    var that = this;
+    return {
+      type: "single",
+      call: function() {
+        var selected_nodes = Sunstone.getDataTable(that.tabId).elements();
+        if (selected_nodes.length != 1) {
+          Notifier.notifyMessage("Please select one (and just one) resource to update.");
+          return false;
+        }
+
+        var resource_id = "" + selected_nodes[0];
+        Sunstone.runAction(that.resourceStr + ".show_to_update", resource_id);
+      }
+    }
+  }
+
+  function _update() {
+    var that = this;
+    return {
+      type: "single",
+      call: that.openNebulaResource.update,
+      callback: function(request, response){
+        Sunstone.hideFormPanel(that.tabId);
+      },
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(that.tabId);
+        Notifier.onError(request, response);
+      }
+    }
+  }
+
+  function _updateTemplate() {
+    var that = this;
+    return {
+      type: "single",
+      call: that.openNebulaResource.update,
+      callback: function(request) {
+        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0][0]);
+      },
+      error: Notifier.onError
     }
   }
 });

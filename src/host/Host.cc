@@ -74,7 +74,7 @@ const char * Host::db_names =
 const char * Host::db_bootstrap = "CREATE TABLE IF NOT EXISTS host_pool ("
     "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, state INTEGER, "
     "last_mon_time INTEGER, uid INTEGER, gid INTEGER, owner_u INTEGER, "
-    "group_u INTEGER, other_u INTEGER, cid INTEGER, UNIQUE(name))";
+    "group_u INTEGER, other_u INTEGER, cid INTEGER)";
 
 
 const char * Host::monit_table = "host_monitoring";
@@ -256,6 +256,7 @@ int Host::update_info(Template        &tmpl,
     vector<Attribute*>::iterator it;
     vector<Attribute*>           vm_att;
     vector<Attribute*>           ds_att;
+    vector<Attribute*>           pci_att;
     vector<Attribute*>           local_ds_att;
 
     int   rc;
@@ -464,6 +465,10 @@ int Host::update_info(Template        &tmpl,
     }
 
     host_share.set_ds_monitorization(local_ds_att);
+
+    obj_template->remove("PCI", pci_att);
+
+    host_share.set_pci_monitorization(pci_att);
 
     return 0;
 }

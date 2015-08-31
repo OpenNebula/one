@@ -118,10 +118,7 @@ define(function(require) {
 
         $('#refresh_button_' + unique_id).click();
 
-        $("input#selected_resource_id_" + unique_id, div).attr(
-            "wizard_field", vnet_attr.name);
-
-        $("input#selected_resource_id_" + unique_id, div).attr("required", "")
+        vnetsTable.idInput().attr("wizard_field", vnet_attr.name).attr("required", "");
       });
     }
 

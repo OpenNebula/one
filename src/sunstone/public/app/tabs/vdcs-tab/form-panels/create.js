@@ -109,7 +109,7 @@ define(function(require) {
     // resourcesTab.addResourcesZone have finished.
     // It's better to duplicate this code in _fill and make sure the
     // resourcesTab.fill is executed in the callback
-    if (this.action == "create") {
+    if (this.action != "update") {
       var zone_ids = [];
 
       OpenNebulaZone.list({

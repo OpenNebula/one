@@ -60,10 +60,13 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
         done < <(onevm show -x $VM_ID| $XPATH  \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
-
+SIZE="${XPATH_ELEMENTS[j++]}"
+ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Clone the image
@@ -86,6 +89,10 @@ CLONE_CMD=$(cat <<EOF
         $RBD clone "$SRC_PATH@$RBD_SNAP" $RBD_DST
     else
         $RBD copy $SRC_PATH $RBD_DST
+    fi
+
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+        $RBD resize $RBD_DST --size $SIZE
     fi
 EOF
 )

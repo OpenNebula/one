@@ -32,9 +32,6 @@ define(function(require) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
     },
-    "fetch_template" : function(params) {
-      OpenNebulaAction.show(params, RESOURCE, "template");
-    },
     "clone" : function(params) {
       var name = params.data.extra_param ? params.data.extra_param : "";
       var action_obj = {"name" : name};

@@ -115,7 +115,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 next if STDIN.gets.strip.downcase != 'y'
 
                 if cluster.empty?
-                    STDOUT.puts "    No clusters found in #{dc}..."
+                    STDOUT.puts "    No new clusters found in #{dc}..."
                     next
                 end
 

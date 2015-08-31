@@ -2,144 +2,33 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var OpenNebulaDatastore = require('opennebula/datastore');
+  var OpenNebulaResource = require('opennebula/datastore');
   var OpenNebulaCluster = require('opennebula/cluster');
   var OpenNebulaAction = require('opennebula/action');
+  var CommonActions = require('utils/common-actions');
 
+  var RESOURCE = "Datastore";
+  var XML_ROOT = "DATASTORE";
   var TAB_ID = require('./tabId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
 
+  var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID, XML_ROOT);
+
   var _actions = {
-    "Datastore.create" : {
-      type: "create",
-      call : OpenNebulaDatastore.create,
-      callback : function(request, response) {
-        Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
-        Sunstone.hideFormPanel(TAB_ID);
-        Sunstone.getDataTable(TAB_ID).addElement(request, response);
-        Notifier.notifyCustom(Locale.tr("Datastore created"), " ID: " + response.DATASTORE.ID, false);
-      },
-      error: function(request, response) {
-        Sunstone.hideFormPanelLoading(TAB_ID);
-        Notifier.onError(request, response);
-      },
-    },
-
-    "Datastore.create_dialog" : {
-      type: "custom",
-      call: function() {
-        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
-      }
-    },
-
-    "Datastore.list" : {
-      type: "list",
-      call: OpenNebulaDatastore.list,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.show" : {
-      type: "single",
-      call: OpenNebulaDatastore.show,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
-          Sunstone.insertPanels(TAB_ID, response);
-        }
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.refresh" : {
-      type: "custom",
-      call: function() {
-          var tab = $('#' + TAB_ID);
-          if (Sunstone.rightInfoVisible(tab)) {
-            Sunstone.runAction("Datastore.show", Sunstone.rightInfoResourceId(tab))
-          } else {
-            Sunstone.getDataTable(TAB_ID).waitingNodes();
-            Sunstone.runAction("Datastore.list", {force: true});
-          }
-        },
-      error: Notifier.onError
-    },
-
-    "Datastore.fetch_permissions" : {
-      type: "single",
-      call: OpenNebulaDatastore.show,
-      callback: function(request, element_json) {
-        //var ds = element_json.DATASTORE;
-        //setPermissionsTable(ds, $(".datastore_permissions_table"));
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.update_template" : {
-      type: "single",
-      call: OpenNebulaDatastore.update,
-      callback: function(request) {
-        Sunstone.runAction('Datastore.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.update" : {
-      type: "single",
-      call: OpenNebulaDatastore.update,
-      callback: function() {
-        Sunstone.runAction('Datastore.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.delete" : {
-      type: "multiple",
-      call : OpenNebulaDatastore.del,
-      callback: function(request, response) {
-        Sunstone.getDataTable(TAB_ID).deleteElement(request, response);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error : Notifier.onError,
-      notify: true
-    },
-
-    "Datastore.chown" : {
-      type: "multiple",
-      call: OpenNebulaDatastore.chown,
-      callback:  function (req) {
-        Sunstone.runAction("Datastore.show", req.request.data[0][0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.chgrp" : {
-      type: "multiple",
-      call: OpenNebulaDatastore.chgrp,
-      callback: function (req) {
-        Sunstone.runAction("Datastore.show", req.request.data[0][0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError
-    },
-
-    "Datastore.chmod" : {
-      type: "single",
-      call: OpenNebulaDatastore.chmod,
-      callback: function (req) {
-        Sunstone.runAction("Datastore.show", req.request.data[0]);
-      },
-      error: Notifier.onError
-    },
+    "Datastore.create" : _commonActions.create(CREATE_DIALOG_ID),
+    "Datastore.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "Datastore.list" : _commonActions.list(),
+    "Datastore.show" : _commonActions.show(),
+    "Datastore.refresh" : _commonActions.refresh(),
+    "Datastore.delete" : _commonActions.del(),
+    "Datastore.chown": _commonActions.multipleAction('chown'),
+    "Datastore.chgrp": _commonActions.multipleAction('chgrp'),
+    "Datastore.chmod": _commonActions.singleAction('chmod'),
+    "Datastore.update" : _commonActions.updateTemplate(),
+    "Datastore.update_template" : _commonActions.updateTemplate(),
+    "Datastore.rename": _commonActions.singleAction('rename'),
+    "Datastore.enable": _commonActions.multipleAction('enable'),
+    "Datastore.disable": _commonActions.multipleAction('disable'),
 
     "Datastore.addtocluster" : {
       type: "multiple",
@@ -148,7 +37,7 @@ define(function(require) {
         var ds = params.data.id;
 
         if (cluster == -1) {
-          OpenNebulaDatastore.show({
+          OpenNebulaResource.show({
             data : {
               id: ds
             },
@@ -191,42 +80,6 @@ define(function(require) {
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
       }
-    },
-
-    "Datastore.rename" : {
-      type: "single",
-      call: OpenNebulaDatastore.rename,
-      callback: function(request) {
-        Sunstone.runAction('Datastore.show', request.request.data[0][0]);
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Datastore.enable" : {
-      type: "multiple",
-      call: OpenNebulaDatastore.enable,
-      callback: function (req) {
-        Sunstone.runAction("Datastore.show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Datastore.disable" : {
-      type: "multiple",
-      call: OpenNebulaDatastore.disable,
-      callback: function (req) {
-        Sunstone.runAction("Datastore.show", req.request.data[0]);
-      },
-      elements: function() {
-        return Sunstone.getDataTable(TAB_ID).elements();
-      },
-      error: Notifier.onError,
-      notify: true
     }
   };
 
