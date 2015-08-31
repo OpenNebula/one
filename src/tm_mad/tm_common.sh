@@ -95,3 +95,20 @@ function disk_type
 
     echo $DISK_TYPE
 }
+
+#Return LCM_STATE
+function lcm_state
+{
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+
+    unset i XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onevm show -x $VMID| $XPATH \
+                        /VM/LCM_STATE )
+
+    LCM_STATE="${XPATH_ELEMENTS[0]}"
+
+    echo $LCM_STATE
+}

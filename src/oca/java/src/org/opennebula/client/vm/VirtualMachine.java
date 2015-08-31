@@ -139,7 +139,9 @@ public class VirtualMachine extends PoolElement{
         "DISK_SNAPSHOT_DELETE_SUSPENDED",
         "DISK_SNAPSHOT",
         "DISK_SNAPSHOT_REVERT",
-        "DISK_SNAPSHOT_DELETE"
+        "DISK_SNAPSHOT_DELETE",
+        "PROLOG_MIGRATE_UNKNOWN",
+        "PROLOG_MIGRATE_UNKNOWN_FAILURE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -203,7 +205,9 @@ public class VirtualMachine extends PoolElement{
         "snap",     // DISK_SNAPSHOT_DELETE_SUSPENDED
         "snap",     // DISK_SNAPSHOT
         "snap",     // DISK_SNAPSHOT_REVERT
-        "snap"      // DISK_SNAPSHOT_DELETE
+        "snap",     // DISK_SNAPSHOT_DELETE
+        "migr",     // PROLOG_MIGRATE_UNKNOWN
+        "fail"      // PROLOG_MIGRATE_UNKNOWN_FAILURE
     };
 
     /**

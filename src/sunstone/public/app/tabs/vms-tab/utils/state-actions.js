@@ -97,6 +97,8 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_REVERT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_SNAPSHOT_DELETE ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE ] = [];
 
   return {
     'disableAllStateActions': disableAllStateActions,

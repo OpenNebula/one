@@ -858,6 +858,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_POWEROFF:
           case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_SUSPEND:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN:
             state_color = 'running';
             state_str = Locale.tr("RUNNING");
             break;
@@ -885,6 +886,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.BOOT_STOPPED_FAILURE:
           case OpenNebulaVM.LCM_STATES.PROLOG_RESUME_FAILURE:
           case OpenNebulaVM.LCM_STATES.PROLOG_UNDEPLOY_FAILURE:
+          case OpenNebulaVM.LCM_STATES.PROLOG_MIGRATE_UNKNOWN_FAILURE:
             state_color = 'error';
             state_str = Locale.tr("ERROR");
             break;

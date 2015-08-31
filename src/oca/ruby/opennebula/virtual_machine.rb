@@ -113,6 +113,8 @@ module OpenNebula
             DISK_SNAPSHOT
             DISK_SNAPSHOT_REVERT
             DISK_SNAPSHOT_DELETE
+            PROLOG_MIGRATE_UNKNOWN
+            PROLOG_MIGRATE_UNKNOWN_FAILURE
         }
 
         SHORT_VM_STATES={
@@ -187,7 +189,9 @@ module OpenNebula
             "DISK_SNAPSHOT_DELETE_SUSPENDED"=> "snap",
             "DISK_SNAPSHOT"        => "snap",
             "DISK_SNAPSHOT_REVERT" => "snap",
-            "DISK_SNAPSHOT_DELETE" => "snap"
+            "DISK_SNAPSHOT_DELETE" => "snap",
+            "PROLOG_MIGRATE_UNKNOWN" => "migr",
+            "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail"
         }
 
         MIGRATE_REASON=%w{NONE ERROR USER}

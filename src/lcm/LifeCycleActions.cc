@@ -296,12 +296,12 @@ void  LifeCycleManager::migrate_action(int vid)
         vm->get_lcm_state() == VirtualMachine::UNKNOWN)
     {
         //----------------------------------------------------
-        //   Bypass SAVE_MIGRATE & PROLOG_MIGRATE goto BOOT
+        //   Bypass SAVE_MIGRATE goto PROLOG_MIGRATE_UNKNOWN
         //----------------------------------------------------
 
         vm->set_resched(false);
 
-        vm->set_state(VirtualMachine::BOOT);
+        vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
 
         vm->delete_snapshots();
 
@@ -311,17 +311,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         vm->set_stime(the_time);
 
-        vm->set_previous_action(History::MIGRATE_ACTION);
-
-        vm->set_previous_etime(the_time);
-
-        vm->set_previous_vm_info();
-
-        vm->set_previous_running_etime(the_time);
-
-        vm->set_previous_reason(History::USER);
-
-        vmpool->update_previous_history(vm);
+        vm->set_prolog_stime(the_time);
 
         vmpool->update_history(vm);
 
@@ -334,7 +324,7 @@ void  LifeCycleManager::migrate_action(int vid)
 
         //----------------------------------------------------
 
-        vmm->trigger(VirtualMachineManager::DEPLOY, vid);
+        tm->trigger(TransferManager::PROLOG_MIGR,vid);
     }
     else
     {
@@ -1050,6 +1040,8 @@ void  LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose, int& imag
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
             vm->set_prolog_etime(the_time);
             vmpool->update_history(vm);
 
@@ -1366,6 +1358,14 @@ void LifeCycleManager::retry(VirtualMachine * vm)
             tm->trigger(TransferManager::PROLOG_MIGR, vid);
             break;
 
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+            vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
+
+            vmpool->update(vm);
+
+            tm->trigger(TransferManager::PROLOG_MIGR, vid);
+            break;
+
         case VirtualMachine::PROLOG_RESUME_FAILURE:
             vm->set_state(VirtualMachine::PROLOG_RESUME);
 
@@ -1457,6 +1457,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
             tm->trigger(TransferManager::PROLOG_MIGR,vid);
             break;
 

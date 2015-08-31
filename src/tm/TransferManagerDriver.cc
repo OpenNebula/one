@@ -123,6 +123,7 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_UNDEPLOY:
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                     lcm_action = LifeCycleManager::PROLOG_SUCCESS;
                     break;
 
@@ -188,6 +189,7 @@ void TransferManagerDriver::protocol(const string& message) const
                 case VirtualMachine::PROLOG_UNDEPLOY:
                 case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
                 case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
                     lcm_action = LifeCycleManager::PROLOG_FAILURE;
                     break;
 
