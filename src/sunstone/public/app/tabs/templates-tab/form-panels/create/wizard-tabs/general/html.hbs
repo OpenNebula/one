@@ -52,6 +52,17 @@
     </label>
     <input type="text" id="vcenter_template_uuid" name="name"/>
   </div>
+  <div class="large-6 columns">
+    <div class="row">
+      <div class="large-6 columns">
+        <input type="checkbox" id="KEEP_DISKS" name="KEEP_DISKS"/>
+        <label  for="KEEP_DISKS">
+          {{tr "Keep VM disks"}}
+          {{{tip (tr "If selected, VM disks won't be deleted after the VM finishes its lifecycle.")}}}
+        </label>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="row">
   <div class="large-7 columns">

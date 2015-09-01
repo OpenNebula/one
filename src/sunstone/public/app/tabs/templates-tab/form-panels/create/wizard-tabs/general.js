@@ -106,6 +106,8 @@ define(function(require) {
         'TYPE': 'vcenter',
         'VM_TEMPLATE': $("#vcenter_template_uuid", context).val()
       }
+
+      templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
 
     if ($('#sunstone_capacity_select:checked', context).length > 0) {
@@ -130,6 +132,12 @@ define(function(require) {
           (templateJSON["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
       $("#sunstone_network_select", context).attr("checked", "checked");
       delete templateJSON["SUNSTONE_NETWORK_SELECT"]
+    }
+
+    if (templateJSON["HYPERVISOR"] == 'vcenter' &&
+        templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
+      $("#KEEP_DISKS", context).attr("checked", "checked");
+      delete templateJSON["KEEP_DISKS_ON_DONE"]
     }
 
     if (templateJSON["HYPERVISOR"]) {
