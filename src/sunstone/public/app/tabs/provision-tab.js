@@ -969,24 +969,11 @@ define(function(require) {
       var tab = $("#"+tab_name);
 
       if (Config.isTabEnabled(tab_name)) {
-        $('.right-header').prepend(TemplateHeader({'logo': Config.provision.logo}));
+        $('.right-header').prepend(TemplateHeader());
 
-        $(".left-content").remove();
         $(".right-content").addClass("large-centered small-centered");
         $("#footer").removeClass("right");
         $("#footer").addClass("large-centered small-centered");
-
-        //$(".user-zone-info").remove();
-
-        $("#provision_logout").click(function(){
-            OpenNebula.Auth.logout({
-              success: function(){
-                window.location.href = "login";
-              }
-            });
-
-            return false;
-        });
 
         ProvisionVmsList.generate($(".provision_vms_list_section"), {active: true});
 

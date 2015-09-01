@@ -9,6 +9,7 @@ define(function(require) {
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
   var Notifier = require('utils/notifier');
+  var Menu = require('utils/menu');
 
   var _tabs;
   if (Config.isTabEnabled(PROVISION_TAB_ID)) {
@@ -64,6 +65,12 @@ define(function(require) {
 
   $(document).ready(function() {
     Sunstone.insertTabs();
+
+    if (Config.isTabEnabled(PROVISION_TAB_ID)){
+      Menu.insertProvision();
+    }else{
+      Menu.insert();
+    }
 
     _setupAccordion();
     _setupCloseDropdownsOnClick();
