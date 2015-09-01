@@ -380,6 +380,11 @@ module KVM
                             break
                         end
                     end
+                else
+                    if File.symlink?(file)
+                        link = File.readlink(file)
+                        current_snap_id = link.split('/').last
+                    end
                 end
 
                 # Regular Disk
