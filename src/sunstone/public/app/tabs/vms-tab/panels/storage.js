@@ -66,6 +66,21 @@ define(function(require) {
       snapshots = [this.element.SNAPSHOTS];
     }
 
+    var snapshotsSize = {};
+    var monitoringSnapshots = [];
+    if ($.isArray(that.element.MONITORING.SNAPSHOT_SIZE))
+      monitoringSnapshots = that.element.MONITORING.SNAPSHOT_SIZE;
+    else if (!$.isEmptyObject(that.element.MONITORING.SNAPSHOT_SIZE))
+      monitoringSnapshots = [that.element.MONITORING.SNAPSHOT_SIZE];
+
+    $.each(monitoringSnapshots, function(index, monitoringSnap){
+      if(snapshotsSize[monitoringSnap.DISK_ID] == undefined){
+        snapshotsSize[monitoringSnap.DISK_ID] = {};
+      }
+
+      snapshotsSize[monitoringSnap.DISK_ID][monitoringSnap.ID] = monitoringSnap.SIZE;
+    })
+
     var snapshotsHtml = {};
 
     $.each(snapshots, function(){
@@ -74,6 +89,12 @@ define(function(require) {
 
       if (!$.isArray(diskSnapshots)){
         diskSnapshots = [diskSnapshots];
+      }
+
+      var indexedSize = snapshotsSize[diskId];
+
+      if(indexedSize == undefined){
+        indexedSize = {};
       }
 
       var treeRoot = {
@@ -94,7 +115,7 @@ define(function(require) {
 
       $.each(noParent, function(){
         treeRoot.subTree.push(
-          _makeTree(that, indexedSnapshots[this], indexedSnapshots)
+          _makeTree(that, indexedSnapshots[this], indexedSnapshots, indexedSize)
         );
       });
 
@@ -188,14 +209,15 @@ define(function(require) {
         }
 
         var sizeStr = "";
-        if (disk.SIZE) {
-          sizeStr += Humanize.sizeFromMB(disk.SIZE);
+        if (disksSize[disk.DISK_ID]) {
+          sizeStr += Humanize.sizeFromMB(disksSize[disk.DISK_ID]);
         } else {
           sizeStr += '-';
         }
+
         sizeStr += '/';
-        if (disksSize[disk.DISK_ID]) {
-          sizeStr += Humanize.sizeFromMB(disksSize[disk.DISK_ID]);
+        if (disk.SIZE) {
+          sizeStr += Humanize.sizeFromMB(disk.SIZE);
         } else {
           sizeStr += '-';
         }
@@ -461,7 +483,7 @@ define(function(require) {
     });
   }
 
-  function _makeTree(that, snapshot, indexedSnapshots){
+  function _makeTree(that, snapshot, indexedSnapshots, indexedSize){
     var SPACE = '&nbsp;&nbsp;&nbsp;&nbsp;';
 
     var subTree = [];
@@ -469,7 +491,7 @@ define(function(require) {
     if (snapshot.CHILDREN){
       $.each(snapshot.CHILDREN.split(","), function(){
         subTree.push(
-          _makeTree(that, indexedSnapshots[this], indexedSnapshots)
+          _makeTree(that, indexedSnapshots[this], indexedSnapshots, indexedSize)
         );
       });
     }
@@ -485,8 +507,21 @@ define(function(require) {
                 Locale.tr("Active")+'"/>' + SPACE;
     }
 
-    html += Humanize.prettyTime(snapshot.DATE) + SPACE +
-            Humanize.sizeFromMB(snapshot.SIZE) + SPACE +
+    var sizeStr = "";
+    if (indexedSize[snapshot.ID]) {
+      sizeStr += Humanize.sizeFromMB(indexedSize[snapshot.ID]);
+    } else {
+      sizeStr += '-';
+    }
+
+    sizeStr += '/';
+    if (snapshot.SIZE) {
+      sizeStr += Humanize.sizeFromMB(snapshot.SIZE);
+    } else {
+      sizeStr += '-';
+    }
+
+    html += Humanize.prettyTime(snapshot.DATE) + SPACE + sizeStr + SPACE +
             (snapshot.NAME ? snapshot.NAME + SPACE : '');
 
     html += '</div>';
