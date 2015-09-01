@@ -57,12 +57,16 @@ define(function(require) {
       "you_selected_multiple": Locale.tr("You selected the following VDCs:")
     };
 
+    this.totalElements = 0;
+
     TabDataTable.call(this);
   }
 
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.preUpdateView = _preUpdateView;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
 
@@ -71,6 +75,8 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    this.totalElements++;
+
     var element = element_json[XML_ROOT];
 
     return [
@@ -95,5 +101,13 @@ define(function(require) {
       l = 1;
 
     return l;
+  }
+
+  function _preUpdateView() {
+    this.totalElements = 0;
+  }
+
+  function _postUpdateView() {
+    $(".total_vdcs").text(this.totalElements);
   }
 });
