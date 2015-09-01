@@ -339,7 +339,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :SIZE, "", :right, :size=>8 do |d|
+            column :SIZE, "", :left, :size=>8 do |d|
                 if d["SIZE"]
                     OpenNebulaHelper.unit_to_str(
                                 d['SIZE'].to_i,

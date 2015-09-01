@@ -1027,7 +1027,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :SIZE, "", :right, :size=>12 do |d|
+            column :SIZE, "", :left, :size=>12 do |d|
                 if d["SIZE"]
                     size = OpenNebulaHelper.unit_to_str(
                                 d['SIZE'].to_i,
