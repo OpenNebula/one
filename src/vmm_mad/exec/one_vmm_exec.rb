@@ -955,7 +955,6 @@ class ExecDriver < VirtualMachineDriver
                     :parameters => [:deploy_id, :checkpoint_file, :host]
                 },
                 # network drivers (clean)
-                # network drivers (pre)
                 {
                     :driver   => :vnm,
                     :action   => :clean
@@ -1021,43 +1020,78 @@ class ExecDriver < VirtualMachineDriver
         # Get TM command
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
-        # Build the process
-        if strategy == :detach
-          pre_action = :detach_disk
-          pre_params = [:deploy_id, :disk_target_path, target, target_index]
-
-          post_action = :attach_disk
-          post_params = [:deploy_id, :disk_target_path, target, target_index,
-                         drv_message]
-        else # suspend
-          pre_action = :save
-          pre_params = [:deploy_id, :checkpoint_file, :host]
-
-          post_action = :restore
-          post_params = [:checkpoint_file, :host, :deploy_id]
+        case strategy
+        when :detach
+            steps = [
+                # Save VM state / detach the disk
+                {
+                    :driver     => :vmm,
+                    :action     => :detach_disk,
+                    :parameters => [:deploy_id, :disk_target_path, target, target_index]
+                },
+                # Do the snapshot
+                {
+                    :driver     => :tm,
+                    :action     => :tm_snap_revert,
+                    :parameters => tm_command.split,
+                    :no_fail    => true,
+                },
+                # Restore VM / attach the disk
+                {
+                    :driver     => :vmm,
+                    :action     => :attach_disk,
+                    :parameters => [:deploy_id, :disk_target_path, target, target_index,
+                           drv_message]
+                }
+            ]
+        when :suspend
+            steps = [
+                # Save VM state / detach the disk
+                {
+                    :driver     => :vmm,
+                    :action     => :save,
+                    :parameters => [:deploy_id, :checkpoint_file, :host]
+                },
+                # network drivers (clean)
+                {
+                    :driver   => :vnm,
+                    :action   => :clean
+                },
+                # Do the snapshot
+                {
+                    :driver     => :tm,
+                    :action     => :tm_snap_revert,
+                    :parameters => tm_command.split,
+                    :no_fail    => true,
+                },
+                # network drivers (pre)
+                {
+                    :driver   => :vnm,
+                    :action   => :pre
+                },
+                # Restore VM / attach the disk
+                {
+                    :driver     => :vmm,
+                    :action     => :restore,
+                    :parameters => [:checkpoint_file, :host, :deploy_id]
+                },
+                # network drivers (post)
+                {
+                    :driver       => :vnm,
+                    :action       => :post,
+                    :parameters   => [:deploy_id],
+                    :fail_actions => [
+                        {
+                            :driver     => :vmm,
+                            :action     => :cancel,
+                            :parameters => [:deploy_id, :host]
+                        }
+                    ]
+                }
+            ]
+        else
+            return
         end
-
-        steps = [
-            # Save VM state / detach the disk
-            {
-                :driver     => :vmm,
-                :action     => pre_action,
-                :parameters => pre_params
-            },
-            # Do the snapshot
-            {
-                :driver     => :tm,
-                :action     => :tm_snap_revert,
-                :parameters => tm_command.split,
-                :no_fail    => true,
-            },
-            # Restore VM / attach the disk
-            {
-                :driver     => :vmm,
-                :action     => post_action,
-                :parameters => post_params
-            }
-        ]
 
         action.run(steps)
     end
