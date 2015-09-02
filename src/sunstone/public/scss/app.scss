@@ -176,7 +176,6 @@ input.search {
     .button {
         background: #fff;
         border: none;
-        margin-top: 8px;
     }
 
     .button:hover {
@@ -1313,4 +1312,8 @@ hr {
 #menu-wrapper {
   padding-top: 5px;
   background-color: white
+}
+
+#menu-toggle {
+  padding: 0px
 }
