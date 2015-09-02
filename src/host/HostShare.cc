@@ -92,6 +92,11 @@ bool HostSharePCI::test(const vector<Attribute *> &devs) const
         device_id = get_pci_value("DEVICE", pci);
         class_id  = get_pci_value("CLASS", pci);
 
+        if (vendor_id == 0 && device_id == 0 && class_id == 0)
+        {
+            return false;
+        }
+
         for (jt=pci_devices.begin(), found=false; jt!=pci_devices.end(); jt++)
         {
             PCIDevice * dev = jt->second;

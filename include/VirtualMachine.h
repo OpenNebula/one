@@ -1964,6 +1964,13 @@ private:
     static const int   NUM_NETWORK6_CONTEXT;
 
     /**
+     * Parse the "PCI" attribute of the template and checks mandatory attributes
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 on success
+     */
+    int parse_pci(string& error_str);
+
+    /**
      *  Parse the "CONTEXT" attribute of the template by substituting
      *  $VARIABLE, $VARIABLE[ATTR] and $VARIABLE[ATTR, ATTR = VALUE]
      *    @param error_str Returns the error reason, if any

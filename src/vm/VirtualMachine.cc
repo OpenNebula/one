@@ -281,8 +281,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     ostringstream oss;
 
-    vector<Attribute *> pci;
-
     // ------------------------------------------------------------------------
     // Set a name if the VM has not got one and VM_ID
     // ------------------------------------------------------------------------
@@ -448,20 +446,11 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // PCI Devices
     // ------------------------------------------------------------------------
 
-    user_obj_template->remove("PCI", pci);
+    rc = parse_pci(error_str);
 
-    for (vector<Attribute *>::iterator it = pci.begin(); it !=pci.end(); )
+    if ( rc != 0 )
     {
-        if ( (*it)->type() != Attribute::VECTOR )
-        {
-            delete *it;
-            it = pci.erase(it);
-        }
-        else
-        {
-            obj_template->set(*it);
-            ++it;
-        }
+        goto error_pci;
     }
 
     // -------------------------------------------------------------------------
@@ -534,6 +523,9 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_update:
+    goto error_rollback;
+
+error_pci:
     goto error_rollback;
 
 error_context:
@@ -1067,6 +1059,72 @@ error_cleanup:
     }
 
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_pci(string& error_str)
+{
+    VectorAttribute *               pci;
+    vector<Attribute *>             array_pci;
+    vector<Attribute *>::iterator   it;
+
+    unsigned int pci_val;
+    string st;
+
+    user_obj_template->remove("PCI", array_pci);
+
+    static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
+
+    for (it = array_pci.begin(); it !=array_pci.end(); it++)
+    {
+        obj_template->set(*it);
+    }
+
+    for (it = array_pci.begin(); it !=array_pci.end(); it++)
+    {
+        bool found = false;
+
+        pci = dynamic_cast<VectorAttribute * >(*it);
+
+        if ( pci == 0 )
+        {
+            error_str = "PCI attribute must be a vector attribute";
+            return -1;
+        }
+
+        for (int i=0; i<3; i++)
+        {
+            if (pci->vector_value(attrs[i].c_str(), st) != -1)
+            {
+                found = true;
+
+                pci_val = HostSharePCI::get_pci_value(attrs[i].c_str(), pci);
+
+                if (pci_val == 0)
+                {
+                    ostringstream oss;
+                    oss << "Wrong value for PCI/" << attrs[i] << ": "
+                        << pci->vector_value(attrs[i].c_str())
+                        <<". It must be a hex value";
+
+                    error_str = oss.str();
+                    return -1;
+                }
+            }
+        }
+
+        if (!found)
+        {
+            error_str = "Missing mandatory attributes inside PCI. "
+                        "Either DEVICE, VENDOR or CLASS must be defined";
+
+            return -1;
+        }
+    }
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

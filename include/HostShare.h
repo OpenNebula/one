@@ -108,12 +108,6 @@ public:
      */
     friend ostream& operator<<(ostream& o, const HostSharePCI& p);
 
-private:
-    /**
-     *  Sets the internal class structures from the template
-     */
-    int init();
-
     /**
      *  Gets a 4 hex digits value from attribute
      *    @param name of the attribute
@@ -122,6 +116,13 @@ private:
      */
     static unsigned int get_pci_value(const char * name,
                                       const VectorAttribute * pci_device);
+
+private:
+    /**
+     *  Sets the internal class structures from the template
+     */
+    int init();
+
     /**
      *  Internal structure to represent PCI devices for fast look up and
      *  update
