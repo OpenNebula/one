@@ -160,6 +160,8 @@ void HostSharePCI::add(vector<Attribute *> &devs, int vmid)
                 pci->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
 
                 pci->replace("ADDRESS",dev->attrs->vector_value("ADDRESS"));
+
+                break;
             }
         }
     }
