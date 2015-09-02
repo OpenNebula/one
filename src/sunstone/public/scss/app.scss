@@ -495,6 +495,10 @@ fieldset {
           border-bottom: 2px solid #999;
         }
       }
+
+      dd {
+        border-bottom: 2px solid transparent;
+      }
     }
 
     dd.active {
