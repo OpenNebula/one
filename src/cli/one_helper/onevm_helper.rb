@@ -28,7 +28,6 @@ $: << MAD_LOCATION
 
 require 'one_helper'
 require 'optparse/time'
-require 'one_tm'
 
 class String
     def red
@@ -340,6 +339,16 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     }
 
     def recover_retry_interactive(vm)
+        begin
+            require 'one_tm'
+        rescue LoadError
+            STDERR.puts <<-EOT
+one_tm library not found. Make sure you execute recover --interactive
+in the frontend machine.
+            EOT
+            exit(-1)
+        end
+
         # Disable CTRL-C in the menu
         trap("SIGINT") { }
 
