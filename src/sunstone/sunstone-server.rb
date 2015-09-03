@@ -458,6 +458,38 @@ post '/config' do
     [204, ""]
 end
 
+get '/infrastructure' do
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+
+    hpool = OpenNebula::HostPool.new(serveradmin_client)
+
+    rc = hpool.info
+
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    set = Set.new
+
+    xml = XMLElement.new
+    xml.initialize_xml(hpool.to_xml, 'HOST_POOL')
+    xml.each('HOST/HOST_SHARE/PCI_DEVICES/PCI') do |pci|
+        set.add({
+            :device => pci['DEVICE'],
+            :class  => pci['CLASS'],
+            :vendor => pci['VENDOR'],
+            :device_name => pci['DEVICE_NAME']
+        })
+    end
+
+    infrastructure = {
+        :pci_devices => set.to_a
+    }
+
+    [200, infrastructure.to_json]
+end
+
 get '/vm/:id/log' do
     @SunstoneServer.get_vm_log(params[:id])
 end

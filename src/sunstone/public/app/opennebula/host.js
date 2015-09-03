@@ -1,6 +1,7 @@
 define(function(require) {
   var OpenNebulaAction = require('./action');
   var Locale = require('utils/locale');
+  var OpenNebulaError = require('./error');
 
   var RESOURCE = "HOST";
 
@@ -83,6 +84,33 @@ define(function(require) {
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
+    },
+    "pciDevices": function(params){
+      var callback = params.success;
+      var callback_error = params.error;
+
+      $.ajax({
+        url: "infrastructure",
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+          var pcis = response.pci_devices;
+
+          if (pcis == undefined){
+            pcis = [];
+          }
+
+          if (!$.isArray(pcis)){ // If only 1 convert to array
+            pcis = [pcis];
+          }
+
+          return callback ? callback(pcis) : null;
+        },
+        error: function(response) {
+          return callback_error ?
+              callback_error(OpenNebulaError(response)) : null;
+        }
+      });
     }
   }
 
