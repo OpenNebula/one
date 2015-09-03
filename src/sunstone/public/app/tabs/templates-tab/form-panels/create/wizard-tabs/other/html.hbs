@@ -3,7 +3,7 @@
     <fieldset class="hypervisor only_xen only_kvm only_vmware">
       <legend>{{tr "RAW data"}}</legend>
       <div class="row">
-        <div class="large-4 columns">
+        <div class="medium-4 columns">
           <label for="raw_type">{{tr "TYPE"}}</label>
           <select id="raw_type" name="raw_type">
             <option value=""></option>
@@ -12,7 +12,7 @@
             <option value="vmware">{{tr "vmware"}}</option>
           </select>
         </div>
-        <div class="large-8 columns">
+        <div class="medium-8 columns">
           <label class="" for="raw_data">
             {{tr "DATA"}}
             {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
@@ -21,8 +21,8 @@
         </div>
       </div>
       <div id="data_vmx_div" class="row hidden">
-        <div class="large-4 columns"></div>
-        <div class="large-8 columns">
+        <div class="medium-4 columns"></div>
+        <div class="medium-8 columns">
           <label class="" for="raw_data_vmx">
             {{tr "DATA_VMX"}}
             {{{tip (tr "Raw data to be added directly to the .vmx file.")}}}
@@ -49,7 +49,7 @@
             <tfoot>
               <tr>
                 <td colspan="4">
-                  <a type="button" class="add_pci button small large-12 secondary radius">
+                  <a type="button" class="add_pci button small small-12 secondary radius">
                     <i class="fa fa-plus"></i> {{tr "Add PCI device"}}
                   </a>
                 </td>
