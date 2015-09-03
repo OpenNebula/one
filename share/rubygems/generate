@@ -55,6 +55,7 @@ GEM_DESCRIPTION={
             ['src/oca/ruby/opennebula.rb', '/lib'],
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
             ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
+            ['src/cloud/common/CloudClient.rb', '/lib/cloud'],
             ['NOTICE', ''],
             ['LICENSE', '']
         ],
