@@ -97,6 +97,8 @@ define(function(require) {
           html += '</select>';
 
           $(".device_name", tr).html(html);
+
+          $("input", tr).trigger("change");
         },
         error: function(request, error_json){
           console.error("There was an error requesting the PCI devices: "+
@@ -115,6 +117,18 @@ define(function(require) {
       $('input[wizard_field="DEVICE"]', tr).val( option.attr("device") );
       $('input[wizard_field="CLASS"]',  tr).val( option.attr("class") );
       $('input[wizard_field="VENDOR"]', tr).val( option.attr("vendor") );
+    });
+
+    context.on("change", ".pci_devices tbody input", function(){
+      var tr = $(this).closest('tr');
+
+      var opt =
+        $('option'+
+          '[device="'+$('input[wizard_field="DEVICE"]', tr).val()+'"]'+
+          '[class="'+$('input[wizard_field="CLASS"]',  tr).val()+'"]'+
+          '[vendor="'+$('input[wizard_field="VENDOR"]', tr).val()+'"]', tr);
+
+        opt.attr('selected', 'selected');
     });
 
     context.on("click", ".pci_devices i.remove-tab", function(){
