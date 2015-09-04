@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "August 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "September 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR \- manages OpenNebula virtual machines
@@ -471,7 +471,7 @@ disk\-snapshot\-create \fIvmid\fR \fIdiskid\fR \fIname\fR Takes a new snapshot o
 .
 .nf
 
-States: POWEROFF
+States: RUNNING, POWEROFF, SUSPENDED
 .
 .fi
 .
@@ -485,7 +485,7 @@ disk\-snapshot\-revert \fIvmid\fR \fIdiskid\fR \fIsnapshot_id\fR Reverts disk st
 .
 .nf
 
-States: POWEROFF
+States: RUNNING, POWEROFF, SUSPENDED
 .
 .fi
 .
@@ -499,7 +499,7 @@ disk\-snapshot\-delete \fIvmid\fR \fIdiskid\fR \fIsnapshot_id\fR Deletes a disk 
 .
 .nf
 
-States: POWEROFF
+States: RUNNING, POWEROFF, SUSPENDED
 .
 .fi
 .
@@ -572,7 +572,7 @@ diskid Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.13\.80 Copyright 2002\-2015, OpenNebula Project (OpenNebula\.org), C12G Labs
+OpenNebula 4\.13\.85 Copyright 2002\-2015, OpenNebula Project (OpenNebula\.org), C12G Labs
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0

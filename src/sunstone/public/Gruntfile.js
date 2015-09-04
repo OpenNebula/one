@@ -48,7 +48,7 @@ module.exports = function(grunt) {
           //name: 'vendor/almond', // 3
           mainConfigFile: './app/main.js', // 5
           preserveLicenseComments: false,
-          optimize: 'uglify2',
+          optimize: 'none',
           generateSourceMaps: true,
           removeCombined: true,
           //skipDirOptimize: false,
