@@ -249,6 +249,26 @@ public:
     }
 
     /**
+     *  Check if this share can host a VM, testing only the PCI devices.
+     *    @param pci_devs requested by the VM
+     *    @param error Returns the error reason, if any
+     *
+     *    @return true if the share can host the VM or it is the only one
+     *    configured
+     */
+    bool test(vector<Attribute *>& pci_devs, string& error) const
+    {
+        bool fits = pci.test(pci_devs);
+
+        if (!fits)
+        {
+            error = "Unavailable PCI device.";
+        }
+
+        return fits;
+    }
+
+    /**
      *  Function to write a HostShare to an output stream
      */
     friend ostream& operator<<(ostream& os, HostShare& hs);
