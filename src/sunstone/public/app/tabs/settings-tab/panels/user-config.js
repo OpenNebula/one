@@ -88,7 +88,7 @@ define(function(require) {
         return false;
       }
 
-      Sunstone.runAction("User.passwd", "-1", pw);
+      Sunstone.runAction("User.passwd", ["-1"], pw);
       return false;
     });
 
