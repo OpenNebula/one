@@ -1,6 +1,6 @@
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="host_type">{{tr "Type"}}</label>
       <select id="host_type_mad" name="host_type">
         <option value="kvm">{{tr "KVM"}}</option>
@@ -14,19 +14,19 @@
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
-    <div class="large-6 columns" id="cluster_select">
+    <div class="medium-6 columns" id="cluster_select">
       <label for="host_cluster_id">{{tr "Cluster"}}</label>
       <div id="host_cluster_id" name="host_cluster_id"></div>
     </div>
   </div>
   <div class="row">
-    <div class="large-6 columns" id="name_container">
+    <div class="medium-6 columns" id="name_container">
       <label for="name">{{tr "Hostname"}}</label>
       <input type="text" name="name" id="name" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <div class="manager clear row" id="vnm_mads">
-        <div class="large-12 columns">
+        <div class="medium-12 columns">
           <label for="vn">{{tr "Networking"}}</label>
           <select id="vnm_mad" name="vn">
             <option value="dummy">{{tr "Default (dummy)"}}</option>
@@ -50,7 +50,7 @@
     <fieldset>
       <legend>{{tr "Drivers"}}</legend>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <div class="manager clear row" id="vmm_mads">
             <div class="large-12 columns">
               <label for="vmm">{{tr "Virtualization"}}</label>
@@ -72,7 +72,7 @@
             </div>
           </div>
         </div>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <div class="manager clear row" id="im_mads">
             <div class="large-12 columns">
               <label for="im">{{tr "Information"}}</label>
@@ -101,21 +101,21 @@
     <fieldset>
       <legend>{{tr "vCenter"}}</legend>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="vcenter_user">{{tr "User"}}</label>
           <input type="text" name="vcenter_user" id="vcenter_user" />
         </div>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="vcenter_host">{{tr "Hostname"}}</label>
           <input type="text" name="vcenter_host" id="vcenter_host" />
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="vcenter_password">{{tr "Password"}}</label>
           <input type="password" name="vcenter_password" id="vcenter_password" />
         </div>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <br>
           <a class="button radius small right" id="get_vcenter_clusters">{{tr "Get vCenter Clusters"}}</a>
         </div>

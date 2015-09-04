@@ -1,13 +1,13 @@
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
-    <div class="service_template_param st_man large-6 columns">
+    <div class="service_template_param st_man medium-6 columns">
       <label for="service_name">
         {{tr "Name"}}
         <span class="tip">{{tr "Name for this template"}}</span>
       </label>
       <input type="text" id="service_name" name="service_name" required/>
     </div>
-    <div class="service_template_param st_man large-6 columns">
+    <div class="service_template_param st_man medium-6 columns">
     </div>
   </div>
   <div class="row">
@@ -37,7 +37,7 @@
           <tfoot>
             <tr>
               <td colspan="3">
-                <a type="button" class="add_service_network button small large-12 secondary radius"><i class="fa fa-plus"></i>{{tr "Add another Network"}}</a>
+                <a type="button" class="add_service_network button small small-12 secondary radius"><i class="fa fa-plus"></i>{{tr "Add another Network"}}</a>
               </td>
             </tr>
           </tfoot>
@@ -49,7 +49,7 @@
   <br>
   {{#advancedSection (tr "Advanced Service Parameters") }}
   <div class="row">
-    <div class="service_template_param st_man large-6 columns">
+    <div class="service_template_param st_man medium-6 columns">
       <label for="deployment">
         {{tr "Strategy"}}
         <span class="tip">{{tr "Straight strategy will instantiate each role in order: parents role will be deployed before their children. None strategy will instantiate the roles regardless of their relationships."}}</span>
@@ -59,7 +59,7 @@
         <option value="none">{{tr "None"}}</option>
       </select>
     </div>
-    <div class="service_template_param st_man large-6 columns">
+    <div class="service_template_param st_man medium-6 columns">
       <label for="shutdown_action_service">
         {{tr "Shutdown action"}}
         <span class="tip">{{tr "VM shutdown action: 'shutdown' or 'shutdown-hard'."}}</span>
@@ -72,7 +72,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="service_template_param st_man large-6 columns">
+    <div class="service_template_param st_man medium-6 columns">
       <input type="checkbox" name="ready_status_gate" id="ready_status_gate"/>
       <label for="ready_status_gate">
         {{tr "Wait for VMs to report that they are READY"}}
