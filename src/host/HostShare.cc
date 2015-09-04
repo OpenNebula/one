@@ -92,7 +92,7 @@ bool HostSharePCI::test(const vector<Attribute *> &devs) const
         device_id = get_pci_value("DEVICE", pci);
         class_id  = get_pci_value("CLASS", pci);
 
-        if (vendor_id == 0 && device_id == 0 && class_id == 0)
+        if (vendor_id <= 0 && device_id <= 0 && class_id <= 0)
         {
             return false;
         }
@@ -293,7 +293,7 @@ unsigned int HostSharePCI::get_pci_value(const char * name,
 
     if (iss.fail() || !iss.eof())
     {
-        return 0;
+        return -1;
     }
 
     return pci_value;

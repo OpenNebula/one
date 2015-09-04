@@ -1071,7 +1071,6 @@ int VirtualMachine::parse_pci(string& error_str)
     vector<Attribute *>::iterator   it;
 
     unsigned int pci_val;
-    string st;
 
     user_obj_template->remove("PCI", array_pci);
 
@@ -1096,22 +1095,21 @@ int VirtualMachine::parse_pci(string& error_str)
 
         for (int i=0; i<3; i++)
         {
-            if (pci->vector_value(attrs[i].c_str(), st) != -1)
+            pci_val = HostSharePCI::get_pci_value(attrs[i].c_str(), pci);
+
+            if (pci_val == -1)
+            {
+                ostringstream oss;
+                oss << "Wrong value for PCI/" << attrs[i] << ": "
+                    << pci->vector_value(attrs[i].c_str())
+                    <<". It must be a hex value";
+
+                error_str = oss.str();
+                return -1;
+            }
+            else if ( pci_val != 0 )
             {
                 found = true;
-
-                pci_val = HostSharePCI::get_pci_value(attrs[i].c_str(), pci);
-
-                if (pci_val == 0)
-                {
-                    ostringstream oss;
-                    oss << "Wrong value for PCI/" << attrs[i] << ": "
-                        << pci->vector_value(attrs[i].c_str())
-                        <<". It must be a hex value";
-
-                    error_str = oss.str();
-                    return -1;
-                }
             }
         }
 
