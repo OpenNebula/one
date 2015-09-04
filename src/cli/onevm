@@ -812,7 +812,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Takes a new snapshot of the given disk. This operation needs support
         from the Datastore drivers: QCOW2 or Ceph.
 
-        States: POWEROFF
+        States: RUNNING, POWEROFF, SUSPENDED
     EOT
 
     command :"disk-snapshot-create", disk_snapshot_create_desc,
@@ -825,7 +825,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     disk_snapshot_revert_desc = <<-EOT.unindent
         Reverts disk state to a previously taken snapshot.
 
-        States: POWEROFF
+        States: RUNNING, POWEROFF, SUSPENDED
     EOT
 
     command :"disk-snapshot-revert", disk_snapshot_revert_desc,
@@ -838,7 +838,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     disk_snapshot_delete_desc = <<-EOT.unindent
         Deletes a disk snapshot.
 
-        States: POWEROFF
+        States: RUNNING, POWEROFF, SUSPENDED
     EOT
     command :"disk-snapshot-delete", disk_snapshot_delete_desc,
       :vmid, :diskid, :snapshot_id do
