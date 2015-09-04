@@ -81,7 +81,7 @@ define(function(require) {
       OpenNebulaHost.pciDevices({
         data : {},
         timeout: true,
-        success: function (pciDevices){
+        success: function (request, pciDevices){
           var html = "<select>";
 
           html += '<option device="" class="" vendor="">'+Locale.tr("Please select")+'</option>';
@@ -98,7 +98,7 @@ define(function(require) {
 
           $(".device_name", tr).html(html);
         },
-        error: function(error_json){
+        error: function(request, error_json){
           console.error("There was an error requesting the PCI devices: "+
                         error_json.error.message);
 

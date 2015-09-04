@@ -2,6 +2,19 @@ define(function(require) {
   var OpenNebulaAction = require('./action');
   var Locale = require('utils/locale');
   var OpenNebulaError = require('./error');
+  var OpenNebulaHelper = require('./helper');
+
+
+  var pcisCache;
+  var pcisWaiting = false;
+  var pcisCallbacks = [];
+
+  var CACHE_EXPIRE = 300000; //ms
+
+  var _clearCache = function() {
+    pcisCache = null;
+    //console.log("Host.pciDevices. Cache cleaned");
+  };
 
   var RESOURCE = "HOST";
 
@@ -49,9 +62,11 @@ define(function(require) {
     "STATES": STATES,
     "create": function(params) {
       OpenNebulaAction.create(params, RESOURCE);
+      _clearCache();
     },
     "del": function(params) {
       OpenNebulaAction.del(params, RESOURCE);
+      _clearCache();
     },
     "list": function(params) {
       OpenNebulaAction.list(params, RESOURCE);
@@ -65,12 +80,15 @@ define(function(require) {
     "update": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
+      _clearCache();
     },
     "enable": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "enable");
+      _clearCache();
     },
     "disable": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "disable");
+      _clearCache();
     },
     "monitor" : function(params) {
       OpenNebulaAction.monitor(params, RESOURCE, false);
@@ -87,7 +105,32 @@ define(function(require) {
     },
     "pciDevices": function(params){
       var callback = params.success;
-      var callback_error = params.error;
+      var callbackError = params.error;
+      var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
+
+      if (pcisCache &&
+          pcisCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
+
+        //console.log("Host.pciDevices. Cache used");
+
+        return callback ?
+            callback(request, pcisCache["data"]) : null;
+      }
+
+      pcisCallbacks.push({
+        success : callback,
+        error : callbackError
+      });
+
+      //console.log("Host.pciDevices. Callback queued");
+
+      if (pcisWaiting) {
+        return;
+      }
+
+      pcisWaiting = true;
+
+      //console.log("Host.pciDevices. NO cache, calling ajax");
 
       $.ajax({
         url: "infrastructure",
@@ -104,11 +147,41 @@ define(function(require) {
             pcis = [pcis];
           }
 
-          return callback ? callback(pcis) : null;
+          pcisCache = {
+            timestamp   : new Date().getTime(),
+            data        : pcis
+          };
+
+          pcisWaiting = false;
+
+          for (var i = 0; i < pcisCallbacks.length; i++) {
+            var callback = pcisCallbacks[i].success;
+
+            if (callback) {
+              //console.log("Host.pciDevices. Callback called");
+              callback(request, pcis);
+            }
+          }
+
+          pcisCallbacks = [];
+
+          return;
         },
         error: function(response) {
-          return callback_error ?
-              callback_error(OpenNebulaError(response)) : null;
+          pcisWaiting = false;
+
+          for (var i = 0; i < pcisCallbacks.length; i++) {
+            var callback = pcisCallbacks[i].error;
+
+            if (callback) {
+              //console.log("Host.pciDevices. ERROR Callback called");
+              callback(request, OpenNebulaError(response));
+            }
+          }
+
+          pcisCallbacks = [];
+
+          return;
         }
       });
     }
