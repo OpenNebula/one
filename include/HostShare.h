@@ -112,10 +112,11 @@ public:
      *  Gets a 4 hex digits value from attribute
      *    @param name of the attribute
      *    @pci_device VectorAttribute representing the device
-     *    @return the value as unsigned int or 0 if was not found
+     *    @return the 0 if not found, -1 syntax error, >0 valid hex value
      */
-    static unsigned int get_pci_value(const char * name,
-                                      const VectorAttribute * pci_device);
+    static int get_pci_value(const char * name,
+                             const VectorAttribute * pci_device,
+                             unsigned int& value);
 
 private:
     /**

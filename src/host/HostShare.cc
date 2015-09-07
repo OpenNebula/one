@@ -88,11 +88,9 @@ bool HostSharePCI::test(const vector<Attribute *> &devs) const
             return false;
         }
 
-        vendor_id = get_pci_value("VENDOR", pci);
-        device_id = get_pci_value("DEVICE", pci);
-        class_id  = get_pci_value("CLASS", pci);
-
-        if (vendor_id <= 0 && device_id <= 0 && class_id <= 0)
+        if (get_pci_value("VENDOR", pci, vendor_id) <= 0 &&
+            get_pci_value("DEVICE", pci, device_id) <= 0 &&
+            get_pci_value("CLASS" , pci, class_id)  <= 0)
         {
             return false;
         }
@@ -143,9 +141,9 @@ void HostSharePCI::add(vector<Attribute *> &devs, int vmid)
             return;
         }
 
-        vendor_id = get_pci_value("VENDOR", pci);
-        device_id = get_pci_value("DEVICE", pci);
-        class_id  = get_pci_value("CLASS", pci);
+        get_pci_value("VENDOR", pci, vendor_id);
+        get_pci_value("DEVICE", pci, device_id);
+        get_pci_value("CLASS" , pci, class_id);
 
         for (jt=pci_devices.begin(); jt!=pci_devices.end(); jt++)
         {
@@ -274,8 +272,8 @@ void HostSharePCI::set_monitorization(vector<Attribute*> &pci_att)
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 
-unsigned int HostSharePCI::get_pci_value(const char * name,
-    const VectorAttribute * pci_device)
+int HostSharePCI::get_pci_value(const char * name,
+    const VectorAttribute * pci_device, unsigned int &pci_value)
 {
     string temp;
 
@@ -286,7 +284,6 @@ unsigned int HostSharePCI::get_pci_value(const char * name,
         return 0;
     }
 
-    unsigned int  pci_value;
     istringstream iss(temp);
 
     iss >> hex >> pci_value;
@@ -296,7 +293,7 @@ unsigned int HostSharePCI::get_pci_value(const char * name,
         return -1;
     }
 
-    return pci_value;
+    return 1;
 }
 
 /* ------------------------------------------------------------------------*/
@@ -305,9 +302,9 @@ unsigned int HostSharePCI::get_pci_value(const char * name,
 HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
     : vmid(-1), attrs(_attrs)
 {
-    vendor_id = get_pci_value("VENDOR", attrs);
-    device_id = get_pci_value("DEVICE", attrs);
-    class_id  = get_pci_value("CLASS", attrs);
+    get_pci_value("VENDOR", attrs, vendor_id);
+    get_pci_value("DEVICE", attrs, device_id);
+    get_pci_value("CLASS" , attrs, class_id);
 
     if (attrs->vector_value("VMID", vmid) == -1)
 	{
