@@ -186,7 +186,7 @@ module ElasticityGrammar
           r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
           @index += match_len
         else
-          terminal_parse_failure('&&')
+          terminal_parse_failure('\'&&\'')
           r5 = nil
         end
         if r5
@@ -197,7 +197,7 @@ module ElasticityGrammar
             r6 = true
             @index += match_len
           else
-            terminal_parse_failure('&')
+            terminal_parse_failure('\'&\'')
             r6 = nil
           end
           if r6
@@ -243,7 +243,7 @@ module ElasticityGrammar
             r13 = instantiate_node(SyntaxNode,input, index...(index + match_len))
             @index += match_len
           else
-            terminal_parse_failure('||')
+            terminal_parse_failure('\'||\'')
             r13 = nil
           end
           if r13
@@ -254,7 +254,7 @@ module ElasticityGrammar
               r14 = true
               @index += match_len
             else
-              terminal_parse_failure('|')
+              terminal_parse_failure('\'|\'')
               r14 = nil
             end
             if r14
@@ -434,7 +434,7 @@ module ElasticityGrammar
         r8 = true
         @index += match_len
       else
-        terminal_parse_failure('!')
+        terminal_parse_failure('\'!\'')
         r8 = nil
       end
       s7 << r8
@@ -463,7 +463,7 @@ module ElasticityGrammar
           r12 = true
           @index += match_len
         else
-          terminal_parse_failure('(')
+          terminal_parse_failure('\'(\'')
           r12 = nil
         end
         s11 << r12
@@ -481,7 +481,7 @@ module ElasticityGrammar
                   r16 = true
                   @index += match_len
                 else
-                  terminal_parse_failure(')')
+                  terminal_parse_failure('\')\'')
                   r16 = nil
                 end
                 s11 << r16
@@ -565,7 +565,7 @@ module ElasticityGrammar
       r2 = instantiate_node(SyntaxNode,input, index...(index + match_len))
       @index += match_len
     else
-      terminal_parse_failure('==')
+      terminal_parse_failure('\'==\'')
       r2 = nil
     end
     if r2
@@ -577,7 +577,7 @@ module ElasticityGrammar
         r3 = true
         @index += match_len
       else
-        terminal_parse_failure('=')
+        terminal_parse_failure('\'=\'')
         r3 = nil
       end
       if r3
@@ -598,7 +598,7 @@ module ElasticityGrammar
         r5 = instantiate_node(SyntaxNode,input, index...(index + match_len))
         @index += match_len
       else
-        terminal_parse_failure('!=')
+        terminal_parse_failure('\'!=\'')
         r5 = nil
       end
       if r5
@@ -610,7 +610,7 @@ module ElasticityGrammar
           r6 = instantiate_node(SyntaxNode,input, index...(index + match_len))
           @index += match_len
         else
-          terminal_parse_failure('<>')
+          terminal_parse_failure('\'<>\'')
           r6 = nil
         end
         if r6
@@ -631,7 +631,7 @@ module ElasticityGrammar
           r7.extend(CompOp2)
           @index += match_len
         else
-          terminal_parse_failure('>=')
+          terminal_parse_failure('\'>=\'')
           r7 = nil
         end
         if r7
@@ -643,7 +643,7 @@ module ElasticityGrammar
             r8.extend(CompOp3)
             @index += match_len
           else
-            terminal_parse_failure('>')
+            terminal_parse_failure('\'>\'')
             r8 = nil
           end
           if r8
@@ -655,7 +655,7 @@ module ElasticityGrammar
               r9.extend(CompOp4)
               @index += match_len
             else
-              terminal_parse_failure('<=')
+              terminal_parse_failure('\'<=\'')
               r9 = nil
             end
             if r9
@@ -667,7 +667,7 @@ module ElasticityGrammar
                 r10.extend(CompOp5)
                 @index += match_len
               else
-                terminal_parse_failure('<')
+                terminal_parse_failure('\'<\'')
                 r10 = nil
               end
               if r10
@@ -773,7 +773,7 @@ module ElasticityGrammar
       r3 = true
       @index += match_len
     else
-      terminal_parse_failure('-')
+      terminal_parse_failure('\'-\'')
       r3 = nil
     end
     if r3
@@ -810,7 +810,7 @@ module ElasticityGrammar
           r6 = true
           @index += match_len
         else
-          terminal_parse_failure('.')
+          terminal_parse_failure('\'.\'')
           r6 = nil
         end
         s1 << r6
@@ -857,7 +857,7 @@ module ElasticityGrammar
         r11 = true
         @index += match_len
       else
-        terminal_parse_failure('-')
+        terminal_parse_failure('\'-\'')
         r11 = nil
       end
       if r11
@@ -962,7 +962,7 @@ module ElasticityGrammar
             val = nil
             st = "#{att}[--]"
         else
-            val = (total / n_nodes).round(2)
+            val = ((total / n_nodes)*100).round/100.0
             st = "#{att}[#{val.to_s}]"
         end
 
@@ -987,7 +987,7 @@ module ElasticityGrammar
       r2 = true
       @index += match_len
     else
-      terminal_parse_failure('"')
+      terminal_parse_failure('\'"\'')
       r2 = nil
     end
     s1 << r2
@@ -1023,7 +1023,7 @@ module ElasticityGrammar
             r6 = true
             @index += match_len
           else
-            terminal_parse_failure('"')
+            terminal_parse_failure('\'"\'')
             r6 = nil
           end
           s1 << r6
@@ -1047,7 +1047,7 @@ module ElasticityGrammar
         r8 = true
         @index += match_len
       else
-        terminal_parse_failure('\'')
+        terminal_parse_failure('\'\\\'\'')
         r8 = nil
       end
       s7 << r8
@@ -1083,7 +1083,7 @@ module ElasticityGrammar
               r12 = true
               @index += match_len
             else
-              terminal_parse_failure('\'')
+              terminal_parse_failure('\'\\\'\'')
               r12 = nil
             end
             s7 << r12
@@ -1170,7 +1170,7 @@ module ElasticityGrammar
         r1 = true
         @index += match_len
       else
-        terminal_parse_failure(' ')
+        terminal_parse_failure('\' \'')
         r1 = nil
       end
       if r1
