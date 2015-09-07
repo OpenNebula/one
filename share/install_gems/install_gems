@@ -21,6 +21,7 @@ else
     ZENDESK_API='zendesk_api'
 end
 
+TREETOP = 'treetop --version ">= 1.6.3"'
 DEFAULT = DEFAULT_PRE if !defined?(DEFAULT)
 
 GROUPS={
@@ -31,7 +32,7 @@ GROUPS={
     :hybrid     => %w{softlayer_api configparser azure},
     :auth_ldap  => LDAP,
     :vmware     => %w{builder trollop},
-    :oneflow    => %w{sinatra json treetop parse-cron},
+    :oneflow    => ['sinatra', 'json', TREETOP, 'parse-cron'],
     :ec2_hybrid => 'aws-sdk --version "= 1.33"',
     :oca        => 'ox',
     :onedb      => "mysql"
