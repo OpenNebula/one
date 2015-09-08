@@ -243,11 +243,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
-                d["CPU"]
+                cpu = d["MONITORING"]["CPU"]
+                cpu = "0" if cpu.nil?
+
+                cpu
             end
 
             column :UMEM, "Memory used by the VM", :size=>7 do |d|
-                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
+                OpenNebulaHelper.unit_to_str(d["MONITORING"]["MEMORY"].to_i, options)
             end
 
             column :HOST, "Host where the VM is running", :left, :size=>10 do |d|
