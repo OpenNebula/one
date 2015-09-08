@@ -77,6 +77,7 @@ bool HostSharePCI::test(const vector<Attribute *> &devs) const
     std::set<string> assigned;
 
     unsigned int vendor_id, device_id, class_id;
+    int vendor_rc, device_rc, class_rc;
     bool found;
 
     for ( it=devs.begin(); it!= devs.end(); it++)
@@ -88,9 +89,13 @@ bool HostSharePCI::test(const vector<Attribute *> &devs) const
             return false;
         }
 
-        if (get_pci_value("VENDOR", pci, vendor_id) <= 0 &&
-            get_pci_value("DEVICE", pci, device_id) <= 0 &&
-            get_pci_value("CLASS" , pci, class_id)  <= 0)
+        vendor_rc = get_pci_value("VENDOR", pci, vendor_id);
+        device_rc = get_pci_value("DEVICE", pci, device_id);
+        class_rc  = get_pci_value("CLASS" , pci, class_id);
+
+        if (vendor_rc <= 0 &&
+            device_rc <= 0 &&
+            class_rc  <= 0)
         {
             return false;
         }
@@ -99,9 +104,9 @@ bool HostSharePCI::test(const vector<Attribute *> &devs) const
         {
             PCIDevice * dev = jt->second;
 
-            if ((class_id  == 0 || dev->class_id  == class_id)  &&
-                (vendor_id == 0 || dev->vendor_id == vendor_id) &&
-                (device_id == 0 || dev->device_id == device_id) &&
+            if ((class_rc  == 0 || dev->class_id  == class_id)  &&
+                (vendor_rc == 0 || dev->vendor_id == vendor_id) &&
+                (device_rc == 0 || dev->device_id == device_id) &&
                 dev->vmid  == -1 &&
                 assigned.find(dev->address) == assigned.end())
             {
@@ -131,6 +136,7 @@ void HostSharePCI::add(vector<Attribute *> &devs, int vmid)
     map<string, PCIDevice *>::const_iterator jt;
 
     unsigned int vendor_id, device_id, class_id;
+    int vendor_rc, device_rc, class_rc;
 
     for ( it=devs.begin(); it!= devs.end(); it++)
     {
@@ -141,17 +147,17 @@ void HostSharePCI::add(vector<Attribute *> &devs, int vmid)
             return;
         }
 
-        get_pci_value("VENDOR", pci, vendor_id);
-        get_pci_value("DEVICE", pci, device_id);
-        get_pci_value("CLASS" , pci, class_id);
+        vendor_rc = get_pci_value("VENDOR", pci, vendor_id);
+        device_rc = get_pci_value("DEVICE", pci, device_id);
+        class_rc  = get_pci_value("CLASS" , pci, class_id);
 
         for (jt=pci_devices.begin(); jt!=pci_devices.end(); jt++)
         {
             PCIDevice * dev = jt->second;
 
-            if ((class_id  == 0 || dev->class_id  == class_id)  &&
-                (vendor_id == 0 || dev->vendor_id == vendor_id) &&
-                (device_id == 0 || dev->device_id == device_id) &&
+            if ((class_rc  == 0 || dev->class_id  == class_id)  &&
+                (vendor_rc == 0 || dev->vendor_id == vendor_id) &&
+                (device_rc == 0 || dev->device_id == device_id) &&
                 dev->vmid  == -1 )
             {
                 dev->vmid = vmid;
@@ -302,6 +308,10 @@ int HostSharePCI::get_pci_value(const char * name,
 HostSharePCI::PCIDevice::PCIDevice(VectorAttribute * _attrs)
     : vmid(-1), attrs(_attrs)
 {
+    vendor_id = 0;
+    device_id = 0;
+    class_id  = 0;
+
     get_pci_value("VENDOR", attrs, vendor_id);
     get_pci_value("DEVICE", attrs, device_id);
     get_pci_value("CLASS" , attrs, class_id);
