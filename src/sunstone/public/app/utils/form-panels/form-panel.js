@@ -67,7 +67,7 @@ define(function(require) {
 
     this.action = action;
 
-    if ((prevAction && prevAction != action) || action == "update") {
+    if (prevAction != undefined && (prevAction != action || action == "update")) {
       this.reset(context);
     }
   }

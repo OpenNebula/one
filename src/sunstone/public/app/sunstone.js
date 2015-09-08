@@ -740,6 +740,7 @@ define(function(require) {
         } // Panel not defined
 
         formPanelInstance = new formPanel();
+        formPanelInstance.setAction(formContext, action);
         tab["formPanelInstances"][formPanelId] = formPanelInstance;
         formPanelInstance.insert(formContext);
       }
