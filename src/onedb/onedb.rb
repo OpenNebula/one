@@ -69,6 +69,8 @@ class OneDB
     end
 
     def backup(bck_file, ops, backend=@backend)
+        bck_file = backend.bck_file if bck_file.nil?
+
         if !ops[:force] && File.exists?(bck_file)
             raise "File #{bck_file} exists, backup aborted. Use -f " <<
                   "to overwrite."
