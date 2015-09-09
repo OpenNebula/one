@@ -11,7 +11,6 @@ define(function(require) {
     'fill': _fillWizardFields
   }
 
-  // TODO: other types: radio, checkbox
   function _retrieveWizardFields(context) {
     var templateJSON = {};
     var fields = $('[wizard_field]', context);
@@ -37,32 +36,41 @@ define(function(require) {
     fields.each(function() {
       var field = $(this);
       var field_name = field.attr('wizard_field');
-      if (templateJSON[field_name]) {
-        switch (field.attr("type")){
-        case "radio":
-          var checked = (field.val() == templateJSON[field_name]);
+      var field_val = templateJSON[field_name];
 
-          field.prop("checked", checked);
+      if (field_val) {
+        if (field.is("select")){
+          var option = $("option", field).filter(function() {
+            return $(this).attr('value').toUpperCase() == field_val.toUpperCase();
+          });
 
-          if (checked) {
+          field.val(option.val()).change();
+        } else {  // if (field.is("input")){
+          switch (field.attr("type")){
+          case "radio":
+            var checked = (field.val().toUpperCase() == field_val.toUpperCase());
+
+            field.prop("checked", checked);
+
+            if (checked) {
+              field.change();
+            }
+            break;
+          case "checkbox":
+            var checked = (field.val().toUpperCase() == field_val.toUpperCase());
+
+            field.prop("checked", checked);
+
+            if (checked) {
+              field.change();
+            }
+            break;
+          default:
+            field.val(
+              TemplateUtils.escapeDoubleQuotes(
+                TemplateUtils.htmlDecode(field_val)));
             field.change();
           }
-          break;
-        case "checkbox":
-          var checked = (field.val().toUpperCase() ==
-                          templateJSON[field_name].toUpperCase());
-
-          field.prop("checked", checked);
-
-          if (checked) {
-            field.change();
-          }
-          break;
-        default:
-          field.val(
-            TemplateUtils.escapeDoubleQuotes(
-              TemplateUtils.htmlDecode(templateJSON[field_name])));
-          field.change();
         }
 
         delete templateJSON[field_name];
