@@ -108,20 +108,22 @@ public:
      */
     friend ostream& operator<<(ostream& o, const HostSharePCI& p);
 
+    /**
+     *  Gets a 4 hex digits value from attribute
+     *    @param name of the attribute
+     *    @pci_device VectorAttribute representing the device
+     *    @return the 0 if not found, -1 syntax error, >0 valid hex value
+     */
+    static int get_pci_value(const char * name,
+                             const VectorAttribute * pci_device,
+                             unsigned int& value);
+
 private:
     /**
      *  Sets the internal class structures from the template
      */
     int init();
 
-    /**
-     *  Gets a 4 hex digits value from attribute
-     *    @param name of the attribute
-     *    @pci_device VectorAttribute representing the device
-     *    @return the value as unsigned int or 0 if was not found
-     */
-    static unsigned int get_pci_value(const char * name,
-                                      const VectorAttribute * pci_device);
     /**
      *  Internal structure to represent PCI devices for fast look up and
      *  update
@@ -242,6 +244,26 @@ public:
             {
                 error = "Unavailable PCI device.";
             }
+        }
+
+        return fits;
+    }
+
+    /**
+     *  Check if this share can host a VM, testing only the PCI devices.
+     *    @param pci_devs requested by the VM
+     *    @param error Returns the error reason, if any
+     *
+     *    @return true if the share can host the VM or it is the only one
+     *    configured
+     */
+    bool test(vector<Attribute *>& pci_devs, string& error) const
+    {
+        bool fits = pci.test(pci_devs);
+
+        if (!fits)
+        {
+            error = "Unavailable PCI device.";
         }
 
         return fits;

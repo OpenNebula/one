@@ -455,6 +455,18 @@ public:
     }
 
     /**
+     *  Tests whether a new VM can be hosted by the host or not, checking the
+     *  PCI devices only.
+     *    @param pci devices needed by the VM
+     *    @param error Returns the error reason, if any
+     *    @return true if the share can host the VM
+     */
+    bool test_capacity(vector<Attribute *> &pci, string& error) const
+    {
+        return host_share.test(pci, error);
+    }
+
+    /**
      *  Returns a copy of the VM IDs set
      */
     set<int> get_vm_ids()

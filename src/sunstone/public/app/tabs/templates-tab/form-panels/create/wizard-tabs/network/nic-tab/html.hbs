@@ -5,14 +5,14 @@
   <fieldset>
     <legend>{{tr "Choose Network"}}</legend>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="NETWORK_ID">
           {{tr "ID"}}
           {{{tip (tr "Identifier of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
         </label>
         <input type="text" wizard_field="NETWORK_ID" id="NETWORK_ID" name="NETWORK_ID"/>
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="NETWORK">
           {{tr "Name"}}
           {{{tip (tr "Name of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
@@ -21,14 +21,14 @@
       </div>
     </div>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="NETWORK_UID">
           {{tr "User ID"}}
           {{{tip (tr "Identifier of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
         </label>
         <input type="text" wizard_field="NETWORK_UID" id="NETWORK_UID" name="NETWORK_UID"/>
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="NETWORK_UNAME">
           {{tr "User Name"}}
           {{{tip (tr "Name of the user owner of the virtual network from which to lease an IP and MAC address to this Virtual Machine network interface.")}}}
@@ -40,14 +40,14 @@
   <fieldset>
     <legend>{{tr "Override Network Values IPv4"}}</legend>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="IP">
           {{tr "IP"}}
           {{{tip (tr "Request an specific IP from the Network")}}}
         </label>
         <input type="text" wizard_field="IP" id="IP" name="IP" size="3" />
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="MAC">
           {{tr "MAC"}}
           {{{tip (tr "Set a specific MAC to the NIC")}}}
@@ -56,14 +56,14 @@
       </div>
     </div>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="NETWORK_MASK">
           {{tr "Network Mask"}}
           {{{tip (tr "Override the network mask of the network. For example, 255.255.255.0")}}}
         </label>
         <input type="text" wizard_field="NETWORK_MASK" id="NETWORK_MASK" name="NETWORK_MASK"/>
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="NETWORK_ADDRESS">
           {{tr "Network Address"}}
           {{{tip (tr "Override the base network address. For example, 192.168.1.0")}}}
@@ -72,14 +72,14 @@
       </div>
     </div>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="GATEWAY">
           {{tr "Gateway"}}
           {{{tip (tr "Override the Router of the network.")}}}
         </label>
         <input type="text" wizard_field="GATEWAY" id="GATEWAY" name="GATEWAY"/>
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="DNS">
           {{tr "DNS"}}
           {{{tip (tr "Override the specific DNS for this network")}}}
@@ -88,7 +88,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="SEARCH_DOMAIN">
           {{tr "Search Domain"}}
           {{{tip (tr "Override the Search Domain for this network.")}}}
@@ -100,14 +100,14 @@
   <fieldset>
     <legend>{{tr "Override Network Values IPv6"}}</legend>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="IP6_GLOBAL">
           {{tr "IP6 Global"}}
           {{{tip (tr "Request an specific IP from the IPv6 Network")}}}
         </label>
         <input type="text" wizard_field="IP6_GLOBAL" id="IP6_GLOBAL" name="IP6_GLOBAL" size="3" />
       </div>
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="GATEWAY6">
           {{tr "GATEWAY6"}}
           {{{tip (tr "Override the Router of the IPv6 network.")}}}
@@ -116,7 +116,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="CONTEXT_FORCE_IPV4">
           {{tr "Network Mask"}}
           {{{tip (tr "Override force IPv4 for this IPv6 network. Values: Yes or No.")}}}
@@ -128,7 +128,7 @@
   <fieldset>
     <legend>{{tr "Harware"}}</legend>
     <div class="row">
-      <div class="large-6 columns">
+      <div class="medium-6 columns">
         <label for="MODEL">
           {{tr "Model"}}
           {{{tip (tr "Hardware that will emulate this network interface. With Xen this is the type attribute of the vif.")}}}

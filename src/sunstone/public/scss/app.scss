@@ -171,26 +171,17 @@ input.search {
 
 
 // User settings and zone
-.user-zone-container {
-    position: relative;
 
-    .user-zone-info {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        z-index: 1;
+.user-zone-info {
+    .button {
+        background: #fff;
+        border: none;
+    }
 
-        .button {
-            background: #fff;
-            border: none;
-        }
-
-        .button:hover {
-            background: #F5F5F5;
-        }
+    .button:hover {
+        background: #F5F5F5;
     }
 }
-
 
 .white_button {
     background-color: #fff !important;
@@ -263,7 +254,6 @@ input.search {
 
 .header-row {
   margin-bottom: 20px !important;
-  margin-top: 25px !important;
 
   .resource-id {
     color: #999;
@@ -504,6 +494,10 @@ fieldset {
         &:hover {
           border-bottom: 2px solid #999;
         }
+      }
+
+      dd {
+        border-bottom: 2px solid transparent;
       }
     }
 
@@ -1311,4 +1305,19 @@ hr {
     color: #777;
     padding: 0 0.5rem;
   }
+}
+
+.menu-small {
+  position: absolute;
+  z-index: 20;
+  box-shadow: 5px 10px 15px 5px rgba(0,0,0,.1);
+}
+
+#menu-wrapper {
+  padding-top: 5px;
+  background-color: white
+}
+
+#menu-toggle {
+  padding: 0px
 }

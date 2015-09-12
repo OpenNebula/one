@@ -124,7 +124,7 @@ define(function(require) {
     if ($("#ssh_context", context).is(":checked")) {
       var public_key = $("#ssh_public_key", context).val();
       if (public_key) {
-        contextJSON["SSH_PUBLIC_KEY"] = public_key;
+        contextJSON["SSH_PUBLIC_KEY"] = TemplateUtils.escapeDoubleQuotes(public_key);
       } else {
         contextJSON["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
       }

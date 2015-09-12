@@ -77,6 +77,8 @@ define(function(require) {
    */
 
   function _elementArray(element_json) {
+    this.totalGroups++;
+
     var element = element_json[XML_ROOT];
 
     var users_str = "0";

@@ -408,6 +408,14 @@ static int mkfs_action(istringstream& is,
 
         return ds_id;
     }
+    else if ( image->get_state() == Image::DELETE )
+    {
+        NebulaLog::log("ImM", Log::INFO, "Ignoring mkfs callback, image is "
+                "being deleted");
+
+        image->unlock();
+        return ds_id;
+    }
 
     is_saving = image->is_saving();
     ds_id     = image->get_ds_id();

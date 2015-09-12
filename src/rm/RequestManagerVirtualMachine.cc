@@ -398,14 +398,14 @@ bool RequestManagerVirtualMachine::check_host(
         return false;
     }
 
-    if (!enforce)
+    if (enforce)
     {
-        cpu  = 0;
-        mem  = 0;
-        disk = 0;
+        test = host->test_capacity(cpu, mem, disk, pci, capacity_error);
     }
-
-    test = host->test_capacity(cpu, mem, disk, pci, capacity_error);
+    else
+    {
+        test = host->test_capacity(pci, capacity_error);
+    }
 
     if (!test)
     {

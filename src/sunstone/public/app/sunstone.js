@@ -7,6 +7,7 @@ define(function(require) {
   var Config = require('sunstone-config');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
+  var Menu = require('utils/menu');
 
   var TOP_INTERVAL = 10000; //ms
   var CONFIRM_DIALOG_ID = require('utils/dialogs/confirm/dialogId');
@@ -485,6 +486,9 @@ define(function(require) {
       return false;
     }
 
+    // Hide the menu in small windows
+    Menu.entryClick();
+
     // TODO check if necessary
     // last_selected_row = null;
 
@@ -736,6 +740,7 @@ define(function(require) {
         } // Panel not defined
 
         formPanelInstance = new formPanel();
+        formPanelInstance.setAction(formContext, action);
         tab["formPanelInstances"][formPanelId] = formPanelInstance;
         formPanelInstance.insert(formContext);
       }

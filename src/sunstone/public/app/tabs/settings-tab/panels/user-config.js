@@ -7,6 +7,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
+  var TemplateUtils = require('utils/template-utils');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
 
@@ -87,7 +88,7 @@ define(function(require) {
         return false;
       }
 
-      Sunstone.runAction("User.passwd", "-1", pw);
+      Sunstone.runAction("User.passwd", ["-1"], pw);
       return false;
     });
 
@@ -99,7 +100,7 @@ define(function(require) {
         return false;
       }
 
-      var template_str = 'SSH_PUBLIC_KEY = "'+keypair+'"';
+      var template_str = 'SSH_PUBLIC_KEY = "'+TemplateUtils.escapeDoubleQuotes(keypair)+'"';
 
       Sunstone.runAction("User.append_template", "-1", template_str);
 

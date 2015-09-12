@@ -9,6 +9,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var TemplateUtils = require('utils/template-utils');
   var CustomTagsTable = require('utils/custom-tags-table');
+  var OpenNebulaHost = require('opennebula/host');
 
   /*
     TEMPLATES
@@ -75,10 +76,60 @@ define(function(require) {
 
     context.off("click", ".add_pci");
     context.on("click", ".add_pci", function(){
-      $(".pci_devices tbody", context).append(RowTemplateHTML());
+      var tr = $(RowTemplateHTML()).appendTo( $(".pci_devices tbody", context) );
+
+      OpenNebulaHost.pciDevices({
+        data : {},
+        timeout: true,
+        success: function (request, pciDevices){
+          var html = "<select>";
+
+          html += '<option device="" class="" vendor="">'+Locale.tr("Please select")+'</option>';
+
+          $.each(pciDevices, function(i,pci){
+            html += '<option device="'+pci['device']+'" '+
+                            'class="'+pci['class']+'" '+
+                            'vendor="'+pci['vendor']+'">'+
+                                pci.device_name+
+                    '</option>';
+          });
+
+          html += '</select>';
+
+          $(".device_name", tr).html(html);
+
+          $("input", tr).trigger("change");
+        },
+        error: function(request, error_json){
+          console.error("There was an error requesting the PCI devices: "+
+                        error_json.error.message);
+
+          $(".device_name", tr).html("");
+        }
+      });
     });
 
-    $(".add_pci", context).trigger("click");
+    context.on("change", ".pci_devices td.device_name select", function(){
+      var tr = $(this).closest('tr');
+
+      var option = $("option:selected", this);
+
+      $('input[wizard_field="DEVICE"]', tr).val( option.attr("device") );
+      $('input[wizard_field="CLASS"]',  tr).val( option.attr("class") );
+      $('input[wizard_field="VENDOR"]', tr).val( option.attr("vendor") );
+    });
+
+    context.on("change", ".pci_devices tbody input", function(){
+      var tr = $(this).closest('tr');
+
+      var opt =
+        $('option'+
+          '[device="'+$('input[wizard_field="DEVICE"]', tr).val()+'"]'+
+          '[class="'+$('input[wizard_field="CLASS"]',  tr).val()+'"]'+
+          '[vendor="'+$('input[wizard_field="VENDOR"]', tr).val()+'"]', tr);
+
+        opt.attr('selected', 'selected');
+    });
 
     context.on("click", ".pci_devices i.remove-tab", function(){
       var tr = $(this).closest('tr');
@@ -127,8 +178,20 @@ define(function(require) {
 
     $(".pci_devices i.remove-tab", context).trigger("click");
 
-    $.each(templateJSON['PCI'], function(i, pci){
-      var tr = $(RowTemplateHTML()).appendTo( $(".pci_devices tbody", context) );
+    var pcis = templateJSON['PCI'];
+
+    if (pcis == undefined){
+      pcis = [];
+    }
+
+    if (!$.isArray(pcis)){ // If only 1 convert to array
+      pcis = [pcis];
+    }
+
+    $.each(pcis, function(i, pci){
+      $(".add_pci", context).trigger("click");
+      var tr = $('.pci_devices tbody tr', context).last();
+
       WizardFields.fill(tr, pci);
     });
 

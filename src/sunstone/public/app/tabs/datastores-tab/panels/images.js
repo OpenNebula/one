@@ -26,6 +26,10 @@ define(function(require){
 
     this.element = info[RESOURCE.toUpperCase()];
 
+    if (this.element.TYPE == OpenNebulaDatastore.TYPES.SYSTEM_DS){
+      throw "Images panel is not available for system DS";
+    }
+
     return this;
   };
 

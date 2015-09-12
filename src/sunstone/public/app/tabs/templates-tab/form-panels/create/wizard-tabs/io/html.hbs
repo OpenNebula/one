@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="large-6 columns graphics">
+  <div class="medium-6 columns graphics">
     <fieldset>
       <legend>{{tr "Graphics"}}</legend>
       <div class="row">
@@ -24,14 +24,14 @@
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="PORT">
             {{tr "Port"}}
             {{{tip (tr "Port for the VNC/SPICE server")}}}
           </label>
           <input type="text" wizard_field="PORT" id="PORT" name="port" />
         </div>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="KEYMAP">
             {{tr "Keymap"}}
             {{{tip (tr "Keyboard configuration locale to use in the VNC/SPICE display")}}}
@@ -59,18 +59,18 @@
       </div>
     </fieldset>
   </div>
-  <div class="large-6 columns inputs hypervisor only_kvm only_vmware only_xen">
+  <div class="medium-6 columns inputs hypervisor only_kvm only_vmware only_xen">
     <fieldset>
       <legend>{{tr "Inputs"}}</legend>
       <div class="row">
-        <div class="large-5 columns">
+        <div class="medium-5 columns">
           <select id="INPUT_TYPE" name="input_type">
             <option id="no_type" name="no_type" value=""></option>
             <option value="mouse">{{tr "Mouse"}}</option>
             <option value="tablet">{{tr "Tablet"}}</option>
           </select>
         </div>
-        <div class="large-4 columns">
+        <div class="medium-4 columns">
           <select id="INPUT_BUS" name="input_bus">
             <option id="no_input" name="no_input" value=""></option>
             <option value="usb">{{tr "USB"}}</option>
@@ -78,7 +78,7 @@
             <option value="xen">{{tr "XEN"}}</option>
           </select>
         </div>
-        <div class="large-3 columns">
+        <div class="medium-3 columns">
           <a href="#" class="button small radius secondary" id="add_input">{{tr "Add"}}</a>
         </div>
       </div>

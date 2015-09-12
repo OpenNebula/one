@@ -1,12 +1,12 @@
 <form data-abide="ajax" id="{{formPanelId}}Wizard" class="custom creation">
   <div class="row">
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="name" >{{tr "Name"}}:</label>
       <input required type="text" name="name" id="name"/>
     </div>
   </div>
   <div class="row">
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="presets">{{tr "Presets"}}</label>
       <select id="presets" name="presets">
         <option value="fs">{{tr "Filesystem"}}</option>
@@ -19,7 +19,7 @@
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="cluster">{{tr "Cluster"}}</label>
       <div id="cluster_id" name="cluster_id"></div>
     </div>
@@ -43,7 +43,7 @@
     <div class="large-12 columns">
       <fieldset>
         <legend>{{tr "Managers"}}</legend>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="ds_mad">{{tr "Datastore"}}</label>
           <select id="ds_mad" name="ds_mad">
             <option value="fs">{{tr "Filesystem"}}</option>
@@ -59,7 +59,7 @@
             <input type="text" name="ds_tab_custom_ds_mad" />
           </div>
         </div>
-        <div class="large-6 columns">
+        <div class="medium-6 columns">
           <label for="tm_mad">{{tr "Transfer"}}:</label>
           <select id="tm_mad" name="tm_mad">
             <option value="shared">{{tr "Shared"}}</option>
@@ -81,7 +81,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="disk_type">{{tr "Disk type"}}:</label>
       <select id="disk_type" name="disk_type">
         <option value="file">{{tr "File"}}</option>
@@ -110,7 +110,7 @@
       </label>
       <input type="text" name="restricted_dirs" id="restricted_dirs" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="base_path">
         {{tr "Base Path"}}
         <span class="tip">
@@ -119,7 +119,7 @@
       </label>
       <input type="text" name="base_path" id="base_path" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="limit_transfer_bw">
         {{tr "Transfer BW Limit"}}
         <span class="tip">
@@ -128,7 +128,7 @@
       </label>
       <input type="text" name="limit_transfer_bw" id="limit_transfer_bw" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="limit_mb">
         {{tr "Limit"}}
         <span class="tip">
@@ -156,7 +156,7 @@
       </label>
       <input type="text" name="bridge_list" id="bridge_list" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="ds_tmp_dir">
         {{tr "DS Tmp Dir"}}
         <span class="tip">
@@ -165,11 +165,11 @@
       </label>
       <input type="text" name="ds_tmp_dir" id="ds_tmp_dir" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="vg_name">{{tr "Volume Group Name"}}</label>
       <input type="text" name="vg_name" id="vg_name" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="gluster_host">
         {{tr "Gluster Host"}}
         <span class="tip">
@@ -178,14 +178,14 @@
       </label>
       <input type="text" name="gluster_host" id="gluster_host" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="gluster_volume">
         {{tr "Gluster Volume"}}
         <span class="tip">{{tr "Gluster volume to use for the datastore"}}</span>
       </label>
       <input type="text" name="gluster_volume" id="gluster_volume" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="pool_name">
         {{tr "Pool Name"}}
         <span class="tip">
@@ -194,7 +194,7 @@
       </label>
       <input type="text" name="pool_name" id="pool_name" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="ceph_host">
         {{tr "Ceph Host"}}
         <span class="tip">
@@ -203,7 +203,7 @@
       </label>
       <input type="text" name="ceph_host" id="ceph_host" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="ceph_user">
         {{tr "Ceph User"}}
         <span class="tip">
@@ -212,7 +212,7 @@
       </label>
       <input type="text" name="ceph_user" id="ceph_user" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="ceph_secret">
         {{tr "Ceph Secret"}}
         <span class="tip">
@@ -221,7 +221,7 @@
       </label>
       <input type="text" name="ceph_secret" id="ceph_secret" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label class="fs" for="staging_dir">
         {{tr "Staging Dir"}}
         <span class="tip">
@@ -233,7 +233,7 @@
       </label>
       <input type="text" name="staging_dir" id="staging_dir" />
     </div>
-    <div class="large-6 columns">
+    <div class="medium-6 columns">
       <label for="rbd_format">
         {{tr "RBD Format"}}
         <span class="tip">

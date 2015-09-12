@@ -28,7 +28,7 @@
     <div id="vnet_create_tabs_content" class="tabs-content">
       <div class="content active" id="vnetCreateGeneralTab">
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="name" >
               {{tr "Name"}}:
               <span class="tip">
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="DESCRIPTION" >
               {{tr "Description"}}:
               <span class="tip">{{tr "Description of the Virtual Network"}}</span>
@@ -50,7 +50,7 @@
       </div>
       <div class="content" id="vnetCreateBridgeTab">
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="bridge">
               {{tr "Bridge"}}:
               <span class="tip">
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="network_mode">
               {{tr "Network model"}}:
               <span class="tip">
@@ -122,9 +122,9 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <div class="row">
-              <div class="large-6 columns">
+              <div class="medium-6 columns">
                 <label for="vlan">
                   {{tr "VLAN"}}:
                   <span class="tip">
@@ -136,7 +136,7 @@
                   <option value="NO">{{tr "No"}}</option>
                 </select>
               </div>
-              <div class="large-6 columns">
+              <div class="medium-6 columns">
                 <label for="vlan_id">
                   {{tr "VLAN ID"}}:
                   <span class="tip">{{tr "Optional: Set a specific VLAN id"}}</span>
@@ -145,7 +145,7 @@
               </div>
             </div>
           </div>
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <div class="row">
               <div class="large-12 columns">
                 <label for="phydev">
@@ -160,7 +160,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-3 columns">
+          <div class="medium-3 columns">
             <label for="mtu">
               {{tr "MTU"}}:
               <span class="tip">
@@ -207,14 +207,14 @@
       </div>
       <div class="content" id="vnetCreateContextTab">
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="net_address">
               {{tr "Network address"}}:
               <span class="tip">{{tr "Base network address. For example, 192.168.1.0"}}</span>
             </label>
             <input type="text" wizard_field="NETWORK_ADDRESS" name="net_address" id="net_address" />
           </div>
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="net_mask">
               {{tr "Network mask"}}:
               <span class="tip">{{tr "Network mask. For example, 255.255.255.0"}}</span>
@@ -223,14 +223,14 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="net_gateway">
               {{tr "Gateway"}}:
               <span class="tip">{{tr "Router for this network. Leave empty if the network is not routable"}}</span>
             </label>
             <input type="text" wizard_field="GATEWAY" name="net_gateway" id="net_gateway" />
           </div>
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="net_gateway6">
               {{tr "IPv6 Gateway"}}:
               <span class="tip">{{tr "IPv6 Router for this network"}}</span>
@@ -239,7 +239,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="large-6 columns">
+          <div class="medium-6 columns">
             <label for="net_dns">
               {{tr "DNS"}}:
               <span class="tip">{{tr "Specific DNS for this network"}}</span>

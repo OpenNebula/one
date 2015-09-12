@@ -6,6 +6,7 @@ define(function(require) {
   var TemplateInfo = require('hbs!./info/html');
   var TemplateChgrpTr = require('hbs!./info/chgrp-tr');
   var ResourceSelect = require('utils/resource-select');
+  var TemplateUtils = require('utils/template-utils');
   var Locale = require('utils/locale');
   var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
@@ -148,7 +149,7 @@ define(function(require) {
 
     context.off("change", "#user_ssh_public_key_textarea");
     context.on("change", "#user_ssh_public_key_textarea", function() {
-      var template_str = 'SSH_PUBLIC_KEY = "'+$(this).val()+'"';
+      var template_str = 'SSH_PUBLIC_KEY = "'+TemplateUtils.escapeDoubleQuotes($(this).val())+'"';
 
       Sunstone.runAction("User.append_template", that.element.ID, template_str);
     });

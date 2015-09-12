@@ -120,7 +120,7 @@ define(function(require) {
     if (OpenNebulaVM.isNICGraphsSupported(that.element)) {
       html += '\
           <div class="row">\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET RX") + '</small></h3>\
                 </div>\
@@ -136,7 +136,7 @@ define(function(require) {
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET TX") + '</small></h3>\
                 </div>\
@@ -152,7 +152,7 @@ define(function(require) {
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET DOWNLOAD SPEED") + '</small></h3>\
                 </div>\
@@ -168,7 +168,7 @@ define(function(require) {
                   </div>\
                 </div>\
               </div>\
-              <div class="large-6 columns">\
+              <div class="medium-6 columns">\
                 <div class="row text-center">\
                   <h3 class="subheader"><small>' + Locale.tr("NET UPLOAD SPEED") + '</small></h3>\
                 </div>\

@@ -52,11 +52,11 @@ define(function(require) {
 
     var width = parseInt(12 / n_columns);
 
-    $("#acct_start_time_container", context).addClass("large-"+width);
-    $("#acct_end_time_container",   context).addClass("large-"+width);
-    $("#acct_group_by_container",   context).addClass("large-"+width);
-    $("#acct_owner_container",      context).addClass("large-"+width);
-    $("#acct_button_container",     context).addClass("large-"+width);
+    $("#acct_start_time_container", context).addClass("medium-"+width*2).addClass("large-"+width);
+    $("#acct_end_time_container",   context).addClass("medium-"+width*2).addClass("large-"+width);
+    $("#acct_group_by_container",   context).addClass("medium-"+width*2).addClass("large-"+width);
+    $("#acct_owner_container",      context).addClass("medium-"+width*2).addClass("large-"+width);
+    $("#acct_button_container",     context).addClass("medium-"+width*2).addClass("large-"+width);
 
     //--------------------------------------------------------------------------
     // Init start time to 1st of last month

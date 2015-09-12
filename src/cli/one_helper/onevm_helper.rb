@@ -28,7 +28,6 @@ $: << MAD_LOCATION
 
 require 'one_helper'
 require 'optparse/time'
-require 'one_tm'
 
 class String
     def red
@@ -244,11 +243,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
 
             column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
-                d["CPU"]
+                cpu = d["MONITORING"]["CPU"]
+                cpu = "0" if cpu.nil?
+
+                cpu
             end
 
             column :UMEM, "Memory used by the VM", :size=>7 do |d|
-                OpenNebulaHelper.unit_to_str(d["MEMORY"].to_i, options)
+                OpenNebulaHelper.unit_to_str(d["MONITORING"]["MEMORY"].to_i, options)
             end
 
             column :HOST, "Host where the VM is running", :left, :size=>10 do |d|
@@ -340,6 +342,16 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
     }
 
     def recover_retry_interactive(vm)
+        begin
+            require 'one_tm'
+        rescue LoadError
+            STDERR.puts <<-EOT
+one_tm library not found. Make sure you execute recover --interactive
+in the frontend machine.
+            EOT
+            exit(-1)
+        end
+
         # Disable CTRL-C in the menu
         trap("SIGINT") { }
 
@@ -1027,7 +1039,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 d["CHILDREN"]
             end
 
-            column :SIZE, "", :left, :size=>9 do |d|
+            column :SIZE, "", :left, :size=>12 do |d|
                 if d["SIZE"]
                     size = OpenNebulaHelper.unit_to_str(
                                 d['SIZE'].to_i,
@@ -1051,15 +1063,15 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 "#{monitor_size}/#{size}"
             end
 
-            column :NAME, "Snapshot Name", :left, :size=>26 do |d|
+            column :NAME, "Snapshot Name", :left, :size=>32 do |d|
                 d["NAME"]
             end
 
-            column :DATE, "Snapshot creation date", :size=>10 do |d|
+            column :DATE, "Snapshot creation date", :size=>15 do |d|
                 OpenNebulaHelper.time_to_str(d["DATE"])
             end
 
-            default :AC, :ID, :DISK, :PARENT, :DATE, :CHILDREN, :SIZE, :NAME
+            default :AC, :ID, :DISK, :PARENT, :DATE, :SIZE, :NAME
         end
 
         # Convert snapshot data to an array
