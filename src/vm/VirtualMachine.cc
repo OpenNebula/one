@@ -143,8 +143,9 @@ const char * VirtualMachine::NETWORK_CONTEXT[][2] = {
         {"NETWORK", "NETWORK_ADDRESS"},
         {"GATEWAY", "GATEWAY"},
         {"DNS", "DNS"},
-        {"SEARCH_DOMAIN", "SEARCH_DOMAIN"}};
-const int VirtualMachine::NUM_NETWORK_CONTEXT = 7;
+        {"SEARCH_DOMAIN", "SEARCH_DOMAIN"},
+        {"MTU", "GUEST_MTU"}};
+const int VirtualMachine::NUM_NETWORK_CONTEXT = 8;
 
 const char*  VirtualMachine::NETWORK6_CONTEXT[][2] = {
         {"IP6", "IP6_GLOBAL"},
