@@ -15,6 +15,9 @@ define(function(require) {
   var XML_ROOT = "VDC";
   var TAB_NAME = require('./tabId');
 
+  var Utils = require('./utils/common');
+  var VDC_ALL_RESOURCES = Utils.VDC_ALL_RESOURCES;
+
   /*
     CONSTRUCTOR
    */
@@ -79,26 +82,40 @@ define(function(require) {
 
     var element = element_json[XML_ROOT];
 
+    var groupColumn = 0;
+
+    var gIds = element.GROUPS.ID;
+    if ($.isArray(gIds)){
+      groupColumn = gIds.length;
+    } else if (!$.isEmptyObject(gIds)){
+      groupColumn = 1;
+    }
+
     return [
       '<input class="check_item" type="checkbox" id="'+RESOURCE.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
                            element.ID + '"/>',
       element.ID,
       element.NAME,
-      _lengthOf(element.GROUPS.ID),
-      _lengthOf(element.CLUSTERS.CLUSTER),
-      _lengthOf(element.HOSTS.HOST),
-      _lengthOf(element.VNETS.VNET),
-      _lengthOf(element.DATASTORES.DATASTORE)
+      groupColumn,
+      _lengthOf(element.CLUSTERS.CLUSTER, "CLUSTER"),
+      _lengthOf(element.HOSTS.HOST, "HOST"),
+      _lengthOf(element.VNETS.VNET, "VNET"),
+      _lengthOf(element.DATASTORES.DATASTORE, "DATASTORE")
     ];
   }
 
-  function _lengthOf(ids){
+  function _lengthOf(ids, res_name){
     var l = 0;
-    if ($.isArray(ids))
+    if ($.isArray(ids)){
       l = ids.length;
-    else if (!$.isEmptyObject(ids))
-      l = 1;
+    } else if (!$.isEmptyObject(ids)){
+      if (ids[res_name+"_ID"] == VDC_ALL_RESOURCES){
+        l = Locale.tr("All");
+      } else {
+        l = 1;
+      }
+    }
 
     return l;
   }
