@@ -35,6 +35,8 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+
 #-------------------------------------------------------------------------------
 # Process destination
 #-------------------------------------------------------------------------------
@@ -85,7 +87,6 @@ fi
 
 # cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
-RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
 # Delete the device
@@ -97,53 +98,18 @@ log "Deleting $DST_PATH"
 # drivers, is executed in the worker node and not in the CEPH frontend.
 
 DELETE_CMD=$(cat <<EOF
-    rm_children(){
-        local rbd_snap rbd snap_id child snap_list
-
-        rbd_snap=\$1
-        rbd=\${rbd_snap%%@*}
-
-        snap_list=\$(set +e; rbd snap ls \$rbd)
-
-        if [ -n "\$snap_list" ]; then
-            CHILDREN=\$(set +e; rbd children \$rbd_snap 2>/dev/null)
-
-            for child in \$CHILDREN; do
-                snap_id=\${child##*-}
-                child=\$child@\$snap_id
-                rm_children \$child
-            done
-
-            $RBD snap unprotect \$rbd_snap
-            $RBD snap rm \$rbd_snap
-        fi
-
-        $RBD rm \$rbd
-    }
+    RBD="${RBD}"
+    RBD_SRC="${RBD_SRC}"
 
     RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
 
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        has_snap_shots=\$($RBD info $RBD_SRC-0@0 2>/dev/null)
-
-        if [ -n "\$has_snap_shots" ]; then
-            rm_children $RBD_SRC-0@0
-        else
-            $RBD rm $RBD_SRC
-        fi
-    else
+    if [ "\$RBD_FORMAT" != "2" -o -z "\$(has_snapshots)" ]; then
         $RBD rm $RBD_SRC
-    fi
-
-    # Remove the snapshot of the original image used to create a CLONE
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        $RBD snap unprotect $SRC@$RBD_SNAP
-        $RBD snap rm $SRC@$RBD_SNAP
+    else
+        rbd_rm_r $RBD_SRC-0
     fi
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+ssh_exec_and_log_stdin "$DST_HOST" "$DELETE_CMD" "$CEPH_UTILS" \
                  "Error deleting $RBD_SRC in $DST_HOST"
-
-exit 0

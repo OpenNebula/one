@@ -47,6 +47,7 @@ while IFS= read -r -d '' element; do
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RBD_FORMAT \
                     /DS_DRIVER_ACTION_DATA/IMAGE/PATH \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
@@ -56,6 +57,7 @@ unset i
 BASE_PATH="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
+RBD_FORMAT="${XPATH_ELEMENTS[i++]:-$RBD_FORMAT}"
 SRC="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
@@ -76,7 +78,18 @@ SAFE_DIRS=""
 IMAGE_NAME="one-${ID}"
 RBD_DST="${POOL_NAME}/${IMAGE_NAME}"
 
-ssh_exec_and_log "$DST_HOST" "$RBD copy $SRC $RBD_DST" \
+COPY_CMD=$(cat <<EOF
+    set -e
+    $RBD copy $SRC $RBD_DST
+    if [ "$RBD_FORMAT" = "2" ]; then
+        # Create default snapshot
+        $RBD snap create  "$RBD_DST@snap"
+        $RBD snap protect "$RBD_DST@snap"
+    fi
+EOF
+)
+
+ssh_exec_and_log "$DST_HOST" "$COPY_CMD" \
                  "Error cloning $SRC to $RBD_DST in $DST_HOST"
 
 

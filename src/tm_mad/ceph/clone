@@ -47,7 +47,6 @@ SRC_PATH=`arg_path $SRC`
 
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 RBD_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
-RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -79,14 +78,28 @@ fi
 CLONE_CMD=$(cat <<EOF
     set -e
 
-    $RBD info $RBD_DST > /dev/null 2>&1 && exit 0
+    # Exit if destination rbd already exists
+    $RBD info $RBD_DST >/dev/null 2>&1 && exit 0
 
     RBD_FORMAT=\$($RBD info $SRC_PATH | sed -n 's/.*format: // p')
 
     if [ "\$RBD_FORMAT" = "2" ]; then
-        $RBD snap create "$SRC_PATH@$RBD_SNAP"
-        $RBD snap protect "$SRC_PATH@$RBD_SNAP"
-        $RBD clone "$SRC_PATH@$RBD_SNAP" $RBD_DST
+
+        # Feature #3362: migrate now to new schema
+        (
+            set +e
+
+            # Check if @snap exists
+            $RBD info $SRC_PATH@snap >/dev/null 2>&1
+
+            if [ "$?" != "0" ]; then
+                # It does not exist, create it now
+                $RBD snap create  "$SRC_PATH@snap"
+                $RBD snap protect "$SRC_PATH@snap"
+            fi
+        )
+
+        $RBD clone "$SRC_PATH@snap" $RBD_DST
     else
         $RBD copy $SRC_PATH $RBD_DST
     fi

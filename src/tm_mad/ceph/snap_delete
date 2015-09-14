@@ -34,6 +34,8 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
@@ -77,7 +79,8 @@ if [ -n "$CEPH_USER" ]; then
 fi
 
 SNAP_DELETE_CMD=$(cat <<EOF
-    set -e
+    RBD="${RBD}"
+    RBD_SRC="${RBD_SRC}"
 
     RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
 
@@ -86,13 +89,9 @@ SNAP_DELETE_CMD=$(cat <<EOF
         exit 1
     fi
 
-    $RBD snap unprotect $RBD_DST-$SNAP_ID@$SNAP_ID
-    $RBD snap rm $RBD_DST-$SNAP_ID@$SNAP_ID
-    $RBD rm $RBD_DST-$SNAP_ID
+    rbd_rm_r $RBD_DST-$SNAP_ID
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$SNAP_DELETE_CMD" \
+ssh_exec_and_log_stdin "$SRC_HOST" "$SNAP_DELETE_CMD" "$CEPH_UTILS" \
                  "Error deleting snapshot $RBD_DST-$SNAP_ID@$SNAP_ID"
-
-exit 0

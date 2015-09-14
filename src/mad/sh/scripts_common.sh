@@ -387,6 +387,36 @@ EOF`
     fi
 }
 
+# Remote command execution over SSH preloading a local file
+# $1: HOSTNAME
+# $2: COMMAND
+# $3: file to be loaded into the script
+# $4: ERROR_REPORT
+function ssh_exec_and_log_stdin
+{
+    SSH_EXEC_ERR=`$SSH $1 sh -s 2>&1 1>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+$(cat $3)
+
+$2
+EOF`
+
+    SSH_EXEC_RC=$?
+
+    if [ $SSH_EXEC_RC -ne 0 ]; then
+        log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
+
+        if [ -n "$4" ]; then
+            error_message "$4"
+        else
+            error_message "Error executing $2: $SSH_EXEC_ERR"
+        fi
+
+        exit $SSH_EXEC_RC
+    fi
+}
+
 # This function executes $2 at $1 host and returns stdout
 # If $3 is present, it is used as the error message when
 # the command fails

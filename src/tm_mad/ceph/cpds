@@ -86,7 +86,13 @@ if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
-ssh_exec_and_log "$SRC_HOST" "$RBD copy $RBD_DST $DST" \
-                 "Error cloning $RBD_DST to $DST in $SRC_HOST"
+COPY_CMD=$(cat <<EOF
+    set -e
+    $RBD copy $RBD_DST $DST
+    $RBD snap create "$DST@snap"
+    $RBD snap protect "$DST@snap"
+EOF
+)
 
-exit 0
+ssh_exec_and_log "$SRC_HOST" "$COPY_CMD" \
+                 "Error cloning $RBD_DST to $DST in $SRC_HOST"
