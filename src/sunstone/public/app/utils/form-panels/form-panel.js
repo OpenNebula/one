@@ -23,9 +23,9 @@ define(function(require) {
 
   function _insert(context) {
     var that = this;
-    this.wizardElement = $(that.htmlWizard()).appendTo( $("#wizardForms", context) );
+    this.wizardElement = $(that.htmlWizard()).appendTo( $(".wizardForms", context) );
     if (that.htmlAdvanced) {
-      this.advancedElement = $(that.htmlAdvanced()).appendTo( $("#advancedForms", context) );
+      this.advancedElement = $(that.htmlAdvanced()).appendTo( $(".advancedForms", context) );
     }
 
     context.off('invalid.fndtn.abide', '#' + that.formPanelId + 'Wizard');

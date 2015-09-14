@@ -728,8 +728,8 @@ define(function(require) {
       if (!formPanelInstance) {
         formContext =
         $('<div class="tabs-content tabs-contentForm" form-panel-id="'+formPanelId+'">\
-          <div class="content active" id="wizardForms"></div>\
-          <div class="content" id="advancedForms"></div>\
+          <div class="wizardForms content active" id="'+tab.tabName+'-wizardForms"></div>\
+          <div class="advancedForms content" id="'+tab.tabName+'-advancedForms"></div>\
         </div>').appendTo( $(".contentForm", context) );
 
         // Create panelInstance, insert in the DOM and setup
@@ -753,6 +753,7 @@ define(function(require) {
         $(".wizard_tabs", context).show();
       } else {
         $(".wizard_tabs", context).hide();
+        $('a[href="#'+tab.tabName+'-wizardForms"]', context).click();
       }
 
       // Hide reset button if not defined
@@ -783,9 +784,9 @@ define(function(require) {
     setTimeout(function() {
       var formPanelInstance = SunstoneCfg["tabs"][tabId].activeFormPanel
 
-      if ($("#wizardForms.active", context).length > 0) {
+      if ($(".wizardForms.active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Wizard').submit();
-      } else if ($("#advancedForms.active", context).length > 0) {
+      } else if ($(".advancedForms.active", context).length > 0) {
         $('#' + formPanelInstance.formPanelId + 'Advanced').submit();
       }
     }, 13)
