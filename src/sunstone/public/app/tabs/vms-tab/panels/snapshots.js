@@ -49,7 +49,7 @@ define(function(require) {
     var html = '<form id="snapshot_form" vmid="' + that.element.ID + '" >\
       <div class="row">\
       <div class="large-12 columns">\
-         <table class="info_table dataTable extended_table">\
+         <table class="info_table dataTable">\
            <thead>\
              <tr>\
                 <th>' + Locale.tr("ID") + '</th>\

@@ -43,7 +43,7 @@ define(function(require) {
   function _html() {
     var that = this;
     var html = '<div class="row"><div class="large-12 columns">\
-           <table id="vm_history_table" class="extended_table dataTable">\
+           <table id="vm_history_table" class="dataTable">\
                     <thead>\
                       <tr>\
                           <th>' + Locale.tr("#") + '</th>\
@@ -114,7 +114,7 @@ define(function(require) {
     if (that.element.USER_TEMPLATE.SCHED_MESSAGE) {
       html += '<div class="row">\
          <div class="large-12 columns">\
-           <table id="vm_ds_placement_table" class="extended_table dataTable">\
+           <table id="vm_ds_placement_table" class="dataTable">\
                     <thead>\
                       <tr>\
                           <th align="center">' + Locale.tr("Sched Message") + '</th>\
@@ -137,7 +137,7 @@ define(function(require) {
 
     html += '<div class="row">\
        <div class="large-9 columns">\
-           <table id="vm_placement_table" class="extended_table dataTable">\
+           <table id="vm_placement_table" class="dataTable">\
                     <thead>\
                       <tr>\
                           <th colspan="2" align="center">' + Locale.tr("Placement - Host") + '</th>\
@@ -154,7 +154,7 @@ define(function(require) {
                       </tr>\
                     </tbody>\
            </table>\
-           <table id="vm_ds_placement_table" class="extended_table dataTable">\
+           <table id="vm_ds_placement_table" class="dataTable">\
                     <thead>\
                       <tr>\
                           <th colspan="2" align="center">' + Locale.tr("Placement - Datastore") + '</th>\

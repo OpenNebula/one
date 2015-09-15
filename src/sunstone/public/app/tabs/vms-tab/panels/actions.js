@@ -45,7 +45,7 @@ define(function(require) {
     var that = this;
     var html = '<div class="row">\
       <div class="large-12 columns">\
-        <table id="scheduling_actions_table" class="info_table dataTable extended_table">\
+        <table id="scheduling_actions_table" class="info_table dataTable">\
          <thead>\
            <tr>\
               <th>' + Locale.tr("ID") + '</th>\

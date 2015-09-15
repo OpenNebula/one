@@ -56,7 +56,7 @@ define(function(require) {
     var html = '<form id="tab_network_form" vmid="' + that.element.ID + '" >\
         <div class="row">\
         <div class="large-12 columns">\
-           <table class="nics_table no-hover info_table dataTable extended_table">\
+           <table class="nics_table no-hover info_table dataTable">\
              <thead>\
                <tr>\
                   <th></th>\
@@ -95,7 +95,7 @@ define(function(require) {
     if (!$.isEmptyObject(externalNetworkAttrs)) {
       html += '<div class="row">' +
         '<div class="large-12 columns">' +
-         '<table class="dataTable extended_table">' +
+         '<table class="dataTable">' +
             '<thead>' +
               '<tr>' +
                  '<th colspan=2>' + Locale.tr("Network Monitoring Attributes") + '</th>' +
@@ -304,7 +304,7 @@ define(function(require) {
         $(this).children("span").removeClass('fa-chevron-up');
       } else {
         var html = '<div style="padding-left: 30px;">\
-              <table class="extended_table dataTable">\
+              <table class="dataTable">\
                 <thead>\
                   <tr>\
                     <th colspan="2">' + Locale.tr("Security Group") + '</th>\

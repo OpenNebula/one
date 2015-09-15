@@ -41,7 +41,7 @@ define(function(require) {
   function _html() {
     return '<div class="row">'+
       '<div class="large-12 columns">'+
-        '<table class="dataTable extended_table">'+
+        '<table class="dataTable">'+
           '<thead>'+
             '<tr>'+
               '<th colspan="2">' + Locale.tr("Template") + '</th>'+

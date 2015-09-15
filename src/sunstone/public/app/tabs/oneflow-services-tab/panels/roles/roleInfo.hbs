@@ -1,7 +1,7 @@
 <form>
   <h4>{{tr "Role"}} - {{role.name}}</h4>
   <div class='large-12 columns'>
-    <table class='dataTable extended_table policies_table'>
+    <table class='dataTable policies_table'>
       <thead>
         <tr>
           <th colspan='8'>{{tr "Information"}}</th>
@@ -60,7 +60,7 @@
   <div class='large-12 columns'>
     <br>
     {{#if role.elasticity_policies}}
-    <table class="dataTable extended_table policies_table">
+    <table class="dataTable policies_table">
       <thead style="background:#dfdfdf">
         <tr>
           <th colspan="7">{{tr "Elasticity policies"}}</th>
@@ -121,7 +121,7 @@
     {{/if}}
     <br>
     {{#if role.scheduled_policies}}
-    <table class="dataTable extended_table policies_table">
+    <table class="dataTable policies_table">
       <thead style="background:#dfdfdf">
         <tr>
           <th colspan="5">{{tr "Scheduled policies"}}</th>

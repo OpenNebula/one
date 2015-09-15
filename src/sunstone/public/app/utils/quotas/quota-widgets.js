@@ -254,7 +254,7 @@ define(function(require) {
 
     quotas_tab_html +=
           '<legend>'+Locale.tr("Image")+'</legend>\
-          <table class="quota_table extended_table image_quota_table">\
+          <table class="quota_table image_quota_table">\
           <thead>\
               <tr>\
                   <th style="width:16%">'+Locale.tr("ID")+'</th>\
@@ -395,7 +395,7 @@ define(function(require) {
 
     quotas_tab_html +=
         '<legend>'+Locale.tr("Datastore")+'</legend>\
-        <table class="quota_table extended_table ds_quota_table">\
+        <table class="quota_table ds_quota_table">\
           <thead>\
               <tr>\
                 <th style="width:16%">'+Locale.tr("ID")+'</th>\
@@ -562,7 +562,7 @@ define(function(require) {
 
     quotas_tab_html +=
         '<legend>'+Locale.tr("Network")+'</legend>\
-        <table class="quota_table extended_table network_quota_table">\
+        <table class="quota_table network_quota_table">\
             <thead>\
                 <tr>\
                     <th style="width:16%">'+Locale.tr("ID")+'</th>\
