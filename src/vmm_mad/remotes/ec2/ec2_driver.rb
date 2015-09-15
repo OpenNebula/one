@@ -124,6 +124,10 @@ class EC2Driver
                     :opt => 'security_groups',
                     :proc => lambda {|str| str.split(',')}
                 },
+                "SECURITYGROUPIDS" => {
+                    :opt => 'security_group_ids',
+                    :proc => lambda {|str| str.split(',')}
+                },
                 "AVAILABILITYZONE" => {
                     :opt => 'placement/availability_zone'
                 },

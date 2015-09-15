@@ -100,6 +100,11 @@ define(function(require) {
         tooltip: Locale.tr("Name of the security group. You can specify more than one security group (comma separated).")
       },
       {
+        name: "SECURITYGROUPIDS",
+        label: Locale.tr("Security Group Ids"),
+        tooltip: Locale.tr("Id of the security group. You can specify more than one security group (comma separated).")
+      },
+      {
         name: "SUBNETID",
         label: Locale.tr("Subnet ID"),
         tooltip: Locale.tr("If you’re using Amazon Virtual Private Cloud, this specifies the ID of the subnet you want to launch the instance into. This parameter is also passed to the command ec2-associate-address -i i-0041230 -a elasticip.")
