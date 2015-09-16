@@ -675,20 +675,23 @@ class VCenterHost < ::OpenNebula::Host
     def monitor_vms
         str_info = ""
         @resource_pool.vm.each { |v|
-            name   = v.name
-            number = -1
-            number = name.split('-').last if (name =~ /^one-\d*$/)
+            begin
+                name   = v.name
+                number = -1
+                number = name.split('-').last if (name =~ /^one-\d*$/)
 
-            vm = VCenterVm.new(@client, v)
-            vm.monitor
+                vm = VCenterVm.new(@client, v)
+                vm.monitor
 
-            next if !vm.vm.config
+                next if !vm.vm.config
 
-            str_info << "\nVM = ["
-            str_info << "ID=#{number},"
-            str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-            str_info << "VM_NAME=\"#{name}\","
-            str_info << "POLL=\"#{vm.info}\"]"
+                str_info << "\nVM = ["
+                str_info << "ID=#{number},"
+                str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+                str_info << "VM_NAME=\"#{name}\","
+                str_info << "POLL=\"#{vm.info}\"]"
+            rescue
+            end
         }
 
         return str_info
