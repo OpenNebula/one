@@ -795,9 +795,12 @@ class ExecDriver < VirtualMachineDriver
 
         begin
             source = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE"]
+            source_ovs =
+                xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/BRIDGE_OVS"]
             mac    = xml_data.elements["VM/TEMPLATE/NIC[ATTACH='YES']/MAC"]
 
             source = source.text.strip
+            source_ovs = source_ovs.text.strip if source_ovs
             mac    = mac.text.strip
         rescue
             send_message(action, RESULT[:failure], id,
@@ -817,6 +820,8 @@ class ExecDriver < VirtualMachineDriver
         net_drv = net_drv.text if !net_drv.nil?
         net_drv = net_drv.strip if !net_drv.nil?
         net_drv = "-" if net_drv.nil?
+
+        source = source_ovs if net_drv == 'ovswitch' && source_ovs
 
         action = VmmAction.new(self, id, :attach_nic, drv_message)
 
