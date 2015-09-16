@@ -612,14 +612,14 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         else
             image_id = options[:image]
             target   = options[:target]
-            prefix   = options[:prefix] || "sd"
+            prefix   = options[:prefix]
 
             if target
                 template =
                     "DISK = [ IMAGE_ID = #{image_id}, TARGET = #{target}"
             else
                 template = "DISK = [ IMAGE_ID = #{image_id}"
-                template << ", DEV_PREFIX = #{prefix}"
+                template << ", DEV_PREFIX = #{prefix}" if prefix
             end
 
             if options[:cache]
