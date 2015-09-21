@@ -112,7 +112,7 @@ define(function(require) {
       }
     });
 
-    if (!$.isEmptyObject(inputsJSON)) { templateJSON['INPUTS'] = inputsJSON; };
+    if (!$.isEmptyObject(inputsJSON)) { templateJSON['INPUT'] = inputsJSON; };
 
     return templateJSON;
   }
@@ -133,7 +133,7 @@ define(function(require) {
       delete templateJSON['GRAPHICS']
     }
 
-    var inputsJSON = templateJSON['INPUTS'];
+    var inputsJSON = templateJSON['INPUT'];
     if (inputsJSON) {
       if (!(inputsJSON instanceof Array)) {
         inputsJSON = [inputsJSON];
@@ -162,7 +162,7 @@ define(function(require) {
         cell3.innerHTML = "<i class='fa fa-times-circle fa fa-lg remove-tab'></i>";
       });
 
-      delete templateJSON['INPUTS']
+      delete templateJSON['INPUT']
     }
   }
 });
