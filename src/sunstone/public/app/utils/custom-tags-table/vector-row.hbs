@@ -1,0 +1,38 @@
+<tr>
+  <td>
+    <input class="custom_vector_key" type="text" name="key" value="{{key}}">
+  </td>
+  <td>
+    <table>
+      <tbody class="custom_vector_attributes">
+      {{#each value}}
+      <tr>
+        <td>
+          <input class="custom_vector_attribute_key" type="text" name="key" value="{{@key}}">
+        </td>
+        <td>
+          <textarea class="custom_vector_attribute_value" name="value">
+            {{~this~}}
+          </textarea>
+        </td>
+        <td>
+          <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+        </td>
+      </tr>
+      {{/each}}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">
+            <a type="button" class="add_vector_attribute button small small-12 secondary radius">
+              <i class="fa fa-plus"></i>
+            </a>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </td>
+  <td>
+    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+  </td>
+</tr>

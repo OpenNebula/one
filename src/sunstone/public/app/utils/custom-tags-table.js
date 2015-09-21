@@ -3,6 +3,8 @@ define(function(require) {
   var Locale = require('utils/locale');
   var TemplateHTML = require('hbs!./custom-tags-table/html');
   var RowTemplateHTML = require('hbs!./custom-tags-table/row');
+  var VectorRowTemplateHTML = require('hbs!./custom-tags-table/vector-row');
+  var VectorAttributeRowTemplateHTML = require('hbs!./custom-tags-table/vector-attribute-row');
   var TemplateUtils = require('utils/template-utils');
 
   function _html(){
@@ -12,12 +14,18 @@ define(function(require) {
   function _setup(context){
     context.off("click", ".add_custom_tag");
     context.on("click", ".add_custom_tag", function(){
-      $(".custom_tags tbody", context).append(RowTemplateHTML());
+      $("tbody.custom_tags", context).append(RowTemplateHTML());
+    });
+
+    context.off("click", ".add_vector_attribute");
+    context.on("click", ".add_vector_attribute", function(){
+      var tbody = $("tbody.custom_vector_attributes", $(this).closest('table'));
+      tbody.append(VectorAttributeRowTemplateHTML());
     });
 
     $(".add_custom_tag", context).trigger("click");
 
-    context.on("click", ".custom_tags i.remove-tab", function(){
+    context.on("click", "tbody.custom_tags i.remove-tab", function(){
       var tr = $(this).closest('tr');
       tr.remove();
     });
@@ -27,9 +35,24 @@ define(function(require) {
   function _retrieveCustomTags(context){
     var template_json = {};
 
-    $('.custom_tags tr', context).each(function(){
+    $('tbody.custom_tags tr', context).each(function(){
       if ($('.custom_tag_key', $(this)).val()) {
         template_json[$('.custom_tag_key', $(this)).val()] = $('.custom_tag_value', $(this)).val();
+      }
+
+      if ($('.custom_vector_key', $(this)).val()) {
+        var vectorAttributes = {};
+
+        $('tbody.custom_vector_attributes tr', $(this)).each(function(){
+          var key = $('.custom_vector_attribute_key', $(this)).val();
+          if (key) {
+            vectorAttributes[key] = $('.custom_vector_attribute_value', $(this)).val();
+          }
+        });
+
+        if (!$.isEmptyObject(vectorAttributes)){
+          template_json[$('.custom_vector_key', $(this)).val()] = vectorAttributes;
+        }
       }
     });
 
@@ -39,11 +62,16 @@ define(function(require) {
   // context is the container div of customTagsHtml()
   // template_json are the key:values that will be put into the table
   function _fillCustomTags(context, template_json){
-    $(".custom_tags i.remove-tab", context).trigger("click");
+    $("tbody.custom_tags i.remove-tab", context).trigger("click");
 
     $.each(template_json, function(key, value){
-      $(".custom_tags tbody", context).append(
-                                    RowTemplateHTML({key: key, value: value}));
+      if (typeof value == 'object') {
+        $("tbody.custom_tags", context).append(
+                              VectorRowTemplateHTML({key: key, value: value}));
+      } else {
+        $("tbody.custom_tags", context).append(
+                                      RowTemplateHTML({key: key, value: value}));
+      }
     });
   }
 
