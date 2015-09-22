@@ -10,7 +10,7 @@
 # Paulo A. L. Rego <pauloalr@gmail.com>, 2012
 # Paulo A. L. Rego <pauloalr@gmail.com>, 2012
 # pedrovitti, 2013
-# Pedro Vitti, 2013-2014
+# Pedro Vitti, 2013-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenNebula\n"

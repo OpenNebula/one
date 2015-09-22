@@ -8,7 +8,7 @@
 # Rogier Dikkes <rogier.dikkes@surfsara.nl>, 2013
 # Rogier Dikkes <rogier.dikkes@surfsara.nl>, 2013
 # Rogier Mars <rogier@redbee.nl>, 2013
-# Rogier Mars <rogier@redbee.nl>, 2012-2013
+# Rogier Mars <rogier@redbee.nl>, 2012-2015
 # Rogier Mars <rogier@redbee.nl>, 2012
 # skooman <stefan@kooman.org>, 2014
 # skooman <stefan@kooman.org>, 2014

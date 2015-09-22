@@ -4,7 +4,7 @@
 # 
 # Translators:
 # Grzegorz Kocur <gkocur@cloudox.pl>, 2013
-# Kamil Szczygieł <k.szczygiel@intratel.pl>, 2013-2014
+# Kamil Szczygieł <k.szczygiel@intratel.pl>, 2013-2015
 # m.prostko <m.prostko@intratel.pl>, 2013
 msgid ""
 msgstr ""

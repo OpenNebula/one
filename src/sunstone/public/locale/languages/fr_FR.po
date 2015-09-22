@@ -7,7 +7,7 @@
 # Arnaud Bitterlin <inactive+Djankai@transifex.com>, 2013
 # CyrilleDuverne <cyrille.duverne@gmail.com>, 2013
 # Damien Raude-Morvan <drazzib@drazzib.com>, 2012
-# Emmanuel Cohen <atmaniak@gmail.com>, 2013-2014
+# Emmanuel Cohen <atmaniak@gmail.com>, 2013-2015
 # gapany <gapany@icare.ch>, 2012
 # Guillaume Delacour <guillaume.delacour@gmail.com>, 2015
 # Imad Soltani <imad@netopenservices.com>, 2013
