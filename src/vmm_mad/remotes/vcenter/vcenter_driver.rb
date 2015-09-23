@@ -784,7 +784,7 @@ class VCenterVm
         case lcm_state
             when "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"
                 shutdown(deploy_id, hostname, lcm_state)
-            when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT"
+            when "CANCEL", "LCM_INIT", "CLEANUP_RESUBMIT", "SHUTDOWN"
                 hid         = VIClient::translate_hostname(hostname)
                 connection  = VIClient.new(hid)
                 vm          = connection.find_vm_template(deploy_id)
@@ -797,8 +797,11 @@ class VCenterVm
                 end
                 detach_all_disks(vm) if keep_disks
                 vm.Destroy_Task.wait_for_completion
+            else
+                raise "LCM_STATE #{lcm_state} not supported for cancel"
         end
     end
+
 
     ############################################################################
     # Saves a VM
