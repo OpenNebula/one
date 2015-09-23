@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-COPYRIGHT_HOLDER="2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs"
+COPYRIGHT_HOLDER="2002-2015, OpenNebula Project, OpenNebula Systems"
 PACKAGE_NAME="OpenNebula"
 
 find ../app -name \*.js > file_list.txt

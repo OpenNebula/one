@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -88,7 +88,7 @@ do_documentation()
       -header '<b>OpenNebula</b><br><font size="-1">Cloud API</font>' \
       -bottom 'Visit <a
 href="http://opennebula.org/">OpenNebula.org</a><br>Copyright 2002-2015 &copy;
-OpenNebula Project (OpenNebula.org), C12G Labs.'
+OpenNebula Project, OpenNebula Systems.'
 }
 
 do_jar()
