@@ -151,6 +151,7 @@ define(function(require) {
     }
 
     if (templateJSON["HYPERVISOR"] == 'vcenter' &&
+      templateJSON["KEEP_DISKS_ON_DONE"] &&
         templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
       $("#KEEP_DISKS", context).attr("checked", "checked");
       delete templateJSON["KEEP_DISKS_ON_DONE"]
