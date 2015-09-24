@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
+  var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
@@ -38,7 +39,21 @@ define(function(require) {
 
   var _actions = {
     "VM.list":    _commonActions.list(),
-    "VM.show":    _commonActions.show(),
+    "VM.show": {
+      type: "single",
+      call: OpenNebulaVM.show,
+      callback: function(request, response) {
+        if (Config.isTabEnabled("provision-tab")) {
+          $(".provision_refresh_info", ".provision_list_vms").click();
+        } else {
+          Sunstone.getDataTable(TAB_ID).updateElement(request, response);
+          if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
+            Sunstone.insertPanels(TAB_ID, response);
+          }
+        }
+      },
+      error: Notifier.onError
+    },
     "VM.refresh": _commonActions.refresh(),
     "VM.delete":  _commonActions.del(),
     "VM.chown": _commonActions.multipleAction('chown'),
