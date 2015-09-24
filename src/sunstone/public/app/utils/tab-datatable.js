@@ -393,7 +393,7 @@ define(function(require) {
     var row_id_index = this.dataTable.attr("row_id");
 
     if (row_id_index != undefined) {
-      $.each($(this.dataTable.fnGetNodes()), function() {
+      $.each($(that.dataTable.fnGetNodes()), function() {
         if ($('td.markrow', this).length != 0) {
           var aData = that.dataTable.fnGetData(this);
 
@@ -403,7 +403,7 @@ define(function(require) {
       });
     }
 
-    $.each($(this.dataTable.fnGetNodes()), function() {
+    $.each($(that.dataTable.fnGetNodes()), function() {
       if ($('td.markrowchecked', this).length != 0) {
         if (!isNaN($($('td', $(this))[1]).html())) {
           checked_row_ids.push($($('td', $(this))[1]).html());
@@ -416,11 +416,11 @@ define(function(require) {
     // dataTable.fnSettings is undefined when the table has been detached from
     // the DOM
 
-    if (this.dataTable && this.dataTable.fnSettings()) {
-      var dTable_settings = this.dataTable.fnSettings();
+    if (that.dataTable && that.dataTable.fnSettings()) {
+      var dTable_settings = that.dataTable.fnSettings();
       var prev_start = dTable_settings._iDisplayStart;
 
-      this.dataTable.fnClearTable(false);
+      that.dataTable.fnClearTable(false);
 
       var item_list;
       if (fromArray) {
@@ -435,7 +435,6 @@ define(function(require) {
         });
       }
 
-      var that = this;
       if (item_list.length > 0) {
         that.dataTable.fnAddData(item_list, false);
       }
@@ -451,11 +450,11 @@ define(function(require) {
 
       dTable_settings.iInitDisplayStart = new_start;
 
-      this.dataTable.fnDraw(true);
+      that.dataTable.fnDraw(true);
     };
 
     if (selected_row_id != undefined) {
-      $.each($(this.dataTable.fnGetNodes()), function() {
+      $.each($(that.dataTable.fnGetNodes()), function() {
 
         var aData = that.dataTable.fnGetData(this);
 
@@ -466,7 +465,7 @@ define(function(require) {
     }
 
     if (checked_row_ids.length != 0) {
-      $.each($(this.dataTable.fnGetNodes()), function() {
+      $.each($(that.dataTable.fnGetNodes()), function() {
         var current_id = $($('td', this)[1]).html();
 
         if (isNaN(current_id)) {
