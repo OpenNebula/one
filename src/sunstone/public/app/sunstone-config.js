@@ -50,6 +50,15 @@ define(function(require) {
       }
     },
 
+    "isProvisionTabEnabled": function(tabName, panelTabName) {
+      if (_config['view']['tabs'][tabName]) {
+        var enabled = _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
+        return enabled;
+      } else {
+        return false;
+      }
+    },
+
     "isFeatureEnabled": function(featureName) {
       if (_config['view']['features'] && _config['view']['features'][featureName]) {
         return true;

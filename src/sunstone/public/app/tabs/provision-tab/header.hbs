@@ -18,7 +18,7 @@
   <div class="row">
     <div class="large-12 columns">
       <ul class="inline-list provision-header text-center">
-        {{#isTabPanelEnabled "provision-tab" "users"}}
+        {{#isProvisionTabEnabled "provision-tab" "users"}}
         <li>
           <a href"#" class="medium off-color" id="provision_vdc_info_button">
             <i class="fa fa-fw fa-lg fa-bar-chart-o"/>
@@ -31,29 +31,29 @@
           {{tr "Users"}}
           </a>
         </li>
-        {{/isTabPanelEnabled}}
+        {{/isProvisionTabEnabled}}
         <li>
           <a href"#" class="medium off-color provision_vms_list_button" id="">
             <i class="fa fa-fw fa-lg fa-th"/>
             {{tr "VMs"}}
           </a>
         </li>
-        {{#isTabPanelEnabled "provision-tab" "templates"}}
+        {{#isProvisionTabEnabled "provision-tab" "templates"}}
         <li>
           <a href"#" class="medium off-color provision_templates_list_button">
             <i class="fa fa-fw fa-lg fa-save"/>
             {{tr "Templates"}}
           </a>
         </li>
-        {{/isTabPanelEnabled}}
-        {{#isTabPanelEnabled "provision-tab" "flows"}}
+        {{/isProvisionTabEnabled}}
+        {{#isProvisionTabEnabled "provision-tab" "flows"}}
         <li>
           <a href"#" class="medium off-color provision_flows_list_button" id="">
             <i class="fa fa-lg fa-fw fa-cubes"/>
             {{tr "Services"}}
           </a>
         </li>
-        {{/isTabPanelEnabled}}
+        {{/isProvisionTabEnabled}}
         {{!
         <li style="border-left: 1px solid #efefef; height: 40px"></li>
         <li>

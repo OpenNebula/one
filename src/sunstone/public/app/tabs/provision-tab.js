@@ -841,7 +841,7 @@ define(function(require) {
     provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
     provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
 
-    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
       provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
       provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
@@ -993,7 +993,7 @@ define(function(require) {
 
         ProvisionVmsList.generate($(".provision_vms_list_section"), {active: true});
 
-        if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+        if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
           ProvisionTemplatesList.generate($(".provision_templates_list_section"), {active: true});
         }
 
