@@ -392,27 +392,27 @@ define(function(require) {
                       monitor_resources : "MONITORING/CPU",
                       labels : "Real CPU",
                       humanize_figures : false,
-                      div_graph : $(".vm_cpu_graph", context)
+                      div_graph : $(".vm_cpu_provision_graph", context)
                   },
                   {
                       monitor_resources : "MONITORING/MEMORY",
                       labels : "Real MEM",
                       humanize_figures : true,
-                      div_graph : $(".vm_memory_graph", context)
+                      div_graph : $(".vm_memory_provision_graph", context)
                   },
                   {
                       labels : "Network reception",
                       monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
-                      div_graph : $(".vm_net_rx_graph", context)
+                      div_graph : $(".vm_net_rx_provision_graph", context)
                   },
                   {
                       labels : "Network transmission",
                       monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
-                      div_graph : $(".vm_net_tx_graph", context)
+                      div_graph : $(".vm_net_tx_provision_graph", context)
                   },
                   {
                       labels : "Network reception speed",
@@ -421,7 +421,7 @@ define(function(require) {
                       convert_from_bytes : true,
                       y_sufix : "B/s",
                       derivative : true,
-                      div_graph : $(".vm_net_rx_speed_graph", context)
+                      div_graph : $(".vm_net_rx_speed_provision_graph", context)
                   },
                   {
                       labels : "Network transmission speed",
@@ -430,7 +430,7 @@ define(function(require) {
                       convert_from_bytes : true,
                       y_sufix : "B/s",
                       derivative : true,
-                      div_graph : $(".vm_net_tx_speed_graph", context)
+                      div_graph : $(".vm_net_tx_speed_provision_graph", context)
                   }
               ];
 
