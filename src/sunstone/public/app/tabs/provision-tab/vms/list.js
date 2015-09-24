@@ -16,6 +16,7 @@
 
 define(function(require) {
   require('foundation.alert');
+  var Sunstone = require('sunstone');
   var OpenNebula = require('opennebula');
   var OpenNebulaVM = require('opennebula/vm');
   var Locale = require('utils/locale');
@@ -27,6 +28,7 @@ define(function(require) {
 
   var TemplateVmsList = require('hbs!./list');
 
+  var TAB_ID = require('../tabId');
   var _accordionId = 0;
 
   return {
@@ -247,6 +249,9 @@ define(function(require) {
         },
         error: Notifier.onError,
         success: function(request, response){
+          $(".provision-right-info").html("");
+          Sunstone.insertPanels(TAB_ID, response, TAB_ID, $(".provision-right-info", context));
+
           var data = response.VM
           var state = get_provision_vm_state(data);
 
