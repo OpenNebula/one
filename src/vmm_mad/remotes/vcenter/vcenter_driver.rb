@@ -1340,10 +1340,33 @@ private
                           :diskMoveType => :moveChildMostDiskBacking,
                           :pool         => connection.resource_pool)
 
-        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(
-                      :location => relocate_spec,
-                      :powerOn  => false,
-                      :template => false)
+        clone_parameters = {
+            :location => relocate_spec,
+            :powerOn  => false,
+            :template => false
+        }
+
+        customization = template.elements["CUSTOMIZATION_SPEC"]
+
+        vim = connection.vim
+
+        if !customization.nil?
+        begin
+            custom_spec = vim.serviceContent.customizationSpecManager.
+                GetCustomizationSpec(:name => customization.text)
+
+            if custom_spec && spec=custom_spec.spec
+                clone_parameters[:customization] = spec
+            else
+                raise "Error getting customization spec"
+            end
+
+        rescue
+            raise "Customization spec '#{customization.text}' not found"
+        end
+        end
+
+        clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(clone_parameters)
 
         begin
             vm = vc_template.CloneVM_Task(
