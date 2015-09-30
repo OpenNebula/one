@@ -1382,7 +1382,7 @@ private
         begin
             vm = vc_template.CloneVM_Task(
                    :folder => vc_template.parent,
-                   :name   => "one-#{vmid}",
+                   :name   => xml.root.elements["/VM/NAME"].text,
                    :spec   => clone_spec).wait_for_completion
         rescue Exception => e
 
