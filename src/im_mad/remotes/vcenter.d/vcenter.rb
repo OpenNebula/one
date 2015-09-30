@@ -45,4 +45,7 @@ vm_monitor_info = vcenter_host.monitor_vms
 cluster_info << "\nVM_POLL=YES"
 cluster_info << "#{vm_monitor_info}" if !vm_monitor_info.empty?
 
+cluster_info << "\n"
+cluster_info << vcenter_host.monitor_customizations
+
 puts cluster_info

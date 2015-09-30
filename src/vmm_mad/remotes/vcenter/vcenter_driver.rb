@@ -717,6 +717,22 @@ class VCenterHost < ::OpenNebula::Host
 
         return str_info
     end
+
+    def monitor_customizations
+        customizations = client.vim.serviceContent.customizationSpecManager.info
+
+        text = ''
+
+        customizations.each do |c|
+            t = "CUSTOMIZATION = [ "
+            t << %Q<NAME = "#{c.name}", >
+            t << %Q<TYPE = "#{c.type}" ]\n>
+
+            text << t
+        end
+
+        text
+    end
 end
 
 ################################################################################
