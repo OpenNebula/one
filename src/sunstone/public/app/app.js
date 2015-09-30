@@ -153,7 +153,7 @@ define(function(require) {
       zoneRefresh();
     });
 
-    $('a.zone-choice').on("click", function() {
+    $(".user-zone-info").on("click", 'a.zone-choice', function() {
        $.ajax({
          url: 'config',
          type: "GET",
