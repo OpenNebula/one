@@ -1084,7 +1084,15 @@ class VCenterVm
         @vmtools_ver    = @vm.guest.toolsVersion
         @vmtools_verst  = @vm.guest.toolsVersionStatus
 
+        ip_addresses = []
 
+        @vm.guest.net.each do |net|
+            net.ipConfig.ipAddress.each do |ip|
+                ip_addresses << ip.ipAddress
+            end if net.ipConfig && net.ipConfig.ipAddress
+        end if @vm.guest.net
+
+        @ip_addresses = ip_addresses.join(',')
     end
 
     ########################################################################
@@ -1096,6 +1104,9 @@ class VCenterVm
       str_info = ""
 
       str_info << "GUEST_IP=" << @guest_ip.to_s << " " if @guest_ip
+      if @ip_addresses && !@ip_addresses.empty?
+          str_info << "GUEST_IP_ADDRESSES=\\\"" << @ip_addresses.to_s << "\\\" "
+      end
       str_info << "STATE="                      << @state                << " "
       str_info << "CPU="                        << @used_cpu.to_s        << " "
       str_info << "MEMORY="                     << @used_memory.to_s     << " "
