@@ -451,7 +451,7 @@ define(function(require) {
       })
     }
 
-    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       context.on("click", ".provision_snapshot_button", function(){
         $(".provision_confirm_action:first", context).html(
           '<div data-alert class="alert-box secondary radius">'+

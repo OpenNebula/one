@@ -30,14 +30,14 @@
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
           <a title="{{tr "You have to boot the Virtual Machine first"}}" class="left button small radius white provision_vnc_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-desktop"/></a>
-          {{#isTabPanelEnabled "provision-tab" "templates"}}
+          {{#isProvisionTabEnabled "provision-tab" "templates"}}
           <a href"#" title="{{tr "The main disk of the Virtual Machine will be saved in a new Image"}}" class="left button small radius success provision_snapshot_button tip-top">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
           <a title="{{tr "You have to power-off the virtual machine first"}}" class="left button small radius white provision_snapshot_button_disabled tip-top" style="color: #999">
             <i class="fa fa-fw fa-lg fa-save"/>
           </a>
-          {{/isTabPanelEnabled}}
+          {{/isProvisionTabEnabled}}
         </li>
         <li class="right">
           <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
