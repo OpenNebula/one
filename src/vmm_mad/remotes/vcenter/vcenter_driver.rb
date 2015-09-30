@@ -711,7 +711,9 @@ class VCenterHost < ::OpenNebula::Host
                 end
 
                 str_info << "POLL=\"#{vm.info}\"]"
-            rescue
+            rescue Exception => e
+                STDERR.puts e.inspect
+                STDERR.puts e.backtrace
             end
         }
 
