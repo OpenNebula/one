@@ -282,8 +282,8 @@ define(function(require) {
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
               $(".provision_poweron_button", context).show();
-              $(".provision_delete_confirm_button", context).show();
-              $(".provision_shutdownhard_confirm_button", context).hide();
+              $(".provision_delete_confirm_button", context).hide();
+              $(".provision_shutdownhard_confirm_button", context).show();
               $(".provision_snapshot_button", context).show();
               $(".provision_vnc_button", context).hide();
               $(".provision_snapshot_button_disabled", context).hide();
