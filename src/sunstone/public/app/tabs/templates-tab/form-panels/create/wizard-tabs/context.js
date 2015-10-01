@@ -177,7 +177,7 @@ define(function(require) {
   function _fillCustomizations(context, customizations) {
     var html = "<select>";
 
-    html += '<option value="">'+Locale.tr("Please select")+'</option>';
+    html += '<option value="">'+Locale.tr("None")+'</option>';
 
     $.each(customizations, function(i,customization){
       html += '<option value="'+customization+'">'+customization+'</option>';
