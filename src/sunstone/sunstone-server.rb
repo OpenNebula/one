@@ -470,6 +470,8 @@ get '/infrastructure' do
         error 500, ""
     end
 
+    infrastructure = {}
+
     set = Set.new
 
     xml = XMLElement.new
@@ -483,9 +485,15 @@ get '/infrastructure' do
         })
     end
 
-    infrastructure = {
-        :pci_devices => set.to_a
-    }
+    infrastructure[:pci_devices] = set.to_a
+
+    set = Set.new
+
+    xml.each('HOST/TEMPLATE/CUSTOMIZATION') do |customization|
+        set.add(customization['NAME'])
+    end
+
+    infrastructure[:vcenter_customizations] = set.to_a
 
     [200, infrastructure.to_json]
 end
