@@ -20,6 +20,7 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var OpenNebulaHost = require('opennebula/host');
   var OpenNebulaError = require('opennebula/error');
+  var Notifier = require('utils/notifier');
 
   var TemplateHTML = require('hbs!./clusters/html');
 
