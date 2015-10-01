@@ -701,7 +701,23 @@ in the frontend machine.
             end
         end
 
-        if vm.has_elements?("/VM/TEMPLATE/NIC") and !isHybrid
+        # This variable holds the extra IP's got from monitoring. Right
+        # now it adds GUEST_IP and GUEST_IP_ADDRESSES from vcenter
+        # monitoring. If other variables hold IPs just add them to this
+        # array. Duplicate IPs are not shown.
+        extra_ips = []
+
+        if val=vm["/VM/MONITORING/GUEST_IP"]
+            extra_ips << val if val && !val.empty?
+        end
+
+        if val=vm["/VM/MONITORING/GUEST_IP_ADDRESSES"]
+            extra_ips += val.split(',') if val && !val.empty?
+        end
+
+        extra_ips.uniq!
+
+        if vm.has_elements?("/VM/TEMPLATE/NIC") || !extra_ips.empty?
             puts
             CLIHelper.print_header(str_h1 % "VM NICS",false)
 
@@ -711,13 +727,17 @@ in the frontend machine.
                            "VLAN"=>"no",
                            "BRIDGE"=>"-"}
 
+            shown_ips = []
+
             array_id = 0
-            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten
+            vm_nics = [vm.to_hash['VM']['TEMPLATE']['NIC']].flatten.compact
             vm_nics.each {|nic|
 
                 next if nic.has_key?("CLI_DONE")
 
                 if nic.has_key?("IP6_LINK")
+                    shown_ips << nic["IP6_LINK"]
+
                     ip6_link = {"IP"           => nic.delete("IP6_LINK"),
                                 "CLI_DONE"     => true,
                                 "DOUBLE_ENTRY" => true}
@@ -727,6 +747,8 @@ in the frontend machine.
                 end
 
                 if nic.has_key?("IP6_ULA")
+                    shown_ips << nic["IP6_ULA"]
+
                     ip6_link = {"IP"           => nic.delete("IP6_ULA"),
                                 "CLI_DONE"     => true,
                                 "DOUBLE_ENTRY" => true}
@@ -736,6 +758,8 @@ in the frontend machine.
                 end
 
                 if nic.has_key?("IP6_GLOBAL")
+                    shown_ips << nic["IP6_GLOBAL"]
+
                     ip6_link = {"IP"           => nic.delete("IP6_GLOBAL"),
                                 "CLI_DONE"     => true,
                                 "DOUBLE_ENTRY" => true}
@@ -744,9 +768,24 @@ in the frontend machine.
                     array_id += 1
                 end
 
+                shown_ips << nic["IP"] if nic.has_key?("IP")
+
                 nic.merge!(nic_default) {|k,v1,v2| v1}
                 array_id += 1
             }
+
+            extra_ips -= shown_ips
+
+            # Add extra IPs to the VM NICS table
+            extra_ips.each do |ip|
+                vm_nics << {
+                    "NIC_ID"        => "-",
+                    "IP"            => ip,
+                    "NETWORK"       => "Additional IP",
+                    "BRIDGE"        => "-",
+                    "VLAN"          => "-"
+                }
+            end
 
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>3 do |d|
