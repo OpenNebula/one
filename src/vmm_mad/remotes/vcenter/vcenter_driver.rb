@@ -338,7 +338,7 @@ class VIClient
 
                 # Do not reimport VMs deployed by OpenNebula
                 # since the core will get confused with the IDs
-                next if vi_tmp.vm.name.match(/one-\d/)
+                next if vi_tmp.vm.name.match(/^one-(?<id>\d*)(-(?<tail>.*))?$/)
 
                 container_hostname = vi_tmp.vm.runtime.host.parent.name
 
@@ -692,7 +692,9 @@ class VCenterHost < ::OpenNebula::Host
             begin
                 name   = v.name
                 number = -1
-                number = name.split('-').last if (name =~ /^one-\d*$/)
+
+                matches = name.match(/^one-(?<id>\d*)(-(?<tail>.*))?$/)
+                number  = matches[:id] if matches
 
                 vm = VCenterVm.new(@client, v)
                 vm.monitor
@@ -1337,9 +1339,10 @@ private
 
         raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
 
-        uuid = uuid.text
-        vmid = xml.root.elements["/VM/ID"].text
-        hid = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
+        uuid         = uuid.text
+        vmid         =  xml.root.elements["/VM/ID"].text
+        vcenter_name = "one-#{vmid}-#{xml.root.elements["/VM/NAME"].text}"
+        hid          = xml.root.elements["//HISTORY_RECORDS/HISTORY/HID"]
 
         raise "Cannot find host id in deployment file history." if hid.nil?
 
@@ -1382,7 +1385,7 @@ private
         begin
             vm = vc_template.CloneVM_Task(
                    :folder => vc_template.parent,
-                   :name   => xml.root.elements["/VM/NAME"].text,
+                   :name   => vcenter_name,
                    :spec   => clone_spec).wait_for_completion
         rescue Exception => e
 
@@ -1390,14 +1393,14 @@ private
                 raise "Cannot clone VM Template: #{e.message}"
             end
 
-            vm = connection.find_vm("one-#{vmid}")
+            vm = connection.find_vm(vcenter_name)
 
             raise "Cannot clone VM Template" if vm.nil?
 
             vm.Destroy_Task.wait_for_completion
             vm = vc_template.CloneVM_Task(
                 :folder => vc_template.parent,
-                :name   => "one-#{vmid}",
+                :name   => vcenter_name,
                 :spec   => clone_spec).wait_for_completion
         end
 
