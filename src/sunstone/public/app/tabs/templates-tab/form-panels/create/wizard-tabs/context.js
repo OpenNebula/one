@@ -26,6 +26,7 @@ define(function(require) {
   var TemplateUtils = require('utils/template-utils');
   var CustomTagsTable = require('utils/custom-tags-table');
   var FilesTable = require('tabs/files-tab/datatable')
+  var OpenNebulaHost = require('opennebula/host');
 
   /*
     TEMPLATES
@@ -88,6 +89,47 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    context.on("change", "select#vcenter_customizations", function(){
+      var option = $("option:selected", this);
+
+      if (option.attr("custom") == "true"){
+        $('input#vcenter_customizations_value', context).show();
+      } else {
+        $('input#vcenter_customizations_value', context).hide();
+      }
+
+      $('input#vcenter_customizations_value', context).val( $(this).val() );
+    });
+
+    $('input#vcenter_customizations_value', context).hide();
+
+    OpenNebulaHost.vcenterCustomizations({
+      data : {},
+      timeout: true,
+      success: function (request, customizations){
+        _fillCustomizations(context, customizations);
+      },
+      error: function(request, error_json){
+        console.error("There was an error requesting the vCenter customizations: "+
+                      error_json.error.message);
+
+        _fillCustomizations(context, []);
+      }
+    });
+
+    context.on("change", "input#vcenter_customizations_value", function(){
+      var opt =
+        $('option'+
+          '[value="'+$('input#vcenter_customizations_value', context).val()+'"]', context);
+
+      if (opt.size() == 0){
+        opt = $('option[custom="true"]', context);
+        $('input#vcenter_customizations_value', context).show();
+      }
+
+      opt.attr('selected', 'selected');
+    });
+
     CustomTagsTable.setup(context);
 
     var selectOptions = {
@@ -132,10 +174,34 @@ define(function(require) {
     });
   }
 
+  function _fillCustomizations(context, customizations) {
+    var html = "<select>";
+
+    html += '<option value="">'+Locale.tr("Please select")+'</option>';
+
+    $.each(customizations, function(i,customization){
+      html += '<option value="'+customization+'">'+customization+'</option>';
+    });
+
+    html += '<option value="" custom="true">'+Locale.tr("Set manually")+'</option>';
+
+    html += '</select>';
+
+    $("#vcenter_customizations", context).html(html);
+  }
+
   function _retrieve(context) {
     var templateJSON = {};
     var contextJSON = WizardFields.retrieve(context);
     $.extend(contextJSON, CustomTagsTable.retrieve(context));
+
+    var customization = $('input#vcenter_customizations_value', context).val();
+
+    if (customization) {
+      templateJSON["VCENTER_PUBLIC_CLOUD"] = {
+        CUSTOMIZATION_SPEC : customization
+      };
+    }
 
     if ($("#ssh_context", context).is(":checked")) {
       var public_key = $("#ssh_public_key", context).val();
@@ -203,6 +269,21 @@ define(function(require) {
       });
 
       delete templateJSON['USER_INPUTS'];
+    }
+
+    var publicClouds = templateJSON["PUBLIC_CLOUD"];
+
+    if (publicClouds != undefined) {
+      if (!$.isArray(publicClouds)){
+        publicClouds = [publicClouds];
+      }
+
+      $.each(publicClouds, function(){
+        if(this["TYPE"] == "vcenter"){
+          $('input#vcenter_customizations_value', context).val(this["CUSTOMIZATION_SPEC"]).change();
+          return false;
+        }
+      });
     }
 
     if (contextJSON) {

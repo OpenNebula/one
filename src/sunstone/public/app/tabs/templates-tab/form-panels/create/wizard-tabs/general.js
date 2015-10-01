@@ -118,10 +118,10 @@ define(function(require) {
     var templateJSON = WizardFields.retrieve(context);
 
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
-      templateJSON["PUBLIC_CLOUD"] = {
+      templateJSON["VCENTER_PUBLIC_CLOUD"] = {
         'TYPE': 'vcenter',
         'VM_TEMPLATE': $("#vcenter_template_uuid", context).val()
-      }
+      };
 
       templateJSON["KEEP_DISKS_ON_DONE"] = $("#KEEP_DISKS", context).is(':checked')?"YES":"NO"
     }
@@ -155,6 +155,23 @@ define(function(require) {
         templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
       $("#KEEP_DISKS", context).attr("checked", "checked");
       delete templateJSON["KEEP_DISKS_ON_DONE"]
+    }
+
+    if (templateJSON["HYPERVISOR"] == 'vcenter') {
+      var publicClouds = templateJSON["PUBLIC_CLOUD"];
+
+      if (publicClouds != undefined) {
+        if (!$.isArray(publicClouds)){
+          publicClouds = [publicClouds];
+        }
+
+        $.each(publicClouds, function(){
+          if(this["TYPE"] == "vcenter"){
+            $("#vcenter_template_uuid", context).val(this["VM_TEMPLATE"]);
+            return false;
+          }
+        });
+      }
     }
 
     if (templateJSON["HYPERVISOR"]) {

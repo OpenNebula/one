@@ -139,6 +139,20 @@ define(function(require) {
       $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
     });
 
+    // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
+    // part of an array, and it is filled in different tabs, the $.extend deep
+    // merge can't work. We define an auxiliary attribute for it.
+
+    if (templateJSON["VCENTER_PUBLIC_CLOUD"]) {
+      if (templateJSON['PUBLIC_CLOUD'] == undefined) {
+        templateJSON['PUBLIC_CLOUD'] = [];
+      }
+
+      templateJSON['PUBLIC_CLOUD'].push(templateJSON["VCENTER_PUBLIC_CLOUD"]);
+
+      delete templateJSON["VCENTER_PUBLIC_CLOUD"];
+    }
+
     if (this.action == "create") {
       Sunstone.runAction("Template.create",
                           {'vmtemplate': templateJSON});

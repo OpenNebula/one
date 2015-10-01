@@ -397,18 +397,6 @@ define(function(require) {
     var publicCloudJSON = [];
     var ec2JSON = [];
 
-    /* TODO Check if vCenter is defined
-    if ($.isEmptyObject(vm_json["PUBLIC_CLOUD"])) {
-      vm_json["PUBLIC_CLOUD"] = [];
-    }*/
-
-    if ($("[wizard_field='HYPERVISOR']:checked").val() == 'vcenter') {
-      publicCloudJSON.push({
-        'TYPE': 'vcenter',
-        'VM_TEMPLATE': $("#vcenter_template_uuid").val()
-      });
-    }
-
     $('.provider', context).each(function() {
       var hash  = WizardFields.retrieve(this);
       if (!$.isEmptyObject(hash)) {
@@ -536,15 +524,15 @@ define(function(require) {
   function _fillProviderTab(context, provider, providerType, clickButton) {
     var that = this;
     if (providerType == "vcenter") {
-      $("#vcenter_template_uuid").val(provider["VM_TEMPLATE"])
-    } else {
-      if (clickButton) {
-        $("#tf_btn_hybrid", context).trigger("click");
-      }
-
-      var providerContext = $(".provider", context).last();
-      $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
-      WizardFields.fill(providerContext, provider);
+      return false;
     }
+
+    if (clickButton) {
+      $("#tf_btn_hybrid", context).trigger("click");
+    }
+
+    var providerContext = $(".provider", context).last();
+    $("input.hybridRadio[value='" + providerType + "']", providerContext).trigger("click");
+    WizardFields.fill(providerContext, provider);
   }
 });

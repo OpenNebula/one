@@ -21,14 +21,15 @@ define(function(require) {
   var OpenNebulaHelper = require('./helper');
 
 
-  var pcisCache;
-  var pcisWaiting = false;
+  var infrastructureCache;
+  var infrastructureWaiting = false;
   var pcisCallbacks = [];
+  var customizationsCallbacks = [];
 
   var CACHE_EXPIRE = 300000; //ms
 
   var _clearCache = function() {
-    pcisCache = null;
+    infrastructureCache = null;
     //console.log("Host.pciDevices. Cache cleaned");
   };
 
@@ -124,13 +125,13 @@ define(function(require) {
       var callbackError = params.error;
       var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
 
-      if (pcisCache &&
-          pcisCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
+      if (infrastructureCache &&
+          infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
 
         //console.log("Host.pciDevices. Cache used");
 
         return callback ?
-            callback(request, pcisCache["data"]) : null;
+            callback(request, infrastructureCache["pcis"]) : null;
       }
 
       pcisCallbacks.push({
@@ -140,67 +141,129 @@ define(function(require) {
 
       //console.log("Host.pciDevices. Callback queued");
 
-      if (pcisWaiting) {
-        return;
+      _infrastructure();
+    },
+    "vcenterCustomizations": function(params){
+      var callback = params.success;
+      var callbackError = params.error;
+      var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
+
+      if (infrastructureCache &&
+          infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
+
+        //console.log("Host.vcenterCustomizations. Cache used");
+
+        return callback ?
+            callback(request, infrastructureCache["customizations"]) : null;
       }
 
-      pcisWaiting = true;
-
-      //console.log("Host.pciDevices. NO cache, calling ajax");
-
-      $.ajax({
-        url: "infrastructure",
-        type: "GET",
-        dataType: "json",
-        success: function(response) {
-          var pcis = response.pci_devices;
-
-          if (pcis == undefined){
-            pcis = [];
-          }
-
-          if (!$.isArray(pcis)){ // If only 1 convert to array
-            pcis = [pcis];
-          }
-
-          pcisCache = {
-            timestamp   : new Date().getTime(),
-            data        : pcis
-          };
-
-          pcisWaiting = false;
-
-          for (var i = 0; i < pcisCallbacks.length; i++) {
-            var callback = pcisCallbacks[i].success;
-
-            if (callback) {
-              //console.log("Host.pciDevices. Callback called");
-              callback(request, pcis);
-            }
-          }
-
-          pcisCallbacks = [];
-
-          return;
-        },
-        error: function(response) {
-          pcisWaiting = false;
-
-          for (var i = 0; i < pcisCallbacks.length; i++) {
-            var callback = pcisCallbacks[i].error;
-
-            if (callback) {
-              //console.log("Host.pciDevices. ERROR Callback called");
-              callback(request, OpenNebulaError(response));
-            }
-          }
-
-          pcisCallbacks = [];
-
-          return;
-        }
+      customizationsCallbacks.push({
+        success : callback,
+        error : callbackError
       });
+
+      //console.log("Host.vcenterCustomizations. Callback queued");
+
+      _infrastructure();
     }
+  };
+
+  function _infrastructure(){
+    if (infrastructureWaiting) {
+      return;
+    }
+
+    var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
+
+    infrastructureWaiting = true;
+
+    //console.log("Host.infrastructure. NO cache, calling ajax");
+
+    $.ajax({
+      url: "infrastructure",
+      type: "GET",
+      dataType: "json",
+      success: function(response) {
+        var pcis = response.pci_devices;
+
+        if (pcis == undefined){
+          pcis = [];
+        }
+
+        if (!$.isArray(pcis)){ // If only 1 convert to array
+          pcis = [pcis];
+        }
+
+        var customizations = response.vcenter_customizations;
+
+        if (customizations == undefined){
+          customizations = [];
+        }
+
+        if (!$.isArray(customizations)){ // If only 1 convert to array
+          customizations = [customizations];
+        }
+
+        infrastructureCache = {
+          timestamp       : new Date().getTime(),
+          pcis            : pcis,
+          customizations  : customizations
+        };
+
+        infrastructureWaiting = false;
+
+        for (var i = 0; i < pcisCallbacks.length; i++) {
+          var callback = pcisCallbacks[i].success;
+
+          if (callback) {
+            //console.log("Host.pciDevices. Callback called");
+            callback(request, pcis);
+          }
+        }
+
+        pcisCallbacks = [];
+
+        for (var i = 0; i < customizationsCallbacks.length; i++) {
+          var callback = customizationsCallbacks[i].success;
+
+          if (callback) {
+            //console.log("Host.vcenterCustomizations. Callback called");
+            callback(request, customizations);
+          }
+        }
+
+        customizationsCallbacks = [];
+
+        return;
+      },
+      error: function(response) {
+        infrastructureWaiting = false;
+
+        for (var i = 0; i < pcisCallbacks.length; i++) {
+          var callback = pcisCallbacks[i].error;
+
+          if (callback) {
+            //console.log("Host.pciDevices. ERROR Callback called");
+            callback(request, OpenNebulaError(response));
+          }
+        }
+
+        pcisCallbacks = [];
+
+        for (var i = 0; i < customizationsCallbacks.length; i++) {
+          var callback = customizationsCallbacks[i].error;
+
+          if (callback) {
+            //console.log("Host.vcenterCustomizations. ERROR Callback called");
+            callback(request, OpenNebulaError(response));
+          }
+        }
+
+        customizationsCallbacks = [];
+
+        return;
+      }
+    });
   }
 
   return Host;
