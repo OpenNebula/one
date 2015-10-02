@@ -284,10 +284,11 @@ class VIClient
                 if !tpool["VMTEMPLATE/TEMPLATE/PUBLIC_CLOUD[\
                         TYPE=\"vcenter\" \
                         and VM_TEMPLATE=\"#{vi_tmp.vm.config.uuid}\"]"]
+                    hostname = vi_tmp.vm.runtime.host.parent.name
                     one_tmp << {
-                        :name => vi_tmp.vm.name,
+                        :name => "#{vi_tmp.vm.name} - #{hostname}",
                         :uuid => vi_tmp.vm.config.uuid,
-                        :host => vi_tmp.vm.runtime.host.parent.name,
+                        :host => hostname,
                         :one  => vi_tmp.to_one
                     }
                 end
@@ -355,7 +356,7 @@ class VIClient
                     host_id = name_to_id(container_hostname,hostpool,"HOST")[1]
 
                     one_tmp << {
-                        :name => vi_tmp.vm.name,
+                        :name => "#{vi_tmp.vm.name} - #{container_hostname}",
                         :uuid => vi_tmp.vm.config.uuid,
                         :host => container_hostname,
                         :host_id => host_id,
@@ -410,69 +411,88 @@ class VIClient
             one_nets = []
 
             networks.each { |n|
-                if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
-                        TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
-                    one_nets << {
-                        :name   => n.name,
-                        :bridge => n.name,
-                        :type   => "Port Group",
-                        :one    => "NAME   = \"#{n[:name]}\"\n" \
-                                   "BRIDGE = \"#{n[:name]}\"\n" \
-                                   "VCENTER_TYPE = \"Port Group\""
-                    }
-                end
+                # Skip those not in cluster
+                next if !n[:host][0]
+
+                # Networks can be in several cluster, create one per cluster
+                Array(n[:host][0]).each{ |host_system|
+                    net_name = "#{n.name} - #{host_system.parent.name}"
+
+                    if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                            TEMPLATE[VCENTER_TYPE=\"Port Group\"]"]
+                        one_nets << {
+                            :name    => net_name,
+                            :bridge  => n.name,
+                            :cluster => host_system.parent.name,
+                            :type    => "Port Group",
+                            :one     => "NAME   = \"#{n[:name]}\"\n" \
+                                        "BRIDGE = \"#{n[:name]}\"\n" \
+                                        "VCENTER_TYPE = \"Port Group\""
+                        }
+                    end
+                }
             }
 
             networks = get_entities(dc.networkFolder,
                                     'DistributedVirtualPortgroup' )
 
             networks.each { |n|
-                if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
-                        TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
-                    vnet_template = "NAME   = \"#{n[:name]}\"\n" \
-                                    "BRIDGE = \"#{n[:name]}\"\n" \
-                                    "VCENTER_TYPE = \"Distributed Port Group\""
+                # Skip those not in cluster
+                next if !n[:host][0]
+
+                # DistributedVirtualPortgroup can be in several cluster,
+                # create one per cluster
+                Array(n[:host][0]).each{ |host_system|
+                 net_name = "#{n.name} - #{n[:host][0].parent.name}"
+
+                 if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
+                         TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
+                     vnet_template = "NAME   = \"#{n[:name]}\"\n" \
+                                     "BRIDGE = \"#{n[:name]}\"\n" \
+                                     "VCENTER_TYPE = \"Distributed Port Group\""
 
 
-                    default_pc = n.config.defaultPortConfig
+                     default_pc = n.config.defaultPortConfig
 
-                    has_vlan = false
-                    vlan_str = ""
+                     has_vlan = false
+                     vlan_str = ""
 
-                    if default_pc.methods.include? :vlan
-                       has_vlan = default_pc.vlan.methods.include? :vlanId
-                    end
+                     if default_pc.methods.include? :vlan
+                        has_vlan = default_pc.vlan.methods.include? :vlanId
+                     end
 
-                    if has_vlan
-                        vlan     = n.config.defaultPortConfig.vlan.vlanId
+                     if has_vlan
+                         vlan     = n.config.defaultPortConfig.vlan.vlanId
 
-                        if vlan != 0
-                            if vlan.is_a? Array
-                                vlan.each{|v|
-                                    vlan_str += v.start.to_s + ".." +
-                                                v.end.to_s + ","
-                                }
-                                vlan_str.chop!
-                            else
-                                vlan_str = vlan.to_s
-                            end
-                        end
-                    end
+                         if vlan != 0
+                             if vlan.is_a? Array
+                                 vlan.each{|v|
+                                     vlan_str += v.start.to_s + ".." +
+                                                 v.end.to_s + ","
+                                 }
+                                 vlan_str.chop!
+                             else
+                                 vlan_str = vlan.to_s
+                             end
+                         end
+                     end
 
-                    if !vlan_str.empty?
-                        vnet_template << "VLAN=\"YES\"\n" \
-                                         "VLAN_ID=#{vlan_str}\n"
-                    end
+                     if !vlan_str.empty?
+                         vnet_template << "VLAN=\"YES\"\n" \
+                                          "VLAN_ID=#{vlan_str}\n"
+                     end
 
-                    one_net = {:name   => n.name,
-                               :bridge => n.name,
-                               :type   => "Distributed Port Group",
-                               :one    => vnet_template}
+                     one_net = {:name    => net_name,
+                                :bridge  => n.name,
+                                :cluster => host_system.parent.name,
+                                :type   => "Distributed Port Group",
+                                :one    => vnet_template}
 
-                    one_net[:vlan] = vlan_str if !vlan_str.empty?
+                     one_net[:vlan] = vlan_str if !vlan_str.empty?
 
-                    one_nets << one_net
-                end
+                     one_nets << one_net
+                 end
+                }
             }
 
             vcenter_networks[dc.name] = one_nets
