@@ -135,7 +135,8 @@ define(function(require) {
                       '<div class="large-12 columns">' +
                         '<label>' +
                           '<input type="checkbox" class="network_name" checked/> ' +
-                          network.name + '&emsp;<span style="color: #999">' + network.type + '</span>' +
+                          network.name + '&emsp;<span style="color: #999">' + network.cluster + '</span>' +
+                          '&emsp;<span style="color: #999">' + network.type + '</span>' +
                         '</label>' +
                       '</div>'+
                       '<div class="large-2 columns">'+
