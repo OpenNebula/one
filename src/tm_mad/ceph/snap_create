@@ -69,7 +69,7 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# Create snapshots
+# Create snapshots (stored in the current volume)
 #-------------------------------------------------------------------------------
 
 if [ -n "$CEPH_USER" ]; then
@@ -88,8 +88,6 @@ SNAP_CREATE_CMD=$(cat <<EOF
 
     $RBD snap create $RBD_DST@$SNAP_ID
     $RBD snap protect $RBD_DST@$SNAP_ID
-    $RBD rename $RBD_DST $RBD_DST-$SNAP_ID
-    $RBD clone $RBD_DST-$SNAP_ID@$SNAP_ID $RBD_DST
 EOF
 )
 
