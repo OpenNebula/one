@@ -89,6 +89,21 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
+    $("input[name='context_type']", context).on("change", function() {
+      $(".context_type", context).hide();
+      $("."+$(this).val(), context).show();
+    });
+
+    $("input#context_type_opennebula", context).click();
+
+    $("#template_hypervisor_form input[name='hypervisor']").on("change", function(){
+      if(this.value == "vcenter"){
+        $("input#context_type_vcenter", context).click();
+      } else {
+        $("input#context_type_opennebula", context).click();
+      }
+    });
+
     context.on("change", "select#vcenter_customizations", function(){
       var option = $("option:selected", this);
 
@@ -192,67 +207,93 @@ define(function(require) {
 
   function _retrieve(context) {
     var templateJSON = {};
-    var contextJSON = WizardFields.retrieve(context);
-    $.extend(contextJSON, CustomTagsTable.retrieve(context));
 
-    var customization = $('input#vcenter_customizations_value', context).val();
+    if($("input[name='context_type']:checked", context).val() == "context_type_vcenter"){
+      var customization = $('input#vcenter_customizations_value', context).val();
 
-    if (customization) {
-      templateJSON["VCENTER_PUBLIC_CLOUD"] = {
-        CUSTOMIZATION_SPEC : customization
-      };
+      if (customization) {
+        templateJSON["VCENTER_PUBLIC_CLOUD"] = {
+          CUSTOMIZATION_SPEC : customization
+        };
+      }
+    } else {
+      var contextJSON = WizardFields.retrieve(context);
+      $.extend(contextJSON, CustomTagsTable.retrieve(context));
+
+      if ($("#ssh_context", context).is(":checked")) {
+        var public_key = $("#ssh_public_key", context).val();
+        if (public_key) {
+          contextJSON["SSH_PUBLIC_KEY"] = TemplateUtils.escapeDoubleQuotes(public_key);
+        } else {
+          contextJSON["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
+        }
+      }
+
+      if ($("#network_context", context).is(":checked")) {
+        contextJSON["NETWORK"] = "YES";
+      }
+
+      if ($("#token_context", context).is(":checked")) {
+        contextJSON["TOKEN"] = "YES";
+      }
+
+      var userInputsJSON = {};
+      $(".service_custom_attrs tbody tr", context).each(function() {
+        if ($(".user_input_name", $(this)).val()) {
+          var attr_name = $(".user_input_name", $(this)).val();
+          var attr_type = $(".user_input_type", $(this)).val();
+          var attr_desc = $(".user_input_description", $(this)).val();
+          userInputsJSON[attr_name] = "M|" + attr_type + "|" + attr_desc;
+          contextJSON[attr_name] = "$" + attr_name.toUpperCase();
+        }
+      });
+
+      var start_script = $("#START_SCRIPT", context).val();
+      if (start_script != "") {
+        if ($("#ENCODE_START_SCRIPT", context).is(":checked")) {
+          contextJSON["START_SCRIPT_BASE64"] = btoa(start_script);
+        } else {
+          contextJSON["START_SCRIPT"] = start_script;
+        }
+      }
+
+      if (!$.isEmptyObject(contextJSON)) { templateJSON['CONTEXT'] = contextJSON; };
+      if (!$.isEmptyObject(userInputsJSON)) { templateJSON['USER_INPUTS'] = userInputsJSON; };
     }
-
-    if ($("#ssh_context", context).is(":checked")) {
-      var public_key = $("#ssh_public_key", context).val();
-      if (public_key) {
-        contextJSON["SSH_PUBLIC_KEY"] = TemplateUtils.escapeDoubleQuotes(public_key);
-      } else {
-        contextJSON["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
-      }
-    };
-
-    if ($("#network_context", context).is(":checked")) {
-      contextJSON["NETWORK"] = "YES";
-    };
-
-    if ($("#token_context", context).is(":checked")) {
-      contextJSON["TOKEN"] = "YES";
-    };
-
-    var userInputsJSON = {};
-    $(".service_custom_attrs tbody tr", context).each(function() {
-      if ($(".user_input_name", $(this)).val()) {
-        var attr_name = $(".user_input_name", $(this)).val();
-        var attr_type = $(".user_input_type", $(this)).val();
-        var attr_desc = $(".user_input_description", $(this)).val();
-        userInputsJSON[attr_name] = "M|" + attr_type + "|" + attr_desc;
-        contextJSON[attr_name] = "$" + attr_name.toUpperCase();
-      }
-    });
-
-    var start_script = $("#START_SCRIPT", context).val();
-    if (start_script != "") {
-      if ($("#ENCODE_START_SCRIPT", context).is(":checked")) {
-        contextJSON["START_SCRIPT_BASE64"] = btoa(start_script);
-      } else {
-        contextJSON["START_SCRIPT"] = start_script;
-      }
-    }
-
-    if (!$.isEmptyObject(contextJSON)) { templateJSON['CONTEXT'] = contextJSON; };
-    if (!$.isEmptyObject(userInputsJSON)) { templateJSON['USER_INPUTS'] = userInputsJSON; };
 
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
     var that = this;
-    $("#ssh_context", context).removeAttr('checked');
-    $("#network_context", context).removeAttr('checked');
 
     var contextJSON = templateJSON['CONTEXT'];
     var userInputsJSON = templateJSON['USER_INPUTS'];
+    var publicClouds = templateJSON["PUBLIC_CLOUD"];
+
+    if (publicClouds != undefined) {
+      if (!$.isArray(publicClouds)){
+        publicClouds = [publicClouds];
+      }
+
+      $.each(publicClouds, function(){
+        if(this["TYPE"] == "vcenter"){
+          $("input#context_type_vcenter", context).click();
+
+          if(this["CUSTOMIZATION_SPEC"]){
+            $('input#vcenter_customizations_value', context).val(this["CUSTOMIZATION_SPEC"]).change();
+          } else if(userInputsJSON || contextJSON) {
+            $("input#context_type_opennebula", context).click();
+          }
+
+          return false;
+        }
+      });
+    }
+
+    $("#ssh_context", context).removeAttr('checked');
+    $("#network_context", context).removeAttr('checked');
+
     if (userInputsJSON) {
       $.each(userInputsJSON, function(key, value) {
         $(".add_service_custom_attr", context).trigger("click");
@@ -269,21 +310,6 @@ define(function(require) {
       });
 
       delete templateJSON['USER_INPUTS'];
-    }
-
-    var publicClouds = templateJSON["PUBLIC_CLOUD"];
-
-    if (publicClouds != undefined) {
-      if (!$.isArray(publicClouds)){
-        publicClouds = [publicClouds];
-      }
-
-      $.each(publicClouds, function(){
-        if(this["TYPE"] == "vcenter"){
-          $('input#vcenter_customizations_value', context).val(this["CUSTOMIZATION_SPEC"]).change();
-          return false;
-        }
-      });
     }
 
     if (contextJSON) {

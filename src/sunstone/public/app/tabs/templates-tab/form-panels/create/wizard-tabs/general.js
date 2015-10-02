@@ -109,6 +109,8 @@ define(function(require) {
       // TODO define context (for example: this.closest('form'))
       $(".hypervisor").hide();
       $(".only_" + this.value).show();
+
+      // There is another listener in context.js setup
     });
 
     CapacityInputs.setup(context);
