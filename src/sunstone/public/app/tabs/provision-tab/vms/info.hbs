@@ -40,21 +40,36 @@
           {{/isProvisionTabEnabled}}
         </li>
         <li class="right">
+          {{#isTabActionEnabled "provision-tab" "VM.delete"}}
           <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_delete_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.shutdown_hard"}}
           <a href"#" title="{{tr "Delete"}}" class="button small radius alert provision_shutdownhard_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-trash-o"/>
           </a>
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.poweroff"}}
           <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_poweroff_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-power-off"/>
           </a>
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.undeploy"}}
+          <a href"#" title="{{tr "Power off"}}" class="button small radius secondary provision_undeploy_confirm_button tip-top right">
+            <i class="fa fa-fw fa-lg fa-power-off"/>
+          </a>
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.resume"}}
           <a href"#" title="{{tr "Power on"}}" class="button small radius secondary provision_poweron_button tip-top right">
             <i class="fa fa-fw fa-lg fa-play"/>
           </a>
+          {{/isTabActionEnabled}}
+          {{#isTabActionEnabled "provision-tab" "VM.reboot"}}
           <a href"#" title="{{tr "Reboot"}}" class="button small radius secondary provision_reboot_confirm_button tip-top right">
             <i class="fa fa-fw fa-lg fa-repeat"/>
           </a>
+          {{/isTabActionEnabled}}
         </li>
       </ul>
     </div>
