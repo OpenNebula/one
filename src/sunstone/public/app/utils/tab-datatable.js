@@ -255,7 +255,7 @@ define(function(require) {
         $('.check_item', this).trigger('click');
       }
 
-      return false;
+      return true;
     });
   }
 
