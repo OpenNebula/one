@@ -273,6 +273,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                                  "      - Name    : #{n[:name]}\n"\
                                  "      - Type    : #{n[:type]}\n"
                     print_str += "      - VLAN ID : #{n[:vlan]}\n" if n[:vlan]
+                    print_str += "      - Cluster : #{n[:cluster]}\n"
                     print_str += "    Import this Network [y/n]? "
 
                     STDOUT.print print_str
