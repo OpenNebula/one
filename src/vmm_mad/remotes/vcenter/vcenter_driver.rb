@@ -789,7 +789,7 @@ class VCenterVm
     ############################################################################
     def self.deploy(xml_text, lcm_state, deploy_id, hostname)
         if lcm_state == "BOOT" || lcm_state == "BOOT_FAILURE"
-            return clone_vm(xml_text)
+            return clone_vm(xml_text, hostname)
         else
             hid         = VIClient::translate_hostname(hostname)
             connection  = VIClient.new(hid)
@@ -1341,17 +1341,35 @@ private
     ########################################################################
     #  Clone a vCenter VM Template and leaves it powered on
     ########################################################################
-    def self.clone_vm(xml_text)
+    def self.clone_vm(xml_text, hostname)
 
         xml = REXML::Document.new xml_text
         pcs = xml.root.get_elements("//USER_TEMPLATE/PUBLIC_CLOUD")
 
         raise "Cannot find VCenter element in VM template." if pcs.nil?
 
-        template = pcs.find { |t|
+        template = pcs.select { |t|
             type = t.elements["TYPE"]
             !type.nil? && type.text.downcase == "vcenter"
         }
+
+        # If there are multiple vcenter templates, find the right one
+        if template.is_a? Array
+            all_vcenter_templates = template.clone
+            # If there is more than one coincidence, pick the first one
+            template = template.select {|t|
+                cluster_name = t.elements["CLUSTER"]
+                !cluster_name.nil? && cluster_name.text == hostname
+            }[0]
+            # The template may not reference any specific CLUSTER
+            # Therefore, here take the first one that does not
+            # specify a CLUSTER to see if we are lucky
+            if template.nil?
+                template = all_vcenter_templates.select {|t|
+                    t.elements["CLUSTER"].nil?
+                }[0]
+            end
+        end
 
         raise "Cannot find vCenter element in VM template." if template.nil?
 
