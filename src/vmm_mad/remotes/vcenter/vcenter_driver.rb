@@ -339,7 +339,7 @@ class VIClient
 
                 # Do not reimport VMs deployed by OpenNebula
                 # since the core will get confused with the IDs
-                next if vi_tmp.vm.name.match(/^one-(?<id>\d*)(-(?<tail>.*))?$/)
+                next if vi_tmp.vm.name.match(/^one-(\d*)(-(.*))?$/)
 
                 container_hostname = vi_tmp.vm.runtime.host.parent.name
 
@@ -713,8 +713,8 @@ class VCenterHost < ::OpenNebula::Host
                 name   = v.name
                 number = -1
 
-                matches = name.match(/^one-(?<id>\d*)(-(?<tail>.*))?$/)
-                number  = matches[:id] if matches
+                matches = name.match(/^one-(\d*)(-(.*))?$/)
+                number  = matches[1] if matches
 
                 vm = VCenterVm.new(@client, v)
                 vm.monitor
