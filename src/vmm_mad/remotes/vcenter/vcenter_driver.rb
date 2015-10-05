@@ -1358,7 +1358,7 @@ private
             all_vcenter_templates = template.clone
             # If there is more than one coincidence, pick the first one
             template = template.select {|t|
-                cluster_name = t.elements["CLUSTER"]
+                cluster_name = t.elements["HOST"]
                 !cluster_name.nil? && cluster_name.text == hostname
             }[0]
             # The template may not reference any specific CLUSTER
@@ -1366,7 +1366,7 @@ private
             # specify a CLUSTER to see if we are lucky
             if template.nil?
                 template = all_vcenter_templates.select {|t|
-                    t.elements["CLUSTER"].nil?
+                    t.elements["HOST"].nil?
                 }[0]
             end
         end
@@ -1375,7 +1375,7 @@ private
 
         uuid = template.elements["VM_TEMPLATE"]
 
-        raise "Cannot find VM_TEMPLATE in VCenter element." if uuid.nil?
+        raise "Cannot find VM_TEMPLATE in vCenter element." if uuid.nil?
 
         uuid         = uuid.text
         vmid         =  xml.root.elements["/VM/ID"].text
