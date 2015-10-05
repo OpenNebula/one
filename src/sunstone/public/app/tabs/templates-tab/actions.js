@@ -44,7 +44,12 @@ define(function(require) {
     "Template.rename": _commonActions.singleAction('rename'),
     "Template.create" : _commonActions.create(CREATE_DIALOG_ID),
     "Template.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
-    "Template.import_dialog" : _commonActions.showCreate(IMPORT_DIALOG_ID),
+    "Template.import_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
+      }
+    },
     "Template.update" : _commonActions.update(),
     "Template.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Template.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),

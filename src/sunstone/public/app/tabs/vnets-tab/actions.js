@@ -38,7 +38,6 @@ define(function(require) {
   var _actions = {
     "Network.create" : _commonActions.create(CREATE_DIALOG_ID),
     "Network.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
-    "Network.import_dialog" :  _commonActions.showCreate(IMPORT_DIALOG_ID),
     "Network.list" : _commonActions.list(),
     "Network.show" : _commonActions.show(),
     "Network.refresh" : _commonActions.refresh(),
@@ -53,6 +52,13 @@ define(function(require) {
     "Network.update_template" : _commonActions.updateTemplate(),
     "Network.update_dialog" : _commonActions.checkAndShowUpdate(),
     "Network.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+
+    "Network.import_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
+      }
+    },
 
     "Network.add_ar" : {
       type: "single",
