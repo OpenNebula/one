@@ -359,7 +359,7 @@ module KVM
                     data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
 
                 end
-            else
+            elsif file
                 # Search the disk in system datastore when the source
                 # is a persistent image with snapshots
                 source = nil
