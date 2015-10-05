@@ -25,12 +25,15 @@ else
     ZENDESK_API_GEM = true
 end
 
+PROXY_FILE = "/usr/lib/one/vonecloud-control-center/proxy.yaml"
+PROXY = YAML.load_file(PROXY_FILE)
+
 helpers do
     def zendesk_client
         client = ZendeskAPI::Client.new do |config|
           # Mandatory:
 
-          config.url = "https://opennebula.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+          config.url = "https://vonecloud.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
 
           # Basic / Token Authentication
           config.username = session["zendesk_email"]
@@ -57,8 +60,12 @@ helpers do
           # config.adapter = :patron
 
           # Merged with the default client options hash
-          if ENV['http_proxy']
-            config.client_options = { :proxy => ENV['http_proxy'] }
+          # config.client_options = { :ssl => false }
+          if PROXY['host']
+            proxy = { :uri => "http://#{PROXY['host']}:#{PROXY['port']}" }
+            proxy[:user] = PROXY['user'] if PROXY['user']
+            proxy[:password] = PROXY['password'] if PROXY['password']
+            config.client_options = { :proxy => proxy }
           end
 
           # When getting the error 'hostname does not match the server certificate'
@@ -86,9 +93,9 @@ helpers do
 
         zrequest.custom_fields.each { |field|
             case field.id
-            when 391130
+            when 25690381
                 one_zrequest["opennebula_version"] = field.value
-            when 391197
+            when 25708172
                 one_zrequest["severity"] = field.value
             end
         }
@@ -174,8 +181,8 @@ post '/support/request' do
             :subject => body_hash['subject'],
             :comment => { :value => body_hash['description'] },
             :custom_fields => [
-              {:id => 391197, :value => body_hash['severity']},
-              {:id => 391130, :value => body_hash['opennebula_version']}
+              {:id => 25708172, :value => body_hash['severity']},
+              {:id => 25690381, :value => body_hash['opennebula_version']}
             ]
           })
 

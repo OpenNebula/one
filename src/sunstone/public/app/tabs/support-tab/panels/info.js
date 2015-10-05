@@ -67,7 +67,7 @@ define(function(require) {
     var comments = [];
     if (this.element["comments"]) {
       $.each(this.element["comments"], function(index, comment){
-        var author = (comment["author_id"] == 21231023 ? "OpenNebula Support Team" : 'Me');
+        var author = (comment["author_id"] == 714923401 ? "vOneCloud Support Team" : 'Me');
 
         comments.push({
           title: '<span style="width: 100%;">'+author+' <span style="color: #999;"> - '+comment["created_at"]+'</span></span>',

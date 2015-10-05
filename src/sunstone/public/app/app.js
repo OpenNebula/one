@@ -59,7 +59,8 @@ define(function(require) {
       require('tabs/oneflow-services-tab'),
       require('tabs/oneflow-templates-tab'),
       require('tabs/settings-tab'),
-      require('tabs/support-tab')
+      require('tabs/support-tab'),
+      require('tabs/vonecloud-tab')
     ];
   }
 

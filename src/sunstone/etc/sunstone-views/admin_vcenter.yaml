@@ -28,6 +28,7 @@ enabled_tabs:
     enterprise-tab: true
     zones-tab: true
     settings-tab: true
+    vonecloud-tab: true
 autorefresh: true
 features:
     showback: true
@@ -110,7 +111,7 @@ tabs:
             - 4         # Clusters
             - 5         # Hosts
             - 6         # VNets
-            - 7         # Datastores
+            #- 7         # Datastores
         actions:
             Vdc.refresh: true
             Vdc.create_dialog: true
@@ -173,14 +174,14 @@ tabs:
             VM.release: true
             VM.suspend: true
             VM.resume: true
-            VM.stop: true
+            VM.stop: false
             VM.recover: true
             VM.reboot: true
             VM.reboot_hard: true
             VM.poweroff: true
             VM.poweroff_hard: true
-            VM.undeploy: true
-            VM.undeploy_hard: true
+            VM.undeploy: false
+            VM.undeploy_hard: false
             VM.shutdown: true
             VM.shutdown_hard: true
             VM.delete: true
@@ -300,14 +301,14 @@ tabs:
             cluster_info_tab: true
             cluster_host_tab: true
             cluster_vnet_tab: true
-            cluster_datastore_tab: true
+            cluster_datastore_tab: false
         table_columns:
             - 0         # Checkbox
             - 1         # ID
             - 2         # Name
             - 3         # Hosts
             - 4         # VNets
-            - 5         # Datastores
+            #- 5         # Datastores
         actions:
             Cluster.refresh: true
             Cluster.create_dialog: true

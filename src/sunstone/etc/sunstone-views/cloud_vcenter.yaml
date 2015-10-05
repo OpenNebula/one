@@ -21,7 +21,7 @@ tabs:
             vdcvms: false
             users:  false
         create_vm:
-            capacity_select: false
+            capacity_select: true
             network_select: true
     settings-tab:
         panel_tabs:
