@@ -19,20 +19,17 @@ available_tabs:
     - vnets-tab
     - secgroups-tab
     - zones-tab
-    - marketplace-tab
+    # - marketplace-tab
     - oneflow-dashboard
     - oneflow-services
     - oneflow-templates
     - provision-tab
     - support-tab
+    - vonecloud-tab
 groups:
     oneadmin:
         - admin
-        - admin_vcenter
         - groupadmin
-        - groupadmin_vcenter
-        - user
         - cloud
-        - cloud_vcenter
 default:
     - cloud
