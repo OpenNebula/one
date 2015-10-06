@@ -24,4 +24,5 @@ src/sunstone/public/bower_components
 src/sunstone/public/css/app.css
 src/sunstone/public/css/app.min.css
 src/sunstone/public/dist/
+src/sunstone/public/locale/languages/*.js
 .tx/config
