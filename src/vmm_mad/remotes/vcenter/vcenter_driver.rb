@@ -1208,7 +1208,8 @@ class VCenterVm
               "HYPERVISOR = \"vcenter\"\n"\
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
-              "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
+              "  VM_TEMPLATE =\"#{@vm.config.uuid}\",\n"\
+              "  HOST        =\"#{host_name}\"\n"\
               "]\n"\
               "IMPORT_VM_ID    = \"#{@vm.config.uuid}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{host_name}\\\"\"\n"
@@ -1365,6 +1366,7 @@ private
                 !cluster_name.nil? && cluster_name.text == hostname
             }[0]
             # The template may not reference any specific CLUSTER
+            # (referenced to as HOST in the OpenNebula template)
             # Therefore, here take the first one that does not
             # specify a CLUSTER to see if we are lucky
             if template.nil?

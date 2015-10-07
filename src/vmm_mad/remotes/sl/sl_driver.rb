@@ -297,8 +297,15 @@ class SLDriver
                 rescue
                 end
                 next if one_id=="one_id"
+
+                vm_template_to_one = vm_to_one(i, @host)
+                vm_template_to_one = Base64.encode64(vm_template_to_one)
+                vm_template_to_one = vm_template_to_one.gsub("\n","")
+
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
+                vms_info << "  VM_NAME=#{i['id']},\n"
+                vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
                 vms_info << "  DEPLOY_ID=#{i['id']},\n"
                 vms_info << "  POLL=\"#{poll_data[0...-1]}\" ]\n"
 
@@ -567,5 +574,28 @@ private
             STDERR.puts e.message
             exit(-1)
         end
+    end
+
+    # Build template for importation
+    def vm_to_one(i, host)
+        cpu    = i['maxCpu'].to_i * 100
+        mem    = i['maxMemory'].to_i * 1024
+
+        mem = mem.to_i / 1024 # Memory for templates expressed in MB
+        cpu = cpu.to_f / 100  # CPU expressed in units
+
+        str = "NAME   = \"Instance from #{i['id']}\"\n"\
+              "CPU    = \"#{cpu}\"\n"\
+              "vCPU   = \"#{cpu.ceil}\"\n"\
+              "MEMORY = \"#{mem}\"\n"\
+              "HYPERVISOR = \"SOFTLAYER\"\n"\
+              "PUBLIC_CLOUD = [\n"\
+              "  TYPE  =\"SOFTLAYER\"\n"\
+              "]\n"\
+              "IMPORT_VM_ID    = \"#{i['id']}\"\n"\
+              "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
+              "DESCRIPTION = \"Instance imported from SoftLayer, from instance"\
+              " #{i['id']}\"\n"
+        str
     end
 end
