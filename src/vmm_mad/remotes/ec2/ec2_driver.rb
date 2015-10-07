@@ -592,11 +592,13 @@ private
     def vm_to_one(instance)
         cpu, mem = instance_type_capacity(instance.instance_type)
 
-        mem = mem.to_i / 1024 # Memory for templates expressed in MB
+        cpu  = cpu.to_f / 100
+        vcpu = cpu.ceil
+        mem  = mem.to_i / 1024 # Memory for templates expressed in MB
 
         str = "NAME   = \"Instance from #{instance.id}\"\n"\
               "CPU    = \"#{cpu}\"\n"\
-              "vCPU   = \"#{cpu}\"\n"\
+              "VCPU   = \"#{vcpu}\"\n"\
               "MEMORY = \"#{mem}\"\n"\
               "HYPERVISOR = \"ec2\"\n"\
               "PUBLIC_CLOUD = [\n"\
