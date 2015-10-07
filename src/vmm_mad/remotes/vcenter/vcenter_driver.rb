@@ -798,7 +798,7 @@ class VCenterVm
             # Find out if we need to reconfigure capacity
             xml = REXML::Document.new xml_text
 
-            expected_cpu    = xml.root.elements["//TEMPLATE/VCPU"].text rescue xml.root.elements["//TEMPLATE/CPU"].text.to_f.ceil rescue 1
+            expected_cpu    = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/CPU"].text : 1
             expected_memory = xml.root.elements["//TEMPLATE/MEMORY"].text
             current_cpu     = vm.config.hardware.numCPU
             current_memory  = vm.config.hardware.memoryMB
@@ -1512,7 +1512,7 @@ private
 
         # Capacity section
 
-        cpu           = xml.root.elements["//TEMPLATE/VCPU"].text rescue xml.root.elements["//TEMPLATE/CPU"].text.to_f.ceil rescue 1
+        cpu           = xml.root.elements["//TEMPLATE/VCPU"] ? xml.root.elements["//TEMPLATE/CPU"].text : 1
         memory        = xml.root.elements["//TEMPLATE/MEMORY"].text
         capacity_spec = {:numCPUs  => cpu.to_i,
                          :memoryMB => memory }
