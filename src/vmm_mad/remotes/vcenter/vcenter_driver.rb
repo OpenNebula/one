@@ -425,7 +425,7 @@ class VIClient
                             :bridge  => n.name,
                             :cluster => host_system.parent.name,
                             :type    => "Port Group",
-                            :one     => "NAME   = \"#{n[:name]}\"\n" \
+                            :one     => "NAME   = \"#{net_name}\"\n" \
                                         "BRIDGE = \"#{n[:name]}\"\n" \
                                         "VCENTER_TYPE = \"Port Group\""
                         }
@@ -447,7 +447,7 @@ class VIClient
 
                  if !vnpool["VNET[BRIDGE=\"#{n[:name]}\"]/\
                          TEMPLATE[VCENTER_TYPE=\"Distributed Port Group\"]"]
-                     vnet_template = "NAME   = \"#{n[:name]}\"\n" \
+                     vnet_template = "NAME   = \"#{net_name}\"\n" \
                                      "BRIDGE = \"#{n[:name]}\"\n" \
                                      "VCENTER_TYPE = \"Distributed Port Group\""
 
@@ -1148,7 +1148,9 @@ class VCenterVm
     #
     ########################################################################
     def to_one
-        str = "NAME   = \"#{@vm.name}\"\n"\
+        cluster_name = @vm.runtime.host.parent.name
+
+        str = "NAME   = \"#{@vm.name} - #{cluster_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
@@ -1161,7 +1163,7 @@ class VCenterVm
               "  TYPE     =\"vnc\",\n"\
               "  LISTEN   =\"0.0.0.0\"\n"\
               "]\n"\
-         "SCHED_REQUIREMENTS=\"NAME=\\\"#{@vm.runtime.host.parent.name}\\\"\"\n"
+         "SCHED_REQUIREMENTS=\"NAME=\\\"#{cluster_name}\\\"\"\n"
 
         if @vm.config.annotation.nil? || @vm.config.annotation.empty?
             str << "DESCRIPTION = \"vCenter Template imported by OpenNebula"\
@@ -1199,7 +1201,7 @@ class VCenterVm
     def vm_to_one
         host_name = @vm.runtime.host.parent.name
 
-        str = "NAME   = \"#{@vm.name}\"\n"\
+        str = "NAME   = \"#{@vm.name} - #{host_name}\"\n"\
               "CPU    = \"#{@vm.config.hardware.numCPU}\"\n"\
               "vCPU   = \"#{@vm.config.hardware.numCPU}\"\n"\
               "MEMORY = \"#{@vm.config.hardware.memoryMB}\"\n"\
