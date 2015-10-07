@@ -255,6 +255,7 @@ define(function(require) {
 
   var EXTERNAL_IP_ATTRS = [
     'GUEST_IP',
+    'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
     'AZ_IPADDRESS',
     'SL_PRIMARYIPADDRESS'
@@ -262,6 +263,7 @@ define(function(require) {
 
   var EXTERNAL_NETWORK_ATTRIBUTES = [
     'GUEST_IP',
+    'GUEST_IP_ADDRESSES',
     'AWS_IP_ADDRESS',
     'AWS_DNS_NAME',
     'AWS_PRIVATE_IP_ADDRESS',
@@ -639,8 +641,15 @@ define(function(require) {
       var externalIP;
       $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
         externalIP = monitoring[IPAttr];
-        if (externalIP && ($.inArray(externalIP, ips) == -1)) {
-          ips.push(externalIP);
+
+        if (externalIP) {
+          var splitArr = externalIP.split(',');
+
+          $.each(splitArr, function(i,ip){
+            if (ip && ($.inArray(ip, ips) == -1)) {
+              ips.push(ip);
+            }
+          });
         }
       })
     }
