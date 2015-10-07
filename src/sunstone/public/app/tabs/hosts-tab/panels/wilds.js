@@ -85,31 +85,30 @@ define(function(require) {
     });
 
     if (that.element.TEMPLATE.VM) {
-      wilds = that.element.TEMPLATE.VM;
+      var wilds = that.element.TEMPLATE.VM;
 
       if (!$.isArray(wilds)) { // If only 1 VM convert to array
         wilds = [wilds];
       }
 
-      i = 0;
+      $.each(wilds, function(index, elem) {
+        var name      = elem.VM_NAME;
+        var deploy_id = elem.DEPLOY_ID;
+        var template = elem.IMPORT_TEMPLATE;
 
-      $.each(wilds, function() {
-        var name      = this.VM_NAME;
-        var safe_name = i;
-        i += 1;
-        var deploy_id = this.DEPLOY_ID;
+        if (name && deploy_id && template) {
+          var wilds_list_array = [
+            [
+              '<input type="checkbox" class="import_wild_checker import_' + index + '" unchecked/>',
+              name,
+              deploy_id
+            ]
+          ];
 
-        var wilds_list_array = [
-          [
-            '<input type="checkbox" class="import_wild_checker import_' + safe_name + '" unchecked/>',
-            name,
-            deploy_id
-          ]
-        ];
+          that.dataTableWildHosts.fnAddData(wilds_list_array);
 
-        that.dataTableWildHosts.fnAddData(wilds_list_array);
-
-        $(".import_" + safe_name, that.dataTableWildHosts).data("wild_template", atob(this.IMPORT_TEMPLATE));
+          $(".import_" + index, that.dataTableWildHosts).data("wild_template", atob(elem.IMPORT_TEMPLATE));
+        }
       });
     }
 
