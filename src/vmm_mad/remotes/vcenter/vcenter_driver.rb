@@ -1157,7 +1157,8 @@ class VCenterVm
               "HYPERVISOR = \"vcenter\"\n"\
               "PUBLIC_CLOUD = [\n"\
               "  TYPE        =\"vcenter\",\n"\
-              "  VM_TEMPLATE =\"#{@vm.config.uuid}\"\n"\
+              "  VM_TEMPLATE =\"#{@vm.config.uuid}\",\n"\
+              "  HOST        =\"#{cluster_name}\"\n"\
               "]\n"\
               "GRAPHICS = [\n"\
               "  TYPE     =\"vnc\",\n"\
