@@ -114,7 +114,6 @@ define(function(require) {
             var tbody = $('tbody', newdiv);
 
             $.each(networks, function(id, network){
-              var netname   = network.name.replace(" ","_");
               var vlan_info = ""
 
               if (network.vlan) {
@@ -222,8 +221,7 @@ define(function(require) {
                 $('.net_options', network_context).html(net_form_str);
               });
 
-              $(".network_name", trow).data("network_name", netname)
-              $(".network_name", trow).data("one_network", network.one)
+              $(".network_name", trow).data("one_network", network.one);
             });
 
             var networkDataTable = new DomDataTable(
@@ -265,7 +263,6 @@ define(function(require) {
 
         var network_size = $(".netsize", network_context).val();
         var network_tmpl = $(this).data("one_network");
-        var netname      = $(this).data("network_name");
         var type         = $('.type_select', network_context).val();
 
         var ar_array = [];
