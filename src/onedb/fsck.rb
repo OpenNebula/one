@@ -919,6 +919,62 @@ EOT
 
         log_time()
 
+        # Bug #4000 may cause history records with etime=0 when they should
+        # be closed. The last history can be fixed with the VM etime, but
+        # previous history entries need to be fixed manually
+
+        # Query to select history elements that:
+        #   - have etime = 0
+        #   - are not the last seq
+        @db.fetch("SELECT vid,seq FROM history WHERE (etime = 0 AND seq <> (SELECT MAX(seq) FROM history AS subhistory WHERE history.vid = subhistory.vid) )") do |row|
+            log_error("History record for VM #{row[:vid]} seq # #{row[:seq]} is not closed (etime = 0)", false)
+
+            # Aqui no hace falta modificar la VM, solo el history etime
+
+        end
+
+        log_time()
+
+        history_fix = []
+
+        # Query to select history elements that have:
+        #   - etime = 0
+        #   - is last seq
+        #   - VM is DONE
+        @db.fetch("SELECT * FROM history WHERE (etime = 0 AND vid IN (SELECT oid FROM vm_pool WHERE state=6) AND seq = (SELECT MAX(seq) FROM history AS subhistory WHERE history.vid=subhistory.vid))") do |row|
+            log_error("History record for VM #{row[:vid]} seq # #{row[:seq]} is not closed (etime = 0), but the VM is in state DONE")
+
+            etime = 0
+
+            @db.fetch("SELECT body FROM vm_pool WHERE oid=#{row[:vid]}") do |vm_row|
+                vm_doc = Nokogiri::XML(vm_row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+                etime = vm_doc.root.at_xpath("ETIME").text.to_i
+            end
+
+            history_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+
+            ["RETIME", "ESTIME", "EETIME", "ETIME"].each do |att|
+                elem = history_doc.root.at_xpath(att)
+                if (elem.text == "0")
+                    elem.content = etime
+                end
+            end
+
+            row[:body]  = history_doc.root.to_s
+            row[:etime] = etime
+
+            history_fix.push(row)
+        end
+
+        @db.transaction do
+            history_fix.each do |row|
+                @db[:history].where({:vid => row[:vid], :seq => row[:seq]}).update(row)
+            end
+        end
+
+        log_time()
+
         ########################################################################
         # Hosts
         #
