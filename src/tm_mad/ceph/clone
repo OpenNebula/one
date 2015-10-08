@@ -27,21 +27,29 @@ DST=$2
 VM_ID=$3
 DS_ID=$4
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
+source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
-DST_HOST=`arg_host $DST`
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 #-------------------------------------------------------------------------------
 # Compute the destination image name
 #-------------------------------------------------------------------------------
+
+DST_HOST=`arg_host $DST`
 
 SRC_PATH=`arg_path $SRC`
 
@@ -68,7 +76,7 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
-# Clone the image
+# Clone the image and create @snap if it does not exists
 #-------------------------------------------------------------------------------
 
 if [ -n "$CEPH_USER" ]; then
@@ -76,29 +84,15 @@ if [ -n "$CEPH_USER" ]; then
 fi
 
 CLONE_CMD=$(cat <<EOF
-    set -e
+    RBD="${RBD}"
 
-    # Exit if destination rbd already exists
     $RBD info $RBD_DST >/dev/null 2>&1 && exit 0
 
-    RBD_FORMAT=\$($RBD info $SRC_PATH | sed -n 's/.*format: // p')
+    rbd_make_snap $SRC_PATH
 
-    if [ "\$RBD_FORMAT" = "2" ]; then
+    set -e
 
-        # Feature #3362: migrate now to new schema
-        (
-            set +e
-
-            # Check if @snap exists
-            $RBD info $SRC_PATH@snap >/dev/null 2>&1
-
-            if [ "$?" != "0" ]; then
-                # It does not exist, create it now
-                $RBD snap create  "$SRC_PATH@snap"
-                $RBD snap protect "$SRC_PATH@snap"
-            fi
-        )
-
+    if [ "\$(rbd_format $SRC_PATH)" = "2" ]; then
         $RBD clone "$SRC_PATH@snap" $RBD_DST
     else
         $RBD copy $SRC_PATH $RBD_DST
@@ -110,6 +104,6 @@ CLONE_CMD=$(cat <<EOF
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$CLONE_CMD" \
+ssh_exec_and_log_stdin "$DST_HOST" "$CLONE_CMD" "$CEPH_UTILS" \
                  "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
 exit 0

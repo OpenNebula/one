@@ -24,14 +24,19 @@ DST=$1
 VM_ID=$2
 DS_ID=$3
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
@@ -94,19 +99,13 @@ RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
 
 log "Deleting $DST_PATH"
 
-# Note that this command, as opposed to the rest of $RBD commands in this set of
-# drivers, is executed in the worker node and not in the CEPH frontend.
-
 DELETE_CMD=$(cat <<EOF
     RBD="${RBD}"
-    RBD_SRC="${RBD_SRC}"
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
-
-    if [ "\$RBD_FORMAT" != "2" -o -z "\$(has_snapshots)" ]; then
-        $RBD rm $RBD_SRC
+    if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
+        rbd_rm_r \$(rbd_top_parent $RBD_SRC)
     else
-        rbd_rm_r $RBD_SRC-0
+        $RBD rm $RBD_SRC
     fi
 EOF
 )

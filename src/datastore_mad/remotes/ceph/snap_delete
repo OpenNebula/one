@@ -74,16 +74,17 @@ fi
 
 SNAP_DELETE_CMD=$(cat <<EOF
     RBD="${RBD}"
-    RBD_SRC="${RBD_SRC}"
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    rbd_check_2 $RBD_SRC
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
-        exit 1
+    RBD_TGT=\$(rbd_find_snap $RBD_SRC $SNAP_ID)
+
+    $RBD snap unprotect \${RBD_TGT}@$SNAP_ID
+    $RBD snap rm \${RBD_TGT}@$SNAP_ID
+
+    if [ "\${RBD_TGT}" != "$RBD_SRC" ]; then
+        rbd_rename_rm $RBD_SRC \${RBD_TGT}
     fi
-
-    rbd_rm_r $RBD_SRC-$SNAP_ID
 EOF
 )
 

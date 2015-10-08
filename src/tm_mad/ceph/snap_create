@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2015, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,16 +23,23 @@ SNAP_ID=$2
 VM_ID=$3
 DS_ID=$4
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -79,12 +86,9 @@ fi
 SNAP_CREATE_CMD=$(cat <<EOF
     set -e
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    RBD="${RBD}"
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
-        exit 1
-    fi
+    rbd_check_2 $RBD_DST
 
     $RBD snap create $RBD_DST@$SNAP_ID
     $RBD snap protect $RBD_DST@$SNAP_ID
@@ -93,7 +97,7 @@ SNAP_CREATE_CMD=$(cat <<EOF
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$SNAP_CREATE_CMD" \
+ssh_exec_and_log_stdin "$SRC_HOST" "$SNAP_CREATE_CMD" "$CEPH_UTILS" \
                  "Error creating snapshot $RBD_DST@$SNAP_ID"
 
 exit 0

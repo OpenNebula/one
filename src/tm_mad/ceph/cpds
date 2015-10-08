@@ -29,16 +29,23 @@ SNAP_ID=$3
 VM_ID=$4
 DS_ID=$5
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -78,21 +85,23 @@ else
     RBD_DST="${RBD_SRC}-${VM_ID}-${DISK_ID}"
 fi
 
-if [ "$SNAP_ID" != "-1" ]; then
-    RBD_DST="${RBD_DST}-${SNAP_ID}@${SNAP_ID}"
-fi
-
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
 COPY_CMD=$(cat <<EOF
-    set -e
+    RBD="${RBD}"
+
+    if [ "$SNAP_ID" != "-1" ]; then
+        rbd_check_2 $RBD_DST
+
+        RBD_DST=\$(rbd_find_snap $RBD_DST $SNAP_ID)
+        RBD_DST=\$RBD_DST@$SNAP_ID
+    fi
+
     $RBD copy $RBD_DST $DST
-    $RBD snap create "$DST@snap"
-    $RBD snap protect "$DST@snap"
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$COPY_CMD" \
+ssh_exec_and_log_stdin "$SRC_HOST" "$COPY_CMD" "$CEPH_UTILS" \
                  "Error cloning $RBD_DST to $DST in $SRC_HOST"

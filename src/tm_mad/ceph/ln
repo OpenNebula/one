@@ -22,4 +22,67 @@
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 
+SRC=$1
+DST=$2
+VM_ID=$3
+DS_ID=$4
+
+#--------------------------------------------------------------------------------
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
+fi
+
+DRIVER_PATH=$(dirname $0)
+
+source $LIB_LOCATION/sh/scripts_common.sh
+source $TMCOMMON
+source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
+
+#-------------------------------------------------------------------------------
+# Process destination
+#-------------------------------------------------------------------------------
+
+DST_HOST=`arg_host $DST`
+
+#-------------------------------------------------------------------------------
+# Get Image information & destination image
+#-------------------------------------------------------------------------------
+
+SRC_PATH=`arg_path $SRC`
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+        done < <(onevm show -x $VM_ID| $XPATH  \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
+
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
+# Remove any @snap in image (non persistent -> persistnet)
+#-------------------------------------------------------------------------------
+
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
+fi
+
+CLONE_CMD=$(cat <<EOF
+    RBD="${RBD}"
+
+    rbd_rm_snap $SRC_PATH
+EOF
+)
+
+ssh_exec_and_log_stdin "$DST_HOST" "$CLONE_CMD" "$CEPH_UTILS" \
+                 "Error cloning $SRC_PATH to $RBD_DST in $DST_HOST"
 exit 0

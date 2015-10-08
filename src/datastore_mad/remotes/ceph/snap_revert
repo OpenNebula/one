@@ -74,20 +74,16 @@ fi
 
 SNAP_REVERT_CMD=$(cat <<EOF
     RBD="${RBD}"
-    RBD_SRC="${RBD_SRC}"
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    rbd_check_2 $RBD_SRC
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
-        exit 1
-    fi
+    rbd_rename_rm $RBD_SRC $RBD_SRC
 
-    rbd_rm_r $RBD_SRC
+    RBD_TGT=\$(rbd_find_snap $RBD_SRC $SNAP_ID)
 
-    $RBD clone $RBD_SRC-$SNAP_ID@$SNAP_ID $RBD_SRC
+    $RBD clone \${RBD_TGT}@$SNAP_ID $RBD_SRC
 EOF
 )
 
 ssh_exec_and_log_stdin "$DST_HOST" "$SNAP_REVERT_CMD" "$CEPH_UTILS" \
-              "Error reverting snapshot $RBD_SRC-$SNAP_ID@$SNAP_ID"
+             "Error reverting snapshot $SNAP_ID for $RBD_DST"

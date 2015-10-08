@@ -78,19 +78,7 @@ SAFE_DIRS=""
 IMAGE_NAME="one-${ID}"
 RBD_DST="${POOL_NAME}/${IMAGE_NAME}"
 
-COPY_CMD=$(cat <<EOF
-    set -e
-    $RBD copy $SRC $RBD_DST
-    if [ "$RBD_FORMAT" = "2" ]; then
-        # Create default snapshot
-        $RBD snap create  "$RBD_DST@snap"
-        $RBD snap protect "$RBD_DST@snap"
-    fi
-EOF
-)
-
-ssh_exec_and_log "$DST_HOST" "$COPY_CMD" \
+ssh_exec_and_log "$DST_HOST" "$RBD copy $SRC $RBD_DST" \
                  "Error cloning $SRC to $RBD_DST in $DST_HOST"
-
 
 echo "$RBD_DST"

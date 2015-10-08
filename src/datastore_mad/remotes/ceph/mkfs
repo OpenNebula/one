@@ -121,12 +121,6 @@ REGISTER_CMD=$(cat <<EOF
         # remove original
         $RM -f $TMP_DST
     fi
-
-    if [ "$RBD_FORMAT" = "2" ]; then
-        # Create default snapshot
-        $RBD snap create  "$RBD_SOURCE@snap"
-        $RBD snap protect "$RBD_SOURCE@snap"
-    fi
 EOF
 )
 

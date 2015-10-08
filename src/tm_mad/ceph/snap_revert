@@ -23,16 +23,23 @@ SNAP_ID=$2
 VM_ID=$3
 DS_ID=$4
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -69,7 +76,26 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# Create snapshots
+# Revert to Snapshot. Using the following tree structure
+#
+# one-3-13-0-1:2:3
+# ----------------
+# | @1 (snap 1)  | revert to 2
+# | @2 (snap 2)  |------------
+# | @3 (snap 3)  | clone     |
+# ----------------           |
+#                            V
+#                      one-3-13-0-4:5 (stores snaps @4,@5 children of @2)
+#                      --------------
+#        revert to 4   | @4 (snap 4)|
+#        --------------| @5 (snap 5)|
+#        |  clone      --------------
+#        |
+#        V
+#  one-3-13-0 (current volume)
+#  --------------
+#  | @6 (snap 6)|
+#  --------------
 #-------------------------------------------------------------------------------
 
 if [ -n "$CEPH_USER" ]; then
@@ -77,36 +103,18 @@ if [ -n "$CEPH_USER" ]; then
 fi
 
 SNAP_REVERT_CMD=$(cat <<EOF
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    RBD="${RBD}"
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
-        exit 1
-    fi
+    rbd_check_2 $RBD_DST
 
-    SNAPIDS=\$($RBD --format json snap ls $RBD_DST | \
-               grep -Po '(?<="name":")\d+' | \
-               paste -d: -s)
+    rbd_rename_rm $RBD_DST $RBD_DST
 
-    if [ -z "\${SNAPIDS}" ]; then
-        $RBD rm $RBD_DST
-    else
-        $RBD rename $RBD_DST $RBD_DST-\${SNAPIDS}
-    fi
+    RBD_TGT=\$(rbd_find_snap $RBD_DST $SNAP_ID)
 
-    POOL_NAME=\$(echo $RBD_DST | cut -f1 -d'/')
-    VOL_NAME=\$(echo $RBD_DST | cut -f2 -d'/')
-
-    RBD_TGT=\$($RBD ls \${POOL_NAME} | grep "\${VOL_NAME}-[^-]*$SNAP_ID[^-]*")
-
-    if [ -z "\$RBD_TGT" ]; then
-        echo "Could not find a volume with snapshot $SNAP_ID" >&2
-        exit 1
-    fi
-
-    $RBD clone \${POOL_NAME}/\${RBD_TGT}@$SNAP_ID $RBD_DST
+    $RBD clone \${RBD_TGT}@$SNAP_ID $RBD_DST
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$SNAP_REVERT_CMD" \
-                 "Error reverting snapshot $RBD_DST-$SNAP_ID@$SNAP_ID"
+ssh_exec_and_log_stdin "$SRC_HOST" "$SNAP_REVERT_CMD" "$CEPH_UTILS" \
+                 "Error reverting snapshot $SNAP_ID for $RBD_DST"
+

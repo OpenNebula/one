@@ -71,14 +71,9 @@ log "Removing $RBD_SRC from the rbd image repository in $DST_HOST"
 
 DELETE_CMD=$(cat <<EOF
     RBD="${RBD}"
-    RBD_SRC="${RBD_SRC}"
 
     if [ "\$(rbd_format)" = "2" ]; then
-        if [ -n "\$(has_snapshots)" ]; then
-            rbd_rm_r $RBD_SRC-0
-        else
-            rbd_rm_r $RBD_SRC
-        fi
+        rbd_rm_r \$(rbd_top_parent $RBD_SRC)
     else
         $RBD rm $RBD_SRC
     fi

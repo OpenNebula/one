@@ -74,23 +74,20 @@ fi
 
 SNAP_FLATTEN_CMD=$(cat <<EOF
     RBD="${RBD}"
-    RBD_SRC="${RBD_SRC}"
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    rbd_check_2 $RBD_SRC
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
-        exit 1
-    fi
+    RBD_TGT=\$(rbd_find_snap $RBD_SRC $SNAP_ID)
 
-    $RBD clone $RBD_SRC-$SNAP_ID@$SNAP_ID $RBD_SRC.flatten
+    $RBD clone \${RBD_TGT}@$SNAP_ID $RBD_SRC.flatten
+
     $RBD flatten $RBD_SRC.flatten
 
-    rbd_rm_r $RBD_SRC-0
+    rbd_rm_r \$(rbd_top_parent $RBD_SRC)
 
     $RBD rename $RBD_SRC.flatten $RBD_SRC
 EOF
 )
 
 ssh_exec_and_log_stdin "$DST_HOST" "$SNAP_FLATTEN_CMD" "$CEPH_UTILS" \
-              "Error flattening snapshot $RBD_SRC-$SNAP_ID@$SNAP_ID"
+              "Error flattening snapshot $SNAP_ID for $RBD_SRC"
