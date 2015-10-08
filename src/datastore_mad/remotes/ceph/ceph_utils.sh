@@ -14,13 +14,12 @@
 # limitations under the License.                                                #
 #------------------------------------------------------------------------------ #
 
-
 #--------------------------------------------------------------------------------
 # Make a base @snap for image clones
 #  @param $1 the volume
 #--------------------------------------------------------------------------------
 rbd_make_snap() {
-    if [ "rbd_format $1" = "2" ]; then
+    if [ "$(rbd_format $1)" = "2" ]; then
         $RBD info "$1@snap" >/dev/null 2>&1
 
         if [ "$?" != "0" ]; then
@@ -35,10 +34,10 @@ rbd_make_snap() {
 #  @param $1 the volume
 #--------------------------------------------------------------------------------
 rbd_rm_snap() {
-    if [ "rbd_format $1" = "2" ]; then
+    if [ "$(rbd_format $1)" = "2" ]; then
         $RBD info "$1@snap" >/dev/null 2>&1
 
-        if [ "$?" == "0" ]; then
+        if [ "$?" = "0" ]; then
             $RBD snap unprotect "$1@snap"
             $RBD snap rm "$1@snap"
         fi
@@ -109,7 +108,7 @@ rbd_format() {
 #   @param $1 the volume
 #--------------------------------------------------------------------------------
 rbd_check_2() {
-    if [ $(rbd_format $1) != "2" ]; then
+    if [ "$(rbd_format $1)" != "2" ]; then
         echo "Only RBD Format 2 is supported for this operation" >&2
         exit 1
     fi
