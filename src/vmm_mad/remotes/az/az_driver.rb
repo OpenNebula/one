@@ -287,7 +287,7 @@ class AzureDriver
 
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
-                vms_info << "  DEPLOY_ID=#{vm.vm_name},\n"
+                vms_info << "  DEPLOY_ID=#{vm.vm_name}-#{vm.cloud_service_name},\n"
                 vms_info << "  VM_NAME=#{vm.vm_name},\n"
                 vms_info << "  IMPORT_TEMPLATE=\"#{vm_template_to_one}\",\n"
                 vms_info << "  POLL=\"#{poll_data}\" ]\n"
@@ -560,15 +560,16 @@ private
 
     # Retrieve the instance from Azure. If OpenNebula asks for it, then the
     # vm_name must comply with the notation name_csn
-    def get_instance(vm_name)
+    def get_instance(deploy_id)
         begin
-            csn = vm_name.match(/([^_]+)-(.+)/)[-1]
+            vm_name = deploy_id.match(/([^_]+)-(.+)/)[1]
+            csn     = deploy_id.match(/([^_]+)-(.+)/)[-1]
 
             instance = @azure_vms.get_virtual_machine(vm_name,csn)
             if instance
                 return instance
             else
-                raise "Instance #{vm_name} does not exist"
+                raise "Instance #{deploy_id} does not exist"
             end
         rescue => e
             STDERR.puts e.message
@@ -591,7 +592,7 @@ private
               "PUBLIC_CLOUD = [\n"\
               "  TYPE  =\"azure\"\n"\
               "]\n"\
-              "IMPORT_VM_ID    = \"#{vm.vm_name}_#{vm.cloud_service_name}\"\n"\
+              "IMPORT_VM_ID    = \"#{vm.vm_name}-#{vm.cloud_service_name}\"\n"\
               "SCHED_REQUIREMENTS=\"NAME=\\\"#{@host}\\\"\"\n"\
               "DESCRIPTION = \"Instance imported from Azure, from instance"\
               " #{vm.vm_name}\"\n"
