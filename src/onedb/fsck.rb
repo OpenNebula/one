@@ -928,9 +928,6 @@ EOT
         #   - are not the last seq
         @db.fetch("SELECT vid,seq FROM history WHERE (etime = 0 AND seq <> (SELECT MAX(seq) FROM history AS subhistory WHERE history.vid = subhistory.vid) )") do |row|
             log_error("History record for VM #{row[:vid]} seq # #{row[:seq]} is not closed (etime = 0)", false)
-
-            # Aqui no hace falta modificar la VM, solo el history etime
-
         end
 
         log_time()
