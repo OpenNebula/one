@@ -126,7 +126,8 @@ define(function(require) {
     'tableOrder': _config['user_config']['table_order'],
     'vncProxyPort': _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
-    'logo': (_config['view']["small_logo"] || "images/one_small_logo.png")
+    'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
+    'enabledTabs': _config['view']['enabled_tabs']
   }
 
   return Config;

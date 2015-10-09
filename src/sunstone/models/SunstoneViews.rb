@@ -121,10 +121,6 @@ class SunstoneViews
         @views.keys
     end
 
-    def available_tabs
-        @views_config['available_tabs']
-    end
-
     def logo
         @views_config['logo']
     end
