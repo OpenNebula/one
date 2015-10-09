@@ -16,6 +16,33 @@
 
 require.config({
   paths: {
+    /* Tabs */
+    'provision-tab': './tabs/provision-tab',
+    'dashboard-tab': './tabs/dashboard-tab',
+    'system-tab': './tabs/system-tab',
+    'users-tab': './tabs/users-tab',
+    'groups-tab': './tabs/groups-tab',
+    'vdcs-tab': './tabs/vdcs-tab',
+    'acls-tab': './tabs/acls-tab',
+    'vresources-tab': './tabs/vresources-tab',
+    'vms-tab': './tabs/vms-tab',
+    'templates-tab': './tabs/templates-tab',
+    'images-tab': './tabs/images-tab',
+    'files-tab': './tabs/files-tab',
+    'infra-tab': './tabs/infra-tab',
+    'clusters-tab': './tabs/clusters-tab',
+    'hosts-tab': './tabs/hosts-tab',
+    'datastores-tab': './tabs/datastores-tab',
+    'vnets-tab': './tabs/vnets-tab',
+    'secgroups-tab': './tabs/secgroups-tab',
+    'zones-tab': './tabs/zones-tab',
+    'marketplace-tab': './tabs/marketplace-tab',
+    'oneflow-dashboard': './tabs/oneflow-dashboard',
+    'oneflow-services-tab': './tabs/oneflow-services-tab',
+    'oneflow-templates-tab': './tabs/oneflow-templates-tab',
+    'settings-tab': './tabs/settings-tab',
+    'support-tab': './tabs/support-tab',
+
     /* Almond */
     'almond': '../bower_components/almond/almond',
 
@@ -112,6 +139,37 @@ require.config({
     'spice-filexfer': '../bower_components/spice-html5/filexfer'
   },
   shim: {
+    /* Tabs */
+    'app': {
+      deps: [
+        'provision-tab',
+        'dashboard-tab',
+        'system-tab',
+        'users-tab',
+        'groups-tab',
+        'vdcs-tab',
+        'acls-tab',
+        'vresources-tab',
+        'vms-tab',
+        'templates-tab',
+        'images-tab',
+        'files-tab',
+        'infra-tab',
+        'clusters-tab',
+        'hosts-tab',
+        'datastores-tab',
+        'vnets-tab',
+        'secgroups-tab',
+        'zones-tab',
+        'marketplace-tab',
+        'oneflow-dashboard',
+        'oneflow-services-tab',
+        'oneflow-templates-tab',
+        'settings-tab',
+        'support-tab'
+      ]
+    },
+    
     /* jQuery */
     'jquery': {
       exports: '$'
