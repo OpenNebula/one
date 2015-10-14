@@ -81,6 +81,11 @@ SNAP_REVERT_CMD=$(cat <<EOF
 
     RBD_TGT=\$(rbd_find_snap $RBD_SRC $SNAP_ID)
 
+    if [ -z "\$RBD_TGT" ]; then
+        echo "Target RBD not found." >&2
+        exit 1
+    fi
+
     $RBD clone \${RBD_TGT}@$SNAP_ID $RBD_SRC
 EOF
 )

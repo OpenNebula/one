@@ -92,6 +92,11 @@ SNAP_DELETE_CMD=$(cat <<EOF
 
     RBD_TGT=\$(rbd_find_snap $RBD_DST $SNAP_ID)
 
+    if [ -z "\$RBD_TGT" ]; then
+        echo "Target RBD not found." >&2
+        exit 1
+    fi
+
     $RBD snap unprotect \${RBD_TGT}@$SNAP_ID
     $RBD snap rm \${RBD_TGT}@$SNAP_ID
 

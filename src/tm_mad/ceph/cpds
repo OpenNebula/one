@@ -96,6 +96,12 @@ COPY_CMD=$(cat <<EOF
         rbd_check_2 $RBD_DST
 
         RBD_DST=\$(rbd_find_snap $RBD_DST $SNAP_ID)
+
+        if [ -z "\$RBD_DST" ]; then
+            echo "Target RBD not found." >&2
+            exit 1
+        fi
+
         RBD_DST=\$RBD_DST@$SNAP_ID
     fi
 
