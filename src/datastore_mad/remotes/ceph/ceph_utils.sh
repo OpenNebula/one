@@ -30,7 +30,7 @@ rbd_make_snap() {
 }
 
 #--------------------------------------------------------------------------------
-# Remove thea base @snap for image clones
+# Remove the base @snap for image clones
 #  @param $1 the volume
 #--------------------------------------------------------------------------------
 rbd_rm_snap() {
@@ -53,15 +53,15 @@ rbd_rm_snap() {
 rbd_find_snap() {
     local rbd_tgt pool vol
 
-    $($RBD --format json snap ls $1 2>/dev/null | grep -Pq "(?<=\"name\":\")$2")
+    $RBD --format json snap ls $1 2>/dev/null | grep -q "\"name\":\"$2\""
 
-    if [ $? -eq 0 ]; then
+    if [ "$?" = "0" ]; then
         rbd_tgt=$1
     else
         pool=$(echo $1 | cut -f1 -d'/')
         vol=$(echo $1 | cut -f2 -d'/')
 
-        rbd_tgt=$($RBD ls $pool | grep "$vol-[^-]*$2[^-]*")
+        rbd_tgt=$($RBD ls $pool | grep -E "$vol-(.+:)?$2(:|$)")
 
         if [ -z "${rbd_tgt}" ]; then
             echo "Could not find a volume with snapshot $2" >&2
@@ -125,7 +125,7 @@ rbd_top_parent() {
     pool=$(echo $1 | cut -f1 -d'/')
     volume=$(echo $1 | cut -f2 -d'/')
 
-    snap0=$($RBD ls -l $pool | grep "$volume.*@0")
+    snap0=$($RBD ls -l $pool | grep -E "$volume(-.+)?@0")
 
     if [ -n "$snap0" ]; then
         volume=$pool/${snap0%%@*}
