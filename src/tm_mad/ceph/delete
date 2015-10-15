@@ -92,6 +92,7 @@ fi
 
 # cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
 RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
+RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 #-------------------------------------------------------------------------------
 # Delete the device
@@ -104,6 +105,7 @@ DELETE_CMD=$(cat <<EOF
 
     if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
         rbd_rm_r \$(rbd_top_parent $RBD_SRC)
+        rbd_rm_snap $SRC $RBD_SNAP
     else
         $RBD rm $RBD_SRC
     fi

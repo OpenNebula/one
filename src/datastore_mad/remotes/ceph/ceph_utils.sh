@@ -32,14 +32,18 @@ rbd_make_snap() {
 #--------------------------------------------------------------------------------
 # Remove the base @snap for image clones
 #  @param $1 the volume
+#  @param $2 (Optional) the snapshot name. If empty it defaults to 'snap'
 #--------------------------------------------------------------------------------
 rbd_rm_snap() {
+    local snap
+    snap=${2:-snap}
+
     if [ "$(rbd_format $1)" = "2" ]; then
-        $RBD info "$1@snap" >/dev/null 2>&1
+        $RBD info "$1@$snap" >/dev/null 2>&1
 
         if [ "$?" = "0" ]; then
-            $RBD snap unprotect "$1@snap"
-            $RBD snap rm "$1@snap"
+            $RBD snap unprotect "$1@$snap"
+            $RBD snap rm "$1@$snap"
         fi
     fi
 }
