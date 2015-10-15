@@ -68,10 +68,12 @@ while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
         done < <(onevm show -x $VM_ID| $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
@@ -81,6 +83,10 @@ ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 CLONE_CMD=$(cat <<EOF

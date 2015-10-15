@@ -63,11 +63,13 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 if [ "$CLONE" = "NO" ]; then
     RBD_DST="${RBD_SRC}"
@@ -100,6 +102,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 SNAP_REVERT_CMD=$(cat <<EOF

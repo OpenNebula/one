@@ -51,7 +51,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 unset i
 
@@ -60,6 +61,7 @@ POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 RBD_SRC="${XPATH_ELEMENTS[i++]}"
 SNAP_ID="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
+CEPH_CONF="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -70,6 +72,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 SNAP_REVERT_CMD=$(cat <<EOF

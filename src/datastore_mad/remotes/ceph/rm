@@ -48,11 +48,13 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -63,6 +65,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 # -------- Remove Image from Datastore ------------
