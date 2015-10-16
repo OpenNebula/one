@@ -24,16 +24,23 @@ DST=$1
 VM_ID=$2
 DS_ID=$3
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 #-------------------------------------------------------------------------------
 # Process destination
@@ -68,11 +75,13 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
 
 SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 # No need to delete no cloned images
 if [ "$CLONE" = "NO" ]; then
@@ -81,6 +90,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 # cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
@@ -93,57 +106,17 @@ RBD_SNAP="${VM_ID}-${DISK_ID}"
 
 log "Deleting $DST_PATH"
 
-# Note that this command, as opposed to the rest of $RBD commands in this set of
-# drivers, is executed in the worker node and not in the CEPH frontend.
-
 DELETE_CMD=$(cat <<EOF
-    rm_children(){
-        local rbd_snap rbd snap_id child snap_list
+    RBD="${RBD}"
 
-        rbd_snap=\$1
-        rbd=\${rbd_snap%%@*}
-
-        snap_list=\$(set +e; rbd snap ls \$rbd)
-
-        if [ -n "\$snap_list" ]; then
-            CHILDREN=\$(set +e; rbd children \$rbd_snap 2>/dev/null)
-
-            for child in \$CHILDREN; do
-                snap_id=\${child##*-}
-                child=\$child@\$snap_id
-                rm_children \$child
-            done
-
-            $RBD snap unprotect \$rbd_snap
-            $RBD snap rm \$rbd_snap
-        fi
-
-        $RBD rm \$rbd
-    }
-
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
-
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        has_snap_shots=\$($RBD info $RBD_SRC-0@0 2>/dev/null)
-
-        if [ -n "\$has_snap_shots" ]; then
-            rm_children $RBD_SRC-0@0
-        else
-            $RBD rm $RBD_SRC
-        fi
+    if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
+        rbd_rm_r \$(rbd_top_parent $RBD_SRC)
+        rbd_rm_snap $SRC $RBD_SNAP
     else
         $RBD rm $RBD_SRC
-    fi
-
-    # Remove the snapshot of the original image used to create a CLONE
-    if [ "\$RBD_FORMAT" = "2" ]; then
-        $RBD snap unprotect $SRC@$RBD_SNAP
-        $RBD snap rm $SRC@$RBD_SNAP
     fi
 EOF
 )
 
-ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+ssh_exec_and_log_stdin "$DST_HOST" "$DELETE_CMD" "$CEPH_UTILS" \
                  "Error deleting $RBD_SRC in $DST_HOST"
-
-exit 0

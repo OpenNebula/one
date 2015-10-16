@@ -55,7 +55,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RBD_FORMAT \
                     /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
 
 unset i
 
@@ -69,6 +70,7 @@ RBD_FORMAT="${XPATH_ELEMENTS[i++]:-$RBD_FORMAT}"
 FSTYPE="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
+CEPH_CONF="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -79,6 +81,10 @@ fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
