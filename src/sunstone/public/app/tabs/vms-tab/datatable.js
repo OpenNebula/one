@@ -126,7 +126,10 @@ define(function(require) {
   }
 
   function _preUpdateView() {
-    StateActions.disableAllStateActions();
+    var tab = $('#' + TAB_NAME);
+    if (!Sunstone.rightInfoVisible(tab)){
+      StateActions.disableAllStateActions();
+    }
 
     this.totalVms = 0;
     this.activeVms = 0;
