@@ -1621,6 +1621,13 @@ public:
      */
     int set_snapshot_disk(int disk_id, int snap_id);
 
+    /**
+     * Deletes the disk snapshots in a delete-resubmit action. The snapshots
+     * are deleted only for disks that use non-persistent images
+     * @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     */
+    void resubmit_disk_snapshots_cleanup(Template **vm_quotas);
+
     // ------------------------------------------------------------------------
     // Snapshot related functions
     // ------------------------------------------------------------------------

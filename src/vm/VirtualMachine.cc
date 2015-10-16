@@ -4598,3 +4598,72 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::resubmit_disk_snapshots_cleanup(Template **vm_quotas)
+{
+    vector<Attribute *> disks;
+    VectorAttribute *   disk;
+
+    map<int, Snapshots *>::iterator it;
+
+    int num_disks;
+    int disk_id;
+
+    long long system_disk = 0;
+
+    num_disks = obj_template->get("DISK", disks);
+
+    for(int i=0; i<num_disks; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if (disk == 0)
+        {
+            continue;
+        }
+
+        if (disk->vector_value("DISK_ID", disk_id) != 0)
+        {
+            continue;
+        }
+
+        it = snapshots.find(disk_id);
+
+        if (it == snapshots.end())
+        {
+            continue;
+        }
+
+        if ( !is_persistent(disk) )
+        {
+            if (disk_tm_target(disk) != "NONE") // self or system
+            {
+                system_disk += it->second->get_total_size();
+            }
+
+            it->second->clear();
+
+            disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", 0);
+
+            Snapshots * tmp = it->second;
+
+            snapshots.erase(it);
+
+            delete tmp;
+        }
+    }
+
+    VectorAttribute * delta_disk;
+
+    *vm_quotas = new Template();
+
+    delta_disk = new VectorAttribute("DISK");
+    delta_disk->replace("TYPE", "FS");
+    delta_disk->replace("SIZE", system_disk);
+
+    (*vm_quotas)->add("VMS", 0);
+    (*vm_quotas)->set(delta_disk);
+}
+
