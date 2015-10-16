@@ -3375,9 +3375,10 @@ const VectorAttribute* VirtualMachine::get_disk(int disk_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, string& err_str)
+int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, int &iid,
+                                    long long &size, string& err_str)
 {
-    int iid = -1;
+    iid = -1;
 
     VectorAttribute * disk = get_disk(disk_id);
 
@@ -3389,6 +3390,7 @@ int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, string& err_str)
 
     if (disk->vector_value("IMAGE_ID", iid) != 0)
     {
+        iid = -1;
         err_str = "DISK does not have a valid IMAGE_ID.";
         return -1;
     }
@@ -3407,7 +3409,10 @@ int VirtualMachine::set_saveas_disk(int disk_id, int snap_id, string& err_str)
     disk->replace("HOTPLUG_SAVE_AS_ACTIVE", "YES");
     disk->replace("HOTPLUG_SAVE_AS_SNAPSHOT_ID", snap_id);
 
-    return iid;
+    size = 0;
+    disk->vector_value("SIZE", size);
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */

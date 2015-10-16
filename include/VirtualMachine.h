@@ -1335,10 +1335,13 @@ public:
      *  Mark the disk that is going to be "save as"
      *    @param disk_id of the VM
      *    @param snap_id of the disk to save, -1 to select the active snapshot
-     *    @param err_str describing the error
-     *    @return -1 if the image cannot saveas or image_id of current disk
+     *    @param img_id The image id used by the disk
+     *    @param size The disk size. This may be different to the original
+     *    image size
+     *    @param err_str describing the error if any
+     *    @return -1 if the image cannot saveas, 0 on success
      */
-    int set_saveas_disk(int disk_id, int snap_id, string& err_str);
+    int set_saveas_disk(int disk_id, int snap_id, int &img_id, long long &size, string& err_str);
 
     /**
      *  Set save attributes for the disk

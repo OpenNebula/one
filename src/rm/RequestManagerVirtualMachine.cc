@@ -1235,9 +1235,9 @@ void VirtualMachineDiskSaveas::request_execute(
         goto error_state;
     }
 
-    iid_orig = vm->set_saveas_disk(disk_id, snap_id, error);
+    rc = vm->set_saveas_disk(disk_id, snap_id, iid_orig, size, error);
 
-    if (iid_orig == -1)
+    if (rc == -1)
     {
         goto error_disk;
     }
@@ -1259,7 +1259,6 @@ void VirtualMachineDiskSaveas::request_execute(
     ds_id   = img->get_ds_id();
     ds_name = img->get_ds_name();
 
-    size = img->get_size();
     type = img->get_type();
 
     iname_orig  = img->get_name();
