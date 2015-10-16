@@ -23,16 +23,23 @@ SNAP_ID=$2
 VM_ID=$3
 DS_ID=$4
 
+#--------------------------------------------------------------------------------
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
 
+source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+
+CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -56,11 +63,13 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 
 if [ "$CLONE" = "NO" ]; then
     RBD_DST="${RBD_SRC}"
@@ -69,30 +78,39 @@ else
 fi
 
 #-------------------------------------------------------------------------------
-# Delete snapshots
+# Delete snapshot. Look for the snapshot in:
+#   1.- current volume one-<image_id>
+#   2.- any of the snapshot volumes: one-<image_id>[-<vm_id>-<disk_id>]-<snapls>
 #-------------------------------------------------------------------------------
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
 fi
 
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
+fi
+
 SNAP_DELETE_CMD=$(cat <<EOF
-    set -e
+    RBD="${RBD}"
 
-    RBD_FORMAT=\$($RBD info $RBD_SRC | sed -n 's/.*format: // p')
+    rbd_check_2 $RBD_DST
 
-    if [ "\${RBD_FORMAT}" != "2" ]; then
-        echo "Only RBD Format 2 is supported for this operation" >&2
+    RBD_TGT=\$(rbd_find_snap $RBD_DST $SNAP_ID)
+
+    if [ -z "\$RBD_TGT" ]; then
+        echo "Target RBD not found." >&2
         exit 1
     fi
 
-    $RBD snap unprotect $RBD_DST-$SNAP_ID@$SNAP_ID
-    $RBD snap rm $RBD_DST-$SNAP_ID@$SNAP_ID
-    $RBD rm $RBD_DST-$SNAP_ID
+    $RBD snap unprotect \${RBD_TGT}@$SNAP_ID
+    $RBD snap rm \${RBD_TGT}@$SNAP_ID
+
+    if [ "\${RBD_TGT}" != "$RBD_DST" ]; then
+        rbd_rename_rm $RBD_DST \${RBD_TGT}
+    fi
 EOF
 )
 
-ssh_exec_and_log "$SRC_HOST" "$SNAP_DELETE_CMD" \
-                 "Error deleting snapshot $RBD_DST-$SNAP_ID@$SNAP_ID"
-
-exit 0
+ssh_exec_and_log_stdin "$SRC_HOST" "$SNAP_DELETE_CMD" "$CEPH_UTILS" \
+                       "Error deleting snapshot $SNAP_ID"
