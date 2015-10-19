@@ -491,7 +491,7 @@ class Validator
         if schema_string[:regex] =~ body_value
             body_value
         else
-            raise ParseException, "KEY: '#{schema_key}' malformed;"
+            raise ParseException, "KEY: '#{schema_key}' must match regexp #{schema_string[:regex].inspect};"
         end
     end
 end
