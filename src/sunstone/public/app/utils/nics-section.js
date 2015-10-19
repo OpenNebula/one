@@ -24,7 +24,9 @@ define(function(require) {
 
   return {
     'insert': _insert,
-    'retrieve': _retrieve
+    'retrieve': _retrieve,
+    'generate_provision_network_accordion': _generate_provision_network_accordion,
+    'generate_provision_network_table': _generate_provision_network_table
   }
 
   function _insert(template_json, context) {
@@ -36,11 +38,11 @@ define(function(require) {
       else if (!$.isEmptyObject(template_nic))
           nics = [template_nic]
         
-      generate_provision_network_accordion(
+      _generate_provision_network_accordion(
         $(".provision_network_selector", context));
 
       $.each(nics, function(index, nic) {
-        generate_provision_network_table(
+        _generate_provision_network_table(
           $(".provision_nic_accordion", context),
           nic);
       })
@@ -69,7 +71,7 @@ define(function(require) {
     return nics
   }
 
-  function generate_provision_network_table(context, nic, vnet_attr) {
+  function _generate_provision_network_table(context, nic, vnet_attr) {
     context.off();
     var nic_span;
 
@@ -227,7 +229,7 @@ define(function(require) {
     update_provision_networks_datatable(provision_networks_datatable);
   }
 
-  function generate_provision_network_accordion(context, hide_add_button) {
+  function _generate_provision_network_accordion(context, hide_add_button) {
     context.off();
     context.html(
       '<br>' +
@@ -257,7 +259,7 @@ define(function(require) {
     provision_nic_accordion_id += 1;
 
     $(".provision_add_network_interface", context).on("click", function() {
-      generate_provision_network_table($(".accordion", context));
+      _generate_provision_network_table($(".accordion", context));
     })
 
     $(document).foundation();
