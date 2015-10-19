@@ -108,15 +108,20 @@ define(function(require){
 
             var sizeGB = disk.SIZE / 1024;
             diskContext.data('original_size', sizeGB);
+
+            var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
+            var enabled = !(disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES");
+
             RangeSlider.insert({
-              'label': disk.IMAGE,
+              'label': label,
               'unitLabel': 'GB',
               'name': 'SIZE',
               'start': sizeGB,
               'end': sizeGB + 500,
               'step': 10,
-              'startValue': sizeGB
-            }, $(".diskSlider", diskContext))
+              'startValue': sizeGB,
+              'enabled': enabled
+            }, $(".diskSlider", diskContext));
           })
         }
       })

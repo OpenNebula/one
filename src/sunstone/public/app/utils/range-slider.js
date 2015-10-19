@@ -32,6 +32,7 @@ define(function(require) {
       opts.end End value of the slider
       opts.step Step value of the slider
       opts.startValue Initialize the slider with this value
+      opts.enabled false to disable the inputs (true by default)
     @param {Object} context div to insert the range slider
     @returns {String} HTML row
    */
@@ -60,6 +61,11 @@ define(function(require) {
     if (opts.startValue) {
       slider.foundation('slider', 'set_value', opts.startValue);
       input.val(opts.startValue);
+    }
+
+    if (opts.enabled == false){
+      input.attr('disabled', 'disabled');
+      slider.attr('disabled', 'disabled');
     }
   }
 });
