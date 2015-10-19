@@ -143,21 +143,24 @@ define(function(require) {
     if (templateJSON["SUNSTONE_CAPACITY_SELECT"] &&
           (templateJSON["SUNSTONE_CAPACITY_SELECT"].toUpperCase() == "NO")) {
       $("#sunstone_capacity_select", context).attr("checked", "checked");
-      delete templateJSON["SUNSTONE_CAPACITY_SELECT"]
     }
+
+    delete templateJSON["SUNSTONE_CAPACITY_SELECT"];
 
     if (templateJSON["SUNSTONE_NETWORK_SELECT"] &&
           (templateJSON["SUNSTONE_NETWORK_SELECT"].toUpperCase() == "NO")) {
       $("#sunstone_network_select", context).attr("checked", "checked");
-      delete templateJSON["SUNSTONE_NETWORK_SELECT"]
     }
+
+    delete templateJSON["SUNSTONE_NETWORK_SELECT"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter' &&
       templateJSON["KEEP_DISKS_ON_DONE"] &&
         templateJSON["KEEP_DISKS_ON_DONE"].toLowerCase() == "yes" ) {
       $("#KEEP_DISKS", context).attr("checked", "checked");
-      delete templateJSON["KEEP_DISKS_ON_DONE"]
     }
+
+    delete templateJSON["KEEP_DISKS_ON_DONE"];
 
     if (templateJSON["HYPERVISOR"] == 'vcenter') {
       var publicClouds = templateJSON["PUBLIC_CLOUD"];
