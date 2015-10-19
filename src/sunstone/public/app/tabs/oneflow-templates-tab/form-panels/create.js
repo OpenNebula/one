@@ -200,7 +200,15 @@ define(function(require) {
 
 
     $(document).foundation('tab', 'reflow');
-    
+
+    context.foundation({
+      abide : {
+        patterns: {
+          word_chars: /^\w+$/
+        }
+      }
+    });
+
     // Add first role
     $("#tf_btn_roles", context).trigger("click");
 
