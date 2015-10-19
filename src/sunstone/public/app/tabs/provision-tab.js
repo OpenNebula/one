@@ -1458,11 +1458,11 @@ define(function(require) {
               })
 
               if (network_attrs.length > 0) {
-                generate_provision_network_accordion(
+                NicsSection.generate_provision_network_accordion(
                   $(".provision_network_selector", context), true);
 
                 $.each(network_attrs, function(index, vnet_attr){
-                  generate_provision_network_table(
+                  NicsSection.generate_provision_network_table(
                     $(".provision_nic_accordion", context),
                     null,
                     vnet_attr);
