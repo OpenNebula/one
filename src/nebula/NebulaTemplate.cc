@@ -179,12 +179,6 @@ void OpenNebulaTemplate::set_conf_default()
     attribute = new SingleAttribute("VNC_BASE_PORT",value);
     conf_default.insert(make_pair(attribute->name(),attribute));
 
-    //XML-RPC Server PORT
-    value = "2633";
-
-    attribute = new SingleAttribute("PORT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
     //SCRIPTS_REMOTE_DIR
     value = "/var/tmp/one";
 
