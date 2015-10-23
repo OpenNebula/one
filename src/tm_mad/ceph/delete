@@ -66,24 +66,14 @@ if [ `is_disk $DST_PATH` -eq 0 ]; then
     while IFS= read -r -d '' element; do
             XPATH_ELEMENTS[i++]="$element"
             done < <(onedatastore show -x $DS_ID| $XPATH  \
-                                        /DATASTORE/BASE_PATH \
-                                        /DATASTORE/TEMPLATE/RESTRICTED_DIRS \
-                                        /DATASTORE/TEMPLATE/SAFE_DIRS \
                                         /DATASTORE/TEMPLATE/BRIDGE_LIST \
                                         /DATASTORE/TEMPLATE/POOL_NAME \
-                                        /DATASTORE/TEMPLATE/STAGING_DIR \
                                         /DATASTORE/TEMPLATE/RBD_FORMAT \
                                         /DATASTORE/TEMPLATE/CEPH_USER)
 
-    BASE_PATH="${XPATH_ELEMENTS[j++]}"
-    RESTRICTED_DIRS="${XPATH_ELEMENTS[j++]}"
-    SAFE_DIRS="${XPATH_ELEMENTS[j++]}"
     BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
     POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
-    STAGING_DIR="${XPATH_ELEMENTS[j++]:-$STAGING_DIR}"
     RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
-    FSTYPE="${XPATH_ELEMENTS[j++]}"
-    SIZE="${XPATH_ELEMENTS[j++]}"
     CEPH_USER="${XPATH_ELEMENTS[j++]}"
 
     if [ "$RBD_FORMAT" = "2" ]; then
@@ -168,5 +158,7 @@ DELETE_CMD=$(cat <<EOF
 EOF
 )
 
+echo "$DELETE_CMD"
+exit 0
 ssh_exec_and_log_stdin "$DST_HOST" "$DELETE_CMD" "$CEPH_UTILS" \
                  "Error deleting $RBD_SRC in $DST_HOST"
