@@ -1668,16 +1668,6 @@ public:
      */
     void delete_snapshots();
 
-    // ------------------------------------------------------------------------
-    // Public cloud templates related functions
-    // ------------------------------------------------------------------------
-
-    /**
-     * Gets the list of public cloud hypervisors for which this VM has definitions
-     * @param list to store the cloud hypervisors in the template
-     * @return the number of public cloud hypervisors
-     */
-    int get_public_cloud_hypervisors(vector<string> &cloud_hypervisors) const;
 
 private:
 
@@ -2083,6 +2073,55 @@ private:
                 static_cast<const VirtualMachine&>(*this).get_disk(disk_id));
     };
 
+    // ------------------------------------------------------------------------
+    // Public cloud templates related functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Gets the list of public clouds defined in this VM.
+     * @param clouds list to store the cloud hypervisors in the template
+     * @return the number of public cloud hypervisors
+     */
+    int get_public_clouds(set<string> &clouds) const
+    {
+        int num = get_public_clouds("PUBLIC_CLOUD", clouds);
+        num += get_public_clouds("EC2", clouds);
+
+        return num;
+    };
+
+    /**
+     * Same as above but specifies the attribute name to handle old versions
+     */
+    int get_public_clouds(const char * name, set<string> &clouds) const;
+
+
+    /**
+     *  Parse the public cloud attributes and subsititue variable definition
+     *  for the values in the template, i.e.:
+     *    INSTANCE_TYPE="m1-small"
+     *
+     *    PUBLIC_CLOUD=[ TYPE="ec2", INSTANCE="$INSTANCE_TYPE"...
+     *
+     *  @param error description if any
+     *  @return -1 in case of error
+     */
+    int parse_public_clouds(string& error)
+    {
+        int rc = parse_public_clouds("PUBLIC_CLOUD", error);
+
+        if (rc == 0)
+        {
+            rc = parse_public_clouds("EC2", error);
+        }
+
+        return rc;
+    };
+
+    /**
+     * Same as above but specifies the attribute name to handle old versions
+     */
+    int parse_public_clouds(const char *name, string& error);
 
 protected:
 
