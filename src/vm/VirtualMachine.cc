@@ -326,6 +326,15 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     this->name = name;
 
     // ------------------------------------------------------------------------
+    // Parse the Public Cloud specs for this VM
+    // ------------------------------------------------------------------------
+
+    if (parse_public_clouds(error_str) != 0)
+    {
+        goto error_public;
+    }
+
+    // ------------------------------------------------------------------------
     // Check for CPU, VCPU and MEMORY attributes
     // ------------------------------------------------------------------------
 
@@ -575,6 +584,7 @@ error_one_vms:
 
 error_os:
 error_defaults:
+error_public:
 error_name:
 error_common:
     NebulaLog::log("ONE",Log::ERROR, error_str);
@@ -931,7 +941,7 @@ int VirtualMachine::parse_context(string& error_str)
     // Parse CONTEXT variables & free vector attributes
     // -------------------------------------------------------------------------
 
-    str = context->marshall(" @^_^@ ");
+    str = context->marshall();
 
     if (str == 0)
     {
@@ -1017,7 +1027,7 @@ int VirtualMachine::parse_context(string& error_str)
     files_ds_parsed = oss_parsed.str();
 
     context_parsed = new VectorAttribute("CONTEXT");
-    context_parsed->unmarshall(parsed," @^_^@ ");
+    context_parsed->unmarshall(parsed);
 
     if ( !files_ds_parsed.empty() )
     {
@@ -1340,9 +1350,9 @@ int VirtualMachine::automatic_requirements(string& error_str)
     string          requirements;
     string          cluster_id = "";
 
-    vector<string> public_cloud_hypervisors;
+    set<string> clouds;
 
-    int num_public = get_public_cloud_hypervisors(public_cloud_hypervisors);
+    int num_public = get_public_clouds(clouds);
 
     int incomp_id;
     int rc;
@@ -1430,13 +1440,15 @@ int VirtualMachine::automatic_requirements(string& error_str)
 
     if (num_public != 0)
     {
+        set<string>::iterator it = clouds.begin();
+
         oss << " | (PUBLIC_CLOUD = YES & (";
 
-        oss << "HYPERVISOR = " << public_cloud_hypervisors[0];
+        oss << "HYPERVISOR = " << *it ;
 
-        for (int i = 1; i < num_public; i++)
+        for (++it; it != clouds.end() ; ++it)
         {
-            oss << " | HYPERVISOR = " << public_cloud_hypervisors[i];
+            oss << " | HYPERVISOR = " << *it;
         }
 
         oss << "))";
@@ -4208,15 +4220,14 @@ void VirtualMachine::clear_template_monitor_error()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_public_cloud_hypervisors(
-        vector<string> &public_cloud_hypervisors) const
+int VirtualMachine::get_public_clouds(const char * pname, set<string> &clouds) const
 {
     vector<Attribute*>                  attrs;
     vector<Attribute*>::const_iterator  it;
 
     VectorAttribute *   vatt;
 
-    user_obj_template->get("PUBLIC_CLOUD", attrs);
+    user_obj_template->get(pname, attrs);
 
     for (it = attrs.begin(); it != attrs.end(); it++)
     {
@@ -4231,21 +4242,71 @@ int VirtualMachine::get_public_cloud_hypervisors(
 
         if (!type.empty())
         {
-            public_cloud_hypervisors.push_back(type);
+            clouds.insert(type);
         }
     }
 
-    // Compatibility with old templates
+    return clouds.size();
+}
 
-    attrs.clear();
-    user_obj_template->get("EC2", attrs);
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-    if (!attrs.empty())
+int VirtualMachine::parse_public_clouds(const char * pname, string& error)
+{
+    vector<Attribute*>            attrs;
+    vector<Attribute*>::iterator  it;
+
+    VectorAttribute * vatt;
+    string * str;
+    string p_vatt;
+
+    int rc  = 0;
+    int num = user_obj_template->remove(pname, attrs);
+
+    for (it = attrs.begin(); it != attrs.end(); it++)
     {
-        public_cloud_hypervisors.push_back("ec2");
+        vatt = dynamic_cast<VectorAttribute * >(*it);
+
+        if ( vatt == 0 )
+        {
+            error = "Wrong format for PUBLIC_CLOUD attribute";
+            rc    = -1;
+            break;
+        }
+
+        str = vatt->marshall();
+
+        if ( str == 0 )
+        {
+            error = "Internal error processing PUBLIC_CLOUD";
+            rc    = -1;
+            break;
+        }
+
+        rc = parse_template_attribute(*str, p_vatt, error);
+
+        delete str;
+
+        if ( rc != 0 )
+        {
+            rc = -1;
+            break;
+        }
+
+        VectorAttribute * nvatt = new VectorAttribute(pname);
+
+        nvatt->unmarshall(p_vatt);
+
+        user_obj_template->set(nvatt);
     }
 
-    return public_cloud_hypervisors.size();
+    for (int i = 0; i < num ; i++)
+    {
+        delete attrs[i];
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
