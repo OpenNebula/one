@@ -105,7 +105,11 @@ define(function(require) {
                 '<div class="row">' +
                   '<div class="large-12 columns">' +
                     '<table class="dataTable no-hover vcenter_network_table" id="vcenter_network_table_' + datacenter_name + '">' +
-                      '<thead><th/></thead>' +
+                      '<thead>' +
+                        '<th class="check">' +
+                          '<input type="checkbox" class="check_all"/> ' + Locale.tr("Name") +
+                        '</th>' +
+                      '</thead>' +
                       '<tbody/>' +
                     '</table>' +
                   '</div>' +
@@ -133,7 +137,7 @@ define(function(require) {
                     '<div class="large-10 columns">' +
                       '<div class="large-12 columns">' +
                         '<label>' +
-                          '<input type="checkbox" class="network_name" checked/> ' +
+                          '<input type="checkbox" class="check_item" checked/> ' +
                           network.name + '&emsp;<span style="color: #999">' + network.cluster + '</span>' +
                           '&emsp;<span style="color: #999">' + network.type + '</span>' +
                         '</label>' +
@@ -221,7 +225,7 @@ define(function(require) {
                 $('.net_options', network_context).html(net_form_str);
               });
 
-              $(".network_name", trow).data("one_network", network.one);
+              $(".check_item", trow).data("one_network", network.one);
             });
 
             var networkDataTable = new DomDataTable(
@@ -240,6 +244,23 @@ define(function(require) {
               });
 
             networkDataTable.initialize();
+
+            newdiv.on("change", '.check_all', function() {
+              var table = $(this).closest('table');
+              if ($(this).is(":checked")) { //check all
+                $('tbody input.check_item', table).prop('checked', true).change();
+              } else { //uncheck all
+                $('tbody input.check_item', table).prop('checked', false).change();
+              }
+            });
+
+            $('table', newdiv).on('draw.dt', function(){
+              _recountCheckboxes(this);
+            });
+
+            $(".check_item", newdiv).on('change', function(){
+              _recountCheckboxes($('table', newdiv));
+            });
           }
         });
       },
@@ -250,9 +271,15 @@ define(function(require) {
     });
   }
 
+  function _recountCheckboxes(table) {
+    var total_length = $('input.check_item', table).length;
+    var checked_length = $('input.check_item:checked', table).length;
+    $('.check_all', table).prop('checked', (total_length == checked_length));
+  }
+
   function _import(context) {
     $.each($("table.vcenter_network_table", context), function() {
-      $.each($(this).DataTable().$(".network_name:checked"), function() {
+      $.each($(this).DataTable().$(".check_item:checked"), function() {
         var network_context = $(this).closest(".vcenter_network");
 
         $(".vcenter_network_result:not(.success)", network_context).html(
