@@ -31,6 +31,7 @@ ISCSIADM=iscsiadm
 LVCREATE=lvcreate
 LVREMOVE=lvremove
 LVRENAME=lvrename
+LVCHANGE=lvchange
 LVS=lvs
 LN=ln
 MD5SUM=md5sum

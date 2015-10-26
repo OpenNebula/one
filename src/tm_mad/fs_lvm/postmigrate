@@ -1,1 +1,5 @@
-../common/postmigrate
+source /var/lib/one/remotes/scripts_common.sh
+
+ssh_exec_and_log $1 "sudo sync; sudo lvs; sudo lvchange -an $3" "Error running fs_lvm postmigrate"
+
+exit 0
