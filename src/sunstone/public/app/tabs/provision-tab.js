@@ -702,7 +702,7 @@ define(function(require) {
           QuotaWidgets.initEmptyQuotas(user);
 
           if (!$.isEmptyObject(user.VM_QUOTA)){
-              var default_user_quotas = QuotasDefault.default_quotas(user.DEFAULT_USER_QUOTAS);
+              var default_user_quotas = QuotaDefaults.default_quotas(user.DEFAULT_USER_QUOTAS);
 
               var vms = QuotaWidgets.quotaInfo(
                   user.VM_QUOTA.VM.VMS_USED,
