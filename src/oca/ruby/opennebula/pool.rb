@@ -202,8 +202,9 @@ module OpenNebula
 
                 a_array=parser.parse(a)
 
-                array += a_array
+                array   += a_array
                 current += size
+
                 break if !a || a_array.length<size
             end
 
