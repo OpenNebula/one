@@ -37,11 +37,7 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-source $TMCOMMON
-
-DRIVER_PATH=$(dirname $0)
-
-DRIVER=$(basename $DRIVER_PATH) # "shared", "ceph", etc...
+. $TMCOMMON
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -49,51 +45,6 @@ DRIVER=$(basename $DRIVER_PATH) # "shared", "ceph", etc...
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
-
-if [ "$DRIVER" = "ceph" ]; then
-    source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
-    source ${DRIVER_PATH}/../../datastore/libfs.sh
-
-    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-    unset i j XPATH_ELEMENTS
-
-    while IFS= read -r -d '' element; do
-            XPATH_ELEMENTS[i++]="$element"
-            done < <(onedatastore show -x $DSID| $XPATH  \
-                                        /DATASTORE/TEMPLATE/BRIDGE_LIST \
-                                        /DATASTORE/TEMPLATE/POOL_NAME \
-                                        /DATASTORE/TEMPLATE/RBD_FORMAT \
-                                        /DATASTORE/TEMPLATE/CEPH_USER)
-
-    BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
-    POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
-    RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
-    CEPH_USER="${XPATH_ELEMENTS[j++]}"
-
-    if [ "$RBD_FORMAT" = "2" ]; then
-        FORMAT_OPT="--image-format 2"
-    fi
-
-    if [ -n "$CEPH_USER" ]; then
-        RBD="$RBD --id ${CEPH_USER}"
-    fi
-
-    DST_HOST=`get_destination_host $VMID`
-
-    if [ -z "$DST_HOST" ]; then
-        error_message "Datastore template missing 'BRIDGE_LIST' attribute."
-        exit -1
-    fi
-
-    DISK_ID=$(echo $DST|awk -F. '{print $NF}')
-
-    RBD_SOURCE="${POOL_NAME}/one-${VMID}-${DISK_ID}"
-
-    echo $RBD_SOURCE
-
-    exit 0
-fi
 
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)

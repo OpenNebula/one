@@ -29,5 +29,4 @@ DST=$2
 VMID=$3
 DSID=$4
 
-CMD="`dirname $0`/mkimage $SIZE swap $DST $VMID $DSID"
-`$CMD`
+`dirname $0`/mkimage $SIZE swap $DST $VMID $DSID
