@@ -102,7 +102,10 @@ define(function(require) {
         Sunstone.getDataTable(TAB_ID).addElement(request, response);
         Notifier.notifyCustom(Locale.tr("VDC created"), " ID: " + response.VDC.ID, false);
       },
-      error: Notifier.onError
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      }
     },
 
     "Vdc.add_group" : {
