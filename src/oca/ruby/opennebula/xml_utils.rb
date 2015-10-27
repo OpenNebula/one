@@ -47,12 +47,16 @@ module OpenNebula
         attr_accessor :pool
 
         def initialize (pool_name, elem_name)
-            @current = 0
-            @levels  = [{}]
-            @pool    = Array.new
+            clear
 
             @pool_name = pool_name
             @elem_name = elem_name
+        end
+
+        def clear
+            @current = 0
+            @levels  = [{}]
+            @pool    = Array.new
         end
 
         def start_element(name, attrs = [])
@@ -98,7 +102,7 @@ module OpenNebula
         end
 
         def parse(str)
-            @pool_sax.pool.clear
+            @pool_sax.clear
             sax_parse(str)
             @pool_sax.pool
         end
