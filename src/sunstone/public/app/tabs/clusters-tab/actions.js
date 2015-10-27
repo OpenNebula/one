@@ -61,7 +61,10 @@ define(function(require) {
 
         Notifier.notifyCustom(Locale.tr("Cluster created"), " ID: " + response[XML_ROOT].ID, false);
       },
-      error: Notifier.onError
+      error: function(request, response){
+        Sunstone.hideFormPanelLoading(TAB_ID);
+        Notifier.onError(request, response);
+      }
     },
 
     "Cluster.addhost" : {

@@ -63,7 +63,11 @@ define(function(require) {
       elements: function() {
         return Sunstone.getDataTable(TAB_ID).elements();
       },
-      error: Notifier.onError,
+      error: function(request, response){
+        // without tab id param to work for both templates and vms tab
+        Sunstone.hideFormPanelLoading();
+        Notifier.onError(request, response);
+      },
       notify: true
     },
     "Template.instantiate_quiet" : {
@@ -73,7 +77,11 @@ define(function(require) {
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("VM");
       },
-      error: Notifier.onError
+      error: function(request, response){
+        // without tab id param to work for both templates and vms tab
+        Sunstone.hideFormPanelLoading();
+        Notifier.onError(request, response);
+      }
     },
     "Template.instantiate_vms" : {
       type: "custom",

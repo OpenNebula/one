@@ -836,8 +836,21 @@ define(function(require) {
     }, 13)
   }
 
+  /**
+   * Hides the form panel loading (spinning icon on submit), and resets
+   * the header and submit button texts
+   *
+   * @param  {String} tabId TAB_ID. Optional, if it is not provided the current
+   *                        tab will be used
+   */
   function _hideFormPanelLoading(tabId) {
-    var context = $("#" + tabId);
+    var context;
+    if (tabId){
+      context = $("#" + tabId);
+    } else {
+      context = $(".tab:visible");  // current tab
+      tabId = context.attr("id");
+    }
     //$(".right-form", context).html(content);
 
     $(".loadingForm", context).hide();
