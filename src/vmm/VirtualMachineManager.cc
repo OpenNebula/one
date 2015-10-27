@@ -2118,7 +2118,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
     string* drv_msg;
 
     string  vm_tm_mad;
-    string  snap_cmd, snap_cmd_rollback;
+    string  snap_cmd;
     string  disk_path;
 
     string  tm_mad;
@@ -2159,13 +2159,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
 
     os.str("");
 
-    rc += tm->snapshot_transfer_command( vm, "SNAP_DELETE", os);
-
-    snap_cmd_rollback = os.str();
-
-    os.str("");
-
-    if ( snap_cmd.empty() || snap_cmd_rollback.empty() || rc != 0 )
+    if ( snap_cmd.empty() || rc != 0 )
     {
         goto error_no_tm_command;
     }
@@ -2185,7 +2179,7 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
         "",
         vm->get_checkpoint_file(),
         snap_cmd,
-        snap_cmd_rollback,
+        "",
         disk_path,
         vm->to_xml(vm_tmpl));
 
