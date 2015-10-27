@@ -39,7 +39,8 @@ define(function(require) {
   var _addMainTabs = function() {
     $.each(Config.enabledTabs, function(tabName, enabled){
       if (enabled) {
-        var tabObj = require(tabName);
+        var name = './tabs/' + tabName;
+        var tabObj = require(name);
         var _tabId = tabObj.tabId;
         SunstoneCfg["tabs"][_tabId] = tabObj;
 
