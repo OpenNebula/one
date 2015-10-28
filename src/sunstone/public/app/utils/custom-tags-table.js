@@ -86,7 +86,11 @@ define(function(require) {
                               VectorRowTemplateHTML({key: key, value: value}));
       } else {
         $("tbody.custom_tags", context).append(
-                                      RowTemplateHTML({key: key, value: value}));
+                            RowTemplateHTML({
+                                key: key,
+                                value: TemplateUtils.escapeDoubleQuotes(value)
+                              })
+                            );
       }
     });
   }
