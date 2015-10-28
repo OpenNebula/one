@@ -224,8 +224,10 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 {
     Nebula& nd = Nebula::instance();
 
-    ClusterPool*    clpool = nd.get_clpool();
-    Cluster*        cluster;
+    ClusterPool* clpool = nd.get_clpool();
+    Cluster*     cluster;
+
+    bool ds_migr;
 
     ds_id = -1;
 
@@ -267,7 +269,7 @@ int RequestManagerVirtualMachine::get_default_ds_information(
         }
     }
 
-    return get_ds_information(ds_id, cluster_id, tm_mad, att);
+    return get_ds_information(ds_id, cluster_id, tm_mad, att, ds_migr);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -276,7 +278,8 @@ int RequestManagerVirtualMachine::get_default_ds_information(
 int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     int& ds_cluster_id,
     string& tm_mad,
-    RequestAttributes& att)
+    RequestAttributes& att,
+    bool& ds_migr)
 {
     Nebula& nd = Nebula::instance();
 
@@ -311,6 +314,8 @@ int RequestManagerVirtualMachine::get_ds_information(int ds_id,
     ds_cluster_id = ds->get_cluster_id();
 
     tm_mad = ds->get_tm_mad();
+
+    ds->get_template_attribute("DS_MIGRATE", ds_migr);
 
     ds->unlock();
 
@@ -742,9 +747,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         }
         else //Get information from user selected system DS
         {
-            int ds_cluster_id;
+            int  ds_cluster_id;
+            bool ds_migr;
 
-            if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+            if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att, ds_migr) != 0)
             {
                 return;
             }
@@ -1092,19 +1098,24 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     if (ds_id != -1)
     {
+        bool ds_migr;
+
         if ( c_ds_id != ds_id && live )
         {
-            failure_response(ACTION,
-                    request_error(
-                            "A migration to a different system datastore "
-                            "cannot be performed live.",""),
-                    att);
-
+            failure_response(ACTION, request_error( "A migration to a different"
+                        " system datastore cannot be performed live.",""), att);
             return;
         }
 
-        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att) != 0)
+        if (get_ds_information(ds_id, ds_cluster_id, tm_mad, att, ds_migr) != 0)
         {
+            return;
+        }
+
+        if (!ds_migr)
+        {
+            failure_response(ACTION, request_error("System datastore migration"
+                    " not supported by TM driver",""), att);
             return;
         }
 

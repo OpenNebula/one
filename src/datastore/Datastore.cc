@@ -232,6 +232,7 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     if (type == SYSTEM_DS)
     {
         bool shared_type;
+        bool ds_migrate;
 
         if (vatt->vector_value("SHARED", shared_type) == -1)
         {
@@ -245,6 +246,20 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         else
         {
             replace_template_attribute("SHARED", "NO");
+        }
+
+        if (vatt->vector_value("DS_MIGRATE", ds_migrate) == -1)
+        {
+            ds_migrate = true;
+        }
+
+        if (ds_migrate)
+        {
+            replace_template_attribute("DS_MIGRATE", "YES");
+        }
+        else
+        {
+            replace_template_attribute("DS_MIGRATE", "NO");
         }
 
         remove_template_attribute("LN_TARGET");
