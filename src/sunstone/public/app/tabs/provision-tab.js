@@ -1652,9 +1652,19 @@ define(function(require) {
           $(".provision_cpu_quota_input", context).change();
 
           // Workaround until hidden Foundation.slider can be initialized
-          setInterval(function() {
-            context.foundation('slider', 'reflow');
-          }, 20);
+          var intervalCounter = 0;
+          var intervalId = setInterval(function() {
+
+            if ($("#provision_create_user_manual_quota", context).is(":visible") ||
+                intervalCounter > 5){
+
+              context.foundation('slider', 'reflow');
+              clearInterval(intervalId);
+            }
+
+            intervalCounter += 1;
+          }, 500);
+
         });
 
         $("#provision_create_user").submit(function(){
