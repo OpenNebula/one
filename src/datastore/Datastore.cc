@@ -148,6 +148,12 @@ void Datastore::disk_attribute(
             disk->replace(*it, inherit_val);
         }
     }
+
+    //Initialize TYPE for volatile disks
+    if (disk->vector_value("TYPE").empty())
+    {
+        disk->replace("TYPE", Image::disk_type_to_str(get_disk_type()));
+    }
 }
 
 /* ************************************************************************ */

@@ -1925,15 +1925,15 @@ int VirtualMachine::get_disk_images(string& error_str)
 
         disk = static_cast<VectorAttribute * >(disks[i]);
 
-        rc = ipool->acquire_disk(  oid,
-                                   disk,
-                                   i,
-                                   img_type,
-                                   dev_prefix,
-                                   uid,
-                                   image_id,
-                                   &snap,
-                                   error_str);
+        rc = ipool->acquire_disk(oid,
+                                 disk,
+                                 i,
+                                 img_type,
+                                 dev_prefix,
+                                 uid,
+                                 image_id,
+                                 &snap,
+                                 error_str);
         if (rc == 0 )
         {
             if (snap != 0)
@@ -3672,6 +3672,31 @@ void VirtualMachine::disk_extended_info(int uid,
         }
 
         ipool->disk_attribute(disk, i, uid);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::volatile_disk_extended_info()
+{
+    int                   num;
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+    DatastorePool *       ds_pool = Nebula::instance().get_dspool();
+
+    num = obj_template->get("DISK",disks);
+
+    for(int i=0; i<num; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 || !is_volatile(disk) )
+        {
+            continue;
+        }
+
+        ds_pool->disk_attribute(get_ds_id(), disk);
     }
 }
 

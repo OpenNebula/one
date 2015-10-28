@@ -836,7 +836,7 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // ------------------------------------------------------------------------
-    // Add a new history record and deploy the VM
+    // Add a new history record and update volatile DISK info
     // ------------------------------------------------------------------------
 
     if (add_history(vm,
@@ -853,6 +853,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         vm->unlock();
         return;
     }
+
+    vm->volatile_disk_extended_info();
+
+    // ------------------------------------------------------------------------
+    // deploy the VM
+    // ------------------------------------------------------------------------
 
     if (vm->is_imported())
     {
@@ -1134,7 +1140,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     }
 
     // ------------------------------------------------------------------------
-    // Add a new history record and migrate the VM
+    // Add a new history record and update volatile DISK attributes
     // ------------------------------------------------------------------------
 
     if ( (vm = get_vm(id, att)) == 0 )
@@ -1156,6 +1162,12 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         vm->unlock();
         return;
     }
+
+    vm->volatile_disk_extended_info();
+
+    // ------------------------------------------------------------------------
+    // Migrate the VM
+    // ------------------------------------------------------------------------
 
     if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {

@@ -1405,6 +1405,13 @@ public:
      */
     static void disk_extended_info(int uid,
                                   VirtualMachineTemplate *tmpl);
+    /**
+     *  Adds extra info to the volatile disks of the given VM, ds inherited
+     *  attributes and TYPE
+     *    @param  uid for template owner
+     *    @param  tmpl the virtual machine template
+     */
+    void volatile_disk_extended_info();
 
     // -------------------------------------------------------------------------
     // Hotplug related functions
