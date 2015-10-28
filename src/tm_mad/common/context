@@ -36,11 +36,7 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-source $TMCOMMON
-
-DRIVER_PATH=$(dirname $0)
-
-DRIVER=$(basename $DRIVER_PATH) # "shared", "ceph", etc...
+. $TMCOMMON
 
 function exit_error
 {
@@ -99,57 +95,13 @@ done
 
 exec_and_set_error "$MKISOFS -o $ISO_FILE -V CONTEXT -J -R $ISO_DIR" \
     "Error creating iso fs"
-
 [ -n "$ERROR" ] && exit_error
 
-if [ "$DRIVER" = "ceph" ]; then
-    source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
-    source ${DRIVER_PATH}/../../datastore/libfs.sh
+exec_and_set_error "$SCP $ISO_FILE $DST" "Error copying context ISO to $DST"
+[ -n "$ERROR" ] && exit_error
 
-    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-    unset i j XPATH_ELEMENTS
-
-    while IFS= read -r -d '' element; do
-            XPATH_ELEMENTS[i++]="$element"
-            done < <(onedatastore show -x $DS_ID| $XPATH  \
-                                        /DATASTORE/TEMPLATE/BRIDGE_LIST \
-                                        /DATASTORE/TEMPLATE/POOL_NAME \
-                                        /DATASTORE/TEMPLATE/RBD_FORMAT \
-                                        /DATASTORE/TEMPLATE/CEPH_USER)
-
-    BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
-    POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
-    RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
-    CEPH_USER="${XPATH_ELEMENTS[j++]}"
-
-    if [ "$RBD_FORMAT" = "2" ]; then
-        FORMAT_OPT="--image-format 2"
-    fi
-
-    if [ -n "$CEPH_USER" ]; then
-        RBD="$RBD --id ${CEPH_USER}"
-    fi
-
-    DST_HOST=`get_destination_host $VM_ID`
-
-    if [ -z "$DST_HOST" ]; then
-        error_message "Datastore template missing 'BRIDGE_LIST' attribute."
-        exit -1
-    fi
-
-    RBD_SOURCE="${POOL_NAME}/one-${VM_ID}-context"
-
-    exec_and_set_error "cat $ISO_FILE | $SSH $DST_HOST $RBD import $FORMAT_OPT - $RBD_SOURCE" \
-                 "Error running rbd import of context for $VM_ID into $DST_HOST:$RBD_SOURCE"
-
-else
-    exec_and_set_error "$SCP $ISO_FILE $DST" "Error copying context ISO to $DST"
-    [ -n "$ERROR" ] && exit_error
-
-    # Creates symbolic link to add a .iso suffix, needed for VMware CDROMs
-    ssh_exec_and_log $DST_HOST "$LN -sf $DST_PATH $DST_PATH.iso" "Error creating ISO symbolic link"
-fi
+# Creates symbolic link to add a .iso suffix, needed for VMware CDROMs
+ssh_exec_and_log $DST_HOST "$LN -sf $DST_PATH $DST_PATH.iso" "Error creating ISO symbolic link"
 
 rm -rf $ISO_DIR > /dev/null 2>&1
 
