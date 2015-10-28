@@ -74,13 +74,11 @@ while IFS= read -r -d '' element; do
         done < <(onevm show -x $VMID | $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/BRIDGE_LIST \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/POOL_NAME \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
-BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
 
@@ -94,12 +92,6 @@ fi
 
 if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
-fi
-
-DST_HOST=`get_destination_host $VMID`
-if [ -z "$DST_HOST" ]; then
-    error_message "Datastore template missing 'BRIDGE_LIST' attribute."
-    exit -1
 fi
 
 RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
