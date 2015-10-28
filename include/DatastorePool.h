@@ -26,7 +26,7 @@ using namespace std;
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db);
+    DatastorePool(SqlDB * db, const vector<const Attribute *>& _inherit_attrs);
 
     ~DatastorePool(){};
 
@@ -189,7 +189,20 @@ public:
         return PoolSQL::list(oids, Datastore::table);
      }
 
+     /**
+      *  Adds to the disk the datastore inherit attributes and conf values
+      *    @param ds_id of the datastore to use
+      *    @para disk vector attribute for the disk
+      *
+      *    @return -1 if the DS does not exists
+      */
+    int disk_attribute(int ds_id, VectorAttribute * disk);
+
 private:
+    /**
+     * Datastore attributes to be inherited into the VM disk
+     */
+    vector<string> inherit_attrs;
 
     /**
      *  Factory method to produce objects

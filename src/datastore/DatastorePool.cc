@@ -38,11 +38,23 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-DatastorePool::DatastorePool(SqlDB * db):
-                        PoolSQL(db, Datastore::table, true, true)
+DatastorePool::DatastorePool(
+        SqlDB * db,
+        const vector<const Attribute *>& _inherit_attrs) :
+    PoolSQL(db, Datastore::table, true, true)
+
 {
     ostringstream oss;
     string        error_str;
+
+    vector<const Attribute *>::const_iterator it;
+
+    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    {
+        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
+
+        inherit_attrs.push_back(sattr->value());
+    }
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
@@ -261,3 +273,20 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
     return rc;
 }
+
+int DatastorePool::disk_attribute(int ds_id, VectorAttribute * disk)
+{
+    Datastore * ds = get(ds_id, true);
+
+    if (ds == 0)
+    {
+        return -1;
+    }
+
+    ds->disk_attribute(disk, inherit_attrs);
+
+    ds->unlock();
+
+    return 0;
+}
+
