@@ -602,9 +602,9 @@ define(function(require) {
           '<a href="#" class="close" style="top: 20px">&times;</a>' +
         '</div>');
 
-      ProvisionQuotaWidget.setup(context);
+      $(".provision_vdc_user_confirm_action", context).foundation('slider', 'reflow');
 
-      $(document).foundation();
+      ProvisionQuotaWidget.setup(context);
 
       var quotas_str = $(".provision_info_vdc_user", context).attr("quotas");
       if (quotas_str) {
