@@ -30,21 +30,23 @@
 /* ************************************************************************** */
 
 VirtualMachineManager::VirtualMachineManager(
-    VirtualMachinePool *            _vmpool,
-    HostPool *                      _hpool,
     time_t                          _timer_period,
     time_t                          _poll_period,
     bool                            _do_vm_poll,
     int                             _vm_limit,
     vector<const Attribute*>&       _mads):
         MadManager(_mads),
-        vmpool(_vmpool),
-        hpool(_hpool),
         timer_period(_timer_period),
         poll_period(_poll_period),
         do_vm_poll(_do_vm_poll),
         vm_limit(_vm_limit)
 {
+    Nebula& nd = Nebula::instance();
+
+    vmpool  = nd.get_vmpool();
+    hpool   = nd.get_hpool();
+    ds_pool = nd.get_dspool();
+
     am.addListener(this);
 };
 
@@ -363,9 +365,19 @@ string * VirtualMachineManager::format_message(
     const string& tm_command,
     const string& tm_command_rollback,
     const string& disk_target_path,
-    const string& tmpl)
+    const string& tmpl,
+    int ds_id)
 {
     ostringstream oss;
+
+    string ds_tmpl = "";
+    Datastore * ds = ds_pool->get(ds_id, true);
+
+    if ( ds != 0 )
+    {
+        ds->to_xml(ds_tmpl);
+        ds->unlock();
+    }
 
     oss << "<VMM_DRIVER_ACTION_DATA>"
         <<   "<HOST>"    << hostname << "</HOST>"
@@ -439,6 +451,7 @@ string * VirtualMachineManager::format_message(
     }
 
     oss << tmpl
+        << ds_tmpl
         << "</VMM_DRIVER_ACTION_DATA>";
 
     return one_util::base64_encode(oss.str());
@@ -504,7 +517,8 @@ void VirtualMachineManager::deploy_action(int vid)
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->deploy(vid, *drv_msg);
 
@@ -548,9 +562,11 @@ void VirtualMachineManager::save_action(
     VirtualMachine *                    vm;
     const VirtualMachineManagerDriver * vmd;
 
-    string        hostname, vnm_mad, checkpoint_file;
-    string        vm_tmpl;
-    string *      drv_msg;
+    string   hostname, vnm_mad, checkpoint_file;
+    string   vm_tmpl;
+    string * drv_msg;
+    int      ds_id;
+
     ostringstream os;
 
     // Get the VM from the pool
@@ -585,12 +601,14 @@ void VirtualMachineManager::save_action(
         hostname        = vm->get_previous_hostname();
         vnm_mad         = vm->get_previous_vnm_mad();
         checkpoint_file = vm->get_previous_checkpoint_file();
+        ds_id           = vm->get_previous_ds_id();
     }
     else
     {
         hostname        = vm->get_hostname();
         vnm_mad         = vm->get_vnm_mad();
         checkpoint_file = vm->get_checkpoint_file();
+        ds_id           = vm->get_ds_id();
     }
 
     // Invoke driver method
@@ -606,7 +624,8 @@ void VirtualMachineManager::save_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        ds_id);
 
     vmd->save(vid, *drv_msg);
 
@@ -688,7 +707,8 @@ void VirtualMachineManager::shutdown_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->shutdown(vid, *drv_msg);
 
@@ -765,7 +785,8 @@ void VirtualMachineManager::reboot_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->reboot(vid, *drv_msg);
 
@@ -837,7 +858,8 @@ void VirtualMachineManager::reset_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->reset(vid, *drv_msg);
 
@@ -910,7 +932,8 @@ void VirtualMachineManager::cancel_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->cancel(vid, *drv_msg);
 
@@ -988,7 +1011,8 @@ void VirtualMachineManager::cancel_previous_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->cancel(vid, *drv_msg);
 
@@ -1089,7 +1113,8 @@ void VirtualMachineManager::cleanup_action(
         os.str(),
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->cleanup(vid, *drv_msg);
 
@@ -1178,7 +1203,8 @@ void VirtualMachineManager::cleanup_previous_action(
         os.str(),
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->cleanup(vid, *drv_msg);
 
@@ -1259,7 +1285,8 @@ void VirtualMachineManager::migrate_action(
         os.str(),
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_previous_ds_id());
 
     vmd->migrate(vid, *drv_msg);
 
@@ -1342,7 +1369,8 @@ void VirtualMachineManager::restore_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->restore(vid, *drv_msg);
 
@@ -1420,7 +1448,8 @@ void VirtualMachineManager::poll_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->poll(vid, *drv_msg);
 
@@ -1597,7 +1626,8 @@ void VirtualMachineManager::timer_action()
             "",
             "",
             "",
-            vm->to_xml(vm_tmpl));
+            vm->to_xml(vm_tmpl),
+            vm->get_ds_id());
 
         vmd->poll(*it, *drv_msg);
 
@@ -1713,7 +1743,8 @@ void VirtualMachineManager::attach_action(
         prolog_cmd,
         epilog_cmd,
         disk_path,
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
 
     vmd->attach(vid, *drv_msg);
@@ -1834,7 +1865,8 @@ void VirtualMachineManager::detach_action(
         epilog_cmd,
         "",
         disk_path,
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->detach(vid, *drv_msg);
 
@@ -1916,7 +1948,8 @@ void VirtualMachineManager::snapshot_create_action(int vid)
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->snapshot_create(vid, *drv_msg);
 
@@ -1994,7 +2027,8 @@ void VirtualMachineManager::snapshot_revert_action(int vid)
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->snapshot_revert(vid, *drv_msg);
 
@@ -2072,7 +2106,8 @@ void VirtualMachineManager::snapshot_delete_action(int vid)
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->snapshot_delete(vid, *drv_msg);
 
@@ -2187,7 +2222,8 @@ void VirtualMachineManager::disk_snapshot_create_action(int vid)
         snap_cmd,
         snap_cmd_rollback,
         disk_path,
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->disk_snapshot_create(vid, *drv_msg);
 
@@ -2301,7 +2337,8 @@ void VirtualMachineManager::disk_snapshot_revert_action(int vid)
         snap_cmd,
         "",
         disk_path,
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->disk_snapshot_revert(vid, *drv_msg);
 
@@ -2386,7 +2423,8 @@ void VirtualMachineManager::attach_nic_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->attach_nic(vid, *drv_msg);
 
@@ -2466,7 +2504,8 @@ void VirtualMachineManager::detach_nic_action(
         "",
         "",
         "",
-        vm->to_xml(vm_tmpl));
+        vm->to_xml(vm_tmpl),
+        vm->get_ds_id());
 
     vmd->detach_nic(vid, *drv_msg);
 

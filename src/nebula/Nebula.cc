@@ -629,8 +629,6 @@ void Nebula::start(bool bootstrap_only)
         poll_period = monitor_period * 2.5;
 
         vmm = new VirtualMachineManager(
-            vmpool,
-            hpool,
             timer_period,
             poll_period,
             do_poll,
