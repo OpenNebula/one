@@ -113,6 +113,7 @@ int LibVirtDriver::deployment_description_kvm(
     const VectorAttribute * context;
 
     string  type            = "";
+    string  disk_type       = "";
     string  target          = "";
     string  bus             = "";
     string  ro              = "";
@@ -438,6 +439,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
 
         type            = disk->vector_value("TYPE");
+        disk_type       = disk->vector_value("DISK_TYPE");
         target          = disk->vector_value("TARGET");
         ro              = disk->vector_value("READONLY");
         driver          = disk->vector_value("DRIVER");
@@ -513,17 +515,15 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        one_util::toupper(type);
-
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
-        else if ( type == "RBD" || type == "RBD_CDROM" )
+        else if ( type == "RBD" || type == "RBD_CDROM" || disk_type == "RBD" )
         {
-            if (type == "RBD")
+            if (type == "RBD" || disk_type == "RBD")
             {
                 file << "\t\t<disk type='network' device='disk'>" << endl;
             }
