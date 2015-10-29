@@ -18,6 +18,7 @@ define(function(require){
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebula = require('opennebula');
+  var OpenNebulaImage = require('opennebula/image');
   var RangeSlider = require('utils/range-slider');
 
   return {
@@ -110,7 +111,9 @@ define(function(require){
             diskContext.data('original_size', sizeGB);
 
             var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
-            var enabled = !(disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES");
+            var enabled =
+              !( (disk.PERSISTENT && disk.PERSISTENT.toUpperCase() == "YES") ||
+                 (disk.TYPE && OpenNebulaImage.TYPES[disk.TYPE] == OpenNebulaImage.TYPES.CDROM) );
 
             RangeSlider.insert({
               'label': label,
