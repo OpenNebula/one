@@ -2093,7 +2093,7 @@ private:
     /**
      * Same as above but specifies the attribute name to handle old versions
      */
-    int get_public_clouds(const char * name, set<string> &clouds) const;
+    int get_public_clouds(const string& name, set<string> &clouds) const;
 
 
     /**
