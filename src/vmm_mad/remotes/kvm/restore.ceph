@@ -21,45 +21,41 @@ DRIVER_PATH=$(dirname $0)
 source $DRIVER_PATH/kvmrc
 source $DRIVER_PATH/../../scripts_common.sh
 
-DEPLOY_ID=$1
-FILE=$2
+FILE=$1
+HOST=$2
+DEPLOY_ID=$3
 
 VM_ID=$4
 DS_ID=$5
 
-if [ -f "$FILE" ]; then
-    log "Moving old checkpoint file $FILE"
-    epoch=`date +%s`
-
-    exec_and_log "mv $FILE $FILE.$epoch" \
-        "Could not move $FILE to $FILE.$epoch"
-fi
-
-touch "$FILE"
-chmod 666 "$FILE"
-
-exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE" \
-    "Could not save $DEPLOY_ID to $FILE"
-
 #-------------------------------------------------------------------------------
-# Handle DRV_MESSAGE coming from stdin
+# Ceph
 #-------------------------------------------------------------------------------
 
-# Exit if no stdin data is available
-if [ -t 0 ]; then
-    exit 0
-fi
+source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
-# There is data in stdin, read it
-DRV_MESSAGE=$(cat)
-
-# The data is the driver message. Extracting the System DS TM_MAD
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
 
-# If there is a specific hook for this TM_MAD call it:
-SAVE_TM_FILE="${DRIVER_PATH}/save.${TM_MAD}"
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(cat | $XPATH \
+                    /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
+                    /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF \
+                    /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME)
 
-if [ -x "$SAVE_TM_FILE" ]; then
-    echo "$DRV_MESSAGE" | $SAVE_TM_FILE $@
+CEPH_USER="${XPATH_ELEMENTS[j++]}"
+CEPH_CONF="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+
+if [ -n "$CEPH_USER" ]; then
+    RBD="$RBD --id ${CEPH_USER}"
 fi
+
+if [ -n "$CEPH_CONF" ]; then
+    RBD="$RBD --conf ${CEPH_CONF}"
+fi
+
+RBD_SOURCE="${POOL_NAME}/one-sys-${VM_ID}-checkpoint"
+
+exec_and_log "$RBD export $RBD_SOURCE $FILE" "Error exporting checkpoint into from $RBD_SOURCE to $FILE"
+exec_and_log "$RBD rm $RBD_SOURCE" "Error removing checkpoint $RBD_SOURCE"
