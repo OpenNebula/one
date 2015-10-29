@@ -4220,7 +4220,7 @@ void VirtualMachine::clear_template_monitor_error()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_public_clouds(const char * pname, set<string> &clouds) const
+int VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) const
 {
     vector<Attribute*>                  attrs;
     vector<Attribute*>::const_iterator  it;
@@ -4228,6 +4228,12 @@ int VirtualMachine::get_public_clouds(const char * pname, set<string> &clouds) c
     VectorAttribute *   vatt;
 
     user_obj_template->get(pname, attrs);
+
+    if ( !attrs.empty() && pname == "EC2" )
+    {
+	clouds.insert("ec2");
+	return 1;
+    }
 
     for (it = attrs.begin(); it != attrs.end(); it++)
     {
