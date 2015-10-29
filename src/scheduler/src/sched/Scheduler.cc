@@ -635,9 +635,7 @@ static bool match_system_ds(AclXML * acls, VirtualMachineXML* vm, long long vdis
     {
         PoolObjectAuth dsperms;
 
-        dsperms.oid      = ds->get_oid();
-        dsperms.cid      = ds->get_cid();
-        dsperms.obj_type = PoolObjectSQL::DATASTORE;
+        ds->get_permissions(dsperms);
 
         // Only include the VM group ID
 
