@@ -126,6 +126,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_host       = "";
     string  ceph_secret     = "";
     string  ceph_user       = "";
+    string  pool_name       = "";
     string  sheepdog_host   = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
@@ -452,6 +453,7 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_host       = disk->vector_value("CEPH_HOST");
         ceph_secret     = disk->vector_value("CEPH_SECRET");
         ceph_user       = disk->vector_value("CEPH_USER");
+        pool_name       = disk->vector_value("POOL_NAME");
 
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
@@ -532,9 +534,27 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='rbd' name='" << source;
+            file << "\t\t\t<source protocol='rbd' name='";
 
-            if ( clone == "YES" )
+            if ( !source.empty() )
+            {
+                file << source;
+            }
+            else
+            {
+                if ( !pool_name.empty() )
+                {
+                    file << pool_name;
+                }
+                else
+                {
+                    file << "one";
+                }
+
+                file << "/one-sys";
+            }
+
+            if ( clone == "YES" || source.empty() )
             {
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }
