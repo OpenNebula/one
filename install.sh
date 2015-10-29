@@ -1104,7 +1104,10 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/snap_delete \
                  src/tm_mad/ceph/snap_revert \
                  src/tm_mad/ceph/failmigrate \
-                 src/tm_mad/ceph/delete"
+                 src/tm_mad/ceph/delete \
+                 src/tm_mad/ceph/context \
+                 src/tm_mad/ceph/mkimage \
+                 src/tm_mad/ceph/mkswap"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \
