@@ -351,7 +351,7 @@ define(function(require) {
           $("#ENCODE_START_SCRIPT", context).prop('checked', 'checked');
           $("#START_SCRIPT", context).val(atob(value));
         } else if ("START_SCRIPT" ==  key) {
-          $("#START_SCRIPT", context).val(value);
+          $("#START_SCRIPT", context).val(TemplateUtils.escapeDoubleQuotes(TemplateUtils.htmlDecode(value)));
         } else {
           customTagsJSON[key] = value;
         }
