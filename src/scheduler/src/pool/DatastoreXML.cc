@@ -37,6 +37,22 @@ void DatastoreXML::init_attributes()
 {
     xpath(oid,        "/DATASTORE/ID",          -1);
     xpath(cluster_id, "/DATASTORE/CLUSTER_ID",  -1);
+
+    xpath(uid,      "/DATASTORE/UID",  -1);
+    xpath(gid,      "/DATASTORE/GID",  -1);
+
+    xpath(owner_u, "/DATASTORE/PERMISSIONS/OWNER_U", 0);
+    xpath(owner_m, "/DATASTORE/PERMISSIONS/OWNER_M", 0);
+    xpath(owner_a, "/DATASTORE/PERMISSIONS/OWNER_A", 0);
+
+    xpath(group_u, "/DATASTORE/PERMISSIONS/GROUP_U", 0);
+    xpath(group_m, "/DATASTORE/PERMISSIONS/GROUP_M", 0);
+    xpath(group_a, "/DATASTORE/PERMISSIONS/GROUP_A", 0);
+
+    xpath(other_u, "/DATASTORE/PERMISSIONS/OTHER_U", 0);
+    xpath(other_m, "/DATASTORE/PERMISSIONS/OTHER_M", 0);
+    xpath(other_a, "/DATASTORE/PERMISSIONS/OTHER_A", 0);
+
     xpath(free_mb,    "/DATASTORE/FREE_MB",     0);
 
     long long total_mb, used_mb, limit_mb;
@@ -101,3 +117,25 @@ bool DatastoreXML::test_capacity(long long vm_disk_mb, string & error) const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void DatastoreXML::get_permissions(PoolObjectAuth& auth)
+{
+    auth.obj_type = PoolObjectSQL::DATASTORE;
+
+    auth.oid = oid;
+    auth.uid = uid;
+    auth.gid = gid;
+    auth.cid = cluster_id;
+
+    auth.owner_u = owner_u;
+    auth.owner_m = owner_m;
+    auth.owner_a = owner_a;
+
+    auth.group_u = group_u;
+    auth.group_m = group_m;
+    auth.group_a = group_a;
+
+    auth.other_u = other_u;
+    auth.other_m = other_m;
+    auth.other_a = other_a;
+}
