@@ -426,6 +426,19 @@ int ImagePool::acquire_disk(int               vm_id,
             return -1;
         }
 
+        if (has_size && img->get_type() == Image::CDROM && size != img->get_size())
+        {
+            img->unlock();
+
+            imagem->release_image(vm_id, iid, false);
+
+            oss << "SIZE attribute is not supported for CDROM image ["
+                << img->get_oid() << "].";
+            error_str = oss.str();
+
+            return -1;
+        }
+
         if (has_size && size < img->get_size())
         {
             img->unlock();
