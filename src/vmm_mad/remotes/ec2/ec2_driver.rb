@@ -443,10 +443,9 @@ private
     # Retrieve the vm information from the EC2 instance
     def parse_poll(instance)
         begin
-            info =  "#{POLL_ATTRIBUTE[:memory]}=0 " \
-                    "#{POLL_ATTRIBUTE[:cpu]}=0 " \
-                    "#{POLL_ATTRIBUTE[:nettx]}=0 " \
-                    "#{POLL_ATTRIBUTE[:netrx]}=0 "
+            cloudwatch_str = cloudwatch_monitor_info(instance.instance_id)
+
+            info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
 
             state = ""
             if !instance.exists?
@@ -611,6 +610,68 @@ private
               " #{instance.id}, AMI #{instance.image_id}\"\n"
 
         str
+    end
+
+    # Extract monitoring information from Cloud Watch
+    # CPU, NETTX and NETRX
+    def cloudwatch_monitor_info(id)
+        cw=AWS::CloudWatch::Client.new
+
+        # CPU
+        begin
+            cpu = get_cloudwatch_metric(cw,
+                                        "CPUUtilization",
+                                        ["Average"],
+                                         "Percent",
+                                         id)[:datapoints][-1][:average]
+        rescue  # 
+            cpu = 0
+        end
+
+
+        # NETTX
+        nettx = 0
+        begin
+            nettx_dp = get_cloudwatch_metric(cw,
+                                             "NetworkOut",
+                                             ["Sum"],
+                                             "Bytes",
+                                             id)[:datapoints]
+            nettx_dp.each{|dp|
+                nettx += dp[:sum].to_i
+            }
+        rescue   
+        end
+
+        # NETRX
+        netrx = 0
+        begin
+            netrx_dp = get_cloudwatch_metric(cw,
+                                             "NetworkIn",
+                                             ["Sum"],
+                                             "Bytes",
+                                             id)[:datapoints]
+            netrx_dp.each{|dp|
+                netrx += dp[:sum].to_i
+            }
+        rescue   
+        end
+
+        "CPU=#{cpu.to_s} NETTX=#{nettx.to_s} NETRX=#{netrx.to_s} "
+    end
+
+    # Get metric from AWS/EC2 namespace from the last 10 minutes
+    def get_cloudwatch_metric(cw, metric_name, statistics, units, id)
+       options={:namespace=>"AWS/EC2",
+                :metric_name=>metric_name,
+                :start_time=> (Time.now - 60*10).iso8601,
+                :end_time=> (Time.now).iso8601,
+                :period=>60,
+                :statistics=>statistics,
+                :unit=>units,
+                :dimensions=>[{:name=>"InstanceId", :value=>id}]}
+
+        cw.get_metric_statistics(options)
     end
 end
 
