@@ -2084,17 +2084,18 @@ private:
      */
     int get_public_clouds(set<string> &clouds) const
     {
-        int num = get_public_clouds("PUBLIC_CLOUD", clouds);
-        num += get_public_clouds("EC2", clouds);
+        get_public_clouds("PUBLIC_CLOUD", clouds);
+        get_public_clouds("EC2", clouds);
 
-        return num;
+        return clouds.size();
     };
 
     /**
      * Same as above but specifies the attribute name to handle old versions
+     * @param name Attribute name
+     * @param clouds list to store the cloud hypervisors in the template
      */
-    int get_public_clouds(const string& name, set<string> &clouds) const;
-
+    void get_public_clouds(const string& name, set<string> &clouds) const;
 
     /**
      *  Parse the public cloud attributes and subsititue variable definition
