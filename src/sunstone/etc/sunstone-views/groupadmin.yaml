@@ -8,12 +8,43 @@ features:
 tabs:
     provision-tab:
         panel_tabs:
+            vm_info_tab: false
+            vm_capacity_tab: false
+            vm_hotplugging_tab: false
+            vm_network_tab: false
+            vm_snapshot_tab: false
+            vm_placement_tab: false
+            vm_actions_tab: false
+            vm_template_tab: false
+            vm_log_tab: false
+        provision_tabs:
             users: true
             flows: true
             templates: true
-        actions:
+        actions: &provisionactions
             Template.chmod: true
             Template.delete: true
+            VM.resume: true
+            VM.reboot: true
+            VM.reboot_hard: true
+            VM.poweroff: true
+            VM.poweroff_hard: true
+            VM.undeploy: false
+            VM.undeploy_hard: false
+            VM.shutdown_hard: true
+            VM.delete: true
+            VM.resize: false
+            VM.attachdisk: false
+            VM.detachdisk: false
+            VM.disk_saveas: false
+            VM.attachnic: false
+            VM.detachnic: false
+            VM.snapshot_create: false
+            VM.snapshot_revert: false
+            VM.snapshot_delete: false
+            VM.disk_snapshot_create: false
+            VM.disk_snapshot_revert: false
+            VM.disk_snapshot_delete: false
         dashboard:
             quotas: false
             vms: false
@@ -33,3 +64,33 @@ tabs:
             user_showback_tab: true
         actions:
             User.quotas_dialog: false
+    vms-tab:
+        actions: *provisionactions
+    images-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Datastore
+            #- 6         # Size
+            - 7        # Type
+            #- 8         # Registration time
+            #- 9        # Persistent
+            - 10        # Status
+            - 11        # #VMs
+            #- 12       # Target
+    vnets-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Owner
+            - 3         # Group
+            - 4         # Name
+            - 5         # Reservation
+            - 6         # Cluster
+            #- 7         # Bridge
+            - 8         # Leases
+            #- 9         # VLAN ID
+

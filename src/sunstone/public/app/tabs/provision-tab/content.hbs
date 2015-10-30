@@ -20,17 +20,17 @@
 {{> tabs/provision-tab/vms/create}}
 <div class="provision_vms_list_section hidden section_content"></div>
 
-{{#isTabPanelEnabled "provision-tab" "templates"}}
+{{#isProvisionTabEnabled "provision-tab" "templates"}}
 <div class="provision_templates_list_section hidden section_content"></div>
-{{/isTabPanelEnabled}}
+{{/isProvisionTabEnabled}}
 
-{{#isTabPanelEnabled "provision-tab" "users"}}
+{{#isProvisionTabEnabled "provision-tab" "users"}}
 {{> tabs/provision-tab/group/info}}
 {{> tabs/provision-tab/users/create}}
 <div class="provision_users_list_section hidden section_content"></div>
-{{/isTabPanelEnabled}}
+{{/isProvisionTabEnabled}}
 
-{{#isTabPanelEnabled "provision-tab" "flows"}}
+{{#isProvisionTabEnabled "provision-tab" "flows"}}
 {{> tabs/provision-tab/flows/create}}
 <div class="provision_flows_list_section hidden section_content"></div>
-{{/isTabPanelEnabled}}
+{{/isProvisionTabEnabled}}

@@ -16,6 +16,7 @@
 
 define(function(require) {
   require('foundation.alert');
+  var Sunstone = require('sunstone');
   var OpenNebula = require('opennebula');
   var OpenNebulaVM = require('opennebula/vm');
   var Locale = require('utils/locale');
@@ -27,6 +28,7 @@ define(function(require) {
 
   var TemplateVmsList = require('hbs!./list');
 
+  var TAB_ID = require('../tabId');
   var _accordionId = 0;
 
   return {
@@ -247,6 +249,9 @@ define(function(require) {
         },
         error: Notifier.onError,
         success: function(request, response){
+          $(".provision-right-info").html("");
+          Sunstone.insertPanels(TAB_ID, response, TAB_ID, $(".provision-right-info", context));
+
           var data = response.VM
           var state = get_provision_vm_state(data);
 
@@ -254,6 +259,7 @@ define(function(require) {
             case "deploying":
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).show();
               $(".provision_shutdownhard_confirm_button", context).hide();
@@ -265,6 +271,7 @@ define(function(require) {
             case "running":
               $(".provision_reboot_confirm_button", context).show();
               $(".provision_poweroff_confirm_button", context).show();
+              $(".provision_undeploy_confirm_button", context).show();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).hide();
               $(".provision_shutdownhard_confirm_button", context).show();
@@ -276,10 +283,23 @@ define(function(require) {
             case "off":
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).show();
-              $(".provision_delete_confirm_button", context).show();
-              $(".provision_shutdownhard_confirm_button", context).hide();
+              $(".provision_delete_confirm_button", context).hide();
+              $(".provision_shutdownhard_confirm_button", context).show();
               $(".provision_snapshot_button", context).show();
+              $(".provision_vnc_button", context).hide();
+              $(".provision_snapshot_button_disabled", context).hide();
+              $(".provision_vnc_button_disabled", context).show();
+              break;
+            case "undeployed":
+              $(".provision_reboot_confirm_button", context).hide();
+              $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
+              $(".provision_poweron_button", context).show();
+              $(".provision_delete_confirm_button", context).hide();
+              $(".provision_shutdownhard_confirm_button", context).show();
+              $(".provision_snapshot_button", context).hide();
               $(".provision_vnc_button", context).hide();
               $(".provision_snapshot_button_disabled", context).hide();
               $(".provision_vnc_button_disabled", context).show();
@@ -288,6 +308,7 @@ define(function(require) {
             case "error":
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).show();
               $(".provision_shutdownhard_confirm_button", context).hide();
@@ -300,6 +321,7 @@ define(function(require) {
               color = 'secondary';
               $(".provision_reboot_confirm_button", context).hide();
               $(".provision_poweroff_confirm_button", context).hide();
+              $(".provision_undeploy_confirm_button", context).hide();
               $(".provision_poweron_button", context).hide();
               $(".provision_delete_confirm_button", context).show();
               $(".provision_shutdownhard_confirm_button", context).hide();
@@ -392,27 +414,27 @@ define(function(require) {
                       monitor_resources : "MONITORING/CPU",
                       labels : "Real CPU",
                       humanize_figures : false,
-                      div_graph : $(".vm_cpu_graph", context)
+                      div_graph : $(".vm_cpu_provision_graph", context)
                   },
                   {
                       monitor_resources : "MONITORING/MEMORY",
                       labels : "Real MEM",
                       humanize_figures : true,
-                      div_graph : $(".vm_memory_graph", context)
+                      div_graph : $(".vm_memory_provision_graph", context)
                   },
                   {
                       labels : "Network reception",
                       monitor_resources : "MONITORING/NETRX",
                       humanize_figures : true,
                       convert_from_bytes : true,
-                      div_graph : $(".vm_net_rx_graph", context)
+                      div_graph : $(".vm_net_rx_provision_graph", context)
                   },
                   {
                       labels : "Network transmission",
                       monitor_resources : "MONITORING/NETTX",
                       humanize_figures : true,
                       convert_from_bytes : true,
-                      div_graph : $(".vm_net_tx_graph", context)
+                      div_graph : $(".vm_net_tx_provision_graph", context)
                   },
                   {
                       labels : "Network reception speed",
@@ -421,7 +443,7 @@ define(function(require) {
                       convert_from_bytes : true,
                       y_sufix : "B/s",
                       derivative : true,
-                      div_graph : $(".vm_net_rx_speed_graph", context)
+                      div_graph : $(".vm_net_rx_speed_provision_graph", context)
                   },
                   {
                       labels : "Network transmission speed",
@@ -430,7 +452,7 @@ define(function(require) {
                       convert_from_bytes : true,
                       y_sufix : "B/s",
                       derivative : true,
-                      div_graph : $(".vm_net_tx_speed_graph", context)
+                      div_graph : $(".vm_net_tx_speed_provision_graph", context)
                   }
               ];
 
@@ -446,7 +468,7 @@ define(function(require) {
       })
     }
 
-    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       context.on("click", ".provision_snapshot_button", function(){
         $(".provision_confirm_action:first", context).html(
           '<div data-alert class="alert-box secondary radius">'+
@@ -582,6 +604,37 @@ define(function(require) {
         '</div>');
     });
 
+    context.on("click", ".provision_undeploy_confirm_button", function(){
+      $(".provision_confirm_action:first", context).html(
+        '<div data-alert class="alert-box secondary radius">'+
+          '<div class="row">'+
+          '<div class="large-11 columns">'+
+            '<span style="font-size: 14px; line-height: 20px">'+
+              Locale.tr("This action will power off this Virtual Machine and will be undeployed from the physical machine")+
+              '<br>'+
+              '<br>'+
+              Locale.tr("You can send the power off signal to the Virtual Machine (this is equivalent to execute the command from the console). If that doesn't effect your Virtual Machine, try to Power off the machine (this is equivalent to pressing the power off button in a physical computer).")+
+            '</span>'+
+          '</div>'+
+          '</div>'+
+          '<br>'+
+          '<div class="row">'+
+          '<div class="large-12 columns">'+
+            '<a href"#" class="provision_undeploy_button button radius right" style="margin-right: 15px">'+Locale.tr("Power off and undeploy")+'</a>'+
+            '<label class="left" style="margin-left: 25px">'+
+              '<input type="radio" name="provision_undeploy_radio" value="undeploy_hard" class="provision_undeploy_hard_radio">'+
+              ' <i class="fa fa-fw fa-bolt"/> '+Locale.tr("Power off and undeploy the VM")+
+            '</label>'+
+            '<label class="left" style="margin-left: 25px">'+
+              '<input type="radio" name="provision_undeploy_radio" value="undeploy" class="provision_undeploy_radio" checked>'+
+              ' <i class="fa fa-fw fa-power-off"/> '+Locale.tr("Send the power off signal and undeploy the VM")+
+            '</label>'+
+          '</div>'+
+          '</div>'+
+          '<a href="#" class="close" style="top: 20px">&times;</a>'+
+        '</div>');
+    });
+
     context.on("click", ".provision_reboot_confirm_button", function(){
       $(".provision_confirm_action:first", context).html(
         '<div data-alert class="alert-box secondary radius">'+
@@ -666,6 +719,29 @@ define(function(require) {
       var poweroff_action = $('input[name=provision_poweroff_radio]:checked').val()
 
       OpenNebula.VM[poweroff_action]({
+        data : {
+          id: vm_id
+        },
+        success: function(request, response){
+          update_provision_vm_info(vm_id, context);
+          button.removeAttr("disabled");
+        },
+        error: function(request, response){
+          Notifier.onError(request, response);
+          button.removeAttr("disabled");
+        }
+      })
+
+      return false;
+    });
+
+    context.on("click", ".provision_undeploy_button", function(){
+      var button = $(this);
+      button.attr("disabled", "disabled");
+      var vm_id = $(".provision_info_vm", context).attr("vm_id");
+      var undeploy_action = $('input[name=provision_undeploy_radio]:checked').val()
+
+      OpenNebula.VM[undeploy_action]({
         data : {
           id: vm_id
         },
@@ -933,10 +1009,14 @@ define(function(require) {
       case OpenNebulaVM.STATES.STOPPED:
       case OpenNebulaVM.STATES.SUSPENDED:
       case OpenNebulaVM.STATES.POWEROFF:
-      case OpenNebulaVM.STATES.UNDEPLOYED:
       case OpenNebulaVM.STATES.DONE:
         state_color = 'off';
         state_str = Locale.tr("OFF");
+
+        break;
+      case OpenNebulaVM.STATES.UNDEPLOYED:
+        state_color = 'undeployed';
+        state_str = Locale.tr("UNDEPLOYED");
 
         break;
       default:
