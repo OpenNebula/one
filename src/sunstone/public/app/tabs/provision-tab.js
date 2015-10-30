@@ -841,7 +841,7 @@ define(function(require) {
     provision_vdc_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
     provision_vdc_templates_datatable.fnFilter("^1$", 3, true, false);
 
-    if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+    if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
       ProvisionTemplatesList.updateDatatable(provision_saved_templates_datatable);
       provision_saved_templates_datatable.fnFilter("^(?!\-$)", 2, true, false);
       provision_saved_templates_datatable.fnFilter("^0$", 3, true, false);
@@ -969,12 +969,43 @@ define(function(require) {
     $(".alert-box-error", context).html("");
   }
 
+  var _panels = [
+    require('./vms-tab/panels/info'),
+    require('./vms-tab/panels/capacity'),
+    require('./vms-tab/panels/storage'),
+    require('./vms-tab/panels/network'),
+    require('./vms-tab/panels/snapshots'),
+    require('./vms-tab/panels/placement'),
+    require('./vms-tab/panels/actions'),
+    require('./vms-tab/panels/template'),
+    require('./vms-tab/panels/log')
+  ];
+
+
+  var _dialogs = [
+    //require('./vms-tab/dialogs/deploy'),
+    //require('./vms-tab/dialogs/migrate'),
+    require('./vms-tab/dialogs/resize'),
+    require('./vms-tab/dialogs/attach-disk'),
+    require('./vms-tab/dialogs/disk-snapshot'),
+    require('./vms-tab/dialogs/disk-saveas'),
+    require('./vms-tab/dialogs/attach-nic'),
+    require('./vms-tab/dialogs/snapshot'),
+    //require('./vms-tab/dialogs/vnc'),
+    //require('./vms-tab/dialogs/spice'),
+    //require('./vms-tab/dialogs/saveas-template')
+  ];
+
+  var Actions = require('./vms-tab/actions');
+
   var Tab = {
     tabId: TAB_ID,
     list_header: "",
-    actions: povision_actions,
+    actions: $.extend(povision_actions, Actions),
     content: TemplateContent(),
-    setup: _setup
+    setup: _setup,
+    panels: _panels,
+    dialogs: _dialogs
   };
 
   return Tab;
@@ -993,7 +1024,7 @@ define(function(require) {
 
         ProvisionVmsList.generate($(".provision_vms_list_section"), {active: true});
 
-        if (Config.isTabPanelEnabled("provision-tab", "templates")) {
+        if (Config.isProvisionTabEnabled("provision-tab", "templates")) {
           ProvisionTemplatesList.generate($(".provision_templates_list_section"), {active: true});
         }
 
