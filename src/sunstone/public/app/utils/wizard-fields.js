@@ -39,13 +39,19 @@ define(function(require) {
             (field.attr("type") != "checkbox" || field.prop("checked")) &&
             (field.attr("type") != "radio" || field.prop("checked"))) {
         var field_name = field.attr('wizard_field');
-        templateJSON[field_name] = field.val();
+
+        if (field.attr('wizard_field_64') == "true"){
+          templateJSON[field_name] = btoa(field.val());
+        } else {
+          templateJSON[field_name] = field.val();
+        }
       }
     });
 
     return templateJSON;
   }
 
+  // TODO: wizard_field_64 for fill method
   function _fillWizardFields(context, templateJSON) {
     var fields = $('[wizard_field]', context);
 

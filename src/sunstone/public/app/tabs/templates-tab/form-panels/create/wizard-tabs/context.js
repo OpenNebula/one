@@ -171,6 +171,7 @@ define(function(require) {
           '<td>' +
             '<select class="user_input_type" >' +
               '<option value="text">' + Locale.tr("text") + '</option>' +
+              '<option value="text64">' + Locale.tr("text (base64)") + '</option>' +
               '<option value="password">' + Locale.tr("password") + '</option>' +
             '</select>' +
           '</td>' +
