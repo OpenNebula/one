@@ -87,8 +87,7 @@ define(function(require) {
           network_attrs.push(attrs)
           break;
         case "text":
-          text_attrs.push(attrs)
-          break;
+        case "text64":
         case "password":
           text_attrs.push(attrs)
           break;
@@ -154,16 +153,30 @@ define(function(require) {
       div.append('<div class="instantiate_user_inputs"/>');
 
       $.each(text_attrs, function(index, custom_attr) {
-            $(".instantiate_user_inputs", div).append(
-              '<div class="row">' +
-                '<div class="large-12 large-centered columns">' +
-                  '<label>' +
-                    TemplateUtils.htmlDecode(custom_attr.description) +
-                    '<input type="' + custom_attr.type + '" wizard_field="' + custom_attr.name + '" required/>' +
-                  '</label>' +
-                '</div>' +
-              '</div>');
-          });
+        var input;
+
+        switch (custom_attr.type) {
+          case "text":
+            input = '<textarea type="text" rows="1" wizard_field="' + custom_attr.name + '" required/>';
+            break;
+          case "text64":
+            input = '<textarea type="text" rows="1" wizard_field_64="true" wizard_field="' + custom_attr.name + '" required/>';
+            break;
+          case "password":
+            input = '<input type="password" wizard_field="' + custom_attr.name + '" required/>';
+            break;
+        }
+
+        $(".instantiate_user_inputs", div).append(
+          '<div class="row">' +
+            '<div class="large-12 large-centered columns">' +
+              '<label>' +
+                TemplateUtils.htmlDecode(custom_attr.description) +
+                input +
+              '</label>' +
+            '</div>' +
+          '</div>');
+      });
     }
 
     return (network_attrs.length > 0 || text_attrs.length > 0);
