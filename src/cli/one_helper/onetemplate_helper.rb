@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'one_helper'
+require 'base64'
 
 class OneTemplateHelper < OpenNebulaHelper::OneHelper
     VM_NAME={
@@ -138,6 +139,8 @@ EOT
             case type
             when 'text'
                 answer = STDIN.readline.chop
+            when 'text64'
+                answer = Base64::encode64(STDIN.readline.chop).strip.delete("\n")
             when 'password'
                 answer = OpenNebulaHelper::OneHelper.get_password
             else
