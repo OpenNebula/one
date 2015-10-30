@@ -249,7 +249,6 @@ define(function(require) {
         },
         error: Notifier.onError,
         success: function(request, response){
-          $(".provision-right-info").html("");
           Sunstone.insertPanels(TAB_ID, response, TAB_ID, $(".provision-right-info", context));
 
           var data = response.VM
