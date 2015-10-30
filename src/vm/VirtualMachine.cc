@@ -4220,7 +4220,7 @@ void VirtualMachine::clear_template_monitor_error()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) const
+void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) const
 {
     vector<Attribute*>                  attrs;
     vector<Attribute*>::const_iterator  it;
@@ -4232,7 +4232,6 @@ int VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) 
     if ( !attrs.empty() && pname == "EC2" )
     {
 	clouds.insert("ec2");
-	return 1;
     }
 
     for (it = attrs.begin(); it != attrs.end(); it++)
@@ -4251,8 +4250,6 @@ int VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) 
             clouds.insert(type);
         }
     }
-
-    return clouds.size();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -4276,7 +4273,9 @@ int VirtualMachine::parse_public_clouds(const char * pname, string& error)
 
         if ( vatt == 0 )
         {
-            error = "Wrong format for PUBLIC_CLOUD attribute";
+            ostringstream oss;
+            oss << "Wrong format for " << pname << " attribute";
+            error = oss.str();
             rc    = -1;
             break;
         }
@@ -4285,7 +4284,9 @@ int VirtualMachine::parse_public_clouds(const char * pname, string& error)
 
         if ( str == 0 )
         {
-            error = "Internal error processing PUBLIC_CLOUD";
+            ostringstream oss;
+            oss << "Internal error processing " << pname;
+            error = oss.str();
             rc    = -1;
             break;
         }
