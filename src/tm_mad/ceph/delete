@@ -151,7 +151,10 @@ DELETE_CMD=$(cat <<EOF
 
     if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
         rbd_rm_r \$(rbd_top_parent $RBD_SRC)
-        [ -n "$RBD_SNAP" ] && rbd_rm_snap $SRC $RBD_SNAP
+
+        if [ -n "$RBD_SNAP" ]; then
+            rbd_rm_snap $SRC $RBD_SNAP
+        fi
     else
         $RBD rm $RBD_SRC
     fi
