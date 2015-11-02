@@ -88,7 +88,7 @@ define(function(require){
               var cost = 0;
               $('.range-slider', disksContext).each(function(){
                 if ($(this).attr('data-slider') > 0) {
-                  cost += $(this).attr('data-slider') * disk_cost
+                  cost += $(this).attr('data-slider') * 1024 * disk_cost;
                 }
               })
               $(".cost_value", disksContext).html(cost.toFixed(2));
