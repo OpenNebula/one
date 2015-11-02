@@ -247,7 +247,7 @@ define(function(require) {
       var capacity = template_json.VMTEMPLATE.TEMPLATE;
       var cost = 0;
       if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
-        $(".provision_create_service_cost_div").show();
+        $(".provision_create_service_cost_div", context).show();
 
         if (capacity.CPU && capacity.CPU_COST) {
           cost += capacity.CPU * capacity.CPU_COST
@@ -263,7 +263,7 @@ define(function(require) {
         var cost_value = cost*parseInt(role_template.cardinality);
         $(".cost_value", context).html(cost_value.toFixed(2));
       } else {
-        $(".provision_create_service_cost_div").hide();
+        $(".provision_create_service_cost_div", context).hide();
       }
 
       if (max_vms > min_vms) {
