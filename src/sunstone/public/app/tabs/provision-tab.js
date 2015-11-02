@@ -246,7 +246,7 @@ define(function(require) {
 
       var capacity = template_json.VMTEMPLATE.TEMPLATE;
       var cost = 0;
-      if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
+      if ((capacity.CPU_COST || capacity.MEMORY_COST || capacity.DISK_COST) && Config.isFeatureEnabled("showback")) {
         $(".provision_create_service_cost_div", context).show();
 
         if (capacity.CPU && capacity.CPU_COST) {
@@ -257,6 +257,28 @@ define(function(require) {
         if (capacity.MEMORY && capacity.MEMORY_COST) {
           cost += capacity.MEMORY * capacity.MEMORY_COST
           $(".cost_value", context).data("MEMORY_COST", capacity.MEMORY_COST);
+        }
+
+        if (capacity.DISK_COST) {
+          var template_disk = capacity.DISK;
+          var disks = [];
+          if ($.isArray(template_disk)) {
+            disks = template_disk;
+          } else if (!$.isEmptyObject(template_disk)) {
+            disks = [template_disk];
+          }
+
+          $(".cost_value", context).data("DISK_COST", capacity.DISK_COST);
+
+          $.each(disks, function(i,disk){
+            if (disk.SIZE) {
+              cost += capacity.DISK_COST * disk.SIZE;
+            }
+
+            if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {
+              cost += capacity.DISK_COST * disk.DISK_SNAPSHOT_TOTAL_SIZE;
+            }
+          });
         }
 
         $(".provision_create_service_cost_div", context).data("cost", cost)
@@ -364,7 +386,7 @@ define(function(require) {
       '<br>');
 
     var cost = 0;
-    if (capacity.CPU_COST || capacity.MEMORY_COST && Config.isFeatureEnabled("showback")) {
+    if ((capacity.CPU_COST || capacity.MEMORY_COST) && Config.isFeatureEnabled("showback")) {
       $(".provision_create_template_cost_div").show();
 
       if (capacity.CPU && capacity.CPU_COST) {
@@ -1541,7 +1563,8 @@ define(function(require) {
 
               OpenNebula.Template.show({
                 data : {
-                    id: template_id
+                    id: template_id,
+                    extended: true
                 },
                 success: function(request,template_json){
                   var role_context = $(role_html_id)
