@@ -90,6 +90,9 @@ define(function(require){
                 if ($(this).attr('data-slider') > 0) {
                   cost += $(this).attr('data-slider') * 1024 * disk_cost;
                 }
+
+                var diskContext = $(this).closest(".diskContainer");
+                cost += diskContext.data('disk_snapshot_total_cost');
               })
               $(".cost_value", disksContext).html(cost.toFixed(2));
             });
@@ -109,6 +112,14 @@ define(function(require){
 
             var sizeGB = disk.SIZE / 1024;
             diskContext.data('original_size', sizeGB);
+
+            var disk_snapshot_total_size = 0;
+            if (disk.DISK_SNAPSHOT_TOTAL_SIZE != undefined) {
+              disk_snapshot_total_size = parseInt(disk.DISK_SNAPSHOT_TOTAL_SIZE);
+            }
+
+            diskContext.data('disk_snapshot_total_size', disk_snapshot_total_size);
+            diskContext.data('disk_snapshot_total_cost', disk_snapshot_total_size * disk_cost);
 
             var label = disk.IMAGE ? disk.IMAGE : Locale.tr("Volatile Disk");
             var enabled =
