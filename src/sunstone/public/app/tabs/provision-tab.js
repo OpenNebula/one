@@ -1638,10 +1638,13 @@ define(function(require) {
 
           var extra_info = {
             'merge_template': {
-              "name" : flow_name,
               "roles" : roles,
               "custom_attrs_values": custom_attrs
             }
+          }
+
+          if (flow_name){
+            extra_info["merge_template"]["name"] = flow_name;
           }
 
           if (missing_attr) {
