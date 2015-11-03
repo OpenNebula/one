@@ -1325,8 +1325,9 @@ define(function(require) {
           }
 
           if (instance_type.length > 0) {
-            var instance_typa_data = instance_type.data("opennebula");
+            var instance_typa_data = $.extend({}, instance_type.data("opennebula"));
             delete instance_typa_data.name;
+            delete instance_typa_data.description;
 
             $.extend(extra_info.template, instance_typa_data)
           }
