@@ -32,6 +32,7 @@ define(function(require) {
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
   var CapacityInputs = require('tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -195,6 +196,28 @@ define(function(require) {
           capacityContext = $(".capacityContext"  + template_json.VMTEMPLATE.ID, context);
           CapacityInputs.setup(capacityContext);
           CapacityInputs.fill(capacityContext, template_json.VMTEMPLATE);
+
+          var cpuCost    = template_json.VMTEMPLATE.TEMPLATE.CPU_COST;
+          var memoryCost = template_json.VMTEMPLATE.TEMPLATE.MEMORY_COST;
+
+          if ((cpuCost != undefined || memoryCost != undefined) && Config.isFeatureEnabled("showback")) {
+            var cost = 0;
+
+            var cpu    = template_json.VMTEMPLATE.TEMPLATE.CPU;
+            var memory = template_json.VMTEMPLATE.TEMPLATE.MEMORY;
+
+            if (cpu != undefined && memory != undefined) {
+              cost = cpuCost * cpu + memoryCost * memory;
+            }
+
+            $(".cost_value", capacityContext).html(cost.toFixed(2));
+            $(".capacity_cost_div", capacityContext).show();
+
+            CapacityInputs.setCallback(capacityContext, function(values){
+              var cost = cpuCost * values.CPU + memoryCost * values.MEMORY;
+              $(".cost_value", capacityContext).html(cost.toFixed(2));
+            });
+          }
 
           if (template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_CAPACITY_SELECT &&
               template_json.VMTEMPLATE.TEMPLATE.SUNSTONE_CAPACITY_SELECT.toUpperCase() == "NO"){
