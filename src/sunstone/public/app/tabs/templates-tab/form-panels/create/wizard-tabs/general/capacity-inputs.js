@@ -37,6 +37,7 @@ define(function(require) {
   return {
     'html': _html,
     'setup': _setup,
+    'setCallback': _setCallback,
     'fill': _fill,
     'retrieve': _retrieve,
     'retrieveResize': _retrieveResize
@@ -146,7 +147,7 @@ define(function(require) {
           new_val = Math.floor(memory_input.val() * 1024);
         }
 
-        context.foundation('slider', 'reflow');
+        $("#memory_slider", context).foundation('slider', 'reflow');
         memory_input.val(new_val);
         $("#memory_slider", context).foundation('slider', 'set_value', new_val * 100);
         $("#memory_slider", context).on('change.fndtn.slider', function() {
@@ -200,6 +201,17 @@ define(function(require) {
     });
 
     WizardFields.fill(context, element.TEMPLATE);
+  }
+
+  /**
+   * Sets a callback that will be called when the input values change
+   * @param {Object}   context  jQuery selector
+   * @param {Function} callback will be called as callback( retrieve(context) )
+   */
+  function _setCallback(context, callback) {
+    context.on("change.fndtn.slider", function(){
+      callback( _retrieve(context) );
+    });
   }
 
   /**
