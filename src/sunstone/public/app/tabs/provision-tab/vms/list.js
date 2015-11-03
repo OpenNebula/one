@@ -1038,7 +1038,7 @@ define(function(require) {
         disks = [data.TEMPLATE.DISK]
 
     if (disks.length > 0) {
-      return disks[0].IMAGE;
+      return disks[0].IMAGE != undefined ? disks[0].IMAGE : '';
     } else {
       return '';
     }
