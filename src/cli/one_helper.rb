@@ -828,39 +828,46 @@ EOT
     end
 
     def OpenNebulaHelper.update_template_helper(append, id, resource, path, xpath, update=true)
-        unless path
-            require 'tempfile'
+        if path
+            return File.read(path)
+        elsif append
+            return editor_input()
+        else
+            if update
+                rc = resource.info
 
-            tmp  = Tempfile.new(id.to_s)
-            path = tmp.path
-
-            if !append
-                if update
-                    rc = resource.info
-
-                    if OpenNebula.is_error?(rc)
-                        puts rc.message
-                        exit -1
-                    end
+                if OpenNebula.is_error?(rc)
+                    puts rc.message
+                    exit -1
                 end
-
-                tmp << resource.template_like_str(xpath)
-                tmp.flush
             end
 
-            editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
-            system("#{editor_path} #{path}")
+            return editor_input(resource.template_like_str(xpath))
+        end
+    end
 
-            unless $?.exitstatus == 0
-                puts "Editor not defined"
-                exit -1
-            end
+    def OpenNebulaHelper.editor_input(contents=nil)
+        require 'tempfile'
 
-            tmp.close
+        tmp  = Tempfile.new("one_cli")
+
+        if contents
+            tmp << contents
+            tmp.flush
         end
 
-        str = File.read(path)
-        str
+        editor_path = ENV["EDITOR"] ? ENV["EDITOR"] : EDITOR_PATH
+        system("#{editor_path} #{tmp.path}")
+
+        unless $?.exitstatus == 0
+            puts "Editor not defined"
+            exit -1
+        end
+
+        tmp.close
+
+        str = File.read(tmp.path)
+        return str
     end
 
     def self.parse_user_object(user_object)
