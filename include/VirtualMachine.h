@@ -1278,11 +1278,6 @@ public:
     static bool is_volatile(const VectorAttribute * disk);
 
     /**
-     *  Check if the template contains a volatile disk
-     */
-    static bool is_volatile(const Template * tmpl);
-
-    /**
      *  Check if the disk is persistent
      */
     static bool is_persistent(const VectorAttribute * disk);
@@ -1406,12 +1401,20 @@ public:
     static void disk_extended_info(int uid,
                                   VirtualMachineTemplate *tmpl);
     /**
-     *  Adds extra info to the volatile disks of the given VM, ds inherited
+     *  Adds extra info to the volatile disks of the given template, ds inherited
      *  attributes and TYPE
-     *    @param  uid for template owner
      *    @param  tmpl the virtual machine template
+     *    @return true if there at least one volatile disk was found
      */
-    void volatile_disk_extended_info();
+    bool volatile_disk_extended_info(Template *tmpl);
+
+    /**
+     *  Adds extra info to the volatile disks of the given VM
+     */
+    bool volatile_disk_extended_info()
+    {
+        return volatile_disk_extended_info(obj_template);
+    }
 
     // -------------------------------------------------------------------------
     // Hotplug related functions

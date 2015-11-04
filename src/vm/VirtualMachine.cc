@@ -2369,29 +2369,6 @@ bool VirtualMachine::is_persistent(const VectorAttribute * disk)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool VirtualMachine::is_volatile(const Template * tmpl)
-{
-    vector<const Attribute*> disks;
-    const VectorAttribute *  disk;
-
-    int num_disks = tmpl->get("DISK", disks);
-
-    for (int i = 0 ; i < num_disks ; i++)
-    {
-        disk =static_cast<const VectorAttribute*>(disks[i]);
-
-        if (is_volatile(disk))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 bool VirtualMachine::is_imported() const
 {
     bool imported = false;
@@ -3678,14 +3655,16 @@ void VirtualMachine::disk_extended_info(int uid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::volatile_disk_extended_info()
+bool VirtualMachine::volatile_disk_extended_info(Template *tmpl)
 {
     int                   num;
     vector<Attribute  * > disks;
     VectorAttribute *     disk;
     DatastorePool *       ds_pool = Nebula::instance().get_dspool();
 
-    num = obj_template->get("DISK",disks);
+    bool found = false;
+
+    num = tmpl->get("DISK",disks);
 
     for(int i=0; i<num; i++)
     {
@@ -3696,8 +3675,12 @@ void VirtualMachine::volatile_disk_extended_info()
             continue;
         }
 
+        found = true;
+
         ds_pool->disk_attribute(get_ds_id(), disk);
     }
+
+    return found;
 }
 
 /* -------------------------------------------------------------------------- */

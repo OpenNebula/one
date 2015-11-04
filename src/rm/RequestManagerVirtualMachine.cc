@@ -1573,11 +1573,11 @@ void VirtualMachineAttach::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm->get_permissions(vm_perms);
 
+    volatile_disk = vm->volatile_disk_extended_info(&tmpl);
+
     vm->unlock();
 
     RequestAttributes att_quota(vm_perms.uid, vm_perms.gid, att);
-
-    volatile_disk = VirtualMachine::is_volatile(&tmpl);
 
     VirtualMachineTemplate deltas(tmpl);
     VirtualMachine::disk_extended_info(att.uid, &deltas);
