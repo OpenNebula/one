@@ -223,9 +223,10 @@ function check_restricted {
 }
 
 #-------------------------------------------------------------------------------
-# Gets the ESX host to be used as bridge to register a VMware disk
+# Gets the host to be used as bridge to talk to the storage system
 # Implements a round robin for the bridges
-#   @param $1 - Image ID to be used to round-robin between ESX Bridges
+#   @param $1 - ID to be used to round-robin between host bridges. Random if
+#   not defined
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {

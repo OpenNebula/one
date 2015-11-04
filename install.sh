@@ -994,6 +994,7 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/snap_create_live \
                  src/tm_mad/shared/snap_delete \
                  src/tm_mad/shared/snap_revert \
+                 src/tm_mad/shared/monitor \
                  src/tm_mad/shared/cpds"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
@@ -1042,6 +1043,7 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/snap_create_live \
               src/tm_mad/ssh/snap_delete \
               src/tm_mad/ssh/snap_revert \
+              src/tm_mad/ssh/monitor \
               src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
@@ -1107,6 +1109,7 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/delete \
                  src/tm_mad/ceph/context \
                  src/tm_mad/ceph/mkimage \
+                 src/tm_mad/ceph/monitor \
                  src/tm_mad/ceph/mkswap"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \

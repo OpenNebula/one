@@ -188,11 +188,16 @@ void ImageManager::timer_action()
 
 void ImageManager::monitor_datastore(int ds_id)
 {
-    string  ds_data;
+    string  ds_data, ds_location, ds_name;
     string* drv_msg;
+
+    int  cluster_id;
+    bool shared;
 
     Nebula& nd             = Nebula::instance();
     DatastorePool * dspool = nd.get_dspool();
+
+    Datastore::DatastoreType ds_type;
 
     ostringstream oss;
 
@@ -213,19 +218,45 @@ void ImageManager::monitor_datastore(int ds_id)
         return;
     }
 
-    if ( ds->get_type() == Datastore::SYSTEM_DS )
-    {
-        ds->unlock();
-        return;
-    }
+    ds->to_xml(ds_data);
 
-    drv_msg = ImageManager::format_message("", ds->to_xml(ds_data));
-
-    oss << "Monitoring datastore " << ds->get_name() << " (" << ds_id << ")";
-
-    NebulaLog::log("InM", Log::DEBUG, oss);
+    cluster_id = ds->get_cluster_id();
+    shared     = ds->is_shared();
+    ds_type    = ds->get_type();
+    ds_name    = ds->get_name();
 
     ds->unlock();
+
+    ds_location = "";
+
+    switch (ds_type)
+    {
+        case Datastore::SYSTEM_DS:
+            if ( !shared )
+            {
+                return;
+            }
+
+            if ( nd.get_ds_location(cluster_id, ds_location) != -1 )
+            {
+                oss << "<DATASTORE_LOCATION>"
+                    << ds_location
+                    << "</DATASTORE_LOCATION>";
+                ds_location = oss.str();
+            }
+            break;
+
+        case Datastore::FILE_DS:
+        case Datastore::IMAGE_DS:
+            break;
+    }
+
+    drv_msg = ImageManager::format_message("", ds_data, ds_location);
+
+    oss.str("");
+    oss << "Monitoring datastore " << ds_name  << " (" << ds_id << ")";
+
+    NebulaLog::log("InM", Log::DEBUG, oss);
 
     imd->monitor(ds_id, *drv_msg);
 
