@@ -118,7 +118,7 @@ EOT
 
         answers = ""
 
-        puts "There are some parameters that require user input."
+        puts "There are some parameters that require user input. Use the string <<EDITOR>> to launch an editor (e.g. for multi-line inputs)"
 
         user_inputs.each do |key, val|
             input_cfg = val.split('|')
@@ -137,10 +137,16 @@ EOT
             print "  * (#{key}) #{description}: "
 
             case type
-            when 'text'
+            when 'text', 'text64'
                 answer = STDIN.readline.chop
-            when 'text64'
-                answer = Base64::encode64(STDIN.readline.chop).strip.delete("\n")
+
+                if answer == "<<EDITOR>>"
+                    answer = OpenNebulaHelper.editor_input()
+                end
+
+                if type == 'text64'
+                    answer = Base64::encode64(answer).strip.delete("\n")
+                end
             when 'password'
                 answer = OpenNebulaHelper::OneHelper.get_password
             else
