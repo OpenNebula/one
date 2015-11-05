@@ -191,6 +191,7 @@ define(function(require) {
     var ceph_user       = $('#ceph_user', dialog).val();
     var rbd_format      = $('#rbd_format', dialog).val();
     var staging_dir     = $('#staging_dir', dialog).val();
+    var ceph_conf       = $('#ceph_conf', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -261,6 +262,9 @@ define(function(require) {
     if (staging_dir)
         ds_obj.datastore.staging_dir = staging_dir;
 
+    if (ceph_conf)
+        ds_obj.datastore.ceph_conf = ceph_conf;
+
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
   }
@@ -303,6 +307,7 @@ define(function(require) {
     $('label[for="ceph_user"],input#ceph_user', dialog).parent().hide();
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().hide();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().hide();
+    $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().hide();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().hide();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().hide();
     $('select#ds_mad', dialog).removeAttr('disabled');
@@ -366,7 +371,7 @@ define(function(require) {
 
   function _selectCeph(dialog) {
     $('input#image_ds_type', dialog).click();
-    $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
+    $('input#file_ds_type', dialog).attr('disabled', 'disabled');
     $('select#ds_mad', dialog).val('ceph');
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('ceph');
@@ -378,6 +383,7 @@ define(function(require) {
     $('label[for="ceph_user"],input#ceph_user', dialog).parent().fadeIn();
     $('label[for="rbd_format"],input#rbd_format', dialog).parent().fadeIn();
     $('label[for="staging_dir"],input#staging_dir', dialog).parent().fadeIn();
+    $('label[for="ceph_conf"],input#ceph_conf', dialog).parent().fadeIn();
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
     $('label[for="datastore_capacity_check"],input#datastore_capacity_check', dialog).parent().fadeIn();
