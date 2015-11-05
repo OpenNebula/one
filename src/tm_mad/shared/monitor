@@ -36,7 +36,7 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 # -------- Get datastore arguments from OpenNebula core ------------
 
 DRV_ACTION=$1
-ID=$2
+DS_ID=$2
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
@@ -54,14 +54,40 @@ BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 
 # ------------ Compute datastore usage -------------
 
+LVM_VG_PREFIX="vg-one-"
+LVM_SIZE_CMD="sudo vgdisplay --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
+
 MONITOR_SCRIPT=$(cat <<EOF
 if [ ! -d $BASE_PATH ]; then
     mkdir -p $BASE_PATH
 fi
 
-USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
-TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
-FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
+# If vg-one-$DS_ID exists, we assume it's an fs_lvm image datastore, therefore
+# we return the space of the lvm, no of the filesystem
+if PATH=\$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null; then
+    LVM_SIZE=\$(sudo vgdisplay \
+                    --separator : \
+                    --units m \
+                    -o vg_size,vg_free \
+                    --nosuffix \
+                    --noheadings \
+                    -C \
+                    ${LVM_VG_PREFIX}${DS_ID} 2>/dev/null)
+fi
+
+if [ -n "\$LVM_SIZE" ]; then
+    LVM_TOTAL=\$(echo \$LVM_SIZE | cut -d: -f1 | sed 's/\..*//;s/^\s*//')
+    LVM_FREE=\$(echo \$LVM_SIZE | cut -d: -f2 | sed 's/\..*//;s/^\s*//')
+    LVM_USED=\$(( \$LVM_TOTAL - \$LVM_FREE ))
+
+    TOTAL_MB=\${LVM_TOTAL:-"0"}
+    FREE_MB=\${LVM_FREE:-"0"}
+    USED_MB=\${LVM_USED:-"0"}
+else
+    USED_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$3}')
+    TOTAL_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$2}')
+    FREE_MB=\$(df -B1M -P $BASE_PATH 2>/dev/null | tail -n 1 | awk '{print \$4}')
+fi
 
 if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
     msg="Empty value found"
