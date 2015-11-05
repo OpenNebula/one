@@ -51,6 +51,11 @@ define(function(require) {
         _addPanels(_tabId, panels)
       }
 
+      var panelsHooks = tabObj.panelsHooks;
+      if (panelsHooks) {
+        _addPanelsHooks(_tabId, panelsHooks);
+      }
+
       var dialogs = tabObj.dialogs;
       if (dialogs) {
         _addDialogs(dialogs)
@@ -74,6 +79,11 @@ define(function(require) {
     $.each(dialogs, function(index, dialog) {
       SunstoneCfg['dialogs'][dialog.DIALOG_ID] = dialog
     })
+    return false;
+  }
+
+  var _addPanelsHooks = function(tabId, hooks) {
+    SunstoneCfg["tabs"][tabId]['panelsHooks'] = hooks;
     return false;
   }
 
@@ -568,6 +578,14 @@ define(function(require) {
       });
     }
 
+    var hooks = SunstoneCfg['tabs'][tabName].panelsHooks;
+
+    if (hooks) {
+      $.each(hooks, function(i, hook){
+        hook.pre(info, contextTabId);
+      });
+    }
+
     var panels = SunstoneCfg['tabs'][tabName].panels;
     var active = false;
     var templatePanelsParams = []
@@ -627,6 +645,12 @@ define(function(require) {
 
     context.foundation('tab', 'reflow');
     $('[href=' + activaTabHref + ']', context).trigger("click");
+
+    if (hooks) {
+      $.each(hooks, function(i, hook){
+        hook.post(info, contextTabId);
+      });
+    }
   }
 
   //Runs a predefined action. Wraps the calls to opennebula.js and

@@ -25,7 +25,6 @@ define(function(require) {
   var PermissionsTable = require('utils/panel/permissions-table');
   var TemplateTable = require('utils/panel/template-table');
   var OpenNebulaVM = require('opennebula/vm');
-  var StateActions = require('../utils/state-actions');
 
   /*
     TEMPLATES
@@ -108,32 +107,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var state;
-    if (this.element.STATE == OpenNebulaVM.STATES.ACTIVE) {
-      state = OpenNebulaVM.shortLcmStateStr(this.element.LCM_STATE);
-    } else {
-      state = OpenNebulaVM.stateStr(this.element.STATE);
-    }
-
-    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
-    $('.resource-info-header-small', '#' + TAB_ID).text(state);
-
-    // Enable only action buttons for the current state
-    StateActions.disableAllStateActions();
-    StateActions.enableStateActions(this.element.STATE, this.element.LCM_STATE);
-    // Enable / disable vnc button
-    if (OpenNebulaVM.isVNCSupported(this.element)) {
-      $(".vnc-right-info").show();
-    } else {
-      $(".vnc-right-info").hide();
-    }
-
-    if (OpenNebulaVM.isSPICESupported(this.element)) {
-      $(".spice-right-info").show()
-    } else {
-      $(".spice-right-info").hide();;
-    }
-
     RenameTr.setup(RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
