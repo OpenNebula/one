@@ -3677,7 +3677,10 @@ bool VirtualMachine::volatile_disk_extended_info(Template *tmpl)
 
         found = true;
 
-        ds_pool->disk_attribute(get_ds_id(), disk);
+        if (hasHistory())
+        {
+            ds_pool->disk_attribute(get_ds_id(), disk);
+        }
     }
 
     return found;
