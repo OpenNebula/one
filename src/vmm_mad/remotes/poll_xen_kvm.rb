@@ -342,22 +342,26 @@ module KVM
                 pool, image = name.split('/')
                 disk_id = image.split('-')[-1].to_i
 
-                images_list = rbd_pool(pool, auth)
-                images_doc  = REXML::Document.new(images_list)
-
-                xpath = "images/image[image='#{image}']/size"
-                disk_size = images_doc.elements[xpath].text.to_f/1024/1024
+                image_doc = REXML::Document.new(rbd_info(pool, name, auth))
+                xpath = "image[name='#{image}']/size"
+                disk_size = image_doc.elements[xpath].text.to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
 
-                images_doc.elements.each("images/snapshot") do |snap|
-                    next unless snap.elements["image"].text.start_with?(image)
+                snapshot_doc = image_doc
 
-                    snap_id = snap.elements["snapshot"].text.to_i
-                    snapshot_size = snap.elements["size"].text.to_f/1024/1024
+                unless snapshot_doc.elements['image/parent/image'].nil?
 
-                    data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
+                    while snapshot_doc.elements["image/parent/image"].text.start_with?(image)
+                        snap_id = snapshot_doc.elements["image/parent/snapshot"].text.to_i
+                        snapshot_size = snapshot_doc.elements["image/parent/overlap"].text.to_f/1024/1024
 
+                        data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
+
+                        snapshot_image = snapshot_doc.elements['image/parent/image'].text
+
+                        snapshot_doc = REXML::Document.new(rbd_info(pool, snapshot_image, auth))
+                    end
                 end
             elsif file
                 # Search the disk in system datastore when the source
@@ -544,15 +548,10 @@ EOT
         return uuid, template
     end
 
-    def self.rbd_pool(pool, auth = nil)
-        @@rbd_pool ||= {}
-
-        if @@rbd_pool[pool].nil?
-            @@rbd_pool[pool] = `rbd #{auth} ls -l -p #{pool} --format xml`
-        end
-
-        @@rbd_pool[pool]
+    def self.rbd_info(pool, image, auth=nil)
+        `rbd #{auth} info -p #{pool} --image #{image} --format xml`
     end
+
 end
 
 ################################################################################
