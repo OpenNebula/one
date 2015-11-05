@@ -173,7 +173,11 @@ define(function(require) {
       callback: function(request, response) {
         Sunstone.showFormPanel(that.tabId, formPanelId, "update",
           function(formPanelInstance, context) {
-            formPanelInstance.fill(context, response[that.xmlRoot]);
+            if (that.xmlRoot) {
+              formPanelInstance.fill(context, response[that.xmlRoot]);
+            } else {
+              formPanelInstance.fill(context, response);
+            }
           });
       },
       error: Notifier.onError
