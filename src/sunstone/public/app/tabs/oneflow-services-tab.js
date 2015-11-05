@@ -34,6 +34,10 @@ define(function(require) {
     require('./oneflow-services-tab/panels/log')
   ];
 
+  var _panelsHooks = [
+    require('./oneflow-services-tab/hooks/header')
+  ];
+
   var _formPanels = [
   ];
 
@@ -55,6 +59,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

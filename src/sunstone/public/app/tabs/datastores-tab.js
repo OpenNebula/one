@@ -35,6 +35,10 @@ define(function(require) {
     require('./datastores-tab/panels/images')
   ];
 
+  var _panelsHooks = [
+    require('../utils/hooks/header')
+  ];
+
   var DatastoresTab = {
     tabId: TAB_ID,
     title: Locale.tr("Datastores"),
@@ -48,6 +52,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

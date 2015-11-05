@@ -582,7 +582,7 @@ define(function(require) {
 
     if (hooks) {
       $.each(hooks, function(i, hook){
-        hook.pre(info, contextTabId);
+        hook.pre(info, (contextTabId||tabName));
       });
     }
 
@@ -648,7 +648,7 @@ define(function(require) {
 
     if (hooks) {
       $.each(hooks, function(i, hook){
-        hook.post(info, contextTabId);
+        hook.post(info, (contextTabId||tabName));
       });
     }
   }

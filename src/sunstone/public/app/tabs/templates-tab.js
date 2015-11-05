@@ -32,6 +32,10 @@ define(function(require) {
     require('./templates-tab/panels/template')
   ];
 
+  var _panelsHooks = [
+    require('../utils/hooks/header')
+  ];
+
   var _formPanels = [
     require('./templates-tab/form-panels/create'),
     require('./templates-tab/form-panels/import'),
@@ -51,6 +55,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

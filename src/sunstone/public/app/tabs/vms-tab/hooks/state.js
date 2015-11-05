@@ -37,16 +37,6 @@ define(function(require) {
   function _pre(info, contextTabId) {
     var element = info[XML_ROOT];
 
-    var state;
-    if (element.STATE == OpenNebulaVM.STATES.ACTIVE) {
-      state = OpenNebulaVM.shortLcmStateStr(element.LCM_STATE);
-    } else {
-      state = OpenNebulaVM.stateStr(element.STATE);
-    }
-
-    $('.resource-info-header', '#' + TAB_ID).text(element.NAME);
-    $('.resource-info-header-small', '#' + TAB_ID).text(state);
-
     // Enable only action buttons for the current state
     StateActions.disableAllStateActions();
     StateActions.enableStateActions(element.STATE, element.LCM_STATE);

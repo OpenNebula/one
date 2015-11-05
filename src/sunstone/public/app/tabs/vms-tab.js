@@ -38,6 +38,7 @@ define(function(require) {
   ];
 
   var _panelsHooks = [
+    require('./vms-tab/hooks/header'),
     require('./vms-tab/hooks/state')
   ];
 

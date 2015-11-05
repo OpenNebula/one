@@ -108,7 +108,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
   }
 });
