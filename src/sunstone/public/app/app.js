@@ -135,6 +135,10 @@ define(function(require) {
 
     $(".user-zone-info").html(user_login_content);
 
+    if (!Config.isTabEnabled(SETTINGS_TAB_ID)){
+      $(".user-zone-info a.configuration").parent('li').remove();
+    }
+
     function zoneRefresh() {
       // Populate Zones dropdown
       OpenNebula.Zone.list({
