@@ -289,7 +289,7 @@ define(function(require) {
     // Hide all the options that depends on datastore type
     // and reset the selects
 
-    $('input#image_ds_type', dialog).attr('checked', 'true');
+    $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).removeAttr('disabled', 'disabled');
 
     $('label[for="bridge_list"],input#bridge_list', dialog).parent().hide();
@@ -365,7 +365,7 @@ define(function(require) {
   }
 
   function _selectCeph(dialog) {
-    $('input#image_ds_type', dialog).attr('checked', 'true');
+    $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
     $('select#ds_mad', dialog).val('ceph');
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
@@ -394,7 +394,7 @@ define(function(require) {
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('lvm');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
-    $('input#image_ds_type', dialog).attr('checked', 'true');
+    $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
     $('label[for="bridge_list"],input#bridge_list', dialog).parent().fadeIn();
     $('label[for="vg_name"],input#vg_name', dialog).fadeIn();
@@ -414,7 +414,7 @@ define(function(require) {
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('fs_lvm');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
-    $('input#image_ds_type', dialog).attr('checked', 'true');
+    $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
     $('label[for="limit_transfer_bw"],input#limit_transfer_bw', dialog).parent().fadeIn();
     $('label[for="no_decompress"],input#no_decompress', dialog).parent().fadeIn();
@@ -439,7 +439,7 @@ define(function(require) {
           $(this).removeAttr('disabled');
         }
       });
-    $('input#image_ds_type', dialog).attr('checked', 'true');
+    $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
     $('select#disk_type', dialog).val('gluster');
     $('select#disk_type', dialog).attr('disabled', 'disabled');
@@ -459,7 +459,7 @@ define(function(require) {
     $('select#ds_mad', dialog).attr('disabled', 'disabled');
     $('select#tm_mad', dialog).val('dev');
     $('select#tm_mad', dialog).attr('disabled', 'disabled');
-    $('input#image_ds_type', dialog).attr('checked', 'true');
+    $('input#image_ds_type', dialog).click();
     $('input[name=ds_type]', dialog).attr('disabled', 'disabled');
     $('select#disk_type', dialog).val('block');
     $('select#disk_type', dialog).attr('disabled', 'disabled');
