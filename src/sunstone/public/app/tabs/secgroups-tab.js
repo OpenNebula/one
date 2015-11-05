@@ -31,6 +31,10 @@ define(function(require) {
     require('./secgroups-tab/panels/info')
   ];
 
+  var _panelsHooks = [
+    require('../utils/hooks/header')
+  ];
+
   var _formPanels = [
     require('./secgroups-tab/form-panels/create')
   ];
@@ -48,6 +52,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

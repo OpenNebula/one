@@ -37,6 +37,10 @@ define(function(require) {
     require('./hosts-tab/panels/pci')
   ];
 
+  var _panelsHooks = [
+    require('../utils/hooks/header')
+  ];
+
   var _formPanels = [
     require('./hosts-tab/form-panels/create')
   ]
@@ -58,6 +62,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     //dialogs: _dialogs
   };

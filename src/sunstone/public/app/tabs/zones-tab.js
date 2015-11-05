@@ -31,6 +31,10 @@ define(function(require) {
     require('./zones-tab/panels/info')
   ];
 
+  var _panelsHooks = [
+    require('../utils/hooks/header')
+  ];
+
   var ZonesTab = {
     tabId: TAB_ID,
     title: Locale.tr("Zones"),
@@ -44,6 +48,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     dialogs: _dialogs
   };
 

@@ -113,7 +113,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    $('.resource-info-header', '#' + TAB_ID).text(this.element.NAME);
     RenameTr.setup(RESOURCE, this.element.ID, context);
     ClusterTr.setup(RESOURCE, this.element.ID, this.element.CLUSTER_ID, context);
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);

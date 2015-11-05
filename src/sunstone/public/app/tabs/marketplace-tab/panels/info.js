@@ -82,8 +82,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    $('.resource-id', '#' + TAB_ID).hide();
-    $('.resource-info-header', '#' + TAB_ID).text(this.element.name);
     return false;
   }
 });

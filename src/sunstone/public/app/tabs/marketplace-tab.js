@@ -31,6 +31,10 @@ define(function(require) {
     require('./marketplace-tab/panels/info')
   ];
 
+  var _panelsHooks = [
+    require('./marketplace-tab/hooks/header')
+  ];
+
   var _formPanels = [
   ];
 
@@ -50,6 +54,7 @@ define(function(require) {
     actions: Actions,
     dataTable: new Table(DATATABLE_ID, {actions: true, info: true, oneSelection: true}),
     panels: _panels,
+    panelsHooks: _panelsHooks,
     formPanels: _formPanels,
     dialogs: _dialogs
   };

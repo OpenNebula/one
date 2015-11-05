@@ -103,8 +103,6 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $('.resource-info-header', '#' + TAB_ID).text(that.element.NAME);
-
     // Template update
     // TODO: simplify interface?
     var strippedTemplate = $.extend({}, this.element.TEMPLATE);
