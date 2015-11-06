@@ -583,7 +583,7 @@ define(function(require) {
   function isNICGraphsSupported(element) {
     var history = retrieveLastHistoryRecord(element)
     if (history) {
-      return $.inArray(history.VMMMAD, ['vcenter', 'ec2', 'az', 'sl']) == -1;
+      return $.inArray(history.VMMMAD, ['vcenter', 'az', 'sl']) == -1;
     } else {
       return false;
     }
