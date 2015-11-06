@@ -810,6 +810,9 @@ div.dataTables_scrollFoot table {
     @include pricing-table-description;
     font-size: rem-calc(13px);
   }
+  .provision-description:hover {
+    white-space: normal;
+  }
   .provision-bullet-item {
     @include pricing-table-bullet;
     font-size: rem-calc(13px);
