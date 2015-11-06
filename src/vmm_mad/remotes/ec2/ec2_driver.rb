@@ -624,8 +624,9 @@ private
                                         ["Average"],
                                          "Percent",
                                          id)[:datapoints][-1][:average]
-        rescue  # 
-            cpu = 0
+        rescue => e
+            STDERR.puts(e.message)
+            exit(-1)
         end
 
 
@@ -640,7 +641,9 @@ private
             nettx_dp.each{|dp|
                 nettx += dp[:sum].to_i
             }
-        rescue   
+        rescue => e
+            STDERR.puts(e.message)
+            exit(-1)
         end
 
         # NETRX
@@ -654,7 +657,9 @@ private
             netrx_dp.each{|dp|
                 netrx += dp[:sum].to_i
             }
-        rescue   
+        rescue => e
+            STDERR.puts(e.message)
+            exit(-1)
         end
 
         "CPU=#{cpu.to_s} NETTX=#{nettx.to_s} NETRX=#{netrx.to_s} "
