@@ -342,26 +342,24 @@ module KVM
                 pool, image = name.split('/')
                 disk_id = image.split('-')[-1].to_i
 
-                image_doc = REXML::Document.new(rbd_info(pool, name, auth))
+                image_info = REXML::Document.new(rbd_info(pool, name, auth))
                 xpath = "image[name='#{image}']/size"
-                disk_size = image_doc.elements[xpath].text.to_f/1024/1024
+                disk_size = image_info.elements[xpath].text.to_f/1024/1024
 
                 data[:disk_size] << {:id => disk_id, :size => disk_size.round}
 
-                snapshot_doc = image_doc
+                images_list = REXML::Document.new(rbd_ls(pool, auth))
+                
+                images_list.elements.each("images/name") do |item|
+                        next unless item.text.start_with?("#{image}-")
 
-                unless snapshot_doc.elements['image/parent/image'].nil?
+                        snap_image = item.text
+                        snap_doc   = REXML::Document.new(rbd_info(pool, snap_image, auth))
 
-                    while snapshot_doc.elements["image/parent/image"].text.start_with?(image)
-                        snap_id = snapshot_doc.elements["image/parent/snapshot"].text.to_i
-                        snapshot_size = snapshot_doc.elements["image/parent/overlap"].text.to_f/1024/1024
+                        snap_id    = snap_image.split("-")[-1]
+                        snap_size  = snap_doc.elements["image/size"].text.to_f/1024/1024
 
-                        data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snapshot_size.round}
-
-                        snapshot_image = snapshot_doc.elements['image/parent/image'].text
-
-                        snapshot_doc = REXML::Document.new(rbd_info(pool, snapshot_image, auth))
-                    end
+                        data[:snapshot_size] << { :id => snap_id, :disk_id => disk_id, :size => snap_size.round}
                 end
             elsif file
                 # Search the disk in system datastore when the source
@@ -552,9 +550,17 @@ EOT
         `rbd #{auth} info -p #{pool} --image #{image} --format xml`
     end
 
-end
 
-################################################################################
+    def self.rbd_ls(pool, auth = nil)
+        @@rbd_ls ||= {}
+
+        if @@rbd_ls[pool].nil?
+            @@rbd_ls[pool] = `rbd #{auth} ls -p #{pool} --format xml`
+        end
+
+        @@rbd_ls[pool]
+    end
+end
 #
 # Xen Monitor Module
 #
