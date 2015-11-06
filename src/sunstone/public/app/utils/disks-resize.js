@@ -152,7 +152,7 @@ define(function(require){
         disk = $(this).data("template_disk");
         original_size = $(this).data("original_size");
         size = $("#SIZE", this).val();
-        if (size && size > original_size && size > 0) {
+        if (size) {
           disk['SIZE'] = Math.ceil(size * 1024);
         }
       }
