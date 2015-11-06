@@ -672,7 +672,7 @@ define(function(require) {
         state_str = Locale.tr("SCALING");
         break;
       case OpenNebula.Service.STATES.COOLDOWN:
-        state_color = 'error';
+        state_color = 'running';
         state_str = Locale.tr("COOLDOWN");
         break;
       case OpenNebula.Service.STATES.DONE:
