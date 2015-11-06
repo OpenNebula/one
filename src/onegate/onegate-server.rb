@@ -246,10 +246,13 @@ get '/' do
     client = authenticate(request.env, params)
     halt 401, "Not authorized" if client.nil?
 
-    protocol = request.env["rack.url_scheme"]
-    host     = request.env["HTTP_HOST"]
-
-    base_uri = "#{protocol}://#{host}"
+    if $conf[:ssl_server]
+        base_uri = $conf[:ssl_server]
+    else
+        protocol = request.env["rack.url_scheme"]
+        host     = request.env["HTTP_HOST"]
+        base_uri = "#{protocol}://#{host}"
+    end
 
     response = {
         "vm_info"      => "#{base_uri}/vm",
