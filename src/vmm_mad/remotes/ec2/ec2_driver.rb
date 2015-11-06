@@ -40,6 +40,7 @@ require 'CommandManager'
 require 'scripts_common'
 require 'rexml/document'
 require 'VirtualMachineDriver'
+require 'opennebula'
 
 # The main class for the EC2 driver
 class EC2Driver
@@ -318,7 +319,8 @@ class EC2Driver
     # Get info (IP, and state) for a EC2 instance
     def poll(id, deploy_id)
         i = get_instance(deploy_id)
-        puts parse_poll(i)
+        vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
+        puts parse_poll(i, vm)
     end
 
     # Get the info of all the EC2 instances. An EC2 instance must include
@@ -349,16 +351,23 @@ class EC2Driver
         usedcpu    = 0
         usedmemory = 0
 
+        # Build an array of VMs and last_polls for monitoring
+        vpool      = OpenNebula::VirtualMachinePool.new OpenNebula::Client.new
+        vpool.info
+        onevm_info = {}
+
+        vpool.each{|vm| onevm_info[vm.id.to_s] = vm }
+
         begin
             AWS.ec2.instances.each do |i|
                 next if i.status != :pending && i.status != :running
 
-                poll_data=parse_poll(i)
+                one_id = i.tags['ONE_ID']
+
+                poll_data=parse_poll(i, onevm_info[one_id])
 
                 vm_template_to_one = vm_to_one(i)
                 vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
-
-                one_id = i.tags['ONE_ID']
 
                 vms_info << "VM=[\n"
                 vms_info << "  ID=#{one_id || -1},\n"
@@ -441,9 +450,17 @@ private
     end
 
     # Retrieve the vm information from the EC2 instance
-    def parse_poll(instance)
+    def parse_poll(instance, onevm)
         begin
-            cloudwatch_str = cloudwatch_monitor_info(instance.instance_id)
+            if onevm
+              cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
+                                                       onevm)
+            else # If no ONE ID no sense to poll since we don't have the
+                 # last_poll reference
+              cloudwatch_str = "CPU=#{cpu.to_s} "\
+                               "NETTX=#{nettx.to_s} "\
+                               "NETRX=#{netrx.to_s} "
+            end
 
             info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
 
@@ -614,36 +631,50 @@ private
 
     # Extract monitoring information from Cloud Watch
     # CPU, NETTX and NETRX
-    def cloudwatch_monitor_info(id)
+    def cloudwatch_monitor_info(id, onevm)
         cw=AWS::CloudWatch::Client.new
+        onevm.info
+        last_poll = onevm["LAST_POLL"]
+
+        if !last_poll or last_poll.to_i == 0
+            last_poll=onevm['/VM/HISTORY_RECORDS/HISTORY[last()]/STIME']
+        end
 
         # CPU
         begin
             cpu = get_cloudwatch_metric(cw,
                                         "CPUUtilization",
+                                        last_poll,
                                         ["Average"],
                                          "Percent",
-                                         id)[:datapoints][-1][:average]
+                                         id)
+            if cpu[:datapoints].size != 0
+                cpu = cpu[:datapoints][-1][:average]
+            else
+                cpu = 0
+            end
+            cpu = cpu.to_f.round(2).to_s
         rescue => e
             STDERR.puts(e.message)
-            exit(-1)
         end
-
 
         # NETTX
         nettx = 0
         begin
             nettx_dp = get_cloudwatch_metric(cw,
                                              "NetworkOut",
+                                             last_poll,
                                              ["Sum"],
                                              "Bytes",
                                              id)[:datapoints]
+            previous_nettx = onevm["/VM/MONITORING/NETTX"]
+            nettx = previous_nettx ? previous_nettx.to_i : 0
+
             nettx_dp.each{|dp|
                 nettx += dp[:sum].to_i
             }
         rescue => e
             STDERR.puts(e.message)
-            exit(-1)
         end
 
         # NETRX
@@ -651,25 +682,28 @@ private
         begin
             netrx_dp = get_cloudwatch_metric(cw,
                                              "NetworkIn",
+                                             last_poll,
                                              ["Sum"],
                                              "Bytes",
                                              id)[:datapoints]
+            previous_nettx = onevm["/VM/MONITORING/NERTX"]
+            nettx = previous_nettx ? previous_nettx.to_i : 0
+
             netrx_dp.each{|dp|
                 netrx += dp[:sum].to_i
             }
         rescue => e
             STDERR.puts(e.message)
-            exit(-1)
         end
 
         "CPU=#{cpu.to_s} NETTX=#{nettx.to_s} NETRX=#{netrx.to_s} "
     end
 
-    # Get metric from AWS/EC2 namespace from the last 10 minutes
-    def get_cloudwatch_metric(cw, metric_name, statistics, units, id)
+    # Get metric from AWS/EC2 namespace from the last poll
+    def get_cloudwatch_metric(cw, metric_name, last_poll, statistics, units, id)
        options={:namespace=>"AWS/EC2",
                 :metric_name=>metric_name,
-                :start_time=> (Time.now - 60*10).iso8601,
+                :start_time=> (Time.at(last_poll.to_i)).iso8601,
                 :end_time=> (Time.now).iso8601,
                 :period=>60,
                 :statistics=>statistics,
