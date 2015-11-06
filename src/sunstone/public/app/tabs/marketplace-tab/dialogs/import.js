@@ -108,7 +108,7 @@ define(function(require) {
       var template_context = $("#market_import_file_template", context);
 
       $.each(that.element['files'], function(index, value){
-        var local_context = $("#market_import_file_"+index,  local_context);
+        var local_context = $("#market_import_file_"+index,  context);
 
         if ($(".market_image_result:not(.success)", local_context).length > 0) {
           img_obj = {

@@ -18,16 +18,13 @@ enabled_tabs:
     datastores-tab: false
     vnets-tab: true
     secgroups-tab: false
+    zones-tab: true
     marketplace-tab: false
     oneflow-dashboard: true
-    oneflow-services: true
-    oneflow-templates: true
-    support-tab: true
-    doc-tab: true
-    community-tab: true
-    enterprise-tab: true
-    zones-tab: true
+    oneflow-services-tab: true
+    oneflow-templates-tab: true
     settings-tab: true
+    support-tab: true
 autorefresh: true
 features:
     showback: true
