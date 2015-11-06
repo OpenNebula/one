@@ -41,6 +41,7 @@ require 'yaml'
 require 'opennebula'
 require 'base64'
 require 'openssl'
+require 'openssl'
 
 module VCenterDriver
 
@@ -1484,6 +1485,52 @@ private
                 context_text += context_element.name + "='" +
                                 context_element.text.gsub("'", "\\'") + "'\n"
             }
+
+            # OneGate
+            onegate_token_flag = xml.root.elements["/VM/TEMPLATE/CONTEXT/TOKEN"]
+            if onegate_token_flag and onegate_token_flag.text == "YES"
+                # Create the OneGate token string
+                vmid_str  = xml.root.elements["/VM/ID"].text
+                stime_str = xml.root.elements["//HISTORY[SEQ=0]/STIME"].text
+                str_to_encrypt = "#{vmid_str}:#{stime_str}"
+
+                user_id = xml.root.elements['//CREATED_BY'].text
+
+                if user_id.nil?
+                    logger.error {"VMID:#{vmid} CREATED_BY not present" \
+                        " in the VM TEMPLATE"}
+                    return nil
+                end
+
+                user = OpenNebula::User.new_with_id(user_id,
+                                                    OpenNebula::Client.new)
+                rc   = user.info
+
+                if OpenNebula.is_error?(rc)
+                    logger.error {"VMID:#{vmid} user.info" \
+                        " error: #{rc.message}"}
+                    return nil
+                end
+
+                token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
+                if token_password.nil?
+                    logger.error {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                        " in the USER:#{user_id} TEMPLATE"}
+                    return nil
+                end
+
+                cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+                cipher.encrypt
+                cipher.key = token_password
+                onegate_token = cipher.update(str_to_encrypt)
+                onegate_token << cipher.final
+
+                onegate_token_64 = Base64.encode64(onegate_token).chop
+
+                context_text += "ONEGATE_TOKEN='#{onegate_token_64}'\n"
+            end
+
             context_text = Base64.encode64(context_text.chop)
             config_array +=
                      [{:key=>"guestinfo.opennebula.context",
