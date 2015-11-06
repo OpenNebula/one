@@ -81,6 +81,10 @@ end
 
 set :cloud_auth, $cloud_auth
 
+before do
+    content_type 'application/json', :charset => 'utf-8'
+end
+
 helpers do
     def authenticate(env, params)
         begin
