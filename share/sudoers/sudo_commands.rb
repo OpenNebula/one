@@ -18,7 +18,6 @@
 
 require "erb"
 
-KEYS = [:MISC , :NET , :LVM , :ISCSI , :OVS , :XEN]
 
 CMDS = {
     :MISC  => %w(dd mkfs sync),
@@ -26,8 +25,11 @@ CMDS = {
     :LVM   => %w(lvcreate lvremove lvrename lvs vgdisplay),
     :ISCSI => %w(iscsiadm tgt-admin tgtadm),
     :OVS   => %w(ovs-ofctl ovs-vsctl),
-    :XEN   => %w(xentop xl xm)
+    :XEN   => %w(xentop xl xm),
+    :CEPH  => %w(rbd)
 }
+
+KEYS = CMDS.keys
 
 abs_cmds = {}
 not_found_cmds = []

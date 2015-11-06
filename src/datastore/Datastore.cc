@@ -50,6 +50,7 @@ Datastore::Datastore(
             tm_mad(""),
             base_path(""),
             type(IMAGE_DS),
+            disk_type(Image::FILE),
             total_mb(0),
             free_mb(0),
             used_mb(0),
@@ -148,6 +149,11 @@ void Datastore::disk_attribute(
             disk->replace(*it, inherit_val);
         }
     }
+
+    if (VirtualMachine::is_volatile(disk))
+    {
+        disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
+    }
 }
 
 /* ************************************************************************ */
@@ -226,6 +232,7 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
     if (type == SYSTEM_DS)
     {
         bool shared_type;
+        bool ds_migrate;
 
         if (vatt->vector_value("SHARED", shared_type) == -1)
         {
@@ -239,6 +246,20 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
         else
         {
             replace_template_attribute("SHARED", "NO");
+        }
+
+        if (vatt->vector_value("DS_MIGRATE", ds_migrate) == -1)
+        {
+            ds_migrate = true;
+        }
+
+        if (ds_migrate)
+        {
+            replace_template_attribute("DS_MIGRATE", "YES");
+        }
+        else
+        {
+            replace_template_attribute("DS_MIGRATE", "NO");
         }
 
         remove_template_attribute("LN_TARGET");
@@ -277,6 +298,90 @@ error:
 
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Datastore::set_ds_disk_type(string& s_dt, string& error)
+{
+    if (s_dt.empty())
+    {
+       disk_type = Image::FILE;
+    }
+    else
+    {
+       disk_type = Image::str_to_disk_type(s_dt);
+    }
+
+    switch(type)
+    {
+        case IMAGE_DS:
+            switch(disk_type)
+            {
+                //Valid disk types for Image DS
+                case Image::FILE:
+                case Image::BLOCK:
+                case Image::RBD:
+                case Image::GLUSTER:
+                case Image::SHEEPDOG:
+                    break;
+
+                case Image::CD_ROM:
+                case Image::RBD_CDROM:
+                case Image::SHEEPDOG_CDROM:
+                case Image::GLUSTER_CDROM:
+                    error = "Invalid DISK_TYPE for an Image Datastore.";
+                    return -1;
+
+                case Image::NONE:
+                    error = "Unknown DISK_TYPE in template.";
+                    return -1;
+            }
+            break;
+
+        case SYSTEM_DS:
+            switch(disk_type)
+            {
+                //Valid disk types for System DS
+                case Image::FILE:
+                case Image::RBD:
+                    break;
+
+                case Image::GLUSTER:
+                case Image::SHEEPDOG:
+                case Image::BLOCK:
+                case Image::CD_ROM:
+                case Image::RBD_CDROM:
+                case Image::SHEEPDOG_CDROM:
+                case Image::GLUSTER_CDROM:
+                    error = "Invalid DISK_TYPE for a System Datastore.";
+                    return -1;
+
+                case Image::NONE:
+                    error = "Unknown DISK_TYPE in template.";
+                    return -1;
+            }
+            break;
+
+        case FILE_DS:
+            disk_type = Image::FILE;
+            break;
+    }
+
+    switch(type)
+    {
+        case IMAGE_DS:
+        case SYSTEM_DS:
+            add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));
+            break;
+        case FILE_DS:
+            break;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
 
 int Datastore::insert(SqlDB *db, string& error_str)
 {
@@ -344,36 +449,16 @@ int Datastore::insert(SqlDB *db, string& error_str)
 
     erase_template_attribute("DISK_TYPE", s_disk_type);
 
-    disk_type = Image::FILE;
-
-    if ( type == IMAGE_DS )
+    if (set_ds_disk_type(s_disk_type, error_str) == -1)
     {
-        if (!s_disk_type.empty())
-        {
-            disk_type = Image::str_to_disk_type(s_disk_type);
-
-            switch(disk_type)
-            {
-                case Image::NONE:
-                    goto error_disk_type;
-                    break;
-                case Image::RBD_CDROM:
-                case Image::SHEEPDOG_CDROM:
-                case Image::GLUSTER_CDROM:
-                    goto error_invalid_disk_type;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));
+        goto error_common;
     }
 
     if ( tm_mad.empty() == true )
     {
         goto error_empty_tm;
     }
+
     //--------------------------------------------------------------------------
     // Insert the Datastore
     //--------------------------------------------------------------------------
@@ -392,14 +477,6 @@ error_ds:
 
 error_empty_tm:
     error_str = "No TM_MAD in template.";
-    goto error_common;
-
-error_disk_type:
-    error_str = "Unknown DISK_TYPE in template.";
-    goto error_common;
-
-error_invalid_disk_type:
-    error_str = "Invalid DISK_TYPE in template.";
     goto error_common;
 
 error_common:
@@ -617,13 +694,13 @@ int Datastore::post_update_template(string& error_str)
     string new_ds_mad;
     string new_tm_mad;
     string s_ds_type;
-    string new_disk_type_st;
+    string new_disk_type;
     string new_base_path;
 
-    Image::DiskType new_disk_type;
-
-    DatastoreType old_ds_type;
     DatastoreType new_ds_type;
+
+    DatastoreType   old_ds_type   = type;
+    Image::DiskType old_disk_type = disk_type;
 
     /* ---------------------------------------------------------------------- */
     /* Set the TYPE of the Datastore (class & template)                       */
@@ -658,6 +735,24 @@ int Datastore::post_update_template(string& error_str)
     replace_template_attribute("TYPE", type_to_str(type));
 
     /* ---------------------------------------------------------------------- */
+    /* Set the DISK_TYPE (class & template)                                   */
+    /* ---------------------------------------------------------------------- */
+
+    erase_template_attribute("DISK_TYPE", new_disk_type);
+
+    if (!new_disk_type.empty())
+    {
+        if ( set_ds_disk_type(new_disk_type, error_str) == -1 )
+        {
+            //Rollback variable changes
+            type      = old_ds_type;
+            disk_type = old_disk_type;
+
+            return -1;
+        }
+    }
+
+    /* ---------------------------------------------------------------------- */
     /* Set the TM_MAD of the Datastore (class & template)                     */
     /* ---------------------------------------------------------------------- */
 
@@ -673,7 +768,8 @@ int Datastore::post_update_template(string& error_str)
 
         if (set_tm_mad(new_tm_mad, error_str) != 0)
         {
-            type = old_ds_type;
+            type      = old_ds_type;
+            disk_type = old_disk_type;
 
             return -1;
         }
@@ -683,31 +779,6 @@ int Datastore::post_update_template(string& error_str)
     else
     {
         replace_template_attribute("TM_MAD", tm_mad);
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Set the DISK_TYPE (class & template)                                   */
-    /* ---------------------------------------------------------------------- */
-
-    erase_template_attribute("DISK_TYPE", new_disk_type_st);
-
-    if ( type == IMAGE_DS )
-    {
-        if (!new_disk_type_st.empty())
-        {
-            new_disk_type = Image::str_to_disk_type(new_disk_type_st);
-
-            if (new_disk_type != Image::NONE)
-            {
-                disk_type = new_disk_type;
-            }
-        }
-
-        add_template_attribute("DISK_TYPE", Image::disk_type_to_str(disk_type));
-    }
-    else
-    {
-        disk_type = Image::FILE;
     }
 
     /* ---------------------------------------------------------------------- */

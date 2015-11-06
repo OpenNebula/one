@@ -41,8 +41,7 @@ ImagePool::ImagePool(
         vector<const Attribute *>&          restricted_attrs,
         vector<const Attribute *>           hook_mads,
         const string&                       remotes_location,
-        const vector<const Attribute *>&    _inherit_image_attrs,
-        const vector<const Attribute *>&    _inherit_datastore_attrs)
+        const vector<const Attribute *>&    _inherit_attrs)
     :PoolSQL(db, Image::table, true, true)
 {
     // Init static defaults
@@ -54,18 +53,11 @@ ImagePool::ImagePool(
     // Init inherit attributes
     vector<const Attribute *>::const_iterator it;
 
-    for (it = _inherit_image_attrs.begin(); it != _inherit_image_attrs.end(); it++)
+    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
     {
         const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
 
-        inherit_image_attrs.push_back(sattr->value());
-    }
-
-    for (it = _inherit_datastore_attrs.begin(); it != _inherit_datastore_attrs.end(); it++)
-    {
-        const SingleAttribute* sattr = static_cast<const SingleAttribute *>(*it);
-
-        inherit_datastore_attrs.push_back(sattr->value());
+        inherit_attrs.push_back(sattr->value());
     }
 
     // Set default type
@@ -408,7 +400,6 @@ int ImagePool::acquire_disk(int               vm_id,
     if ( img != 0 )
     {
         DatastorePool * ds_pool = nd.get_dspool();
-        Datastore *     ds;
 
         long long size = 0;
         bool has_size = (disk->vector_value("SIZE", size) == 0);
@@ -453,7 +444,7 @@ int ImagePool::acquire_disk(int               vm_id,
         }
 
         iid = img->get_oid();
-        img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
+        img->disk_attribute(disk, img_type, dev_prefix, inherit_attrs);
 
         image_id     = img->get_oid();
         datastore_id = img->get_ds_id();
@@ -466,9 +457,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         img->unlock();
 
-        ds = ds_pool->get(datastore_id, true);
-
-        if ( ds == 0 )
+        if ( ds_pool->disk_attribute(datastore_id, disk) == -1 )
         {
             imagem->release_image(vm_id, iid, false);
             error_str = "Associated datastore for the image does not exist";
@@ -478,10 +467,6 @@ int ImagePool::acquire_disk(int               vm_id,
 
             return -1;
         }
-
-        ds->disk_attribute(disk, inherit_datastore_attrs);
-
-        ds->unlock();
     }
 
     disk->replace("DISK_ID", disk_id);
@@ -508,7 +493,6 @@ void ImagePool::disk_attribute(
 
     Nebula&         nd      = Nebula::instance();
     DatastorePool * ds_pool = nd.get_dspool();
-    Datastore *     ds;
 
     if (!(source = disk->vector_value("IMAGE")).empty())
     {
@@ -531,20 +515,13 @@ void ImagePool::disk_attribute(
 
     if ( img != 0 )
     {
-        img->disk_attribute(disk, img_type, dev_prefix, inherit_image_attrs);
+        img->disk_attribute(disk, img_type, dev_prefix, inherit_attrs);
 
         datastore_id = img->get_ds_id();
 
         img->unlock();
 
-        ds = ds_pool->get(datastore_id, true);
-
-        if ( ds != 0 )
-        {
-            ds->disk_attribute(disk, inherit_datastore_attrs);
-
-            ds->unlock();
-        }
+        ds_pool->disk_attribute(datastore_id, disk);
     }
 
     disk->replace("DISK_ID", disk_id);

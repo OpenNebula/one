@@ -672,9 +672,11 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/migrate \
                     src/vmm_mad/remotes/kvm/migrate_local \
                     src/vmm_mad/remotes/kvm/restore \
+                    src/vmm_mad/remotes/kvm/restore.ceph \
                     src/vmm_mad/remotes/kvm/reboot \
                     src/vmm_mad/remotes/kvm/reset \
                     src/vmm_mad/remotes/kvm/save \
+                    src/vmm_mad/remotes/kvm/save.ceph \
                     src/vmm_mad/remotes/kvm/poll \
                     src/vmm_mad/remotes/kvm/attach_disk \
                     src/vmm_mad/remotes/kvm/detach_disk \
@@ -992,6 +994,7 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/snap_create_live \
                  src/tm_mad/shared/snap_delete \
                  src/tm_mad/shared/snap_revert \
+                 src/tm_mad/shared/monitor \
                  src/tm_mad/shared/cpds"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/clone \
@@ -1040,6 +1043,7 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/snap_create_live \
               src/tm_mad/ssh/snap_delete \
               src/tm_mad/ssh/snap_revert \
+              src/tm_mad/ssh/monitor \
               src/tm_mad/ssh/cpds"
 
 TM_DUMMY_FILES="src/tm_mad/dummy/clone \
@@ -1102,7 +1106,11 @@ TM_CEPH_FILES="src/tm_mad/ceph/clone \
                  src/tm_mad/ceph/snap_delete \
                  src/tm_mad/ceph/snap_revert \
                  src/tm_mad/ceph/failmigrate \
-                 src/tm_mad/ceph/delete"
+                 src/tm_mad/ceph/delete \
+                 src/tm_mad/ceph/context \
+                 src/tm_mad/ceph/mkimage \
+                 src/tm_mad/ceph/monitor \
+                 src/tm_mad/ceph/mkswap"
 
 TM_DEV_FILES="src/tm_mad/dev/clone \
                  src/tm_mad/dev/ln \

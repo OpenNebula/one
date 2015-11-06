@@ -22,6 +22,7 @@
 #include "VirtualMachineManagerDriver.h"
 #include "VirtualMachinePool.h"
 #include "HostPool.h"
+#include "DatastorePool.h"
 #include "NebulaTemplate.h"
 
 using namespace std;
@@ -33,8 +34,6 @@ class VirtualMachineManager : public MadManager, public ActionListener
 public:
 
     VirtualMachineManager(
-        VirtualMachinePool *      _vmpool,
-        HostPool *                _hpool,
         time_t                    _timer_period,
         time_t                    _poll_period,
         bool                      _do_vm_poll,
@@ -125,6 +124,11 @@ private:
     HostPool *              hpool;
 
     /**
+     *  Pointer to the Datastore Pool
+     */
+    DatastorePool *         ds_pool;
+
+    /**
      *  Timer period for the Virtual Machine Manager.
      */
     time_t                  timer_period;
@@ -208,6 +212,9 @@ private:
      *      <VM>
      *          VM representation in XML
      *      </VM>
+     *      <DATASTORE>
+     *          System DS information in XML
+     *      </DATASTORE>
      *  </VMM_DRIVER_ACTION_DATA>
      *
      *    @param hostname of the host to perform the action
@@ -222,6 +229,7 @@ private:
      *    @param tm_command_rollback TM command in case of attach failure
      *    @param disk_target_path Path of the disk to attach, if any
      *    @param tmpl the VM information in XML
+     *    @param ds_id of the system datastore
      */
     string * format_message(
         const string& hostname,
@@ -235,7 +243,8 @@ private:
         const string& tm_command,
         const string& tm_command_rollback,
         const string& disk_target_path,
-        const string& tmpl);
+        const string& tmpl,
+        int ds_id);
 
     /**
      *  Function executed when a DEPLOY action is received. It deploys a VM on

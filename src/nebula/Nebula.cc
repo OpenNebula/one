@@ -594,12 +594,11 @@ void Nebula::start(bool bootstrap_only)
                                img_restricted_attrs,
                                image_hooks,
                                remotes_location,
-                               inherit_image_attrs,
-                               inherit_datastore_attrs);
+                               inherit_image_attrs);
 
         tpool  = new VMTemplatePool(db);
 
-        dspool = new DatastorePool(db);
+        dspool = new DatastorePool(db, inherit_datastore_attrs);
 
         default_user_quota.select();
         default_group_quota.select();
@@ -630,8 +629,6 @@ void Nebula::start(bool bootstrap_only)
         poll_period = monitor_period * 2.5;
 
         vmm = new VirtualMachineManager(
-            vmpool,
-            hpool,
             timer_period,
             poll_period,
             do_poll,

@@ -48,8 +48,7 @@ public:
             vector<const Attribute *>&          restricted_attrs,
             vector<const Attribute *>           hook_mads,
             const string&                       remotes_location,
-            const vector<const Attribute *>&    _inherit_image_attrs,
-            const vector<const Attribute *>&    _inherit_datastore_attrs);
+            const vector<const Attribute *>&    _inherit_image_attrs);
 
     ~ImagePool(){};
 
@@ -248,12 +247,7 @@ private:
     /**
      * Image attributes to be inherited into the VM disk
      */
-    vector<string> inherit_image_attrs;
-
-    /**
-     * Datastore attributes to be inherited into the VM disk
-     */
-    vector<string> inherit_datastore_attrs;
+    vector<string> inherit_attrs;
 
     //--------------------------------------------------------------------------
     // Pool Attributes

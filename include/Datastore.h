@@ -305,6 +305,18 @@ private:
 
     virtual ~Datastore();
 
+    /**
+     *  Sets the DISK_TYPE attribute for the datastore. This function will
+     *  check the type against the supported DiskTypes for each datastore type
+     *  (SYSTEM, IMAGE and FILE).
+     *    @param s_dt DISK_TYPE in string form. If empty Image::FILE will be used
+     *    @param error description if any. The string is upcased
+     *
+     *    @return -1 if an inconsistent assigment is found
+     *
+     */
+    int set_ds_disk_type(string& s_dt, string& error);
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************

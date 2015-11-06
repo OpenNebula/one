@@ -113,6 +113,7 @@ int LibVirtDriver::deployment_description_kvm(
     const VectorAttribute * context;
 
     string  type            = "";
+    string  disk_type       = "";
     string  target          = "";
     string  bus             = "";
     string  ro              = "";
@@ -125,6 +126,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  ceph_host       = "";
     string  ceph_secret     = "";
     string  ceph_user       = "";
+    string  pool_name       = "";
     string  sheepdog_host   = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
@@ -438,6 +440,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
 
         type            = disk->vector_value("TYPE");
+        disk_type       = disk->vector_value("DISK_TYPE");
         target          = disk->vector_value("TARGET");
         ro              = disk->vector_value("READONLY");
         driver          = disk->vector_value("DRIVER");
@@ -450,6 +453,7 @@ int LibVirtDriver::deployment_description_kvm(
         ceph_host       = disk->vector_value("CEPH_HOST");
         ceph_secret     = disk->vector_value("CEPH_SECRET");
         ceph_user       = disk->vector_value("CEPH_USER");
+        pool_name       = disk->vector_value("POOL_NAME");
 
         gluster_host    = disk->vector_value("GLUSTER_HOST");
         gluster_volume  = disk->vector_value("GLUSTER_VOLUME");
@@ -513,17 +517,15 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        one_util::toupper(type);
-
         if ( type == "BLOCK" )
         {
             file << "\t\t<disk type='block' device='disk'>" << endl
                  << "\t\t\t<source dev='" << vm->get_remote_system_dir()
                  << "/disk." << disk_id << "'/>" << endl;
         }
-        else if ( type == "RBD" || type == "RBD_CDROM" )
+        else if ( type == "RBD" || type == "RBD_CDROM" || disk_type == "RBD" )
         {
-            if (type == "RBD")
+            if (type == "RBD" || disk_type == "RBD")
             {
                 file << "\t\t<disk type='network' device='disk'>" << endl;
             }
@@ -532,9 +534,27 @@ int LibVirtDriver::deployment_description_kvm(
                 file << "\t\t<disk type='network' device='cdrom'>" << endl;
             }
 
-            file << "\t\t\t<source protocol='rbd' name='" << source;
+            file << "\t\t\t<source protocol='rbd' name='";
 
-            if ( clone == "YES" )
+            if ( !source.empty() )
+            {
+                file << source;
+            }
+            else
+            {
+                if ( !pool_name.empty() )
+                {
+                    file << pool_name;
+                }
+                else
+                {
+                    file << "one";
+                }
+
+                file << "/one-sys";
+            }
+
+            if ( clone == "YES" || source.empty() )
             {
                 file << "-" << vm->get_oid() << "-" << disk_id;
             }

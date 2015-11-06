@@ -1937,15 +1937,15 @@ int VirtualMachine::get_disk_images(string& error_str)
 
         disk = static_cast<VectorAttribute * >(disks[i]);
 
-        rc = ipool->acquire_disk(  oid,
-                                   disk,
-                                   i,
-                                   img_type,
-                                   dev_prefix,
-                                   uid,
-                                   image_id,
-                                   &snap,
-                                   error_str);
+        rc = ipool->acquire_disk(oid,
+                                 disk,
+                                 i,
+                                 img_type,
+                                 dev_prefix,
+                                 uid,
+                                 image_id,
+                                 &snap,
+                                 error_str);
         if (rc == 0 )
         {
             if (snap != 0)
@@ -2376,29 +2376,6 @@ bool VirtualMachine::is_persistent(const VectorAttribute * disk)
     disk->vector_value("PERSISTENT", pers_disk);
 
     return pers_disk;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool VirtualMachine::is_volatile(const Template * tmpl)
-{
-    vector<const Attribute*> disks;
-    const VectorAttribute *  disk;
-
-    int num_disks = tmpl->get("DISK", disks);
-
-    for (int i = 0 ; i < num_disks ; i++)
-    {
-        disk =static_cast<const VectorAttribute*>(disks[i]);
-
-        if (is_volatile(disk))
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3685,6 +3662,40 @@ void VirtualMachine::disk_extended_info(int uid,
 
         ipool->disk_attribute(disk, i, uid);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::volatile_disk_extended_info(Template *tmpl)
+{
+    int                   num;
+    vector<Attribute  * > disks;
+    VectorAttribute *     disk;
+    DatastorePool *       ds_pool = Nebula::instance().get_dspool();
+
+    bool found = false;
+
+    num = tmpl->get("DISK",disks);
+
+    for(int i=0; i<num; i++)
+    {
+        disk = dynamic_cast<VectorAttribute * >(disks[i]);
+
+        if ( disk == 0 || !is_volatile(disk) )
+        {
+            continue;
+        }
+
+        found = true;
+
+        if (hasHistory())
+        {
+            ds_pool->disk_attribute(get_ds_id(), disk);
+        }
+    }
+
+    return found;
 }
 
 /* -------------------------------------------------------------------------- */

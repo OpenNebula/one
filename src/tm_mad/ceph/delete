@@ -39,6 +39,7 @@ DRIVER_PATH=$(dirname $0)
 source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
@@ -49,12 +50,45 @@ CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
 #-------------------------------------------------------------------------------
 # Delete and exit if directory
 #-------------------------------------------------------------------------------
 
 if [ `is_disk $DST_PATH` -eq 0 ]; then
-    # Directory
+    # Directory: delete checkpoint and directory
+
+    unset i j XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x $DS_ID | $XPATH \
+                        /DATASTORE/TEMPLATE/SOURCE \
+                        /DATASTORE/TEMPLATE/CLONE \
+                        /DATASTORE/TEMPLATE/CEPH_USER \
+                        /DATASTORE/TEMPLATE/CEPH_CONF \
+                        /DATASTORE/TEMPLATE/POOL_NAME)
+
+    SRC="${XPATH_ELEMENTS[j++]}"
+    CLONE="${XPATH_ELEMENTS[j++]}"
+    CEPH_USER="${XPATH_ELEMENTS[j++]}"
+    CEPH_CONF="${XPATH_ELEMENTS[j++]}"
+    POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
+
+    if [ -n "$CEPH_USER" ]; then
+        RBD="$RBD --id ${CEPH_USER}"
+    fi
+
+    if [ -n "$CEPH_CONF" ]; then
+        RBD="$RBD --conf ${CEPH_CONF}"
+    fi
+
+    RBD_SRC_CHECKPOINT="${POOL_NAME}/one-sys-${VM_ID}-checkpoint"
+
+    ssh_exec_and_log "$DST_HOST" "$RBD rm $RBD_SRC_CHECKPOINT 2>/dev/null || exit 0" \
+                 "Error deleting $RBD_SRC_CHECKPOINT in $DST_HOST"
+
     log "Deleting $DST_PATH"
     ssh_exec_and_log "$DST_HOST" "rm -rf $DST_PATH" "Error deleting $DST_PATH"
     exit 0
@@ -66,22 +100,22 @@ fi
 
 DISK_ID=$(echo "$DST_PATH" | $AWK -F. '{print $NF}')
 
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
 unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
-done < <(onevm show -x $VM_ID| $XPATH \
+done < <(onevm show -x $VM_ID | $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/POOL_NAME)
 
 SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
+POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 
 # No need to delete no cloned images
 if [ "$CLONE" = "NO" ]; then
@@ -96,9 +130,15 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
-# cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
-RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
-RBD_SNAP="${VM_ID}-${DISK_ID}"
+if [ -n "$SRC" ]; then
+    # cloned, so the name will be "<pool>/one-<imageid>-<vmid>-<diskid>"
+    RBD_SRC="${SRC}-${VM_ID}-${DISK_ID}"
+    RBD_SNAP="${VM_ID}-${DISK_ID}"
+else
+    # volatile
+    RBD_SRC="${POOL_NAME}/one-sys-${VM_ID}-${DISK_ID}"
+    RBD_SNAP=""
+fi
 
 #-------------------------------------------------------------------------------
 # Delete the device
@@ -111,7 +151,10 @@ DELETE_CMD=$(cat <<EOF
 
     if [ "\$(rbd_format $RBD_SRC)" = "2" ]; then
         rbd_rm_r \$(rbd_top_parent $RBD_SRC)
-        rbd_rm_snap $SRC $RBD_SNAP
+
+        if [ -n "$RBD_SNAP" ]; then
+            rbd_rm_snap $SRC $RBD_SNAP
+        fi
     else
         $RBD rm $RBD_SRC
     fi

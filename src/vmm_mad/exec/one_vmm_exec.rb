@@ -170,13 +170,15 @@ class VmmAction
                     ssh  = @ssh_src
                 end
 
+                stdin = step[:stdin] || @xml_data.to_s
+
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
                                               @id,
                                               host,
                                               step[:action],
                                               :ssh_stream => ssh,
                                               :respond => false,
-                                              :stdin => step[:stdin])
+                                              :stdin => stdin)
             when :vnm
                 if step[:destination]
                     vnm = @vnm_dst

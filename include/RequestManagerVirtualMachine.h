@@ -82,7 +82,8 @@ protected:
         int ds_id,
         int& ds_cluster_id,
         string& tm_mad,
-        RequestAttributes& att);
+        RequestAttributes& att,
+        bool& ds_migr);
 
     int get_default_ds_information(
         int cluster_id,

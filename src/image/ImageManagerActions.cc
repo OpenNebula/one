@@ -474,7 +474,7 @@ int ImageManager::delete_image(int iid, string& error_str)
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
     source  = img->get_source();
     size    = img->get_size();
     ds_id   = img->get_ds_id();
@@ -688,7 +688,7 @@ int ImageManager::clone_image(int   new_id,
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->clone(img->get_oid(), *drv_msg);
 
@@ -734,7 +734,7 @@ int ImageManager::register_image(int iid, const string& ds_data, string& error)
         return -1;
     }
 
-    drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
     path    = img->get_path();
 
     if ( path.empty() == true ) //NO PATH
@@ -859,7 +859,7 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
     add_request(&sr);
 
-    drv_msg = format_message(img_data.str(), ds_data);
+    drv_msg = format_message(img_data.str(), ds_data, "");
 
     imd->stat(sr.id, *drv_msg);
 
@@ -882,13 +882,15 @@ int ImageManager::stat_image(Template*     img_tmpl,
 
 string * ImageManager::format_message(
     const string& img_data,
-    const string& ds_data)
+    const string& ds_data,
+    const string& extra_data)
 {
     ostringstream oss;
 
     oss << "<DS_DRIVER_ACTION_DATA>"
         << img_data
         << ds_data
+        << extra_data
         << "</DS_DRIVER_ACTION_DATA>";
 
     return one_util::base64_encode(oss.str());
@@ -1011,7 +1013,7 @@ int ImageManager::delete_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string img_tmpl;
-    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->snapshot_delete(iid, *drv_msg);
 
@@ -1115,7 +1117,7 @@ int ImageManager::revert_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
-    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->snapshot_revert(iid, *drv_msg);
 
@@ -1212,7 +1214,7 @@ int ImageManager::flatten_snapshot(int iid, int sid, string& error)
     img->set_target_snapshot(sid);
 
     string   img_tmpl;
-    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data);
+    string * drv_msg = format_message(img->to_xml(img_tmpl), ds_data, "");
 
     imd->snapshot_flatten(iid, *drv_msg);
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2015, OpenNebula Project, OpenNebula Systems                #
@@ -16,50 +16,5 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-DRIVER_PATH=$(dirname $0)
-
-source $DRIVER_PATH/kvmrc
-source $DRIVER_PATH/../../scripts_common.sh
-
-DEPLOY_ID=$1
-FILE=$2
-
-VM_ID=$4
-DS_ID=$5
-
-if [ -f "$FILE" ]; then
-    log "Moving old checkpoint file $FILE"
-    epoch=`date +%s`
-
-    exec_and_log "mv $FILE $FILE.$epoch" \
-        "Could not move $FILE to $FILE.$epoch"
-fi
-
-touch "$FILE"
-chmod 666 "$FILE"
-
-exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE" \
-    "Could not save $DEPLOY_ID to $FILE"
-
-#-------------------------------------------------------------------------------
-# Handle DRV_MESSAGE coming from stdin
-#-------------------------------------------------------------------------------
-
-# Exit if no stdin data is available
-if [ -t 0 ]; then
-    exit 0
-fi
-
-# There is data in stdin, read it
-DRV_MESSAGE=$(cat)
-
-# The data is the driver message. Extracting the System DS TM_MAD
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
-
-# If there is a specific hook for this TM_MAD call it:
-SAVE_TM_FILE="${DRIVER_PATH}/save.${TM_MAD}"
-
-if [ -x "$SAVE_TM_FILE" ]; then
-    echo "$DRV_MESSAGE" | $SAVE_TM_FILE $@
-fi
+#The ssh system ds is monitored in each host using the monitor_ds.sh probe
+exit 0
