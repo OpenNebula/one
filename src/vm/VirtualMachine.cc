@@ -1059,6 +1059,10 @@ int VirtualMachine::parse_context(string& error_str)
 
         context_parsed->replace("ONEGATE_ENDPOINT", endpoint);
         context_parsed->replace("VMID", oid);
+
+        // The token_password is taken from the owner user's template.
+        // We store this original owner in case a chown operation is performed.
+        add_template_attribute("CREATED_BY", uid);
     }
 
     return rc;
@@ -3293,10 +3297,6 @@ int VirtualMachine::generate_context(string &files, int &disk_id,
 
             return -1;
         }
-
-        // The token_password is taken from the owner user's template.
-        // We store this original owner in case a chown operation is performed.
-        add_template_attribute("CREATED_BY", uid);
 
         token_file.open(history->token_file.c_str(), ios::out);
 
