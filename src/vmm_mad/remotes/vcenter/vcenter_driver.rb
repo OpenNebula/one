@@ -1491,7 +1491,7 @@ private
             if onegate_token_flag and onegate_token_flag.text == "YES"
                 # Create the OneGate token string
                 vmid_str  = xml.root.elements["/VM/ID"].text
-                stime_str = xml.root.elements["//HISTORY[SEQ=0]/STIME"].text
+                stime_str = xml.root.elements["/VM/STIME"].text
                 str_to_encrypt = "#{vmid_str}:#{stime_str}"
 
                 user_id = xml.root.elements['//CREATED_BY'].text
