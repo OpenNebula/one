@@ -208,8 +208,9 @@ class EC2Driver
     ]
 
     # EC2 constructor, loads credentials and endpoint
-    def initialize(host)
-        @host = host
+    def initialize(host, host_id)
+        @host    = host
+        @host_id = host_id
 
         public_cloud_ec2_conf  = YAML::load(File.read(EC2_DRIVER_CONF))
 
@@ -320,7 +321,9 @@ class EC2Driver
     def poll(id, deploy_id)
         i = get_instance(deploy_id)
         vm = OpenNebula::VirtualMachine.new_with_id(id, OpenNebula::Client.new)
-        puts parse_poll(i, vm)
+        cw_mon_time = vm["LAST_POLL"] ? vm["LAST_POLL"].to_i : Time.now.to_i
+        do_cw = (Time.now.to_i - cw_mon_time) >= 360
+        puts parse_poll(i, vm, do_cw, cw_mon_time)
     end
 
     # Get the info of all the EC2 instances. An EC2 instance must include
@@ -356,7 +359,21 @@ class EC2Driver
         vpool.info
         onevm_info = {}
 
-        vpool.each{|vm| onevm_info[vm.id.to_s] = vm }
+        # Get last cloudwatch monitoring time
+        host_obj    = OpenNebula::Host.new_with_id(@host_id,
+                                                  OpenNebula::Client.new)
+        host_obj.info
+        cw_mon_time = host_obj["/HOST/TEMPLATE/CWMONTIME"]
+
+        if !cw_mon_time
+            cw_mon_time = Time.now.to_i
+        else
+            cw_mon_time = cw_mon_time.to_i
+        end
+
+        do_cw = (Time.now.to_i - cw_mon_time) >= 360
+
+        vpool.each{|vm| onevm_info[vm.deploy_id] = vm }
 
         begin
             AWS.ec2.instances.each do |i|
@@ -364,7 +381,7 @@ class EC2Driver
 
                 one_id = i.tags['ONE_ID']
 
-                poll_data=parse_poll(i, onevm_info[one_id])
+                poll_data=parse_poll(i, onevm_info[i.instance_id],do_cw, cw_mon_time)
 
                 vm_template_to_one = vm_to_one(i)
                 vm_template_to_one = Base64.encode64(vm_template_to_one).gsub("\n","")
@@ -393,6 +410,12 @@ class EC2Driver
         host_info << "USEDCPU=#{usedcpu.round}\n"
         host_info << "FREEMEMORY=#{(totalmemory - usedmemory).round}\n"
         host_info << "FREECPU=#{(totalcpu - usedcpu).round}\n"
+
+        if do_cw
+            host_info << "CWMONTIME=#{Time.now.to_i}"
+        else
+            host_info << "CWMONTIME=#{cw_mon_time}"
+        end
 
         puts host_info
         puts vms_info
@@ -450,16 +473,21 @@ private
     end
 
     # Retrieve the vm information from the EC2 instance
-    def parse_poll(instance, onevm)
+    def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
-            if onevm
+            onevm.info
+            if onevm and do_cw
               cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
-                                                       onevm)
-            else # If no ONE ID no sense to poll since we don't have the
-                 # last_poll reference
-              cloudwatch_str = "CPU=#{cpu.to_s} "\
-                               "NETTX=#{nettx.to_s} "\
-                               "NETRX=#{netrx.to_s} "
+                                                       onevm,
+                                                       cw_mon_time)
+            else
+              previous_cpu   = onevm["/VM/MONITORING/CPU"] ? onevm["/VM/MONITORING/CPU"] : 0
+              previous_netrx = onevm["/VM/MONITORING/NETRX"] ? onevm["/VM/MONITORING/NETRX"] : 0
+              previous_nettx = onevm["/VM/MONITORING/NETTX"] ? onevm["/VM/MONITORING/NETTX"] : 0
+
+              cloudwatch_str = "CPU=#{previous_cpu} "\
+                               "NETTX=#{previous_netrx} "\
+                               "NETRX=#{previous_nettx} "
             end
 
             info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
@@ -631,20 +659,14 @@ private
 
     # Extract monitoring information from Cloud Watch
     # CPU, NETTX and NETRX
-    def cloudwatch_monitor_info(id, onevm)
+    def cloudwatch_monitor_info(id, onevm, cw_mon_time)
         cw=AWS::CloudWatch::Client.new
-        onevm.info
-        last_poll = onevm["LAST_POLL"]
-
-        if !last_poll or last_poll.to_i == 0
-            last_poll=onevm['/VM/HISTORY_RECORDS/HISTORY[last()]/STIME']
-        end
 
         # CPU
         begin
             cpu = get_cloudwatch_metric(cw,
                                         "CPUUtilization",
-                                        last_poll,
+                                        cw_mon_time,
                                         ["Average"],
                                          "Percent",
                                          id)
@@ -663,7 +685,7 @@ private
         begin
             nettx_dp = get_cloudwatch_metric(cw,
                                              "NetworkOut",
-                                             last_poll,
+                                             cw_mon_time,
                                              ["Sum"],
                                              "Bytes",
                                              id)[:datapoints]
@@ -682,7 +704,7 @@ private
         begin
             netrx_dp = get_cloudwatch_metric(cw,
                                              "NetworkIn",
-                                             last_poll,
+                                             cw_mon_time,
                                              ["Sum"],
                                              "Bytes",
                                              id)[:datapoints]
