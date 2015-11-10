@@ -148,7 +148,7 @@ class OpenNebula::LdapAuth
     def is_in_group?(user, group)
         result=@ldap.search(
                     :base   => group,
-                    :attributes => @options[:group_field],
+                    :attributes => [@options[:group_field]],
                     :filter => "(#{@options[:group_field]}=#{user.first})")
 
         if result && result.first
