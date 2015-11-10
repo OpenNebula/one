@@ -708,8 +708,8 @@ private
                                              ["Sum"],
                                              "Bytes",
                                              id)[:datapoints]
-            previous_nettx = onevm["/VM/MONITORING/NERTX"]
-            nettx = previous_nettx ? previous_nettx.to_i : 0
+            previous_netrx = onevm["/VM/MONITORING/NETRX"]
+            netrx = previous_netrx ? previous_netrx.to_i : 0
 
             netrx_dp.each{|dp|
                 netrx += dp[:sum].to_i
