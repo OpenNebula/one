@@ -74,9 +74,13 @@ define(function(require){
             extendedDisks = [extendedTemplateDisk]
           }
 
-
           var disk_cost = template_json.VMTEMPLATE.TEMPLATE.DISK_COST;
-          if (disk_cost && Config.isFeatureEnabled("showback")) {
+
+          if (disk_cost == undefined) {
+            disk_cost = Config.defaultCost.diskCost;
+          }
+
+          if (disk_cost != 0 && Config.isFeatureEnabled("showback")) {
             $(".provision_create_template_disk_cost_div", disksContext).show();
 
             disksContext.on("change.fndtn.slider", '.range-slider', function(){

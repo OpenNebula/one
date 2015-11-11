@@ -246,20 +246,37 @@ define(function(require) {
 
       var capacity = template_json.VMTEMPLATE.TEMPLATE;
       var cost = 0;
-      if ((capacity.CPU_COST || capacity.MEMORY_COST || capacity.DISK_COST) && Config.isFeatureEnabled("showback")) {
+
+      var cpuCost    = capacity.CPU_COST;
+      var memoryCost = capacity.MEMORY_COST;
+      var diskCost   = capacity.DISK_COST;
+
+      if (cpuCost == undefined){
+        cpuCost = Config.defaultCost.cpuCost;
+      }
+
+      if (memoryCost == undefined){
+        memoryCost = Config.defaultCost.memoryCost;
+      }
+
+      if (diskCost == undefined){
+        diskCost = Config.defaultCost.diskCost;
+      }
+
+      if ((cpuCost != 0 || memoryCost != 0 || diskCost != 0) && Config.isFeatureEnabled("showback")) {
         $(".provision_create_service_cost_div", context).show();
 
-        if (capacity.CPU && capacity.CPU_COST) {
-          cost += capacity.CPU * capacity.CPU_COST
-          $(".cost_value", context).data("CPU_COST", capacity.CPU_COST);
+        if (capacity.CPU) {
+          cost += capacity.CPU * cpuCost;
+          $(".cost_value", context).data("CPU_COST", cpuCost);
         }
 
-        if (capacity.MEMORY && capacity.MEMORY_COST) {
-          cost += capacity.MEMORY * capacity.MEMORY_COST
-          $(".cost_value", context).data("MEMORY_COST", capacity.MEMORY_COST);
+        if (capacity.MEMORY) {
+          cost += capacity.MEMORY * memoryCost;
+          $(".cost_value", context).data("MEMORY_COST", memoryCost);
         }
 
-        if (capacity.DISK_COST) {
+        if (diskCost != 0) {
           var template_disk = capacity.DISK;
           var disks = [];
           if ($.isArray(template_disk)) {
@@ -268,15 +285,15 @@ define(function(require) {
             disks = [template_disk];
           }
 
-          $(".cost_value", context).data("DISK_COST", capacity.DISK_COST);
+          $(".cost_value", context).data("DISK_COST", diskCost);
 
           $.each(disks, function(i,disk){
             if (disk.SIZE) {
-              cost += capacity.DISK_COST * disk.SIZE;
+              cost += diskCost * disk.SIZE;
             }
 
             if (disk.DISK_SNAPSHOT_TOTAL_SIZE) {
-              cost += capacity.DISK_COST * disk.DISK_SNAPSHOT_TOTAL_SIZE;
+              cost += diskCost * disk.DISK_SNAPSHOT_TOTAL_SIZE;
             }
           });
         }
@@ -386,17 +403,29 @@ define(function(require) {
       '<br>');
 
     var cost = 0;
-    if ((capacity.CPU_COST || capacity.MEMORY_COST) && Config.isFeatureEnabled("showback")) {
+
+    var cpuCost    = capacity.CPU_COST;
+    var memoryCost = capacity.MEMORY_COST;
+
+    if (cpuCost == undefined){
+      cpuCost = Config.defaultCost.cpuCost;
+    }
+
+    if (memoryCost == undefined){
+      memoryCost = Config.defaultCost.memoryCost;
+    }
+
+    if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
       $(".provision_create_template_cost_div").show();
 
-      if (capacity.CPU && capacity.CPU_COST) {
-        cost += capacity.CPU * capacity.CPU_COST
-        $(".cost_value").data("CPU_COST", capacity.CPU_COST);
+      if (capacity.CPU) {
+        cost += capacity.CPU * cpuCost;
+        $(".cost_value").data("CPU_COST", cpuCost);
       }
 
-      if (capacity.MEMORY && capacity.MEMORY_COST) {
-        cost += capacity.MEMORY * capacity.MEMORY_COST
-        $(".cost_value").data("MEMORY_COST", capacity.MEMORY_COST);
+      if (capacity.MEMORY) {
+        cost += capacity.MEMORY * memoryCost;
+        $(".cost_value").data("MEMORY_COST", memoryCost);
       }
 
       $(".cost_value").html(cost.toFixed(2));

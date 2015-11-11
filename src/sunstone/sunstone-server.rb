@@ -498,6 +498,23 @@ get '/infrastructure' do
     [200, infrastructure.to_json]
 end
 
+get '/onedconf' do
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+
+    rc = OpenNebula::System.new(serveradmin_client).get_configuration
+
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    onedconf = {
+        :DEFAULT_COST => rc.to_hash()['TEMPLATE']['DEFAULT_COST']
+    }
+
+    [200, onedconf.to_json]
+end
+
 get '/vm/:id/log' do
     @SunstoneServer.get_vm_log(params[:id])
 end
