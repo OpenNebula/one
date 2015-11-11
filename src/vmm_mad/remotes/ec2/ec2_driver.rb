@@ -208,7 +208,7 @@ class EC2Driver
     ]
 
     # EC2 constructor, loads credentials and endpoint
-    def initialize(host, host_id)
+    def initialize(host, host_id=nil)
         @host    = host
         @host_id = host_id
 
@@ -445,11 +445,11 @@ private
         # our desired host name
         all_ec2_elements.each { |element|
             cloud=element.elements["HOST"]
-            if cloud and cloud.text.upcase == host.upcase
+            if cloud && cloud.text.upcase == host.upcase
                 ec2 = element
             else
                 cloud=element.elements["CLOUD"]
-                if cloud and cloud.text.upcase == host.upcase
+                if cloud && cloud.text.upcase == host.upcase
                     ec2_deprecated = element
                 end
             end
@@ -476,7 +476,7 @@ private
     def parse_poll(instance, onevm, do_cw, cw_mon_time)
         begin
             onevm.info
-            if onevm and do_cw
+            if onevm && do_cw
               cloudwatch_str = cloudwatch_monitor_info(instance.instance_id,
                                                        onevm,
                                                        cw_mon_time)
@@ -486,8 +486,8 @@ private
               previous_nettx = onevm["/VM/MONITORING/NETTX"] ? onevm["/VM/MONITORING/NETTX"] : 0
 
               cloudwatch_str = "CPU=#{previous_cpu} "\
-                               "NETTX=#{previous_netrx} "\
-                               "NETRX=#{previous_nettx} "
+                               "NETTX=#{previous_nettx} "\
+                               "NETRX=#{previous_netrx} "
             end
 
             info =  "#{POLL_ATTRIBUTE[:memory]}=0 #{cloudwatch_str}"
@@ -725,8 +725,8 @@ private
     def get_cloudwatch_metric(cw, metric_name, last_poll, statistics, units, id)
        options={:namespace=>"AWS/EC2",
                 :metric_name=>metric_name,
-                :start_time=> (Time.at(last_poll.to_i)).iso8601,
-                :end_time=> (Time.now).iso8601,
+                :start_time=> (Time.at(last_poll.to_i)-65).iso8601,
+                :end_time=> (Time.now-60).iso8601,
                 :period=>60,
                 :statistics=>statistics,
                 :unit=>units,
