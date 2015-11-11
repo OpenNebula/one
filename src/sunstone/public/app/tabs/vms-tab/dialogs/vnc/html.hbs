@@ -13,22 +13,29 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
 <div id="{{dialogId}}" class="reveal-modal large max-height" style="width:auto; max-width:70%" data-reveal >
   <div class="row">
     <div class="large-12 columns">
-      <h3 class="subheader" id="vnc_dialog">
+      <span class="subheader" id="vnc_dialog">
         {{tr "VNC"}}
         <span id="VNC_status">{{tr "Loading"}}</span>
-        <a id="open_in_a_new_window" href="" target="_blank" title="{{tr "Open in a new window"}}"> <i class="fa fa-external-link detach-vnc-icon"/></a>
-        <span id="VNC_buttons" class="right">
-          <input type="button" value="Send CtrlAltDel" id="sendCtrlAltDelButton"></span>
-      </h3>
+        <a id="open_in_a_new_window" href="" target="_blank" title="{{tr "Open in a new window"}}">
+          <span class="fa-stack fa-fw detach-vnc-icon"> <i class="fa fa-external-link fa-stack-2x"></i> <i class="fa fa-stack-1x"></i>
+          </span>
+        </a>
+        <a id="open_in_a_new_window_without_pass" href="" target="_blank" title="{{tr "Open in a new window and request password"}}">
+          <span class="fa-stack fa-fw detach-vnc-icon">
+            <i class="fa fa-external-link fa-stack-2x"></i>
+            <i class="fa fa-lock fa-stack-1x"></i>
+          </span>
+        </a>
+      </span>
     </div>
   </div>
   <div class="reveal-body" style="width:100%; overflow-x:overlay">
     <canvas id="VNC_canvas" width="640px">{{tr "Canvas not supported."}}</canvas>
     <div id="VNC_status_bar" class="VNC_status_bar"></div>
   </div>
+  <input type="button" value="Send CtrlAltDel" id="sendCtrlAltDelButton">
   <a class="close-reveal-modal">&#215;</a>
 </div>
