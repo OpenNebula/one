@@ -341,6 +341,33 @@ define(function(require) {
 
           $(".provision_info_vm_name", context).text(data.NAME);
 
+          context.off("click", ".provision_info_vm_rename a");
+          context.on("click", ".provision_info_vm_rename a", function() {
+            var valueStr = $(".provision_info_vm_name", context).text();
+            $(".provision_info_vm_name", context).html('<input class="input_edit_value_rename" type="text" value="' + valueStr + '"/>');
+          });
+
+          context.off("change", ".input_edit_value_rename");
+          context.on("change", ".input_edit_value_rename", function() {
+            var valueStr = $(".input_edit_value_rename", context).val();
+            if (valueStr != "") {
+              OpenNebula.VM.rename({
+                data : {
+                  id: vm_id,
+                  extra_param: {
+                    "name" : valueStr
+                  }
+                },
+                success: function(request, response){
+                  update_provision_vm_info(vm_id, context);
+                },
+                error: function(request, response){
+                  Notifier.onError(request, response);
+                }
+              });
+            }
+          });
+
           $(".provision-pricing-table_vm_info", context).html(
               '<li class="text-left provision-bullet-item">'+
                 '<span class="'+ state.color +'-color">'+
