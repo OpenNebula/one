@@ -16,9 +16,16 @@
 
 define(function(require) {
   require('jquery');
+  var OpenNebulaSystem = require('opennebula/system');
 
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
+
+  var _defaultCost = {
+    cpuCost    : 0,
+    memoryCost : 0,
+    diskCost   : 0
+  };
 
   var Config = {
     'isTabEnabled': function(tabName) {
@@ -136,7 +143,31 @@ define(function(require) {
     'vncProxyPort': _config['system_config']['vnc_proxy_port'],
     'vncWSS': _config['user_config']['vnc_wss'],
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
-    'enabledTabs': _config['view']['enabled_tabs']
+    'enabledTabs': _config['view']['enabled_tabs'],
+    "defaultCost" : _defaultCost,
+    "initDefaultCost" : function() {
+      OpenNebulaSystem.onedconf({
+        data : {},
+        timeout: true,
+        success: function (request, onedconf){
+          if (onedconf.DEFAULT_COST != undefined){
+            if (onedconf.DEFAULT_COST.CPU_COST != undefined){
+              _defaultCost.cpuCost = parseInt(onedconf.DEFAULT_COST.CPU_COST);
+            }
+            if (onedconf.DEFAULT_COST.MEMORY_COST != undefined){
+              _defaultCost.memoryCost = parseInt(onedconf.DEFAULT_COST.MEMORY_COST);
+            }
+            if (onedconf.DEFAULT_COST.DISK_COST != undefined){
+              _defaultCost.diskCost = parseInt(onedconf.DEFAULT_COST.DISK_COST);
+            }
+          }
+        },
+        error: function(request, error_json){
+          console.error("There was an error requesting oned.conf: "+
+                        error_json.error.message);
+        }
+      });
+    }
   }
 
   return Config;

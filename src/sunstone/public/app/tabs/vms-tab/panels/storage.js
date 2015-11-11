@@ -69,7 +69,16 @@ define(function(require) {
    */
 
   function _html() {
-    return TemplateHtml({element: this.element});
+    var diskCost = this.element.TEMPLATE.DISK_COST;
+
+    if (diskCost == undefined){
+      diskCost = Config.defaultCost.diskCost;
+    }
+
+    return TemplateHtml({
+        element: this.element,
+        diskCost: diskCost
+      });
   }
 
   function _setup(context) {

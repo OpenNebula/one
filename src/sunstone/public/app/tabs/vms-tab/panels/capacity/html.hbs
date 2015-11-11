@@ -35,8 +35,8 @@
           <td id="vcpu_info">{{valOrDefault element.TEMPLATE.VCPU '-'}}</td>
           <td id="memory_info">{{humanizeSize "MB" element.TEMPLATE.MEMORY}}</td>
           {{#isFeatureEnabled "showback"}}
-          <td id="cpu_cost_info">{{valOrDefault element.TEMPLATE.CPU_COST '-'}}</td>
-          <td id="memory_cost_info" >{{valOrDefault element.TEMPLATE.MEMORY_COST '-'}}</td>
+          <td id="cpu_cost_info">{{cpuCost}}</td>
+          <td id="memory_cost_info" >{{memoryCost}}</td>
           {{/isFeatureEnabled}}
           <td>
           {{#isTabActionEnabled "vms-tab" "VM.resize"}}
