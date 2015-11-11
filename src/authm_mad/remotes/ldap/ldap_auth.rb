@@ -140,7 +140,8 @@ class OpenNebula::LdapAuth
                     [nil, nil]
                 end
             end
-        rescue
+        rescue Exception => e
+            STDERR.puts e.message
             [nil, nil]
         end
     end
