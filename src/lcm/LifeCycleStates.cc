@@ -1824,7 +1824,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
             img->unlock();
 
-            Quotas::quota_del(Quotas::DATASTORE, img_uid, img_gid, ds_quotas);
+            Quotas::ds_del(img_uid, img_gid, ds_quotas);
         }
 
         delete ds_quotas;
@@ -1832,7 +1832,7 @@ void LifeCycleManager::disk_snapshot_success(int vid)
 
     if ( vm_quotas != 0 )
     {
-        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, vm_quotas);
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
 
         delete vm_quotas;
     }
@@ -1959,7 +1959,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
             img->unlock();
 
-            Quotas::quota_del(Quotas::DATASTORE, img_uid, img_gid, ds_quotas);
+            Quotas::ds_del(img_uid, img_gid, ds_quotas);
         }
 
         delete ds_quotas;
@@ -1967,7 +1967,7 @@ void LifeCycleManager::disk_snapshot_failure(int vid)
 
     if ( vm_quotas != 0 )
     {
-        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, vm_quotas);
+        Quotas::vm_del(vm_uid, vm_gid, vm_quotas);
 
         delete vm_quotas;
     }

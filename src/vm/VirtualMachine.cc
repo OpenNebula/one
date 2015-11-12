@@ -4612,19 +4612,19 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachine::resubmit_disk_snapshots_cleanup(Template **vm_quotas)
+void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
+        map<int, Template *>& ds_quotas)
 {
     vector<Attribute *> disks;
     VectorAttribute *   disk;
 
     map<int, Snapshots *>::iterator it;
 
-    int num_disks;
-    int disk_id;
+    int  disk_id;
 
     long long system_disk = 0;
 
-    num_disks = obj_template->get("DISK", disks);
+    int num_disks = obj_template->get("DISK", disks);
 
     for(int i=0; i<num_disks; i++)
     {
@@ -4647,34 +4647,60 @@ void VirtualMachine::resubmit_disk_snapshots_cleanup(Template **vm_quotas)
             continue;
         }
 
-        if ( !is_persistent(disk) )
+        if (is_persistent(disk))
         {
-            if (disk_tm_target(disk) != "NONE") // self or system
+            if (!disk_tm_shared(disk))
             {
-                system_disk += it->second->get_total_size();
+                int image_id;
+
+                if ( disk->vector_value("IMAGE_ID", image_id) != 0 )
+                {
+                    continue;
+                }
+
+                Template * d_ds = new Template();
+
+                d_ds->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
+                d_ds->add("SIZE", it->second->get_total_size());
+                d_ds->add("IMAGES", 0);
+
+                ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
             }
-
-            it->second->clear();
-
-            disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", 0);
-
-            Snapshots * tmp = it->second;
-
-            snapshots.erase(it);
-
-            delete tmp;
+            else
+            {
+                continue;
+            }
         }
+        else if (disk_tm_target(disk) != "NONE") // self or system
+        {
+            system_disk += it->second->get_total_size();
+        }
+
+        it->second->clear();
+
+        Snapshots * tmp = it->second;
+
+        snapshots.erase(it);
+
+        delete tmp;
+
+        disk->remove("DISK_SNAPSHOT_ACTIVE");
+        disk->remove("DISK_SNAPSHOT_ID");
+        disk->remove("DISK_SNAPSHOT_TOTAL_SIZE");
     }
 
-    VectorAttribute * delta_disk;
+    if ( system_disk > 0 )
+    {
+        VectorAttribute * delta_disk;
 
-    *vm_quotas = new Template();
+        *vm_quotas = new Template();
 
-    delta_disk = new VectorAttribute("DISK");
-    delta_disk->replace("TYPE", "FS");
-    delta_disk->replace("SIZE", system_disk);
+        delta_disk = new VectorAttribute("DISK");
+        delta_disk->replace("TYPE", "FS");
+        delta_disk->replace("SIZE", system_disk);
 
-    (*vm_quotas)->add("VMS", 0);
-    (*vm_quotas)->set(delta_disk);
+        (*vm_quotas)->add("VMS", 0);
+        (*vm_quotas)->set(delta_disk);
+    }
 }
 

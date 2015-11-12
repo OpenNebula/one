@@ -274,10 +274,6 @@ void  DispatchManager::done_action(int vid)
 void  DispatchManager::resubmit_action(int vid)
 {
     VirtualMachine * vm;
-    Template *      tmpl;
-
-    int uid;
-    int gid;
 
     vm = vmpool->get(vid,true);
 
@@ -292,17 +288,9 @@ void  DispatchManager::resubmit_action(int vid)
 
         vm->set_state(VirtualMachine::PENDING);
 
-        uid  = vm->get_uid();
-        gid  = vm->get_gid();
-        vm->resubmit_disk_snapshots_cleanup(&tmpl);
-
         vmpool->update(vm);
 
         vm->unlock();
-
-        Quotas::vm_del(uid, gid, tmpl);
-
-        delete tmpl;
     }
 }
 
