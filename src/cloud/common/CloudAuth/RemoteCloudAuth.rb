@@ -14,7 +14,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula/x509_auth'
 
 module RemoteCloudAuth
     def do_auth(env, params={})
