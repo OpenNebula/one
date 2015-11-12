@@ -197,7 +197,7 @@ public:
       *  *ARE FREED* by this function
       *    @param ds_quotas a map with image_id and a tmpl with usage attributes
       */
-    static void bulk_ds_del(map<int, Template *>& ds_quotas);
+    static void ds_del(map<int, Template *>& ds_quotas);
 
     /**
      *  Delete usage from the given quota counters.

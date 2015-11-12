@@ -285,7 +285,7 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Quotas::bulk_ds_del(map<int, Template *>& ds_quotas)
+void Quotas::ds_del(map<int, Template *>& ds_quotas)
 {
     Nebula&     nd    = Nebula::instance();
     ImagePool * ipool = nd.get_ipool();

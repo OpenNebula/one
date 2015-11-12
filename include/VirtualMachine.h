@@ -1300,20 +1300,6 @@ public:
     static string disk_tm_target(const VectorAttribute *  disk);
 
     /**
-     * Returns the disk SHARED attribute from the TM
-     * @param disk
-     * @return true or false.
-     */
-    static bool disk_tm_shared(const VectorAttribute *  disk)
-    {
-        bool    shared;
-
-        disk->vector_value("SHARED", shared);
-
-        return shared;
-    }
-
-    /**
      * Returns a set of the security group IDs in use in this VM
      * @param sgs a set of security group IDs
      */

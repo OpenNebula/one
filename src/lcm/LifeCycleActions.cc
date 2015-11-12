@@ -856,7 +856,7 @@ void  LifeCycleManager::clean_action(int vid)
 
     if ( !ds_quotas.empty() )
     {
-        Quotas::bulk_ds_del(ds_quotas);
+        Quotas::ds_del(ds_quotas);
     }
 
     if ( vm_quotas != 0 )
