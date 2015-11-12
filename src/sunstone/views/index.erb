@@ -31,6 +31,7 @@
         },
         'system_config' : {
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',
+            'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>'
         },
         'view' : view,

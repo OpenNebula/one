@@ -38,6 +38,7 @@ define(function(require) {
   var host = WebUtil.getQueryVar('host', window.location.hostname);
   var port = WebUtil.getQueryVar('port', window.location.port);
   var token = WebUtil.getQueryVar('token', null);
+  var password = WebUtil.getQueryVar('password', null);
   var path = WebUtil.getQueryVar('path', 'websockify');
 
   function passwordRequired(rfb) {
@@ -154,5 +155,9 @@ define(function(require) {
                    'onXvpInit':    xvpInit,
                    'onPasswordRequired':  passwordRequired});
 
-    rfb.connect(host, port, undefined, path + "?token=" + token);
+    if (password) {
+      rfb.connect(host, port, password, path + "?token=" + token);
+    } else {
+      rfb.connect(host, port, undefined, path + "?token=" + token);
+    }
 })

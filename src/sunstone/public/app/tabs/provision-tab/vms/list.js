@@ -853,7 +853,11 @@ define(function(require) {
             url += "host=" + proxy_host;
             url += "&port=" + proxy_port;
             url += "&token=" + token;
-            url += "&password=" + pw;
+
+            if (!Config.requestVNCPassword) {
+              url += "&password=" + pw;
+            }
+
             url += "&encrypt=" + config['user_config']['vnc_wss'];
             url += "&title=" + vm_name;
 
