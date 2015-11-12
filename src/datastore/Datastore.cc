@@ -139,6 +139,13 @@ void Datastore::disk_attribute(
         disk->replace("LN_TARGET", st);
     }
 
+    get_template_attribute("SHARED", st);
+
+    if(!st.empty())
+    {
+        disk->replace("SHARED", st);
+    }
+
     for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
     {
         get_template_attribute((*it).c_str(), inherit_val);

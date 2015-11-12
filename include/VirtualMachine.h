@@ -1305,6 +1305,20 @@ public:
     static string disk_tm_target(const VectorAttribute *  disk);
 
     /**
+     * Returns the disk SHARED attribute from the TM
+     * @param disk
+     * @return true or false.
+     */
+    static bool disk_tm_shared(const VectorAttribute *  disk)
+    {
+        bool    shared;
+
+        disk->vector_value("SHARED", shared);
+
+        return shared;
+    }
+
+    /**
      * Returns a set of the security group IDs in use in this VM
      * @param sgs a set of security group IDs
      */
@@ -1601,6 +1615,15 @@ public:
             Template **vm_quotas);
 
     /**
+     * Deletes all the disk snapshots for non-persistent disks and for persistent
+     * disks in no shared system ds.
+     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
+     *     @param ds_quotas The DS SIZE freed from image datastores.
+     */
+    void delete_non_persistent_disk_snapshots(Template **vm_quotas,
+        map<int, Template *>& ds_quotas);
+
+    /**
      *  Get information about the disk to take the snapshot from
      *    @param ds_id id of the datastore
      *    @param tm_mad used by the datastore
@@ -1620,13 +1643,6 @@ public:
      *    @param snap_id of the target snap_id
      */
     int set_snapshot_disk(int disk_id, int snap_id);
-
-    /**
-     * Deletes the disk snapshots in a delete-resubmit action. The snapshots
-     * are deleted only for disks that use non-persistent images
-     * @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
-     */
-    void resubmit_disk_snapshots_cleanup(Template **vm_quotas);
 
     // ------------------------------------------------------------------------
     // Snapshot related functions
