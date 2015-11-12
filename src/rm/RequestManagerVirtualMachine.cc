@@ -2339,7 +2339,6 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     Template ds_deltas;
     Template vm_deltas;
-    bool     do_vm_quota;
 
     int    rc;
     int    snap_id;
@@ -2370,8 +2369,9 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     string disk_size = disk->vector_value("SIZE");
     string ds_id     = disk->vector_value("DATASTORE_ID");
-    bool persistent  = VirtualMachine::is_persistent(disk);
     bool is_volatile = VirtualMachine::is_volatile(disk);
+    bool is_system   = VirtualMachine::disk_tm_target(disk) == "SYSTEM";
+    bool do_ds_quota = VirtualMachine::is_persistent(disk) || !is_system;
 
     int img_id = -1;
     disk->vector_value("IMAGE_ID", img_id);
@@ -2391,7 +2391,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     RequestAttributes vm_att_quota;
 
     //--------------------------- Persistent Images ----------------------------
-    if (persistent)
+    if (do_ds_quota)
     {
         PoolObjectAuth img_perms;
 
@@ -2428,9 +2428,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
     }
 
     //--------------------- Account for System DS storage ----------------------
-    do_vm_quota = (VirtualMachine::disk_tm_target(disk) != "NONE");// self or system
-
-    if (do_vm_quota)
+    if (is_system)
     {
         if ( vm_authorization(id, 0, 0, att, 0, 0, 0, auth_op) == false )
         {
@@ -2448,7 +2446,7 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
         if (!quota_resize_authorization(id, &vm_deltas, vm_att_quota))
         {
-            if (persistent)
+            if (do_ds_quota)
             {
                 quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
             }
@@ -2464,12 +2462,12 @@ void VirtualMachineDiskSnapshotCreate::request_execute(
 
     if ( rc != 0 )
     {
-        if (persistent)
+        if (do_ds_quota)
         {
             quota_rollback(&ds_deltas, Quotas::DATASTORE, ds_att_quota);
         }
 
-        if (do_vm_quota)
+        if (is_system)
         {
             quota_rollback(&vm_deltas, Quotas::VM, vm_att_quota);
         }

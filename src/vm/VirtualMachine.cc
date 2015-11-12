@@ -2448,7 +2448,7 @@ long long VirtualMachine::get_system_disk_size(Template * tmpl)
         {
             size += disk_size;
         }
-        else if ( disk_tm_target(disk) != "NONE") // self or system
+        else if ( disk_tm_target(disk) == "SYSTEM")
         {
             size += disk_size;
 
@@ -4576,16 +4576,16 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         delete tmp;
     }
 
-    if ( is_persistent(disk) )
-    {
+	if (is_persistent(disk) || disk_tm_target(disk) != "SYSTEM")
+	{
         *ds_quotas = new Template();
 
         (*ds_quotas)->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
         (*ds_quotas)->add("SIZE", ssize);
         (*ds_quotas)->add("IMAGES",0 );
-    }
+	}
 
-    if (disk_tm_target(disk) != "NONE") // self or system
+    if (disk_tm_target(disk) == "SYSTEM")
     {
         *vm_quotas = new Template();
 
@@ -4597,6 +4597,16 @@ void VirtualMachine::delete_disk_snapshot(int did, int snap_id,
         (*vm_quotas)->set(delta_disk);
     }
 }
+
+//  +--------+-------------------------------------+
+//  |LN/CLONE|     PERSISTENT    |   NO PERSISTENT |
+//  |        |---------+---------+-----------------+
+//  | TARGET | created |  quota  | created | quota |
+//  +--------+---------+---------+-----------------+
+//  | SYSTEM | system  | VM + DS | system  | VM    |
+//  | SELF   | image   | DS      | image   | DS    |
+//  | NONE   | image   | DS      | image   | DS    |
+//  +----------------------------------------------+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -4636,34 +4646,30 @@ void VirtualMachine::delete_non_persistent_disk_snapshots(Template **vm_quotas,
             continue;
         }
 
+		if ( disk_tm_target(disk) != "SYSTEM" )
+		{
+			continue;
+		}
+
         if (is_persistent(disk))
         {
-            if (!disk_tm_shared(disk))
-            {
-                int image_id;
+            int image_id;
 
-                if ( disk->vector_value("IMAGE_ID", image_id) != 0 )
-                {
-                    continue;
-                }
-
-                Template * d_ds = new Template();
-
-                d_ds->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
-                d_ds->add("SIZE", it->second->get_total_size());
-                d_ds->add("IMAGES", 0);
-
-                ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
-            }
-            else
+            if ( disk->vector_value("IMAGE_ID", image_id) != 0 )
             {
                 continue;
             }
+
+            Template * d_ds = new Template();
+
+            d_ds->add("DATASTORE", disk->vector_value("DATASTORE_ID"));
+            d_ds->add("SIZE", it->second->get_total_size());
+            d_ds->add("IMAGES", 0);
+
+            ds_quotas.insert(pair<int, Template *>(image_id, d_ds));
         }
-        else if (disk_tm_target(disk) != "NONE") // self or system
-        {
-            system_disk += it->second->get_total_size();
-        }
+
+		system_disk += it->second->get_total_size();
 
         it->second->clear();
 
