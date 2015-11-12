@@ -77,8 +77,11 @@ define(function(require) {
     url += "&encrypt=" + Config.vncWSS;
     url += "&title=" + vm_name;
 
-    $("#open_in_a_new_window_without_pass").attr('href', url);
-    $("#open_in_a_new_window").attr('href', url + "&password=" + pw);
+    if (!Config.requestVNCPassword) {
+      url += "&password=" + pw;
+    }
+
+    $("#open_in_a_new_window").attr('href', url);
     _rfb.connect(proxy_host, proxy_port, pw, path);
   }
 
