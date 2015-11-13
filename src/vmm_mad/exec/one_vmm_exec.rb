@@ -1153,7 +1153,11 @@ end
 #
 ################################################################################
 
-LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS'].split rescue []
+if ENV['LIVE_DISK_SNAPSHOTS']
+    LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS'].split
+else
+    LIVE_DISK_SNAPSHOTS = []
+end
 
 opts = GetoptLong.new(
     [ '--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT ],
