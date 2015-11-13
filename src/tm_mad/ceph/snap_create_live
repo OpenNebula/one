@@ -92,6 +92,10 @@ fi
 SNAP_CREATE_CMD=$(cat <<EOF
     set -e
 
+    if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+    fi
+
     RBD="${RBD}"
 
     rbd_check_2 $RBD_DST
