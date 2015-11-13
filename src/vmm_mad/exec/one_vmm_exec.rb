@@ -904,7 +904,6 @@ class ExecDriver < VirtualMachineDriver
 
         # Get TM command
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
-        tm_rollback= xml_data.elements['TM_COMMAND_ROLLBACK'].text.strip
 
         # Build the process
         case strategy
@@ -942,14 +941,7 @@ class ExecDriver < VirtualMachineDriver
                     :driver     => :vmm,
                     :action     => :attach_disk,
                     :parameters => [:deploy_id, :disk_target_path, target,
-                                    target_index, drv_message],
-                    :fail_actions => [
-                        {
-                            :driver     => :tm,
-                            :action     => :tm_snap_delete,
-                            :parameters => tm_rollback.split
-                        }
-                    ]
+                                    target_index, drv_message]
                 }
             ]
         when :suspend
@@ -981,14 +973,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver     => :vmm,
                     :action     => :restore,
-                    :parameters => [:checkpoint_file, :host, :deploy_id],
-                    :fail_actions => [
-                        {
-                            :driver     => :tm,
-                            :action     => :tm_snap_delete,
-                            :parameters => tm_rollback.split
-                        }
-                    ]
+                    :parameters => [:checkpoint_file, :host, :deploy_id]
                 },
                 # network drivers (post)
                 {
