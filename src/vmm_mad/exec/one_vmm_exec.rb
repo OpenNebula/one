@@ -915,8 +915,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver     => :tm,
                     :action     => :tm_snap_create_live,
-                    :parameters => tm_command_split,
-                    :no_fail    => true
+                    :parameters => tm_command_split
                 }
             ]
 
