@@ -2221,7 +2221,7 @@ VectorAttribute * VirtualMachine::set_up_attach_disk(
             imagem->release_image(vm_id, image_id, false);
 
             delete new_disk;
-            delete snap;
+            delete *snap;
 
             *snap    = 0;
             image_id = -1;
