@@ -893,7 +893,8 @@ class ExecDriver < VirtualMachineDriver
     # DISKSNAPSHOTCREATE action, takes a snapshot of a disk
     #
     def disk_snapshot_create(id, drv_message)
-        snap_action  = prepare_snap_action(id, drv_message, ACTION[:disk_snapshot_create])
+        snap_action  = prepare_snap_action(id, drv_message,
+                                           :disk_snapshot_create)
         action       = snap_action[:action]
         strategy     = snap_action[:strategy]
         drv_message  = snap_action[:drv_message]
@@ -1014,7 +1015,8 @@ class ExecDriver < VirtualMachineDriver
     # DISKSNAPSHOTREVERT action, takes a snapshot of a disk
     #
     def disk_snapshot_revert(id, drv_message)
-        snap_action  = prepare_snap_action(id, drv_message, ACTION[:disk_snapshot_revert])
+        snap_action  = prepare_snap_action(id, drv_message,
+                                           :disk_snapshot_revert)
         action       = snap_action[:action]
         strategy     = @options[:snapshots_strategy]
         drv_message  = snap_action[:drv_message]
@@ -1120,7 +1122,8 @@ private
 
         # Make sure disk target has been defined
         target_xpath = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TARGET"
-        target       = ensure_xpath(xml_data, id, action, target_xpath) || return
+        target       = ensure_xpath(xml_data, id, ACTION[action],
+                                    target_xpath) || return
         target_index = target.downcase[-1..-1].unpack('c').first - 97
 
         # Always send ATTACH='YES' for the selected target in case it will end
@@ -1132,7 +1135,7 @@ private
         disk.add(attach)
 
         drv_message = Base64.encode64(xml_data.to_s)
-        action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
+        action = VmmAction.new(self, id, action, drv_message)
 
         # Determine the strategy
         vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VMMMAD'
