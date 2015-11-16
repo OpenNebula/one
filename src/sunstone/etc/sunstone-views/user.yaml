@@ -113,6 +113,7 @@ tabs:
             Vdc.refresh: true
             Vdc.create_dialog: true
             Vdc.update_dialog: true
+            Vdc.rename: true
             Vdc.delete: true
 
     acls-tab:
@@ -161,6 +162,7 @@ tabs:
         actions:
             VM.refresh: true
             VM.create_dialog: true
+            VM.rename: true
             VM.chown: false
             VM.chgrp: false
             VM.chmod: true
@@ -214,6 +216,7 @@ tabs:
             Template.import_dialog: false
             Template.update_dialog: true
             Template.instantiate_vms: true
+            Template.rename: true
             Template.chown: false
             Template.chgrp: false
             Template.chmod: true
@@ -252,6 +255,7 @@ tabs:
         actions:
             Image.refresh: true
             Image.create_dialog: true
+            Image.rename: true
             Image.chown: false
             Image.chgrp: false
             Image.chmod: true
@@ -284,6 +288,7 @@ tabs:
         actions:
             File.refresh: true
             File.create_dialog: true
+            File.rename: true
             File.chown: false
             File.chgrp: false
             File.chmod: true
@@ -311,6 +316,7 @@ tabs:
             Cluster.create_dialog: true
             Cluster.update_dialog: true
             Cluster.delete: true
+            Cluster.rename: true
     hosts-tab:
         panel_tabs:
             host_info_tab: true
@@ -337,6 +343,7 @@ tabs:
             Host.refresh: true
             Host.create_dialog: true
             Host.addtocluster: true
+            Host.rename: true
             Host.enable: true
             Host.disable: true
             Host.delete: true
@@ -361,6 +368,7 @@ tabs:
             Datastore.refresh: true
             Datastore.create_dialog: false
             Datastore.addtocluster: false
+            Datastore.rename: true
             Datastore.chown: false
             Datastore.chgrp: false
             Datastore.chmod: true
@@ -390,6 +398,7 @@ tabs:
             Network.import_dialog: false
             Network.update_dialog: true
             Network.addtocluster: false
+            Network.rename: true
             Network.chown: false
             Network.chgrp: false
             Network.chmod: true
@@ -412,6 +421,7 @@ tabs:
             SecurityGroup.refresh: true
             SecurityGroup.create_dialog: true
             SecurityGroup.update_dialog: true
+            SecurityGroup.rename: true
             SecurityGroup.chown: true
             SecurityGroup.chgrp: true
             SecurityGroup.chmod: true
@@ -519,6 +529,7 @@ tabs:
         actions:
             Zone.refresh: true
             Zone.create_dialog: true
+            Zone.rename: true
             Zone.delete: true
     support-tab:
         panel_tabs:

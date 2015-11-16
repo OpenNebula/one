@@ -67,7 +67,7 @@ define(function(require) {
    */
 
   function _html() {
-    var renameTrHTML = RenameTr.html(RESOURCE, this.element.NAME);
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE, Locale.tr("Attributes"));
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var stateStr = Locale.tr(OpenNebulaImage.stateStr(this.element.STATE));
@@ -89,7 +89,7 @@ define(function(require) {
   }
 
   function _setup(context) {
-    RenameTr.setup(RESOURCE, this.element.ID, context);
+    RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     TemplateTable.setup(this.element.TEMPLATE, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
