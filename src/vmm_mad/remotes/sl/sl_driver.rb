@@ -584,7 +584,7 @@ private
         mem = mem.to_i / 1024 # Memory for templates expressed in MB
         cpu = cpu.to_f / 100  # CPU expressed in units
 
-        str = "NAME   = \"Instance from #{i['id']}\"\n"\
+        str = "NAME   = \"#{i['fullyQualifiedDomainName']}\"\n"\
               "CPU    = \"#{cpu}\"\n"\
               "vCPU   = \"#{cpu.ceil}\"\n"\
               "MEMORY = \"#{mem}\"\n"\
