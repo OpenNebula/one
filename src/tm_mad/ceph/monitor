@@ -32,7 +32,7 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../../datastore/libfs.sh
-source ${DRIVER_PATH}/ceph.conf
+source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 
 # -------- Get datastore arguments from OpenNebula core ------------
 

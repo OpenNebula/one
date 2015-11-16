@@ -36,7 +36,6 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
-source $LIB_LOCATION/sh/scripts_common.sh
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
 source ${DRIVER_PATH}/../../datastore/libfs.sh
