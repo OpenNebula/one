@@ -64,7 +64,12 @@ ssh_make_path $DST_HOST $DST_DIR
 #-------------------------------------------------------------------------------
 log "Linking $SRC_PATH in $DST"
 
-CMD=$(cat <<EOT
+type="$(file -b --mime-type $SRC_PATH)"
+
+if [ "$type" == "application/x-iso9660-image" ]; then
+    CMD="ln -sf ${SRC_PATH} ${DST_PATH}"
+else
+    CMD=$(cat <<EOT
 set -ex
 
 mkdir -p "${SNAP_DIR}"
@@ -80,6 +85,7 @@ ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
 ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
 EOT
 )
+fi
 
 ssh_exec_and_log $DST_HOST "$CMD" "Error linking $SRC to $DST"
 
