@@ -80,11 +80,16 @@ ssh_make_path $DST_HOST $DST_DIR
 # Clone (cp) SRC into DST
 #-------------------------------------------------------------------------------
 
-if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
-   RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
-fi
+type="$(file -b --mime-type $SRC_PATH)"
 
-CLONE_CMD=$(cat <<EOF
+if [ "$type" == "application/x-iso9660-image" ]; then
+    CLONE_CMD="cp ${SRC_PATH} ${DST_PATH}"
+else
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+       RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+    fi
+
+    CLONE_CMD=$(cat <<EOF
 cd $DST_DIR
 mkdir -p ${DST_PATH}.snap
 rm -f $DST_PATH
@@ -93,6 +98,7 @@ ln -s ${DST_PATH}.snap/0 ${DST_PATH}
 ${RESIZE_CMD}
 EOF
 )
+fi
 
 case $SRC in
 http://*)
