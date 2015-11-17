@@ -204,7 +204,7 @@ class VIClient
         return vms.find do |v|
             begin
                 v.config && v.config.uuid == uuid
-            rescue ManagedObjectNotFound
+            rescue RbVmomi::VIM::ManagedObjectNotFound
                 false
             end
         end
@@ -221,7 +221,7 @@ class VIClient
         return vms.find do |v|
             begin
                 v.name == vm_name
-            rescue ManagedObjectNotFound
+            rescue RbVmomi::VIM::ManagedObjectNotFound
                 false
             end
         end
