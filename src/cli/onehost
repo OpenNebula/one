@@ -244,7 +244,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Import VM to OpenNebula
     EOT
 
-    command :importvm, importvm_desc, :hostid, :import_id do
+    command :importvm, importvm_desc, :hostid, :name do
         helper.perform_action(args[0], options, "imported") do |o|
             rc = o.info
             next rc if OpenNebula.is_error?(rc)
