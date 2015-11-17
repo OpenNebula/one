@@ -503,7 +503,7 @@ define(function(require) {
             '<div class="row">'+
               '<div class="large-12 columns">'+
                 '<span style="font-size: 14px; line-height: 20px">'+
-                  Locale.tr("This Virtual Machine will be saved in a new Template. Only the main disk will be preserved!")+
+                  Locale.tr("This Virtual Machine will be saved in a new Template.")+
                 '<br>'+
                   Locale.tr("You can then create a new Virtual Machine using this Template.")+
                 '</span>'+
@@ -513,6 +513,27 @@ define(function(require) {
             '<div class="row">'+
               '<div class="large-11 large-centered columns">'+
                 '<input type="text" class="provision_snapshot_name" placeholder="'+Locale.tr("Template Name")+'" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important; margin: 0px"/>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<span style="font-size: 14px; line-height: 20px">'+
+                  Locale.tr("The new Virtual Machine's disks can be made persistent. In a persistent Virtual Machine the changes made survive after it is destroyed. On the other hand, you cannot create more than one simultaneous Virtual Machine from a Template with persistent disks.")+
+                '</span>'+
+              '</div>'+
+            '</div>'+
+            '<br>'+
+            '<div class="row">'+
+              '<div class="large-12 columns">'+
+                '<label class="left" style="margin-left: 25px">'+
+                  '<input type="radio" name="provision_snapshot_radio" value="persistent" class="provision_snapshot_persistent_radio">'+
+                  ' <i class="fa fa-fw fa-save"/> '+Locale.tr("Persistent")+
+                '</label>'+
+                '<label class="left" style="margin-left: 25px">'+
+                  '<input type="radio" name="provision_snapshot_radio" value="nonpersistent" class="provision_snapshot_nonpersisten_radio" checked>'+
+                  ' <i class="fa fa-fw fa-trash-o"/> '+Locale.tr("Non-persistent")+
+                '</label>'+
               '</div>'+
             '</div>'+
             '<br>'+
@@ -532,12 +553,15 @@ define(function(require) {
 
         var vm_id = context.attr("vm_id");
         var template_name = $('.provision_snapshot_name', context).val();
+        var persistent =
+          ($('input[name=provision_snapshot_radio]:checked').val() == "persistent");
 
         OpenNebula.VM.save_as_template({
           data : {
             id: vm_id,
             extra_param: {
-              name : template_name
+              name : template_name,
+              persistent : persistent
             }
           },
           timeout: false,
