@@ -144,15 +144,31 @@ class VIClient
     end
 
     ########################################################################
+    # The associated cluster for this connection
+    ########################################################################
+    def cluster
+       @cluster
+    end
+
+    ########################################################################
+    # The associated cluster for this connection
+    ########################################################################
+    def rp_confined?
+       !@one_host["TEMPLATE/VCENTER_RESOURCE_POOL"].nil?
+    end
+
+    ########################################################################
     # The associated resource pool for this connection
     ########################################################################
     def resource_pool
         rp_name = @one_host["TEMPLATE/VCENTER_RESOURCE_POOL"]
 
        if rp_name.nil?
-          @cluster.resourcePool
+          rp_array = @cluster.resourcePool.resourcePool
+          rp_array << @cluster.resourcePool
+          rp_array
        else
-          find_resource_pool(rp_name)
+          [find_resource_pool(rp_name)]
        end
     end
 
@@ -574,7 +590,7 @@ class VCenterHost < ::OpenNebula::Host
         @client  = client
         @cluster = client.cluster
 
-        @resource_pool = client.resource_pool
+        @resource_pools = client.resource_pool
     end
 
     ########################################################################
@@ -709,35 +725,38 @@ class VCenterHost < ::OpenNebula::Host
 
     def monitor_vms
         str_info = ""
-        @resource_pool.vm.each { |v|
-            begin
-                name   = v.name
-                number = -1
+        @resource_pools.each{|rp|
+              rp.vm.each { |v|
+                begin
+                    name   = v.name
+                    number = -1
 
-                matches = name.match(/^one-(\d*)(-(.*))?$/)
-                number  = matches[1] if matches
+                    matches = name.match(/^one-(\d*)(-(.*))?$/)
+                    number  = matches[1] if matches
 
-                vm = VCenterVm.new(@client, v)
-                vm.monitor
+                    vm = VCenterVm.new(@client, v)
+                    vm.monitor
 
-                next if !vm.vm.config
+                    next if !vm.vm.config
 
-                str_info << "\nVM = ["
-                str_info << "ID=#{number},"
-                str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-                str_info << "VM_NAME=\"#{name}\","
+                    str_info << "\nVM = ["
+                    str_info << "ID=#{number},"
+                    str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+                    str_info << "VM_NAME=\"#{name} - "\
+                                "#{v.runtime.host.parent.name}\","
 
-                if number == -1
-                    vm_template_to_one =
-                        Base64.encode64(vm.vm_to_one).gsub("\n","")
-                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+                    if number == -1
+                        vm_template_to_one =
+                            Base64.encode64(vm.vm_to_one).gsub("\n","")
+                        str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
+                    end
+
+                    str_info << "POLL=\"#{vm.info}\"]"
+                rescue Exception => e
+                    STDERR.puts e.inspect
+                    STDERR.puts e.backtrace
                 end
-
-                str_info << "POLL=\"#{vm.info}\"]"
-            rescue Exception => e
-                STDERR.puts e.inspect
-                STDERR.puts e.backtrace
-            end
+              }
         }
 
         return str_info
@@ -1395,9 +1414,15 @@ private
         connection  = VIClient.new(hid)
         vc_template = connection.find_vm_template(uuid)
 
+        if connection.rp_confined?
+            rp = connection.cluster.resource_pool.first
+        else
+            rp = connection.cluster.resourcePool
+        end
+
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
                           :diskMoveType => :moveChildMostDiskBacking,
-                          :pool         => connection.resource_pool)
+                          :pool         => rp)
 
         clone_parameters = {
             :location => relocate_spec,
