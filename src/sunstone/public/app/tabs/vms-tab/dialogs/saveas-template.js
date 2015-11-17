@@ -70,13 +70,15 @@ define(function(require) {
 
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var template_name = $('#template_name', this).val();
+      var persistent = $('#saveas_persistency', this).is(":checked") ? true : false;
       var vm_id = $("#vm_id", context).val();
 
       OpenNebula.VM.save_as_template({
         data : {
           id: vm_id,
           extra_param: {
-            name : template_name
+            name : template_name,
+            persistent : persistent
           }
         },
         success: function(request, response){

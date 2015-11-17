@@ -127,6 +127,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         :description => "ID of the Snapshot to save."
     }
 
+    PERSISTENT={
+        :name  => "persistent",
+        :large => "--persistent",
+        :description => "Make the new images persistent"
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -916,9 +922,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         States: POWEROFF
     EOT
 
-    command :save, save_desc, :vmid, :name do
+    command :save, save_desc, :vmid, :name, :options=>[PERSISTENT] do
         helper.perform_action(args[0],options,"Saving VM") do |vm|
-            res = vm.save_as_template(args[1])
+            res = vm.save_as_template(args[1], options[:persistent] )
 
             if !OpenNebula.is_error?(res)
                 puts "Template ID: #{res}"
