@@ -24,7 +24,7 @@ tabs:
         actions: &provisionactions
             Template.chmod: false
             Template.delete: true
-            VM.rename: true
+            VM.rename: false
             VM.resume: true
             VM.reboot: true
             VM.reboot_hard: true
