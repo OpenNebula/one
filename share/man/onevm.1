@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "ONEVM" "1" "October 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
+.TH "ONEVM" "1" "November 2015" "" "onevm(1) -- manages OpenNebula virtual machines"
 .
 .SH "NAME"
 \fBonevm\fR \- manages OpenNebula virtual machines
@@ -90,6 +90,7 @@
  \-k, \-\-kilobytes           Show units in kilobytes
  \-\-describe                Describe list columns
  \-\-all                     Show all template data
+ \-\-persistent              Make the new images persistent
  \-v, \-\-verbose             Verbose mode
  \-h, \-\-help                Show this message
  \-V, \-\-version             Show version and copyright information
@@ -526,6 +527,7 @@ save \fIvmid\fR \fIname\fR Clones the VM\'s source Template, replacing the disks
 .nf
 
 States: POWEROFF
+valid options: persistent
 .
 .fi
 .
@@ -572,7 +574,7 @@ diskid Integer
 .IP "" 0
 .
 .SH "LICENSE"
-OpenNebula 4\.14\.1 Copyright 2002\-2015, OpenNebula Project, OpenNebula Systems
+OpenNebula 4\.14\.2 Copyright 2002\-2015, OpenNebula Project, OpenNebula Systems
 .
 .P
 Licensed under the Apache License, Version 2\.0 (the "License"); you may not use this file except in compliance with the License\. You may obtain a copy of the License at http://www\.apache\.org/licenses/LICENSE\-2\.0
