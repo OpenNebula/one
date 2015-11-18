@@ -536,11 +536,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if (vm->is_imported() && (
-        action == History::DELETE_RECREATE_ACTION ||
-        action == History::UNDEPLOY_ACTION ||
-        action == History::UNDEPLOY_HARD_ACTION ||
-        action == History::STOP_ACTION))
+    if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         oss << "Action \"" << action_st << "\" is not supported for imported VMs";
 
@@ -899,6 +895,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
     string error;
 
+    History::VMAction action;
+
     // ------------------------------------------------------------------------
     // Get request parameters and information about the target host
     // ------------------------------------------------------------------------
@@ -1000,7 +998,16 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         return;
     }
 
-    if (vm->is_imported())
+    if (live)
+    {
+        action = History::LIVE_MIGRATE_ACTION;
+    }
+    else
+    {
+        action = History::MIGRATE_ACTION;
+    }
+
+    if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
         failure_response(ACTION,
                 request_error("Migration is not supported for imported VMs",""),
