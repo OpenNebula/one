@@ -42,6 +42,7 @@ require 'opennebula'
 require 'base64'
 require 'openssl'
 require 'openssl'
+require 'VirtualMachineDriver'
 
 module VCenterDriver
 
@@ -1096,7 +1097,7 @@ class VCenterVm
         @summary = @vm.summary
         @state   = state_to_c(@summary.runtime.powerState)
 
-        if @state != 'a'
+        if @state != VM_STATE[:active]
             @used_cpu    = 0
             @used_memory = 0
 
@@ -1272,13 +1273,13 @@ private
     def state_to_c(state)
         case state
             when 'poweredOn'
-                'a'
+                VM_STATE[:active]
             when 'suspended'
-                'p'
+                VM_STATE[:paused]
             when 'poweredOff'
-                'd'
+                VM_STATE[:deleted]
             else
-                '-'
+                VM_STATE[:unknown]
         end
     end
 
@@ -1522,7 +1523,7 @@ private
                 user_id = xml.root.elements['//CREATED_BY'].text
 
                 if user_id.nil?
-                    logger.error {"VMID:#{vmid} CREATED_BY not present" \
+                    STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
                         " in the VM TEMPLATE"}
                     return nil
                 end
@@ -1532,7 +1533,7 @@ private
                 rc   = user.info
 
                 if OpenNebula.is_error?(rc)
-                    logger.error {"VMID:#{vmid} user.info" \
+                    STDERR.puts {"VMID:#{vmid} user.info" \
                         " error: #{rc.message}"}
                     return nil
                 end
@@ -1540,7 +1541,7 @@ private
                 token_password = user['TEMPLATE/TOKEN_PASSWORD']
 
                 if token_password.nil?
-                    logger.error {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                    STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
                         " in the USER:#{user_id} TEMPLATE"}
                     return nil
                 end
