@@ -727,37 +727,37 @@ class VCenterHost < ::OpenNebula::Host
     def monitor_vms
         str_info = ""
         @resource_pools.each{|rp|
-              rp.vm.each { |v|
-                begin
-                    name   = v.name
-                    number = -1
+          rp.vm.each { |v|
+            begin
+                name   = v.name
+                number = -1
 
-                    matches = name.match(/^one-(\d*)(-(.*))?$/)
-                    number  = matches[1] if matches
+                matches = name.match(/^one-(\d*)(-(.*))?$/)
+                number  = matches[1] if matches
 
-                    vm = VCenterVm.new(@client, v)
-                    vm.monitor
+                vm = VCenterVm.new(@client, v)
+                vm.monitor
 
-                    next if !vm.vm.config
+                next if !vm.vm.config
 
-                    str_info << "\nVM = ["
-                    str_info << "ID=#{number},"
-                    str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
-                    str_info << "VM_NAME=\"#{name} - "\
-                                "#{v.runtime.host.parent.name}\","
+                str_info << "\nVM = ["
+                str_info << "ID=#{number},"
+                str_info << "DEPLOY_ID=\"#{vm.vm.config.uuid}\","
+                str_info << "VM_NAME=\"#{name} - "\
+                            "#{v.runtime.host.parent.name}\","
 
-                    if number == -1
-                        vm_template_to_one =
-                            Base64.encode64(vm.vm_to_one).gsub("\n","")
-                        str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
-                    end
-
-                    str_info << "POLL=\"#{vm.info}\"]"
-                rescue Exception => e
-                    STDERR.puts e.inspect
-                    STDERR.puts e.backtrace
+                if number == -1
+                    vm_template_to_one =
+                        Base64.encode64(vm.vm_to_one).gsub("\n","")
+                    str_info << "IMPORT_TEMPLATE=\"#{vm_template_to_one}\","
                 end
-              }
+
+                str_info << "POLL=\"#{vm.info}\"]"
+            rescue Exception => e
+                STDERR.puts e.inspect
+                STDERR.puts e.backtrace
+            end
+          }
         }
 
         return str_info
@@ -787,6 +787,9 @@ end
 
 class VCenterVm
     attr_reader :vm
+
+    POLL_ATTRIBUTE  = VirtualMachineDriver::POLL_ATTRIBUTE
+    VM_STATE        = VirtualMachineDriver::VM_STATE
 
     ############################################################################
     #  Creates a new VIVm using a RbVmomi::VirtualMachine object
@@ -1151,11 +1154,11 @@ class VCenterVm
           str_info << "GUEST_IP_ADDRESSES=\\\"" <<
               @guest_ip_addresses.to_s << "\\\" "
       end
-      str_info << "STATE="                      << @state                << " "
-      str_info << "CPU="                        << @used_cpu.to_s        << " "
-      str_info << "MEMORY="                     << @used_memory.to_s     << " "
-      str_info << "NETRX="                      << @netrx.to_s          << " "
-      str_info << "NETTX="                      << @nettx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:state]}="  << @state                << " "
+      str_info << "#{POLL_ATTRIBUTE[:cpu]}="    << @used_cpu.to_s        << " "
+      str_info << "#{POLL_ATTRIBUTE[:memory]}=" << @used_memory.to_s     << " "
+      str_info << "#{POLL_ATTRIBUTE[:netrx]}="  << @netrx.to_s          << " "
+      str_info << "#{POLL_ATTRIBUTE[:nettx]}="  << @nettx.to_s          << " "
       str_info << "ESX_HOST="                   << @esx_host.to_s        << " "
       str_info << "GUEST_STATE="                << @guest_state.to_s     << " "
       str_info << "VMWARETOOLS_RUNNING_STATUS=" << @vmware_tools.to_s    << " "
