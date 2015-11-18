@@ -252,6 +252,29 @@ class EC2Driver
                 :min_count => 1,
                 :max_count => 1})
 
+        # The OpenNebula context will be only included if not USERDATA
+        #   is provided by the user
+        if !ec2_value(ec2_info, 'USERDATA')
+            xml = OpenNebula::XMLElement.new
+            xml.initialize_xml(xml_text, 'VM')
+
+            if xml.has_elements?('TEMPLATE/CONTEXT')
+                # Since there is only 1 level ',' will not be added
+                context_str = xml.template_like_str('TEMPLATE/CONTEXT')
+
+                if xml['TEMPLATE/CONTEXT/TOKEN'] == 'YES'
+                    # TODO use OneGate library
+                    token_str = generate_onegate_token(xml)
+                    if token_str
+                        context_str << "\nONEGATE_TOKEN=\"#{token_str}\""
+                    end
+                end
+
+                userdata_key = EC2[:run][:args]["USERDATA"][:opt]
+                opts[userdata_key] = Base64.encode64(context_str)
+            end
+        end
+
         begin
             instance = AWS.ec2.instances.create(opts)
         rescue => e
@@ -733,6 +756,48 @@ private
                 :dimensions=>[{:name=>"InstanceId", :value=>id}]}
 
         cw.get_metric_statistics(options)
+    end
+
+    # TODO move this method to a OneGate library
+    def generate_onegate_token(xml)
+        # Create the OneGate token string
+        vmid_str  = xml["ID"]
+        stime_str = xml["STIME"]
+        str_to_encrypt = "#{vmid_str}:#{stime_str}"
+
+        user_id = xml['TEMPLATE/CREATED_BY']
+
+        if user_id.nil?
+            STDERR.puts {"VMID:#{vmid} CREATED_BY not present" \
+                " in the VM TEMPLATE"}
+            return nil
+        end
+
+        user = OpenNebula::User.new_with_id(user_id,
+                                            OpenNebula::Client.new)
+        rc   = user.info
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts {"VMID:#{vmid} user.info" \
+                " error: #{rc.message}"}
+            return nil
+        end
+
+        token_password = user['TEMPLATE/TOKEN_PASSWORD']
+
+        if token_password.nil?
+            STDERR.puts {"VMID:#{vmid} TOKEN_PASSWORD not present"\
+                " in the USER:#{user_id} TEMPLATE"}
+            return nil
+        end
+
+        cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+        cipher.encrypt
+        cipher.key = token_password
+        onegate_token = cipher.update(str_to_encrypt)
+        onegate_token << cipher.final
+
+        onegate_token_64 = Base64.encode64(onegate_token).chop
     end
 end
 
