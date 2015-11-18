@@ -1283,9 +1283,16 @@ public:
     static bool is_persistent(const VectorAttribute * disk);
 
     /**
-     *  Check if the themplate is for an imported VM
+     *  Check if the VM is imported
      */
     bool is_imported() const;
+
+    /**
+     * Checks if the current VM MAD supports the given action for imported VMs
+     * @param action VM action to check
+     * @return true if the current VM MAD supports the given action for imported VMs
+     */
+    bool is_imported_action_supported(History::VMAction action) const;
 
     /**
      *  Return the total disk SIZE that the VM instance needs in the system DS
