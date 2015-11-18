@@ -160,6 +160,9 @@ class VIClient
 
     ########################################################################
     # The associated resource pool for this connection
+    # @return [ResourcePool] an array of resource pools including the default
+    #    resource pool. If the connection is confined to a particular
+    #    resource pool, then return just that one
     ########################################################################
     def resource_pool
         rp_name = @one_host["TEMPLATE/VCENTER_RESOURCE_POOL"]
@@ -171,6 +174,15 @@ class VIClient
        else
           [find_resource_pool(rp_name)]
        end
+    end
+
+    ########################################################################
+    # Get the default resource pool of the connection. Only valid if
+    # the connection is not confined in a resource pool
+    # @return ResourcePool the default resource pool
+    ########################################################################
+    def default_resource_pool
+        @cluster.resourcePool
     end
 
     ########################################################################
@@ -1421,7 +1433,7 @@ private
         if connection.rp_confined?
             rp = connection.cluster.resource_pool.first
         else
-            rp = connection.cluster.resourcePool
+            rp = connection.cluster.default_resource_pool
         end
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
