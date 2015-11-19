@@ -16,6 +16,15 @@
 
 
 module RemoteCloudAuth
+
+    # Gets the username associated with a password for users with driver public
+    # It just matches the password.
+    def get_username(password)
+      select_username(password) { |u, p|
+        u["AUTH_DRIVER"] == "public" && u["PASSWORD"] == p
+      }
+    end
+
     def do_auth(env, params={})
         # For Kerberos, the web service should be set to include the remote_user in the environment.
         remote_user   = env['REMOTE_USER']
@@ -24,7 +33,7 @@ module RemoteCloudAuth
         # Use the https credentials for authentication
         unless remote_user.nil?
             # Password should be REMOTE_USER itself.
-            username = get_username(remote_user)
+            username = get_remote_username(remote_user)
             if username
                 return username
             else
