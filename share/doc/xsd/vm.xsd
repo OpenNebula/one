@@ -28,7 +28,7 @@
         <xs:element name="LAST_POLL" type="xs:integer"/>
 
         <!-- STATE values,
-        see http://opennebula.org/_media/documentation:rel3.6:states-complete.png
+        see http://docs.opennebula.org/stable/user/references/vm_states.html
 
           INIT      = 0
           PENDING   = 1
