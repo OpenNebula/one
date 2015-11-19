@@ -154,6 +154,8 @@ class CloudAuth
                     return user["NAME"] if yield user, password
             end
         end
+
+        nil
     end
 
     private
