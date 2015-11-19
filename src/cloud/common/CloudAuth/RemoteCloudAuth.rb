@@ -33,7 +33,7 @@ module RemoteCloudAuth
         # Use the https credentials for authentication
         unless remote_user.nil?
             # Password should be REMOTE_USER itself.
-            username = get_remote_username(remote_user)
+            username = get_username(remote_user)
             if username
                 return username
             else
