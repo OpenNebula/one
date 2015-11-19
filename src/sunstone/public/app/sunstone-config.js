@@ -59,8 +59,13 @@ define(function(require) {
 
     "isProvisionTabEnabled": function(tabName, panelTabName) {
       if (_config['view']['tabs'][tabName]) {
-        var enabled = _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
-        return enabled;
+        if (_config['view']['tabs'][tabName]['provision_tabs']) {
+          return _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
+        } else {
+          // if provision_tabs is not defined use panel_tabs. 
+          // This attribute was used in before 4.14, provision_tabs was include in 4.14.2
+          return _config['view']['tabs'][tabName]['panel_tabs'][panelTabName];
+        }
       } else {
         return false;
       }
