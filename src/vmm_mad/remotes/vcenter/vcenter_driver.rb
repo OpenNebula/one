@@ -1433,7 +1433,7 @@ private
         if connection.rp_confined?
             rp = connection.cluster.resource_pool.first
         else
-            rp = connection.cluster.default_resource_pool
+            rp = connection.default_resource_pool
         end
 
         relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(
