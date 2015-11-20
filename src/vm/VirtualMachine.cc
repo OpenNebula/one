@@ -2399,31 +2399,14 @@ bool VirtualMachine::is_imported() const
 
 bool VirtualMachine::is_imported_action_supported(History::VMAction action) const
 {
-    const VectorAttribute*  vatt;
-    string                  action_st;
-    string                  action_list;
-    vector<string>          actions;
-    int                     rc;
-
     if (!hasHistory())
-    {
-        return true;
-    }
-
-    rc = Nebula::instance().get_vm_conf_attribute(get_vmm_mad(), vatt);
-
-    if (rc != 0)
     {
         return false;
     }
 
-    vatt->vector_value("IMPORTED_VMS_ACTIONS", action_list);
+    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
 
-    actions = one_util::split(action_list, ',');
-
-    action_st = History::action_to_str(action);
-
-    return (find(actions.begin(), actions.end(), action_st) != actions.end());
+    return vmm->is_imported_action_supported(get_vmm_mad(), action);
 }
 
 /* -------------------------------------------------------------------------- */

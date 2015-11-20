@@ -107,6 +107,24 @@ public:
      */
     int load_mads(int uid);
 
+    /**
+     *  Check if action is supported for imported VMs
+     *    @param mad name of the driver
+     *    @param action
+     *    @return True if it is supported
+     */
+    bool is_imported_action_supported(const string& mad,History::VMAction action)
+    {
+        const VirtualMachineManagerDriver * vmd = get(mad);
+
+        if ( vmd == 0 )
+        {
+            return false;
+        }
+
+        return vmd->is_imported_action_supported(action);
+    }
+
 private:
     /**
      *  Thread id for the Virtual Machine Manager

@@ -23,6 +23,7 @@
 
 #include "Mad.h"
 #include "VirtualMachinePool.h"
+#include "History.h"
 
 using namespace std;
 
@@ -83,6 +84,16 @@ public:
      */
     static void process_poll(VirtualMachine* vm, const string &monitor_str);
 
+    /**
+     *  Check if action is supported for imported VMs
+     *    @param action
+     *    @return True if it is supported
+     */
+    bool is_imported_action_supported(History::VMAction action) const
+    {
+        return (imported_vm_actions && (1 << static_cast<int>(action))) != 0;
+    }
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -130,6 +141,12 @@ private:
      *  Configuration file for the driver
      */
     Template    driver_conf;
+
+    /**
+     *  List of available actions for imported VMs. Each bit is an action
+     *  as defined in History.h, 1=supported and 0=not supported
+     */
+    long long imported_vm_actions;
 
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs

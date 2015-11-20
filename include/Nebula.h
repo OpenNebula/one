@@ -529,37 +529,6 @@ public:
     };
 
     /**
-     *  Gets a VM_MAD configuration attribute
-     */
-    int get_vm_conf_attribute(
-        const string& vm_mad_name,
-        const VectorAttribute* &value) const
-    {
-        vector<const Attribute*>::const_iterator it;
-        vector<const Attribute*> values;
-
-        nebula_configuration->Template::get("VM_MAD", values);
-
-        for (it = values.begin(); it != values.end(); it ++)
-        {
-            value = dynamic_cast<const VectorAttribute*>(*it);
-
-            if (value == 0)
-            {
-                continue;
-            }
-
-            if (value->vector_value("NAME") == vm_mad_name)
-            {
-                return 0;
-            }
-        }
-
-        value = 0;
-        return -1;
-    };
-
-    /**
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */

@@ -167,6 +167,13 @@ namespace one_util
      * @return 0 on match, another value otherwise
      */
     int regex_match(const char *pattern, const char *subject);
+
+    /**
+     * Trim an string using the isspace function
+     * @param the string
+     * @return trimed string
+     */
+    std::string trim(const std::string& str);
 };
 
 #endif /* _NEBULA_UTIL_H_ */

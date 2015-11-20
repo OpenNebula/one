@@ -27,7 +27,8 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     const map<string,string>&   attrs,
     bool                        sudo,
     VirtualMachinePool *        pool):
-        Mad(userid,attrs,sudo),driver_conf(true),vmpool(pool)
+        Mad(userid,attrs,sudo), driver_conf(true), imported_vm_actions(0),
+	 	vmpool(pool)
 {
     map<string,string>::const_iterator  it;
     char *          error_msg = 0;
@@ -71,6 +72,74 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
 
             NebulaLog::log("VMM", Log::ERROR, oss);
         }
+    }
+
+    it = attrs.find("IMPORTED_VMS_ACTIONS");
+
+    if (it != attrs.end())
+    {
+        vector<string> actions;
+        vector<string>::iterator vit;
+
+		string action;
+		History::VMAction id;
+
+        actions = one_util::split(it->second, ',');
+
+        for (vit = actions.begin() ; vit != actions.end() ; ++vit)
+        {
+        	action = one_util::trim(*vit);
+
+			if ( History::action_from_str(action, id) != 0 )
+			{
+				NebulaLog::log("VMM", Log::ERROR, "Wrong action: " + action);
+				continue;
+			}
+
+			imported_vm_actions += 1 << static_cast<int>(id);
+        }
+    }
+    else
+    {
+		NebulaLog::log("VMM", Log::INFO, "Using default imported VMs actions");
+
+		it = attrs.find("NAME");
+
+		if (it != attrs.end())
+		{
+			if ( it->second == "kvm" )
+			{
+				imported_vm_actions = 132623768;
+			}
+			else if ( it->second == "xen3" )
+			{
+				imported_vm_actions = 132623768;
+			}
+			else if ( it->second == "xen" )
+			{
+				imported_vm_actions = 132623768;
+			}
+			else if ( it->second == "vmware" )
+			{
+				imported_vm_actions = 132623768;
+			}
+			else if ( it->second == "vcenter" )
+			{
+				imported_vm_actions = 134196632;
+			}
+			else if ( it->second == "ec2" )
+			{
+				imported_vm_actions = 134196632;
+			}
+			else if ( it->second == "az" )
+			{
+				imported_vm_actions = 134196632;
+			}
+			else if ( it->second == "sl" )
+			{
+				imported_vm_actions = 134196632;
+			}
+		}
     }
 }
 
