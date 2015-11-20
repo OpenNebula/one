@@ -182,7 +182,7 @@ module Instance
             merge_info = {}
             merge_info["DISK"] = []
             merge_info["DISK"] << {"IMAGE_ID" => img.to_i}
-
+            merge_info["IMAGE_ID"] = params['ImageId']
 
             template.each("TEMPLATE/DISK") { |e|
                 merge_info["DISK"] << e.to_hash["DISK"]
