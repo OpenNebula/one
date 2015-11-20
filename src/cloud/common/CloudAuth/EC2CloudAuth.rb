@@ -39,7 +39,7 @@ module EC2CloudAuth
 
                 opts['one_pass'] = get_password(opts['username'],  'core|public')
                 if !opts['one_pass']
-                    logger.error { "No password found for #{username}" }
+                    logger.error { "No password found for #{opts['username']}" }
                     return nil
                 end
 
@@ -159,13 +159,21 @@ module EC2CloudAuth
     end
 
     def canonical_request(req_env, opts)
+        if req_env["HTTP_X_AMZ_CONTENT_SHA256"]
+            body_digest = req_env["HTTP_X_AMZ_CONTENT_SHA256"]
+        else
+            body = req_env['rack.input'].read
+            req_env['rack.input'].rewind
+            body_digest = hexdigest(body)
+        end
+
         [
             req_env["REQUEST_METHOD"],
             uri_path_escape(req_env["REQUEST_PATH"]),
             normalized_querystring(req_env["QUERY_STRING"]),
             canonical_headers(req_env, opts) + "\n",
             opts['signed_headers'],
-            req_env["HTTP_X_AMZ_CONTENT_SHA256"]
+            body_digest
         ].join("\n")
     end
 
