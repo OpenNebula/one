@@ -37,37 +37,35 @@ define(function(require) {
   };
 
   var _addMainTabs = function() {
-    $.each(Config.enabledTabs, function(tabName, enabled){
-      if (enabled) {
-        var name = './tabs/' + tabName;
-        var tabObj = require(name);
-        var _tabId = tabObj.tabId;
-        SunstoneCfg["tabs"][_tabId] = tabObj;
+    $.each(Config.enabledTabs, function(i, tabName){
+      var name = './tabs/' + tabName;
+      var tabObj = require(name);
+      var _tabId = tabObj.tabId;
+      SunstoneCfg["tabs"][_tabId] = tabObj;
 
-        var actions = tabObj.actions;
-        if (actions) {
-          _addActions(actions)
-        }
+      var actions = tabObj.actions;
+      if (actions) {
+        _addActions(actions)
+      }
 
-        var panels = tabObj.panels;
-        if (panels) {
-          _addPanels(_tabId, panels)
-        }
+      var panels = tabObj.panels;
+      if (panels) {
+        _addPanels(_tabId, panels)
+      }
 
-        var panelsHooks = tabObj.panelsHooks;
-        if (panelsHooks) {
-          _addPanelsHooks(_tabId, panelsHooks);
-        }
+      var panelsHooks = tabObj.panelsHooks;
+      if (panelsHooks) {
+        _addPanelsHooks(_tabId, panelsHooks);
+      }
 
-        var dialogs = tabObj.dialogs;
-        if (dialogs) {
-          _addDialogs(dialogs)
-        }
+      var dialogs = tabObj.dialogs;
+      if (dialogs) {
+        _addDialogs(dialogs)
+      }
 
-        var formPanels = tabObj.formPanels;
-        if (formPanels) {
-          _addFormPanels(_tabId, formPanels)
-        }
+      var formPanels = tabObj.formPanels;
+      if (formPanels) {
+        _addFormPanels(_tabId, formPanels)
       }
     });
   }

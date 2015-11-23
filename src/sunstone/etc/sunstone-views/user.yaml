@@ -1,30 +1,30 @@
 small_logo: images/opennebula-sunstone-v4.14-small.png
 provision_logo: images/one_small_logo.png
 enabled_tabs:
-    dashboard-tab: true
-    system-tab: false
-    users-tab: false
-    groups-tab: false
-    vdcs-tab: false
-    acls-tab: false
-    vresources-tab: true
-    vms-tab: true
-    templates-tab: true
-    images-tab: true
-    files-tab: true
-    infra-tab: true
-    clusters-tab: false
-    hosts-tab: false
-    datastores-tab: true
-    vnets-tab: true
-    secgroups-tab: true
-    zones-tab: false
-    marketplace-tab: true
-    oneflow-dashboard: true
-    oneflow-services-tab: true
-    oneflow-templates-tab: true
-    settings-tab: true
-    support-tab: false
+    - dashboard-tab
+    #- system-tab
+    #- users-tab
+    #- groups-tab
+    #- vdcs-tab
+    #- acls-tab
+    - vresources-tab
+    - vms-tab
+    - templates-tab
+    - images-tab
+    - files-tab
+    - infra-tab
+    #- clusters-tab
+    #- hosts-tab
+    - datastores-tab
+    - vnets-tab
+    - secgroups-tab
+    #- zones-tab
+    - marketplace-tab
+    - oneflow-dashboard
+    - oneflow-services-tab
+    - oneflow-templates-tab
+    - settings-tab
+    #- support-tab
 autorefresh: true
 features:
     showback: true

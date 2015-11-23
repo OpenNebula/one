@@ -1,8 +1,8 @@
 provision_logo: images/one_small_logo.png
 enabled_tabs:
-    provision-tab: true
-    users-tab: true
-    settings-tab: true
+    - provision-tab
+    - users-tab
+    - settings-tab
 features:
     showback: true
 tabs:

@@ -29,7 +29,7 @@ define(function(require) {
 
   var Config = {
     'isTabEnabled': function(tabName) {
-      var enabled = _config['view']['enabled_tabs'][tabName];
+      var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
       return enabled;
     },
 
