@@ -65,19 +65,9 @@ define(function(require) {
     var url = this.element.links.download.href;
     url = url.replace(/\/download$/, '');
 
-    var short_description = "";
-
-    if(this.element.short_description){
-      short_description = TemplateUtils.htmlDecode(this.element.short_description).replace(/\n/g, "<br/>");
-    }
-
-    var description = TemplateUtils.htmlDecode(this.element.description).replace(/\n/g, "<br/>");
-
     return TemplateInfo({
       'element': this.element,
-      'url': url,
-      'short_description': short_description,
-      'description': description
+      'url': url
     });
   }
 
