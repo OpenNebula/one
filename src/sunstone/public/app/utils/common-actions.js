@@ -18,7 +18,6 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var Notifier = require('utils/notifier');
   var Locale = require('utils/locale');
-  var Config = require('sunstone-config');
 
   /*
     CONSTRUCTOR
@@ -81,7 +80,7 @@ define(function(require) {
         var tab = $('#' + that.tabId);
         if (Sunstone.rightInfoVisible(tab)) {
           Sunstone.runAction(that.resourceStr + ".show", Sunstone.rightInfoResourceId(tab));
-        } else if (Config.isTabEnabled(that.tabId)) {
+        } else {
           Sunstone.getDataTable(that.tabId).waitingNodes();
           Sunstone.runAction(that.resourceStr + ".list", {force: true});
         }
