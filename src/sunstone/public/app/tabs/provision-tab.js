@@ -34,6 +34,7 @@ define(function(require) {
   var RangeSlider = require('utils/range-slider');
   var DisksResize = require('utils/disks-resize');
   var NicsSection = require('utils/nics-section');
+  var TemplateUtils = require('utils/template-utils');
 
   var ProvisionQuotaWidget = require('./provision-tab/users/quota-widget');
 
@@ -1680,7 +1681,7 @@ define(function(require) {
             var role_template = $(this).data("opennebula");
 
             $.each(role_template.elasticity_policies, function(i, pol){
-                pol.expression = htmlDecode(pol.expression);
+                pol.expression = TemplateUtils.htmlDecode(pol.expression);
             });
 
             roles.push($.extend(role_template, {
