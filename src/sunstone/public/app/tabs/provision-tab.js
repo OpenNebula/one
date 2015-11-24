@@ -1680,9 +1680,11 @@ define(function(require) {
 
             var role_template = $(this).data("opennebula");
 
-            $.each(role_template.elasticity_policies, function(i, pol){
-                pol.expression = TemplateUtils.htmlDecode(pol.expression);
-            });
+            if (role_template.elasticity_policies != undefined){
+              $.each(role_template.elasticity_policies, function(i, pol){
+                  pol.expression = TemplateUtils.htmlDecode(pol.expression);
+              });
+            }
 
             roles.push($.extend(role_template, {
               "cardinality": $(".cardinality_value", $(this)).text(),
