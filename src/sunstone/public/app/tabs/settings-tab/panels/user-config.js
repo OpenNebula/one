@@ -105,6 +105,8 @@ define(function(require) {
       }
 
       Sunstone.runAction("User.passwd", ["-1"], pw);
+
+      Sunstone.runAction('Settings.refresh');
       return false;
     });
 
