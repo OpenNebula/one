@@ -38,6 +38,7 @@ SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
 CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
 
 PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
+LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
@@ -373,9 +374,18 @@ get '/' do
         return erb :login
     end
 
+    logos_conf = nil
+
+    begin
+        logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
+    rescue Exception => e
+        logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
+        error 500, ""
+    end
+
     response.set_cookie("one-user", :value=>"#{session[:user]}")
 
-    erb :index
+    erb :index, :locals => {:logos_conf => logos_conf}
 end
 
 get '/login' do

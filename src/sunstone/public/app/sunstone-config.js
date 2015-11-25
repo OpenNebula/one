@@ -149,6 +149,7 @@ define(function(require) {
     'vncWSS': _config['user_config']['vnc_wss'],
     'requestVNCPassword': _config['system_config']['vnc_request_password'],
     'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
+    'vmLogos': (_config['vm_logos']),
     'enabledTabs': _config['view']['enabled_tabs'],
     "defaultCost" : _defaultCost,
     "initDefaultCost" : function() {
