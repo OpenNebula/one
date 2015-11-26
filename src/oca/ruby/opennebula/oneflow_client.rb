@@ -307,11 +307,15 @@ module Service
             if @username.nil? && @password.nil?
                 if ENV["ONE_AUTH"] and !ENV["ONE_AUTH"].empty? and File.file?(ENV["ONE_AUTH"])
                     one_auth = File.read(ENV["ONE_AUTH"])
-                elsif File.file?(ENV["HOME"]+"/.one/one_auth")
+                elsif ENV["HOME"] and File.file?(ENV["HOME"]+"/.one/one_auth")
                     one_auth = File.read(ENV["HOME"]+"/.one/one_auth")
+                elsif File.file?("/var/lib/one/.one/one_auth")
+                    one_auth = File.read("/var/lib/one/.one/one_auth")
+                else
+                    raise "ONE_AUTH file not present"
                 end
 
-                one_auth.rstrip!
+                one_auth = one_auth.rstrip
 
                 @username, @password = one_auth.split(':')
             end
