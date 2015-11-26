@@ -25,6 +25,10 @@ body
     text-align: center;
 }
 .spice-message {
+    /* The spice debig messages are hidden by default. The visibility is
+        controlled here */
+    visibility: hidden;
+
     width: 700px;
     height: 50px;
     overflow: auto;
