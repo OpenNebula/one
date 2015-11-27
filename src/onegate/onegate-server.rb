@@ -178,6 +178,14 @@ def build_vm_hash(vm_hash)
         end
     end
 
+    OpenNebula::VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
+        external_ip = vm_hash["MONITORING"][attr]
+
+        if !external_ip.nil? && !nics.include?(external_ip)
+            nics.push({'IP' => external_ip})
+        end
+    end
+
     {
         "VM" => {
             "NAME"          => vm_hash["NAME"],
