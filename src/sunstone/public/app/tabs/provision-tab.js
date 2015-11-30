@@ -142,13 +142,12 @@ define(function(require) {
 
       switch (parts[1]) {
         case "text":
-          text_attrs.push(attrs)
-          break;
+        case "text64":
         case "password":
           text_attrs.push(attrs)
           break;
       }
-    })
+    });
 
     if (text_attrs.length > 0) {
       context.html(
@@ -173,18 +172,32 @@ define(function(require) {
 
 
       $.each(text_attrs, function(index, custom_attr){
+        var input;
+
+        switch (custom_attr.type) {
+          case "text":
+            input = '<textarea type="text" rows="1" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+          case "text64":
+            input = '<textarea type="text" rows="1" text64="true" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+          case "password":
+            input = '<input type="password" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>';
+            break;
+        }
+
         $(".provision_custom_attributes", context).append(
           '<br>'+
           '<div class="row">'+
             '<div class="large-10 large-centered columns">'+
               '<label style="font-size: 16px">' +
                 '<i class="fa fa-asterisk" style="color:#0099c3"/> '+
-                custom_attr.description +
-                '<input type="'+custom_attr.type+'" attr_name="'+custom_attr.name+'" class="provision_custom_attribute provision-input" style="height: 40px !important; font-size: 16px; padding: 0.5rem  !important;"/>'+
+                TemplateUtils.htmlDecode(custom_attr.description) +
+                input +
               '</label>'+
             '</div>'+
           '</div>');
-      })
+      });
     } else {
       context.html("");
     }
@@ -1371,7 +1384,12 @@ define(function(require) {
                 missing_attr = true;
               } else {
                 $(this).parent("label").css("color", "#777");
-                user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+
+                if ($(this).attr('text64') == "true"){
+                  user_inputs_values[$(this).attr("attr_name")] = btoa($(this).val());
+                } else {
+                  user_inputs_values[$(this).attr("attr_name")] = $(this).val();
+                }
               }
             })
           }
@@ -1533,8 +1551,7 @@ define(function(require) {
                     network_attrs.push(attrs)
                     break;
                   case "text":
-                    text_attrs.push(attrs)
-                    break;
+                  case "text64":
                   case "password":
                     text_attrs.push(attrs)
                     break;
