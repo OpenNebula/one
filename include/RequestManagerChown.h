@@ -268,6 +268,30 @@ public:
         return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
     };
 };
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterChown: public RequestManagerChown
+{
+public:
+    VirtualRouterChown():
+        RequestManagerChown("VirtualRouterChown",
+                            "Changes ownership of a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterChown(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

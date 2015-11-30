@@ -494,6 +494,25 @@ public:
             xmlrpc_c::paramList const& paramList, RequestAttributes& att);
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterPoolInfo : public RequestManagerPoolInfoFilter
+{
+public:
+    VirtualRouterPoolInfo():
+        RequestManagerPoolInfoFilter("VirtualRouterPoolInfo",
+                                     "Returns the virtual router pool",
+                                     "A:siii")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterPoolInfo(){};
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

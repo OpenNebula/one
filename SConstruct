@@ -84,6 +84,7 @@ main_env.Append(LIBPATH=[
     cwd+'/src/client',
     cwd+'/src/secgroup',
     cwd+'/src/vdc',
+    cwd+'/src/vrouter',
 ])
 
 # Compile flags
@@ -244,6 +245,7 @@ build_scripts=[
     'src/zone/SConstruct',
     'src/secgroup/SConstruct',
     'src/vdc/SConstruct',
+    'src/vrouter/SConstruct',
     'share/man/SConstruct',
     'src/sunstone/public/locale/languages/SConstruct',
     'src/sunstone/public/SConstruct',

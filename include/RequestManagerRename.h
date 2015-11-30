@@ -334,6 +334,28 @@ public:
     ~VdcRename(){};
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualRouterRename: public RequestManagerRename
+{
+public:
+    VirtualRouterRename():
+        RequestManagerRename("VirtualRouterRename", "Renames a virtual router")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vrouterpool();
+        auth_object = PoolObjectSQL::VROUTER;
+    };
+
+    ~VirtualRouterRename(){};
+
+    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    {
+        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
+    };
+};
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
