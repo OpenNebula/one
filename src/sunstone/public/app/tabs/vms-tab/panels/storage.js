@@ -350,7 +350,7 @@ define(function(require) {
 
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
           //header :
-          body : Locale.tr("This will detach the disk inmediately"),
+          body : Locale.tr("This will detach the disk immediately"),
           //question :
           submit : function(){
             Sunstone.runAction('VM.detachdisk', that.element.ID, disk_id);

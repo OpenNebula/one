@@ -241,7 +241,7 @@ define(function(require) {
             '<div class="row">'+
             '<div class="large-9 columns">'+
               '<span style="font-size: 14px; line-height: 20px">'+
-                Locale.tr("Handle with care! This action will inmediately destroy the template")+
+                Locale.tr("Handle with care! This action will immediately destroy the template")+
                 ' "' + template_name + '" ' +
                 Locale.tr("and the image associated.") +
               '</span>'+
