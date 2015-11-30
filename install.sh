@@ -584,6 +584,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/oneflow-template \
            src/cli/onesecgroup \
            src/cli/onevdc \
+           src/cli/onevrouter \
            src/cli/onevcenter \
            src/onedb/onedb \
            src/mad/utils/tty_expect \
@@ -1376,7 +1377,9 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/xml_pool.rb \
                             src/oca/ruby/opennebula/xml_utils.rb \
                             src/oca/ruby/opennebula/zone_pool.rb \
-                            src/oca/ruby/opennebula/zone.rb"
+                            src/oca/ruby/opennebula/zone.rb \
+                            src/oca/ruby/opennebula/virtual_router_pool.rb \
+                            src/oca/ruby/opennebula/virtual_router.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -1526,7 +1529,8 @@ ONE_CLI_LIB_FILES="src/cli/one_helper/onegroup_helper.rb \
                    src/cli/one_helper/onezone_helper.rb \
                    src/cli/one_helper/onevdc_helper.rb \
                    src/cli/one_helper/oneacct_helper.rb \
-                   src/cli/one_helper/onesecgroup_helper.rb"
+                   src/cli/one_helper/onesecgroup_helper.rb \
+                   src/cli/one_helper/onevrouter_helper.rb"
 
 CLI_BIN_FILES="src/cli/onevm \
                src/cli/onehost \
@@ -1544,7 +1548,8 @@ CLI_BIN_FILES="src/cli/onevm \
                src/cli/oneacct \
                src/cli/onesecgroup \
                src/cli/oneshowback \
-               src/cli/onevdc"
+               src/cli/onevdc \
+               src/cli/onevrouter"
 
 CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/onehost.yaml \
@@ -1560,7 +1565,8 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
                 src/cli/etc/oneacct.yaml \
                 src/cli/etc/onesecgroup.yaml \
                 src/cli/etc/oneshowback.yaml \
-                src/cli/etc/onevdc.yaml"
+                src/cli/etc/onevdc.yaml \
+                src/cli/etc/onevrouter.yaml"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -1603,7 +1609,8 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb \
-                    src/sunstone/models/OpenNebulaJSON/VdcJSON.rb"
+                    src/sunstone/models/OpenNebulaJSON/VdcJSON.rb \
+                    src/sunstone/models/OpenNebulaJSON/VirtualRouterJSON.rb"
 
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/login.erb \
@@ -1831,6 +1838,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/onesecgroup.1.gz \
         share/man/onevdc.1.gz \
+        share/man/onevrouter.1.gz \
         share/man/econe-allocate-address.1.gz \
         share/man/econe-associate-address.1.gz \
         share/man/econe-attach-volume.1.gz \
